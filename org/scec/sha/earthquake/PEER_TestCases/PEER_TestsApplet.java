@@ -287,7 +287,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     });
     jCustomAxisLabel.setFont(new java.awt.Font("Dialog", 1, 11));
     jCustomAxisLabel.setForeground(new Color(80, 80, 133));
-    jCustomAxisLabel.setText("Custom Axis Label:");
+    jCustomAxisLabel.setText("Set Axis:");
     toggleButton.setBackground(new Color(200, 200, 230));
     toggleButton.setFont(new java.awt.Font("Dialog", 1, 11));
     toggleButton.setForeground(new Color(80, 80, 133));

@@ -268,6 +268,18 @@ public class DisaggregationCalculator {
 
   }
 
+  public String getResultsString() {
+
+    String results;
+
+    results = "Disaggregation Result:\n\n\tMbar = " + Mbar + "\n\tDbar = " +
+              Dbar + "\n\tEbar = " + Ebar + "\n\n\t Mmode = " + M_mode3D +
+              "\n\tDmode = " + D_mode3D + "\n\tEmode = " + E_mode3D;
+
+    return results;
+
+  }
+
   private void setIndices() {
       withinBounds = true;
       iMag     =  Math.round( (float) ((mag-MIN_MAG)/deltaMag) );
