@@ -12,7 +12,7 @@ import org.scec.data.Site;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.propagation.DistanceRupParameter;
-
+import org.scec.sha.gui.infoTools.*;
 /**
  * <p>Title: DisaggregationCalculator </p>
  * <p>Description: This class disaggregates a hazard curve based on the
@@ -35,12 +35,8 @@ public class DisaggregationCalculator {
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
   protected double MAX_DISTANCE = 250;
 
-  // progress bar stuff:
-  private int FRAME_WIDTH = 250;
-  private int FRAME_HEIGHT = 50;
-  private int FRAME_STARTX = 400;
-  private int FRAME_STARTY = 200;
-  private JProgressBar progress;
+
+
 
   // disaggregation stuff - MIN and MAX are centers of first and last bins
   private double MIN_MAG = 5.0;
@@ -70,6 +66,8 @@ public class DisaggregationCalculator {
   private double M_mode3D, D_mode3D, E_mode3D;
 
   private double iml, prob, totalRate;
+
+  CalcProgressBar progress;
 
 
   /**
@@ -109,24 +107,9 @@ public class DisaggregationCalculator {
 
     if( D )System.out.println(S + "deltaMag = " + deltaMag + "; deltaDist = " + deltaDist + "; deltaE = " + deltaE);
 
-    // make the progress bar
-    JFrame frame = new JFrame("Disaggregation Status");
-    frame.setLocation(this.FRAME_STARTX, this.FRAME_STARTY);
-    frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
 
-    progress = new JProgressBar(0,100);
-    progress.setStringPainted(true); // display the percentage completed also
-    JLabel label = new JLabel(" Starting Disaggregation ...");
-    frame.getContentPane().add(label);
-    frame.show();
-    frame.validate();
-    frame.repaint();
 
-    // add the progress bar
-    frame.getContentPane().remove(label);
-    frame.getContentPane().add(progress);
-    frame.getContentPane().validate();
-    frame.getContentPane().repaint();
+    progress=new CalcProgressBar("Disaggregation Status"," Starting Disaggregation ...");
 
 
     try {
@@ -274,8 +257,6 @@ public class DisaggregationCalculator {
     if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
 
 
-    //remove the frame
-    frame.dispose();
 
   }
 
@@ -398,12 +379,9 @@ public class DisaggregationCalculator {
               val = 10;
               update = true;        }
 
-        if(update == true) {
+        if(update == true)
             progress.setString(Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
-            progress.setValue(val);
-            Rectangle rect = progress.getBounds();
-            progress.paintImmediately(rect);
-        }
+
    }
 
 }
