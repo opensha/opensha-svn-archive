@@ -65,6 +65,10 @@ public class LogPlotsTesterApplet extends JApplet
     protected double minYValue;
     protected double maxYValue;
 
+
+  // title for the chart
+  private static final String TITLE = "Log-Log Testing";
+
   //static string declaration for the test cases
   private static final String TEST_1= new String("Range Test Case-1");
   private static final String TEST_2= new String("Range Test Case-2");
@@ -305,12 +309,19 @@ public class LogPlotsTesterApplet extends JApplet
        String S = C + ": addGraphPanel(): ";
 
 
+       // get the min and max Y values
+       minYValue=Double.parseDouble(minYText.getText());
+       maxYValue=Double.parseDouble(maxYText.getText());
+
+       //get the min and max Y values
+       minXValue=Double.parseDouble(minXText.getText());
+       maxXValue=Double.parseDouble(maxXText.getText());
+
+
        //create the standard ticks so that smaller values too can plotted on the chart
        TickUnits units = MyTickUnits.createStandardTickUnits();
 
        HorizontalLogarithmicAxis xAxis = new com.jrefinery.chart.HorizontalLogarithmicAxis("X-Axis");
-
-
        xAxis.setAutoRangeIncludesZero( false );
        xAxis.setCrosshairLockedOnData( false );
        xAxis.setCrosshairVisible(false);
@@ -344,7 +355,7 @@ public class LogPlotsTesterApplet extends JApplet
        plot.setXYItemRenderer( renderer );
 
 
-       JFreeChart chart = new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
+       JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
        chart.setBackgroundPaint( lightBlue );
 
 
@@ -548,8 +559,6 @@ public class LogPlotsTesterApplet extends JApplet
    * @param xMax : maximum value for X-axis
    */
   public void setXRange(double xMin,double xMax) {
-     minXValue=xMin;
-     maxXValue=xMax;
      minXText.setText(""+xMin);
      maxXText.setText(""+xMax);
   }
@@ -560,8 +569,6 @@ public class LogPlotsTesterApplet extends JApplet
    * @param yMax : maximum value for Y-axis
    */
   public void setYRange(double yMin,double yMax) {
-     minYValue=yMin;
-     maxYValue=yMax;
      minYText.setText(""+yMin);
      maxYText.setText(""+yMax);
      addGraphPanel();
