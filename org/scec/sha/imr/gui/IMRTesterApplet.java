@@ -215,7 +215,7 @@ public class IMRTesterApplet extends JApplet
 
     private final static String AUTO_SCALE = "Auto Scale";
     private final static String CUSTOM_SCALE = "Custom Scale";
-    final static Dimension COMBO_DIM = new Dimension( 180, 20 );
+    final static Dimension COMBO_DIM = new Dimension( 180, 30 );
     final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
     final static String NO_PLOT_MSG = "No Plot Data Available";
     final static GridBagLayout GBL = new GridBagLayout();
@@ -472,6 +472,8 @@ public class IMRTesterApplet extends JApplet
 
         titlePanel.setBackground( background );
         titlePanel.setBorder( bottomBorder );
+    titlePanel.setMinimumSize(new Dimension(40, 40));
+    titlePanel.setPreferredSize(new Dimension(40, 40));
         titlePanel.setLayout( GBL );
 
         //titleLabel.setHorizontalAlignment( SwingConstants.CENTER );
@@ -615,7 +617,7 @@ public class IMRTesterApplet extends JApplet
 
         imrComboBox.setBackground( lightBlue );
         imrComboBox.setForeground( darkBlue );
-        imrComboBox.setFont( new java.awt.Font( "Dialog", 0, 11 ) );
+        imrComboBox.setFont( new java.awt.Font( "Dialog", Font.BOLD, 14 ) );
         imrComboBox.setBorder( null );
         imrComboBox.setPreferredSize( COMBO_DIM );
 
@@ -659,57 +661,61 @@ public class IMRTesterApplet extends JApplet
     this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
-        outerPanel.add( mainPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+    outerPanel.add( mainPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
 
-       /*titlePanel.add( imrComboBox, new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );*/
+    titlePanel.add( this.imrLabel, new GridBagConstraints( 0, 0 , 1, 1, 1.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
 
-       /* innerPlotPanel.add( imrComboBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );*/
 
-        mainPanel.add( mainSplitPane, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+    titlePanel.add( this.imrComboBox, new GridBagConstraints( 1, 0 , 1, 1, 1.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
+
+
+    mainPanel.add( mainSplitPane, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 2, 4, 4, 4 ), 0, 0 ) );
 
-        mainPanel.add( buttonPanel, new GridBagConstraints( 0, 2, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 1.0, 0.0
+    mainPanel.add(buttonPanel, new GridBagConstraints( 0, 2, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 1.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 1, 1, 1, 1 ), 0, 0 ) );
 
 
-        controlPanel.add( parametersPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+   controlPanel.add(parametersPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
-        outerControlPanel.add( controlPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+   outerControlPanel.add(controlPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 5, 0, 0 ), 0, 0 ) );
 
-        parametersPanel.add( parametersSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+   parametersPanel.add( parametersSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
-        /*plotPanel.add( titlePanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
-                ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 2, 4 ), 0, 0 ) );*/
+   plotPanel.add( titlePanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
+                ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 2, 4 ), 0, 0 ) );
 
 
-        /*innerPlotPanel.add(titlePanel, new GridBagConstraints( 0,0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );*/
-
-        plotPanel.add( innerPlotPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+   plotPanel.add( innerPlotPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ) );
 
-        dataScrollPane.getViewport().add( pointsTextArea, null );
+   dataScrollPane.getViewport().add( pointsTextArea, null );
 
-        buttonPanel.add( addButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+   buttonPanel.add( addButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 0, 0) );
-        buttonPanel.add( clearButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+
+   buttonPanel.add( clearButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 0, 0) );
-        buttonPanel.add( toggleButton,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+
+   buttonPanel.add( toggleButton,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 1), 0, 0) );
-        buttonPanel.add( imrComboBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );
-        buttonPanel.add( imrLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0) );
 
-        buttonPanel.add(jCheckylog,           new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+   //buttonPanel.add( imrComboBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+     //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );
+
+   //buttonPanel.add( imrLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+     //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0) );
+
+   buttonPanel.add(jCheckylog,           new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
-        buttonPanel.add(jCheckxlog,    new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+
+   buttonPanel.add(jCheckxlog,    new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
 
         buttonPanel.add(plotColorCheckBox,      new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
@@ -846,11 +852,6 @@ public class IMRTesterApplet extends JApplet
             clearPlot(true);
 
 
-        /*if ( titleLabel != null ) {
-            titleLabel.setText( currentIMRName );
-            titleLabel.validate();
-            titleLabel.repaint();
-        }*/
 
        /* if ( frame != null )
             frame.setTitle( this.getAppletInfo() + ": " + currentIMRName );*/
@@ -1058,11 +1059,7 @@ public class IMRTesterApplet extends JApplet
             //newLoc = loc - titleSize;
         }
 
-       /* if ( titleLabel != null ) {
-            titleLabel.setText( currentIMRName );
-            titleLabel.validate();
-            titleLabel.repaint();
-        }*/
+
 
 
         validate();
@@ -1124,7 +1121,7 @@ public class IMRTesterApplet extends JApplet
 
 
                 if ( titlePanel.isVisible() ) {
-                    titlePanel.setVisible( false );
+                    titlePanel.setVisible( true);
                     //newLoc = loc + titleSize;
                 }
 
