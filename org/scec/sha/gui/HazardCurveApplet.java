@@ -729,7 +729,14 @@ public class HazardCurveApplet extends JApplet
       // clear the function list
       //this.totalProbFuncs.clear();
 
+      // do not show warning messages in IMR gui bean. this is needed
+      // so that warning messages for site parameters are not shown when Add graph is clicked
+      imrGuiBean.showWarningMessages(false);
+
       computeHazardCurve();
+
+      // you can show warning messages now
+      imrGuiBean.showWarningMessages(true);
 
       // set the log values
       data.setXLog(xLog);
@@ -994,62 +1001,57 @@ public class HazardCurveApplet extends JApplet
   }
 
   /**
-  * Gets the probabilities functiion based on selected parameters
-  * this function is called when add Graph is clicked
-  */
- public void computeHazardCurve() {
+   * Gets the probabilities functiion based on selected parameters
+   * this function is called when add Graph is clicked
+   */
+  public void computeHazardCurve() {
 
-   // do not show warning messages in IMR gui bean. this is needed
-    // so that warning messages for site parameters are not shown when Add graph is clicked
-   imrGuiBean.showWarningMessages(false);
+    // intialize the hazard function
+    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+    initDiscretizeValues(hazFunction);
 
-   // intialize the hazard function
-   ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-   initDiscretizeValues(hazFunction);
-   hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+    // get the selected forecast model
+    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
 
-   // get the selected forecast model
-   EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
+    // get the selected IMR
+    AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
-   // get the selected IMR
-   AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    // make a site object to pass to IMR
+    Site site = siteGuiBean.getSite();
 
-   // make a site object to pass to IMR
-   Site site = siteGuiBean.getSite();
+    try {
+      // this function will get the selected IMT parameter and set it in IMT
+      imtGuiBean.setIMR_Param();
+    } catch (Exception ex) {
+      if(D) System.out.println(C + ":Param warning caught"+ex);
+      ex.printStackTrace();
+    }
 
-   try {
-     // this function will get the selected IMT parameter and set it in IMT
-     imtGuiBean.setIMR_Param();
-   } catch (Exception ex) {
-     if(D) System.out.println(C + ":Param warning caught"+ex);
-     ex.printStackTrace();
-   }
-
-   // calculate the hazard curve
+    // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
    try {
      //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
      //calls the method to update the magDistParams.
      erfGuiBean.updateMagDistParam();
-      // calculate the hazard curve
+     // calculate the hazard curve
      calc.getHazardCurve(hazFunction, site, imr, eqkRupForecast);
-
+     hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
-           "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+                                   "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
      e.printStackTrace();
      return;
    }
 
-  //inititialising the disaggregation String
-  disaggregationString=null;
-  //checking the disAggregation flag
-  if(getDisaggregationFlag()){
-    DisaggregationCalculator disaggCalc = new DisaggregationCalculator();
-    double selectedProb= getDisaggregationProbablity();
-    int num = hazFunction.getNum();
+   //inititialising the disaggregation String
+   disaggregationString=null;
+   //checking the disAggregation flag
+   if(getDisaggregationFlag()){
+     DisaggregationCalculator disaggCalc = new DisaggregationCalculator();
+     double selectedProb= getDisaggregationProbablity();
+     int num = hazFunction.getNum();
 
-    //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
+     //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
     if(selectedProb > hazFunction.getY(0) || selectedProb < hazFunction.getY(num-1))
       JOptionPane.showMessageDialog(this,
                                     new String("Chosen Probability is not"+
@@ -1063,15 +1065,13 @@ public class HazardCurveApplet extends JApplet
       disaggCalc.disaggregate(Math.log(iml),site,imr,eqkRupForecast);
       disaggregationString=disaggCalc.getResultsString();
     }
-  }
+   }
    // add the function to the function list
    totalProbFuncs.add(hazFunction);
 
    // set the X-axis label
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
    totalProbFuncs.setYAxisName("Probability of Exceedance");
-   // you can show warning messages now
-   imrGuiBean.showWarningMessages(true);
   }
 
 
@@ -1087,4 +1087,9 @@ public class HazardCurveApplet extends JApplet
   }
 
 }
+
+
+
+
+
 

@@ -101,14 +101,7 @@ public class IMR_GuiBean extends ParameterListEditor
     AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)imrObject.get(0);
 
     // find & set the selectedIMR
-    String selectedIMR = parameterList.getValue(IMR_PARAM_NAME).toString();
-    int size = imrObject.size();
-    for(int i=0; i<size ; ++i) {
-      imr = (AttenuationRelationshipAPI)imrObject.get(i);
-      if(imr.getName().equalsIgnoreCase(selectedIMR))
-        break;
-    }
-
+    imr = this.getSelectedIMR_Instance();
 
     ParameterAPI typeParam = imr.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
     parameterList.addParameter(typeParam);
@@ -206,6 +199,11 @@ public class IMR_GuiBean extends ParameterListEditor
        String value = event.getNewValue().toString();
        toggleSigmaLevelBasedOnTypeValue(value);
      }
+     // if IMR parameter changes, then get the Gaussian truncation, etc from this selected IMR
+     if(name1.equalsIgnoreCase(this.IMR_PARAM_NAME)) {
+       init_imrParamListAndEditor();
+     }
+
 
    }
 
