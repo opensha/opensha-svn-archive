@@ -26,7 +26,10 @@ import org.scec.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 /**
  * <p>Title: GraphPanel</p>
- * <p>Description: This class shows the JFreechart Panel in a window</p>
+ * <p>Description: This class shows the JFreechart Panel in a window. It plot curves
+ * using JFrechart package and if application supports allowing user to specify
+ * different styles, colors and width of each curve the this application plots that
+ * for the person.</p>
  * @author : Nitin Gupta
  * @version 1.0
  */
@@ -274,12 +277,14 @@ public class GraphPanel extends JPanel {
       Color color = plotCharacterstics[j].getCurveColor();
       double lineWidth = plotCharacterstics[j].getCurveWidth();
       String lineType = plotCharacterstics[j].getCurveType();
+      //getting the number of consecutive curves that have same plotting characterstics.
+      int numCurves = plotCharacterstics[j].getNumContinuousCurvesWithSameCharacterstics();
       //if size of that plot size then don't add it to the dataset
       if(lineWidth ==0){
+        datasetIndex +=numCurves;
         --secondaryDatasetIndex;
         continue;
       }
-      int numCurves = plotCharacterstics[j].getNumContinuousCurvesWithSameCharacterstics();
       DiscretizedFuncList dataFunctions = new DiscretizedFuncList();
       DiscretizedFunctionXYDataSet dataset = new DiscretizedFunctionXYDataSet();
       dataset.setXLog(xLog);
