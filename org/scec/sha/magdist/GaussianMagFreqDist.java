@@ -72,12 +72,32 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
   /**
    * Constructor
    * @param min
+   * @param max
+   * @param num
+   * @param mean
+   * @param stdDev
+   * @param totMoRate
+   */
+  public GaussianMagFreqDist(double min,double max,int num,double mean,double stdDev,
+                             double totMoRate) throws DataPoint2DException{
+    super(min,max,num);
+    this.mean=mean;
+    this.stdDev=stdDev;
+    this.totMoRate=totMoRate;
+    computeRates();
+  }
+
+  /**
+   * Constructor
+   * @param min
    * @param num
    * @param delta
    * @param mean
    * @param stdDev
    * @param totMoRate
+   * @throws DataPoint2DException
    */
+
   public GaussianMagFreqDist(double min,int num,double delta,double mean,double stdDev,
                              double totMoRate) throws DataPoint2DException{
     super(min,num,delta);

@@ -13,7 +13,7 @@ import com.jrefinery.data.*;
 
 
 import org.scec.gui.*;
-import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
+import org.scec.gui.plot.jfreechart.MagFreqDistDiscretizedFunctionXYDataSet;
 
 import org.scec.param.*;
 import org.scec.param.editor.*;
@@ -58,20 +58,24 @@ public class MagFreqDistTesterApplet extends JApplet
   /**
    *  Temp until figure out way to dynamically load classes during runtime
    */
+ /*
+
   protected final static String GaussianMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GaussianMagFreqDist";
   protected final static String GuttenbergRichterMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GuttenbergRichterMagFreqDist";
   protected final static String SingleMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SingleMagFreqDist";
   protected final static String SummedMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SummedMagFreqDist";
 
+ */
 
   /**
    *  Temp until figure out way to dynamically load classes during runtime
    */
-  protected final static String GAUSSIAN_NAME = "Gaussian Distribution";
-  protected final static String GR_NAME = "GuttenbergRichter Distribution";
-  protected final static String SINGLE_NAME = "Single Distribution";
-  protected final static String SUMMED_NAME = "Summed Distribution";
-
+ /*
+   protected final static String GAUSSIAN_NAME = "Gaussian Distribution";
+   protected final static String GR_NAME = "GuttenbergRichter Distribution";
+   protected final static String SINGLE_NAME = "Single Distribution";
+   protected final static String SUMMED_NAME = "Summed Distribution";
+ */
 
   /**
    *  Used to determine if should switch to new MagDist, and for display purposes
@@ -88,8 +92,8 @@ public class MagFreqDistTesterApplet extends JApplet
    *  Hashmap that maps picklist MagFreqDist string names to the real fully qualified
    *  class names
    */
-protected static HashMap magDistNames = new HashMap();
-  private JComboBox magDistComboBox = new JComboBox();
+ //protected static HashMap magDistNames = new HashMap();
+ // private JComboBox magDistComboBox = new JComboBox();
   private JPanel mainPanel = new JPanel();
   private GridBagLayout GBL = new GridBagLayout();
   private JComboBox incrComboBox = new JComboBox();
@@ -99,7 +103,7 @@ protected static HashMap magDistNames = new HashMap();
   private JCheckBox jCheckylog = new JCheckBox();
   private JButton toggleButton = new JButton();
   private JPanel buttonPanel = new JPanel();
-  private JLabel magDistLabel = new JLabel();
+ // private JLabel magDistLabel = new JLabel();
   private JButton addButton = new JButton();
   private JPanel outerPanel = new JPanel();
   private JSplitPane mainSplitPane = new JSplitPane();
@@ -150,7 +154,7 @@ protected static HashMap magDistNames = new HashMap();
      *  List that contains the lazy instantiation of imrs via reflection and the
      *  imr full class names
      */
-  protected MagDistGuiList magDists = new MagDistGuiList();
+ // protected MagDistGuiList magDists = new MagDistGuiList();
 
   /**
    * For 3 different plots we are using the different objects to refer for incrRate Data,
@@ -161,9 +165,9 @@ protected static HashMap magDistNames = new HashMap();
   DiscretizedFuncList toCumFunctions = new DiscretizedFuncList();
   DiscretizedFuncList toMoFunctions = new DiscretizedFuncList();
 
-  DiscretizedFunctionXYDataSet incrData = new DiscretizedFunctionXYDataSet();
-  DiscretizedFunctionXYDataSet toCumData = new DiscretizedFunctionXYDataSet();
-  DiscretizedFunctionXYDataSet toMoData = new DiscretizedFunctionXYDataSet();
+  MagFreqDistDiscretizedFunctionXYDataSet incrData = new MagFreqDistDiscretizedFunctionXYDataSet();
+  MagFreqDistDiscretizedFunctionXYDataSet toCumData = new MagFreqDistDiscretizedFunctionXYDataSet();
+  MagFreqDistDiscretizedFunctionXYDataSet toMoData = new MagFreqDistDiscretizedFunctionXYDataSet();
 
 
    private boolean yLog = false;
@@ -176,13 +180,15 @@ protected static HashMap magDistNames = new HashMap();
  *  applet mapped to the class names of the MagFreqDist. This will use the class
  *  loader to load these
  */
-static {
+ static {
+    /*
     if ( magDistNames == null ) magDistNames = new HashMap();
     magDistNames.clear();
     magDistNames.put( GAUSSIAN_NAME, GaussianMagFreqDist_CLASS_NAME );
     magDistNames.put( GR_NAME, GuttenbergRichterMagFreqDist_CLASS_NAME );
     magDistNames.put( SINGLE_NAME, SingleMagFreqDist_CLASS_NAME );
     magDistNames.put( SUMMED_NAME, SummedMagFreqDist_CLASS_NAME );
+    */
 
     try { UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() ); }
     catch ( Exception e ) {}
@@ -222,14 +228,14 @@ static {
   private void jbInit() throws Exception {
     mainPanel.setLayout(GBL);
     mainPanel.setBorder( oval );
-    magDistComboBox.setMinimumSize(new Dimension(150, 20));
-    magDistComboBox.addItemListener(this);
+
+    /* magDistComboBox.addItemListener(this);
     magDistComboBox.setPreferredSize(new Dimension(150, 20));
     magDistComboBox.setBorder(null);
     magDistComboBox.setMaximumSize(new Dimension(150, 20));
     magDistComboBox.setBackground(new Color(200, 200, 230));
     magDistComboBox.setFont(new java.awt.Font("Dialog", 1, 12));
-    magDistComboBox.setForeground(new Color(80, 80, 133));
+    magDistComboBox.setForeground(new Color(80, 80, 133));*/
     this.getContentPane().setLayout(GBL);
     incrComboBox.setBackground(new Color(200, 200, 230));
     incrComboBox.setForeground(new Color(80, 80, 133));
@@ -282,9 +288,9 @@ static {
     toggleButton.setPreferredSize(BUTTON_DIM);
     toggleButton.setMinimumSize(BUTTON_DIM);
     buttonPanel.setLayout(GBL);
-    magDistLabel.setFont(new java.awt.Font("Dialog", 1, 12));
+    /*magDistLabel.setFont(new java.awt.Font("Dialog", 1, 12));
     magDistLabel.setForeground(new Color(80, 80, 133));
-    magDistLabel.setText("Choose Distribution: ");
+    magDistLabel.setText("Choose Distribution: ");*/
     addButton.setBackground(new Color(200, 200, 230));
     addButton.setFont(BUTTON_FONT);
     addButton.setForeground(new Color(80, 80, 133));
@@ -359,8 +365,8 @@ static {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     buttonPanel.add(plotColorCheckBox,                    new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    buttonPanel.add(magDistLabel,                                  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+  /*  buttonPanel.add(magDistLabel,                                  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));*/
     buttonPanel.add(cumComboBox,        new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
     buttonPanel.add(jCumAxisScale,         new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
@@ -375,8 +381,8 @@ static {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
     buttonPanel.add(jMoRate,  new GridBagConstraints(4, 1, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
-    buttonPanel.add(magDistComboBox,         new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), -5, 0));
+   /* buttonPanel.add(magDistComboBox,         new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), -5, 0));*/
     buttonPanel.add(incrComboBox,       new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
@@ -427,7 +433,8 @@ static {
     parametersPanel.setBackground( background );
     inputPanel.setBackground( background );
     sheetPanel.setBackground( background );
-
+    magDist =  new MagDistGuiBean(this);
+    updateChoosenMagDist();
   }
 
 
@@ -493,12 +500,13 @@ static {
          applet.start();
          applet.setFrame( frame );
 
-         frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentMagDistName() + ']' );
+         frame.setTitle( applet.getAppletInfo());
 
          frame.setSize( W, H );
          Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
          frame.setLocation( ( d.width - frame.getSize().width ) / 2, ( d.height - frame.getSize().height ) / 2 );
          frame.setVisible( true );
+
     }
 
 
@@ -512,22 +520,6 @@ static {
 
         // starting
         String S = C + ": initMagDistGui(): ";
-        if ( this.magDistNames.size() < 1 )
-            throw new RuntimeException( S + "No Mag Dist specified, unable to continue" );
-
-        boolean first = true;
-        String firstMagDist = "";
-        Iterator it = this.magDistNames.keySet().iterator();
-        while ( it.hasNext() )
-          if ( first ) {
-                first = false;
-                String val = it.next().toString();
-                magDistComboBox.addItem( val );
-                magDistComboBox.setSelectedItem( val );
-                firstMagDist = val;
-            }
-            else
-                magDistComboBox.addItem( it.next().toString() );
 
         incrComboBox.addItem(new String("Auto Scale"));
         incrComboBox.addItem(new String("Custom Scale"));
@@ -550,8 +542,6 @@ static {
         String S = C + ": itemStateChanged(): ";
         if ( D ) System.out.println( S + "Starting" );
 
-        if ( e.getSource().equals( magDistComboBox ) )
-            updateChoosenMagDist();
 
         if( e.getSource().equals( jCheckylog ) ){
 
@@ -568,9 +558,13 @@ static {
                 incrData.setYLog(yLog);
                 toCumData.setYLog(yLog);
                 toMoData.setYLog(yLog);
-                pointsTextArea.setText( currentMagDistName + ": " + MAG +" vs. "+ INCR_RATE + '\n' + incrFunctions.toString());
-                pointsTextArea.append(currentMagDistName + ": " + MAG +" vs. "+ CUM_RATE + '\n' + toCumFunctions.toString());
-                pointsTextArea.append(currentMagDistName + ": " + MAG +" vs. "+ MO_RATE + '\n' + toMoFunctions.toString());
+                pointsTextArea.setText( "                   "+magDist.getMagDistName()+"             ");
+                pointsTextArea.setText("\n");
+                pointsTextArea.append( MAG +" vs. "+ INCR_RATE + '\n' + incrFunctions.toString());
+                pointsTextArea.append("\n\n");
+                pointsTextArea.append( MAG +" vs. "+ CUM_RATE + '\n' + toCumFunctions.toString());
+                pointsTextArea.append("\n\n");
+                pointsTextArea.append( MAG +" vs. "+ MO_RATE + '\n' + toMoFunctions.toString());
                 addGraphPanel();
             }
         }
@@ -614,18 +608,9 @@ static {
         // Starting
         String S = C + ": updateChoosenMagDist(): ";
 
-        String choice = magDistComboBox.getSelectedItem().toString();
 
-        if ( choice.equals( currentMagDistName ) )
-            return;
-        else
-            currentMagDistName = choice;
-
-        if ( D )
-            System.out.println( S + "Starting: New MagDist = " + choice );
-
-        // Clear the current traces
-        clearPlot( true );
+         // Clear the current traces
+        //clearPlot( true );
 
         if ( titleLabel != null ) {
             titleLabel.setText( currentMagDistName );
@@ -634,10 +619,7 @@ static {
         }
 
         if ( frame != null )
-            frame.setTitle( this.getAppletInfo() + ": " + currentMagDistName );
-
-        if(D) System.out.println(S+" currentMagDistName:"+ currentMagDistName);
-        magDist = magDists.setMagDist( currentMagDistName, this );
+            frame.setTitle( this.getAppletInfo() + ": " + "Magnitude-Frequency Distributions" );
 
         sheetPanel.removeAll();
         sheetPanel.add( magDist.getIndependentsEditor(),
@@ -691,7 +673,11 @@ static {
         //panel = null;
 
         pointsTextArea.setText( NO_PLOT_MSG );
-        //if( clearFunctions) functions.clear();
+        if( clearFunctions) {
+           incrFunctions.clear();
+           toCumFunctions.clear();
+           toMoFunctions.clear();
+        }
 
 
         if ( !titlePanel.isVisible() ) {
@@ -857,18 +843,17 @@ static {
 
 
         /** @todo may have to be switched when different x/y axis choosen */
-       // if ( !incrFunctions.isFuncAllowed(function) ) {
+        if ( !incrFunctions.isFuncAllowed(function) ) {
             incrFunctions.clear();
-            //data.prepForXLog();
-      //  }
-       // if ( !toCumFunctions.isFuncAllowed(cumRate)) {
+
+        }
+        if ( !toCumFunctions.isFuncAllowed(cumRate)) {
             toCumFunctions.clear();
-            //data.prepForXLog();
-       // }
-       // if ( !toMoFunctions.isFuncAllowed(moRate)) {
+
+        }
+        if ( !toMoFunctions.isFuncAllowed(moRate)) {
             toMoFunctions.clear();
-            //data.prepForXLog();
-        //}
+       }
 
        // if( !incrFunctions.contains( function )){
             if ( D ) System.out.println( S + "Adding new function" );
@@ -1086,9 +1071,9 @@ static {
      }
 
     /**
-   * This function handles the Zero values in the X and Y data set when exception is thrown,
-   * it reverts back to the linear scale displaying a message box to the user.
-   */
+     * This function handles the Zero values in the X and Y data set when exception is thrown,
+     * it reverts back to the linear scale displaying a message box to the user.
+     */
   public void invalidLogPlot(String message) {
 
      int xCenter=getAppletXAxisCenterCoor();

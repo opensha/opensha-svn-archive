@@ -40,7 +40,12 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
     protected boolean xLog = false;
 
     public boolean isYLog() { return yLog; }
-    public void setYLog(boolean yLog) { this.yLog = yLog; }
+
+    public void setYLog(boolean yLog) {
+
+      this.yLog = yLog;
+
+    }
 
     public boolean isXLog() { return xLog; }
 
@@ -284,7 +289,6 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         this.functions = functions;
 //      prepForXLog();
     }
-
 }
 
 

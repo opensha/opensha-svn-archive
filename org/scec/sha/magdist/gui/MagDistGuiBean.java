@@ -33,6 +33,19 @@ public class MagDistGuiBean implements ParameterChangeListener {
   protected final static String C = "MagDistGuiBean";
   protected final static boolean D = true;
 
+
+
+  /**
+   *  Temp until figure out way to dynamically load classes during runtime
+   */
+  protected final static String GAUSSIAN_NAME = "Gaussian Distribution";
+  protected final static String GR_NAME = "GuttenbergRichter Distribution";
+  protected final static String SINGLE_NAME = "Single Distribution";
+  protected final static String SUMMED_NAME = "Summed Distribution";
+
+  protected final static String DISTRIBUTION_NAME="Choose Distribution";
+
+
    /**
     *  Just a placeholder name for this particular MagDist Gui bean.
     */
@@ -52,8 +65,9 @@ public class MagDistGuiBean implements ParameterChangeListener {
      private static final String PARAMS_TO_SET=new String("Params to Set");
      private static final String SET_ALL_PARAMS_BUT=new String("Set All Params BUT");
      private static final String MIN=new String("Min");
-     private static final String NUM=new String("Num");
      private static final String MAX=new String("Max");
+     private static final String NUM=new String("Num");
+
 
    /**
     * Single Magnitude Frequency Distribution Parameter string list  constant
@@ -152,27 +166,21 @@ public class MagDistGuiBean implements ParameterChangeListener {
      * @param  applet     The main applet application that will use these beans
      *      to swap in and out different Mag Dist's.
      */
-    public MagDistGuiBean( String className, String name, MagFreqDistTesterApplet applet ) {
+    public MagDistGuiBean(MagFreqDistTesterApplet applet) {
 
         // Starting
         String S = C + ": Constructor(): ";
         if ( D ) System.out.println( S + "Starting:" );
-        this.name = name;
         this.applet = applet;
 
-        // Create MagFreqDist class dynamically from string name
-        if ( className == null || className.equals( "" ) )
-            throw new ParameterException( S + "MagFreqDist Class name cannot be empty or null" );
-        magDistClassName=className;
-        // Create the control parameters for this Distribution
-        initControlsParamListAndEditor( applet );
+
+        initControlsParamListAndEditor( GAUSSIAN_NAME);
 
         // Create independent parameters
-        initIndependentParamListAndEditor( applet );
+        initIndependentParamListAndEditor(  );
 
         // Update which parameters should be invisible
         synchRequiredVisibleParameters();
-
         // All done
         if ( D ) System.out.println( S + "Ending:" );
     }
@@ -182,15 +190,32 @@ public class MagDistGuiBean implements ParameterChangeListener {
     /**
      *  <b> FIX *** FIX *** FIX </b> This needs to be fixed along with the whole
      *  function package. Right now only Doubles can be plotted on x-axis as
-     *  seen by DiscretizedFunction2DAPI.<P>
+     *  seen by IncrementalMagFreqDist.<P>
      *
      * @param  applet  Description of the Parameter
      */
-    protected void initControlsParamListAndEditor( MagFreqDistTesterApplet applet ) {
+    protected void initControlsParamListAndEditor( String dName) {
 
         // Starting
         String S = C + ": initControlsParamListAndEditor(): ";
         if ( D ) System.out.println( S + "Starting:" );
+
+         /**
+         * Adding the distribution name to the ControlEditorList.
+         */
+        controlsParamList = new ParameterList();
+        Vector distName=new Vector();
+        distName.add(GAUSSIAN_NAME);
+        distName.add(GR_NAME);
+        distName.add(SINGLE_NAME);
+        StringParameter distributionName =new StringParameter(DISTRIBUTION_NAME,distName,dName);
+        controlsParamList.addParameter(distributionName);
+        if(dName.equalsIgnoreCase(GR_NAME))
+          magDistClassName = new String(GuttenbergRichterMagFreqDist_CLASS_NAME);
+        if(dName.equalsIgnoreCase(GAUSSIAN_NAME))
+          magDistClassName = new String(GaussianMagFreqDist_CLASS_NAME);
+        if(dName.equalsIgnoreCase(SINGLE_NAME))
+          magDistClassName = new String(SingleMagFreqDist_CLASS_NAME);
 
         if ( magDistClassName == null || magDistClassName.trim().equalsIgnoreCase("") )
             throw new ParameterException( S + "Distribution is null, unable to continue." );
@@ -198,18 +223,20 @@ public class MagDistGuiBean implements ParameterChangeListener {
             throw new ParameterException( S + "Applet is null, unable to continue." );
 
         // make the min, delta and num Parameter
-        DoubleParameter minParamter = new DoubleParameter(MIN);
-        DoubleParameter maxParamter = new DoubleParameter(MAX);
-        IntegerParameter numParamter = new IntegerParameter(NUM,new Integer(10));
+
+        DoubleParameter minParamter = new DoubleParameter(MIN,new Double(0));
+        DoubleParameter maxParamter = new DoubleParameter(MAX,new Double(10));
+        IntegerParameter numParamter = new IntegerParameter(NUM,new Integer(101));
 
 
 
         // Now make the parameters list
         // At this point all values have been set for the IM type, xaxis, and the yaxis
-        controlsParamList = new ParameterList();
-        controlsParamList.addParameter( minParamter );
-        controlsParamList.addParameter( maxParamter );
-        controlsParamList.addParameter( numParamter );
+
+         controlsParamList.addParameter( minParamter );
+         controlsParamList.addParameter( numParamter );
+         controlsParamList.addParameter( maxParamter );
+
 
        if(magDistClassName.equalsIgnoreCase(GuttenbergRichterMagFreqDist_CLASS_NAME)) {
            Vector vStrings=new Vector();
@@ -252,7 +279,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
      * @param  applet                  Description of the Parameter
      * @exception  ParameterException  Description of the Exception
      */
-    private void initIndependentParamListAndEditor( MagFreqDistTesterApplet applet )
+    private void initIndependentParamListAndEditor( )
              throws ParameterException {
 
         // Starting
@@ -342,8 +369,42 @@ public class MagDistGuiBean implements ParameterChangeListener {
      */
     protected void synchRequiredVisibleParameters() throws ParameterException {
 
+
+
          String S = C + ":synchRequiredVisibleParameters:";
 
+
+         /**
+          * Setting the classes for the chosen Distribution
+          */
+        boolean refresh = false;
+        String distributionName=controlsParamList.getParameter(DISTRIBUTION_NAME).getValue().toString();
+
+        /* check if distribution selection changed */
+        if(distributionName.equalsIgnoreCase(GR_NAME) &&
+                       !magDistClassName.equalsIgnoreCase(this.GuttenbergRichterMagFreqDist_CLASS_NAME)) {
+          magDistClassName = GuttenbergRichterMagFreqDist_CLASS_NAME;
+          refresh = true;
+        }
+
+        if(distributionName.equalsIgnoreCase(GAUSSIAN_NAME) &&
+                      !magDistClassName.equalsIgnoreCase(this.GaussianMagFreqDist_CLASS_NAME)) {
+
+           magDistClassName = GaussianMagFreqDist_CLASS_NAME;
+           refresh = true;
+        }
+
+        if(distributionName.equalsIgnoreCase(SINGLE_NAME)  &&
+                     !magDistClassName.equalsIgnoreCase(this.SingleMagFreqDist_CLASS_NAME)) {
+          magDistClassName = SingleMagFreqDist_CLASS_NAME;
+          refresh = true;
+        }
+
+        /* if distribution selection changed, refresh the editors */
+        if(refresh) {
+          initControlsParamListAndEditor(distributionName);
+          initIndependentParamListAndEditor();
+        }
         // Turn off all parameters - start fresh, then make visible as required below
         // SWR - Looks like a bug here in setParameterInvisible() - don't want to fix right now, the boolean
         // below should be true, not false.
@@ -392,6 +453,20 @@ public class MagDistGuiBean implements ParameterChangeListener {
           if(paramToSet.equalsIgnoreCase(MAG_UPPER))
             independentsEditor.setParameterInvisible(MAG_UPPER,false);
         }
+
+        /**
+         * If Gaussian Freq dist is selected
+         */
+       if(this.magDistClassName.equalsIgnoreCase(this.GaussianMagFreqDist_CLASS_NAME)) {
+
+           String truncReq=independentParams.getParameter(TRUNCATION_REQ).getValue().toString();
+
+           if(truncReq.equalsIgnoreCase(NONE))
+              independentsEditor.setParameterInvisible(TRUNCATE_NUM_OF_STD_DEV,false);
+           }
+           else
+              independentsEditor.setParameterInvisible(TRUNCATE_NUM_OF_STD_DEV,true);
+
 
         // refresh the GUI
         //controlsEditor.validate();
@@ -451,12 +526,20 @@ public class MagDistGuiBean implements ParameterChangeListener {
         if ( D )
             System.out.println( "\n" + S + "starting: " );
 
+
         String name1 = event.getParameterName();
-        if ( this.controlsParamList.containsParameter( name1 ) ) {
+
+        if ( this.controlsParamList.containsParameter( name1 )  || this.independentParams.containsParameter(name1)) {
             if ( D )
-                System.out.println( S + "Control Parameter changed, need to update gui parameter editors" );
+                System.out.println( S + "Control or independent Parameter changed, need to update gui parameter editors" );
             synchRequiredVisibleParameters();
         }
+        if(D)
+          System.out.println("Name1::"+name1);
+        if(name1.equalsIgnoreCase(DISTRIBUTION_NAME)){
+         this.applet.updateChoosenMagDist();
+        }
+
     }
 
     /**
@@ -501,6 +584,8 @@ public class MagDistGuiBean implements ParameterChangeListener {
         String S = C + ": getChoosenFunction():";
         if ( D )
             System.out.println( S + "Starting" );
+
+
 
         IncrementalMagFreqDist magDist = null;
         Double min = (Double)controlsParamList.getParameter(MIN).getValue();
@@ -550,11 +635,18 @@ public class MagDistGuiBean implements ParameterChangeListener {
                  truncType = 1;
               else if(truncTypeValue.equalsIgnoreCase(TRUNCATE_ON_BOTH_SIDES))
                  truncType = 2;
-              Double truncLevel = (Double)independentParams.getParameter(TRUNCATE_NUM_OF_STD_DEV).getValue();
-              GaussianMagFreqDist gaussian =
-                  new GaussianMagFreqDist(min.doubleValue(),max.doubleValue(),num.intValue(),
-                        mean.doubleValue(), stdDev.doubleValue(),
-                        totMoRate.doubleValue(),truncLevel.doubleValue(),truncType);
+              GaussianMagFreqDist gaussian;
+              if(truncType !=0){
+                 Double truncLevel = (Double)independentParams.getParameter(TRUNCATE_NUM_OF_STD_DEV).getValue();
+                 gaussian = new GaussianMagFreqDist(min.doubleValue(),max.doubleValue(),num.intValue(),
+                          mean.doubleValue(), stdDev.doubleValue(),
+                          totMoRate.doubleValue(),truncLevel.doubleValue(),truncType);
+              }
+              else {
+                 gaussian = new GaussianMagFreqDist(min.doubleValue(),max.doubleValue(),
+                            num.intValue(),mean.doubleValue(), stdDev.doubleValue(),
+                            totMoRate.doubleValue());
+              }
               magDist =  (IncrementalMagFreqDist) gaussian;
         }
 
@@ -599,5 +691,8 @@ public class MagDistGuiBean implements ParameterChangeListener {
           magDist =  (IncrementalMagFreqDist) gR;
        }
      return magDist;
+  }
+  public String getMagDistName(){
+      return controlsParamList.getParameter(DISTRIBUTION_NAME).getValue().toString();
   }
 }
