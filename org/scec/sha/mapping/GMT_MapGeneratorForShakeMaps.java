@@ -12,7 +12,8 @@ import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.*;
 import org.scec.sha.earthquake.EqkRupture;
 import org.scec.sha.surface.*;
-
+import org.scec.data.ArbDiscretizedXYZ_DataSet;
+import org.scec.sha.imr.AttenuationRelationship;
 
 /**
  * <p>Title: GMT_MapGeneratorForShakeMaps</p>
@@ -35,7 +36,13 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
   private String EQK_RUP_XYZ_FILE_NAME = "eqkRup_data.txt";
   XYZ_DataSetAPI eqkRup_xyzDataSet;
 
-  EqkRupture eqkRup;
+  private EqkRupture eqkRup;
+
+  //instance of the XYZ dataSet
+  private ArbDiscretizedXYZ_DataSet XYZ_data ;
+
+  //IMT selected
+  private String imt;
 
   // for the rupture surface plotting parameter
   public final static String RUP_PLOT_PARAM_NAME = "Rupture-Surface Plotting";
@@ -44,6 +51,11 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
   private final static String RUP_PLOT_PARAM_NOTHING = "Draw Nothing";
   private final static String RUP_PLOT_PARAM_INFO = "The hypocenter will also be plotted (as a star) if it has been set" ;
   StringParameter rupPlotParam;
+
+  //creating the parameter to generate the Hazus Shape File
+  private final static String HAZUS_SHAPE_PARAM_NAME = "Generate Hazus Shape Files";
+  private final static String HAZUS_SHAPE_PARAM_INFO = "This will generate the hazus shape files";
+  BooleanParameter hazusShapeParam;
 
   public GMT_MapGeneratorForShakeMaps() {
 
@@ -56,6 +68,11 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     rupPlotParam = new StringParameter( RUP_PLOT_PARAM_NAME, rupPlotConstraint, RUP_PLOT_PARAM_PERIMETER );
     rupPlotParam.setInfo( RUP_PLOT_PARAM_INFO );
 
+    //creating the Boolean parameter to generate the shape files from the Hazus code
+    hazusShapeParam = new BooleanParameter(HAZUS_SHAPE_PARAM_NAME, new Boolean(true));
+    hazusShapeParam.setInfo(HAZUS_SHAPE_PARAM_INFO);
+
+    adjustableParams.addParameter(hazusShapeParam);
     adjustableParams.addParameter(rupPlotParam);
 
   }
@@ -71,9 +88,11 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param scaleLabel
    * @return
    */
-  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture, String scaleLabel){
+  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture, String imtSelected){
     eqkRup = eqkRupture;
-    return super.makeMapLocally(xyzDataSet,scaleLabel);
+    imt = imtSelected;
+    createXYZdata(xyzDataSet);
+    return super.makeMapLocally(xyzDataSet,imtSelected);
   }
 
   /**
@@ -85,9 +104,11 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param scaleLabel
    * @return: URL to the image
    */
-  public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture, String scaleLabel){
+  public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture, String imtSelected){
     eqkRup = eqkRupture;
-    return super.makeMapUsingServlet(xyzDataSet, scaleLabel);
+    imt = imtSelected;
+    createXYZdata(xyzDataSet);
+    return super.makeMapUsingServlet(xyzDataSet, imtSelected);
   }
 
   /**
@@ -99,10 +120,82 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param scaleLabel
    * @return: URL to the image
    */
-  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,String scaleLabel){
+  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,String imtSelected){
     eqkRup = eqkRupture;
-    return super.makeMapUsingWebServer(xyzDataSet, scaleLabel);
+    imt = imtSelected;
+    createXYZdata(xyzDataSet);
+    return super.makeMapUsingWebServer(xyzDataSet, imtSelected);
   }
+
+
+  /**
+   * create a new XYZ dataset object with the linear values to generate the
+   * Hazus shape files.
+   * @param xyzDataSet
+   */
+  private void createXYZdata(XYZ_DataSetAPI xyzDataSet){
+    boolean doHaveToGenerateShapeFile = ((Boolean)hazusShapeParam.getValue()).booleanValue();
+    if(doHaveToGenerateShapeFile){
+      XYZ_data = new ArbDiscretizedXYZ_DataSet(xyzDataSet.getX_DataSet(),xyzDataSet.getY_DataSet(),xyzDataSet.getZ_DataSet());
+    }
+  }
+
+  /**
+   * Function to add the script lines  to generate the Hazus Shape files. For example,
+   * in the ScenarioShakeMap Application one now will be having the option to generate the
+   * shape files that goes into the Hazus as the input to calculate the loss estimation.
+   * @param gmtCommandLines : Vector to store the command line
+   * @param XYZ_FILE_NAME   : Name of the XYZ file name
+   */
+  protected void addScriptToGenerateShapeFiles(Vector gmtCommandLines,String XYZ_FILE_NAME){
+    boolean doHaveToGenerateShapeFile = ((Boolean)hazusShapeParam.getValue()).booleanValue();
+    if(doHaveToGenerateShapeFile){
+      String HAZUS_SHAPE_FILE_GENERATOR = "/usr/scec/hazus/shapefilegenerator/contour";
+      // Get the limits and discretization of the map
+      double minLat = ((Double)adjustableParams.getParameter(MIN_LAT_PARAM_NAME).getValue()).doubleValue();
+      double maxTempLat = ((Double)adjustableParams.getParameter(MAX_LAT_PARAM_NAME).getValue()).doubleValue();
+      double minLon = ((Double)adjustableParams.getParameter(MIN_LON_PARAM_NAME).getValue()).doubleValue();
+      double maxTempLon = ((Double)adjustableParams.getParameter(MAX_LON_PARAM_NAME).getValue()).doubleValue();
+      double gridSpacing = ((Double)adjustableParams.getParameter(GRID_SPACING_PARAM_NAME).getValue()).doubleValue();
+
+      // adjust the max lat and lon to be an exact increment (needed for xyz2grd)
+      double maxLat = Math.rint(((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
+      double maxLon = Math.rint(((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
+
+      //redefing the region for proper discretization of the region required by the GMT
+      region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat+" ";
+      String commandLine;
+      //if the selected IMT is SA
+      if(imt.equals(AttenuationRelationship.SA_NAME)){
+        commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
+                      "-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+        gmtCommandLines.add(commandLine+"\n");
+        commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+imt;
+        gmtCommandLines.add(commandLine+"\n");
+      }
+      //if the selected IMT is PGA
+      else if(imt.equals(AttenuationRelationship.PGA_NAME)){
+        commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
+                      "-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+        gmtCommandLines.add(commandLine+"\n");
+        commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+imt;
+        gmtCommandLines.add(commandLine+"\n");
+      }
+      //if the selected IMT is PGV
+      else if(imt.equals(AttenuationRelationship.PGV_NAME)){
+        commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
+                      "-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
+        gmtCommandLines.add(commandLine+"\n");
+        commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 4.0 -f 2.0 -Z 0.3937 -T4 -o "+imt;
+        gmtCommandLines.add(commandLine+"\n");
+      }
+      else
+        throw new RuntimeException("IMT not supported to generate Shape File");
+      commandLine = COMMAND_PATH+"rm temp.grd";
+      gmtCommandLines.add(commandLine+"\n");
+    }
+  }
+
 
   /**
    * This method adds intermediate script commands to plot the earthquake rupture and hypocenter.

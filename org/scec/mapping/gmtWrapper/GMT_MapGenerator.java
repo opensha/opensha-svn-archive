@@ -875,10 +875,13 @@ public class GMT_MapGenerator implements Serializable{
       gmtCommandLines.add(commandLine+"\n");
     }
 
+    //function to add the script lines  to generate the Hazus Shape files
+    addScriptToGenerateShapeFiles(gmtCommandLines,XYZ_FILE_NAME);
     // clean out temp files
     commandLine = COMMAND_PATH+"rm temp1.jpg temp2.jpg "+fileName+".grd "+fileName+
                   ".cpt "+fileName+"HiResData.grd "+fileName+"Inten.grd ";
     gmtCommandLines.add(commandLine+"\n");
+
 
 
     return gmtCommandLines;
@@ -896,7 +899,16 @@ public class GMT_MapGenerator implements Serializable{
   }
 
 
+  /**
+   * Function to add the script lines  to generate the Hazus Shape files. For example,
+   * in the ScenarioShakeMap Application one now will be having the option to generate the
+   * shape files that goes into the Hazus as the input to calculate the loss estimation.
+   * @param gmtCommandLines : Vector to store the command line
+   * @param XYZ_FILE_NAME   : Name of the XYZ file name
+   */
+  protected void addScriptToGenerateShapeFiles(Vector gmtCommandLines,String XYZ_FILE_NAME){
 
+  }
 
   /**
    * If log-plot has been chosen, this replaces the z-values in the xyzDataSet
