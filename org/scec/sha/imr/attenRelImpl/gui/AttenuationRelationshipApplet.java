@@ -1070,7 +1070,7 @@ public class AttenuationRelationshipApplet extends JApplet
         functionList.add(function);
         ArrayList plotFeaturesList = getPlottingFeatures();
         plotFeaturesList.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
-            new Color(200,200,233),4.0,1));
+            Color.BLACK,4.0,1));
         addGraphPanel();
       }
       else
