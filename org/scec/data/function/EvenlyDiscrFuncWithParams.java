@@ -96,21 +96,15 @@ public class EvenlyDiscrFuncWithParams
         );
 
         f.info = info;
-        f.maxY = maxY;
-        f.minY = minY;
         f.minX = minX;
+        f.maxX = maxX;
         f.name = name;
         f.tolerance = tolerance;
 
         f.setParameterList( (ParameterList)getParameterList().clone() );
 
-        ListIterator it = getYValuesIterator();
-        int counter = 0;
-        while( it.hasNext() ){
-            Object obj = it.next();
-            if( obj != null ) f.set(counter++, ((Double)obj).doubleValue() );
-            else f.set(counter++, Double.NaN);
-        }
+        for(int i = 0; i<num; i++)
+            f.set(i, points[i]);
 
         return f;
 

@@ -68,12 +68,10 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * to fully quantify the domain of this list.
      * @param min   - Starting x value
      * @param num   - number of points in list
-     * @param delta - distance between x values
+     * @param max - Ending x value
      */
-    public EvenlyDiscretizedFunc(double min, double max, double delta) {
-
-        num = (maxX-minX)/delta + 1;
-        this(min, num, delta);
+    public EvenlyDiscretizedFunc(double min, double max, int num) {
+        this(min, num, (max-min)/(num-1));
     }
 
     /**
@@ -242,7 +240,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
        double y2=Double.NaN;
        //if passed parameter(y value) is not within range then throw exception
        if( y>getMaxY() || y<getMinY() )
-          throw new InvalidRangeException("Y Value must be within the range: "+getY(0)+" and "+getY(max-1));
+          throw new InvalidRangeException("Y Value must be within the range: "+getMinY()+" and "+getMaxY());
       //finds the Y values within which the the given y value lies
        for(i=0;i<num-1;++i) {
          y1=getY(i);
@@ -268,7 +266,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
        double x2=Double.NaN;
        //if passed parameter(x value) is not within range then throw exception
        if(x>getX(num-1) || x<getX(0))
-          throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1));
+          throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(num-1));
       //finds the X values within which the the given x value lies
        for(int i=0;i<num-1;++i) {
          x1=getX(i);
@@ -299,7 +297,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         f.tolerance = tolerance;
 
         for(int i = 0; i<num; i++)
-            f.setY(i, points[i]);
+            f.set(i, points[i]);
 
         return f;
     }
@@ -370,6 +368,36 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
     }
 
+    /**
+     * Returns true if the x value is withing tolerance of an x-value in this list,
+     * and the y value is equal to y value in the list.
+     */
+    public boolean hasPoint(DataPoint2D point){
+        return hasPoint(point.getX(),point.getY());
+    }
 
+    /**
+    * Returns true if the x value is withing tolerance of an x-value in this list,
+    * and the y value is equal to y value in the list.
+     */
+    public boolean hasPoint(double x, double y){
+      int index = getXIndex( x );
+      if (index < 0) return false;
+      double yVal = this.getY(index);
+      if( yVal == Double.NaN || yVal!=y) return false;
+          return true;
+    }
+
+     /** Returns the index of this DataPoint based on it's x any y value
+      *  both the x-value and y-values in list should match with that of point
+      * returns -1 if there is no such value in the list
+      * */
+     public int getIndex(DataPoint2D point){
+         int index= getXIndex( point.getX() );
+         if (index < 0) return -1;
+         double y = this.getY(index);
+         if(y!=point.getY()) return -1;
+         return index;
+    }
 
 }
