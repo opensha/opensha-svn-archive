@@ -79,11 +79,11 @@ public class MagFreqDistParameterEditor extends ParameterEditor
       * Name and Info strings of params needed by all distributions
       */
      public static final String MIN=new String("Min");
-     public static final String MIN_INFO=new String("Minimum magnitude of distribution");
+     public static final String MIN_INFO=new String("Minimum magnitude of the discetized function");
      public static final String MAX=new String("Max");
-     public static final String MAX_INFO=new String("Maximum magnitude of distribution");
+     public static final String MAX_INFO=new String("Maximum magnitude of the discetized function");
      public static final String NUM=new String("Num");
-     public static final String NUM_INFO=new String("Number of points in distribution");
+     public static final String NUM_INFO=new String("Number of points in  the discetized function");
 
      /**
       * Name, units, and info strings for parameters needed by more than one distribution (shared)
