@@ -10,6 +10,7 @@ import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
+import org.scec.sha.gui.infoTools.ImageViewerWindow;
 /**
  * <p>Title: GMT_MapGenerator</p>
  * <p>Description: This class generates and displays a GMT map for an XYZ dataset using
@@ -117,20 +118,8 @@ public class MapGuiBean extends ParameterListEditor implements
 
     String imgName = gmtMap.makeMap(fileName);
     //adding the image to the Panel and returning that to the applet
-    gmtMapLabel.setBorder(border);
-    gmtMapLabel.setMaximumSize(new Dimension(0, 800));
-    gmtMapLabel.setMinimumSize(new Dimension(600, 600));
-    gmtMapLabel.setPreferredSize(new Dimension(600, 600));
-    gmtMapLabel.setIcon(new ImageIcon(imgName));
-    JFrame frame = new JFrame(imgName);
-    JScrollPane mapScroll = new JScrollPane();
-    mapScroll.setBorder( BorderFactory.createEtchedBorder() );
-    frame.getContentPane().setLayout(new BorderLayout());
-    mapScroll.getViewport().add(gmtMapLabel,  null);
-    frame.getContentPane().add(mapScroll,BorderLayout.CENTER);
-    frame.pack();
-    frame.show();
 
+    ImageViewerWindow imgView = new ImageViewerWindow(imgName);
   }
 
   /**
