@@ -13,14 +13,16 @@ import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
-
+import org.scec.sha.gui.infoTools.ImageViewerWindow;
+import org.scec.util.FileUtils;
+import org.scec.webservices.client.*;
+import org.scec.data.*;
+import org.scec.sha.earthquake.EqkRupture;
 
 /**
- * <p>Title: HazardMapGuiBean.java </p>
- * <p>Description: This class shows the GMT Parameters which may be set for making
- * a hazard map. This is different  from MapGuiBean which is used by ScenarioShakeMap
- * and displays the options to plot rupture surface, to use GMT webservice, to make
- * hazus shape files which are not used here.
+ * <p>Title: GMT_MapGuiBean</p>
+ * <p>Description: This class generates and displays a GMT map for an XYZ dataset using
+ * the settings in the GMT_SettingsControlPanel. It displays the image file in a JPanel.
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -28,30 +30,39 @@ import org.scec.param.event.ParameterChangeEvent;
  * @version 1.0
  */
 
-public class HazardMapGuiBean extends ParameterListEditor implements
+public class GMT_MapGuiBean extends ParameterListEditor implements
     ParameterChangeListener {
 
   /**
    * Name of the class
    */
-  protected final static String C = "HazardMapGuiBean";
+  protected final static String C = "MapGuiBean";
 
   // for debug purpose
   protected final static boolean D = false;
 
 
-  private final static String GMT_TITLE = new String("Set GMT Parameters");
+  protected final static String GMT_TITLE = new String("Set GMT Parameters");
 
   //instance of the GMT Control Panel to get the GMT parameters value.
-  private GMT_MapGenerator gmtMap= new GMT_MapGenerator();
+  protected GMT_MapGenerator gmtMap= new GMT_MapGenerator();
+
+
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
+
+  //boolean flag to check if we need to show the Map in a seperate window
+  protected boolean showMapInSeperateWindow = true;
+
+  //name of the image file( or else full URL to image file if using the webservice)
+  protected String imgName=null;
+
 
 
   /**
    * Class constructor accepts the GMT parameters list
    * @param gmtMap
    */
-  public HazardMapGuiBean() {
+  public GMT_MapGuiBean() {
 
     //get the adjustableParam List from the GMT_MapGenerator
     ListIterator it=gmtMap.getAdjustableParamsIterator();
@@ -113,11 +124,11 @@ public class HazardMapGuiBean extends ParameterListEditor implements
   }
 
   /**
-   * If user chooses Manula or "From Data" color mode, then min and max color limits
+   * If user chooses Manual or "From Data" color mode, then min and max color limits
    * have to be set Visible and invisible respectively
    * @param val
    */
-  private void changeColorScaleModeValue(String val) {
+  protected void changeColorScaleModeValue(String val) {
     if(val.equalsIgnoreCase(GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA)) {
       getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(false);
       getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(false);
@@ -126,6 +137,54 @@ public class HazardMapGuiBean extends ParameterListEditor implements
       getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(true);
     }
   }
+
+  /**
+   * this function generates and displays a GMT map for an XYZ dataset using
+   * the settings in the GMT_SettingsControlPanel.
+   * @param xyzVals : Object for the XYZ values
+   * @param metadata : Associated Metadata for the values.
+   */
+  public void makeMap(XYZ_DataSetAPI xyzVals,String metadata){
+
+    boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
+    //creating the Metadata file in the GMT_MapGenerator
+    gmtMap.createMapInfoFile(metadata);
+    if(gmtServerCheck){
+      //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
+      try{
+        imgName =gmtMap.makeMapUsingServlet(xyzVals," ");
+        metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
+      }catch(RuntimeException e){
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
+       return;
+      }
+    }
+    else{
+      try{
+        imgName = gmtMap.makeMapLocally(xyzVals," ");
+      }catch(RuntimeException e){
+        JOptionPane.showMessageDialog(this,e.getMessage());
+        return;
+      }
+    }
+
+    //checks to see if the user wants to see the Map in a seperate window or not
+    if(this.showMapInSeperateWindow){
+      //adding the image to the Panel and returning that to the applet
+      ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
+    }
+  }
+
+
+  /**
+   * Flag to determine whether to show the Map in a seperate pop up window
+   * @param flag
+   */
+  public void setMapToBeShownInSeperateWindow(boolean flag){
+    this.showMapInSeperateWindow = flag;
+  }
+
 
   /**
    * return the GMT_MapGenerator object

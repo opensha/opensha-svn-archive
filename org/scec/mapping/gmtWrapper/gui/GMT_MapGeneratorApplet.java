@@ -9,7 +9,7 @@ import java.net.*;
 import java.util.*;
 
 
-import org.scec.sha.gui.beans.MapGuiBean;
+import org.scec.sha.gui.beans.GMT_MapGuiBean;
 import org.scec.param.StringParameter;
 import org.scec.param.editor.StringParameterEditor;
 import org.scec.util.*;
@@ -47,7 +47,7 @@ public class GMT_MapGeneratorApplet extends Applet {
   private Border border1;
   private JButton addButton = new JButton();
 
-  private MapGuiBean gmtGuiBean=null;
+  private GMT_MapGuiBean gmtGuiBean=null;
 
   private Border border2;
   private final static String URL_NAME = "Enter URL";
@@ -82,7 +82,7 @@ public class GMT_MapGeneratorApplet extends Applet {
       parameterPanel.add(xyzFileEditor,new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER,
                     GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-      gmtGuiBean =new MapGuiBean();
+      gmtGuiBean =new GMT_MapGuiBean();
       //panel to display the GMT adjustable parameters
       parameterPanel.add(gmtGuiBean,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0,
                     GridBagConstraints.CENTER,
@@ -204,7 +204,7 @@ public class GMT_MapGeneratorApplet extends Applet {
                       fileName+"\n\n"+
                       "From (respectively):";
 
-    gmtGuiBean.makeMap(xyzData,null," ",metadata);
+    gmtGuiBean.makeMap(xyzData,metadata);
   }
 }
 

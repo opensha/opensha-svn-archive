@@ -9,10 +9,7 @@ import java.awt.event.*;
 
 
 import org.scec.sha.mapping.*;
-import org.scec.param.*;
-import org.scec.param.editor.*;
-import org.scec.param.event.ParameterChangeListener;
-import org.scec.param.event.ParameterChangeEvent;
+import org.scec.param.ParameterAPI;
 import org.scec.sha.gui.infoTools.ImageViewerWindow;
 import org.scec.util.FileUtils;
 import org.scec.webservices.client.*;
@@ -20,42 +17,21 @@ import org.scec.data.*;
 import org.scec.sha.earthquake.EqkRupture;
 
 /**
- * <p>Title: GMT_MapGenerator</p>
+ * <p>Title: MapGuiBean</p>
  * <p>Description: This class generates and displays a GMT map for an XYZ dataset using
  * the settings in the GMT_SettingsControlPanel. It displays the image file in a JPanel.
- * </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ * This class is used in showing the ScenarioShakeMaps which also defines the rupture surface
+ * and does special calculation if the person has choosen to generate the Hazus data.</p>
  * @author: Ned Field, Nitin Gupta & Vipin Gupta
  * @version 1.0
  */
 
-public class MapGuiBean extends ParameterListEditor implements
-    ParameterChangeListener {
+public class MapGuiBean extends GMT_MapGuiBean {
 
   /**
    * Name of the class
    */
   protected final static String C = "MapGuiBean";
-
-  // for debug purpose
-  protected final static boolean D = false;
-
-
-  private final static String GMT_TITLE = new String("Set GMT Parameters");
-
-  //instance of the GMT Control Panel to get the GMT parameters value.
-  private GMT_MapGeneratorForShakeMaps gmtMap= new GMT_MapGeneratorForShakeMaps();
-
-
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-
-  //boolean flag to check if we need to show the Map in a seperate window
-  private boolean showMapInSeperateWindow = true;
-
-  //name of the image file( or else full URL to image file if using the webservice)
-  String imgName=null;
-
 
 
   /**
@@ -64,79 +40,21 @@ public class MapGuiBean extends ParameterListEditor implements
    */
   public MapGuiBean() {
 
+    //instance of the GMT Control Panel to get the GMT parameters value.
+    gmtMap= new GMT_MapGeneratorForShakeMaps();
     //get the adjustableParam List from the GMT_MapGenerator
     ListIterator it=gmtMap.getAdjustableParamsIterator();
-    parameterList = new ParameterList();
-    while(it.hasNext())
-      parameterList.addParameter((ParameterAPI)it.next());
+    while(it.hasNext()){
+      ParameterAPI tempParam = (ParameterAPI)it.next();
+      if(!parameterList.containsParameter(tempParam))
+        parameterList.addParameter(tempParam);
+    }
     editorPanel.removeAll();
     addParameters();
-    setTitle(GMT_TITLE);
-    parameterList.getParameter(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_NAME).addParameterChangeListener(this);
-    changeColorScaleModeValue(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_DEFAULT);
-    try {
-      jbInit();
-    }
-    catch(Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  /**
-   *
-   * @param regionParamsFlag: boolean flag to check if the region params are to be shown in the
-   */
-  public void showRegionParams(boolean regionParamsFlag) {
-      getParameterEditor(gmtMap.MAX_LAT_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.MIN_LAT_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.MAX_LON_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.MIN_LON_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.GRID_SPACING_PARAM_NAME).setVisible(regionParamsFlag);
-  }
-
-  /**
-   * private function that initialises the region params for the GMT plot region
-   * @param minLat
-   * @param maxLat
-   * @param minLon
-   * @param maxLon
-   * @param gridSpacing
-   */
-  public void setRegionParams(double minLat,double maxLat,double minLon,double maxLon,
-                               double gridSpacing){
-    if(D) System.out.println(C+" setGMTRegionParams: " +minLat+"  "+maxLat+"  "+minLon+"  "+maxLon);
-    getParameterList().getParameter(GMT_MapGeneratorForShakeMaps.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
-    getParameterList().getParameter(GMT_MapGeneratorForShakeMaps.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
-    getParameterList().getParameter(GMT_MapGeneratorForShakeMaps.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
-    getParameterList().getParameter(GMT_MapGeneratorForShakeMaps.MAX_LON_PARAM_NAME).setValue(new Double(maxLon));
-    getParameterList().getParameter(GMT_MapGeneratorForShakeMaps.GRID_SPACING_PARAM_NAME).setValue(new Double(gridSpacing));
   }
 
 
-  /**
-   * this function listens for parameter change
-   * @param e
-   */
-  public void parameterChange(ParameterChangeEvent e) {
-    String name = e.getParameterName();
-    if(name.equalsIgnoreCase(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_NAME))
-      changeColorScaleModeValue((String)e.getNewValue());
-  }
 
-  /**
-   * If user chooses Manula or "From Data" color mode, then min and max color limits
-   * have to be set Visible and invisible respectively
-   * @param val
-   */
-  private void changeColorScaleModeValue(String val) {
-    if(val.equalsIgnoreCase(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_FROMDATA)) {
-      getParameterEditor(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MAX_PARAM_NAME).setVisible(false);
-      getParameterEditor(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MIN_PARAM_NAME).setVisible(false);
-    } else {
-      getParameterEditor(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MAX_PARAM_NAME).setVisible(true);
-      getParameterEditor(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MIN_PARAM_NAME).setVisible(true);
-    }
-  }
 
   /**
    * this function generates and displays a GMT map for an XYZ dataset using
@@ -152,7 +70,7 @@ public class MapGuiBean extends ParameterListEditor implements
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       try{
-        imgName =gmtMap.makeMapUsingServlet(xyzVals,eqkRupture,imt);
+        imgName =((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapUsingServlet(xyzVals,eqkRupture,imt);
         metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
       }catch(RuntimeException e){
         e.printStackTrace();
@@ -162,7 +80,7 @@ public class MapGuiBean extends ParameterListEditor implements
     }
     else{
       try{
-        imgName = gmtMap.makeMapLocally(xyzVals,eqkRupture,imt);
+        imgName = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapLocally(xyzVals,eqkRupture,imt);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;
@@ -193,7 +111,7 @@ public class MapGuiBean extends ParameterListEditor implements
     gmtMap.createMapInfoFile(metadata);
     if(gmtServerCheck){
       try{
-        imgName =gmtMap.makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
+        imgName =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
                                                      pgv_pgvVals,eqkRupture);
         metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
       }catch(RuntimeException e){
@@ -204,7 +122,7 @@ public class MapGuiBean extends ParameterListEditor implements
     }
     else{
       try{
-        imgName = gmtMap.makeHazusFileSetLocally(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
+        imgName = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetLocally(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
                                                      pgv_pgvVals,eqkRupture);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
@@ -217,18 +135,6 @@ public class MapGuiBean extends ParameterListEditor implements
       //adding the image to the Panel and returning that to the applet
       ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
     }
-  }
-
-
-
-
-
-  /**
-   * Flag to determine whether to show the Map in a seperate pop up window
-   * @param flag
-   */
-  public void setMapToBeShownInSeperateWindow(boolean flag){
-    this.showMapInSeperateWindow = flag;
   }
 
 }
