@@ -26,10 +26,8 @@ import org.scec.util.*;
 
 
 /**
- * <p>Title: </p>
+ * <p>Title: PEER_TestsApplet</p>
  * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
  * @author Nitin Gupta and Vipin Gupta
  * Date : Sept 23 , 2002
  * @version 1.0
@@ -175,9 +173,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   private Border border5;
   private JSplitPane topSplitPane = new JSplitPane();
   private JSplitPane chartSplit = new JSplitPane();
-  private JComboBox rangeComboBox = new JComboBox();
   private JButton clearButton = new JButton();
-  private JLabel jCustomAxisLabel = new JLabel();
   private JButton toggleButton = new JButton();
   private JCheckBox jCheckylog = new JCheckBox();
   private JPanel buttonPanel = new JPanel();
@@ -212,6 +208,8 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   //static string for the OPENSHA website
   private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
+  private JComboBox rangeComboBox = new JComboBox();
+  private JLabel jCustomAxisLabel = new JLabel();
   private JLabel imgLabel = new JLabel();
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
 
@@ -245,8 +243,8 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
 
       //initialising the disaggregation parameter and adding to the button Panel
       disaggregationEditor.setParameter(disaggregationParam);
-      buttonPanel.add(disaggregationEditor,  new GridBagConstraints(1, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(18, 7, 42, 110), 16, 0));
+      buttonPanel.add(disaggregationEditor, new GridBagConstraints(3, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 3, 5, 4), 16, 0));
       disaggregationEditor.setVisible(false);
     }
     catch(Exception e) {
@@ -265,12 +263,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     border7 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     this.getContentPane().setBackground(Color.white);
-    this.setSize(new Dimension(973, 742));
-    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        imgLabel_mouseClicked(e);
-      }
-    });
+    this.setSize(new Dimension(973, 670));
     this.getContentPane().setLayout(borderLayout1);
 
 
@@ -290,17 +283,6 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     topSplitPane.setBottomComponent(buttonPanel);
     topSplitPane.setDividerSize(5);
     topSplitPane.setTopComponent(chartSplit);
-    rangeComboBox.setBackground(new Color(200, 200, 230));
-    rangeComboBox.setForeground(new Color(80, 80, 133));
-    rangeComboBox.setMaximumSize(new Dimension(115, 19));
-    rangeComboBox.setMinimumSize(new Dimension(115, 19));
-    rangeComboBox.setPreferredSize(new Dimension(115, 19));
-    rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        rangeComboBox_actionPerformed(e);
-      }
-    });
-    rangeComboBox.setBackground(new Color(200, 200, 230));
     clearButton.setBackground(new Color(200, 200, 230));
     clearButton.setFont(new java.awt.Font("Dialog", 1, 11));
     clearButton.setForeground(new Color(80, 80, 133));
@@ -315,9 +297,6 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
         clearButton_actionPerformed(e);
       }
     });
-    jCustomAxisLabel.setFont(new java.awt.Font("Dialog", 1, 11));
-    jCustomAxisLabel.setForeground(new Color(80, 80, 133));
-    jCustomAxisLabel.setText("Set Axis:");
     toggleButton.setBackground(new Color(200, 200, 230));
     toggleButton.setFont(new java.awt.Font("Dialog", 1, 11));
     toggleButton.setForeground(new Color(80, 80, 133));
@@ -410,12 +389,31 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
       }
     });
     //loading the OpenSHA Logo
+    rangeComboBox.setBackground(new Color(200, 200, 230));
+    rangeComboBox.setForeground(new Color(80, 80, 133));
+    rangeComboBox.setMaximumSize(new Dimension(115, 19));
+    rangeComboBox.setMinimumSize(new Dimension(115, 19));
+    rangeComboBox.setPreferredSize(new Dimension(115, 19));
+    rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        rangeComboBox_actionPerformed(e);
+      }
+    });
+    rangeComboBox.setBackground(new Color(200, 200, 230));
+    jCustomAxisLabel.setFont(new java.awt.Font("Dialog", 1, 11));
+    jCustomAxisLabel.setForeground(new Color(80, 80, 133));
+    jCustomAxisLabel.setText("Set Axis:");
     imgLabel.setText("");
     imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        imgLabel_mouseClicked(e);
+      }
+    });
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 9, 5, 3), 220, 359));
+    jPanel1.add(topSplitPane,       new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 9, 0, 3), 220, 359));
     topSplitPane.add(chartSplit, JSplitPane.TOP);
     chartSplit.add(panel, JSplitPane.LEFT);
     chartSplit.add(parameterSplitPane, JSplitPane.RIGHT);
@@ -426,32 +424,30 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     parameterSplitPane.add(sourcePanel, JSplitPane.RIGHT);
     controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(jCheckylog,   new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 0, 0, 0), 1, 7));
-    buttonPanel.add(jCheckxlog,   new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 0, 0, 0), 1, 7));
-    buttonPanel.add(toggleButton,   new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 7, 0, 0), 1, 7));
-    buttonPanel.add(clearButton,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 6, 0, 0), 1, 7));
-    buttonPanel.add(addButton,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 0, 0, 0), 1, 7));
-    buttonPanel.add(testCasesCombo,   new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(14, 6, 6, 0), 1, 7));
-    buttonPanel.add(jLabel1,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 2, 6, 18), 1, 7));
-    buttonPanel.add(rangeComboBox,     new GridBagConstraints(8, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(14, 0, 6, 18), 1, 7));
-    buttonPanel.add(disaggregationCheckbox,    new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 2, 43, 0), 16, 0));
-    buttonPanel.add(jCustomAxisLabel,       new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 0, 6, 0), 1, 7));
-    buttonPanel.add(imgLabel,      new GridBagConstraints(2, 1, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(44, 68, 12, 21), 30, 26));
-    topSplitPane.setDividerLocation(575);
+    buttonPanel.add(jCheckylog,     new GridBagConstraints(6, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 20, 65, 91), 1, 7));
+    buttonPanel.add(jCheckxlog,         new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 65, 3), 1, 7));
+    buttonPanel.add(toggleButton,      new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 4, 5, 3), 0, 0));
+    buttonPanel.add(testCasesCombo,     new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 5, 5, 3), 19, 7));
+    buttonPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, 2, 0, 0), 1, 7));
+    buttonPanel.add(addButton,        new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 6, 2, 11), 0, 0));
+    buttonPanel.add(clearButton,    new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 3, 5, 3), 0, 0));
+    buttonPanel.add(jCustomAxisLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(17, 2, 5, 39), 17, 7));
+    buttonPanel.add(rangeComboBox,       new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(7, 5, 5, 3), 0, 11));
+    buttonPanel.add(disaggregationCheckbox,                      new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 3, 5, 4), 16, 26));
+    jPanel1.add(imgLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 0, 0, 0), 0, 0));
+    topSplitPane.setDividerLocation(560);
     chartSplit.setDividerLocation(575);
-    rangeComboBox.addItem(new String(AUTO_SCALE));
-    rangeComboBox.addItem(new String(CUSTOM_SCALE));
     parameterSplitPane.setDividerLocation(175);
     siteSplitPane.setDividerLocation(175);
     controlsSplit.setDividerLocation(175);
@@ -634,6 +630,8 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
         testCasesCombo_actionPerformed(e);
       }
     });
+    rangeComboBox.addItem(new String(AUTO_SCALE));
+    rangeComboBox.addItem(new String(CUSTOM_SCALE));
   }
   //Start the applet
   public void start() {
