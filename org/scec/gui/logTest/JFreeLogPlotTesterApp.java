@@ -551,7 +551,7 @@ public class JFreeLogPlotTesterApp extends JApplet  {
 
 
    // function.set(0.0 , 0.3709240147258726);
-    function.add(1.02, 0.3252989675766);
+    /*function.add(1.02, 0.3252989675766);
     function.add(2.03,0.28831584981256364);
     function.add(3.04, 0.25759059645019516);
     function.add(4.05 ,0.2317579929371139);
@@ -648,7 +648,10 @@ public class JFreeLogPlotTesterApp extends JApplet  {
     function.add(95.96, 0.009656719141666239);
     function.add(96.97, 0.00950603133492957);
     function.add(97.98, 0.00935904411952373);
-    function.add(98.99, 0.00921563408050459);
+    function.add(98.99, 0.00921563408050459);*/
+    function.add(-20,-20);
+    function.add(20, 20);
+
     functions.addSeries(function);
   }
 
