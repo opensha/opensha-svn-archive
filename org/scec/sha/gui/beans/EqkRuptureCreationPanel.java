@@ -83,7 +83,7 @@ public class EqkRuptureCreationPanel
   public final static String HYPOCENTER_LOCATION_PARAM_NAME = "Hypocenter Location";
 
   //Boolean parameter to decide, whether to show hypocenter or not
-  public final static String SHOW_HYPOCENTER_LOCATION_PARAM_NAME = "Show Hypocenter Locations";
+  public final static String SHOW_HYPOCENTER_LOCATION_PARAM_NAME = "Set Hypocenter Location";
 
 
   //Null hypocenter String

@@ -35,7 +35,8 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
   //Final static declaration for the Parameters in the EvenlyGriddedSurface
   public static final String FAULT_NAME = "Fault Name";
   public static final String GRID_SPACING = "Grid Spacing";
-  public static final String NUMBER_OF_FAULT_TRACE = "Num. of Fault Trace (Points)";
+  public static final String GRID_SPACING_UNITS = "km";
+  public static final String NUMBER_OF_FAULT_TRACE = "Num. of Fault Trace Points";
   public static final String NUM_DIPS = "Num. of Dips";
   public static final String DEPTH_PARAM_NAME = "Depth-";
   public static final String DIP_PARAM_NAME = "Dip-";
@@ -50,13 +51,13 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
 
 
  //static string declaration for the Lat, Lon , Dip and Depth Paramater (ParameterListParameter) names title
-  public static final String LAT_TITLE = "Latitudes";
-  public static final String LON_TITLE = "Longitudes";
+  public static final String LAT_TITLE = "Fault Latitudes";
+  public static final String LON_TITLE = "Fault Longitudes";
   public static final String DIP_TITLE = "Dips";
   public static final String DEPTH_TITLE = "Depths";
 
   //Fault Type Param Name
-  public static final String FAULT_TYPE_TITLE = "Choose Fault Type";
+  public static final String FAULT_TYPE_TITLE = "Finite Fault Type";
 
   //static string for the Fault type supported
   public static final String FRANKEL ="Frankel's";
@@ -116,7 +117,7 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
   //Fault Name param
   StringParameter faultName= new StringParameter(this.FAULT_NAME);
   //Grid Spacing Param
-  DoubleParameter gridSpacing = new DoubleParameter(this.GRID_SPACING,0.0,100,new Double(this.DEFAULT_GRID_SPACING));
+  DoubleParameter gridSpacing = new DoubleParameter(this.GRID_SPACING,0.01,5,GRID_SPACING_UNITS,new Double(this.DEFAULT_GRID_SPACING));
   //FaultTrace Param
   IntegerParameter numFltTrace = new IntegerParameter(this.NUMBER_OF_FAULT_TRACE,1,100,new Integer(this.DEFAULT_NUM_FAULT_TRACE));
 
@@ -453,12 +454,12 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
     for(int i=0;i<numDepths;++i){
       //checks if any value exists in the vector for that Depth parameter else just fill it up with a blank.
       if(size < (i+1) && size >0)
-        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms");
+        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"km");
       else if( size ==0)
-        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms",
+        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"km",
                                      new Double(0+(i+6)));
       else
-        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms",(Double)prevDepths.get(i));
+        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"km",(Double)prevDepths.get(i));
       parameterListForDepths.addParameter(depth[i]);
       depth[i].addParameterChangeListener(this);
     }

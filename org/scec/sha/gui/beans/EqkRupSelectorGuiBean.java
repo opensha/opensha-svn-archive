@@ -51,7 +51,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   private final static String RUPTURE_SELECTOR_PARAM_INFO = "Toggles between methods to allow user "+
       "to allow defining their own rupture or select one from the existing ERF's ";
   public final static String RUPTURE_FROM_EXISTING_ERF = "Select EqkRupture from an ERF";
-  public final static String CREATE_RUPTURE ="Custom EqkRupture";
+  public final static String CREATE_RUPTURE ="Custom Eqk Rupture";
   private ConstrainedStringParameterEditor ruptureSelectorParamEditor;
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
