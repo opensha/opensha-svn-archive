@@ -124,21 +124,9 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
   public final static String RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient";
   public final static String RMI_WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient";
-  public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
-  public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
-  public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
-  //public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
-  public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
-  public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-  public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-  public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
-  public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF";
-  public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureERF";
-  public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-
 
   // instances of the GUI Beans which will be shown in this applet
-  private ERF_GuiBean erfGuiBean;
+  protected ERF_GuiBean erfGuiBean;
   private IMR_GuiBean imrGuiBean;
   private IMT_GuiBean imtGuiBean;
   private Site_GuiBean siteGuiBean;
@@ -181,7 +169,7 @@ public class Temp_HazardCurveApplication extends JApplet
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
-  private boolean isStandalone = false;
+  protected boolean isStandalone = false;
   private Border border1;
 
 
@@ -190,11 +178,11 @@ public class Temp_HazardCurveApplication extends JApplet
   private boolean yLog =false;
 
   // default insets
-  private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
+  protected Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
   // height and width of the applet
-  private final static int W = 1100;
-  private final static int H = 750;
+  protected final static int W = 1100;
+  protected final static int H = 750;
 
   /**
    * FunctionList declared
@@ -359,46 +347,6 @@ public class Temp_HazardCurveApplication extends JApplet
     catch(Exception e) {
       e.printStackTrace();
     }
-
-
-    /*// write the object
-    try {
-      FileInputStream in = new FileInputStream("OpenSHA_Object.file");
-      ObjectInputStream s1 = new ObjectInputStream(in);
-      ParameterList imrParamList =(ParameterList) s1.readObject();
-      imrGuiBean.setParameterList(imrParamList);
-      imrGuiBean.refreshParamEditor();
-      imrGuiBean.validate();
-      imrGuiBean.repaint();
-      ParameterList imtParamList =(ParameterList) s1.readObject();
-      imtGuiBean.setParameterList(imrParamList);
-      imtGuiBean.refreshParamEditor();
-      imtGuiBean.validate();
-      imtGuiBean.repaint();
-      ParameterList siteParamList =(ParameterList) s1.readObject();
-      siteGuiBean.getParameterListEditor().setParameterList(siteParamList);
-      siteGuiBean.getParameterListEditor().refreshParamEditor();
-      siteGuiBean.getParameterListEditor().validate();
-      siteGuiBean.getParameterListEditor().repaint();
-      ParameterList erfParamList =(ParameterList) s1.readObject();
-      erfGuiBean.setParameterList(erfParamList);
-      erfGuiBean.refreshParamEditor();
-      erfGuiBean.validate();
-      erfGuiBean.repaint();
-      ParameterList timeParamList =(ParameterList) s1.readObject();
-      timeSpanGuiBean.setParameterList(timeParamList);
-      timeSpanGuiBean.refreshParamEditor();
-      timeSpanGuiBean.validate();
-      timeSpanGuiBean.repaint();
-      totalProbFuncs = (DiscretizedFuncList)s1.readObject();
-      this.validate();
-      this.repaint();
-      this.addButton();
-    }catch(Exception e){
-      e.printStackTrace();
-    }*/
-
-
   }
 
   //Component initialization
@@ -709,6 +657,15 @@ public class Temp_HazardCurveApplication extends JApplet
 
     }
 
+    /**
+     * This method creates the HazardCurveCalc instance. If the internet connection
+     * is available then it creates a remote instance of the calculator on the server
+     * where the calculations take place, else calculation are performed on the user's
+     * own machine.
+     */
+    protected void createCalcInstance(){
+      calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
+    }
 
     /**
      * this function is called to draw the graph
@@ -718,7 +675,7 @@ public class Temp_HazardCurveApplication extends JApplet
       // so that warning messages for site parameters are not shown when Add graph is clicked
       imrGuiBean.showWarningMessages(false);
       try{
-        calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
+        createCalcInstance();
       }catch(Exception e){
         e.printStackTrace();
       }
@@ -776,22 +733,6 @@ public class Temp_HazardCurveApplication extends JApplet
         this.computeHazardCurve();
         this.drawGraph();
       }
-
-      /*// write the object
-      try {
-        FileOutputStream out = new FileOutputStream("OpenSHA_Object.file");
-        ObjectOutputStream s = new ObjectOutputStream(out);
-        s.writeObject(imrGuiBean.getParameterList());
-        s.writeObject(imtGuiBean.getParameterList());
-        s.writeObject(siteGuiBean.getParameterListEditor().getParameterList());
-        s.writeObject(erfGuiBean.getParameterList());
-        s.writeObject(timeSpanGuiBean.getParameterList());
-        s.writeObject(totalProbFuncs);
-        s.close();
-        out.close();
-      }catch(Exception e) {
-        e.printStackTrace();
-      }*/
 
     }
 
@@ -1216,7 +1157,7 @@ public class Temp_HazardCurveApplication extends JApplet
  /**
    * Initialize the ERF Gui Bean
    */
-  private void initERF_GuiBean() {
+  protected void initERF_GuiBean() {
      // create the ERF Gui Bean object
    ArrayList erf_Classes = new ArrayList();
    //adding the RMI based ERF's to the application
@@ -1229,18 +1170,6 @@ public class Temp_HazardCurveApplication extends JApplet
    erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_WG02_ERF_LIST_CLASS_NAME);
-   //adding the client based ERF's to the application
-   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-   //erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
-   erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
-   erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
-   erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
