@@ -68,7 +68,8 @@ AttenRelApp - update web site app (and others?).
 
 HazardCurveApplet 
 
-	- add "Interesting Sites" control panel that will set the lat and lon for some interesting locations
+	- add "Interesting Sites" control panel that will set the lat and lon 
+	  for some interesting locations
 
 Create SimpleFaultParameter and editor (so we can replace two PEER ERFs with one general ERF)
 
