@@ -6,14 +6,26 @@ import javax.swing.*;
 import java.util.*;
 import java.lang.reflect.*;
 import java.net.*;
+import javax.swing.border.*;
 import java.io.*;
+
+
+
+import com.jrefinery.chart.*;
+import com.jrefinery.chart.tooltips.*;
+import com.jrefinery.data.*;
 
 import org.scec.param.event.*;
 import org.scec.param.*;
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.sha.imr.gui.IMRGuiBean;
 import org.scec.sha.imr.ClassicIMRAPI;
-import javax.swing.border.*;
+import org.scec.sha.earthquake.*;
+import org.scec.data.Site;
+import org.scec.data.Location;
+import org.scec.data.function.*;
+import org.scec.gui.plot.jfreechart.*;
+
 /**
  * <p>Title: EqkForecastApplet</p>
  * <p>Description: Earthquake forecast Demo Applet</p>
@@ -63,6 +75,11 @@ public class EqkForecastApplet extends JApplet
   protected final static int W = 915;
   protected final static int H = 725;
 
+  /**
+   * for Y-log, 0 values will be converted to this small value
+   */
+  private double Y_MIN_VAL = 1e-8;
+
   // it maps the IMR names and supported IMT for each IMR
   protected ArrayList[] imtMap;
 
@@ -80,6 +97,7 @@ public class EqkForecastApplet extends JApplet
    */
   protected static HashMap imrNames = new HashMap();
   private JPanel jEqkForecastPanel = new JPanel();
+  protected Vector imrObject = new Vector();
 
   // combobox to show all the IMTs supported
   private JComboBox jIMTComboBox = new JComboBox();
@@ -112,6 +130,20 @@ public class EqkForecastApplet extends JApplet
   private DoubleParameter longitude = new DoubleParameter(LONGITUDE);
   private DoubleParameter latitude = new DoubleParameter(LATITUDE);
 
+  /**
+   * FunctionList declared
+   */
+
+  DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
+  DiscretizedFunctionXYDataSet totalData = new DiscretizedFunctionXYDataSet();
+
+  ArbitrarilyDiscretizedFunc[] hazFunction;
+
+  private String TITLE = new String("Seismic Hazard Analysis");
+
+  Frankel96_EqkRupForecast eqkRupForecast;
+
+  Color lightBlue = new Color( 200, 200, 230 );
 
   /**
    *  NED - Here is where you can add the new IMRS, follow my examples below
@@ -127,7 +159,6 @@ public class EqkForecastApplet extends JApplet
       imrNames.put( C_CLASS_NAME, C_NAME );
       imrNames.put( SCEMY_CLASS_NAME, SCEMY_NAME );
       imrNames.put( F_CLASS_NAME, F_NAME );
-      imrNames.put( A_CLASS_NAME, A_NAME );
 
       try { UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() ); }
       catch ( Exception e ) {
@@ -140,9 +171,8 @@ public class EqkForecastApplet extends JApplet
   private GridLayout gridLayout1 = new GridLayout();
   private Border border2;
   private JPanel sitePanel = new JPanel();
-  private BorderLayout borderLayout1 = new BorderLayout();
   private Border border3;
-  private JPanel jPanel1 = new JPanel();
+  private JPanel panel  = new JPanel();
   private Border border4;
   private JLabel jTimeSpan = new JLabel();
   private JTextField jTimeField = new JTextField();
@@ -151,6 +181,8 @@ public class EqkForecastApplet extends JApplet
   private JComboBox jEqkForeType = new JComboBox();
   private JCheckBox jCheckCVM = new JCheckBox();
   private JButton jBCalc = new JButton();
+  GridBagLayout gridBagLayout2 = new GridBagLayout();
+  BorderLayout borderLayout1 = new BorderLayout();
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -160,6 +192,12 @@ public class EqkForecastApplet extends JApplet
 
   //Construct the applet
   public EqkForecastApplet() {
+
+    totalData.setFunctions(totalProbFuncs);
+    totalData.setConvertZeroToMin(true,Y_MIN_VAL);
+    hazFunction = new ArbitrarilyDiscretizedFunc[imrNames.size()];
+    totalProbFuncs.setXAxisName("X Axis");
+    totalProbFuncs.setYAxisName("Y Axis");
   }
   //Initialize the applet
   public void init() {
@@ -170,6 +208,7 @@ public class EqkForecastApplet extends JApplet
       e.printStackTrace();
     }
     initEqkForecastGui();
+    eqkRupForecast = new Frankel96_EqkRupForecast();
   }
   //Component initialization
   private void jbInit() throws Exception {
@@ -177,12 +216,18 @@ public class EqkForecastApplet extends JApplet
     jBCalc.setBounds(new Rectangle(687, 614, 122, 33));
     jBCalc.setForeground(new Color(80, 80, 133));
     jBCalc.setText("Add Graph");
+    jBCalc.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        jBCalc_actionPerformed(e);
+      }
+    });
     jCheckCVM.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jCheckCVM_actionPerformed(e);
       }
     });
-    jEqkForecastPanel.add(jPanel1, null);
+    panel.setLayout(gridBagLayout2);
+    jEqkForecastPanel.add(panel, null);
     jEqkForecastPanel.add(jForecastLabel, null);
     jEqkForecastPanel.add(jEqkForeType, null);
     jEqkForecastPanel.add(jTimeSpan, null);
@@ -242,9 +287,9 @@ public class EqkForecastApplet extends JApplet
     jIMTLabel.setForeground(new Color(80, 80, 133));
     jIMTLabel.setText("Select IMT:");
     jIMTLabel.setBounds(new Rectangle(636, 16, 68, 23));
-    jPanel1.setBackground(Color.white);
-    jPanel1.setBorder(border4);
-    jPanel1.setBounds(new Rectangle(6, 6, 625, 655));
+    panel.setBackground(Color.white);
+    panel.setBorder(border4);
+    panel.setBounds(new Rectangle(6, 6, 625, 655));
     jTimeSpan.setBackground(new Color(200, 200, 230));
     jTimeSpan.setFont(new java.awt.Font("Dialog", 1, 11));
     jTimeSpan.setForeground(new Color(80, 80, 133));
@@ -349,6 +394,7 @@ public class EqkForecastApplet extends JApplet
 
      // create the imr instance
      imr = ( ClassicIMRAPI ) createIMRClassInstance(className ,this);
+     imrObject.add(imr);
 
      // get the list of sites supported by this IMR
      ListIterator listIt = imr.getSiteParamsIterator();
@@ -628,8 +674,6 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
 
 
-
-
  /**
   *  Sets the frame attribute of the EqkForecast object
   *
@@ -697,8 +741,9 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
             paramTemp = (Parameter)siteMap[i].get(j);
 
             //if this paramter has not been added till now
-            if(!siteParamList.containsParameter(paramTemp.getName()))
+            if(!siteParamList.containsParameter(paramTemp.getName())) {
                siteParamList.addParameter(paramTemp);
+            }
           }
       }
 
@@ -763,4 +808,215 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
      System.out.println("Exception in connection with servlet:" +exception);
    }
   }
+
+  void jBCalc_actionPerformed(ActionEvent e) {
+
+    if(jTimeField.getText()=="")
+      JOptionPane.showMessageDialog(this,new String("Must enter the time field")
+                                    ,"Incomplete Data Entered",JOptionPane.ERROR_MESSAGE);
+    if(Double.parseDouble(jTimeField.getText()) == Double.NaN)
+      JOptionPane.showMessageDialog(this,new String("Must enter a valid numerical value in the TimeSpan")
+                                    ,"Wrong Data Entered",JOptionPane.ERROR_MESSAGE);
+    else{
+       int imrSize=imrNames.size();
+       ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
+       for(int i=0; i<imrSize; ++i) {
+         hazFunction[i] = new ArbitrarilyDiscretizedFunc();
+         initDiscretizeValues(hazFunction[i]);
+       }
+
+      eqkRupForecast.setTimeSpan(Double.parseDouble(jTimeField.getText()));
+      double totProb=1;
+      this.totalProbFuncs.clear();
+      for(int i=0;i<imrSize;++i) {
+        if(jIMRNum[i].isSelected()){
+          totalProbFuncs.add(hazFunction[i]);
+          String imt = (String)jIMTComboBox.getSelectedItem();
+          if(!(imt.substring(0,2)).equalsIgnoreCase(SA)) {
+            ((ClassicIMRAPI)imrObject.get(i)).setIntensityMeasure(imt);
+          }
+          else{
+              ((ClassicIMRAPI)imrObject.get(i)).setIntensityMeasure(SA);
+              ParameterAPI period = ((ClassicIMRAPI)imrObject.get(i)).getParameter("Period");
+              StringTokenizer st = new StringTokenizer(imt);
+              st.nextToken();
+              period.setValue(new Double(Double.parseDouble(st.nextToken())));
+          }
+
+          double longVal=((Double)siteParamList.getParameter(LONGITUDE).getValue()).doubleValue();
+          double latVal = ((Double)siteParamList.getParameter(LATITUDE).getValue()).doubleValue();
+          Site site = new Site(new Location(latVal,longVal));
+          site.addParameterList(this.siteParamList);
+          ((ClassicIMRAPI)imrObject.get(i)).setSite(site);
+        }
+      }
+      int numSources = eqkRupForecast.getNumSources();
+      for(int i=0;i < numSources ;i++) {
+        int numRuptures = eqkRupForecast.getNumRuptures(i);
+         for(int n=1; n <= numRuptures ;n++){
+           double qkProb = ((ProbEqkRupture)eqkRupForecast.getRupture(i,n)).getProbability();
+           for(int imr=0;imr<imrSize;imr++){
+              initLogDiscretizeValues(condProbFunc);
+              if(jIMRNum[imr].isSelected()){
+                ((ClassicIMRAPI)imrObject.get(imr)).setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(i,n));
+                condProbFunc=(ArbitrarilyDiscretizedFunc)((ClassicIMRAPI)imrObject.get(imr)).getExceedProbabilities(condProbFunc);
+                for(int k=0;k<condProbFunc.getNum();k++){
+                  hazFunction[imr].set(k,hazFunction[imr].getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
+                }
+              }
+           }
+        }
+      }
+      for(int imr=0;imr<imrSize;++imr){
+        for(int j=0;j<condProbFunc.getNum();++j){
+          if(jIMRNum[imr].isSelected()){
+             hazFunction[imr].set(j,1-hazFunction[imr].getY(j));
+          }
+        }
+      }
+    }
+  }
+
+
+  /**
+   * Initialize the X values and the prob as 1
+   *
+   * @param arb
+   */
+  private void initDiscretizeValues(ArbitrarilyDiscretizedFunc arb){
+              arb.set(.001,1);
+              arb.set(.01,1);
+              arb.set(.05,1);
+              arb.set(.15,1);
+              arb.set(.2,1);
+              arb.set(.25,1);
+              arb.set(.3,1);
+              arb.set(.4,1);
+              arb.set(.5,1);
+              arb.set(.6,1);
+              arb.set(.7,1);
+              arb.set(.8,1);
+              arb.set(.9,1);
+              arb.set(1.0,1);
+              arb.set(1.1,1);
+              arb.set(1.2,1);
+              arb.set(1.3,1);
+              arb.set(1.4,1);
+              arb.set(1.5,1);
+  }
+
+  /**
+   * set x values in log space
+   *
+   * @param arb
+   */
+  private void initLogDiscretizeValues(ArbitrarilyDiscretizedFunc arb){
+                arb.set(Math.log(.001),1);
+                arb.set(Math.log(.01),1);
+                arb.set(Math.log(.05),1);
+                arb.set(Math.log(.15),1);
+                arb.set(Math.log(.2),1);
+                arb.set(Math.log(.25),1);
+                arb.set(Math.log(.3),1);
+                arb.set(Math.log(.4),1);
+                arb.set(Math.log(.5),1);
+                arb.set(Math.log(.6),1);
+                arb.set(Math.log(.7),1);
+                arb.set(Math.log(.8),1);
+                arb.set(Math.log(.9),1);
+                arb.set(Math.log(1.0),1);
+                arb.set(Math.log(1.1),1);
+                arb.set(Math.log(1.2),1);
+                arb.set(Math.log(1.3),1);
+                arb.set(Math.log(1.4),1);
+                arb.set(Math.log(1.5),1);
+    }
+
+
+
+
+
+  /**
+   *  Adds a feature to the GraphPanel attribute of the EqkForecastApplet object
+   */
+  protected void addGraphPanel() {
+
+      // Starting
+      String S = C + ": addGraphPanel(): ";
+
+      String newXYAxisName = this.totalProbFuncs.getXYAxesName();
+
+
+      // create a default chart based on some sample data...
+
+      // Determine which IM to add to the axis labeling
+      String xAxisLabel = totalProbFuncs.getXAxisName();
+      String yAxisLabel = totalProbFuncs.getYAxisName();
+
+
+
+
+      HorizontalNumberAxis xAxis = new SHAHorizontalNumberAxis( xAxisLabel );
+
+      xAxis.setAutoRangeIncludesZero( false );
+      xAxis.setCrosshairLockedOnData( false );
+      xAxis.setCrosshairVisible(false);
+
+
+
+      VerticalNumberAxis yAxis = new SHAVerticalNumberAxis( yAxisLabel );
+
+      yAxis.setAutoRangeMinimumSize(new Integer(0));
+      yAxis.setAutoRangeIncludesZero( false );
+      yAxis.setCrosshairLockedOnData( false );
+      yAxis.setCrosshairVisible( false);
+
+
+      int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
+
+
+      LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+      //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
+
+
+      // build the plot
+
+      org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this.totalData, xAxis, yAxis, renderer);
+
+
+
+      plot.setBackgroundAlpha( .8f );
+
+
+
+      plot.setXYItemRenderer( renderer );
+
+
+      JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, true );
+
+      chart.setBackgroundPaint( lightBlue );
+
+      // chart.setBackgroundImage(image);
+      // chart.setBackgroundImageAlpha(.3f);
+
+      // Put into a panel
+      ChartPanel chartPanel = new ChartPanel(chart, true, true, true, true, false);
+      //panel.setMouseZoomable(true);
+
+      chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+      chartPanel.setMouseZoomable(true);
+      chartPanel.setGenerateToolTips(true);
+      chartPanel.setHorizontalAxisTrace(false);
+      chartPanel.setVerticalAxisTrace(false);
+
+      panel.removeAll();
+      panel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                              , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+
+      validate();
+      repaint();
+
+   }
+
 }

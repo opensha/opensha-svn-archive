@@ -270,7 +270,23 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
    */
   public void setTimeSpan(double yrs){
     timeSpan =yrs;
+    int size = this.FrankelA_CharEqkSources.size();
+    for( int i =0; i<size; ++i)
+      ((Frankel96_CharEqkSource)FrankelA_CharEqkSources.get(i)).setTimeSpan(yrs);
+
+    size = this.FrankelB_CharEqkSources.size();
+    for( int i =0; i<size; ++i)
+      ((Frankel96_CharEqkSource)FrankelB_CharEqkSources.get(i)).setTimeSpan(yrs);
+
+    size = this.FrankelB_GR_EqkSources.size();
+    for( int i =0; i<size; ++i)
+      ((Frankel96_GR_EqkSource)FrankelB_GR_EqkSources.get(i)).setTimeSpan(yrs);
+
+
   }
+
+
+
 
   /**
    * This method sets the time-span field
