@@ -55,14 +55,17 @@ import java.awt.*;
 
 
 /**
- * <p>Title: HazardDataSetPlotter</p>
- * <p>Description: </p>
+ * <p>Title: PlotCurvesFromHazardDataSetApp</p>
+ * <p>Description: Plot the curves from the Hazard Dataset.
+ * This application allows the user to select from the existing hazard map dataset,
+ * then for that dataset, fill in the latitude and longitude for which curve needs
+ * to be plotted.</p>
  * @author Nitin Gupta and Vipin Gupta
  * Date : Sept 23 , 2002
  * @version 1.0
  */
 
-public class HazardDataSetPlotter extends JApplet
+public class PlotCurvesFromHazardDataSetApp extends JApplet
     implements ButtonControlPanelAPI,GraphPanelAPI, GraphWindowAPI{
 
   /**
@@ -195,7 +198,7 @@ public class HazardDataSetPlotter extends JApplet
   }
 
   //Construct the applet
-  public HazardDataSetPlotter() {
+  public PlotCurvesFromHazardDataSetApp() {
 
   }
   //Initialize the applet
@@ -350,15 +353,15 @@ public class HazardDataSetPlotter extends JApplet
 
   //Main method
   public static void main(String[] args) {
-    HazardDataSetPlotter applet = new HazardDataSetPlotter();
-    applet.isStandalone = true;
+    PlotCurvesFromHazardDataSetApp application = new PlotCurvesFromHazardDataSetApp();
+    application.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle(applet.getAppletInfo());
-    frame.getContentPane().add(applet, BorderLayout.CENTER);
-    applet.init();
-    applet.start();
+    frame.setTitle(application.getAppletInfo());
+    frame.getContentPane().add(application, BorderLayout.CENTER);
+    application.init();
+    application.start();
     frame.setSize(W,H);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);

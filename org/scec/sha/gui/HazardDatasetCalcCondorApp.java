@@ -31,8 +31,14 @@ import org.scec.util.ImageUtils;
 
 
 /**
- * <p>Title: HazardMapApplet</p>
- * <p>Description: </p>
+ * <p>Title: HazardDatasetCalcCondorApp</p>
+ * <p>Description: This application allows the user to calculate the hazard map
+ * dataset using the condor pool at USC. Once the dataset is computed an email
+ * will be sent to the user that computation have been completed.
+ * This application is smart enough to check if the calculation that you are trying
+ * to do have already been done. If the computation have already been done, rather
+ * then doing the computation again it will return dataset id of already computed
+ * dataset.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author: Ned Field & Nitin Gupta & Vipin Gupta
@@ -40,7 +46,7 @@ import org.scec.util.ImageUtils;
  * @version 1.0
  */
 
-public class HazardMapApplet extends JApplet
+public class HazardDatasetCalcCondorApp extends JApplet
     implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, Runnable {
 
 
@@ -160,7 +166,7 @@ public class HazardMapApplet extends JApplet
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
   //Construct the applet
-  public HazardMapApplet() {
+  public HazardDatasetCalcCondorApp() {
   }
   //Initialize the applet
   public void init() {
@@ -266,15 +272,15 @@ public class HazardMapApplet extends JApplet
 
   //Main method
   public static void main(String[] args) {
-    HazardMapApplet applet = new HazardMapApplet();
-    applet.isStandalone = true;
+    HazardDatasetCalcCondorApp application = new HazardDatasetCalcCondorApp();
+    application.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
     frame.setTitle("HazardMap App");
-    frame.getContentPane().add(applet, BorderLayout.CENTER);
-    applet.init();
-    applet.start();
+    frame.getContentPane().add(application, BorderLayout.CENTER);
+    application.init();
+    application.start();
     frame.setSize(W,H);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);
