@@ -175,7 +175,8 @@ public class SubmitJobForGridComputation {
 
       // a post processor which will tar all the files on remote machine after
       // all hazard map calculations are done
-      condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix, "",
+      condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix, remoteDir+" "+
+                                        new String(DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName),
                                         outputDir,submitFilesDir, POST_PROCESSOR_CONDOR_SUBMIT,
                                         remoteDir, POST_PROCESSOR_EXECUTABLE);
       frmap.write("Job " + this.FINISH_JOB_NAME + " " + condorSubmit + "\n");
