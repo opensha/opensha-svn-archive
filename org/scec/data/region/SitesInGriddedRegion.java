@@ -48,6 +48,9 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   //Instance of the site TransLator class
   SiteTranslator siteTranslator = new SiteTranslator();
 
+  //Instance of the SiteTranslatorTests to check for the Site Param values
+  SiteTranslatorTests tests = null;
+
   /**
    *class constructor
    * @param minLat
@@ -69,6 +72,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    */
   public Site getSite(int index){
      site.setLocation(getGridLocation(index));
+     String siteInfo=null;
      if(!setSameSiteParams){
        //getting the Site Parameters Iterator
        Iterator it = site.getParametersIterator();
@@ -88,6 +92,18 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
                tempParam = param;
            }
          }
+
+         //writing the site info to the file to test if we are getting the correct site Paramters
+         siteInfo = site.getLocation().getLatitude()+"\t\t"+site.getLocation().getLongitude()+"\t\t\t"+
+            (String)vs30.get(index)+"\t\t\t"+((Double)basinDepth.get(index)).doubleValue()+
+            "\t\t\t"+flag+"\t\t\t"+tempParam.getName()+"\t\t\t"+tempParam.getValue().toString()+"\n";
+
+         tests.writeToSiteParamFile(siteInfo);
+       }
+
+       if(index == getNumGridLocs()-1){
+         tests.closeSiteParamFile();
+         tests = null;
        }
      }
      return site;
@@ -160,6 +176,8 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    basinDepth = new Vector();
    for(int i=0;i<size;++i)
      basinDepth.add(new Double(Double.NaN));
+
+   tests = new SiteTranslatorTests();
  }
 
 
@@ -177,6 +195,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    }catch(Exception e){
      throw new RuntimeException(e.getMessage());
    }
+   tests = new SiteTranslatorTests();
  }
 
  /**

@@ -7,8 +7,8 @@ import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.data.Site;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.*;
-import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.data.XYZ_DataSetAPI;
+import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.imr.AttenuationRelationship;
 /**
@@ -44,17 +44,19 @@ public class ScenarioShakeMapCalculator {
    * @param isProbAtIML : if true the prob at the specified IML value (next param) will
    * be computed; if false the IML at the specified Prob value (next param) will be computed.
    * @param value : the IML or Prob to compute the map for.
-   * @returns the Vector  of doubles with the probablity value for each site.
+   * @returns the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
    */
-  public Vector getScenarioShakeMapData(SitesInGriddedRegion griddedRegionSites,
+  public XYZ_DataSetAPI getScenarioShakeMapData(SitesInGriddedRegion griddedRegionSites,
                                       AttenuationRelationship imr, EqkRupture rupture,
                                       boolean isProbAtIML,double value) {
 
+    XYZ_DataSetAPI xyzDataSet ;
     Site site;
     Vector siteLat= new Vector();
     Vector siteLon= new Vector();
     Vector siteValue = new Vector();
     int numSites = griddedRegionSites.getNumGridLocs();
+
     for(int i=0;i<numSites;++i) {
       site = griddedRegionSites.getSite(i);
 
@@ -82,7 +84,8 @@ public class ScenarioShakeMapCalculator {
         }
       }
     }
-    return siteValue;
+    xyzDataSet = new ArbDiscretizedXYZ_DataSet(siteLat,siteLon,siteValue);
+    return xyzDataSet;
   }
 
 
