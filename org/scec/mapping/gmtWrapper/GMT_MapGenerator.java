@@ -142,7 +142,7 @@ public class GMT_MapGenerator implements Serializable{
     minLatParam.setInfo(LAT_LON_PARAM_INFO);
     maxLonParam = new DoubleParameter(MAX_LON_PARAM_NAME,-360,360,LAT_LON_PARAM_UNITS,MAX_LON_PARAM_DEFAULT);
     minLatParam.setInfo(LAT_LON_PARAM_INFO);
-    gridSpacingParam = new DoubleParameter(GRID_SPACING_PARAM_NAME,.01,100,LAT_LON_PARAM_UNITS,GRID_SPACING_PARAM_DEFAULT);
+    gridSpacingParam = new DoubleParameter(GRID_SPACING_PARAM_NAME,.001,100,LAT_LON_PARAM_UNITS,GRID_SPACING_PARAM_DEFAULT);
     minLatParam.setInfo(GRID_SPACING_PARAM_INFO);
 
     StringConstraint cptFileConstraint = new StringConstraint();
