@@ -31,24 +31,27 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
   //maximum wall time that we are requesting the processors for (in minutes)
   public final static double MAX_WALL_TIME =180;
 
-
+  // parent directory on almaak.usc.edu where computations will take place
+  protected final static String REMOTE_DIR = "/home/rcf-71/vgupta/pool/OpenSHA/threadCalc/";
 
   private final static String REMOTE_EXECUTABLE_NAME = "MapCalcUsingMultiprocessor.sh";
 
   // this executable will create a new directory at the machine
-  private final static String PRE_PROCESSOR_EXECUTABLE = "HazardMapPreProcessor.sh";
-  // name of condor submit file which will submit the pre processor job
-  private final static String PRE_PROCESSOR_CONDOR_SUBMIT = "preparation";
-  // name of Job that will be used in DAG
-  private final static String PRE_PROCESSOR_JOB_NAME = "PREPARATION";
+  private final static String PRE_PROCESSOR_EXECUTABLE = "HazardMapThreadPreProcessor.sh";
 
-  // this script will be executed after all the hazard map dataset is created
-  private final static String POST_PROCESSOR_EXECUTABLE = "HazardMapPostProcessor.sh";
-  // name of condor submit file which will submit the post processor job
-  private final static String POST_PROCESSOR_CONDOR_SUBMIT = "finish";
-  // name of Job that will be used in DAG
-  private final static String FINISH_JOB_NAME = "FINISH";
 
+  //tar file which contain all the object files and Dag.
+  private final static String OBJECT_TAR_FILES = "objectfiles.tar";
+
+  private final static String HAZARD_MAP_JOB_NAME = "HAZARD_MAP_MULTIPROCESSOR_JOB";
+
+  private final static String PUT_OBJECT_FILES_TO_REMOTE_MACHINE = "putObjects.sh";
+
+
+  // files for untarring the object files on the remote machine
+  private final static String UNTAR_OBJECT_FILES = "untarObjectFiles";
+  private final static String UNTAR_OBJECT_EXECUTABLE= "UntarObjectFiles.sh";
+  private final static String UNTAR_OBJECT_JOB_NAME="UNTAROBJECT";
 
 
 
@@ -101,6 +104,21 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
                                                PRE_PROCESSOR_EXECUTABLE);
       frmap.write("Job "+this.PRE_PROCESSOR_JOB_NAME+" " +condorSubmit+"\n");
 
+      //creates the shell script to gridftp the object files(in tar format)
+      //to almaak.usc.edu
+      ftpObjectFilesToRemoteMachine(outputDir, remoteDir, imrFileName, erfFileName,
+                                    regionFileName, xValuesFileName);
+      frmap.write("Script Post "+PRE_PROCESSOR_JOB_NAME+" "+
+                  outputDir+SCRIPT_FILES_DIR+PUT_OBJECT_FILES_TO_REMOTE_MACHINE+"\n");
+
+      // now make a condor script which will untar the object files on remote machine
+      condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix, "",
+                                        outputDir,outputDir+SUBMIT_FILES_DIR, UNTAR_OBJECT_FILES,
+                                        remoteDir, UNTAR_OBJECT_EXECUTABLE);
+      frmap.write("Job " + UNTAR_OBJECT_JOB_NAME + " " + condorSubmit + "\n");
+      frmap.write("PARENT "+PRE_PROCESSOR_JOB_NAME+" CHILD "+UNTAR_OBJECT_JOB_NAME+"\n");
+      frmap.write("PARENT "+UNTAR_OBJECT_JOB_NAME+" CHILD "+HAZARD_MAP_JOB_NAME+"\n");
+
 
       // a post processor which will tar all the files on remote machine after
       // all hazard map calculations are done
@@ -123,10 +141,14 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
 
 
       // make the submit files to submit the jobs
-      getSubmitFileName(imrFileName, erfFileName,
-                         regionFileName, xValuesFileName,
-                         maxDistance,
-                         outputDir+SUBMIT_FILES_DIR, remoteDir, outputDir);
+      condorSubmit = getSubmitFileName(imrFileName, erfFileName,
+                                               regionFileName, xValuesFileName,
+                                               maxDistance,outputDir+SUBMIT_FILES_DIR,
+                                               remoteDir, outputDir);
+
+      frmap.write("Job " + HAZARD_MAP_JOB_NAME + " " + condorSubmit + "\n");
+      frmap.write("PARENT " + HAZARD_MAP_JOB_NAME + " CHILD " + this.FINISH_JOB_NAME +
+                  "\n");
 
       // close the DAG files
       frmap.close();
@@ -159,7 +181,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
    * @param griddedSites
    * @return
    */
-  protected void getSubmitFileName(String imrFileName, String erfFileName,
+  protected String getSubmitFileName(String imrFileName, String erfFileName,
                                      String regionFileName,
                                      String xValuesFileName,
                                      double maxDistance,
@@ -168,7 +190,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
 
 
     // some lines needed in the condor submit file
-    String fileDataPrefix = "universe = universe\n" +
+    String fileDataPrefix = "universe = globus\n" +
                             "globusscheduler=almaak.usc.edu/jobmanager-pbs\n" +
                             "initialdir=" + outputDir + "\n"+
                             "globusrsl = (count="+NUM_OF_PROCESSORS_AVAILABLE+") (hostcount=1) "+
@@ -178,12 +200,48 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
                            "notification=error\n"+
                            "queue" + "\n";
 
-    String arguments = imrFileName+" "+regionFileName + " " + erfFileName;
-    String condorSubmitScript = createCondorScript(fileDataPrefix, fileDataSuffix,
-        arguments,
-        outputDir, submitFilesDir, HAZARD_CURVES_SUBMIT,
-        remoteDir, REMOTE_EXECUTABLE_NAME);
+    String arguments = imrFileName+" "+regionFileName + " " + erfFileName+" "+
+                       xValuesFileName+" "+maxDistance;
+    return createCondorScript(fileDataPrefix, fileDataSuffix,
+                              arguments,
+                              outputDir, submitFilesDir, HAZARD_CURVES_SUBMIT,
+                              remoteDir, REMOTE_EXECUTABLE_NAME);
   }
+
+
+
+  /**
+   * creates the shell to Grid FTP the objects files to remote machine.
+   *
+   * @param remoteDir
+   * @param outputDir
+   */
+  private void ftpObjectFilesToRemoteMachine(String outputDir,
+                                             String remoteDir, String imrFileName,
+                                             String erfFileName,
+                                             String regionFileName,
+                                             String xValuesFileName) {
+    try {
+
+      //grid ftp object files from gravity to almaak
+      FileWriter frFTP = new FileWriter(outputDir +SCRIPT_FILES_DIR+
+                                        PUT_OBJECT_FILES_TO_REMOTE_MACHINE);
+      frFTP.write("#!/bin/csh\n");
+      frFTP.write("cd " +outputDir+OBJECTS_DIR+ "\n");
+      frFTP.write("tar -cf " + OBJECT_TAR_FILES+" "+imrFileName+" "+erfFileName+" "+
+                  regionFileName+ " "+xValuesFileName+"\n");
+      frFTP.write("globus-url-copy file:" + outputDir+OBJECTS_DIR +
+                  OBJECT_TAR_FILES +
+                  " gsiftp://almaak.usc.edu" + remoteDir + OBJECT_TAR_FILES +
+                  "\n");
+      frFTP.close();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+
 
 
 
@@ -194,6 +252,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
       fw.write("#!/bin/csh\n");
       fw.write("cd "+outputDir+SUBMIT_FILES_DIR+"\n");
       fw.write("chmod +x "+outputDir+SCRIPT_FILES_DIR+GET_CURVES_FROM_REMOTE_MACHINE+"\n");
+      fw.write("chmod +x "+outputDir+SCRIPT_FILES_DIR+PUT_OBJECT_FILES_TO_REMOTE_MACHINE+"\n");
       fw.write("condor_submit_dag "+DAG_FILE_NAME+"\n");
       fw.close();
       RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+SUBMIT_FILES_DIR+SUBMIT_DAG_SHELL_SCRIPT_NAME});

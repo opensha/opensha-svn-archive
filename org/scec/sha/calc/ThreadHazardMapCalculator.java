@@ -38,13 +38,13 @@ public class ThreadHazardMapCalculator {
   // make a array for saving the X values
  /* private static   double [] xValues = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
                              .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5 };*/
-  private static int MAX_DISTANCE = 200;
-  private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
-  private boolean xLogFlag = true;
+  //private static int MAX_DISTANCE = 200;
+  //private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
+  //private boolean xLogFlag = true;
 
   //private static int numPoints = xValues.length;
   // now run the hazard map calculations
-  HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
+  //HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
 
   public static void main(String[] args)
   {
@@ -75,7 +75,7 @@ public class ThreadHazardMapCalculator {
     try{
 
       SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
-      hazCurveCalc.setMaxSourceDistance(this.MAX_DISTANCE);
+      //hazCurveCalc.setMaxSourceDistance(this.MAX_DISTANCE);
       int numSites = griddedSites.getNumGridLocs();
       //dividing the number of sites on each processor based on the number of processor
       //requested from the server.
