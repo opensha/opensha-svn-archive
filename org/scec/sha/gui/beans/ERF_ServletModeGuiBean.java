@@ -247,6 +247,16 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
       }
     }
 
+    //if the selected ERF is the STEP ERF
+    else if(selectedForecast.equalsIgnoreCase(STEP_AlaskanPipeForecast.NAME)){
+      try{
+      eqkRupForecast=(ForecastAPI)this.openSTEP_ERF_AlaskanPipeConnection(this.getERF_API);
+      }catch(Exception e){
+        throw new RuntimeException("Connection to STEP ERF for Alaskan Pipe servlet failed");
+      }
+    }
+
+
     //if the selected forecast is WG02_List Forecast
     else if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME)){
       try{
@@ -418,6 +428,18 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     //parameterChangeFlagsForAllERF.put(stepForecastName,new Boolean(true));
 
 
+    //open the connection with the STEP Forecast  for Alaskan Pipe model
+    String stepAP_ForecastName =(String)openSTEP_ERF_AlaskanPipeConnection(getName);
+    ParameterList stepAP_ParamList =(ParameterList)openSTEP_ERF_AlaskanPipeConnection(getAdjParams);
+    TimeSpan stepAP_TimeSpan =(TimeSpan)openSTEP_ERF_AlaskanPipeConnection(getTimeSpan);
+    stepAP_TimeSpan.addParameterChangeListener(this);
+    paramListForAllERF.put(stepAP_ForecastName,stepAP_ParamList);
+    timespanListForAllERF.put(stepAP_ForecastName,stepAP_TimeSpan);
+    //parameterChangeFlagsForAllERF.put(stepAP_ForecastName,new Boolean(true));
+
+
+
+
 
     // gets the Names of all the ERF from the Hashtable and adds them to the vector
     //this list of ERF names act as the selection list for user to choose the ERF of his desire.
@@ -425,6 +447,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     this.erfNamesVector.add(wg02ForecastName);
     this.erfNamesVector.add(frankelForecastName);
     this.erfNamesVector.add(stepForecastName);
+    this.erfNamesVector.add(stepAP_ForecastName);
   }
 
 
@@ -486,6 +509,64 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     return outputFromServletFunction;
   }
 
+
+  /**
+   * sets up the connection with the Alaskan Pipe STEP Forecast Servlet on the server (gravity.usc.edu)
+   */
+  private  Object openSTEP_ERF_AlaskanPipeConnection(String function) throws Exception{
+
+    Object outputFromServletFunction=null;
+
+    URL stepERF_Servlet = new
+                           URL("http://gravity.usc.edu/OpenSHA/servlet/STEP_AlaskanPipeEqkRupForecastServlet");
+
+
+    URLConnection servletConnection = stepERF_Servlet.openConnection();
+    System.out.println("connection established:"+servletConnection.toString());
+
+    // inform the connection that we will send output and accept input
+    servletConnection.setDoInput(true);
+    servletConnection.setDoOutput(true);
+
+    // Don't use a cached version of URL connection.
+    servletConnection.setUseCaches (false);
+    servletConnection.setDefaultUseCaches (false);
+    // Specify the content type that we will send binary data
+    servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+    ObjectOutputStream outputToServlet = new
+        ObjectOutputStream(servletConnection.getOutputStream());
+
+    System.out.println("Calling the function:"+function);
+
+    //tells the servlet which function to call
+    outputToServlet.writeObject(function);
+
+    /**
+     * if the function to be called is getERF_API
+     * then we need to passs the TimeSpan and Adjustable ParamList to the
+     * servlet.
+     */
+    if(function.equalsIgnoreCase(this.getERF_API)){
+      //gives the Adjustable Params  object to the Servelet
+      outputToServlet.writeObject(this.getAdjParamList());
+      System.out.println(this.getAdjParamList().toString());
+      //gives the timeSpan object to the servlet
+      outputToServlet.writeObject(this.getTimeSpan());
+    }
+
+    outputToServlet.flush();
+    outputToServlet.close();
+
+    // Receive the "object" from the servlet after it has received all the data
+    ObjectInputStream inputToServlet = new
+                                       ObjectInputStream(servletConnection.getInputStream());
+
+    outputFromServletFunction=inputToServlet.readObject();
+    System.out.println("Received the input from the servlet");
+    inputToServlet.close();
+    return outputFromServletFunction;
+  }
 
 
 

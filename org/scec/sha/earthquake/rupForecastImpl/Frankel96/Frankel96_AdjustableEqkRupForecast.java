@@ -106,7 +106,7 @@ public class Frankel96_AdjustableEqkRupForecast extends EqkRupForecast
 
 
   // For fraction of moment rate on GR parameter
-  private final static String FRAC_GR_PARAM_NAME ="GR Fraction on B Faults";
+  public final static String FRAC_GR_PARAM_NAME ="GR Fraction on B Faults";
   private Double DEFAULT_FRAC_GR_VAL= new Double(0.5);
   private final static String FRAC_GR_PARAM_UNITS = null;
   private final static String FRAC_GR_PARAM_INFO = "Fraction of moment-rate put into GR dist on class-B faults";
@@ -115,7 +115,7 @@ public class Frankel96_AdjustableEqkRupForecast extends EqkRupForecast
   DoubleParameter fracGR_Param;
 
   // For rupture offset lenth along fault parameter
-  private final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
+  public final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
   private Double DEFAULT_RUP_OFFSET_VAL= new Double(10);
   private final static String RUP_OFFSET_PARAM_UNITS = "km";
   private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";

@@ -100,7 +100,7 @@ public class HazardCurveServerModeApp extends JApplet
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
-  private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
+  //private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
   private final static String DISAGGREGATION_CONTROL = "Disaggregation";
   private final static String EPISTEMIC_CONTROL = "ERF Epistemic Control";
   private final static String AXIS_CONTROL = "Axis Control";
@@ -1272,7 +1272,7 @@ public class HazardCurveServerModeApp extends JApplet
    */
   private void initControlList() {
     this.controlComboBox.addItem(CONTROL_PANELS);
-    this.controlComboBox.addItem(PEER_TEST_CONTROL);
+    //this.controlComboBox.addItem(PEER_TEST_CONTROL);
     this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
     this.controlComboBox.addItem(AXIS_CONTROL);
     this.controlComboBox.addItem(DISTANCE_CONTROL);
@@ -1287,9 +1287,9 @@ public class HazardCurveServerModeApp extends JApplet
   void controlComboBox_actionPerformed(ActionEvent e) {
     if(controlComboBox.getItemCount()<=0) return;
     String selectedControl = controlComboBox.getSelectedItem().toString();
-    if(selectedControl.equalsIgnoreCase(this.PEER_TEST_CONTROL))
-      initPEER_TestControl();
-    else if(selectedControl.equalsIgnoreCase(this.DISAGGREGATION_CONTROL))
+    /*if(selectedControl.equalsIgnoreCase(this.PEER_TEST_CONTROL))
+      initPEER_TestControl();*/
+    if(selectedControl.equalsIgnoreCase(this.DISAGGREGATION_CONTROL))
       initDisaggregationControl();
     else if(selectedControl.equalsIgnoreCase(this.EPISTEMIC_CONTROL))
       initEpistemicControl();
@@ -1312,7 +1312,7 @@ public class HazardCurveServerModeApp extends JApplet
    * This function is called when user selects "Select Test and site"
    * from controls pick list
    */
-  private void initPEER_TestControl() {
+  /*private void initPEER_TestControl() {
     //creating the instance of the PEER_TestParamSetter class which is extended from the
     //JComboBox, so it is like a control panel for creating the JComboBox containing the
     //name of different sets and the test cases
@@ -1325,7 +1325,7 @@ public class HazardCurveServerModeApp extends JApplet
           this.distanceControlPanel);
     peerTestsControlPanel.pack();
     peerTestsControlPanel.show();
-  }
+  }*/
 
 
   /**
