@@ -1,7 +1,7 @@
 CAMPBELL & BOZORGNIA (2003)
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -54,7 +54,7 @@ GetValue("Median") = 0.053975
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Thrust (dip<45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -107,7 +107,7 @@ GetValue("Median") = 0.060735
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse or Thrust"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -160,7 +160,7 @@ GetValue("Median") = 0.057255
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Strike Slip or Normal"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -214,7 +214,7 @@ GetValue("Median") = 0.057370
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Unknown"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -267,7 +267,7 @@ GetValue("Median") = 0.057312
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 6.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -320,7 +320,7 @@ GetValue("Median") = 0.011559
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 30
+SetParameter("DistanceSeis") = 30
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -373,7 +373,7 @@ GetValue("Median") = 0.020119
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 50
+SetParameter("DistanceSeis") = 50
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -426,7 +426,7 @@ GetValue("Median") = 0.012373
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -479,7 +479,7 @@ GetValue("Median") = 0.055037
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -532,7 +532,7 @@ GetValue("Median") = 0.056121
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 6.5
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -585,7 +585,7 @@ GetValue("Median") = 0.027991
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 6.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -638,7 +638,7 @@ GetValue("Median") = 0.011786
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 5.5
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -691,7 +691,7 @@ GetValue("Median") = 0.004431
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 3
+SetParameter("DistanceSeis") = 3
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -744,7 +744,7 @@ GetValue("Median") = 0.110657
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 6
+SetParameter("DistanceSeis") = 6
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -797,7 +797,7 @@ GetValue("Median") = 0.080791
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 8
+SetParameter("DistanceSeis") = 8
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -850,10 +850,10 @@ GetValue("Median") = 0.066817
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
+SetParameter("Campbell-2003 Site Type") = "Firm-Soil"
 SetParameter("Hanging Wall Param.") = 0.0
 
 SetParameter("SA Period") = 0.00
@@ -903,7 +903,7 @@ GetValue("Median") = 0.095920
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Very-Firm-Soil"
@@ -956,7 +956,7 @@ GetValue("Median") = 0.090878
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Soft-Rock"
@@ -1009,7 +1009,7 @@ GetValue("Median") = 0.073885
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Firm-Rock"
@@ -1062,7 +1062,7 @@ GetValue("Median") = 0.039429
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
@@ -1115,7 +1115,7 @@ GetValue("Median") = 0.094634
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "BC-Boundary"
@@ -1168,7 +1168,7 @@ GetValue("Median") = 0.047236
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Firm-Soil"
@@ -1221,7 +1221,7 @@ GetValue("Median") = 0.095920
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Very-Firm-Soil"
@@ -1274,7 +1274,7 @@ GetValue("Median") = 0.094492
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Soft-Rock"
@@ -1327,7 +1327,7 @@ GetValue("Median") = 0.076824
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Firm-Rock"
@@ -1380,7 +1380,7 @@ GetValue("Median") = 0.040998
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
@@ -1433,7 +1433,7 @@ GetValue("Median") = 0.095561
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "BC-Boundary"
@@ -1487,7 +1487,7 @@ GetValue("Median") = 0.049115
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.5
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 
@@ -1538,7 +1538,7 @@ GetValue("Std. Dev.") = 0.503000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.4
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 
@@ -1589,7 +1589,7 @@ GetValue("Std. Dev.") = 0.503000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 6.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 
@@ -1640,7 +1640,7 @@ GetValue("Std. Dev.") = 0.601000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 3
+SetParameter("DistanceSeis") = 3
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
@@ -1694,62 +1694,7 @@ GetValue("Std. Dev.") = 0.503000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
-SetParameter("Magnitude") = 7.0
-SetParameter("Fault Type") = "Reverse (dip>45)"
-SetParameter("Std Dev Type") = "Total (PGA Dependent)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
-SetParameter("Hanging Wall Param.") = 0.0
-
-
-SetParameter("SA Period") = 0.00
-GetValue("Std. Dev.") = 0.402000
-
-SetParameter("SA Period") = 0.05
-GetValue("Std. Dev.") = 0.422000
-
-SetParameter("SA Period") = 0.075
-GetValue("Std. Dev.") = 0.434000
-
-SetParameter("SA Period") = 0.10
-GetValue("Std. Dev.") = 0.440000
-
-SetParameter("SA Period") = 0.15
-GetValue("Std. Dev.") = 0.456000
-
-SetParameter("SA Period") = 0.20
-GetValue("Std. Dev.") = 0.463000
-
-SetParameter("SA Period") = 0.30
-GetValue("Std. Dev.") = 0.466000
-
-SetParameter("SA Period") = 0.40
-GetValue("Std. Dev.") = 0.469000
-
-SetParameter("SA Period") = 0.50
-GetValue("Std. Dev.") = 0.472000
-
-SetParameter("SA Period") = 0.75
-GetValue("Std. Dev.") = 0.503000
-
-SetParameter("SA Period") = 1.00
-GetValue("Std. Dev.") = 0.503000
-
-SetParameter("SA Period") = 1.50
-GetValue("Std. Dev.") = 0.503000
-
-SetParameter("SA Period") = 2.00
-GetValue("Std. Dev.") = 0.503000
-
-SetParameter("SA Period") = 3.00
-GetValue("Std. Dev.") = 0.503000
-
-SetParameter("SA Period") = 4.00
-GetValue("Std. Dev.") = 0.503000
-
-
-SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 20
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
@@ -1804,11 +1749,66 @@ GetValue("Std. Dev.") = 0.503000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 30
+SetParameter("DistanceSeis") = 20
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
+SetParameter("Hanging Wall Param.") = 0.0
+
+
+SetParameter("SA Period") = 0.00
+GetValue("Std. Dev.") = 0.402000
+
+SetParameter("SA Period") = 0.05
+GetValue("Std. Dev.") = 0.422000
+
+SetParameter("SA Period") = 0.075
+GetValue("Std. Dev.") = 0.434000
+
+SetParameter("SA Period") = 0.10
+GetValue("Std. Dev.") = 0.440000
+
+SetParameter("SA Period") = 0.15
+GetValue("Std. Dev.") = 0.456000
+
+SetParameter("SA Period") = 0.20
+GetValue("Std. Dev.") = 0.463000
+
+SetParameter("SA Period") = 0.30
+GetValue("Std. Dev.") = 0.466000
+
+SetParameter("SA Period") = 0.40
+GetValue("Std. Dev.") = 0.469000
+
+SetParameter("SA Period") = 0.50
+GetValue("Std. Dev.") = 0.472000
+
+SetParameter("SA Period") = 0.75
+GetValue("Std. Dev.") = 0.503000
+
+SetParameter("SA Period") = 1.00
+GetValue("Std. Dev.") = 0.503000
+
+SetParameter("SA Period") = 1.50
+GetValue("Std. Dev.") = 0.503000
+
+SetParameter("SA Period") = 2.00
+GetValue("Std. Dev.") = 0.503000
+
+SetParameter("SA Period") = 3.00
+GetValue("Std. Dev.") = 0.503000
+
+SetParameter("SA Period") = 4.00
+GetValue("Std. Dev.") = 0.503000
+
+
+SetIntensityMeasure(SA)
+SetParameter("DistanceSeis") = 30
+SetParameter("Magnitude") = 7.0
+SetParameter("Fault Type") = "Reverse (dip>45)"
+SetParameter("Std Dev Type") = "Total (PGA Dependent)"
+SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
 SetParameter("Hanging Wall Param.") = 0.0
 
 SetParameter("SA Period") = 0.00
@@ -1858,11 +1858,11 @@ GetValue("Std. Dev.") = 0.554123
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 50
+SetParameter("DistanceSeis") = 50
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
+SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
 SetParameter("Hanging Wall Param.") = 0.0
 
 SetParameter("SA Period") = 0.00
@@ -1912,11 +1912,11 @@ GetValue("Std. Dev.") = 0.623447
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 100
+SetParameter("DistanceSeis") = 100
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
+SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
 SetParameter("Hanging Wall Param.") = 0.0
 
 SetParameter("SA Period") = 0.00
@@ -1967,7 +1967,7 @@ GetValue("Std. Dev.") = 0.671000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2022,7 +2022,7 @@ GetValue("Median") = 0.034977
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Thrust (dip<45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2076,7 +2076,7 @@ GetValue("Median") = 0.031553
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse or Thrust"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2130,7 +2130,7 @@ GetValue("Median") = 0.033221
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Strike Slip or Normal"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2184,7 +2184,7 @@ GetValue("Median") = 0.027596
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Unknown"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2238,7 +2238,7 @@ GetValue("Median") = 0.030278
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 6.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2292,7 +2292,7 @@ GetValue("Median") = 0.007910
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 30
+SetParameter("DistanceSeis") = 30
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2346,7 +2346,7 @@ GetValue("Median") = 0.015369
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 50
+SetParameter("DistanceSeis") = 50
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2400,7 +2400,7 @@ GetValue("Median") = 0.010213
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2454,7 +2454,7 @@ GetValue("Median") = 0.039436
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2508,7 +2508,7 @@ GetValue("Median") = 0.044464
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 6.5
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2562,7 +2562,7 @@ GetValue("Median") = 0.022835
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 6.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2616,7 +2616,7 @@ GetValue("Median") = 0.008919
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 5.5
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2670,7 +2670,7 @@ GetValue("Median") = 0.003115
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 3
+SetParameter("DistanceSeis") = 3
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2724,7 +2724,7 @@ GetValue("Median") = 0.067017
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 6
+SetParameter("DistanceSeis") = 6
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2778,7 +2778,7 @@ GetValue("Median") = 0.056718
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 8
+SetParameter("DistanceSeis") = 8
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
@@ -2832,10 +2832,10 @@ GetValue("Median") = 0.051276
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
+SetParameter("Campbell-2003 Site Type") = "Firm-Soil"
 SetParameter("Hanging Wall Param.") = 0.0
 SetParameter("Component") = "Vertical"
 
@@ -2886,7 +2886,7 @@ GetValue("Median") = 0.054119
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Very-Firm-Soil"
@@ -2940,7 +2940,7 @@ GetValue("Median") = 0.051018
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Soft-Rock"
@@ -2994,7 +2994,7 @@ GetValue("Median") = 0.041437
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Firm-Rock"
@@ -3048,7 +3048,7 @@ GetValue("Median") = 0.029523
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
@@ -3102,7 +3102,7 @@ GetValue("Median") = 0.053327
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Firm-Soil"
@@ -3156,7 +3156,7 @@ GetValue("Median") = 0.054119
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Very-Firm-Soil"
@@ -3210,7 +3210,7 @@ GetValue("Median") = 0.064857
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Soft-Rock"
@@ -3264,7 +3264,7 @@ GetValue("Median") = 0.052677
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Firm-Rock"
@@ -3318,7 +3318,7 @@ GetValue("Median") = 0.037532
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
@@ -3372,7 +3372,7 @@ GetValue("Median") = 0.056624
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.5
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 SetParameter("Component") = "Vertical"
@@ -3424,7 +3424,7 @@ GetValue("Std. Dev.") = 0.513000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.4
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 SetParameter("Component") = "Vertical"
@@ -3476,7 +3476,7 @@ GetValue("Std. Dev.") = 0.513000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 6.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 SetParameter("Component") = "Vertical"
@@ -3528,11 +3528,11 @@ GetValue("Std. Dev.") = 0.611000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 3
+SetParameter("DistanceSeis") = 3
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
+SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
 SetParameter("Hanging Wall Param.") = 0.0
 SetParameter("Component") = "Vertical"
 
@@ -3583,11 +3583,11 @@ GetValue("Std. Dev.") = 0.513000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 10
+SetParameter("DistanceSeis") = 10
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
+SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
 SetParameter("Hanging Wall Param.") = 0.0
 SetParameter("Component") = "Vertical"
 
@@ -3638,11 +3638,11 @@ GetValue("Std. Dev.") = 0.513000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 20
+SetParameter("DistanceSeis") = 20
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
+SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
 SetParameter("Hanging Wall Param.") = 0.0
 SetParameter("Component") = "Vertical"
 
@@ -3693,11 +3693,11 @@ GetValue("Std. Dev.") = 0.558369
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 30
+SetParameter("DistanceSeis") = 30
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
+SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
 SetParameter("Hanging Wall Param.") = 0.0
 SetParameter("Component") = "Vertical"
 
@@ -3747,11 +3747,11 @@ SetParameter("SA Period") = 4.00
 GetValue("Std. Dev.") = 0.619184
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 50
+SetParameter("DistanceSeis") = 50
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
+SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
 SetParameter("Hanging Wall Param.") = 0.0
 SetParameter("Component") = "Vertical"
 
@@ -3802,11 +3802,11 @@ GetValue("Std. Dev.") = 0.681000
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceSies") = 100
+SetParameter("DistanceSeis") = 100
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Reverse (dip>45)"
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
-SetParameter("Campbell-2003 Site Type") = "Generic-Soil"
+SetParameter("Campbell-2003 Site Type") = "Generic-Rock"
 SetParameter("Hanging Wall Param.") = 0.0
 SetParameter("Component") = "Vertical"
 

@@ -727,22 +727,22 @@ SetParameter("SA Period") = 0.75
 GetValue("Std. Dev.") = 0.557045
 
 SetParameter("SA Period") = 1.00
-GetValue("Std. Dev.") = 0.578098
+GetValue("Std. Dev.") = 0.578134
 
 SetParameter("SA Period") = 1.50
-GetValue("Std. Dev.") = 0.591466
+GetValue("Std. Dev.") = 0.591530
 
 SetParameter("SA Period") = 2.00
-GetValue("Std. Dev.") = 0.602481
+GetValue("Std. Dev.") = 0.602566
 
 SetParameter("SA Period") = 3.00
-GetValue("Std. Dev.") = 0.625887
+GetValue("Std. Dev.") = 0.626000
 
 SetParameter("SA Period") = 4.00
-GetValue("Std. Dev.") = 0.636940
+GetValue("Std. Dev.") = 0.637073
 
 SetParameter("SA Period") = 5.00
-GetValue("Std. Dev.") = 0.649947
+GetValue("Std. Dev.") = 0.650096
 
 SetIntensityMeasure(SA)
 SetParameter("DistanceRup") = 10
@@ -813,25 +813,25 @@ SetParameter("SA Period") = 0.60
 GetValue("Std. Dev.") = 0.556000
 
 SetParameter("SA Period") = 0.75
-GetValue("Std. Dev.") = 0.557045
+GetValue("Std. Dev.") = 0.557061
 
 SetParameter("SA Period") = 1.00
-GetValue("Std. Dev.") = 0.578098
+GetValue("Std. Dev.") = 0.578134
 
 SetParameter("SA Period") = 1.50
-GetValue("Std. Dev.") = 0.591466
+GetValue("Std. Dev.") = 0.591530
 
 SetParameter("SA Period") = 2.00
-GetValue("Std. Dev.") = 0.602481
+GetValue("Std. Dev.") = 0.602566
 
 SetParameter("SA Period") = 3.00
-GetValue("Std. Dev.") = 0.625887
+GetValue("Std. Dev.") = 0.626000
 
 SetParameter("SA Period") = 4.00
-GetValue("Std. Dev.") = 0.636940
+GetValue("Std. Dev.") = 0.637073
 
 SetParameter("SA Period") = 5.00
-GetValue("Std. Dev.") = 0.649947
+GetValue("Std. Dev.") = 0.650096
 
 SetIntensityMeasure(SA)
 SetParameter("DistanceRup") = 10
@@ -902,25 +902,25 @@ SetParameter("SA Period") = 0.60
 GetValue("Std. Dev.") = 0.683000
 
 SetParameter("SA Period") = 0.75
-GetValue("Std. Dev.") = 0.680045
+GetValue("Std. Dev.") = 0.680061
 
 SetParameter("SA Period") = 1.00
-GetValue("Std. Dev.") = 0.696098
+GetValue("Std. Dev.") = 0.696134
 
 SetParameter("SA Period") = 1.50
-GetValue("Std. Dev.") = 0.701466
+GetValue("Std. Dev.") = 0.701530
 
 SetParameter("SA Period") = 2.00
-GetValue("Std. Dev.") = 0.707481
+GetValue("Std. Dev.") = 0.707566
 
 SetParameter("SA Period") = 3.00
-GetValue("Std. Dev.") = 0.722887
+GetValue("Std. Dev.") = 0.723000
 
 SetParameter("SA Period") = 4.00
-GetValue("Std. Dev.") = 0.728940
+GetValue("Std. Dev.") = 0.729073
 
 SetParameter("SA Period") = 5.00
-GetValue("Std. Dev.") = 0.736947
+GetValue("Std. Dev.") = 0.737096
 
 
 SetIntensityMeasure(SA)
@@ -992,25 +992,25 @@ SetParameter("SA Period") = 0.60
 GetValue("Std. Dev.") = 0.810000
 
 SetParameter("SA Period") = 0.75
-GetValue("Std. Dev.") = 0.803045
+GetValue("Std. Dev.") = 0.803061
 
 SetParameter("SA Period") = 1.00
-GetValue("Std. Dev.") = 0.814098
+GetValue("Std. Dev.") = 0.814134
 
 SetParameter("SA Period") = 1.50
-GetValue("Std. Dev.") = 0.811466
+GetValue("Std. Dev.") = 0.811530
 
 SetParameter("SA Period") = 2.00
-GetValue("Std. Dev.") = 0.812481
+GetValue("Std. Dev.") = 0.812566
 
 SetParameter("SA Period") = 3.00
-GetValue("Std. Dev.") = 0.819887
+GetValue("Std. Dev.") = 0.820000
 
 SetParameter("SA Period") = 4.00
-GetValue("Std. Dev.") = 0.820940
+GetValue("Std. Dev.") = 0.821073
 
 SetParameter("SA Period") = 5.00
-GetValue("Std. Dev.") = 0.823947
+GetValue("Std. Dev.") = 0.824096
 
 
 
@@ -1389,7 +1389,7 @@ GetValue("Median") = 0.030660
 
 
 SetIntensityMeasure(SA)
-SetParameter("DistanceRup") = 10
+SetParameter("DistanceRup") = 30
 SetParameter("Magnitude") = 7.0
 SetParameter("Fault Type") = "Strike Slip"
 SetParameter("AS Site Type") = "Rock/Shallow-Soil"

@@ -58,7 +58,7 @@ public class AttenRelResultsChecker {
 
 
   //Vector to store the failed testCases
-  private Vector testCaseNumberVector = new Vector();
+  //private Vector testCaseNumberVector = new Vector();
 
   //Vector to store the ControlParams name and Value
   private Vector controlParamVector = new Vector();
@@ -197,7 +197,7 @@ public class AttenRelResultsChecker {
             //we only need to get the parameters whose names have been given in the
             //file, result of the params will be set with the default values
             ParameterAPI tempParam = list.getParameter(paramName);
-
+            System.out.println("TestCaseNumber: "+this.testCaseNumber);
             //setting the value of the param based on which type it is: StringParameter,
             //DoubleParameter,IntegerParameter or WarningDoublePropagationEffectParameter(special parameter for propagation)
             if(tempParam instanceof StringParameter)
@@ -236,6 +236,7 @@ public class AttenRelResultsChecker {
 
             failedParamsSetting += "GetValue For Param: "+"\""+yControlName+"\": "+"\n";
             double yAxisParamValFromSHA =this.getCalculation(yAxisValue);
+            yAxisParamValFromSHA = new Double(decimalFormat.format(yAxisParamValFromSHA)).doubleValue();
             failedParamsSetting += "\tOpenSHA value for: "+"\""+yControlName+"\" = "+yAxisParamValFromSHA;
             failedParamsSetting += ",\tbut it should be : "+ yAxisParamVal+"\n";
 
@@ -381,7 +382,7 @@ public class AttenRelResultsChecker {
    *
    * @returns the Vector for the testCases number that failed
    */
-  public Vector getFailedTestResultNumberList(){
+ /* public Vector getFailedTestResultNumberList(){
     return this.testCaseNumberVector;
-  }
+  }*/
 }

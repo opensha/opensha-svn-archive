@@ -2,10 +2,10 @@ CAMPBELL (1997) w/ ERRATUM (2000, 2001) CHANGES
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Other"
+SetParameter("Fault Type") = "Other"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.347693
@@ -52,10 +52,10 @@ GetValue("Median") = 0.023981
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Other"
+SetParameter("Fault Type") = "Other"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.216276
@@ -102,10 +102,10 @@ GetValue("Median") = 0.009775
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 
 
 SetParameter("SA Period") = 0.00
@@ -153,10 +153,10 @@ GetValue("Median") = 0.026466
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.197625
@@ -204,10 +204,10 @@ GetValue("Median") = 0.014215
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.250388
@@ -254,10 +254,10 @@ GetValue("Median") = 0.011317
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.423490
@@ -305,10 +305,10 @@ GetValue("Median") = 0.029209
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 
 SetParameter("SA Period") = 0.00
@@ -355,10 +355,10 @@ GetValue("Median") = 0.015091
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.289880
@@ -405,10 +405,10 @@ GetValue("Median") = 0.013102124
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.423490
@@ -456,10 +456,10 @@ GetValue("Median") = 0.029209
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 1.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 
 SetParameter("SA Period") = 0.00
@@ -508,10 +508,10 @@ GetValue("Median") = 0.029209
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.423490
@@ -558,10 +558,10 @@ GetValue("Median") = 0.029209
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.423490
@@ -608,10 +608,10 @@ GetValue("Median") = 0.029209
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.457028
@@ -659,10 +659,10 @@ GetValue("Median") = 0.046579
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 1.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.493223
@@ -709,10 +709,10 @@ GetValue("Median") = 0.070499
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.493223
@@ -759,10 +759,10 @@ GetValue("Median") = 0.112466
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.423490
@@ -809,10 +809,10 @@ GetValue("Median") = 0.029209
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.446579
@@ -859,10 +859,10 @@ GetValue("Median") = 0.049059
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.470927
@@ -909,10 +909,10 @@ GetValue("Median") = 0.078205
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.470927
@@ -959,10 +959,10 @@ GetValue("Median") = 0.124761
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Rock"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.493223
@@ -1009,10 +1009,10 @@ GetValue("Median") = 0.070499
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.493223
@@ -1059,10 +1059,10 @@ GetValue("Median") = 0.070499
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Soil"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.470927
@@ -1110,10 +1110,10 @@ GetValue("Median") = 0.124761
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Soil"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 SetParameter("SA Period") = 0.00
 GetValue("Median") = 0.470927
@@ -1160,7 +1160,7 @@ GetValue("Median") = 0.124761
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.5
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 
 SetParameter("SA Period") = 0.00
@@ -1209,7 +1209,7 @@ GetValue("Std. Dev.") = 0.466154
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.4
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 
 SetParameter("SA Period") = 0.00
@@ -1257,7 +1257,7 @@ GetValue("Std. Dev.") = 0.466154
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 
 SetParameter("SA Period") = 0.00
@@ -1305,7 +1305,7 @@ GetValue("Std. Dev.") = 0.545853
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 3.0
+SetParameter("DistanceSeis") = 3.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -1356,7 +1356,7 @@ GetValue("Std. Dev.") = 0.474342
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -1407,7 +1407,7 @@ GetValue("Std. Dev.") = 0.474342
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -1458,7 +1458,7 @@ GetValue("Std. Dev.") = 0.475677
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 30.0
+SetParameter("DistanceSeis") = 30.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -1509,7 +1509,7 @@ GetValue("Std. Dev.") = 0.539950
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 50.0
+SetParameter("DistanceSeis") = 50.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -1561,7 +1561,7 @@ GetValue("Std. Dev.") = 0.612699
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
 SetParameter("Fault Type") = "Other"
@@ -1612,10 +1612,10 @@ GetValue("Median") = 0.011673
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Other"
+SetParameter("Fault Type") = "Other"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -1663,10 +1663,10 @@ GetValue("Median") = 0.004815
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 SetParameter("Component") = "Vertical"
 
 
@@ -1715,10 +1715,10 @@ GetValue("Median") = 0.012193
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -1765,10 +1765,10 @@ GetValue("Median") = 0.005795
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -1815,10 +1815,10 @@ GetValue("Median") = 0.005277
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -1865,10 +1865,10 @@ GetValue("Median") = 0.012737
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -1916,10 +1916,10 @@ GetValue("Median") = 0.005823
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 
@@ -1968,10 +1968,10 @@ GetValue("Median") = 0.005781
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2019,10 +2019,10 @@ GetValue("Median") = 0.012737
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 1.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 
@@ -2071,10 +2071,10 @@ GetValue("Median") = 0.012737
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2122,10 +2122,10 @@ GetValue("Median") = 0.012737
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2173,10 +2173,10 @@ GetValue("Median") = 0.012737
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2224,10 +2224,10 @@ GetValue("Median") = 0.020105
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 1.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2275,10 +2275,10 @@ GetValue("Median") = 0.030410
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2326,10 +2326,10 @@ GetValue("Median") = 0.053261
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2377,10 +2377,10 @@ GetValue("Median") = 0.012737
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2427,10 +2427,10 @@ GetValue("Median") = 0.021175
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2477,10 +2477,10 @@ GetValue("Median") = 0.033734
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2528,10 +2528,10 @@ GetValue("Median") = 0.059083
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Rock"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2579,10 +2579,10 @@ GetValue("Median") = 0.030410
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2629,10 +2629,10 @@ GetValue("Median") = 0.030410
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Soil"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2679,10 +2679,10 @@ GetValue("Median") = 0.059083
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Soil"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 SetParameter("SA Period") = 0.00
@@ -2729,7 +2729,7 @@ GetValue("Median") = 0.059083
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.5
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 SetParameter("Component") = "Vertical"
 
@@ -2778,7 +2778,7 @@ GetValue("Std. Dev.") = 0.607783
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.4
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 SetParameter("Component") = "Vertical"
 
@@ -2827,7 +2827,7 @@ GetValue("Std. Dev.") = 0.607783
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 SetParameter("Component") = "Vertical"
 
@@ -2876,7 +2876,7 @@ GetValue("Std. Dev.") = 0.670862
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 3.0
+SetParameter("DistanceSeis") = 3.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -2927,7 +2927,7 @@ GetValue("Std. Dev.") = 0.614085
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -2979,7 +2979,7 @@ GetValue("Std. Dev.") = 0.614085
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3031,7 +3031,7 @@ GetValue("Std. Dev.") = 0.615117
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 30.0
+SetParameter("DistanceSeis") = 30.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3083,7 +3083,7 @@ GetValue("Std. Dev.") = 0.666068
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 50.0
+SetParameter("DistanceSeis") = 50.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3135,10 +3135,10 @@ GetValue("Std. Dev.") = 0.726292
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Other"
+SetParameter("Fault Type") = "Other"
 
 GetValue("Median") = 13.75252
 
@@ -3146,20 +3146,20 @@ GetValue("Median") = 13.75252
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Other"
+SetParameter("Fault Type") = "Other"
 
 GetValue("Median") = 6.71409
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 
 
 GetValue("Median") = 14.29382
@@ -3167,10 +3167,10 @@ GetValue("Median") = 14.29382
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 
 GetValue("Median") = 7.66209
 
@@ -3178,30 +3178,30 @@ GetValue("Median") = 7.66209
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 
 GetValue("Median") = 7.32039
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 14.85643
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 
 GetValue("Median") = 7.66048
@@ -3209,30 +3209,30 @@ GetValue("Median") = 7.66048
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 7.98144
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 14.85643
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 1.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 
 GetValue("Median") = 14.85643
@@ -3240,141 +3240,141 @@ GetValue("Median") = 14.85643
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 14.85643
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 14.85643
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 20.83967
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 1.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 28.59762
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 42.17278
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 14.85643
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 21.94917
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 31.72375
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 46.78286
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Rock"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 28.59762
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 28.59762
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Soil"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 46.78286
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Soil"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 
 GetValue("Median") = 46.78286
 
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.5
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 
 GetValue("Std. Dev.") = 0.384708
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.4
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 
 GetValue("Std. Dev.") = 0.384708
@@ -3382,7 +3382,7 @@ GetValue("Std. Dev.") = 0.384708
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 
 GetValue("Std. Dev.") = 0.478179
@@ -3390,7 +3390,7 @@ GetValue("Std. Dev.") = 0.478179
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 3.0
+SetParameter("DistanceSeis") = 3.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3400,7 +3400,7 @@ GetValue("Std. Dev.") = 0.394588
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3411,7 +3411,7 @@ GetValue("Std. Dev.") = 0.394588
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3422,7 +3422,7 @@ GetValue("Std. Dev.") = 0.396193
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 30.0
+SetParameter("DistanceSeis") = 30.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3433,7 +3433,7 @@ GetValue("Std. Dev.") = 0.471430
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 50.0
+SetParameter("DistanceSeis") = 50.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3445,7 +3445,7 @@ GetValue("Std. Dev.") = 0.553263
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
 SetParameter("Fault Type") = "Other"
@@ -3456,10 +3456,10 @@ GetValue("Median") = 5.66349
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Other"
+SetParameter("Fault Type") = "Other"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 2.43803
@@ -3467,10 +3467,10 @@ GetValue("Median") = 2.43803
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 SetParameter("Component") = "Vertical"
 
 
@@ -3479,10 +3479,10 @@ GetValue("Median") = 6.18821
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 3.42106
@@ -3490,10 +3490,10 @@ GetValue("Median") = 3.42106
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Unknown"
+SetParameter("Fault Type") = "Unknown"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 2.79448
@@ -3501,10 +3501,10 @@ GetValue("Median") = 2.79448
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 6.76155
@@ -3512,20 +3512,20 @@ GetValue("Median") = 6.76155
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 3.59570
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 
@@ -3534,10 +3534,10 @@ GetValue("Median") = 3.20305
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 6.76155
@@ -3545,10 +3545,10 @@ GetValue("Median") = 6.76155
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 1.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 
@@ -3556,10 +3556,10 @@ GetValue("Median") = 6.76155
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Hard-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 6.76155
@@ -3567,10 +3567,10 @@ GetValue("Median") = 6.76155
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 6.76155
@@ -3578,20 +3578,20 @@ GetValue("Median") = 6.76155
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 12.53268
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 1.0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 16.27438
@@ -3599,10 +3599,10 @@ GetValue("Median") = 16.27438
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Soft-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 18.06810
@@ -3610,10 +3610,10 @@ GetValue("Median") = 18.06810
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 0
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 6.76155
@@ -3621,70 +3621,70 @@ GetValue("Median") = 6.76155
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 0.5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 13.19992
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 18.05340
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Firm-Soil"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 20.04320
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Rock"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 16.27438
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Rock"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 16.27438
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Soil"
 SetParameter("Campbell-Basin-Depth") = 1
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 20.04320
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Campbell Site Type") = "Generic-Soil"
 SetParameter("Campbell-Basin-Depth") = 5
-SetParameter("Fault Type") = "Reverse"
+SetParameter("Fault Type") = "Reverse"
 SetParameter("Component") = "Vertical"
 
 GetValue("Median") = 20.04320
@@ -3692,7 +3692,7 @@ GetValue("Median") = 20.04320
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.5
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 SetParameter("Component") = "Vertical"
 
@@ -3701,7 +3701,7 @@ GetValue("Std. Dev.") = 0.487852
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.4
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 SetParameter("Component") = "Vertical"
 
@@ -3710,7 +3710,7 @@ GetValue("Std. Dev.") = 0.487852
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 6.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (Mag Dependent)"
 SetParameter("Component") = "Vertical"
 
@@ -3719,7 +3719,7 @@ GetValue("Std. Dev.") = 0.564496
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 3.0
+SetParameter("DistanceSeis") = 3.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3731,7 +3731,7 @@ GetValue("Std. Dev.") = 0.495681
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 10.0
+SetParameter("DistanceSeis") = 10.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3743,7 +3743,7 @@ GetValue("Std. Dev.") = 0.495681
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 20.0
+SetParameter("DistanceSeis") = 20.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3755,7 +3755,7 @@ GetValue("Std. Dev.") = 0.496960
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 30.0
+SetParameter("DistanceSeis") = 30.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"
@@ -3767,7 +3767,7 @@ GetValue("Std. Dev.") = 0.558790
 
 SetIntensityMeasure(PGV)
 SetParameter("Magnitude") = 7.0
-SetParameter("DistanceSies") = 50.0
+SetParameter("DistanceSeis") = 50.0
 SetParameter("Std Dev Type") = "Total (PGA Dependent)"
 SetParameter("Fault Type") = "Reverse"
 SetParameter("Campbell Site Type") = "Hard-Rock"

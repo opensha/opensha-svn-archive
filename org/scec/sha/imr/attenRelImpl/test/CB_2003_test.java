@@ -64,27 +64,9 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
     /**
      * If any test for the CB-2003 failed
      */
-    if(this.showParamsForTests.equalsIgnoreCase("fail") && result == false){
-      Vector failedTestsVector = attenRelChecker.getFailedTestResultNumberList();
-      int size = failedTestsVector.size();
-      for(int i=0;i<size;++i){
-        int failedTestNumber = ((Integer)failedTestsVector.get(i)).intValue();
-        this.assertTrue("CB-2003 Test Failed for test Set-"+failedTestNumber+
-                        " with following set of params :\n"+(String)attenRelChecker.getControlParamsValueForAllTests().get(failedTestNumber -1)+
-                        (String)attenRelChecker.getIndependentParamsValueForAllTests().get(failedTestNumber -1),result);
-      }
-    }
-    //if the user wants to see all the tests param values
-    else if( this.showParamsForTests.equalsIgnoreCase("both")){
-      Vector controlParams = attenRelChecker.getControlParamsValueForAllTests();
-      Vector independentParams = attenRelChecker.getIndependentParamsValueForAllTests();
-      int size = controlParams.size();
-      for(int i=0;i<size;++i){
-        this.assertNotNull("CB-2003 test Set-"+(i+1)+
-        " with following set of params :\n"+(String)controlParams.get(i)+
-        (String)independentParams.get(i),new Boolean(result));
-      }
-    }
+    if(result == false)
+      this.assertNull(attenRelChecker.getFailedTestParamsSettings(),attenRelChecker.getFailedTestParamsSettings());
+
     //if the all the succeeds and their is no fail for any test
     else {
       this.assertTrue("CB-2003 Test succeeded for all the test cases",result);

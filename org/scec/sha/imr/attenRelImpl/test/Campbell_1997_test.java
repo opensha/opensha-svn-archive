@@ -16,20 +16,21 @@ import org.scec.data.*;
 
 /**
  *
- * <p>Title:Abrahamson_2000_test </p>
- * <p>Description: Checks for the proper implementation of the Abrahamson_2000_AttenRel
+ * <p>Title:Campbell_2003_test </p>
+ * <p>Description: Checks for the proper implementation of the Campbell_1997_AttenRel
  * class.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author : Ned Field, Nitin Gupta & Vipin Gupta
  * @version 1.0
  */
-public class Abrahamson_2000_test extends TestCase implements ParameterChangeWarningListener {
+public class Campbell_1997_test extends TestCase implements ParameterChangeWarningListener {
 
 
-  Abrahamson_2000_AttenRel abrahamson_2000 = null;
+  Campbell_1997_AttenRel campbell_1997 = null;
   //Tolerence to check if the results fall within the range.
   private static double tolerence = .0001; //default value for the tolerence
+
 
   /**String to see if the user wants to output all the parameter setting for the all the test set
    * or wants to see only the failed test result values, with the default being only the failed tests
@@ -37,44 +38,43 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
   private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
-  private static final String ABRAHAMSON_2000_RESULTS = RESULT_SET_PATH +"AS2000.txt";
-
+  private static final String Campbell_2003_RESULTS = RESULT_SET_PATH +"CB1997.txt";
 
   //Instance of the class that does the actual comparison for the AttenuationRelationship classes
   AttenRelResultsChecker attenRelChecker;
 
-  public Abrahamson_2000_test(final String name) {
+  public Campbell_1997_test(final String name) {
     super(name);
   }
 
   protected void setUp() {
-    // create the instance of the Abrahamson_2000
-    abrahamson_2000 = new Abrahamson_2000_AttenRel(this);
-    attenRelChecker = new AttenRelResultsChecker(abrahamson_2000,ABRAHAMSON_2000_RESULTS, tolerence);
+    // create the instance of the Campbell_1997
+    campbell_1997 = new Campbell_1997_AttenRel(this);
+    attenRelChecker = new AttenRelResultsChecker(campbell_1997,Campbell_2003_RESULTS, tolerence);
   }
 
   protected void tearDown() {
   }
 
 
-  public void testAbrahamson2000_Creation() {
+  public void testCampbell1997_Creation() {
 
     boolean result =attenRelChecker.readResultFile();
 
     /**
-     * If any test for the AS-2000 failed
+     * If any test for the Campbell-1997 failed
      */
     if(result == false)
       this.assertNull(attenRelChecker.getFailedTestParamsSettings(),attenRelChecker.getFailedTestParamsSettings());
 
     //if the all the succeeds and their is no fail for any test
     else {
-      this.assertTrue("AS-2000 Test succeeded for all the test cases",result);
+      this.assertTrue("Campbell-1997 Test succeeded for all the test cases",result);
     }
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){
-    return;
+
   }
 
 
@@ -85,7 +85,7 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
 
   public static void main (String[] args)
   {
-   junit.swingui.TestRunner.run(Abrahamson_2000_test.class);
+    junit.swingui.TestRunner.run(Campbell_1997_test.class);
   }
 
 }

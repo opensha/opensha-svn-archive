@@ -74,7 +74,7 @@ SetParameter("SA Period") = 0.50
 GetValue("Median") = 0.597819
 
 SetParameter("SA Period") = 0.75
-GetValue("Median") = 0.414495
+GetValue("Median") = 0.414945
 
 SetParameter("SA Period") = 1.00
 GetValue("Median") = 0.313197

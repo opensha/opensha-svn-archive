@@ -62,33 +62,15 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
     boolean result =attenRelChecker.readResultFile();
 
     /**
-     * If any test for the BJF failed
+     * If any test for the AS-1997 failed
      */
-      if(this.showParamsForTests.equalsIgnoreCase("fail") && result == false){
-        Vector failedTestsVector = attenRelChecker.getFailedTestResultNumberList();
-        int size = failedTestsVector.size();
-        for(int i=0;i<size;++i){
-          int failedTestNumber = ((Integer)failedTestsVector.get(i)).intValue();
-          this.assertTrue("AS-1997 Test Failed for test Set-"+failedTestNumber+
-          " with following set of params :\n"+(String)attenRelChecker.getControlParamsValueForAllTests().get(failedTestNumber -1)+
-          (String)attenRelChecker.getIndependentParamsValueForAllTests().get(failedTestNumber -1),result);
-        }
-      }
-      //if the user wants to see all the tests param values
-      else if( this.showParamsForTests.equalsIgnoreCase("both")){
-        Vector controlParams = attenRelChecker.getControlParamsValueForAllTests();
-        Vector independentParams = attenRelChecker.getIndependentParamsValueForAllTests();
-        int size = controlParams.size();
-        for(int i=0;i<size;++i){
-          this.assertNotNull("AS-1997 test Set-"+(i+1)+
-          " with following set of params :\n"+(String)controlParams.get(i)+
-          (String)independentParams.get(i),new Boolean(result));
-        }
-      }
-      //if the all the succeeds and their is no fail for any test
-      else {
-        this.assertTrue("AS-1997 Test succeeded for all the test cases",result);
-      }
+    if(result == false)
+      this.assertNull(attenRelChecker.getFailedTestParamsSettings(),attenRelChecker.getFailedTestParamsSettings());
+
+    //if the all the succeeds and their is no fail for any test
+    else {
+      this.assertTrue("AS-1997 Test succeeded for all the test cases",result);
+    }
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){
