@@ -7,7 +7,7 @@ import java.util.*;
 
 import org.scec.data.region.*;
 import org.scec.data.Location;
-import org.scec.calc.RelativeLocation;
+
 /**
  * <p>Title: Vs30BasinDepthServlet  </p>
  * <p>Description: This Servlet finds the VS30 and Basin Depth for the given
@@ -23,8 +23,8 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
   public static String BASIN_DEPTH = "BasinDepth";
 
   //File from which we get the Vs30
-  private final static String VS_30_INPUT_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/vs30_120s_class.xy";
-  private final static String BASIN_DEPTH_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/fine_depth_25.xy";
+  private final String VS_30_INPUT_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/vs30_120s_class.xy";
+  private final String BASIN_DEPTH_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/fine_depth_25.xy";
 
 
   /**
@@ -58,9 +58,9 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
       //String outputfilename=new String(request.getRemoteHost()+".out");
       // check the funcion desired by the useer
       if(functionDesired.equalsIgnoreCase(VS_30))
-        getVs30(gridSpacing,locationVector,new ObjectOutputStream(response.getOutputStream()));
+        getVs30(locationVector,new ObjectOutputStream(response.getOutputStream()));
       else if(functionDesired.equalsIgnoreCase(this.BASIN_DEPTH))
-        getBasinDepth(gridSpacing,locationVector,new ObjectOutputStream(response.getOutputStream()));
+        getBasinDepth(locationVector,new ObjectOutputStream(response.getOutputStream()));
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -92,71 +92,74 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
 
 
   /**
-   * calculate the Vs30
+   *calculate the Vs30
    * @param locationVector: Stores all the gridded locations
-   * @param minLon
-   * @param maxLon
-   * @param minLat
-   * @param maxLat
-   * @param gridSpacing
-   * gets the Vs30
-   *
-   * */
-  private void getVs30(double gridSpacing,Vector locationVector,ObjectOutputStream output) {
+   * @param output : returns the vector of the VS30 for the gridded region
+   */
+  private void getVs30(Vector locationVector,ObjectOutputStream output) {
 
+    //gridSpacing for the VS30 file and adding a small value to it.
+    double gridSpacingForVs30InFile = .03334 +.001;
     try {
-      double currLon=0;
-      Vector smallestDistance = new Vector();
-      int size= locationVector.size();
-      //System.out.println("****Location Size****"+size);
-      Vector vs30= new Vector();
-      double gridSpacingCutOff = 1.5*gridSpacing;
-      //initialising the vs30 vector with the Double.NaN values
-      // also set the min distance to Positive infinity
-      for(int i=0;i<size;++i) {
-        vs30.add(new Double(Double.NaN));
-        smallestDistance.add(new Double(Double.POSITIVE_INFINITY));
-      }
 
-      // open the VS30 file for reading
+      //open the File Input Stream to read the file
       FileReader input = new FileReader(this.VS_30_INPUT_FILENAME);
       BufferedReader iBuf= new BufferedReader(input);
-      String str=iBuf.readLine();
-      double lat, lon, valLat, valLon, distance, vs30Val;
-      while(str!=null) {
-        StringTokenizer st = new StringTokenizer(str);
-        //reading the Lons from the file
-        valLon = Double.parseDouble(st.nextToken());
-        //reading the Lat from the file
-        valLat = Double.parseDouble(st.nextToken());
-        vs30Val = Double.parseDouble(st.nextToken());
-        for(int i=0;i<size;++i){
-          lat = ((Location)locationVector.get(i)).getLatitude();
-          lon = ((Location)locationVector.get(i)).getLongitude();
-          if((lat+gridSpacingCutOff)<valLat) continue;
+      String str;
+      // parsing the file line by line
+      //reading the first line from the file
+      str=iBuf.readLine();
 
-          distance = Double.POSITIVE_INFINITY;
+      int size= locationVector.size();
+
+      Vector vs30= new Vector();
+
+      //initialising the vs30 vector with the Double.NaN values
+      for(int i=0;i<size;++i)
+        vs30.add(new Double(Double.NaN));
+
+      double prevLat=Double.NaN;
+      for(int i=0;i<size;++i){
+        double lat = ((Location)locationVector.get(i)).getLatitude();
+        double lon = ((Location)locationVector.get(i)).getLongitude();
+        boolean latFlag= false;
+        while(str!=null) {
+          StringTokenizer st = new StringTokenizer(str);
+
+          // parse this line from the file
+          //reading the Lons from the file
+          double valLon = Double.parseDouble(st.nextToken());
+          //reading the Lat from the file
+          double valLat = Double.parseDouble(st.nextToken());
+
+          if((valLat -lat) > gridSpacingForVs30InFile/2)
+            // if this lat does not exist in file. Lat is always increasing in the file and the location vector
+            break;
 
           // add Vs30 for new location
-          if((Math.abs(lon)+gridSpacingCutOff) < Math.abs(valLon)){
-            distance= RelativeLocation.latLonDistance(lat,lon,valLat,valLon);
-            if(distance < ((Double)smallestDistance.get(i)).doubleValue()){
-              smallestDistance.set(i,new Double(distance));
-              vs30.set(i,new Double(vs30Val));
-            }
-          }
-          //System.out.println("lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
-          //System.out.print(";vs30_Curr:"+vs30_Curr+";vs30_Next:"+vs30_Next);
-          //returns the actual value for the vs30
-          // read next line
-        }
-          str= iBuf.readLine();
-        }
+          if(Math.abs(lat-valLat) <= (gridSpacingForVs30InFile/2))
+            //System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
+            latFlag=true;
 
-      System.out.println("size of vs30 vector:"+vs30.size());
-/*      for(int i=0;i<vs30.size();++i){
-        System.out.println("Location:"+((Location)locationVector.get(i)).getLatitude()+";"+((Location)locationVector.get(i)).getLongitude()+"Vs30("+i+"):"+vs30.get(i));
-      }*/
+          //iterating over lon's for each lat
+          if(((Math.abs(lon-valLon)) <= gridSpacingForVs30InFile/2) && latFlag){
+            //if we found the desired lon in the file ,
+            //we get the value of the VS30 for the nearest point
+            //returns the actual value for the vs30
+            vs30.set(i,new Double(st.nextToken()));
+            break;
+
+          }
+
+           //this condition checks if the lat exists but lon does not exist
+          if((valLon-lon) > (gridSpacingForVs30InFile/2 ) && latFlag)
+            // if this location does not exist in this file
+            break;
+
+          // read next line
+          str=iBuf.readLine();
+        }
+      }
       output.writeObject(vs30);
       output.close();
     }catch (Exception e) {
@@ -165,74 +168,82 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
   }
 
   /**
-    * calculate the Basin depth
-    * @param locationVector: Stores all the gridded locations
-    * @param minLon
-    * @param maxLon
-    * @param minLat
-    * @param maxLat
-    * @param gridSpacing
-    * calculate the BasinDepth
-    */
-   private void getBasinDepth(double gridSpacing,Vector locationVector,ObjectOutputStream output) {
+   *calculate the Basin Depth
+   * @param locationVector: Stores all the gridded locations
+   * @param output : returns the vector of the basin depth values for the gridded region
+   */
+  private void getBasinDepth(Vector locationVector,ObjectOutputStream output) {
 
-     try {
-       double currLon=0;
-       Vector smallestDistance = new Vector();
-       int size= locationVector.size();
-       //System.out.println("****Location Size****"+size);
-       Vector basinDepth= new Vector();
-       double gridSpacingCutOff = 1.5*gridSpacing;
-       //initialising the basin depth vector with the Double.NaN values
-       // also set the min distance to Positive infinity
-       for(int i=0;i<size;++i) {
-         basinDepth.add(new Double(Double.NaN));
-         smallestDistance.add(new Double(Double.POSITIVE_INFINITY));
-       }
+    //gridSpacing for the basin depth file and adding a small amount ot it
+    double gridSpacingForBasinDepthInFile = .0044+.0001;
+    try {
 
-       // open the basin depth file for reading
-       FileReader input = new FileReader(this.BASIN_DEPTH_FILENAME);
-       BufferedReader iBuf= new BufferedReader(input);
-       String str=iBuf.readLine();
-       double distance, lat, lon, valLat, valLon, basinDepthVal;
-       while(str!=null) {
-         StringTokenizer st = new StringTokenizer(str);
-         //reading the Lons from the file
-         valLon = Double.parseDouble(st.nextToken());
-         //reading the Lat from the file
-         valLat = Double.parseDouble(st.nextToken());
-         basinDepthVal = Double.parseDouble(st.nextToken());
-         for(int i=0;i<size;++i){
+      //open the File Input Stream to read the file
+      FileReader input = new FileReader(this.BASIN_DEPTH_FILENAME);
+      BufferedReader iBuf= new BufferedReader(input);
+      String str;
+      // parsing the file line by line
+      //reading the first line from the file
+      str=iBuf.readLine();
 
-           lat = ((Location)locationVector.get(i)).getLatitude();
-           lon = ((Location)locationVector.get(i)).getLongitude();
-           if((lat+gridSpacingCutOff)<valLat) continue;
+      int size= locationVector.size();
 
-           distance = Double.POSITIVE_INFINITY;
+      Vector bd= new Vector();
 
-           // add basin depth for new location
-           if((Math.abs(lon)+gridSpacingCutOff) < Math.abs(valLon)){
-             distance= RelativeLocation.latLonDistance(lat,lon,valLat,valLon);
-             if(distance < ((Double)smallestDistance.get(i)).doubleValue()){
-               smallestDistance.set(i,new Double(distance));
-               basinDepth.set(i,new Double(basinDepthVal));
-             }
-           }
-         }
-           str= iBuf.readLine();
+      //initialising the bd vector with the Double.NaN values
+      for(int i=0;i<size;++i)
+        bd.add(new Double(Double.NaN));
+
+      double prevLat=Double.NaN;
+      for(int i=0;i<size;++i){
+        double lat = ((Location)locationVector.get(i)).getLatitude();
+        double lon = ((Location)locationVector.get(i)).getLongitude();
+        boolean latFlag= false;
+
+        while(str!=null) {
+          StringTokenizer st = new StringTokenizer(str);
+
+          // parse this line from the file
+          //reading the Lons from the file
+          double valLon = Double.parseDouble(st.nextToken());
+          //reading the Lat from the file
+          double valLat = Double.parseDouble(st.nextToken());
+
+          if((valLat -lat) > gridSpacingForBasinDepthInFile/2)
+            // if this lat does not exist in file. Lat is always increasing in the file and the location vector
+            break;
+
+          // add basinDepth for new location
+          if(Math.abs(lat-valLat) <= (gridSpacingForBasinDepthInFile/2))
+            //System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
+            latFlag=true;
+
+          //iterating over lon's for each lat
+          if(((Math.abs(lon-valLon)) <= gridSpacingForBasinDepthInFile/2) && latFlag){
+            //if we found the desired lon in the file ,
+            //we get the value of the basinDepth for the nearest point
+            //returns the actual value for the basinDepth
+            bd.set(i,new Double(st.nextToken()));
+            break;
+
+          }
+
+           //this condition checks if the lat exists but lon does not exist
+          if((valLon-lon) > (gridSpacingForBasinDepthInFile/2 ) && latFlag)
+            // if this location does not exist in this file
+            break;
+
+          // read next line
+          str=iBuf.readLine();
         }
-
-       System.out.println("size of basindepth vector:"+basinDepth.size());
-       /*for(int i=0;i<vs30.size();++i){
-         System.out.println("Location:"+((Location)locationVector.get(i)).getLatitude()+";"+((Location)locationVector.get(i)).getLongitude()+"BasinDepth("+i+"):"+BasinDepth.get(i));
-       }*/
-       output.writeObject(basinDepth);
-       output.close();
-     }catch (Exception e) {
-       e.printStackTrace();
-     }
-
+      }
+      output.writeObject(bd);
+      output.close();
+    }catch (Exception e) {
+      e.printStackTrace();
+    }
   }
+
 
   /**
    * This method just calls the doPost method

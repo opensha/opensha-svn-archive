@@ -88,6 +88,8 @@ public class SiteTranslator implements java.io.Serializable{
    */
   public boolean setSiteParams(Site s, double vs30,double basinDepth ){
     boolean isDefaultVs30Set = false;
+
+    //System.out.println("Site: "+s.getLocation().toString()+"; vs30: "+vs30+"; basinDepth: "+basinDepth);
     if(vs30 <=180 || vs30==Double.NaN){
       isDefaultVs30Set= true;
       vs30=this.default_VS30;
