@@ -585,10 +585,10 @@ public class HazardMapApplet extends JApplet implements
      calc.getHazardMapCurves(condProbFunc,hazFunction,griddedRegionSites , imr, eqkRupForecast);
 
      try{
-       FileWriter fr = new FileWriter("tempData/metadata.txt");
+       FileWriter fr = new FileWriter("tempData/metadata.info");
        fr.write(this.getCurveParametersInfo()+"\n");
        fr.close();
-       fr=new FileWriter("tempData/sites.txt");
+       fr=new FileWriter("tempData/sites.info");
        fr.write(griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.MIN_LATITUDE).getValue().toString()+
                 " "+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.MAX_LATITUDE).getValue().toString()+
                 " "+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.GRID_SPACING).getValue().toString()+
