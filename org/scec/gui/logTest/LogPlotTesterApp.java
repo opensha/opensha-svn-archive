@@ -413,9 +413,8 @@ public class LogPlotTesterApp extends JApplet  {
   private void addButton(){
     String S = C + ": addButton(): ";
     if ( D ) System.out.println( S + "Starting" );
-
+    clearPlot();
     if(((String)dataSetCombo.getSelectedItem()).equals(this.NEW_DATASET)){
-      clearPlot();
       functions.addSeries(dataWindow.getXYDataSet());
       autoScale = true;
     }

@@ -21,7 +21,7 @@ public class XYDataWindow extends JFrame {
   private JScrollPane dataScroll = new JScrollPane();
   private JTextArea xyText = new JTextArea();
   //stores the XY DataSet
-  private XYSeriesCollection dataset =null;
+  private XYSeries series =null;
   private JButton doneButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
@@ -36,7 +36,7 @@ public class XYDataWindow extends JFrame {
     catch(Exception e) {
       e.printStackTrace();
     }
-    dataset = functions;
+    series = functions.getSeries(0);
     setXYDefaultValues();
   }
   private void jbInit() throws Exception {
@@ -49,7 +49,6 @@ public class XYDataWindow extends JFrame {
     jLabel1.setText("Enter XY DataSet");
     jPanel1.setPreferredSize(new Dimension(250, 650));
     dataScroll.setPreferredSize(new Dimension(250, 650));
-    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     doneButton.setForeground(new Color(80, 80, 133));
     doneButton.setText("Done");
     doneButton.addActionListener(new java.awt.event.ActionListener() {
@@ -80,15 +79,11 @@ public class XYDataWindow extends JFrame {
    * initialise the dataSet values with the default X & Y values in the textArea
    */
   private void setXYDefaultValues(){
-    int numSeries= dataset.getSeriesCount();
     String text ="";
-    for(int i=0;i<numSeries;++i){
-      XYSeries function = dataset.getSeries(i);
-      ListIterator it =function.getItems().listIterator();
-      while(it.hasNext()){
-        XYDataItem  xyData = (XYDataItem)it.next();
-        text += xyData.getX().doubleValue()+"  "+xyData.getY().doubleValue() +"\n";
-      }
+    ListIterator it =series.getItems().listIterator();
+    while(it.hasNext()){
+      XYDataItem  xyData = (XYDataItem)it.next();
+      text += xyData.getX().doubleValue()+"  "+xyData.getY().doubleValue() +"\n";
     }
     xyText.setText(text);
   }
@@ -99,8 +94,7 @@ public class XYDataWindow extends JFrame {
    * @returns the XY Data set that user entered.
    */
   private void getDataSet() throws NumberFormatException, NullPointerException{
-    dataset = new XYSeriesCollection();
-    XYSeries series = new XYSeries("Random Data");
+    series = new XYSeries("Random Data");
     try{
       String data = xyText.getText();
       StringTokenizer st = new StringTokenizer(data,"\n");
@@ -108,18 +102,15 @@ public class XYDataWindow extends JFrame {
         StringTokenizer st1 = new StringTokenizer(st.nextToken());
         series.add(new Double(st1.nextToken()).doubleValue(),new Double(st1.nextToken()).doubleValue());
       }
-      dataset.addSeries(series);
     }catch(NumberFormatException e){
       throw new RuntimeException("Must enter valid number");
     }catch(NullPointerException ee){
       throw new RuntimeException("Must enter data in X Y format");
     }
-
-    //return (XYDataset)this.dataset;
   }
 
-  public XYDataset getXYDataSet() {
-    return (XYDataset)dataset;
+  public XYSeries getXYDataSet() {
+    return (XYSeries)series;
   }
 
 
