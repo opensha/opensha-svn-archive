@@ -137,7 +137,15 @@ public class TranslatedWarningDoubleParameter
      * @return        The allowed value
      */
     public boolean isAllowed( Object value ){
-        return hkjhkjhkj qwe rkqwhparam.isAllowed( value );
+
+        if( value == null || ( value instanceof Double) || !translate  ){
+            return param.isAllowed( value );
+        }
+        else{
+            double d = ((Double)value).doubleValue();
+            return param.isAllowed( trans.translate( d ) );
+        }
+
     }
 
     /**
