@@ -3,6 +3,8 @@ package org.scec.param.editor;
 import org.scec.param.*;
 import org.scec.util.ParamUtils;
 import javax.swing.border.*;
+import java.awt.event.*;
+import java.awt.*;
 
 /**
  * <b>Title:</b> ConstrainedDoubleParameterEditor<p>
@@ -24,6 +26,7 @@ public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
     protected final static String C = "ConstrainedDoubleParameterEditor";
     /** If true print out debug statements. */
     protected final static boolean D = false;
+
 
     /** No-Arg constructor calls parent constructtor */
     public ConstrainedDoubleParameterEditor() { super(); }
@@ -47,12 +50,7 @@ public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
 
         super.setParameter(model);
 
-        DoubleConstraint constraint;
-        if( ParamUtils.isWarningParameterAPI( model ) ){
-            constraint = ((WarningParameterAPI)model).getWarningConstraint();
-            if( constraint == null ) constraint = (DoubleConstraint) model.getConstraint();
-        }
-        else constraint = (DoubleConstraint) model.getConstraint();
+        DoubleConstraint constraint =getConstraint();
 
         valueEditor.setToolTipText( "Min = " + constraint.getMin().toString() + "; Max = " + constraint.getMax().toString() );
 
@@ -64,4 +62,48 @@ public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
     public void setWidgetBorder(Border b){
         ((NumericTextField)valueEditor).setBorder(b);
     }
+
+    /** This is where the NumericTextField for the Constraint DoubleParameter
+     * It checks if the min and max constraint value are same then change the
+     * font and size of the valueEditor and widgetPanel
+     * is defined and configured. */
+    protected void addWidget() {
+      String S = C + "ConstrainedDoubleParameterEditor: addWidget(): ";
+      if(D) System.out.println(S + "Starting");
+      super.addWidget();
+      DoubleConstraint constraint =getConstraint();
+      if(constraint.getMax().doubleValue()==constraint.getMin().doubleValue()){
+        if (  valueEditor != null ) {
+            ((NumericTextField) valueEditor).setEditable(false);
+            ((NumericTextField) valueEditor).setMinimumSize( LABEL_DIM );
+            ((NumericTextField) valueEditor).setFont( JCOMBO_FONT );
+            ((NumericTextField) valueEditor).setForeground( Color.blue );
+            ((NumericTextField) valueEditor).setBorder( CONST_BORDER );
+            widgetPanel.setBackground(STRING_BACK_COLOR);
+            widgetPanel.setForeground( Color.blue );
+        }
+      }
+
+      if(D) System.out.println(S + "Ending");
+    }
+
+
+    /**
+     * @returns the DoubleConstraint
+     */
+    protected DoubleConstraint getConstraint(){
+      //Double constraint declaration
+      DoubleConstraint constraint;
+      if( ParamUtils.isWarningParameterAPI( model ) ){
+        constraint = ((WarningParameterAPI)model).getWarningConstraint();
+        if( constraint == null ) constraint = (DoubleConstraint) model.getConstraint();
+      }
+      else constraint = (DoubleConstraint) model.getConstraint();
+
+
+      return constraint;
+    }
+
+
+
 }

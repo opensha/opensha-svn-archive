@@ -2,6 +2,7 @@ package org.scec.param.editor;
 
 import org.scec.param.IntegerConstraint;
 import org.scec.param.ParameterAPI;
+import java.awt.*;
 
 
 /**
@@ -50,8 +51,7 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 
         super.setParameter(model);
 
-        IntegerConstraint constraint
-            = (IntegerConstraint) model.getConstraint();
+        IntegerConstraint constraint=getConstraint();
 
         valueEditor.setToolTipText( "Min = " + constraint.getMin().toString() + "; Max = " + constraint.getMax().toString() );
 
@@ -59,4 +59,41 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 
         if(D) System.out.println(S.concat("Ending"));
     }
+
+    /** This is where the IntegerTextField for the Constraint IntegerParameter
+     * It checks if the min and max constraint value are same then change the
+     * font and size of the valueEditor and widgetPanel
+     * is defined and configured. */
+    protected void addWidget() {
+      String S = C + "ConstrainedDoubleParameterEditor: addWidget(): ";
+      if(D) System.out.println(S + "Starting");
+      super.addWidget();
+      IntegerConstraint constraint =getConstraint();
+      if(constraint.getMax().doubleValue()==constraint.getMin().doubleValue()){
+        if (  valueEditor != null ) {
+          ((IntegerTextField) valueEditor).setEditable(false);
+          ((IntegerTextField) valueEditor).setMinimumSize( LABEL_DIM );
+          ((IntegerTextField) valueEditor).setFont( JCOMBO_FONT );
+          ((IntegerTextField) valueEditor).setForeground( Color.blue );
+          ((IntegerTextField) valueEditor).setBorder( CONST_BORDER );
+          widgetPanel.setBackground(STRING_BACK_COLOR);
+          widgetPanel.setForeground( Color.blue );
+        }
+      }
+
+      if(D) System.out.println(S + "Ending");
+    }
+
+
+    /**
+     * @returns the IntegerConstraint
+     */
+    protected IntegerConstraint getConstraint(){
+      //Integer constraint declaration
+      IntegerConstraint constraint
+            = (IntegerConstraint) model.getConstraint();
+
+      return constraint;
+    }
+
 }
