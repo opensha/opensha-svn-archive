@@ -463,7 +463,7 @@ public class NEHRP_GuiBean
 
 
   private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-    SiteCoefficientWindow dialog = new SiteCoefficientWindow();
+    SiteCoefficientInfoWindow dialog = new SiteCoefficientInfoWindow();
   }
 
   private void smSDButton_actionPerformed(ActionEvent actionEvent) {
