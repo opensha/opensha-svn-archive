@@ -284,7 +284,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
     });
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), -48, 10));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 10));
     plotSplitPane.add(topPlotPanel, JSplitPane.LEFT);
 
     topPlotPanel.add(testCaseLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -488,7 +488,6 @@ public class PEER_TestGuiPlotter extends JApplet implements
         JCheckBox avgCheckBox=(JCheckBox)avgCheckBoxVector.get(i);
         //checking if the check box is selected for the selected test case
         if(checkBox.isSelected() || avgCheckBox.isSelected()) {
-          legendPaint[k++]=checkBox.getForeground();
           String checkText =checkBox.getText();
           int numFunc = functions.size();
           if(D) System.out.println(S+":numFunc:"+numFunc);
