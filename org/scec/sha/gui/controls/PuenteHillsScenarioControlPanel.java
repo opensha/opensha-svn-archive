@@ -100,7 +100,7 @@ public class PuenteHillsScenarioControlPanel {
     depths.add(new Double(13));
 
     //setting the FaultParameterEditor with the default values for Puente Hills Scenario
-    faultPanel.setAll(faultPanel.DEFAULT_GRID_SPACING,lats,lons,dips,depths,faultPanel.FRANKEL);
+    faultPanel.setAll(faultPanel.getSimpleFaultParameter().DEFAULT_GRID_SPACING,lats,lons,dips,depths,faultPanel.getSimpleFaultParameter().FRANKEL);
     faultPanel.refreshParamEditor();
     //updaing the faultParameter to update the faultSurface
     faultPanel.setEvenlyGriddedSurfaceFromParams();

@@ -39,37 +39,8 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
 
-  //Final static declaration for the Parameters in the EvenlyGriddedSurface
-  public static final String FAULT_NAME = "Fault Name";
-  public static final String GRID_SPACING = "Grid Spacing";
-  public static final String NUMBER_OF_FAULT_TRACE = "Num. of Fault Trace (Points)";
-  public static final String NUM_DIPS = "Num. of Dips";
-  public static final String DEPTH_PARAM_NAME = "Depth-";
-  public static final String DIP_PARAM_NAME = "Dip-";
-  public static final String LON_PARAM_NAME = "Lon-";
-  public static final String LAT_PARAM_NAME = "Lat-";
-
-  //Default Values for the param
-  public static final int DEFAULT_NUM_FAULT_TRACE =3;
-  public static final int DEFAULT_DIPS =1;
-  public static final int latlonCols = 2;
-  public static final double DEFAULT_GRID_SPACING = 1.0;
-
-
   // title of Parameter List Editor
   public static final String SIMPLE_FAULT_EDITOR_TITLE = new String("Simple Fault Editor");
-  public static final String LAT_EDITOR_TITLE = "Latitudes";
-  public static final String LON_EDITOR_TITLE = "Longitudes";
-  public static final String DIP_EDITOR_TITLE = "Dips";
-  public static final String DEPTH_EDITOR_TITLE = "Depths";
-  public static final String FAULT_TYPE_TITLE = "Choose Fault Type";
-
-  //static string for the Fault type supported
-  public static final String FRANKEL ="Frankel's";
-  public static final String STIRLING ="Stirling's";
-
-
-
 
   //boolean for the FaultName to be shown
   boolean showFaultName = false;
@@ -77,48 +48,11 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   //boolean for the Evenly Gridded Param
   boolean evenlyGriddedParamChange = false;
 
-  /**
-   * Declaration of the variables, so as to show the contents in table format
-   */
-  String latlonsName="Lat-Lon";
-  String dipsName ="Dips";
-  String depthsName = "Depths";
-
-  /**
-   * Some variable declarations
-   */
-  private double avgDip;
-  private FaultTrace fltTrace;
-  private double upperSies;
-  private double lowerSies;
 
 
   //Reference to the EvenlyGriddedSurface Param
-  private SimpleFaultParameter surfaceParam;
+  private SimpleFaultParameterCalculator surfaceParam;
 
-  /**
-   * Paramter List for holding all parameters
-   */
-  private ParameterList parameterList = new ParameterList();
-
-  /**
-   * List to store the Lats
-   */
-  private ParameterList parameterListForLats ;
-
-  /**
-   * List to store the Lons
-   */
-  private ParameterList parameterListForLons ;
-  /**
-   * ParameterList for the Dips
-   */
-  private ParameterList parameterListForDips ;
-
-  /**
-   * ParameterList for the Depths
-   */
-  private ParameterList parameterListForDepths ;
 
   /**
    * ParameterListEditor for holding parameters
@@ -128,22 +62,22 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   /**
    * ParameterListEditor for holding parameterListForLats
    */
-  private ParameterListEditor editorForLats;
+  private ParameterListParameterEditor editorForLats;
 
   /**
    * ParameterListEditor for holding parameterListForLons
    */
-  private ParameterListEditor editorForLons;
+  private ParameterListParameterEditor editorForLons;
 
   /**
    * ParameterListEditor for holding parameterListForDips
    */
-  private ParameterListEditor editorForDips;
+  private ParameterListParameterEditor editorForDips;
 
   /**
    * ParameterListEditor for holding parameterListForDepths
    */
-  private ParameterListEditor editorForDepths;
+  private ParameterListParameterEditor editorForDepths;
 
   /**
    * IntegerParameterEditor for Number of Dips
@@ -160,20 +94,10 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    * DoubleParameter for Ave. Dip Direction, if the person has selected
    * Stirling Fault Model
    */
-  public static final String DIP_DIRECTION_PARAM_NAME = "Ave. Dip Direction";
-  //used only when stirling fault model is selected
-  private static final Double DEFAULT_DIP_DIRECTION = null;
-  private static final String DIP_DIRECTION_PARAM_UNITS = "degrees";
-  private DoubleParameter dipDirectionParam = new DoubleParameter(DIP_DIRECTION_PARAM_NAME,
-      new Double(0),new Double(360),DIP_DIRECTION_PARAM_UNITS,DEFAULT_DIP_DIRECTION);
   private ConstrainedDoubleParameterEditor dipDirectionParamEditor ;
 
 
-  //vectors to store the previous values for the lats, lons,dips and depths
-  private Vector prevLats = new Vector();
-  private Vector prevLons = new Vector();
-  private Vector prevDepths = new Vector();
-  private Vector prevDips = new Vector();
+
 
   public SimpleFaultParameterEditorPanel() {
 
@@ -188,18 +112,18 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     if ( D ) System.out.println( S + "Starting:" );
     // remove the previous editor
     removeAll();
-    surfaceParam = (SimpleFaultParameter) param;
+    surfaceParam = (SimpleFaultParameterCalculator) param;
 
     // make the params editor
     initParamListAndEditor();
 
     //by default the showFaultName is false so the fault name parameter is not visible
     if(!showFaultName)
-      this.editor.getParameterEditor(this.FAULT_NAME).setVisible(false);
+      this.editor.getParameterEditor(SimpleFaultParameterCalculator.FAULT_NAME).setVisible(false);
 
     //Make the Dip Direction parameter visible only if Fault type selected is Stirling
     if(faultTypeEditor.isVisible()){
-      if(((String)faultTypeEditor.getParameter().getValue()).equals(this.STIRLING))
+      if(((String)faultTypeEditor.getParameter().getValue()).equals(SimpleFaultParameterCalculator.STIRLING))
         this.dipDirectionParamEditor.setVisible(true);
       else
         this.dipDirectionParamEditor.setVisible(false);
@@ -207,8 +131,8 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
 
     //Border border = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     //button.setBorder(border);
-    add(editor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(editor,new GridBagConstraints( 0, 0, 0, 1, 1.0, 0.0
+        , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
     /**
      * showing the Lats and Lons in the tabular format
@@ -219,21 +143,21 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     add(this.editorForLons,new GridBagConstraints( 0, 1, 0, 1, 1.0, 0.0
         , GridBagConstraints.EAST, GridBagConstraints.EAST, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-    add(this.numDipsEditor,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.numDipsEditor,new GridBagConstraints( 0, 2, 0, 1, 1.0, 0.0
+        , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-    add(this.editorForDips,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.editorForDips,new GridBagConstraints( 0, 3, 0, 1, 1.0, 0.0
+        , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-    add(this.editorForDepths,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    add(this.faultTypeEditor,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.editorForDepths,new GridBagConstraints( 0, 4, 0, 1, 1.0, 0.0
+        , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.faultTypeEditor,new GridBagConstraints( 0, 5, 0, 1, 1.0, 0.0
+        , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
     //add the dipDirectionParamter to the panel if it is visible
     if(this.dipDirectionParamEditor.isVisible())
-      add(this.dipDirectionParamEditor,new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+      add(this.dipDirectionParamEditor,new GridBagConstraints( 0, 6, 0, 1, 1.0, 0.0
+          , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
 
     // All done
@@ -264,31 +188,23 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    */
   private void initParamListAndEditor(){
 
-    /**
-     * creating the parameters for the parameterList that includes:
-     * 1)name of the fault
-     * 2)Grid Spacing
-     * 3)Num of the Flt Trace
-     * All these parameters are added to one param List and to one ParamList Editor
-     */
-    StringParameter faultName= new StringParameter(this.FAULT_NAME);
-    faultName.addParameterChangeListener(this);
-    DoubleParameter gridSpacing = new DoubleParameter(this.GRID_SPACING,0.0,100,new Double(this.DEFAULT_GRID_SPACING));
-    gridSpacing.addParameterChangeListener(this);
-    IntegerParameter numFltTrace = new IntegerParameter(this.NUMBER_OF_FAULT_TRACE,1,100,new Integer(this.DEFAULT_NUM_FAULT_TRACE));
-    numFltTrace.addParameterChangeListener(this);
-    parameterList.addParameter(faultName);
-    parameterList.addParameter(gridSpacing);
-    parameterList.addParameter(numFltTrace);
-    this.editor = new ParameterListEditor(parameterList);
+    surfaceParam.initParamList();
+
+    ParameterList paramList = surfaceParam.getFaultTraceParamList();
+    ListIterator it  = paramList.getParametersIterator();
+    while (it.hasNext())
+      ((ParameterAPI)it.next()).addParameterChangeListener(this);
+    editor = new ParameterListEditor(paramList);
     editor.setTitle(SIMPLE_FAULT_EDITOR_TITLE);
+
     //creating the table for the Lat and Lon of the FltTrace
     setLatLon();
+
     //creating the Double parameter for the Dips
-    IntegerParameter dip = new IntegerParameter(NUM_DIPS,new Integer(this.DEFAULT_DIPS));
-    dip.addParameterChangeListener(this);
+    IntegerParameter dipParam = (IntegerParameter)surfaceParam.getNumDipParam();
+    dipParam.addParameterChangeListener(this);
     try{
-      numDipsEditor = new IntegerParameterEditor(dip);
+      numDipsEditor = new IntegerParameterEditor(dipParam);
     }catch(Exception ee){
       ee.printStackTrace();
     }
@@ -299,18 +215,16 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     setDepths();
 
     //create the String parameter if the dip is one
-    Vector fltType = new Vector();
-    fltType.add(this.FRANKEL);
-    fltType.add(this.STIRLING);
-
-    StringParameter faultTypeParam = new StringParameter(this.FAULT_TYPE_TITLE,fltType,(String)fltType.get(0));
+    StringParameter faultTypeParam = (StringParameter)surfaceParam.getFaultTypeParam();
     faultTypeParam.addParameterChangeListener(this);
+    //getting the Dip Direction Parameter
+    DoubleParameter dipDirectionParam = (DoubleParameter)surfaceParam.getDipDirectionParam();
+    dipDirectionParam.addParameterChangeFailListener(this);
+    dipDirectionParam.addParameterChangeListener(this);
     try{
     faultTypeEditor = new ConstrainedStringParameterEditor(faultTypeParam);
     //creating the dipDirectionParamterEditor
     dipDirectionParamEditor = new ConstrainedDoubleParameterEditor(dipDirectionParam);
-    dipDirectionParam.addParameterChangeFailListener(this);
-    dipDirectionParam.addParameterChangeListener(this);
     }catch(Exception ee){
       ee.printStackTrace();
     }
@@ -320,41 +234,21 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    * Sets the Lat and Lon for the faultTrace
    */
   private void setLatLon(){
-    //System.out.println("Set Lat Lon called");
-    int numFltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
-    DoubleParameter[] lat = new DoubleParameter[numFltTracePoints];
-    DoubleParameter[] lon = new DoubleParameter[numFltTracePoints];
 
-    //making the parameterList for the Lat and Lons
-    this.parameterListForLats = new ParameterList();
-    this.parameterListForLons = new ParameterList();
+    surfaceParam.initLatLonParamList();
+    ParameterListParameter latParam = (ParameterListParameter)surfaceParam.getLatParam();
+    ListIterator it = latParam.getParametersIterator();
+    while(it.hasNext())
+      ((ParameterAPI)it.next()).addParameterChangeListener(this);
+    editorForLats = new ParameterListParameterEditor(latParam);
+    //editorForLats.setTitle(this.LAT_EDITOR_TITLE);
 
-    //creating the editor for the lons
-    for(int i=0;i<numFltTracePoints;++i){
-      //System.out.println("i: "+i +"; Lat size: "+prevLats.size());
-      //checks if any value exists in the vector for that lats parameter else just fill it up with a blank.
-      if(prevLats.size()<(i+1))
-        lat[i] = new DoubleParameter(LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees");
-      else
-        lat[i] = new DoubleParameter(LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees", (Double)prevLats.get(i));
-      this.parameterListForLats.addParameter(lat[i]);
-      lat[i].addParameterChangeListener(this);
-    }
-    editorForLats = new ParameterListEditor(parameterListForLats);
-    editorForLats.setTitle(this.LAT_EDITOR_TITLE);
-
-    //creating the editor for the Lons
-    for(int i=0;i<numFltTracePoints;++i){
-      //checks if any value exists in the vector for that lons parameter else just fill it up with a blank.
-      if(prevLons.size() < (i+1))
-        lon[i] = new DoubleParameter(this.LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees");
-      else
-        lon[i] = new DoubleParameter(this.LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees",(Double)prevLons.get(i));
-      lon[i].addParameterChangeListener(this);
-      this.parameterListForLons.addParameter(lon[i]);
-    }
-    editorForLons = new ParameterListEditor(parameterListForLons);
-    editorForLons.setTitle(this.LON_EDITOR_TITLE);
+    ParameterListParameter lonParam = (ParameterListParameter)surfaceParam.getLonParam();
+    it = lonParam.getParametersIterator();
+    while(it.hasNext())
+      ((ParameterAPI)it.next()).addParameterChangeListener(this);
+    editorForLons = new ParameterListParameterEditor(lonParam);
+    //editorForLons.setTitle(this.LON_EDITOR_TITLE);
     editorForLats.validate();
     editorForLats.revalidate();
     editorForLats.repaint();
@@ -375,8 +269,8 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    */
   public void setAll(String name, double gridSpacing, Vector lats, Vector lons,
                      Vector dips, Vector depths, String faultType) {
-    parameterList.getParameter(this.FAULT_NAME).setValue(name);
-    setAll(gridSpacing, lats, lons, dips, depths, faultType);
+    surfaceParam.setAll(name, gridSpacing, lats, lons, dips, depths, faultType);
+    refreshParamEditor();
   }
 
 
@@ -391,35 +285,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    */
   public void setAll(double gridSpacing, Vector lats, Vector lons,
                      Vector dips, Vector depths, String faultType) {
-    int numFltPts = lats.size();
-    int numDips = dips.size();
-
-    if (lats.size() != lons.size())
-      throw new RuntimeException(C+".setAll(): lats and lons Vectors must be the same size");
-
-    if (dips.size() != depths.size()-1)
-      throw new RuntimeException(C+".setAll(): size of dips Vector must one less than the depths Vector");
-
-    if (dips.size()>1 && faultType.equals(this.FRANKEL))
-      throw new RuntimeException(C+".setAll(): "+FRANKEL+" fault type can't be used if dips.size() > 1");
-
-    parameterList.getParameter(this.GRID_SPACING).setValue(new Double(gridSpacing));
-    parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).setValue(new Integer(numFltPts));
-    numDipsEditor.getParameter().setValue(new Integer(numDips));
-
-    for(int i=0;i<numFltPts;++i) {
-      parameterListForLats.getParameter(LAT_PARAM_NAME+(i+1)).setValue(lats.get(i));
-      parameterListForLons.getParameter(LON_PARAM_NAME+(i+1)).setValue(lons.get(i));
-    }
-
-    for(int i=0;i<numDips;++i)
-      parameterListForDips.getParameter(DIP_PARAM_NAME+(i+1)).setValue(dips.get(i));
-
-    for(int i=0;i<numDips+1;++i)
-      parameterListForDepths.getParameter(DEPTH_PARAM_NAME+(i+1)).setValue(depths.get(i));
-
-    faultTypeEditor.getParameter().setValue(faultType);
-
+    surfaceParam.setAll(gridSpacing,lats,lons,dips,depths,faultType);
     refreshParamEditor();
   }
 
@@ -428,23 +294,12 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    *Sets the Dip
    */
   private void setDips(){
-    int numDips = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue();
-
-    DoubleParameter[] dip = new DoubleParameter[numDips];
-
-    //making the parameterList for the Dips
-    this.parameterListForDips = new ParameterList();
-    for(int i=0;i<numDips;++i){
-      //checks if any value exists in the vector for that dips parameter else just fill it up with a blank.
-      if(prevDips.size() < (i+1))
-        dip[i] = new DoubleParameter(DIP_PARAM_NAME+(i+1),0.0,90.0,"Degrees");
-      else
-        dip[i] = new DoubleParameter(DIP_PARAM_NAME+(i+1),0.0,90.0,"Degrees",(Double)prevDips.get(i));
-      dip[i].addParameterChangeListener(this);
-      this.parameterListForDips.addParameter(dip[i]);
-    }
-    editorForDips = new ParameterListEditor(parameterListForDips);
-    editorForDips.setTitle(this.DIP_EDITOR_TITLE);
+    surfaceParam.initDipParamList();
+    ParameterListParameter parameterListParameterForDips = (ParameterListParameter)surfaceParam.getDipParam();
+    ListIterator it = parameterListParameterForDips.getParametersIterator();
+    while(it.hasNext())
+      ((ParameterAPI)it.next()).addParameterChangeListener(this);
+    editorForDips = new ParameterListParameterEditor(parameterListParameterForDips);
     editorForDips.validate();
     editorForDips.revalidate();
     editorForDips.repaint();
@@ -455,23 +310,12 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    * Sets the Depths
    */
   private void setDepths(){
-    int numDepths = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue()+1;
-    DoubleParameter[] depth = new DoubleParameter[numDepths];
-
-    //making the parameterList for the Dips
-    this.parameterListForDepths = new ParameterList();
-
-    for(int i=0;i<numDepths;++i){
-      //checks if any value exists in the vector for that Depth parameter else just fill it up with a blank.
-      if(prevDepths.size() < (i+1))
-        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms");
-      else
-        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms",(Double)prevDepths.get(i));
-      depth[i].addParameterChangeListener(this);
-      this.parameterListForDepths.addParameter(depth[i]);
-    }
-    editorForDepths = new ParameterListEditor(parameterListForDepths);
-    editorForDepths.setTitle(this.DEPTH_EDITOR_TITLE);
+    surfaceParam.initDepthParamList();
+    ParameterListParameter parameterListParameterForDepths = (ParameterListParameter)surfaceParam.getDepthParam();
+    ListIterator it = parameterListParameterForDepths.getParametersIterator();
+    while(it.hasNext())
+      ((ParameterAPI)it.next()).addParameterChangeListener(this);
+    editorForDepths = new ParameterListParameterEditor(parameterListParameterForDepths);
     editorForDepths.validate();
     editorForDepths.revalidate();
     editorForDepths.repaint();
@@ -484,7 +328,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    */
   public void setDipDirection(double value){
     if(faultTypeEditor.isVisible())
-      if(((String)faultTypeEditor.getParameter().getValue()).equals(this.STIRLING))
+      if(((String)faultTypeEditor.getParameter().getValue()).equals(SimpleFaultParameterCalculator.STIRLING))
         this.dipDirectionParamEditor.getParameter().setValue(new Double(value));
   }
 
@@ -504,7 +348,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    */
   public void setFaultNameVisible(boolean flag){
     showFaultName = flag;
-    this.editor.getParameterEditor(FAULT_NAME).setVisible(flag);
+    this.editor.getParameterEditor(SimpleFaultParameterCalculator.FAULT_NAME).setVisible(flag);
   }
 
   /**
@@ -531,23 +375,23 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     /**
      * If the changed parameter is the number of the fault trace param
      */
-    if(name1.equalsIgnoreCase(this.NUMBER_OF_FAULT_TRACE)){
-      prevLats.removeAllElements();
-      prevLons.removeAllElements();
+    if(name1.equalsIgnoreCase(SimpleFaultParameterCalculator.NUMBER_OF_FAULT_TRACE)){
+      surfaceParam.getLatParamVals().removeAllElements();
+      surfaceParam.getLonParamVals().removeAllElements();
       //System.out.println("Inside the Fault Trace param change");
       ListIterator it = editorForLats.getParameterList().getParametersIterator();
       //saving the previous lat values in the vector
       while(it.hasNext()){
         ParameterAPI param = (ParameterAPI)it.next();
         if(param.getValue()!=null)
-          prevLats.add(param.getValue());
+          surfaceParam.getLatParamVals().add(param.getValue());
       }
       //saving the previous lon values in the vector
       it = editorForLons.getParameterList().getParametersIterator();
       while(it.hasNext()){
         ParameterAPI param = (ParameterAPI)it.next();
         if(param.getValue()!=null)
-          prevLons.add(param.getValue());
+          surfaceParam.getLonParamVals().add(param.getValue());
       }
 
       //removing the lats and Lons editor from the Applet
@@ -571,16 +415,16 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     /**
      * If the changed parameter is the number of the Dips
      */
-    if(name1.equalsIgnoreCase(this.NUM_DIPS)) {
+    if(name1.equalsIgnoreCase(SimpleFaultParameterCalculator.NUM_DIPS)) {
       //System.out.println("Inside the Num dips param change");
-      prevDips.removeAllElements();
-      prevDepths.removeAllElements();
+      surfaceParam.getDipParamVals().removeAllElements();
+      surfaceParam.getDepthParamVals().removeAllElements();
       ListIterator it = editorForDips.getParameterList().getParametersIterator();
       //saving the previous Dip values in the vector
       while(it.hasNext()){
         ParameterAPI param = (ParameterAPI)it.next();
         if(param.getValue()!=null)
-          prevDips.add(param.getValue());
+          surfaceParam.getDipParamVals().add(param.getValue());
       }
 
       //saving the previous Depths values in the vector
@@ -588,7 +432,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
       while(it.hasNext()){
         ParameterAPI param = (ParameterAPI)it.next();
         if(param.getValue()!=null)
-          prevDepths.add(param.getValue());
+          surfaceParam.getDepthParamVals().add(param.getValue());
       }
 
       //removing the dips and depth editor from the applet
@@ -598,11 +442,11 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
       setDepths();
 
       //Adding the dips and depth editor to the parameter editor
-      add(this.editorForDips,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+      add(this.editorForDips,new GridBagConstraints( 0, 3, 0, 1, 1.0, 0.0
+          , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-      add(this.editorForDepths,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+      add(this.editorForDepths,new GridBagConstraints( 0, 4, 0, 1, 1.0, 0.0
+          , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
       if(((Integer)numDipsEditor.getParameter().getValue()).intValue() !=1)
         this.faultTypeEditor.setVisible(false);
@@ -611,18 +455,17 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
         this.faultTypeEditor.setVisible(true);
     }
     //if the Fault type Parameter is changed
-    if(name1.equalsIgnoreCase(this.FAULT_TYPE_TITLE)){
+    if(name1.equalsIgnoreCase(SimpleFaultParameterCalculator.FAULT_TYPE_TITLE)){
       //if the fault type parameter selected value is STIRLING then show the dip direction parameter.
-      if(((String)faultTypeEditor.getParameter().getValue()).equals(this.STIRLING)){
+      if(((String)faultTypeEditor.getParameter().getValue()).equals(SimpleFaultParameterCalculator.STIRLING)){
         dipDirectionParamEditor.setVisible(true);
-        add(dipDirectionParamEditor,new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
-          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+        add(dipDirectionParamEditor,new GridBagConstraints( 0, 6, 0, 1, 1.0, 0.0
+          , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
       }
       else{
         dipDirectionParamEditor.setVisible(true);
         remove(dipDirectionParamEditor);
       }
-
     }
     this.validate();
     this.revalidate();
@@ -671,18 +514,6 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
 
   }
 
-  /**
-   * This function is called when Update  Surface button is pressed
-   *
-   * @param ae
-   */
-  public void actionPerformed(ActionEvent ae ) {
-    try{
-      setEvenlyGriddedSurfaceFromParams();
-    }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
-    }
-  }
 
   /**
    * creates the evenly gridded surface from the fault parameter.
@@ -694,155 +525,25 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   public void setEvenlyGriddedSurfaceFromParams()throws RuntimeException{
 
     //checks if any parameter has been only then updates the Griddedsurface
-    if(this.evenlyGriddedParamChange){
-      // EvenlyGriddedSurface
-      GriddedFaultFactory fltFactory = null;
-      //gets the faultName
-      String fltName = (String)parameterList.getParameter(this.FAULT_NAME).getValue();
-      //creates the fault trace data
-      FaultTrace fltTrace = new FaultTrace(fltName);
+    if(evenlyGriddedParamChange)
+      surfaceParam.setEvenlyGriddedSurfaceFromParams();
+  }
 
-      //initialising the vectors for the lats, lons, depths and dips
-      Vector lats = new Vector();
-      Vector lons = new Vector();
-      Vector depths = new Vector();
-      Vector dips = new Vector();
-      //getting the number of  fault trace
-      int fltTracePoints = ((Integer)this.parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
-      //getting the number of dips
-      int numDips = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue();
+  public SimpleFaultParameterCalculator getSimpleFaultParameter(){
+    return surfaceParam;
+  }
 
-      //adding the latitudes to the Vector
-      for(int i=0;i<fltTracePoints;++i){
-        Double latLocation =(Double)this.editorForLats.getParameterList().getParameter(this.LAT_PARAM_NAME+(i+1)).getValue();
-        lats.add(latLocation);
-      }
-
-      //adding the longitudes to the Vector
-      for(int i=0;i<fltTracePoints;++i){
-        Double lonLocation =(Double)this.editorForLons.getParameterList().getParameter(this.LON_PARAM_NAME+(i+1)).getValue();
-        lons.add(lonLocation);
-      }
-
-      //variable added to store the previous Depth (to make sure they're in ascending order)
-      double prevDepth=((Double)this.editorForDepths.getParameterList().getParameter(this.DEPTH_PARAM_NAME+("1")).getValue()).doubleValue();
-
-      //adding the depths(equal to numDips +1) to the Vector
-      for(int i=0;i<=numDips;++i){
-        Double depthLocation = (Double)this.editorForDepths.getParameterList().getParameter(this.DEPTH_PARAM_NAME+(i+1)).getValue();
-        depths.add(depthLocation);
-        //compares the depths, becuase depths should be entered in the increasing order
-        if(depthLocation.doubleValue() < prevDepth)
-          throw new RuntimeException("Depths should be entered in increasing order");
-        prevDepth = depthLocation.doubleValue();
-      }
-
-      //adding the dips to the vector
-      for(int i=0;i<numDips;++i){
-        Double dipLocation = (Double)this.editorForDips.getParameterList().getParameter(this.DIP_PARAM_NAME+(i+1)).getValue();
-        dips.add(dipLocation);
-      }
-
-      //adding the locations to the FaultTrace
-      for(int i=0;i<fltTracePoints;++i){
-        double lat = ((Double)lats.get(i)).doubleValue();
-        double lon = ((Double)lons.get(i)).doubleValue();
-        double depth = ((Double)depths.get(0)).doubleValue();
-        Location loc = new Location(lat,lon,depth);
-        fltTrace.addLocation(loc);
-      }
-      this.fltTrace = fltTrace;
-
-      if(D)
-        System.out.println("Fault-trace length (km) = "+fltTrace.getTraceLength());
-
-      //getting the gridSpacing
-      double gridSpacing = ((Double)this.parameterList.getParameter(this.GRID_SPACING).getValue()).doubleValue();
-
-      /**
-       * Checking for the number of Dips.
-       * If the number of dip is equal to 1 then give the option to the user
-       * to make the FaultType (Frankel or Stirling) parameter visible to the
-       * user. Else no choice is given to the user and make the object of the
-       * SimpleListricGriddedFaultFactory.
-       */
-      if(numDips ==1){
-        //gets the dip as the only value in the vector of dips
-        double dip = ((Double)dips.get(0)).doubleValue();
-        this.avgDip =dip;
-        //gets the fault type
-        String fltType = (String)this.faultTypeEditor.getParameter().getValue();
-        //System.out.println("Fault-type: "+fltType);
-        //gets the upperSiesDepth and LowerSiesDepth
-        double upperSiesDepth =((Double)depths.get(0)).doubleValue();
-        double lowerSiesDepth =((Double)depths.get(1)).doubleValue();
-        upperSies = upperSiesDepth;
-        lowerSies = lowerSiesDepth;
-        //make the object of the FrankelGriddedFaultFactory
-        if(fltType.equalsIgnoreCase(this.FRANKEL)){
-          fltFactory = new FrankelGriddedFaultFactory(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
-        }
-        //make the object for the Stirling gridded fault
-        if(fltType.equalsIgnoreCase(this.STIRLING)){
-          fltFactory = new StirlingGriddedFaultFactory(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
-          //checking to see if the Dip Direction Param value is null then assign default Double.NaN
-          //else assign the dip direction value.
-          Double aveDipDir = (Double)dipDirectionParam.getValue();
-          if(aveDipDir == null)
-            ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(Double.NaN);
-          else
-            ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(aveDipDir.doubleValue());
-        }
-      }
-      else{
-        //make the object for the simple Listric fault
-        fltFactory = new SimpleListricGriddedFaultFactory(fltTrace,dips,depths,gridSpacing);
-      }
-      //gets the griddedsurface from the faultFactory and sets the Value for the
-      //SimpleFaultParameter
-      surfaceParam.setValue((EvenlyGriddedSurface)fltFactory.getGriddedSurface());
-
-      if(D) {
-        EvenlyGriddedSurface surf = (EvenlyGriddedSurface)fltFactory.getGriddedSurface();
-        for(int i=0;i<surf.getNumCols();i++)
-          for(int k=0;k<surf.getNumRows();k++)
-            System.out.println(surf.getLocation(k,i).toString());
-      }
-      //make the change flag to be false
-      this.evenlyGriddedParamChange = false;
+  /**
+   * This function is called when Update  Surface button is pressed
+   *
+   * @param ae
+   */
+  public void actionPerformed(ActionEvent ae ) {
+    try{
+      setEvenlyGriddedSurfaceFromParams();
+    }catch(RuntimeException e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
     }
-  }
-
-  /**
-   *
-   * @returns the fault trace
-   */
-  public FaultTrace getFaultTrace(){
-    return fltTrace;
-  }
-
-  /**
-   *
-   * @returns the Upper Siesmogenic depth
-   */
-  public double getUpperSiesmogenicDepth(){
-    return upperSies;
-  }
-
-  /**
-   *
-   * @returns the Lower Siesmogenic depth
-   */
-  public double getLowerSiesmogenicDepth(){
-    return lowerSies;
-  }
-
-  /**
-   *
-   * @returns the name of the fault
-   */
-  public String getFaultName(){
-    return (String)parameterList.getParameter(this.FAULT_NAME).getValue();
   }
 }
 

@@ -118,6 +118,14 @@ ActionListener{
   }
 
   /**
+   *
+   * @returns the parameterList contained in this editor.
+   */
+  public ParameterList getParameterList(){
+    return editor.getParameterList();
+  }
+
+  /**
    * This function is called when the user click for the ParameterListParameterEditor Button
    *
    * @param ae
@@ -126,7 +134,7 @@ ActionListener{
 
       frame = new JDialog();
       frame.setModal(true);
-      frame.setSize(300,600);
+      frame.setSize(300,400);
       frame.setTitle(param.getName());
       frame.getContentPane().setLayout(new GridBagLayout());
       frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0

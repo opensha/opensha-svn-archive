@@ -46,8 +46,8 @@ public class SimpleFaultParameterGUI extends JDialog{
     //creating the object for the SimpleFaultParameter Editor
     faultEditorPanel = new SimpleFaultParameterEditorPanel();
     faultEditorPanel.setParameter(surfaceParam);
-    parameterPanel.add(faultEditorPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+    parameterPanel.add(faultEditorPanel,  new GridBagConstraints(0, 0, 0, 1, 1.0, 1.0
+            ,GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
   }
 
   public static void main(String[] args) {
@@ -61,12 +61,12 @@ public class SimpleFaultParameterGUI extends JDialog{
     this.getContentPane().setLayout(borderLayout1);
     evenlyGriddedSurfacePanel.setLayout(gridBagLayout1);
     parameterPanel.setLayout(gridBagLayout2);
-    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-    evenlyGriddedSurfacePanel.setPreferredSize(new Dimension(370, 700));
-    evenlyGriddedParamsScroll.setPreferredSize(new Dimension(370, 700));
+    evenlyGriddedSurfacePanel.setPreferredSize(new Dimension(370, 450));
+    evenlyGriddedParamsScroll.setPreferredSize(new Dimension(370, 450));
+    this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     this.getContentPane().add(evenlyGriddedSurfacePanel, BorderLayout.CENTER);
-    evenlyGriddedSurfacePanel.add(evenlyGriddedParamsScroll,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 200, 10));
+    evenlyGriddedSurfacePanel.add(evenlyGriddedParamsScroll,   new GridBagConstraints(0, 0, 0, 1, 1.0, 1.0
+            ,GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
     evenlyGriddedSurfacePanel.add(button,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
     button.setText("Make Simple Fault");
@@ -78,7 +78,7 @@ public class SimpleFaultParameterGUI extends JDialog{
      }
     });
     evenlyGriddedParamsScroll.getViewport().add(parameterPanel, null);
-    this.setSize(300,700);
+    this.setSize(300,450);
     this.setTitle("Simple Fault Parameter Settings");
   }
 
@@ -102,7 +102,7 @@ public class SimpleFaultParameterGUI extends JDialog{
    * @return
    */
   public FaultTrace getFaultTrace(){
-   return faultEditorPanel.getFaultTrace();
+   return faultEditorPanel.getSimpleFaultParameter().getFaultTrace();
   }
 
   /**
@@ -110,7 +110,7 @@ public class SimpleFaultParameterGUI extends JDialog{
    * @return
    */
   public double getUpperSies(){
-    return faultEditorPanel.getUpperSiesmogenicDepth();
+    return faultEditorPanel.getSimpleFaultParameter().getUpperSiesmogenicDepth();
   }
 
   /**
@@ -118,7 +118,7 @@ public class SimpleFaultParameterGUI extends JDialog{
    * @return
    */
   public double getLowerSies(){
-    return faultEditorPanel.getLowerSiesmogenicDepth();
+    return faultEditorPanel.getSimpleFaultParameter().getLowerSiesmogenicDepth();
   }
 
   /**
@@ -126,7 +126,7 @@ public class SimpleFaultParameterGUI extends JDialog{
    * @return
    */
   public String getFaultName(){
-    return faultEditorPanel.getFaultName();
+    return faultEditorPanel.getSimpleFaultParameter().getFaultName();
   }
 
   /**

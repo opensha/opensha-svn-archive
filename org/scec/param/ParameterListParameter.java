@@ -111,6 +111,14 @@ public class ParameterListParameter extends Parameter
   }
 
   /**
+   *
+   * @returns the parameterList contained in this parameter
+   */
+  public ParameterList getParameter(){
+    return (ParameterList)getValue();
+  }
+
+  /**
    * Returns the name of the parameter class
    */
   public String getType() {

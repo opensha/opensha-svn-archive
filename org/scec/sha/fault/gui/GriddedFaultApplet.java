@@ -1841,20 +1841,7 @@ public class GriddedFaultApplet
         depths.add(new Double(10));
 
         customFaultEditor.setFaultNameVisible(true);
-        customFaultEditor.setAll("Fault-1",1.0,lats,lons,dips,depths,customFaultEditor.STIRLING);
-
-/* NED REPLACED THESE WITH THE ABOVE METHOD
-        customFaultEditor.setGridSpacing(1.0);
-        customFaultEditor.setFaultName("Fault-1");
-        customFaultEditor.setNumFaultTracePoints(2);
-        customFaultEditor.setNumDips(1);
-        customFaultEditor.setLatitudes(lats);
-        customFaultEditor.setLongitudes(lons);
-        customFaultEditor.setDepths(depths);
-        customFaultEditor.setDips(dips);
-        customFaultEditor.refreshParamEditor();
-*/
-
+        customFaultEditor.setAll("Fault-1",1.0,lats,lons,dips,depths,customFaultEditor.getSimpleFaultParameter().STIRLING);
         createSimpleFault = false;
       }
       customFault.show();
