@@ -56,16 +56,16 @@ import org.scec.util.*;
  */
 
 
-public class CGS_USGS_2003_AttenRel
+public class ShakeMap_2004_AttenRel
          extends AttenuationRelationship
          implements
         AttenuationRelationshipAPI,
         NamedObjectAPI {
 
     // debugging stuff:
-    private final static String C = "CGS_USGS_2003_AttenRel";
+    private final static String C = "ShakeMap_2004_AttenRel";
     private final static boolean D = false;
-    public final static String NAME = "CGS_USGS (2003)";
+    public final static String NAME = "ShakeMap (2004)";
 
     // attenuation relationships used.
     private final AS_1997_AttenRel as_1997_attenRel;
@@ -120,7 +120,7 @@ public class CGS_USGS_2003_AttenRel
     /**
      *  No-Arg constructor. This initializes several ParameterList objects.
      */
-    public CGS_USGS_2003_AttenRel( ParameterChangeWarningListener warningListener ) {
+    public ShakeMap_2004_AttenRel( ParameterChangeWarningListener warningListener ) {
 
         super();
 
@@ -817,7 +817,7 @@ public class CGS_USGS_2003_AttenRel
 
     // this is temporary for testing purposes
     public static void main(String[] args) {
-      CGS_USGS_2003_AttenRel ar = new CGS_USGS_2003_AttenRel(null);
+      ShakeMap_2004_AttenRel ar = new ShakeMap_2004_AttenRel(null);
     }
 
 }

@@ -91,6 +91,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
   public final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
+  public final static String SM04_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2004_AttenRel";
 
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
@@ -352,6 +353,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
      imrClasses.add(this.F_CLASS_NAME);
      imrClasses.add(this.A_CLASS_NAME);
      imrClasses.add(this.SM_CLASS_NAME);
+     imrClasses.add(this.SM04_CLASS_NAME);
      imrGuiBean = new IMR_GuiBean(imrClasses);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
 
