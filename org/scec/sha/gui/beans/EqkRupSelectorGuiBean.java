@@ -80,6 +80,11 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   private JCheckBox hypoCentreCheck = new JCheckBox();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
+  // vector to save which forecasts have already been selected by the user
+  // which this forecast  has already been selected it will not pop up adjustable params window
+  private Vector  alreadySeenERFs = new Vector();
+
+
   /**
   * Constructor : It accepts the classNames of the ERFs to be shown in the editor
   * @param erfClassNames
@@ -217,8 +222,11 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
    // if ERF selected by the user  changes
    if( name1.equals(erfGuiBean.ERF_PARAM_NAME) ){
-     // set the new forecast parameters.
-     //Also selected source index is 0 for newly selected forecast
+     // if this forecast has not been selected yet, pop up the adjustable params window
+     if(!this.alreadySeenERFs.contains(event.getNewValue()))  {
+       getAllERFAdjustableParams();
+       alreadySeenERFs.add(event.getNewValue());
+     }
      setParamsInForecast(0,0);
    }
 
