@@ -645,9 +645,7 @@ public class HazardCurveApplet extends JApplet
 
     public void run() {
       computeHazardCurve();
-      if(isEqkList)
-        //shows the curves for the ERF List in a seperate window
-        peelOffCurves();
+
     }
 
 
@@ -917,6 +915,9 @@ public class HazardCurveApplet extends JApplet
     boolean isEqkForecastList = false;
     if(eqkRupForecast instanceof ERF_List)  {
       handleForecastList(site, imr, eqkRupForecast);
+      if(isEqkList)
+        //shows the curves for the ERF List in a seperate window
+        peelOffCurves();
       return;
     }
     calc.setNumForecasts(1);
