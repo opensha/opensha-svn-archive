@@ -324,59 +324,6 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         }
     }
 
-   /**
-     * Rescales the axis to ensure that all data is visible.
-     */
-   /* public void autoAdjustRange() {
-
-        if (plot instanceof HorizontalValuePlot)
-        {
-            HorizontalValuePlot hvp = (HorizontalValuePlot)plot;
-
-            Range r = hvp.getHorizontalDataRange();
-            if (r == null)
-            {
-              r = new Range(DEFAULT_MINIMUM_AXIS_VALUE,
-                                                DEFAULT_MAXIMUM_AXIS_VALUE);
-            }
-
-            double lower = computeLogFloor(r.getLowerBound());
-            if(!allowNegativesFlag && lower >= 0.0 && lower < 1e-25)
-            {      //negatives not allowed and lower range bound is zero
-              lower = r.getLowerBound();    //use data range bound instead
-            }
-
-//            double upper = computeLogCeil(r.getUpperBound());
-            double upper = r.getUpperBound();
-
-            if(!allowNegativesFlag && upper < 1.0 && upper > 0.0 &&
-                                                                lower > 0.0)
-            {      //negatives not allowed and upper bound between 0 & 1
-                        //round up to nearest significant digit for bound:
-                                                 //get negative exponent:
-              double expVal = Math.log(upper) / LOG10_VALUE;
-              expVal = Math.ceil(-expVal+0.001); //get positive exponent
-              expVal = Math.pow(10,expVal);      //create multiplier value
-                        //multiply, round up, and divide for bound value:
-              upper = (expVal > 0.0) ? Math.ceil(upper*expVal)/expVal :
-                                                           Math.ceil(upper);
-            }
-            else   //negatives allowed or upper bound not between 0 & 1
-              upper = Math.ceil(upper);     //use nearest integer value
-
-            // ensure the autorange is at least <minRange> in size...
-            double minRange = this.autoRangeMinimumSize.doubleValue();
-            if (upper-lower < minRange)
-            {
-              upper = (upper+lower+minRange) / 2;
-              lower = (upper+lower-minRange) / 2;
-            }
-
-            this.range = new Range(lower, upper);
-        }
-
-        setupSmallLogFlag();      //setup flag based on bounds values
-    }*/
 
     /**
      * Rescales the axis to ensure that all data is visible.
@@ -476,191 +423,173 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
     public void refreshTicks(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea)throws java.lang.ArithmeticException {
 
 
-       ++counter;
-      	this.ticks.clear();
+      ++counter;
+      this.ticks.clear();
 
-        g2.setFont(tickLabelFont);
+      g2.setFont(tickLabelFont);
 
-	if (this.autoTickUnitSelection) {
-	    selectAutoTickUnit(g2, drawArea, plotArea);
-	}
-        double size = this.tickUnit.getSize();
-	int count = this.calculateVisibleTickCount();
-	double x0=0.0;
-        double sum=0.0;
-        int i=lowest;
+      if (this.autoTickUnitSelection) {
+        selectAutoTickUnit(g2, drawArea, plotArea);
+      }
+      double size = this.tickUnit.getSize();
+      int count = this.calculateVisibleTickCount();
+      double x0=0.0;
+      double sum=0.0;
+      int i=lowest;
 
-        if(counter==2)
-          this.tickUnit.formatter.setMaximumFractionDigits(3);
+      if(counter==2)
+        this.tickUnit.formatter.setMaximumFractionDigits(3);
 
 
-        int upperBound =powerOf10(range.getUpperBound());
-        int lowerBound=powerOf10(range.getLowerBound());
-        boolean superscript=false;
+      int upperBound =powerOf10(range.getUpperBound());
+      int lowerBound=powerOf10(range.getLowerBound());
+      boolean superscript=false;
 
-        // whether you want to show in superscript form or not
-        if((upperBound-lowerBound) >= 4)
-           superscript=true;
-        if(range.getLowerBound()<0.0001 || range.getUpperBound()>10000.0)
-          superscript=true;
+      // whether you want to show in superscript form or not
+      if((upperBound-lowerBound) >= 4)
+        superscript=true;
+      if(range.getLowerBound()<0.0001 || range.getUpperBound()>10000.0)
+        superscript=true;
 
-        // see whther there exists any major axis in data
-        double lower = range.getLowerBound();
-        double upper = range.getUpperBound();
-        if(lower==0.0 || upper==0.0)
-               throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
-        for( i=lowest;;++i) {
-          double val1=Math.pow(10,i);
-          double val2=Math.pow(10,i+1);
-          if(lower==val1 || upper==val1)
-            break;
-          if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
-            // no major axis exixts in dat so you have to add the major axis
-            this.setRange(val1,val2);
-            break;
-          }
-          if(lower < val2 && upper > val2) // we have found 1 major axis
-            break;
+      // see whther there exists any major axis in data
+      double lower = range.getLowerBound();
+      double upper = range.getUpperBound();
+      if(lower==0.0 || upper==0.0)
+        throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
+      for( i=lowest;;++i) {
+        double val1=Math.pow(10,i);
+        double val2=Math.pow(10,i+1);
+        if(lower==val1 || upper==val1)
+          break;
+        if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
+          // no major axis exixts in dat so you have to add the major axis
+          this.setRange(val1,val2);
+          break;
         }
-
-
-
-         /**
-          * For Loop - Drawing the ticks which corresponds to the  power of 10
-          */
-
-        for (i=lowest;;i++) {
-           for(int j=0;j<10;++j){
-              sum =j*Math.pow(10,i);
-              if(sum<range.getLowerBound())
-                 continue;
-              if(sum>range.getUpperBound())
-                 return;
-               double currentTickValue = sum ;
-               double val=currentTickValue;
-               double logval;
-               double xx;
-
-
-               if(sum==range.getLowerBound())
-                 xx = plotArea.getMinX();
-
-               else {
-                logval=Math.log(val)/LOG10_VALUE;
-	         xx = this.myTranslateValueToJava2D(logval, plotArea);
-                }
-                if(sum<=0.0)
-                   throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
-
-
-
-	        String tickLabel = this.tickUnit.valueToString(currentTickValue);
-                if(j!=1) // for minor axis, just display 2 to 9
-                  tickLabel=new String(""+j);
-                else if(superscript) // whether you want to show in superscript format
-                  tickLabel=new String("10E"+i);
-
-               /**
-                * to remove the extra zeros
-                */
-	        if(tickLabel.startsWith("0")) // remove the starting ZERO
-                  tickLabel=tickLabel.substring(1);
-                int ticklength= tickLabel.length();
-
-                if(tickLabel.lastIndexOf("0")==ticklength-1) {
-                    for(int k= ticklength-1; tickLabel.indexOf(".")!=-1 ;){
-                      tickLabel=tickLabel.substring(0,k);
-                      --k;
-                      if(k<0)
-                        break;
-                      if(tickLabel.charAt(k)=='0' || tickLabel.charAt(k)=='.')
-                        continue;
-                      else
-                        break;
-                    }
-                  }
-
-            Rectangle2D tickLabelBounds = tickLabelFont.getStringBounds(tickLabel,
-									g2.getFontRenderContext());
-	    float x = 0.0f;
-	    float y = 0.0f;
-	    if (this.verticalTickLabels) {
-		x = (float)(xx+tickLabelBounds.getHeight()/2);
-		y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getWidth());
-	    }
-	    else {
-		x = (float)(xx-tickLabelBounds.getWidth()/2);
-		y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getHeight());
-	    }
-
-            //if(sum==range.getLowerBound()) {
-            //  x=(float)xx;
-            //}
-
-            if(xx<plotArea.getMinX())
-              continue;
-
-            if(xx>plotArea.getMaxX())
-               return;
-
-           /**
-            * Code added to prevent overlapping of the Tick Labels.
-            */
-             if((x<x0 || upperBound-lowerBound >=3) && j!=1){
-                tickLabel="";
-             }
-             else {
-               if(x<x0 && j==1)
-                 removePreviousNine(i);
-               x0=x+tickLabelBounds.getWidth()+2;
-             }
-             // System.out.println("HorizontalLogarithmicAxis:refreshTicks:tickLabel:="+tickLabel);
-             Tick tick = new Tick(new Double(currentTickValue), tickLabel, x, y);
-             ticks.add(tick);
-	}
+        if(lower < val2 && upper > val2) // we have found 1 major axis
+          break;
       }
 
-    }
 
 
-
-    /**
-       * checks to see whether num is a power of a ten or not
-       * returns true if number is a power of ten else returns false
-       * @param num
+      /**
+       * For Loop - Drawing the ticks which corresponds to the  power of 10
        */
-      private boolean isPowerOfTen(double num) {
 
-        if(num>=2 && num<=9)
-          return false;
-        return true;
- }
+      for (i=lowest;;i++) {
+        for(int j=0;j<10;++j){
+          sum =j*Math.pow(10,i);
+          if(sum<range.getLowerBound())
+            continue;
+          if(sum>range.getUpperBound())
+            return;
+          double currentTickValue = sum ;
+          double val=currentTickValue;
+          double logval;
+          double xx;
 
-  /**
-   * removes the prevois nine so that powers of 10 can be displayed
-   */
-  private void removePreviousNine(int power) {
-    double value=9*(float)Math.pow(10,power-1);
-    Iterator iterator = ticks.iterator();
-    while (iterator.hasNext()) {
-      Tick tick = (Tick)iterator.next();
-      if(tick.getNumericalValue()==value) {
 
-        tick.text="";
+          if(sum==range.getLowerBound())
+            xx = plotArea.getMinX();
+
+          else {
+            logval=Math.log(val)/LOG10_VALUE;
+            xx = this.myTranslateValueToJava2D(logval, plotArea);
+          }
+          if(sum<=0.0)
+            throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
+
+
+
+          String tickLabel = this.tickUnit.valueToString(currentTickValue);
+          if(j!=1) // for minor axis, just display 2 to 9
+            tickLabel=new String(""+j);
+          else if(superscript) // whether you want to show in superscript format
+            tickLabel=new String("10E"+i);
+
+          /**
+           * to remove the extra zeros
+           */
+          if(tickLabel.startsWith("0")) // remove the starting ZERO
+            tickLabel=tickLabel.substring(1);
+          int ticklength= tickLabel.length();
+
+          if(tickLabel.lastIndexOf("0")==ticklength-1) {
+            for(int k= ticklength-1; tickLabel.indexOf(".")!=-1 ;){
+              tickLabel=tickLabel.substring(0,k);
+              --k;
+              if(k<0)
+                break;
+              if(tickLabel.charAt(k)=='0' || tickLabel.charAt(k)=='.')
+                continue;
+              else
+                break;
+            }
+          }
+
+          Rectangle2D tickLabelBounds = tickLabelFont.getStringBounds(tickLabel,
+              g2.getFontRenderContext());
+          float x = 0.0f;
+          float y = 0.0f;
+          if (this.verticalTickLabels) {
+            x = (float)(xx+tickLabelBounds.getHeight()/2);
+            y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getWidth());
+          }
+          else {
+            x = (float)(xx-tickLabelBounds.getWidth()/2);
+            y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getHeight());
+          }
+
+          /**
+           * Code added to prevent overlapping of the Tick Labels.
+           */
+          if((x<x0 || upperBound-lowerBound >=3) && j!=1){
+            tickLabel="";
+          }
+          else {
+            if(x<x0 && j==1)
+              removePreviousNine(i);
+            if(superscript && j==9) // if it is displayed in superscript form, then
+              x0=x+tickLabelBounds.getWidth()+10;
+            else
+              x0=x+tickLabelBounds.getWidth()+2;
+          }
+          // System.out.println("HorizontalLogarithmicAxis:refreshTicks:tickLabel:="+tickLabel);
+          Tick tick = new Tick(new Double(currentTickValue), tickLabel, x, y);
+          ticks.add(tick);
+        }
       }
+
     }
-  }
+
+
+
 
     /**
-     * Returns the lowest tick value to  be marked in place of Zero
-     * @return
+     * checks to see whether num is a power of a ten or not
+     * returns true if number is a power of ten else returns false
+     * @param num
      */
+    private boolean isPowerOfTen(double num) {
 
-    public double getLowestLog() {
-
-        return this.tickUnit.getSize()/15;
+      if(num>=2 && num<=9)
+        return false;
+      return true;
     }
 
+
+    /**
+     * removes the prevois nine so that powers of 10 can be displayed
+     */
+    private void removePreviousNine(int power) {
+      Iterator iterator = ticks.iterator();
+      int size= ticks.size();
+      if(size==0)
+        return;
+      Tick tick = (Tick)ticks.get( ticks.size()-1);
+      if(tick.getText().equalsIgnoreCase("9"))
+          tick.text="";
+    }
 
     /**
       * this function is used to find the nearest power of 10 for any number passed as the parameter
@@ -672,7 +601,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
      private int powerOf10(double num) {
 
          int i=lowest;
-         while(num > Math.pow(10,i)){
+         while(num >= Math.pow(10,i)){
             if(num>=Math.pow(10,i) && num<Math.pow(10,i+1))
                return i;
             ++i;

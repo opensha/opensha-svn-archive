@@ -30,7 +30,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
 
   // for debug purposes
   protected final static String C = "LogPlotTesterApp";
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
   private boolean isStandalone = false;
   private BorderLayout borderLayout1 = new BorderLayout();

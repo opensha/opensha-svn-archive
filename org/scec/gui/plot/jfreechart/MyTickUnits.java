@@ -74,7 +74,7 @@ public class MyTickUnits {
       units.add(new NumberTickUnit(1,            new DecimalFormat("0")));
       units.add(new NumberTickUnit(10,           new DecimalFormat("0")));
       units.add(new NumberTickUnit(100,          new DecimalFormat("0")));
-      units.add(new NumberTickUnit(1000,         new DecimalFormat("#,##0")));
+      units.add(new NumberTickUnit(1000,         new DecimalFormat("0")));
       units.add(new NumberTickUnit(10000,        new DecimalFormat("0.#E0")));
       units.add(new NumberTickUnit(100000,       new DecimalFormat("0.#E0")));
       units.add(new NumberTickUnit(1000000,      new DecimalFormat("0.#E0")));

@@ -705,12 +705,6 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             /**
              * Code added to remove the overlapping of the tickLabels
              */
-              if(sum==range.getLowerBound())
-                y=(float)yy;
-              if(yy>plotArea.getMaxY())
-                continue;
-              if(yy<plotArea.getMinY())
-                 return;
               if((y>y0 || (upperBound-lowerBound>=3)) && j!=1)
                 tickLabel="";
 
@@ -749,13 +743,6 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
    * @param num
    */
   private boolean isPowerOfTen(double num) {
-     /*for(int i=lowest;;++i) {
-      double val=Math.pow(10,i);
-      if(val==num)
-        return true;
-      if(val>num)
-        return false;
-    }*/
     if(num>=2 && num<=9)
       return false;
     return true;
