@@ -58,21 +58,22 @@ public class LogPlotTesterApp extends JApplet  {
 
   //static string declaration for the test cases
   private static final String TEST_0= new String("Auto Scale"); // draws the graph according to the given default values
-  private static final String TEST_1= new String("1");
-  private static final String TEST_2= new String("2");
-  private static final String TEST_3= new String("3");
-  private static final String TEST_4= new String("4");
-  private static final String TEST_5= new String("5");
-  private static final String TEST_6= new String("6");
-  private static final String TEST_7= new String("7");
-  private static final String TEST_8= new String("8");
-  private static final String TEST_9= new String("9");
-  private static final String TEST_10= new String("10");
-  private static final String TEST_11= new String("11");
-  private static final String TEST_12= new String("12");
-  private static final String TEST_13= new String("13");
-  private static final String TEST_14= new String("14");
-  private static final String TEST_15= new String("15");
+  private static final String TEST_1= new String("Preset-1");
+  private static final String TEST_2= new String("Preset-2");
+  private static final String TEST_3= new String("Preset-3");
+  private static final String TEST_4= new String("Preset-4");
+  private static final String TEST_5= new String("Preset-5");
+  private static final String TEST_6= new String("Preset-6");
+  private static final String TEST_7= new String("Preset-7");
+  private static final String TEST_8= new String("Preset-8");
+  private static final String TEST_9= new String("Preset-9");
+  private static final String TEST_10= new String("Preset-10");
+  private static final String TEST_11= new String("Preset-11");
+  private static final String TEST_12= new String("Preset-12");
+  private static final String TEST_13= new String("Preset-13");
+  private static final String TEST_14= new String("Preset-14");
+  private static final String TEST_15= new String("Preset-15");
+  private static final String CUSTOM_SCALE = new String("Custom Scale");
 
   //static string to choose the type of Axis
   private static final String LOG = "Log Scale";
@@ -111,7 +112,7 @@ public class LogPlotTesterApp extends JApplet  {
   // Create the x-axis and y-axis - either normal or log
   org.jfree.chart.axis.NumberAxis xAxis = null;
   org.jfree.chart.axis.NumberAxis yAxis = null;
-  XYSeriesCollection functions = null;
+  XYSeriesCollection functions = new XYSeriesCollection();
  // DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
   Color lightBlue = new Color( 200, 200, 230 );
@@ -143,7 +144,8 @@ public class LogPlotTesterApp extends JApplet  {
   //Construct the applet
   public LogPlotTesterApp() {
 
-    logRanges.add(TEST_0);;
+    logRanges.add(TEST_0);
+    logRanges.add(CUSTOM_SCALE);
     logRanges.add(TEST_1);
     logRanges.add(TEST_2);
     logRanges.add(TEST_3);
@@ -159,10 +161,6 @@ public class LogPlotTesterApp extends JApplet  {
     logRanges.add(TEST_13);
     logRanges.add(TEST_14);
     logRanges.add(TEST_15);
-
-    //data.setFunctions(functions);
-    // for Y-log, convert 0 values in Y axis to this small value
-    //data.setConvertZeroToMin(true,Y_MIN_VAL);
   }
   //Initialize the applet
   public void init() {
@@ -418,7 +416,7 @@ public class LogPlotTesterApp extends JApplet  {
 
     if(((String)dataSetCombo.getSelectedItem()).equals(this.NEW_DATASET)){
       clearPlot();
-      functions = (XYSeriesCollection)dataWindow.getXYDataSet();
+      functions.addSeries(dataWindow.getXYDataSet());
       autoScale = true;
     }
     else
@@ -551,7 +549,6 @@ public class LogPlotTesterApp extends JApplet  {
   public void setYRange(double yMin,double yMax) {
      minYText.setText(""+yMin);
      maxYText.setText(""+yMax);
-     //addGraphPanel();
   }
 
   void clearButton_actionPerformed(ActionEvent e) {
@@ -675,8 +672,6 @@ public class LogPlotTesterApp extends JApplet  {
     function.add(96.97, 0.00950603133492957);
     function.add(97.98, 0.00935904411952373);
     function.add(98.99, 0.00921563408050459);
-
-    functions = new XYSeriesCollection();
     functions.addSeries(function);
   }
 
@@ -721,9 +716,11 @@ public class LogPlotTesterApp extends JApplet  {
       Range rY= yAxis.getRange();
       setXRange(rX.getLowerBound(),rX.getUpperBound());
       setYRange(rY.getLowerBound(),rY.getUpperBound());
+      showRangeFields(false);
     }
     else {
       autoScale=false;
+      showRangeFields(true);
       if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_1)){
         setXRange(.5e-20,1e-20);
         setYRange(.5e-20,1e-20);
@@ -784,9 +781,28 @@ public class LogPlotTesterApp extends JApplet  {
         setXRange(2,8);
         setYRange(2,8);
       }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(CUSTOM_SCALE)){
+        minXText.setText("");
+        maxXText.setText("");
+        minYText.setText("");
+        maxXText.setText("");
+        return;
+      }
     }
     this.addGraphPanel();
 
+  }
+
+  /**
+   * This function enables or disable the ablity to enter the text in the
+   * Range text fields.
+   * @param flag
+   */
+  private void showRangeFields(boolean flag){
+      minXText.setEnabled(flag);
+      maxXText.setEnabled(flag);
+      minYText.setEnabled(flag);
+      maxYText.setEnabled(flag);
   }
 
   void dataSetCombo_actionPerformed(ActionEvent e) {
