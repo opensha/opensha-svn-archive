@@ -56,7 +56,7 @@ public class EvenlyGriddedSurfaceParameterGUI extends JFrame{
     this.getContentPane().add(evenlyGriddedSurfacePanel, BorderLayout.CENTER);
     evenlyGriddedSurfacePanel.add(evenlyGriddedParamsScroll,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 200, 10));
-    evenlyGriddedSurfacePanel.add(button,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+    evenlyGriddedSurfacePanel.add(button,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
     button.setText("Update Surface Parameter");
     button.setForeground(new Color(80,80,133));
@@ -75,5 +75,4 @@ public class EvenlyGriddedSurfaceParameterGUI extends JFrame{
     gridSurface.setEvenlyGriddedSurfaceFromParams();
     this.dispose();
   }
-
 }
