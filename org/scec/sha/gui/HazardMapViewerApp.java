@@ -533,8 +533,8 @@ public class HazardMapViewerApp extends JApplet {
                       (val<=prevIML && val>=currentIML)){
 
                      //final iml value returned after interpolation
-                     double finalIML=interpolateIML(val, prevIML,currentIML,prevProb,currentProb);
-                     String curveResult=lon+" "+lat+" "+finalIML+"\n";
+                     double finalProb=interpolateProb(val, prevIML,currentIML,prevProb,currentProb);
+                     String curveResult=lon+" "+lat+" "+Math.log(finalProb)+"\n";
                      //appending the iml result to the final output file.
 
                      FileWriter fw= new FileWriter(finalFile,true);
@@ -547,8 +547,8 @@ public class HazardMapViewerApp extends JApplet {
                          (val<=prevProb && val>=currentProb)){
                    //interpolating the iml value entered by the user to get the final iml for the
                    //corresponding prob.
-                   double finalProb=interpolateProb(val, prevProb,currentProb,prevIML,currentIML);
-                   String curveResult=lon+" "+lat+" "+finalProb+"\n";
+                   double finalIML=interpolateIML(val, prevProb,currentProb,prevIML,currentIML);
+                   String curveResult=lon+" "+lat+" "+Math.log(finalIML)+"\n";
                    FileWriter fw= new FileWriter(finalFile,true);
                    fw.write(curveResult);
                    fw.close();
@@ -580,7 +580,7 @@ public class HazardMapViewerApp extends JApplet {
     * @param y2=prob2
     * @return prob value for the iml entered
     */
-   private double interpolateIML(double iml, double x1,double x2,double y1,double y2){
+   private double interpolateProb(double iml, double x1,double x2,double y1,double y2){
      return ((iml-x1)/(x2-x1))*(y2-y1) +y1;
    }
 
@@ -592,7 +592,7 @@ public class HazardMapViewerApp extends JApplet {
     * @param y2=prob2
     * @return iml value for the prob entered
     */
-   private double interpolateProb(double prob, double y1,double y2,double x1,double x2){
+   private double interpolateIML(double prob, double y1,double y2,double x1,double x2){
      return ((prob-y1)/(y2-y1))*(x2-x1)+x1;
    }
 

@@ -441,29 +441,6 @@ public class HazardMapViewerServerModeApp extends JApplet {
     openConnection();
   }
 
-   /**
-    * interpolating the prob values to get the final prob for the corresponding iml
-    * @param x1=iml1
-    * @param x2=iml2
-    * @param y1=prob1
-    * @param y2=prob2
-    * @return prob value for the iml entered
-    */
-   private double interpolateIML(double iml, double x1,double x2,double y1,double y2){
-     return ((iml-x1)/(x2-x1))*(y2-y1) +y1;
-   }
-
-   /**
-    * interpolating the iml values to get the final iml for the corresponding prob
-    * @param x1=iml1
-    * @param x2=iml2
-    * @param y1=prob1
-    * @param y2=prob2
-    * @return iml value for the prob entered
-    */
-   private double interpolateProb(double prob, double y1,double y2,double x1,double x2){
-     return ((prob-y1)/(y2-y1))*(x2-x1)+x1;
-   }
 
    /**
     * sets up the connection with the servlet on the server (scec.usc.edu)
