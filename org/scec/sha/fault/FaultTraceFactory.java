@@ -101,14 +101,13 @@ public class FaultTraceFactory {
                 try{ downDipWidth = new Double(temp).doubleValue(); }
                 catch( NumberFormatException e){ throw ERR; }
 
-                try{ depthToTop = new Double(temp).doubleValue(); }
+                try{ depthToTop = new Double(l3).doubleValue(); }
                 catch( NumberFormatException e){ throw ERR; }
 
 
                 // Calculate derived variables
                 upperSeismoDepth = depthToTop;
-                lowerSeismoDepth = downDipWidth*Math.cos( dip * Math.PI / 180 );
-
+                lowerSeismoDepth = depthToTop + downDipWidth*Math.sin( Math.abs(dip) * Math.PI / 180 );
 
                 // extract number of locations as first token in this line
                 // Extract metadata header line1
@@ -135,7 +134,7 @@ public class FaultTraceFactory {
                     if( !it.hasNext() ) throw ERR;
                     else dataLine = it.next().toString().trim();
 
-                    // Etract file name from first line
+                    // Etract lat & lon
                     index =  dataLine.indexOf(' ');
                     if( index < 1) throw ERR;
                     latStr = dataLine.substring(0, index).trim();
