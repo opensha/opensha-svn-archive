@@ -159,12 +159,12 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
 
 
     backSeisOptionsStrings.add(SEIS_EXCLUDE);
-    //  backSeisOptionsStrings.add(SEIS_INCLUDE);
+    backSeisOptionsStrings.add(SEIS_INCLUDE);
     backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,SEIS_EXCLUDE);
 
     grTailOptionsStrings.add(SEIS_EXCLUDE);
-    //  grTailOptionsStrings.add(SEIS_INCLUDE);
-    grTailParam = new StringParameter(GR_TAIL_NAME, backSeisOptionsStrings,SEIS_EXCLUDE);
+    grTailOptionsStrings.add(SEIS_INCLUDE);
+    grTailParam = new StringParameter(GR_TAIL_NAME, backSeisOptionsStrings,SEIS_INCLUDE);
 
     rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
         RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
