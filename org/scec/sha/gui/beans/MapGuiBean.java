@@ -4,6 +4,8 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.net.*;
+import java.io.*;
 
 import org.scec.mapping.gmtWrapper.*;
 import org.scec.param.*;
@@ -11,6 +13,9 @@ import org.scec.param.editor.*;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.sha.gui.infoTools.ImageViewerWindow;
+import org.scec.util.FileUtils;
+
+
 /**
  * <p>Title: GMT_MapGenerator</p>
  * <p>Description: This class generates and displays a GMT map for an XYZ dataset using
@@ -22,7 +27,7 @@ import org.scec.sha.gui.infoTools.ImageViewerWindow;
  * @version 1.0
  */
 
-public class MapGuiBean extends ParameterListEditor implements
+public class MapGuiBean extends JPanel implements
     ParameterChangeListener {
 
   /**
@@ -39,26 +44,35 @@ public class MapGuiBean extends ParameterListEditor implements
   //instance of the GMT Control Panel to get the GMT parameters value.
   private GMT_MapGenerator gmtMap= new GMT_MapGenerator();
 
+  private ParameterListEditor editor;
   //Label to show the imageFile
   private JLabel gmtMapLabel = new JLabel();
+  private JCheckBox gmtServerCheck = new JCheckBox();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
-   * Clas constructor accepts the GMT parameters list
+   * Class constructor accepts the GMT parameters list
    * @param gmtMap
    */
   public MapGuiBean() {
     // search path needed for making editors
-    searchPaths = new String[1];
+    String[] searchPaths = new String[1];
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     //get the adjustableParam List from the GMT_MapGenerator
     ListIterator it=gmtMap.getAdjustableParamsIterator();
-    parameterList = new ParameterList();
+    ParameterList parameterList = new ParameterList();
     while(it.hasNext())
       parameterList.addParameter((ParameterAPI)it.next());
-    addParameters();
-    this.setTitle(GMT_TITLE);
+    editor = new ParameterListEditor(parameterList);
+    editor.setTitle(GMT_TITLE);
     parameterList.getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).addParameterChangeListener(this);
     changeColorScaleModeValue(GMT_MapGenerator.COLOR_SCALE_MODE_DEFAULT);
+    try {
+      jbInit();
+    }
+    catch(Exception e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -66,11 +80,11 @@ public class MapGuiBean extends ParameterListEditor implements
    * @param regionParamsFlag: boolean flag to check if the region params are to be shown in the
    */
   public void showGMTParams(boolean regionParamsFlag) {
-      getParameterEditor(gmtMap.MAX_LAT_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.MIN_LAT_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.MAX_LON_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.MIN_LON_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.GRID_SPACING_PARAM_NAME).setVisible(regionParamsFlag);
+      editor.getParameterEditor(gmtMap.MAX_LAT_PARAM_NAME).setVisible(regionParamsFlag);
+      editor.getParameterEditor(gmtMap.MIN_LAT_PARAM_NAME).setVisible(regionParamsFlag);
+      editor.getParameterEditor(gmtMap.MAX_LON_PARAM_NAME).setVisible(regionParamsFlag);
+      editor.getParameterEditor(gmtMap.MIN_LON_PARAM_NAME).setVisible(regionParamsFlag);
+      editor.getParameterEditor(gmtMap.GRID_SPACING_PARAM_NAME).setVisible(regionParamsFlag);
   }
 
   /**
@@ -84,11 +98,11 @@ public class MapGuiBean extends ParameterListEditor implements
   public void setGMTRegionParams(double minLat,double maxLat,double minLon,double maxLon,
                                double gridSpacing){
     if(D) System.out.println(C+" setGMTRegionParams: " +minLat+"  "+maxLat+"  "+minLon+"  "+maxLon);
-    parameterList.getParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
-    parameterList.getParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
-    parameterList.getParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
-    parameterList.getParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME).setValue(new Double(maxLon));
-    parameterList.getParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME).setValue(new Double(gridSpacing));
+    editor.getParameterList().getParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
+    editor.getParameterList().getParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
+    editor.getParameterList().getParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
+    editor.getParameterList().getParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME).setValue(new Double(maxLon));
+    editor.getParameterList().getParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME).setValue(new Double(gridSpacing));
   }
 
 
@@ -109,11 +123,11 @@ public class MapGuiBean extends ParameterListEditor implements
    */
   private void changeColorScaleModeValue(String val) {
     if(val.equalsIgnoreCase(GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA)) {
-      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(false);
-      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(false);
+      editor.getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(false);
+      editor.getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(false);
     } else {
-      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(true);
-      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(true);
+      editor.getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(true);
+      editor.getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(true);
     }
   }
 
@@ -124,8 +138,11 @@ public class MapGuiBean extends ParameterListEditor implements
    * @param fileName: name of the XYZ file
    */
   public void makeMap(String fileName,String paramsInfo){
-
-    String imgName = gmtMap.makeMap(fileName);
+    String imgName;
+    if(this.gmtServerCheck.isSelected())
+      imgName = openConnection(fileName);
+    else
+      imgName = gmtMap.makeMap(fileName);
     //adding the image to the Panel and returning that to the applet
     ImageViewerWindow imgView = new ImageViewerWindow(imgName,paramsInfo);
   }
@@ -136,5 +153,79 @@ public class MapGuiBean extends ParameterListEditor implements
    */
   public GMT_MapGenerator getGMTObject(){
     return gmtMap;
+  }
+
+  /**
+   * Sets the gui elements for the map using GMT
+   * @throws Exception
+   */
+  private void jbInit() throws Exception {
+    gmtServerCheck.setText("Set GMT from Server");
+    this.setLayout(gridBagLayout1);
+    this.add(editor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
+    this.add(gmtServerCheck,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+  }
+
+  /**
+   * sets up the connection with the servlet on the server (scec.usc.edu)
+   */
+  String openConnection(String fileName) {
+
+    String imgURL=null;
+
+    try{
+      ArrayList fileLines= FileUtils.loadFile(fileName);
+      if(D) System.out.println("starting to make connection with servlet");
+      URL hazardMapServlet = new
+                             URL("http://scec.usc.edu:9999/examples/servlet/GMT_MapGeneratorServlet");
+
+
+      URLConnection servletConnection = hazardMapServlet.openConnection();
+      if(D) System.out.println("connection established");
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+
+      //sending the object of GMT_MapGenerator to servlet
+      outputToServlet.writeObject(this.gmtMap);
+
+
+      //sending the contents of the file to the servlet
+      outputToServlet.writeObject(fileLines);
+
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "destroy" from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      imgURL=inputToServlet.readObject().toString();
+      if(D) System.out.println("Receiving the Input from the Servlet:"+imgURL);
+      inputToServlet.close();
+
+    }catch(FileNotFoundException ee){
+      System.out.println("XYZ file not found");
+      ee.printStackTrace();
+    }
+    catch (Exception e) {
+      System.out.println("Exception in connection with servlet:" +e);
+      e.printStackTrace();
+    }
+    return imgURL;
   }
 }

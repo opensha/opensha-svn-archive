@@ -200,16 +200,7 @@ public class GMT_MapGenerator implements Serializable{
   }
 
 
-  /**
-   * main function to test this class
-   *
-   * @param args
-   */
-  public static void main(String[] args) {
-    // to test this class, it should create a temp.jpg
-    GMT_MapGenerator mapGen = new GMT_MapGenerator();
-   // mapGen.makeMap();
-  }
+
 
   /**
    * this function generates GMT map
