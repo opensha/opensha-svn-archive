@@ -16,7 +16,7 @@ public class Bin2Ascii4Floats {
   public Bin2Ascii4Floats() {
   }
   public static void main(String[] args) {
-    Binary2Ascii binary2Ascii1 = new Binary2Ascii();
+    Bin2Ascii4Floats binary2Ascii1 = new Bin2Ascii4Floats();
 
     if(args.length <1)
       System.out.println("Usage : Binary2Ascii <filename>");
@@ -31,7 +31,7 @@ public class Bin2Ascii4Floats {
         while(dis!=null)
           fw.write(dis.readFloat()+"\n");
       }catch(IOException e){
-        e.printStackTrace();
+        //e.printStackTrace();
         System.out.println(args[0]);
       }
       finally{
