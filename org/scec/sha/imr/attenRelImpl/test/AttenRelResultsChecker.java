@@ -59,6 +59,9 @@ public class AttenRelResultsChecker {
   public static final String START_RESULT_VALUES = "#start of result values for this test set";
   public static final String END_RESULT_VALUES = "#end of result values for this test set";
 
+  //stores the test number which we testing from the AttenRel metadata file
+  int testNumber=0;
+
   public AttenRelResultsChecker(AttenuationRelationshipAPI imr, String file, double tolerence) {
     this.imr = imr;
     this.resultFile = file;
@@ -130,8 +133,6 @@ public class AttenRelResultsChecker {
       ArrayList targetFunction = null;
       //contains the value for the X-Axis
       ParameterAPI xAxisParam =null;
-      //stores the test number which we testing from the file
-      int testNumber=0;
       // reads the first line in the file
       String str = (br.readLine()).trim();
       //stores the int value for the selected Y-axis param
@@ -246,12 +247,16 @@ public class AttenRelResultsChecker {
       return false;
     else{
       for(int i=0;i<num;++i){
+        //value of the function that we obtained from the SHA code
         double val =(new Double(decimalFormat.format(function.getY(i)))).doubleValue();
         //comparing each value we obtained after doing the IMR calc with the target result
         //and making sure that values lies with the .1% range of the target values.
         double targetValue = ((Double)(targetFunction.get(i))).doubleValue();
+        //setting the tolerence level for the comparison of the values
         double targetTolerence = targetValue*this.tolerence;
-        if((val <= (targetValue+targetTolerence)) && (val >= (targetValue-targetTolerence))){
+        //comparing if the values lies within the actual tolerence range of the target result
+        if((val <= (targetValue+targetTolerence)) && (val >= targetValue) ||
+           (val >= (targetValue-targetTolerence)) && (val <= targetValue)){
           flag=true;
         }
         else
@@ -462,6 +467,17 @@ public class AttenRelResultsChecker {
               break;
       }
       return result;
+  }
+
+
+  /**
+   * This function returns the testNumber in the metadata file of the AttenuationRelationship
+   * for which the test failed so that it specifies to the user which test occured in the
+   * failure.
+   * @returns the test number from the metadata for which test failed.
+   */
+  public int getTestNumber(){
+    return this.testNumber;
   }
 
 }

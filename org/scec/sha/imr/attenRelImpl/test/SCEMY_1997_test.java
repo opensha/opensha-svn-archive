@@ -51,7 +51,13 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
     scemy_1997 = new SCEMY_1997_AttenRel(this);
     AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(scemy_1997,SADIGH_1997_RESULTS,tolerence);
     boolean result =attenRelChecker.readResultFile();
-    this.assertTrue("SCEMY Test Passed",result);
+    int testNumber;
+    if(result == false){
+      testNumber = attenRelChecker.getTestNumber();
+      this.assertTrue("SCEMY Test Failed for following test Set-"+testNumber,result);
+    }
+    else
+      this.assertTrue("SCEMY Passed all the test",result);
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){

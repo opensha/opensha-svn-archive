@@ -53,7 +53,13 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
     AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(bjf_1997,
                                                 this.BOORE_1997_RESULTS,this.tolerence);
     boolean result =attenRelChecker.readResultFile();
-    this.assertTrue("BJF Test Passed",result);
+    int testNumber;
+    if(result == false){
+      testNumber = attenRelChecker.getTestNumber();
+      this.assertTrue("BJF Test Failed for following test Set-"+testNumber,result);
+    }
+    else
+      this.assertTrue("BJF Passed all the test",result);
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){
