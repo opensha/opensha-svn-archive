@@ -148,7 +148,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * @param index
      * @return
      */
-    public int getXIndex( double x){
+    public int getXIndex( double x) throws DataPoint2DException{
 
         double xx = x;              // Why this?
         double xxMin = this.minX;   // Why this?
@@ -156,7 +156,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         for( int i = 0; i < num; i++){
             if( withinTolerance(xx, ( xxMin + i*delta ) ) ) return i;
         }
-        return -1;
+       throw new DataPoint2DException(C + ": set(): This point doesn't match a permitted x value.");
     }
 
    /**
@@ -174,9 +174,6 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      */
     public void set(double x, double y) throws DataPoint2DException {
         int index = getXIndex( x );
-        if( index < 0 ){
-            throw new DataPoint2DException(C + ": set(): This point doesn't match a permitted x value.");
-        }
         points[index] = y;
     }
 
@@ -379,11 +376,14 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     * and the y value is equal to y value in the list.
      */
     public boolean hasPoint(double x, double y){
-      int index = getXIndex( x );
-      if (index < 0) return false;
-      double yVal = this.getY(index);
-      if( yVal == Double.NaN || yVal!=y) return false;
+      try {
+        int index = getXIndex( x );
+        double yVal = this.getY(index);
+        if( yVal == Double.NaN || yVal!=y) return false;
           return true;
+      } catch(DataPoint2DException e) {
+          return false;
+      }
     }
 
      /** Returns the index of this DataPoint based on it's x any y value
@@ -391,11 +391,15 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
       * returns -1 if there is no such value in the list
       * */
      public int getIndex(DataPoint2D point){
+       try {
          int index= getXIndex( point.getX() );
          if (index < 0) return -1;
          double y = this.getY(index);
          if(y!=point.getY()) return -1;
          return index;
+       }catch(DataPoint2DException e) {
+          return -1;
+       }
     }
 
 }

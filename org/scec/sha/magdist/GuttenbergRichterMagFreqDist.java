@@ -230,7 +230,7 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     // it also checks that magUpper > magLower
     if(magLower < minX || magLower > maxX)
         throw new DataPoint2DException(C+":calculateRelativeRates():"+"magLower should lie between minX and maxX");
-    if(magUpper < minX || magLower > maxX)
+    if(magUpper < minX || magUpper > maxX)
         throw new DataPoint2DException(C+":calculateRelativeRates():"+"magUpper should lie between minX and maxX");
     if(magLower > magUpper)
         throw new InvalidRangeException(C+":calculateRelativeRates():"+"magLower cannot be less than magUpper");
@@ -238,14 +238,8 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
 
 
     int indexLow = getXIndex(magLower); // find the index of magLower
-    // make sure magLower is within tolerance of a discrete point
-    if(indexLow<0)
-       throw new DataPoint2DException(C+":calculateRelativeRates():"+"Invalid Mag Lower value");    // make sure magLower is within tolerance of a discrete point
 
     int indexUp = getXIndex(magUpper); // find the index of magUpper
-    // make sure magUpper is within tolerance of a discrete point
-    if(indexUp<0)
-       throw new DataPoint2DException(C+":calculateRelativeRates():"+"Invalid Mag Upper value");
 
     int i;
 

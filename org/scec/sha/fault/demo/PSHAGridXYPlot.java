@@ -153,7 +153,6 @@ public class PSHAGridXYPlot
         ++counter;
         if(counter == 1)
           cosineY= Math.toRadians((rv.getLowerBound()+rv.getUpperBound())/2);
-
         /*
         Following code has been added to make the Longitude the cos function of the latitude
         Converting to radians because java finds the cos of the radians.

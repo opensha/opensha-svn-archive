@@ -50,7 +50,8 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
     * @return
     */
     public double getIncrRate(double mag) {
-        return getIncrRate(getXIndex(mag));
+         int xIndex = getXIndex(mag);
+         return getIncrRate(xIndex);
     }
 
 
