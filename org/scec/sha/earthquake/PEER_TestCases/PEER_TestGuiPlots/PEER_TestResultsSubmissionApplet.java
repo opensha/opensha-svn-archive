@@ -457,9 +457,8 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   /**
    * This method is called when the submit button is clicked
    * Provides Error checking to se that user has entered all the valid
-  values in
-  * the parameters
-  */
+   * values in the parameters
+   */
   private boolean submitButton() throws RuntimeException{
 
     //creating the new file name in which function data has to be stored.
@@ -482,8 +481,19 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
         break;
       }
     }
-    if(flag)  function.setName(fileName.toString());
+
+    //if the person wants to add new data file
+    if(flag){
+      function.setName(fileName);
+      //false in the arguments determines whether the file is to be overwritten or
+      //new file is to be added
+      peerOverwrite = new PEER_FileOverwriteWindow(this,fileName,false);
+      peerOverwrite.setLocation(this.getAppletXAxisCenterCoor()-60,this.getAppletYAxisCenterCoor()-50);
+      peerOverwrite.pack();
+      peerOverwrite.show();
+    }
     else{
+      //if someone wants to overwrite the existing data file.
       int flag1=JOptionPane.showConfirmDialog(this,new
           String("Identifier already exists, Want to overwrite??"),
           "Information message",JOptionPane.OK_CANCEL_OPTION);
@@ -497,7 +507,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
         }
         //Overwrite window
         if(found==1)  {
-            peerOverwrite = new PEER_FileOverwriteWindow(this,fileName);
+            peerOverwrite = new PEER_FileOverwriteWindow(this,fileName,true);
             peerOverwrite.setLocation(this.getAppletXAxisCenterCoor()-60,this.getAppletYAxisCenterCoor()-50);
             peerOverwrite.pack();
             peerOverwrite.show();
@@ -945,14 +955,13 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
         inputToServlet.close();
         //displaying the user the addition  has ended
         JOptionPane.showMessageDialog(this,new String("File Overwritten Successfully....."),
-                                      "Overwritting Confirmation",JOptionPane.OK_OPTION);
+                                      "Overwrite Info.",JOptionPane.OK_OPTION);
         frame.dispose();
       }catch (Exception e) {
         System.out.println("Exception in connection with servlet:" +e);
         e.printStackTrace();
       }
     }
-
 
 
   /**

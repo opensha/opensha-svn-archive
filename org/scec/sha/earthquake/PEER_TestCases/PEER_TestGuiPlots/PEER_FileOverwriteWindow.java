@@ -22,12 +22,25 @@ public class PEER_FileOverwriteWindow extends JFrame {
   //Instance of the PEER_TestResultsSubmissionApplet
   PEER_TestResultsSubmissionApplet peer=null;
 
+  //checks whether one wants to overwrite or add the existing file
+  boolean overWriteFile=false;
+
   //Contains the name of the file to be overwritten
   String fileName;
   private JLabel jLabel5 = new JLabel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
-  public PEER_FileOverwriteWindow(PEER_TestResultsSubmissionApplet p,String file) {
+  /**
+   *
+   * @param p: instance of the applet
+   * @param file: name of the file to added or overwritten
+   * @param overWrite: determines whether the file is to be overwritten or
+   * new file is be added
+   * false means new file is added and true means file is to be overwritten
+   */
+
+  public PEER_FileOverwriteWindow(PEER_TestResultsSubmissionApplet p,String file,
+                                  boolean overWrite) {
     try {
       jbInit();
     }
@@ -36,6 +49,7 @@ public class PEER_FileOverwriteWindow extends JFrame {
     }
     peer=p;
     this.fileName =file ;
+    overWriteFile=overWrite;
   }
 
   private void jbInit() throws Exception {
@@ -69,7 +83,7 @@ public class PEER_FileOverwriteWindow extends JFrame {
     jLabel5.setForeground(new Color(80, 80, 133));
     jLabel5.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel5.setHorizontalTextPosition(SwingConstants.CENTER);
-    jLabel5.setText("OverWrite Existing File");
+    jLabel5.setText("Data Submission Password");
     this.getContentPane().add(filePassword,  new GridBagConstraints(1, 1, 2, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(63, 10, 0, 62), 143, 13));
     this.getContentPane().add(continueButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
@@ -80,14 +94,14 @@ public class PEER_FileOverwriteWindow extends JFrame {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(66, 24, 0, 0), 33, 10));
     this.getContentPane().add(jLabel5,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 33, 0, 44), 114, 16));
-    this.setTitle("PEER Data File Overwrite Window");
+    this.setTitle("PEER Data Submission Password Check");
   }
 
 
 
   /**
    * Makes the connection to the servlet if user enters the correct password &
-   * confirms that he indeed wants to delete the file
+   * confirms that he indeed wants to add or overwrite the file
    * @param e
    */
   void continueButton_actionPerformed(ActionEvent e) {
@@ -100,15 +114,16 @@ public class PEER_FileOverwriteWindow extends JFrame {
 
     else {
       //delete the file selected.
-      int flag=JOptionPane.showConfirmDialog(this,new String("Are you sure you want to overwrite the file??"),
-          "Overwrite Confirmation Message",JOptionPane.OK_CANCEL_OPTION);
+      int flag=JOptionPane.showConfirmDialog(this,new String("Are you sure you want to add/overwrite"+
+               "the file??"),"Confirmation Message",JOptionPane.OK_CANCEL_OPTION);
 
       int found=0;
       if(flag == JOptionPane.OK_OPTION)
          found=1;
-      if(found==1)
+      if(found==1 && overWriteFile)
         peer.openOverwriteConnection(fileName);
-
+      else if(found==1 && !overWriteFile)
+        peer.openConnection();
       this.dispose();
     }
     filePassword.setText("");
