@@ -236,10 +236,13 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
       }
     }
     //if the selected forecast is WG02_List Forecast
-    else if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME))try{
-      eqkRupForecast=(ForecastAPI)this.openWG02_ERFConnection(this.getERF_ListAPI);
-    }catch(Exception e){
-      throw new RuntimeException("Connection to WG-02 ERF servlet failed");
+    else if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME)){
+      try{
+        eqkRupForecast=(ForecastAPI)this.openWG02_ERFConnection(this.getERF_ListAPI);
+      }catch(Exception e){
+        System.out.println("*************servlet faulire*********");
+        throw new RuntimeException("Connection to WG-02 ERF servlet failed");
+      }
     }
     //changing the paramterChangeFlag for the selected forecast to false
     parameterChangeFlagsForAllERF.put(selectedForecast,new Boolean(false));
@@ -449,66 +452,57 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   /**
    * sets up the connection with the WG-02 Forecast Servlet on the server (scec.usc.edu)
    */
-  private  Object openWG02_ERFConnection(String function) throws java.lang.ClassNotFoundException,
-                                         java.net.UnknownHostException{
+  private  Object openWG02_ERFConnection(String function) throws Exception{
 
     Object outputFromServletFunction=null;
-    try{
-      URL wg02_Servlet = new
-                             URL("http://scec.usc.edu:9999/examples/servlet/WG02_EqkRupForecastServlet");
+    URL wg02_Servlet = new
+                       URL("http://scec.usc.edu:9999/examples/servlet/WG02_EqkRupForecastServlet");
 
-      URLConnection servletConnection = wg02_Servlet.openConnection();
-      System.out.println("connection established:"+servletConnection.toString());
+    URLConnection servletConnection = wg02_Servlet.openConnection();
+    System.out.println("connection established:"+servletConnection.toString());
 
-      // inform the connection that we will send output and accept input
-      servletConnection.setDoInput(true);
-      servletConnection.setDoOutput(true);
+    // inform the connection that we will send output and accept input
+    servletConnection.setDoInput(true);
+    servletConnection.setDoOutput(true);
 
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+    // Don't use a cached version of URL connection.
+    servletConnection.setUseCaches (false);
+    servletConnection.setDefaultUseCaches (false);
+    // Specify the content type that we will send binary data
+    servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
 
-      ObjectOutputStream outputToServlet = new
-          ObjectOutputStream(servletConnection.getOutputStream());
+    ObjectOutputStream outputToServlet = new
+        ObjectOutputStream(servletConnection.getOutputStream());
 
-      System.out.println("Calling the function:"+function);
+    System.out.println("Calling the function:"+function);
 
-      //tells the servlet which function to call
-      outputToServlet.writeObject(function);
+    //tells the servlet which function to call
+    outputToServlet.writeObject(function);
 
-      /**
-       * if the function to be called is getERF_API
-       * then we need to passs the TimeSpan and Adjustable ParamList to the
-       * servlet.
-       */
-      if(function.equalsIgnoreCase(this.getERF_ListAPI)){
-        //gives the Adjustable Params  object to the Servelet
-        outputToServlet.writeObject(this.getAdjParamList());
+    /**
+     * if the function to be called is getERF_API
+     * then we need to passs the TimeSpan and Adjustable ParamList to the
+     * servlet.
+     */
+    if(function.equalsIgnoreCase(this.getERF_ListAPI)){
+      //gives the Adjustable Params  object to the Servelet
+      outputToServlet.writeObject(this.getAdjParamList());
 
-        //gives the timeSpan object to the servlet
-        outputToServlet.writeObject(this.getTimeSpan());
-      }
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // Receive the "object" from the servlet after it has received all the data
-      ObjectInputStream inputToServlet = new
-          ObjectInputStream(servletConnection.getInputStream());
-
-      outputFromServletFunction=inputToServlet.readObject();
-      System.out.println("Received the input from the servlet");
-      inputToServlet.close();
-
-    }catch(FileNotFoundException ee){
-      ee.printStackTrace();
+      //gives the timeSpan object to the servlet
+      outputToServlet.writeObject(this.getTimeSpan());
     }
-    catch (java.io.IOException e) {
-      System.out.println("Exception in connection with servlet:" +e);
-      e.printStackTrace();
-    }
+
+    outputToServlet.flush();
+    outputToServlet.close();
+
+    // Receive the "object" from the servlet after it has received all the data
+    ObjectInputStream inputToServlet = new
+                                       ObjectInputStream(servletConnection.getInputStream());
+
+    outputFromServletFunction=inputToServlet.readObject();
+    System.out.println("Received the input from the servlet");
+    inputToServlet.close();
+
     return outputFromServletFunction;
   }
 

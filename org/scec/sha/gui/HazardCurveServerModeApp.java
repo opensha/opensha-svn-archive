@@ -994,7 +994,6 @@ public class HazardCurveServerModeApp extends JApplet
       ex.printStackTrace();
     }
 
-
     // check whether this forecast is a Forecast List
     // if this is forecast list , handle it differently
     //boolean isEqkForecastList = false;
