@@ -3,11 +3,15 @@
 
 Add the  revised version of the test results for AttenuationRelationhships by Ken Campbell to the JUnit test.
 
+The the name of HazardMapApplet to HazardMapDataApplet, and in this app. allow the user to set the name of the directory (if name already used give an error message, if name is null use timestamp?, don't allow white space in name?).
+
+Add faults to GMT plotting options.
+
 add site translation for SEA_1999_AttenRel
 
-Set up registration for HazMapDataGenerator.
+Set up registration for HazMapDataGenerator - Phil has good ideas about this.
 
-Compare JBuilder-2005 with Jbuilder-7 that we currently have on our Mac's
+Get JBuilder-2005.
 
 Make sure that averages over probabilities are not log averages (Nitin will change ScenarioShakeMapCalculator & Ned will change USGS_Combined Atten. Rel. accordingly).
 
