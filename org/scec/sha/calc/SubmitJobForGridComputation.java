@@ -423,7 +423,8 @@ public class SubmitJobForGridComputation {
                   " file:" + outputDir + OUTPUT_TAR_FILE_NAME + "\n");
       frFTP.write("tar xf " + OUTPUT_TAR_FILE_NAME + "\n");
       String fileName = outputDir + "ActualFilesLog.log";
-      frFTP.write("ls -l *_*.txt | wc -l > " + fileName + "\n");
+
+      frFTP.write("find . -name . -o -type d -prune -o -type f -name '*_*.txt' -print0 | xargs -0 ls -l | wc -l > " + fileName + "\n");
       frFTP.write("java -classpath /opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/ERF.jar:/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/mail.jar:$CLASSPATH org.scec.sha.gui.infoTools.HazardMapCalcPostProcessing " +
                   fileName + " " + expectedNumOfFiles + " " + emailAddr + " "+
                   datasetId+" "+
