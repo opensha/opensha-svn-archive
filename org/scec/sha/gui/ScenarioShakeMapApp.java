@@ -48,6 +48,9 @@ public class ScenarioShakeMapApp extends JApplet implements
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
+
+
+
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
    *  Temp until figure out way to dynamically load classes during runtime
@@ -436,8 +439,6 @@ public class ScenarioShakeMapApp extends JApplet implements
     else
       probAtIML=true;
 
-    // get the selected forecast model
-    EqkRupForecast eqkRupForecast = (EqkRupForecast)erfGuiBean.getSelectedERF();
 
     // get the selected IMR
     AttenuationRelationship imr = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
@@ -449,15 +450,6 @@ public class ScenarioShakeMapApp extends JApplet implements
      ex.printStackTrace();
     }
 
-    // set the ProbEQkRup in the IMR
-    try {
-      int source = ((Integer)erfGuiBean.getParameter(erfGuiBean.SOURCE_PARAM_NAME).getValue()).intValue();
-      int rupture = ((Integer)erfGuiBean.getParameter(erfGuiBean.RUPTURE_PARAM_NAME).getValue()).intValue();
-      imr.setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(source,rupture));
-    } catch (Exception ex) {
-      System.out.println("Parameter change warning caught:");
-    }
-
     Vector siteLat= new Vector();
     Vector siteLon= new Vector();
     Vector siteValue = new Vector();
@@ -466,6 +458,12 @@ public class ScenarioShakeMapApp extends JApplet implements
       siteLat.add(new Double(site.getLocation().getLatitude()));
       siteLon.add(new Double(site.getLocation().getLongitude()));
       imr.setSite(site);
+      // set the ProbEQkRup in the IMR
+      try {
+        imr.setProbEqkRupture(erfGuiBean.getRupture());
+      } catch (Exception ex) {
+        System.out.println("Parameter change warning caught");
+      }
       if(probAtIML)
         siteValue.add(new Double(imr.getExceedProbability(imlProbValue)));
       else{
