@@ -62,11 +62,7 @@ public class ConstrainedDoubleDiscreteParameterEditor
         String S = C + ": Constructor(model): ";
         if(D) System.out.println(S + "Starting");
 
-        verifyModel(model);
-        addWidget();
-
-        // Set the tool tip
-        setNameLabelToolTip(model.getInfo());
+        setParameter(model);
 
         if(D) System.out.println(S + "Ending");
     }

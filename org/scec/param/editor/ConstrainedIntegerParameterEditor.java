@@ -37,8 +37,10 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
      * Only calls the super() function.
      */
     public ConstrainedIntegerParameterEditor(ParameterAPI model)
-	    throws Exception
-    { super(model); }
+	    throws Exception{
+        super(model);
+        this.setParameter(model);
+    }
 
 
     /**

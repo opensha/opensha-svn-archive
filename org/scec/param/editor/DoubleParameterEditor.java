@@ -43,8 +43,7 @@ public class DoubleParameterEditor extends ParameterEditor
         String S = C + ": Constructor(model): ";
         if(D) System.out.println(S + "Starting");
 
-        // verifyModel(model);
-        // addWidget();
+        this.setParameter(model);
 
         if(D) System.out.println(S + "Ending");
 

@@ -36,8 +36,10 @@ public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
      * Only calls the super() function.
      */
     public ConstrainedDoubleParameterEditor(ParameterAPI model)
-	    throws Exception
-    { super(model); }
+	    throws Exception {
+      super(model);
+      this.setParameter(model);
+    }
 
     /**
      * Calls the super().;setFunction() and uses the constraints

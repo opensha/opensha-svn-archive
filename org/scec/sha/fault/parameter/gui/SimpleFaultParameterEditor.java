@@ -267,8 +267,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     IntegerParameter dip = new IntegerParameter(NUM_DIPS,new Integer(this.DEFAULT_DIPS));
     dip.addParameterChangeListener(this);
     try{
-      numDipsEditor = new IntegerParameterEditor();
-      numDipsEditor.setParameter(dip);
+      numDipsEditor = new IntegerParameterEditor(dip);
     }catch(Exception ee){
       ee.printStackTrace();
     }
@@ -286,8 +285,8 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     StringParameter faultTypeParam = new StringParameter(this.FAULT_TYPE_TITLE,fltType,(String)fltType.get(0));
     faultTypeParam.addParameterChangeListener(this);
     try{
-    faultTypeEditor = new ConstrainedStringParameterEditor();
-    faultTypeEditor.setParameter(faultTypeParam);
+    faultTypeEditor = new ConstrainedStringParameterEditor(faultTypeParam);
+
     }catch(Exception ee){
       ee.printStackTrace();
     }

@@ -67,8 +67,7 @@ public class ConstrainedStringParameterEditor
         String S = C + ": Constructor(model): ";
         if(D) System.out.println(S + "Starting");
 
-        verifyModel(model);
-	    addWidget();
+        setParameter(model);
 
         if(D) System.out.println(S + "Ending");
     }

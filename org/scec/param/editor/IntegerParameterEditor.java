@@ -51,7 +51,7 @@ public class IntegerParameterEditor extends ParameterEditor
 
         //addWidget();
         updateNameLabel( model.getName() );
-
+        this.setParameter(model);
         if(D) System.out.println(S.concat("Ending"));
 
     }

@@ -56,12 +56,14 @@ public class SimpleFaultParameterGUI extends JFrame{
     evenlyGriddedSurfacePanel.setLayout(gridBagLayout1);
     parameterPanel.setLayout(gridBagLayout2);
     this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    evenlyGriddedSurfacePanel.setPreferredSize(new Dimension(300, 700));
+    evenlyGriddedParamsScroll.setPreferredSize(new Dimension(300, 700));
     this.getContentPane().add(evenlyGriddedSurfacePanel, BorderLayout.CENTER);
     evenlyGriddedSurfacePanel.add(evenlyGriddedParamsScroll,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 200, 10));
     evenlyGriddedSurfacePanel.add(button,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
-    button.setText("Update Surface Parameter");
+    button.setText("Make Simple Fault");
     button.setForeground(new Color(80,80,133));
     button.setBackground(new Color(200,200,230));
     button.addActionListener(new java.awt.event.ActionListener() {
@@ -70,7 +72,7 @@ public class SimpleFaultParameterGUI extends JFrame{
      }
     });
     evenlyGriddedParamsScroll.getViewport().add(parameterPanel, null);
-
+    this.setSize(250,700);
     this.setTitle("Simple Fault Parameter Settings");
   }
 
