@@ -1,11 +1,11 @@
-package org.scec.gui;
+package org.scec.sha.gui.controls;
 
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import org.scec.gui.plot.LogPlotAPI;
 /**
- * <p>Title: IMRAxisScale</p>
+ * <p>Title: AxisLimitsControlPanel</p>
  *
  * <p>Description: This Class pop up window when custom scale is selecetd for the combo box that enables the
  * user to customise the X and Y Axis scale</p>
@@ -14,7 +14,7 @@ import org.scec.gui.plot.LogPlotAPI;
  * @version 1.0
  */
 
-public class AxisScale extends JFrame {
+public class AxisLimitsControlPanel extends JFrame {
 
   /**
    * @todo variables
@@ -22,34 +22,51 @@ public class AxisScale extends JFrame {
   private double minX,maxX;
   private double minY,maxY;
 
-  JPanel panel1 = new JPanel();
-  JLabel jLabel1 = new JLabel();
-  JTextField jTextMinX = new JTextField();
-  JLabel jLabel2 = new JLabel();
-  JTextField jTextMaxX = new JTextField();
-  JLabel jLabel3 = new JLabel();
-  JTextField jTextMinY = new JTextField();
-  JLabel jLabel4 = new JLabel();
-  JTextField jTextMaxY = new JTextField();
-  JButton ok = new JButton();
-  JButton cancel = new JButton();
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
-  GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private LogPlotAPI plot;
+  private JPanel panel1 = new JPanel();
+  private JLabel jLabel1 = new JLabel();
+  private JTextField jTextMinX = new JTextField();
+  private JLabel jLabel2 = new JLabel();
+  private JTextField jTextMaxX = new JTextField();
+  private JLabel jLabel3 = new JLabel();
+  private JTextField jTextMinY = new JTextField();
+  private JLabel jLabel4 = new JLabel();
+  private JTextField jTextMaxY = new JTextField();
+  private JButton ok = new JButton();
+  private JButton cancel = new JButton();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private AxisLimitsControlPanelAPI axisLimitAPI;
 
-
-  public AxisScale(LogPlotAPI plot,double minX,double maxX,double minY,double maxY) {
-    this.plot= plot;
+  /**
+   * Contructor which displays the window so that user can set the X and Y axis
+   * range
+   * @param axisLimitAPI : AxisLimitsControlPanelAPI needs to be implemented
+   * by all the applets which want to use this class
+   * @param component The parent component. This is the parent window on which
+   * this Axis range window will appear, center aligned
+   * @param minX : Current minX value in the parent component
+   * @param maxX : Current maxX value in the parent component
+   * @param minY : Current minY value in the parent component
+   * @param maxY : Current maxY value in the parent component
+   */
+  public AxisLimitsControlPanel(AxisLimitsControlPanelAPI axisLimitAPI,
+                                Component parent,
+                                double minX, double maxX, double minY, double maxY) {
+    this.axisLimitAPI= axisLimitAPI;
     this.minX=minX;
     this.minY=minY;
     this.maxX=maxX;
     this.maxY=maxY;
+    // show the window at center of the parent component
+    this.setLocation(parent.getX()+parent.getWidth()/2,
+                     parent.getY()+parent.getHeight()/2);
     try{
       jbInit();
     }catch(Exception e){
       System.out.println("Error Occured while running range combo box: "+e);
     }
   }
+
   void jbInit() throws Exception {
     panel1.setLayout(gridBagLayout1);
     jLabel1.setForeground(new Color(80, 80, 133));
@@ -105,45 +122,48 @@ public class AxisScale extends JFrame {
     panel1.add(jLabel4,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 17, 0, 0), 15, -2));
     panel1.add(ok,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 14, 0), 35, 3));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 14, 0), 35, 3));
     panel1.add(cancel,     new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 14, 17), 24, 3));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 14, 17), 24, 3));
   }
-/**
- * This function also calls the setYRange and setXRange functions of the IMRTesterApplet class
- * which sets the range of the axis based on the user input
- *
- * @param e= this event occur when the Ok button is clicked on the custom axis popup window
- */
+
+
+  /**
+   * This function also calls the setYRange and setXRange functions of the IMRTesterApplet class
+   * which sets the range of the axis based on the user input
+   *
+   * @param e= this event occur when the Ok button is clicked on the custom axis popup window
+   */
   void ok_actionPerformed(ActionEvent e) {
     try {
       double xMin=Double.parseDouble(this.jTextMinX.getText());
       double xMax=Double.parseDouble(this.jTextMaxX.getText());
+      double yMin=Double.parseDouble(this.jTextMinY.getText());
+      double yMax=Double.parseDouble(this.jTextMaxY.getText());
+
+      // check whether xMin<=xMax and yMin<=yMax)
       if(xMin>=xMax){
         JOptionPane.showMessageDialog(this,new String("Max X must be greater than Min X"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
         return;
       }
-      else
-        this.plot.setXRange(xMin,xMax);
-      double yMin=Double.parseDouble(this.jTextMinY.getText());
-      double yMax=Double.parseDouble(this.jTextMaxY.getText());
-
       if(yMin>=yMax){
         JOptionPane.showMessageDialog(this,new String("Max Y must be greater than Min Y"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
         return;
       }
-      else
-        this.plot.setYRange(yMin,yMax);
+
+      // set the new range
+      axisLimitAPI.setAxisRange(xMin, xMax, yMin, yMax);
       this.dispose();
     } catch(Exception ex) {
-        System.out.println("Exception:"+ex);
+      System.out.println("Exception:"+ex);
         JOptionPane.showMessageDialog(this,new String("Text Entered must be a valid numerical value"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
     }
   }
-/**
- *
- * @param e= this event occurs to destroy the popup window if the user has selected cancel option
- */
+
+  /**
+   *
+   * @param e= this event occurs to destroy the popup window if the user has selected cancel option
+   */
   void cancel_actionPerformed(ActionEvent e) {
     this.dispose();
   }

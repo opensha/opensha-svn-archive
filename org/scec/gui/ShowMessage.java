@@ -21,10 +21,13 @@ public class ShowMessage extends JFrame {
   private String infoMessage;
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  public ShowMessage(String s) {
+  public ShowMessage(Component parent, String s) {
     this.infoMessage=s;
     try {
       jbInit();
+      // show the window at center of the parent component
+      this.setLocation(parent.getX()+parent.getWidth()/2,
+                     parent.getY()+parent.getHeight()/2);
     }
     catch(Exception e) {
       e.printStackTrace();

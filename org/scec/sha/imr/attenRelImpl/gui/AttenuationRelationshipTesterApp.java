@@ -23,6 +23,7 @@ import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.util.*;
+import org.scec.sha.gui.controls.*;
 
 
 /**
@@ -47,11 +48,10 @@ public class AttenuationRelationshipTesterApp extends JApplet
     implements
         ParameterChangeFailListener,
         ParameterChangeWarningListener,
-        ItemListener, LogPlotAPI
-{
+        ItemListener, LogPlotAPI, AxisLimitsControlPanelAPI {
 
     protected final static String C = "AttenuationRelationshipTesterApp";
-    private final static String version = "0.0.2";
+    private final static String version = "0.0.3";
     protected final static boolean D = false;
 
     protected static int counter = 0;
@@ -634,6 +634,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         plotColorCheckBox.setFont(new java.awt.Font("Dialog", 1, 11));
         plotColorCheckBox.setForeground(new Color(80, 80, 133));
         plotColorCheckBox.setText("Black Background");
+
         plotColorCheckBox.addItemListener( this );
         rangeComboBox.addItem(new String(AUTO_SCALE));
         rangeComboBox.addItem(new String(CUSTOM_SCALE));
@@ -861,8 +862,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         // Clear the current traces
         //Plot needs to be cleared only if X or Y axis are changed, not otherwise
-        if(newGraph)
-            clearPlot(true);
+        if(newGraph)  clearPlot(true);
 
 
 
@@ -892,8 +892,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         repaint();
 
         // Ending
-        if ( D )
-            System.out.println( S + "Ending" );
+        if ( D )  System.out.println( S + "Ending" );
 
     }
 
@@ -1601,52 +1600,40 @@ public class AttenuationRelationshipTesterApp extends JApplet
   * @param e
   */
   void rangeComboBox_actionPerformed(ActionEvent e) {
-
     String str=(String)rangeComboBox.getSelectedItem();
     if(str.equalsIgnoreCase(AUTO_SCALE)){
       customAxis=false;
       addGraphPanel();
     }
-    if(str.equalsIgnoreCase(CUSTOM_SCALE))  {
+    else if(str.equalsIgnoreCase(CUSTOM_SCALE))  {
        Range rX = xAxis.getRange();
        Range rY= yAxis.getRange();
        double minX=rX.getLowerBound();
        double maxX=rX.getUpperBound();
        double minY=rY.getLowerBound();
        double maxY=rY.getUpperBound();
-
-
-       int xCenter=getAppletXAxisCenterCoor();
-       int yCenter=getAppletYAxisCenterCoor();
-       AxisScale axisScale=new AxisScale(this,minX,maxX,minY,maxY);
-       axisScale.setBounds(xCenter-60,yCenter-50,375,148);
+       AxisLimitsControlPanel axisScale=new AxisLimitsControlPanel(
+           this, this, minX,maxX,minY,maxY);
        axisScale.pack();
        axisScale.show();
     }
   }
 
   /**
-   * sets the range for X-axis
+   * sets the range for X and Y axis
    * @param xMin : minimum value for X-axis
    * @param xMax : maximum value for X-axis
-   */
-  public void setXRange(double xMin,double xMax) {
-     minXValue=xMin;
-     maxXValue=xMax;
-     this.customAxis=true;
-
-  }
-
-  /**
-   * sets the range for Y-axis
    * @param yMin : minimum value for Y-axis
    * @param yMax : maximum value for Y-axis
    */
-  public void setYRange(double yMin,double yMax) {
+  public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
+     minXValue=xMin;
+     maxXValue=xMax;
      minYValue=yMin;
      maxYValue=yMax;
      this.customAxis=true;
      addGraphPanel();
+
   }
 
   /**
@@ -1655,39 +1642,21 @@ public class AttenuationRelationshipTesterApp extends JApplet
    */
   public void invalidLogPlot(String message) {
 
-     int xCenter=getAppletXAxisCenterCoor();
-     int yCenter=getAppletYAxisCenterCoor();
      if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
        this.jCheckxlog.setSelected(false);
-       ShowMessage showMessage=new ShowMessage("      X-Log Plot Error as it contains Zero Values");
-       showMessage.setBounds(xCenter-60,yCenter-50,370,145);
+       ShowMessage showMessage=new ShowMessage(this, "      X-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
      }
      if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
        this.jCheckylog.setSelected(false);
-       ShowMessage showMessage=new ShowMessage("      Y-Log Plot Error as it contains Zero Values");
-       showMessage.setBounds(xCenter-60,yCenter-50,375,148);
+       ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
      }
   }
 
-  /**
-   * gets the Applets X-axis center coordinates
-   * @return
-   */
-  private int getAppletXAxisCenterCoor() {
-    return (this.getX()+this.getWidth())/2;
-  }
 
-  /**
-   * gets the Applets Y-axis center coordinates
-   * @return
-   */
-  private int getAppletYAxisCenterCoor() {
-    return (this.getY() + this.getHeight())/2;
-  }
 
   void imgLabel_mouseClicked(MouseEvent e) {
     try{

@@ -418,38 +418,18 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
    */
   public void invalidLogPlot(String message) {
 
-    int xCenter=getAppletXAxisCenterCoor();
-    int yCenter=getAppletYAxisCenterCoor();
     if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
-      ShowMessage showMessage=new ShowMessage("      X-Log Plot Error as it contains Zero Values");
-      showMessage.setBounds(xCenter-60,yCenter-50,370,145);
+      ShowMessage showMessage=new ShowMessage(this,"      X-Log Plot Error as it contains Zero Values");
       showMessage.pack();
       showMessage.show();
     }
     else if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
-      ShowMessage showMessage=new ShowMessage("      Y-Log Plot Error as it contains Zero Values");
-      showMessage.setBounds(xCenter-60,yCenter-50,370,145);
+      ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
       showMessage.pack();
       showMessage.show();
     }
   }
 
-
-  /**
-   * gets the Applets X-axis center coordinates
-   * @return
-   */
-  private int getAppletXAxisCenterCoor() {
-    return (this.getX()+this.getWidth())/2;
-  }
-
-  /**
-   * gets the Applets Y-axis center coordinates
-   * @return
-   */
-  private int getAppletYAxisCenterCoor() {
-    return (this.getY() + this.getHeight())/2;
-  }
 
 
 

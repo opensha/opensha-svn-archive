@@ -44,7 +44,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
   protected final static String C = "MagFreqDistTesterApplet";
-  private final static String version = "0.0.2";
+  private final static String version = "0.0.3";
   protected final static boolean D = false;
 
 
@@ -1016,33 +1016,14 @@ public class MagFreqDistTesterApplet extends JApplet
      * it reverts back to the linear scale displaying a message box to the user.
      */
   public void invalidLogPlot(String message) {
-
-     int xCenter=getAppletXAxisCenterCoor();
-     int yCenter=getAppletYAxisCenterCoor();
      if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
        this.jCheckylog.setSelected(false);
-       ShowMessage showMessage=new ShowMessage("      Y-Log Plot Error as it contains Zero Values");
-       showMessage.setBounds(xCenter-60,yCenter-50,375,148);
+       ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
      }
   }
 
-  /**
-   * gets the Applets X-axis center coordinates
-   * @return
-   */
-  private int getAppletXAxisCenterCoor() {
-    return (this.getX()+this.getWidth())/2;
-  }
-
-  /**
-   * gets the Applets Y-axis center coordinates
-   * @return
-   */
-  private int getAppletYAxisCenterCoor() {
-    return (this.getY() + this.getHeight())/2;
-  }
 
 
    /**
@@ -1201,37 +1182,15 @@ public class MagFreqDistTesterApplet extends JApplet
        double yMoMin=rMoY.getLowerBound();
        double yMoMax=rMoY.getUpperBound();
 
-       int xCenter=getAppletXAxisCenterCoor();
-       int yCenter=getAppletYAxisCenterCoor();
        MagFreqDistAxisScale axisScale=new MagFreqDistAxisScale(this,xIncrMin,xIncrMax,
                                       yIncrMin,yIncrMax,xCumMin, xCumMax,yCumMin,yCumMax,
                                       xMoMin,xMoMax,yMoMin,yMoMax);
-       axisScale.setBounds(xCenter-60,yCenter-50,150,400);
+       axisScale.setLocation(getX()+getWidth()/2,getY()+getHeight()/2);
        axisScale.pack();
        axisScale.show();
     }
   }
 
-
-  /**
-   * sets the range for X-axis
-   * @param xMin : minimum value for X-axis
-   * @param xMax : maximum value for X-axis
-   */
-  public void setXRange(double xMin,double xMax) {
-    throw new UnsupportedOperationException("setXRange(double,double) Not supported.");
-
-  }
-
-  /**
-   * sets the range for Y-axis
-   * @param yMin : minimum value for Y-axis
-   * @param yMax : maximum value for Y-axis
-   */
-  public void setYRange(double yMin,double yMax) {
-    throw new UnsupportedOperationException("setYRange(double,double) Not supported.");
-
-  }
 
 
 

@@ -33,6 +33,8 @@ import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.data.*;
 import org.scec.calc.*;
+import org.scec.sha.gui.controls.*;
+
 import com.borland.jbcl.layout.*;
 
 
@@ -49,7 +51,8 @@ import com.borland.jbcl.layout.*;
 public class PEER_TestResultsPlotterApplet extends JApplet implements
                                           NamedObjectAPI,
                                           LogPlotAPI,
-                                          ActionListener{
+                                          AxisLimitsControlPanelAPI,
+                                          ActionListener {
   private boolean isStandalone = false;
   private JPanel mainPanel = new JPanel();
   private JSplitPane mainSplitPane = new JSplitPane();
@@ -858,79 +861,49 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       double minY=rY.getLowerBound();
       double maxY=rY.getUpperBound();
 
-
-      int xCenter=getAppletXAxisCenterCoor();
-      int yCenter=getAppletYAxisCenterCoor();
-      AxisScale axisScale=new AxisScale(this,minX,maxX,minY,maxY);
-      axisScale.setBounds(xCenter-60,yCenter-50,375,148);
-      axisScale.pack();
-      axisScale.show();
+      AxisLimitsControlPanel axisControlPanel=new AxisLimitsControlPanel(
+          this,this,minX,maxX,minY,maxY);
+      axisControlPanel.pack();
+      axisControlPanel.show();
     }
   }
 
   /**
-   * sets the range for X-axis
+   * sets the range for X and Y axis
    * @param xMin : minimum value for X-axis
    * @param xMax : maximum value for X-axis
-   */
-  public void setXRange(double xMin,double xMax) {
-     minXValue=xMin;
-     maxXValue=xMax;
-     this.customAxis=true;
-
-  }
-
-  /**
-   * sets the range for Y-axis
    * @param yMin : minimum value for Y-axis
    * @param yMax : maximum value for Y-axis
    */
-  public void setYRange(double yMin,double yMax) {
+  public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
+     minXValue=xMin;
+     maxXValue=xMax;
      minYValue=yMin;
      maxYValue=yMax;
      this.customAxis=true;
      addGraphPanel();
   }
 
+
   /**
    * This function handles the Zero values in the X and Y data set when exception is thrown,
    * it reverts back to the linear scale displaying a message box to the user.
    */
   public void invalidLogPlot(String message) {
-
-     int xCenter=getAppletXAxisCenterCoor();
-     int yCenter=getAppletYAxisCenterCoor();
      if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
        this.xLogCheckBox.setSelected(false);
-       ShowMessage showMessage=new ShowMessage("      X-Log Plot Error as it contains Zero Values");
-       showMessage.setBounds(xCenter-60,yCenter-50,370,145);
+       ShowMessage showMessage=new ShowMessage(this,"      X-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
      }
      if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
        this.yLogCheckBox.setSelected(false);
-       ShowMessage showMessage=new ShowMessage("      Y-Log Plot Error as it contains Zero Values");
-       showMessage.setBounds(xCenter-60,yCenter-50,375,148);
+       ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
      }
   }
 
-  /**
-   * gets the Applets X-axis center coordinates
-   * @return
-   */
-  private int getAppletXAxisCenterCoor() {
-    return (this.getX()+this.getWidth())/2;
-  }
-
-  /**
-   * gets the Applets Y-axis center coordinates
-   * @return
-   */
-  private int getAppletYAxisCenterCoor() {
-    return (this.getY() + this.getHeight())/2;
-  }
 
    /**
     *  Clears the plot screen of all traces

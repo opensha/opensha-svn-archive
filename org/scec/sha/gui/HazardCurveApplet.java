@@ -42,15 +42,14 @@ import org.scec.data.Site;
  */
 
 public class HazardCurveApplet extends JApplet
-    implements LogPlotAPI,
-    ParameterChangeListener {
+    implements LogPlotAPI, ParameterChangeListener, AxisLimitsControlPanelAPI {
 
   /**
    * Name of the class
    */
-  protected final static String C = "PEER_TestApplet";
+  private final static String C = "PEER_TestApplet";
   // for debug purpose
-  protected final static boolean D = false;
+  private final static boolean D = false;
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
@@ -74,14 +73,14 @@ public class HazardCurveApplet extends JApplet
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_MultiSourceForecast";
 
   // instances of the GUI Beans which will be shown in this applet
-  ERF_GuiBean erfGuiBean;
-  IMR_GuiBean imrGuiBean;
-  IMT_GuiBean imtGuiBean;
-  Site_GuiBean siteGuiBean;
+  private ERF_GuiBean erfGuiBean;
+  private IMR_GuiBean imrGuiBean;
+  private IMT_GuiBean imtGuiBean;
+  private Site_GuiBean siteGuiBean;
 
 
   // mesage needed in case of show data if plot is not available
-  final static String NO_PLOT_MSG = "No Plot Data Available";
+  private final static String NO_PLOT_MSG = "No Plot Data Available";
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
@@ -90,41 +89,41 @@ public class HazardCurveApplet extends JApplet
 
 
   //log flags declaration
-  boolean xLog =false;
-  boolean yLog =false;
+  private boolean xLog =false;
+  private boolean yLog =false;
 
   // default insets
-  Insets defaultInsets = new Insets( 4, 4, 4, 4 );
+  private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
   // height and width of the applet
-  protected final static int W = 970;
-  protected final static int H = 750;
+  private final static int W = 970;
+  private final static int H = 750;
 
   /**
    * FunctionList declared
    */
-  DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
+  private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
 
-  DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
+  private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
   //Disaggregation Parameter
-  DoubleParameter disaggregationParam = new DoubleParameter("Disaggregation Prob",
+  private DoubleParameter disaggregationParam = new DoubleParameter("Disaggregation Prob",
                                                              0,1,new Double(.01));
 
-  DoubleParameterEditor disaggregationEditor=new DoubleParameterEditor();
+  private DoubleParameterEditor disaggregationEditor=new DoubleParameterEditor();
   // Create the x-axis and y-axis - either normal or log
-  com.jrefinery.chart.axis.NumberAxis xAxis = null;
-  com.jrefinery.chart.axis.NumberAxis yAxis = null;
+  private com.jrefinery.chart.axis.NumberAxis xAxis = null;
+  private com.jrefinery.chart.axis.NumberAxis yAxis = null;
 
 
   /**
    * these four values save the custom axis scale specified by user
    */
-   protected double minXValue;
-   protected double maxXValue;
-   protected double minYValue;
-   protected double maxYValue;
-   protected boolean customAxis = false;
+  private double minXValue;
+  private double maxXValue;
+  private  double minYValue;
+  private double maxYValue;
+  private boolean customAxis = false;
 
 
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
@@ -135,15 +134,15 @@ public class HazardCurveApplet extends JApplet
   /**
    * adding scroll pane for showing data
    */
-  JScrollPane dataScrollPane = new JScrollPane();
+  private JScrollPane dataScrollPane = new JScrollPane();
 
   // text area to show the data values
-  JTextArea pointsTextArea = new JTextArea();
+  private JTextArea pointsTextArea = new JTextArea();
 
   /**
    * chart panel
    */
-  ChartPanel chartPanel;
+  private ChartPanel chartPanel;
 
   //flag to check for the disaggregation functionality
   private boolean disaggregationFlag= false;
@@ -153,18 +152,14 @@ public class HazardCurveApplet extends JApplet
   private String TITLE = new String("PEER Test Cases");
 
   // light blue color
-  Color lightBlue = new Color( 200, 200, 230 );
+  private Color lightBlue = new Color( 200, 200, 230 );
 
   /**
    * for Y-log, 0 values will be converted to this small value
    */
   private double Y_MIN_VAL = 1e-16;
 
-  //coordinates position of the centre of the applet
-  int xCenter;
-  int yCenter;
-
-  protected boolean graphOn = false;
+  private boolean graphOn = false;
   private GridBagLayout gridBagLayout11 = new GridBagLayout();
   private JPanel jPanel1 = new JPanel();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
@@ -231,18 +226,15 @@ public class HazardCurveApplet extends JApplet
 
   //Construct the applet
   public HazardCurveApplet() {
-
-  data.setFunctions(this.totalProbFuncs);
-  // for Y-log, convert 0 values in Y axis to this small value
-  data.setConvertZeroToMin(true,Y_MIN_VAL);
+    data.setFunctions(this.totalProbFuncs);
+    // for Y-log, convert 0 values in Y axis to this small value
+    data.setConvertZeroToMin(true,Y_MIN_VAL);
   }
   //Initialize the applet
   public void init() {
     try {
 
       jbInit();
-      xCenter=getAppletXAxisCenterCoor();
-      yCenter=getAppletYAxisCenterCoor();
 
       // create the IMR Gui Bean object
       // It accepts the vector of IMR class names
@@ -581,7 +573,7 @@ public class HazardCurveApplet extends JApplet
   /**
    *  Adds a feature to the GraphPanel attribute of the EqkForecastApplet object
    */
-  protected void addGraphPanel() {
+  private void addGraphPanel() {
 
       // Starting
       String S = C + ": addGraphPanel(): ";
@@ -674,7 +666,7 @@ public class HazardCurveApplet extends JApplet
    /**
     *  Toggle between showing the graph and showing the actual data
     */
-   protected void togglePlot() {
+   private void togglePlot() {
 
        // Starting
        String S = C + ": togglePlot(): ";
@@ -751,9 +743,7 @@ public class HazardCurveApplet extends JApplet
 
       //displays the disaggregation string in the pop-up window
       if(disaggregationString !=null) {
-
         HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(disaggregationString);
-        disaggregation.setBounds(xCenter-50,yCenter-60,320, 250);
         disaggregation.show();
 
       }
@@ -789,35 +779,18 @@ public class HazardCurveApplet extends JApplet
 
      if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
        this.jCheckxlog.setSelected(false);
-       ShowMessage showMessage=new ShowMessage("      X-Log Plot Error as it contains Zero Values");
-       showMessage.setBounds(xCenter-60,yCenter-50,370,145);
+       ShowMessage showMessage=new ShowMessage(this, "      X-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
      }
      if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
        this.jCheckylog.setSelected(false);
-       ShowMessage showMessage=new ShowMessage("      Y-Log Plot Error as it contains Zero Values");
-       showMessage.setBounds(xCenter-60,yCenter-50,375,148);
+       ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
      }
   }
 
-  /**
-   * gets the Applets X-axis center coordinates
-   * @return
-   */
-  private int getAppletXAxisCenterCoor() {
-    return (this.getX()+this.getWidth())/2;
-  }
-
-  /**
-   * gets the Applets Y-axis center coordinates
-   * @return
-   */
-      private int getAppletYAxisCenterCoor() {
-    return (this.getY() + this.getHeight())/2;
-  }
 
   /**
    * when "show data" button is clicked
@@ -840,7 +813,7 @@ public class HazardCurveApplet extends JApplet
   /**
    *  Clears the plot screen of all traces
    */
-  void clearPlot(boolean clearFunctions) {
+  private void clearPlot(boolean clearFunctions) {
 
     if ( D )
       System.out.println( "Clearing plot area" );
@@ -879,37 +852,35 @@ public class HazardCurveApplet extends JApplet
        double minY=rY.getLowerBound();
        double maxY=rY.getUpperBound();
 
-
-       AxisScale axisScale=new AxisScale(this,minX,maxX,minY,maxY);
-       axisScale.setBounds(xCenter-60,yCenter-50,375,148);
-       axisScale.pack();
-       axisScale.show();
+       AxisLimitsControlPanel axisLimits=new AxisLimitsControlPanel(this,
+           this, minX,maxX,minY,maxY);
+       axisLimits.pack();
+       axisLimits.show();
     }
   }
 
   /**
-   * sets the range for X-axis
+   * sets the range for X and Y axis
    * @param xMin : minimum value for X-axis
    * @param xMax : maximum value for X-axis
-   */
-  public void setXRange(double xMin,double xMax) {
-     minXValue=xMin;
-     maxXValue=xMax;
-     this.customAxis=true;
-
-  }
-
-  /**
-   * sets the range for Y-axis
    * @param yMin : minimum value for Y-axis
    * @param yMax : maximum value for Y-axis
+   *
    */
-  public void setYRange(double yMin,double yMax) {
+  public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
+     minXValue=xMin;
+     maxXValue=xMax;
      minYValue=yMin;
      maxYValue=yMax;
      this.customAxis=true;
      addGraphPanel();
+
   }
+
+  /**
+   * this function whenever disaggregate checkbox is clicked
+   * @param e
+   */
 
   void disaggregationCheckbox_actionPerformed(ActionEvent e) {
     if(disaggregationCheckbox.isSelected()){
@@ -923,24 +894,22 @@ public class HazardCurveApplet extends JApplet
     }
   }
 
- boolean getDisaggregationFlag(){
-  return disaggregationFlag;
- }
 
- /**
-  * @return the value of the disaggregation parameter
-  */
- double getDisaggregationProbablity(){
-   return ((Double)(disaggregationParam.getValue())).doubleValue();
- }
+  /**
+   * @return the value of the disaggregation parameter
+   */
+  private double getDisaggregationProbablity(){
+    return ((Double)(disaggregationParam.getValue())).doubleValue();
+  }
 
- void imgLabel_mouseClicked(MouseEvent e) {
-     try{
-     this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE), "new_peer_win");
-     }catch(java.net.MalformedURLException ee){
-       JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
-                                     "Error Connecting to Internet",JOptionPane.OK_OPTION);
-     }
+
+  void imgLabel_mouseClicked(MouseEvent e) {
+    try{
+      this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE), "new_peer_win");
+    }catch(java.net.MalformedURLException ee){
+      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
+                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
+    }
   }
 
 
@@ -955,20 +924,20 @@ public class HazardCurveApplet extends JApplet
    */
   public void parameterChange( ParameterChangeEvent event ) {
 
-      String S = C + ": parameterChange(): ";
-      if ( D )  System.out.println( "\n" + S + "starting: " );
+    String S = C + ": parameterChange(): ";
+    if ( D )  System.out.println( "\n" + S + "starting: " );
 
-      String name1 = event.getParameterName();
+    String name1 = event.getParameterName();
 
-      // if IMR selection changed, update the site parameter list and supported IMT
-      if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-        AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-        imtGuiBean.setIMR(imr);
-        imtGuiBean.validate();
-        imtGuiBean.repaint();
-        siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
-        siteGuiBean.validate();
-        siteGuiBean.repaint();
+    // if IMR selection changed, update the site parameter list and supported IMT
+    if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
+      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+      imtGuiBean.setIMR(imr);
+      imtGuiBean.validate();
+      imtGuiBean.repaint();
+      siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+      siteGuiBean.validate();
+      siteGuiBean.repaint();
       }
   }
 
@@ -1046,7 +1015,7 @@ public class HazardCurveApplet extends JApplet
    //inititialising the disaggregation String
    disaggregationString=null;
    //checking the disAggregation flag
-   if(getDisaggregationFlag()){
+   if(this.disaggregationFlag){
      DisaggregationCalculator disaggCalc = new DisaggregationCalculator();
      double selectedProb= getDisaggregationProbablity();
      int num = hazFunction.getNum();
