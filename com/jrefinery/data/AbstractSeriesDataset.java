@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * --------------------------
  * AbstractSeriesDataset.java
  * --------------------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -34,16 +34,17 @@
  * 17-Nov-2001 : Version 1 (DG);
  * 28-Mar-2002 : Implemented SeriesChangeListener interface (DG);
  * 04-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 04-Feb-2003 : Removed redundant methods (DG);
  *
  */
 
 package com.jrefinery.data;
 
 /**
- * An abstract implementation of the Dataset interface, containing a mechanism
- * for registering change listeners.
+ * An abstract implementation of the {@link SeriesDataset} interface, containing a 
+ * mechanism for registering change listeners.
  *
- * @author DG
+ * @author David Gilbert
  */
 public abstract class AbstractSeriesDataset extends AbstractDataset
                                             implements SeriesDataset, SeriesChangeListener {
@@ -53,33 +54,6 @@ public abstract class AbstractSeriesDataset extends AbstractDataset
      */
     protected AbstractSeriesDataset() {
         super();
-    }
-
-    /**
-     * Returns the number of items that should be displayed in the legend.
-     * <P>
-     * For series datasets, the legend will contain the name of each series.
-     *
-     * @return the number of items that should be displayed in the legend.
-     */
-    public int getLegendItemCount() {
-        return getSeriesCount();
-    }
-
-    /**
-     * Returns the legend item labels.
-     *
-     * @return the legend item labels.
-     */
-    public String[] getLegendItemLabels() {
-
-        int seriesCount = getSeriesCount();
-        String[] labels = new String[seriesCount];
-        for (int i = 0; i < seriesCount; i++) {
-            labels[i] = getSeriesName(i);
-        }
-        return labels;
-
     }
 
     /**
