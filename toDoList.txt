@@ -1,6 +1,13 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+HazardSpectrumApplet
+
+	X-axis label should be "Period (sec)"
+
+	Y-axis label should be:		"SA (g)"      if IML@Prob is chosen or 
+					"Probability" if Prob@IML is chosen
+
 HazardCurveApplet:
 
 	Axis control panel doesn't seem to work for log-log plots (try setting custom)
