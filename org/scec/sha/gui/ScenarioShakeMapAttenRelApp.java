@@ -32,7 +32,7 @@ import org.scec.exceptions.ParameterException;
 
 
 /**
- * <p>Title: ScenarioShakeMapAttenRelApp_Temp</p>
+ * <p>Title: ScenarioShakeMapAttenRelApp</p>
  * <p>Description: This application provides the flexibility to plot shakemaps
  *  using the single Attenuation as well as the multiple attenuation relationships.</p>
  *  TESTS PERFORMED:<p>
@@ -54,7 +54,7 @@ import org.scec.exceptions.ParameterException;
  * @version 1.0
  */
 
-public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements ParameterChangeListener,
+public class ScenarioShakeMapAttenRelApp extends JApplet implements ParameterChangeListener,
     AttenuationRelationshipSiteParamsRegionAPI,Runnable{
 
   /**
@@ -176,7 +176,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
   }
 
   //Construct the applet
-  public ScenarioShakeMapAttenRelApp_Temp() {
+  public ScenarioShakeMapAttenRelApp() {
   }
   //Initialize the applet
   public void init() {
@@ -269,7 +269,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
 
   //Main method
   public static void main(String[] args) {
-    ScenarioShakeMapAttenRelApp_Temp applet = new ScenarioShakeMapAttenRelApp_Temp();
+    ScenarioShakeMapAttenRelApp applet = new ScenarioShakeMapAttenRelApp();
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3

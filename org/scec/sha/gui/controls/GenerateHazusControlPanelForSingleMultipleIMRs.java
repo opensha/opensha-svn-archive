@@ -14,7 +14,7 @@ import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.param.*;
-import org.scec.sha.gui.ScenarioShakeMapAttenRelApp_Temp;
+import org.scec.sha.gui.ScenarioShakeMapAttenRelApp;
 
 /**
  * <p>Title: GenerateHazusControlPanelForSingleMultipleIMRs</p>
@@ -33,7 +33,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
 
 
   //instance of the application calling this control panel.
-  private ScenarioShakeMapAttenRelApp_Temp application;
+  private ScenarioShakeMapAttenRelApp application;
 
 
   //Stores the XYZ data set for the SA-0.3, SA-1.0, PGA and PGV
@@ -67,7 +67,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * @param api : Instance of the application using this control panel
    */
   public GenerateHazusControlPanelForSingleMultipleIMRs(Component parent,
-                                        ScenarioShakeMapAttenRelApp_Temp api) {
+                                        ScenarioShakeMapAttenRelApp api) {
 
 
     // show the window at center of the parent component
@@ -124,6 +124,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     //doing for SA
     hazusCalcForSA(selectedAttenRels);
 
+    //Doing for PGV
+    metadata += "IMT = PGV"+"<br>\n";
     //creating the 2 seperate list for the attenRels selected, for one suuporting
     //the PGV and results calculated using PGV and other not supporting PGV and result
     //calculated using the SA at 1sec and multiplying by 37.24*2.54.
@@ -139,7 +141,6 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
         attenRelListNotSupportingPGV.add(attenRel);
     }
 
-    //Doing for PGV
     //arrayList declaration for the Atten Rel not supporting PGV
     ArrayList list = null;
     //arrayList declaration for the Atten Rel supporting PGV
@@ -274,7 +275,6 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
       pgvDataSet = new ArbDiscretizedXYZ_DataSet(pgvDataSet.getX_DataSet(),
           pgvDataSet.getY_DataSet(), newZVals);
     }
-    metadata += "IMT = PGV"+"<br>\n";
     return pgvDataSet;
   }
 

@@ -30,7 +30,7 @@ import org.scec.exceptions.ParameterException;
 
 
 /**
- * <p>Title: ScenarioShakeMapApp</p>
+ * <p>Title: ScenarioShakeMapApp_Old</p>
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -39,7 +39,7 @@ import org.scec.exceptions.ParameterException;
  * @version 1.0
  */
 
-public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListener,
+public class ScenarioShakeMapApp_Old extends JApplet implements ParameterChangeListener,
     GenerateHazusFilesConrolPanelAPI,RunAll_PuenteHillsScenariosControlPanelAPI{
 
 
@@ -160,7 +160,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   }
 
   //Construct the applet
-  public ScenarioShakeMapApp() {
+  public ScenarioShakeMapApp_Old() {
   }
   //Initialize the applet
   public void init() {
@@ -263,7 +263,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   }
   //Main method
   public static void main(String[] args) {
-    ScenarioShakeMapApp applet = new ScenarioShakeMapApp();
+    ScenarioShakeMapApp_Old applet = new ScenarioShakeMapApp_Old();
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
