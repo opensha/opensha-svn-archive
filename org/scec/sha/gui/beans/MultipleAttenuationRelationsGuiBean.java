@@ -15,7 +15,7 @@ import org.scec.sha.gui.infoTools.AttenuationRelationshipsInstance;
 /**
  * <p>Title: MultipleIMR_GuiBean</p>
  * <p>Description: This class gives the user the option of selecting multiple
- * attenuationrelationships and their supported parameters parameters. This
+ * attenuationrelationships and their supported parameters. This
  * enables the user to select from only those Attenuationrelationship which support
  * the selected IMT and its parameters</p>
  * @author : Nitin Gupta and Vipin Gupta
@@ -23,7 +23,7 @@ import org.scec.sha.gui.infoTools.AttenuationRelationshipsInstance;
  * @version 1.0
  */
 
-public class MultipleIMR_GuiBean extends JPanel  implements
+public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
     ActionListener,ItemListener,ParameterChangeListener,
     ParameterChangeWarningListener, ParameterChangeFailListener{
 
@@ -58,6 +58,8 @@ public class MultipleIMR_GuiBean extends JPanel  implements
   //Dynamic Gui elements array to generate the AttenRel components on the fly.
   private JCheckBox[] attenRelCheckBox;
   private JButton[] paramButtons;
+
+  //AttenuationRelationship parameters and list declaration
   private DoubleParameter[] wtsParameter;
   private DoubleParameterEditor[] wtsParameterEditor;
   private ParameterList paramList[];
@@ -71,6 +73,21 @@ public class MultipleIMR_GuiBean extends JPanel  implements
   // this flag is needed else messages are shown twice on focus lost
   private boolean inParameterChangeWarning = false;
 
+
+
+
+  //IMT Parameter and List declaration
+  private ParameterList imtParamList;
+  private ParameterListEditor imtEditorParamListEditor;
+  // IMT GUI Editor & Parameter names
+  public final static String IMT_PARAM_NAME =  "IMT";
+  // IMT Panel title
+  public final static String IMT_EDITOR_TITLE =  "Set IMT";
+
+  //stores the IMT Params for the choosen IMR
+  private Vector imtParam;
+
+
   private JPanel imrPanel = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
@@ -82,7 +99,7 @@ public class MultipleIMR_GuiBean extends JPanel  implements
    *
    * @param api : Instance of the application using this GUI bean.
    */
-  public MultipleIMR_GuiBean(AttenuationRelationshipSiteParamsRegionAPI api)
+  public MultipleAttenuationRelationsGuiBean(AttenuationRelationshipSiteParamsRegionAPI api)
   {
     application = api;
     //initializing all the array of the GUI elements to be the number of the supported AtrtenuationRelationships.
@@ -93,6 +110,9 @@ public class MultipleIMR_GuiBean extends JPanel  implements
     //setting the default parameters value for all the attenuationRelationship object.
     for(int i=0;i<numSupportedAttenRels;++i)
       ((AttenuationRelationshipAPI)attenRelsSupported.get(i)).setParamDefaults();
+
+    //creates the IMT paameterList editor for the supported IMRs
+    init_imtParamListAndEditor();
 
     attenRelCheckBox = new JCheckBox[numSupportedAttenRels];
     paramButtons = new JButton[numSupportedAttenRels];
@@ -119,25 +139,28 @@ public class MultipleIMR_GuiBean extends JPanel  implements
     this.setMinimumSize(new Dimension(0, 0));
     this.setPreferredSize(new Dimension(430, 539));
     imrPanel.setMinimumSize(new Dimension(0, 0));
-    this.add(jScrollPane1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    this.add(jScrollPane1,  new GridBagConstraints(0, 0, 0, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 3, 5, 5), 377, 469));
     jScrollPane1.getViewport().add(imrPanel, null);
+    //adding the IMT parameter list editor as the first element in the AttenRel Selection panel
+    imrPanel.add(imtEditorParamListEditor,new GridBagConstraints(0, 0, 3, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 3, 5, 5), 0, 0));
     for(int i=0;i<numSupportedAttenRels;++i){
       attenRelCheckBox[i] = new JCheckBox(((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName());
       attenRelCheckBox[i].addItemListener(this);
       wtsParameter[i] = new DoubleParameter(wtsParamName+(i+1),new Double(1.0));
       wtsParameterEditor[i] = new DoubleParameterEditor(wtsParameter[i]);
-      imrPanel.add(attenRelCheckBox[i],new GridBagConstraints(0, i, 1, 1, 1.0, 1.0
+      imrPanel.add(attenRelCheckBox[i],new GridBagConstraints(0, i+1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.WEST, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
-      imrPanel.add(wtsParameterEditor[i],new GridBagConstraints(1, i, 1, 1, 1.0, 1.0
+      imrPanel.add(wtsParameterEditor[i],new GridBagConstraints(1, i+1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
       paramButtons[i] = new JButton(attenRelParamsButtonName);
       paramButtons[i].addActionListener(this);
-      imrPanel.add(paramButtons[i],new GridBagConstraints(2, i, 1, 1, 1.0, 1.0
+      imrPanel.add(paramButtons[i],new GridBagConstraints(2, i+1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
     }
 
-    imrPanel.add(setAllParamButtons,new GridBagConstraints(0, numSupportedAttenRels, 1, 1, 1.0, 1.0
+    imrPanel.add(setAllParamButtons,new GridBagConstraints(0, numSupportedAttenRels+1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.EAST, new Insets(7, 200, 5, 5), 15, 5));
 
     setIMR_Params();
@@ -294,14 +317,118 @@ public class MultipleIMR_GuiBean extends JPanel  implements
 
      String name1 = event.getParameterName();
 
+     // if IMT selection then update
+     if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
+       updateIMT((String)event.getNewValue());
+       selectIMRsForChoosenIMT();
+     }
      // if Truncation type changes
-     if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){  // special case hardcoded. Not the best way to do it, but need framework to handle it.
+     if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){
+       // special case hardcoded. Not the best way to do it, but need framework to handle it.
        String value = event.getNewValue().toString();
        toggleSigmaLevelBasedOnTypeValue(value);
      }
    }
 
 
+   /**
+    *  Create a list of all the IMTs
+    */
+   private void init_imtParamListAndEditor() {
+
+     imtParamList = new ParameterList();
+
+     //vector to store all the IMT's supported by an IMR
+     Vector imt=new Vector();
+     imtParam = new Vector();
+     for(int i=0;i<numSupportedAttenRels;++i){
+       Iterator it = ((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getSupportedIntensityMeasuresIterator();
+
+       //loop over each IMT and get their independent parameters
+       while ( it.hasNext() ) {
+         DependentParameterAPI param = ( DependentParameterAPI ) it.next();
+
+         //check to see if the IMT param already exists in the vector list,
+         //if so the get that parameter, else create new instance of the imt
+         //parameter.
+         DoubleParameter param1;
+         if(imt.contains(param.getName())){
+           int index = imtParam.indexOf(param);
+           param1 = (DoubleParameter)imtParam.get(index);
+         }
+         else{
+           param1=new DoubleParameter(param.getName(),(Double)param.getValue());
+           //add the dependent parameter only if it has not ben added before
+           imtParam.add(param1);
+           imt.add(param.getName());
+         }
+
+         // add all the independent parameters related to this IMT
+         // NOTE: this will only work for DoubleDiscrete independent parameters; it's not general!
+         // this also converts these DoubleDiscreteParameters to StringParameters
+         ListIterator it2 = param.getIndependentParametersIterator();
+         if(D) System.out.println("IMT is:"+param.getName());
+         while ( it2.hasNext() ) {
+           ParameterAPI param2 = (ParameterAPI ) it2.next();
+           DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
+           ListIterator it3 = values.listIterator();
+           //Vector to store the independent params values option.
+           Vector indParamOptions = new Vector();
+           while(it3.hasNext())   // add all the periods relating to the SA
+             indParamOptions.add(it3.next().toString());
+
+           //create the string parameter for the independent parameter with its
+           //constarint being the indParamOptions.
+           StringParameter independentParam = new StringParameter(param2.getName(),
+               indParamOptions, (String)indParamOptions.get(0));
+
+           // added by Ned so the default period is 1.0 sec (this is a hack).
+           if( ((String) independentParam.getName()).equals("SA Period") )
+             independentParam.setValue(new String("1.0"));
+
+           /**
+            * Checks to see if the independent parameter by this name already
+            * exists in the dependent parameterlist, if so then add the new constraints
+            * values to the old ones but without any duplicity. Then create the
+            * new constraint for the independent parameter.
+            */
+           if(param1.containsIndependentParameter(independentParam.getName())){
+             Vector paramVals = ((StringConstraint)param1.getIndependentParameter(independentParam.getName()).getConstraint()).getAllowedValues();
+             for(int j=0;j<indParamOptions.size();++j)
+               if(!paramVals.contains(indParamOptions.get(j)))
+                 paramVals.add(indParamOptions.get(j));
+             StringConstraint constraint = new StringConstraint(paramVals);
+             independentParam.setConstraint(constraint);
+           }
+           else //add the independent parameter to the dependent param list
+             param1.addIndependentParameter(independentParam);
+         }
+       }
+     }
+     // add the IMT paramter
+     StringParameter imtParameter = new StringParameter (IMT_PARAM_NAME,imt,
+         (String)imt.get(0));
+     imtParameter.addParameterChangeListener(this);
+     imtParamList.addParameter(imtParameter);
+
+     /* gets the iterator for each supported IMT and iterates over all its indepenedent
+     * parameters to add them to the common Vector to display in the IMT Panel
+     **/
+
+     Iterator it=imtParam.iterator();
+
+     while(it.hasNext()){
+       Iterator it1=((DependentParameterAPI)it.next()).getIndependentParametersIterator();
+       while(it1.hasNext())
+         imtParamList.addParameter((ParameterAPI)it1.next());
+     }
+
+     // now make the editor based on the paramter list
+     imtEditorParamListEditor = new ParameterListEditor(imtParamList);
+     imtEditorParamListEditor.setTitle( this.IMT_EDITOR_TITLE );
+     // update the current IMT
+     updateIMT((String)imt.get(0));
+   }
 
    /**
     * sigma level is visible or not
@@ -316,6 +443,33 @@ public class MultipleIMR_GuiBean extends JPanel  implements
        if(D) System.out.println("Value = " + value + ", need to set value param on.");
        otherParamsEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
      }
+   }
+
+
+
+   /**
+    * It will return the IMT selected by the user
+    * @return : IMT selected by the user
+    */
+   public String getSelectedIMT() {
+     return (String)getSelectedIMTparam().getValue();
+   }
+
+   /**
+    *
+    * @returns the Selected IMT Parameter
+    */
+   public ParameterAPI getSelectedIMTparam(){
+     return imtParamList.getParameter(IMT_PARAM_NAME);
+   }
+
+   /**
+    *
+    * @param paramName
+    * @returns the parameter with the paramName from the IMT parameter list
+    */
+   public ParameterAPI getParameter(String paramName){
+     return imtParamList.getParameter(paramName);
    }
 
 
@@ -512,6 +666,65 @@ public class MultipleIMR_GuiBean extends JPanel  implements
    }
 
 
+
+   /**
+    * set the IMT parameter in selected IMR's
+    */
+   public void setIMT() {
+     ParameterAPI param = getSelectedIntensityMeasure();
+     ArrayList selectedAttenRels = getSelectedIMRs();
+     int size = selectedAttenRels.size();
+     for(int i=0;i<size;++i)
+       ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(param);
+   }
+
+
+   /**
+    * gets the selected Intensity Measure Parameter and its dependent Parameter
+    * @return
+    */
+   public ParameterAPI getSelectedIntensityMeasure(){
+     String selectedImt = imtParamList.getValue(this.IMT_PARAM_NAME).toString();
+     //set all the  parameters related to this IMT
+     Iterator it= imtParam.iterator();
+     while(it.hasNext()){
+       DependentParameterAPI param=(DependentParameterAPI)it.next();
+       if(param.getName().equalsIgnoreCase(selectedImt))
+         return param;
+     }
+     return null;
+ }
+
+
+   /**
+    * This function updates the IMTeditor with the independent parameters for the selected
+    * IMT, by making only those visible to the user.
+    * @param imtName : It is the name of the selected IMT, based on which we make
+    * its independentParameters visible.
+    */
+
+   private void updateIMT(String imtName) {
+     Iterator it= imtParamList.getParametersIterator();
+
+     //making all the IMT parameters invisible
+     while(it.hasNext())
+       imtEditorParamListEditor.setParameterVisible(((ParameterAPI)it.next()).getName(),false);
+
+     //making the choose IMT parameter visible
+     imtEditorParamListEditor.setParameterVisible(IMT_PARAM_NAME,true);
+
+     it=imtParam.iterator();
+     //for the selected IMT making its independent parameters visible
+     while(it.hasNext()){
+       DependentParameterAPI param=(DependentParameterAPI)it.next();
+       if(param.getName().equalsIgnoreCase(imtName)){
+         Iterator it1=param.getIndependentParametersIterator();
+         while(it1.hasNext())
+           imtEditorParamListEditor.setParameterVisible(((ParameterAPI)it1.next()).getName(),true);
+       }
+     }
+  }
+
    /**
     *
     * @returns the normalised weights for each selected attenuationRelationship
@@ -539,8 +752,8 @@ public class MultipleIMR_GuiBean extends JPanel  implements
    * If it is supported make its parameters and check box enabled and set the
    * parameters default values, else disable the choice of that AttenuationRelationship.
    */
-  public void setIntensityMeasure(ParameterAPI param){
-
+  public void selectIMRsForChoosenIMT(){
+    ParameterAPI param = getSelectedIntensityMeasure();
     //Iterating over all the supported AttenRels ot check if they support the selected IMT
     for(int i=0;i < numSupportedAttenRels;++i){
       AttenuationRelationship attenRel = (AttenuationRelationship)attenRelsSupported.get(i);
@@ -572,7 +785,40 @@ public class MultipleIMR_GuiBean extends JPanel  implements
     }
 
     metadata +=" Identical Param: "+otherParamsEditor.getVisibleParameters().toString();
+    String imtMetadata = getIMT_ParameterListMetadataString()+"\n<br>";
+    metadata = imtMetadata + metadata;
     return metadata;
   }
+
+
+  /**
+   *
+   * @returns the Metadata string for the IMT Gui Bean
+   */
+ private String getIMT_ParameterListMetadataString(){
+   String metadata=null;
+   ListIterator it = imtEditorParamListEditor.getVisibleParameters().getParametersIterator();
+   int paramSize = imtEditorParamListEditor.getVisibleParameters().size();
+   while(it.hasNext()){
+     //iterates over all the visible parameters
+     ParameterAPI tempParam = (ParameterAPI)it.next();
+     //if the param name is IMT Param then it is the Dependent param
+     if(tempParam.getName().equals(this.IMT_PARAM_NAME)){
+       metadata = tempParam.getName()+" = "+(String)tempParam.getValue();
+       if(paramSize>1)
+         metadata +="[ ";
+     }
+     else{ //rest all are the independent params
+       metadata += tempParam.getName()+" = "+(String)tempParam.getValue()+" ; ";
+     }
+   }
+   if(paramSize>1)
+     metadata = metadata.substring(0,metadata.length()-3);
+   if(paramSize >1)
+   metadata +=" ] ";
+   return metadata;
+ }
+
+
 
 }

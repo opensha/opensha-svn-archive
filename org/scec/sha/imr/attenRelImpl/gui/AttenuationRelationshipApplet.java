@@ -47,7 +47,7 @@ public class AttenuationRelationshipApplet extends JApplet
         ItemListener, AxisLimitsControlPanelAPI,GraphPanelAPI,ButtonControlPanelAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    private final static String version = "0.5.12";
+    private final static String version = "0.5.13";
     protected final static boolean D = false;
   /**
    * these four values save the custom axis scale specified by user

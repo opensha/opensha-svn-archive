@@ -83,9 +83,6 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   private ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
 
 
-  //ArrayList for storing the IMR objects, gets initialised in the IMR_GuiBean function()
-  ArrayList attenRelList;
-
 
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
@@ -119,8 +116,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
 
   // instances of the GUI Beans which will be shown in this applet
   private EqkRupSelectorGuiBean erfGuiBean;
-  private MultipleIMR_GuiBean imrGuiBean;
-  private IMT_GuiBeanSupportingMultipleAttenuationRelationships imtGuiBean;
+  private MultipleAttenuationRelationsGuiBean imrGuiBean;
   private SitesInGriddedRegionGuiBean sitesGuiBean;
   private IMLorProbSelectorGuiBean imlProbGuiBean;
   private MapGuiBean mapGuiBean;
@@ -135,7 +131,6 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private JPanel gmtPanel = new JPanel();
-  private JSplitPane imr_IMTSplit = new JSplitPane();
   private JTabbedPane parameterTabbedPanel = new JTabbedPane();
   private JPanel timespanPanel = new JPanel();
   private JPanel imrPanel = new JPanel();
@@ -149,7 +144,6 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   private GridLayout gridLayout1 = new GridLayout();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
-  private JPanel imrSelectionPanel = new JPanel();
   JComboBox controlComboBox = new JComboBox();
   GridBagLayout gridBagLayout6 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
@@ -179,7 +173,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     }
     try{
       //initialises the IMR and IMT Gui Bean
-      initIMR_AndIMT_GuiBean();
+      initIMRGuiBean();
     }catch(RuntimeException e){
       e.printStackTrace();
       JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
@@ -210,7 +204,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     buttonPanel.setLayout(gridBagLayout4);
     eqkRupPanel.setLayout(gridBagLayout1);
     gmtPanel.setLayout(gridBagLayout9);
-    imr_IMTSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
+
     timespanPanel.setLayout(gridBagLayout3);
     imrPanel.setLayout(borderLayout2);
     imtPanel.setLayout(gridBagLayout8);
@@ -223,7 +217,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     });
     buttonPanel.setMinimumSize(new Dimension(391, 50));
     gridRegionSitePanel.setLayout(gridLayout1);
-    imrSelectionPanel.setLayout(gridBagLayout5);
+    imrPanel.setLayout(gridBagLayout5);
     controlComboBox.setBackground(Color.white);
     controlComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -239,9 +233,9 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     buttonPanel.add(addButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(48, 88, 39, 139), 26, 9));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
-    imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
-    imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
-    imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
+
+
+
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab("Earthquake Rupture from Forecast", eqkRupPanel );
@@ -249,7 +243,6 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     parameterTabbedPanel.addTab( "Exceedance Level/Probability", prob_IMLPanel);
     parameterTabbedPanel.addTab("Map Attributes", gmtPanel);
     mainSplitPane.setDividerLocation(630);
-    imr_IMTSplit.setDividerLocation(350);
   }
   //Start the applet
   public void start() {
@@ -315,32 +308,18 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
   }
 
-  /**
-   * Initialise the IMT gui Bean
-   */
-  private void initIMTGuiBean(){
-    /**
-     * Initialize the IMT Gui Bean
-     */
 
-    // create the IMT Gui Bean object
-    imtGuiBean = new IMT_GuiBeanSupportingMultipleAttenuationRelationships(attenRelList);
-    imtGuiBean.getParameterEditor(imtGuiBean.IMT_PARAM_NAME).getParameter().addParameterChangeListener(this);
-    imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-  }
 
   /**
    * Initialize the IMR Gui Bean
    */
-  private void initIMR_AndIMT_GuiBean() {
-    imrGuiBean = new MultipleIMR_GuiBean(this);
-    // create the IMR Gui Bean object
-    attenRelList = imrGuiBean.getSupportedAttenuationRelationships();
-    initIMTGuiBean();
-    imrGuiBean.setIntensityMeasure(imtGuiBean.getIntensityMeasure());
+  private void initIMRGuiBean() {
+    imrGuiBean = new MultipleAttenuationRelationsGuiBean(this);
+
+    //selects the Attenuations for the choosen Intensity Measure , if AttenuationRelationship supports it.
+    imrGuiBean.selectIMRsForChoosenIMT();
     // show this IMRgui bean the Panel
-    imrSelectionPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+    imrPanel.add(imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
   }
 
@@ -434,15 +413,8 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
 
     String name1 = event.getParameterName();
 
-
-    //if the IMT selection changes
-    if(name1.equalsIgnoreCase(imtGuiBean.IMT_PARAM_NAME)){
-      imrGuiBean.setIntensityMeasure(imtGuiBean.getIntensityMeasure());
-
-    }
-
     //if the ERF Param Name changes
-    else if(name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME))
+    if(name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME))
       /* get the selected ERF
        NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
        erfGuiBean.getSelectedERF.
@@ -533,12 +505,13 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   public XYZ_DataSetAPI generateShakeMap() throws ParameterException,RuntimeException{
     try {
      // this function will get the selected IMT parameter and set it in IMT
-     imtGuiBean.setIMT(imrGuiBean.getSelectedIMRs());
+     imrGuiBean.setIMT();
    }catch (Exception ex) {
      if(D) System.out.println(C + ":Param warning caught"+ex);
      ex.printStackTrace();
     }
     try{
+      // get the selected IMR
       int size = attenRel.size();
       Vector zVals;
       Vector sumZVals = null;
@@ -646,7 +619,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
       if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
         label="Prob";
       else
-        label=imtGuiBean.getSelectedIMT();
+        label=imrGuiBean.getSelectedIMT();
 
       /*if(hazusControl !=null && hazusControl.isHazusShapeFilesButtonPressed())
       mapGuiBean.makeHazusShapeFilesAndMap(hazusControl.getXYZ_DataForSA_03(),hazusControl.getXYZ_DataForSA_10(),
@@ -767,7 +740,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
      // imtMetadata = hazusControl.getIMT_Metadata();
     //else //else get the metadata from the IMT GuiBean.
       //imtMetadata = imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString();
-      imtMetadata = imtGuiBean.getParameterListMetadataString();
+      //imtMetadata = imtGuiBean.getParameterListMetadataString();
     return "IMR Param List:<br>\n " +
            "---------------<br>\n"+
         this.imrGuiBean.getParameterListMetadataString()+"\n"+
