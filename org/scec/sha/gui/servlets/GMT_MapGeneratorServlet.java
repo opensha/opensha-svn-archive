@@ -20,7 +20,6 @@ import org.scec.mapping.gmtWrapper.*;
 
 public class GMT_MapGeneratorServlet extends HttpServlet {
 
-  private static final String FILENAME ="gmt.xyz";
   private static final String IMAGE_URL_PATH="http://scec.usc.edu:9999/";
   //Process the HTTP Get request
  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -35,15 +34,44 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
 
      //ArrayList that contains the contents of xyz file required by the  GMT
      ArrayList fileLines = (ArrayList)inputFromApplet.readObject();
+
+     //name of the XYZ file that user had wanted to create
+     String fileName = (String)inputFromApplet.readObject();
+
      //creating the xyz file from the contents in the ArrayList
-     FileWriter fileWriter = new FileWriter(FILENAME);
+     FileWriter fileWriter = new FileWriter(fileName);
      for(int i=0;i<fileLines.size();++i){
        fileWriter.write((String)fileLines.get(i));
        fileWriter.write("\n");
      }
 
      //jpg image name returned back by the gmt
-     String imgName=gmtMapInfo.makeMap(this.FILENAME);
+     String imgName=gmtMapInfo.makeMap(fileName);
+
+
+     //moving the .jpg , .ps and .xyz
+     String command[] = {"sh","-c","mv "+fileName+" webpages/scenariomapimagefiles/"};
+     RunScript.runScript(command);
+     fileName = fileName.substring(0,fileName.indexOf("."));
+     command[2] = "mv "+fileName+".ps webpages/scenariomapimagefiles/";
+     RunScript.runScript(command);
+     command[2] = "mv "+fileName+" webpages/scenariomapimagefiles/";
+     RunScript.runScript(command);
+     // remove the temporary files created
+     command[2]="rm "+fileName+".grd";
+     RunScript.runScript(command);
+     command[2]="rm temp"+fileName+".grd";
+     RunScript.runScript(command);
+     command[2]="rm temp_temp"+fileName+".grd_info";
+     RunScript.runScript(command);
+     command[2]="rm "+fileName+".cpt";
+     RunScript.runScript(command);
+     command[2]="rm "+fileName+"HiResData.grd";
+     RunScript.runScript(command);
+     command[2]="rm "+fileName+"Inten.grd";
+     RunScript.runScript(command);
+
+
 
      // report to the user whether the operation was successful or not
      // get an ouput stream from the applet

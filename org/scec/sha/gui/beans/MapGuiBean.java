@@ -211,6 +211,8 @@ public class MapGuiBean extends JPanel implements
       //sending the contents of the file to the servlet
       outputToServlet.writeObject(fileLines);
 
+      //sending the name of the XYZ that user had wanted to craete
+      outputToServlet.writeObject(fileName);
 
       outputToServlet.flush();
       outputToServlet.close();
