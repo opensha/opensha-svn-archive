@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.rmi.RemoteException;
 
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -69,6 +70,7 @@ import org.scec.sha.gui.controls.SetSiteParamsFromWebServicesControlPanel;
 import org.scec.sha.gui.controls.SitesOfInterestControlPanel;
 import org.scec.sha.gui.controls.X_ValuesInCurveControlPanel;
 import org.scec.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
+import org.scec.sha.gui.controls.PlottingOptionControl;
 import org.scec.sha.gui.infoTools.ButtonControlPanel;
 import org.scec.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
@@ -124,7 +126,7 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
   public final static String RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient";
   public final static String RMI_WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient";
-  public final static String RMI_SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimplePoissonFaultRuptureERF_Client";
+  public final static String RMI_SIMPLE_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimplePoissonFaultRuptureERF_Client";
 
 
 
@@ -155,6 +157,7 @@ public class Temp_HazardCurveApplication extends JApplet
   private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
   private final static String RUN_ALL_PEER_TESTS = "Run all PEER Test Cases";
   private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
+  private final static String PLOTTING_OPTION = "Set new dataset plotting option";
 
 
   // objects for control panels
@@ -166,8 +169,15 @@ public class Temp_HazardCurveApplication extends JApplet
   private SetSiteParamsFromWebServicesControlPanel cvmControlPanel;
   private X_ValuesInCurveControlPanel xValuesPanel;
   private RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
-  private CalcOptionControl  calcControl;
+  private PlottingOptionControl plotOptionControl;
 
+
+
+  /*setting the colors for the different plots so that legends
+  *can be shown with the same color
+  */
+  Color [] defaultColor = {Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
+    Color.cyan,Color.pink,Color.yellow,Color.lightGray,Color.gray,Color.darkGray};
 
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
@@ -310,6 +320,19 @@ public class Temp_HazardCurveApplication extends JApplet
   private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
   private FlowLayout flowLayout1 = new FlowLayout();
 
+
+
+  //maintains which ERFList was previously selected
+  private String prevSelectedERF_List = null;
+  //saves how many ERF's were there in the ERF_List
+  private int prevNumERFinList = 0;
+
+  /**this boolean keeps track when to plot the new data on top of other and when to
+  *add to the existing data.
+  * If it is true then add new data on top of existing data, but if it is false
+  * then add new data to the existing data(this option only works if it is ERF_List).
+  * */
+  boolean addData= true;
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -567,6 +590,7 @@ public class Temp_HazardCurveApplication extends JApplet
           // set black color for curves
           color[i] = new Color(Color.black.getRGB());
 
+
         //checks if the individual curves for each erf in the list are being drawn, if so then don't
         //try to draw the average and fractiles curves
         if(!isIndividualCurves){
@@ -677,6 +701,12 @@ public class Temp_HazardCurveApplication extends JApplet
       // do not show warning messages in IMR gui bean. this is needed
       // so that warning messages for site parameters are not shown when Add graph is clicked
       imrGuiBean.showWarningMessages(false);
+      if(plotOptionControl !=null){
+        if(this.plotOptionControl.getSelectedOption().equals(PlottingOptionControl.PLOT_ON_TOP))
+          addData = true;
+        else
+          addData = false;
+      }
       try{
         createCalcInstance();
       }catch(Exception e){
@@ -857,6 +887,8 @@ public class Temp_HazardCurveApplication extends JApplet
       siteGuiBean.repaint();
       }
       if(name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME)) {
+
+        String plottingOption = this.plotOptionControl.getSelectedOption();
         /* get the selected ERF
         NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
         erfGuiBean.getSelectedERF.
@@ -876,6 +908,11 @@ public class Temp_HazardCurveApplication extends JApplet
         if(erfGuiBean.isEpistemicList()) {
           this.controlComboBox.addItem(EPISTEMIC_CONTROL);
           controlComboBox.setSelectedItem(EPISTEMIC_CONTROL);
+        }
+        else if(plottingOption!= null && plottingOption.equalsIgnoreCase(PlottingOptionControl.ADD_TO_EXISTING)){
+          JOptionPane.showMessageDialog(this,"Cannot add to existing without selecting ERF Epistemic list",
+                                        "Input Error",JOptionPane.INFORMATION_MESSAGE);
+          plotOptionControl.setSelectedOption(PlottingOptionControl.PLOT_ON_TOP);
         }
         this.timeSpanGuiBean.validate();
         this.timeSpanGuiBean.repaint();
@@ -926,15 +963,28 @@ public class Temp_HazardCurveApplication extends JApplet
     // if this is forecast list , handle it differently
     boolean isEqkForecastList = false;
     if(forecast instanceof ERF_List)  {
+      if(prevSelectedERF_List == null)
+        prevSelectedERF_List = forecast.getName();
+      else{
+        if(!prevSelectedERF_List.equals(forecast.getName()) && !addData){
+          JOptionPane.showMessageDialog(this,"Cannot add to existing without selecting ERF Epistemic list",
+                                        "Input Error",JOptionPane.INFORMATION_MESSAGE);
+          return;
+        }
+      }
       this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
       //checks to see if we are dealing with the ERF_List, if so then show the earlier plots
       //in a seperate window.
       if(isEqkList && (totalProbFuncs.size()>0))
         //shows the curves for the ERF List in a seperate window
-        peelOffCurves();
+        //peelOffCurves();
       handleForecastList(site, imr, forecast);
       return;
     }
+
+    //making the previuos selected ERF List to be null
+    prevSelectedERF_List = null;
+    prevNumERFinList = 0;
 
     try{
         calc.setNumForecasts(1);
@@ -1030,14 +1080,37 @@ public class Temp_HazardCurveApplication extends JApplet
                                   AttenuationRelationshipAPI imr,
                                   EqkRupForecastAPI eqkRupForecast) {
    ERF_List erfList  = (ERF_List)eqkRupForecast;
+   DiscretizedFuncList functionList =null;
+
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
+   //if this is the first ERF_List being added the remove thne clear the function list
+   if(prevNumERFinList ==0){
+     this.peelOffCurves();
+     // clear the function list
+     totalProbFuncs.clear();
+     prevNumERFinList = numERFs;
+   }
+   else{
+     if(addData){ //add new data on top of the existing data
+
+     }
+     else if(!addData){ // add new data to the existing data
+       functionList = new DiscretizedFuncList();
+       functionList.addAll(totalProbFuncs.deepClone());
+       totalProbFuncs.clear();
+     }
+   }
    try{
      calc.setNumForecasts(numERFs);
    }catch(RemoteException e){
      e.printStackTrace();
    }
-   // clear the function list
-   totalProbFuncs.clear();
+
+   if(prevSelectedERF_List != null){//????????
+
+   }
+
+
 
    try{
      // calculate the hazard curve
@@ -1173,7 +1246,7 @@ public class Temp_HazardCurveApplication extends JApplet
    erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_WG02_ERF_LIST_CLASS_NAME);
-   erf_Classes.add(RMI_SIMPLE_FAULT_ERF_CLASS_NAME);
+   erf_Classes.add(RMI_SIMPLE_POISSON_FAULT_ERF_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
@@ -1224,6 +1297,7 @@ public class Temp_HazardCurveApplication extends JApplet
     this.controlComboBox.addItem(X_VALUES_CONTROL);
     this.controlComboBox.addItem(RUN_ALL_PEER_TESTS);
     this.controlComboBox.addItem(MAP_CALC_CONTROL);
+    this.controlComboBox.addItem(PLOTTING_OPTION);
   }
 
   /**
@@ -1249,20 +1323,25 @@ public class Temp_HazardCurveApplication extends JApplet
       initX_ValuesControl();
     else if(selectedControl.equalsIgnoreCase(this.RUN_ALL_PEER_TESTS))
       initRunALL_PEER_TestCases();
-    else if(selectedControl.equalsIgnoreCase(MAP_CALC_CONTROL))
-      initMapCalcMethodSelectionControl();
+    else if(selectedControl.equalsIgnoreCase(PLOTTING_OPTION))
+      initPlotSelectionControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
+
   /**
-   *
+   * This function allows the user to select new data would be added to the
+   * existing plot , if any.
    */
-  private void initMapCalcMethodSelectionControl(){
-     if(calcControl ==  null)
-       calcControl = new CalcOptionControl(this);
-     calcControl.show();
-     calcControl.pack();
- }
+  private void initPlotSelectionControl(){
+    if(plotOptionControl ==  null)
+      plotOptionControl = new PlottingOptionControl(this);
+    plotOptionControl.show();
+    plotOptionControl.pack();
+  }
+
+
+
 
   /**
    * Initialises the Run All PEER Test Control Panel
@@ -1599,7 +1678,7 @@ public class Temp_HazardCurveApplication extends JApplet
         erfGuiBean.getParameterList().getParameterListMetadataString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
-        timeSpanGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator;
+        timeSpanGuiBean.getParameterListMetadataString()+systemSpecificLineSeparator;
   }
 
   /**
