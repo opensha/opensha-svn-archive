@@ -56,7 +56,7 @@ public class EqkForecastApplet extends JApplet
   protected final static int H = 670;
   protected ArrayList[] imtMap;
 
-
+  final static GridBagLayout GBL = new GridBagLayout();
 
   /**
    *  Hashmap that maps picklist imr string names to the real fully qualified
@@ -227,14 +227,14 @@ public class EqkForecastApplet extends JApplet
    imtMap =new ArrayList[imtSize];
    this.jIMRNum=new JCheckBox[imtSize];
    int numOfIMT=0;
+   jIMRList.setLayout(GBL);
    while (it.hasNext()) {
     imtMap[numOfIMT] = new ArrayList();
     className = it.next().toString(); // class Name to create the object
      imtMap[numOfIMT].add(className);
      jIMRNum[numOfIMT]=new JCheckBox(className);
-     jIMRList.add(jIMRNum[numOfIMT]);
-     jIMRList.setLayout(new GridLayout(0,1));
-     jIMRList.
+     jIMRList.add(jIMRNum[numOfIMT],new GridBagConstraints( 0, numOfIMT, 1, 1, 1.0, 1.0
+                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
      // create the imr instance
      imr = ( ClassicIMRAPI ) createIMRClassInstance(className ,this);
      if(D)System.out.println(S+":numOfIMT::"+numOfIMT);
@@ -454,9 +454,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
   void jIMTComboBox_actionPerformed(ActionEvent e) {
     if(D)System.out.println(C+":Handling Event for the List");
-    jIMRList.add("abc",new JCheckBox("abc"));
-    //jPanel1.add(new JCheckBox("abc"));
-    for(int i=0;i<imtMap.length;++i){
+     for(int i=0;i<imtMap.length;++i){
       this.jIMRNum=new JCheckBox[imtMap.length];
       for(int j=0;j<imtMap[i].size();++j){
         if(imtMap[i].get(j) ==jIMTComboBox.getSelectedItem()){
