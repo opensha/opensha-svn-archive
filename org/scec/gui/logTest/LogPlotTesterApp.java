@@ -298,7 +298,7 @@ public class LogPlotTesterApp extends JApplet  {
       }
     });
     minorAxisCheck.setSelected(true);
-    minorAxisCheck.setText("Show Minor Axis");
+    minorAxisCheck.setText("Label Minor Axis Tick");
     minorAxisCheck.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         minorAxisCheck_actionPerformed(e);
