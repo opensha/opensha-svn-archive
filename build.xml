@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--Exported by JBuilder on Aug 22, 2003 10:11:38 AM-->
+<!--Exported by JBuilder on Aug 22, 2003 12:12:35 PM-->
 <!--It is RECOMMENDED that JBuilder builds and Ant builds done with
 this exported Ant file be kept separate and be written to different
 directories. For example, the JBuilder output directory might be "classes"
@@ -14,10 +14,9 @@ and the Ant output directory might be "classes.ant".-->
   <property name="Unit.Test.home" value="${jbuilder.home}/lib"/>
   <property name="JBCL.home" value="${Unit.Test.home}"/>
   <property name="Data.Express.home" value="${Unit.Test.home}"/>
-  <property name="Servlet.home" value="C:/Documents and Settings/Vipin Gupta/jbuilder7/JBuilder.framework/jakarta-tomcat-4.0.3/common/lib"/>
-  <property name="Tomcat.3.3.Servlet.home" value="${Tomcat.home}/lib/common"/>
   <property name="Xerces.home" value="${Unit.Test.home}"/>
   <property name="web.service.home" value="lib"/>
+  <property name="Tomcat.4.0.Servlet.home" value="${jbuilder.home}/thirdparty/jakarta-tomcat-4.0.6-LE-jdk14/common/lib"/>
   <property name="src" value="."/>
   <path id="project.class.path">
     <pathelement location="${dest}"/>
@@ -26,8 +25,6 @@ and the Ant output directory might be "classes.ant".-->
     <pathelement location="${Unit.Test.home}/jbcl.jar"/>
     <pathelement location="${Unit.Test.home}/dx.jar"/>
     <pathelement location="${Unit.Test.home}/beandt.jar"/>
-    <pathelement location="${Servlet.home}/servlet.jar"/>
-    <pathelement location="${Tomcat.3.3.Servlet.home}/servlet.jar"/>
     <pathelement location="${Unit.Test.home}/xercesImpl.jar"/>
     <pathelement location="${Unit.Test.home}/xmlParserAPIs.jar"/>
     <pathelement location="${web.service.home}/xsdlib.jar"/>
@@ -52,6 +49,7 @@ and the Ant output directory might be "classes.ant".-->
     <pathelement location="${web.service.home}/xmlParserAPIs.jar"/>
     <pathelement location="${web.service.home}/dom4j.jar"/>
     <pathelement location="${web.service.home}/xml-apis.jar"/>
+    <pathelement location="${Tomcat.4.0.Servlet.home}/servlet.jar"/>
     <pathelement location="${jdk.home}/demo/jfc/Java2D/Java2Demo.jar"/>
     <pathelement location="${jdk.home}/demo/plugin/jfc/Java2D/Java2Demo.jar"/>
     <pathelement location="${jdk.home}/jre/lib/charsets.jar"/>
@@ -72,7 +70,7 @@ and the Ant output directory might be "classes.ant".-->
   <path id="jspc.class.path">
     <pathelement location="${Tomcat.home}/lib/container/jasper.jar"/>
     <pathelement location="${Tomcat.home}/lib/container/crimson.jar"/>
-    <pathelement location="${Tomcat.3.3.Servlet.home}/servlet.jar"/>
+    <pathelement location="${Tomcat.home}/lib/common/servlet.jar"/>
   </path>
   <!--Patternset to exclude files from the output directory:-->
   <patternset id="dest.exclude">
