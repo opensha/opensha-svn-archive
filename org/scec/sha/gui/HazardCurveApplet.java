@@ -1061,7 +1061,6 @@ public class HazardCurveApplet extends JApplet
   private void initDisaggregationControl() {
     if(this.disaggregationControlPanel==null)
       disaggregationControlPanel = new DisaggregationControlPanel(this, this);
-    disaggregationControlPanel.pack();
     disaggregationControlPanel.show();
   }
 

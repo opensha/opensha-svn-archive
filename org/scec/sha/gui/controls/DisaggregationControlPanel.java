@@ -65,11 +65,12 @@ public class DisaggregationControlPanel extends JFrame
 
     this.setTitle("Disaggregation Control Panel");
     this.getContentPane().add(diaggregateCheckBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 6, 18, 0), 15, 0));
+            ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(15, 6, 18, 0), 15, 0));
     this.getContentPane().add(this.disaggregationEditor,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-          ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 23, 0, 0), 30, 0));
-    diaggregateCheckBox.setSelected(true);
-    disaggregationEditor.setVisible(true);
+          ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 1, 0, 0), 15, 0));
+    //diaggregateCheckBox.setSelected(false);
+    disaggregationEditor.setVisible(false);
+    this.setSize(320,70);
   }
 
 
