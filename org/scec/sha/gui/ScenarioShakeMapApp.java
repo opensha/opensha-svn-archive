@@ -616,12 +616,16 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    */
   public String getMapParametersInfo(){
     return "IMR Param List: \n" +
-        "\t\t"+this.imrGuiBean.getVisibleParametersCloned().toString()+"\n"+
+           "---------------\n"+
+        this.imrGuiBean.getVisibleParametersCloned().toString()+"\n\n"+
         "Site Param List: \n"+
-        "\t\t"+sitesGuiBean.getGriddedRegionParameterListEditor().getVisibleParametersCloned().toString()+"\n"+
+        "----------------\n"+
+        sitesGuiBean.getGriddedRegionParameterListEditor().getVisibleParametersCloned().toString()+"\n\n"+
         "IMT Param List: \n"+
-        "\t\t"+imtGuiBean.getVisibleParametersCloned().toString()+"\n"+
+        "---------------\n"+
+        imtGuiBean.getVisibleParametersCloned().toString()+"\n\n"+
         "Forecast Param List: \n"+
-        "\t\t"+erfGuiBean.getParameterListEditor().getVisibleParametersCloned().toString();
+        "--------------------\n"+
+        erfGuiBean.getParameterListEditor().getVisibleParametersCloned().toString();
   }
 }

@@ -287,6 +287,8 @@ public class Abrahamson_2000_AttenRel
               closestLoc = surface.getLocation(0,c);
             }
           }
+
+
           // compute the distance between the closest point on the trace and the hypocenter
           double s = RelativeLocation.getHorzDistance(closestLoc,hypLoc);
           // get total length of rupture
