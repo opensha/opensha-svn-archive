@@ -119,7 +119,7 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
   //Grid Spacing Param
   DoubleParameter gridSpacing = new DoubleParameter(this.GRID_SPACING,0.01,5,GRID_SPACING_UNITS,new Double(this.DEFAULT_GRID_SPACING));
   //FaultTrace Param
-  IntegerParameter numFltTrace = new IntegerParameter(this.NUMBER_OF_FAULT_TRACE,1,100,new Integer(this.DEFAULT_NUM_FAULT_TRACE));
+  IntegerParameter numFltTrace = new IntegerParameter(this.NUMBER_OF_FAULT_TRACE,2,100,new Integer(this.DEFAULT_NUM_FAULT_TRACE));
 
   //creating the StringParameter for the FaultType
   StringParameter faultTypeParam;
