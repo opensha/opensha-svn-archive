@@ -183,6 +183,9 @@ public class ConstrainedStringParameterEditor
                 ((JComboBox) valueEditor).addItemListener(this);
                 valueEditor.addFocusListener( this );
                 widgetPanel.add(valueEditor, COMBO_WIDGET_GBC);
+                widgetPanel.setBackground(null);
+                widgetPanel.validate();
+                widgetPanel.repaint();
             }
             else{
                 valueEditor = makeConstantEditor( strs.get(0).toString() );

@@ -131,10 +131,13 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    erfGuiBean= new ERF_GuiBean(erfClassNames);
    erfGuiBean.showProgressBar(false);
    parameterList = new ParameterList();
+
+   progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures being updated ...");
    setSelectedERF();
    setSourceFromSelectedERF(0);
    setRuptureForSelectedSource(0);
    getHypocenterLocationsForSelectedRupture();
+   progress.showProgress(false);
    listEditor  = new ParameterListEditor(parameterList);
    // now make the editor based on the parameter list
    listEditor.setTitle( TITLE );
@@ -152,11 +155,8 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   */
  public void setSelectedERF(){
 
-
-   if(progress == null)
-     progress = new CalcProgressBar("Updating ERF","Please wait while ERF being updated ...");
-   else
-     progress.setProgressMessage("Please wait while ERF being updated ...");
+   progress.showProgress(true);
+   progress.setProgressMessage("Please wait while ERF being updated ...");
 
    if(erf == null){
      // add the select forecast parameter
@@ -180,10 +180,8 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
  public void setSourceFromSelectedERF(int sourceIndex){
    int numSources = erf.getNumSources();
    ArrayList sourcesVector = new ArrayList();
-
+   progress.showProgress(true);
    progress.setProgressMessage("Please wait while sources are being updated");
-
-
    for(int i=0;i<numSources;++i)
      sourcesVector.add(i+" ( "+erf.getSource(i).getName()+" )");
 
@@ -218,7 +216,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
  public void setRuptureForSelectedSource(int ruptureIndex){
    int numRuptures = erf.getNumRuptures(sourceValue);
 
-
+   progress.showProgress(true);
    progress.setProgressMessage("Please wait while ruptures are being updated");
    //creating the rupture parameter
    ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,0,numRuptures-1,new Integer(ruptureIndex));
@@ -302,7 +300,6 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   */
  public void parameterChange( ParameterChangeEvent event ) {
 
-   progress.showProgress(true);
    String S = C + ": parameterChange(): ";
    if ( D )
      System.out.println( "\n" + S + "starting: " );
