@@ -50,9 +50,7 @@ public class HazardMapViewerApp extends JApplet {
   Border border1;
   JLabel jLabel2 = new JLabel();
   JButton mapButton = new JButton();
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
   GridBagLayout gridBagLayout3 = new GridBagLayout();
-  GridBagLayout gridBagLayout5 = new GridBagLayout();
 
   //HashTables for storing the metadata for each dataset
   Hashtable metaDataHash = new Hashtable();
@@ -91,6 +89,11 @@ public class HazardMapViewerApp extends JApplet {
   DecimalFormat d= new DecimalFormat("0.00##");
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
+  JLabel jLabel3 = new JLabel();
+  JTextField fileNameTextField = new JTextField();
+  JLabel jLabel4 = new JLabel();
+  GridBagLayout gridBagLayout1 = new GridBagLayout();
+  GridBagLayout gridBagLayout5 = new GridBagLayout();
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -146,6 +149,13 @@ public class HazardMapViewerApp extends JApplet {
         mapButton_actionPerformed(e);
       }
     });
+    jLabel3.setForeground(new Color(80, 80, 133));
+    jLabel3.setText("Choose File Name:");
+    fileNameTextField.setBackground(new Color(200, 200, 230));
+    fileNameTextField.setForeground(new Color(80, 80, 133));
+    fileNameTextField.setText("test");
+    jLabel4.setForeground(new Color(80, 80, 133));
+    jLabel4.setText("(This is filename used for generating xyz, ps and jpg file)");
     mainSplitPane.add(gmtSplitPane, JSplitPane.BOTTOM);
     mainSplitPane.setRightComponent(gmtSplitPane);
     gmtSplitPane.setLeftComponent(siteSplitPane);
@@ -154,22 +164,28 @@ public class HazardMapViewerApp extends JApplet {
     gmtPanel.setLayout(gridBagLayout2);
     siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     this.getContentPane().add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -5, 22, 4), 274, 3));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -5, 22, 4), 274, -2));
     mainSplitPane.add(dataSetPanel, JSplitPane.TOP);
     gmtSplitPane.add(gmtPanel, JSplitPane.RIGHT);
     gmtSplitPane.add(siteSplitPane, JSplitPane.LEFT);
     siteSplitPane.add(sitePanel, JSplitPane.LEFT);
     siteSplitPane.add(imlProbPanel, JSplitPane.RIGHT);
     dataSetPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(24, 10, 0, 0), 22, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(24, 8, 0, 0), 22, 4));
     dataSetPanel.add(dataSetCombo,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(24, 7, 0, 66), 9, 1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(24, 7, 0, 66), 12, 1));
     dataSetPanel.add(dataSetText,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 0, 11), 324, 366));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 8, 0, 11), 0, 369));
     dataSetPanel.add(jLabel2,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 16, 0, 170), 82, 1));
-    dataSetPanel.add(mapButton,  new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(36, 97, 41, 117), 50, 11));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 16, 0, 170), 82, 1));
+    dataSetPanel.add(mapButton,  new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 95, 10, 119), 50, 11));
+    dataSetPanel.add(jLabel3,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 8, 0, 0), 11, 9));
+    dataSetPanel.add(fileNameTextField,  new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 0, 0, 42), 144, 4));
+    dataSetPanel.add(jLabel4,  new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 8, 0, 3), 17, 5));
     mainSplitPane.setDividerLocation(350);
     gmtSplitPane.setDividerLocation(150);
     siteSplitPane.setDividerLocation(300);
@@ -424,6 +440,13 @@ public class HazardMapViewerApp extends JApplet {
     if(imlProbGuiBean.getSelectedOption().equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
       isProbAt_IML = false;
     double val = this.imlProbGuiBean.getIML_Prob();
+
+    // check thatuser has entered a valid filename
+    if(fileNameTextField.getText().trim().equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, "Please enter the file name");
+      return;
+    }
+
     // make the xyz file and pass the name of xyz file to mapguibean
     mapGuiBean.makeMap(this.readAndWriteFile(minLat, maxLat, minLon, maxLon,
         gridSpacing, selectedSet, isProbAt_IML, val));
@@ -445,9 +468,9 @@ public class HazardMapViewerApp extends JApplet {
    private String readAndWriteFile(double minLat,double maxLat,double minLon,
                                  double maxLon,double gridSpacing,
                                  String selectedSet, boolean isProbAt_IML, double val){
-     String finalFile = null;;
+     String finalFile = null;
      try {
-       finalFile=selectedSet+".xyz";
+       finalFile=this.fileNameTextField.getText().trim()+".xyz";
        FileWriter fw1= new FileWriter(finalFile);
        fw1.close();
      }catch(Exception e) {

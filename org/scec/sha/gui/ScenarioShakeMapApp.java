@@ -45,8 +45,6 @@ public class ScenarioShakeMapApp extends JApplet implements
   private static final int W=550;
   private static final int H=760;
 
-  //name of the XYZ text file that given to GMT to generate the .grd file
-  private final static String XYZ_FILENAME="xyz.dat";
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
@@ -103,14 +101,17 @@ public class ScenarioShakeMapApp extends JApplet implements
   private GridBagLayout gridBagLayout9 = new GridBagLayout();
   private GridBagLayout gridBagLayout8 = new GridBagLayout();
   private JButton addButton = new JButton();
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
-  private GridBagLayout gridBagLayout6 = new GridBagLayout();
-  private BorderLayout borderLayout1 = new BorderLayout();
   private JPanel gridRegionSitePanel = new JPanel();
   private GridLayout gridLayout1 = new GridLayout();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private JPanel imrSelectionPanel = new JPanel();
+  JLabel jLabel4 = new JLabel();
+  JTextField fileNameTextField = new JTextField();
+  JLabel jLabel3 = new JLabel();
+  GridBagLayout gridBagLayout4 = new GridBagLayout();
+  GridBagLayout gridBagLayout6 = new GridBagLayout();
+  BorderLayout borderLayout1 = new BorderLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -142,9 +143,9 @@ public class ScenarioShakeMapApp extends JApplet implements
     this.setSize(new Dimension(564, 721));
     this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(border1);
-    mainPanel.setLayout(gridBagLayout4);
+    mainPanel.setLayout(gridBagLayout6);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    buttonPanel.setLayout(gridBagLayout6);
+    buttonPanel.setLayout(gridBagLayout4);
     eqkRupPanel.setLayout(gridBagLayout1);
     gmtPanel.setLayout(gridBagLayout9);
     imr_IMTSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -152,6 +153,8 @@ public class ScenarioShakeMapApp extends JApplet implements
     imrPanel.setLayout(borderLayout2);
     imtPanel.setLayout(gridBagLayout8);
     prob_IMLPanel.setLayout(gridBagLayout2);
+    addButton.setBackground(new Color(200, 200, 230));
+    addButton.setForeground(new Color(80, 80, 133));
     addButton.setText("Add Map");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -161,12 +164,25 @@ public class ScenarioShakeMapApp extends JApplet implements
     buttonPanel.setMinimumSize(new Dimension(391, 50));
     gridRegionSitePanel.setLayout(gridLayout1);
     imrSelectionPanel.setLayout(gridBagLayout5);
+    jLabel4.setForeground(new Color(80, 80, 133));
+    jLabel4.setText("(This is filename used for generating xyz, ps and jpg file)");
+    fileNameTextField.setBackground(new Color(200, 200, 230));
+    fileNameTextField.setForeground(new Color(80, 80, 133));
+    fileNameTextField.setText("test");
+    jLabel3.setForeground(new Color(80, 80, 133));
+    jLabel3.setText("Choose File Name:");
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 430, 528));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 429));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(addButton,      new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 7, 0, 0), 78, 18));
+    buttonPanel.add(jLabel4,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 23, 37, 0), 17, 5));
+    buttonPanel.add(fileNameTextField,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(24, 7, 0, 39), 150, 4));
+    buttonPanel.add(jLabel3,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(24, 23, 0, 0), 11, 9));
+    buttonPanel.add(addButton,  new GridBagConstraints(2, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 13, 43, 24), 78, 9));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
 
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
@@ -457,8 +473,13 @@ public class ScenarioShakeMapApp extends JApplet implements
         siteValue.add(new Double(imr.getIML_AtExceedProb()));
       }
     }
+    // check thatuser has entered a valid filename
+    if(fileNameTextField.getText().trim().equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, "Please enter the file name");
+      return;
+    }
     makeFile(siteLat,siteLon,siteValue);
-    mapGuiBean.makeMap("temp.txt");
+    mapGuiBean.makeMap(this.fileNameTextField.getText().trim());
   }
 
 
@@ -472,7 +493,7 @@ public class ScenarioShakeMapApp extends JApplet implements
   private void makeFile(Vector lat,Vector lon,Vector siteValue){
     try{
          int size=lat.size();
-         FileWriter fr = new FileWriter(XYZ_FILENAME);
+         FileWriter fr = new FileWriter(this.fileNameTextField.getText().trim());
          for(int i=0;i<size;++i)
            fr.write(lat.get(i)+" "+lon.get(i)+" "+siteValue.get(i)+"\n");
          fr.close();
