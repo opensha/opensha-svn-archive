@@ -76,7 +76,8 @@
 *               If the power of 10 is greater than 3 or less than -3 then no minorAxis tick labels
 *               will be labelled.
 *               There will be atleast 2 major axis tick labels included in all Log plots.
-*               If the difference in power of 10 of any range is greater than 3 then minor axis won't be labelled.
+*               If the difference in power of 10 of any range is greater than 3
+*               then minor axis won't be labelled. (EF and NG).
 *
  */
 
