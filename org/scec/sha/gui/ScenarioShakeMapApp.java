@@ -475,10 +475,10 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
         return;
       }
       if(probAtIML)
-        siteValue.add( new Double(Math.log((new Double(imr.getExceedProbability(Math.log(imlProbValue)))).doubleValue())));
+        siteValue.add( new Double(0.4343*Math.log(imr.getExceedProbability(Math.log(imlProbValue)))));
       else{
         imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(imlProbValue));
-        siteValue.add(new Double(imr.getIML_AtExceedProb()));
+        siteValue.add(new Double(0.4343*imr.getIML_AtExceedProb()));
       }
     }
 

@@ -40,25 +40,32 @@ GMT_MapGenerator - implement this as a webService so we one doesn't need GMT ins
 
 SHA ProjectTestSuite : 24 Tests
 
+GMT Web service:
+
+	Takes script and data and generates ps and jpg files that can be accessed.
+
+	Figure out how to get the data into the service.
+
+
+
 For OpenSHA:
 ------------
 
 Make apps that use internet connection graceful if it's not available.
 
+wg99/02 Fortran code:
 
-AttenRelApp:
+	Debug on all platforms using the test input files sent by Mike.
 
-	Problem:  choose BJF97, set Mag=8, and hit add trace, at prompt asking whether to accept
-		  the non-recommended mag, hit yes.  Note that the plot is not added until one
-		  pushes add trace again.
+	Have WG02 group make the following changes to code(?):
 
-	Old problem: when you've violated an absolute constrain by hitting return 
-			(rather than hitting "Add Trace"), subsequent warning constraint violations 
-			are not handled properly.  Example:  Choose BJF, set Mag=8 and add trace 
-			(after accepting violation), now set Vs30=-10 and hit return (not add trace),
-			now set Mag=8.1 and try to add (it defaults back to previous value).
+		Have it read one standard input file that contains the input-file
+		name as well as flags for what output files to generate.
 
-Get wg99/02 Fortran code compiling on our computers.
+		Add intermediate segment lats and lons
+
+		Add name of rupture scenario to our output file
+
 
 Develop HazardSpectrumApplet for Caltrans.
 
@@ -79,7 +86,7 @@ IMR_GuiBean 	-extend to allow multiple IMRs to be selected, with relative weight
 
 		- For IMR_API, create a getOtherParameters() method and use this
 		 here rather then getting the stdDevType, TruncType, ... by hand
-		(this will make if more flexibly with new IMRs that don't have
+		(this will make it more flexibly with new IMRs that don't have
 		those parameters).  This will require implementing that method
 		in the existing attenuation relationships (will require a little
 		work since the otherParamsList contains one param that won't
@@ -101,16 +108,13 @@ full range of user experiences.
 ScenarioShakeMapApp
 
 	Add plotting of rupture surface as a dot at each point on the gridded surface?
-	Use getInfo for each source to provide users with information
+	Use getInfo for each source to provide users with information.
 
 Fix titles of web pages (Ned's problem)
 
 Fix GriddedFaultApplet - horz/vert scaling.
 
-Finish implementing WG99/02 ERF (Ned's problem)
-
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
-
 
 SimpleGriddedFaultFactory
 
@@ -118,10 +122,7 @@ SimpleGriddedFaultFactory
 	a new surface; it would be more efficient to use the set methods
 	before getting a new surface (use the setAll() method added by Ned).
 
-
 (even lower priority below)
-
-
 
 Allow choosing of multiple ERFs (e.g., hand built ERF_EpistemicList)
 
@@ -156,3 +157,12 @@ Create an archived email list or discussion board for OpenSHA.
 Add 3D visualization to GriddedFaultApplet (need Java3D on Mac OS first)?
 
 Go over exception throwing in entire package to make sure it looks appropriate.
+
+AttenRelApp:
+
+	Problem:  if you violate a parameter constraint when hitting the add trace button 
+	(rather than hitting return in the parameter editor) you need to hit add trace again
+	if you accept the value.  Nitin and Vipin say this is a problem with Java (focus at
+	time of exception throwing is lost).
+
+
