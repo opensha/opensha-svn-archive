@@ -77,7 +77,7 @@ public class SidesBorder implements Border {
     public Color getLeftColor() { return leftColor; }
 
     /** Sets the color for the right side of the border. */
-    public void setRighttColor( Color a ) { rightColor = a; }
+    public void setRightColor( Color a ) { rightColor = a; }
     /** Gets the color for the right side of the border. */
     public Color getRightColor() { return rightColor; }
 
