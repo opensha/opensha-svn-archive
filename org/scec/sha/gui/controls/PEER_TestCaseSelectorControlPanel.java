@@ -210,11 +210,13 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     function.set(.5,1);
     function.set(.6,1);
     function.set(.7,1);
+    //function.set(.75,1);
     function.set(.8,1);
     function.set(.9,1);
     function.set(1.0,1);
     function.set(1.1,1);
     function.set(1.2,1);
+    //function.set(1.25,1);
     function.set(1.3,1);
     function.set(1.4,1);
     function.set(1.5,1);

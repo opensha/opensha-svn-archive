@@ -643,7 +643,7 @@ public class HazardCurveApplet extends JApplet
 
       if(D) System.out.println(this.totalProbFuncs.toString());
       if(D) System.out.println(S + "data:" + data);
-
+      //this.pointsTextArea.setText(totalProbFuncs.toString());
       graphOn=false;
       togglePlot();
       this.isIndividualCurves = false;
@@ -709,10 +709,12 @@ public class HazardCurveApplet extends JApplet
             Vector testCasesTwo = this.peerTestsControlPanel.getPEER_SetTwoTestCasesNames();
 
             int size = testCasesTwo.size();
-            if(epistemicControlPanel == null)
+            /*if(epistemicControlPanel == null)
               epistemicControlPanel = new ERF_EpistemicListControlPanel(this,this);
-
-            for(int i=15 ;i < 18; ++i){
+            epistemicControlPanel.setCustomPercentileValue(05);
+            epistemicControlPanel.setVisible(false); */
+            setAverageSelected(true);
+            for(int i=18 ;i < size; ++i){
               System.out.println("Working on # "+(i+1)+" of "+size);
 
               // first do PGA
@@ -832,7 +834,7 @@ public class HazardCurveApplet extends JApplet
     void jCheckxlog_actionPerformed(ActionEvent e) {
       xLog  = this.jCheckxlog.isSelected();
       data.setXLog(xLog);
-      addGraphPanel();
+      drawGraph();
     }
 
     /**
@@ -842,7 +844,7 @@ public class HazardCurveApplet extends JApplet
     void jCheckylog_actionPerformed(ActionEvent e) {
       yLog  = this.jCheckylog.isSelected();
       data.setYLog(yLog);
-      addGraphPanel();
+      drawGraph();
   }
 
 
@@ -902,7 +904,7 @@ public class HazardCurveApplet extends JApplet
      minYValue=yMin;
      maxYValue=yMax;
      this.customAxis=true;
-     addGraphPanel();
+     drawGraph();
 
   }
 
@@ -912,7 +914,7 @@ public class HazardCurveApplet extends JApplet
    */
  public void setAutoRange() {
    this.customAxis=false;
-   addGraphPanel();
+   drawGraph();
  }
 
   /**
