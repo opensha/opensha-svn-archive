@@ -79,24 +79,15 @@ public class HazardMapApplet extends JApplet implements
 
 
   // instances of the GUI Beans which will be shown in this applet
-  ERF_GuiBean erfGuiBean;
-  IMR_GuiBean imrGuiBean;
-  IMT_GuiBean imtGuiBean;
-  SitesInGriddedRegionGuiBean griddedRegionGuiBean;
-
-
-  // mesage needed in case of show data if plot is not available
-  final static String NO_PLOT_MSG = "No Plot Data Available";
-
-  private Insets plotInsets = new Insets( 4, 10, 4, 4 );
+  private ERF_GuiBean erfGuiBean;
+  private IMR_GuiBean imrGuiBean;
+  private IMT_GuiBean imtGuiBean;
+  private SitesInGriddedRegionGuiBean griddedRegionGuiBean;
+  private TimeSpanGuiBean timeSpanGuiBean;
 
   private boolean isStandalone = false;
   private Border border1;
 
-
-  //log flags declaration
-  boolean xLog =false;
-  boolean yLog =false;
 
   // default insets
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
@@ -105,67 +96,14 @@ public class HazardMapApplet extends JApplet implements
   protected final static int W = 600;
   protected final static int H = 750;
 
-  /**
-   * FunctionList declared
-   */
-  DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
-
-  DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
-
-  //Disaggregation Parameter
-  DoubleParameter disaggregationParam = new DoubleParameter("Disaggregation Prob",
-                                                             0,1,new Double(.01));
-
-
-
-
-
-
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
-  private GridBagLayout gridBagLayout6 = new GridBagLayout();
-  private GridBagLayout gridBagLayout7 = new GridBagLayout();
-  private GridBagLayout gridBagLayout3 = new GridBagLayout();
-
-  /**
-   * adding scroll pane for showing data
-   */
-  JScrollPane dataScrollPane = new JScrollPane();
-
-  // text area to show the data values
-  JTextArea pointsTextArea = new JTextArea();
-
-  /**
-   * chart panel
-   */
-  ChartPanel chartPanel;
-
-  //flag to check for the disaggregation functionality
-  private boolean disaggregationFlag= false;
-  private String disaggregationString;
-
   // PEER Test Cases
-  private String TITLE = new String("PEER Test Cases");
+  public final static String TITLE = new String("Map DataSet Generator");
 
   // light blue color
-  Color lightBlue = new Color( 200, 200, 230 );
-
-  /**
-   * for Y-log, 0 values will be converted to this small value
-   */
-  private double Y_MIN_VAL = 1e-16;
-
-  //coordinates position of the centre of the applet
-  int xCenter;
-  int yCenter;
-
-  protected boolean graphOn = false;
-  private GridBagLayout gridBagLayout11 = new GridBagLayout();
   private JPanel jPanel1 = new JPanel();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private Border border2;
-  private final static String AUTO_SCALE = "Auto Scale";
-  private final static String CUSTOM_SCALE = "Custom Scale";
   private final static Dimension COMBO_DIM = new Dimension( 180, 30 );
   private final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
   private Border border3;
@@ -178,15 +116,6 @@ public class HazardMapApplet extends JApplet implements
   private Border border6;
   private Border border7;
   private Border border8;
-
-
-
-  //images for the OpenSHA
-  private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
-  private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
-
-  //static string for the OPENSHA website
-  private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
   private JPanel erfPanel = new JPanel();
   private JSplitPane parameterSplitPane = new JSplitPane();
@@ -204,7 +133,7 @@ public class HazardMapApplet extends JApplet implements
   private JPanel timeSpanPanel = new JPanel();
   private GridBagLayout gridBagLayout12 = new GridBagLayout();
   private GridBagLayout gridBagLayout13 = new GridBagLayout();
-  private BorderLayout borderLayout1 = new BorderLayout();
+  private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -214,73 +143,20 @@ public class HazardMapApplet extends JApplet implements
 
   //Construct the applet
   public HazardMapApplet() {
-
-  data.setFunctions(this.totalProbFuncs);
-  // for Y-log, convert 0 values in Y axis to this small value
-  data.setConvertZeroToMin(true,Y_MIN_VAL);
   }
+
   //Initialize the applet
   public void init() {
     try {
 
       jbInit();
-      xCenter=getAppletXAxisCenterCoor();
-      yCenter=getAppletYAxisCenterCoor();
 
-      // create the IMR Gui Bean object
-      // It accepts the vector of IMR class names
-      Vector imrClasses = new Vector();
-      //imrClasses.add(this.A_CLASS_NAME);
-      imrClasses.add(this.AS_CLASS_NAME);
-      imrClasses.add(this.BJF_CLASS_NAME);
-      imrClasses.add(this.C_CLASS_NAME);
-      imrClasses.add(this.SCEMY_CLASS_NAME);
-      imrClasses.add(this.CB_CLASS_NAME);
-      imrClasses.add(this.F_CLASS_NAME);
-      imrGuiBean = new IMR_GuiBean(imrClasses);
-      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
-      // show this gui bean the JPanel
-      imrPanel.add(this.imrGuiBean,
-                new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-      // get the selected IMR
-      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-
-      // create the IMT Gui Bean object
-      imtGuiBean = new IMT_GuiBean(imr);
-      imtPanel.setLayout(gridBagLayout8);
-      imtPanel.add(imtGuiBean,
-                new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-
-      // create the Site Gui Bean object
-      griddedRegionGuiBean = new SitesInGriddedRegionGuiBean();
-      griddedRegionGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
-      // show the sitebean in JPanel
-      sitePanel.add(this.griddedRegionGuiBean,
-              new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-              GridBagConstraints.CENTER,
-                GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-
-      // create the ERF Gui Bean object
-      Vector erf_Classes = new Vector();
-      erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
-      erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-      erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-      erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
-      erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-      erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-      erfGuiBean = new ERF_GuiBean(erf_Classes);
-      erfPanel.setLayout(gridBagLayout5);
-      erfPanel.add(erfGuiBean,
-                   new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                   GridBagConstraints.CENTER,
-                    GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+      // initialize the various GUI beans
+      initIMR_GuiBean();
+      initIMT_GuiBean();
+      initSiteGuiBean();
+      initERF_GuiBean();
+      initTimeSpanGuiBean();
 
     }
     catch(Exception e) {
@@ -300,18 +176,9 @@ public class HazardMapApplet extends JApplet implements
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     this.getContentPane().setBackground(Color.white);
     this.setSize(new Dimension(419, 657));
-    this.getContentPane().setLayout(borderLayout1);
+    this.getContentPane().setLayout(gridBagLayout3);
 
-
-    // for showing the data on click of "show data" button
-    pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
-    pointsTextArea.setText( NO_PLOT_MSG );
-    pointsTextArea.setLineWrap(true);
-    dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
     jPanel1.setLayout(gridBagLayout13);
-
-
 
     jPanel1.setBackground(Color.white);
     jPanel1.setBorder(border4);
@@ -362,8 +229,8 @@ public class HazardMapApplet extends JApplet implements
     sitePanel.setBackground(Color.white);
     imrPanel.setLayout(gridBagLayout5);
     imrPanel.setBackground(Color.white);
-    dataScrollPane.getViewport().add( pointsTextArea, null );
-    this.getContentPane().add(jPanel1, BorderLayout.CENTER);
+    this.getContentPane().add(jPanel1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(-1, 9, 10, 4), -324, 288));
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
@@ -416,7 +283,7 @@ public class HazardMapApplet extends JApplet implements
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle("Map DataSet Generator");
+    frame.setTitle(TITLE);
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
@@ -437,69 +304,33 @@ public class HazardMapApplet extends JApplet implements
   }
 
 
-  /**
-   *  Adds a feature to the GraphPanel attribute of the EqkForecastApplet object
-   */
-
-
-
-    /**
-     * this function is called when Add Graph button is clicked
-     * @param e
-     */
-    void addButton_actionPerformed(ActionEvent e) {
-      addButton();
-    }
-
-
-    /**
-     * this function is called to draw the graph
-     */
-    private void addButton() {
-
-
-      // clear the function list
-      //this.totalProbFuncs.clear();
-
-      // do not show warning messages in IMR gui bean. this is needed
-      // so that warning messages for site parameters are not shown when Add graph is clicked
-      imrGuiBean.showWarningMessages(false);
-
-      computeHazardCurve();
-
-      // you can show warning messages now
-      imrGuiBean.showWarningMessages(true);
-
-      // set the log values
-      data.setXLog(xLog);
-      data.setYLog(yLog);
-
-      // set the data in the text area
-      String xAxisTitle =  totalProbFuncs.getXAxisName();
-      String yAxisTitle =  totalProbFuncs.getYAxisName();
-
-      this.pointsTextArea.setText(totalProbFuncs.toString());
-
-
-
-    }
-
 
   /**
-   * gets the Applets X-axis center coordinates
-   * @return
+   * this function is called when Add Graph button is clicked
+   * @param e
    */
-  private int getAppletXAxisCenterCoor() {
-    return (this.getX()+this.getWidth())/2;
+  void addButton_actionPerformed(ActionEvent e) {
+    addButton();
   }
 
+
   /**
-   * gets the Applets Y-axis center coordinates
-   * @return
+   * this function is called to draw the graph
    */
-      private int getAppletYAxisCenterCoor() {
-    return (this.getY() + this.getHeight())/2;
+  private void addButton() {
+
+
+    // clear the function list
+    //this.totalProbFuncs.clear();
+
+    // do not show warning messages in IMR gui bean. this is needed
+    // so that warning messages for site parameters are not shown when Add graph is clicked
+    imrGuiBean.showWarningMessages(false);
+    computeHazardCurve();
+    // you can show warning messages now
+    imrGuiBean.showWarningMessages(true);
   }
+
 
   /**
    *  Any time a control paramater or independent paramater is changed
@@ -512,20 +343,29 @@ public class HazardMapApplet extends JApplet implements
    */
   public void parameterChange( ParameterChangeEvent event ) {
 
-      String S = C + ": parameterChange(): ";
-      if ( D )  System.out.println( "\n" + S + "starting: " );
+    String S = C + ": parameterChange(): ";
+    if ( D )  System.out.println( "\n" + S + "starting: " );
 
-      String name1 = event.getParameterName();
+    String name1 = event.getParameterName();
 
-      // if IMR selection changed, update the site parameter list and supported IMT
-      if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-        AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-        imtGuiBean.setIMR(imr);
-        imtGuiBean.validate();
-        imtGuiBean.repaint();
-        griddedRegionGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
-        griddedRegionGuiBean.validate();
-        griddedRegionGuiBean.repaint();
+    // if IMR selection changed, update the site parameter list and supported IMT
+    if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
+      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+      imtGuiBean.setIMR(imr);
+      imtGuiBean.validate();
+      imtGuiBean.repaint();
+      griddedRegionGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+      griddedRegionGuiBean.validate();
+      griddedRegionGuiBean.repaint();
+      }
+      if(name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME)) {
+        /* get the selected ERF
+        NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
+        erfGuiBean.getSelectedERF.
+        Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
+        the forecast while erfGuiBean.getSelectedERF updates the
+        */
+        this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
       }
   }
 
@@ -615,12 +455,6 @@ public class HazardMapApplet extends JApplet implements
      return;
    }
 
-   // add the function to the function list
-   totalProbFuncs.add(hazFunction);
-
-   // set the X-axis label
-   totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
-   totalProbFuncs.setYAxisName("Probability of Exceedance");
   }
 
 
@@ -657,5 +491,99 @@ public class HazardMapApplet extends JApplet implements
     } else
       throw new RuntimeException("Unsupported IMT");
   }
+
+  /**
+  * Initialize the IMR Gui Bean
+  */
+ private void initIMR_GuiBean() {
+   // create the IMR Gui Bean object
+    // It accepts the vector of IMR class names
+    Vector imrClasses = new Vector();
+    //imrClasses.add(this.A_CLASS_NAME);
+    imrClasses.add(this.AS_CLASS_NAME);
+    imrClasses.add(this.BJF_CLASS_NAME);
+    imrClasses.add(this.C_CLASS_NAME);
+    imrClasses.add(this.SCEMY_CLASS_NAME);
+    imrClasses.add(this.CB_CLASS_NAME);
+    imrClasses.add(this.F_CLASS_NAME);
+    imrGuiBean = new IMR_GuiBean(imrClasses);
+    imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
+    // show this gui bean the JPanel
+    imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+ }
+
+ /**
+  * Initialize the IMT Gui Bean
+  */
+ private void initIMT_GuiBean() {
+
+    // get the selected IMR
+    AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    // create the IMT Gui Bean object
+    imtGuiBean = new IMT_GuiBean(imr);
+    imtPanel.setLayout(gridBagLayout8);
+    imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+              GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+ }
+
+ /**
+  * Initialize the site gui bean
+  */
+ private void initSiteGuiBean() {
+
+    // get the selected IMR
+    AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    // create the Site Gui Bean object
+    griddedRegionGuiBean = new SitesInGriddedRegionGuiBean();
+    griddedRegionGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+    // show the sitebean in JPanel
+    sitePanel.add(this.griddedRegionGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+            GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+ }
+
+
+/**
+  * Initialize the ERF Gui Bean
+  */
+ private void initERF_GuiBean() {
+    // create the ERF Gui Bean object
+  Vector erf_Classes = new Vector();
+  erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
+  erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
+  erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+  erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
+  erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+  erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
+  erfGuiBean = new ERF_GuiBean(erf_Classes);
+  erfPanel.setLayout(gridBagLayout5);
+  erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+               GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+  erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getParameter().addParameterChangeListener(this);
+
+ }
+
+ /**
+  * Initialize the site gui bean
+  */
+ private void initTimeSpanGuiBean() {
+
+   /* get the selected ERF
+    NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
+    erfGuiBean.getSelectedERF.
+   Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
+   the forecast while erfGuiBean.getSelectedERF updates the forecast
+   */
+   EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
+   // create the TimeSpan Gui Bean object
+   timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
+   // show the sitebean in JPanel
+   this.timeSpanPanel.add(this.timeSpanGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+       GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+ }
+
 
 }
