@@ -1,6 +1,10 @@
 package org.scec.sha.calc;
 
 
+import javax.swing.JFrame;
+import javax.swing.JProgressBar;
+import java.awt.Rectangle;
+
 import org.scec.data.function.*;
 import org.scec.data.Site;
 import org.scec.sha.imr.*;
@@ -21,8 +25,13 @@ public class HazardCurveCalculator {
   protected final static String C = "HazardCurveCalculator";
   protected final static boolean D = true;
 
+
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
   protected final double MAX_DISTANCE = 200;
+
+
+  private int FRAME_WIDTH = 200;
+  private int FRAME_HEIGHT = 100;
 
   /**
    * this function determines the hazard curve based on the parameters
@@ -47,28 +56,49 @@ public class HazardCurveCalculator {
     // get total sources
     int numSources = eqkRupForecast.getNumSources();
     ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
+
+    // make the progress bar
+    JFrame frame = new JFrame("Calculation Status");
+    frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
+    JProgressBar progress = new JProgressBar(0,100);
+    //progress.setStringPainted(true); // display the percentage completed also
+    frame.getContentPane().add(progress);
+    frame.show();
+    frame.validate();
+    frame.repaint();
+
+    int num9 = (int) (numSources*0.9);
+    int num8 = (int) (numSources*0.8);
+    int num7 = (int) (numSources*0.7);
+    int num6 = (int) (numSources*0.6);
+    int num5 = (int) (numSources*0.5);
+    int num4 = (int) (numSources*0.4);
+    int num3 = (int) (numSources*0.3);
+    int num2 = (int) (numSources*0.2);
+    int num1 = (int) (numSources*0.1);
+
+
     for(int i=0;i < numSources ;i++) {
 
-      if(D)  {
-        if(i == (int) (numSources*0.9))
-              System.out.println(C + " 10% done");
-        if(i == (int) (numSources*0.8))
-              System.out.println(C + " 20% done");
-        if(i == (int) (numSources*0.7))
-              System.out.println(C + " 30% done");
-        if(i == (int) (numSources*0.6))
-              System.out.println(C + " 40% done");
-        if(i == (int) (numSources*0.5))
-              System.out.println(C + " 50% done");
-        if(i == (int) (numSources*0.4))
-              System.out.println(C + " 60% done");
-        if(i == (int) (numSources*0.3))
-              System.out.println(C + " 70% done");
-        if(i == (int) (numSources*0.2))
-              System.out.println(C + " 80% done");
-        if(i == (int) (numSources*0.1))
-              System.out.println(C + " 90% done");
-      }
+      // update the progress bar
+        if(i == num9) // 90% complete
+              updateProgress(progress,90);
+        else if(i == num8) // 80% complete
+              updateProgress(progress,80);
+        else if(i == num7) // 70% complete
+              updateProgress(progress,70);
+        else if(i == num6) // 60% complete
+              updateProgress(progress,60);
+        else if(i == num5) // 50% complete
+              updateProgress(progress,50);
+        else if(i == num4) // 40% complete
+              updateProgress(progress,40);
+        else if(i == num3) // 30% complete
+              updateProgress(progress,30);
+        else if(i == num2) // 20% complete
+              updateProgress(progress,20);
+        else if(i == num1) // 10% complete
+              updateProgress(progress,10);
 
       // get source and get its distance from the site
       ProbEqkSource source = eqkRupForecast.getSource(i);
@@ -107,8 +137,23 @@ public class HazardCurveCalculator {
     for(int i=0;i<numPoints;++i)
       hazFunction.set(i,1-hazFunction.getY(i));
 
+    //remove the frame
+    frame.dispose();
+
   }
 
+
+  /**
+   * update the status of progress bar
+   *
+   * @param progress : JProgreebar component to be updated
+   * @param val : Val to be displayed in progress bar
+   */
+  private void updateProgress(JProgressBar progress, int val) {
+    progress.setValue(val);
+    Rectangle rect = progress.getBounds();
+    progress.paintImmediately(rect);
+  }
 
   /**
   * set x values in log space for condition Prob function to be passed to IMR

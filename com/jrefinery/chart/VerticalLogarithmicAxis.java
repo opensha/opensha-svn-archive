@@ -388,7 +388,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
               val = Math.pow(10,i);
               for(int j=1;j<10;++j)
                  if((j*val)>upper){
-                   upper = j*val;
+                   upper = Math.pow(10,i+1);
                    found = true;
                    break;
                  }
