@@ -32,8 +32,16 @@ public class ParameterListParameterEditor extends ParameterEditor {
   //static declaration for the title of the Parameters
   private final static String EDITOR_TITLE = "Prob. Model Wts.";
 
+  /**
+   *  Search path for finding editors in non-default packages.
+   */
+  private String[] searchPaths;
+  final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
+
   private ParameterListParameter param ;
+  //Editor to hold all the parameters in this parameter
   private ParameterListEditor editor;
+
 
   public ParameterListParameterEditor(ParameterAPI param) {
     setParameter(param);
@@ -63,14 +71,9 @@ public class ParameterListParameterEditor extends ParameterEditor {
    */
   private void initParamListAndEditor(){
 
-    ListIterator it = param.getParametersIterator();
-    ParameterList paramList = new ParameterList();
-    while(it.hasNext())
-      paramList.addParameter((ParameterAPI)it.next());
-
-    editor = new ParameterListEditor(paramList);
+    editor = new ParameterListEditor((ParameterList)param.getValue());
     editor.setTitle(EDITOR_TITLE);
-    param.setValue(paramList);
+
   }
 
   /**
@@ -81,7 +84,41 @@ public class ParameterListParameterEditor extends ParameterEditor {
     editor.setTitle(title);
   }
 
+  /**
+   * Main GUI Initialization point. This block of code is updated by JBuilder
+   * when using it's GUI Editor.
+   */
+  protected void jbInit() throws Exception {
+
+    // Main component
+    this.setLayout( new GridBagLayout());
 
 
+    // Build package names search path
+    searchPaths = new String[3];
+    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+    searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
+
+  }
+
+
+  /**
+   * Called when the parameter has changed independently from
+   * the editor, such as with the ParameterWarningListener.
+   * This function needs to be called to to update
+   * the GUI component ( text field, picklist, etc. ) with
+   * the new parameter value.
+   */
+  public void syncToModel(){
+    editor.synchToModel();
+  }
+
+  /**
+   * gets the Parameter for the given paramName
+   * @param paramName : Gets the parameter from this paramList
+   */
+  public ParameterAPI getParameter(String paramName){
+    return editor.getParameterList().getParameter(paramName);
+  }
 
 }
