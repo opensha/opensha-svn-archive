@@ -26,8 +26,7 @@ import org.scec.util.*;
 * factor (1994, Earthquake Spectra, Vol. 10, No. 4, 617-653) as described below.
 * That is, the original site effect model of each relationship is not used.  The
 * averaging is performed after the site-depenent value for each relationship is
-* computed.  The exceedance probabilities are log-averaged, whereas the other two
-* (mean and IML at prob.) are linearly averaged because they are already in log domain.<p>
+* computed.<p>
 *
 * Supported Intensity-Measure Parameters:
 * <UL>
@@ -513,7 +512,7 @@ public class USGS_Combined_2004_AttenRel
 
        if ( ( exceedProbParam == null ) || ( exceedProbParam.getValue() == null ) )
            throw new ParameterException( C +
-                   ": getExceedProbability(): " + "exceedProbParam or its value is null, unable to run this calculation."
+                   ": getIML_AtExceedProb(): " + "exceedProbParam or its value is null, unable to run this calculation."
                     );
 
        double exceedProb = ( ( Double ) ( ( ParameterAPI ) exceedProbParam ).getValue() ).doubleValue();
@@ -584,22 +583,22 @@ public class USGS_Combined_2004_AttenRel
     * @exception  ParameterException  Description of the Exception
     * @exception  IMRException        Description of the Exception
     */
-   private double getExceedProbability(double vs30, double iml) throws ParameterException, IMRException {
+   private double getCombinedExceedProbability(double iml) throws ParameterException, IMRException {
 
      double per = ((Double) periodParam.getValue()).doubleValue();
      double prob = 0;
      if(im.getName().equals(SA_NAME) && ( per >= 3.0 )) {
-       prob += Math.log(getExceedProbability(as_1997_attenRel, iml));
-       prob += Math.log(getExceedProbability(cb_2003_attenRel, iml));
-       prob += Math.log(getExceedProbability(scemy_1997_attenRel, iml));
-       return Math.exp(prob/3.0);
+       prob += getExceedProbability(as_1997_attenRel, iml);
+       prob += getExceedProbability(cb_2003_attenRel, iml);
+       prob += getExceedProbability(scemy_1997_attenRel, iml);
+       return prob/3.0;
      }
      else {
-       prob += Math.log(getExceedProbability(as_1997_attenRel, iml));
-       prob += Math.log(getExceedProbability(cb_2003_attenRel, iml));
-       prob += Math.log(getExceedProbability(bjf_1997_attenRel, iml));
-       prob += Math.log(getExceedProbability(scemy_1997_attenRel, iml));
-       return Math.exp(prob/4.0);
+       prob += getExceedProbability(as_1997_attenRel, iml);
+       prob += getExceedProbability(cb_2003_attenRel, iml);
+       prob += getExceedProbability(bjf_1997_attenRel, iml);
+       prob += getExceedProbability(scemy_1997_attenRel, iml);
+       return prob/4.0;
      }
    }
 
@@ -633,7 +632,7 @@ public class USGS_Combined_2004_AttenRel
      // set the IMT in the various relationships
      setAttenRelsIMT();
 
-     return getExceedProbability(vs30,((Double)im.getValue()).doubleValue());
+     return getCombinedExceedProbability(((Double)im.getValue()).doubleValue());
    }
 
 
@@ -671,7 +670,7 @@ public class USGS_Combined_2004_AttenRel
      Iterator it = intensityMeasureLevels.getPointsIterator();
      while ( it.hasNext() ) {
        point = ( DataPoint2D ) it.next();
-       point.setY(getExceedProbability(vs30,point.getX()));
+       point.setY(getCombinedExceedProbability(point.getX()));
      }
      return intensityMeasureLevels;
 
