@@ -7,8 +7,33 @@ For the SCEC-ITR CME:
 
 Port stand-alone applications to server mode.
 
+Create SQL Scripts that create the following tables:
+  ResourceTypes, PredicateTypes, PredicateIputs, PredicateOutputs, 
+  ResourceInstances, PredicateInstances
 
+Create DAO objects and appropriate tests for the following tables
+  ResourceTypes, PredicateTypes, PredicateInstance, ResourceInstances,
+  PredicateInputs, PredicateOutputs
 
+Create a JSP/Struts based web application that display the following
+  web pages. These web pages should show dynamic information from the
+  database. Pages should use the cmetestbed pages look and feel.
+ 
+  Add ResourceType
+  Remove Resource Type
+  Add PredicateType
+  Remove Predicate Type
+
+  When User selects Add Resource Type (or add Predicate Type), 
+  another page is displayed that contains a form with ResourceType 
+  Information Tempolate, with blank fields for Name, Description.
+  When User "Saves", the form is validated (using struts) and if valid
+  is saved in the database.
+
+  When User selects Remove Resource Type (or remove Predicate Type)
+  another page is displayed that contains a form with a List of
+  ResourceTypes in the system. The user selects one, click delete,
+  and the resourceType is removed from the database.
 
 
 For OpenSHA:
