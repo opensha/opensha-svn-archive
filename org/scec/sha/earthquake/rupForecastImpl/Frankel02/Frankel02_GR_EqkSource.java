@@ -20,7 +20,7 @@ import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
  * <p>Title: Frankel02_GR_EqkSource </p>
  * <p>Description: This implements Frankel's floating-rupture Gutenberg Richter
  * source used in the 2002 version of his code.  We made this, rather than using
- * the more general SimplePoissonFaultSource only for enhances performance (e.g.,
+ * the more general FloatingPoissonFaultSource only for enhances performance (e.g.,
  * no need to float down dip or to support Area(Mag) uncertainties.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>

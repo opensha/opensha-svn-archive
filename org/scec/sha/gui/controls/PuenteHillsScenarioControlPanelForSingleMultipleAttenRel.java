@@ -5,7 +5,7 @@ import java.util.*;
 
 import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
 import org.scec.sha.gui.beans.*;
-import org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultRuptureERF;
+import org.scec.sha.earthquake.rupForecastImpl.PoissonFaultERF;
 import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.param.*;
@@ -286,14 +286,14 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     erfGuiBean.showAllParamsForForecast(false);
 
     //changing the ERF to SimpleFaultERF
-    erfGuiBean.getParameterListEditor().getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setValue(SimplePoissonFaultRuptureERF.NAME);
+    erfGuiBean.getParameterListEditor().getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setValue(PoissonFaultERF.NAME);
     erfGuiBean.getParameterListEditor().refreshParamEditor();
 
     //Getting the instance for the editor that holds all the adjustable params for the selcetd ERF
     ERF_GuiBean erfParamGuiBean =erfGuiBean.getERF_ParamEditor();
 
     // Set rake value to 90 degrees
-    erfParamGuiBean.getParameterList().getParameter(SimplePoissonFaultRuptureERF.RAKE_PARAM_NAME).setValue(new Double(90));
+    erfParamGuiBean.getParameterList().getParameter(PoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(90));
 
 
     double dip = 27;

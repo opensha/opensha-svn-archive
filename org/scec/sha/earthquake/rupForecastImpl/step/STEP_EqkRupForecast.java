@@ -21,7 +21,7 @@ import org.scec.data.TimeSpan;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.sha.earthquake.rupForecastImpl.*;
-import org.scec.sha.earthquake.rupForecastImpl.PointPoissonEqkSource;
+import org.scec.sha.earthquake.rupForecastImpl.PointEqkSource;
 
 /**
  * <p>Title: STEP_EqkRupForecast</p>
@@ -188,7 +188,7 @@ import org.scec.sha.earthquake.rupForecastImpl.PointPoissonEqkSource;
     double minMag = ((Double)minMagParam.getValue()).doubleValue();
 
     IncrementalMagFreqDist magFreqDist;
-    PointPoissonEqkSource ptSource;
+    PointEqkSource ptSource;
 
     // Get iterator over input-file lines
     ListIterator it = deltaRateFileLines.listIterator();
@@ -213,7 +213,7 @@ import org.scec.sha.earthquake.rupForecastImpl.PointPoissonEqkSource;
         magFreqDist.set(i,rate);
       }
 
-      ptSource = new PointPoissonEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP,minMag);
+      ptSource = new PointEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP,minMag);
       if(ptSource.getNumRuptures() > 0) {
           deltaRateSources.add(ptSource);
           if(D) System.out.println(C+"makeDeltaRateSources(): numRups="+ptSource.getNumRuptures()+
@@ -251,7 +251,7 @@ import org.scec.sha.earthquake.rupForecastImpl.PointPoissonEqkSource;
     double minMag = ((Double)minMagParam.getValue()).doubleValue();
 
     IncrementalMagFreqDist magFreqDist;
-    PointPoissonEqkSource ptSource;
+    PointEqkSource ptSource;
 
     // Get iterator over input-file lines
     ListIterator it = backgroundRateFileLines.listIterator();
@@ -280,7 +280,7 @@ import org.scec.sha.earthquake.rupForecastImpl.PointPoissonEqkSource;
         magFreqDist.set(i,rate);
       }
 
-      ptSource = new PointPoissonEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP,minMag);
+      ptSource = new PointEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP,minMag);
       if(ptSource.getNumRuptures() > 0) {
           backgroundRateSources.add(ptSource);
 
@@ -402,7 +402,7 @@ import org.scec.sha.earthquake.rupForecastImpl.PointPoissonEqkSource;
 
      // check first one
      int index = 0;
-     PointPoissonEqkSource qkSrc = (PointPoissonEqkSource) forecast.getSource(index);
+     PointEqkSource qkSrc = (PointEqkSource) forecast.getSource(index);
      System.out.println("getNumRuptures(): "+qkSrc.getNumRuptures());
      double duration = qkSrc.getDuration();
      for(int i=0;i<qkSrc.getNumRuptures();i++) {
@@ -414,7 +414,7 @@ import org.scec.sha.earthquake.rupForecastImpl.PointPoissonEqkSource;
      }
      // check last one
      index = forecast.getNumSources()-1;
-     qkSrc = (PointPoissonEqkSource) forecast.getSource(index);
+     qkSrc = (PointEqkSource) forecast.getSource(index);
      System.out.println("getNumRuptures(): "+qkSrc.getNumRuptures());
      duration = qkSrc.getDuration();
      for(int i=0;i<qkSrc.getNumRuptures();i++) {

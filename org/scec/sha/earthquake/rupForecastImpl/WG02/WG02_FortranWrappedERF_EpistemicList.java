@@ -42,7 +42,7 @@ import org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupFore
 public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
 
   //for Debug purposes
-  private static final String  C = new String("WG02 ERF List");
+  private static final String  C = new String("WG02_FortranWrappedERF_EpistemicList");
   private boolean D = false;
 
   public static final String  NAME = new String("WG02 Fortran Wrapped ERF List");

@@ -120,13 +120,13 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient";
   public final static String RMI_STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient";
   public final static String RMI_STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
-  public final static String RMI_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimplePoissonFaultERFClient";
+  public final static String RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERFClient";
   public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient";
   public final static String RMI_PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_AreaForecastClient";
   public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
   public final static String RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient";
   public final static String RMI_WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient";
-  public final static String RMI_SIMPLE_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimplePoissonFaultRuptureERF_Client";
+  public final static String RMI_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client";
 
 
 
@@ -1082,24 +1082,47 @@ public class Temp_HazardCurveApplication extends JApplet
    ERF_List erfList  = (ERF_List)eqkRupForecast;
    DiscretizedFuncList functionList =null;
 
-   int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
-   //if this is the first ERF_List being added the remove thne clear the function list
-   if(prevNumERFinList ==0){
-     this.peelOffCurves();
-     // clear the function list
-     totalProbFuncs.clear();
-     prevNumERFinList = numERFs;
-   }
-   else{
-     if(addData){ //add new data on top of the existing data
 
-     }
-     else if(!addData){ // add new data to the existing data
+   //color array for ERF's
+   Color [] color;
+
+   //total number of curves in list
+   int totalNumOfCurves = totalProbFuncs.size();
+   //total number of individual curves in list
+   int totalIndividualCurves = totalNumOfCurves - prevNumERFinList;
+
+   //checking if the number of curves in the list are not 0, ie. if ERF List curves are not the
+  // first curves being added
+   /*if(totalIndividualCurves !=0){
+     color = new Color[
+   }*/
+
+   int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
+
+   if(prevNumERFinList ==0)
+     prevNumERFinList = numERFs;
+
+   //if this is the first ERF_List being added the remove thne clear the function list
+   //if(prevNumERFinList ==0){
+     //this.peelOffCurves();
+     // clear the function list
+     //totalProbFuncs.clear();
+     //prevNumERFinList = numERFs;
+   //}
+
+     //if(addData){ //add new data on top of the existing data
+
+     //}
+     if(!addData && prevNumERFinList !=0){ // add new data to the existing data
        functionList = new DiscretizedFuncList();
-       functionList.addAll(totalProbFuncs.deepClone());
+       functionList.addAll(totalProbFuncs);
        totalProbFuncs.clear();
      }
-   }
+     else if(!addData && prevNumERFinList ==0){
+       JOptionPane.showMessageDialog(this,"No ERF List Exists","Wrong selection",JOptionPane.OK_OPTION);
+       return;
+     }
+   //}
    try{
      calc.setNumForecasts(numERFs);
    }catch(RemoteException e){
@@ -1109,9 +1132,6 @@ public class Temp_HazardCurveApplication extends JApplet
    if(prevSelectedERF_List != null){//????????
 
    }
-
-
-
    try{
      // calculate the hazard curve
      if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
@@ -1162,6 +1182,7 @@ public class Temp_HazardCurveApplication extends JApplet
        fractileCalc = new FractileCurveCalculator(totalProbFuncs,
            erfList.getRelativeWeightsList());
      else  fractileCalc.set(totalProbFuncs, erfList.getRelativeWeightsList());
+       prevNumERFinList += 1;
    }
 
    if(!isAllCurves) totalProbFuncs.clear(); //if all curves are not needed to be drawn
@@ -1172,10 +1193,12 @@ public class Temp_HazardCurveApplication extends JApplet
      totalProbFuncs.add(fractileCalc.getFractile(.05)); // 5th fractile
      totalProbFuncs.add(fractileCalc.getFractile(.5)); // 50th fractile
      totalProbFuncs.add(fractileCalc.getFractile(.95)); // 95th fractile
+     prevNumERFinList += 3;
    } else if(this.percentileOption.equalsIgnoreCase // for custom percentile
       (ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE )) {
      double percentile = this.epistemicControlPanel.getCustomPercentileValue();
      totalProbFuncs.add(fractileCalc.getFractile(percentile/100));
+     prevNumERFinList += 1;
    }
    // calculate average
    if(this.avgSelected) totalProbFuncs.add(fractileCalc.getMeanCurve());
@@ -1240,13 +1263,13 @@ public class Temp_HazardCurveApplication extends JApplet
    erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
-   erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
+   erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_WG02_ERF_LIST_CLASS_NAME);
-   erf_Classes.add(RMI_SIMPLE_POISSON_FAULT_ERF_CLASS_NAME);
+   erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){

@@ -39,8 +39,8 @@ import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
 public class WG02_EqkRupForecast extends EqkRupForecast{
 
   //for Debug purposes
-  private final static String  C = new String("WG02 Eqk Rup Forecast");
-  public final static String NAME =C;
+  private final static String  C = new String("WG02_EqkRupForecast");
+  public final static String NAME ="WG02 Eqk Rup Forecast";
   private boolean D = false;
 
   /**
@@ -151,7 +151,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
 
     WG02_CharEqkSource wg02_source;
     GriddedRegionPoissonEqkSource backSource = null;
-    SimplePoissonFaultSource grTailSource = null;
+    FloatingPoissonFaultSource grTailSource = null;
 
     WC1994_MagAreaRelationship magScalingRel = new WC1994_MagAreaRelationship();
 
@@ -325,7 +325,7 @@ System.out.println("Char_momentRate="+tempMoRate);
 
       // now create and add the GR tail source if it's needed
       if(grTailValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE)) {
-        grTailSource = new SimplePoissonFaultSource(tail_GR_dist, faultSurface, magScalingRel,
+        grTailSource = new FloatingPoissonFaultSource(tail_GR_dist, faultSurface, magScalingRel,
                                   0.0, 1.0, rupOffset, rake, timeSpan.getDuration());
         grTailSource.setName(sourceName+"_tail");
         // add the source to the temporary list (temporary so it can be appended to the end of allSources later)

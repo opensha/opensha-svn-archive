@@ -236,7 +236,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     //Based on the selected ERF model it connects to the servlet for that ERF
     //and gets it ERF Object.
     //if the selected forecast is SimplePoisson Fault Forecast
-    if(selectedForecast.equalsIgnoreCase(SimplePoissonFaultERF.NAME)){
+    if(selectedForecast.equalsIgnoreCase(FloatingPoissonFaultERF.NAME)){
       try{
       eqkRupForecast=(ForecastAPI)this.openSimplePoissonFaultConnection(this.getERF_API);
       }catch(Exception e){

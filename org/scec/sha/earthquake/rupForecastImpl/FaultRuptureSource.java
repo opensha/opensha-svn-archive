@@ -12,7 +12,7 @@ import org.scec.sha.magdist.*;
 
 
 /**
- * <p>Title: SimpleFaultRuptureSource </p>
+ * <p>Title: FaultRuptureSource </p>
  * <p>Description: This implements a basic fault source for arbitrary: <p>
  * <UL>
  * <LI>magnitude (or magnitude-frequncy dist.)
@@ -33,10 +33,10 @@ import org.scec.sha.magdist.*;
  * @version 1.0
  */
 
-public class SimpleFaultRuptureSource extends ProbEqkSource {
+public class FaultRuptureSource extends ProbEqkSource {
 
   //for Debug purposes
-  private static String  C = new String("SimpleFaultRuptureSource");
+  private static String  C = new String("FaultRuptureSource");
   private boolean D = false;
 
 
@@ -55,7 +55,7 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
    * @param rake - average rake of the ruptures
    * @param probability - the probability of the source
    */
-  public SimpleFaultRuptureSource(double magnitude,
+  public FaultRuptureSource(double magnitude,
                                   EvenlyGriddedSurface ruptureSurface,
                                   double rake,
                                   double probability) {
@@ -93,7 +93,7 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
    * @param rake - average rake of the ruptures
    * @param duration - the duration in years
    */
-  public SimpleFaultRuptureSource(IncrementalMagFreqDist magDist,
+  public FaultRuptureSource(IncrementalMagFreqDist magDist,
                                   EvenlyGriddedSurface ruptureSurface,
                                   double rake,
                                   double duration) {

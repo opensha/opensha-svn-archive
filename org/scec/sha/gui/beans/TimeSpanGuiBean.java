@@ -126,9 +126,13 @@ public class TimeSpanGuiBean extends JPanel{
     return this.editor;
   }
 
+  /**
+   *
+   * @returns the Visible parameters metadata
+   */
   public String getParameterListMetadataString(){
     if(timeSpan !=null)
-      return parameterList.getParameterListMetadataString();
+      return editor.getVisibleParametersCloned().getParameterListMetadataString();
     else
       return "No Timespan";
   }

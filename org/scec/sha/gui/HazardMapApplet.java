@@ -671,8 +671,7 @@ public class HazardMapApplet extends JApplet
        systemSpecificLineSeparator + "TimeSpan Param List: " +
        systemSpecificLineSeparator +
        "--------------------" + systemSpecificLineSeparator +
-       timeSpanGuiBean.getVisibleParametersCloned().
-       getParameterListMetadataString() + systemSpecificLineSeparator;
+       timeSpanGuiBean.getParameterListMetadataString() + systemSpecificLineSeparator;
  }
 
 

@@ -14,7 +14,7 @@ import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
 import org.scec.calc.magScalingRelations.*;
 import org.scec.sha.param.SimpleFaultParameter;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
+import org.scec.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 
 
 /**
@@ -29,11 +29,11 @@ import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
 public class PuenteHillsFaultERF extends EqkRupForecast{
 
   //for Debug purposes
-  private static String  C = new String("Puente Hills Fault ERF");
+  private static String  C = new String("PuenteHillsFaultERF");
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  public final static String  NAME = "Puente Hills Fault ERF";
 
   private ArrayList sourceList;
 
@@ -46,7 +46,7 @@ public class PuenteHillsFaultERF extends EqkRupForecast{
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
-    SimpleFaultRuptureSource source;
+    FaultRuptureSource source;
 
     // MAKE THE FAULT SURFACE
     // the original fault trace points as given by Andreas Plesch (reversed to be in correct order)
@@ -104,7 +104,7 @@ public class PuenteHillsFaultERF extends EqkRupForecast{
 
     sourceList = new ArrayList();
     for(int mag=71; mag<=75;mag += 1) {
-      source = new SimpleFaultRuptureSource((double)mag/10.0, (EvenlyGriddedSurface) faultFactory.getGriddedSurface(), rake, 0.2);
+      source = new FaultRuptureSource((double)mag/10.0, (EvenlyGriddedSurface) faultFactory.getGriddedSurface(), rake, 0.2);
       source.setName("mag = "+(double)mag/10.0+" PH fault source");
       sourceList.add(source);
     }
@@ -140,7 +140,7 @@ public class PuenteHillsFaultERF extends EqkRupForecast{
     *
     */
    public ProbEqkSource getSource(int iSource) {
-    return (SimpleFaultRuptureSource) sourceList.get(iSource);
+    return (FaultRuptureSource) sourceList.get(iSource);
    }
 
 

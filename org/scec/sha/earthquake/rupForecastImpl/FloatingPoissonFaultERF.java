@@ -15,7 +15,7 @@ import org.scec.sha.earthquake.*;
 
 
 /**
- * <p>Title: SimplePoissonFaultERF</p>
+ * <p>Title: FloatingPoissonFaultERF</p>
  * <p>Description: T  </p>
  *
  * @author Ned Field
@@ -23,17 +23,17 @@ import org.scec.sha.earthquake.*;
  * @version 1.0
  */
 
-public class SimplePoissonFaultERF extends EqkRupForecast{
+public class FloatingPoissonFaultERF extends EqkRupForecast{
 
   //for Debug purposes
-  private static String  C = new String("Poisson Fault ERF");
+  private static String  C = new String("FloatingPoissonFaultERF");
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  public final static String  NAME = "Floating Poisson Fault ERF";
 
   // this is the source (only 1 for this ERF)
-  private SimplePoissonFaultSource source;
+  private FloatingPoissonFaultSource source;
 
   //mag-freq dist parameter Name
   public final static String MAG_DIST_PARAM_NAME = "Mag Freq Dist";
@@ -98,7 +98,7 @@ public class SimplePoissonFaultERF extends EqkRupForecast{
   /**
    * Constructor for this source (no arguments)
    */
-  public SimplePoissonFaultERF() {
+  public FloatingPoissonFaultERF() {
 
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
@@ -194,7 +194,7 @@ public class SimplePoissonFaultERF extends EqkRupForecast{
 
        if (D) System.out.println(S+"  "+magScalingRel.getName());
 
-       source = new SimplePoissonFaultSource((IncrementalMagFreqDist) magDistParam.getValue(),
+       source = new FloatingPoissonFaultSource((IncrementalMagFreqDist) magDistParam.getValue(),
                                              (EvenlyGriddedSurface) faultParam.getValue(),
                                              (MagScalingRelationship) magScalingRel,
                                              ((Double) sigmaParam.getValue()).doubleValue(),

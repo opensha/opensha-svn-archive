@@ -10,12 +10,12 @@ import org.scec.sha.param.*;
 import org.scec.sha.magdist.*;
 import org.scec.sha.param.SimpleFaultParameter;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
+import org.scec.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 
 
 /**
- * <p>Title: SimplePoissonFaultRuptureERF</p>
- * <p>Description: This ERF creates a single SimpleFaultRuptureSource (full fault rupture)
+ * <p>Title: PoissonFaultERF</p>
+ * <p>Description: This ERF creates a single FaultRuptureSource (full fault rupture)
  * for the following user-defined parameters:  </p>
  * <UL>
  * <LI>mag-freq-dist
@@ -29,17 +29,17 @@ import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
  * @version 1.0
  */
 
-public class SimplePoissonFaultRuptureERF extends EqkRupForecast{
+public class PoissonFaultERF extends EqkRupForecast{
 
   //for Debug purposes
-  private static String  C = new String("Simple Poisson Fault Rupture ERF");
+  private static String  C = new String("PoissonFaultERF");
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  public final static String  NAME = "Poisson Fault ERF";
 
   // this is the source (only 1 for this ERF)
-  private SimpleFaultRuptureSource source;
+  private FaultRuptureSource source;
 
   //mag-freq dist parameter Name
   public final static String MAG_DIST_PARAM_NAME = "Mag Freq Dist";
@@ -64,7 +64,7 @@ public class SimplePoissonFaultRuptureERF extends EqkRupForecast{
   /**
    * Constructor for this source (no arguments)
    */
-  public SimplePoissonFaultRuptureERF() {
+  public PoissonFaultERF() {
 
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
@@ -106,7 +106,7 @@ public class SimplePoissonFaultRuptureERF extends EqkRupForecast{
 
      if(parameterChangeFlag) {
 
-       source = new SimpleFaultRuptureSource((IncrementalMagFreqDist) magDistParam.getValue(),
+       source = new FaultRuptureSource((IncrementalMagFreqDist) magDistParam.getValue(),
                                              (EvenlyGriddedSurface) faultParam.getValue(),
                                              ((Double)rakeParam.getValue()).doubleValue(),
                                              timeSpan.getDuration());

@@ -36,11 +36,11 @@ public class PEER_MultiSourceForecast extends EqkRupForecast{
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("PEER Multi-Source");
+  private static String  C = new String("PEER_MultiSourceForecast");
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  public final static String  NAME = "PEER Multi Source";
 
   PEER_testsMagAreaRelationship magScalingRel = new PEER_testsMagAreaRelationship();
   private double rupAspectRatio = 2;
@@ -66,8 +66,8 @@ public class PEER_MultiSourceForecast extends EqkRupForecast{
   private static final Location faultC_loc2 = new Location(37.3242,-122.1410,0);
 
   // these are the fault sources
-  private SimplePoissonFaultSource fltSourceB;
-  private SimplePoissonFaultSource fltSourceC;
+  private FloatingPoissonFaultSource fltSourceB;
+  private FloatingPoissonFaultSource fltSourceC;
 
   // this is the dip and rake for all events in all sources
 
@@ -75,7 +75,7 @@ public class PEER_MultiSourceForecast extends EqkRupForecast{
   private static final double RAKE = 0.0;
 
   // this is the source used for the area-source points
-  private PointPoissonEqkSource pointPoissonEqkSource;
+  private PointEqkSource pointPoissonEqkSource;
 
   // lat & lon data that define the Area source
   private static final double LAT_TOP= 38.901;
@@ -227,7 +227,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
       cumRate /= numLocs;
       dist_GR.scaleToCumRate((int) 0,cumRate);
 
-      pointPoissonEqkSource = new PointPoissonEqkSource(new Location(),
+      pointPoissonEqkSource = new PointEqkSource(new Location(),
           dist_GR, timeSpan.getDuration(), RAKE, DIP);
 
       if (D) System.out.println(C+" updateForecast(): rake="+pointPoissonEqkSource.getRupture(0).getAveRake() +
@@ -249,14 +249,14 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
 
       // get the surface and make the source for Fault B
       GriddedSurfaceAPI surfaceB = factory.getGriddedSurface();
-      fltSourceB = new  SimplePoissonFaultSource(dist_yc_B,(EvenlyGriddedSurface) surfaceB,
+      fltSourceB = new  FloatingPoissonFaultSource(dist_yc_B,(EvenlyGriddedSurface) surfaceB,
                                                  magScalingRel,lengthSigma,rupAspectRatio,offset,
                                                  RAKE,timeSpan.getDuration(),minMag);
 
       // for fault C:
       factory.setFaultTrace(faultTraceC);
       GriddedSurfaceAPI surfaceC = factory.getGriddedSurface();
-      fltSourceC = new  SimplePoissonFaultSource(dist_yc_C,(EvenlyGriddedSurface) surfaceC,
+      fltSourceC = new  FloatingPoissonFaultSource(dist_yc_C,(EvenlyGriddedSurface) surfaceC,
                                                  magScalingRel,lengthSigma,rupAspectRatio,offset,
                                                  RAKE,timeSpan.getDuration(),minMag);
 

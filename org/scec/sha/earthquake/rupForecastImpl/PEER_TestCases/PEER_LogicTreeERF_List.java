@@ -24,7 +24,8 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList{
    * @todo variables
    */
   //for Debug purposes
-  public static String  NAME = new String("PEER Logic Tree");
+  public static String C = "PEER_LogicTreeERF_List";
+  public static String  NAME = new String("PEER Logic Tree ERF List");
 
   // declare the slip rates
   private double SLIP_RATE_1 = 0.1;
@@ -131,7 +132,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList{
    * @param maxMag
    * @return
    */
-  private PEER_NonPlanarFaultForecast createERF(String segmentation,
+  protected EqkRupForecast createERF(String segmentation,
                                         double slipRate, double magUpper) {
     PEER_NonPlanarFaultForecast forecast = new PEER_NonPlanarFaultForecast();
     forecast.getParameter(PEER_NonPlanarFaultForecast.SEGMENTATION_NAME).setValue(segmentation);

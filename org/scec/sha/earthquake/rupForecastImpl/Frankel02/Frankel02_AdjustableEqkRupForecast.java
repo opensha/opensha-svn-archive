@@ -793,7 +793,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
       // MAKE THE SOURCES (adding to the appropriate list)
       if(magFreqDistType.equals(CHAR_MAG_FREQ_DIST)) {
-        SimpleFaultRuptureSource frs = new SimpleFaultRuptureSource(totalMagFreqDist,
+        FaultRuptureSource frs = new FaultRuptureSource(totalMagFreqDist,
                                                                     (EvenlyGriddedSurface) surface,
                                                                     rake,duration);
         frs.setName(sourceName);

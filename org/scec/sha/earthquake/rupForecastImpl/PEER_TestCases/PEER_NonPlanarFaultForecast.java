@@ -34,15 +34,15 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("PEER Non-Planar Fault");
+  private static String  C = new String("PEER_NonPlanarFaultForecast");
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  public final static String  NAME = "PEER Non Planar Fault Forecast";
 
 
   // the prob eqk source (only one)
-  private SimplePoissonFaultSource source;
+  private FloatingPoissonFaultSource source;
   private ArrayList sourceList;
 
   PEER_testsMagAreaRelationship magScalingRel = new PEER_testsMagAreaRelationship();
@@ -294,7 +294,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
          GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
          // make the source
-         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                              magScalingRel,lengthSigma,rupAspectRatio,offset,
                                              RAKE,timeSpan.getDuration(),minMag);
          // add it to the source list
@@ -319,7 +319,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
          //make source A:
          factory.setAll(faultTraceA, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
          GriddedSurfaceAPI surface = factory.getGriddedSurface();
-         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
         sourceList.add(source);
@@ -327,7 +327,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
          //make source B:
          factory.setAll(faultTraceB, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
          surface = factory.getGriddedSurface();
-         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
         sourceList.add(source);
@@ -335,7 +335,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
          //make source C:
          factory.setAll(faultTraceC, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
          surface = factory.getGriddedSurface();
-         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
         sourceList.add(source);
@@ -343,7 +343,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
          //make source D:
          factory.setAll(faultTraceD, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
          surface = factory.getGriddedSurface();
-         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
         sourceList.add(source);
@@ -351,7 +351,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
          //make source E:
          factory.setAll(faultTraceE, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
          surface = factory.getGriddedSurface();
-         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+         source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
         sourceList.add(source);

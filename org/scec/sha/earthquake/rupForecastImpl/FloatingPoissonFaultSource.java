@@ -13,7 +13,7 @@ import org.scec.sha.surface.*;
 
 
 /**
- * <p>Title: SimplePoissonFaultSource </p>
+ * <p>Title: FloatingPoissonFaultSource </p>
  * <p>Description: This implements a basic Poisson fault source for arbitrary: <p>
  * <UL>
  * <LI>magDist - any IncrementalMagFreqDist
@@ -51,10 +51,10 @@ import org.scec.sha.surface.*;
  * @version 1.0
  */
 
-public class SimplePoissonFaultSource extends ProbEqkSource {
+public class FloatingPoissonFaultSource extends ProbEqkSource {
 
   //for Debug purposes
-  private static String  C = new String("SimplePoissonFaultSource");
+  private static String  C = new String("FloatingPoissonFaultSource");
   private boolean D = false;
 
   //name for this classs
@@ -83,7 +83,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
    * @param timeSpan - the timeSpan of interest in years (this is a Poissonian source)
    * @param minMag - the minimum magnitude to be considered from magDist (lower mags are ignored)
    */
-  public SimplePoissonFaultSource(IncrementalMagFreqDist magDist,
+  public FloatingPoissonFaultSource(IncrementalMagFreqDist magDist,
                                   EvenlyGriddedSurface faultSurface,
                                   MagScalingRelationship magScalingRel,
                                   double magScalingSigma,
@@ -130,7 +130,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
   /**
    * Same as other constuctor, but where minMag defaults to 5.0.
    */
-  public SimplePoissonFaultSource(IncrementalMagFreqDist magDist,
+  public FloatingPoissonFaultSource(IncrementalMagFreqDist magDist,
                                   EvenlyGriddedSurface faultSurface,
                                   MagScalingRelationship magScalingRel,
                                   double magScalingSigma,

@@ -10,12 +10,12 @@ import org.scec.sha.surface.*;
 import org.scec.sha.param.*;
 import org.scec.sha.magdist.*;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
+import org.scec.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 
 
 /**
- * <p>Title: PointPoissonERF</p>
- * <p>Description: This ERF creates a single PointPoissonEqkSource
+ * <p>Title: PointPoissonSourceERF</p>
+ * <p>Description: This ERF creates a single PointEqkSource
  * for the following user-defined parameters:  </p>
  * <UL>
  * <LI>mag-freq-dist
@@ -30,17 +30,17 @@ import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
  * @version 1.0
  */
 
-public class PointPoissonERF extends EqkRupForecast{
+public class PointPoissonSourceERF extends EqkRupForecast{
 
   //for Debug purposes
-  private static String  C = new String("Point Poisson ERF");
+  private static String  C = new String("PointPoissonSourceERF");
   private boolean D = true;
 
   //name for this classs
-  public final static String  NAME = C;
+  public final static String  NAME = "Point Poisson Source ERF";
 
   // this is the source (only 1 for this ERF)
-  private PointPoissonEqkSource source;
+  private PointEqkSource source;
 
   //mag-freq dist parameter Name
   public final static String MAG_DIST_PARAM_NAME = "Mag Freq Dist";
@@ -96,7 +96,7 @@ public class PointPoissonERF extends EqkRupForecast{
   /**
    * Constructor for this source (no arguments)
    */
-  public PointPoissonERF() {
+  public PointPoissonSourceERF() {
 
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
@@ -160,7 +160,7 @@ public class PointPoissonERF extends EqkRupForecast{
        Location loc = new Location( ((Double)srcLatParam.getValue()).doubleValue(),
                                     ((Double)srcLonParam.getValue()).doubleValue(),
                                     ((Double)srcDepthParam.getValue()).doubleValue());
-       source = new PointPoissonEqkSource(loc,
+       source = new PointEqkSource(loc,
                                           (IncrementalMagFreqDist) magDistParam.getValue(),
                                           timeSpan.getDuration(),
                                           ((Double)rakeParam.getValue()).doubleValue(),

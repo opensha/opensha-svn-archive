@@ -14,7 +14,7 @@ import org.scec.param.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF;
+import org.scec.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.*;
 import org.scec.param.event.*;
@@ -39,7 +39,7 @@ public class SimplePoissonFault_ForecastServlet extends HttpServlet implements E
 
 
   //object for the SimplePoisson Ekq Forecast
-  SimplePoissonFaultERF simplePoissonForecast = new SimplePoissonFaultERF();
+  FloatingPoissonFaultERF simplePoissonForecast = new FloatingPoissonFaultERF();
 
   //Process the HTTP Get request
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -138,7 +138,7 @@ public class SimplePoissonFault_ForecastServlet extends HttpServlet implements E
   * @returns the object for the EqkRupForecast with updated sources
   */
  public ERF_API getERF_API(TimeSpan time, ParameterList params){
-   SimplePoissonFaultERF simplePoissonERF = new SimplePoissonFaultERF();
+   FloatingPoissonFaultERF simplePoissonERF = new FloatingPoissonFaultERF();
 
    //getting the parameterList for the SimplePoisson EQforecast
    ParameterList paramList = simplePoissonERF.getAdjustableParameterList();

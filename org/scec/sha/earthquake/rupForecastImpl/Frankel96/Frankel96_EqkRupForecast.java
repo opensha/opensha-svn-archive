@@ -393,7 +393,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast{
     // GR dist between mag 5 and 7, delta=0.2
     GutenbergRichterMagFreqDist grDist2;
 
-    PointPoissonEqkSource pointPoissonSource;
+    PointEqkSource pointPoissonSource;
 
     // set timespan
     double timeDuration = timeSpan.getDuration();
@@ -430,7 +430,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast{
         grDist2.scaleToIncrRate((int) (0),rateAtMag5);
 
         // now make the source
-        pointPoissonSource = new PointPoissonEqkSource(new Location(lat,lon),
+        pointPoissonSource = new PointEqkSource(new Location(lat,lon),
             grDist2, timeDuration, aveRake,aveDip);
 
         // add the source

@@ -67,7 +67,7 @@ public class STEPTests extends TestCase
 
      // check first one
      int index = 0;
-     PointPoissonEqkSource qkSrc = (PointPoissonEqkSource) forecast.getSource(index);
+     PointEqkSource qkSrc = (PointEqkSource) forecast.getSource(index);
      assertEquals("Number of Ruptures",41,qkSrc.getNumRuptures());
 
      double duration = qkSrc.getDuration();
@@ -89,7 +89,7 @@ public class STEPTests extends TestCase
      }
      // check last one
      index = forecast.getNumSources()-1;
-     qkSrc = (PointPoissonEqkSource) forecast.getSource(index);
+     qkSrc = (PointEqkSource) forecast.getSource(index);
      assertEquals("Known number of ruptures:",41,qkSrc.getNumRuptures());
      duration = qkSrc.getDuration();
      assertTrue("Know duration:" + duration,1.0==duration);

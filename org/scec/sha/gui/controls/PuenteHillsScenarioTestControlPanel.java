@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
 import org.scec.sha.gui.beans.*;
-import org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF;
+import org.scec.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF;
 import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.param.*;
@@ -61,14 +61,14 @@ public class PuenteHillsScenarioTestControlPanel {
     //This is done in the EqkRupSelectorGuiBean
     erfGuiBean.showAllParamsForForecast(false);
     //changing the ERF ro SimpleFaultERF
-    erfGuiBean.getParameterListEditor().getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setValue(SimplePoissonFaultERF.NAME);
+    erfGuiBean.getParameterListEditor().getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
     erfGuiBean.getParameterListEditor().refreshParamEditor();
 
     //Getting the instance for the editor that holds all the adjustable params for the selcetd ERF
     ERF_GuiBean erfParamGuiBean =erfGuiBean.getERF_ParamEditor();
     //As the Selecetd ERF is simple FaultERF so updating the rake value to -90 (so the ALL or UKNOWN category is used to be consistent with online shakemaps).
-    erfParamGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(-90));
-    erfParamGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(WC1994_MagLengthRelationship.NAME);
+    erfParamGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(-90));
+    erfParamGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(WC1994_MagLengthRelationship.NAME);
 
     //getting the instance for the SimpleFaultParameterEditorPanel from the GuiBean to adjust the fault Params
     SimpleFaultParameterEditorPanel faultPanel= erfParamGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();

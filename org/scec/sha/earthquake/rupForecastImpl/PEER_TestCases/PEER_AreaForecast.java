@@ -33,17 +33,17 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
 public class PEER_AreaForecast extends EqkRupForecast{
 
   //for Debug purposes
-  private static String  C = new String("PEER Area");
+  private static String  C = new String("PEER_AreaForecast");
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  public final static String  NAME = "PEER Area Forecast";
 
   // this is the GR distribution used for all sources
   private GutenbergRichterMagFreqDist dist_GR;
 
   // this is the source
-  private PointPoissonEqkSource pointPoissonEqkSource;
+  private PointEqkSource pointPoissonEqkSource;
 
 
   /**
@@ -202,7 +202,7 @@ public class PEER_AreaForecast extends EqkRupForecast{
       double dip = ((Double) dipParam.getValue()).doubleValue();
 
       // Dip is hard wired at 90 degrees
-      pointPoissonEqkSource = new PointPoissonEqkSource(new Location(),
+      pointPoissonEqkSource = new PointEqkSource(new Location(),
           dist_GR, timeSpan.getDuration(), rake, dip);
 
       if (D) System.out.println(C+" updateForecast(): rake="+pointPoissonEqkSource.getRupture(0).getAveRake() +
