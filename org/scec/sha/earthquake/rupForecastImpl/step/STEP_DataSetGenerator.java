@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import org.scec.sha.earthquake.rupForecastImpl.step.*;
 import org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast;
 import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.scec.sha.earthquake.rupForecastImpl.PointEqkSource;
 import org.scec.param.event.ParameterChangeWarningListener;
 import org.scec.param.event.ParameterChangeWarningEvent;
 import org.scec.param.WarningParameterAPI;
@@ -366,6 +367,78 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
     return probVals;
   }
+
+
+  /**
+   * HazardCurve Calculator for the STEP
+   * @param imr : ShakeMap_2003_AttenRel for the STEP Calculation
+   * @param region
+   * @param eqkRupForecast : STEP Forecast
+   * @returns the ArrayList of Probability values for the given region
+   */
+  private ArrayList getProbVals_faster(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
+                                     EqkRupForecast eqkRupForecast){
+
+    ArrayList probVals = new ArrayList();
+    double MAX_DISTANCE = 200;
+
+    // declare some varibles used in the calculation
+    double qkProb, distance;
+    int k,i;
+
+    // get total number of sources
+    int numSources = eqkRupForecast.getNumSources();
+
+    // this boolean will tell us whether a source was actually used
+    // (e.g., all could be outside MAX_DISTANCE)
+    boolean sourceUsed = false;
+
+    int numSites = region.getNumGridLocs();
+    for(int j=0;j<numSites;++j){
+      double hazVal =1;
+      double condProb =0;
+      imr.setSite(region.getSite(j));
+      //adding the wills site class value for each site
+      String willSiteClass = (String)this.willSiteClassVals.get(j);
+      //only add the wills value if we have a value available for that site else leave default "D"
+      if(!willSiteClass.equals("NA"))
+        imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(willSiteClass);
+      else
+        imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(imr.WILLS_SITE_D);
+
+      // loop over sources
+      for(i=0;i < numSources ;i++) {
+
+        // get the ith source
+        ProbEqkSource source = eqkRupForecast.getSource(i);
+
+        // compute it's distance from the site and skip if it's too far away
+        distance = source.getMinDistance(region.getSite(j));
+        if(distance > MAX_DISTANCE)
+          //update progress bar for skipped ruptures
+          continue;
+
+        // indicate that a source has been used
+        sourceUsed = true;
+
+        hazVal *= (1.0 - imr.getTotExceedProbability((PointEqkSource)source,IML_VALUE));
+
+      }
+
+      // finalize the hazard function
+      if(sourceUsed) {
+        //System.out.println("HazVal:"+hazVal);
+        hazVal = 1-hazVal;
+      }
+      else
+        hazVal = 0.0;
+      //System.out.println("HazVal: "+hazVal);
+      probVals.add(new Double(hazVal));
+    }
+
+    return probVals;
+  }
+
 
   /**
    * generates the output directories for the step with timestamp labelling.
