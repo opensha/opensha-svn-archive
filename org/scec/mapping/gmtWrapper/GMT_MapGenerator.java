@@ -81,6 +81,7 @@ public class GMT_MapGenerator {
   StringParameter topoResolutionParam;
 
   protected ParameterList adjustableParams;
+  public static int i = 0;
 
 
   public GMT_MapGenerator() {
@@ -178,7 +179,7 @@ public class GMT_MapGenerator {
     String topoIntenFile = SCEC_GMT_DATA_PATH + "calTopoInten" + resolution+".grd";
 
     String out_ps = outputFilePrefix + ".ps";
-    String out_jpg = outputFilePrefix + ".jpg";
+    String out_jpg = outputFilePrefix +i+ ".jpg";
 
     String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
 
@@ -231,7 +232,7 @@ public class GMT_MapGenerator {
 
        command[2] =COMMAND_PATH+"cat "+ out_ps + " | "+GMT_PATH+"gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
        RunScript.runScript(command);
-
+       ++i;
 //       command[2] = "/Applications/Preview.app/Contents/MacOS/Preview " + out_jpg + " &";
 //       RunScript.runScript(command);
 
