@@ -117,15 +117,31 @@ public class ScenarioShakeMapCalculator {
       zVals = xyzDataSet.getZ_DataSet();
       int size1 = zVals.size();
       //multiplying the zValue for the attenuation with the relative normalised wt for it
+      if(!isProbAtIML){//it is IML at Prob then we don't need to take the log before averaging the values
       for(int j=0;j<size1;++j)
         zVals.set(j,new Double(((Double)zVals.get(j)).doubleValue()*((Double)attenRelWts.get(i)).doubleValue()));
+      }
+      else{ //If Prob@IML then take the log before we average the values out
+        for(int j=0;j<size1;++j){
+          double tempVal = Math.log(((Double)zVals.get(j)).doubleValue());
+          zVals.set(j,new Double(tempVal*((Double)attenRelWts.get(i)).doubleValue()));
+        }
+      }
       //adding the Z Values for all the Attenuation Relationships together.
       if(sumZVals == null)
         sumZVals =zVals;
       else {
         size1 = sumZVals.size();
-        for(int j=0;j<size1;++j)
-          sumZVals.set(j,new Double(((Double)sumZVals.get(j)).doubleValue() + ((Double)zVals.get(j)).doubleValue()));
+        if(!isProbAtIML){ //if IML@Prob
+          for(int j=0;j<size1;++j)
+            sumZVals.set(j,new Double(((Double)sumZVals.get(j)).doubleValue() + ((Double)zVals.get(j)).doubleValue()));
+        }
+        else{ //if Prob@IML
+          for(int j=0;j<size1;++j){
+            double tempVal = Math.exp(((Double)sumZVals.get(j)).doubleValue());
+            sumZVals.set(j,new Double(tempVal+ ((Double)zVals.get(j)).doubleValue()));
+          }
+        }
       }
     }
     //updating the Z Values for the XYZ data after averaging the values for all selected attenuations.
@@ -175,15 +191,14 @@ public class ScenarioShakeMapCalculator {
       site = griddedRegionSites.getSite(i);
       imr.setSite(site);
       if(isProbAtIML)
-        sitesValue.add( new Double(imr.getExceedProbability(Math.log(value))));
+        sitesValue.add(new Double(imr.getExceedProbability(value)));
       else{
         try{
           //if IML@Prob then Prob value should be between 0 and 1.
-          if(value<0 || value >1)
-            throw new ParameterException("Probability can only between 0 and 1");
-          imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(value));
-
-          sitesValue.add(new Double(StrictMath.exp(imr.getIML_AtExceedProb())));
+          //if(value<0 || value >1)
+            //throw new ParameterException("Probability can only between 0 and 1");
+          //imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(value));
+          sitesValue.add(new Double(imr.getIML_AtExceedProb(value)));
         }catch(ParameterException e){
           throw new ParameterException(e.getMessage());
         }
@@ -191,7 +206,6 @@ public class ScenarioShakeMapCalculator {
     }
     xyzDataSet = new ArbDiscretizedXYZ_DataSet(sitesLat,sitesLon,sitesValue);
     return xyzDataSet;
-
   }
 
 }

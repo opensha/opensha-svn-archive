@@ -643,6 +643,28 @@ public abstract class AttenuationRelationship
 
 
     /**
+     *  This calculates the intensity-measure level associated with probability
+     *  held by the exceedProbParam given the mean and standard deviation
+     * (according to the chosen truncation type and level).  Note
+     *  that this does not store the answer in the value of the internally held
+     *  intensity-measure parameter.
+     * @param exceedProb : Sets the Value of the exceed Prob param with this value.
+     * @return                         The intensity-measure level
+     * @exception  ParameterException  Description of the Exception
+     */
+    public double getIML_AtExceedProb(double exceedProb) throws ParameterException {
+
+        if ( exceedProbParam == null )
+            throw new ParameterException( C +
+                    ": getExceedProbability(): " + "exceedProbParam is null, unable to run this calculation."
+                     );
+        //sets the value of the exceedProb Param.
+        exceedProbParam.setValue(exceedProb);
+        return getIML_AtExceedProb();
+    }
+
+
+    /**
      *  Returns an iterator over all the Parameters that the Mean calculation depends upon.
      *  (not including the intensity-measure related paramters and their internal,
      *  independent parameters).

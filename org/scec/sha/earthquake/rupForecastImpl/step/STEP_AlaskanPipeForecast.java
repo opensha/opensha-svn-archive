@@ -44,8 +44,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
   // Input file name
   //private final static String INPUT_FILE_NAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/PipelineGrid.txt";
   private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/PipelineGrid.txt";
-  //private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/PipelineGrid2.txt";
-  //private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/PipelineGridOld.txt";
+
 
   // ArrayList of input file lines
   private ArrayList inputFileLines;
