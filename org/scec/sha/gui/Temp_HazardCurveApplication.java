@@ -120,6 +120,9 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String RMI_STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
   public final static String RMI_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimplePoissonFaultERFClient";
   public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient";
+  public final static String RMI_PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_AreaForecastClient";
+  public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
+  public final static String RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient";
   public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
@@ -1203,11 +1206,17 @@ public class Temp_HazardCurveApplication extends JApplet
   private void initERF_GuiBean() {
      // create the ERF Gui Bean object
    ArrayList erf_Classes = new ArrayList();
+   //adding the RMI based ERF's to the application
    erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
    erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+
+   //adding the client based ERF's to the application
    erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
