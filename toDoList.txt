@@ -1,87 +1,93 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Put calTopoInten03.grd on vravity
+Put calTopoInten03.grd on usc.gravity.edu (Ned has this on his computer)
 
-Add convert -filter -resize option in GMT_MapGenerator
+1) Test the wills-class and basin-depth servlets, and the siteTranlator, by putting the following on a line of an ascii file for each site in the LA region (discretized at 0.05 degrees):
 
-See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
+	lat, lon, willClass, basinDepth, and the following siteType values
+	(as given by the tranlator):
 
-1) Change Vs30 servlet to return "A", "B", "BC", ... rather than the numberical value.  So, in the data file that we read change each of the numerical values as follows (actually make a new file):
+		AS_1997_AttenRel.SITE_TYPE_NAME
+ 		SCEMY_1997_AttenRel.SITE_TYPE_NAME
+ 		AttenuationRelationship.VS30_NAME
+ 		Campbell_1997_AttenRel.SITE_TYPE_NAME
+		Campbell_1997_AttenRel.BASIN_DEPTH_NAME
+		Field_2000_AttenRel.BASIN_DEPTH_NAME
+ 		CB_2003_AttenRel.SITE_TYPE_NAME
+		ShakeMap_2003_AttenRel.WILLS_SITE_NAME
 
-	E  163 
-	DE 298 
-	D  301 
-	CD 372 
-	C  464 
-	BC 724 
-	B  686
+	Also put a one-line header at the top of the file with the associated names for each column.
 
-	All others should be set as NA (meaning "not available").  HOWEVER, PLEASE LET ME KNOW
-	WHAT OTHER VALUES ARE IN THAT FILE SO I CAN MAKE SURE I DIDN'T MISS ANY.
+	Why don't you put the class that does this test in:
 
-	Also, make a README file in the directory where that data is stored describing what
-	was done.  BTW, the original file "vsgrid60s.txt" was sent by Vince Quitoriano
-	(a member of the USGS ShakeMap group) to me on 6/18/03. Please put this latter info
-	in the readme file as well.
+		org.scec.sha.utils.SiteTranslatorTests
 
-	Name the new servlet: WillsSiteClassServlet
+	Please let me know when I can check out the ASCII file
 
-	Rename old sevlet: SCEC_BasinDepthServlet
+Make a BooleanParameter where the editor is a checkbox (only show name since there are no units).  Make sure the editor shows the info when moused over.
 
-	Use the new site-type translator that Ned created (it's in SiteTranlator.java, 
-	and he moved the SiteTranslatorNew.java to SiteTranslatorOld.java).
-
-Get Bruce's code running on Mac OS X - done, waiting to hear from Hope on whether it works.
+Access site-type servlets from the SitesInGriddedRegion rather than the GuiBean (so servlets can be accessed without having to have a GUI).  Make sure this is graceful if internet connection fails.
 
 ScenarioShakeMapApp
 
-	make image scalable with window size (although keep aspect ratio fixed)
-
-	3) save matadata for each run in a "map_info.txt" file, 
+	save matadata for each run in a "map_info.txt" file, 
 	and put a copy of this on the server in the directory for this run.
 
-	make URLs in info window live links (download when clicked)?
+	Remove the "We have obtained the site parameters from the CVM" message, 
+	but keep the "Getting site parameters ..."
 
-	fix blank-map problem (grdcut gets messed up) - Ned will fix
-
-	2) change set sites from CVM list options:
+	change set sites from CVM list options:
 
 		"Apply same ..."
 		"Use the Wills et al. (2000) Map Web Service"
 		"Use both Wills Map and SCEC Basin Depth Web Service"
 
-	4) make checkbox options in MapGuiBean boolean parameters and put them in the GMT_MapGenerator 
+	make checkbox options in MapGuiBean boolean parameters and put them in the GMT_MapGenerator 
 	(which means take the log values in the latter as well).  Also move everything out of the MapGuiBean
 	so the latter is simply a wrapper around the GMT_MapGenerator (make the map and show the map and
 	metadata from the main app).
 
 	move "set site params" JCombo in  Region&SiteGuiBean to a StringParameter and add it to the list.
 
-	5) set the scaleLabel argument (added to GMT_MapGenerator as described below) according to chosen IMT
+	set the scaleLabel argument (added to GMT_MapGenerator as described below) according to chosen IMT
 	(the GMT_MapGenerator will wrap it with "log(*)" is that option was chosen.
 
-	6) after all the above are done, subclass the GMT_MapGenerator as GMT_MapGeneratorForShakeMaps 
-	in the sha package so it can take an EarthquakeRupture and optionally a hypocenter for the map 
-	(make the MapGuiBean wrap this new class rather than the parent).  
+	after all the above are done, subclass the GMT_MapGenerator as GMT_MapGeneratorForShakeMaps 
+	in the sha package, and change the makeMap* methods in this sublcalss like the follow:
 
-	7) add option to make Hazus shape files to the GMT_MapGeneratorForShakeMaps class (add this to the script).  
+		makeMapLocally(XYZ_DataSetAPI xyzDataSet, EarthquakeRupture eqkRup, Location hypLoc)
+
+		change the ScenarioShakeMapApp to pass these new arguments 
+		(hypLoc=null if not selected)
+
+		for now have this method simply call the same in the parent (Ned will take it from here)
+
+ 		have the MapGuiBean wrap this new class rather than the parent
+
+	add option to make Hazus shape files to the GMT_MapGeneratorForShakeMaps class (add this to the script).  
 	
+	if possible,make image scalable with window size (although keep aspect ratio fixed)
 
 GMT_MapGenerator:
 
 	add a "scaleLabel" string to all of the makeMap*(*) methods and use this in 
 	place of the the hard-coded "tempLabel" String presently being used.  Also
-	wrap it with log(*) in necessary.
+	wrap it with log(*) if necessary.
 
+	Figure out a way to get the following dynamically (can only do this on UNIX?):
 
-Make a BooleanParameter where the editor is a checkbox (only show name since there are no units).  Make sure the editor shows the info when moused over.
+   		GMT_PATH
+    		GS_PATH
+    		CONVERT_PATH
 
-Access site-type servlets from the SitesInGriddedRegion rather than the GuiBean (so servlets can be accessed without having to have a GUI).
+Get Bruce's code running on Mac OS X - done, waiting to hear from Hope on whether it works.
 
 Finish making it so scenario shakemaps can be calculated in stand-alone mode.  Make getScenarioShakeMapData(*) method take an EarthquakeRupture (not a ProbEarthquakeRupture) rather than an ERF, source, and rupture index.  Also make sure that value is between 0 and 1 if isProbAtIML=false.  Have the above method return xyzData rather than taking it as an argument (it's not needed as input since the sitesInGriddedRegion has the lats and lons for the calc).
 
 We need to somehow metadata in the HazardCurveCalculator; also make the ability to "peel off" the plot/metadata window (Ned and Nitin will discuss this more later)?
+
+See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
 
 Finish PEER Set 2 problems (Ned).
 

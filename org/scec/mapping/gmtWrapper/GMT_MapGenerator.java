@@ -35,7 +35,9 @@ public class GMT_MapGenerator implements Serializable{
   private String DEFAULT_XYZ_FILE_NAME = "xyz_data.txt";
   private String XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
   private String PS_FILE_NAME = "map.ps";
+  private String DEFAULT_PS_FILE_NAME = PS_FILE_NAME;
   private String JPG_FILE_NAME = "map.jpg";
+  private String DEFAULT_JPG_FILE_NAME = JPG_FILE_NAME;
   private String SCALE_LABEL; // what's used to label the color scale
   private int DPI = 70;
 
@@ -71,6 +73,15 @@ public class GMT_MapGenerator implements Serializable{
   DoubleParameter minLonParam;
   DoubleParameter maxLonParam;
   DoubleParameter gridSpacingParam;
+
+  // for the final image width:
+  public final static String IMAGE_WIDTH_NAME = "Image Width";
+  private final static String IMAGE_WIDTH_UNITS = "inches";
+  private final static String IMAGE_WIDTH_INFO = "Width of the final jpg image (ps file width is always 8.5 inches)";
+  private final static double IMAGE_WIDTH_MIN = 1.0;
+  private final static double IMAGE_WIDTH_MAX = 20.0;
+  private final static Double IMAGE_WIDTH_DEFAULT = new Double(6.5);
+  DoubleParameter imageWidthParam;
 
   public final static String CPT_FILE_PARAM_NAME = "Color Scheme";
   private final static String CPT_FILE_PARAM_DEFAULT = "MaxSpectrum.cpt";
@@ -154,6 +165,9 @@ public class GMT_MapGenerator implements Serializable{
     gridSpacingParam = new DoubleParameter(GRID_SPACING_PARAM_NAME,0.001,100,LAT_LON_PARAM_UNITS,GRID_SPACING_PARAM_DEFAULT);
     minLatParam.setInfo(GRID_SPACING_PARAM_INFO);
 
+    imageWidthParam = new DoubleParameter(IMAGE_WIDTH_NAME,IMAGE_WIDTH_MIN,IMAGE_WIDTH_MAX,IMAGE_WIDTH_UNITS,IMAGE_WIDTH_DEFAULT);
+    imageWidthParam.setInfo(IMAGE_WIDTH_INFO);
+
     StringConstraint cptFileConstraint = new StringConstraint();
     cptFileConstraint.addString( CPT_FILE_MAX_SPECTRUM );
     cptFileConstraint.addString( CPT_FILE_GERSTENBERGER );
@@ -173,10 +187,6 @@ public class GMT_MapGenerator implements Serializable{
     colorScaleModeConstraint.addString( COLOR_SCALE_MODE_MANUALLY );
     colorScaleModeParam = new StringParameter( COLOR_SCALE_MODE_NAME, colorScaleModeConstraint, COLOR_SCALE_MODE_DEFAULT );
     colorScaleModeParam.setInfo( COLOR_SCALE_MODE_INFO );
-
-
-
-    StringConstraint outputFilePrefixConstraint = new StringConstraint();
 
     colorScaleMinParam = new DoubleParameter(COLOR_SCALE_MIN_PARAM_NAME, COLOR_SCALE_MIN_PARAM_DEFAULT);
     colorScaleMinParam.setInfo(COLOR_SCALE_MIN_PARAM_INFO);
@@ -218,6 +228,7 @@ public class GMT_MapGenerator implements Serializable{
     adjustableParams.addParameter(topoResolutionParam);
     adjustableParams.addParameter(showHiwysParam);
     adjustableParams.addParameter(coastParam);
+    adjustableParams.addParameter(imageWidthParam);
 
   }
 
@@ -508,19 +519,22 @@ public class GMT_MapGenerator implements Serializable{
 
   /**
    * This function is used to make the map from XYZ file.
-   * This function is called from CME framework. This function was needed because
+   * This function is called from CME framework (on usc.gravity.edu). This function was needed because
    * in CME, there is need that we should be able to specify the name of ps file name
    * and jpeg filename.
    *
    * @param xyzFileName name of the xyz file for which map will be generated
    * @return
    */
-  public void makeMapLocally(String xyzFileName) {
+  public void makeMapForCME(String xyzFileName, String psFileName, String jpgFileName) {
 
     XYZ_FILE_NAME = xyzFileName;
+    PS_FILE_NAME = psFileName;
+    JPG_FILE_NAME = jpgFileName;
 
     // THESE SHOULD BE SET DYNAMICALLY
     // CURRENTLY HARD CODED FOR gravity AT SCEC (for Vipin)
+    // IF THIS CAN BE DONE WE CAN GENERALIZE THIS METHOD NAME
     GMT_PATH="/opt/install/gmt/bin/";
     GS_PATH="/usr/bin/gs";
     CONVERT_PATH="/usr/X11R6/bin/convert";
@@ -543,6 +557,8 @@ public class GMT_MapGenerator implements Serializable{
 
     // set XYZ filename back to the default
     XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
+    PS_FILE_NAME = DEFAULT_PS_FILE_NAME;
+    JPG_FILE_NAME = DEFAULT_JPG_FILE_NAME;
   }
 
 
@@ -637,7 +653,7 @@ public class GMT_MapGenerator implements Serializable{
     if(D) System.out.println(C+" region = "+region);
 
     // this is the prefixed used for temporary files
-    String fileName = "xyz_data";
+    String fileName = "temp_junk";
 
     String grdFileName  = fileName+".grd";
 
@@ -709,9 +725,6 @@ public class GMT_MapGenerator implements Serializable{
       gmtCommandLines.add(commandLine+"\n");
     }
 
-  commandLine=GMT_PATH+"gmtdefaults -L > junk";
-  gmtCommandLines.add(commandLine+"\n");
-
     // add highways if desired
     if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
       commandLine=GMT_PATH+"psxy  "+region+" " + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
@@ -751,11 +764,30 @@ public class GMT_MapGenerator implements Serializable{
 //    gmtCommandLines.add(CONVERT_PATH+" " + PS_FILE_NAME + " " + JPG_FILE_NAME+"\n");
 
     // add a command line to convert the ps file to a jpg file - using gs
-    gmtCommandLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg -sOutputFile=temp.jpg -\n");
+    // this looks a bit better than that above (which sometimes shows some horz lines).
+    gmtCommandLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg -sOutputFile=temp1.jpg -\n");
 
     int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) DPI);
-    commandLine = CONVERT_PATH+" -crop 595x"+heightInPixels+"+0+0 temp.jpg "+JPG_FILE_NAME;
+    commandLine = CONVERT_PATH+" -crop 595x"+heightInPixels+"+0+0 temp1.jpg temp2.jpg";
     gmtCommandLines.add(commandLine+"\n");
+
+    //resize the image if desired
+    double imageWidth = ((Double)imageWidthParam.getValue()).doubleValue();
+    if (imageWidth != IMAGE_WIDTH_DEFAULT.doubleValue()) {
+      int wdth = (int)(imageWidth*(double)DPI);
+      commandLine = CONVERT_PATH+" -filter Lanczos -geometry "+wdth+" temp2.jpg "+JPG_FILE_NAME;
+      gmtCommandLines.add(commandLine+"\n");
+    }
+    else {
+      commandLine = COMMAND_PATH+"mv temp2.jpg "+JPG_FILE_NAME;
+      gmtCommandLines.add(commandLine+"\n");
+    }
+
+    // clean out temp files
+    commandLine = COMMAND_PATH+"rm temp1.jpg temp2.jpg "+fileName+".grd "+fileName+
+                  ".cpt "+fileName+"HiResData.grd "+fileName+"Inten.grd ";
+    gmtCommandLines.add(commandLine+"\n");
+
 
     return gmtCommandLines;
   }

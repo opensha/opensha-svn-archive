@@ -89,7 +89,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   private DoubleParameter maxLat = new DoubleParameter(MAX_LATITUDE,
       new Double(-90), new Double(90), new Double(34.7));
   private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,
-      new Double(.01),new Double(100.0),new String("Degrees"),new Double(.1));
+      new Double(.0333),new Double(1.0),new String("Degrees"),new Double(.1));
 
 
   //instance of class EvenlyGriddedRectangularGeographicRegion
