@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import org.scec.param.*;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.webservices.client.*;
+import org.scec.util.RunScript;
 
 /**
  * <p>Title: GMT_MapGenerator</p>

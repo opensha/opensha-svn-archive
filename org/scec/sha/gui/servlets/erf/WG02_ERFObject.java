@@ -39,7 +39,7 @@ public class WG02_ERFObject implements ERF_API,java.io.Serializable{
    */
   private Vector allSources;
 
-  public final static String SEIS_EXCLUDE = new String ("Exclude");
+
  // This is an array holding the relevant lines of the input file
   private List inputFileStrings = null;
 
@@ -49,7 +49,10 @@ public class WG02_ERFObject implements ERF_API,java.io.Serializable{
   String name;
 
   /**
+   * class default constructor
    * This constructs a single forecast using the first realization
+   * It is used if one instantiating the WG-02 ERF object as the Stanalone on his desktop
+   * as opposed from the WebService
    */
   public WG02_ERFObject() {
 
@@ -104,8 +107,8 @@ public class WG02_ERFObject implements ERF_API,java.io.Serializable{
     rupOffset = 2;
     gridSpacing = 1;
     deltaMag = 0.1;
-    backSeisValue = this.SEIS_EXCLUDE;
-    grTailValue = this.SEIS_EXCLUDE;
+    backSeisValue = WG02_ERF_AdjustableParamsClass.SEIS_EXCLUDE;
+    grTailValue = WG02_ERF_AdjustableParamsClass.SEIS_EXCLUDE;
     name = "noName";
 
     // now make the sources
@@ -138,7 +141,7 @@ public class WG02_ERFObject implements ERF_API,java.io.Serializable{
    */
   private  void makeSources() throws FaultException{
 
-
+    //if(D) System.out.println(C+": last line of inputFileStrings = "+inputFileStrings.get(inputFileStrings.size()-1));
     allSources = new Vector();
 
     FaultTrace faultTrace;
@@ -151,7 +154,7 @@ public class WG02_ERFObject implements ERF_API,java.io.Serializable{
     double lat, lon;
     double dip=0, downDipWidth=0, rupArea;
     double prob, meanMag, magSigma, nSigmaTrunc, rake;
-    String ruptureName, fault, rup, sourceName;
+    String fault, rup, sourceName;
     int numPts, i, lineIndex;
 
     // Create iterator over inputFileStrings
@@ -175,7 +178,10 @@ public class WG02_ERFObject implements ERF_API,java.io.Serializable{
       st = new StringTokenizer(it.next().toString());
       fault = st.nextToken().toString();
       rup = st.nextToken().toString();
-      sourceName = "fault "+fault+"; rupture "+rup;
+
+      // line with source name
+      st = new StringTokenizer(it.next().toString());
+      sourceName = st.nextToken().toString();
 
       // line with number of fault-trace points
       st = new StringTokenizer(it.next().toString());
@@ -238,7 +244,6 @@ public class WG02_ERFObject implements ERF_API,java.io.Serializable{
       allSources.add(wg02_source);
     }
   }
-
 
 
   /**

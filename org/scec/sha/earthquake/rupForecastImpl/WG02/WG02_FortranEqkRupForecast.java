@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.WG02;
 
-import org.scec.mapping.gmtWrapper.RunScript;
+import org.scec.util.RunScript;
 
 /**
  * <p>Title: </p>

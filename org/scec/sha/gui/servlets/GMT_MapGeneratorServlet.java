@@ -6,7 +6,7 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.ArrayList;
 
-import org.scec.mapping.gmtWrapper.RunScript;
+import org.scec.util.RunScript;
 import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
 import org.scec.data.XYZ_DataSetAPI;
 

@@ -16,7 +16,7 @@ import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
 import org.scec.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.param.ParameterList;
-import org.scec.mapping.gmtWrapper.RunScript;
+import org.scec.util.RunScript;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 

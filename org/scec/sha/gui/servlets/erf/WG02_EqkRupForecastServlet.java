@@ -8,7 +8,6 @@ import java.util.*;
 
 import org.scec.sha.gui.servlets.erf.ERF_API;
 import org.scec.sha.gui.servlets.erf.ERF_WebServiceAPI;
-import org.scec.sha.gui.servlets.erf.PEER_FaultERFObject;
 import org.scec.sha.gui.beans.ERF_ServletModeGuiBean;
 import org.scec.param.*;
 import org.scec.sha.fault.*;
@@ -24,6 +23,8 @@ import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultSource;
 import org.scec.util.FileUtils;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.gui.servlets.erf.*;
+import org.scec.util.RunScript;
+import org.scec.sha.gui.servlets.erf.*;
 
 /**
  * <p>Title: WG02_EqkRupForecastServlet </p>
@@ -37,56 +38,16 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
 
   private static final String className ="WG02 ERF List";
 
-
   /**
    * Static variable for input file name
    */
-  private final static String INPUT_FILE_NAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/WG02_WRAPPER_INPUT.DAT";
+  private final static String WG02_CODE_PATH ="/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/wg99/wg99_src_v27/";
+  private final static String WG02_INPUT_FILE ="base_mod_23_wgt_1K.inp";
+  private final static String INPUT_FILE_NAME = WG02_CODE_PATH+"WG02_WRAPPER_INPUT.DAT";
 
   // vector to hold the line numbers where each iteration starts
   private Vector iterationLineNumbers;
 
-  // Stuff for background & GR tail seismicity params
-  public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
-  public final static String GR_TAIL_NAME = new String ("GR Tail Seismicity");
-  public final static String SEIS_INCLUDE = new String ("Include");
-  public final static String SEIS_EXCLUDE = new String ("Exclude");
-  Vector backSeisOptionsStrings = new Vector();
-  Vector grTailOptionsStrings = new Vector();
-  StringParameter backSeisParam;
-  StringParameter grTailParam;
-
-  // For rupture offset along fault parameter
-  private final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
-  private Double DEFAULT_RUP_OFFSET_VAL= new Double(5);
-  private final static String RUP_OFFSET_PARAM_UNITS = "km";
-  private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
-  private final static double RUP_OFFSET_PARAM_MIN = 1;
-  private final static double RUP_OFFSET_PARAM_MAX = 50;
-  DoubleParameter rupOffset_Param;
-
-  // Grid spacing for fault discretization
-  private final static String GRID_SPACING_PARAM_NAME ="Fault Discretization";
-  private Double DEFAULT_GRID_SPACING_VAL= new Double(1.0);
-  private final static String GRID_SPACING_PARAM_UNITS = "km";
-  private final static String GRID_SPACING_PARAM_INFO = "Grid spacing of fault surface";
-  private final static double GRID_SPACING_PARAM_MIN = 0.1;
-  private final static double GRID_SPACING_PARAM_MAX = 5;
-  DoubleParameter gridSpacing_Param;
-
-  // For delta mag parameter (magnitude discretization)
-  private final static String DELTA_MAG_PARAM_NAME ="Delta Mag";
-  private Double DEFAULT_DELTA_MAG_VAL= new Double(0.1);
-  private final static String DELTA_MAG_PARAM_INFO = "Discretization of magnitude frequency distributions";
-  private final static double DELTA_MAG_PARAM_MIN = 0.005;
-  private final static double DELTA_MAG_PARAM_MAX = 0.5;
-  DoubleParameter deltaMag_Param;
-
-  // For num realizations parameter
-  private final static String NUM_REALIZATIONS_PARAM_NAME ="Num Realizations";
-  private Integer DEFAULT_NUM_REALIZATIONS_VAL= new Integer(10);
-  private final static String NUM_REALIZATIONS_PARAM_INFO = "Number of Monte Carlo ERF realizations";
-  IntegerParameter numRealizationsParam;
 
   // This is an array holding each line of the input file
   private ArrayList inputFileLines = null;
@@ -97,92 +58,146 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
   //timespan object
   private TimeSpan timeSpan;
 
+  //Instance for the WG-02 AdjustableParam Class
+  private WG02_ERF_AdjustableParamsClass wg02_AdjustableParams;
 
 
-  public void WG02_ERF_Epistemic_List() {
+  /**
+   * Initialises the WG-02 Adjustable ParameterList
+   */
+  private void initWG02_List(){
+    // create the timespan object with start time and duration in years
+    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    // create and add adj params to list
+    wg02_AdjustableParams = new WG02_ERF_AdjustableParamsClass();
+    this.adjustableParams = wg02_AdjustableParams.getAdjustableParams();
+  }
 
-      // create the timespan object with start time and duration in years
-      timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
-      // create and add adj params to list
-      initAdjParams();
+  /**
+   * Creates the input file for the OpenSHA by running the fortran code for WG-02
+   * It also reads that input file and sets value for timeSpan
+   */
+  private void WG02_ERF_Epistemic_List() {
 
-      // read the lines of the input files into a list
-      try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
-      catch( FileNotFoundException e){ System.out.println(e.toString()); }
-      catch( IOException e){ System.out.println(e.toString());}
+    //get the fortran code for the WG-02 running
+    initWG02_Code();
 
-      // Exit if no data found in list
-      if( inputFileLines == null) throw new
-             FaultException("No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
+    // read the lines of the input files into a list
+    try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
+    catch( FileNotFoundException e){ System.out.println(e.toString()); }
+    catch( IOException e){ System.out.println(e.toString());}
 
-      // find the line numbers for the beginning of each iteration
-      iterationLineNumbers = new Vector();
-      StringTokenizer st;
-      String test=null;
-      for(int lineNum=0; lineNum < inputFileLines.size(); lineNum++) {
-        st = new StringTokenizer((String) inputFileLines.get(lineNum));
-        st.nextToken(); // skip the first token
-        if(st.hasMoreTokens()) {
-          test = st.nextToken();
-          if(test.equals("ITERATIONS"))
-            iterationLineNumbers.add(new Integer(lineNum));
-        }
+    // Exit if no data found in list
+    if( inputFileLines == null) throw new
+      FaultException("No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
+    System.out.println("Input File Lines:"+inputFileLines.size());
+
+    // find the line numbers for the beginning of each iteration
+    iterationLineNumbers = new Vector();
+    StringTokenizer st;
+    String test=null;
+    for(int lineNum=0; lineNum < inputFileLines.size(); lineNum++) {
+      st = new StringTokenizer((String) inputFileLines.get(lineNum));
+      st.nextToken(); // skip the first token
+      if(st.hasMoreTokens()) {
+        test = st.nextToken();
+        if(test.equals("ITERATIONS"))
+          iterationLineNumbers.add(new Integer(lineNum));
       }
-
-
-      // set the constraint on the number of realizations now that we know the total number
-      numRealizationsParam.setConstraint(new IntegerConstraint(1,iterationLineNumbers.size()));
-
-      // set the timespan from the 2nd line of the file
-      st = new StringTokenizer((String) inputFileLines.get(1));
-      st.nextToken(); // skip first four tokens
-      st.nextToken();
-      st.nextToken();
-      st.nextToken();
-      int year = new Double(st.nextToken()).intValue();
-      double duration = new Double(st.nextToken()).doubleValue();
-
-      timeSpan.setDuractionConstraint(duration,duration);
-      timeSpan.setDuration(duration);
-      timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,year,year);
-      timeSpan.setStartTime(year);
     }
 
+    System.out.println("Number of Iterations:"+iterationLineNumbers.size());
 
-    // make the adjustable parameters & the list
-    private void initAdjParams() {
+    // set the timespan from the 2nd line of the file
+    st = new StringTokenizer((String) inputFileLines.get(1));
+    st.nextToken(); // skip first four tokens
+    st.nextToken();
+    st.nextToken();
+    st.nextToken();
+    int year = new Double(st.nextToken()).intValue();
+    double duration = new Double(st.nextToken()).doubleValue();
 
-      backSeisOptionsStrings.add(SEIS_EXCLUDE);
-      //  backSeisOptionsStrings.add(SEIS_INCLUDE);
-      backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,SEIS_EXCLUDE);
-      grTailOptionsStrings.add(SEIS_EXCLUDE);
-      //  grTailOptionsStrings.add(SEIS_INCLUDE);
-      grTailParam = new StringParameter(GR_TAIL_NAME, backSeisOptionsStrings,SEIS_EXCLUDE);
-      rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
-          RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
-      rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
+    timeSpan.setDuractionConstraint(duration,duration);
+    timeSpan.setDuration(duration);
+    timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,year,year);
+    timeSpan.setStartTime(year);
+  }
 
-      gridSpacing_Param = new DoubleParameter(GRID_SPACING_PARAM_NAME,GRID_SPACING_PARAM_MIN,
-          GRID_SPACING_PARAM_MAX,GRID_SPACING_PARAM_UNITS,DEFAULT_GRID_SPACING_VAL);
-      gridSpacing_Param.setInfo(GRID_SPACING_PARAM_INFO);
 
-      deltaMag_Param = new DoubleParameter(DELTA_MAG_PARAM_NAME,DELTA_MAG_PARAM_MIN,
-          DELTA_MAG_PARAM_MAX,null,DEFAULT_DELTA_MAG_VAL);
-      deltaMag_Param.setInfo(DELTA_MAG_PARAM_INFO);
+  //runs the Fortran code for the WG-02 and generates the Output file that is read by OpenSHA
+  private void initWG02_Code(){
 
-      numRealizationsParam = new IntegerParameter(NUM_REALIZATIONS_PARAM_NAME,DEFAULT_NUM_REALIZATIONS_VAL);
-      numRealizationsParam.setInfo(NUM_REALIZATIONS_PARAM_INFO);
+    String realizationString ="number of Monte Carlo realizations";
 
-      // add adjustable parameters to the list
-      adjustableParams = new ParameterList();
-      adjustableParams.addParameter(rupOffset_Param);
-      adjustableParams.addParameter(gridSpacing_Param);
-      adjustableParams.addParameter(deltaMag_Param);
-      adjustableParams.addParameter(backSeisParam);
-      adjustableParams.addParameter(grTailParam);
-      adjustableParams.addParameter(numRealizationsParam);
+    //flag to check if we have to run the WG-02 fortran code
+    boolean runWG02_Code = true;
+    int numRealization = ((Integer)adjustableParams.getParameter(WG02_ERF_AdjustableParamsClass.NUM_REALIZATIONS_PARAM_NAME).getValue()).intValue();
 
+    try {
+      FileReader fr = new FileReader(WG02_CODE_PATH+WG02_INPUT_FILE);
+      BufferedReader  br = new BufferedReader(fr);
+      String lineFromInputFile = br.readLine();
+      ArrayList fileLines = new ArrayList();
+      //reading each line of file until the end of file
+      while(lineFromInputFile != null){
+        //System.out.println("Inside the while loop");
+        //reading each line from input wg02 file and checking if it is equals to
+       // number of realization value setup
+        if(lineFromInputFile.endsWith(realizationString)){
+          //if the line is for the number of realization setup, check if the
+          //parameter value is equal to the value in the file,
+          //if so then don't run the WG-02 fortran code again, else replace this
+          //value in the file with the value in the parameter
+          StringTokenizer st = new StringTokenizer(lineFromInputFile);
+          int realizationValue = (new Integer(st.nextToken())).intValue();
+          System.out.println("RealizationValue: "+realizationValue+";;numRealization: "+numRealization);
+          if(numRealization == realizationValue){
+            runWG02_Code = false;
+            fileLines= null;
+            break;
+          }
+          else
+            lineFromInputFile = (numRealization+1) +"  "+realizationString;
+        }
+        fileLines.add(lineFromInputFile);
+        lineFromInputFile = br.readLine();
+      }
+      br.close();
+      System.out.println("Flag: "+runWG02_Code);
+      //generates the new input file and run the WG-02 fortran code only if
+      //number of realizations have changed.
+      if(runWG02_Code){
+        System.out.println("Creating the input files");
+        //overwriting the WG-02 input file with the changes in the file
+        FileWriter fw = new FileWriter(WG02_CODE_PATH+WG02_INPUT_FILE);
+        BufferedWriter bw = new BufferedWriter(fw);
+        ListIterator it= fileLines.listIterator();
+        while(it.hasNext())
+          bw.write((String)it.next()+"\n");
+        bw.close();
+
+        //Command to be executed for the WG-02
+        String wg02_Command="wg99_main "+WG02_INPUT_FILE;
+        //creating the shell script  file to run the WG-02 code
+        fw= new FileWriter(WG02_CODE_PATH+"wg02.sh");
+        bw=new BufferedWriter(fw);
+        bw.write("cd "+WG02_CODE_PATH+"\n");
+        bw.write(wg02_Command+"\n");
+        bw.close();
+        //command to be executed during the runtime.
+        String[] command ={"sh","-c","sh "+ WG02_CODE_PATH+"wg02.sh"};
+        RunScript.runScript(command);
+        command[2]="rm "+WG02_CODE_PATH+"*.out*";
+        RunScript.runScript(command);
+        command[2]="rm "+WG02_CODE_PATH+"wg02.sh";
+        RunScript.runScript(command);
+      }
+    }catch(Exception e){
+      e.printStackTrace();
     }
+  }
+
+
 
 
      //Process the HTTP Get request
@@ -258,9 +273,11 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
     * @returns null for now
     */
     public ParameterList getAdjustableParams() {
-      if(this.adjustableParams==null)
+      if(this.adjustableParams==null){
         //reads the WG-02 file and add the adjustable params to the ParamList
+        this.initWG02_List();
         this.WG02_ERF_Epistemic_List();
+      }
 
       return this.adjustableParams;
     }
@@ -285,12 +302,18 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
    public ERF_ListAPI getERF_ListAPI(TimeSpan time, ParameterList params){
      System.out.println("Inside the getERF_List function");
 
-     int numIterations = ((Integer)params.getParameter(this.NUM_REALIZATIONS_PARAM_NAME).getValue()).intValue();
-     double rupOffset = ((Double)params.getParameter(this.RUP_OFFSET_PARAM_NAME).getValue()).doubleValue();
-     double deltaMag = ((Double)params.getParameter(this.DELTA_MAG_PARAM_NAME).getValue()).doubleValue();
-     double gridSpacing = ((Double)params.getParameter(this.GRID_SPACING_PARAM_NAME).getValue()).doubleValue();
-     String backSeis = (String)params.getParameter(this.BACK_SEIS_NAME).getValue();
-     String grTail = (String)params.getParameter(this.GR_TAIL_NAME).getValue();
+     int numIterations = ((Integer)params.getParameter(WG02_ERF_AdjustableParamsClass.NUM_REALIZATIONS_PARAM_NAME).getValue()).intValue();
+     double rupOffset = ((Double)params.getParameter(WG02_ERF_AdjustableParamsClass.RUP_OFFSET_PARAM_NAME).getValue()).doubleValue();
+     double deltaMag = ((Double)params.getParameter(WG02_ERF_AdjustableParamsClass.DELTA_MAG_PARAM_NAME).getValue()).doubleValue();
+     double gridSpacing = ((Double)params.getParameter(WG02_ERF_AdjustableParamsClass.GRID_SPACING_PARAM_NAME).getValue()).doubleValue();
+     this.adjustableParams = params;
+     //System.out.println("NumIterations:"+numIterations);
+     //craetes the Input file for the OpenSHA from fortran code
+     this.WG02_ERF_Epistemic_List();
+
+
+     String backSeis = (String)params.getParameter(WG02_ERF_AdjustableParamsClass.BACK_SEIS_NAME).getValue();
+     String grTail = (String)params.getParameter(WG02_ERF_AdjustableParamsClass.GR_TAIL_NAME).getValue();
      System.out.println("numIter:"+numIterations+";rupOffset:"+rupOffset+";deltaMag:"+deltaMag+";gridSpacing:"+";backSies:"+backSeis+";grTail:"+grTail);
      WG02_ERF_ListObject wg02_ERF_List= new WG02_ERF_ListObject(this.inputFileLines,this.iterationLineNumbers,
                                     numIterations,rupOffset,deltaMag,gridSpacing,

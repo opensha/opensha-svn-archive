@@ -4,7 +4,7 @@ import javax.activation.*;
 import java.io.*;
 
 import org.scec.webservices.GMT_WebServiceAPI;
-import org.scec.mapping.gmtWrapper.RunScript;
+import org.scec.util.RunScript;
 /**
  * <p>Title: </p>
  * <p>Description: </p>

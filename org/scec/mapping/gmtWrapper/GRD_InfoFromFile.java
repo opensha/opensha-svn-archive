@@ -2,7 +2,7 @@ package org.scec.mapping.gmtWrapper;
 
 import java.io.*;
 import java.util.*;
-import org.scec.mapping.gmtWrapper.RunScript;
+import org.scec.util.RunScript;
 
 /**
  * <p>Title: GRD_InfoFromFile </p>

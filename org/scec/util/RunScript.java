@@ -1,4 +1,4 @@
-package org.scec.mapping.gmtWrapper;
+package org.scec.util;
 
 import java.io.*;
 /**
