@@ -97,6 +97,17 @@ public class EstimateParameter extends DependentParameter
        return type;
    }
 
+   /**
+    * Determine if the new value being set is allowed by validating
+    * against the constraints.
+    *
+    * @param  val  Object to check if allowed via constraints
+    * @return      True if the value is allowed
+    */
+   public boolean isAllowed( Object val ){
+       if(val!=null && !(val instanceof EstimateAPI)) return false;
+       return true;
+   }
 
 
 

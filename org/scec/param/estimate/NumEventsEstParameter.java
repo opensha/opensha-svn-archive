@@ -1,7 +1,7 @@
 package org.scec.param.estimate;
 
 import org.scec.param.IntegerConstraint;
-import org.scec.data.estimate.EstimateAPI;
+import org.scec.data.estimate.IntegerEstimate;
 
 /**
  * <p>Title: NumEventsEstParameter.java </p>
@@ -26,8 +26,20 @@ public class NumEventsEstParameter extends EstimateParameter {
        this( name, null);
    }
 
-    public NumEventsEstParameter( String name, EstimateAPI value ) {
+    public NumEventsEstParameter( String name, IntegerEstimate value ) {
         super(name, constraint, units, value);
    }
+
+   /**
+   * Determine if the new value being set is allowed by validating
+   * against the constraints.
+   *
+   * @param  val  Object to check if allowed via constraints
+   * @return      True if the value is allowed
+   */
+  public boolean isAllowed( Object val ){
+      if(val!=null && !(val instanceof IntegerEstimate)) return false;
+      return true;
+  }
 
 }
