@@ -15,10 +15,10 @@ import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
 import org.jfree.chart.labels.*;
 
-import org.scec.data.function.*;
+//import org.scec.data.function.*;
 import org.scec.gui.*;
-import org.scec.gui.plot.jfreechart.*;
-import org.scec.gui.plot.*;
+//import org.scec.gui.plot.jfreechart.*;
+//import org.scec.gui.plot.*;
 /**
 
  * <p>Title: LogPlotTesterApp</p>
@@ -29,7 +29,7 @@ import org.scec.gui.plot.*;
  * @version 1.0
  */
 
-public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
+public class LogPlotTesterApp extends JApplet  {
 
   // for debug purposes
   protected final static String C = "LogPlotTesterApp";
@@ -39,7 +39,6 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
   private boolean autoScale =true;
 
   private boolean isStandalone = false;
-  private BorderLayout borderLayout1 = new BorderLayout();
   private JSplitPane jSplitPane1 = new JSplitPane();
   private JPanel innerPlotPanel = new JPanel();
   private JPanel jPanel2 = new JPanel();
@@ -80,8 +79,13 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
   // title for the chart
   private static final String TITLE = "Log-Log Testing";
 
+
+
+  //Static Strings that determine the selection in the Set DataSet Combo selection
+  private static final String USE_DEFAULT = "Use Default";
+  private static final String NEW_DATASET = "Enter New Data";
+
   // chart Panel
-  private ChartPanel panel;
 
   //variables that determine the window size
   protected final static int W = 820;
@@ -105,14 +109,25 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
   // Create the x-axis and y-axis - either normal or log
   org.jfree.chart.axis.NumberAxis xAxis = null;
   org.jfree.chart.axis.NumberAxis yAxis = null;
-  DiscretizedFuncList functions = new DiscretizedFuncList();
-  DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
+  XYSeriesCollection functions = null;
+ // DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
   Color lightBlue = new Color( 200, 200, 230 );
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private JComboBox dataSetCombo = new JComboBox();
+  private JLabel jLabel6 = new JLabel();
+  //draws the XY Plot
+  private ChartPanel panel;
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private JCheckBox log10CaretCheck = new JCheckBox();
+  private JCheckBox log10PowerCheck = new JCheckBox();
+  private JCheckBox log10AsECheck = new JCheckBox();
+  private JCheckBox minorAxisCheck = new JCheckBox();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
+  //declaration for the class that lets the user to enter his own data
+  private XYDataWindow dataWindow ;
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -140,9 +155,9 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
     logRanges.add(TEST_14);
     logRanges.add(TEST_15);
 
-    data.setFunctions(functions);
+    //data.setFunctions(functions);
     // for Y-log, convert 0 values in Y axis to this small value
-    data.setConvertZeroToMin(true,Y_MIN_VAL);
+    //data.setConvertZeroToMin(true,Y_MIN_VAL);
   }
   //Initialize the applet
   public void init() {
@@ -166,18 +181,24 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
 
     // starting
     String S = C + ": initLogPlotGui(): ";
+    //creating the dataSelection combo
+    dataSetCombo.addItem(USE_DEFAULT);
+    dataSetCombo.addItem(NEW_DATASET);
+    dataSetCombo.setSelectedItem(USE_DEFAULT);
 
     Iterator it = this.logRanges.iterator();
     while ( it.hasNext() )
       rangeCombo.addItem(it.next());
     rangeCombo.setSelectedItem((String)rangeCombo.getItemAt(0));
+
+
   }
 
 
   //Component initialization
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
-    jPanel2.setLayout(gridBagLayout2);
+    jPanel2.setLayout(gridBagLayout1);
     jLabel1.setFont(new java.awt.Font("Dialog", 1, 12));
     jLabel1.setForeground(new Color(80, 80, 133));
     jLabel1.setText("Test Case:");
@@ -211,7 +232,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
         clearButton_actionPerformed(e);
       }
     });
-    innerPlotPanel.setLayout(gridBagLayout1);
+    innerPlotPanel.setLayout(gridBagLayout2);
     jSplitPane1.setDividerSize(5);
     jPanel2.setBackground(Color.white);
     rangeCombo.setBackground(new Color(200, 200, 230));
@@ -242,34 +263,78 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
         maxYText_keyTyped(e);
       }
     });
-    this.getContentPane().add(jSplitPane1, BorderLayout.CENTER);
+    jLabel6.setFont(new java.awt.Font("Lucida Grande", 1, 13));
+    jLabel6.setForeground(new Color(80, 80, 133));
+    jLabel6.setText("Set DataSet:");
+    log10CaretCheck.setText("Set tick as(10^N)");
+    log10CaretCheck.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        log10CaretCheck_actionPerformed(e);
+      }
+    });
+    log10PowerCheck.setText("Set tick as power of 10");
+    log10PowerCheck.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        log10PowerCheck_actionPerformed(e);
+      }
+    });
+    log10AsECheck.setText("Set tick as (1e#)");
+    log10AsECheck.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        log10AsECheck_actionPerformed(e);
+      }
+    });
+    minorAxisCheck.setText("Show Minor Axis");
+    minorAxisCheck.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        minorAxisCheck_actionPerformed(e);
+      }
+    });
+    dataSetCombo.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        dataSetCombo_actionPerformed(e);
+      }
+    });
     jSplitPane1.add(innerPlotPanel, JSplitPane.LEFT);
     jSplitPane1.add(jPanel2, JSplitPane.RIGHT);
-    jPanel2.add(minXText,  new GridBagConstraints(1, 1, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 110, 4));
-    jPanel2.add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 21, 0, 0), 25, 9));
-    jPanel2.add(rangeCombo,  new GridBagConstraints(1, 0, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(11, 0, 0, 12), -16, 2));
+    jPanel2.add(minXText,  new GridBagConstraints(1, 1, 3, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 131, 4));
+    jPanel2.add(rangeCombo,  new GridBagConstraints(1, 0, 3, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(120, 0, 0, 12), -4, -2));
+    jPanel2.add(maxXText,  new GridBagConstraints(1, 2, 3, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 131, 4));
+    jPanel2.add(minYText,  new GridBagConstraints(1, 3, 3, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 131, 4));
+    jPanel2.add(maxYText,  new GridBagConstraints(1, 4, 3, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 131, 4));
+    jPanel2.add(jLabel2,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 15, 0, 0), 23, 9));
+    jPanel2.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(120, 1, 0, 0), 17, 9));
     jPanel2.add(jLabel3,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 21, 0, 7), 26, 9));
-    jPanel2.add(maxXText,  new GridBagConstraints(1, 2, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 110, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 15, 0, 7), 17, 9));
     jPanel2.add(jLabel4,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 21, 0, 19), 17, 9));
-    jPanel2.add(minYText,  new GridBagConstraints(1, 3, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 110, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 15, 0, 12), 17, 9));
     jPanel2.add(jLabel5,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 21, 0, 26), 7, 9));
-    jPanel2.add(maxYText,  new GridBagConstraints(1, 4, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 110, 4));
-    jPanel2.add(addButton,  new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 4, 311, 0), 32, 6));
-    jPanel2.add(clearButton,   new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 311, 12), 30, 6));
-    jPanel2.add(jLabel2,    new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.NORTHEAST, GridBagConstraints.NONE, new Insets(4, 21, 5, 0), 36, 9));
-    jSplitPane1.setDividerLocation(575);
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 15, 0, 18), 7, 9));
+    jPanel2.add(dataSetCombo,  new GridBagConstraints(2, 5, 2, 2, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(35, 0, 72, 12), -13, 4));
+    jPanel2.add(jLabel6,  new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(35, 7, 0, 0), 6, 8));
+    jPanel2.add(clearButton,  new GridBagConstraints(3, 10, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(109, 0, 64, 6), 23, 6));
+    jPanel2.add(addButton,  new GridBagConstraints(0, 10, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(109, 8, 64, 0), 21, 6));
+    jPanel2.add(log10CaretCheck,  new GridBagConstraints(0, 6, 4, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(51, 12, 0, 26), 65, 8));
+    jPanel2.add(log10PowerCheck,  new GridBagConstraints(0, 7, 4, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 12, 0, 26), 28, 8));
+    jPanel2.add(log10AsECheck,  new GridBagConstraints(0, 8, 4, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(21, 12, 0, 26), 72, 8));
+    jPanel2.add(minorAxisCheck,  new GridBagConstraints(0, 9, 4, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 12, 0, 26), 67, 8));
+    this.getContentPane().add(jSplitPane1, BorderLayout.CENTER);
+    jSplitPane1.setDividerLocation(500);
   }
   //Get Applet information
   public String getAppletInfo() {
@@ -320,13 +385,15 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
     String S = C + ": addButton(): ";
     if ( D ) System.out.println( S + "Starting" );
 
+    if(((String)dataSetCombo.getSelectedItem()).equals(this.NEW_DATASET)){
+      clearPlot();
+      functions = (XYSeriesCollection)dataWindow.getXYDataSet();
+    }
+    else
+      fillValues(new XYSeries("Default Data"));
 
-    DiscretizedFuncAPI function =fillValues(new ArbitrarilyDiscretizedFunc());
+    //if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
 
-    if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
-
-    functions.clear();
-    functions.add(function);
     addGraphPanel();
     return;
   }
@@ -353,18 +420,18 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
        }
 
        //create the standard ticks so that smaller values too can plotted on the chart
-       TickUnits units = MyTickUnits.createStandardTickUnits();
+       //TickUnits units = MyTickUnits.createStandardTickUnits();
 
        xAxis = new org.jfree.chart.axis.LogarithmicAxis("X-Axis");
        xAxis.setAutoRangeIncludesZero( false );
-       xAxis.setStandardTickUnits(units);
+       //xAxis.setStandardTickUnits(units);
        xAxis.setTickMarksVisible(false);
 
 
        yAxis = new org.jfree.chart.axis.LogarithmicAxis("Y-Axis");
 
        yAxis.setAutoRangeIncludesZero( false );
-       yAxis.setStandardTickUnits(units);
+       //yAxis.setStandardTickUnits(units);
        yAxis.setTickMarksVisible(false);
        //yAxis.setS
 
@@ -383,7 +450,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
 
 
        // build the plot
-       org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data, xAxis, yAxis,renderer);
+       org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(functions, xAxis, yAxis,renderer);
 
        plot.setBackgroundAlpha( .8f );
        plot.setRenderer( renderer );
@@ -421,7 +488,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
    * This function handles the Zero values in the X and Y data set when exception is thrown,
    * it reverts back to the linear scale displaying a message box to the user.
    */
-  public void invalidLogPlot(String message) {
+ /* public void invalidLogPlot(String message) {
 
     if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
       ShowMessage showMessage=new ShowMessage(this,"      X-Log Plot Error as it contains Zero Values");
@@ -433,7 +500,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
       showMessage.pack();
       showMessage.show();
     }
-  }
+  }*/
 
 
 
@@ -460,125 +527,129 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
   }
 
   void clearButton_actionPerformed(ActionEvent e) {
-   functions.clear();
-   innerPlotPanel.removeAll();
-   panel = null;
-
-   validate();
-   repaint();
+    clearPlot();
   }
 
+  void clearPlot(){
+    functions.removeAllSeries();
+    innerPlotPanel.removeAll();
+    panel = null;
+
+    validate();
+    repaint();
+  }
 
 
 
   /**
    * this function sets the initial X and Y values for which log plot has to be generated.
-   * @param function
-   * @return the DiscretizedFuncAPI object
+   * @param function : XYSeries Object
    */
-  private  DiscretizedFuncAPI fillValues(DiscretizedFuncAPI function) {
+  private  void fillValues(XYSeries function) {
+
 
    // function.set(0.0 , 0.3709240147258726);
-    function.set(1.02, 0.3252989675766);
-    function.set(2.03,0.28831584981256364);
-    function.set(3.04, 0.25759059645019516);
-    function.set(4.05 ,0.2317579929371139);
-    function.set(5.06  , 0.2098100264835782);
-    function.set(6.07 ,0.19098853513049038);
-    function.set(7.08,0.17471387488216564);
-    function.set(8.09 ,0.16053638059488);
-    function.set(9.1 , 0.1481026319892149);
-    function.set(10.11, 0.13713156153136677);
-    function.set(11.12, 0.12739724227876123);
-    function.set(12.13, 0.11871629546658767);
-    function.set(13.14, 0.11093854783560243);
-    function.set(14.15, 0.1039400106842495);
-    function.set(15.16, 0.09761754132663052);
-    function.set(16.17, 0.09188473966503793);
-    function.set(17.18, 0.08666876245566242);
-    function.set(18.19, 0.08190782703460522);
-    function.set(19.2 , 0.07754923839501857);
-    function.set(20.21, 0.07354781734946621);
-    function.set(21.22, 0.06986463883316718);
-    function.set(22.23, 0.06646601203555078);
-    function.set(23.24, 0.06332265057486956);
-    function.set(24.25, 0.06040899312057254);
-    function.set(25.26, 0.0577026439432351);
-    function.set(26.27, 0.055183909687492975);
-    function.set(27.28, 0.05283541382461658);
-    function.set(28.29, 0.050641774180271305);
-    function.set(29.3 , 0.048589331961324214);
-    function.set(30.31, 0.04666592305007844);
-    function.set(31.32, 0.04486068416147701);
-    function.set(32.33, 0.04316388789175837);
-    function.set(33.34, 0.04156680181753229);
-    function.set(34.35, 0.040061567701209534);
-    function.set(35.36, 0.038641097574252305);
-    function.set(36.37, 0.03729898404347587);
-    function.set(37.38, 0.036029422627983136);
-    function.set(38.39, 0.0348271443086532);
-    function.set(39.4 , 0.03368735677655461);
-    function.set(40.41, 0.03260569311533537);
-    function.set(41.42, 0.03157816685661586);
-    function.set(42.43, 0.03060113251538157);
-    function.set(43.44, 0.02967125085122234);
-    function.set(44.45, 0.02878545821647051);
-    function.set(45.46, 0.027940939448209676);
-    function.set(46.47, 0.027135103841264246);
-    function.set(47.48, 0.026365563806454308);
-    function.set(48.49, 0.025630115874880878);
-    function.set(49.5 , 0.02492672375664805);
-    function.set(50.51, 0.0242535032027259);
-    function.set(51.52, 0.023608708452845288);
-    function.set(52.53, 0.02299072008139646);
-    function.set(53.54, 0.02239803407810713);
-    function.set(54.55, 0.02182925202148683);
-    function.set(55.56, 0.021283072221205696);
-    function.set(56.57, 0.020758281721201435);
-    function.set(57.58, 0.02025374906876637);
-    function.set(58.59, 0.01976841776648345);
-    function.set(59.6 , 0.01930130033393358);
-    function.set(60.61, 0.018851472914810853);
-    function.set(61.62, 0.01841807037265436);
-    function.set(62.63, 0.018000281824998316);
-    function.set(63.64, 0.01759734657149157);
-    function.set(64.65, 0.017208550376563294);
-    function.set(65.66, 0.01683322207161208);
-    function.set(66.67, 0.016470730445554187);
-    function.set(67.68, 0.016120481395959056);
-    function.set(68.69, 0.01578191531598401);
-    function.set(69.7,  0.015454504694952256);
-    function.set(70.71, 0.01513775191274188);
-    function.set(71.72, 0.014831187210208815);
-    function.set(72.73, 0.014534366819687384);
-    function.set(73.74, 0.014246871241227393);
-    function.set(74.75, 0.01396830365166128);
-    function.set(75.76, 0.013698288434872056);
-    function.set(76.77, 0.013436469822769696);
-    function.set(77.78, 0.013182510637499117);
-    function.set(78.79, 0.012936091126308585);
-    function.set(79.8 , 0.012696907881319344);
-    function.set(80.81, 0.012464672837162585);
-    function.set(81.82, 0.0122391123401022);
-    function.set(82.83, 0.012019966282845403);
-    function.set(83.84, 0.01180698729977027);
-    function.set(84.85, 0.011599940017770862);
-    function.set(85.86, 0.011398600358348401);
-    function.set(86.87, 0.01120275488695998);
-    function.set(87.88, 0.011012200205984302);
-    function.set(88.89, 0.010826742387977394);
-    function.set(89.9 , 0.010646196446175296);
-    function.set(90.91, 0.010470385839457589);
-    function.set(91.92, 0.010299142009219399);
-    function.set(92.93, 0.010132303945810278);
-    function.set(93.94, 0.009969717782391493);
-    function.set(94.95, 0.009811236414237418);
-    function.set(95.96, 0.009656719141666239);
-    function.set(96.97, 0.00950603133492957);
-    function.set(97.98, 0.00935904411952373);
-    function.set(98.99, 0.00921563408050459);
+    function.add(1.02, 0.3252989675766);
+    function.add(2.03,0.28831584981256364);
+    function.add(3.04, 0.25759059645019516);
+    function.add(4.05 ,0.2317579929371139);
+    function.add(5.06  , 0.2098100264835782);
+    function.add(6.07 ,0.19098853513049038);
+    function.add(7.08,0.17471387488216564);
+    function.add(8.09 ,0.16053638059488);
+    function.add(9.1 , 0.1481026319892149);
+    function.add(10.11, 0.13713156153136677);
+    function.add(11.12, 0.12739724227876123);
+    function.add(12.13, 0.11871629546658767);
+    function.add(13.14, 0.11093854783560243);
+    function.add(14.15, 0.1039400106842495);
+    function.add(15.16, 0.09761754132663052);
+    function.add(16.17, 0.09188473966503793);
+    function.add(17.18, 0.08666876245566242);
+    function.add(18.19, 0.08190782703460522);
+    function.add(19.2 , 0.07754923839501857);
+    function.add(20.21, 0.07354781734946621);
+    function.add(21.22, 0.06986463883316718);
+    function.add(22.23, 0.06646601203555078);
+    function.add(23.24, 0.06332265057486956);
+    function.add(24.25, 0.06040899312057254);
+    function.add(25.26, 0.0577026439432351);
+    function.add(26.27, 0.055183909687492975);
+    function.add(27.28, 0.05283541382461658);
+    function.add(28.29, 0.050641774180271305);
+    function.add(29.3 , 0.048589331961324214);
+    function.add(30.31, 0.04666592305007844);
+    function.add(31.32, 0.04486068416147701);
+    function.add(32.33, 0.04316388789175837);
+    function.add(33.34, 0.04156680181753229);
+    function.add(34.35, 0.040061567701209534);
+    function.add(35.36, 0.038641097574252305);
+    function.add(36.37, 0.03729898404347587);
+    function.add(37.38, 0.036029422627983136);
+    function.add(38.39, 0.0348271443086532);
+    function.add(39.4 , 0.03368735677655461);
+    function.add(40.41, 0.03260569311533537);
+    function.add(41.42, 0.03157816685661586);
+    function.add(42.43, 0.03060113251538157);
+    function.add(43.44, 0.02967125085122234);
+    function.add(44.45, 0.02878545821647051);
+    function.add(45.46, 0.027940939448209676);
+    function.add(46.47, 0.027135103841264246);
+    function.add(47.48, 0.026365563806454308);
+    function.add(48.49, 0.025630115874880878);
+    function.add(49.5 , 0.02492672375664805);
+    function.add(50.51, 0.0242535032027259);
+    function.add(51.52, 0.023608708452845288);
+    function.add(52.53, 0.02299072008139646);
+    function.add(53.54, 0.02239803407810713);
+    function.add(54.55, 0.02182925202148683);
+    function.add(55.56, 0.021283072221205696);
+    function.add(56.57, 0.020758281721201435);
+    function.add(57.58, 0.02025374906876637);
+    function.add(58.59, 0.01976841776648345);
+    function.add(59.6 , 0.01930130033393358);
+    function.add(60.61, 0.018851472914810853);
+    function.add(61.62, 0.01841807037265436);
+    function.add(62.63, 0.018000281824998316);
+    function.add(63.64, 0.01759734657149157);
+    function.add(64.65, 0.017208550376563294);
+    function.add(65.66, 0.01683322207161208);
+    function.add(66.67, 0.016470730445554187);
+    function.add(67.68, 0.016120481395959056);
+    function.add(68.69, 0.01578191531598401);
+    function.add(69.7,  0.015454504694952256);
+    function.add(70.71, 0.01513775191274188);
+    function.add(71.72, 0.014831187210208815);
+    function.add(72.73, 0.014534366819687384);
+    function.add(73.74, 0.014246871241227393);
+    function.add(74.75, 0.01396830365166128);
+    function.add(75.76, 0.013698288434872056);
+    function.add(76.77, 0.013436469822769696);
+    function.add(77.78, 0.013182510637499117);
+    function.add(78.79, 0.012936091126308585);
+    function.add(79.8 , 0.012696907881319344);
+    function.add(80.81, 0.012464672837162585);
+    function.add(81.82, 0.0122391123401022);
+    function.add(82.83, 0.012019966282845403);
+    function.add(83.84, 0.01180698729977027);
+    function.add(84.85, 0.011599940017770862);
+    function.add(85.86, 0.011398600358348401);
+    function.add(86.87, 0.01120275488695998);
+    function.add(87.88, 0.011012200205984302);
+    function.add(88.89, 0.010826742387977394);
+    function.add(89.9 , 0.010646196446175296);
+    function.add(90.91, 0.010470385839457589);
+    function.add(91.92, 0.010299142009219399);
+    function.add(92.93, 0.010132303945810278);
+    function.add(93.94, 0.009969717782391493);
+    function.add(94.95, 0.009811236414237418);
+    function.add(95.96, 0.009656719141666239);
+    function.add(96.97, 0.00950603133492957);
+    function.add(97.98, 0.00935904411952373);
+    function.add(98.99, 0.00921563408050459);
 
-   return function;
+    functions = new XYSeriesCollection();
+    functions.addSeries(function);
   }
 
   /**
@@ -688,6 +759,31 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
         setYRange(2,8);
       }
     }
+  }
+
+  void dataSetCombo_actionPerformed(ActionEvent e) {
+    if(((String)dataSetCombo.getSelectedItem()).equals(NEW_DATASET)){
+      if(dataWindow ==null)
+        dataWindow = new XYDataWindow();
+      dataWindow.show();
+      dataWindow.pack();
+    }
+  }
+
+  void log10CaretCheck_actionPerformed(ActionEvent e) {
+
+  }
+
+  void log10PowerCheck_actionPerformed(ActionEvent e) {
+
+  }
+
+  void log10AsECheck_actionPerformed(ActionEvent e) {
+
+  }
+
+  void minorAxisCheck_actionPerformed(ActionEvent e) {
+
   }
 
 
