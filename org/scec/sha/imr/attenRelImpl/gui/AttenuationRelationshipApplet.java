@@ -221,8 +221,7 @@ public class AttenuationRelationshipApplet extends JApplet
     JSplitPane parametersSplitPane = new JSplitPane();
     JSplitPane mainSplitPane = new JSplitPane();
 
-    JScrollPane dataScrollPane = new JScrollPane();
-    JTextPane pointsTextArea = new JTextPane();
+
     private boolean yLog = false;
     private boolean xLog = false;
     int titleSize = 0;
@@ -478,11 +477,6 @@ public class AttenuationRelationshipApplet extends JApplet
         mainSplitPane.setBorder( null );
         mainSplitPane.setDividerSize( 5 );
 
-        pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
-        pointsTextArea.setText( NO_PLOT_MSG );
-
-
-        dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
 
         attenRelLabel.setForeground( darkBlue );
         attenRelLabel.setFont(new java.awt.Font( "Dialog", Font.BOLD, 13 ));
@@ -549,7 +543,7 @@ public class AttenuationRelationshipApplet extends JApplet
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ) );
 
 
-        dataScrollPane.getViewport().add( pointsTextArea, null );
+
 
         //object for the ButtonControl Panel
         buttonControlPanel = new ButtonControlPanel(this);
@@ -681,11 +675,6 @@ public class AttenuationRelationshipApplet extends JApplet
         // Clear the current traces
         //Plot needs to be cleared only if X or Y axis are changed, not otherwise
         if(newGraph)  clearPlot(true);
-
-
-
-       /* if ( frame != null )
-            frame.setTitle( this.getAppletInfo() + ": " + currentAttenuationRelationshipName );*/
 
         attenRel = attenRels.setImr( currentAttenuationRelationshipName, this );
 
@@ -912,7 +901,6 @@ public class AttenuationRelationshipApplet extends JApplet
         //if the user just wants to see the result for the single value.
         if(XLabel.equals(attenRel.X_AXIS_SINGLE_VAL)){
           functions.clear();
-          pointsTextArea.setText(" ");
           //making the GUI components disable if the user wants just one single value
           clearButton.setEnabled(false);
           buttonControlPanel.setEnabled(false);
@@ -1045,25 +1033,8 @@ public class AttenuationRelationshipApplet extends JApplet
             return;
           }
 
-          //if(D) System.out.println(S + "\n\nFunction = " + functions.toString() + "\n\n");
-
           attenRel.refreshParamEditor();
-
-          // Add points data to text area, people can see
-
-          // pointsTextArea.setText( currentAttenuationRelationshipName + ": " + attenRel.getGraphXYAxisTitle() + '\n' + functions.toString() );
-          pointsTextArea.setText(attenRel.getGraphXYAxisTitle() + "\n" + functions.toString() );
-          //if ( D ) System.out.println( S + "Graphing function:" + function.toString() );
-
           addGraphPanel();
-
-          /*  if ( titleLabel != null ) {
-          // titleLabel.setText( currentAttenuationRelationshipName + ": " + attenRel.getGraphXYAxisTitle() );
-          titleLabel.setText( currentAttenuationRelationshipName );
-          titleLabel.validate();
-          titleLabel.repaint();
-          }*/
-
           if ( D ) System.out.println( S + "Ending" );
 
         }

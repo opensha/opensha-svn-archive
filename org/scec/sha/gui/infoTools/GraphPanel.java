@@ -109,7 +109,7 @@ public class GraphPanel extends JPanel {
     chartSplitPane.add(metadataScrollPane, JSplitPane.BOTTOM);
     metadataScrollPane.getViewport().add(metadataText, null);
     chartSplitPane.add(chartPane,JSplitPane.TOP);
-    chartSplitPane.setDividerLocation(500);
+    chartSplitPane.setDividerLocation(450);
 
     // for showing the data on click of "show data" button
     pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
