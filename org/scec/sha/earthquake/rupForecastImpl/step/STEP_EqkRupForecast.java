@@ -1,3 +1,4 @@
+
 package org.scec.sha.earthquake.rupForecastImpl.step;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import org.scec.data.TimeSpan;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.sha.earthquake.rupForecastImpl.*;
+import org.scec.sha.earthquake.rupForecastImpl.PointPoissonEqkSource;
 
 /**
  * <p>Title: STEP_EqkRupForecast</p>
