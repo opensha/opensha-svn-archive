@@ -258,10 +258,10 @@ public class SubmitJobForGridComputation {
       SRBDrop srb = new SRBDrop(true);
       //putting the whole eventID containing all the files to the SRB
       srb.directoryPut(outputDir,new String(DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName),true);
-      /*String localPathtoMetadataFile = dataFiles+HazardMapCalcServlet.METADATA_FILE_NAME;
+      String localPathtoMetadataFile = dataFiles+HazardMapCalcServlet.METADATA_FILE_NAME;
       String remotePathToMetadataFile = DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName+
                                         DATA_DIR+HazardMapCalcServlet.METADATA_FILE_NAME;
-      srb.addMDToCollection(localPathtoMetadataFile,remotePathToMetadataFile,"=");*/
+      srb.addMDToCollection(localPathtoMetadataFile,remotePathToMetadataFile,"=");
     }
     catch (Exception ex) {
       ex.printStackTrace();
