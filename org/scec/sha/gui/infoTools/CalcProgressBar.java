@@ -1,3 +1,5 @@
+
+
 package org.scec.sha.gui.infoTools;
 
 import javax.swing.*;
@@ -14,9 +16,9 @@ import java.awt.Rectangle;
  * @version 1.0
  */
 
-public class CalcProgressBar extends JProgressBar {
+public class CalcProgressBar extends JFrame {
 
-  private JFrame frame;
+
   private JLabel label;
   // frame height and width
   private int FRAME_WIDTH = 320;
@@ -26,12 +28,14 @@ public class CalcProgressBar extends JProgressBar {
   private int FRAME_STARTX = 400;
   private int FRAME_STARTY = 200;
 
+  private JProgressBar progress;
+
   private String frameMessage=  new String();
   /**
    * class constructor
    */
   public CalcProgressBar(String frameMsg,String labelMsg){
-    super(0,100);
+    progress= new JProgressBar(0,100);
 
     //progress frame title
     frameMessage=frameMsg;
@@ -46,16 +50,16 @@ public class CalcProgressBar extends JProgressBar {
    * Display "Updating forecast" initially
    */
   private void initProgressFrame() {
-    frame = new JFrame(frameMessage);
-    frame.setLocation(this.FRAME_STARTX, this.FRAME_STARTY);
-    frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
+    this.setTitle(frameMessage);
+    this.setLocation(this.FRAME_STARTX, this.FRAME_STARTY);
+    this.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
     // make the progress bar
-    this.setStringPainted(true); // display the percentage completed also
-    this.setSize(FRAME_WIDTH-10, FRAME_HEIGHT-10);
-    frame.getContentPane().setLayout(new GridBagLayout());
-    frame.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    progress.setStringPainted(true); // display the percentage completed also
+    progress.setSize(FRAME_WIDTH-10, FRAME_HEIGHT-10);
+    this.getContentPane().setLayout(new GridBagLayout());
+    this.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 110, 10));
-    frame.show();
+    this.show();
     label.paintImmediately(label.getBounds());
   }
 
@@ -66,7 +70,7 @@ public class CalcProgressBar extends JProgressBar {
    */
   public void setProgressMessage(String progressMsg){
     label.setText(progressMsg);
-    frame.show();
+    //this.show();
     label.paintImmediately(label.getBounds());
   }
 
@@ -76,12 +80,13 @@ public class CalcProgressBar extends JProgressBar {
   public void displayProgressBar() {
     // now add the  progress bar
     label.setVisible(false);
-    frame.getContentPane().remove(label);
-    frame.getContentPane().add(this, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    this.getContentPane().remove(label);
+    this.getContentPane().add(this.progress, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 110, 10));
-    frame.getContentPane().remove(label);
-    frame.getContentPane().validate();
-    frame.getContentPane().repaint();
+    this.getContentPane().remove(label);
+    this.getContentPane().validate();
+    this.getContentPane().repaint();
+    //this.show();
   }
 
   /**
@@ -91,10 +96,10 @@ public class CalcProgressBar extends JProgressBar {
    * @param str  : string to be displayed in progress bar
    */
   private  void updateProgressBar(int val, String str) {
-    this.setString(str);
-    this.setValue(val);
-    Rectangle rect = this.getBounds();
-    this.paintImmediately(rect);
+    progress.setString(str);
+    progress.setValue(val);
+    Rectangle rect = progress.getBounds();
+    //progress.paintImmediately(rect);
   }
 
 
@@ -105,11 +110,11 @@ public class CalcProgressBar extends JProgressBar {
    */
   public void updateProgress(int num, int totNum) {
 
-    int val=0;
-    boolean update = false;
+    //int val=0;
+   // boolean update = false;
 
     // find if we're at a point to update
-    if(num == (int) (totNum*0.9)) { // 90% complete
+   /* if(num == (int) (totNum*0.9)) { // 90% complete
       val = 90;
       update = true;
     } else if(num == (int) (totNum*0.8)) { // 80% complete
@@ -136,23 +141,16 @@ public class CalcProgressBar extends JProgressBar {
     } else if(num == (int) (totNum*0.1)) { // 10% complete
       val = 10;
       update = true;
-    }
+    }*/
     // update the progress bar
-    if(update == true)
-      updateProgressBar(val,Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Done");
+    //if(update == true)
+    updateProgressBar((num*100)/totNum, num + "  of  " + Integer.toString(totNum) + "  Done");
+    //this.show();
   }
 
   public void showProgress(boolean flag){
     this.setVisible(flag);
     if(flag==false)
-      this.frame.dispose();
-  }
-
-
-  /**
-   * dispose the frame
-   */
-  public void dispose() {
-    frame.dispose();
+      this.dispose();
   }
 }

@@ -151,7 +151,7 @@ public class HazardMapCalculator {
     Site site;
     this.xLogFlag = imtLogFlag;
     HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
-    hazCurveCalc.showProgressBar(false);
+    //hazCurveCalc.showProgressBar(false);
 
     if(this.showProgressBar) { // show the progress bar
       progressClass = new CalcProgressBar("Hazard-Map Calc Status", "Beginning Calculation ");

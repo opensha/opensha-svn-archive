@@ -47,7 +47,7 @@ import org.scec.data.Site;
  */
 
 public class HazardCurveApplet extends JApplet
-    implements LogPlotAPI, ParameterChangeListener, AxisLimitsControlPanelAPI,
+    implements Runnable, LogPlotAPI, ParameterChangeListener, AxisLimitsControlPanelAPI,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI {
 
   /**
@@ -66,9 +66,8 @@ public class HazardCurveApplet extends JApplet
   public final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
   public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
   public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
-  public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
+ // public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
-  public final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
 
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
@@ -262,6 +261,9 @@ public class HazardCurveApplet extends JApplet
   FlowLayout flowLayout1 = new FlowLayout();
   GridBagLayout gridBagLayout10 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
+  HazardCurveCalculator calc;
+  CalcProgressBar progressClass;
+  Timer timer;
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -433,9 +435,9 @@ public class HazardCurveApplet extends JApplet
     imrSplitPane.add(imrPanel, JSplitPane.TOP);
     imrSplitPane.add(imtPanel, JSplitPane.BOTTOM);
     controlsSplit.add(imrSplitPane, JSplitPane.LEFT);
-    paramsTabbedPane.add(controlsSplit, "IMR,  IMT,  &  Site");
+    paramsTabbedPane.add(controlsSplit, "IMR, IMT & Site");
     controlsSplit.add(sitePanel, JSplitPane.RIGHT);
-    paramsTabbedPane.add(erfSplitPane, "ERF  &  Time Span");
+    paramsTabbedPane.add(erfSplitPane, "ERF & Time Span");
     erfSplitPane.add(erfPanel, JSplitPane.LEFT);
     erfSplitPane.add(timeSpanPanel, JSplitPane.RIGHT);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
@@ -647,8 +649,8 @@ public class HazardCurveApplet extends JApplet
        }
 
 
-       validate();
-       repaint();
+       panel.validate();
+       panel.repaint();
 
        if ( D ) System.out.println( S + "Ending" );
 
@@ -663,42 +665,70 @@ public class HazardCurveApplet extends JApplet
     }
 
 
+    public void run() {
+      computeHazardCurve();
+    }
+
     /**
      * this function is called to draw the graph
      */
     private void addButton() {
-
-
-      // clear the function list
-      //this.totalProbFuncs.clear();
-
       // do not show warning messages in IMR gui bean. this is needed
       // so that warning messages for site parameters are not shown when Add graph is clicked
       imrGuiBean.showWarningMessages(false);
+      calc = new HazardCurveCalculator();
 
-      computeHazardCurve();
+      // check if progress bar is desired and set it up if so
+      if(this.progressCheckBox.isSelected())  {
+        //progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+        //progressClass.displayProgressBar();
 
-      // you can show warning messages now
-      imrGuiBean.showWarningMessages(true);
-
-      // set the log values
-      data.setXLog(xLog);
-      data.setYLog(yLog);
-
-      // set the data in the text area
-      String xAxisTitle =  totalProbFuncs.getXAxisName();
-      String yAxisTitle =  totalProbFuncs.getYAxisName();
-
-      this.pointsTextArea.setText(totalProbFuncs.toString());
-      addGraphPanel();
-
-      //displays the disaggregation string in the pop-up window
-      if(disaggregationString !=null) {
-        HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
-        disaggregation.pack();
-        disaggregation.show();
-
+        timer = new Timer(500, new ActionListener() {
+          public void actionPerformed(ActionEvent evt) {
+            if(calc.getCurrRuptures()!=-1)
+              progressClass.updateProgress(calc.getCurrRuptures(), calc.getTotRuptures());
+            if(isIndividualCurves) {
+              drawGraph();
+              isIndividualCurves = false;
+            }
+            if (calc.done()) {
+             // Toolkit.getDefaultToolkit().beep();
+              timer.stop();
+              progressClass.dispose();
+              drawGraph();
+            }
+          }
+        });
       }
+      Thread t = new Thread(this);
+      t.start();
+    }
+
+    /**
+     * to draw the graph
+     */
+    private void drawGraph() {
+      // you can show warning messages now
+     imrGuiBean.showWarningMessages(true);
+
+     // set the log values
+     data.setXLog(xLog);
+     data.setYLog(yLog);
+
+     // set the data in the text area
+     String xAxisTitle =  totalProbFuncs.getXAxisName();
+     String yAxisTitle =  totalProbFuncs.getYAxisName();
+
+     this.pointsTextArea.setText(totalProbFuncs.toString());
+     addGraphPanel();
+
+     //displays the disaggregation string in the pop-up window
+     if(disaggregationString !=null) {
+       HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
+       disaggregation.pack();
+       disaggregation.show();
+
+     }
       disaggregationString=null;
     }
 
@@ -788,8 +818,8 @@ public class HazardCurveApplet extends JApplet
       this.totalProbFuncs.clear();
     }
 
-    validate();
-    repaint();
+    panel.validate();
+    panel.repaint();
     chartSplit.setDividerLocation( newLoc );
   }
 
@@ -900,7 +930,11 @@ public class HazardCurveApplet extends JApplet
     erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
     // get the selected forecast model
     EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
-
+    if(this.progressCheckBox.isSelected())  {
+        progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+        progressClass.displayProgressBar();
+    }
+    timer.start();
 
     // get the selected IMR
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
@@ -924,12 +958,13 @@ public class HazardCurveApplet extends JApplet
       handleForecastList(site, imr, eqkRupForecast);
       return;
     }
+    calc.setNumForecasts(1);
     // this is not a eqk list
    this.isEqkList = false;
     // calculate the hazard curve
-   HazardCurveCalculator calc = new HazardCurveCalculator();
+   //HazardCurveCalculator calc = new HazardCurveCalculator();
    // do not show progress bar if not desired by user
-   calc.showProgressBar(this.progressCheckBox.isSelected());
+   //calc.showProgressBar(this.progressCheckBox.isSelected());
    if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
    // initialize the values in condProbfunc with log values as passed in hazFunction
    // intialize the hazard function
@@ -994,19 +1029,20 @@ public class HazardCurveApplet extends JApplet
                                   EqkRupForecastAPI eqkRupForecast) {
    ERF_List erfList  = (ERF_List)eqkRupForecast;
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
+   calc.setNumForecasts(numERFs);
    // clear the function list
    totalProbFuncs.clear();
    // calculate the hazard curve
-   HazardCurveCalculator calc = new HazardCurveCalculator();
    if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
    // do not show progress bar if not desired by user
-   calc.showProgressBar(this.progressCheckBox.isSelected());
+   //calc.showProgressBar(this.progressCheckBox.isSelected());
    //check if the curves are to shown in the same black color for each erf.
-   isIndividualCurves = true;
     this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
    // calculate hazard curve for each ERF within the list
+    this.isIndividualCurves = false;
    for(int i=0; i<numERFs; ++i) {
      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+     while(isIndividualCurves);
      // intialize the hazard function
      initX_Values(hazFunction);
      try {
@@ -1021,8 +1057,8 @@ public class HazardCurveApplet extends JApplet
        return;
      }
      totalProbFuncs.add(hazFunction);
-     addGraphPanel();
-     chartPanel.paintImmediately(chartPanel.getBounds());
+     this.isIndividualCurves = true;
+     //chartPanel.paintImmediately(chartPanel.getBounds());
    }
 
 
@@ -1082,9 +1118,6 @@ public class HazardCurveApplet extends JApplet
      imrClasses.add(this.SCEMY_CLASS_NAME);
      imrClasses.add(this.CB_CLASS_NAME);
      imrClasses.add(this.F_CLASS_NAME);
-     imrClasses.add(this.A_CLASS_NAME);
-     imrClasses.add(this.SM_CLASS_NAME);
-
      imrGuiBean = new IMR_GuiBean(imrClasses);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
      // show this gui bean the JPanel

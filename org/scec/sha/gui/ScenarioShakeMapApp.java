@@ -30,7 +30,7 @@ import org.scec.sha.gui.infoTools.*;
  * @version 1.0
  */
 
-public class ScenarioShakeMapApp extends JApplet implements
+public class ScenarioShakeMapApp extends JApplet implements Runnable,
                                          ParameterChangeListener{
 
 
@@ -127,6 +127,9 @@ public class ScenarioShakeMapApp extends JApplet implements
   GridBagLayout gridBagLayout4 = new GridBagLayout();
   GridBagLayout gridBagLayout6 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
+  private CalcProgressBar calcProgress;
+  private int step;
+  private javax.swing.Timer timer;
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -213,13 +216,14 @@ public class ScenarioShakeMapApp extends JApplet implements
 
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
     imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
-    parameterTabbedPanel.add(imrPanel, "Intensity-Measure Relationship");
+    //parameterTabbedPanel.setLayout(JTabbedPane.);
+    parameterTabbedPanel.add("Intensity-Measure Relationship", imrPanel);
     imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
-    parameterTabbedPanel.add(gridRegionSitePanel,   "Region & Site Params");
-    parameterTabbedPanel.add(eqkRupPanel,  "Earthquake Rupture from Forecast");
-    parameterTabbedPanel.add(timespanPanel, "Time Span");
-    parameterTabbedPanel.add(prob_IMLPanel,  "Exceedance Level/Probability");
-    parameterTabbedPanel.add(gmtPanel,  "Map Attributes");
+    parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
+    parameterTabbedPanel.add("Earthquake Rupture from Forecast", eqkRupPanel );
+    parameterTabbedPanel.add("Time Span", timespanPanel);
+    parameterTabbedPanel.add( "Exceedance Level/Probability", prob_IMLPanel);
+    parameterTabbedPanel.add("Map Attributes", gmtPanel);
 
     mainSplitPane.setDividerLocation(580);
     imr_IMTSplit.setDividerLocation(300);
@@ -437,7 +441,6 @@ public class ScenarioShakeMapApp extends JApplet implements
    */
   private void generateShakeMap(){
 
-    CalcProgressBar calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
     boolean imlAtProb=false;
     boolean probAtIML=false;
     double imlProbValue=imlProbGuiBean.getIML_Prob();
@@ -447,6 +450,7 @@ public class ScenarioShakeMapApp extends JApplet implements
       griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
     }catch(Exception e) {
       JOptionPane.showMessageDialog(this,e.getMessage());
+      step = 3;
       return;
     }
     int numSites = griddedRegionSites.getNumGridLocs();
@@ -464,13 +468,11 @@ public class ScenarioShakeMapApp extends JApplet implements
      if(D) System.out.println(C + ":Param warning caught"+ex);
      ex.printStackTrace();
     }
-
+    ++step;
     Vector siteLat= new Vector();
     Vector siteLon= new Vector();
     Vector siteValue = new Vector();
-    calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
-    for(int i=0;i<numSites;++i){
-      calcProgress.updateProgress(i,numSites);
+    for(int i=0;i<numSites;++i) {
       site = griddedRegionSites.getSite(i);
 
       siteLat.add(new Double(site.getLocation().getLatitude()));
@@ -480,7 +482,7 @@ public class ScenarioShakeMapApp extends JApplet implements
       try {
         imr.setProbEqkRupture(erfGuiBean.getRupture());
       } catch (Exception ex) {
-        calcProgress.dispose();
+        step = 3;
         JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
         this.repaint();
         this.validate();
@@ -503,6 +505,7 @@ public class ScenarioShakeMapApp extends JApplet implements
     }catch(Exception e) {
       e.printStackTrace();
     }
+    ++step;
     calcProgress.setProgressMessage("  Generating the Map ...");
     double minLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
     double maxLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
@@ -510,8 +513,6 @@ public class ScenarioShakeMapApp extends JApplet implements
     double maxLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
     double gridSpacing=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
     mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
-    mapGuiBean.makeMap(this.fileNameTextField.getText().trim()+".txt",this.getMapParametersInfo());
-    calcProgress.dispose();
   }
 
 
@@ -535,6 +536,26 @@ public class ScenarioShakeMapApp extends JApplet implements
   }
 
   void addButton_actionPerformed(ActionEvent e) {
+    calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
+    step = 0;
+    timer = new javax.swing.Timer(200, new ActionListener() {
+         public void actionPerformed(ActionEvent evt) {
+           if(step==1)
+             calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
+           if(step==2) {
+             mapGuiBean.makeMap(fileNameTextField.getText().trim()+".txt",getMapParametersInfo());
+             calcProgress.dispose();
+             timer.stop();
+           }
+         }
+       });
+
+    timer.start();
+    Thread t = new Thread(this);
+    t.run();
+  }
+
+  public void run() {
     this.generateShakeMap();
   }
 

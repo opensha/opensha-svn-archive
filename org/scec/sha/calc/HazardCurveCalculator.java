@@ -38,10 +38,9 @@ public class HazardCurveCalculator {
   */
   protected double MAX_DISTANCE = 300;
 
-  // boolean for telling whether to show a progress bar
-  boolean showProgressBar = true;
-
-  private CalcProgressBar progressClass ;
+  private int currRuptures = -1;
+  private int totRuptures=0;
+  private int numForecasts=0;
 
   /**
    * This sets the maximum distance of sources to be considered in the calculation
@@ -55,13 +54,8 @@ public class HazardCurveCalculator {
     MAX_DISTANCE = distance;
   }
 
-
-  /**
-   * This allows tuning on or off the showing of a progress bar
-   * @param show - set as true to show it, or false to not show it
-   */
-  public void showProgressBar(boolean show) {
-    this.showProgressBar=show;
+  public void setNumForecasts(int num) {
+    this.numForecasts = num;
   }
 
   /**
@@ -77,6 +71,8 @@ public class HazardCurveCalculator {
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
+    this.currRuptures = -1;
+
     /* this determines how the calucations are done (doing it the way it's outlined
     in the paper SRL gives probs greater than 1 if the total rate of events for the
     source exceeds 1.0, even if the rates of individual ruptures are << 1).
@@ -88,7 +84,7 @@ public class HazardCurveCalculator {
 
     // declare some varibles used in the calculation
     double qkProb, distance;
-    int k,i,totRuptures=0,currRuptures=0;
+    int k,i;
 
     // get the number of points
     int numPoints = hazFunction.getNum();
@@ -96,22 +92,13 @@ public class HazardCurveCalculator {
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
 
-    // check if progress bar is desired and set it up if so
-    if(this.showProgressBar) {
-      progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
-      progressClass.displayProgressBar();
+    // compute the total number of ruptures for updating the progress bar
+    totRuptures = 0;
+    for(i=0;i<numSources;++i)
+      totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
 
-      // compute the total number of ruptures for updating the progress bar
-      totRuptures = 0;
-      for(i=0;i<numSources;++i)
-        totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
-
-      // init the current rupture number (also for progress bar)
-      currRuptures = 0;
-
-      // initialize the progress bar to zero ruptures
-      progressClass.updateProgress(currRuptures, totRuptures);
-    }
+    // init the current rupture number (also for progress bar)
+    currRuptures = 0;
 
     // initialize the hazard function to 1.0
     initDiscretizeValues(hazFunction, 1.0);
@@ -140,10 +127,7 @@ public class HazardCurveCalculator {
       distance = source.getMinDistance(site);
       if(distance > MAX_DISTANCE) {
         //update progress bar for skipped ruptures
-        if(this.showProgressBar) {
-          currRuptures += source.getNumRuptures();
-          progressClass.updateProgress(currRuptures, totRuptures);
-        }
+        currRuptures += source.getNumRuptures();
         continue;
       }
 
@@ -162,10 +146,6 @@ public class HazardCurveCalculator {
 
       // loop over these ruptures
       for(int n=0; n < numRuptures ; n++,++currRuptures) {
-
-        // update the progress bar is necessary
-        if(showProgressBar)
-          progressClass.updateProgress(currRuptures, totRuptures);
 
         // get the rupture probability
         qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
@@ -204,11 +184,21 @@ public class HazardCurveCalculator {
       for(i=0;i<numPoints;++i)
         hazFunction.set(i,0.0);
 
-    if(showProgressBar)  progressClass.dispose();
-
     if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
 
+  }
 
+
+  public int getCurrRuptures() {
+    return this.currRuptures;
+  }
+
+  public int getTotRuptures() {
+    return this.totRuptures;
+  }
+
+  public boolean done() {
+    return (currRuptures==totRuptures && (--numForecasts==0));
   }
 
 
@@ -222,8 +212,6 @@ public class HazardCurveCalculator {
     for(int i=0;i<num;++i)
       arb.set(i,val);
   }
-
-
 
 }
 
