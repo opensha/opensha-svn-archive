@@ -1012,7 +1012,6 @@ public class HazardCurveApplet extends JApplet
                                   EqkRupForecastAPI eqkRupForecast) {
    ERF_List erfList  = (ERF_List)eqkRupForecast;
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
-   this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
    // clear the function list
    totalProbFuncs.clear();
    // calculate the hazard curve
@@ -1038,6 +1037,8 @@ public class HazardCurveApplet extends JApplet
        return;
      }
      totalProbFuncs.add(hazFunction);
+     this.addGraphPanel();
+     this.chartPanel.paintImmediately(chartPanel.getBounds());
    }
 
 
@@ -1066,7 +1067,7 @@ public class HazardCurveApplet extends JApplet
    }
    // calculate average
    if(this.avgSelected) totalProbFuncs.add(fractileCalc.getMeanCurve());
-
+   this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
    // set the X-axis label
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
    totalProbFuncs.setYAxisName("Probability of Exceedance");
