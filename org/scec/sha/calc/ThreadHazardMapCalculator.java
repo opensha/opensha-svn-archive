@@ -2,15 +2,18 @@ package org.scec.sha.calc;
 
 
 import java.io.*;
+import java.text.DecimalFormat;
+import java.util.Calendar;
 import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.data.Site;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import java.text.DecimalFormat;
+
 import org.scec.data.function.DiscretizedFuncAPI;
 import org.scec.util.FileUtils;
+
 /**
  *
  * <p>Title: ThreadHazardMapCalculator.java </p>
@@ -147,8 +150,17 @@ public void getHazardMapCurves(String[] args) {
 
    public void run(){
      Site site = null;
-     for(int j=startIndex;j<endIndex;++j){
-       try{
+     Calendar calendar = Calendar.getInstance();
+     String datetime = new String(calendar.get(Calendar.YEAR) + "-" +
+                                 (calendar.get(Calendar.MONTH) + 1) + "-" +
+                                 calendar.get(Calendar.DAY_OF_MONTH) + "  " +
+                                 calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+                                 calendar.get(Calendar.MINUTE) + ":" +
+                                 calendar.get(Calendar.SECOND));
+     try{
+       FileWriter fw = new FileWriter("ThreadTime.txt", true);
+       fw.write("Thread for : "+startIndex+"-"+endIndex+" started at: "+datetime+"\n");
+       for(int j=startIndex;j<endIndex;++j){
          site = regionObj.getSite(j);
          // make and initialize the haz function
          ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -163,9 +175,18 @@ public void getHazardMapCurves(String[] args) {
          for (int i = 0; i < numPoints; ++i)
            fr.write(hazFunction.getX(i) + " " + hazFunction.getY(i) + "\n");
          fr.close();
-       }catch(Exception e){
-         e.printStackTrace();
        }
+       calendar = Calendar.getInstance();
+       datetime = new String(calendar.get(Calendar.YEAR) + "-" +
+                             (calendar.get(Calendar.MONTH) + 1) + "-" +
+                             calendar.get(Calendar.DAY_OF_MONTH) + "  " +
+                             calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+                             calendar.get(Calendar.MINUTE) + ":" +
+                             calendar.get(Calendar.SECOND));
+       fw.write("Thread for : "+startIndex+"-"+endIndex+" finished at: "+datetime+"\n");
+       fw.close();
+     }catch(Exception e){
+       e.printStackTrace();
      }
    }
 
