@@ -47,7 +47,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param num
    * @param delta
    */
-  public GaussianMagFreqDist(double min,int num,double delta) {
+  public GaussianMagFreqDist(double min,int num,double delta) throws DataPoint2DException{
     super(min,num,delta);
     computeRates();
   }
@@ -58,7 +58,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param max
    * @param num
    */
-  public GaussianMagFreqDist(double min,double max,int num) {
+  public GaussianMagFreqDist(double min,double max,int num) throws DataPoint2DException{
     super(min,max,num);
     computeRates();
   }
@@ -74,7 +74,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param totMoRate
    */
   public GaussianMagFreqDist(double min,int num,double delta,double mean,double stdDev,
-                             double totMoRate) {
+                             double totMoRate) throws DataPoint2DException{
     super(min,num,delta);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -95,7 +95,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param truncType
    */
   public GaussianMagFreqDist(double min,int num,double delta,double mean,double stdDev,
-                             double totMoRate,double truncLevel,int truncType) {
+                             double totMoRate,double truncLevel,int truncType) throws DataPoint2DException{
     super(min,num,delta);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -117,7 +117,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param truncType
    */
   public GaussianMagFreqDist(double min,double max,int num,double mean,double stdDev,
-                             double totMoRate,double truncLevel,int truncType) {
+                             double totMoRate,double truncLevel,int truncType) throws DataPoint2DException{
     super(min,max,num);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -202,7 +202,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * sets the mean for this distribution
    * @param mean
    */
-  public void setMean(double mean) {
+  public void setMean(double mean) throws DataPoint2DException{
     this.mean=mean;
     computeRates();
   }
@@ -211,7 +211,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * set the StdDev for this distribution
    * @param stdDev
    */
-  public void setStdDev(double stdDev) {
+  public void setStdDev(double stdDev) throws DataPoint2DException{
     this.stdDev=stdDev;
     computeRates();
   }
@@ -220,7 +220,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * sets the totMoRate for this distribution
    * @param totMoRate
    */
-  public void setTotMoRate(double totMoRate) {
+  public void setTotMoRate(double totMoRate) throws DataPoint2DException{
     this.totMoRate=totMoRate;
     computeRates();
   }
@@ -232,7 +232,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param truncLevel
    * @param truncType
    */
-  public void setTruncLevelAndType(double truncLevel,int truncType) {
+  public void setTruncLevelAndType(double truncLevel,int truncType) throws DataPoint2DException{
     this.truncLevel=truncLevel;
     this.truncType=truncType;
     computeRates();
@@ -244,7 +244,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param mean
    * @param totMoRate
    */
-  public void setMeanAndTotalMomentRate(double mean,double totMoRate) {
+  public void setMeanAndTotalMomentRate(double mean,double totMoRate) throws DataPoint2DException{
     setMean(mean);
     setTotMoRate(totMoRate);
     computeRates();
@@ -258,7 +258,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param stdDev
    * @param totMoRate
    */
-  public void setAll(double mean,double stdDev,double totMoRate) {
+  public void setAll(double mean,double stdDev,double totMoRate) throws DataPoint2DException{
     setMean(mean);
     setStdDev(stdDev);
     setTotMoRate(totMoRate);
@@ -275,7 +275,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param truncType
    */
   public void setAll(double mean,double stdDev,double totMoRate,double truncLevel,
-                     int truncType) {
+                     int truncType) throws DataPoint2DException{
     setMean(mean);
     setStdDev(stdDev);
     setTotMoRate(totMoRate);
@@ -283,7 +283,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
     computeRates();
   }
 
-  public void set(DataPoint2D point) throws DataPoint2DException {
+  /*public void set(DataPoint2D point) throws DataPoint2DException {
     super.set(point);
   }
 
@@ -293,7 +293,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
 
   public void set(int index,double y) throws DataPoint2DException {
     super.set(index,y);
-  }
+  }*/
 
   /**
    * This functions call the method set(int,double) in the EvenlyDiscretized class

@@ -541,8 +541,8 @@ public abstract class ClassicIMR
 
         // compute probability based on truncation type
         if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_NONE ) ) {
-            //return (1.0 - prob );
-           return 0.0;
+            return (1.0 - prob );
+            //return 0.0;
         }
         else if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) ) {
             double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();

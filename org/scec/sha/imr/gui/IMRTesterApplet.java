@@ -254,6 +254,7 @@ public class IMRTesterApplet
 
     DiscretizedFuncList functions = new DiscretizedFuncList();
     DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
+  private JLabel jAxisScale = new JLabel();
 
     /**
      *  Construct the applet
@@ -601,7 +602,6 @@ public class IMRTesterApplet
         plotColorCheckBox.setForeground(new Color(80, 80, 133));
         plotColorCheckBox.setText("Black Background");
         plotColorCheckBox.addItemListener( this );
-        rangeComboBox.addItem(new String("Set Axis Scale"));
         rangeComboBox.addItem(new String("Auto Scale"));
         rangeComboBox.addItem(new String("Custom Scale"));
         rangeComboBox.setBackground(new Color(200, 200, 230));
@@ -614,6 +614,8 @@ public class IMRTesterApplet
           rangeComboBox_actionPerformed(e);
         }
         });
+    jAxisScale.setForeground(new Color(80, 80, 133));
+    jAxisScale.setText("Set Axis Scale: ");
     this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
@@ -667,6 +669,8 @@ public class IMRTesterApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
     buttonPanel.add(rangeComboBox,            new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
+    buttonPanel.add(jAxisScale,         new GridBagConstraints(5, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
 
         parametersSplitPane.setBottomComponent( sheetPanel );
@@ -1291,12 +1295,12 @@ public class IMRTesterApplet
         /** @todo may have to be switched when different x/y axis choosen */
         if ( !functions.isFuncAllowed( function ) ) {
             functions.clear();
-            data.prepForXLog();
+            //data.prepForXLog();
         }
         if( !functions.contains( function ) ){
             if ( D ) System.out.println( S + "Adding new function" );
             functions.add(function);
-            data.prepForXLog();
+            //data.prepForXLog();
         }
         else {
 
@@ -1484,11 +1488,13 @@ public class IMRTesterApplet
       addGraphPanel();
     }
     if(str.equalsIgnoreCase("custom Scale"))  {
+       int xCenter=getAppletXAxisCenterCoor();
+       int yCenter=getAppletYAxisCenterCoor();
        IMRAxisScale axisScale=new IMRAxisScale(this);
+       axisScale.setBounds(xCenter-60,yCenter-50,375,148);
        axisScale.pack();
        axisScale.show();
     }
-    this.rangeComboBox.setSelectedIndex(0);
   }
 
   /**
@@ -1519,21 +1525,40 @@ public class IMRTesterApplet
    * This function handles the Zero values in the X and Y data set when exception is thrown,
    * it reverts back to the linear scale displaying a message box to the user.
    */
- public void invalidLogPlot(String message) {
+  public void invalidLogPlot(String message) {
 
+     int xCenter=getAppletXAxisCenterCoor();
+     int yCenter=getAppletYAxisCenterCoor();
      if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
        this.jCheckxlog.setSelected(false);
        ShowMessage showMessage=new ShowMessage(this,"      X-Log Plot Error as it contains Zero Values");
+       showMessage.setBounds(xCenter-60,yCenter-50,370,145);
        showMessage.pack();
        showMessage.show();
      }
      if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
        this.jCheckylog.setSelected(false);
        ShowMessage showMessage=new ShowMessage(this,"      Y-Log Plot Error as it contains Zero Values");
+       showMessage.setBounds(xCenter-60,yCenter-50,375,148);
        showMessage.pack();
        showMessage.show();
      }
+  }
 
+  /**
+   * gets the Applets X-axis center coordinates
+   * @return
+   */
+  private int getAppletXAxisCenterCoor() {
+    return (this.getX()+this.getWidth())/2;
+  }
 
- }
+  /**
+   * gets the Applets Y-axis center coordinates
+   * @return
+   */
+  private int getAppletYAxisCenterCoor() {
+    return (this.getY() + this.getHeight())/2;
+  }
+
 }
