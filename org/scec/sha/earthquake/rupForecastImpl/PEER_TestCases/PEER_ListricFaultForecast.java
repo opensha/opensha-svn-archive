@@ -97,7 +97,8 @@ public class PEER_ListricFaultForecast extends EqkRupForecast
                          SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
 
   // add rake param
-  DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME);
+  private Double DEFAULT_RAKE_VAL = new Double(0);
+  DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME, DEFAULT_RAKE_VAL);
 
   //adding the supported MagDists
   Vector supportedMagDists=new Vector();
