@@ -1,5 +1,8 @@
 package org.scec.sha.magdist;
 import org.scec.data.function.EvenlyDiscretizedFunc;
+
+
+
 /**
  *
  * <p>Title: IncrementalMagFreqDistAPI</p>

@@ -5,9 +5,8 @@ import java.util.Vector;
 import org.scec.data.DataPoint2D;
 import org.scec.data.function.DiscretizedFuncList;
 import org.scec.exceptions.DiscretizedFunction2DException;
+import org.scec.exceptions.MagFreqDistException;
 import org.scec.exceptions.DataPoint2DException;
-
-
 
 
 
@@ -132,13 +131,50 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
 
      for (int i=0;i<num;++i)      // add the y values from this new distribution
-       set(i,this.getY(i)+ magFreqDist.getY(i));
+       super.set(i,this.getY(i)+ magFreqDist.getY(i));
 
     if(saveMagFreqDists)         // save this distribution in the list
        savedMagFreqDists.add(magFreqDist);
     else if(saveAllInfo)         // if only info is desired to be saved
        savedInfoList.add(magFreqDist.getInfo());
    }
+
+   /**
+   * Throws the exception if the set functions are called from outside the class
+   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+   * by making a objects of the SummedMagFreqDist class and calling the set functions of this from outside
+   * @param point
+   * @throws MagFreqDistException
+   */
+  public void set(DataPoint2D point) throws MagFreqDistException {
+    throw new MagFreqDistException("Cannot Access the set function of the SummedMagFreqDist from outside this class");
+  }
+
+  /**
+   * Throws the exception if the set functions are called from outside the class
+   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+   * by making a objects of the SummedMagFreqDist class and calling the set functions of this from outside
+   * @param x
+   * @param y
+   * @throws MagFreqDistException
+   */
+  public void set(double x,double y) throws MagFreqDistException {
+    throw new MagFreqDistException("Cannot Access the set function of the SummedMagFreqDist from outside this class");
+  }
+
+  /**
+   * Throws the exception if the set functions are called from outside the class
+   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+   * by making a objects of the SummedMagFreqDist class and calling the set functions of this from outside
+   * @param index
+   * @param y
+   * @throws MagFreqDistException
+   */
+  public void set(int index,double y) throws MagFreqDistException {
+    throw new MagFreqDistException("Cannot Access the set function of the SummedMagFreqDist from outside this class");
+  }
+
+
 
 
 
@@ -172,7 +208,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
         throw new DiscretizedFunction2DException("Distributions are not saved");
 
      for(int i=0;i<num;++i)      // remove the rates associated with the removed distribution
-       set(i,this.getY(i) - magFreqDist.getY(i));
+       super.set(i,this.getY(i) - magFreqDist.getY(i));
    }
 
 

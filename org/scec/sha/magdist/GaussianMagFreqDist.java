@@ -1,7 +1,12 @@
 package org.scec.sha.magdist;
 
 import org.scec.data.DataPoint2D;
-import org.scec.exceptions.*;
+import org.scec.exceptions.MagFreqDistException;
+import org.scec.exceptions.DataPoint2DException;
+
+
+
+
 /**
  * <p>Title:GaussianMagFreqDist </p>
  * <p>Description: This assumes a Gaussian distribution with a given mean and standard deviation, with
@@ -283,17 +288,41 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
     computeRates();
   }
 
-  /*public void set(DataPoint2D point) throws DataPoint2DException {
-    super.set(point);
+
+  /**
+   * Throws the exception if the set functions are called from outside the class
+   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+   * by making a objects of the GaussianMagFreqDist class and calling the set functions of this from outside
+   * @param point
+   * @throws MagFreqDistException
+   */
+  public void set(DataPoint2D point) throws MagFreqDistException {
+    throw new MagFreqDistException("Cannot Access the set function of the GaussianMagFreqDist from outside this class");
   }
 
-  public void set(double x,double y) throws DataPoint2DException {
-    super.set(x,y);
+  /**
+   * Throws the exception if the set functions are called from outside the class
+   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+   * by making a objects of the GaussianMagFreqDist class and calling the set functions of this from outside
+   * @param x
+   * @param y
+   * @throws MagFreqDistException
+   */
+  public void set(double x,double y) throws MagFreqDistException {
+    throw new MagFreqDistException("Cannot Access the set function of the GaussianMagFreqDist from outside this class");
   }
 
-  public void set(int index,double y) throws DataPoint2DException {
-    super.set(index,y);
-  }*/
+  /**
+   * Throws the exception if the set functions are called from outside the class
+   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+   * by making a objects of the GaussianMagFreqDist class and calling the set functions of this from outside
+   * @param index
+   * @param y
+   * @throws MagFreqDistException
+   */
+  public void set(int index,double y) throws MagFreqDistException {
+    throw new MagFreqDistException("Cannot Access the set function of the GaussianMagFreqDist from outside this class");
+  }
 
   /**
    * This functions call the method set(int,double) in the EvenlyDiscretized class
@@ -306,21 +335,21 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
     for(int i=0;i<num;++i) {
       double mag=getX(i);
       double rate=Math.exp(Math.pow((mag - this.mean),2)/(Math.pow(2*this.stdDev,2)));
-      set(i,rate);
+      super.set(i,rate);
     }
 
     if(truncType !=0) {
       double magUpper = this.mean + this.truncLevel*this.stdDev;
       int index=(int)Math.ceil((magUpper -this.minX)/this.delta);
       for(int i=index;i<this.num;i++)
-        set(i,0);
+        super.set(i,0);
     }
 
     if(truncType ==2) {
       double magLower = this.mean - this.truncLevel *this.stdDev;
       int index=(int) Math.floor((magLower-this.minX)/this.delta);
       for(int i=0;i<=index;i++)
-        set(i,0);
+        super.set(i,0);
     }
 
     this.scaleToTotalMomentRate(this.totMoRate);

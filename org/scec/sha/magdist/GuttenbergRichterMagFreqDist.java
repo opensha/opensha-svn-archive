@@ -175,7 +175,7 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
        // we have found magUpper upto this point
        // set all rates after magUpper to be 0
        for(int i=index;i<num;++i )
-          set(i,0.0);
+          super.set(i,0.0);
      }
 
     magUpper = getX(index-1);
@@ -183,7 +183,40 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
        scaleToTotalMomentRate(totMoRate);
   }
 
+  /**
+   * Throws the exception if the set functions are called from outside the class
+   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+   * by making a objects of the GuttenbergRitcherMagFreqDist class and calling the set functions of this from outside
+   * @param point
+   * @throws MagFreqDistException
+   */
+  public void set(DataPoint2D point) throws MagFreqDistException {
+    throw new MagFreqDistException("Cannot Access the set function of the GuttenbergRichterMagFreqDist from outside this class");
+  }
 
+  /**
+   * Throws the exception if the set functions are called from outside the class
+   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+   * by making a objects of the GuttenbergRitcherMagFreqDist class and calling the set functions of this from outside
+   * @param x
+   * @param y
+   * @throws MagFreqDistException
+   */
+  public void set(double x,double y) throws MagFreqDistException {
+    throw new MagFreqDistException("Cannot Access the set function of the GuttenbergRichterMagFreqDist from outside this class");
+  }
+
+  /**
+   * Throws the exception if the set functions are called from outside the class
+   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
+   * by making a objects of the GuttenbergRitcherMagFreqDist class and calling the set functions of this from outside.
+   * @param index
+   * @param y
+   * @throws MagFreqDistException
+   */
+  public void set(int index,double y) throws MagFreqDistException {
+    throw new MagFreqDistException("Cannot Access the set function of the GuttenbergRichterMagFreqDist from outside this class");
+  }
 
 
   /**
@@ -215,13 +248,13 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     int i;
 
     for(i=0;i<indexLow;++i) // set all rates below magLower to 0
-       set(i,0.0);
+       super.set(i,0.0);
 
     for(i=indexLow;i<=indexUp;++i) // assign correct values to rates between magLower and magUpper
-       set(i,Math.pow(10,-bValue*getX(i)));
+       super.set(i,Math.pow(10,-bValue*getX(i)));
 
     for(i=indexUp+1;i<num;++i) // set all rates above magUpper tp 0
-       set(i,0.0);
+       super.set(i,0.0);
   }
 
 
