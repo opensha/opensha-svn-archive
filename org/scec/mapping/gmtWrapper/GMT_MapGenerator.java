@@ -148,7 +148,7 @@ public class GMT_MapGenerator implements Serializable{
 
   //Boolean parameter to see if user wants GMT from the GMT webservice
   public  final static String GMT_WEBSERVICE_NAME = "Use GMT WebService";
-  private final static String GMT_WEBSERVICE_INFO= "GMT of Server";
+  private final static String GMT_WEBSERVICE_INFO= "Use server-mode GMT (rather than on this computer)";
   BooleanParameter gmtFromServer;
 
   //Boolean parameter to see if user wants linear or log plot

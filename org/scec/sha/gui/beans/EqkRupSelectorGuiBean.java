@@ -358,7 +358,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setVisible(false);
     String metadata = getParameterListEditor().getVisibleParameters().getParameterListMetadataString()+";"+
                       erfGuiBean.getVisibleParameters().getParameterListMetadataString()+"<br>"+
-                      "Rupture Info: "+probEqkRupture.getInfo();
+                      "<br>\nRupture Info: "+probEqkRupture.getInfo();
     return metadata;
   }
 
