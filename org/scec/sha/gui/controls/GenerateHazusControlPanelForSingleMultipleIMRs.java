@@ -349,13 +349,13 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
         if(step == 1)
           calcProgress.setProgressMessage("Doing Calculation for the Hazus ShapeFile Data...");
         else if(step == 2)
-          calcProgress.setProgressMessage("Doing Calculation for the SA-0.3sec");
+          calcProgress.setProgressMessage("Doing Calculation for SA-0.3sec (1 of 4)");
         else if(step == 3)
-          calcProgress.setProgressMessage("Doing Calculation for the SA-1.0sec");
+          calcProgress.setProgressMessage("Doing Calculation for SA-1.0sec (2 of 4)");
         else if(step == 4)
-          calcProgress.setProgressMessage("Doing Calculation for the PGV");
+          calcProgress.setProgressMessage("Doing Calculation for PGV (3 of 4)");
         else if(step == 5)
-          calcProgress.setProgressMessage("Doing Calculation for the PGA");
+          calcProgress.setProgressMessage("Doing Calculation for PGA (4 of 4)");
         else if(step == 6)
           calcProgress.setProgressMessage("Generating the Map images for Hazus ...");
         else if(step ==0){
