@@ -10,7 +10,7 @@ import org.scec.param.ParameterList;
 import org.scec.data.region.GeographicRegion;
 /**
  * <p>Title: ERF_List </p>
- * <p>Description: This class hols the list of Eqk Rup Forecast </p>
+ * <p>Description: This class holds the list of Eqk Rup Forecast </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed
@@ -34,7 +34,7 @@ public abstract class ERF_List implements EqkRupForecastAPI {
    * add a new Eqk Rup forecast to the list
    * @param eqkRupForecast
    */
-  protected void addERF(EqkRupForecastAPI eqkRupForecast, double relWeight) {
+  protected void addERF(EqkRupForecast eqkRupForecast, double relWeight) {
     erf_List.add(eqkRupForecast);
     this.relativeWeight.add(new Double(relWeight));
   }
