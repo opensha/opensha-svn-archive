@@ -3,6 +3,7 @@ package org.scec.sha.imr;
 import java.util.*;
 
 import edu.uah.math.psol.distributions.*;
+import org.scec.calc.GaussianDistCalc;
 import org.scec.data.*;
 import org.scec.data.function.*;
 import org.scec.exceptions.*;
@@ -544,54 +545,26 @@ public abstract class ClassicIMR
      */
     public double getExceedProbability() throws ParameterException, IMRException {
 
+        // is this really needed; is it slowing us down?
         if ( ( im == null ) || ( im.getValue() == null ) )
             throw new ParameterException( C +
                     ": getExceedProbability(): " + "Intensity measure or value is null, unable to run this calculation."
                      );
 
-        // Calculate the NormalDistribution
-        double mean = getMean();
-        double stdDev = getStdDev();
-        NormalDistribution gauss = new NormalDistribution( mean, stdDev );
+        // Calculate the standardized random variable
+        double iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
+        double stRndVar = (iml-getMean())/getStdDev();
 
-        // Calculate the probability of exceeding the iml value
-        double iml;
-        iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
-        //if ( iml < IML_MIN ) iml = IML_MIN;
-
-        //iml = Math.log( iml );
-
-        double prob = gauss.getCDF( iml );
-
-        // compute probability based on truncation type
-        if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_NONE ) ) {
-            return (1.0 - prob );
-        }
-        else if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) ) {
+        // compute exceedance probability based on truncation type
+        if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_NONE ) )
+            return GaussianDistCalc.getExceedProb(stRndVar);
+        else {
             double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
-            if (iml > mean + numSig*stdDev)
-                return  0.0;
-            else {
-                double pUp = gauss.getCDF( mean + numSig*stdDev );
-                return  (1.0 - prob/pUp) ;
-            }
+            if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) )
+                return GaussianDistCalc.getExceedProb(stRndVar, 1, numSig);
+            else
+                return GaussianDistCalc.getExceedProb(stRndVar, 2, numSig);
         }
-        else {  // the two sided case
-            double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
-            if (iml > mean + numSig*stdDev)
-                return (0.0);
-            else if (iml < mean - numSig*stdDev)
-                return (1.0);
-            else {
-                double pUp = gauss.getCDF( mean + numSig*stdDev );
-                double pLow = gauss.getCDF( mean - numSig*stdDev );
-                return ( (pUp-prob)/(pUp-pLow) );
-            }
-        }
-
-
-        // All done
-        //return new Double( prob );
     }
 
 
