@@ -1,11 +1,55 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
+1) See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
 
-Finish PEER Set 2 problems.
+2) Change Vs30 servlet to return "A", "B", "BC", ... rather than the numberical value.  So, in the data file that we read change each of the numerical values as follows (actually make a new file):
 
-Finish PEER results plotter & data submission tool.
+	E  163 
+	DE 298 
+	D  301 
+	CD 372 
+	C  464 
+	BC 724 
+	B  686
+
+	All others should be set as NA (meaning "not available").  HOWEVER, PLEASE LET ME KNOW
+	WHAT OTHER VALUES ARE IN THAT FILE SO I CAN MAKE SURE I DIDN'T MISS ANY.
+
+	Also, make a README file in the directory where that data is stored describing what
+	was done.  BTW, the original file "vsgrid60s.txt" was sent by Vince Quitoriano
+	(a member of the USGS ShakeMap group) to me on 6/18/03. Please put this latter info
+	in the readme file as well.
+
+	Once you get the servlet revised, then we can change the site-type translator together.
+
+3) Somehow test the WG02 ERF servlet (now that more than one user can use it at any given time), and let net know how you tested it.
+
+4) Get Bruce's code running on Mac OS X.
+
+5) ScenarioShakeMapApp
+
+	a) make image scalable with window size (although keep aspect ratio fixed)
+
+	b) save matadata for each run in "map_info.txt" file
+
+	c) make URLs in info window live links (download when clicked)?
+
+	(the following Ned and Nitin need to think about together)
+
+	b) fix blank-map problem (grdcut gets messed up)
+
+	c) add ability to plot ruptures
+
+	d) add option to make Hazus shape files
+
+Make it so scenario shakemaps can be calculated in stand-alone mode.
+
+We need to somehow metadata in the HazardCurveCalculator; also make the ability to "peel off" the plot/metadata window (Ned and Nitin need to discuss this)?
+
+Finish PEER Set 2 problems (Ned).
+
+Finish PEER results plotter & data submission tool (when they give us the final files).
 
 Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x). Ned needs to double check these.
 
@@ -13,17 +57,11 @@ HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelector
 
 Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.
 
-Make the WG02 ERF servlet so that more than one user can use it at any given time. This needs to be tested.
-
-Get Bruce's code running on gravity and Mac OS X.
-
-Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings.  Ned & Nitin need to discuss this.
+Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings?  Ned & Nitin need to discuss this.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
 *****************************************************************
-
-Change Vs30 servlet to return "A", "B", "BC", ... rather than the numberical value.  Ask Chris wills if he prefers the Field (2000) or the ShakeMao (2003) translation.
 
 Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done.
 
@@ -70,11 +108,6 @@ ProbEqkSource	Define field to declare what type of source it is
 
 ERF		-extend API to include getting max and min magnitude, and the various types of 
 		sources generated (to check for compatibility with each chosen IMR)
-
-ScenarioShakeMapApp
-
-	Add plotting of rupture surface as a dot at each point on the gridded surface?
-	Use getInfo for each source to provide users with information.
 
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
 
