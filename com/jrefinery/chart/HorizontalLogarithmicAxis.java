@@ -791,6 +791,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
                     g2.drawString(tick.getText(), tick.getX(), tick.getY());
                   else { // show in superscript form
                             g2.drawString("10", tick.getX(), tick.getY());
+                            g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()-1));
                             g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+12,tick.getY()-6);
                   }
                 }
