@@ -5,6 +5,7 @@ import java.util.*;
 import org.scec.data.*;
 import org.scec.exceptions.*;
 import org.scec.param.*;
+import org.scec.param.event.*;
 import org.scec.sha.earthquake.*;
 import org.scec.calc.RelativeLocation;
 import org.scec.sha.param.WarningDoublePropagationEffectParameter;
@@ -19,11 +20,25 @@ import org.scec.sha.param.WarningDoublePropagationEffectParameter;
  * @author Ned Field
  * @version 1.0
  */
-public class PropagationEffect implements java.io.Serializable{
+public class PropagationEffect implements java.io.Serializable, ParameterChangeListener{
 
     private final static String C = "PropagationEffect";
     private final static boolean D = false;
 
+    private boolean APPROX_HORZ_DIST = false;
+    private boolean POINT_SRC_CORR = false;
+
+    // Approx Horz Dist Parameter
+    public final static String APPROX_DIST_PARAM_NAME = "Use Approximate Distance";
+    private final static String APPROX_DIST_PARAM_INFO = "Horz. dist. calculate as 111 * ( (lat1-lat2)^2 + (cos(0.5*(lat1+lat2))*(lon1-lon2))^2 )^0.5";
+    BooleanParameter approxDistParam;
+
+    // Point source correction Parameter
+    public final static String POINT_SRC_CORR_PARAM_NAME = "Point-Source Correction";
+    private final static String POINT_SRC_CORR_PARAM_INFO = "Use distance correction for point sources";
+    BooleanParameter pointSrcCorrParam;
+
+    protected ParameterList adjustableParams;
 
     /** The Site used for calculating the PropagationEffect parameter values. */
     protected Site site = null;
@@ -44,7 +59,20 @@ public class PropagationEffect implements java.io.Serializable{
     protected boolean STALE = true;
 
     /** No Argument consructor */
-    public PropagationEffect() { }
+    public PropagationEffect() {
+
+      approxDistParam = new BooleanParameter(APPROX_DIST_PARAM_NAME, new Boolean(false));
+      approxDistParam.setInfo(APPROX_DIST_PARAM_INFO);
+      approxDistParam.addParameterChangeListener(this);
+
+      pointSrcCorrParam = new BooleanParameter(POINT_SRC_CORR_PARAM_NAME, new Boolean(false));
+      pointSrcCorrParam.setInfo(POINT_SRC_CORR_PARAM_INFO);
+      pointSrcCorrParam.addParameterChangeListener(this);
+
+      adjustableParams.addParameter(approxDistParam);
+      adjustableParams.addParameter(approxDistParam);
+
+    }
 
     /** Constructor that is give Site and EqkRupture objects */
     public PropagationEffect( Site site, EqkRupture eqkRupture) {
@@ -161,8 +189,27 @@ public class PropagationEffect implements java.io.Serializable{
 
             Location loc2 = (Location) it.next();
 
-            horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
+            // get the vertical distance
             vertDist = RelativeLocation.getVertDistance(loc1, loc2);
+
+            // get the horizontal dist depending on desired accuracy
+            if(APPROX_HORZ_DIST)
+              horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
+            else
+              horzDist = RelativeLocation.getApproxHorzDistance(loc1,loc2);
+
+            // make point source correction if desired
+            if(eqkRupture.getRuptureSurface().getNumCols() == 1 &&
+                 eqkRupture.getRuptureSurface().getNumRows() == 1) {
+              if(POINT_SRC_CORR) {
+                // Wells and Coppersmith L(M) for "all" focal mechanisms
+                double halfRupLen =  0.5 * Math.pow(10.0,-3.22+0.69*eqkRupture.getMag());
+                if(halfRupLen >= horzDist*0.7071)
+                  horzDist *= 0.7071; // /= 2^-0.5
+                else
+                  horzDist *= Math.sqrt(1 + (halfRupLen/horzDist)*(halfRupLen/horzDist) - 1.4142*halfRupLen/horzDist);
+              }
+            }
 
             if(horzDist < distanceJB) distanceJB = horzDist;
 
@@ -189,4 +236,35 @@ public class PropagationEffect implements java.io.Serializable{
         throw new RuntimeException ("Site or EqkRupture is null");
 
     }
+
+    /**
+     *  This is the method called by any parameter whose value has been changed
+     *
+     * @param  event
+     */
+    public void parameterChange( ParameterChangeEvent event ) {
+
+      APPROX_HORZ_DIST = ((Boolean)approxDistParam.getValue()).booleanValue();
+      POINT_SRC_CORR   = ((Boolean)pointSrcCorrParam.getValue()).booleanValue();
+
+    }
+
+    /**
+     *
+     * @returns the adjustable ParameterList
+     */
+    public ParameterList getAdjustableParameterList(){
+      return this.adjustableParams;
+    }
+
+    /**
+     * get the adjustable parameters
+     *
+     * @return
+     */
+    public ListIterator getAdjustableParamsIterator() {
+      return adjustableParams.getParametersIterator();
+    }
+
+
 }

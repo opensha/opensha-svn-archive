@@ -328,6 +328,11 @@ public final class RelativeLocation {
 
     }
 
+    public static double getApproxHorzDistance( Location loc1, Location loc2 ) {
+
+        return getApproxHorzDistance(loc1.getLatitude(), loc1.getLongitude(), loc2.getLatitude(), loc2.getLongitude());
+
+    }
 
 
     public static double getHorzDistance( Location loc1, Location loc2 ) {

@@ -127,6 +127,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   public final static String WG02_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
   public final static String PUENTE_HILLS_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PuenteHillsERF.PuenteHillsFaultERF";
+  public final static String POINT_POISSON_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PointPoissonERF";
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
@@ -359,6 +360,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
    erf_Classes.add(PUENTE_HILLS_FORECAST_CLASS_NAME);
+   erf_Classes.add(POINT_POISSON_FORECAST_CLASS_NAME);
    try{
      erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
    }catch(InvocationTargetException e){
