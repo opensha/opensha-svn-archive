@@ -318,7 +318,7 @@ public class GMT_MapGenerator implements Serializable{
   /**
   * method to get the adjustable parameters
   */
-  public ListIterator getAdjustableParamsList() {
+  public ListIterator getAdjustableParamsIterator() {
     return adjustableParams.getParametersIterator();
   }
 
@@ -327,7 +327,7 @@ public class GMT_MapGenerator implements Serializable{
    *
    * @returns the GMT Params List
    */
-  public ParameterList getGMTParameterList(){
+  public ParameterList getAdjustableParamsList(){
     return adjustableParams;
   }
 

@@ -42,7 +42,7 @@ public class MapGuiBean extends ParameterListEditor implements
     searchPaths = new String[1];
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     //get the adjustableParam List from the GMT_MapGenerator
-    ListIterator it=gmtMap.getAdjustableParamsList();
+    ListIterator it=gmtMap.getAdjustableParamsIterator();
     parameterList = new ParameterList();
     while(it.hasNext())
       parameterList.addParameter((ParameterAPI)it.next());

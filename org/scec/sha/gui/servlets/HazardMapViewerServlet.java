@@ -56,14 +56,24 @@ public class HazardMapViewerServlet  extends HttpServlet {
         // if user wants to get the existing data
         loadDataSets(new ObjectOutputStream(response.getOutputStream()));
       }else if(functionDesired.equalsIgnoreCase(MAKE_MAP)){// if user wants to make the map
+
+        // getthe set selected by the user
         String selectedSet = (String)inputFromApplet.readObject();
+        // map generator object
         GMT_MapGenerator map = (GMT_MapGenerator)inputFromApplet.readObject();
+        // whether IML@prob is selected ot Prob@IML
         String optionSelected = (String)inputFromApplet.readObject();
+        // get the value
         double val = ((Double)inputFromApplet.readObject()).doubleValue();
+        // get the prefix for output file
+        String outputFilePrefix = (String)inputFromApplet.readObject();
         boolean isProbAt_IML = true;
         if(optionSelected.equalsIgnoreCase(IMLorProbSelectorGuiBean.IML_AT_PROB))
           isProbAt_IML = false;
-        String xyzFileName = this.readAndWriteFile(selectedSet,isProbAt_IML, val, map);
+        // xyzfilename
+        String xyzFileName = this.readAndWriteFile(selectedSet, outputFilePrefix,
+                                                    isProbAt_IML, val, map);
+        // jpg file name
         String jpgFileName  = map.makeMap(xyzFileName);
       }
 
@@ -156,6 +166,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
   * @param maxLon
   */
   private String readAndWriteFile(String selectedSet,
+                                  String outputFilePrefix,
                                   boolean isProbAt_IML,
                                   double val, GMT_MapGenerator map ){
 
@@ -169,7 +180,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
     String finalFile = null;;
     try {
-      finalFile=System.currentTimeMillis()+".xyz";
+      finalFile=outputFilePrefix+".xyz";
       FileWriter fw1= new FileWriter(finalFile);
       fw1.close();
     }catch(Exception e) {

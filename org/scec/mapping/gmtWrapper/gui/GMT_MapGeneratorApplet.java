@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.scec.util.ImageUtils;
+import org.scec.sha.gui.beans.MapGuiBean;
 
 /**
  * <p>Title: GMT_MapGeneratorApplet</p>
@@ -42,7 +43,7 @@ public class GMT_MapGeneratorApplet extends Applet {
   private Border border1;
   private JButton addButton = new JButton();
 
-  private GMT_GuiBean gmtGuiBean=null;
+  private MapGuiBean gmtGuiBean=null;
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
@@ -65,9 +66,9 @@ public class GMT_MapGeneratorApplet extends Applet {
   public void init() {
     try {
       jbInit();
-      gmtGuiBean =new GMT_GuiBean();
+      gmtGuiBean =new MapGuiBean();
       //panel to display the GMT adjustable parameters
-      parameterPanel.add(gmtGuiBean.getGMT_ParamEditor(),new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+      parameterPanel.add(gmtGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                     GridBagConstraints.CENTER,
                     GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
     }
@@ -169,10 +170,10 @@ public class GMT_MapGeneratorApplet extends Applet {
    * Map
    */
   void addButton() {
-    String imgName=gmtGuiBean.generateMap()+".jpg";
+   // String imgName=gmtGuiBean.getGMTObject().get+".jpg";
 
     //mapPanel.removeAll();
-    gmtMapLabel.setIcon(new ImageIcon(imgName));
+    //gmtMapLabel.setIcon(new ImageIcon(imgName));
     //Graphics g=gmtMapLabel.getGraphics();
     //if (g!=null) gmtMapLabel.paintComponents(g);
     //mapPanel.add(gmtMapLabel,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
