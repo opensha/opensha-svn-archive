@@ -12,7 +12,7 @@ import org.scec.data.Site;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.*;
 import org.scec.data.function.*;
-
+import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: HazardCurveCalcServlet </p>
@@ -51,7 +51,7 @@ public class HazardCurveCalcServlet extends HttpServlet {
       ArbitrarilyDiscretizedFunc function = (ArbitrarilyDiscretizedFunc) inputFromApplet.readObject();
       // get the MAX_SOURCE distance
       double maxDistance =  ((Double) inputFromApplet.readObject()).doubleValue();
-
+      System.out.println("ERF Location: "+eqkRupForecastLocation);
       EqkRupForecastAPI eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject(eqkRupForecastLocation);
       if(D) System.out.println("ERF URL="+eqkRupForecastLocation);
 

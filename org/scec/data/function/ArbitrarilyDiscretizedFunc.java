@@ -537,10 +537,16 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * @param s
      */
     private void writeObject(ObjectOutputStream s){
+      System.out.println("Inside the write object method");
       Iterator it =getPointsIterator();
       try{
-        while(it.hasNext())
-          s.writeObject(it.next());
+        s.writeObject(new Integer(getNum()));
+        while(it.hasNext()){
+          DataPoint2D data = (DataPoint2D)it.next();
+          //System.out.println("Data: "+data.toString());
+          s.writeObject(data);
+        }
+        s.writeObject(new Integer(getNum()));
       }catch(IOException e){
         e.printStackTrace();
       }
@@ -551,9 +557,16 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * @param s
      */
     private void readObject(ObjectInputStream s){
-      ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+      System.out.println("inside the read Object");
       try{
-        func.set((DataPoint2D)s.readObject());
+        if(points == null)
+          points = new DataPoint2DTreeMap();
+        int num = ((Integer)s.readObject()).intValue();
+        for(int i=0;i<num;++i){
+          DataPoint2D data = (DataPoint2D)s.readObject();
+          set(data);
+        }
+        //System.out.println("Data Object read: "+data.toString());
       }catch(ClassNotFoundException e){
         System.out.println("Class not found");
         e.printStackTrace();

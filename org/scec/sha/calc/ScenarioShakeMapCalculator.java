@@ -139,28 +139,16 @@ public class ScenarioShakeMapCalculator {
       //iterating overe all the selected attenautionRelationShips and getting the XYZ data for them
       for(int i=0;i<size;++i){
         AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
+        //getting the calculated value for the scenarioshakemap for the i-th attenRel and for this site.
         double val= scenarioShakeMapDataCalc(propagationEffect,attenRel,isProbAtIML);
 
         //multiplying the value for the attenuation with the relative normalised wt for it
-        if(!isProbAtIML)//it is IML at Prob then we don't need to take the log before averaging the values
-          val *= ((Double)attenRelWts.get(i)).doubleValue();
-        else //{ If Prob@IML then take the log before we average the values out
-            //val = Math.log(val);
-            val *= ((Double)attenRelWts.get(i)).doubleValue();
-          //}
-       attenRelsAvgValForSite +=val;
+        val *= ((Double)attenRelWts.get(i)).doubleValue();
+        //adding up all the values obtained from different AttenRel for the site.
+        attenRelsAvgValForSite +=val;
       }
       sumZVals.add(new Double(attenRelsAvgValForSite));
     }
-
-    //if(isProbAtIML){ //if Prob@IML then do Math.exp for the Prob's
-     // int size1 = sumZVals.size();
-     // for (int j = 0; j < size1; ++j){
-        //double tempVal = Math.exp(((Double)sumZVals.get(j)).doubleValue());
-     //   sumZVals.set(j,new Double(tempVal));
-     // }
-   // }
-
 
     //updating the Z Values for the XYZ data after averaging the values for all selected attenuations.
     xyzDataSet = new ArbDiscretizedXYZ_DataSet(getSitesLat(griddedRegionSites),

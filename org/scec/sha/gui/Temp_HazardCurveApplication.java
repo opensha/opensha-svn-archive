@@ -985,6 +985,7 @@ public class Temp_HazardCurveApplication extends JApplet
    // intialize the hazard function
    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
    initX_Values(hazFunction);
+   //System.out.println("22222222HazFunction: "+hazFunction.toString());
    try {
      // calculate the hazard curve
      //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
@@ -1438,6 +1439,8 @@ public class Temp_HazardCurveApplication extends JApplet
     if (imtInfo.isIMT_LogNormalDist(imtGuiBean.getSelectedIMT())) {
       for(int i=0;i<function.getNum();++i)
         arb.set(Math.log(function.getX(i)),1);
+
+      //System.out.println("11111111111HazFunction: "+arb.toString());
     }
     else
       throw new RuntimeException("Unsupported IMT");
