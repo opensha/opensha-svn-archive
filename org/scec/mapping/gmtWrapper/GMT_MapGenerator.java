@@ -132,6 +132,10 @@ public class GMT_MapGenerator implements Serializable{
 
   protected ParameterList adjustableParams;
 
+  //GMT files web address(if the person is using the gmt webService)
+  String imgWebAddr=null;
+
+
   public GMT_MapGenerator() {
 
     minLatParam = new DoubleParameter(MIN_LAT_PARAM_NAME,-90,90,LAT_LON_PARAM_UNITS,MIN_LAT_PARAM_DEFAULT);
@@ -389,8 +393,8 @@ public class GMT_MapGenerator implements Serializable{
     fileNames[0] = getGMT_FileName();
     //getting the XYZ file Name
     fileNames[1] = getXYZ_FileName();
-    String webAddr = this.openWebServiceConnection(fileNames);
-    return webAddr+out_jpg;
+    this.openWebServiceConnection(fileNames);
+    return this.imgWebAddr+out_jpg;
   }
 
   /**
@@ -572,9 +576,9 @@ public class GMT_MapGenerator implements Serializable{
   }
 
   //For the webservices Implementation
-  private String openWebServiceConnection(String[] fileName){
+  private void openWebServiceConnection(String[] fileName){
     int size=fileName.length;
-    String imgWebAddr=null;
+
     FileDataSource[] fs = new FileDataSource[size+2];
     DataHandler dh[] = new DataHandler[size+2];
     System.out.println("File-0: "+fileName[0]);
@@ -593,7 +597,6 @@ public class GMT_MapGenerator implements Serializable{
     }catch(Exception e){
       e.printStackTrace();
     }
-    return imgWebAddr;
   }
 
 
@@ -670,6 +673,16 @@ public class GMT_MapGenerator implements Serializable{
    */
   public void setParameter(String paramName, Object value) {
     this.adjustableParams.getParameter(paramName).setValue(value);
+  }
+
+
+  /**
+   *
+   * @returns the WebAddress to the files if the person used the GMT webservice,
+   * to download all the files
+   */
+  public String getGMTFilesWebAddress(){
+    return this.imgWebAddr;
   }
 }
 

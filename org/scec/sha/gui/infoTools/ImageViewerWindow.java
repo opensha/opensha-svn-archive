@@ -41,7 +41,7 @@ public class ImageViewerWindow extends JFrame {
   }
   private void jbInit() throws Exception {
     this.setSize(W,H);
-    this.setTitle(imageFile+" ShakeMap");
+    this.setTitle(imageFile+"Map");
     this.getContentPane().setLayout(borderLayout1);
     mapSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     mapSplitPane.setMaximumSize(new Dimension(550, 100));

@@ -166,13 +166,14 @@ public class MapGuiBean extends JPanel implements
       for(int i=0;i<size;++i){
         double zVal = ((Double)zLinearVals.get(i)).doubleValue();
         if(zVal ==0){
-          JOptionPane.showMessageDialog(this,"Cannot take out log becuase Values contain zeros,"+
+          /*JOptionPane.showMessageDialog(this,"Cannot take out log becuase Values contain zeros,"+
                                         "so reverting back to Linear","Cannot Plot Log",JOptionPane.OK_OPTION);
           this.logPlotCheck.setSelected(false);
           zLogVals = zLinearVals;
-          break;
+          break;*/
+          zVal = StrictMath.pow(10,-16);
         }
-        zLogVals.add(new Double(0.4343 * Math.log(zVal)));
+        zLogVals.add(new Double(0.4343 * StrictMath.log(zVal)));
       }
       //setting the values in the XYZ Dataset.
       xyzVals.setXYZ_DataSet(xyzVals.getX_DataSet(),xyzVals.getY_DataSet(),zLogVals);
@@ -181,6 +182,8 @@ public class MapGuiBean extends JPanel implements
       //imgName = openConnection(xyzVals);
       imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       //imgName=openWebServiceConnection(fileName);
+      paramsInfo +="\n"+"You can download all the files from the following website:\n"+
+                   gmtMap.getGMTFilesWebAddress();
     }
     else{
       try{

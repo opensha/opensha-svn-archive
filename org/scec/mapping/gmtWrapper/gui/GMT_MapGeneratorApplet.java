@@ -8,7 +8,7 @@ import javax.swing.border.*;
 import java.net.*;
 import java.util.*;
 
-import org.scec.util.ImageUtils;
+
 import org.scec.sha.gui.beans.MapGuiBean;
 import org.scec.param.StringParameter;
 import org.scec.param.editor.StringParameterEditor;
@@ -33,35 +33,31 @@ public class GMT_MapGeneratorApplet extends Applet {
 
 
   private boolean isStandalone = false;
-  private BorderLayout borderLayout1 = new BorderLayout();
   private JPanel mainPanel = new JPanel();
   private JSplitPane mainSplitPane = new JSplitPane();
   private JPanel buttonPanel = new JPanel();
-  private JSplitPane plotSplitPane = new JSplitPane();
-  private JPanel parameterPanel = new JPanel();
 
   // default insets
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
   String mapFileName = null;
 
   //variables that determine the window size
-  protected final static int W = 1070;
-  protected final static int H = 800;
+  protected final static int W = 600;
+  protected final static int H = 750;
   private Border border1;
   private JButton addButton = new JButton();
 
   private MapGuiBean gmtGuiBean=null;
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout3 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private JScrollPane mapScrollPane = new JScrollPane();
-  private JPanel mapPanel = new JPanel();
 
   private Border border2;
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private final static String URL_NAME = "Enter URL";
   private StringParameter xyzFileName= new StringParameter(URL_NAME,"");
   private StringParameterEditor xyzFileEditor;
+  private JPanel parameterPanel = new JPanel();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -95,35 +91,28 @@ public class GMT_MapGeneratorApplet extends Applet {
   private void jbInit() throws Exception {
     border1 = BorderFactory.createEtchedBorder(new Color(248, 254, 255),new Color(121, 124, 136));
     border2 = BorderFactory.createLineBorder(SystemColor.controlText,1);
-    this.setSize(new Dimension(802, 686));
+    this.setSize(new Dimension(492, 686));
     this.setLayout(borderLayout1);
     mainPanel.setLayout(gridBagLayout3);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     mainSplitPane.setLastDividerLocation(670);
-    buttonPanel.setLayout(gridBagLayout2);
-    parameterPanel.setLayout(gridBagLayout1);
-    addButton.setText("Add");
+    buttonPanel.setLayout(gridBagLayout1);
+    addButton.setText("Make Map");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);
       }
     });
 
-    mapPanel.setLayout(gridBagLayout4);
-    mapPanel.setMinimumSize(new Dimension(0, 800));
-    mapPanel.setPreferredSize(new Dimension(0, 800));
+    parameterPanel.setLayout(gridBagLayout2);
     this.add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 6, 6), 0, 527));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 6, 6), 0, 595));
     mainSplitPane.add(buttonPanel, JSplitPane.RIGHT);
-    buttonPanel.add(addButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 17, 6, 659), 22, 9));
-    mainSplitPane.add(plotSplitPane, JSplitPane.LEFT);
-    plotSplitPane.add(parameterPanel, JSplitPane.RIGHT);
-    plotSplitPane.add(mapScrollPane, JSplitPane.LEFT);
-    mapScrollPane.getViewport().add(mapPanel, null);
-    mainSplitPane.setDividerLocation(700);
-    plotSplitPane.setDividerLocation(600);
+    buttonPanel.add(addButton,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 47, 14, 300), 27, 9));
+    mainSplitPane.add(parameterPanel, JSplitPane.LEFT);
+    mainSplitPane.setDividerLocation(630);
   }
 
 
@@ -204,34 +193,7 @@ public class GMT_MapGeneratorApplet extends Applet {
         ee.printStackTrace();
       }
     }
-
-    //this applet does not needs to show the Map in a seperate window
-    gmtGuiBean.setMapToBeShownInSeperateWindow(false);
-    gmtGuiBean.makeMap(xyzData," ");
-
-    String imgName=gmtGuiBean.getImageName();
-    System.out.println("Image Name:"+imgName);
-
-    //creating the instance of the GMT Label where the .jpg image will be shown
-    JLabel gmtMapLabel = new JLabel();
-    gmtMapLabel.setBorder(border2);
-    gmtMapLabel.setMaximumSize(new Dimension(1000, 1000));
-    gmtMapLabel.setMinimumSize(new Dimension(600, 600));
-    gmtMapLabel.setPreferredSize(new Dimension(900, 900));
-    mapPanel.removeAll();
-    if(gmtGuiBean.isGMT_FromServer()){
-      try{
-        gmtMapLabel.setIcon(new ImageIcon(new URL(imgName)));
-      }catch(Exception ee){
-        ee.printStackTrace();
-      }
-    }
-    else
-      gmtMapLabel.setIcon(new ImageIcon(imgName));
-    mapPanel.add(gmtMapLabel,   new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 2, 1, 0), 0, 0));
-    mapPanel.validate();
-    mapPanel.repaint();
+    gmtGuiBean.makeMap(xyzData,"  ");
   }
 }
 
