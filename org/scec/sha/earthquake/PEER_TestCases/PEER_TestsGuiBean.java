@@ -1422,17 +1422,17 @@ public class PEER_TestsGuiBean implements
         erf_IndParamList.getParameter(peer_NonPlanar_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
         erf_IndParamList.getParameter(peer_NonPlanar_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
         erf_IndParamList.getParameter(peer_NonPlanar_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-        erf_IndParamList.getParameter(peer_NonPlanar_ERF.GR_MAG_UPPER).setValue(new Double(7.2));
+        erf_IndParamList.getParameter(peer_NonPlanar_ERF.GR_MAG_UPPER).setValue(new Double(7.15));
         erf_IndParamList.getParameter(peer_NonPlanar_ERF.SLIP_RATE_NAME).setValue(new Double(2.0));
         erf_IndParamList.getParameter(peer_NonPlanar_ERF.SEGMENTATION_NAME).setValue(peer_NonPlanar_ERF.SEGMENTATION_NONE);
 
         if(selectedSite.equalsIgnoreCase(applet.SITE_ONE)){
-          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-121.875));
-          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.1));
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-121.886));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.1126));
         }
         else if(selectedSite.equalsIgnoreCase(applet.SITE_TWO)){
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
-          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.2));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.2252));
         }
         else if(selectedSite.equalsIgnoreCase(applet.SITE_THREE)){
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
@@ -1464,15 +1464,15 @@ public class PEER_TestsGuiBean implements
 
         if(selectedSite.equalsIgnoreCase(applet.SITE_ONE)){
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
-          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.625));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.5495));
         }
         else if(selectedSite.equalsIgnoreCase(applet.SITE_TWO)){
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
-          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.125));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.0990));
         }
         else if(selectedSite.equalsIgnoreCase(applet.SITE_THREE)){
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
-          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(36.875));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(36.8737));
         }
 
       }
@@ -1788,9 +1788,12 @@ public class PEER_TestsGuiBean implements
         // mag dist parameters for test case 10
         else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_TEN)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
+          magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
+          magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
           magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
-          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
-          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.05));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.45));
           magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
           magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(.0395));
         }
@@ -1798,9 +1801,12 @@ public class PEER_TestsGuiBean implements
         // mag dist parameters for test case 11
         else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_ELEVEN)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
+          magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
+          magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
           magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
-          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
-          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.05));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.45));
           magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
           magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(.0395));
         }

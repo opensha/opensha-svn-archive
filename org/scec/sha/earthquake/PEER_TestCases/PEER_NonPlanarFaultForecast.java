@@ -76,15 +76,15 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
   // slip rate prameter stuff
   public final static String SLIP_RATE_NAME = "Slip Rate";
-  public final static String SLIP_RATE_UNITS = "cm/yr";
+  public final static String SLIP_RATE_UNITS = "mm/yr";
   public final static double SLIP_RATE_MIN = 0.0;
   public final static double SLIP_RATE_MAX = 1e5;
   public final static Double SLIP_RATE_DEFAULT = new Double(2);
 
   // parameter for magUpper of the GR dist
   public static final String GR_MAG_UPPER=new String("Mag Upper");
-  public static final String GR_MAG_UPPER_INFO=new String("Max mag of the GR distribution");
-  public final static Double GR_MAG_UPPER_DEFAULT = new Double(7.2);
+  public static final String GR_MAG_UPPER_INFO=new String("Max mag of the GR distribution (must be an increment of 0.05)");
+  public final static Double GR_MAG_UPPER_DEFAULT = new Double(7.15);
 
   // segmentation parameter stuff
   public final static String SEGMENTATION_NAME = new String ("Segmentation Model");
@@ -138,11 +138,11 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
   // GR mag freq dist stuff
   GutenbergRichterMagFreqDist grMagFreqDist;
-  public final static  double GR_MIN = 5.0;
-  public final static  double GR_MAX = 10.0;
-  public final static  int GR_NUM = 51;
+  public final static  double GR_MIN = 0.05;
+  public final static  double GR_MAX = 9.95;
+  public final static  int GR_NUM = 100;
   public final static  double GR_BVALUE = 0.9;
-  public final static  double GR_MAG_LOWER = 5.0;
+  public final static  double GR_MAG_LOWER = 0.05;
 
   // private declaration of the flag to check if any parameter has been changed from its original value.
   private boolean  parameterChangeFlag = true;
@@ -265,7 +265,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
        // Now make the mag freq dist
        double magUpper = ((Double) magUpperParam.getValue()).doubleValue();
-       double slipRate = ((Double) slipRateParam.getValue()).doubleValue() / 100.0;  // last is to convert to meters/yr
+       double slipRate = ((Double) slipRateParam.getValue()).doubleValue() / 1000.0;  // last is to convert to meters/yr
        double ddw = (LOWER_SEISMO_DEPTH-UPPER_SEISMO_DEPTH)/Math.sin(DIP*Math.PI/180);
        double faultArea = faultTrace.getTraceLength() * ddw * 1e6;  // the last is to convert to meters
        double totMoRate = 3e10*faultArea*slipRate;

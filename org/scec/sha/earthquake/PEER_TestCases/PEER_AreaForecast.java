@@ -33,9 +33,6 @@ import org.scec.param.event.*;
 public class PEER_AreaForecast extends EqkRupForecast
     implements ParameterChangeListener{
 
-  /**
-   * @todo variables
-   */
   //for Debug purposes
   private static String  C = new String("PEER Area");
   private boolean D = false;
@@ -54,7 +51,7 @@ public class PEER_AreaForecast extends EqkRupForecast
 
 
   /**
-   * Declaration for the static lat and longs for the Area
+   * Declaration for the static lat and lons for the Area
    */
   private static final double LAT_TOP= 38.901;
   private static final double LAT_BOTTOM = 37.099;
