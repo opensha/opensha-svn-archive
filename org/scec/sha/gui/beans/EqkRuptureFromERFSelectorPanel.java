@@ -37,7 +37,7 @@ import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.sha.earthquake.EqkRupture;
 import java.awt.event.ActionListener;
-
+import org.scec.param.LocationParameter;
 
 /**
  * <p>Title: EqkRuptureFromERFSelectorPanel</p>
@@ -95,7 +95,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   private StringParameter sourceParam;
 
   //hypocenter location parameter
-  private StringParameter hypoCenterLocationParam;
+  private LocationParameter hypoCenterLocationParam;
 
   //selected source Index for the ERF
   private int sourceValue =0;
@@ -267,30 +267,27 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
 
 
    //getting the surface of the rupture
-   ArrayList v = new  ArrayList();
+   ArrayList locations = new ArrayList();
    // The first row of all the rupture surfaces is the list of their hypocenter locations
-   ListIterator hypoLocationsIt = probEqkRupture.getRuptureSurface().getColumnIterator(0);
+   ListIterator hypoLocationsIt = probEqkRupture.getRuptureSurface().
+       getColumnIterator(0);
    Location loc;
-   while(hypoLocationsIt.hasNext()){
+   while (hypoLocationsIt.hasNext())
      //getting the object of Location from the HypocenterLocations and formatting its string to 3 placees of decimal
-     loc= (Location)hypoLocationsIt.next();
-     String lat = decimalFormat.format(loc.getLatitude());
-     String lon = decimalFormat.format(loc.getLongitude());
-     String depth = decimalFormat.format(loc.getDepth());
-     v.add(lat+","+lon+","+depth);
-   }
-   StringConstraint constraints= new StringConstraint(v);
+     locations.add(hypoLocationsIt.next());
 
 
-     hypoCenterLocationParam = new StringParameter(RUPTURE_HYPOLOCATIONS_PARAM_NAME,
-         constraints,v.get(0).toString());
-     hypoCenterLocationParam.addParameterChangeListener(this);
+   hypoCenterLocationParam = new LocationParameter(
+       RUPTURE_HYPOLOCATIONS_PARAM_NAME,
+       locations, (Location) locations.get(0));
+   hypoCenterLocationParam.addParameterChangeListener(this);
 
-     //Hypocenter location parameter
-     if(parameterList.containsParameter(hypoCenterLocationParam))
-       listEditor.replaceParameterForEditor(RUPTURE_HYPOLOCATIONS_PARAM_NAME,hypoCenterLocationParam);
-     else
-       parameterList.addParameter(hypoCenterLocationParam);
+   //Hypocenter location parameter
+   if (parameterList.containsParameter(hypoCenterLocationParam))
+     listEditor.replaceParameterForEditor(RUPTURE_HYPOLOCATIONS_PARAM_NAME,
+                                          hypoCenterLocationParam);
+   else
+     parameterList.addParameter(hypoCenterLocationParam);
 
  }
 
@@ -667,14 +664,9 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    * @returns the Hypocenter Location if selected else return null
    */
   public Location getHypocenterLocation(){
-    if(this.hypoCentreCheck.isSelected()){
-      StringTokenizer token = new StringTokenizer((String)hypoCenterLocationParam.getValue(),",");
-      double lat= Double.parseDouble(token.nextElement().toString().trim());
-      double lon= Double.parseDouble(token.nextElement().toString().trim());
-      double depth= Double.parseDouble(token.nextElement().toString().trim());
-      Location loc= new Location(lat,lon,depth);
-      return loc;
-    }
+    if(this.hypoCentreCheck.isSelected())
+      return (Location)hypoCenterLocationParam.getValue();
+
     return null;
   }
 

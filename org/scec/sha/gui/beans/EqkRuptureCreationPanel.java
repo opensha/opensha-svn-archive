@@ -1,6 +1,6 @@
 package org.scec.sha.gui.beans;
 
-import java.text.*;
+
 import java.util.*;
 
 import java.awt.*;
@@ -53,28 +53,14 @@ public class EqkRuptureCreationPanel
 
   // the source-location parameters (this should be a location parameter)
   public final static String SRC_LAT_PARAM_NAME = "Source Latitude";
-  private final static String SRC_LAT_PARAM_INFO =
-      "Latitude of the point source";
-  private final static String SRC_LAT_PARAM_UNITS = "Degrees";
-  private Double SRC_LAT_PARAM_MIN = new Double( -90.0);
-  private Double SRC_LAT_PARAM_MAX = new Double(90.0);
   private Double SRC_LAT_PARAM_DEFAULT = new Double(35.71);
 
   public final static String SRC_LON_PARAM_NAME = "Source Longitude";
-  private final static String SRC_LON_PARAM_INFO =
-      "Longitude of the point source";
-  private final static String SRC_LON_PARAM_UNITS = "Degrees";
-  private Double SRC_LON_PARAM_MIN = new Double( -360);
-  private Double SRC_LON_PARAM_MAX = new Double(360);
+
   private Double SRC_LON_PARAM_DEFAULT = new Double( -121.1);
 
   public final static String SRC_DEPTH_PARAM_NAME = "Source Depth";
-  private final static String SRC_DEPTH_PARAM_INFO =
-      "Depth of the point source";
-  private final static String SRC_DEPTH_PARAM_UNITS = "km";
-  private Double SRC_DEPTH_PARAM_MIN = new Double(0);
-  private Double SRC_DEPTH_PARAM_MAX = new Double(50);
-  private Double SRC_DEPTH_PARAM_DEFAULT = new Double(7.6);
+   private Double SRC_DEPTH_PARAM_DEFAULT = new Double(7.6);
 
   //Param to select "kind of rupture", finite or point rupture
   public final static String SRC_TYP_PARAM_NAME = "Rupture Type";
@@ -87,13 +73,22 @@ public class EqkRuptureCreationPanel
   private final static String FAULT_PARAM_INFO =
       "Source location parameters for finite rupture";
 
+
+  //Location Parameter
+  public final static String LOCATION_PARAM_NAME = "Location";
+  private final static String LOCATION_PARAM_INFO =
+      "Set Location for the point source";
+
+  //Hypocenter Location Parameter
+  public final static String HYPOCENTER_LOCATION_PARAM_NAME = "Hypocenter Location";
+
+  //Boolean parameter to decide, whether to show hypocenter or not
+  public final static String SHOW_HYPOCENTER_LOCATION_PARAM_NAME = "Show Hypocenter Locations";
+
+
   //Null hypocenter String
   public final static String NULL_HYPOCENTER_STRING = "Null Hypocenter";
 
-  //label to dispay hypocenter location for eqkRupture
-  private final static String hypocenterLocLabelString =
-      "Hypocenter Location (Lat,Lon,Depth): ";
-  private JLabel hypocenterLocationLabel = new JLabel();
 
   //title for this ParamerterListEditor
   private final static String TITLE = "";
@@ -103,9 +98,10 @@ public class EqkRuptureCreationPanel
   private DoubleParameter magParam;
   private DoubleParameter dipParam;
   private DoubleParameter rakeParam;
-  private DoubleParameter srcLatParam;
-  private DoubleParameter srcLonParam;
-  private DoubleParameter srcDepthParam;
+  private LocationParameter locationParam;
+  private LocationParameter hypocenterLocationParam;
+  private BooleanParameter showHypocenterLocationParam = new
+      BooleanParameter(SHOW_HYPOCENTER_LOCATION_PARAM_NAME,new Boolean(false));
   private SimpleFaultParameter faultParam;
 
   //boolean to check if any parameter has been changed
@@ -115,14 +111,15 @@ public class EqkRuptureCreationPanel
   private ParameterListEditor listEditor;
   //EqkRupture Object
   private EqkRupture eqkRupture;
-  private JButton hypocenterButton = new JButton();
+
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
-  //pop -up window to show the hypocenter locations to set in Eqkrupture.
-  private HypocenterLocationWindow hypocenterLocationWindow;
 
   //Hypocenter Location List
   private ArrayList hypocenterList;
+
+  //gridded rupture surface
+  private GriddedSurfaceAPI ruptureSurface = null;
 
   public EqkRuptureCreationPanel() {
 
@@ -144,21 +141,12 @@ public class EqkRuptureCreationPanel
                                    DIP_PARAM_DEFAULT);
     dipParam.setInfo(DIP_PARAM_INFO);
 
-    // create src lat, lon, & depth param
-    srcLatParam = new DoubleParameter(SRC_LAT_PARAM_NAME, SRC_LAT_PARAM_MIN,
-                                      SRC_LAT_PARAM_MAX, SRC_LAT_PARAM_UNITS,
-                                      SRC_LAT_PARAM_DEFAULT);
-    srcLatParam.setInfo(SRC_LAT_PARAM_INFO);
-    srcLonParam = new DoubleParameter(SRC_LON_PARAM_NAME, SRC_LON_PARAM_MIN,
-                                      SRC_LON_PARAM_MAX, SRC_LON_PARAM_UNITS,
-                                      SRC_LON_PARAM_DEFAULT);
-    srcLonParam.setInfo(SRC_LON_PARAM_INFO);
-    srcDepthParam = new DoubleParameter(SRC_DEPTH_PARAM_NAME,
-                                        SRC_DEPTH_PARAM_MIN,
-                                        SRC_DEPTH_PARAM_MAX,
-                                        SRC_DEPTH_PARAM_UNITS,
-                                        SRC_DEPTH_PARAM_DEFAULT);
-    srcDepthParam.setInfo(SRC_DEPTH_PARAM_INFO);
+    // create src location param for the point source
+    locationParam = new LocationParameter(LOCATION_PARAM_NAME,SRC_LAT_PARAM_NAME,
+                                          SRC_LON_PARAM_NAME,SRC_DEPTH_PARAM_NAME,
+                                          SRC_LAT_PARAM_DEFAULT,SRC_LON_PARAM_DEFAULT,
+                                          SRC_DEPTH_PARAM_DEFAULT);
+
 
     //creating the Fault Rupture Parameter
     faultParam = new SimpleFaultParameter(FAULT_PARAM_NAME);
@@ -180,20 +168,20 @@ public class EqkRuptureCreationPanel
     parameterList.addParameter(rakeParam);
     parameterList.addParameter(dipParam);
     parameterList.addParameter(faultParam);
-    parameterList.addParameter(srcLatParam);
-    parameterList.addParameter(srcLonParam);
-    parameterList.addParameter(srcDepthParam);
+    parameterList.addParameter(locationParam);
+    parameterList.addParameter(showHypocenterLocationParam);
 
     sourceTypeParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
     rakeParam.addParameterChangeListener(this);
-    srcLatParam.addParameterChangeListener(this);
-    srcLonParam.addParameterChangeListener(this);
+    locationParam.addParameterChangeListener(this);
     dipParam.addParameterChangeListener(this);
     faultParam.addParameterChangeListener(this);
+    showHypocenterLocationParam.addParameterChangeListener(this);
+
+    createGriddedRuptureSurface();
     listEditor = new ParameterListEditor(parameterList);
     listEditor.setTitle(TITLE);
-
     try {
       jbInit();
     }
@@ -202,45 +190,30 @@ public class EqkRuptureCreationPanel
     }
     this.validate();
     this.repaint();
-    createRupture();
     setParameterVisibleBasedOnSelectedRuptureType();
+    setHypocenterLocationParamVisible();
   }
 
+
+
   private void jbInit() throws Exception {
-    hypocenterButton.setText("Set Hypocenter Location");
-    hypocenterButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        hypocenterButton_actionPerformed(e);
-      }
-    });
     this.setLayout(gridBagLayout1);
-    this.add(hypocenterButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(4, 50, 11, 50), 43, 6));
-    this.add(hypocenterLocationLabel,
-             new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-                                    , GridBagConstraints.CENTER,
-                                    GridBagConstraints.NONE,
-                                    new Insets(4, 50, 11, 50), 43, 6));
     this.add(listEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.BOTH,
                                                 new Insets(4, 4, 4, 4), 0, 0));
-    hypocenterLocationLabel.setForeground(new Color(80, 80, 140));
   }
 
-  /**
-   * Create the EqkRupture Object
+
+  /*
+   * Creates the griddded surface area for the rupture
    */
-  private void createRupture() {
-    if (parameterChangeFlag) {
+  private void createGriddedRuptureSurface(){
+    //if(parameterChangeFlag){
       String ruptureType = (String) sourceTypeParam.getValue();
-      GriddedSurfaceAPI ruptureSurface = null;
+
       if (ruptureType.equals(this.POINT_SRC_NAME)) {
-        double lat = ( (Double) srcLatParam.getValue()).doubleValue();
-        double lon = ( (Double) srcLonParam.getValue()).doubleValue();
-        double depth = ( (Double) srcDepthParam.getValue()).doubleValue();
-        ruptureSurface = new PointSurface(lat, lon, depth);
+        ruptureSurface = new PointSurface( (Location) locationParam.getValue());
         double aveDip = ( (Double) dipParam.getValue()).doubleValue();
         ruptureSurface.setAveDip(aveDip);
       }
@@ -248,14 +221,6 @@ public class EqkRuptureCreationPanel
         faultParam.setEvenlyGriddedSurfaceFromParams();
         ruptureSurface = (GriddedSurfaceAPI) faultParam.getValue();
       }
-
-      eqkRupture = new EqkRupture();
-      eqkRupture.setMag( ( (Double) magParam.getValue()).doubleValue());
-      eqkRupture.setAveRake( ( (Double) rakeParam.getValue()).doubleValue());
-      eqkRupture.setRuptureSurface(ruptureSurface);
-
-      //Deciaml format to show the Hypocenter Location Object in the StringParameter
-      DecimalFormat decimalFormat = new DecimalFormat("0.000##");
 
       // The first row of all the rupture surfaces is the list of their hypocenter locations
       ListIterator hypoLocationsIt = ruptureSurface.getColumnIterator(0);
@@ -266,22 +231,47 @@ public class EqkRuptureCreationPanel
       else {
         hypocenterList.clear();
       }
-      hypocenterList.add(NULL_HYPOCENTER_STRING);
       while (hypoLocationsIt.hasNext()) {
         //getting the object of Location from the HypocenterLocations and formatting its string to 3 placees of decimal
         loc = (Location) hypoLocationsIt.next();
-        String lat = decimalFormat.format(loc.getLatitude());
-        String lon = decimalFormat.format(loc.getLongitude());
-        String depth = decimalFormat.format(loc.getDepth());
-        hypocenterList.add(lat + "," + lon + "," + depth);
+        hypocenterList.add(loc);
       }
+      //creating the hypocenter location parameter
+      hypocenterLocationParam = new LocationParameter(
+          HYPOCENTER_LOCATION_PARAM_NAME,
+          hypocenterList);
 
-      hypocenterLocationLabel.setText(hypocenterLocLabelString +
-                                      NULL_HYPOCENTER_STRING);
-      //hypocenterButton.setToolTipText(hypoLocString);
+      //adding hypocenter location parameter to the list of parameters.
+      //if it already exists as the parameter then replace that parameter with a new one.
+      if (parameterList.containsParameter(hypocenterLocationParam))
+        listEditor.replaceParameterForEditor(HYPOCENTER_LOCATION_PARAM_NAME,
+                                             hypocenterLocationParam);
+      else
+        parameterList.addParameter(hypocenterLocationParam);
+      if (listEditor != null)
+        listEditor.getParameterEditor(this.SHOW_HYPOCENTER_LOCATION_PARAM_NAME).
+            setValue(new Boolean(false));
+    //}
+  }
+
+
+  /*
+   * Create the EqkRupture Object
+   */
+  private void createRupture() {
+    if (parameterChangeFlag) {
+
+      eqkRupture = new EqkRupture();
+      eqkRupture.setMag( ( (Double) magParam.getValue()).doubleValue());
+      eqkRupture.setAveRake( ( (Double) rakeParam.getValue()).doubleValue());
+      eqkRupture.setRuptureSurface(ruptureSurface);
+      boolean hypocenterLocVisible = ((Boolean)showHypocenterLocationParam.getValue()).booleanValue();
+      if(hypocenterLocVisible)
+        eqkRupture.setHypocenterLocation(getHypocenterLocation());
       parameterChangeFlag = false;
     }
   }
+
 
   /**
    *  This is the main function of this interface. Any time a control
@@ -296,9 +286,16 @@ public class EqkRuptureCreationPanel
   public void parameterChange(ParameterChangeEvent event) {
 
     String name1 = event.getParameterName();
-    if (name1.equals(this.SRC_TYP_PARAM_NAME)){
+    if (name1.equals(this.SRC_TYP_PARAM_NAME)) {
       setParameterVisibleBasedOnSelectedRuptureType();
+      createGriddedRuptureSurface();
       this.updateUI();
+    }
+    else if (name1.equals(this.LOCATION_PARAM_NAME) ||
+             name1.equals(this.FAULT_PARAM_NAME))
+      createGriddedRuptureSurface();
+    else if (name1.equals(this.SHOW_HYPOCENTER_LOCATION_PARAM_NAME)) {
+      setHypocenterLocationParamVisible();
     }
     parameterChangeFlag = true;
     listEditor.refreshParamEditor();
@@ -309,17 +306,17 @@ public class EqkRuptureCreationPanel
    * @returns the Hypocenter Location if selected else return null
    */
   public Location getHypocenterLocation() {
-    return hypocenterLocationWindow.getHypocenterLocation();
+    return (Location)hypocenterLocationParam.getValue();
   }
 
   /**
    * Makes Hypocenter Location Parameter visible if hypocenter needs to be set
    * else removes it from the list of visible parameters.
-   * If Hypocenter Location parameter is visible then it sets the Hypocenter location
-   * in the eqkRupture
+   *
    */
   private void setHypocenterLocationParamVisible() {
-    eqkRupture.setHypocenterLocation(getHypocenterLocation());
+    boolean hypocenterLocVisible = ((Boolean)showHypocenterLocationParam.getValue()).booleanValue();
+    listEditor.getParameterEditor(HYPOCENTER_LOCATION_PARAM_NAME).setVisible(hypocenterLocVisible);
   }
 
   /**
@@ -348,19 +345,15 @@ public class EqkRuptureCreationPanel
    */
   private void setParameterVisibleBasedOnSelectedRuptureType() {
     String selectedRuptureType = (String) sourceTypeParam.getValue();
-    if (selectedRuptureType.equals(this.POINT_SRC_NAME)) {
-      listEditor.setParameterVisible(this.SRC_LAT_PARAM_NAME, true);
-      listEditor.setParameterVisible(this.SRC_DEPTH_PARAM_NAME, true);
-      listEditor.setParameterVisible(this.SRC_LON_PARAM_NAME, true);
-      listEditor.setParameterVisible(this.DIP_PARAM_NAME, true);
-      listEditor.setParameterVisible(this.FAULT_PARAM_NAME, false);
+    if (selectedRuptureType.equals(POINT_SRC_NAME)) {
+      listEditor.setParameterVisible(LOCATION_PARAM_NAME, true);
+      listEditor.setParameterVisible(DIP_PARAM_NAME, true);
+      listEditor.setParameterVisible(FAULT_PARAM_NAME, false);
     }
-    else if (selectedRuptureType.equals(this.FINITE_SRC_NAME)) {
-      listEditor.setParameterVisible(this.SRC_LAT_PARAM_NAME, false);
-      listEditor.setParameterVisible(this.SRC_DEPTH_PARAM_NAME, false);
-      listEditor.setParameterVisible(this.SRC_LON_PARAM_NAME, false);
-      listEditor.setParameterVisible(this.DIP_PARAM_NAME, false);
-      listEditor.setParameterVisible(this.FAULT_PARAM_NAME, true);
+    else if (selectedRuptureType.equals(FINITE_SRC_NAME)) {
+      listEditor.setParameterVisible(LOCATION_PARAM_NAME, false);
+      listEditor.setParameterVisible(DIP_PARAM_NAME, false);
+      listEditor.setParameterVisible(FAULT_PARAM_NAME, true);
     }
     listEditor.refreshParamEditor();
     this.validate();
@@ -434,31 +427,5 @@ public class EqkRuptureCreationPanel
     return listEditor;
   }
 
-  /**
-   * When Set Hypocenter Location in EqkRupture button is pressed.
-   * @param e
-   */
-  void hypocenterButton_actionPerformed(ActionEvent e) {
-    createRupture();
-    if (hypocenterLocationWindow == null) {
-      hypocenterLocationWindow = new HypocenterLocationWindow(this,
-          hypocenterList, eqkRupture);
-    }
-    else if (parameterChangeFlag) {
-      hypocenterLocationWindow.setHypocenterLocationListAndEqkRupture(
-          hypocenterList, eqkRupture);
-    }
-    hypocenterLocationWindow.pack();
-    hypocenterLocationWindow.show();
 
-    Location hypoLoc = eqkRupture.getHypocenterLocation();
-    if (hypoLoc == null) {
-      hypocenterLocationLabel.setText(hypocenterLocLabelString +
-                                      NULL_HYPOCENTER_STRING);
-    }
-    else {
-      hypocenterLocationLabel.setText(hypocenterLocLabelString +
-                                      hypoLoc.toString());
-    }
-  }
 }

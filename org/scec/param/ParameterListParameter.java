@@ -58,10 +58,24 @@ public class ParameterListParameter extends DependentParameter
    * @return                         -1 if this value < obj value, 0 if equal,
    *      +1 if this value > obj value
    * @exception  ClassCastException  Is thrown if the comparing object is not
-   *      a DoubleParameter, or DoubleDiscreteParameter.
+   *      a ParameterListParameter.
    */
-  public int compareTo( Object obj ) throws UnsupportedOperationException {
-    throw new java.lang.UnsupportedOperationException("This method not implemented yet");
+  public int compareTo( Object obj ) {
+    String S = C + ":compareTo(): ";
+
+    if ( !( obj instanceof ParameterListParameter ) ) {
+      throw new ClassCastException( S + "Object not a ParameterListParameter, unable to compare" );
+    }
+
+    ParameterListParameter param = ( ParameterListParameter ) obj;
+
+    if( ( this.value == null ) && ( param.value == null ) ) return 0;
+    int result = 0;
+
+    ParameterListParameter n1 = ( ParameterListParameter ) this.getValue();
+    ParameterListParameter n2 = ( ParameterListParameter ) param.getValue();
+
+    return n1.compareTo( n2 );
   }
 
 
@@ -75,9 +89,6 @@ public class ParameterListParameter extends DependentParameter
   public void setValue( ParameterList value ) throws ParameterException {
 
     ListIterator it  = value.getParametersIterator();
-    while(it.hasNext()){
-      ParameterAPI param = (ParameterAPI)it.next();
-    }
     setValue( (Object) value );
     //setting the independent Param List for this parameter
     this.setIndependentParameters(value);
@@ -89,21 +100,38 @@ public class ParameterListParameter extends DependentParameter
    * @param  obj                     The object to compare this to
    * @return                         True if the values are identical
    * @exception  ClassCastException  Is thrown if the comparing object is not
-   *      a DoubleParameter, or DoubleDiscreteParameter.
+   *      a ParameterListParameter.
    */
-  public boolean equals( Object obj ) throws UnsupportedOperationException {
-    throw new java.lang.UnsupportedOperationException("This method not implemented yet");
+  public boolean equals(Object obj) {
+    String S = C + ":equals(): ";
 
+    if (! (obj instanceof ParameterListParameter)) {
+      throw new ClassCastException(S +
+          "Object not a ParameterListParameter, unable to compare");
+    }
+
+    String otherName = ( (ParameterListParameter) obj).getName();
+    if ( (compareTo(obj) == 0) && getName().equals(otherName)) {
+      return true;
+    }
+    else {
+      return false;
+    }
   }
-
 
   /**
    *  Returns a copy so you can't edit or damage the origial.
    *
    * @return    Exact copy of this object's state
    */
-  public Object clone() throws UnsupportedOperationException {
-    throw new java.lang.UnsupportedOperationException("This method not implemented yet");
+  public Object clone(){
+
+      ParameterListParameter param = null;
+      if( value == null ) param = new ParameterListParameter( name);
+      else param = new ParameterListParameter(name,(ParameterList)value);
+      if( param == null ) return null;
+      param.editable = true;
+      return param;
   }
 
   /**

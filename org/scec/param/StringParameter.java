@@ -225,7 +225,7 @@ public class StringParameter
 
 
     /**
-     *  Compares the passed in String parameter to see if it has
+     * Compares the passed in String parameter to see if it has
      * the same name and value. If the object is not a String parameter
      * an exception is thrown. If the values and names are equal true
      * is returned, otherwise false is returned.

@@ -482,6 +482,7 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
   public void setEvenlyGriddedSurfaceFromParams()throws RuntimeException{
     //only update the parameter if any parameter in the parameer list has been changed
     if(faultParameterChange){
+      faultParameterChange = false;
       ParameterList independentParamList  = new ParameterList();
       // EvenlyGriddedSurface
       GriddedFaultFactory fltFactory = null;
@@ -619,7 +620,6 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
 
       //saving the independent Param List inside SimpleFault parameter
       setIndependentParameters(independentParamList);
-      faultParameterChange = false;
     }
   }
 

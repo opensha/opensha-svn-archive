@@ -174,7 +174,7 @@ ActionListener,ParameterChangeListener{
    * This function is called when user punches the button to update the ParameterList Parameter
    * @param e
    */
-  void button_actionPerformed(ActionEvent e) {
+  protected void button_actionPerformed(ActionEvent e) {
     ParameterList paramList = editor.getParameterList();
     if(parameterChangeFlag){
       param.setValue(paramList);

@@ -3,6 +3,7 @@ import org.scec.exceptions.InvalidRangeException;
 
 import org.scec.param.*;
 
+
 /**
  * <b>Title:</b> Location <p>
  *
@@ -42,15 +43,15 @@ public class Location implements java.io.Serializable {
 
 
     //maximum Latitude
-    private static final double MAX_LAT = 90.0;
+    public static final double MAX_LAT = 90.0;
     //minimum latitude
-    private static final double MIN_LAT = -90.0;
+    public static final double MIN_LAT = -90.0;
     //maximum longitude
-    private static final double MAX_LON = 360.0;
+    public static final double MAX_LON = 360.0;
     //manimum longitude
-    private static final double MIN_LON = -360.0;
+    public static final double MIN_LON = -360.0;
     //minimum depth
-    private static final double MIN_DEPTH =0.0;
+    public static final double MIN_DEPTH =0.0;
 
 
     /** No-Arg Constructor for the Location object. Currently does nothing. */
@@ -173,33 +174,38 @@ public class Location implements java.io.Serializable {
 
     private final static char TAB = '\t';
     /** Prints out all field names and values. useful for debugging. */
-    public String toString(){
+    public String toString() {
 
-        StringBuffer b = new StringBuffer();
-        //b.append(C);
-        //b.append('\n');
-        //b.append(" : ");
+      StringBuffer b = new StringBuffer();
+      //b.append(C);
+      //b.append('\n');
+      //b.append(" : ");
 
 
-        //b.append("latitude = ");
-        b.append("" + latitude + "," + longitude + "," + depth);
-        //b.append('\n');
+      //b.append("latitude = ");
+        b.append(latitude+","+longitude+","+depth);
+      //b.append('\n');
 
-        /*
-        b.append(" : ");
+      /*
+               b.append(" : ");
 
-        b.append("longitude = ");
-        b.append(longitude);
-        //b.append('\n');
-        b.append(" : ");
+               b.append("longitude = ");
+               b.append(longitude);
+               //b.append('\n');
+               b.append(" : ");
 
-        b.append("depth = ");
-        b.append(depth);
-        */
-        return b.toString();
+               b.append("depth = ");
+               b.append(depth);
+       */
+      return b.toString();
 
     }
 
+    /**
+     *
+     * @param loc Location
+     * @return boolean
+     */
     public boolean equalsLocation(Location loc){
 
         if(this.latitude != loc.latitude ) return false;
@@ -209,6 +215,21 @@ public class Location implements java.io.Serializable {
         return true;
     }
 
+    /**
+     * Checks if the passed object (obj) is similar to the object locationObject
+     * on which this function was called.
+     * Indicates whether some other object is "equal to" this one.
+     * The equals method implements an equivalence relation  on non-null object references:
+     * It is reflexive: for any non-null reference value  x, x.equals(x) should return  true.
+     * It is symmetric: for any non-null reference values  x and y, x.equals(y)  should return true if and only if  y.equals(x) returns true.
+     * It is transitive: for any non-null reference values  x, y, and z, if  x.equals(y) returns true and  y.equals(z) returns true, then  x.equals(z) should return true.
+     * It is consistent: for any non-null reference values  x and y, multiple invocations of  x.equals(y) consistently return true  or consistently return false, provided no  information used in equals comparisons on the  objects is modified.
+     * For any non-null reference value x,  x.equals(null) should return false.
+     * The equals method for class Object implements the most discriminating possible equivalence relation on objects; that is, for any non-null reference values x and  y, this method returns true if and only  if x and y refer to the same object  (x == y has the value true).
+     *Note that it is generally necessary to override the hashCode  method whenever this method is overridden, so as to maintain the  general contract for the hashCode method, which states  that equal objects must have equal hash codes
+     * @param obj Object the reference object with which to compare
+     * @return boolean true if this object is the same as the obj  argument; false otherwise.
+     */
     public boolean equals(Object obj){
         if(obj instanceof Location) return equalsLocation( (Location)obj );
         else return false;
