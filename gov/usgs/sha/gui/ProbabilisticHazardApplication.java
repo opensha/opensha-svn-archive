@@ -321,8 +321,8 @@ public class ProbabilisticHazardApplication
     else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_IEBC_2003)) {
       guiBeanAPI = new FEMA_GuiBean(this);
     }
-
     else if (selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE)) {
+      guiBeanAPI = new IBC_GuiBean(this);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.
                                            INTL_RESIDENTIAL_CODE)) {

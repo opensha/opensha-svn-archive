@@ -23,7 +23,8 @@ public final class RegionUtil {
         selectedAnalysisOption) throws AnalysisOptionNotSupportedException {
       ArrayList supportedRegionList = new ArrayList();
       if (selectedAnalysisOption.equals(GlobalConstants.NEHRP) ||
-          selectedAnalysisOption.equals(GlobalConstants.ASCE_NFPA)) {
+          selectedAnalysisOption.equals(GlobalConstants.ASCE_NFPA) ||
+          selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE)) {
         supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
         supportedRegionList.add(GlobalConstants.ALASKA);
         supportedRegionList.add(GlobalConstants.HAWAII);
