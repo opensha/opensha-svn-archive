@@ -18,7 +18,7 @@ import com.jrefinery.data.*;
 import org.scec.param.event.*;
 import org.scec.param.*;
 import org.scec.param.editor.ParameterListEditor;
-import org.scec.sha.imr.gui.IMRGuiBean;
+import org.scec.sha.imr.classicImpl.gui.IMRGuiBean;
 import org.scec.sha.imr.ClassicIMRAPI;
 import org.scec.sha.earthquake.*;
 import org.scec.data.Site;

@@ -11,7 +11,7 @@ import java.util.*;
 
 import java.math.BigDecimal;
 import javax.swing.*;
-import org.scec.sha.imr.gui.IMRTesterApplet;
+import org.scec.sha.imr.classicImpl.gui.ClassicIMRTesterApp;
 import org.scec.sha.magdist.gui.MagFreqDistTesterApplet;
 
 
@@ -48,7 +48,7 @@ public class PSHALogXYPlot
     protected boolean xlogplot = false;;
     protected boolean ylogplot = false;;
     private boolean returnNoLabels = false;
-    private IMRTesterApplet imrTesterApplet=null;
+    private ClassicIMRTesterApp imrTesterApplet=null;
     private MagFreqDistTesterApplet magFreqDistTesterApplet=null;
 
     /**
@@ -57,7 +57,7 @@ public class PSHALogXYPlot
      * @param domainAxis The domain axis.
      * @param rangeAxis The range axis.
      */
-    public PSHALogXYPlot(IMRTesterApplet imr,XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
+    public PSHALogXYPlot(ClassicIMRTesterApp imr,XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
         super(data, domainAxis, rangeAxis);
         this.xlogplot=xlog;
         this.ylogplot=ylog;
