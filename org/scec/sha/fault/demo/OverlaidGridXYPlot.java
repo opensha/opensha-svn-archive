@@ -32,6 +32,14 @@ import com.jrefinery.chart.OverlaidXYPlot;
  */
 public class OverlaidGridXYPlot extends OverlaidXYPlot {
 
+     /**
+      * counter to track the number of times draw function is called
+      * We save the middle of Y value the first time it is called
+      * That Y valye is used for cosine transformation
+      */
+       private int counter = 0;
+       double cosineY; // Y value for cosine function is calculated
+
          /* Constructs a new overlaid XY plot.  Number axes are created for the X and Y axes, using
          * the supplied labels.
          * <P>
@@ -125,14 +133,26 @@ public class OverlaidGridXYPlot extends OverlaidXYPlot {
 
      Range rh = this.domainAxis.getRange();
      Range rv=  this.rangeAxis.getRange();
+
+     ++counter;
+     if(counter == 1)
+        cosineY= Math.toRadians((rv.getLowerBound()+rv.getUpperBound())/2);
+
      /*
       Following code has been added to make the Longitude the cos function of the latitude
       Converting to radians because java finds the cos of the radians.
       What we are doing is scaling the horizontal longitude line based on the cos function of the latitude
      */
-     double verticaldiff = ((dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound())) * Math.abs(Math.cos(Math.toRadians((rv.getLowerBound()+rv.getUpperBound())/2)));
+     double verticaldiff = ((dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound())) * Math.abs(Math.cos(cosineY));
+     double horizontaldiff = (dataArea.getMaxX()-dataArea.getMinX())/(rh.getUpperBound()-rh.getLowerBound());
      double upperh= (dataArea.getMaxX()-dataArea.getMinX())/verticaldiff +rh.getLowerBound();
-     domainAxis.setRange(rh.getLowerBound(), upperh);
+     if(upperh >= rh.getUpperBound()) // adjust the horizontal scale
+       domainAxis.setRange(rh.getLowerBound(), upperh);
+     else {
+       // adjust the vertical scale according to horizontal scale
+       double upperv=(dataArea.getMaxY()-dataArea.getMinY())*Math.abs(Math.cos(cosineY)/horizontaldiff)+rv.getLowerBound();
+       rangeAxis.setRange(rv.getLowerBound(),upperv);
+     }
      drawOutlineAndBackground(g2, dataArea);
      if (this.domainAxis!=null) {
          this.domainAxis.draw(g2, plotArea, dataArea);

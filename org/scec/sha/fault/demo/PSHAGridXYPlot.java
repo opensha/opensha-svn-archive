@@ -27,6 +27,13 @@ public class PSHAGridXYPlot
     protected final static String C = "PSHAGridXYPlot";
     protected final static boolean D = true;
 
+    /**
+     * counter to track the number of times draw function is called
+     * We save the middle of Y value the first time it is called
+     * That Y valye is used for cosine transformation
+     */
+    private int counter = 0;
+    double cosineY; // Y value for cosine function is calculated
 
     /**
      * Constructs an XYPlot with the specified axes (other attributes take default values).
@@ -143,15 +150,25 @@ public class PSHAGridXYPlot
 
         Range rh = this.domainAxis.getRange();
         Range rv=  this.rangeAxis.getRange();
-        /*
-         Following code has been added to make the Longitude the cos function of the latitude
-         Converting to radians because java finds the cos of the radians.
-         What we are doing is scaling the horizontal longitude line based on the cos function of the latitude
-        */
-        double verticaldiff = ((dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound())) * Math.abs(Math.cos(Math.toRadians((rv.getLowerBound()+rv.getUpperBound())/2)));
-        double upperh= (dataArea.getMaxX()-dataArea.getMinX())/verticaldiff +rh.getLowerBound();
+        ++counter;
+        if(counter == 1)
+          cosineY= Math.toRadians((rv.getLowerBound()+rv.getUpperBound())/2);
 
-        domainAxis.setRange(rh.getLowerBound(), upperh);
+        /*
+        Following code has been added to make the Longitude the cos function of the latitude
+        Converting to radians because java finds the cos of the radians.
+        What we are doing is scaling the horizontal longitude line based on the cos function of the latitude
+        */
+        double verticaldiff = ((dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound())) * Math.abs(Math.cos(cosineY));
+        double horizontaldiff = (dataArea.getMaxX()-dataArea.getMinX())/(rh.getUpperBound()-rh.getLowerBound());
+        double upperh= (dataArea.getMaxX()-dataArea.getMinX())/verticaldiff +rh.getLowerBound();
+        if(upperh >= rh.getUpperBound()) // adjust the horizontal scale
+          domainAxis.setRange(rh.getLowerBound(), upperh);
+        else {
+          // adjust the vertical scale according to horizontal scale
+          double upperv=(dataArea.getMaxY()-dataArea.getMinY())*Math.abs(Math.cos(cosineY))/horizontaldiff + rv.getLowerBound();
+          rangeAxis.setRange(rv.getLowerBound(),upperv);
+        }
 
         drawOutlineAndBackground(g2, dataArea);
         if (this.domainAxis!=null) {
