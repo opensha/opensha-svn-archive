@@ -153,7 +153,8 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
   public String getScenarioShakeMapDataUsingServer(ArrayList selectedAttenRels, ArrayList attenRelWts,
       String griddedRegionSitesFile,EqkRupture rupture,
       boolean isProbAtIML,double value, String selectedIMT) throws ParameterException {
-
+    ObjectOutputStream outputToServlet = null;
+    ObjectInputStream inputToServlet = null;
     try{
 
       if(D) System.out.println("starting to make connection with servlet");
@@ -174,7 +175,7 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
       // Specify the content type that we will send binary data
       servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
 
-      ObjectOutputStream outputToServlet = new
+      outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
 
 
@@ -202,22 +203,38 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
       //sending the selected IMT to the server
       outputToServlet.writeObject(selectedIMT);
 
-      outputToServlet.flush();
-      outputToServlet.close();
+
 
       // Receive the "actual webaddress of all the gmt related files"
      // from the servlet after it has received all the data
-      ObjectInputStream inputToServlet = new
+      inputToServlet = new
           ObjectInputStream(servletConnection.getInputStream());
 
       //Absolute path to the XYZ data for the scenarioshake as computed using the servlet
       String xyzDataFile =(String)inputToServlet.readObject();
+      if(xyzDataFile.startsWith("Error"))
+        throw new RuntimeException(xyzDataFile.substring(6));
       //if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
       inputToServlet.close();
       return xyzDataFile;
+    }catch(RuntimeException e){
+      throw new RuntimeException(e.getMessage());
     }catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
+    }finally{
+      try{
+        if(outputToServlet !=null){
+          outputToServlet.flush();
+          outputToServlet.close();
+        }
+        if(inputToServlet !=null){
+          inputToServlet.close();
+        }
+      }catch(IOException e){
+        e.printStackTrace();
+        throw new RuntimeException("Server is down , please try again later");
+      }
     }
   }
 

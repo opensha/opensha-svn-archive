@@ -45,6 +45,11 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
   public void doGet(HttpServletRequest request,  HttpServletResponse response)
                                   throws IOException, ServletException {
 
+    // get all the input stream from the applet
+    ObjectInputStream inputFromApplication = new ObjectInputStream(request.getInputStream());
+
+    //sending the output in the form of the arrayList back to the calling application.
+    ObjectOutputStream output = new ObjectOutputStream(response.getOutputStream());
 
     try {
 
@@ -58,8 +63,6 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
         boolean success = (new File(FILE_PATH+XYZ_DATA_DIR)).mkdir();
       }
 
-      // get all the input stream from the applet
-      ObjectInputStream inputFromApplication = new ObjectInputStream(request.getInputStream());
       //gets the inputs from the Application.
 
       //gets the selected AttenuationRelationships
@@ -92,8 +95,7 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
 
       //creating the object for the ScenarioShakeMapCalculator to compute the XYZ data for the selected region
       ScenarioShakeMapCalculatorWithPropagationEffect calc = new ScenarioShakeMapCalculatorWithPropagationEffect();
-      //sending the output in the form of the arrayList back to the calling application.
-      ObjectOutputStream output = new ObjectOutputStream(response.getOutputStream());
+
       ArbDiscretizedXYZ_DataSet xyzData = null;
       if(!selectedIMT.equals(AttenuationRelationship.PGV_NAME)){
       //XYZ data for the scenarioshake as computed
@@ -116,6 +118,8 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
       output.writeObject(xyzDataFileWithAbsolutePath);
 
       output.close();
+    }catch(RuntimeException e){
+      output.writeObject("Error "+e.getMessage());
     }catch(Exception e) {
       e.printStackTrace();
     }
