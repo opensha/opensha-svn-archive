@@ -61,7 +61,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
   protected String legend=null;
   protected final static int W = 870;
-  protected final static int H = 710;
+  protected final static int H = 730;
   protected final static int A1 = 360;
   protected final static int A2 = 430;
   protected final static Font BUTTON_FONT = new java.awt.Font( "Dialog", 1, 11 );
@@ -200,6 +200,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
   //static string for the OPENSHA website
   private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
+  private JLabel jLabel1 = new JLabel();
 
 
  static {
@@ -375,14 +376,17 @@ public class MagFreqDistTesterApplet extends JApplet
         imgLabel_mouseClicked(e);
       }
     });
+    jLabel1.setFont(new java.awt.Font("Dialog", 0, 18));
+    jLabel1.setForeground(new Color(80, 80, 133));
+    jLabel1.setText("Magnitude-Frequency Distribution GUI");
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 4, 4, 4), 0, 0));
     mainPanel.add(buttonPanel,         new GridBagConstraints(0, 1, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
     this.getContentPane().add(outerPanel,         new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(9, 9, 0, 9), 109, 399));
-    outerPanel.add(mainPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ));
+    outerPanel.add(mainPanel,       new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 5, 5), 0, 0));
     buttonPanel.add(toggleButton,                        new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 8, 0, 1), 11, 5));
     buttonPanel.add(clearButton,                  new GridBagConstraints(4, 0, 1, 3, 0.0, 0.0
@@ -403,6 +407,8 @@ public class MagFreqDistTesterApplet extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 0, 0), 0, 0));
     buttonPanel.add(rangeComboBox,    new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(4, 0, 0, 4), 0, 0));
+    outerPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     this.getContentPane().add(imgLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 0, 0, 0), 0, 0));
 

@@ -108,7 +108,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     Insets emptyInsets = new Insets( 0, 0, 0, 0 );
 
     protected final static int W = 860;
-    protected final static int H = 700;
+    protected final static int H = 730;
     protected final static int A1 = 360;
     protected final static int A2 = 430;
     protected final static Font BUTTON_FONT = new java.awt.Font( "Dialog", 1, 11 );
