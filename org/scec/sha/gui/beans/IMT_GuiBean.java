@@ -214,8 +214,8 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
   */
 public String getParameterListMetadataString(){
   String metadata=null;
-  ListIterator it = getVisibleParametersCloned().getParametersIterator();
-  int paramSize = getVisibleParametersCloned().size();
+  ListIterator it = getVisibleParameters().getParametersIterator();
+  int paramSize = getVisibleParameters().size();
   while(it.hasNext()){
     //iterates over all the visible parameters
     ParameterAPI tempParam = (ParameterAPI)it.next();

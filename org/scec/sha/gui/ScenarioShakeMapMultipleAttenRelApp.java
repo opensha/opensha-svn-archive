@@ -773,7 +773,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
         this.imrGuiBean.getParameterListMetadataString()+"\n"+
         "<br><br>Region Param List: <br>\n"+
         "----------------<br>\n"+
-        sitesGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        sitesGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n"+
         "<br><br>IMT Param List: <br>\n"+
         "---------------<br>\n"+
         imtMetadata+"\n"+
@@ -782,9 +782,9 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
         erfGuiBean.getParameterListMetadataString()+"\n"+
         "<br><br>TimeSpan Param List: <br>\n"+
         "--------------------<br>\n"+
-        timeSpanGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        timeSpanGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n"+
         "<br><br>GMT Param List: <br>\n"+
         "--------------------<br>\n"+
-        mapGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n";
+        mapGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n";
   }
 }

@@ -160,7 +160,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
     }
 
     /**
-     * Returns a cloned ParameterList of all parameters that have their
+     * Returns ParameterList of all parameters that have their
      * GUI editors currently visible.
      */
     public ParameterList getVisibleParameters() {
@@ -178,6 +178,17 @@ public class ParameterListEditor extends LabeledBoxPanel {
         }
         return visibles;
     }
+
+
+    /**
+     * Returns cloned ParameterList of all parameters that have their
+     * GUI editors currently visible
+     */
+    public ParameterList getVisibleParametersCloned(){
+      return (ParameterList)getVisibleParameters().clone();
+    }
+
+
 
 
     /**

@@ -104,7 +104,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-  //public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   public final static String WG02_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
   public final static String PUENTE_HILLS_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PuenteHillsERF.PuenteHillsFaultERF";
@@ -751,10 +750,10 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       imtMetadata = imtGuiBean.getParameterListMetadataString();
     return "IMR Param List:<br>\n " +
            "---------------<br>\n"+
-        this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        this.imrGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n"+
         "<br><br>Region Param List: <br>\n"+
         "----------------<br>\n"+
-        sitesGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        sitesGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n"+
         "<br><br>IMT Param List: <br>\n"+
         "---------------<br>\n"+
         imtMetadata+"\n"+
@@ -763,9 +762,9 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
         erfGuiBean.getParameterListMetadataString()+"\n"+
         "<br><br>TimeSpan Param List: <br>\n"+
         "--------------------<br>\n"+
-        timeSpanGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        timeSpanGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n"+
         "<br><br>GMT Param List: <br>\n"+
         "--------------------<br>\n"+
-        mapGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n";
+        mapGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n";
   }
 }

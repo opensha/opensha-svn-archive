@@ -115,19 +115,19 @@ public class GenerateHazusFilesControlPanel extends JFrame {
       imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue("0.3");
       sa03_xyzdata = application.generateShakeMap();
 
-      metadata = imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"<br>\n";
+      metadata = imtGuiBean.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
 
       //Doing for SA-1.0sec
       imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue("1.0");
       sa10_xyzdata = application.generateShakeMap();
-      metadata += imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"<br>\n";
+      metadata += imtGuiBean.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
 
       //Doing for PGV
       if(imr.isIntensityMeasureSupported(pgv)){
         //if the PGV is supportd by the AttenuationRelationship
         imtGuiBean.getParameterList().getParameter(imtGuiBean.IMT_PARAM_NAME).setValue(pgv);
         pgv_xyzdata = application.generateShakeMap();
-        metadata += imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"<br>\n";
+        metadata += imtGuiBean.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
       }
       else{
         //if PGV is not supported by the attenuation then use the SA-1sec pd
@@ -146,7 +146,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
       //Doing for PGA
       imtGuiBean.getParameterList().getParameter(imtGuiBean.IMT_PARAM_NAME).setValue(pga);
       pga_xyzdata = application.generateShakeMap();
-      metadata += imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"<br>\n";
+      metadata += imtGuiBean.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
       calcProgress.showProgress(false);
       calcProgress.dispose();
       imtGuiBean.refreshParamEditor();

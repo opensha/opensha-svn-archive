@@ -566,12 +566,12 @@ public class MultipleIMR_GuiBean extends JPanel  implements
       if(attenRelCheckBox[i].isSelected()){
         metadata += "AttenuationRelationship = "+((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName()+
               " ; "+ wtsParameter[i].getName()+" = "+wtsParameter[i].getValue()+" ; "+
-              "Non Identical Param: "+editor[i].getVisibleParametersCloned().toString()+"<br>\n";
+              "Non Identical Param: "+editor[i].getVisibleParameters().toString()+"<br>\n";
 
       }
     }
 
-    metadata +=" Identical Param: "+otherParamsEditor.getVisibleParametersCloned().toString();
+    metadata +=" Identical Param: "+otherParamsEditor.getVisibleParameters().toString();
     return metadata;
   }
 
