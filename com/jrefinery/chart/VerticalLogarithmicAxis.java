@@ -455,7 +455,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
            if(!isPowerOfTen(val)) // for major axis
              g2.setFont(tickLabelFont);
            else  // show minor axis in smaller font
-             g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()+2));
+             g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()+3));
 
            if (tickLabelsVisible) {
               g2.setPaint(this.tickLabelPaint);
