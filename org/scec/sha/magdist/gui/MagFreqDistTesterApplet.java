@@ -128,9 +128,6 @@ public class MagFreqDistTesterApplet extends JApplet
 
   protected javax.swing.JFrame frame;
 
-  private JPanel parametersPanel = new JPanel();
-  private JPanel outerControlPanel = new JPanel();
-  private JPanel controlPanel = new JPanel();
   private ChartPanel incrPanel;
   private ChartPanel cumPanel;
   private ChartPanel moPanel;
@@ -237,13 +234,6 @@ public class MagFreqDistTesterApplet extends JApplet
     mainPanel.setLayout(GBL);
     mainPanel.setBorder( oval );
 
-    /* magDistComboBox.addItemListener(this);
-    magDistComboBox.setPreferredSize(new Dimension(150, 20));
-    magDistComboBox.setBorder(null);
-    magDistComboBox.setMaximumSize(new Dimension(150, 20));
-    magDistComboBox.setBackground(new Color(200, 200, 230));
-    magDistComboBox.setFont(new java.awt.Font("Dialog", 1, 12));
-    magDistComboBox.setForeground(new Color(80, 80, 133));*/
     this.getContentPane().setLayout(GBL);
     rangeComboBox.setBackground(new Color(200, 200, 230));
     rangeComboBox.setForeground(new Color(80, 80, 133));
@@ -296,9 +286,6 @@ public class MagFreqDistTesterApplet extends JApplet
     toggleButton.setPreferredSize(BUTTON_DIM);
     toggleButton.setMinimumSize(BUTTON_DIM);
     buttonPanel.setLayout(GBL);
-    /*magDistLabel.setFont(new java.awt.Font("Dialog", 1, 12));
-    magDistLabel.setForeground(new Color(80, 80, 133));
-    magDistLabel.setText("Choose Distribution: ");*/
     addButton.setBackground(new Color(200, 200, 230));
     addButton.setFont(BUTTON_FONT);
     addButton.setForeground(new Color(80, 80, 133));
@@ -319,10 +306,6 @@ public class MagFreqDistTesterApplet extends JApplet
     mainSplitPane.setDividerSize(5);
     mainSplitPane.setOneTouchExpandable(false);
 
-    parametersPanel.setLayout(GBL);
-    outerControlPanel.setLayout(GBL);
-    controlPanel.setLayout(GBL);
-    controlPanel.setBorder(BorderFactory.createEtchedBorder(1));
     dataScrollPane.setBorder(BorderFactory.createEtchedBorder());
     legendScrollPane.setBorder(BorderFactory.createEtchedBorder());
     legendPane.setBorder(BorderFactory.createEtchedBorder());
@@ -379,40 +362,23 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
 
-
-    mainSplitPane.setBottomComponent( outerControlPanel );
-    mainSplitPane.setTopComponent( plotPanel );
-    mainSplitPane.setDividerLocation(580);
-
-
-
-    outerControlPanel.add(controlPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 5, 0, 0 ), 0, 0 ));
-
-
-
-    controlPanel.add(parametersPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-
-
-
-
     // make  the mag dist parameter
     Vector distNames = new Vector();
+    distNames.add(YC_1985_CharMagFreqDist.NAME);
     distNames.add(GaussianMagFreqDist.NAME);
     distNames.add(SingleMagFreqDist.NAME);
     distNames.add(GutenbergRichterMagFreqDist.NAME);
-    distNames.add(YC_1985_CharMagFreqDist.NAME);
     magDist =  new MagFreqDistParameter(MAG_DIST_PARAM_NAME, distNames);
     magDistEditor = new MagFreqDistParameterEditor();
     magDistEditor.setParameter(magDist);
 
-    // make the update magdist button as invisible
+       // make the update magdist button as invisible
     magDistEditor.setUpdateButtonVisible(false);
-    parametersPanel.setBackground(Color.white);
-    parametersPanel.add( magDistEditor , new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
+
+    mainSplitPane.setBottomComponent( magDistEditor );
+    mainSplitPane.setTopComponent( plotPanel );
+    mainSplitPane.setDividerLocation(580);
 
     dataScrollPane.getViewport().add(pointsTextArea, null);
     legendScrollPane.getViewport().add(this.legendPane,null);
@@ -429,10 +395,6 @@ public class MagFreqDistTesterApplet extends JApplet
     titlePanel.setBackground( background );
     plotPanel.setBackground( background );
     innerPlotPanel.setBackground( background );
-    controlPanel.setBackground( background );
-    outerControlPanel.setBackground( background );
-    parametersPanel.setBackground( background );
-
 
   }
 
@@ -942,15 +904,9 @@ public class MagFreqDistTesterApplet extends JApplet
         moYAxis.setCrosshairVisible( false);
         moYAxis.setStandardTickUnits(units);
 
-
-
-
         int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
-        //if ( functions. < MIN_NUMBER_POINTS )
-            //type = com.jrefinery.chart.StandardXYItemRenderer.SHAPES_AND_LINES;
 
         LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
-        //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
         if(this.incrCustomAxis) {

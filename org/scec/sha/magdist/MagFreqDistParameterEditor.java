@@ -143,15 +143,6 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     public static final String NONE= new String("None");
     public static final String GAUSS_SET_ALL_PARAMS_BUT=new String("Set All GD Params But");
 
-    /**
-     *  This is name of various classes
-     */
-    protected final static String GaussianMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GaussianMagFreqDist";
-    protected final static String GutenbergRichterMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GutenbergRichterMagFreqDist";
-    protected final static String YC_1985_CharMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.YC_1985_CharMagFreqDist";
-    protected final static String SingleMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SingleMagFreqDist";
-    protected final static String SummedMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SummedMagFreqDist";
-
 
     JButton button = new JButton("Update MagDist");
 
@@ -179,8 +170,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         initParamListAndEditor();
         editor = new ParameterListEditor(parameterList,searchPaths);
         editor.setTitle(MAG_DIST_TITLE);
-        add(editor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
-              , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+        add(editor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+              , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
         button.setForeground(new Color(80,80,133));
         button.setBackground(new Color(200,200,230));
         Border border = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
