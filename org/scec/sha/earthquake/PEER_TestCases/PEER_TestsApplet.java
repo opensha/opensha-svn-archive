@@ -157,6 +157,10 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
    */
   private double Y_MIN_VAL = 1e-16;
 
+  //coordinates position of the centre of the applet
+  int xCenter;
+  int yCenter;
+
   protected boolean graphOn = false;
   private GridBagLayout gridBagLayout11 = new GridBagLayout();
   private JPanel jPanel1 = new JPanel();
@@ -231,6 +235,8 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     try {
 
       jbInit();
+      xCenter=getAppletXAxisCenterCoor();
+      yCenter=getAppletYAxisCenterCoor();
       // make the GroupTestGuiBean
       String testSelected = testCasesCombo.getSelectedItem().toString();
       testCasesCombo.setLightWeightPopupEnabled(false);
@@ -922,9 +928,11 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
 
       //displays the disaggregation string in the pop-up window
       String disaggregationString= peerTestGuiBean.getDisaggregationString();
-      if(disaggregationString !=null)
-        JOptionPane.showMessageDialog(this,new String(disaggregationString),
-                                     "Disaggregation Result",JOptionPane.OK_OPTION);
+      if(disaggregationString !=null) {
+        PEER_TestsDisaggregationWindow disaggregation=new PEER_TestsDisaggregationWindow(disaggregationString);
+        disaggregation.setBounds(xCenter-50,yCenter-60,320, 250);
+        disaggregation.show();
+      }
       disaggregationString=null;
     }
 
@@ -954,8 +962,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
    */
   public void invalidLogPlot(String message) {
 
-     int xCenter=getAppletXAxisCenterCoor();
-     int yCenter=getAppletYAxisCenterCoor();
+
      if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
        this.jCheckxlog.setSelected(false);
        ShowMessage showMessage=new ShowMessage("      X-Log Plot Error as it contains Zero Values");
@@ -1049,8 +1056,6 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
        double maxY=rY.getUpperBound();
 
 
-       int xCenter=getAppletXAxisCenterCoor();
-       int yCenter=getAppletYAxisCenterCoor();
        AxisScale axisScale=new AxisScale(this,minX,maxX,minY,maxY);
        axisScale.setBounds(xCenter-60,yCenter-50,375,148);
        axisScale.pack();
