@@ -961,18 +961,17 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          String name = param.getName();
 
 
-
-
-         b.append( "Resetting to ");
-         b.append( oldValueStr );
-         b.append( ". The constraints are: \n");
-         b.append( constraint.toString() );
-         b.append( "'.\n" );
          b.append( "The value ");
          b.append( badValueStr );
          b.append( " is not permitted for '");
          b.append( name );
          b.append( "'.\n" );
+
+         b.append( "Resetting to ");
+         b.append( oldValueStr );
+         b.append( ". The constraints are: \n");
+         b.append( constraint.toString() );
+         b.append( "\n" );
 
          JOptionPane.showMessageDialog(
              this, b.toString(),

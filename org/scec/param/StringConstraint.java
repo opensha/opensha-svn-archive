@@ -134,7 +134,6 @@ public class StringConstraint
 
         if( name != null) b.append( TAB + "Name = " + name + '\n' );
         //b.append( TAB + "Is Editable = " + this.editable + '\n' );
-        b.append( TAB + "Null Allowed = " + this.nullAllowed+ '\n' );
         b.append( TAB + "Allowed values = " );
 
         boolean first = true;
@@ -147,7 +146,7 @@ public class StringConstraint
                 first = false;
             }
         }
-        b.append( '\n' );
+        b.append( TAB + "Null Allowed = " + this.nullAllowed+ '\n' );
         return b.toString();
     }
 
