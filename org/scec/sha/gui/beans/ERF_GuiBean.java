@@ -120,7 +120,9 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    private String getERFName(String className) {
      try{
        Object obj = this.createERFClassInstance(className);
-       return ((EqkRupForecastAPI)obj).getName();
+       String name = new String (((EqkRupForecastAPI)obj).getName());
+       obj = null;
+       return name;
      }catch(Exception e){
        return null;
      }
@@ -149,9 +151,9 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      //adding the names of all the ERF's to the erfNamesVector- Pick List for the ERF's
      while(it.hasNext()){
        String erfClass = (String)it.next();
-       Object obj = getERFName(erfClass);
-       if(obj !=null)
-         erfNamesVector.add(obj);
+       String name = getERFName(erfClass);
+       if(name !=null)
+         erfNamesVector.add(name);
        else
          erfFailed.add(erfClass);
      }

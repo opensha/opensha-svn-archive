@@ -80,6 +80,7 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
 
 
   private void jbInit() throws RuntimeException {
+    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     this.setSize(W,H);
     this.setTitle(MAP_WINDOW);
     this.getContentPane().setLayout(borderLayout1);
