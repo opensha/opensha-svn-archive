@@ -49,7 +49,7 @@ public class HazardCurveApplet extends JApplet
     implements Runnable,  ParameterChangeListener,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
     X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
-    ButtonControlPanelAPI,GraphPanelAPI{
+    ButtonControlPanelAPI,GraphPanelAPI, GraphWindowAPI{
 
   /**
    * Name of the class
@@ -98,6 +98,9 @@ public class HazardCurveApplet extends JApplet
 
   //instance of the GraphPanel (window that shows all the plots)
   GraphPanel graphPanel;
+
+  //instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
+  GraphWindow graphWindow;
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
@@ -431,6 +434,11 @@ public class HazardCurveApplet extends JApplet
 
 
     peelOffButton.setText("Peel Off");
+    peelOffButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        peelOffButton_actionPerformed(e);
+      }
+    });
 
 
     imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1479,6 +1487,13 @@ public class HazardCurveApplet extends JApplet
     return minYValue;
   }
 
+  /**
+   *
+   * @returns the instance to the JPanel showing the JFreechart adn metadata
+   */
+  public GraphPanel getGraphPanel(){
+    return graphPanel;
+  }
 
   /**
    *
@@ -1505,11 +1520,41 @@ public class HazardCurveApplet extends JApplet
 
   /**
    *
+   * @returns the DiscretizedFuncList for all the data curves
+   */
+  public DiscretizedFuncList getCurveFunctionList(){
+    return totalProbFuncs;
+  }
+
+
+  /**
+   *
+   * @returns the DiscretizedFunctionXYDataSet to the data
+   */
+  public DiscretizedFunctionXYDataSet getXY_DataSet(){
+    return data;
+  }
+
+
+  /**
+   *
    * @returns the Max Y-Axis Range Value, if custom axis is choosen
    */
   public double getMaxY(){
     return maxYValue;
   }
+
+  /**
+   * Actual method implementation of the "Peel-Off"
+   * This function peels off the window from the current plot and shows in a new
+   * window. The current plot just shows empty window.
+   */
+  private void peelOffCurves(){
+    graphWindow = new GraphWindow(this);
+    clearPlot(true);
+    graphWindow.show();
+  }
+
 
   void imgLabel_mousePressed(MouseEvent e) {
 
@@ -1522,6 +1567,15 @@ public class HazardCurveApplet extends JApplet
   }
   void imgLabel_mouseExited(MouseEvent e) {
 
+  }
+
+  /**
+   * Action method to "Peel-Off" the curves graph window in a seperate window.
+   * This is called when the user presses the "Peel-Off" window.
+   * @param e
+   */
+  void peelOffButton_actionPerformed(ActionEvent e) {
+    peelOffCurves();
   }
 
 }

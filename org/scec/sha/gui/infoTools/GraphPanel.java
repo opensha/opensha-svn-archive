@@ -320,4 +320,12 @@ public class GraphPanel extends JPanel {
 
   }
 
+  /**
+   *
+   * @returns the series color being used for the current graph schemes
+   */
+  public Color[] getSeriesColor(){
+   return legendColor;
+  }
+
 }
