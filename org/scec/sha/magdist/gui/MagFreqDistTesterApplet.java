@@ -202,6 +202,7 @@ public class MagFreqDistTesterApplet extends JApplet
   //static string for the OPENSHA website
   private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
   private JLabel jLabel1 = new JLabel();
+  private Border border1;
 
 
  static {
@@ -267,16 +268,18 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
   private void jbInit() throws Exception {
+    border1 = BorderFactory.createLineBorder(new Color(80, 80, 133),3);
     mainPanel.setLayout(GBL);
-    mainPanel.setBorder( oval );
+    mainPanel.setBorder(border1 );
 
     this.getContentPane().setLayout(GBL);
 
     rangeComboBox.setBackground(new Color(200, 200, 230));
+    rangeComboBox.setFont(new java.awt.Font("Lucida Grande", 0, 11));
     rangeComboBox.setForeground(new Color(80, 80, 133));
-    rangeComboBox.setMaximumSize(new Dimension(125, 19));
-    rangeComboBox.setMinimumSize(new Dimension(125, 19));
-    rangeComboBox.setPreferredSize(new Dimension(125, 19));
+    rangeComboBox.setMaximumSize(new Dimension(125, 22));
+    rangeComboBox.setMinimumSize(new Dimension(125, 22));
+    rangeComboBox.setPreferredSize(new Dimension(125, 22));
     rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         rangeComboBox_actionPerformed(e);
@@ -290,7 +293,6 @@ public class MagFreqDistTesterApplet extends JApplet
     clearButton.setBackground(new Color(200, 200, 230));
     clearButton.setFont(BUTTON_FONT);
     clearButton.setForeground(new Color(80, 80, 133));
-    //clearButton.setBorder(null);
     clearButton.setFocusPainted(false);
     clearButton.setText("Clear Plot");
     clearButton.addActionListener(new java.awt.event.ActionListener() {
@@ -312,7 +314,6 @@ public class MagFreqDistTesterApplet extends JApplet
     toggleButton.setBackground(new Color(200, 200, 230));
     toggleButton.setFont(BUTTON_FONT);
     toggleButton.setForeground(new Color(80, 80, 133));
-    //toggleButton.setBorder(null);
     toggleButton.setFocusPainted(false);
     toggleButton.setText("Show Data");
     toggleButton.addActionListener(new java.awt.event.ActionListener() {
@@ -326,7 +327,6 @@ public class MagFreqDistTesterApplet extends JApplet
     addButton.setBackground(new Color(200, 200, 230));
     addButton.setFont(BUTTON_FONT);
     addButton.setForeground(new Color(80, 80, 133));
-    //addButton.setBorder(null);
     addButton.setFocusPainted(false);
     addButton.setText("Add Dist");
     addButton.addActionListener(new java.awt.event.ActionListener() {
@@ -390,8 +390,8 @@ public class MagFreqDistTesterApplet extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(9, 9, 0, 9), 109, 399));
     outerPanel.add(mainPanel,       new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 5, 5), 0, 0));
-    buttonPanel.add(toggleButton,                        new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 8, 0, 1), 11, 5));
+    buttonPanel.add(toggleButton,                         new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 5, 0, 1), 11, 7));
     buttonPanel.add(clearButton,                  new GridBagConstraints(4, 0, 1, 3, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 0, 0, 0), 8, 7));
     buttonPanel.add(plotColorCheckBox,                           new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
