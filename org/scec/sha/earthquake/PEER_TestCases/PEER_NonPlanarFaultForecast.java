@@ -95,6 +95,11 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   public final static String SEGMENTATION_D = new String ("Segment D only");
   public final static String SEGMENTATION_E = new String ("Segment E only");
 
+  // fault-model parameter stuff
+  public final static String FAULT_MODEL_NAME = new String ("Fault Model");
+  public final static String FAULT_MODEL_FRANKEL = new String ("Frankel's");
+  public final static String FAULT_MODEL_STIRLING = new String ("Stirling's");
+
   // make the grid spacing parameter
   DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
       GRID_PARAM_MAX,GRID_PARAM_UNITS,DEFAULT_GRID_VAL);
@@ -121,6 +126,10 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   // make the segmetation model parameter
   Vector segModelNamesStrings=new Vector();
   StringParameter segModelParam;
+
+  // make the fault-model parameter
+  Vector faultModelNamesStrings = new Vector();
+  StringParameter faultModelParam;
 
   // fault stuff
   FaultTrace faultTrace;
@@ -165,6 +174,11 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     segModelParam = new StringParameter(SEGMENTATION_NAME,segModelNamesStrings,
                                       (String)segModelNamesStrings.get(0));
 
+    // make the faultModelParam
+    faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
+    faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
+    faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,(String)faultModelNamesStrings.get(0));
+
     // now add the parameters to the adjustableParams list
     adjustableParams.addParameter(gridParam);
     adjustableParams.addParameter(offsetParam);
@@ -173,6 +187,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     adjustableParams.addParameter(magUpperParam);
     adjustableParams.addParameter(segModelParam);
     adjustableParams.addParameter(timeSpanParam);
+    adjustableParams.addParameter(faultModelParam);
 
     // listen for change in the parameters
     gridParam.addParameterChangeListener(this);
@@ -255,11 +270,18 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
        // Now make the gridded surface
        double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
-       FrankelGriddedFaultFactory factory = new FrankelGriddedFaultFactory( faultTrace,
-                                                                            DIP,
-                                                                            UPPER_SEISMO_DEPTH,
-                                                                            LOWER_SEISMO_DEPTH,
-                                                                            gridSpacing );
+       String faultModel = (String) faultModelParam.getValue();
+
+       GriddedFaultFactory factory;
+
+       if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
+         factory = new FrankelGriddedFaultFactory( faultTrace, DIP, UPPER_SEISMO_DEPTH,
+                                                   LOWER_SEISMO_DEPTH, gridSpacing );
+       }
+       else {
+         factory = new StirlingGriddedFaultFactory( faultTrace, DIP, UPPER_SEISMO_DEPTH,
+                                                   LOWER_SEISMO_DEPTH, gridSpacing );
+       }
 
        GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
