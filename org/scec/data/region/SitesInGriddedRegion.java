@@ -56,8 +56,12 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   public Site getSite(int index){
      site.setLocation(getGridLocation(index));
      if(this.setSiteParamsFromCVM)
+       try{
        siteTranslator.setSiteParams(site,((Double)vs30.get(index)).doubleValue(),
                                     ((Double)basinDepth.get(index)).doubleValue());
+       }catch(Exception e){
+         System.out.println(" Site was in water");
+       }
      return site;
   }
 
