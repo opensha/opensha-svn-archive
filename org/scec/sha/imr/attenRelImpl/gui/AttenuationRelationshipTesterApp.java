@@ -50,9 +50,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
         ItemListener, LogPlotAPI, AxisLimitsControlPanelAPI {
 
     protected final static String C = "AttenuationRelationshipTesterApp";
-    private final static String version = "0.0.3";
+    private final static String version = "0.0.4";
     protected final static boolean D = false;
-    private boolean warning = false;
   /**
    * these four values save the custom axis scale specified by user
    */
@@ -499,11 +498,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
         );
 
         addButton.setText( "Add Trace" );
-    addButton.addFocusListener(new java.awt.event.FocusAdapter() {
-      public void focusGained(FocusEvent e) {
-        addButton_focusGained(e);
-      }
-    });
 
         addButton.addActionListener(new java.awt.event.ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -1187,7 +1181,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         String S = C + " : parameterChangeWarning(): ";
         if(D) System.out.println(S + "Starting");
-        warning = true;
         if(this.inParameterChangeWarning) return;
 
         inParameterChangeWarning = true;
@@ -1578,13 +1571,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
     }catch(java.net.MalformedURLException ee){
       JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
                                     "Error Connecting to Internet",JOptionPane.OK_OPTION);
-    }
-  }
-
-  private void addButton_focusGained(FocusEvent e) {
-    if(warning)  {
-      addButton.doClick();
-      warning = false;
     }
   }
 }
