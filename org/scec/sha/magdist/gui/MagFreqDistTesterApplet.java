@@ -43,7 +43,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
   protected final static String C = "MagFreqDistTesterApplet";
-   private final static String version = "0.0.0";
+  private final static String version = "0.0.1";
   protected final static boolean D = false;
 
 
