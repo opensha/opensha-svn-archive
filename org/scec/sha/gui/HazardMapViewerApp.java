@@ -288,8 +288,8 @@ public class HazardMapViewerApp extends JApplet {
   }
 
   /**
- * It will read the sites.info file and fill the min and max Lat and Lon
- */
+   * It will read the sites.info file and fill the min and max Lat and Lon
+   */
   private void fillLatLonAndGridSpacing() {
 
     // get the min and max lat and lat spacing
