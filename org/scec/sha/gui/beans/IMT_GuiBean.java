@@ -13,7 +13,7 @@ import java.util.*;
  * <p>Description: this dispalys the various IMTs supported by the selected IMR</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author : Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
@@ -185,15 +185,28 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
   * set the IMT parameter in IMR
   */
  public void setIMT() {
-   String selectedImt = this.parameterList.getValue(this.IMT_PARAM_NAME).toString();
+   ParameterAPI param = getIntensityMeasure();
+   imr.setIntensityMeasure(param);
+ }
+
+
+ /**
+  * gets the selected Intensity Measure Parameter and its dependent Parameter
+  * @return
+  */
+ public ParameterAPI getIntensityMeasure(){
+   String selectedImt = parameterList.getValue(this.IMT_PARAM_NAME).toString();
    //set all the  parameters related to this IMT
    Iterator it= imtParam.iterator();
    while(it.hasNext()){
      DependentParameterAPI param=(DependentParameterAPI)it.next();
      if(param.getName().equalsIgnoreCase(selectedImt))
-       imr.setIntensityMeasure(param);
+       return param;
    }
+   return null;
  }
+
+
 
  /**
   *
