@@ -683,7 +683,15 @@ public class GroupTestGuiBean implements
       // if Area forecast is selected
       eqkRupForecast = this.faultcase2_area;
     }
-    eqkRupForecast.updateForecast();
+
+    // catch the constraint exceptions thrown by the forecasts
+    try {
+      eqkRupForecast.updateForecast();
+    }catch (RuntimeException e) {
+      JOptionPane.showMessageDialog(applet, e.getMessage(),
+        "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
     // intialize the condProbFunction for each IMR
     ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
     ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
