@@ -211,17 +211,13 @@ public class DahleEtAl_1995_AttenRel
     public DahleEtAl_1995_AttenRel( ParameterChangeWarningListener warningListener ) {
 
         super();
-
         this.warningListener = warningListener;
-
         initCoefficients( );  // This must be called before the next one
         initSupportedIntensityMeasureParams( );
-
         initProbEqkRuptureParams(  );
         initPropagationEffectParams( );
         initSiteParams();
         initOtherParams( );
-
         initIndependentParamLists(); // Do this after the above
     }
 
@@ -318,7 +314,6 @@ public class DahleEtAl_1995_AttenRel
         meanIndependentParams.addParameter( distanceRupParam );
         meanIndependentParams.addParameter( siteTypeParam );
         meanIndependentParams.addParameter( magParam );
-        meanIndependentParams.addParameter( fltTypeParam );
         meanIndependentParams.addParameter( componentParam );
 
         // params that the stdDev depends upon
@@ -331,7 +326,6 @@ public class DahleEtAl_1995_AttenRel
         exceedProbIndependentParams.addParameter( distanceRupParam );
         exceedProbIndependentParams.addParameter( siteTypeParam );
         exceedProbIndependentParams.addParameter( magParam );
-        exceedProbIndependentParams.addParameter( fltTypeParam );
         exceedProbIndependentParams.addParameter( componentParam );
         exceedProbIndependentParams.addParameter(stdDevTypeParam);
         exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
