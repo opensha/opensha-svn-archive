@@ -30,8 +30,7 @@ public class GMT_WebServiceServer implements GMT_WebServiceAPI{
     String currentMilliSec ="";
     currentMilliSec += System.currentTimeMillis();
 
-    //Assuming that first file that we add is the GMT Script file and second
-    //is the XYZ dataSet file and rest are the data file if any.
+    //Assuming that first file that we add is the GMT Script file and rest are the data file if any.
     try{
       //Name of the directory in which we are storing all the gmt data for the user
       String newDir= null;
