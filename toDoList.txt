@@ -53,6 +53,18 @@ For OpenSHA:
 
 Make apps that use internet connection graceful if it's not available.
 
+Fix GriddedFaultApplet - horz/vert scaling.
+
+Create the following control panel for the hazard curve calculator:
+
+	X_ValuesInCurveControlPanel
+
+Create SimpleFaultParameter and editor (so we can replace two PEER ERFs with one general ERF)
+
+Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
+
+
+
 wg99/02 Fortran code:
 
 	Debug on all platforms using the test input files sent by Mike.
@@ -74,13 +86,10 @@ wg99/02 Fortran code:
 
    		the ability to choose which of the output files to actually write.
 
-   		 for our output file to use the same naming convention as the others 
-    		(presently difficult because our file is written in the main part of 
-    		the code where we don't have access to the output-file prefix)
+    		addition of intermediate segment lats and lons for our output file
 
-    		addition of intermediate segment lats and lons
-
-    		to add to our output file the name of each rupture (e.g., "SAP+SAN+SAO")
+    		to add to our output file the name of each rupture (e.g., "SAP+SAN+SAO"); 
+		just add this on an additional line
 
    		 the remove of all runtime prompts (presently the user is only 
     		prompted for the input filename, which apparently we can handle
@@ -134,8 +143,6 @@ ScenarioShakeMapApp
 
 Fix titles of web pages (Ned's problem)
 
-Fix GriddedFaultApplet - horz/vert scaling.
-
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
 
 SimpleGriddedFaultFactory
@@ -148,15 +155,7 @@ SimpleGriddedFaultFactory
 
 Allow choosing of multiple ERFs (e.g., hand built ERF_EpistemicList)
 
-Create the following control panels in the future:
-
-	X_ValuesInCurveControlPanel
-
-Create SimpleFaultParameter and editor (so we can replace two PEER ERFs with one general ERF)
-
 Implement getApplicableRegion() and isLocWithinApplicableRegion() methods in implemented ERFs.
-
-Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
 DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
 
@@ -166,7 +165,7 @@ HazardCurveApplet - Ned will go through our implementation of the PEER test case
 
 EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient, and have the getAveDip() method compute the dip explicitly (in case it's a subset of a listric fault)?
 
-Decide how to handle rake=NaN in each IMR (can rake-NaN in and EarthquakeRupture object?).
+Decide how to handle rake=NaN in each IMR (can rake-NaN in an EarthquakeRupture object?).
 
 Decide on and implement a licensing agreement.
 
