@@ -217,7 +217,8 @@ public class ThreadHazardMapCalculator {
         * X-ValuesFileName and Max source distance.
          **/
        command[2] = "java -classpath opensha_hazardmapthread.jar:$CLASSPATH -Xmx500M "+
-                    "org.scec.sha.calc.GridHazardMapCalculator "+ startIndex +" "+ endIndex+" "+args[1]+" "+args[2]+
+                    "org.scec.sha.calc.GridHazardMapCalculator "+ startIndex +" "
+                    + endIndex+" "+args[1]+" "+args[2]+
                     " "+args[0]+" "+args[3]+" "+args[4];
        RunScript.runScript(command);
        //calendar = Calendar.getInstance();
