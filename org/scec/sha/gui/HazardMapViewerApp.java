@@ -485,7 +485,8 @@ public class HazardMapViewerApp extends JApplet {
        String imgName=fromServlet.readObject().toString();
        fromServlet.close();
        // show the map in  a new window
-       ImageViewerWindow imgView = new ImageViewerWindow(imgName, this.dataSetText.getText(), true);
+       String metadata = dataSetText.getText().replaceAll("\n","<br>");
+       ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadata, true);
 
      }catch (Exception e) {
        System.out.println("Exception in connection with servlet:" +e);
