@@ -78,9 +78,7 @@ public class DistanceRupParameter
 
 
     /**
-     * SWR: Note - This function's performance could be increased by having
-     * RelativeLocation return a double instead of a Direction for the function call
-     * <code>Direction dir = RelativeLocation.getDirection(loc1, loc2)</code>
+     * Note that this doesn not throw a warning
      */
     protected void calcValueFromSiteAndPE(){
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
@@ -101,8 +99,7 @@ public class DistanceRupParameter
                 if( totalDist < minDistance ) minDistance = totalDist;
 
             }
-            // take square root before returning
-            // Steve- is this effiecient?
+
             this.setValueIgnoreWarning( new Double( Math.pow ( minDistance , 0.5 ) ));
 
         }
