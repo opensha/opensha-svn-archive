@@ -30,28 +30,28 @@ public abstract class MagScalingRelationship implements NamedObjectAPI  {
 
     public double getMeanMag(double scale, double rake) {
       setRake(rake);
-      getMeanMag(scale);
+      return getMeanMag(scale);
     }
 
     public abstract double getMagStdDev(double scale);
 
     public double getMagStdDev(double scale, double rake) {
       setRake(rake);
-      getMagStdDev(scale);
+      return getMagStdDev(scale);
     }
 
     public abstract double getMeanScale(double mag);
 
     public double getScale(double mag, double rake) {
       setRake(rake);
-      getMeanScale(mag);
+      return getMeanScale(mag);
     }
 
     public abstract double getMeanScaleStdDev(double mag);
 
     public double getMeanScaleStdDev(double mag, double rake) {
       setRake(rake);
-      getMeanScaleStdDev(mag);
+      return getMeanScaleStdDev(mag);
     }
 
     public void setRake(double rake) {
