@@ -47,7 +47,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         ItemListener, LogPlotAPI
 {
 
-    protected final static String C = "IMRTesterApplet";
+    protected final static String C = "AttenuationRelationshipTesterApp";
     protected final static boolean D = false;
 
     protected static int counter = 0;
@@ -69,11 +69,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
     protected Object lock = new Object();
 
-    /**
-     *  Used to create the parameter listener at runtime dynamically from this
-     *  string
-     */
-    public final static String PARAM_LISTENER = "org.scec.sha.imr.attenRelImpl.gui.IMRParameterChangeListener";
 
     /**
      *  Number of data points to generate for x-axis, used in iterating over
@@ -81,21 +76,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
      */
     protected final static int NUM = 30;
 
-    /**
-     *  Placeholder for currently selected IM
-     */
-    //protected ParameterAPI selectedIM = null;
-
-    /**
-     *  Placeholder for currently selected IM name and value. Used for
-     *  coefficients lookup in the hashtable. The string format is "IM
-     *  Type/Value". For example "SA/1.2" or "PGM/PGA".
-     */
-    //protected String selectedIMNameAndValue = "";
-
-
-
-    //static String imagePath = "images";
 
     /**
      *  Currently selected IMR and related information needed for the gui to
@@ -116,8 +96,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected int toggleButtonCount = 0;
 
 
-
-
     boolean isStandalone = false;
 
     // Plot panel insets
@@ -125,7 +103,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
     Insets plotInsets = new Insets( 4, 10, 4, 4 );
     Insets defaultInsets = new Insets( 4, 4, 4, 4 );
     Insets emptyInsets = new Insets( 0, 0, 0, 0 );
-
 
     protected final static int W = 820;
     protected final static int H = 670;
@@ -140,8 +117,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
      *  drawn
      */
     protected final static int MIN_NUMBER_POINTS = 15;
-
-
 
 
 
@@ -917,7 +892,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
 
     /**
-     *  Adds a feature to the GraphPanel attribute of the IMRTesterApplet object
+     *  Adds a feature to the GraphPanel attribute of the AttenuationRelationshipTesterApplet object
      */
     protected void addGraphPanel() {
 
