@@ -65,20 +65,21 @@ public class HazardMapCalculator {
    * this function determines the hazard curve based on the parameters
    *
    * @param func : it has X values set and result will be returned in this function
-   * @param site  : site parameter
+   * @param griddedSites  : Sites in the Gridded Region
    * @param imr  :selected IMR object
    * @param eqkRupForecast  : selected Earthquake rup forecast
    * @return
    */
   public void getHazardMapCurves(DiscretizedFuncAPI hazFunction,
-                                 SitesInGriddedRegion sites, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
+                                 SitesInGriddedRegion griddedSites, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
     Site site;
     HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
+    //creating the directory that stores all the HazardCurves for that region
     boolean success = (new File("tempData")).mkdir();
-    int numSites = sites.getNumGridLocs();
+    int numSites = griddedSites.getNumGridLocs();
     for(int j=0;j<numSites;++j){
-      site = sites.getSite(j);
+      site = griddedSites.getSite(j);
       int numPoints=hazFunction.getNum();
       for(int i=0;i<numPoints;i++)
         hazFunction.set(i,1.0);
@@ -101,9 +102,6 @@ public class HazardMapCalculator {
         e.printStackTrace();
       }
     }
-    //remove the progress frame
-    // progressClass.dispose();
-
   }
 
 }

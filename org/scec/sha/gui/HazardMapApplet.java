@@ -559,7 +559,7 @@ public class HazardMapApplet extends JApplet implements
     initDiscretizeValues(hazFunction);
 
     // get the selected forecast model
-    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
+    EqkRupForecast eqkRupForecast = (EqkRupForecast)erfGuiBean.getSelectedERF();
 
     // get the selected IMR
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
@@ -578,7 +578,7 @@ public class HazardMapApplet extends JApplet implements
 
      SitesInGriddedRegion griddedRegionSites = griddedRegionGuiBean.getGriddedRegionSite();
      // calculate the hazard curve for each site
-     //creating the directory that stores all the HazardCurves for that region
+
 
        calc.getHazardMapCurves(hazFunction,griddedRegionSites , imr, eqkRupForecast);
        //hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
