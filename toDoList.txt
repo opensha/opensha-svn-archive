@@ -9,13 +9,11 @@ ProbEqkRupture -  add a clone() method and use this in getRuptureClone(*) method
 
 ProbEqkRupture - does this need a TimeSpan field (some of our sources do not have a timespan object, and so will not be capable of setting this)?  Lets take it out for now.
 
-Check changes from PointGR_EqkSource to PointPoissonEqkSource (and remove the former?).
+Ned - Check changes from PointGR_EqkSource to PointPoissonEqkSource (and remove the former?).
 
 Move PEER_TESTCases dir into the rupForecastImpl directory, and the directory PEER_TestGuiPlots to:
 
 	org/scec/sha/PEER_TestsGroupResults
-
-Change startTime constraint in all PEER test cases to TimeSpan.NONE
 
 Remove WardTest
 
@@ -37,48 +35,61 @@ Evaluate:
 	
 	MapGuiBean  (Nitin does this)
 
-		takes a given XYZ file and uses settings in GMT_SettingsControlPanel to 
-		construct and display a map
+		takes a given XYZ file (or array) and uses GMT_MapGenerator to 
+		construct and display (in a different window) a map & its metadata 
+		(also shows adj params from GMT_MapGenerator)
 	
 	EqkRupSelectorGuiBean
 
-		First version can simply be a JComboBox hard-wired ruptures or use an ERF and 
-		selection of src and rup index
+		- selection of src and rup index
+		- toggle adj params on and off?
+		- set hypocenter option (Finish Abrahamson2000 IMR.)?
+
+Add STEP ERF to hazardCurveApplet
+
+ProgressBars - 
+
+	-enable turning on and off in both HazardMapCalculator add  HazardCurveCalculator; 
+
+	-quantify the computation cost of using these (as well as if these are completely commented out).
+
+	- put toggle-switch option for this in all apps.
+
+Submit our log-log implementation formally to JFreeChart.
+
+AttenRelApp - update web site app (and others?).
+
+HazardCurveApplet 
+
+		- change name of condProbFunc to something like logX_Values_func
+
+		- mouse over on points in plot gives strange information 
+		  (at least for log-log plots).
+
+		- selecting region (zooming) in plot hangs the computer?
+
+HazardCurveCalc -  Ned fix calculation sequence to be consistent with SRL paper.
+
+Create SimpleFaultParameter and editor (so we can replace two PEER ERFs with one general ERF)
+
+Fix GriddedFaultApplet - colors (red to blue) and horz/vert scaling.
 
 Create the following control panels in the future:
 
 	X_ValuesInCurveControlPanel
 	
 
-ProgressBars - enable turning on and off in both HazardMapCalculator add  HazardCurveCalculator; quantify the computation cost of using these (as will as if these are completely commented out).
-
-Ned - Check Cross hairs in log-log plots (e.g., try it in the LogPlotTesterApp).
-
-Give JFreechart heads up on our submission, and ask the how we should do it
-
-Submit our log-log implementation formally to JFreeChart.
-
-Ned - Look at GriddedFaultApplet - plotting symbols (make all circles) and check that horz and vert scaling is correct.
-
-Ned - Check - AttenRelApp (made "Set Axes" button rather than JcomoBox)
-
-Ned - Check HazardCurveCalc - moved initialization of hazFunction y-values to 1 inside the calculator (outside of applet), and moved taking the log of it's x-axis values (for condProbFunc) outside the calculator (inside the applet with an if(IMT = SA or PGA or PGV) statement before).
-
-Ned Check - In applets, put an if statement (if IMT=PGA, SA, or PGV) before taking logs of X-axis values before sending to HazardCurveCalculator (else throw an exception to require hard coding other cases later).
-
-HazardCurveCalc - fix calculation sequence to be consistent with SRL paper.
-
 
 For the SCEC-ITR CME:
 ---------------------
 
-Think about porting our stand-alone applications to server mode.
-
-Think about meta data structure for haz map calcs.
+Port stand-alone applications to server mode.
 
 Build ScenarioShakeMapApplet (with HazardMapApplet in mind).  Then do this on server side?
 
 Get site params from Vs30 and basin depth translator, and get Vs30 and basin depth for lat/lon.
+
+Get wg99/02 Fortran code compiling on our computers.
 
 
 **************** LONG TERM (LOWER PRIORITY): ****************
