@@ -391,6 +391,7 @@ import org.scec.sha.earthquake.rupForecastImpl.PointEqkSource;
    public static void main(String[] args) throws Exception{
 
      STEP_EqkRupForecast forecast = new STEP_EqkRupForecast();
+     forecast.getAdjustableParameterList().getParameter(STEP_EqkRupForecast.SEIS_TYPE_NAME).setValue(STEP_EqkRupForecast.SEIS_TYPE_ADD_ON);
      forecast.updateForecast();
      System.out.println("startTimeFromCal:\n " + forecast.getTimeSpan().getStartTimeCalendar().toString());
      System.out.println("Duration: " + forecast.getTimeSpan().getDuration()+"  "+
