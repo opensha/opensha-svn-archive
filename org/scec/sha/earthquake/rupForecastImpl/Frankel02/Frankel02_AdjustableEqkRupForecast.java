@@ -48,6 +48,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   // name of this ERF
   public final static String NAME = new String("USGS/CGS 2002 Adj. Cal. ERF");
 
+// double tempCumRate;
 
 //  Vector allSourceNames;
 
@@ -159,6 +160,13 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   private final static double RUP_OFFSET_PARAM_MAX = 100;
   DoubleParameter rupOffset_Param;
 
+
+  // fault file parameter for testing
+  public final static String FAULT_FILE_NAME = new String ("Fault File");
+  // make the fault-model parameter
+  Vector faultFileNamesStrings = new Vector();
+  StringParameter faultFileParam;
+
   /**
    *
    * No argument constructor
@@ -179,6 +187,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     faultModelParam.addParameterChangeListener(this);
     rupOffset_Param.addParameterChangeListener(this);
     backSeisParam.addParameterChangeListener(this);
+    faultFileParam.addParameterChangeListener(this);
 
 
 /*
@@ -199,6 +208,51 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 // make the adjustable parameters & the list
   private void initAdjParams() {
 
+    faultFileNamesStrings.add("ca-a-other-fixed-char");
+    faultFileNamesStrings.add("ca-a-other-norm-char");
+    faultFileNamesStrings.add("ca-amod1-char");
+    faultFileNamesStrings.add("ca-amod2-char");
+    faultFileNamesStrings.add("ca-b-fullwt-norm-ell-65");
+    faultFileNamesStrings.add("ca-b-fullwt-norm-ell-char");
+    faultFileNamesStrings.add("ca-b-fullwt-norm-ell-gr");
+    faultFileNamesStrings.add("ca-b-fullwt-norm-hank-65");
+    faultFileNamesStrings.add("ca-b-fullwt-norm-hank-char");
+    faultFileNamesStrings.add("ca-b-fullwt-norm-hank-gr");
+    faultFileNamesStrings.add("ca-b-fullwt-ss-ell-65");
+    faultFileNamesStrings.add("ca-b-fullwt-ss-ell-char");
+    faultFileNamesStrings.add("ca-b-fullwt-ss-ell-gr");
+    faultFileNamesStrings.add("ca-b-fullwt-ss-hank-65");
+    faultFileNamesStrings.add("ca-b-fullwt-ss-hank-char");
+    faultFileNamesStrings.add("ca-b-fullwt-ss-hank-gr");
+    faultFileNamesStrings.add("ca-bflt-25weight-ell-char");
+    faultFileNamesStrings.add("ca-bflt-25weight-ell-gr");
+    faultFileNamesStrings.add("ca-bflt-25weight-hank-char");
+    faultFileNamesStrings.add("ca-bflt-25weight-hank-gr");
+    faultFileNamesStrings.add("ca-bflt-50weight-ell-65");
+    faultFileNamesStrings.add("ca-bflt-50weight-ell-char");
+    faultFileNamesStrings.add("ca-bflt-50weight-ell-gr");
+    faultFileNamesStrings.add("ca-bflt-50weight-hank-65");
+    faultFileNamesStrings.add("ca-bflt-50weight-hank-char");
+    faultFileNamesStrings.add("ca-bflt-50weight-hank-gr");
+    faultFileNamesStrings.add("ca-bflt-fix-norm-ell-65");
+    faultFileNamesStrings.add("ca-bflt-fix-norm-ell-char");
+    faultFileNamesStrings.add("ca-bflt-fix-norm-ell-gr");
+    faultFileNamesStrings.add("ca-bflt-fix-norm-hank-65");
+    faultFileNamesStrings.add("ca-bflt-fix-norm-hank-char");
+    faultFileNamesStrings.add("ca-bflt-fix-norm-hank-gr");
+    faultFileNamesStrings.add("ca-bflt-fix-ss-ell-65");
+    faultFileNamesStrings.add("ca-bflt-fix-ss-ell-char");
+    faultFileNamesStrings.add("ca-bflt-fix-ss-ell-gr");
+    faultFileNamesStrings.add("ca-bflt-fix-ss-hank-65");
+    faultFileNamesStrings.add("ca-bflt-fix-ss-hank-char");
+    faultFileNamesStrings.add("ca-bflt-fix-ss-hank-gr");
+    faultFileNamesStrings.add("ca-wg99-dist-char");
+    faultFileNamesStrings.add("ca-wg99-dist-float");
+    faultFileNamesStrings.add("creepflt");
+    faultFileParam = new StringParameter(FAULT_FILE_NAME, faultFileNamesStrings,
+        (String)faultFileNamesStrings.get(0));
+
+
     faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
     faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
     faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,
@@ -216,6 +270,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
 // add adjustable parameters to the list
     adjustableParams.addParameter(faultModelParam);
+    adjustableParams.addParameter(faultFileParam);
     adjustableParams.addParameter(rupOffset_Param);
     adjustableParams.addParameter(backSeisParam);
 
@@ -232,7 +287,129 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     charFaultSources = new Vector();
     grFaultSources = new Vector();
 
-    makeFaultSources("test7",1.0,null,0);
+// tempCumRate = 0;
+
+//    makeFaultSources("test12",0.3,"test12",0.4);
+
+/*
+    makeFaultSources("ca-a-other-fixed-char", 1.0,null,0);
+    makeFaultSources("ca-a-other-norm-char", 1.0,null,0);
+    makeFaultSources("ca-amod1-char", 1.0,null,0);
+    makeFaultSources("ca-amod2-char", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-norm-ell-65", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-norm-ell-char", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-norm-ell-gr", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-norm-hank-65", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-norm-hank-char", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-norm-hank-gr", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-ss-ell-65", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-ss-ell-char", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-ss-ell-gr", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-ss-hank-65", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-ss-hank-char", 1.0,null,0);
+    makeFaultSources("ca-b-fullwt-ss-hank-gr", 1.0,null,0);
+    makeFaultSources("ca-bflt-25weight-ell-char", 1.0,null,0);
+    makeFaultSources("ca-bflt-25weight-ell-gr", 1.0,null,0);
+    makeFaultSources("ca-bflt-25weight-hank-char", 1.0,null,0);
+    makeFaultSources("ca-bflt-25weight-hank-gr", 1.0,null,0);
+    makeFaultSources("ca-bflt-50weight-ell-65", 1.0,null,0);
+    makeFaultSources("ca-bflt-50weight-ell-char", 1.0,null,0);
+    makeFaultSources("ca-bflt-50weight-ell-gr", 1.0,null,0);
+    makeFaultSources("ca-bflt-50weight-hank-65", 1.0,null,0);
+    makeFaultSources("ca-bflt-50weight-hank-char", 1.0,null,0);
+    makeFaultSources("ca-bflt-50weight-hank-gr", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-norm-ell-65", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-norm-ell-char", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-norm-ell-gr", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-norm-hank-65", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-norm-hank-char", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-norm-hank-gr", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-ss-ell-65", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-ss-ell-char", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-ss-ell-gr", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-ss-hank-65", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-ss-hank-char", 1.0,null,0);
+    makeFaultSources("ca-bflt-fix-ss-hank-gr", 1.0,null,0);
+    makeFaultSources("ca-wg99-dist-char", 1.0,null,0);
+    makeFaultSources("ca-wg99-dist-float", 1.0,null,0);
+    makeFaultSources("creepflt", 1.0,null,0);
+
+*/
+//    String tempName = (String)faultFileParam.getValue();
+//    makeFaultSources(tempName,1.0,null,0.0);
+
+
+    makeFaultSources("ca-a-other-fixed-char", 1.0, null, 1.0);
+    makeFaultSources("ca-a-other-norm-char", 1.0, null, 1.0);
+    makeFaultSources("ca-amod1-char", 0.5, null, 1.0);
+    makeFaultSources("ca-amod2-char", 0.5, null, 1.0);
+    makeFaultSources("ca-b-fullwt-norm-ell-65", 0.5, "ca-b-fullwt-norm-hank-65", 0.5);
+    makeFaultSources("ca-b-fullwt-norm-ell-char", 0.333, "ca-b-fullwt-norm-hank-char", 0.333);
+    makeFaultSources("ca-b-fullwt-norm-ell-gr", 0.167, "ca-b-fullwt-norm-hank-gr", 0.167);
+    makeFaultSources("ca-b-fullwt-ss-ell-65", 0.5, "ca-b-fullwt-ss-hank-65", 0.5);
+    makeFaultSources("ca-b-fullwt-ss-ell-char", 0.333, "ca-b-fullwt-ss-hank-char", 0.333);
+    makeFaultSources("ca-b-fullwt-ss-ell-gr", 0.167, "ca-b-fullwt-ss-hank-gr", 0.167);
+    makeFaultSources("ca-bflt-25weight-ell-char", 0.083, "ca-bflt-25weight-hank-char", 0.083);
+    makeFaultSources("ca-bflt-25weight-ell-gr", 0.042, "ca-bflt-25weight-hank-gr", 0.042);
+    makeFaultSources("ca-bflt-50weight-ell-65", 0.25, "ca-bflt-50weight-hank-65", 0.25);
+    makeFaultSources("ca-bflt-50weight-ell-char", 0.167, "ca-bflt-50weight-hank-char", 0.167);
+    makeFaultSources("ca-bflt-50weight-ell-gr", 0.083, "ca-bflt-50weight-hank-gr", 0.083);
+    makeFaultSources("ca-bflt-fix-norm-ell-65", 0.5, "ca-bflt-fix-norm-hank-65", 0.5);
+    makeFaultSources("ca-bflt-fix-norm-ell-char", 0.333, "ca-bflt-fix-norm-hank-char", 0.333);
+    makeFaultSources("ca-bflt-fix-norm-ell-gr", 0.167, "ca-bflt-fix-norm-hank-gr", 0.167);
+    makeFaultSources("ca-bflt-fix-ss-ell-65", 0.5, "ca-bflt-fix-ss-hank-65", 0.5);
+    makeFaultSources("ca-bflt-fix-ss-ell-char", 0.333, "ca-bflt-fix-ss-hank-char", 0.333);
+    makeFaultSources("ca-bflt-fix-ss-ell-gr", 0.167, "ca-bflt-fix-ss-hank-gr", 0.167);
+    makeFaultSources("ca-wg99-dist-char", 1.0, null, 1.0);
+    makeFaultSources("ca-wg99-dist-float", 1.0, null, 1.0);
+    makeFaultSources("creepflt", 1.0, null, 1.0);
+
+/**/
+/*
+    makeFaultSources("ca-a-other-fixed-char", 1.0, null, 1.0);
+    makeFaultSources("ca-a-other-norm-char", 1.0, null, 1.0);
+    makeFaultSources("ca-amod1-char", 0.5, null, 1.0);
+    makeFaultSources("ca-amod2-char", 0.5, null, 1.0);
+    makeFaultSources("ca-b-fullwt-norm-ell-65", 0.5, null, 1.0);
+    makeFaultSources("ca-b-fullwt-norm-ell-char", 0.333, null, 1.0);
+    makeFaultSources("ca-b-fullwt-norm-ell-gr", 0.167, null, 1.0);
+    makeFaultSources("ca-b-fullwt-norm-hank-65", 0.5, null, 1.0);
+    makeFaultSources("ca-b-fullwt-norm-hank-char", 0.333, null, 1.0);
+    makeFaultSources("ca-b-fullwt-norm-hank-gr", 0.167, null, 1.0);
+    makeFaultSources("ca-b-fullwt-ss-ell-65", 0.5, null, 1.0);
+    makeFaultSources("ca-b-fullwt-ss-ell-char", 0.333, null, 1.0);
+    makeFaultSources("ca-b-fullwt-ss-ell-gr", 0.167, null, 1.0);
+    makeFaultSources("ca-b-fullwt-ss-hank-65", 0.5, null, 1.0);
+    makeFaultSources("ca-b-fullwt-ss-hank-char", 0.333, null, 1.0);
+    makeFaultSources("ca-b-fullwt-ss-hank-gr", 0.167, null, 1.0);
+    makeFaultSources("ca-bflt-25weight-ell-char", 0.083, null, 1.0);
+    makeFaultSources("ca-bflt-25weight-ell-gr", 0.042, null, 1.0);
+    makeFaultSources("ca-bflt-25weight-hank-char", 0.083, null, 1.0);
+    makeFaultSources("ca-bflt-25weight-hank-gr", 0.042, null, 1.0);
+    makeFaultSources("ca-bflt-50weight-ell-65", 0.25, null, 1.0);
+    makeFaultSources("ca-bflt-50weight-ell-char", 0.167, null, 1.0);
+    makeFaultSources("ca-bflt-50weight-ell-gr", 0.083, null, 1.0);
+    makeFaultSources("ca-bflt-50weight-hank-65", 0.25, null, 1.0);
+    makeFaultSources("ca-bflt-50weight-hank-char", 0.167, null, 1.0);
+    makeFaultSources("ca-bflt-50weight-hank-gr", 0.083, null, 1.0);
+    makeFaultSources("ca-bflt-fix-norm-ell-65", 0.5, null, 1.0);
+    makeFaultSources("ca-bflt-fix-norm-ell-char", 0.333, null, 1.0);
+    makeFaultSources("ca-bflt-fix-norm-ell-gr", 0.167, null, 1.0);
+    makeFaultSources("ca-bflt-fix-norm-hank-65", 0.5, null, 1.0);
+    makeFaultSources("ca-bflt-fix-norm-hank-char", 0.333, null, 1.0);
+    makeFaultSources("ca-bflt-fix-norm-hank-gr", 0.167, null, 1.0);
+    makeFaultSources("ca-bflt-fix-ss-ell-65", 0.5, null, 1.0);
+    makeFaultSources("ca-bflt-fix-ss-ell-char", 0.333, null, 1.0);
+    makeFaultSources("ca-bflt-fix-ss-ell-gr", 0.167, null, 1.0);
+    makeFaultSources("ca-bflt-fix-ss-hank-65", 0.5, null, 1.0);
+    makeFaultSources("ca-bflt-fix-ss-hank-char", 0.333, null, 1.0);
+    makeFaultSources("ca-bflt-fix-ss-hank-gr", 0.167, null, 1.0);
+    makeFaultSources("ca-wg99-dist-char", 1.0, null, 1.0);
+    makeFaultSources("ca-wg99-dist-float", 1.0, null, 1.0);
+    makeFaultSources("creepflt", 1.0, null, 1.0);
+*/
+
+// System.out.println("TotCumRate = "+tempCumRate);
 
 /*
     makeFaultSources("ca-a-other-fixed-char", 1.0,null,0);
@@ -259,7 +436,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     makeFaultSources("ca-wg99-dist-char", 1.0,null,0);
     makeFaultSources("ca-wg99-dist-float", 1.0,null,0);
     makeFaultSources("creepflt", 1.0,null,0);
-*/
+/**/
 // not sure if the rest are needed
 /*
     makeFaultSources("ext-norm-65", 1.0,null,0);
@@ -525,7 +702,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
               magLower2 += deltaMag2/2.0;
               mag2 -= deltaMag2/2.0;
             }
-            numMags2 = Math.round( (float)((mag-magLower)/deltaMag + 1.0) );
+            numMags2 = Math.round( (float)((mag2-magLower2)/deltaMag2 + 1.0) );
             //calculate moment rate (the exact same way Frankel does it)
             moRate2 = getMomentRate(magLower2, numMags2,deltaMag2,aVal2,bVal2);
           }
@@ -751,6 +928,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           System.out.println("\t"+(float)totalMagFreqDist.getX(n)+"  "+(float)totalMagFreqDist.getY(n));
       }
 
+// tempCumRate += totalMagFreqDist.getCumRate(0);
+
       // MAKE THE SOURCES (adding to the appropriate list)
       if(magFreqDistType.equals(CHAR_MAG_FREQ_DIST)) {
         SimpleFaultRuptureSource frs = new SimpleFaultRuptureSource(totalMagFreqDist,
@@ -967,8 +1146,11 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
      Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
      frankCast.updateForecast();
      System.out.println("num sources="+frankCast.getNumSources());
-     for(int i=0; i<frankCast.getNumSources(); i++)
-       System.out.println(frankCast.getSource(i).getName());
+     int n;
+     for(int i=0; i<frankCast.getNumSources(); i++) {
+       n=i+1;
+       System.out.println(n+"th source: "+frankCast.getSource(i).getName());
+     }
 /*
      double totRate=0, totProb=1, prob;
      int i,j, totRup;

@@ -180,7 +180,7 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
         tempMin = RelativeLocation.getHorzDistance(site.getLocation(),(Location)it.next());
         if(tempMin < min) min = tempMin;
       }
-// System.out.println(C+" minDist for source "+this.NAME+" = "+min);
+//System.out.println(C+" minDist for source "+this.NAME+" = "+min);
       return min;
     }
 

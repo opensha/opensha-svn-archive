@@ -186,7 +186,8 @@ public class HazardCurveCalculator {
         hazFunction.set(i,0.0);
     --numForecasts;
     if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
-
+// double tempVal = -1.0*Math.log(1.0-hazFunction.getY(1));
+// System.out.println(tempVal);
   }
 
 
