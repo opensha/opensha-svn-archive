@@ -55,7 +55,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   private DoubleParameter maxLat = new DoubleParameter(MAX_LATITUDE,
       new Double(-90), new Double(90), new Double(39.0));
   private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,
-      new Double(.01),new Double(100.0),new String("Degrees"),new Double(.5));
+      new Double(.01),new Double(100.0),new String("Degrees"),new Double(.1));
 
 
 
