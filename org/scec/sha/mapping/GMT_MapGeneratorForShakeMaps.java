@@ -38,9 +38,6 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
   private EqkRupture eqkRup;
 
-  //instance of the XYZ dataSet
-  private ArbDiscretizedXYZ_DataSet XYZ_data ;
-
   //IMT selected
   private String imt;
 
@@ -91,7 +88,6 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
   public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture, String imtSelected){
     eqkRup = eqkRupture;
     imt = imtSelected;
-    createXYZdata(xyzDataSet);
     return super.makeMapLocally(xyzDataSet,imtSelected);
   }
 
@@ -109,7 +105,6 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
                                     String imtSelected) throws RuntimeException{
     eqkRup = eqkRupture;
     imt = imtSelected;
-    createXYZdata(xyzDataSet);
     return super.makeMapUsingServlet(xyzDataSet, imtSelected);
   }
 
@@ -125,33 +120,23 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
   public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,String imtSelected){
     eqkRup = eqkRupture;
     imt = imtSelected;
-    createXYZdata(xyzDataSet);
     return super.makeMapUsingWebServer(xyzDataSet, imtSelected);
   }
 
 
   /**
-   * create a new XYZ dataset object with the linear values to generate the
-   * Hazus shape files.
-   * @param xyzDataSet
-   */
-  private void createXYZdata(XYZ_DataSetAPI xyzDataSet){
-    boolean doHaveToGenerateShapeFile = ((Boolean)hazusShapeParam.getValue()).booleanValue();
-    if(doHaveToGenerateShapeFile){
-      XYZ_data = new ArbDiscretizedXYZ_DataSet(xyzDataSet.getX_DataSet(),xyzDataSet.getY_DataSet(),xyzDataSet.getZ_DataSet());
-    }
-  }
-
-  /**
-   * Function to add the script lines  to generate the Hazus Shape files. For example,
-   * in the ScenarioShakeMap Application one now will be having the option to generate the
-   * shape files that goes into the Hazus as the input to calculate the loss estimation.
+   * Function adds script lines  to generate Hazus Shape files if that option has been selected.
    * @param gmtCommandLines : Vector to store the command line
-   * @param XYZ_FILE_NAME   : Name of the XYZ file name
    */
-  protected void addScriptToGenerateShapeFiles(Vector gmtCommandLines,String XYZ_FILE_NAME){
+  protected void addFinalGMT_ScriptLines(Vector gmtCommandLines){
+
     boolean doHaveToGenerateShapeFile = ((Boolean)hazusShapeParam.getValue()).booleanValue();
     if(doHaveToGenerateShapeFile){
+      // stop here is log was selected
+      boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
+      if(((Boolean)logPlotParam.getValue()).booleanValue())
+        throw new RuntimeException("You cannot make Hazus Shapefiles with log-plot selected!");
+
       String HAZUS_SHAPE_FILE_GENERATOR = "/usr/scec/hazus/shapefilegenerator/contour";
       // Get the limits and discretization of the map
       double minLat = ((Double)adjustableParams.getParameter(MIN_LAT_PARAM_NAME).getValue()).doubleValue();
@@ -196,6 +181,17 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       commandLine = COMMAND_PATH+"rm temp.grd";
       gmtCommandLines.add(commandLine+"\n");
     }
+/*
+    // TEMPORARY -- copy it to a directory for convenience
+    String commandLine = COMMAND_PATH+"mkdir "+imt;
+    gmtCommandLines.add(commandLine+"\n");
+    commandLine = COMMAND_PATH+"cp "+JPG_FILE_NAME+" "+imt;
+    gmtCommandLines.add(commandLine+"\n");
+    commandLine = COMMAND_PATH+"mv map.ps xyz_data.txt map_info.txt "+gmtFileName+" map_info "+imt;
+    gmtCommandLines.add(commandLine+"\n");
+    commandLine = COMMAND_PATH+"mv "+imt+".dbf "+imt+".shp "+imt+".shx " + imt;
+    gmtCommandLines.add(commandLine+"\n");
+*/
   }
 
 

@@ -32,11 +32,11 @@ public class GMT_MapGenerator implements Serializable{
   // name of the file which contains all the GMT commands that we want to run on server
   private String GMT_SCRIPT_NAME = "gmtScript.txt";
   private String DEFAULT_XYZ_FILE_NAME = "xyz_data.txt";
-  private String XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
+  protected String XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
   private String METADATA_FILE_NAME = "map_info.txt";
   protected String PS_FILE_NAME = "map.ps";
   private String DEFAULT_PS_FILE_NAME = PS_FILE_NAME;
-  private String JPG_FILE_NAME = "map.jpg";
+  protected String JPG_FILE_NAME = "map.jpg";
   private String DEFAULT_JPG_FILE_NAME = JPG_FILE_NAME;
   private String SCALE_LABEL; // what's used to label the color scale
   private int DPI = 70;
@@ -154,9 +154,9 @@ public class GMT_MapGenerator implements Serializable{
   //Boolean parameter to see if user wants linear or log plot
   public final static String LOG_PLOT_NAME = "Plot Log";
   private final static String LOG_PLOT_INFO = "Plot Log or Linear Map";
-  BooleanParameter logPlot;
+  protected BooleanParameter logPlotParam;
 
-  private String gmtFileName;
+  protected String gmtFileName;
 
   protected ParameterList adjustableParams;
 
@@ -228,8 +228,8 @@ public class GMT_MapGenerator implements Serializable{
     gmtFromServer = new BooleanParameter(GMT_WEBSERVICE_NAME,new Boolean("true"));
     gmtFromServer.setInfo(GMT_WEBSERVICE_INFO);
 
-    logPlot = new BooleanParameter(LOG_PLOT_NAME, new Boolean("true"));
-    logPlot.setInfo(LOG_PLOT_INFO);
+    logPlotParam = new BooleanParameter(LOG_PLOT_NAME, new Boolean("true"));
+    logPlotParam.setInfo(LOG_PLOT_INFO);
 
     // create adjustable parameter list
     adjustableParams = new ParameterList();
@@ -248,7 +248,7 @@ public class GMT_MapGenerator implements Serializable{
     adjustableParams.addParameter(coastParam);
     adjustableParams.addParameter(imageWidthParam);
     adjustableParams.addParameter(gmtFromServer);
-    adjustableParams.addParameter(logPlot);
+    adjustableParams.addParameter(logPlotParam);
   }
 
 
@@ -283,11 +283,13 @@ public class GMT_MapGenerator implements Serializable{
     // make the local XYZ data file
     makeXYZ_File(XYZ_FILE_NAME);
 
+    // Add time stamp to script name
+    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
 
-    // Add time stamp to script name and make the script
-    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+    // make the script
     makeFileFromLines(gmtLines,gmtFileName);
 
     // now run the GMT script file
@@ -364,11 +366,13 @@ public class GMT_MapGenerator implements Serializable{
     // make the local XYZ data file
     makeXYZ_File(XYZ_FILE_NAME);
 
+    // Add time stamp to script name
+    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
 
-    // Add time stamp to script name and make the script
-    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+    // make the script
     makeFileFromLines(gmtLines,gmtFileName);
 
     //put files in String array which are to be sent to the server as the attachment
@@ -619,19 +623,19 @@ public class GMT_MapGenerator implements Serializable{
     checkForLogPlot();
 
     // save file locally if log-plot is desired
-    boolean logPlotCheck = ((Boolean)logPlot.getValue()).booleanValue();
+    boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
     if(logPlotCheck){
       makeXYZ_File(DEFAULT_XYZ_FILE_NAME);
       XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
     }
 
-
+    // Add time stamp to script name
+    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
 
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
 
-    // Add time stamp to script name and make the script
-    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+    // make the script
     makeFileFromLines(gmtLines,gmtFileName);
 
     // now run the GMT script file
@@ -831,7 +835,7 @@ public class GMT_MapGenerator implements Serializable{
     }
 
 
-    // This add intermediate commands
+    // This adds intermediate commands
     addIntermediateGMT_ScriptLines(gmtCommandLines);
 
     // set some defaults
@@ -876,13 +880,14 @@ public class GMT_MapGenerator implements Serializable{
       gmtCommandLines.add(commandLine+"\n");
     }
 
-    //function to add the script lines  to generate the Hazus Shape files
-    addScriptToGenerateShapeFiles(gmtCommandLines,XYZ_FILE_NAME);
     // clean out temp files
     commandLine = COMMAND_PATH+"rm temp1.jpg temp2.jpg "+fileName+".grd "+fileName+
                   ".cpt "+fileName+"HiResData.grd "+fileName+"Inten.grd ";
     gmtCommandLines.add(commandLine+"\n");
 
+
+    // This adds any final commands
+    addFinalGMT_ScriptLines(gmtCommandLines);
 
 
     return gmtCommandLines;
@@ -901,15 +906,13 @@ public class GMT_MapGenerator implements Serializable{
 
 
   /**
-   * Function to add the script lines  to generate the Hazus Shape files. For example,
-   * in the ScenarioShakeMap Application one now will be having the option to generate the
-   * shape files that goes into the Hazus as the input to calculate the loss estimation.
+   * Function to adds any final commands desired by a subclass.
    * @param gmtCommandLines : Vector to store the command line
-   * @param XYZ_FILE_NAME   : Name of the XYZ file name
    */
-  protected void addScriptToGenerateShapeFiles(Vector gmtCommandLines,String XYZ_FILE_NAME){
+  protected void addFinalGMT_ScriptLines(Vector gmtCommandLines){
 
   }
+
 
   /**
    * If log-plot has been chosen, this replaces the z-values in the xyzDataSet
@@ -919,7 +922,7 @@ public class GMT_MapGenerator implements Serializable{
    */
   private void checkForLogPlot(){
     //checks to see if the user wants Log Plot, if so then convert the zValues to the Log Space
-    boolean logPlotCheck = ((Boolean)logPlot.getValue()).booleanValue();
+    boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
     if(logPlotCheck){
       //Vector of the Original z Values in the linear space
       Vector zLinearVals = xyzDataSet.getZ_DataSet();
