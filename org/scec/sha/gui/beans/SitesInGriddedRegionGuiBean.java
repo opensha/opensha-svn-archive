@@ -47,11 +47,11 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
    * Longitude and Latitude paramerts to be added to the site params list
    */
   private DoubleParameter minLon = new DoubleParameter(MIN_LONGITUDE,
-      new Double(-360), new Double(360),new Double(-122));
+      new Double(-360), new Double(360),new Double(-123));
   private DoubleParameter maxLon = new DoubleParameter(MAX_LONGITUDE,
       new Double(-360), new Double(360),new Double(-121));
   private DoubleParameter minLat = new DoubleParameter(MIN_LATITUDE,
-      new Double(-90), new Double(90), new Double(38.0));
+      new Double(-90), new Double(90), new Double(37.0));
   private DoubleParameter maxLat = new DoubleParameter(MAX_LATITUDE,
       new Double(-90), new Double(90), new Double(39.0));
   private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,

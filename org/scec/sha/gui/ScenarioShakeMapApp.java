@@ -187,12 +187,12 @@ public class ScenarioShakeMapApp extends JApplet implements
 
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
     imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
-    parameterTabbedPanel.add(imrPanel, "IMR Model");
+    parameterTabbedPanel.add(imrPanel, "Intensity-Measure Relationship");
     imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
-    parameterTabbedPanel.add(gridRegionSitePanel,   "Gridded Region / Site Params");
-    parameterTabbedPanel.add(eqkRupPanel,  "EqkRupForecast Model");
+    parameterTabbedPanel.add(gridRegionSitePanel,   "Region & Site Params");
+    parameterTabbedPanel.add(eqkRupPanel,  "Earthquake Rupture Forecast");
     parameterTabbedPanel.add(timespanPanel, "Time Span");
-    parameterTabbedPanel.add(prob_IMLPanel,  "IML / Prob");
+    parameterTabbedPanel.add(prob_IMLPanel,  "Exceedance Level/Probability");
     parameterTabbedPanel.add(gmtPanel,  "Map Attributes");
 
     mainSplitPane.setDividerLocation(580);

@@ -14,6 +14,14 @@ import org.scec.param.*;
 
 public class GMT_MapGenerator implements Serializable{
 
+  /**
+   * Name of the class
+   */
+  protected final static String C = "GMT_MapGenerator";
+
+  // for debug purpose
+  protected final static boolean D = true;
+
   // PATH where the gmt commands and some others exist.
   public static String GMT_PATH = "/sw/bin/";
 
@@ -203,6 +211,8 @@ public class GMT_MapGenerator implements Serializable{
     double maxLon = ((Double) maxLonParam.getValue()).doubleValue();
     double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
     String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
+
+    if(D) System.out.println(C+" region = "+region);
     //all the files of the GMT will be created by this fileName
     String fileName=xyzFileName.substring(0,xyzFileName.indexOf("."));
 

@@ -29,8 +29,8 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
   private final static String MAP_INFO="Set Map Params";
   private final static Double MIN_PROB=new Double(0);
   private final static Double MAX_PROB=new Double(1);
-  private final static Double DEFAULT_PROB= new Double(.01);
-  private final static Double DEFAULT_IML = new Double(.05);
+  private final static Double DEFAULT_PROB= new Double(.5);
+  private final static Double DEFAULT_IML = new Double(.1);
 
   private StringParameter imlProb;
 

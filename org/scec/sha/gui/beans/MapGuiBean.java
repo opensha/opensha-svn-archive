@@ -25,6 +25,14 @@ import org.scec.sha.gui.infoTools.ImageViewerWindow;
 public class MapGuiBean extends ParameterListEditor implements
     ParameterChangeListener {
 
+  /**
+   * Name of the class
+   */
+  protected final static String C = "MapGuiBean";
+
+  // for debug purpose
+  protected final static boolean D = true;
+
 
   private final static String GMT_TITLE = new String("Set GMT Parameters");
 
@@ -75,6 +83,7 @@ public class MapGuiBean extends ParameterListEditor implements
    */
   public void setGMTRegionParams(double minLat,double maxLat,double minLon,double maxLon,
                                double gridSpacing){
+    if(D) System.out.println(C+" setGMTRegionParams: " +minLat+"  "+maxLat+"  "+minLon+"  "+maxLon);
     parameterList.getParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
     parameterList.getParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
     parameterList.getParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
