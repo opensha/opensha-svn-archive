@@ -90,7 +90,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
   /**
    * GutenbergRichter Magnitude Frequency Distribution Parameter string list constant
    */
-    public static final String GR_TO_MORATE=new String("Total Moment Rate");
+    public static final String GR_TO_MORATE=new String("GR Total Moment Rate");
     public static final String TO_CUM_RATE=new String("Total Cum Rate");
     public static final String GR_MAG_UPPER=new String("Mag Upper");
     public static final String GR_MAG_LOWER=new String("Mag Lower");
@@ -109,7 +109,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     public static final String YC_DELTA_MAG_CHAR = new String("Delta Mag Char");
     public static final String YC_MAG_PRIME = new String("Mag Prime");
     public static final String YC_DELTA_MAG_PRIME = new String("Delta Mag Prime");
-    public static final String YC_TO_MORATE=new String("Total Moment Rate");
+    public static final String YC_TO_MORATE=new String("YC Total Moment Rate");
 
 
   /**
@@ -118,10 +118,10 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     public static final String GAUSSIAN_TO_MORATE=new String("Total Moment Rate");
     public static final String MEAN=new String("Mean");
     public static final String STD_DEV=new String("Std Dev");
-    public static final String TRUNCATION_REQ=new String("Truncation Required");
-    public static final String TRUNCATE_FROM_RIGHT= new String("Truncate from Right");
-    public static final String TRUNCATE_ON_BOTH_SIDES= new String("Truncate on Both Sides");
-    public static final String TRUNCATE_NUM_OF_STD_DEV= new String("Truncation(# of Std Devs)");
+    public static final String TRUNCATION_REQ=new String("Truncation Type");
+    public static final String TRUNCATE_FROM_RIGHT= new String("Upper");
+    public static final String TRUNCATE_ON_BOTH_SIDES= new String("Upper and Lower");
+    public static final String TRUNCATE_NUM_OF_STD_DEV= new String("Truncation Level(# of Std Devs)");
     public static final String NONE= new String("None");
 
     /**
@@ -254,7 +254,6 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
         // Now make the parameters list
         // At this point all values have been set for the IM type, xaxis, and the yaxis
-
          parameterList.addParameter( minParameter );
          parameterList.addParameter( numParameter );
          parameterList.addParameter( maxParameter );
@@ -310,6 +309,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          StringParameter setParamsBut=new StringParameter(SET_ALL_PARAMS_BUT,vStrings,GR_TO_MORATE);
          parameterList.addParameter(setParamsBut);
          setParamsBut.addParameterChangeListener(this);
+         parameterList.addParameter(gr_toMoRate);
          parameterList.addParameter(magLower);
          parameterList.addParameter(magUpper);
          parameterList.addParameter(bValue);
@@ -341,7 +341,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          parameterList.addParameter(deltaMagPrime);
 
          //parameterList.addParameter(yc_bValue);
-         //parameterList.addParameter(yc_toMoRate);
+         parameterList.addParameter(yc_toMoRate);
 
         // All done
         if ( D )

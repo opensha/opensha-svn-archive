@@ -32,12 +32,13 @@ public class PointGR_EqkSource extends ProbEqkSource {
 
 
   public PointGR_EqkSource(Location loc, GutenbergRichterMagFreqDist gr,double rake){
-    this.location =location;
+    this.location =loc;
     this.gR=gr;
 
     // Determine number of ruptures (don't count mags with zero rate)
     totNumRups = 0;
-    for (int i=0; i<gR.getNum(); ++i)
+    int grNum = gR.getNum();
+    for (int i=0; i<grNum; ++i)
         if(gr.getY(i) > 0) totNumRups += 1;
 
     // make the prob qk rupture

@@ -27,7 +27,7 @@ public class Set1_Fault_Source extends ProbEqkSource {
 
   //for Debug purposes
   private static String  C = new String("Set1_Fault_Source");
-  private boolean D = true;
+  private boolean D = false;
 
   private double rake;
   private double timeSpan;
@@ -98,9 +98,7 @@ public class Set1_Fault_Source extends ProbEqkSource {
             ruptureList.add(probEqkRupture);
 
             GriddedSurfaceAPI temp = probEqkRupture.getRuptureSurface();
-            Location tempLoc = temp.getLocation(0,0);
-            if( D ) System.out.println("Location(0,0): rup: "+r+"  "+tempLoc.getLatitude()+"  "+tempLoc.getLongitude()+"  "+tempLoc.getDepth());
-        }
+          }
         if( D ) System.out.println("Set1_Fault_Source: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+"; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
       }
     }

@@ -214,10 +214,10 @@ public class Set1_Area_Forecast extends EqkRupForecast
       for(double lat=LAT_TOP;lat >=LAT_BOTTOM; lat-=latDiff)
         for(double lon=LONG_LEFT;lon <=LONG_RIGHT; lon+=longDiff)
           if(RelativeLocation.getLatLonDistance(LAT_CENTER,LONG_CENTER,lat,lon) <= MAX_DISTANCE)
-            for(double depth=depthLower;depth<=depthUpper;depth+=gridSpacing)
+            for(double depth=depthUpper;depth<=depthLower;depth+=gridSpacing)
                 locationList.addLocation(new Location(lat,lon,depth));
 
-      double numLocs = locationList.size();
+      int numLocs = locationList.size();
 
       /* getting the Gutenberg magnitude distribution and scaling its cumRate to the original cumRate
        * divided by the number of the locations (note that this is a clone of what's in the magDistParam)
@@ -230,6 +230,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
 
       //creating the PointGR sources  and adding the objects for sources in the vector.
       //FIX FIX have to have rake parameter;
+
       for(int i=0;i<numLocs;++i){
         PointGR_EqkSource pointGR_EqkSource = new PointGR_EqkSource(locationList.getLocationAt(i),gR,
                                               ((Double)this.rakeParam.getValue()).doubleValue());
@@ -394,7 +395,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
   public void setForecastParams(String value){
     if(value.equals(this.TEST_CASE_TEN)) {
       adjustableParams.getParameter(this.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
-      adjustableParams.getParameter(this.DEPTH_UPPER_PARAM_NAME).setValue(new Double(0));
+      adjustableParams.getParameter(this.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
     }
     if(value.equals(this.TEST_CASE_ELEVEN)) {
       adjustableParams.getParameter(this.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));

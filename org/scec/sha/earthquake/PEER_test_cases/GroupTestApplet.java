@@ -549,7 +549,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
       plot.setXYItemRenderer( renderer );
 
 
-      JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, true );
+      JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
 
       chart.setBackgroundPaint( lightBlue );
 
@@ -632,7 +632,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
 
 
       // clear the function list
-      this.totalProbFuncs.clear();
+      //this.totalProbFuncs.clear();
 
       groupTestBean.getChoosenFunction(totalProbFuncs);
 
@@ -743,7 +743,6 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
     int newLoc = loc;
 
     panel.removeAll();
-    panel = null;
 
     pointsTextArea.setText( NO_PLOT_MSG );
     if( clearFunctions) {

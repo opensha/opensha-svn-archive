@@ -37,9 +37,13 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   private static String  C = new String("FaultCaseTest1_Fault");
   private boolean D = true;
 
+
+  //test case 3 static string
+  private final static String TEST_CASE_THREE ="3";
+
   /**
-  * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
-  */
+   * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
+   */
   private double timeSpan;
   private TimeSpan time;
 
@@ -390,17 +394,30 @@ public class Set1_Fault_Forecast extends EqkRupForecast
 
    /**
     * This functions fills the default values for the forecast paramters based
-    * on the selected fault which is passed as the argument to the function
-    * @param value
+    * on the selected fault which is passed as the argument to the function.
+    * Based on the selected test case we are modifying the value of the magLengthSigma
+    * @param faultType : tells whether the fault1 or fault2
+    * @param testCaseVal: tells which test case is selected
     */
-   public void setForecastParams(String value){
+
+   public void setForecastParams(String faultType, String testCaseVal){
+
+     // add sigma for maglength(0-1)
+      lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
+                          SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
+
+     // magLengthSigma parameter is changed if the test case chosen is 3
+     if(testCaseVal.equalsIgnoreCase(TEST_CASE_THREE))
+         lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
+                          SIGMA_PARAM_MIN, SIGMA_PARAM_MAX,new Double(0.2));
+
      // set the parameters for fault1
-     if(value.equals(this.FAULT1_NAME)) {
+     if(faultType.equals(this.FAULT1_NAME)) {
        this.adjustableParams.getParameter(this.DIP_PARAM_NAME).setValue(new Double(90.0));
        this.adjustableParams.getParameter(this.RAKE_PARAM_NAME).setValue(new Double(0.0));
      }
      // set the parameters for fault 2
-     if(value.equals(this.FAULT2_NAME)) {
+     if(faultType.equals(this.FAULT2_NAME)) {
        this.adjustableParams.getParameter(this.DIP_PARAM_NAME).setValue(new Double(60.0));
        this.adjustableParams.getParameter(this.RAKE_PARAM_NAME).setValue(new Double(90.0));
      }
