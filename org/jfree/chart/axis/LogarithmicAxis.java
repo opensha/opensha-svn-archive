@@ -228,6 +228,7 @@ public class LogarithmicAxis extends NumberAxis {
    */
   public void setLog10TickLabelsInPowerFlag() {
     log10TickLabelsInPowerFlag = true;
+    this.smallLogFlag = true;
     expTickLabelsFlag = false;
     log10TickLabelsFlag = false;
   }
@@ -281,7 +282,10 @@ public class LogarithmicAxis extends NumberAxis {
     // set flag true if negative values not allowed and the
     // lower bound is between 0 and 10:
     final double lowerVal = getRange().getLowerBound();
-    this.smallLogFlag = (!allowNegativesFlag && lowerVal < 10.0 && lowerVal > 0.0);
+    if(!log10TickLabelsInPowerFlag)
+      smallLogFlag = (!allowNegativesFlag && lowerVal < 10.0 && lowerVal > 0.0);
+    else
+      smallLogFlag = true;
   }
 
   /**
@@ -669,7 +673,7 @@ public class LogarithmicAxis extends NumberAxis {
 
     for (int i = iBegCount; i <= iEndCount; i++) {
       //for each tick with a label to be displayed
-      int jEndCount = 10;
+      int jEndCount = 9;
       if (i == iEndCount) {
         jEndCount = 1;
       }
@@ -799,11 +803,26 @@ public class LogarithmicAxis extends NumberAxis {
             }
           }
           if(this.log10TickLabelsInPowerFlag){
+            //removing the minor labelling, if the ticks overlap.
+            /* also if the difference in the powers of the smallest major axis
+             * and largest major axis is larger than 3 then don't label the minor axis
+             **/
             if((x<x0 || (iEndCount-iBegCount>3)) && j!=0)
               tickLabel="";
             else{
-              if(j==0 && x<x0)
-                this.removePreviousTick();
+              //removing the previous minor tickLabels if the major axis overlaps any tickLabels
+              if(j==0){
+                int size = getTicks().size();
+                --size;
+                while(x<=x0 && size>0){
+                  //only remove the previous ticklabel if that has been labelled.
+                  Tick tempTick = ((Tick)getTicks().get(size));
+                  if(!tempTick.getText().equals(""))
+                    removePreviousTick();
+                  --size;
+                  x0 =  tempTick.getX()+3;
+                }
+              }
               x0 = x + tickLabelBounds.getWidth() +3;
             }
           }
@@ -866,7 +885,7 @@ public class LogarithmicAxis extends NumberAxis {
 
     for (int i = iBegCount; i <= iEndCount; i++) {
       //for each tick with a label to be displayed
-      int jEndCount = 10;
+      int jEndCount = 9;
       if (i == iEndCount) {
         jEndCount = 1;
       }
@@ -989,12 +1008,27 @@ public class LogarithmicAxis extends NumberAxis {
           //get Y-position for tick label:
           float y = (float) (yy + (tickLabelBounds.getHeight() / 3));
           if(this.log10TickLabelsInPowerFlag){
+            //removing the minor labelling, if the ticks overlap.
+            /* also if the difference in the powers of the smallest major axis
+            * and largest major axis is larger than 3 then don't label the minor axis
+            **/
             if((y>y0 || (iEndCount-iBegCount>3)) && j!=0)
               tickLabel="";
             else{
-              if(j==0 && y>y0)
-                this.removePreviousTick();
-              y0 = y -tickLabelBounds.getHeight()-3;
+              //removing the previous minor tickLabels if the major axis overlaps any tickLabels
+              if(j==0){
+                int size = getTicks().size();
+                --size;
+                while(y>=y0 && size>0){
+                  //only remove the previous ticklabel if that has been labelled.
+                  Tick tempTick = ((Tick)getTicks().get(size));
+                  if(!tempTick.getText().equals(""))
+                    removePreviousTick();
+                  --size;
+                  y0 =  tempTick.getY()-3;
+                }
+              }
+              y0 = y - tickLabelBounds.getWidth() -3;
             }
           }
           //create tick object and add to list:
@@ -1014,10 +1048,10 @@ public class LogarithmicAxis extends NumberAxis {
 
   private void removePreviousTick() {
     int size = this.getTicks().size();
-    if(size==0) return;
     for(int i=size-1;i>0;--i) {
       Tick tick = (Tick)this.getTicks().get(i);
       if(tick.getText().trim().equalsIgnoreCase("")) continue;
+      //System.out.println("Removing tickVal:"+tick.getNumericalValue());
       this.getTicks().remove(i);
       this.getTicks().add(new Tick(new Double(tick.getNumericalValue()),"",tick.getX(),tick.getY()));
       return;
