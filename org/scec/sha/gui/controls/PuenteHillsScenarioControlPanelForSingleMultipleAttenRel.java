@@ -353,6 +353,7 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
     erfPanel.setSourceFromSelectedERF(0);
     erfPanel.setRuptureForSelectedSource(0);
+    erfPanel.getHypocenterLocationsForSelectedRupture();
     erfPanel.showAllParamsForForecast(true);
 
 

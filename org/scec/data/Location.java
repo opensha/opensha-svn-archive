@@ -169,7 +169,7 @@ public class Location implements java.io.Serializable {
 
 
         //b.append("latitude = ");
-        b.append("" + latitude + TAB + longitude + TAB + depth);
+        b.append("" + latitude + "," + longitude + "," + depth);
         //b.append('\n');
 
         /*

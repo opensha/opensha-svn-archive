@@ -9,6 +9,8 @@ import org.scec.param.StringParameter;
 import org.scec.param.editor.ConstrainedStringParameterEditor;
 import org.scec.data.Location;
 import org.scec.sha.earthquake.EqkRupture;
+import org.scec.sha.gui.beans.EqkRuptureCreationPanel;
+
 /**
  * <p>Title: HypocenterLocationWindow</p>
  * <p>Description: This class shows the Hypocenter locations for user to select from in a seperate
@@ -29,14 +31,13 @@ public class HypocenterLocationWindow extends JDialog {
   private EqkRupture rupture;
 
   //Parameter to set the Hypocenter Location
-  public final static String HYPOCENTER_LOCATION_PARAM_NAME = "Hypocenter Location";
+  public final static String HYPOCENTER_LOCATION_PARAM_NAME = "Hypocenter Location(Lat,Lon,Depth)";
   private final static String HYPOCENTER_LOCATION_PARAM_INFO = "Sets the Hypocenter Location";
   private StringParameter hypocenterLocationParam;
   private ConstrainedStringParameterEditor hypocenterLocationParamEditor;
   private BorderLayout borderLayout1 = new BorderLayout();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  //checks if Hypocenter has been set in the eqkRupture object.
-  private boolean isHypocenterLocationInEqkRuptureSet= false;
+
   /**
    * @param parent: Instance of the application using this window
    * @param hypocenterLocationList: Hypocenter Locations.
@@ -79,7 +80,8 @@ public class HypocenterLocationWindow extends JDialog {
       }
     });
 
-    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    this.setDefaultCloseOperation(javax.swing.WindowConstants.
+                                  DO_NOTHING_ON_CLOSE);
 
 
     hypocenterLocationParamEditor = new ConstrainedStringParameterEditor(hypocenterLocationParam);
@@ -102,12 +104,17 @@ public class HypocenterLocationWindow extends JDialog {
    * @returns the Hypocenter Location if selected else return null
    */
   public Location getHypocenterLocation(){
-    StringTokenizer token = new StringTokenizer(hypocenterLocationParam.getValue().toString());
-    double lat= Double.parseDouble(token.nextElement().toString().trim());
-    double lon= Double.parseDouble(token.nextElement().toString().trim());
-    double depth= Double.parseDouble(token.nextElement().toString().trim());
-    Location loc= new Location(lat,lon,depth);
-    return loc;
+    String hypocenterParamVal = (String)hypocenterLocationParam.getValue();
+    if(hypocenterParamVal.equals(EqkRuptureCreationPanel.NULL_HYPOCENTER_STRING))
+      return null;
+    else{
+      StringTokenizer token = new StringTokenizer(hypocenterParamVal, ",");
+      double lat = Double.parseDouble(token.nextElement().toString().trim());
+      double lon = Double.parseDouble(token.nextElement().toString().trim());
+      double depth = Double.parseDouble(token.nextElement().toString().trim());
+      Location loc = new Location(lat, lon, depth);
+      return loc;
+    }
   }
 
   /**
@@ -116,25 +123,7 @@ public class HypocenterLocationWindow extends JDialog {
    */
   void doneButton_actionPerformed(ActionEvent e) {
     rupture.setHypocenterLocation(getHypocenterLocation());
-    isHypocenterLocationInEqkRuptureSet = true;
     this.dispose();
-  }
-
-  /**
-   *
-   * @returns true if hypocenter location has been set in th EqkRupture Object.
-   */
-  public boolean isHypocenterLocationSetInEqkRupture(){
-    return isHypocenterLocationInEqkRuptureSet;
-  }
-
-  /**
-   *
-   * @param hypocenterlocationFlaginEqkrupture : Set hypocenter location in EqkRupture to be false
-   * if new EqkRupture is created.
-   */
-  public void setHypocenterLocationSetFlagInEqkRupture(boolean hypocenterlocationFlaginEqkrupture){
-    isHypocenterLocationInEqkRuptureSet = hypocenterlocationFlaginEqkrupture;
   }
 
   /**

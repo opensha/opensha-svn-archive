@@ -71,7 +71,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   public final static String RUPTURE_PARAM_NAME = "Rupture Index";
 
   //Rupture Hypocenterlocation Param
-  public final static String RUPTURE_HYPOLOCATIONS_PARAM_NAME="Hypocentre Locations";
+  public final static String RUPTURE_HYPOLOCATIONS_PARAM_NAME="Hypocentre Location(Lat,Lon,Depth)";
 
   //Object of ProbEqkRupture
   ProbEqkRupture probEqkRupture;
@@ -262,7 +262,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
      String lat = decimalFormat.format(loc.getLatitude());
      String lon = decimalFormat.format(loc.getLongitude());
      String depth = decimalFormat.format(loc.getDepth());
-     v.add(lat+" "+lon+" "+depth);
+     v.add(lat+","+lon+","+depth);
    }
    StringConstraint constraints= new StringConstraint(v);
 
@@ -611,7 +611,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    */
   public Location getHypocenterLocation(){
     if(this.hypoCentreCheck.isSelected()){
-      StringTokenizer token = new StringTokenizer(listEditor.getParameterList().getParameter(RUPTURE_HYPOLOCATIONS_PARAM_NAME).getValue().toString());
+      StringTokenizer token = new StringTokenizer((String)hypoCenterLocationParam.getValue(),",");
       double lat= Double.parseDouble(token.nextElement().toString().trim());
       double lon= Double.parseDouble(token.nextElement().toString().trim());
       double depth= Double.parseDouble(token.nextElement().toString().trim());
