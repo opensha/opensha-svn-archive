@@ -149,9 +149,8 @@ public class UpdateCatQDM {
     //int ts = readTimeStamp(tsFile);
     //long td = findQDM_Updates(catFile);
 
-    System.out.println("time stamp is: "+readTimeStamp(tsFile));
-    System.out.println("Number of updated events is: "
-                       +findQDM_Updates(catFile,updatedFile,tsFile));
+    readTimeStamp(tsFile);
+    findQDM_Updates(catFile,updatedFile,tsFile);
 
   }
 
