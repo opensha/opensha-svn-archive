@@ -1,4 +1,4 @@
-package org.scec.sha.fault.demo;
+package org.scec.sha.fault.gui;
 
 import org.scec.sha.fault.*;
 import org.scec.sha.fault.*;
