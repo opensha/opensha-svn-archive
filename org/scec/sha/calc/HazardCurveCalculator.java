@@ -6,6 +6,8 @@ import javax.swing.JProgressBar;
 import java.awt.Rectangle;
 import javax.swing.JOptionPane;
 import javax.swing.JLabel;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 
 import org.scec.data.function.*;
 import org.scec.data.Site;
@@ -60,10 +62,12 @@ public class HazardCurveCalculator {
     frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
 
     progress = new JProgressBar(0,100);
+    progress.setSize(this.FRAME_WIDTH-150,this.FRAME_HEIGHT-20);
     progress.setStringPainted(true); // display the percentage completed also
     JLabel label = new JLabel(" Updating Forecast ...");
     frame.getContentPane().add(label);
     frame.show();
+    label.paintImmediately(label.getBounds());
     frame.validate();
     frame.repaint();
 

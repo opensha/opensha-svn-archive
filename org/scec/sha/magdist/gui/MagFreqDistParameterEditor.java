@@ -453,6 +453,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
           param3 = new StringParameter(FIX,sdFixOptions,
                              (String)sdFixOptions.getAllowedStrings().get(0));
           param3.addParameterChangeListener(this);
+          param3.setInfo(this.FIX_INFO);
           editor.replaceParameterForEditor( FIX, param3 );
 
            this.setSingleDistParamsVisible();
@@ -475,6 +476,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          param3 = new StringParameter(FIX,grFixOptions,
                                       (String)grFixOptions.getAllowedStrings().get(0));
          param3.addParameterChangeListener(this);
+         param3.setInfo(this.FIX_INFO);
          editor.replaceParameterForEditor( FIX, param3 );
 
 

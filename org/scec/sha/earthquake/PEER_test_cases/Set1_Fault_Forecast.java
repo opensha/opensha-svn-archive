@@ -52,7 +52,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   public final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
   public final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
   public final static String OFFSET_PARAM_NAME =  "Offset";
-  public final static String MAG_DIST_PARAM_NAME = "Fault Mag Dist";
+  public final static String MAG_DIST_PARAM_NAME = "Mag Dist";
   public final static String RAKE_PARAM_NAME ="Rake";
   public final static String TIMESPAN_PARAM_NAME ="Time Span";
   public final static String DIP_PARAM_NAME = "Dip";

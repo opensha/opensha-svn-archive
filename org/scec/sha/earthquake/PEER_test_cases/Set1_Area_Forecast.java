@@ -76,7 +76,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private final static double DEPTH_PARAM_MIN = 0;
   private final static double DEPTH_PARAM_MAX = 30;
   private final static Double DEPTH_PARAM_DEFAULT = new Double(5);
-  public final static String MAG_DIST_PARAM_NAME = "Area Mag Dist";
+  public final static String MAG_DIST_PARAM_NAME = "Mag Dist";
 
   //timespan Variable
   public final static String TIMESPAN_PARAM_NAME = "Area Timespan";

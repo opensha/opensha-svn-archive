@@ -520,6 +520,7 @@ public class GroupTestGuiBean implements
     protected void init_erf_IndParamListAndEditor() {
 
       EqkRupForecastAPI erf;
+
       //add the available ERFs
       erfClasses = new Vector();
       erfClasses.add( SET1_FAULT_FORECAST_CLASS_NAME );
@@ -1094,6 +1095,13 @@ public class GroupTestGuiBean implements
       if(D) System.out.println(S+"::entering");
       String value = (String)testCasesParamList.getParameter(TEST_PARAM_NAME).getValue();
 
+      if(!value.equalsIgnoreCase(TEST_CASE_TEN) && !value.equalsIgnoreCase(TEST_CASE_ELEVEN))
+          // it is fault test case
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(set1_Fault_ERF.getName());
+      else // if it area case
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(set1_Area_ERF.getName());
+
+
       // set the mag dist params based on test case
       setMagDistParams(value);
 
@@ -1278,7 +1286,6 @@ public class GroupTestGuiBean implements
       if(!value.equalsIgnoreCase(TEST_CASE_TEN) && !value.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
 
         // it is fault test case
-        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(set1_Fault_ERF.getName());
         setForecastParams(selectedFault,value);
 
         // for fault site 1
@@ -1402,12 +1409,7 @@ public class GroupTestGuiBean implements
 
         MagFreqDistParameterEditor magEditor;
 
-       // get the paramter based on whether fault or area is selected as forecast
-        if(!testCase.equalsIgnoreCase(TEST_CASE_TEN) && ! testCase.equalsIgnoreCase(TEST_CASE_ELEVEN))
-          magEditor= (MagFreqDistParameterEditor)erf_Editor.getParameterEditor("Fault Mag Dist");
-        else
-          magEditor= (MagFreqDistParameterEditor)erf_Editor.getParameterEditor("Area Mag Dist");
-
+        magEditor= (MagFreqDistParameterEditor)erf_Editor.getParameterEditor("Mag Dist");
 
         magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.0));
         magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(10.0));
