@@ -372,7 +372,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
       }
       Vector defaultSiteParams = new Vector();
       for(int i=0;i<siteParams.size();++i){
-        ParameterAPI tempParam = (ParameterAPI)siteParams.get(i);
+        ParameterAPI tempParam = (ParameterAPI)((ParameterAPI)siteParams.get(i)).clone();
         tempParam.setValue(parameterList.getParameter(this.DEFAULT+tempParam.getName()).getValue());
         defaultSiteParams.add(tempParam);
       }
@@ -408,8 +408,10 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
           //removing the existing site Params from the List and adding the
           //new Site Param with site as being defaults
           parameterList.removeParameter(tempParam.getName());
-          //getting the Site Param Value corresponding to the "DE" for the seleted IMr  from the SiteTranslator
-          siteTrans.setParameterValue(tempParam,"DE",Double.NaN);
+          if(!tempParam.getName().startsWith(this.DEFAULT))
+            //getting the Site Param Value corresponding to the Will Site Class "DE" for the seleted IMR  from the SiteTranslator
+            siteTrans.setParameterValue(tempParam,siteTrans.WILLS_DE,Double.NaN);
+
           //creating the new Site Param, with "Default " added to its name, with existing site Params
           ParameterAPI newParam = (ParameterAPI)tempParam.clone();
           //If the parameterList already contains the site param with the "Default" name, then no need to change the existing name.
