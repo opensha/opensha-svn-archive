@@ -105,6 +105,10 @@ public class MagFreqDistParameter
   public static final String TRUNCATE_NUM_OF_STD_DEV= new String("Truncation Level(# of Std Devs)");
   public static final String NONE= new String("None");
 
+  // String Constraints
+  private StringConstraint sdFixOptions,  grSetAllButOptions, grFixOptions,
+      ycSetAllButOptions, gdSetAllButOptions;
+
 
 
 
@@ -350,7 +354,7 @@ public class MagFreqDistParameter
         Vector vStrings3 = new Vector ();
         vStrings3.add(FIX_RATE);
         vStrings3.add(FIX_TOT_MO_RATE);
-        StringConstraint sdFixOptions = new StringConstraint(vStrings3);
+        sdFixOptions = new StringConstraint(vStrings3);
 
         /**
          * Make parameters for Gaussian distribution
@@ -360,7 +364,7 @@ public class MagFreqDistParameter
         vStrings=new Vector();
         vStrings.add(TOT_CUM_RATE);
         vStrings.add(TOT_MO_RATE);
-        StringConstraint gdSetAllButOptions = new StringConstraint(vStrings);
+        gdSetAllButOptions = new StringConstraint(vStrings);
         vStrings=new Vector();
         vStrings.add(NONE);
         vStrings.add(TRUNCATE_UPPER_ONLY);
@@ -374,7 +378,7 @@ public class MagFreqDistParameter
         Vector vStrings1 = new Vector ();
         vStrings1.add(FIX_TO_CUM_RATE);
         vStrings1.add(FIX_TOT_MO_RATE);
-        StringConstraint grFixOptions = new StringConstraint(vStrings1);
+        grFixOptions = new StringConstraint(vStrings1);
 
         /**
          * Make paramters for Youngs and Coppersmith 1985 char distribution
@@ -391,7 +395,7 @@ public class MagFreqDistParameter
         vStrings=new Vector();
         vStrings.add(YC_TOT_CHAR_RATE);
         vStrings.add(TOT_MO_RATE);
-        StringConstraint ycSetAllButOptions = new StringConstraint(vStrings);
+        ycSetAllButOptions = new StringConstraint(vStrings);
 
         // make the set all but paramter needed by YC, Gaussian and GR
         StringParameter setAllBut=new StringParameter(SET_ALL_PARAMS_BUT,
@@ -401,6 +405,14 @@ public class MagFreqDistParameter
         // make the fix parameter needed by Single and GR dists
         StringParameter fixParam = new StringParameter(FIX,grFixOptions,FIX_TO_CUM_RATE);
         fixParam.setInfo(FIX_INFO);
+
+        // for Gutenberg-Richter SET ALL BUT option
+        vStrings=new Vector();
+        vStrings.add(MagFreqDistParameter.TOT_MO_RATE);
+        vStrings.add(MagFreqDistParameter.TOT_CUM_RATE);
+        vStrings.add(MagFreqDistParameter.GR_MAG_UPPER);
+        grSetAllButOptions = new StringConstraint(vStrings);
+
 
         // Add the parameters to the list (order is preserved)
         parameterList.addParameter(distributionName);
@@ -800,4 +812,15 @@ public class MagFreqDistParameter
       }
       this.setValue(magDist);
     }
+
+    /**
+     * Return the FIX and SET_ALL_PARAMS_BUT constraints for each dist
+     *
+     * @return
+     */
+    public StringConstraint getSingleDistFixOptions() { return this.sdFixOptions; }
+    public StringConstraint getGRSetAllButOptions() { return this.grSetAllButOptions; }
+    public StringConstraint getGRFixOptions() { return this.grFixOptions; }
+    public StringConstraint getYCSetAllButOptions() { return this.ycSetAllButOptions; }
+    public StringConstraint getGaussianDistSetAllButOptions() { return this.gdSetAllButOptions; }
 }

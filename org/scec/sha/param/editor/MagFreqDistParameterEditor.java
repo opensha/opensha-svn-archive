@@ -60,11 +60,11 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
      // title of Parameter List Editor
      public static final String MAG_DIST_TITLE = new String("Mag Dist Params");
-
     private JButton button = new JButton("Update MagDist");
+    // String Constraints
+    private StringConstraint sdFixOptions,  grSetAllButOptions, grFixOptions,
+        ycSetAllButOptions, gdSetAllButOptions;
 
-    private StringConstraint grFixOptions, grSetAllButOptions, sdFixOptions,
-        gdSetAllButOptions, ycSetAllButOptions;
 
 
     /**
@@ -202,35 +202,12 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         parameterList.getParameter(MagFreqDistParameter.YC_TOT_CHAR_RATE).addParameterChangeFailListener(this);
         parameterList.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).addParameterChangeListener(this);
         parameterList.getParameter(MagFreqDistParameter.FIX).addParameterChangeListener(this);
-
-        /**
-         * Make parameters for Gutenberg-Richter distribution
-         */
-        Vector vStrings=new Vector();
-        vStrings.add(MagFreqDistParameter.TOT_MO_RATE);
-        vStrings.add(MagFreqDistParameter.TOT_CUM_RATE);
-        vStrings.add(MagFreqDistParameter.GR_MAG_UPPER);
-        grSetAllButOptions = new StringConstraint(vStrings);
-        grFixOptions = (StringConstraint)parameterList.getParameter(MagFreqDistParameter.FIX).getConstraint();
-
-        /* for single mag freq dist */
-        Vector vStrings3 = new Vector ();
-        vStrings3.add(MagFreqDistParameter.FIX_RATE);
-        vStrings3.add(MagFreqDistParameter.FIX_TOT_MO_RATE);
-        sdFixOptions = new StringConstraint(vStrings3);
-
-        /* for Gaussian distribution */
-        vStrings=new Vector();
-        vStrings.add(MagFreqDistParameter.TOT_CUM_RATE);
-        vStrings.add(MagFreqDistParameter.TOT_MO_RATE);
-        gdSetAllButOptions = new StringConstraint(vStrings);
-
-        /*  for Youngs and Coppersmith 1985 char distribution */
-        vStrings=new Vector();
-        vStrings.add(MagFreqDistParameter.YC_TOT_CHAR_RATE);
-        vStrings.add(MagFreqDistParameter.TOT_MO_RATE);
-        ycSetAllButOptions = new StringConstraint(vStrings);
-
+        // String Constraints
+        sdFixOptions = magDistParam.getSingleDistFixOptions();
+        grSetAllButOptions = magDistParam.getGRSetAllButOptions();
+        grFixOptions = magDistParam.getGRFixOptions();
+        ycSetAllButOptions = magDistParam.getYCSetAllButOptions();
+        gdSetAllButOptions = magDistParam.getGaussianDistSetAllButOptions();
 
   }
 
@@ -272,8 +249,9 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          */
         if(distributionName.equalsIgnoreCase(SingleMagFreqDist.NAME)) {
           // change the fixParameter constraints
-          param3 = new StringParameter(MagFreqDistParameter.FIX,sdFixOptions,
+          param3 = new StringParameter(MagFreqDistParameter.FIX, sdFixOptions,
                              (String)sdFixOptions.getAllowedStrings().get(0));
+
           param3.addParameterChangeListener(this);
           param3.setInfo(MagFreqDistParameter.FIX_INFO);
           editor.replaceParameterForEditor( MagFreqDistParameter.FIX, param3 );
