@@ -15,7 +15,6 @@ import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.ProbEqkRupture;
-import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.data.Location;
 import org.scec.param.*;
 import org.scec.param.editor.*;

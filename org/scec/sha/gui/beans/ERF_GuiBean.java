@@ -250,7 +250,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
      if(this.showProgressBar) {
        // also show the progress bar while the forecast is being updated
        progress = new CalcProgressBar("Forecast","Updating Forecast");
-       progress.displayProgressBar();
+       //progress.displayProgressBar();
      }
      // update the forecast
      eqkRupForecast.updateForecast();
