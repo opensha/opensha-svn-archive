@@ -178,6 +178,7 @@ public abstract class ERF_List implements ERF_ListAPI,
  public void parameterChange(ParameterChangeEvent e) {
    // set the parameter change flag to indicate that forecast needs to be updated
    this.parameterChangeFlag = true;
+
  }
 
 
@@ -187,6 +188,7 @@ public abstract class ERF_List implements ERF_ListAPI,
   */
  public void setParameterChangeFlag(boolean flag){
    this.parameterChangeFlag = flag;
+
  }
 
  /**

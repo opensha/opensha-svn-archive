@@ -23,7 +23,7 @@ import org.scec.data.region.GeographicRegion;
  * @version 1.0
  */
 
-public class RemoteERF_ListClient extends ERF_List implements ParameterChangeListener{
+public class RemoteERF_ListClient extends ERF_List {
 
   private RemoteERF_ListAPI erfListServer = null;
 
@@ -38,8 +38,15 @@ public class RemoteERF_ListClient extends ERF_List implements ParameterChangeLis
       ListIterator it = adjustableParams.getParametersIterator();
       while(it.hasNext())
         ((ParameterAPI)it.next()).addParameterChangeListener(this);
-    }
-    catch (NotBoundException n) {
+      //getting the timespan and adjuatable params
+      timeSpan =erfListServer.getTimeSpan();
+      if(timeSpan !=null){
+        ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
+        it = timeSpanParamList.getParametersIterator();
+        while(it.hasNext())
+          ((ParameterAPI)it.next()).addParameterChangeListener(this);
+      }
+    }catch (NotBoundException n) {
       n.printStackTrace();
     }
     catch (MalformedURLException m) {
@@ -147,6 +154,7 @@ public class RemoteERF_ListClient extends ERF_List implements ParameterChangeLis
    */
   public void setTimeSpan(TimeSpan time) {
     try{
+      timeSpan = time;
       erfListServer.setTimeSpan(time);
     }catch(RemoteException e){
       e.printStackTrace();
@@ -175,23 +183,13 @@ public class RemoteERF_ListClient extends ERF_List implements ParameterChangeLis
   */
  public TimeSpan getTimeSpan() {
    try{
-     timeSpan = erfListServer.getTimeSpan();
-     return erfListServer.getTimeSpan();
-   }catch(RemoteException e){
+     return timeSpan;
+   }catch(Exception e){
      e.printStackTrace();
    }
    return null;
  }
 
- /**
-  *  Function that must be implemented by all Timespan Listeners for
-  *  ParameterChangeEvents.
-  *
-  * @param  event  The Event which triggered this function call
-  */
- public void parameterChange( EventObject event ) {
-   setParameterChangeFlag(true);
- }
 
  /**
   * update the list of the ERFs based on the new parameters
