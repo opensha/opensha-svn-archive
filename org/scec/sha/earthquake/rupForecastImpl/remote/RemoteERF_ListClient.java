@@ -38,13 +38,16 @@ public class RemoteERF_ListClient extends ERF_List {
       ListIterator it = adjustableParams.getParametersIterator();
       while(it.hasNext())
         ((ParameterAPI)it.next()).addParameterChangeListener(this);
-      //getting the timespan and adjuatable params
+      //getting the timespan and adjustable params
       timeSpan =erfListServer.getTimeSpan();
+      //if timespan is not null then add the change listeners to its parameters.
+      //we are again adding listeners here becuase they are transient and cannot be serialized.
       if(timeSpan !=null){
+        timeSpan.addParameterChangeListener(this);
         ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
         it = timeSpanParamList.getParametersIterator();
         while(it.hasNext())
-          ((ParameterAPI)it.next()).addParameterChangeListener(this);
+          ((ParameterAPI)it.next()).addParameterChangeListener(timeSpan);
       }
     }catch (NotBoundException n) {
       n.printStackTrace();
@@ -154,7 +157,6 @@ public class RemoteERF_ListClient extends ERF_List {
    */
   public void setTimeSpan(TimeSpan time) {
     try{
-      timeSpan = time;
       erfListServer.setTimeSpan(time);
     }catch(RemoteException e){
       e.printStackTrace();

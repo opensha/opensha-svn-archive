@@ -252,10 +252,8 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     editorForLons = new ParameterListParameterEditor(lonParam);
     //editorForLons.setTitle(this.LON_EDITOR_TITLE);
     editorForLats.validate();
-    editorForLats.revalidate();
     editorForLats.repaint();
     editorForLons.validate();
-    editorForLons.revalidate();
     editorForLons.repaint();
   }
 

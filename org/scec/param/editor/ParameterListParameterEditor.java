@@ -24,7 +24,7 @@ import org.scec.param.event.*;
  */
 
 public class ParameterListParameterEditor extends ParameterEditor implements
-ActionListener{
+ActionListener,ParameterChangeListener{
 
   /** Class name for debugging. */
   protected final static String C = "ParameterListParameterEditor";
@@ -38,6 +38,9 @@ ActionListener{
 
   //Instance for the framee to show the all parameters in this editor
   protected JDialog frame;
+
+  //checks if parameter has been changed
+  protected boolean parameterChangeFlag=true;
 
   //default class constructor
   public ParameterListParameterEditor() {}
@@ -74,8 +77,11 @@ ActionListener{
    * creating the GUI parameters elements for the parameterlistparameter Param
    */
   protected void initParamListAndEditor(){
-
-    editor = new ParameterListEditor((ParameterList)param.getValue());
+    ParameterList paramList = (ParameterList)param.getValue();
+    ListIterator it = paramList.getParametersIterator();
+    while(it.hasNext())
+      ((ParameterAPI)it.next()).addParameterChangeListener(this);
+    editor = new ParameterListEditor(paramList);
     editor.setTitle("Set "+param.getName());
   }
 
@@ -126,6 +132,14 @@ ActionListener{
   }
 
   /**
+   * Keeps track when parameter has been changed
+   * @param event
+   */
+  public void parameterChange(ParameterChangeEvent event){
+    parameterChangeFlag = true;
+  }
+
+  /**
    * This function is called when the user click for the ParameterListParameterEditor Button
    *
    * @param ae
@@ -163,7 +177,10 @@ ActionListener{
    */
   void button_actionPerformed(ActionEvent e) {
     ParameterList paramList = editor.getParameterList();
-    param.setValue(paramList);
+    if(parameterChangeFlag){
+      param.setValue(paramList);
+      parameterChangeFlag = false;
+    }
     frame.dispose();
   }
 }

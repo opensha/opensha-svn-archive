@@ -44,7 +44,10 @@ ActionListener{
     ParameterList paramList = editor.getParameterList();
     boolean doSumToOne =((TreeBranchWeightsParameter)param).doWeightsSumToOne(paramList);
     if(doSumToOne){
-      param.setValue(paramList);
+      if(parameterChangeFlag){
+        param.setValue(paramList);
+        parameterChangeFlag = false;
+      }
       frame.dispose();
     }
     else{
