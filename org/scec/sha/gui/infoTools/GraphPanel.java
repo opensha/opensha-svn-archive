@@ -131,7 +131,10 @@ public class GraphPanel extends JPanel {
     String xAxisLabel = totalProbFuncs.getXAxisName();
     String yAxisLabel = totalProbFuncs.getYAxisName();
 
+    //flags to check if the exception was thrown on selection of the x-log or y-log.
     boolean logErrorFlag = false;
+
+
     //create the standard ticks so that smaller values too can plotted on the chart
     TickUnits units = MyTickUnits.createStandardTickUnits();
 
@@ -153,7 +156,7 @@ public class GraphPanel extends JPanel {
         xAxis.setRange(application.getMinX(),application.getMaxX());
 
     }catch(Exception e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+      JOptionPane.showMessageDialog(this,e.getMessage(),"X-Plot Error",JOptionPane.OK_OPTION);
       graphOn=false;
       xLog = false;
       buttonControlPanel.setXLog(xLog);
@@ -179,9 +182,9 @@ public class GraphPanel extends JPanel {
         yAxis.setRange(application.getMinY(),application.getMaxY());
 
     }catch(Exception e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Y-Plot Error",JOptionPane.OK_OPTION);
       graphOn=false;
-      yLog = false;
+      yLog = true;
       buttonControlPanel.setYLog(yLog);
       yAxis = yAxis1;
       logErrorFlag = false;
