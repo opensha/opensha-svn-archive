@@ -22,7 +22,7 @@ import org.scec.sha.gui.infoTools.ConnectToCVM;
  * @version 1.0
  */
 
-public interface SitesInGriddedRegionAPI {
+public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAPI{
 
 
   /**
