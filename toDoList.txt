@@ -5,6 +5,8 @@ Add the  revised version of the test results for AttenuationRelationhships by Ke
 
 add site translation for SEA_1999_AttenRel
 
+Set up registration for HazMapDataGenerator.
+
 Compare JBuilder-2005 with Jbuilder-7 that we currently have on our Mac's
 
 Make sure that averages over probabilities are not log averages (Nitin will change ScenarioShakeMapCalculator & Ned will change USGS_Combined Atten. Rel. accordingly).
