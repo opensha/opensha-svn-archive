@@ -120,6 +120,7 @@ public class GenerateHazusControlPanelForMultipleIMRs extends JFrame {
     //the PGV and results calculated using PGV and other not supporting PGV and result
     //calculated using the SA at 1sec and multiplying by 37.24*2.54.
     ArrayList attenRelListSupportingPGV = new ArrayList();
+
     ArrayList attenRelListNotSupportingPGV = new ArrayList();
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i){
@@ -131,28 +132,52 @@ public class GenerateHazusControlPanelForMultipleIMRs extends JFrame {
     }
 
     //Doing for PGV
-    //if the AttenRels support PGV
-    XYZ_DataSetAPI xyzDataSet_PGV =hazusCalcForPGV(attenRelListSupportingPGV,true);
-    //if the AttenRels do not support PGV
-    XYZ_DataSetAPI xyzDataSet = hazusCalcForPGV(attenRelListNotSupportingPGV,false);
+    //arrayList declaration for the Atten Rel not supporting PGV
+    ArrayList list = null;
+    //arrayList declaration for the Atten Rel supporting PGV
+    ArrayList pgvList = null;
+    //XYZ data set supporting the PGV
+    XYZ_DataSetAPI xyzDataSet_PGV = null;
+    //XYZ data set not supporting the PGV
+    XYZ_DataSetAPI xyzDataSet = null;
 
-    //ArrayLists containing the Z Values for the XYZ dataset.
-    ArrayList pgvList = xyzDataSet_PGV.getZ_DataSet();
-    ArrayList list = xyzDataSet.getZ_DataSet();
+    if(attenRelListSupportingPGV.size() >0){
+      //if the AttenRels support PGV
+      xyzDataSet_PGV =hazusCalcForPGV(attenRelListSupportingPGV,true);
+      //ArrayLists containing the Z Values for the XYZ dataset.
+      pgvList = xyzDataSet_PGV.getZ_DataSet();
+      size = pgvList.size();
+    }
 
-    size = list.size();
+    if(attenRelListNotSupportingPGV.size()>0){
+      //if the AttenRels do not support PGV
+      xyzDataSet = hazusCalcForPGV(attenRelListNotSupportingPGV,false);
+      //ArrayLists containing the Z Values for the XYZ dataset for attenRel not supporting PGV.
+      list = xyzDataSet.getZ_DataSet();
+      size = list.size();
+    }
 
-    //ArrayList to store the combine( added) result(from Atten that support PGV
-    //and that do not support PGV) of the Z Values for the PGV.
-    ArrayList finalPGV_Vals = new ArrayList();
-    //adding the values from both the above list for PGV( one calculated using PGV
-    //and other calculated using the SA at 1sec and mutipling by the scalar 37.24*2.54).
-    for(int i=0;i<size;++i)
-      finalPGV_Vals.add(new Double(((Double)pgvList.get(i)).doubleValue()+((Double)list.get(i)).doubleValue()));
-    //creating the final dataste for the PGV dataset.
-    pgv_xyzdata = new ArbDiscretizedXYZ_DataSet(xyzDataSet_PGV.getX_DataSet(),
-                      xyzDataSet_PGV.getY_DataSet(),finalPGV_Vals);
+    if(xyzDataSet_PGV != null && xyzDataSet!=null){
+      //ArrayList to store the combine( added) result(from Atten that support PGV
+      //and that do not support PGV) of the Z Values for the PGV.
+      ArrayList finalPGV_Vals = new ArrayList();
+      //adding the values from both the above list for PGV( one calculated using PGV
+      //and other calculated using the SA at 1sec and mutipling by the scalar 37.24*2.54).
+      for(int i=0;i<size;++i)
+        finalPGV_Vals.add(new Double(((Double)pgvList.get(i)).doubleValue()+((Double)list.get(i)).doubleValue()));
+      //creating the final dataste for the PGV dataset.
+      pgv_xyzdata = new ArbDiscretizedXYZ_DataSet(xyzDataSet_PGV.getX_DataSet(),
+          xyzDataSet_PGV.getY_DataSet(),finalPGV_Vals);
+    }
+    else{
+      //if XYZ dataset supporting PGV is null
+      if(xyzDataSet_PGV ==null)
+        pgv_xyzdata = xyzDataSet;
+      //if XYZ dataset not supporting PGV is null
+      else if(xyzDataSet ==null)
+        pgv_xyzdata = xyzDataSet_PGV;
 
+    }
 
     //Doing for PGA
     hazusCalcForPGA(selectedAttenRels);
