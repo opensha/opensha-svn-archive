@@ -36,13 +36,13 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private final static String DELTA_RATES_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
 
    //private final double MIN_LAT= 32.5;
-  //private final double MIN_LAT= 32;
+  private final double MIN_LAT= 32;
   //private final double MAX_LAT= 36.6;
-  //private final double MAX_LAT= 42.2;
+  private final double MAX_LAT= 42.2;
   //private final double MIN_LON = -121.5 ;
-  //private final double MIN_LON = -124.6;
+  private final double MIN_LON = -124.6;
   //private final double MAX_LON= -114.50;
-  //private final double MAX_LON= -112;
+   private final double MAX_LON= -112;
   private final double GRID_SPACING= 0.1;
   private static final String STEP_DIR = "step/";
   private static final String STEP_BACKGROUND_FILE = "backGround.txt";
@@ -58,145 +58,182 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   DecimalFormat format = new DecimalFormat("0.00##");
 
   public STEP_DataSetGenerator() {
-    // make the forecast
-    STEP_EqkRupForecast forecast=null;
     try{
-      forecast = new STEP_EqkRupForecast();
-    }catch(Exception e){
-      e.printStackTrace();
-      System.out.println("No internet connection available");
-    }
-
-    latVals = new ArrayList();
-    lonVals = new ArrayList();
-    //list to store the Wills Site Class Value
-    willSiteClassVals = new ArrayList();
-
-    // make the imr
-    ShakeMap_2003_AttenRel attenRel = new ShakeMap_2003_AttenRel(this);
-    // set the im as PGA
-    attenRel.setIntensityMeasure(attenRel.PGA_NAME);
-    // set the vs30
-    attenRel.getParameter(attenRel.WILLS_SITE_NAME).setValue(attenRel.WILLS_SITE_D);
-    //make the Gridded Region object
-    System.out.println("Before creating the Location list");
-    LocationList locList = createCaliforniaPolygonBoundaryLocationList();
-    SitesInGriddedRegion region = new SitesInGriddedRegion(locList,GRID_SPACING);
-    System.out.println("After creating the location List");
-    region.addSiteParams(attenRel.getSiteParamsIterator());
-
-    int numSites = region.getNumGridLocs();
-
-    //adding the numSites to the lat and Lon ArrayList
-    for(int i=0;i<numSites;++i){
-
-      latVals.add(new Double(format.format(region.getSite(i).getLocation().getLatitude())));
-      lonVals.add(new Double(format.format(region.getSite(i).getLocation().getLongitude())));
-    }
-
-
-    //creating the step directory in which we put all the step related files
-    File stepDir = new File(this.STEP_DIR);
-    if(!stepDir.isDirectory()) { // if main directory does not exist
-      boolean success = (new File(STEP_DIR)).mkdir();
-    }
-
-    //generating the file for the VS30 Values if it already not exists
-    File vs30File = new File(this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
-    //if already exists then just read the file and get the vs30 values
-    if(vs30File.exists())
-      getWillsSiteClassValForLatLon(this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
-    //if file does not already exists then create it.
-    else{
+      long startTime = System.currentTimeMillis();
+      FileWriter fw = new FileWriter(STEP_DIR+"time.txt");
+      fw.write("Starting with STEP calculation at:"+startTime+"\n");
+      // make the forecast
+      STEP_EqkRupForecast forecast=null;
       try{
-        willSiteClassVals = ConnectToCVM.getWillsSiteTypeFromCVM(region.getGridLocationsList());
+        forecast = new STEP_EqkRupForecast();
       }catch(Exception e){
-        System.out.println("could not connect with wills site class servlet");
+        e.printStackTrace();
+        System.out.println("No internet connection available");
+      }
+      long currentTime = System.currentTimeMillis();
+      fw.write("Time to instantiate STEP ERF :"+(currentTime - startTime)+"\n");
+      latVals = new ArrayList();
+      lonVals = new ArrayList();
+      //list to store the Wills Site Class Value
+      willSiteClassVals = new ArrayList();
+
+      // make the imr
+      ShakeMap_2003_AttenRel attenRel = new ShakeMap_2003_AttenRel(this);
+            // set the im as PGA
+      attenRel.setIntensityMeasure(attenRel.PGA_NAME);
+      // set the vs30
+      attenRel.getParameter(attenRel.WILLS_SITE_NAME).setValue(attenRel.WILLS_SITE_D);
+      currentTime = System.currentTimeMillis();
+      fw.write("Time to instantiate ShakeMap attenuationRelationship :"+(currentTime - startTime)+"\n");
+      //make the Gridded Region object
+      LocationList locList = createCaliforniaPolygonBoundaryLocationList();
+      SitesInGriddedRegion region = new SitesInGriddedRegion(locList,GRID_SPACING);
+      //SitesInGriddedRectangularRegion region = new SitesInGriddedRectangularRegion(this.MIN_LAT,this.MAX_LAT,
+      //  this.MIN_LON,this.MAX_LON,this.GRID_SPACING);
+      region.addSiteParams(attenRel.getSiteParamsIterator());
+      currentTime = System.currentTimeMillis();
+      fw.write("Time to create Region Object :"+(currentTime - startTime)+"\n");
+
+      int numSites = region.getNumGridLocs();
+
+      //adding the numSites to the lat and Lon ArrayList
+      for(int i=0;i<numSites;++i){
+
+        latVals.add(new Double(format.format(region.getSite(i).getLocation().getLatitude())));
+        lonVals.add(new Double(format.format(region.getSite(i).getLocation().getLongitude())));
+      }
+      currentTime = System.currentTimeMillis();
+      fw.write("Time to create Lat and Lon ArrayList :"+(currentTime - startTime)+"\n");
+      //creating the step directory in which we put all the step related files
+      File stepDir = new File(this.STEP_DIR);
+      if(!stepDir.isDirectory()) { // if main directory does not exist
+        boolean success = (new File(STEP_DIR)).mkdir();
+        currentTime = System.currentTimeMillis();
+        fw.write("Time to create STEP directory :"+(currentTime - startTime)+"\n");
+      }
+
+      //generating the file for the VS30 Values if it already not exists
+      File vs30File = new File(this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
+      //if already exists then just read the file and get the vs30 values
+      if(vs30File.exists()){
+        getWillsSiteClassValForLatLon(this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
+        currentTime = System.currentTimeMillis();
+        fw.write("Time to read in the Site Value File :"+(currentTime - startTime)+"\n");
+      }
+      //if file does not already exists then create it.
+      else{
+        try{
+          willSiteClassVals = ConnectToCVM.getWillsSiteTypeFromCVM(region.getGridLocationsList());
+        }catch(Exception e){
+          System.out.println("could not connect with wills site class servlet");
+          e.printStackTrace();
+        }
+        this.createFile(willSiteClassVals,this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
+        currentTime = System.currentTimeMillis();
+        fw.write("Time to read  and create Site Value File :"+(currentTime - startTime)+"\n");
+      }
+      //MetaData String
+      String metadata = "IMR Info: \n"+
+                        "\t"+"Name: "+attenRel.getName()+"\n"+
+                        "\t"+"Intensity Measure Type: "+ attenRel.getIntensityMeasure().getName()+"\n"+
+                        "\n\n"+
+                        "Region Info: \n"+
+                        "\t"+"MinLat: "+region.getMinLat()+"\n"+
+                        "\t"+"MaxLat: "+region.getMaxLat()+"\n"+
+                        "\t"+"MinLon: "+region.getMinLon()+"\n"+
+                        "\t"+"MaxLon: "+region.getMaxLon()+"\n"+
+                        "\t"+"GridSpacing: "+region.getGridSpacing()+"\n"+
+                        "\t"+"Site Params: "+attenRel.getParameter(attenRel.WILLS_SITE_NAME).getName()+ " = "+attenRel.getParameter(attenRel.WILLS_SITE_NAME).getValue().toString()+"\n"+
+                        "\n\n"+
+                        "Forecast Info: \n"+
+                        "\t"+"Name: "+forecast.getName()+"\n";
+
+      //generating the background dataSet
+      String dataInfo = "Step Back Ground DataSet\n\n"+metadata;
+      try{
+        //updating the forecast for the background Siesmicity
+        forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_BACKGROUND);
+        forecast.updateForecast();
+        //generating the file for the BackGround
+        File backSiesFile = new File(this.STEP_DIR+this.STEP_BACKGROUND_FILE);
+        ArrayList backSiesProbVals = new ArrayList();
+        //if the file for the backGround already exists then just pick up the values for the Prob from the file
+        if(backSiesFile.exists()){
+          getValForLatLon(backSiesProbVals,this.STEP_DIR+this.STEP_BACKGROUND_FILE);
+          currentTime = System.currentTimeMillis();
+          fw.write("Time to read  background File :"+(currentTime - startTime)+"\n");
+        }
+        //if the backGround file does not already exist then create it
+        else{
+          currentTime = System.currentTimeMillis();
+          fw.write("Starting with calculation for background probablities :"+(currentTime - startTime)+"\n");
+          backSiesProbVals = getProbVals_faster(fw,attenRel,region,(EqkRupForecast)forecast);
+          createFile(backSiesProbVals,this.STEP_DIR+this.STEP_BACKGROUND_FILE);
+          //creting the metadata file for the backGround
+          String backFile = this.STEP_BACKGROUND_FILE.substring(0,STEP_BACKGROUND_FILE.indexOf("."));
+          createMetaDataFile(dataInfo,this.STEP_DIR+backFile+this.METADATA_FILE_SUFFIX);
+          currentTime = System.currentTimeMillis();
+          fw.write("Time to read  and create Background File :"+(currentTime - startTime)+"\n");
+        }
+
+        //metadata for the Addon Prob
+        dataInfo = "Step Addon Data Set for :\n"+
+                   "\t"+this.getSTEP_DateTimeInfo()+"\n\n"+
+                   metadata;
+
+        //updating the STEP forecast for the STEP Addon Probabilities
+        forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_ADD_ON);
+        forecast.updateForecast();
+        //getting the name of the STEP data(XYZ )file from the first line on the STEP website which basically tells the time of updation
+        String stepDirName = this.getStepDirName();
+        //creating the dataFile for the STEP Addon Probabilities
+        ArrayList stepAddonProbVals = new ArrayList();
+
+        File addonFile = new File(this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
+        //if addon file already exists
+        if(addonFile.exists()){
+          getValForLatLon(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
+          currentTime = System.currentTimeMillis();
+          fw.write("Time to read  addon File :"+(currentTime - startTime)+"\n");
+        }
+        //if the file does not exists then create it.
+        else{
+          currentTime = System.currentTimeMillis();
+          fw.write("Starting with calculation for addon probablities :"+(currentTime - startTime)+"\n");
+          stepAddonProbVals = getProbVals_faster(fw,attenRel,region,(EqkRupForecast)forecast);
+          createFile(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
+          //creating the metadata file for the STEP addon probabilities
+          String stepFile = this.STEP_ADDON_FILE_SUFFIX.substring(0,STEP_ADDON_FILE_SUFFIX.indexOf("."));
+          createMetaDataFile(dataInfo,this.STEP_DIR+stepDirName+stepFile+this.METADATA_FILE_SUFFIX);
+          currentTime = System.currentTimeMillis();
+          fw.write("Time to read  and create addon File :"+(currentTime - startTime)+"\n");
+        }
+
+        //metadata for the Combined Prob. (Addon +BackGround)
+        dataInfo = "Step Combined(Added) Data Set for :\n"+
+                   "\t"+this.getSTEP_DateTimeInfo()+"\n\n"+
+                   metadata;
+        //combining the backgound and Addon dataSet and wrinting the result to the file
+        STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
+        ArrayList stepBothProbVals = addStepData.addDataSet(backSiesProbVals,stepAddonProbVals);
+        File bothFile = new File(this.STEP_DIR+stepDirName+this.STEP_COMBINED_FILE_SUFFIX);
+        if(!bothFile.exists()){
+          createFile(stepBothProbVals,this.STEP_DIR+stepDirName+this.STEP_COMBINED_FILE_SUFFIX);
+          //creating the metadata file for the STEP addon and backGround probabilities combined
+          String stepBothFile = this.STEP_COMBINED_FILE_SUFFIX.substring(0,STEP_COMBINED_FILE_SUFFIX.indexOf("."));
+          createMetaDataFile(dataInfo,this.STEP_DIR+stepDirName+stepBothFile+this.METADATA_FILE_SUFFIX);
+          fw.write("Time to read  and create combined prob. File :"+(currentTime - startTime)+"\n");
+        }
+      }catch(Exception e){
         e.printStackTrace();
       }
-      this.createFile(willSiteClassVals,this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
-    }
-    //MetaData String
-    String metadata = "IMR Info: \n"+
-                      "\t"+"Name: "+attenRel.getName()+"\n"+
-                      "\t"+"Intensity Measure Type: "+ attenRel.getIntensityMeasure().getName()+"\n"+
-                      "\n\n"+
-                      "Region Info: \n"+
-                      "\t"+"MinLat: "+region.getMinLat()+"\n"+
-                      "\t"+"MaxLat: "+region.getMaxLat()+"\n"+
-                      "\t"+"MinLon: "+region.getMinLon()+"\n"+
-                      "\t"+"MaxLon: "+region.getMaxLon()+"\n"+
-                      "\t"+"GridSpacing: "+region.getGridSpacing()+"\n"+
-                      "\t"+"Site Params: "+attenRel.getParameter(attenRel.WILLS_SITE_NAME).getName()+ " = "+attenRel.getParameter(attenRel.WILLS_SITE_NAME).getValue().toString()+"\n"+
-                      "\n\n"+
-                      "Forecast Info: \n"+
-                      "\t"+"Name: "+forecast.getName()+"\n";
-
-    //generating the background dataSet
-    String dataInfo = "Step Back Ground DataSet\n\n"+metadata;
-    try{
-      //updating the forecast for the background Siesmicity
-      forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_BACKGROUND);
-      forecast.updateForecast();
-      //generating the file for the BackGround
-      File backSiesFile = new File(this.STEP_DIR+this.STEP_BACKGROUND_FILE);
-      ArrayList backSiesProbVals = new ArrayList();
-      //if the file for the backGround already exists then just pick up the values for the Prob from the file
-      if(backSiesFile.exists())
-        getValForLatLon(backSiesProbVals,this.STEP_DIR+this.STEP_BACKGROUND_FILE);
-      //if the backGround file does not already exist then create it
-      else{
-        backSiesProbVals = getProbVals_faster(attenRel,region,(EqkRupForecast)forecast);
-        createFile(backSiesProbVals,this.STEP_DIR+this.STEP_BACKGROUND_FILE);
-        //creting the metadata file for the backGround
-        String backFile = this.STEP_BACKGROUND_FILE.substring(0,STEP_BACKGROUND_FILE.indexOf("."));
-        createMetaDataFile(dataInfo,this.STEP_DIR+backFile+this.METADATA_FILE_SUFFIX);
-      }
-
-      //metadata for the Addon Prob
-      dataInfo = "Step Addon Data Set for :\n"+
-                 "\t"+this.getSTEP_DateTimeInfo()+"\n\n"+
-                 metadata;
-
-      //updating the STEP forecast for the STEP Addon Probabilities
-      forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_ADD_ON);
-      forecast.updateForecast();
-      //getting the name of the STEP data(XYZ )file from the first line on the STEP website which basically tells the time of updation
-      String stepDirName = this.getStepDirName();
-      //creating the dataFile for the STEP Addon Probabilities
-      ArrayList stepAddonProbVals = new ArrayList();
-
-      File addonFile = new File(this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
-      //if addon file already exists
-      if(addonFile.exists())
-        getValForLatLon(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
-      //if the file does not exists then create it.
-      else{
-        stepAddonProbVals = getProbVals_faster(attenRel,region,(EqkRupForecast)forecast);
-        createFile(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
-        //creating the metadata file for the STEP addon probabilities
-        String stepFile = this.STEP_ADDON_FILE_SUFFIX.substring(0,STEP_ADDON_FILE_SUFFIX.indexOf("."));
-        createMetaDataFile(dataInfo,this.STEP_DIR+stepDirName+stepFile+this.METADATA_FILE_SUFFIX);
-      }
-
-      //metadata for the Combined Prob. (Addon +BackGround)
-      dataInfo = "Step Combined(Added) Data Set for :\n"+
-                 "\t"+this.getSTEP_DateTimeInfo()+"\n\n"+
-                 metadata;
-      //combining the backgound and Addon dataSet and wrinting the result to the file
-      STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
-      ArrayList stepBothProbVals = addStepData.addDataSet(backSiesProbVals,stepAddonProbVals);
-      File bothFile = new File(this.STEP_DIR+stepDirName+this.STEP_COMBINED_FILE_SUFFIX);
-      if(!bothFile.exists()){
-        createFile(stepBothProbVals,this.STEP_DIR+stepDirName+this.STEP_COMBINED_FILE_SUFFIX);
-        //creating the metadata file for the STEP addon and backGround probabilities combined
-        String stepBothFile = this.STEP_COMBINED_FILE_SUFFIX.substring(0,STEP_COMBINED_FILE_SUFFIX.indexOf("."));
-        createMetaDataFile(dataInfo,this.STEP_DIR+stepDirName+stepBothFile+this.METADATA_FILE_SUFFIX);
-      }
+      long endSTEPCalcTime = System.currentTimeMillis();
+      fw.write("Total time taken for calculation of step:"+(endSTEPCalcTime - startTime));
+      fw.close();
     }catch(Exception e){
       e.printStackTrace();
     }
- }
+  }
 
  /**
   * creates locationlist of california boundary.
@@ -1147,10 +1184,10 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    locList.addLocation(new Location(41.998016,-124.210136));
 
 
-   /*locList.addLocation(new Location(42.2,-124.6));
-   locList.addLocation(new Location(42.2,-112));
-   locList.addLocation(new Location(32,-124.6));
-   locList.addLocation(new Location(32,-112));*/
+   /*locList.addLocation(new Location(42.009655,-124.407951));
+   locList.addLocation(new Location(42.2,-114.130432));
+   locList.addLocation(new Location(32.534878,-124.407951));
+   locList.addLocation(new Location(32.534878,-114.130432));*/
 
    return locList;
  }
@@ -1339,7 +1376,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    * @param eqkRupForecast : STEP Forecast
    * @returns the ArrayList of Probability values for the given region
    */
-  private ArrayList getProbVals_faster(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
+  private ArrayList getProbVals_faster(FileWriter fw,ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
                                      EqkRupForecast eqkRupForecast){
 
     ArrayList probVals = new ArrayList();
@@ -1348,59 +1385,70 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     // declare some varibles used in the calculation
     double qkProb, distance;
     int k,i;
+    try{
+      // get total number of sources
+      int numSources = eqkRupForecast.getNumSources();
 
-    // get total number of sources
-    int numSources = eqkRupForecast.getNumSources();
+      fw.write("NumSources: "+numSources+"\n");
+      // this boolean will tell us whether a source was actually used
+      // (e.g., all could be outside MAX_DISTANCE)
+      boolean sourceUsed = false;
 
-    // this boolean will tell us whether a source was actually used
-    // (e.g., all could be outside MAX_DISTANCE)
-    boolean sourceUsed = false;
+      int numSites = region.getNumGridLocs();
+      fw.write("NumSites: "+numSites+"\n");
+      int numSourcesSkipped =0;
+      long startCalcTime = System.currentTimeMillis();
+      fw.write("start step hazard calculation:"+startCalcTime);
+      for(int j=0;j<numSites;++j){
+        double hazVal =1;
+        double condProb =0;
+        imr.setSite(region.getSite(j));
+        //adding the wills site class value for each site
+        String willSiteClass = (String)this.willSiteClassVals.get(j);
+        //only add the wills value if we have a value available for that site else leave default "D"
+        if(!willSiteClass.equals("NA"))
+          imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(willSiteClass);
+        else
+          imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(imr.WILLS_SITE_D);
 
-    int numSites = region.getNumGridLocs();
-    System.out.println("Number of sites:"+numSites);
-    for(int j=0;j<numSites;++j){
-      double hazVal =1;
-      double condProb =0;
-      imr.setSite(region.getSite(j));
-      //adding the wills site class value for each site
-      String willSiteClass = (String)this.willSiteClassVals.get(j);
-      //only add the wills value if we have a value available for that site else leave default "D"
-      if(!willSiteClass.equals("NA"))
-        imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(willSiteClass);
-      else
-        imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(imr.WILLS_SITE_D);
+        // loop over sources
+        for(i=0;i < numSources ;i++) {
 
-      // loop over sources
-      for(i=0;i < numSources ;i++) {
+          // get the ith source
+          ProbEqkSource source = eqkRupForecast.getSource(i);
 
-        // get the ith source
-        ProbEqkSource source = eqkRupForecast.getSource(i);
+          // compute it's distance from the site and skip if it's too far away
+          distance = source.getMinDistance(region.getSite(j));
+          if(distance > MAX_DISTANCE){
+            ++numSourcesSkipped;
+            //update progress bar for skipped ruptures
+            continue;
+          }
 
-        // compute it's distance from the site and skip if it's too far away
-        distance = source.getMinDistance(region.getSite(j));
-        if(distance > MAX_DISTANCE)
-          //update progress bar for skipped ruptures
-          continue;
+          // indicate that a source has been used
+          sourceUsed = true;
+          hazVal *= (1.0 - imr.getTotExceedProbability((PointEqkSource)source,IML_VALUE));
+        }
 
-        // indicate that a source has been used
-        sourceUsed = true;
-
-        hazVal *= (1.0 - imr.getTotExceedProbability((PointEqkSource)source,IML_VALUE));
-
+        // finalize the hazard function
+        if(sourceUsed) {
+          //System.out.println("HazVal:"+hazVal);
+          hazVal = 1-hazVal;
+        }
+        else
+          hazVal = 0.0;
+        //System.out.println("HazVal: "+hazVal);
+        probVals.add(new Double(hazVal));
+        long currentTime = System.currentTimeMillis();
+        fw.write("Time to finish calculation for Site: "+j+" at :"+(currentTime-startCalcTime)+"\n");
       }
-
-      // finalize the hazard function
-      if(sourceUsed) {
-        //System.out.println("HazVal:"+hazVal);
-        hazVal = 1-hazVal;
-      }
-      else
-        hazVal = 0.0;
-      //System.out.println("HazVal: "+hazVal);
-      probVals.add(new Double(hazVal));
+      fw.write("Num of sources skipped: "+numSourcesSkipped);
+      long currentTime = System.currentTimeMillis();
+      fw.write("Time to finish calculation :"+(currentTime-startCalcTime)+"\n");
+    }catch(Exception e){
+      e.printStackTrace();
     }
-    //System.out.println("Prob Vals :"+probVals);
-    int size = probVals.size();
+
     return probVals;
   }
 
