@@ -245,11 +245,11 @@ public class NEHRP_GuiBean
     mainSplitPane.setDividerLocation(380);
     locationSplitPane.setDividerLocation(170);
     buttonsSplitPane.setDividerLocation(180);
-    setButtonsDisabled(false);
+    setButtonsEnabled(false);
   }
 
 
-  private void setButtonsDisabled(boolean disableButtons){
+  private void setButtonsEnabled(boolean disableButtons){
     siteCoeffButton.setEnabled(disableButtons);
     smSDButton.setEnabled(disableButtons);
     mapSpecButton.setEnabled(disableButtons);
@@ -266,7 +266,7 @@ public class NEHRP_GuiBean
    */
   public void clearData(){
     dataGenerator.clearData();
-    setButtonsDisabled(false);
+    setButtonsEnabled(false);
   }
 
   /**
@@ -459,10 +459,10 @@ public class NEHRP_GuiBean
 
 
   private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-    if(siteCoefficientWindow == null)
+   /* if(siteCoefficientWindow == null)
       siteCoefficientWindow = new SiteCoefficientInfoWindow();
 
-    siteCoefficientWindow.show();
+    siteCoefficientWindow.show();*/
 
     //dataGenerator.setFa(siteCoefficientWindow.getFa());
     //dataGenerator.setFv(siteCoefficientWindow.getFv());
@@ -472,26 +472,30 @@ public class NEHRP_GuiBean
     dataGenerator.setFv(1);
     dataGenerator.setSiteClass(GlobalConstants.SITE_CLASS_B);
 
-    setButtonsDisabled(true);
+    setButtonsEnabled(true);
   }
 
   private void smSDButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSMSsS1();
     dataGenerator.calculatedSDSsS1();
+    application.setDataInWindow(dataGenerator.getDataInfo());
   }
 
   private void mapSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateMapSpectrum();
+    application.setDataInWindow(dataGenerator.getDataInfo());
     viewButton.setEnabled(true);
   }
 
   private void smSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSMSpectrum();
+    application.setDataInWindow(dataGenerator.getDataInfo());
     viewButton.setEnabled(true);
   }
 
   private void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSDSpectrum();
+    application.setDataInWindow(dataGenerator.getDataInfo());
     viewButton.setEnabled(true);
   }
 

@@ -19,11 +19,12 @@ public class SDSsS1Calculator {
     function.set(saVals.getX(1), fv * saVals.getY(1) * 2.0 / 3.0);
     String title = "Spectral Response Accelerations SDs and SD1";
     String subTitle = "SDs = 2/3 x SMs and SD1 = 2/3 x SM1";
+    String SA = "Sa";
     String text1 = "SDs";
     String text2 = "SD1";
     String info ="";
     info += DataDisplayFormatter.createSubTitleString(subTitle,siteClass,fa,fv);
-    info += DataDisplayFormatter.createFunctionInfoString(function,"",text1,text2,siteClass);
+    info += DataDisplayFormatter.createFunctionInfoString(function,SA,text1,text2,siteClass);
     function.setInfo(info);
     return function;
   }

@@ -31,12 +31,13 @@ public class SMSsS1Calculator {
     function.set(saVals.getX(1), fv * saVals.getY(1));
     String title = "Spectral Response Accelerations SMs and SM1";
     String subTitle = "SMs = FaSs and SM1 = FvS1";
+    String SA = "Sa";
     String text1 = "SMs";
     String text2 = "SM1";
     String info ="";
     info +=title;
     info +=DataDisplayFormatter.createSubTitleString(subTitle,siteClass,fa,fv);
-    info +=DataDisplayFormatter.createFunctionInfoString(function,"",text1,text2,siteClass);
+    info +=DataDisplayFormatter.createFunctionInfoString(function,SA,text1,text2,siteClass);
     function.setInfo(info);
     return function;
   }
