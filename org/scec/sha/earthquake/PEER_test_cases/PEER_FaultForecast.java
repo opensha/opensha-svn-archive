@@ -19,7 +19,7 @@ import org.scec.param.event.*;
 
 
 /**
- * <p>Title: Set1_Fault_Forecast</p>
+ * <p>Title: PEER_FaultForecast</p>
  * <p>Description: Fault 1 Equake rupture forecast. The Peer Group Test cases </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -35,7 +35,7 @@ public class PEER_FaultForecast extends EqkRupForecast
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("PEER Fault Forecast");
+  private static String  C = new String("PEER Fault");
   private boolean D = false;
 
   /**

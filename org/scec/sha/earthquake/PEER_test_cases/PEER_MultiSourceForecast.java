@@ -21,7 +21,7 @@ import org.scec.param.event.*;
 
 
 /**
- * <p>Title: Set2_MultiSource_Forecast</p>
+ * <p>Title: PEER_MultiSourceForecast</p>
  * <p>Description: This is the forecast used for test-set #2, Cases 2a-c</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -37,7 +37,7 @@ public class PEER_MultiSourceForecast extends EqkRupForecast
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("PEER Multi-Source Forecast");
+  private static String  C = new String("PEER Multi-Source");
   private boolean D = false;
 
   /**

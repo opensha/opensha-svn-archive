@@ -14,7 +14,7 @@ import org.scec.sha.surface.*;
 
 
 /**
- * <p>Title: Set1_Fault_Source </p>
+ * <p>Title: PEER_FaultSource </p>
  * <p>Description: This implements a basic fault source for arbitrary inputs.  Note that
  * magnitudes below 5.0 are ignored in creating the ProbEqkRuptures.  This object is quite
  * general.  The only customized feature is the Mag-length relationship specified for the
@@ -83,7 +83,7 @@ public class PEER_FaultSource extends ProbEqkSource {
     double rate;
     double prob=Double.NaN;
 
-    if( D ) System.out.println("Set1_Fault_Source: magLenSigma="+magLenSigma);
+    if( D ) System.out.println("PEER_Fault_Source: magLenSigma="+magLenSigma);
 
 
     // The magLenSigma=0 case:
@@ -107,7 +107,7 @@ public class PEER_FaultSource extends ProbEqkSource {
                     probEqkRupture.setProbability(prob);
                     ruptureList.add(probEqkRupture);
               }
-              if( D ) System.out.println("Set1_Fault_Source: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
+              if( D ) System.out.println("PEER_FaultSource: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
                                           "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
             }
         }
@@ -140,7 +140,7 @@ public class PEER_FaultSource extends ProbEqkSource {
                     probEqkRupture.setProbability(prob);
                     ruptureList.add(probEqkRupture);
               }
-              if( D ) System.out.println("Set1_Fault_Source: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
+              if( D ) System.out.println("PEER_FaultSource: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
                                           "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
             }
         }
@@ -164,7 +164,7 @@ public class PEER_FaultSource extends ProbEqkSource {
                     probEqkRupture.setProbability(prob);
                     ruptureList.add(probEqkRupture);
               }
-              if( D ) System.out.println("Set1_Fault_Source: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
+              if( D ) System.out.println("PEER_FaultSource: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
                                           "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
             }
         }
@@ -188,7 +188,7 @@ public class PEER_FaultSource extends ProbEqkSource {
                     probEqkRupture.setProbability(prob);
                     ruptureList.add(probEqkRupture);
               }
-              if( D ) System.out.println("Set1_Fault_Source: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
+              if( D ) System.out.println("PEER_FaultSource: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
                                           "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
             }
         }
@@ -196,7 +196,7 @@ public class PEER_FaultSource extends ProbEqkSource {
 
 
 
-    if( D ) System.out.println("Set1_Fault_Source:totNumRups:"+ruptureList.size());
+    if( D ) System.out.println("PEER_FaultSource:totNumRups:"+ruptureList.size());
   }
 
   /**

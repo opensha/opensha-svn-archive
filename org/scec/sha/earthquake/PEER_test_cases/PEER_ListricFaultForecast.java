@@ -19,7 +19,7 @@ import org.scec.param.event.*;
 
 
 /**
- * <p>Title: Set2_ListricFault_Forecast</p>
+ * <p>Title: PEER_ListricFaultForecast</p>
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -35,7 +35,7 @@ public class PEER_ListricFaultForecast extends EqkRupForecast
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("PEER Listric Fault Forecast");
+  private static String  C = new String("PEER Listric Fault");
   private boolean D = false;
 
   /**

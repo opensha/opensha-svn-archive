@@ -19,7 +19,7 @@ import org.scec.param.event.*;
 
 
 /**
- * <p>Title: FaultCaseSet1_Fault</p>
+ * <p>Title: PEER_NonPlanarFaultForecast </p>
  * <p>Description: Fault 1 Equake rupture forecast. The Peer Group Test cases </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -35,7 +35,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("PEER Non-Planar Fault Forecast");
+  private static String  C = new String("PEER Non-Planar Fault");
   private boolean D = false;
 
   /**
