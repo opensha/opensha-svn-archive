@@ -66,7 +66,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
   private final static int TYPE_B_CHAR_GR_FLT = 1;
   private final static String FILE_PATH = "org/scec/sha/earthquake/rupForecastImpl/Frankel96/";
   private final static String FILE_A_CHAR_EQK=FILE_PATH + "Frankel96_CALA.char";
-  private final static String FILE_B_CHAR_GR_EQK=FILE_PATH + "CALB.both";
+  private final static String FILE_B_CHAR_GR_EQK=FILE_PATH + "Frankel96_CALB.both";
 
   /**
    * definition of the vectors for storing the data corresponding to the file type

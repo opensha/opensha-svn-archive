@@ -228,11 +228,11 @@ public class GMT_MapGenerator {
     String projWdth = "-JM"+plotWdth+"i";
     double plotHght = ((maxLat-minLat)/(maxLon-minLon))*plotWdth/Math.cos(Math.PI*(maxLat+minLat)/(2*180));
 
-    int imageWdthPix = (int) (8.5*72);
-
-    int imageHghtPix = (int) (( plotHght + 2.25 )*72);
-
-    System.out.println("plot height = " + plotHght + " imageHightPix = "+ imageHghtPix);
+    double yOffset = 11 - plotHght - 0.5;
+    String yOff = "-Y" + yOffset + "i";
+//    int imageWdthPix = (int) (8.5*72);
+//    int imageHghtPix = (int) (( plotHght + 2.5 )*72);
+//    System.out.println("plot height = " + plotHght + " imageHightPix = "+ imageHghtPix);
 
 
     try {
@@ -266,7 +266,7 @@ public class GMT_MapGenerator {
        RunScript.runScript(command);
 
        if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-         command[2]=GMT_PATH+"grdimage tempData.grd -X0.75i -Y2i " + projWdth + " -Ctemp.cpt -K -E70 "+ region + " > " + out_ps;
+         command[2]=GMT_PATH+"grdimage tempData.grd -X0.75i " + yOff + " " + projWdth + " -Ctemp.cpt -K -E70 "+ region + " > " + out_ps;
          RunScript.runScript(command);
        }
        else {
@@ -276,7 +276,7 @@ public class GMT_MapGenerator {
          command[2]=GMT_PATH+"grdcut " + topoIntenFile + " -GtempInten.grd "+region;
          RunScript.runScript(command);
 
-         command[2]=GMT_PATH+"grdimage tempHiResData.grd -X0.75i -Y2i " + projWdth + " -ItempInten.grd -Ctemp.cpt -K -E70 "+ region + " > " + out_ps;
+         command[2]=GMT_PATH+"grdimage tempHiResData.grd -X0.75i " + yOff + " " + projWdth + " -ItempInten.grd -Ctemp.cpt -K -E70 "+ region + " > " + out_ps;
          RunScript.runScript(command);
        }
 
@@ -300,7 +300,8 @@ public class GMT_MapGenerator {
        command[2] =COMMAND_PATH+"cat "+ out_ps + " | "+GMT_PATH+"gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
        RunScript.runScript(command);
 */
-       command[2] = GMT_PATH+"convert "+ out_ps + " " + out_jpg;
+//       command[2] = GMT_PATH+"convert -crop "+ imageWdthPix + "x" + imageHghtPix + " " + out_ps + " " + out_jpg;
+       command[2] = GMT_PATH+"convert " + out_ps + " " + out_jpg;
        RunScript.runScript(command);
 
        // increment jpg file index
