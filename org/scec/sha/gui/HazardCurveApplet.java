@@ -11,14 +11,7 @@ import java.net.*;
 import java.lang.reflect.InvocationTargetException;
 import java.io.*;
 
-
-
-import org.jfree.chart.*;
-import org.jfree.chart.axis.*;
-import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
-
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
@@ -56,12 +49,12 @@ public class HazardCurveApplet extends JApplet
     implements Runnable,  ParameterChangeListener,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
     X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
-    ButtonControlPanelAPI{
+    ButtonControlPanelAPI,GraphPanelAPI{
 
   /**
    * Name of the class
    */
-  private final static String C = "PEER_TestApplet";
+  private final static String C = "HazardCurveApplet";
   // for debug purpose
   private final static boolean D = false;
 
@@ -103,6 +96,9 @@ public class HazardCurveApplet extends JApplet
   //instance for the ButtonControlPanel
   ButtonControlPanel buttonControlPanel;
 
+  //instance of the GraphPanel (window that shows all the plots)
+  GraphPanel graphPanel;
+
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
@@ -125,15 +121,7 @@ public class HazardCurveApplet extends JApplet
   private RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
 
 
-  // message string to be dispalayed if user chooses Axis Scale
-   // without first clicking on "Add Graph"
-  private final static String AXIS_RANGE_NOT_ALLOWED =
-      new String("First Choose Add Graph. Then choose Axis Scale option");
 
-
-
-  // mesage needed in case of show data if plot is not available
-  private final static String NO_PLOT_MSG = "No Plot Data Available";
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
@@ -165,9 +153,6 @@ public class HazardCurveApplet extends JApplet
   private IMT_Info imtInfo = new IMT_Info();
 
 
-  // Create the x-axis and y-axis - either normal or log
-  private org.jfree.chart.axis.NumberAxis xAxis = null;
-  private org.jfree.chart.axis.NumberAxis yAxis = null;
 
 
   // variable needed for plotting Epistemic list
@@ -195,22 +180,11 @@ public class HazardCurveApplet extends JApplet
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
-  /**
-   * adding scroll pane for showing data
-   */
-  private JScrollPane dataScrollPane = new JScrollPane();
-
-  // text area to show the data values
-  private JTextArea pointsTextArea = new JTextArea();
 
 
   //flags to check which X Values the user wants to work with: default or custom
   boolean useCustomX_Values = false;
 
-  /**
-   * chart panel
-   */
-  private ChartPanel chartPanel;
 
   //flag to check for the disaggregation functionality
   private boolean disaggregationFlag= false;
@@ -233,8 +207,6 @@ public class HazardCurveApplet extends JApplet
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private Border border2;
-  private final static String AUTO_SCALE = "Auto Scale";
-  private final static String CUSTOM_SCALE = "Custom Scale";
   private final static Dimension COMBO_DIM = new Dimension( 180, 30 );
   private final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
   private Border border3;
@@ -385,15 +357,10 @@ public class HazardCurveApplet extends JApplet
     this.getContentPane().setLayout(borderLayout1);
 
 
-    // for showing the data on click of "show data" button
-    pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
-    pointsTextArea.setText( NO_PLOT_MSG );
-    pointsTextArea.setLineWrap(true);
-    dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
     jPanel1.setLayout(gridBagLayout10);
 
-
+    //creating the Object the GraphPaenl class
+    graphPanel = new GraphPanel(this);
 
     jPanel1.setBackground(Color.white);
     jPanel1.setBorder(border4);
@@ -470,7 +437,6 @@ public class HazardCurveApplet extends JApplet
         imgLabel_mouseClicked(e);
       }
     });
-    dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(11, 4, 5, 6), 243, 231));
@@ -568,51 +534,6 @@ public class HazardCurveApplet extends JApplet
       // Starting
       String S = C + ": addGraphPanel(): ";
 
-      String newXYAxisName = this.totalProbFuncs.getXYAxesName();
-
-
-      // create a default chart based on some sample data...
-
-      // Determine which IM to add to the axis labeling
-      String xAxisLabel = totalProbFuncs.getXAxisName();
-      String yAxisLabel = totalProbFuncs.getYAxisName();
-
-
-      try{
-
-      //create the standard ticks so that smaller values too can plotted on the chart
-      TickUnits units = MyTickUnits.createStandardTickUnits();
-
-
-      /// check if x log is selected or not
-      if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
-      else xAxis = new NumberAxis( xAxisLabel );
-
-      if (!xLog)
-        xAxis.setAutoRangeIncludesZero(true);
-      else
-        xAxis.setAutoRangeIncludesZero( false );
-      xAxis.setStandardTickUnits(units);
-      xAxis.setTickMarksVisible(false);
-
-      /// check if y log is selected or not
-      if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
-      else yAxis = new NumberAxis( yAxisLabel );
-
-      if (!yLog)
-        yAxis.setAutoRangeIncludesZero(true);
-      else
-        yAxis.setAutoRangeIncludesZero( false );
-
-      yAxis.setStandardTickUnits(units);
-      yAxis.setTickMarksVisible(false);
-
-      int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
-
-
-      org.jfree.chart.renderer.StandardXYItemRenderer renderer
-          = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
-
       // draw all plots in black color for Eqk List
       if(this.isEqkList) {
         int num = totalProbFuncs.size();
@@ -626,107 +547,36 @@ public class HazardCurveApplet extends JApplet
         if(this.avgSelected && !isIndividualCurves) num= num - 1;
         diff = num - numFractiles ;
         int i;
-        for(i=0; i<diff; ++i) // set black color for curves
-          renderer.setSeriesPaint(i,Color.black);
+        Color [] color = new Color[num+1];
+        for(i=0; i<diff; ++i)
+          // set black color for curves
+          color[i] = new Color(Color.black.getRGB());
+
         //checks if the individual curves for each erf in the list are being drawn, if so then don't
         //try to draw the average and fractiles curves
         if(!isIndividualCurves){
           for(i=diff;i<num;++i) // set red color for fractiles
-            renderer.setSeriesPaint(i,Color.red);
+            color[i] = new Color(Color.red.getRGB());
           // draw average in green color
-          if(this.avgSelected) renderer.setSeriesPaint(i,Color.green);
+          if(this.avgSelected) color[i] = new Color(Color.green.getRGB());
         }
-
+        graphPanel.setSeriesPaint(color);
       }
 
-      /* to set the range of the axis on the input from the user if the range combo box is selected*/
-      if(this.customAxis) {
-          xAxis.setRange(this.minXValue,this.maxXValue);
-          yAxis.setRange(this.minYValue,this.maxYValue);
-        }
-
-      // build the plot
-      org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data,
-                                       xAxis, yAxis, renderer);
-
-      plot.setDomainCrosshairLockedOnData(false);
-      plot.setDomainCrosshairVisible(false);
-      plot.setRangeCrosshairLockedOnData(false);
-      plot.setRangeCrosshairVisible(false);
-      plot.setBackgroundAlpha( .8f );
-      plot.setRenderer( renderer );
-      plot.setInsets(new Insets(0, 0, 0, 20));
-
-
-      JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
-
-      chart.setBackgroundPaint( lightBlue );
-
-      // chart.setBackgroundImage(image);
-      // chart.setBackgroundImageAlpha(.3f);
-
-      // Put into a panel
-      chartPanel = new ChartPanel(chart, true, true, true, true, false);
-      //panel.setMouseZoomable(true);
-
-      chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-      chartPanel.setMouseZoomable(true);
-      chartPanel.setDisplayToolTips(true);
-      chartPanel.setHorizontalAxisTrace(false);
-      chartPanel.setVerticalAxisTrace(false);
-      }catch(Exception e){
-        JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
-        return;
-      }
-
-      if(D) System.out.println(this.totalProbFuncs.toString());
-      if(D) System.out.println(S + "data:" + data);
-      //this.pointsTextArea.setText(totalProbFuncs.toString());
-      graphOn=false;
+      graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE," ");
       togglePlot();
       this.isIndividualCurves = false;
    }
 
-
-   /**
-    *  Toggle between showing the graph and showing the actual data
-    */
-   public void togglePlot() {
-
-       // Starting
-       String S = C + ": togglePlot(): ";
-       panel.removeAll();
-       if ( graphOn ) {
-
-           buttonControlPanel.getToggleButton().setText( "Show Plot" );
-           graphOn = false;
-
-           panel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                   , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
-       }
-       else {
-           graphOn = true;
-
-           buttonControlPanel.getToggleButton().setText( "Show Data" );
-                         // panel added here
-           if(chartPanel !=null)
-               panel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-
-           else
-               // innerPlotPanel.setBorder(oval);
-               panel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
-
-       }
-
-
-       panel.validate();
-       panel.repaint();
-
-       if ( D ) System.out.println( S + "Ending" );
-
-    }
+   //checks if the user has plot the data window or plot window
+   public void togglePlot(){
+     panel.removeAll();
+     graphPanel.togglePlot(buttonControlPanel);
+     panel.add(graphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+     panel.validate();
+     panel.repaint();
+   }
 
     /**
      * this function is called when Add Graph button is clicked
@@ -869,28 +719,15 @@ public class HazardCurveApplet extends JApplet
     private void drawGraph() {
       // you can show warning messages now
      imrGuiBean.showWarningMessages(true);
-
      // set the log values
      data.setXLog(xLog);
      data.setYLog(yLog);
 
-     // set the data in the text area
-     String xAxisTitle =  totalProbFuncs.getXAxisName();
-     String yAxisTitle =  totalProbFuncs.getYAxisName();
-
-     this.pointsTextArea.setText(totalProbFuncs.toString());
      addGraphPanel();
     }
 
 
-  /**
-   * when "show data" button is clicked
-   *
-   * @param e
-   */
-  void toggleButton_actionPerformed(ActionEvent e) {
-    this.togglePlot();
-  }
+
 
   /**
    * this function is called when "clear plot" is selected
@@ -914,13 +751,10 @@ public class HazardCurveApplet extends JApplet
 
     panel.removeAll();
 
-    pointsTextArea.setText( NO_PLOT_MSG );
+
     if( clearFunctions) {
       this.totalProbFuncs.clear();
     }
-
-    panel.validate();
-    panel.repaint();
     chartSplit.setDividerLocation( newLoc );
   }
 
@@ -1183,7 +1017,6 @@ public class HazardCurveApplet extends JApplet
      this.isIndividualCurves = true;
     if(!this.progressCheckBox.isSelected()) {
       addGraphPanel();
-      chartPanel.paintImmediately(chartPanel.getBounds());
     }
    }
 
@@ -1502,7 +1335,7 @@ public class HazardCurveApplet extends JApplet
    * @returns the Range for the X-Axis
    */
   public Range getX_AxisRange(){
-    return xAxis.getRange();
+    return graphPanel.getX_AxisRange();
   }
 
   /**
@@ -1510,7 +1343,7 @@ public class HazardCurveApplet extends JApplet
    * @returns the Range for the Y-Axis
    */
   public Range getY_AxisRange(){
-    return yAxis.getRange();
+    return graphPanel.getY_AxisRange();
   }
 
   /**
@@ -1626,6 +1459,37 @@ public class HazardCurveApplet extends JApplet
     drawGraph();
   }
 
+  /**
+   *
+   * @returns the Min X-Axis Range Value, if custom Axis is choosen
+   */
+  public double getMinX(){
+    return minXValue;
+  }
+
+  /**
+   *
+   * @returns the Max X-Axis Range Value, if custom axis is choosen
+   */
+  public double getMaxX(){
+    return maxXValue;
+  }
+
+  /**
+   *
+   * @returns the Min Y-Axis Range Value, if custom axis is choosen
+   */
+  public double getMinY(){
+    return minYValue;
+  }
+
+  /**
+   *
+   * @returns the Max Y-Axis Range Value, if custom axis is choosen
+   */
+  public double getMaxY(){
+    return maxYValue;
+  }
 
   void imgLabel_mousePressed(MouseEvent e) {
 
@@ -1641,9 +1505,3 @@ public class HazardCurveApplet extends JApplet
   }
 
 }
-
-
-
-
-
-
