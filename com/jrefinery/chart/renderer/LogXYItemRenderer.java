@@ -50,6 +50,8 @@ import com.jrefinery.chart.tooltips.StandardXYToolTipGenerator;
 import com.jrefinery.chart.axis.*;
 import com.jrefinery.chart.plot.*;
 import com.jrefinery.chart.*;
+import com.jrefinery.data.Range;
+
 
 /**
  * Standard item renderer for an XYPlot.  This class can draw (a) shapes at each point, or (b) lines
@@ -250,6 +252,147 @@ public class LogXYItemRenderer extends StandardXYItemRenderer{
         }
 
     }
+
+    /**
+     * Draws a grid line against the range axis.
+     *
+     * @param g2  the graphics device.
+     * @param plot  the plot.
+     * @param axis  the value axis.
+     * @param dataArea  the area for plotting data (not yet adjusted for any 3D effect).
+     * @param value  the value at which the grid line should be drawn.
+     *
+     */
+  public void drawDomainGridLine(Graphics2D g2,
+                                 XYPlot plot,
+                                 ValueAxis axis,
+                                 Rectangle2D dataArea,
+                                 double value) {
+
+    Range range = axis.getRange();
+
+    if (!range.contains(value)) {
+      return;
+    }
+    double x;
+    if(axis instanceof HorizontalLogarithmicAxis)
+      x= ((HorizontalLogarithmicAxis)axis).myTranslateValueToJava2D(Math.log(value)/Math.log(10), dataArea);
+    else  x = axis.translateValueToJava2D(value, dataArea);
+    Line2D line = new Line2D.Double(x, dataArea.getMinY(),
+                                    x, dataArea.getMaxY());
+    Paint paint = plot.getDomainGridlinePaint();
+    Stroke stroke = plot.getDomainGridlineStroke();
+    g2.setPaint(paint != null ? paint : Plot.DEFAULT_OUTLINE_PAINT);
+    g2.setStroke(stroke != null ? stroke : Plot.DEFAULT_OUTLINE_STROKE);
+    g2.draw(line);
+
+  }
+
+  /**
+   * Draws a grid line against the range axis.
+   *
+   * @param g2  the graphics device.
+   * @param plot  the plot.
+   * @param axis  the value axis.
+   * @param dataArea  the area for plotting data (not yet adjusted for any 3D effect).
+   * @param value  the value at which the grid line should be drawn.
+   *
+   */
+  public void drawRangeGridLine(Graphics2D g2,
+                                XYPlot plot,
+                                ValueAxis axis,
+                                Rectangle2D dataArea,
+                                double value) {
+
+    Range range = axis.getRange();
+
+    if (!range.contains(value)) {
+      return;
+    }
+    double y;
+    if(axis instanceof VerticalLogarithmicAxis)
+      y= ((VerticalLogarithmicAxis)axis).myTranslateValueToJava2D(Math.log(value)/ Math.log(10), dataArea);
+    else  y = axis.translateValueToJava2D(value, dataArea);
+    Line2D line = new Line2D.Double(dataArea.getMinX(), y,
+                                    dataArea.getMaxX(), y);
+    Paint paint = plot.getRangeGridlinePaint();
+    Stroke stroke = plot.getRangeGridlineStroke();
+    g2.setPaint(paint != null ? paint : Plot.DEFAULT_OUTLINE_PAINT);
+    g2.setStroke(stroke != null ? stroke : Plot.DEFAULT_OUTLINE_STROKE);
+    g2.draw(line);
+
+  }
+
+
+
+
+  /**
+   * Draws a vertical line on the chart to represent a 'range marker'.
+   *
+   * @param g2  the graphics device.
+   * @param plot  the plot.
+   * @param domainAxis  the domain axis.
+   * @param marker  the marker line.
+   * @param dataArea  the axis data area.
+   */
+  public void drawDomainMarker(Graphics2D g2,
+                               XYPlot plot,
+                               ValueAxis domainAxis,
+                               Marker marker,
+                               Rectangle2D dataArea) {
+
+      double value = marker.getValue();
+      Range range = domainAxis.getRange();
+      if (!range.contains(value)) {
+          return;
+      }
+
+      double x;
+      if(domainAxis instanceof HorizontalLogarithmicAxis)
+        x= ((HorizontalLogarithmicAxis)domainAxis).myTranslateValueToJava2D(Math.log(value)/Math.log(10), dataArea);
+      else  x = domainAxis.translateValueToJava2D(value, dataArea);
+      Line2D line = new Line2D.Double(x, dataArea.getMinY(), x, dataArea.getMaxY());
+      Paint paint = marker.getOutlinePaint();
+      Stroke stroke = marker.getOutlineStroke();
+      g2.setPaint(paint != null ? paint : Plot.DEFAULT_OUTLINE_PAINT);
+      g2.setStroke(stroke != null ? stroke : Plot.DEFAULT_OUTLINE_STROKE);
+      g2.draw(line);
+
+  }
+
+  /**
+   * Draws a horizontal line across the chart to represent a 'range marker'.
+   *
+   * @param g2  the graphics device.
+   * @param plot  the plot.
+   * @param rangeAxis  the range axis.
+   * @param marker  the marker line.
+   * @param dataArea  the axis data area.
+   */
+  public void drawRangeMarker(Graphics2D g2,
+                              XYPlot plot,
+                              ValueAxis rangeAxis,
+                              Marker marker,
+                              Rectangle2D dataArea) {
+
+      double value = marker.getValue();
+      Range range = rangeAxis.getRange();
+      if (!range.contains(value)) {
+          return;
+      }
+      double y;
+      if(rangeAxis instanceof VerticalLogarithmicAxis)
+        y= ((VerticalLogarithmicAxis)rangeAxis).myTranslateValueToJava2D(Math.log(value)/Math.log(10), dataArea);
+      else  y = rangeAxis.translateValueToJava2D(value, dataArea);
+      Line2D line = new Line2D.Double(dataArea.getMinX(), y, dataArea.getMaxX(), y);
+      Paint paint = marker.getOutlinePaint();
+      Stroke stroke = marker.getOutlineStroke();
+      g2.setPaint(paint != null ? paint : Plot.DEFAULT_OUTLINE_PAINT);
+      g2.setStroke(stroke != null ? stroke : Plot.DEFAULT_OUTLINE_STROKE);
+      g2.draw(line);
+
+  }
+
 }
 
 

@@ -570,7 +570,8 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
      */
 
-    public void refreshTicks(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea)throws java.lang.ArithmeticException {
+    public void refreshTicks(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea ,int location)
+        throws java.lang.ArithmeticException {
       ++counter;
 
       this.getTicks().clear();
@@ -931,7 +932,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
      */
 
-    public void draw(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea) {
+    public void draw(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea, int location) {
 
 
 
@@ -967,7 +968,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
         // draw the tick labels and marks
 
-        this.refreshTicks(g2, drawArea, plotArea);
+        this.refreshTicks(g2, drawArea, plotArea, location);
 
 
 

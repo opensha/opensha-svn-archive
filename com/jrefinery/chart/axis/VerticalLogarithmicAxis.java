@@ -262,76 +262,29 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
     public double myTranslateValueToJava2D(double value, Rectangle2D plotArea) {
 
-
-
 	double axisMin = getRange().getLowerBound();
-
 	double axisMax = getRange().getUpperBound();
-
-
-
 	double maxY = plotArea.getMaxY();
-
 	double minY = plotArea.getMinY();
-
-
-
-
-
         if(axisMin==0.0)
-
           axisMin=this.getTickUnit().getSize()/15;//this.tickUnit.getSize()/1.5;
-
-
-
-
-
          axisMin = Math.log(axisMin)/LOG10_VALUE;
-
-
-
          axisMax = Math.log(axisMax)/LOG10_VALUE;
-
-       // }
-
-
-
         if (isInverted()) {
-
             if(axisMin==axisMax)
-
                return minY;
-
             else
-
                return minY + (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
-
-
-
         }
-
         else {
-
             if(axisMin==axisMax)
-
               return maxY;
-
             else
-
               return maxY - (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
-
         }
-
-
-
     }
 
-
-
     public double translateJava2DtoValue(float java2DValue, Rectangle2D plotArea) {
-
-
-
 	double axisMin = getRange().getLowerBound();
 
 	double axisMax = getRange().getUpperBound();
@@ -459,7 +412,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
      */
 
-    public void draw(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea) {
+    public void draw(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea, int location) {
        String label = this.getLabel();
        Font tickLabelFont = this.getLabelFont();
         if (!isVisible()) return;
@@ -496,51 +449,29 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
 
         // draw the tick labels and marks and gridlines
-
-        this.refreshTicks(g2, drawArea, plotArea);
-
+        this.refreshTicks(g2, drawArea, plotArea, location);
         double xx = plotArea.getX();
-
         g2.setFont(tickLabelFont);
 
-
-
         Iterator iterator = this.getTicks().iterator();
-
         while (iterator.hasNext()) {
 
            Tick tick = (Tick)iterator.next();
-
            //float yy = (float)this.translateValueToJava2D(tick.getNumericalValue(), plotArea);
-
            float yy=(float)tick.getY() ;
-
            double val=1;
-
            int eIndex =tick.getText().indexOf("E");
-
            // check whether this is minor axis. for minor axis we save,2-9 in label
-
            if(!tick.getText().trim().equalsIgnoreCase("") && eIndex==-1)
-
               val=Double.parseDouble(tick.getText());
 
            double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
-
            yy = (float)this.myTranslateValueToJava2D(logval, plotArea);
 
-
-
            if(!isPowerOfTen(val)) // for major axis
-
              g2.setFont(tickLabelFont);
-
            else  // show minor axis in smaller font
-
              g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()+3));
-
-
-
            if (this.isTickLabelsVisible()) {
               g2.setPaint(this.getTickLabelPaint());
               if(eIndex==-1)
@@ -570,7 +501,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
      * @param drawArea The area within which the plot should be drawn.
      */
 
-    public double reserveWidth(Graphics2D g2, Plot plot, Rectangle2D drawArea) {
+    public double reserveWidth(Graphics2D g2, Plot plot, Rectangle2D drawArea, int location) {
       // calculate the width of the axis label...
       String label = this.getLabel();
       Font labelFont = this.getTickLabelFont();
@@ -588,7 +519,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
         // calculate the width required for the tick labels (if visible);
         double tickLabelWidth = this.getTickLabelInsets().left+this.getTickLabelInsets().right;
         if (this.isTickLabelsVisible()) {
-          this.refreshTicks(g2, drawArea, drawArea);
+          this.refreshTicks(g2, drawArea, drawArea, location);
           tickLabelWidth = tickLabelWidth+getMaxTickLabelWidth(g2, drawArea);
         }
         return labelWidth+tickLabelWidth;
@@ -605,8 +536,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
      */
 
     public Rectangle2D reserveAxisArea(Graphics2D g2, Plot plot, Rectangle2D drawArea,
-
-				       double reservedHeight) {
+				       double reservedHeight, int location) {
 	// calculate the width of the axis label...
 	double labelWidth = 0.0;
 	if (this.getLabel()!=null) {
@@ -625,7 +555,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 	    Rectangle2D approximatePlotArea = new Rectangle2D.Double(drawArea.getX(), drawArea.getY(),
 								     drawArea.getWidth(),
 								     drawArea.getHeight()-reservedHeight);
-	    this.refreshTicks(g2, drawArea, approximatePlotArea);
+	    this.refreshTicks(g2, drawArea, approximatePlotArea, location);
 	    tickLabelWidth = tickLabelWidth+getMaxTickLabelWidth(g2, approximatePlotArea);
 
 	}
@@ -717,7 +647,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
      */
 
-    public void refreshTicks(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea) {
+    public void refreshTicks(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea, int location) {
 
 
 
