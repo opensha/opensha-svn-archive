@@ -118,6 +118,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    */
   private void generateHazusFiles(ArrayList selectedAttenRels){
 
+
     //doing for SA
     hazusCalcForSA(selectedAttenRels);
 
@@ -187,6 +188,10 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     //Doing for PGA
     hazusCalcForPGA(selectedAttenRels);
 
+    step =6;
+    //generating the maps for the Hazus
+    application.makeMapForHazus(sa03_xyzdata,sa10_xyzdata,pga_xyzdata,pgv_xyzdata);
+
     calcProgress.showProgress(false);
     calcProgress.dispose();
     //imtParamEditor.refreshParamEditor();
@@ -197,7 +202,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * @param selectedAttenRels: List of AttenuationRelation models
    */
   private void hazusCalcForPGA(ArrayList selectedAttenRels){
-
+    step =5;
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i)
       ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(AttenuationRelationship.PGA_NAME);
@@ -213,6 +218,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    */
   private void hazusCalcForSA(ArrayList selectedAttenRels){
     //Doing for SA
+    step =2;
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i)
       ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(AttenuationRelationship.SA_NAME);
@@ -222,6 +228,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     sa03_xyzdata = application.generateShakeMap(selectedAttenRels);
     metadata = metadata += "IMT = SA[ SA Period = 0.3 ; SA Damping = 5.0 ]"+"<br>\n";
 
+    step =3;
     //Doing for SA-1.0sec
     setSA_PeriodForSelectedIMRs(selectedAttenRels,1.0);
     sa10_xyzdata = application.generateShakeMap(selectedAttenRels);
@@ -235,6 +242,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * @return
    */
   private XYZ_DataSetAPI hazusCalcForPGV(ArrayList attenRelList, boolean pgvSupported){
+    step =4;
     //if the PGV is supportd by the AttenuationRelationships
     XYZ_DataSetAPI pgvDataSet = null;
     int size = attenRelList.size();
@@ -340,7 +348,17 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
       public void actionPerformed(ActionEvent evt) {
         if(step == 1)
           calcProgress.setProgressMessage("Doing Calculation for the Hazus ShapeFile Data...");
-        else if(step ==2){
+        else if(step == 2)
+          calcProgress.setProgressMessage("Doing Calculation for the SA-0.3sec");
+        else if(step == 3)
+          calcProgress.setProgressMessage("Doing Calculation for the SA-1.0sec");
+        else if(step == 4)
+          calcProgress.setProgressMessage("Doing Calculation for the PGV");
+        else if(step == 5)
+          calcProgress.setProgressMessage("Doing Calculation for the PGA");
+        else if(step == 6)
+          calcProgress.setProgressMessage("Generating the Map images for Hazus ...");
+        else if(step ==0){
           timer.stop();
           calcProgress.dispose();
         }
@@ -360,7 +378,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     //keeps tracks if the user has pressed the button to generate the xyz dataset
     //for prodcing the shapefiles for Hazus.
     setGenerateShapeFilesForHazus(true);
-    step = 2;
+    step = 0;
   }
 
   /**

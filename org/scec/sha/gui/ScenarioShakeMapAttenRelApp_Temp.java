@@ -458,6 +458,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
     }
   }
 
+
   /**
    *
    * @returns the Sites Values for each site in the region chosen by the user
@@ -531,6 +532,31 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
   }
 
 
+  /**
+   * Creating the map for the Hazus.
+   * This creates the map and info for the SA-1sec, SA-0.3sec, PGA and PGV, all
+   * required as part calculation in Hazus. This will only generate the map and all the
+   * related information of the map but won't generate the shapefiles until the user
+   * has asked it to do so in the map parameters.
+   * Note : This method will always generate the Linear plot, whether the user has
+   * selected log plot in the map parameters, because Hazus only takes data in linearr
+   * space. So this method will always compute maps and its data in the linear space
+   * as Hazus does not accepts the log values in the map data.
+   */
+  public void makeMapForHazus(XYZ_DataSetAPI datasetForSA_03,XYZ_DataSetAPI datasetForSA_1,
+                              XYZ_DataSetAPI datasetForPGA,XYZ_DataSetAPI datasetForPGV){
+    String label;
+    String imlOrProb=imlProbGuiBean.getSelectedOption();
+    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
+      label="Prob";
+    else
+      label=imrGuiBean.getSelectedIMT();
+
+    //creates the maps and information that goes into the Hazus.
+    mapGuiBean.makeHazusShapeFilesAndMap(datasetForSA_03,datasetForSA_1,
+        datasetForPGA,datasetForPGV,erfGuiBean.getRupture(),label,getMapParametersInfo());
+  }
+
 
   /**
    * This function sets the Gridded region Sites and the type of plot user wants to see
@@ -597,35 +623,34 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
     t.start();
   }
 
+
+
   /**
    * when the generate Map button is pressed
    */
   private void addButton(){
     timer.start();
     step = 1;
-    if(hazusControl == null || !hazusControl.isGenerateShapeFilesForHazus())
-      generateShakeMap(attenRel);
+    generateShakeMap(attenRel);
     //sets the region coordinates for the GMT using the MapGuiBean
     setRegionForGMT();
     ++step;
 
-    if(step==2) {
-      String label;
-      String imlOrProb=imlProbGuiBean.getSelectedOption();
-      if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
-        label="Prob";
-      else
-        label=imrGuiBean.getSelectedIMT();
+    //making the map
+    String label;
+    String imlOrProb=imlProbGuiBean.getSelectedOption();
+    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
+      label="Prob";
+    else
+      label=imrGuiBean.getSelectedIMT();
 
-      if(hazusControl !=null && hazusControl.isGenerateShapeFilesForHazus())
-        mapGuiBean.makeHazusShapeFilesAndMap(hazusControl.getXYZ_DataForSA_03(),hazusControl.getXYZ_DataForSA_10(),
-            hazusControl.getXYZ_DataForPGA(),hazusControl.getXYZ_DataForPGV(),
-            erfGuiBean.getRupture(),label,getMapParametersInfo());
-      else
-        mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,mapParametersInfo);
-    }
+    mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,mapParametersInfo);
+
     step =0;
 }
+
+
+
 
 
 
