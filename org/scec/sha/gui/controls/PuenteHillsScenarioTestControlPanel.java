@@ -49,7 +49,7 @@ public class PuenteHillsScenarioTestControlPanel {
     this.regionGuiBean = regionGuiBean;
     this.mapGuiBean = mapGuiBean;
     this.imtGuiBean = imtGuiBean;
-    setParamsForPuenteHillsScenario();
+    //setParamsForPuenteHillsScenario();
   }
 
   /**
