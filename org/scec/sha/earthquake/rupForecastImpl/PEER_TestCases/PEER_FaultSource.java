@@ -215,29 +215,6 @@ public class PEER_FaultSource extends ProbEqkSource {
    */
   public ProbEqkRupture getRupture(int nthRupture){ return (ProbEqkRupture) ruptureList.get(nthRupture); }
 
-  /** Set the time span in years
-   *
-   * @param yrs : timeSpan as specified in  Number of years
-   */
-  public void setTimeSpan(double yrs) {
-   //set the time span in yrs
-    timeSpan = yrs;
-  }
-
-
-
-  /** Set the time span in years
-   * FIX Mehthod not implemented yet
-   *
-   * @param yrs : timeSpan
-   *
-   */
-  public void setTimeSpan(TimeSpan timeSpan) {
-
-     // set the probability according to the specifed timespan
-    throw new UnsupportedOperationException("setTimeSpan(timeSpan) Not implemented.");
-  }
-
 
  /**
   * Returns the Vector consisting of all ruptures for this source

@@ -274,6 +274,8 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
        double totMoRate = 3e10*faultArea*slipRate;
        grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
 
+System.out.println("rate³5="+grMagFreqDist.getCumRate(5.05));
+
        // Now make the source
        source = new  PEER_FaultSource(grMagFreqDist, RAKE ,
                                         ((Double)offsetParam.getValue()).doubleValue(),
