@@ -1,5 +1,7 @@
 package org.scec.sha.magdist;
 
+import org.scec.data.DataPoint2D;
+import org.scec.exceptions.*;
 /**
  * <p>Title:GaussianMagFreqDist </p>
  * <p>Description: This assumes a Gaussian distribution with a given mean and standard deviation, with
@@ -281,6 +283,18 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
     computeRates();
   }
 
+  public void set(DataPoint2D point) throws DataPoint2DException {
+    super.set(point);
+  }
+
+  public void set(double x,double y) throws DataPoint2DException {
+    super.set(x,y);
+  }
+
+  public void set(int index,double y) throws DataPoint2DException {
+    super.set(index,y);
+  }
+
   /**
    * This functions call the method set(int,double) in the EvenlyDiscretized class
    * to set the y-axis values based on the x-axis data provided by the user,in form
@@ -288,7 +302,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * Based on the truncType it sets the rate to be zero after setting the
    * truncLevel(which specifies the # of stdDev from mean where dist. cut to zero
    */
-  private void computeRates() {
+  private void computeRates()throws DataPoint2DException {
     for(int i=0;i<num;++i) {
       double mag=getX(i);
       double rate=Math.exp(Math.pow((mag - this.mean),2)/(Math.pow(2*this.stdDev,2)));
