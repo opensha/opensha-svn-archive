@@ -109,13 +109,14 @@ public class MapGuiBean extends ParameterListEditor {
     //adding the image to the Panel and returning that to the applet
     gmtMapLabel.setBorder(border);
     gmtMapLabel.setMaximumSize(new Dimension(0, 800));
-    gmtMapLabel.setMinimumSize(new Dimension(0, 600));
-    gmtMapLabel.setPreferredSize(new Dimension(0, 600));
+    gmtMapLabel.setMinimumSize(new Dimension(600, 600));
+    gmtMapLabel.setPreferredSize(new Dimension(600, 600));
     gmtMapLabel.setIcon(new ImageIcon(imgName));
     JFrame frame = new JFrame(imgName);
-    frame.setLayout(new GridBagLayout());
-    frame.add(gmtMapLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+    frame.getContentPane().setLayout(new GridBagLayout());
+    frame.getContentPane().add(gmtMapLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 557, 200));
+    frame.pack();
     frame.show();
 
   }
