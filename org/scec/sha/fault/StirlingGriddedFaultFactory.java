@@ -113,6 +113,7 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
         if(D) System.out.println("lastLoc(): = " + lastLoc);
 
 
+        // Find ave dip (defined by end locations):
         Direction aveDir = RelativeLocation.getDirection(firstLoc, lastLoc);
         if(D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
         double aveDipDirection = ( aveDir.getAzimuth() + 90 );
@@ -165,7 +166,6 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
                 vDistance = -ith_row * gridSpacingSinAveDipRadians;
 
                 dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
-
 
                 Location depthLocation = RelativeLocation.getLocation( surfaceLocation, dir );
                 surface.setLocation(ith_row, ith_col, (Location)depthLocation.clone());

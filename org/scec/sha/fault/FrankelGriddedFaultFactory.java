@@ -1,8 +1,15 @@
 package org.scec.sha.fault;
 
-import org.scec.sha.surface.GriddedSurfaceFactoryAPI;
-import org.scec.sha.surface.GriddedSurfaceAPI;
-import org.scec.sha.fault.FaultTrace;
+import java.util.*;
+import org.scec.calc.RelativeLocation;
+import org.scec.sha.surface.*;
+import org.scec.sha.fault.*;
+import org.scec.exceptions.*;
+
+
+import org.scec.param.*;
+import org.scec.data.function.*;
+import org.scec.data.*;
 
 /**
  * <b>Title:</b> FrankelGriddedFaultFactory<br>
@@ -15,6 +22,12 @@ import org.scec.sha.fault.FaultTrace;
 
 public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
 
+    protected final static String C = "FrankelGriddedFaultFactory";
+    protected final static boolean D = false;
+
+    protected final static double PI_RADIANS = Math.PI / 180;
+    protected final static String ERR = " is null, unable to process.";
+
     public FrankelGriddedFaultFactory() { super(); }
     public FrankelGriddedFaultFactory(
         FaultTrace faultTrace,
@@ -22,8 +35,143 @@ public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
         Double upperSeismogenicDepth,
         Double lowerSeismogenicDepth,
         Double gridSpacing
-    ){ super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing); }
+    )
+        throws FaultException
+    {
+        super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
+    }
 
 
-    public GriddedSurfaceAPI getGriddedSurface(){ return null; }
+
+
+
+    public GriddedSurfaceAPI getGriddedSurface() throws FaultException {
+
+        String S = C + ": getGriddedSurface():";
+        if( D ) System.out.println(S + "Starting");
+
+        if( faultTrace == null ) throw new FaultException(S + "Fault Trace" + ERR);
+        if( aveDip == null ) throw new FaultException(S + "aveDip" + ERR);
+        if( upperSeismogenicDepth == null ) throw new FaultException(S + "upperSeismogenicDepth" + ERR);
+        if( lowerSeismogenicDepth == null ) throw new FaultException(S + "lowerSeismogenicDepth" + ERR);
+        if( gridSpacing == null ) throw new FaultException(S + "gridSpacing" + ERR);
+
+
+        final int numSegments = faultTrace.getNumLocations() - 1;
+        final double gridSpacingValue = gridSpacing.doubleValue();
+        final double avDipRadians = aveDip.doubleValue() * PI_RADIANS;
+        final double gridSpacingCosAveDipRadians = gridSpacingValue * Math.cos( avDipRadians );
+        final double gridSpacingSinAveDipRadians = gridSpacingValue * Math.sin( avDipRadians );
+
+        double[] sementLenth = new double[numSegments];
+        double[] sementAzimuth = new double[numSegments];
+        double[] sementCumLenth = new double[numSegments];
+
+        double cumDistance = 0;
+        int i = 0;
+
+        // Iterate over each Location in Fault Trace
+        // Calculate distance, cumulativeDistance and azimuth for
+        // each segment
+        ListIterator it = faultTrace.listIterator();
+        Location firstLoc = (Location)it.next();
+        Location lastLoc = firstLoc;
+        Location loc = null;
+        Direction dir = null;
+        while( it.hasNext() ){
+
+            loc = (Location)it.next();
+            dir = RelativeLocation.getDirection(lastLoc, loc);
+
+            double azimuth = dir.getAzimuth();
+            double distance = dir.getHorzDistance();
+            cumDistance += distance;
+
+            sementLenth[i] = distance;
+            sementAzimuth[i] = azimuth;
+            sementCumLenth[i] = cumDistance;
+
+            // prep for next loop
+            i++;
+            lastLoc = loc;
+
+        }
+
+        // Calculate down dipth width
+        double denominator = Math.sin( avDipRadians );
+
+        double downDipWidth = Math.abs(upperSeismogenicDepth.doubleValue() - lowerSeismogenicDepth.doubleValue());
+        downDipWidth /= denominator;
+
+        // Calculate the number of rows and columns
+        int rows = ( new Double( Math.ceil( downDipWidth / gridSpacingValue ) ) ).intValue();
+        int cols = ( new Double( Math.ceil( sementCumLenth[numSegments - 1] / gridSpacingValue ) ) ).intValue();
+
+
+        // Calculate Average Dip Direction
+        if(D) System.out.println("firstLoc: = " + firstLoc);
+        if(D) System.out.println("lastLoc(): = " + lastLoc);
+
+
+        // Create GriddedSurface
+        int segmentNumber, ith_row, ith_col = 0;
+        double distanceAlong, distance, hDistance, vDistance;
+        Location location1;
+        GriddedSurface surface = new GriddedSurface(rows, cols);
+
+
+        // Loop over each column - ith_col is ith grid step along the fault trace
+        if( D ) System.out.println(S + "Iterating over columns up to " + cols );
+        while( ith_col < cols ){
+
+            if( D ) System.out.println(S + "ith_col = " + ith_col);
+
+            // calculate distance from column number and grid spacing
+            distanceAlong = ith_col * gridSpacingValue;
+            if( D ) System.out.println(S + "distanceAlong = " + distanceAlong);
+
+            // Determine which segment distanceAlong is in
+            segmentNumber = 1;
+            while( sementCumLenth[ segmentNumber - 1] < distanceAlong ){
+                segmentNumber++;
+            }
+            if( D ) System.out.println(S + "segmentNumber " + segmentNumber );
+
+            // Calculate the distance from the last segment point
+            if ( segmentNumber > 1 ) distance = distanceAlong - sementCumLenth[ segmentNumber - 2 ];
+            else distance = distanceAlong;
+            if( D ) System.out.println(S + "distanceAlong " + distanceAlong );
+
+            // Calculate the grid location along fault trace and put into grid
+            location1 = faultTrace.getLocationAt( segmentNumber - 1 );
+            dir = new Direction(0, distance, sementAzimuth[ segmentNumber - 1 ], 0);
+            Location surfaceLocation = RelativeLocation.getLocation( location1, dir  );
+            surface.setLocation(0, ith_col, (Location)surfaceLocation.clone());
+            if( D ) System.out.println(S + "(x,y) surfaceLocation = (0, " + ith_col + ") " + surfaceLocation );
+
+            // Loop over each row - calculating location at depth along the fault trace
+            ith_row = 1;
+            while(ith_row < rows){
+
+                if( D ) System.out.println(S + "ith_row = " + ith_row);
+
+                // Calculate location at depth and put into grid
+                hDistance = ith_row * gridSpacingCosAveDipRadians;
+                vDistance = -ith_row * gridSpacingSinAveDipRadians;
+
+                dir = new Direction(vDistance, hDistance, sementAzimuth[ segmentNumber - 1 ]+90, 0);
+
+                Location depthLocation = RelativeLocation.getLocation( surfaceLocation, dir );
+                surface.setLocation(ith_row, ith_col, (Location)depthLocation.clone());
+                if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
+
+                ith_row++;
+            }
+            ith_col++;
+        }
+
+        if( D ) System.out.println(S + "Ending");
+        return surface;
+    }
+
 }
