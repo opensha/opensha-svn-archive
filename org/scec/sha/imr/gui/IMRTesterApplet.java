@@ -1540,14 +1540,14 @@ public class IMRTesterApplet
      int yCenter=getAppletYAxisCenterCoor();
      if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
        this.jCheckxlog.setSelected(false);
-       ShowMessage showMessage=new ShowMessage(this,"      X-Log Plot Error as it contains Zero Values");
+       ShowMessage showMessage=new ShowMessage("      X-Log Plot Error as it contains Zero Values");
        showMessage.setBounds(xCenter-60,yCenter-50,370,145);
        showMessage.pack();
        showMessage.show();
      }
      if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
        this.jCheckylog.setSelected(false);
-       ShowMessage showMessage=new ShowMessage(this,"      Y-Log Plot Error as it contains Zero Values");
+       ShowMessage showMessage=new ShowMessage("      Y-Log Plot Error as it contains Zero Values");
        showMessage.setBounds(xCenter-60,yCenter-50,375,148);
        showMessage.pack();
        showMessage.show();

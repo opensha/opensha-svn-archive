@@ -171,6 +171,8 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
          sum+=getIncrRate(i);
          cumRateDist.set(i,sum);
       }
+        cumRateDist.setInfo(this.getInfo());
+        cumRateDist.setName(this.getName());
         return cumRateDist;
     }
 
@@ -186,6 +188,8 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
         for(int i=num-1;i>=0;--i) {
             momentRateDist.set(i,getMomentRate(i));
         }
+        momentRateDist.setInfo(this.getInfo());
+        momentRateDist.setName(this.getName());
         return momentRateDist;
     }
 

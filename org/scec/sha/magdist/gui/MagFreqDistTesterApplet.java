@@ -13,15 +13,17 @@ import com.jrefinery.data.*;
 
 
 import org.scec.gui.*;
-
+import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.data.function.*;
 import org.scec.gui.plot.jfreechart.*;
+import org.scec.sha.imr.gui.ShowMessage;
 
 
+import org.scec.sha.magdist.*;
 /**
  * <p>Title: MagFreqDistTesterApplet</p>
  * <p>Description: </p>
@@ -49,6 +51,10 @@ public class MagFreqDistTesterApplet extends JApplet
   final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
   final static Dimension COMBO_DIM = new Dimension( 180, 20 );
   final static String NO_PLOT_MSG = "No Plot Data Available";
+  private final static String MAG = new  String("Magnitude");
+  private final static String INCR_RATE = new String("Incremental Rate");
+  private final static String CUM_RATE = new  String("Cumulative Rate");
+  private final static String MO_RATE = new  String("Moment Rate");
 
   /**
    *  Temp until figure out way to dynamically load classes during runtime
@@ -75,6 +81,8 @@ public class MagFreqDistTesterApplet extends JApplet
   boolean isStandalone = false;
   protected boolean inParameterChangeWarning = false;
 
+
+  Insets plotInsets = new Insets( 4, 10, 4, 4 );
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
   Insets emptyInsets = new Insets( 0, 0, 0, 0 );
   /**
@@ -109,7 +117,9 @@ protected static HashMap magDistNames = new HashMap();
   private JPanel outerControlPanel = new JPanel();
   private JSplitPane parametersSplitPane = new JSplitPane();
   private JPanel controlPanel = new JPanel();
-  //private ChartPanel panel = new ChartPanel(null);
+  private ChartPanel incrPanel;
+  private ChartPanel cumPanel;
+  private ChartPanel moPanel;
 
   private JScrollPane dataScrollPane = new JScrollPane();
   private JTextArea pointsTextArea = new JTextArea();
@@ -122,6 +132,8 @@ protected static HashMap magDistNames = new HashMap();
 
   Color darkBlue = new Color( 80, 80, 133 );
   Color lightBlue = new Color( 200, 200, 230 );
+  protected boolean graphOn = false;
+  boolean isWhite = true;
   Color background = Color.white;
   SidesBorder topBorder = new SidesBorder( darkBlue, background, background, background );
   SidesBorder bottomBorder = new SidesBorder( background, darkBlue, background, background );
@@ -140,6 +152,23 @@ protected static HashMap magDistNames = new HashMap();
      *  imr full class names
      */
   protected MagDistGuiList magDists = new MagDistGuiList();
+
+  /**
+   * For 3 different plots we are using the different objects to refer for incrRate Data,
+   * total Cum Rate Data and total Moment Rate Data.
+   */
+
+  DiscretizedFuncList incrFunctions = new DiscretizedFuncList();
+  DiscretizedFuncList toCumFunctions = new DiscretizedFuncList();
+  DiscretizedFuncList toMoFunctions = new DiscretizedFuncList();
+
+  DiscretizedFunctionXYDataSet incrData = new DiscretizedFunctionXYDataSet();
+  DiscretizedFunctionXYDataSet toCumData = new DiscretizedFunctionXYDataSet();
+  DiscretizedFunctionXYDataSet toMoData = new DiscretizedFunctionXYDataSet();
+
+
+   private boolean yLog = false;
+
 
 
 /**
@@ -160,13 +189,20 @@ static {
     catch ( Exception e ) {}
 }
 
+   /**
+     *  Construct the applet
+     */
+
   public MagFreqDistTesterApplet() {
-    try {
-      jbInit();
-    }
-    catch(Exception e) {
-      e.printStackTrace();
-    }
+      incrData.setFunctions(incrFunctions);
+      toCumData.setFunctions(toCumFunctions);
+      toMoData.setFunctions(toMoFunctions);
+      incrFunctions.setXAxisName(MAG);
+      toCumFunctions.setXAxisName(MAG);
+      toMoFunctions.setXAxisName(MAG);
+      incrFunctions.setYAxisName(INCR_RATE);
+      toCumFunctions.setYAxisName(CUM_RATE);
+      toMoFunctions.setYAxisName(MO_RATE);
   }
 
   /**
@@ -210,13 +246,18 @@ static {
     plotColorCheckBox.setFont(new java.awt.Font("Dialog", 1, 11));
     plotColorCheckBox.setForeground(new Color(80, 80, 133));
     plotColorCheckBox.setText("Black Background");
-    //plotColorCheckBox.addItemListener(this);
+    plotColorCheckBox.addItemListener(this);
     clearButton.setBackground(new Color(200, 200, 230));
     clearButton.setFont(BUTTON_FONT);
     clearButton.setForeground(new Color(80, 80, 133));
     clearButton.setBorder(BorderFactory.createRaisedBevelBorder());
     clearButton.setFocusPainted(false);
     clearButton.setText("Clear Plot");
+    clearButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        clearButton_actionPerformed(e);
+      }
+    });
     clearButton.setPreferredSize(BUTTON_DIM);
     clearButton.setMinimumSize(BUTTON_DIM);
     jIncrAxisScale.setFont(new java.awt.Font("Dialog", 1, 12));
@@ -227,13 +268,18 @@ static {
     jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
     jCheckylog.setForeground(new Color(80, 80, 133));
     jCheckylog.setText("Y-Log");
-    //jCheckylog.addItemListener(this);
+    jCheckylog.addItemListener(this);
     toggleButton.setBackground(new Color(200, 200, 230));
     toggleButton.setFont(BUTTON_FONT);
     toggleButton.setForeground(new Color(80, 80, 133));
     toggleButton.setBorder(BorderFactory.createRaisedBevelBorder());
     toggleButton.setFocusPainted(false);
     toggleButton.setText("Show Data");
+    toggleButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        toggleButton_actionPerformed(e);
+      }
+    });
     toggleButton.setPreferredSize(BUTTON_DIM);
     toggleButton.setMinimumSize(BUTTON_DIM);
     buttonPanel.setLayout(GBL);
@@ -246,6 +292,11 @@ static {
     addButton.setBorder(BorderFactory.createRaisedBevelBorder());
     addButton.setFocusPainted(false);
     addButton.setText("Add Dist");
+    addButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        addButton_actionPerformed(e);
+      }
+    });
     addButton.setPreferredSize(BUTTON_DIM);
     addButton.setActionCommand("Add Dist");
     addButton.setMinimumSize(BUTTON_DIM);
@@ -261,11 +312,12 @@ static {
                 }
                 public void focusLost(FocusEvent e){ }
             });
-    clearButton.addMouseListener(new java.awt.event.MouseAdapter() {
+    clearButton.addActionListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked( MouseEvent e ) {
                     clearButton_mouseClicked( e );
                 }
             });
+
     toggleButton.addFocusListener(new java.awt.event.FocusListener() {
                 public void focusGained(FocusEvent e){
                     toggleButtonFocusGained();
@@ -367,7 +419,7 @@ static {
 
     parametersSplitPane.setBottomComponent( sheetPanel );
     parametersSplitPane.setTopComponent( inputPanel );
-    parametersSplitPane.setDividerLocation(180 );
+    parametersSplitPane.setDividerLocation(240);
 
 
     mainSplitPane.setBottomComponent( outerControlPanel );
@@ -389,7 +441,7 @@ static {
     parametersPanel.add(parametersSplitPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
-    dataScrollPane.add(pointsTextArea, null);
+    dataScrollPane.getViewport().add(pointsTextArea, null);
 
     sheetPanel.setLayout(GBL);
 
@@ -536,6 +588,52 @@ static {
 
         if ( e.getSource().equals( magDistComboBox ) )
             updateChoosenMagDist();
+
+        if( e.getSource().equals( jCheckylog ) ){
+
+            //String title = magDist.getGraphXYAxisTitle();
+
+            clearPlot( false );
+            inParameterChangeWarning = false;
+
+            if( jCheckylog.isSelected() ) yLog = true;
+            else yLog = false;
+
+
+            if( incrFunctions != null && incrData != null && toCumFunctions!=null && toCumData!=null && toMoFunctions!=null && toMoData!=null) {
+                incrData.setYLog(yLog);
+                toCumData.setYLog(yLog);
+                toMoData.setYLog(yLog);
+                pointsTextArea.setText( currentMagDistName + ": " + MAG +" vs. "+ INCR_RATE + '\n' + incrFunctions.toString());
+                pointsTextArea.append(currentMagDistName + ": " + MAG +" vs. "+ CUM_RATE + '\n' + toCumFunctions.toString());
+                pointsTextArea.append(currentMagDistName + ": " + MAG +" vs. "+ MO_RATE + '\n' + toMoFunctions.toString());
+                addGraphPanel();
+            }
+        }
+
+        else if( e.getSource().equals( plotColorCheckBox ) ){
+
+            if( isWhite ) {
+                isWhite = false;
+                if( incrPanel != null )
+                    incrPanel.getChart().getPlot().setBackgroundPaint(Color.black);
+                if( cumPanel != null )
+                    cumPanel.getChart().getPlot().setBackgroundPaint(Color.black);
+                if( moPanel != null )
+                    moPanel.getChart().getPlot().setBackgroundPaint(Color.black);
+
+            }
+            else{
+                isWhite = true;
+                if( incrPanel != null )
+                    incrPanel.getChart().getPlot().setBackgroundPaint(Color.white);
+                if( cumPanel != null )
+                    cumPanel.getChart().getPlot().setBackgroundPaint(Color.white);
+                if( moPanel != null )
+                    moPanel.getChart().getPlot().setBackgroundPaint(Color.white);
+            }
+        }
+
         // Ending
         if ( D ) System.out.println( S + "Ending" );
 
@@ -752,4 +850,413 @@ static {
 
     }
 
+   /**
+    *  Get Applet information
+    *
+    * @return    The appletInfo value
+    */
+    public String getAppletInfo() {
+        return "MagFreqDist Tester Applet";
+    }
+
+
+  /**
+   * this function is called when "Add Dist" button is clicked
+   * @param e
+   */
+  void addButton_actionPerformed(ActionEvent e) {
+     addButton();
+  }
+
+
+
+  /**
+     *  This causes the model data to be calculated and a plot trace added to
+     *  the current plot
+     *
+     * @param  e  The feature to be added to the Button_mouseClicked attribute
+     */
+    protected void addButton(){
+
+        String S = C + ": addButton(): ";
+        if ( D ) System.out.println( S + "Starting" );
+        if ( D ) System.out.println( S + "Controls = " + this.magDist.controlsEditor.getParameterList().toString() );
+
+        IncrementalMagFreqDist function = magDist.getChoosenFunction();
+
+        incrData.setYLog(yLog);
+        toMoData.setYLog(yLog);
+        toCumData.setYLog(yLog);
+        EvenlyDiscretizedFunc cumRate=(EvenlyDiscretizedFunc)function.getCumRateDist();
+        EvenlyDiscretizedFunc moRate=(EvenlyDiscretizedFunc)function.getMomentRateDist();
+
+
+
+        /** @todo may have to be switched when different x/y axis choosen */
+       // if ( !incrFunctions.isFuncAllowed(function) ) {
+            incrFunctions.clear();
+            //data.prepForXLog();
+      //  }
+       // if ( !toCumFunctions.isFuncAllowed(cumRate)) {
+            toCumFunctions.clear();
+            //data.prepForXLog();
+       // }
+       // if ( !toMoFunctions.isFuncAllowed(moRate)) {
+            toMoFunctions.clear();
+            //data.prepForXLog();
+        //}
+
+       // if( !incrFunctions.contains( function )){
+            if ( D ) System.out.println( S + "Adding new function" );
+            incrFunctions.add((EvenlyDiscretizedFunc)function);
+            toCumFunctions.add(cumRate);
+            toMoFunctions.add(moRate);
+       /* }
+        else {
+
+            if(D) System.out.println(S + "Showing Dialog");
+            if( !this.inParameterChangeWarning ){
+
+                JOptionPane.showMessageDialog(
+                    null, "This graph already exists, will not add again.",
+                    "Cannot Add", JOptionPane.INFORMATION_MESSAGE
+                );
+            }*/
+
+
+            if ( D ) System.out.println( S + "Function already exists in graph, not adding .." );
+         //   return;
+       // }
+
+        //if(D) System.out.println(S + "\n\nFunction = " + functions.toString() + "\n\n");
+
+        magDist.synchToModel();
+
+        // Add points data to text area, people can see
+
+        pointsTextArea.setText( currentMagDistName + ": " + MAG +" vs. "+ INCR_RATE + '\n' + incrFunctions.toString());
+        pointsTextArea.append(currentMagDistName + ": " + MAG +" vs. "+ CUM_RATE + '\n' + toCumFunctions.toString());
+        pointsTextArea.append(currentMagDistName + ": " + MAG +" vs. "+ MO_RATE + '\n' + toMoFunctions.toString());
+        //if ( D ) System.out.println( S + "Graphing function:" + function.toString() );
+        addGraphPanel();
+
+        if ( titleLabel != null ) {
+            // titleLabel.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() );
+            titleLabel.setText( currentMagDistName );
+            titleLabel.validate();
+            titleLabel.repaint();
+        }
+
+        if ( D ) System.out.println( S + "Ending" );
+
+    }
+
+
+    /**
+     *  Adds a feature to the GraphPanel attribute of the IMRTesterApplet object
+     */
+    protected void addGraphPanel() {
+
+        // Starting
+        String S = C + ": addGraphPanel(): ";
+        if(this.jCheckylog.isSelected())
+          yLog=true;
+        else
+          yLog=false;
+
+
+        // create a default chart based on some sample data...
+
+        // Determine which labels to add to the axis labeling
+        String incrXAxisLabel = incrFunctions.getXAxisName();
+        String incrYAxisLabel = incrFunctions.getYAxisName();
+        String cumXAxisLabel = toCumFunctions.getXAxisName();
+        String cumYAxisLabel = toCumFunctions.getYAxisName();
+        String moXAxisLabel = toMoFunctions.getXAxisName();
+        String moYAxisLabel = toMoFunctions.getYAxisName();
+
+        String title = this.getCurrentMagDistName();
+
+
+        // Create the x-axis - either normal or log
+        com.jrefinery.chart.NumberAxis incrXAxis = null;
+        com.jrefinery.chart.NumberAxis cumXAxis = null;
+        com.jrefinery.chart.NumberAxis moXAxis = null;
+
+        // create X- axis for mag vs incremental rate
+        incrXAxis = new com.jrefinery.chart.HorizontalNumberAxis( incrXAxisLabel );
+        incrXAxis.setAutoRangeIncludesZero( false );
+        incrXAxis.setCrosshairLockedOnData( false );
+        incrXAxis.setCrosshairVisible(false);
+
+        // create X- axis for mag vs cum rate
+        cumXAxis = new com.jrefinery.chart.HorizontalNumberAxis( cumXAxisLabel );
+        cumXAxis.setAutoRangeIncludesZero( false );
+        cumXAxis.setCrosshairLockedOnData( false );
+        cumXAxis.setCrosshairVisible(false);
+
+        // create x- axis for mag vs moment rate
+        moXAxis = new com.jrefinery.chart.HorizontalNumberAxis( moXAxisLabel );
+        moXAxis.setAutoRangeIncludesZero( false );
+        moXAxis.setCrosshairLockedOnData( false );
+        moXAxis.setCrosshairVisible(false);
+
+        com.jrefinery.chart.NumberAxis incrYAxis = null;
+        com.jrefinery.chart.NumberAxis cumYAxis = null;
+        com.jrefinery.chart.NumberAxis moYAxis = null;
+        if (yLog)  {
+          incrYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(incrYAxisLabel);
+          cumYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(cumYAxisLabel);
+          moYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(moYAxisLabel);
+        }
+        else {
+          incrYAxis = new com.jrefinery.chart.VerticalNumberAxis(incrYAxisLabel);
+          cumYAxis = new com.jrefinery.chart.VerticalNumberAxis(cumYAxisLabel);
+          moYAxis = new com.jrefinery.chart.VerticalNumberAxis(moYAxisLabel);
+
+       }
+
+       // set properties for mag vs incremental rate Y- axis
+        incrYAxis.setAutoRangeIncludesZero( false );
+        incrYAxis.setCrosshairLockedOnData( false );
+        incrYAxis.setCrosshairVisible( false);
+
+
+        // set properties for mag vs incremental rate Y- axis
+        cumYAxis.setAutoRangeIncludesZero( false );
+        cumYAxis.setCrosshairLockedOnData( false );
+        cumYAxis.setCrosshairVisible( false);
+
+        // set properties for mag vs incremental rate Y- axis
+        moYAxis.setAutoRangeIncludesZero( false );
+        moYAxis.setCrosshairLockedOnData( false );
+        moYAxis.setCrosshairVisible( false);
+
+
+
+
+        int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
+        //if ( functions. < MIN_NUMBER_POINTS )
+            //type = com.jrefinery.chart.StandardXYItemRenderer.SHAPES_AND_LINES;
+
+        LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+        //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
+
+
+        // build the plot
+        org.scec.gui.PSHALogXYPlot incrPlot = new org.scec.gui.PSHALogXYPlot(this,incrData, incrXAxis, incrYAxis, false, yLog);
+        org.scec.gui.PSHALogXYPlot cumPlot = new org.scec.gui.PSHALogXYPlot(this,toCumData, cumXAxis, cumYAxis, false, yLog);
+        org.scec.gui.PSHALogXYPlot moPlot = new org.scec.gui.PSHALogXYPlot(this,toMoData, moXAxis, moYAxis, false, yLog);
+
+
+        incrPlot.setBackgroundAlpha( .8f );
+        cumPlot.setBackgroundAlpha( .8f );
+        moPlot.setBackgroundAlpha( .8f );
+
+        if( isWhite ) {
+          incrPlot.setBackgroundPaint( Color.white );
+          cumPlot.setBackgroundPaint( Color.white );
+          moPlot.setBackgroundPaint( Color.white );
+        }
+        else {
+          incrPlot.setBackgroundPaint( Color.black );
+          cumPlot.setBackgroundPaint( Color.black );
+          moPlot.setBackgroundPaint( Color.black );
+        }
+
+
+        incrPlot.setXYItemRenderer( renderer );
+        cumPlot.setXYItemRenderer( renderer );
+        moPlot.setXYItemRenderer( renderer );
+
+
+        JFreeChart incrChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, incrPlot, true );
+        JFreeChart cumChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, cumPlot, true );
+        JFreeChart moChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, moPlot, true );
+
+        incrChart.setBackgroundPaint( lightBlue );
+        cumChart.setBackgroundPaint( lightBlue );
+        moChart.setBackgroundPaint( lightBlue );
+
+        // chart.setBackgroundImage(image);
+        // chart.setBackgroundImageAlpha(.3f);
+
+        // Put into a panel
+        incrPanel = new ChartPanel(incrChart, true, true, true, true, false);
+        cumPanel = new ChartPanel(cumChart, true, true, true, true, false);
+        moPanel = new ChartPanel(moChart, true, true, true, true, false);
+        //panel.setMouseZoomable(true);
+
+
+        // set panel properties for mag vs incremental rate chart
+        incrPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+        incrPanel.setMouseZoomable(true);
+        incrPanel.setGenerateToolTips(true);
+        incrPanel.setHorizontalAxisTrace(false);
+        incrPanel.setVerticalAxisTrace(false);
+
+        // set panel properties for mag vs cumulative rate chart
+        cumPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+        cumPanel.setMouseZoomable(true);
+        cumPanel.setGenerateToolTips(true);
+        cumPanel.setHorizontalAxisTrace(false);
+        cumPanel.setVerticalAxisTrace(false);
+
+       // set panel properties for mag vs moment rate chart
+        moPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+        moPanel.setMouseZoomable(true);
+        moPanel.setGenerateToolTips(true);
+        moPanel.setHorizontalAxisTrace(false);
+        moPanel.setVerticalAxisTrace(false);
+
+
+
+        if ( D ) System.out.println( S + "Toggling plot on" );
+        graphOn = false;
+        togglePlot();
+        if ( D ) System.out.println( S + "Done" );
+     }
+
+    /**
+   * This function handles the Zero values in the X and Y data set when exception is thrown,
+   * it reverts back to the linear scale displaying a message box to the user.
+   */
+  public void invalidLogPlot(String message) {
+
+     int xCenter=getAppletXAxisCenterCoor();
+     int yCenter=getAppletYAxisCenterCoor();
+     if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
+       this.jCheckylog.setSelected(false);
+       ShowMessage showMessage=new ShowMessage("      Y-Log Plot Error as it contains Zero Values");
+       showMessage.setBounds(xCenter-60,yCenter-50,375,148);
+       showMessage.pack();
+       showMessage.show();
+     }
+  }
+
+  /**
+   * gets the Applets X-axis center coordinates
+   * @return
+   */
+  private int getAppletXAxisCenterCoor() {
+    return (this.getX()+this.getWidth())/2;
+  }
+
+  /**
+   * gets the Applets Y-axis center coordinates
+   * @return
+   */
+  private int getAppletYAxisCenterCoor() {
+    return (this.getY() + this.getHeight())/2;
+  }
+
+
+   /**
+     *  Description of the Method
+     */
+    protected void togglePlot() {
+
+        // Starting
+        String S = C + ": togglePlot(): ";
+
+        innerPlotPanel.removeAll();
+
+        int loc = mainSplitPane.getDividerLocation();
+        titleSize = titlePanel.getHeight() + 6;
+
+        int newLoc = loc;
+        if ( graphOn ) {
+            if ( D )
+                System.out.println( S + "Showing Data" );
+            toggleButton.setText( "Show Plot" );
+            graphOn = false;
+
+            if ( !titlePanel.isVisible() ) {
+                titlePanel.setVisible( true );
+                // newLoc = loc - titleSize;
+            }
+
+            // dataScrollPane.setVisible(true);
+            // innerPlotPanel.setBorder(oval);
+            innerPlotPanel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                    , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+        }
+        else {
+            if ( D )
+                System.out.println( S + "About to show Plot" );
+            graphOn = true;
+            // dataScrollPane.setVisible(false);
+            toggleButton.setText( "Show Data" );
+            if ( incrPanel != null ) {
+                if ( D )
+                    System.out.println( S + "Showing Plot" );
+
+
+                if ( titlePanel.isVisible() ) {
+                    titlePanel.setVisible( false );
+                    //newLoc = loc + titleSize;
+                }
+
+                // panel for mag vs incremental-rate graph
+                innerPlotPanel.add( incrPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+                // panel for mag vs cumulative-rate graph
+                innerPlotPanel.add( cumPanel, new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0
+                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+                // panel for mag vs moment-rate graph
+               // innerPlotPanel.add( moPanel, new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0
+               //        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+            }
+            else {
+                if ( D )
+                    System.out.println( S + "No Plot - So Showing Data" );
+
+
+                if ( !titlePanel.isVisible() ) {
+                    titlePanel.setVisible( true );
+                    // newLoc = loc - titleSize;
+                }
+
+                // innerPlotPanel.setBorder(oval);
+                innerPlotPanel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+            }
+
+        }
+
+        if ( D ) System.out.println( S + "Calling validate and repaint" );
+        mainSplitPane.setDividerLocation( newLoc );
+        validate();
+        repaint();
+
+        if ( D ) System.out.println( S + "Loc = " + loc + '\t' + "New Loc = " + newLoc );
+        if ( D ) System.out.println( S + "Ending" );
+
+    }
+
+
+   /**
+     *  Clears the plot screen of all traces, then sychs imr to model
+     *
+     * @param  e  Description of the Parameter
+     */
+    void clearButton_actionPerformed( ActionEvent e ) {
+        clearButton();
+    }
+
+    void clearButton(){
+        clearPlot( true );
+        magDist.synchToModel();
+    }
+
+    /**
+     * This function is called when show data button is clicked
+     * @param e
+     */
+  void toggleButton_actionPerformed(ActionEvent e) {
+      togglePlot();
+  }
 }

@@ -17,12 +17,10 @@ public class ShowMessage extends JFrame {
   private JPanel jMessagePanel = new JPanel();
   private JLabel jMessageLabel = new JLabel();
   private JButton jMessageButton = new JButton();
-  private IMRTesterApplet imrTesterApplet;
   private String infoMessage;
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  public ShowMessage(IMRTesterApplet imr,String s) {
-    imrTesterApplet=imr;
+  public ShowMessage(String s) {
     this.infoMessage=s;
     try {
       jbInit();
@@ -67,9 +65,5 @@ public class ShowMessage extends JFrame {
 
   void jMessageButton_actionPerformed(ActionEvent e) {
    this.dispose();
-   imrTesterApplet.addGraphPanel();
   }
-
-
-
 }

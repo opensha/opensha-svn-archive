@@ -1,7 +1,10 @@
 package org.scec.sha.magdist.gui;
 
 import java.util.HashMap;
+import java.util.Vector;
 import java.lang.reflect.*;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import org.scec.exceptions.*;
 import org.scec.sha.magdist.*;
@@ -31,7 +34,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
   protected final static boolean D = true;
 
    /**
-    *  Just a placeholder name for this particular IMR Gui bean.
+    *  Just a placeholder name for this particular MagDist Gui bean.
     */
     protected String name;
 
@@ -41,6 +44,54 @@ public class MagDistGuiBean implements ParameterChangeListener {
     final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
     MagFreqDistTesterApplet applet = null;
+
+    /**
+     * Params string value
+     */
+
+     private static final String PARAMS_TO_SET=new String("Params to Set");
+     private static final String SET_ALL_PARAMS_BUT=new String("Set All Params BUT");
+     private static final String MIN=new String("Min");
+     private static final String NUM=new String("Num");
+     private static final String DELTA=new String("Delta");
+
+   /**
+    * Single Magnitude Frequency Distribution Parameter string list  constant
+    */
+     private static final String RATE_AND_MAG =new String("Rate & Mag");
+     private static final String MAG_AND_MORATE =new String("Mag & Moment Rate");
+     private static final String RATE_AND_MORATE=new String("Rate & Moment Rate");
+     private static final String RATE=new String("Rate");
+     private static final String MAG=new String("Mag");
+     private static final String MO_RATE=new String("Moment Rate");
+
+
+
+  /**
+   * GuttenbergRichter Magnitude Frequency Distribution Parameter string list constant
+   */
+
+    private static final String TO_MORATE=new String("Total Moment Rate");
+    private static final String TO_CUM_RATE=new String("Total Cum Rate");
+    private static final String MAG_UPPER=new String("Mag Upper");
+    private static final String MAG_LOWER=new String("Mag Lower");
+    private static final String BVALUE=new String("b Value");
+    private static final String FIX=new String("fix");
+    private static final String FIX_TO_MORATE=new String("Fix Total Moment Rate");
+    private static final String FIX_TO_CUM_RATE=new String("Fix Total CUM Rate");
+
+
+  /**
+   * Gaussian Magnitude Frequency Distribution Parameter string list constant
+   */
+
+    private static final String MEAN=new String("Mean");
+    private static final String STD_DEV=new String("Std Dev");
+    private static final String TRUNCATION_REQ=new String("Truncation Required");
+    private static final String TRUNCATE_FROM_RIGHT= new String("Truncate from Right");
+    private static final String TRUNCATE_ON_BOTH_SIDES= new String("Truncate on Both Sides");
+    private static final String TRUNCATE_NUM_OF_STD_DEV= new String("Truncation(# of Std Devs)");
+    private static final String NONE= new String("None");
 
 
     /**
@@ -75,6 +126,16 @@ public class MagDistGuiBean implements ParameterChangeListener {
      *  editor.
      */
     protected ParameterListEditor independentsEditor = null;
+
+
+    /**
+     *  This is name of various classes
+     */
+    protected final static String GaussianMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GaussianMagFreqDist";
+    protected final static String GuttenbergRichterMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GuttenbergRichterMagFreqDist";
+    protected final static String SingleMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SingleMagFreqDist";
+    protected final static String SummedMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SummedMagFreqDist";
+
 
 
   /**
@@ -137,9 +198,9 @@ public class MagDistGuiBean implements ParameterChangeListener {
             throw new ParameterException( S + "Applet is null, unable to continue." );
 
         // make the min, delta and num Parameter
-        DoubleParameter minParamter = new DoubleParameter("Min:");
-        DoubleParameter deltaParamter = new DoubleParameter("Delta");
-        DoubleParameter numParamter = new DoubleParameter("Num");
+        DoubleParameter minParamter = new DoubleParameter(MIN);
+        DoubleParameter deltaParamter = new DoubleParameter(DELTA);
+        IntegerParameter numParamter = new IntegerParameter(NUM,new Integer(10));
 
 
 
@@ -150,11 +211,27 @@ public class MagDistGuiBean implements ParameterChangeListener {
         controlsParamList.addParameter( deltaParamter );
         controlsParamList.addParameter( numParamter );
 
+       if(magDistClassName.equalsIgnoreCase(GuttenbergRichterMagFreqDist_CLASS_NAME)) {
+           Vector vStrings=new Vector();
+           vStrings.add(TO_MORATE);
+           vStrings.add(TO_CUM_RATE);
+           vStrings.add(MAG_UPPER);
+           StringParameter setParamsBut=new StringParameter(SET_ALL_PARAMS_BUT,vStrings,TO_MORATE);
+           controlsParamList.addParameter(setParamsBut);
+        }
+
+        if(magDistClassName.equalsIgnoreCase(SingleMagFreqDist_CLASS_NAME)) {
+           Vector vStrings=new Vector();
+           vStrings.add(RATE_AND_MAG);
+           vStrings.add(MAG_AND_MORATE);
+           vStrings.add(RATE_AND_MORATE);
+           StringParameter paramsToSet=new StringParameter(PARAMS_TO_SET,vStrings,RATE_AND_MAG);
+           controlsParamList.addParameter(paramsToSet);
+        }
+
         // Now make the Editor for the list
         controlsEditor = new ParameterListEditor( controlsParamList, this, applet );
         controlsEditor.setTitle( "Graph Controls" );
-
-
 
         // All done
         if ( D )
@@ -188,14 +265,61 @@ public class MagDistGuiBean implements ParameterChangeListener {
        // Initialize the parameter list
         independentParams = new ParameterList();
 
-        DoubleParameter temp = new DoubleParameter("Temp:");
-        independentParams.addParameter(temp);
 
-         DoubleParameter temp1 = new DoubleParameter("Temp1:");
-        independentParams.addParameter(temp1);
-         DoubleParameter temp2 = new DoubleParameter("Temp2:");
-        independentParams.addParameter(temp2);
+       /**
+        * add parameters for single distribution
+        */
+        if(magDistClassName.equalsIgnoreCase(SingleMagFreqDist_CLASS_NAME)) {
+           DoubleParameter rate=new DoubleParameter(RATE);
+           DoubleParameter mag = new DoubleParameter(MAG);
+           DoubleParameter moRate=new DoubleParameter(MO_RATE);
+           independentParams.addParameter(rate);
+           independentParams.addParameter(mag);
+           independentParams.addParameter(moRate);
+        }
 
+
+
+       /**
+        * Add parameters for Gaussian distribution
+        */
+        if(magDistClassName.equalsIgnoreCase(GaussianMagFreqDist_CLASS_NAME)) {
+           DoubleParameter mean = new DoubleParameter(MEAN);
+           DoubleParameter stdDev = new DoubleParameter(STD_DEV);
+           DoubleParameter totMoRate = new DoubleParameter(TO_MORATE);
+           Vector vStrings=new Vector();
+           vStrings.add(NONE);
+           vStrings.add(TRUNCATE_FROM_RIGHT);
+           vStrings.add(TRUNCATE_ON_BOTH_SIDES);
+           StringParameter truncType=new StringParameter(TRUNCATION_REQ,vStrings,NONE);
+           DoubleParameter truncLevel = new DoubleParameter(TRUNCATE_NUM_OF_STD_DEV);
+           independentParams.addParameter(mean);
+           independentParams.addParameter(stdDev);
+           independentParams.addParameter(totMoRate);
+           independentParams.addParameter(truncType);
+           independentParams.addParameter(truncLevel);
+        }
+
+        /**
+         * Add parameters for Guttenberg-Richter distribution
+         */
+         if(magDistClassName.equalsIgnoreCase(GuttenbergRichterMagFreqDist_CLASS_NAME)) {
+           DoubleParameter magLower = new DoubleParameter(MAG_LOWER);
+           DoubleParameter magUpper = new DoubleParameter(MAG_UPPER);
+           DoubleParameter bValue = new DoubleParameter(BVALUE);
+           DoubleParameter toCumRate = new DoubleParameter(TO_CUM_RATE);
+           DoubleParameter toMoRate = new DoubleParameter(TO_MORATE);
+           independentParams.addParameter(magLower);
+           independentParams.addParameter(bValue);
+           independentParams.addParameter(magUpper);
+           independentParams.addParameter(toCumRate);
+           independentParams.addParameter(toMoRate);
+           Vector vStrings = new Vector ();
+           vStrings.add(FIX_TO_CUM_RATE);
+           vStrings.add(FIX_TO_MORATE);
+           StringParameter fix = new StringParameter(FIX,vStrings,FIX_TO_CUM_RATE);
+           independentParams.addParameter(fix);
+         }
         String[] searchPaths = new String[2];
         searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
         searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
@@ -218,13 +342,74 @@ public class MagDistGuiBean implements ParameterChangeListener {
      */
     protected void synchRequiredVisibleParameters() throws ParameterException {
 
+         String S = C + ":synchRequiredVisibleParameters:";
+
+        // Turn off all parameters - start fresh, then make visible as required below
+        // SWR - Looks like a bug here in setParameterInvisible() - don't want to fix right now, the boolean
+        // below should be true, not false.
+        ListIterator it = independentParams.getParametersIterator();
+        while ( it.hasNext() )
+          independentsEditor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(),true);
+
+        /**
+         * if Single Mag Freq dist is selected
+         * depending on the parameter chosen from the PARAMS_TO_SET, it redraws
+         * all the independent parameters again and draws the text boxes to fill
+         * in the values.
+         */
+        if(this.magDistClassName.equalsIgnoreCase(this.SingleMagFreqDist_CLASS_NAME)) {
+
+           String paramToSet=controlsParamList.getParameter(PARAMS_TO_SET).getValue().toString();
+
+           if(paramToSet.equalsIgnoreCase(RATE_AND_MAG)) {
+              independentsEditor.setParameterInvisible(MO_RATE,false);
+           }
+           if(paramToSet.equalsIgnoreCase(MAG_AND_MORATE)) {
+              independentsEditor.setParameterInvisible(RATE,false);
+           }
+           if(paramToSet.equalsIgnoreCase(RATE_AND_MORATE)) {
+             independentsEditor.setParameterInvisible(MAG,false);
+           }
+        }
+
+
+        /**
+         *  If Guttenberg Richter Freq dist is selected
+         */
+        if(this.magDistClassName.equalsIgnoreCase(this.GuttenbergRichterMagFreqDist_CLASS_NAME)) {
+          String paramToSet=controlsParamList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
+
+          if(paramToSet.equalsIgnoreCase(TO_MORATE)) {
+            independentsEditor.setParameterInvisible(TO_MORATE,false);
+            independentsEditor.setParameterInvisible(FIX,false);
+          }
+
+          if(paramToSet.equalsIgnoreCase(TO_CUM_RATE)) {
+            independentsEditor.setParameterInvisible(TO_CUM_RATE,false);
+            independentsEditor.setParameterInvisible(FIX,false);
+          }
+
+          if(paramToSet.equalsIgnoreCase(MAG_UPPER))
+            independentsEditor.setParameterInvisible(MAG_UPPER,false);
+        }
+
+        // refresh the GUI
+        //controlsEditor.validate();
+        //controlsEditor.repaint();
+
+
+
+        // All done
+        if ( D )
+            System.out.println( S + "Ending: " );
     }
 
 
 
 
+
    /**
-     *  Gets the name attribute of the IMRGuiBean object
+     *  Gets the name attribute of the MagDistGuiBean object
      *
      * @return    The name value
      */
@@ -274,4 +459,146 @@ public class MagDistGuiBean implements ParameterChangeListener {
         }
     }
 
+    /**
+     *  Resets all GUI controls back to the model values. Some models have been
+     *  changed when iterating over an independent variable. This function
+     *  ensures these changes are reflected in the independent parameter list.
+     */
+    public void synchToModel() {
+        independentsEditor.synchToModel();
+    }
+
+
+
+    /**
+     * Sets the paramsInIteratorVisible attribute of the MagDistGuiBean object
+     *
+     * @param  it  The new paramsInIteratorVisible value
+     */
+    private void setParamsInIteratorVisible( ListIterator it ) {
+
+        while ( it.hasNext() ) {
+            String name = ( ( ParameterAPI ) it.next() ).getName();
+            independentsEditor.setParameterInvisible( name, true );
+        }
+
+    }
+
+
+    /**
+     *  Controller function. Dispacter function. Based on which Mag Dist was
+     *  choosen, and which parameters are set. determines which dependent
+     *  variable discretized function to return.
+     *
+     * @return                          The choosenFunction value
+     * @exception  ConstraintException  Description of the Exception
+     */
+    public IncrementalMagFreqDist getChoosenFunction()
+             throws ConstraintException {
+
+
+        // Starting
+        String S = C + ": getChoosenFunction():";
+        if ( D )
+            System.out.println( S + "Starting" );
+
+        IncrementalMagFreqDist magDist = null;
+        Double min = (Double)controlsParamList.getParameter(MIN).getValue();
+        Double delta = (Double)controlsParamList.getParameter(DELTA).getValue();
+        Integer num = (Integer)controlsParamList.getParameter(NUM).getValue();
+        //Integer num = new Integer(numDouble.toString());
+
+        /*
+         * If Single MagDist is selected
+         */
+        if(magDistClassName.equalsIgnoreCase(SingleMagFreqDist_CLASS_NAME)) {
+            SingleMagFreqDist single =new SingleMagFreqDist(min.doubleValue(),
+                                            num.intValue(),
+                                            delta.doubleValue());
+           String paramToSet=controlsParamList.getParameter(PARAMS_TO_SET).getValue().toString();
+           // if rate and mag are set
+           if(paramToSet.equalsIgnoreCase(RATE_AND_MAG)) {
+              Double rate = (Double)independentParams.getParameter(RATE).getValue();
+              Double mag = (Double)independentParams.getParameter(MAG).getValue();
+              single.setMagAndRate(mag.doubleValue(),rate.doubleValue());
+           }
+           // if mag and moment rate are set
+           if(paramToSet.equalsIgnoreCase(MAG_AND_MORATE)) {
+              Double mag = (Double)independentParams.getParameter(MAG).getValue();
+              Double moRate = (Double)independentParams.getParameter(MO_RATE).getValue();
+              single.setMagAndMomentRate(mag.doubleValue(),moRate.doubleValue());
+           }
+           // if rate and moment  rate are set
+           if(paramToSet.equalsIgnoreCase(RATE_AND_MORATE)) {
+               Double rate = (Double)independentParams.getParameter(RATE).getValue();
+               Double moRate = (Double)independentParams.getParameter(MO_RATE).getValue();
+               single.setRateAndMomentRate(rate.doubleValue(),moRate.doubleValue());
+           }
+          magDist =  (IncrementalMagFreqDist) single;
+        }
+
+
+         /*
+         * If Gaussian MagDist is selected
+         */
+       if(magDistClassName.equalsIgnoreCase(GaussianMagFreqDist_CLASS_NAME)) {
+              Double mean = (Double)independentParams.getParameter(MEAN).getValue();
+              Double stdDev = (Double)independentParams.getParameter(STD_DEV).getValue();
+              Double totMoRate = (Double)independentParams.getParameter(TO_MORATE).getValue();
+              String truncTypeValue = independentParams.getParameter(TRUNCATION_REQ).getValue().toString();
+              int truncType = 0;
+              if(truncTypeValue.equalsIgnoreCase(TRUNCATE_FROM_RIGHT))
+                 truncType = 1;
+              else if(truncTypeValue.equalsIgnoreCase(TRUNCATE_ON_BOTH_SIDES))
+                 truncType = 2;
+              Double truncLevel = (Double)independentParams.getParameter(TRUNCATE_NUM_OF_STD_DEV).getValue();
+              GaussianMagFreqDist gaussian =
+                  new GaussianMagFreqDist(min.doubleValue(), num.intValue(),
+                        delta.doubleValue(),mean.doubleValue(), stdDev.doubleValue(),
+                        totMoRate.doubleValue(),truncLevel.doubleValue(),truncType);
+              magDist =  (IncrementalMagFreqDist) gaussian;
+        }
+
+
+         /*
+         * If Guttenberg Richter MagDist is selected
+         */
+       if(magDistClassName.equalsIgnoreCase(GuttenbergRichterMagFreqDist_CLASS_NAME)) {
+           GuttenbergRichterMagFreqDist gR =
+                    new GuttenbergRichterMagFreqDist(min.doubleValue(),
+                         num.intValue(), delta.doubleValue());
+
+           Double magLower = (Double)independentParams.getParameter(MAG_LOWER).getValue();
+           Double bValue = (Double)independentParams.getParameter(BVALUE).getValue();
+           String setAllParamsBut = controlsParamList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
+           // if set all parameters except total moment rate
+           if(setAllParamsBut.equalsIgnoreCase(TO_MORATE)) {
+              Double magUpper =  (Double)independentParams.getParameter(MAG_UPPER).getValue();
+              Double toCumRate = (Double)independentParams.getParameter(TO_CUM_RATE).getValue();
+              gR.setAllButTotMoRate(magLower.doubleValue(),magUpper.doubleValue(),
+                                    toCumRate.doubleValue(), bValue.doubleValue());
+           }
+           // if set all parameters except total cumulative rate
+           if(setAllParamsBut.equalsIgnoreCase(TO_CUM_RATE)) {
+             Double magUpper =  (Double)independentParams.getParameter(MAG_UPPER).getValue();
+             Double toMoRate = (Double)independentParams.getParameter(TO_MORATE).getValue();
+             gR.setAllButTotCumRate(magLower.doubleValue(),magUpper.doubleValue(),
+                                    toMoRate.doubleValue(), bValue.doubleValue());
+           }
+           // if set all parameters except total moment rate
+           if(setAllParamsBut.equalsIgnoreCase(MAG_UPPER)) {
+             Double toCumRate = (Double)independentParams.getParameter(TO_CUM_RATE).getValue();
+             Double toMoRate = (Double)independentParams.getParameter(TO_MORATE).getValue();
+             String  fix = independentParams.getParameter(FIX).getValue().toString();
+             boolean relaxCumRate = false;
+             if(fix.equalsIgnoreCase(FIX_TO_MORATE))
+                relaxCumRate = true;
+             gR.setAllButMagUpper(magLower.doubleValue(),toMoRate.doubleValue(),
+                                  toCumRate.doubleValue(),bValue.doubleValue(),
+                                  relaxCumRate);
+           }
+          magDist =  (IncrementalMagFreqDist) gR;
+       }
+     return magDist;
+  }
 }

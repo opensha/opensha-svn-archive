@@ -12,6 +12,7 @@ import java.util.*;
 import java.math.BigDecimal;
 import javax.swing.*;
 import org.scec.sha.imr.gui.IMRTesterApplet;
+import org.scec.sha.magdist.gui.MagFreqDistTesterApplet;
 
 /**
  * <p>Title: PSHALogXYPlot</p>
@@ -47,7 +48,8 @@ public class PSHALogXYPlot
     protected boolean xlogplot = false;;
     protected boolean ylogplot = false;;
     private boolean returnNoLabels = false;
-    private IMRTesterApplet imrTesterApplet;
+    private IMRTesterApplet imrTesterApplet=null;
+    private MagFreqDistTesterApplet magFreqDistTesterApplet=null;
 
     /**
      * Constructs an XYPlot with the specified axes (other attributes take default values).
@@ -61,6 +63,21 @@ public class PSHALogXYPlot
         this.ylogplot=ylog;
         this.imrTesterApplet=imr;
     }
+
+
+     /**
+     * Constructs an XYPlot with the specified axes (other attributes take default values).
+     *
+     * @param domainAxis The domain axis.
+     * @param rangeAxis The range axis.
+     */
+    public PSHALogXYPlot(MagFreqDistTesterApplet magFreq,XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
+        super(data, domainAxis, rangeAxis);
+        this.xlogplot=xlog;
+        this.ylogplot=ylog;
+        this.magFreqDistTesterApplet=magFreq;
+    }
+
 
     /**
      * Constructs an XYPlot with the specified axes and renderer (other attributes take default
@@ -341,8 +358,10 @@ public class PSHALogXYPlot
 
      }catch(java.lang.ArithmeticException ae){
        String message=new String(ae.getMessage());
-       imrTesterApplet.invalidLogPlot(message);
+       if(imrTesterApplet!=null)
+         imrTesterApplet.invalidLogPlot(message);
+       if(magFreqDistTesterApplet!=null)
+         magFreqDistTesterApplet.invalidLogPlot(message);
     }
-
-    }
+   }
 }
