@@ -4,6 +4,9 @@ import com.jrefinery.chart.*;
 import com.jrefinery.chart.event.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.data.*;
+import com.jrefinery.chart.plot.*;
+import com.jrefinery.chart.axis.*;
+import com.jrefinery.chart.renderer.*;
 
 import java.awt.*;
 import java.awt.geom.*;
@@ -65,7 +68,7 @@ public class PSHAXYPlot
      * @param rangeAxis The range axis.
      */
     public PSHAXYPlot(XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
-         super(data, domainAxis, rangeAxis);
+        super(data, domainAxis, rangeAxis);
         this.xlogplot=xlog;
         this.ylogplot=ylog;
     }
@@ -82,36 +85,6 @@ public class PSHAXYPlot
                   ValueAxis domainAxis, ValueAxis rangeAxis, XYItemRenderer renderer) {
         super(data, domainAxis, rangeAxis, renderer);
     }
-
-    /**
-     * Constructs a new XY plot.
-     *
-     * @param domainAxis The domain axis.
-     * @param rangeAxis The range axis.
-     * @param insets Amount of blank space around the plot area.
-     * @param backgroundPaint An optional color for the plot's background.
-     * @param backgroundImage An optional image for the plot's background.
-     * @param backgroundAlpha Alpha-transparency for the plot's background.
-     * @param outlineStroke The Stroke used to draw an outline around the plot.
-     * @param outlinePaint The color used to draw the plot outline.
-     * @param alpha The alpha-transparency.
-     * @param renderer The renderer.
-     */
-    public PSHAXYPlot(XYDataset data,
-                  ValueAxis domainAxis, ValueAxis rangeAxis,
-                  Insets insets,
-                  Paint backgroundPaint, Image backgroundImage, float backgroundAlpha,
-                  Stroke outlineStroke, Paint outlinePaint, float alpha,
-                  XYItemRenderer renderer) {
-
-        super(data, domainAxis, rangeAxis, insets,
-            backgroundPaint, backgroundImage, backgroundAlpha,
-            outlineStroke, outlinePaint, alpha, renderer
-        );
-
-    }
-
-
 
 
     /**

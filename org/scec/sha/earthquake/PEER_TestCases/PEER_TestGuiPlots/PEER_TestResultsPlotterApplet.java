@@ -16,6 +16,8 @@ import java.io.*;
 
 
 import com.jrefinery.chart.*;
+import com.jrefinery.chart.renderer.*;
+import com.jrefinery.chart.axis.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.data.*;
 
@@ -89,8 +91,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
 
   // Create the x-axis and y-axis - either normal or log
-  com.jrefinery.chart.NumberAxis xAxis = null;
-  com.jrefinery.chart.NumberAxis yAxis = null;
+  com.jrefinery.chart.axis.NumberAxis xAxis = null;
+  com.jrefinery.chart.axis.NumberAxis yAxis = null;
 
 
   /**
@@ -605,8 +607,6 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       else xAxis = new HorizontalNumberAxis( xAxisLabel );
 
       xAxis.setAutoRangeIncludesZero( false );
-      xAxis.setCrosshairLockedOnData( false );
-      xAxis.setCrosshairVisible(false);
       xAxis.setStandardTickUnits(units);
 
       /// check if y log is selected or not
@@ -614,14 +614,12 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       else yAxis = new VerticalNumberAxis( yAxisLabel );
 
       yAxis.setAutoRangeIncludesZero( false );
-      yAxis.setCrosshairLockedOnData( false );
-      yAxis.setCrosshairVisible( false);
       yAxis.setStandardTickUnits(units);
 
-      int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
+      int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
 
 
-      LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+      LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator());
 
 
       /* to set the range of the axis on the input from the user if the range combo box is selected*/
@@ -637,8 +635,13 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
 
       plot.setBackgroundAlpha( .8f );
-      plot.setSeriesPaint(legendPaint);
+      int numSeries = legendPaint.length;
+      for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
       plot.setRenderer( renderer );
+      plot.setDomainCrosshairLockedOnData(false);
+      plot.setDomainCrosshairVisible(false);
+      plot.setRangeCrosshairLockedOnData(false);
+      plot.setRangeCrosshairVisible(false);
 
 
       JFreeChart chart = new JFreeChart(JFREECHART_TITLE,JFreeChart.DEFAULT_TITLE_FONT, plot, false );
@@ -857,9 +860,9 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       int xCenter=getAppletXAxisCenterCoor();
       int yCenter=getAppletYAxisCenterCoor();
       AxisScale axisScale=new AxisScale(this,minX,maxX,minY,maxY);
-       axisScale.setBounds(xCenter-60,yCenter-50,375,148);
-       axisScale.pack();
-       axisScale.show();
+      axisScale.setBounds(xCenter-60,yCenter-50,375,148);
+      axisScale.pack();
+      axisScale.show();
     }
   }
 

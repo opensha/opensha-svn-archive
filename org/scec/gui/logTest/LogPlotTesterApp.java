@@ -9,6 +9,8 @@ import java.util.Vector;
 import java.util.Iterator;
 
 import com.jrefinery.chart.*;
+import com.jrefinery.chart.axis.*;
+import com.jrefinery.chart.renderer.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.data.*;
 
@@ -100,8 +102,8 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
   protected double maxYValue;
 
   // Create the x-axis and y-axis - either normal or log
-  com.jrefinery.chart.NumberAxis xAxis = null;
-  com.jrefinery.chart.NumberAxis yAxis = null;
+  com.jrefinery.chart.axis.NumberAxis xAxis = null;
+  com.jrefinery.chart.axis.NumberAxis yAxis = null;
   DiscretizedFuncList functions = new DiscretizedFuncList();
   DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
@@ -352,21 +354,17 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
        //create the standard ticks so that smaller values too can plotted on the chart
        TickUnits units = MyTickUnits.createStandardTickUnits();
 
-       xAxis = new com.jrefinery.chart.HorizontalLogarithmicAxis("X-Axis");
+       xAxis = new com.jrefinery.chart.axis.HorizontalLogarithmicAxis("X-Axis");
        xAxis.setAutoRangeIncludesZero( false );
-       xAxis.setCrosshairLockedOnData( false );
-       xAxis.setCrosshairVisible(false);
        xAxis.setStandardTickUnits(units);
 
 
-       yAxis = new com.jrefinery.chart.VerticalLogarithmicAxis("Y-Axis");
+       yAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis("Y-Axis");
 
        yAxis.setAutoRangeIncludesZero( false );
-       yAxis.setCrosshairLockedOnData( false );
-       yAxis.setCrosshairVisible( false);
        yAxis.setStandardTickUnits(units);
 
-       int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
+       int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
 
 
        LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
@@ -383,9 +381,11 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
        org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this,data, xAxis, yAxis, true, true);
 
        plot.setBackgroundAlpha( .8f );
-
-
        plot.setRenderer( renderer );
+       plot.setDomainCrosshairLockedOnData(false);
+       plot.setDomainCrosshairVisible(false);
+       plot.setRangeCrosshairLockedOnData(false);
+       plot.setRangeCrosshairVisible(false);
 
 
        JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);

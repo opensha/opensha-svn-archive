@@ -11,6 +11,7 @@ import javax.swing.border.*;
 import javax.swing.text.*;
 
 import com.jrefinery.chart.*;
+import com.jrefinery.chart.axis.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.data.*;
 
@@ -67,8 +68,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
 
     // Create the x-axis and y-axis - either normal or log
-    com.jrefinery.chart.NumberAxis xAxis = null;
-    com.jrefinery.chart.NumberAxis yAxis = null;
+    com.jrefinery.chart.axis.NumberAxis xAxis = null;
+    com.jrefinery.chart.axis.NumberAxis yAxis = null;
 
     protected Object lock = new Object();
 
@@ -938,28 +939,25 @@ public class AttenuationRelationshipTesterApp extends JApplet
         //create the standard ticks so that smaller values too can plotted on the chart
         TickUnits units = MyTickUnits.createStandardTickUnits();
 
-        if (xLog) xAxis = new com.jrefinery.chart.HorizontalLogarithmicAxis( xAxisLabel );
+        if (xLog) xAxis = new com.jrefinery.chart.axis.HorizontalLogarithmicAxis( xAxisLabel );
         else xAxis = new HorizontalNumberAxis( xAxisLabel );
 
         xAxis.setAutoRangeIncludesZero( false );
-        xAxis.setCrosshairLockedOnData( false );
-        xAxis.setCrosshairVisible(false);
         xAxis.setStandardTickUnits(units);
 
 
-        if (yLog) yAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(yAxisLabel);
+        if (yLog) yAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis(yAxisLabel);
         else yAxis = new VerticalNumberAxis( yAxisLabel );
 
 
         yAxis.setAutoRangeIncludesZero( false );
-        yAxis.setCrosshairLockedOnData( false );
-        yAxis.setCrosshairVisible( false);
         yAxis.setStandardTickUnits(units);
 
-        int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
+        int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
 
 
-        LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+        com.jrefinery.chart.renderer.LogXYItemRenderer renderer
+            = new com.jrefinery.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
         if(this.customAxis) {
@@ -969,9 +967,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         // build the plot
         org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this,data, xAxis, yAxis, xLog, yLog);
-
-
-        plot.setSeriesPaint(legendPaint);
+        int numSeries = legendPaint.length;
+        for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
         plot.setBackgroundAlpha( .8f );
         if( isWhite ) plot.setBackgroundPaint( Color.white );
         else plot.setBackgroundPaint( Color.black );

@@ -12,6 +12,8 @@ import java.io.*;
 
 
 import com.jrefinery.chart.*;
+import com.jrefinery.chart.axis.*;
+import com.jrefinery.chart.renderer.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.data.*;
 
@@ -1214,20 +1216,17 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       HorizontalNumberAxis xAxis = new HorizontalNumberAxis( xAxisLabel );
 
       xAxis.setAutoRangeIncludesZero( false );
-      xAxis.setCrosshairLockedOnData( false );
-      xAxis.setCrosshairVisible(false);
+
 
 
 
       VerticalNumberAxis yAxis = new VerticalNumberAxis( yAxisLabel );
 
-      yAxis.setAutoRangeMinimumSize(new Integer(0));
       yAxis.setAutoRangeIncludesZero( false );
-      yAxis.setCrosshairLockedOnData( false );
-      yAxis.setCrosshairVisible( false);
 
 
-      int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
+
+      int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
 
 
       LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
@@ -1237,12 +1236,11 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       // build the plot
 
       org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this.totalData, xAxis, yAxis, renderer);
-
-
-
       plot.setBackgroundAlpha( .8f );
-
-
+      plot.setDomainCrosshairLockedOnData(false);
+      plot.setDomainCrosshairVisible(false);
+      plot.setRangeCrosshairLockedOnData(false);
+      plot.setRangeCrosshairVisible(false);
 
       plot.setRenderer( renderer );
 

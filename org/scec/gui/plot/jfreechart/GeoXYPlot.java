@@ -1,10 +1,14 @@
 package org.scec.gui.plot.jfreechart;
 
 import com.jrefinery.chart.*;
+import com.jrefinery.chart.axis.*;
+import com.jrefinery.chart.renderer.*;
 import com.jrefinery.chart.event.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.data.*;
+
 import org.scec.gui.PSHAXYPlot;
+
 import java.awt.*;
 import java.awt.geom.*;
 import java.text.DecimalFormat;
@@ -59,33 +63,6 @@ public class GeoXYPlot
         super(data, domainAxis, rangeAxis, renderer);
     }
 
-    /**
-     * Constructs a new XY plot.
-     *
-     * @param domainAxis The domain axis.
-     * @param rangeAxis The range axis.
-     * @param insets Amount of blank space around the plot area.
-     * @param backgroundPaint An optional color for the plot's background.
-     * @param backgroundImage An optional image for the plot's background.
-     * @param backgroundAlpha Alpha-transparency for the plot's background.
-     * @param outlineStroke The Stroke used to draw an outline around the plot.
-     * @param outlinePaint The color used to draw the plot outline.
-     * @param alpha The alpha-transparency.
-     * @param renderer The renderer.
-     */
-    public GeoXYPlot(XYDataset data,
-                  ValueAxis domainAxis, ValueAxis rangeAxis,
-                  Insets insets,
-                  Paint backgroundPaint, Image backgroundImage, float backgroundAlpha,
-                  Stroke outlineStroke, Paint outlinePaint, float alpha,
-                  XYItemRenderer renderer) {
-
-        super(data, domainAxis, rangeAxis, insets,
-            backgroundPaint, backgroundImage, backgroundAlpha,
-            outlineStroke, outlinePaint, alpha, renderer
-        );
-
-    }
 
 
     /**
@@ -110,11 +87,11 @@ public class GeoXYPlot
        }
 
        // adjust the drawing area for plot insets (if any)...
-       if (insets != null) {
-           plotArea.setRect(plotArea.getX() + insets.left,
-                            plotArea.getY() + insets.top,
-                            plotArea.getWidth() - insets.left - insets.right,
-                            plotArea.getHeight() - insets.top - insets.bottom);
+       if (getInsets() != null) {
+           plotArea.setRect(plotArea.getX() + getInsets().left,
+                            plotArea.getY() + getInsets().top,
+                            plotArea.getWidth() - getInsets().left - getInsets().right,
+                            plotArea.getHeight() - getInsets().top - getInsets().bottom);
        }
 
        // estimate the area required for drawing the axes...
@@ -122,13 +99,15 @@ public class GeoXYPlot
 
        if (this.getDomainAxis() != null) {
            HorizontalAxis hAxis = (HorizontalAxis) this.getDomainAxis();
-           hAxisAreaHeight = hAxis.reserveHeight(g2, this, plotArea);
+           hAxisAreaHeight = hAxis.reserveHeight(g2, this, plotArea, this.getDomainAxisLocation());
        }
 
        double vAxisWidth = 0;
        if (this.getRangeAxis() != null) {
-           VerticalAxis vAxis = (VerticalAxis) this.getRangeAxis();
-           vAxisWidth = vAxis.reserveAxisArea(g2, this, plotArea, hAxisAreaHeight).getWidth();
+         VerticalAxis vAxis = (VerticalAxis)getRangeAxis();
+         vAxisWidth = vAxis.reserveWidth(g2, this, plotArea, getRangeAxisLocation(),
+                                    hAxisAreaHeight,
+                                    getDomainAxisLocation());
        }
 
        // ...and therefore what is left for the plot itself...
@@ -179,15 +158,15 @@ public class GeoXYPlot
 
 
        // draw the plot background and axes...
-       drawOutlineAndBackground(g2, dataArea);
+       drawBackground(g2, dataArea);
 
 
        if (this.getDomainAxis() != null) {
-           this.getDomainAxis().draw(g2, plotArea, dataArea);
+           this.getDomainAxis().draw(g2, plotArea, dataArea,  this.getDomainAxisLocation());
        }
 
        if (this.getRangeAxis() != null) {
-           this.getRangeAxis().draw(g2, plotArea, dataArea);
+           this.getRangeAxis().draw(g2, plotArea, dataArea, this.getRangeAxisLocation());
        }
 
        if (this.getRenderer() != null) {
@@ -196,7 +175,7 @@ public class GeoXYPlot
 
            g2.clip(dataArea);
            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-                                                      this.foregroundAlpha));
+                                                      this.getForegroundAlpha()));
            render(g2, dataArea, info, crosshairInfo);
            g2.setClip(originalClip);
            g2.setComposite(originalComposite);

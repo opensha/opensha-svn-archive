@@ -10,6 +10,7 @@ import javax.swing.text.*;
 
 
 import com.jrefinery.chart.*;
+import com.jrefinery.chart.axis.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.data.*;
 
@@ -85,15 +86,15 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
   // Create the x-axis - either normal or log
-   com.jrefinery.chart.NumberAxis incrXAxis = null;
-   com.jrefinery.chart.NumberAxis cumXAxis = null;
-   com.jrefinery.chart.NumberAxis moXAxis = null;
-   private Double AUTO_RANGE_MINIMUM_SIZE = new Double(1e-100);
+   com.jrefinery.chart.axis.NumberAxis incrXAxis = null;
+   com.jrefinery.chart.axis.NumberAxis cumXAxis = null;
+   com.jrefinery.chart.axis.NumberAxis moXAxis = null;
+   private double AUTO_RANGE_MINIMUM_SIZE = 1e-100;
 
   //Create the y-axis - either normal or log
-   com.jrefinery.chart.NumberAxis incrYAxis = null;
-   com.jrefinery.chart.NumberAxis cumYAxis = null;
-   com.jrefinery.chart.NumberAxis moYAxis = null;
+   com.jrefinery.chart.axis.NumberAxis incrYAxis = null;
+   com.jrefinery.chart.axis.NumberAxis cumYAxis = null;
+   com.jrefinery.chart.axis.NumberAxis moYAxis = null;
 
 
    private double xIncrMin,xIncrMax,yIncrMin,yIncrMax;
@@ -818,29 +819,23 @@ public class MagFreqDistTesterApplet extends JApplet
         // create X- axis for mag vs incremental rate
         incrXAxis = new HorizontalNumberAxis( incrXAxisLabel );
         incrXAxis.setAutoRangeIncludesZero( false );
-        incrXAxis.setCrosshairLockedOnData( false );
-        incrXAxis.setCrosshairVisible(false);
         incrXAxis.setStandardTickUnits(units);
 
 
         // create X- axis for mag vs cum rate
         cumXAxis = new HorizontalNumberAxis( cumXAxisLabel );
         cumXAxis.setAutoRangeIncludesZero( false );
-        cumXAxis.setCrosshairLockedOnData( false );
-        cumXAxis.setCrosshairVisible(false);
         cumXAxis.setStandardTickUnits(units);
 
         // create x- axis for mag vs moment rate
         moXAxis = new HorizontalNumberAxis( moXAxisLabel );
         moXAxis.setAutoRangeIncludesZero( false );
-        moXAxis.setCrosshairLockedOnData( false );
-        moXAxis.setCrosshairVisible(false);
         moXAxis.setStandardTickUnits(units);
 
         if (yLog)  {
-          incrYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(incrYAxisLabel);
-          cumYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(cumYAxisLabel);
-          moYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(moYAxisLabel);
+          incrYAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis(incrYAxisLabel);
+          cumYAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis(cumYAxisLabel);
+          moYAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis(moYAxisLabel);
         }
         else {
           incrYAxis = new VerticalNumberAxis(incrYAxisLabel);
@@ -850,8 +845,6 @@ public class MagFreqDistTesterApplet extends JApplet
 
        // set properties for mag vs incremental rate Y- axis
         incrYAxis.setAutoRangeIncludesZero( true );
-        incrYAxis.setCrosshairLockedOnData( false );
-        incrYAxis.setCrosshairVisible( false);
         incrYAxis.setStandardTickUnits(units);
         incrYAxis.setAutoRangeIncludesZero(false);
         incrYAxis.setAutoRangeStickyZero(true);
@@ -860,8 +853,6 @@ public class MagFreqDistTesterApplet extends JApplet
 
         // set properties for mag vs incremental rate Y- axis
         cumYAxis.setAutoRangeIncludesZero( true );
-        cumYAxis.setCrosshairLockedOnData( false );
-        cumYAxis.setCrosshairVisible( false);
         cumYAxis.setStandardTickUnits(units);
         cumYAxis.setAutoRangeIncludesZero(false);
         cumYAxis.setAutoRangeStickyZero(true);
@@ -869,17 +860,16 @@ public class MagFreqDistTesterApplet extends JApplet
 
         // set properties for mag vs incremental rate Y- axis
         moYAxis.setAutoRangeIncludesZero( true );
-        moYAxis.setCrosshairLockedOnData( false );
-        moYAxis.setCrosshairVisible( false);
         moYAxis.setStandardTickUnits(units);
         moYAxis.setAutoRangeIncludesZero(false);
         moYAxis.setAutoRangeStickyZero(true);
         moYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
 
 
-        int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
+        int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
 
-        LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+        com.jrefinery.chart.renderer.LogXYItemRenderer renderer =
+            new com.jrefinery.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
         if(this.incrCustomAxis) {
@@ -903,12 +893,25 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
         incrPlot.setBackgroundAlpha( .8f );
-        cumPlot.setBackgroundAlpha( .8f );
-        moPlot.setBackgroundAlpha( .8f );
-        incrPlot.setSeriesPaint(legendPaint);
-        cumPlot.setSeriesPaint(legendPaint);
-        moPlot.setSeriesPaint(legendPaint);
+        incrPlot.setDomainCrosshairLockedOnData(false);
+        incrPlot.setDomainCrosshairVisible(false);
+        incrPlot.setRangeCrosshairLockedOnData(false);
+        incrPlot.setRangeCrosshairVisible(false);
 
+        cumPlot.setBackgroundAlpha( .8f );
+        cumPlot.setDomainCrosshairLockedOnData(false);
+        cumPlot.setDomainCrosshairVisible(false);
+        cumPlot.setRangeCrosshairLockedOnData(false);
+        cumPlot.setRangeCrosshairVisible(false);
+
+        moPlot.setBackgroundAlpha( .8f );
+        moPlot.setDomainCrosshairLockedOnData(false);
+        moPlot.setDomainCrosshairVisible(false);
+        moPlot.setRangeCrosshairLockedOnData(false);
+        moPlot.setRangeCrosshairVisible(false);
+
+        int numSeries = legendPaint.length;
+        for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
         if( isWhite ) {
           incrPlot.setBackgroundPaint( Color.white );
           cumPlot.setBackgroundPaint( Color.white );

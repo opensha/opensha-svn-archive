@@ -425,7 +425,6 @@ public final class RelativeLocation {
       double longDistVal = 2*Math.PI *radius /360;
       return km/longDistVal;
     }
-}
 
 
 
@@ -441,10 +440,11 @@ public final class RelativeLocation {
      *  function
      *
      * @param  argv  Passed in command line arguments
+     **/
 
     public static void main( String argv[] ) {
 
-        String S = C + ": main(): ";
+        /*String S = C + ": main(): ";
 
         Location l1 = new Location(20, 20);
         l1.setDepth(1);
@@ -475,9 +475,16 @@ public final class RelativeLocation {
 
         System.out.println( S + "A(l1,l5): " + latLonDistance( l1.getLatitude(), l5.getLongitude(), l5.getLatitude(), l5.getLongitude() ) );
         System.out.println( S + "B(l1,l5): " + getHorzDistance( l1.getLatitude(), l5.getLongitude(), l5.getLatitude(), l5.getLongitude() ) );
+      */
+        for(int j = 50; j < 51; j++){
+          for(int i = -360; i <= 0; i++){
+            System.out.println("j="+j+"i="+i+"distance="+latLonDistance(j, i, j+1, i+1));
+            System.out.println("j="+j+"i="+(i+360)+"distance="+latLonDistance(j, i+360, j+1, i+1));
+          }
+        }
 
 
-        if(SPEED_TEST){
+       /* if(SPEED_TEST){
 
             //System.out.println( S + DateUtils.getDisplayTimeStamp() + ": latLonDistance");
             for(int k = 0; k < 2; k++){
@@ -526,11 +533,9 @@ public final class RelativeLocation {
         System.out.println( S + l1.toString() );
         System.out.println( S + l5.toString());
         d = RelativeLocation.getDirection(l1,l5);
-        System.out.println( S + d.toString());
+        System.out.println( S + d.toString());*/
 
     }
-
-    */
 
 
     /**
@@ -541,7 +546,7 @@ public final class RelativeLocation {
      *  expressed as negative values.
 
      * @return       Description of the Return Value
-
+     **/
     public static double latLonDistance( double lat1, double lon1, double lat2, double lon2 ) {
 
         double deltaLon = Math.toRadians( lon2 ) - Math.toRadians( lon1 );
@@ -558,4 +563,4 @@ public final class RelativeLocation {
         return R * c;
     }
 
-    */
+}

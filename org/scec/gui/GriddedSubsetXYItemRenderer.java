@@ -19,6 +19,9 @@ import com.jrefinery.chart.entity.EntityCollection;
 import com.jrefinery.chart.entity.XYItemEntity;
 import com.jrefinery.chart.tooltips.XYToolTipGenerator;
 import com.jrefinery.chart.tooltips.StandardXYToolTipGenerator;
+import com.jrefinery.chart.plot.Plot;
+import com.jrefinery.chart.plot.XYPlot;
+import com.jrefinery.chart.axis.ValueAxis;
 
 /**
  * <p>Title: GriddedSubsetXYItemRenderer</p>
@@ -92,7 +95,7 @@ public class GriddedSubsetXYItemRenderer
      */
     public void drawItem(Graphics2D g2, Rectangle2D dataArea, ChartRenderingInfo info,
                          XYPlot plot, ValueAxis horizontalAxis, ValueAxis verticalAxis,
-                         XYDataset data, int series, int item,
+                         XYDataset data, int datasetIndex, int series, int item,
                          CrosshairInfo crosshairInfo) {
 
         // setup for collecting optional entity info...
@@ -103,7 +106,7 @@ public class GriddedSubsetXYItemRenderer
         }
 
         Paint seriesPaint = fillColor;
-        Stroke seriesStroke = plot.getSeriesStroke(series);
+        Stroke seriesStroke = this.getSeriesStroke(datasetIndex, series);
         g2.setPaint(seriesPaint);
         g2.setStroke(seriesStroke);
 
@@ -139,36 +142,36 @@ public class GriddedSubsetXYItemRenderer
 
             if (getPlotShapes()) {
 
-                double shapeScale = getShapeScale(plot, series, item, transX1, transY1);
-                Shape shape = getShape(plot, series, item, transX1, transY1, shapeScale);
-                if (isShapeFilled(plot, series, item, transX1, transY1)) {
-                    if (shape.intersects(dataArea)) g2.fill(shape);
-                } else {
-                    if (shape.intersects(dataArea)) g2.draw(shape);
-                }
+              Shape shape = getItemShape(datasetIndex, series, item);
+              shape = createTransformedShape(shape, transX1, transY1);
+              if (isShapeFilled(plot, series, item, transX1, transY1)) {
+                if (shape.intersects(dataArea)) g2.fill(shape);
+              } else {
+                if (shape.intersects(dataArea)) g2.draw(shape);
+              }
                 entityArea = shape;
 
             }
 
             if (getPlotImages()) {
-                // use shape scale with transform??
-                double shapeScale = getShapeScale(plot, series, item, transX1, transY1);
-                Image image = getImage(plot, series, item, transX1, transY1);
-                if (image != null) {
-                    Point hotspot = getImageHotspot(plot, series, item, transX1, transY1, image);
-                    g2.drawImage(image,(int)(transX1-hotspot.getX()),(int)(transY1-hotspot.getY()),(ImageObserver)null);
-                }
-                // tooltipArea = image; not sure how to handle this yet
+              // use shape scale with transform??
+              double shapeScale = getShapeScale(plot, series, item, transX1, transY1);
+              Image image = getImage(plot, series, item, transX1, transY1);
+              if (image != null) {
+                Point hotspot = getImageHotspot(plot, series, item, transX1, transY1, image);
+                g2.drawImage(image,(int)(transX1-hotspot.getX()),(int)(transY1-hotspot.getY()),(ImageObserver)null);
+              }
+              // tooltipArea = image; not sure how to handle this yet
             }
 
             // add an entity for the item...
             if (entities!=null) {
-                if (entityArea==null) {
-                    entityArea = new Rectangle2D.Double(transX1-2, transY1-2, 4, 4);
-                }
-                String tip = "";
-                if (getToolTipGenerator()!=null) {
-                    tip = getToolTipGenerator().generateToolTip(data, series, item);
+              if (entityArea==null) {
+                entityArea = new Rectangle2D.Double(transX1-2, transY1-2, 4, 4);
+              }
+              String tip = "";
+              if (getToolTipGenerator()!=null) {
+                tip = getToolTipGenerator().generateToolTip(data, series, item);
                 }
                 XYItemEntity entity = new XYItemEntity(entityArea, tip, series, item);
                 entities.addEntity(entity);
@@ -176,18 +179,18 @@ public class GriddedSubsetXYItemRenderer
 
             // do we need to update the crosshair values?
             double distance = 0.0;
-            if (horizontalAxis.isCrosshairLockedOnData()) {
-                if (verticalAxis.isCrosshairLockedOnData()) {
-                    // both axes
-                    crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue());
+            if (plot.isDomainCrosshairLockedOnData()) {
+              if (plot.isRangeCrosshairLockedOnData()) {
+                // both axes
+                crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue());
                 }
                 else {
-                    // just the horizontal axis...
-                    crosshairInfo.updateCrosshairX(x1.doubleValue());
+                  // just the horizontal axis...
+                  crosshairInfo.updateCrosshairX(x1.doubleValue());
                 }
             }
             else {
-                if (verticalAxis.isCrosshairLockedOnData()) {
+              if (plot.isRangeCrosshairLockedOnData()) {
                     // just the vertical axis...
                     crosshairInfo.updateCrosshairY(y1.doubleValue());
                 }

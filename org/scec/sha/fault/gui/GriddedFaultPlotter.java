@@ -40,22 +40,22 @@ public class GriddedFaultPlotter extends ArrayList{
     protected ChartPanel multiChartPanel = null;
 
     protected GriddedSubsetXYItemRenderer SUB_SHAPE_RENDERER = new GriddedSubsetXYItemRenderer(
-                com.jrefinery.chart.StandardXYItemRenderer.SHAPES,
+                com.jrefinery.chart.renderer.StandardXYItemRenderer.SHAPES,
                 new StandardXYToolTipGenerator()
     );
 
     protected AdjustableScaleXYItemRenderer SHAPE_RENDERER = new AdjustableScaleXYItemRenderer(
-                com.jrefinery.chart.StandardXYItemRenderer.SHAPES,
+                com.jrefinery.chart.renderer.StandardXYItemRenderer.SHAPES,
                 new StandardXYToolTipGenerator()
     );
 
     protected AdjustableScaleXYItemRenderer SHAPES_AND_LINES_RENDERER = new AdjustableScaleXYItemRenderer(
-                com.jrefinery.chart.StandardXYItemRenderer.SHAPES_AND_LINES,
+                com.jrefinery.chart.renderer.StandardXYItemRenderer.SHAPES_AND_LINES,
                 new StandardXYToolTipGenerator()
     );
 
     protected AdjustableScaleXYItemRenderer LINE_RENDERER = new AdjustableScaleXYItemRenderer(
-                com.jrefinery.chart.StandardXYItemRenderer.LINES,
+                com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES,
                 new StandardXYToolTipGenerator()
     );
 
@@ -153,22 +153,16 @@ public class GriddedFaultPlotter extends ArrayList{
 
     private ChartPanel createChartWithSingleDataset(String griddedSurfaceName,double gridSpacing ){
 
-        com.jrefinery.chart.NumberAxis xAxis =  new com.jrefinery.chart.HorizontalNumberAxis( X_AXIS_LABEL );
-        com.jrefinery.chart.NumberAxis yAxis =  new com.jrefinery.chart.VerticalNumberAxis( Y_AXIS_LABEL );
+        com.jrefinery.chart.axis.NumberAxis xAxis =  new com.jrefinery.chart.axis.HorizontalNumberAxis( X_AXIS_LABEL );
+        com.jrefinery.chart.axis.NumberAxis yAxis =  new com.jrefinery.chart.axis.VerticalNumberAxis( Y_AXIS_LABEL );
        // X - Axis
         xAxis.setAutoRangeIncludesZero( false );
-        xAxis.setCrosshairLockedOnData( false );
-        xAxis.setCrosshairVisible( false );
 
         // Y axis
         yAxis.setAutoRangeIncludesZero( false );
-        yAxis.setCrosshairLockedOnData( false );
-        yAxis.setCrosshairVisible( false );
 
 
         // update axis
-        xAxis.setCrosshairVisible( true );
-        yAxis.setCrosshairVisible( true );
         xAxis.setAutoRange(true) ;
         yAxis.setAutoRange(true);
         // Get the data
@@ -176,19 +170,21 @@ public class GriddedFaultPlotter extends ArrayList{
         if( functions == null ) return null;
 
         // build the plot
-         GeoXYPlot plot = new GeoXYPlot(functions, xAxis, yAxis);
-
+        GeoXYPlot plot = new GeoXYPlot(functions, xAxis, yAxis);
+        plot.setDomainCrosshairLockedOnData(false);
+        plot.setDomainCrosshairVisible(true);
+        plot.setRangeCrosshairLockedOnData(false);
+        plot.setRangeCrosshairVisible(true);
 
         /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
            being generated  in the Plot.java class constructor*/
-       //Smooth Colors transition from Red to Blue
+        //Smooth Colors transition from Red to Blue
         int totalSeries=functions.getSeriesCount();
         Paint[] seriesPaint = new Paint[totalSeries+2];
         int count = (int)(Math.ceil(255.0/totalSeries));
         for(int i=255,j=0;i>=0;i-=count,j++) {
             seriesPaint[j]=new Color(i,0,255-i);
         }
-        plot.setSeriesPaint(seriesPaint);
         plot.setBackgroundPaint( plotColor );
         setRenderer(plot);
         // build chart
@@ -207,25 +203,26 @@ public class GriddedFaultPlotter extends ArrayList{
     private ChartPanel createOverlaidChart( String griddedSurfaceName, double gridSpacing) {
 
 
-        com.jrefinery.chart.NumberAxis xAxis =  new com.jrefinery.chart.HorizontalNumberAxis( X_AXIS_LABEL );
-        com.jrefinery.chart.NumberAxis yAxis =  new com.jrefinery.chart.VerticalNumberAxis( Y_AXIS_LABEL );
+        com.jrefinery.chart.axis.NumberAxis xAxis =  new com.jrefinery.chart.axis.HorizontalNumberAxis( X_AXIS_LABEL );
+        com.jrefinery.chart.axis.NumberAxis yAxis =  new com.jrefinery.chart.axis.VerticalNumberAxis( Y_AXIS_LABEL );
       // X - Axis
         xAxis.setAutoRangeIncludesZero( false );
-        xAxis.setCrosshairLockedOnData( false );
-        xAxis.setCrosshairVisible( false );
 
       // Y axis
         yAxis.setAutoRangeIncludesZero( false );
-        yAxis.setCrosshairLockedOnData( false );
-        yAxis.setCrosshairVisible( false );
+
 
         // axis
-        xAxis.setCrosshairVisible( false );
-        yAxis.setCrosshairVisible( false );
+
         xAxis.setAutoRange(true) ;
         yAxis.setAutoRange(true);
         // multi plot
         OverlaidGeoXYPlot plot = new OverlaidGeoXYPlot(xAxis, yAxis);
+        plot.setDomainCrosshairLockedOnData(false);
+        plot.setDomainCrosshairVisible(false);
+        plot.setRangeCrosshairLockedOnData(false);
+        plot.setRangeCrosshairVisible(false);
+
         // Get the data
         XYDataset functions ;
         if(this.plotType == this.SHAPES_LINES_AND_SHAPES)
@@ -241,11 +238,13 @@ public class GriddedFaultPlotter extends ArrayList{
         int totalSeries=functions.getSeriesCount();
         Paint[] seriesPaint = new Paint[totalSeries+2];
         int count = (int)(Math.ceil(255.0/totalSeries));
-        for(int i=255,j=0;i>=0;i-=count,j++) {
+        int j=0;
+        for(int i=255;i>=0;i-=count,j++) {
             seriesPaint[j]=new Color(i,0,255-i);
          }
-        plot.setSeriesPaint(seriesPaint);
-        plot.setBackgroundPaint( plotColor );
+         int numSeries = j;
+         for(int i=0; i < numSeries; ++i) plot.getRenderer().setSeriesPaint(i,seriesPaint[i]);
+         plot.setBackgroundPaint( plotColor );
 
 
         // Add all subplots
@@ -256,13 +255,9 @@ public class GriddedFaultPlotter extends ArrayList{
 
             counter++;
             XYDataset dataSet = (XYDataset)it.next();
-
-
-
             GeoXYPlot plot1 = new GeoXYPlot(dataSet, null, null);
-            plot1.setSeriesPaint(seriesPaint);
+            for(int i=0; i < numSeries; ++i) plot1.getRenderer().setSeriesPaint(i,seriesPaint[i]);
             plot1.setBackgroundPaint( plotColor );
-
 
             if( plotType == SUB_SHAPES){
               if( counter == last ) {
