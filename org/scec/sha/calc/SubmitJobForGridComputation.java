@@ -373,8 +373,8 @@ public class SubmitJobForGridComputation {
 
       frFTP.write("#!/bin/csh\n");
       frFTP.write("cd " +outputDir+SUBMIT_FILES_DIR+ "\n");
-      frFTP.write("tar -cf " + SUBMIT_TAR_FILES + " "+HAZARD_CURVES_SUBMIT+"*.sub ");
-      frFTP.write("mv "+SUBMIT_TAR_FILES+outputDir+OBJECTS_DIR);
+      frFTP.write("tar -cf " + SUBMIT_TAR_FILES + " "+HAZARD_CURVES_SUBMIT+"*.sub \n");
+      frFTP.write("mv "+SUBMIT_TAR_FILES+" "+outputDir+OBJECTS_DIR+"\n");
       frFTP.write("tar -uf " + imrFileName+" "+erfFileName+" "+
                   regionFileName+ " "+xValuesFileName+"\n");
       frFTP.write("globus-url-copy file:" + outputDir+OBJECTS_DIR +
