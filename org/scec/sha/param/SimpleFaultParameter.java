@@ -460,7 +460,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
     //gets the faultName
     String fltName = (String)parameterList.getParameter(this.FAULT_NAME).getValue();
     //creates the fault trace data
-    FaultTrace fltTrace = new FaultTrace(fltName);
+    fltTrace = new FaultTrace(fltName);
 
     //Adding the fault Name to the independent Param List
     if(fltName !=null) //add only if the flt NAme is not equal to null
