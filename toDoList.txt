@@ -1,24 +1,36 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-HazardDataSetPlotter:
+Change app names as follows:
 
-	make it so if you change data sets it will keep the 
-	previously chosen lat and lon if possible
+	HazardDataSetPlotter --> PlotCurveFromHazardDataSetApp
+	HazardMapApplet --> HazardDataSetCalcCondorApp
+	HazardMapViewerApp --> PlotMapFromHazardDataSetApp
 
-In the "Plot Prefs" control panel add the ability to add/remove/change axis and plot labels.
+Change all occurrnaces of 
+
+	calcValueFromSiteAndPE()   to
+	calcValueFromSiteAndEqkRup()
+
+Add faults to GMT plotting options.
+
+Make new "EarthquakeRuptureGuiBean" that toggles between choosing a EarthquakeRupture from an ERF (exactly as presently done in the EarthquakeRuptureFromERF_GUI_Bean) and creating a custom earthquake rupture.  If the latter is chosen the following parameters should be given to choose set:
+
+	magnitude
+	average rake
+	toggle between finiteRupture & pointSource as follows:
+
+		use FaultParameter for finiteRupture
+		add lat, lon, depth, & dip params for pointSource
+
+	also add the "Set Hypocenter Location" option as w/ ERF case
+
 
 Implement color schemes at (including option for the visually impaired):
 
 	http://geography.uoregon.edu/datagraphics/color_scales.htm
 
 In all apps - can we have a bug-reporting via email utility?
-
-Add the  revised version of the test results for AttenuationRelationhships by Ken Campbell to the JUnit test.
-
-The the name of HazardMapApplet to HazardMapDataApplet, and in this app. allow the user to set the name of the directory (if name already used give an error message, if name is null use timestamp?, don't allow white space in name?).
-
-Add faults to GMT plotting options.
 
 add site translation for SEA_1999_AttenRel
 
