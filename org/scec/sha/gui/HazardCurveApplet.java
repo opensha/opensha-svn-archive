@@ -210,7 +210,6 @@ public class HazardCurveApplet extends JApplet
 
 
   //flags to check which X Values the user wants to work with: default or custom
-  boolean useDefaultX_Values = true;
   boolean useCustomX_Values = false;
 
   /**
@@ -1463,7 +1462,7 @@ public class HazardCurveApplet extends JApplet
   private void initX_ValuesControl(){
     if(xValuesPanel == null)
       xValuesPanel = new X_ValuesInCurveControlPanel(this,this);
-    if(useDefaultX_Values)
+    if(useCustomX_Values)
       xValuesPanel.setX_Values(imtGuiBean.getSelectedIMT());
     else
       xValuesPanel.setX_Values(function);
@@ -1510,9 +1509,7 @@ public class HazardCurveApplet extends JApplet
    *
    */
   public void setX_ValuesForHazardCurve(){
-    useDefaultX_Values = true;
     useCustomX_Values = false;
-    function = defaultX_Values.getHazardCurve(imtGuiBean.getSelectedIMT());
   }
 
   /**
@@ -1520,8 +1517,7 @@ public class HazardCurveApplet extends JApplet
    * @param func
    */
   public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func){
-    useDefaultX_Values = true;
-    useCustomX_Values = false;
+    useCustomX_Values = true;
     function =func;
   }
 
@@ -1533,15 +1529,14 @@ public class HazardCurveApplet extends JApplet
    * @param originalFunc :  this is the function with X values set
    */
   private void initX_Values(DiscretizedFuncAPI arb){
+
     // take log only if it is PGA, PGV or SA
     String selectedIMT = isIMTLogEnabled();
 
-    //if the person has selected the control panel for setting the X values for he Hazard curve computation
-    if(this.xValuesPanel !=null)
-      //gets the X values from the X_ValueControlPanel
-      function= xValuesPanel.getX_ValuesFunction();
-    else
-      setX_ValuesForHazardCurve();
+    // if not using custom values get the function according to IMT.
+    if(!useCustomX_Values)
+      function = defaultX_Values.getHazardCurve(imtGuiBean.getSelectedIMT());
+
     if (selectedIMT!=null) {
       for(int i=0;i<function.getNum();++i)
         arb.set(Math.log(function.getX(i)),1);

@@ -24,6 +24,8 @@ Put the PEER Set 2 tests into their supplied Excel file.  Notes:
 
 Finish implementing Set2-Case5 (Nitin knows it's incorrectly implemented).
 
+Parameter Class: current value should be forced to null if the constraint is ever changed (currently a value can remain even if it's incompatible with a new constraint).  Figure out how to deal with strings (which can't have null values).
+
 EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient (don't create the entire vector or subset surfaces each time).  See if this speeds up the PEER Set2-Case1-a test.
 
 Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label). Hazard curve calculator seems to have this problem.
