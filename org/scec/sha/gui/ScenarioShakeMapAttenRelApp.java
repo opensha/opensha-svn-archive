@@ -42,7 +42,7 @@ import org.scec.exceptions.ParameterException;
  * focal mechanisms checked - src #s 136, 232, and 61 in the USGS/CGS_2002 ERF). Thus, the
  * values should be correct as long as the attenuation-relationships are working properly,
  * which has been checked independently using the AttenuationRelationshipApplet.<p>
- * 3) Various IML@prob or prob@iml with various truncations were chacked against calculations
+ * 3) Various IML@prob or prob@iml with various truncations were checked against calculations
  * with the AttenuationRelationshipApplet. <p>
  * 4) ShakeMaps computed here were compared with those at the offical USGS archive (more details later). <p>
  * 5) The wted-averages in multi-attenuation-relationship mode were checked, as well as the fact that
