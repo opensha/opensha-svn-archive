@@ -47,7 +47,7 @@ public final class WillsSiteClass {
    */
   public WillsSiteClass(LocationList locList,String fileName){
     int numLocations = locList.size();
-
+    willsSiteClassFile = fileName;
     for(int i=0;i<numLocations;++i)
       locations.add(locList.getLocationAt(i));
   }
