@@ -9,6 +9,7 @@ import javax.swing.border.*;
 import org.scec.data.*;
 import org.scec.gui.*;
 import org.scec.sha.calc.*;
+import org.scec.calc.RelativeLocation;
 
 /**
  * Title:
