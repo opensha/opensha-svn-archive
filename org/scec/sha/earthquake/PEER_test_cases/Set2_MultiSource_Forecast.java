@@ -22,7 +22,7 @@ import org.scec.param.event.*;
 
 /**
  * <p>Title: Set2_MultiSource_Forecast</p>
- * <p>Description: Area Equake rupture forecast. The Peer Group Test cases </p>
+ * <p>Description: This is the forecast used for test-set #2, Cases 2a-c</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta & Vipin Gupta
@@ -46,9 +46,13 @@ public class Set2_MultiSource_Forecast extends EqkRupForecast
   private double timeSpan;
   private TimeSpan time;
 
-  // this is the GR distribution used for all sources
+  // the GR distribution used for the area source
   private GutenbergRichterMagFreqDist dist_gr_A_orig;
+
+  // the GR distribution used for the gridded points of the area source
   private GutenbergRichterMagFreqDist dist_GR;
+
+  // the YC distribution used for faults B & C
   private YC_1985_CharMagFreqDist dist_yc_B;
   private YC_1985_CharMagFreqDist dist_yc_C;
 
@@ -64,7 +68,6 @@ public class Set2_MultiSource_Forecast extends EqkRupForecast
   private Set1_Fault_Source fltSourceB;
   private Set1_Fault_Source fltSourceC;
 
-
   // this is the dip and rake for all events in all sources
 
   private static final double DIP = 90.0;
@@ -73,24 +76,23 @@ public class Set2_MultiSource_Forecast extends EqkRupForecast
   // this is the source used for the area-source points
   private PointGR_EqkSource pointGR_EqkSource;
 
-  // Declaration for the static lat and longs for the Area
+  // lat & lon data that define the Area source
   private static final double LAT_TOP= 38.901;
   private static final double LAT_BOTTOM = 37.099;
   private static final double LAT_CENTER = 38.0;
   private static final double LONG_LEFT= -123.138;
   private static final double LONG_RIGHT= -120.862;
   private static final double LONG_CENTER= -122.0;
-
   private static final double MAX_DISTANCE =100;
 
-  //Param Name
+  // the grid parameter stuff
   public final static String GRID_PARAM_NAME =  "Grid Spacing of Sources";
   public final static String GRID_PARAM_UNITS =  "km";
   private final static double GRID_PARAM_MIN = 0.001;
   private final static double GRID_PARAM_MAX = 100;
   private Double DEFAULT_GRID_VAL = new Double(1);
 
-  // rupture offset parameter
+  // rupture-offset parameter stuff
   public final static String OFFSET_PARAM_NAME =  "Offset";
   private Double DEFAULT_OFFSET_VAL = new Double(1);
   public final static String OFFSET_PARAM_UNITS = "kms";
@@ -98,6 +100,7 @@ public class Set2_MultiSource_Forecast extends EqkRupForecast
   private final static double OFFSET_PARAM_MAX = 10000;
 
 
+  // the lower and upper seismo-depth paramter stuff for the Area Sources
   public final static String DEPTH_LOWER_PARAM_NAME =  "Area Lower Seis Depth";
   public final static String DEPTH_UPPER_PARAM_NAME =  "Area Upper Seis Depth";
   public final static String DEPTH_PARAM_UNITS = "km";
@@ -222,7 +225,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
     if(parameterChangeFlag) {
 
       // first update the timespan with what's in the parameter
-      setTimeSpan(((Double) timespanParam.getValue()).doubleValue());
+      timeSpan = ((Double) timespanParam.getValue()).doubleValue();
 
       // set the grid spacing used for all sources
       double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
@@ -303,7 +306,10 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
    */
   public void setTimeSpan(double yrs){
     timeSpan =yrs;
-  }
+    fltSourceB.setTimeSpan(timeSpan);
+    fltSourceC.setTimeSpan(timeSpan);
+    this.pointGR_EqkSource.setTimeSpan(timeSpan);
+   }
 
   /**
    * This method sets the time-span field
@@ -364,16 +370,19 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
    *
    */
   public ProbEqkSource getSource(int iSource) {
+    int numSrc = this.getNumSources();
 
-    pointGR_EqkSource.setLocation(locationList.getLocationAt(iSource));
-    pointGR_EqkSource.setTimeSpan(timeSpan);
+    if(iSource < numSrc-2 && iSource >= 0) {
+      pointGR_EqkSource.setLocation(locationList.getLocationAt(iSource));
+      return pointGR_EqkSource;
+    }
+    else if(iSource == numSrc-2)
+      return fltSourceB;
+    else if (iSource == numSrc-1)
+      return fltSourceC;
+    else
+      throw new RuntimeException("bad source index");
 
-    if (D) System.out.println(iSource + "th source location: "+ locationList.getLocationAt(iSource).toString() +
-                              "; numRups="+pointGR_EqkSource.getNumRuptures());
-    if (D) System.out.println("                     rake="+pointGR_EqkSource.getRupture(0).getAveRake() +
-                              "; dip="+ pointGR_EqkSource.getRupture(0).getRuptureSurface().getAveDip());
-
-    return pointGR_EqkSource;
   }
 
   /**
@@ -382,7 +391,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
    * @return integer value specifying the number of earthquake sources
    */
   public int getNumSources(){
-    return locationList.size() +2;
+    return locationList.size() + 2;
   }
 
   /**

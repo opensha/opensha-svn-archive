@@ -19,16 +19,16 @@ import org.scec.param.event.*;
 
 
 /**
- * <p>Title: Set1_Fault_Forecast</p>
- * <p>Description: Fault 1 Equake rupture forecast. The Peer Group Test cases </p>
+ * <p>Title: Set2_ListricFault_Forecast</p>
+ * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author Nitin Gupta & Vipin Gupta
- * Date : Oct 24 , 2002
+ * @author Ned Field
+ * Date : Dec 2, 2002
  * @version 1.0
  */
 
-public class Set1_Fault_Forecast extends EqkRupForecast
+public class Set2_ListricFault_Forecast extends EqkRupForecast
     implements ParameterChangeListener {
 
   /**
@@ -49,13 +49,12 @@ public class Set1_Fault_Forecast extends EqkRupForecast
 
 
   //Parameter Names
-  public final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
+  public final static String SIGMA_PARAM_NAME =  "Mag-Length Sigma";
   public final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
   public final static String OFFSET_PARAM_NAME =  "Offset";
   public final static String MAG_DIST_PARAM_NAME = "Fault Mag Dist";
   public final static String RAKE_PARAM_NAME ="Rake";
   public final static String TIMESPAN_PARAM_NAME ="Time Span";
-  public final static String DIP_PARAM_NAME = "Dip";
 
   // default grid spacing is 1km
   private Double DEFAULT_GRID_VAL = new Double(1);
@@ -81,19 +80,17 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   private Double SIGMA_PARAM_MAX = new Double(1);
   public Double DEFAULT_SIGMA_VAL = new Double(0.0);
 
-  private double LOWER_SEISMO_DEPTH = 12.0;
-
-  // fault-1 name
-  private String FAULT1_NAME = new String("Fault 1");
-  private Location fault1_LOCATION1 = new Location(38.22480, -122, 0);
-  private Location fault1_LOCATION2 = new Location(38.0, -122, 0);
-  private double UPPER_SEISMO_DEPTH1 = 0.0;
-
-  //fault-2 name
-  private String FAULT2_NAME = new String("Fault 2");
-  private Location fault2_LOCATION1 = new Location(38.22480, -122, 1);
-  private Location fault2_LOCATION2 = new Location(38.0, -122, 1);
-  private double UPPER_SEISMO_DEPTH2 = 1.0;
+  // fault stuff
+  private String FAULT_NAME = new String("Listric Fault");
+  private Location faultTraceLoc1 = new Location(38.0, -122, 0);
+  private Location faultTraceLoc2 = new Location(38.22480, -122, 0);
+  private Double DEPTH1 = new Double(0.0);
+  private Double DEPTH2 = new Double(6.0);
+  private Double DEPTH3 = new Double(12.0);
+  private Double DIP1 = new Double(50.0);
+  private Double DIP2 = new Double(20.0);
+  private Vector depths;
+  private Vector dips;
 
 
   // add the grid spacing field
@@ -111,12 +108,9 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   // add rake param
   DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME);
 
-  //add the dip parameter
+  //add the timeSpan parameter
   DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
                                                TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
-
-  //add the dip parameter
-  DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME);
 
   //adding the supported MagDists
   Vector supportedMagDists=new Vector();
@@ -136,13 +130,12 @@ public class Set1_Fault_Forecast extends EqkRupForecast
    *
    * No argument constructor
    */
-  public Set1_Fault_Forecast() {
+  public Set2_ListricFault_Forecast() {
 
     /* Now make the source in Fault 1 */
     adjustableParams.addParameter(gridParam);
     adjustableParams.addParameter(offsetParam);
     adjustableParams.addParameter(lengthSigmaParam);
-    adjustableParams.addParameter(dipParam);
     adjustableParams.addParameter(rakeParam);
     adjustableParams.addParameter(timeSpanParam);
 
@@ -160,10 +153,20 @@ public class Set1_Fault_Forecast extends EqkRupForecast
     gridParam.addParameterChangeListener(this);
     offsetParam.addParameterChangeListener(this);
     lengthSigmaParam.addParameterChangeListener(this);
-    dipParam.addParameterChangeListener(this);
     rakeParam.addParameterChangeListener(this);
     timeSpanParam.addParameterChangeListener(this);
-    magDistParam.addParameterChangeListener(this);  }
+    magDistParam.addParameterChangeListener(this);
+
+    // make the list of depths and dips for the fault
+    depths = new Vector();
+    depths.add(DEPTH1);
+    depths.add(DEPTH2);
+    depths.add(DEPTH3);
+    dips = new Vector();
+    dips.add(DIP1);
+    dips.add(DIP2);
+
+  }
 
 
   /**
@@ -202,46 +205,19 @@ public class Set1_Fault_Forecast extends EqkRupForecast
        if(this.magDistParam.getValue()==null)
           throw new RuntimeException("Click on update MagDist button and then choose Add Plot");
 
-       // dip param value
-       double dipValue = ((Double)dipParam.getValue()).doubleValue();
-       // first build the fault trace, then add
-       // add the location to the trace
-
-       SimpleFaultData faultData;
-       if(dipValue == 90){
          // fault1
-         faultTrace = new FaultTrace(FAULT1_NAME);
-         faultTrace.addLocation((Location)fault1_LOCATION1.clone());
-         faultTrace.addLocation((Location)fault1_LOCATION2.clone());
-         //make the fault data
-         faultData= new SimpleFaultData(dipValue,
-              LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH1,faultTrace);
-         if(D) System.out.println(S+"faultdata:"+faultData);
-       }
-
-       else {
-         //fault2
-         faultTrace = new FaultTrace(FAULT2_NAME);
-         faultTrace.addLocation((Location)fault2_LOCATION1.clone());
-         faultTrace.addLocation((Location)fault2_LOCATION2.clone());
-         //make the fault data
-         faultData= new SimpleFaultData(dipValue,
-              LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH2,faultTrace);
-         if(D) System.out.println(S+"faultdata:"+faultData);
-       }
-
+       faultTrace = new FaultTrace(FAULT_NAME);
+       faultTrace.addLocation((Location)faultTraceLoc1.clone());
+       faultTrace.addLocation((Location)faultTraceLoc2.clone());
 
        //  create a fault factory and make the surface
-       FrankelGriddedFaultFactory factory =
-           new FrankelGriddedFaultFactory(faultData,
-                                         ((Double)gridParam.getValue()).doubleValue());
+
+       SimpleListricGriddedFaultFactory factory =
+           new SimpleListricGriddedFaultFactory( faultTrace, dips, depths,
+                                                 ((Double)this.gridParam.getValue()).doubleValue() );
 
        GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
-       if(D) System.out.println(S+"Columns in surface:"+surface.getNumCols());
-       if(D) System.out.println(S+"Rows in surface:"+surface.getNumRows());
-
-       if(D) System.out.println(S+"MagLenthSIgma:"+lengthSigmaParam.getValue());
 
        // Now make the source
        source = new  Set1_Fault_Source((IncrementalMagFreqDist)magDistParam.getValue(),
