@@ -114,15 +114,33 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private Vector fault1and2_Lats, fault1and2_Lons, fault1_Dips, fault2_Dips, fault1_Depths, fault2_Depths;
   private Vector faultE_Lats, faultE_Lons, faultE_Dips, faultE_Depths;
 
+  //Instance of the application implementing the PEER_TestCaseSelectorControlPanelAPI
+  PEER_TestCaseSelectorControlPanelAPI api;
+
+  //Stores the X Values for generating the hazard curve using the PEER values.
+  ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
 
 
-  public PEER_TestCaseSelectorControlPanel(Component parent, IMR_GuiBean imrGuiBean,
+  /**
+   * Class Constructor
+   * @param parent : Give the dimensions of the parent class calling it.
+   * @param api : Instance of the application implementing the PEER_TestCaseSelectorControlPanelAPI
+   * @param imrGuiBean
+   * @param siteGuiBean
+   * @param imtGuiBean
+   * @param erfGuiBean
+   * @param timeSpanGuiBean
+   * @param distanceControlPanel
+   */
+  public PEER_TestCaseSelectorControlPanel(Component parent, PEER_TestCaseSelectorControlPanelAPI api,
+                               IMR_GuiBean imrGuiBean,
                                Site_GuiBean siteGuiBean,
                                IMT_GuiBean imtGuiBean,
                                ERF_GuiBeanAPI erfGuiBean,
                                TimeSpanGuiBean timeSpanGuiBean,
                                SetMinSourceSiteDistanceControlPanel distanceControlPanel){
 
+    this.api = api;
     if (D) System.out.println(C+" Constructor: starting initializeFaultData()");
     initializeFaultData();
 
@@ -149,7 +167,10 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     setLocation(parent.getX()+parent.getWidth()/2,
                 parent.getY()+parent.getHeight()/2);
 
-
+    //function to create the PEER supported X Values
+    createPEER_Function();
+    //sets the PEER supported X values in the application
+    this.setPEER_XValues();
   }
 
 
@@ -173,16 +194,55 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
 
   /**
+   * initialises the function with the x and y values if the user wants to work with PEER test cases
+   * So PEER supported  X Vals are used.
+   */
+  private void createPEER_Function(){
+    function.set(.001,1);
+    function.set(.01,1);
+    function.set(.05,1);
+    function.set(.15,1);
+    function.set(.1,1);
+    function.set(.2,1);
+    function.set(.25,1);
+    function.set(.3,1);
+    function.set(.4,1);
+    function.set(.5,1);
+    function.set(.6,1);
+    function.set(.7,1);
+    function.set(.8,1);
+    function.set(.9,1);
+    function.set(1.0,1);
+    function.set(1.1,1);
+    function.set(1.2,1);
+    function.set(1.3,1);
+    function.set(1.4,1);
+    function.set(1.5,1);
+  }
+
+  /**
+   * This method sets the X values for the hazard Curve to the PEER supported X Values.
+   */
+  public void setPEER_XValues(){
+    //sets X Value to the PEER supported x vlaues for the hazard curve
+    api.setX_ValuesForHazardCurve(function);
+  }
+
+
+  /**
    * This method extracts the selected Site and the selected TestCase set
    * @param testAndSite: Contains both the site and the Selected Test Cases Set
    */
   public void setTestCaseAndSite(String testAndSite){
+
     int firstIndex=testAndSite.indexOf("-");
     int lastIndex = testAndSite.lastIndexOf("-");
     selectedSet = testAndSite.substring(0,firstIndex);
     selectedTest = testAndSite.substring(firstIndex+1,lastIndex);
     selectedSite = testAndSite.substring(lastIndex+1);
     setParams();
+
+
   }
 
   /**

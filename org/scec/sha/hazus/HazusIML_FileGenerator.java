@@ -89,7 +89,7 @@ public class HazusIML_FileGenerator {
     try{
     FileWriter fw = new FileWriter(fileName);
     fw.write(metaData);
-    fw.write("#Column Info: Lat Lon PGA,PGV,SA-0.3,SA-1"+"\n\n");
+    fw.write("#Column Info: Lat Lon PGA PGV SA-0.3 SA-1"+"\n\n");
     for(int i=0;i<dirListPGA.length;++i){
       imlVector.removeAllElements();
       if(dirListPGA[i].endsWith(".txt")){
@@ -103,7 +103,7 @@ public class HazusIML_FileGenerator {
       String lon = dirListPGA[i].substring(dirListPGA[i].indexOf("_")+1,dirListPGA[i].indexOf(".txt"));
       fw.write(lat+"  "+lon+"  ");
       for(int j=0;j<imlVector.size()-1;++j)
-        fw.write(""+format.format(((Double)imlVector.get(j)).doubleValue())+",");
+        fw.write(""+format.format(((Double)imlVector.get(j)).doubleValue())+" ");
       fw.write(""+format.format(((Double)imlVector.get(imlVector.size()-1)).doubleValue())+"\n");
     }
     fw.close();

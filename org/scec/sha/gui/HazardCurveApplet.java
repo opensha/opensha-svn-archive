@@ -40,7 +40,7 @@ import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.sha.calc.FractileCurveCalculator;
 import org.scec.data.Site;
-import org.scec.sha.gui.infoTools.DefaultHazardCurveForIMTs;
+import org.scec.sha.gui.infoTools.IMT_Info;
 
 /**
  * <p>Title: HazardCurveApplet</p>
@@ -53,7 +53,7 @@ import org.scec.sha.gui.infoTools.DefaultHazardCurveForIMTs;
 public class HazardCurveApplet extends JApplet
     implements Runnable,  ParameterChangeListener, AxisLimitsControlPanelAPI,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
-    X_ValuesInCurveControlPanelAPI{
+    X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI{
 
   /**
    * Name of the class
@@ -158,17 +158,8 @@ public class HazardCurveApplet extends JApplet
   private ArbitrarilyDiscretizedFunc function;
 
   //instance to get the default IMT X values for the hazard Curve
-  private DefaultHazardCurveForIMTs defaultX_Values = new DefaultHazardCurveForIMTs();
+  private IMT_Info imtInfo = new IMT_Info();
 
-  // make a array for saving the X values
-  private  double [] xValuesPEER = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
-
-  // make a array for saving the X values
-  private  double [] xValuesFaultDispl = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
-    1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8,
-    2.9, 3.0}  ;
 
   // Create the x-axis and y-axis - either normal or log
   private org.jfree.chart.axis.NumberAxis xAxis = null;
@@ -1362,7 +1353,7 @@ public class HazardCurveApplet extends JApplet
   private void initRunALL_PEER_TestCases(){
     if(distanceControlPanel==null) distanceControlPanel= new SetMinSourceSiteDistanceControlPanel(this);
     if(peerTestsControlPanel==null)
-      peerTestsControlPanel=new PEER_TestCaseSelectorControlPanel(this,
+      peerTestsControlPanel=new PEER_TestCaseSelectorControlPanel(this,this,
           imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean, timeSpanGuiBean,
           this.distanceControlPanel);
     if(runAllPEER_Tests == null)
@@ -1384,9 +1375,10 @@ public class HazardCurveApplet extends JApplet
     // distance control panel is needed here so that distance can be set for PEER cases
     if(distanceControlPanel==null) distanceControlPanel= new SetMinSourceSiteDistanceControlPanel(this);
     if(peerTestsControlPanel==null)
-      peerTestsControlPanel=new PEER_TestCaseSelectorControlPanel(this,
+      peerTestsControlPanel=new PEER_TestCaseSelectorControlPanel(this,this,
           imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean, timeSpanGuiBean,
           this.distanceControlPanel);
+    peerTestsControlPanel.setPEER_XValues();
     peerTestsControlPanel.pack();
     peerTestsControlPanel.show();
   }
@@ -1433,6 +1425,8 @@ public class HazardCurveApplet extends JApplet
   public String getSelectedIMT(){
     return imtGuiBean.getSelectedIMT();
   }
+
+
   /**
    * Initialize the Interesting sites control panel
    * It will provide a pick list of interesting sites
@@ -1463,7 +1457,7 @@ public class HazardCurveApplet extends JApplet
     if(xValuesPanel == null)
       xValuesPanel = new X_ValuesInCurveControlPanel(this,this);
     if(!useCustomX_Values)
-      xValuesPanel.setX_Values(imtGuiBean.getSelectedIMT());
+      xValuesPanel.useDefaultX_Values();
     else
       xValuesPanel.setX_Values(function);
     xValuesPanel.pack();
@@ -1523,21 +1517,18 @@ public class HazardCurveApplet extends JApplet
 
   /**
    * set x values in log space for Hazard Function to be passed to IMR
-   * if the selected IMT are SA , PGA or PGV
+   * if the selected IMT are SA , PGA , PGV or FaultDispl
    * It accepts 1 parameters
    *
    * @param originalFunc :  this is the function with X values set
    */
   private void initX_Values(DiscretizedFuncAPI arb){
 
-    // take log only if it is PGA, PGV or SA
-    String selectedIMT = isIMTLogEnabled();
-
     // if not using custom values get the function according to IMT.
     if(!useCustomX_Values)
-      function = defaultX_Values.getHazardCurve(imtGuiBean.getSelectedIMT());
+      function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
 
-    if (selectedIMT!=null) {
+    if (imtInfo.isIMT_LogNormalDist(imtGuiBean.getSelectedIMT())) {
       for(int i=0;i<function.getNum();++i)
         arb.set(Math.log(function.getX(i)),1);
     }
@@ -1557,9 +1548,9 @@ public class HazardCurveApplet extends JApplet
     int numPoints = hazFunc.getNum();
     DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
     hazFunc = new ArbitrarilyDiscretizedFunc();
-    // take log only if it is PGA, PGV or SA
-    String selectedIMT = isIMTLogEnabled();
-    if (selectedIMT!=null) {
+    // take log only if it is PGA, PGV ,SA or FaultDispl
+
+    if (imtInfo.isIMT_LogNormalDist(imtGuiBean.getSelectedIMT())) {
       for(int i=0; i<numPoints; ++i)
         hazFunc.set(function.getX(i), tempFunc.getY(i));
       return hazFunc;
@@ -1600,19 +1591,7 @@ public class HazardCurveApplet extends JApplet
     this.avgSelected = isAvgSelected;
   }
 
-  /**
-   * @return true if the selected IMT is PGA, PGV or SA
-   * else returns false
-   */
-  private String isIMTLogEnabled(){
-   String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
-    if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
-       selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
-       selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME)  ||
-       selectedIMT.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
-     return selectedIMT;
-    return null;
-  }
+
 
 
 

@@ -7,7 +7,7 @@ import java.awt.event.*;
 import java.text.DecimalFormat;
 
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import org.scec.sha.gui.infoTools.DefaultHazardCurveForIMTs;
+import org.scec.sha.gui.infoTools.IMT_Info;
 
 
 /**
@@ -225,8 +225,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
    * Sets the Control Panel to show the Defualt X values based on the selecetd IMT
    * @param imt
    */
-  public void setX_Values(String imt){
-    this.imt = imt;
+  public void useDefaultX_Values(){
     xValuesSelectionCombo.setSelectedItem(DEFAULT);
     repaint();
     validate();
@@ -381,11 +380,11 @@ public class X_ValuesInCurveControlPanel extends JFrame {
       //gets the selected IMT from application , is the user was working with custom
       //and then chooses the default then the IMT should be the latest one  selcetd in the application.
       imt = api.getSelectedIMT();
-      minText.setText(""+DefaultHazardCurveForIMTs.getMinIMT_Val(imt));
-      maxText.setText(""+DefaultHazardCurveForIMTs.getMaxIMT_Val(imt));
-      numText.setText(""+DefaultHazardCurveForIMTs.getNumIMT_Val(imt));
-      DefaultHazardCurveForIMTs defaultX_Vals = new DefaultHazardCurveForIMTs();
-      function = defaultX_Vals.getHazardCurve(imt);
+      minText.setText(""+IMT_Info.getMinIMT_Val(imt));
+      maxText.setText(""+IMT_Info.getMaxIMT_Val(imt));
+      numText.setText(""+IMT_Info.getNumIMT_Val(imt));
+      IMT_Info defaultX_Vals = new IMT_Info();
+      function = defaultX_Vals.getDefaultHazardCurve(imt);
       setX_Values();
     }
     else if(selectedItem.equals(this.MIN_MAX_NUM))

@@ -32,7 +32,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   private final static String SA_DIR_NAME = "sa_.3/";
   private final static String PGV_DIR_NAME = "pgv/";
 
-  private DefaultHazardCurveForIMTs defaultXVals = new DefaultHazardCurveForIMTs();
+  private IMT_Info defaultXVals = new IMT_Info();
 
   public HazusDataGenerator() {
 
@@ -58,14 +58,14 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
                       " MIN LON: "+region.getMinLon()+" MAX LON: "+region.getMaxLon()+
                       " Grid Spacing: "+region.getGridSpacing()+"\n";
     //doing ofr PGA
-    ArbitrarilyDiscretizedFunc function = defaultXVals.getHazardCurve(attenRel.PGA_NAME);
+    ArbitrarilyDiscretizedFunc function = defaultXVals.getDefaultHazardCurve(attenRel.PGA_NAME);
     double[] xValues =new double[function.getNum()];
     for(int i=0;i<function.getNum();++i)
       xValues[i] = function.getX(i);
     calc.getHazardMapCurves(PGA_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
 
     //Doing for SA
-    function = defaultXVals.getHazardCurve(attenRel.SA_NAME);
+    function = defaultXVals.getDefaultHazardCurve(attenRel.SA_NAME);
     xValues =new double[function.getNum()];
     for(int i=0;i<function.getNum();++i)
       xValues[i] = function.getX(i);
@@ -76,7 +76,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     calc.getHazardMapCurves(SA_1_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
 
     //Doing for PGV
-    function = defaultXVals.getHazardCurve(attenRel.PGV_NAME);
+    function = defaultXVals.getDefaultHazardCurve(attenRel.PGV_NAME);
     xValues =new double[function.getNum()];
     for(int i=0;i<function.getNum();++i)
       xValues[i] = function.getX(i);

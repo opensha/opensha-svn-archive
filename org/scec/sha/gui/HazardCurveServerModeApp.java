@@ -52,7 +52,8 @@ import org.scec.sha.earthquake.ForecastAPI;
 
 public class HazardCurveServerModeApp extends JApplet
     implements Runnable, ParameterChangeListener, AxisLimitsControlPanelAPI,
-    DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI {
+    DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
+    X_ValuesInCurveControlPanelAPI {
 
   /**
    * Name of the class
@@ -91,6 +92,7 @@ public class HazardCurveServerModeApp extends JApplet
   private final static String AXIS_CONTROL = "Axis Control";
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
+  private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
   private final static String CVM_CONTROL = "Set Site Params from CVM";
 
   // objects for control panels
@@ -101,6 +103,7 @@ public class HazardCurveServerModeApp extends JApplet
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
   private SitesOfInterestControlPanel sitesOfInterest;
   private SetSiteParamsFromCVMControlPanel cvmControlPanel;
+  private X_ValuesInCurveControlPanel xValuesPanel;
 
   // message string to be dispalayed if user chooses Axis Scale
    // without first clicking on "Add Graph"
@@ -135,23 +138,13 @@ public class HazardCurveServerModeApp extends JApplet
   private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
-  // make a array for saving the X values
-  private  double [] xValuesSA = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
+  //holds the ArbitrarilyDiscretizedFunc
+  private ArbitrarilyDiscretizedFunc function;
 
-  // make a array for saving the X values
-  private  double [] xValuesPGA = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
+  //instance to get the default IMT X values for the hazard Curve
+  private IMT_Info imtInfo = new IMT_Info();
 
-  // make a array for saving the X values
-  private  double [] xValuesPGV = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
 
-  // make a array for saving the X values
-  private  double [] xValuesFaultDispl = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
-    1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8,
-    2.9, 3.0}  ;
 
   // Create the x-axis and y-axis - either normal or log
   private org.jfree.chart.axis.NumberAxis xAxis = null;
@@ -190,6 +183,9 @@ public class HazardCurveServerModeApp extends JApplet
 
   // text area to show the data values
   private JTextArea pointsTextArea = new JTextArea();
+
+  //flags to check which X Values the user wants to work with: default or custom
+  boolean useCustomX_Values = false;
 
   /**
    * chart panel
@@ -1185,22 +1181,7 @@ public class HazardCurveServerModeApp extends JApplet
    * Initialize the ERF Gui Bean
    */
   private void initERF_ServletModeGuiBean() {
-     // create the ERF Gui Bean object
-   /*Vector erf_Classes = new Vector();
-   erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
-   erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
 
-   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
-   erfGuiBean = new ERF_ServletModeGuiBean(erf_Classes);*/
    try{
    erfGuiBean = new ERF_ServletModeGuiBean();
    }catch(Exception e){
@@ -1232,12 +1213,12 @@ public class HazardCurveServerModeApp extends JApplet
    */
   private void initControlList() {
     this.controlComboBox.addItem(CONTROL_PANELS);
-    //this.controlComboBox.addItem(PEER_TEST_CONTROL);
     this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
     this.controlComboBox.addItem(AXIS_CONTROL);
     this.controlComboBox.addItem(DISTANCE_CONTROL);
     this.controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
-     this.controlComboBox.addItem(CVM_CONTROL);
+    this.controlComboBox.addItem(CVM_CONTROL);
+    this.controlComboBox.addItem(X_VALUES_CONTROL);
   }
 
   /**
@@ -1247,8 +1228,6 @@ public class HazardCurveServerModeApp extends JApplet
   void controlComboBox_actionPerformed(ActionEvent e) {
     if(controlComboBox.getItemCount()<=0) return;
     String selectedControl = controlComboBox.getSelectedItem().toString();
-    /*if(selectedControl.equalsIgnoreCase(this.PEER_TEST_CONTROL))
-      initPEER_TestControl();*/
     if(selectedControl.equalsIgnoreCase(this.DISAGGREGATION_CONTROL))
       initDisaggregationControl();
     else if(selectedControl.equalsIgnoreCase(this.EPISTEMIC_CONTROL))
@@ -1263,8 +1242,25 @@ public class HazardCurveServerModeApp extends JApplet
       initSitesOfInterestControl();
     else if(selectedControl.equalsIgnoreCase(this.CVM_CONTROL))
       initCVMControl();
+    else if(selectedControl.equalsIgnoreCase(this.X_VALUES_CONTROL))
+      initX_ValuesControl();
 
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
+  }
+
+  /**
+   * initialize the X values for the Hazard Curve control Panel
+   * It will enable the user to set the X values
+   */
+  private void initX_ValuesControl(){
+    if(xValuesPanel == null)
+      xValuesPanel = new X_ValuesInCurveControlPanel(this,this);
+    if(!useCustomX_Values)
+      xValuesPanel.useDefaultX_Values();
+    else
+      xValuesPanel.setX_Values(function);
+    xValuesPanel.pack();
+    xValuesPanel.show();
   }
 
   /**
@@ -1380,37 +1376,51 @@ public class HazardCurveServerModeApp extends JApplet
   }
 
 
+  /**
+   * It forces the users the use the default X Values for the selected IMT
+   */
+  public void setX_ValuesForHazardCurve(){
+    useCustomX_Values = false;
+  }
+
+  /**
+   * Sets the ArbitrarilyDiscretizedFunc if user wants to have its own custom values.
+   * @param func
+   */
+  public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func){
+    useCustomX_Values = true;
+    function =func;
+  }
+
+  /**
+   *
+   * @returns the selected IMT
+   */
+  public String getSelectedIMT(){
+    return imtGuiBean.getSelectedIMT();
+  }
 
   /**
    * set x values in log space for Hazard Function to be passed to IMR
-   * if the selected IMT are SA , PGA or PGV
+   * if the selected IMT are SA , PGA , PGV or FaultDispl
    * It accepts 1 parameters
    *
    * @param originalFunc :  this is the function with X values set
    */
   private void initX_Values(DiscretizedFuncAPI arb){
-    // take log only if it is PGA, PGV or SA
-    String selectedIMT = isIMTLogEnabled();
-    if (selectedIMT!=null) {
-      // if PGA is chosen
-      if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME))
-        for(int i=0; i<this.xValuesPGA.length; ++i)
-          arb.set(Math.log(xValuesPGA[i]),1 );
-      // if PGV is chosen
-     else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME))
-       for(int i=0; i<this.xValuesPGV.length; ++i)
-          arb.set(Math.log(xValuesPGV[i]),1 );
-     // if SA is chosen
-     else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
-       for(int i=0; i<this.xValuesSA.length; ++i)
-          arb.set(Math.log(xValuesSA[i]),1 );
-     // if Fault Displacement is chosen
-     else if(selectedIMT.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
-       for(int i=0; i<this.xValuesFaultDispl.length; ++i)
-          arb.set(Math.log(xValuesFaultDispl[i]),1 );
-    } else
+
+    // if not using custom values get the function according to IMT.
+    if(!useCustomX_Values)
+      function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
+
+    if (imtInfo.isIMT_LogNormalDist(imtGuiBean.getSelectedIMT())) {
+      for(int i=0;i<function.getNum();++i)
+        arb.set(Math.log(function.getX(i)),1);
+    }
+    else
       throw new RuntimeException("Unsupported IMT");
   }
+
 
   /**
    * set x values back from the log space to the original linear values
@@ -1424,27 +1434,14 @@ public class HazardCurveServerModeApp extends JApplet
     int numPoints = hazFunc.getNum();
     DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
     hazFunc = new ArbitrarilyDiscretizedFunc();
-    // take log only if it is PGA, PGV or SA
-    String selectedIMT = isIMTLogEnabled();
-    if (selectedIMT!=null) {
-      // if PGA is chosen
-      if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME))
-        for(int i=0; i<numPoints; ++i)
-          hazFunc.set(xValuesPGA[i], tempFunc.getY(i));
-      // if PGV  is chosen
-      else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME))
-        for(int i=0; i<numPoints; ++i)
-          hazFunc.set(xValuesPGV[i], tempFunc.getY(i));
-      // if SA is chosen
-      else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
-        for(int i=0; i<numPoints; ++i)
-          hazFunc.set(xValuesSA[i], tempFunc.getY(i));
-      // if Fault displacement is chosen
-      else if(selectedIMT.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
-        for(int i=0; i<numPoints; ++i)
-          hazFunc.set(xValuesFaultDispl[i], tempFunc.getY(i));
-    return hazFunc;
-    } else
+    // take log only if it is PGA, PGV ,SA or FaultDispl
+
+    if (imtInfo.isIMT_LogNormalDist(imtGuiBean.getSelectedIMT())) {
+      for(int i=0; i<numPoints; ++i)
+        hazFunc.set(function.getX(i), tempFunc.getY(i));
+      return hazFunc;
+    }
+    else
       throw new RuntimeException("Unsupported IMT");
   }
 
@@ -1480,19 +1477,6 @@ public class HazardCurveServerModeApp extends JApplet
     this.avgSelected = isAvgSelected;
   }
 
-  /**
-   * @return true if the selected IMT is PGA, PGV or SA
-   * else returns false
-   */
-  private String isIMTLogEnabled(){
-   String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
-    if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
-       selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
-       selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME)  ||
-       selectedIMT.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
-     return selectedIMT;
-    return null;
-  }
   void imgLabel_mousePressed(MouseEvent e) {
 
   }
