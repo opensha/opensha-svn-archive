@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.net.*;
 import java.io.Serializable;
 import java.io.*;
+import java.awt.*;
+import java.awt.event.*;
 
 
 import org.scec.param.*;
@@ -15,8 +17,8 @@ import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.data.Site;
 import org.scec.data.Location;
 import org.scec.data.region.*;
-import java.awt.*;
-import java.awt.event.*;
+import org.scec.sha.gui.infoTools.CalcProgressBar;
+
 
 /**
  * <p>Title:SiteParamListEditor </p>
@@ -50,6 +52,9 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   private static final double MAX_CVM_LAT = 36.0;
   private static final double MIN_CVM_LON = -121.0;
   private static final double MAX_CVM_LON = -114.0;
+
+  //Progress Bar instance
+  private CalcProgressBar calcProgress;
 
 
   //Vs30 vector: the values that return from the CVM
@@ -480,12 +485,13 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
       return ;
     }
+
+    calcProgress = new CalcProgressBar("Setting Gridded Region sites","Starting to get the siteParamters from the CVM");
+    calcProgress.setProgressMessage("Getting Vs30 from the SCEC CVM");
     getVS30FromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
-    this.repaint();
-    this.validate();
+    calcProgress.setProgressMessage("Getting BasinDepth-2.5 from the SCEC CVM");
     getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
-    this.repaint();
-    this.validate();
+    calcProgress.dispose();
   }
 
 

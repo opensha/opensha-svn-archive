@@ -18,6 +18,7 @@ import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.data.Site;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.gui.controls.RegionsOfInterestControlPanel;
+import org.scec.sha.gui.infoTools.*;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -50,7 +51,8 @@ public class ScenarioShakeMapApp extends JApplet implements
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
 
-
+  //Progress Bar Initialization
+  CalcProgressBar calcProgress ;
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
@@ -429,6 +431,8 @@ public class ScenarioShakeMapApp extends JApplet implements
    * The IML or prob vector contains value based on what the user has selected in the Map type
    */
   private void generateShakeMap(){
+
+    calcProgress = new CalcProgressBar("ShakeMapApp","Starting with ShakeMap Param Calculation");
     boolean imlAtProb=false;
     boolean probAtIML=false;
     double imlProbValue=imlProbGuiBean.getIML_Prob();
@@ -436,8 +440,6 @@ public class ScenarioShakeMapApp extends JApplet implements
     SitesInGriddedRegion griddedRegionSites;
     try {
       griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-      this.repaint();
-      this.validate();
     }catch(Exception e) {
       JOptionPane.showMessageDialog(this,e.getMessage());
       return;
@@ -447,7 +449,6 @@ public class ScenarioShakeMapApp extends JApplet implements
     if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
       imlAtProb=true;
     else probAtIML=true;
-
 
     // get the selected IMR
     AttenuationRelationship imr = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
@@ -462,7 +463,9 @@ public class ScenarioShakeMapApp extends JApplet implements
     Vector siteLat= new Vector();
     Vector siteLon= new Vector();
     Vector siteValue = new Vector();
+    calcProgress.setProgressMessage("Starting to make calculation for each Gridded Site");
     for(int i=0;i<numSites;++i){
+      calcProgress.updateProgress(i,numSites);
       site = griddedRegionSites.getSite(i);
 
       siteLat.add(new Double(site.getLocation().getLatitude()));
@@ -494,13 +497,16 @@ public class ScenarioShakeMapApp extends JApplet implements
     }catch(Exception e) {
       e.printStackTrace();
     }
+    calcProgress.setProgressMessage("Setting the GMT paramters to draw the Map");
     double minLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
     double maxLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
     double minLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
     double maxLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
     double gridSpacing=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
     mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
+    calcProgress.setProgressMessage("Running the GMT script to draw the Map");
     mapGuiBean.makeMap(this.fileNameTextField.getText().trim()+".txt");
+    calcProgress.dispose();
   }
 
 

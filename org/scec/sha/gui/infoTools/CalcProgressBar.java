@@ -19,8 +19,8 @@ public class CalcProgressBar extends JProgressBar {
   private JFrame frame;
   private JLabel label;
   // frame height and width
-  private int FRAME_WIDTH = 250;
-  private int FRAME_HEIGHT = 60;
+  private int FRAME_WIDTH = 320;
+  private int FRAME_HEIGHT = 80;
 
   // start x and y for frame
   private int FRAME_STARTX = 400;
