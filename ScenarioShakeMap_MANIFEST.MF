@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
-Main-Class: org.scec.sha.gui.ScenarioShakeMapApp
-Class-Path: lib/commons-beanutils.jar lib/activation.jar lib/commons-collections.jar lib/commons-logging.jar lib/dom4j.jar lib/jaas.jar lib/jax-qname.jar lib/jaxrpc-api.jar lib/jaxrpc-impl.jar lib/jta-spec1_0_1.jar lib/log4j-1.2.4.jar lib/mail.jar lib/namespace.jar lib/relaxngDatatype.jar lib/saaj-api.jar lib/saaj-impl.jar lib/saaj-ri.jar  lib/xercesImpl.jar lib/xercesSamples.jar lib/xml-apis.jar lib/xmlParserAPIs.jar lib/xsdlib.jar
+Main-Class: org.scec.sha.gui.ScenarioShakeMapAttenRelApp_Temp
+
+
 
 
