@@ -451,7 +451,9 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     int colorIndex=0;
     int displayIndex =1;
     //checking which test case is selected
-    String testSet= this.testCaseCombo.getSelectedItem().toString();
+    String temp = this.testCaseCombo.getSelectedItem().toString();
+    int index1 = temp.indexOf(" ");
+    String testSet= temp.substring(0,index1)+temp.substring(index1+1);
     testCasesPanel.removeAll();
     avgCasesPanel.removeAll();
     // clear the function list
@@ -545,7 +547,6 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       legendPaint= new Paint[size+1];
 
       //checking which test case is selected at the time of adding of the plot
-      String testSelected = this.testCaseCombo.getSelectedItem().toString();
       k=0;
       for(int i=0;i<size;i++){
 
@@ -725,8 +726,13 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
        while((line=dataStream.readLine())!=null) {
          if(line.endsWith(FILE_EXTENSION)) testFiles.add(line);
          else continue;
+
+         // this is needed to add a spce between test case and site
          int index=line.indexOf("_");
-         String testCases = line.substring(0,index);
+         String temp = line.substring(0,index);
+         int index1 = temp.lastIndexOf("-");
+         String testCases = line.substring(0,index1-1)+" "+line.substring(index1-1,index);
+
          boolean isTenOrEleven = false;
          boolean flag = false;
          // check wther this is test case 10 or 11
