@@ -4,7 +4,7 @@ import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
 import java.util.ArrayList;
 import gov.usgs.exceptions.ZipCodeErrorException;
 import org.scec.data.function.DiscretizedFuncList;
-
+import gov.usgs.util.GlobalConstants;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
@@ -146,11 +146,115 @@ public class DataGenerator_NEHRP
    *
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList getFunctionsForMapSpectrum(){
+  public ArrayList getFunctionsForMapSpectrum(){
+    DiscretizedFuncList saTfunctions = new DiscretizedFuncList();
+    DiscretizedFuncList sasdFunctions = new DiscretizedFuncList();
+    ArbitrarilyDiscretizedFunc saTFunction=null;
+    ArbitrarilyDiscretizedFunc sasdFunction = new ArbitrarilyDiscretizedFunc();
+    int numFunctions = mapSpectrumFunctions.size();
+    int i=0;
+    for(;i<numFunctions;++i){
+      ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)mapSpectrumFunctions.get(i);
+      if(tempFunction.getName().equals(GlobalConstants.MCE_SPECTRUM_SA_Vs_T_GRAPH)){
+        saTFunction = tempFunction;
+        break;
+      }
+    }
 
-    return null;
+    ArbitrarilyDiscretizedFunc tempSDFunction =(ArbitrarilyDiscretizedFunc)mapSpectrumFunctions.get(1-i);
+
+    int numPoints = tempSDFunction.getNum();
+    for(int j=0;j<numPoints;++j)
+      sasdFunction.set(saTFunction.getY(j),tempSDFunction.getY(j));
+
+    sasdFunctions.setName(GlobalConstants.MCE_SPECTRUM_SA_Vs_SD_GRAPH);
+    saTfunctions.setName(GlobalConstants.MCE_SPECTRUM_SA_Vs_T_GRAPH);
+    sasdFunctions.add(sasdFunction);
+    saTfunctions.add(saTFunction);
+    ArrayList functions = new ArrayList();
+    functions.add(saTfunctions);
+    functions.add(sasdFunctions);
+    return functions;
   }
 
+
+  /**
+   *
+   * @return DiscretizedFuncList
+   */
+  public ArrayList getFunctionsForSMSpectrum(){
+    DiscretizedFuncList saTFunctions = new DiscretizedFuncList();
+    DiscretizedFuncList sasdFunctions = new DiscretizedFuncList();
+    ArbitrarilyDiscretizedFunc saTFunction=null;
+    ArbitrarilyDiscretizedFunc sasdFunction = new ArbitrarilyDiscretizedFunc();
+    int numFunctions = smSpectrumFunctions.size();
+    int i=0;
+    for(;i<numFunctions;++i){
+      ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)smSpectrumFunctions.get(i);
+      if(tempFunction.getName().equals(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH)){
+        saTFunction = tempFunction;
+        break;
+      }
+    }
+
+    ArbitrarilyDiscretizedFunc tempSDFunction =(ArbitrarilyDiscretizedFunc)smSpectrumFunctions.get(1-i);
+
+    int numPoints = tempSDFunction.getNum();
+
+    for(int j=0;j<numPoints;++j)
+      sasdFunction.set(saTFunction.getY(j),tempSDFunction.getY(j));
+
+    sasdFunctions.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_SD_GRAPH);
+    saTFunctions.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH);
+    sasdFunctions.add(sasdFunction);
+    saTFunctions.add(saTFunction);
+
+    ArrayList functions = new ArrayList();
+
+    functions.add(sasdFunctions);
+    functions.add(saTFunctions);
+
+    return functions;
+  }
+
+  /**
+   *
+   * @return DiscretizedFuncList
+   */
+  public ArrayList getFunctionsForSDSpectrum(){
+    DiscretizedFuncList sasdFunctions = new DiscretizedFuncList();
+    DiscretizedFuncList saTFunctions = new DiscretizedFuncList();
+    ArbitrarilyDiscretizedFunc saTFunction=null;
+    ArbitrarilyDiscretizedFunc sasdFunction = new ArbitrarilyDiscretizedFunc();
+    int numFunctions = sdSpectrumFunctions.size();
+    int i=0;
+    for(;i<numFunctions;++i){
+      ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)sdSpectrumFunctions.get(i);
+      if(tempFunction.getName().equals(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH)){
+        saTFunction = tempFunction;
+        break;
+      }
+    }
+
+    ArbitrarilyDiscretizedFunc tempSDFunction =(ArbitrarilyDiscretizedFunc)smSpectrumFunctions.get(1-i);
+
+    int numPoints = tempSDFunction.getNum();
+
+    for(int j=0;j<numPoints;++j)
+      sasdFunction.set(saTFunction.getY(j),tempSDFunction.getY(j));
+
+    sasdFunctions.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_SD_GRAPH);
+    saTFunctions.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH);
+
+    sasdFunctions.add(sasdFunction);
+    saTFunctions.add(saTFunction);
+
+
+    ArrayList functions = new ArrayList();
+    functions.add(sasdFunction);
+    functions.add(saTFunction);
+    return functions;
+  }
 
 
 

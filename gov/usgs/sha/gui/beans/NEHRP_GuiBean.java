@@ -24,6 +24,7 @@ import gov.usgs.exceptions.ZipCodeErrorException;
 import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
 import gov.usgs.sha.data.DataGenerator_NEHRP;
 import gov.usgs.sha.gui.infoTools.SiteCoefficientInfoWindow;
+import gov.usgs.sha.gui.infoTools.GraphWindow;
 
 /**
  * <p>Title:NEHRP_GuiBean</p>
@@ -76,7 +77,7 @@ public class NEHRP_GuiBean
   private static final String MCE_GROUND_MOTION = "MCE Ground Motion";
 
 
-  private DataGeneratorAPI_NEHRP dataGenerator = new DataGenerator_NEHRP();
+  private DataGenerator_NEHRP dataGenerator = new DataGenerator_NEHRP();
 
   //site coeffiecient window instance
   SiteCoefficientInfoWindow siteCoefficientWindow;
@@ -500,7 +501,11 @@ public class NEHRP_GuiBean
   }
 
   private void viewButton_actionPerformed(ActionEvent actionEvent) {
-
+    if(mapSpecButton.isEnabled()){
+      ArrayList functions = dataGenerator.getFunctionsForMapSpectrum();
+      GraphWindow window = new GraphWindow(functions);
+      window.show();
+    }
   }
 
 }
