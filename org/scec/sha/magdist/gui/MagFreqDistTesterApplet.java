@@ -708,9 +708,9 @@ public class MagFreqDistTesterApplet extends JApplet
           }
 
         // Add points data to text area, people can see
-          pointsTextArea.setText( currentMagDistName + ": " + INCR_RATE +" vs. "+ MAG + '\n' + incrFunctions.toString());
-          pointsTextArea.append(currentMagDistName + ": " + CUM_RATE +" vs. "+ MAG + '\n' + toCumFunctions.toString());
-          pointsTextArea.append(currentMagDistName + ": " + MO_RATE +" vs. "+ MAG + '\n' + toMoFunctions.toString());
+          pointsTextArea.setText(INCR_RATE +" vs. "+ MAG + '\n' + "--------------------------" + '\n' + incrFunctions.toString());
+          pointsTextArea.append('\n' + CUM_RATE +" vs. "+ MAG + '\n' + "-------------------------" + '\n' + toCumFunctions.toString());
+          pointsTextArea.append('\n' + MO_RATE +" vs. "+ MAG + '\n' + "-----------------------" + '\n' + toMoFunctions.toString());
 
           // draw the graph
           addGraphPanel();
@@ -1256,9 +1256,9 @@ public class MagFreqDistTesterApplet extends JApplet
    }
 
    // Add points data to text area, people can see
-    pointsTextArea.setText( currentMagDistName + ": " + INCR_RATE +" vs. "+ MAG + '\n' + incrFunctions.toString());
-    pointsTextArea.append(currentMagDistName + ": " + CUM_RATE +" vs. "+ MAG + '\n' + toCumFunctions.toString());
-    pointsTextArea.append(currentMagDistName + ": " + MO_RATE +" vs. "+ MAG + '\n' + toMoFunctions.toString());
+    pointsTextArea.setText(INCR_RATE +" vs. "+ MAG + '\n' + "--------------------------" + '\n' + incrFunctions.toString());
+    pointsTextArea.append('\n' + CUM_RATE +" vs. "+ MAG + '\n' + "-------------------------" + '\n' + toCumFunctions.toString());
+    pointsTextArea.append('\n' + MO_RATE +" vs. "+ MAG + '\n' + "-----------------------" + '\n' + toMoFunctions.toString());
 
     addGraphPanel();
 

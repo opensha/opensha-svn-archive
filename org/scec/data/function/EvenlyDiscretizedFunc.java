@@ -214,11 +214,18 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     public double getY(double x){ return getY( getXIndex( x) ); }
 
     /**
-     * Iterates from lowest to highest x value and compares to the
-     * input argument if they are equal within tolerance. If a match is
-     * found the index is returned, else -1 is returned.
+     * Returns the index of the supplied value provided it's within the tolerance
+     * of one of the dicretized values.
      */
     public int getXIndex( double x) throws DataPoint2DException{
+
+        int i = Math.round((float)((x-minX)/delta));
+        if( withinTolerance(x, this.getX(i) ))
+          return i;
+        else
+          throw new DataPoint2DException(C + ": set(): This point doesn't match a permitted x value.");
+/*
+        // Steve's old approach:
 
         double xx = x;              // Why this?
         double xxMin = this.minX;   // Why this?
@@ -227,6 +234,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
             if( withinTolerance(xx, ( xxMin + i*delta ) ) ) return i;
         }
        throw new DataPoint2DException(C + ": set(): This point doesn't match a permitted x value.");
+*/
     }
 
    /**

@@ -751,7 +751,12 @@ public class MagFreqDistParameterEditor extends ParameterEditor
               if(mag.doubleValue()>max.doubleValue() || mag.doubleValue()<min.doubleValue()){
                 throw new java.lang.RuntimeException("Value of Mag must lie between the min and max value");
               }
-              single.setMagAndRate(mag.doubleValue(),rate.doubleValue());
+              try {
+                single.setMagAndRate(mag.doubleValue(),rate.doubleValue());
+              }catch(RuntimeException e){
+                throw new java.lang.RuntimeException("The chosen magnitude must fall on one of the discrete x-axis values");
+              }
+
               if(D) System.out.println(S+" after setting SINGLE DIST");
            }
            // if mag and moment rate are set
@@ -761,7 +766,11 @@ public class MagFreqDistParameterEditor extends ParameterEditor
               if(mag.doubleValue()>max.doubleValue() || mag.doubleValue()<min.doubleValue()){
                 throw new java.lang.RuntimeException("Value of Mag must lie between the min and max value");
               }
-              single.setMagAndMomentRate(mag.doubleValue(),moRate.doubleValue());
+              try {
+                single.setMagAndMomentRate(mag.doubleValue(),moRate.doubleValue());
+              }catch(RuntimeException e){
+                throw new java.lang.RuntimeException("The chosen magnitude must fall on one of the discrete x-axis values");
+              }
            }
            // if rate and moment  rate are set
            if(paramToSet.equalsIgnoreCase(RATE_AND_MORATE)) {
@@ -850,9 +859,13 @@ public class MagFreqDistParameterEditor extends ParameterEditor
               if(magLower.doubleValue()>magUpper.doubleValue()){
                throw new java.lang.RuntimeException("Value of MagLower must be <= to MagUpper");
               }
-
+              try {
               gR.setAllButTotMoRate(magLower.doubleValue(),magUpper.doubleValue(),
                                     totCumRate.doubleValue(), bValue.doubleValue());
+              }catch(RuntimeException e){
+                throw new java.lang.RuntimeException("magUpper and MagLower must fall on one of the discrete x-axis values");
+              }
+
            }
            // if set all parameters except total cumulative rate
            if(setAllParamsBut.equalsIgnoreCase(TOT_CUM_RATE)) {
@@ -864,8 +877,12 @@ public class MagFreqDistParameterEditor extends ParameterEditor
              if(magLower.doubleValue()>magUpper.doubleValue()){
                throw new java.lang.RuntimeException("Value of MagLower must be <= to MagUpper");
              }
-             gR.setAllButTotCumRate(magLower.doubleValue(),magUpper.doubleValue(),
+             try {
+               gR.setAllButTotCumRate(magLower.doubleValue(),magUpper.doubleValue(),
                                     toMoRate.doubleValue(), bValue.doubleValue());
+             }catch(RuntimeException e){
+               throw new java.lang.RuntimeException("magUpper and MagLower must fall on one of the discrete x-axis values");
+             }
 
            }
            // if set all parameters except mag upper
@@ -876,9 +893,14 @@ public class MagFreqDistParameterEditor extends ParameterEditor
              boolean relaxCumRate = false;
              if(fix.equalsIgnoreCase(GR_FIX_TO_MORATE))
                 relaxCumRate = true;
-             gR.setAllButMagUpper(magLower.doubleValue(),toMoRate.doubleValue(),
+             try {
+               gR.setAllButMagUpper(magLower.doubleValue(),toMoRate.doubleValue(),
                                   toCumRate.doubleValue(),bValue.doubleValue(),
                                   relaxCumRate);
+             }catch(RuntimeException e){
+               throw new java.lang.RuntimeException("MagLower must fall on one of the discrete x-axis values");
+             }
+
            }
           magDist =  (IncrementalMagFreqDist) gR;
         }
@@ -889,40 +911,65 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          */
        if(distributionName.equalsIgnoreCase(YC_1985_CharMagFreqDist.NAME)) {
 
-           Double magLower = (Double)parameterList.getParameter(GR_MAG_LOWER).getValue();
-           Double magUpper = (Double)parameterList.getParameter(GR_MAG_UPPER).getValue();
-           Double deltaMagChar = (Double)parameterList.getParameter(YC_DELTA_MAG_CHAR).getValue();
-           Double magPrime = (Double)parameterList.getParameter(YC_MAG_PRIME).getValue();
-           Double deltaMagPrime = (Double)parameterList.getParameter(YC_DELTA_MAG_PRIME).getValue();
-           Double bValue = (Double)parameterList.getParameter(GR_BVALUE).getValue();
+           double magLower = ((Double)parameterList.getParameter(GR_MAG_LOWER).getValue()).doubleValue();
+           double magUpper = ((Double)parameterList.getParameter(GR_MAG_UPPER).getValue()).doubleValue();
+           double deltaMagChar = ((Double)parameterList.getParameter(YC_DELTA_MAG_CHAR).getValue()).doubleValue();
+           double magPrime = ((Double)parameterList.getParameter(YC_MAG_PRIME).getValue()).doubleValue();
+           double deltaMagPrime = ((Double)parameterList.getParameter(YC_DELTA_MAG_PRIME).getValue()).doubleValue();
+           double bValue = ((Double)parameterList.getParameter(GR_BVALUE).getValue()).doubleValue();
+
 
            // check that maglowe r value lies betwenn min and max
-           if(magLower.doubleValue()>max.doubleValue() || magLower.doubleValue()<min.doubleValue()){
+           if(magLower>max.doubleValue() || magLower<min.doubleValue()){
                 throw new java.lang.RuntimeException("Value of MagLower must lie between the min and max value");
            }
            // check that magUpper value lies between min and max
-           if(magUpper.doubleValue()>max.doubleValue() || magUpper.doubleValue()<min.doubleValue()){
+           if(magUpper>max.doubleValue() || magUpper<min.doubleValue()){
                throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
            }
 
+           // creat the distribution
            YC_1985_CharMagFreqDist yc =
                   new YC_1985_CharMagFreqDist(min.doubleValue(),max.doubleValue(), num.intValue());
+
+           // Check that the mags fall on valid x increments:
+           int trialInt;
+           try  { trialInt = yc.getXIndex(magLower);
+           } catch(RuntimeException e) {
+               throw new java.lang.RuntimeException("MagLower must fall on one of the discrete x-axis values");
+           }
+           try { trialInt = yc.getXIndex(magUpper); }
+           catch(RuntimeException e) {
+               throw new java.lang.RuntimeException("MagUpper must fall on one of the discrete x-axis values");
+           }
+           try { trialInt = yc.getXIndex(magPrime); }
+           catch(RuntimeException e) {
+               throw new java.lang.RuntimeException("MagPrime must fall on one of the discrete x-axis values");
+           }
+           try { trialInt = yc.getXIndex(magPrime-deltaMagPrime); }
+           catch(RuntimeException e) {
+               throw new java.lang.RuntimeException("MagPrime-DeltaMagPrime must fall on one of the discrete x-axis values");
+           }
+           try {trialInt = yc.getXIndex(magUpper-deltaMagChar); }
+           catch(RuntimeException e) {
+               throw new java.lang.RuntimeException("MagUpper-DeltaMagChar must fall on one of the discrete x-axis values");
+           }
 
            String setAllParamsBut = parameterList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
 
            if(setAllParamsBut.equalsIgnoreCase(YC_TOT_CHAR_RATE)) {
-             Double totMoRate = (Double)parameterList.getParameter(TOT_MO_RATE).getValue();
-             yc.setAllButTotCharRate(magLower.doubleValue(), magUpper.doubleValue(),
-                     deltaMagChar.doubleValue(), magPrime.doubleValue(),
-                     deltaMagPrime.doubleValue(), bValue.doubleValue(),
-                     totMoRate.doubleValue());
+             double totMoRate = ((Double) parameterList.getParameter(TOT_MO_RATE).getValue()).doubleValue();
+             yc.setAllButTotCharRate(magLower, magUpper,
+                     deltaMagChar, magPrime,
+                     deltaMagPrime, bValue,
+                     totMoRate);
            }
            else {
-             Double totCharRate = (Double)parameterList.getParameter(YC_TOT_CHAR_RATE).getValue();
-             yc.setAllButTotMoRate(magLower.doubleValue(), magUpper.doubleValue(),
-                     deltaMagChar.doubleValue(), magPrime.doubleValue(),
-                     deltaMagPrime.doubleValue(), bValue.doubleValue(),
-                     totCharRate.doubleValue());
+             double totCharRate = ((Double)parameterList.getParameter(YC_TOT_CHAR_RATE).getValue()).doubleValue();
+             yc.setAllButTotMoRate(magLower, magUpper,
+                     deltaMagChar, magPrime,
+                     deltaMagPrime, bValue,
+                     totCharRate);
            }
 
            magDist =  (IncrementalMagFreqDist) yc;

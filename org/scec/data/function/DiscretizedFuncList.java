@@ -383,16 +383,19 @@ public class DiscretizedFuncList implements NamedObjectAPI{
             DiscretizedFuncAPI function = (DiscretizedFuncAPI)it.next();
             Iterator it2 = function.getPointsIterator();
 
-            b.append("\n\nFunction(Name): " + function.getName() + '\n');
-            b.append("Function(Total Points): " + function.getNum() + '\n');
-            b.append("Function(Info): " + function.getInfo() + '\n');
+            counter++;
+            b.append("\nData Set #" + counter + '\n');
+            b.append("Name: " + function.getName() + '\n');
+            b.append("Num Points: " + function.getNum() + '\n');
+            b.append("Info: " + function.getInfo() + '\n');
+            b.append("X, Y Data:" + '\n');
 
             while(it2.hasNext()){
 
                 DataPoint2D point = (DataPoint2D)it2.next();
                 double x = point.getX();
                 double y = point.getY();
-                b.append(TAB + x + "      " + y + '\n');
+                b.append((float) x + TAB + (float) y + '\n');
             }
 
         }
