@@ -12,29 +12,19 @@ HazardCurveApplet:
 	 (rather than centered in the vertical direction)
 
 
-Split the HazardCurveGuiBean into the following GuiBeans (so they can be used by our ShakeMap and HazardMap Applets):
+Evaluate:
 	
 	MapGuiBean  (Nitin does this)
 
 		takes a given XYZ file and uses settings in GMT_SettingsControlPanel to 
 		construct and display a map
-
-
-    For the ShakeMap Applet we'll also need the following GuiBean
 	
 	EqkRupSelectorGuiBean
 
 		First version can simply be a JComboBox hard-wired ruptures or use an ERF and 
 		selection of src and rup index
 
-Create the following control panels for our Applets (these will be put in a JComboBox in the App; chosing one will either show the panel in the App or present a new window):
-
-	AxisLimitsControlPanel
-	DisaggregationControlPanel
-	PEER_TestCaseSelectorControlPanel
-	GMT_SettingsControlPanel
-
-    In the future we'll add:
+Create the following control panels in the future:
 
 	ERF_EpistemicListControlPanel
 	X_ValuesInCurveControlPanel
@@ -48,10 +38,6 @@ Define TimeSpan object.
 
 HazardMapCalculator - move iteration over sites inside, add progress bar for sites, and turn off progress bar in HazardCurveCalculator.
 
-Frankel96_ERF - Add background seismicity.
-
-Add getApplicableRegion and isLocWithinApplicableRegion methods to EqkRupForecastAPI.
-
 Implement ERF_List objects in the HazardCurveApplet.
 
 Create an object that will compute fractiles from a list of hazard curves - Ned will provide a detailed description.
@@ -60,7 +46,7 @@ Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g.
 
 Mail JFreechart to include our log-log implementation into the official JFreeChart framework.
 
-GriddedFaultApplet - fix plotting symbols (make all circles), and have it read the new, single Frankel fault file (Frankel96_CAL_all.txt).
+GriddedFaultApplet - fix plotting symbols (make all circles) and check that horz and vert scaling is correct.
 
 AttenRelApp - make "Set Axes" button (rather than JcomoBox)
 
@@ -68,11 +54,14 @@ AttenRelApp - make "Set Axes" button (rather than JcomoBox)
 For the SCEC-ITR CME:
 ---------------------
 
+
+Implement getApplicableRegion() and isLocWithinApplicableRegion() methods in implemented ERFs.
+
 Think about porting our stand-alone applications to server mode.
 
 Think about meta data structure for haz map calcs.
 
-Build ScenarioShakeMapApplet (with HazardMapApplet in mind).  Then do this on server side.
+Build ScenarioShakeMapApplet (with HazardMapApplet in mind).  Then do this on server side?
 
 Get site params from Vs30 and basin depth translator, and get Vs30 and basin depth for lat/lon.
 
@@ -90,15 +79,13 @@ PEER_TestsApplet - In the IMT editor section the loop over independent parameter
 
 PEER_TestsApplet - Ned will go through our implementation of the PEER test cases again (to make sure Ned didn't screw anything up since he last did it).  Perhaps this should wait until we can simultaneously show the true or target value in the plot.  Eventually we'll want to make Junit tests for the PEER test cases.
 
-Move the Frankel96* data files to a better location (w/ a README or INFO file, or a header with an explanation.
-
-X vs Y scaling still seems to be incorrect in GriddedFaultApplet
-
 EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient, and have the getAveDip() method compute the dip explicitly (in case it's a subset of a listric fault)?
 
 Decide how to handle rake=NaN in each IMR (can rake-NaN in and EarthquakeRupture object?).
 
 Decide on and implement a licensing agreement.
+
+Decide on and implement email groups.
 
 Figure out why applets don't resize with browser window size on Mac OS.
 
