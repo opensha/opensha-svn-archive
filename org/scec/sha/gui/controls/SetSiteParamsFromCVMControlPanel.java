@@ -82,7 +82,10 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       }
     });
     jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel1.setText("Use both CGS Map and SCEC Basin Depth (web services): ");
+    String info = new String("This uses both the CGS Preliminary Site\n"+
+                             "Conditions Map of CA (Wills et al., 2000)\n"+
+                             "and basin depth from the SCEC CVM.");
+    jLabel1.setText(info);
     this.getContentPane().add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(3, 2, 0, 0), 4, 4));
     this.getContentPane().add(imrComboBox,   new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
