@@ -23,7 +23,7 @@ import org.scec.sha.earthquake.*;
  *  <b>Company:</b> <br>
  *
  *
- * @author     Steven W. Rock & Edward H. Field
+ * @author     Edward H. Field & Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  * @see        IntensityMeasureRelationshipAPI
@@ -41,13 +41,13 @@ public abstract class IntensityMeasureRelationship
     /** Prints out debugging statements if true */
     protected final static boolean D = false;
 
-    /** ParameterList of all site parameters */
+    /** ParameterList of all Site parameters */
     protected ParameterList siteParams = new ParameterList();
 
     /** ParameterList of all ProbEqkRupture parameters */
     protected ParameterList probEqkRuptureParams = new ParameterList();
 
-    /** ParameterList of all propagation effect parameters */
+    /** ParameterList of all Propagation-Effect parameters */
     protected ParameterList propagationEffectParams = new ParameterList();
 
     /** ParameterList of all supported Intensity Measure parameters */
@@ -56,8 +56,8 @@ public abstract class IntensityMeasureRelationship
     /** The current Site object (passing one in will set site-related parameters). */
     protected Site site;
 
-    /** The current ProbEqkRupture object (passing one in will set potential-
-     *  earthquake related parameters.
+    /** The current ProbEqkRupture object (passing one in will set Earthquake-
+     *  Rupture related parameters.
      */
     protected ProbEqkRupture probEqkRupture;
 
@@ -113,7 +113,7 @@ public abstract class IntensityMeasureRelationship
 
     /**
      *  Sets the probEqkRupture object in the IMR as a reference
-     *  to the one passed in, and sets any potential-earthquake related
+     *  to the one passed in, and sets any earthquake-rupture related
      *  parameters that the IMR depends upon.
      *
      * @param  probEqkRupture  The new probEqkRupture object
@@ -160,10 +160,9 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Sets the intensityMeasure parameter; this doesn't replace the
-     *  intensityMeasure as in the super class, but rather selects the
-     *  internal intensity measure (the one that has the same name) and
-     *  sets its value with that of the passed in parameter.
+     *  Sets the intensityMeasure parameter, not as a  pointer to that passed in,
+     *  but by finding the internally held one with the same name and then setting
+     *  its value to be equal to that passed in.
      *
      * @param  intensityMeasure  The new intensityMeasure Parameter
      */
@@ -316,57 +315,5 @@ public abstract class IntensityMeasureRelationship
     public ListIterator getSupportedIntensityMeasuresIterator() {
         return supportedIMParams.getParametersIterator();
     }
-
-
-    /* *
-     *  Useful for debugging. These parameters are all needed to determine what
-     *  data set to generate for plotting. <P>
-     *
-     *  SWR: FIX *** FIX *** Should be clone I think. Need to check all classes
-     *  that use this function.
-     *
-     * @return    Vector of all parameter values
-
-    public Vector getParameterValuesAsStrings() {
-
-        Vector paramValues = new Vector();
-        ListIterator it = parameters.getParametersIterator();
-        while ( it.hasNext() ) {
-
-            ParameterAPI param = ( ParameterAPI ) it.next();
-            String nameVal = param.getName() + ": " + param.getValue().toString();
-
-            if ( !paramValues.contains( nameVal ) ) {
-                paramValues.add( nameVal );
-            }
-        }
-
-        return paramValues;
-    } */
-
-
-    /* *
-     *  Returns the actual list object containing all independent parameters.
-     *  Used by the gui to get the list of independent parameters that are
-     *  editable.
-     *
-     * @return    The independentParameterList value
-     * /
-    public ParameterList getIndependentParametersList() {
-        return this.independentParams;
-    } */
-
-
-
 }
 
-
-/* *
-     *  Returns the iterator over all independent parameters.
-     *
-     * @return    The Independent Parameters Iterator
-     * /
-    public ListIterator getIndependentParamsIterator() {
-        return independentParams.getParametersIterator();
-    }
-*/

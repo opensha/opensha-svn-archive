@@ -24,12 +24,13 @@ import org.scec.util.*;
  *  abstract class, this implements the basic functionality common to all
  *  subclasses. Various parameters and their attributes (*_NAME, *_UNITS, *_INFO
  *  *_DEFAULT,*_MIN, *_MAX) are declared here to encourage the use of uniform
- *  convenstions. Some of these parameters are instantiated in the various init*
+ *  conventions. Some of these parameters are instantiated in the various init*
  *  methods here, some are not.  If subclasses do not need these params, they can
  *  be ignored.  They can also be overridden if different attributes are desired.<p>
  *
- *  <b>pgaParam</b> - a WarningDoubleParameter representing the <b>Peak Ground Acceleration</b>
- *  Intensity-Measure parameter.  This parameter is instantiated in its entirety in the
+ *  <b>pgaParam</b> - a WarningDoubleParameter representing the natural-log of the
+ *  <b>Peak Ground Acceleration</b> Intensity-Measure parameter.
+ *  This parameter is instantiated in its entirety in the
  *  initSupportedIntenistyMeasureParams() method here.<br>
  *  PGA_NAME = "PGA"<br>
  *  PGA_UNITS = "g"<br>
@@ -40,8 +41,9 @@ import org.scec.util.*;
  *  PGA_WARN_MAX - <i>see code</i><br>
  *  PGA_DEFAULT - <i>see code</i><p>
  *
- *  <b>pgvParam</b> - a WarningDoubleParameter representing the <b>Peak Ground Velocity</b>
- *  Intensity-Measure parameter.  This parameter is not instantiated here due to limited use.<br>
+ *  <b>pgvParam</b> - a WarningDoubleParameter representing the natural-log of the
+ *  <b>Peak Ground Velocity</b> Intensity-Measure parameter.
+ *  This parameter is not instantiated here due to limited use.<br>
  *  PGV_NAME = "PGV"<br>
  *  PGV_UNITS = "g"<br>
  *  PGV_INFO = "Peak Ground Acceleration"<br>
@@ -51,8 +53,9 @@ import org.scec.util.*;
  *  PGV_WARN_MAX - <i>see code</i><br>
  *  PGV_DEFAULT - <i>see code</i><p>
  *
- *  <b>saParam</b> - a WarningDoubleParameter representing the <b>Response Spectral Acceleration</b>
- *  Intensity-Measure Parameter  This parameter is instantiated in its entirety in the
+ *  <b>saParam</b> - a WarningDoubleParameter representing the natural-log of the
+ *  <b>Response Spectral Acceleration</b> Intensity-Measure Parameter
+ *  This parameter is instantiated in its entirety in the
  *  initSupportedIntenistyMeasureParams() method here. However its periodParam independent-
  *  parameter must be created and added in subclasses.<br>
  *  SA_NAME = "SA"<br>
@@ -188,11 +191,7 @@ import org.scec.util.*;
  * interface and be notified whenever Parameters are changed in the GUI.
  * The corresponding dependent variables can then be updated with the new Parameter
  * value. This calculation would not have to be done in the getMean() and other functions.
- * For example, the b1 coefficient depends on which Fault Type has been choosen in
- * the FaultTypeParameter. Currently b1 is calculated in getMean() everytime it is called.
- * It really only needs to be calculated once, whenever the FaultTypeParameter is
- * updated with a new value. This could be done in the ParameterChangeListener interface
- * function. This is the best optimized solution and recorded here just for reference. <p>
+ * This is the best optimized solution and recorded here just for reference. <p>
  */
 
 public abstract class ClassicIMR
@@ -211,8 +210,8 @@ public abstract class ClassicIMR
 
 
     /**
-     * PGA parameter, reserved for the "Peak Ground Acceleration" Intensity-
-     * Measure Parameter that most subclasses will support; all of the "PGA_*"
+     * PGA parameter, reserved for the natural log of the "Peak Ground Acceleration"
+     * Intensity-Measure Parameter that most subclasses will support; all of the "PGA_*"
      * class variables relate to this Parameter. This parameter is instantiated
      * in its entirety in the initSupportedIntenistyMeasureParams() method here.
      */
@@ -221,18 +220,17 @@ public abstract class ClassicIMR
     protected final static String PGA_UNITS = "g";
     protected final static Double PGA_DEFAULT = new Double( Math.log( 0.1 ) );
     protected final static String PGA_INFO = "Peak Ground Acceleration";
-
-    protected final static Double PGA_MIN = new Double( -200 ); //new Double(0);
-    protected final static Double PGA_MAX = new Double( Math.log(2) );
-    protected final static Double PGA_WARN_MIN = new Double( -200 ); //new Double(0);
-    protected final static Double PGA_WARN_MAX = new Double( Math.log( 2 ) );
+    protected final static Double PGA_MIN = new Double( -Double.MAX_VALUE );
+    protected final static Double PGA_MAX = new Double( Math.log(2.0) );
+    protected final static Double PGA_WARN_MIN = new Double( -Double.MAX_VALUE );
+    protected final static Double PGA_WARN_MAX = new Double( Math.log( 2.0 ) );
 
 
 
 
 
     /**
-     * PGV parameter, reserved for the "Peak Ground Velocity" Intensity-
+     * PGV parameter, reserved for the natural log of the "Peak Ground Velocity" Intensity-
      * Measure Parameter that most subclasses will support; all of the "PGV_*"
      * class variables relate to this Parameter.This parameter is not instantiated
      * here due to limited use.
@@ -242,17 +240,16 @@ public abstract class ClassicIMR
     protected final static String PGV_UNITS = "cm/sec";
     protected final static Double PGV_DEFAULT = new Double( Math.log( 0.1 ) );
     protected final static String PGV_INFO = "Peak Ground Velocity";
-
-    protected final static Double PGV_MIN = new Double( -200 ); // new Double(0);
-    protected final static Double PGV_MAX = new Double( Math.log(100) );
-    protected final static Double PGV_WARN_MIN = new Double( -200 ); //new Double(0);
-    protected final static Double PGV_WARN_MAX = new Double( Math.log(100) );
+    protected final static Double PGV_MIN = new Double( -Double.MAX_VALUE );
+    protected final static Double PGV_MAX = new Double( Math.log(500) );
+    protected final static Double PGV_WARN_MIN = new Double( -Double.MAX_VALUE );
+    protected final static Double PGV_WARN_MAX = new Double( Math.log(500) );
 
 
     /**
-     * SA parameter, reserved for the "Spectral Acceleration" IntensityMeasure
-     * that most subclasses will support; all of the "SA_*" class variables
-     * relate to this Parameter.  Note also that periodParam and
+     * SA parameter, reserved for the the natural log of "Spectral Acceleration"
+     * Intensity-Measure Parameter that most subclasses will support; all of the
+     * "SA_*" class variables relate to this Parameter.  Note also that periodParam and
      * dampingParam are internal independentParameters of saParam. This parameter
      * is instantiated in its entirety in the initSupportedIntenistyMeasureParams()
      * method here. However its periodParam independent-parameter must be created
@@ -263,19 +260,9 @@ public abstract class ClassicIMR
     protected final static String SA_UNITS = "g";
     protected final static Double SA_DEFAULT = new Double( Math.log(0.5) );
     protected final static String SA_INFO = "Response Spectral Acceleration";
-
-
-
-    //protected final static Double SA_MIN = new Double(0);
-    protected final static Double SA_MIN = new Double( -200 );
-
-    // Math.log(4)
+    protected final static Double SA_MIN = new Double( -Double.MAX_VALUE );
     protected final static Double SA_MAX = new Double( Math.log(4) );
-
-    //protected final static Double SA_WARN_MIN = new Double(0);
-    protected final static Double SA_WARN_MIN = new Double( -200 );
-
-    // log( 2 )
+    protected final static Double SA_WARN_MIN = new Double( -Double.MAX_VALUE );
     protected final static Double SA_WARN_MAX = new Double( Math.log(2) );
 
     /**
@@ -774,9 +761,13 @@ public abstract class ClassicIMR
 
 
     /**
+     * Adds all parameters that the Exceed. Prob. depends upon to the
+     * ExceedProbIndependentParams list.
+     * NOTE: This doesn not include the intensity-measure parameters
+     * or any of thier internal independentParamaters.
+     * This must be executed after the parameters have been created.
      */
     protected abstract void initExceedProbIndependentParamsList();
-
 
 
 }

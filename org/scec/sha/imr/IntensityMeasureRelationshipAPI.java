@@ -10,25 +10,13 @@ import org.scec.util.*;
 
 /**
  *  <b>Title:</b> IntensityMeasureRelationshipAPI<br>
- *  <b>Description:</b> This interface forms the basis for building other
- *  instatiable classes of IntensityMeasureRelationships (e.g., Campbell_1997).
- *  In addition to the methods defined below, each subclass will have additional
- *  ones unique to that particular model. <br>
- *  The subclasses will take a Site and ProbEqkRupture object as input, as
- *  well as a specified earthquake IntensityMeasure, and will give back mean and
- *  standard deviation of the Intensity Measure. Alternatively one can give it a
- *  PropagationEffect in place of the Site and ProbEqkRupture objects (it
- *  will get the latter two from the former), which will be useful when several
- *  different intensity measure relationships use the same propagation effect
- *  parameters (compute them all at once and then pass them to each). <br>
- *  If a Site and ProbEqkRupture object are passed, use the appropriate
- *  PropagationEffectCalculator rather than creating an internal
- *  PropagationEffect object?<br>
+ *  <b>Description:</b> This is the interface defined for all
+ *  IntensityMeasureRelationship classes.<br>
  *  <b>Copyright:</b> Copyright (c) 2001<br>
  *  <b>Company:</b> <br>
  *
  *
- * @author     Steven W. Rock
+ * @author     Edward H. Field & Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  */
@@ -64,7 +52,7 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
 
     /**
      *  Sets the probEqkRupture object in the IMR as a reference
-     *  to the one passed in, and sets any potential-earthquake related
+     *  to the one passed in, and sets any earthquake-rupture related
      *  parameters that the IMR depends upon.
      *
      * @param  probEqkRupture  The new probEqkRupture object
@@ -94,13 +82,13 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      /**
      * Sets the intensity measure Parameter if it is supported.
      *
-     * @param  imt  The new intensityMeasureType value
+     * @param  intensityMeasure  The desired intensityMeasure
      */
      public void setIntensityMeasure(ParameterAPI intensityMeasure) throws ParameterException;
 
 
      /**
-     * Sets the intensity measure Parameter by neame if supported.
+     * Sets the intensity measure Parameter by name if supported (value not set).
      *
      * @param  imt  The new intensityMeasureType value
      */
@@ -152,10 +140,6 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
     public void setParamDefaults();
 
 
-
-
-
-
     /**
      *  This calculates the probability that the intensity-measure level
      *  (the value in the Intensity-Measure Parameter) will be exceeded.
@@ -174,9 +158,9 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
 
 
     /**
-     *  Returns an iterator over all Potential-Earthquake related parameters.
+     *  Returns an iterator over all earthquake-rupture related parameters.
      *
-     * @return    The Potential Earthquake Parameters Iterator
+     * @return    The Earthquake-Rupture Parameters Iterator
      */
     public ListIterator getProbEqkRuptureParamsIterator();
 
@@ -196,147 +180,5 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      * @return    The Supported Intensity-Measures Iterator
      */
     public ListIterator getSupportedIntensityMeasuresIterator();
-
-
-
-
-
-    /**
-     *  Returns the iterator over all controls parameters, such as x and y axis values.
-     *
-     * @return    The Controls Iterator
-     */
-    //public ListIterator getControlsIterator();
-
-
-    /* *
-     *  Useful for debugging. These parameters are all needed to determine what
-     *  data set to generate for plotting.
-     *
-     * @return    Vector of all parameter values
-
-    public Vector getParameterValuesAsStrings(); */
-
-    /* * Adds a generic parameter to the list of all parameters
-    public void addParameter(ParameterAPI parameter); */
-
-
-    /* *
-     *  First sets the PE, then calculates the Exceedence Probability from all
-     *  the variables of this IMR.
-     *
-     * @param  probEqkRupture  The new potential earthquake value
-     * @return                      The exceed Probability value
-     * /
-    public Double getExceedProbability( ProbEqkRupture probEqkRupture );
-
-
-    /* *
-     *  First sets the Site, then calculates the Exceedence Probability from all
-     *  the variables of this IMR.
-     *
-     * @param  site  The new site value
-     * @return       The exceed Probability value
-     * /
-    public Double getExceedProbability( Site site );
-
-
-    /* *
-     *  First sets the IMT, then calculates the Exceedence Probability from all
-     *  the variables of this IMR.
-     *
-     * @param  intensityMeasureType  The new IMT value
-     * @return                       The exceed Probability value
-     * /
-    public Double getExceedProbability( ParameterAPI intensityMeasureType );
-
-
-    /* *
-     *  First sets the IML, then calculates the Exceedence Probability from all
-     *  the variables of this IMR.
-     *
-     * @param  intensityMeasureLevel  The new IML value
-     * @return                        The exceed Probability value
-     * /
-    public Double getExceedProbability( Object intensityMeasureLevel );
-
-
-    /* *
-     *  Sets all parameters, then calculates the Exceedence Probability from all
-     *  the variables of this IMR.
-     *
-     * @param  probEqkRupture    The new potential earthquake value
-     * @param  site                   The new site value
-     * @param  intensityMeasureLevel  The new IML value
-     * @param  intensityMeasureType   The new IMT value
-     * @return                        The exceed Probability value
-     * /
-    public Double getExceedProbability(
-            ProbEqkRupture probEqkRupture,
-            Site site,
-            Object intensityMeasureLevel,
-            ParameterAPI intensityMeasureType
-             );
-    */
-
-    /* *
-     *  First sets the PE, then calculates the Exceedence Probability from all
-     *  the variables of this IMR, calcualting over a range of parameter values.
-     *
-     * @param  probEqkRupture  The new potential earthquake value
-     * @return                      The exceed Probability values put in a
-     *      DiscretizedFunction
-     * /
-    public DiscretizedFunction2DAPI getExceedProbabilities(
-        ProbEqkRupture probEqkRupture ,
-        Object imtensityMeasureLevels
-    );
-
-
-    /* *
-     *  First sets the Site, then calculates the Exceedence Probability from all
-     *  the variables of this IMR, calcualting over a range of parameter values.
-     *
-     * @param  site  The new site value
-     * @return       The exceed Probability values put in a DiscretizedFunction
-     * /
-    public DiscretizedFunction2DAPI getExceedProbabilities(
-        Site site,
-        Object imtensityMeasureLevels
-    );
-
-
-    /* *
-     *  First sets the IMT, then calculates the Exceedence Probability from all
-     *  the variables of this IMR, calcualting over a range of parameter values.
-     *
-     * @param  intensityMeasureType  The new IMT value
-     * @return                       The exceed Probability values put in a
-     *      DiscretizedFunction
-     * /
-    public DiscretizedFunction2DAPI getExceedProbabilities(
-        Object imtensityMeasureLevels,
-        ParameterAPI intensityMeasureType
-    );
-
-
-    /**
-     *  Sets all parameters, then calculates the Exceedence Probability from all
-     *  the variables of this IMR, calcualting over a range of parameter values.
-     *
-     * @param  probEqkRupture    The new potential earthquake value
-     * @param  site                   The new site value
-     * @param  intensityMeasureLevel  The new IML value
-     * @param  intensityMeasureType   The new IMT value
-     * @return                        The exceed Probability values put in a
-     *      DiscretizedFunction
-     * /
-    public DiscretizedFunction2DAPI getExceedProbabilities(
-            ProbEqkRupture probEqkRupture,
-            Site site,
-            Object intensityMeasureLevels,
-            ParameterAPI intensityMeasureType
-             );
-    */
 
 }
