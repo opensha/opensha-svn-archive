@@ -354,7 +354,7 @@ public class PSHALogXYPlot
             this.rangeAxis.draw(g2, plotArea, dataArea);
         }
 
-        super.render(g2, dataArea, info, crosshairInfo);
+        render(g2, dataArea, info, crosshairInfo);
 
      }catch(java.lang.ArithmeticException ae){
        String message=new String(ae.getMessage());
