@@ -1,8 +1,6 @@
 package org.scec.calc.magScalingRelations;
 
-//double check what's needed
 import org.scec.util.FaultUtils;
-import org.scec.exceptions.InvalidRangeException;
 import org.scec.data.*;
 
 /**
@@ -21,37 +19,71 @@ public abstract class MagScalingRelationship implements NamedObjectAPI  {
 
     final static String C = "MagScalingRelationship";
 
+    protected String NAME;
+
+    protected final static double lnToLog = 0.434294;
+
+
     /**
      * The rupture rake in degrees.  The default is Double.NaN
      */
     protected double rake = Double.NaN;
 
+    /**
+     * Computes the median magnitude from some scalar value (for the previously set or default rake)
+     * @return median magnitude
+     */
     public abstract double getMedianMag(double scale);
 
+    /**
+     * Computes the median magnitude from some scalar value & rupture rake
+     * @return median magnitude
+     */
     public double getMedianMag(double scale, double rake) {
       setRake(rake);
       return getMedianMag(scale);
     }
 
-    public abstract double getMagStdDev(double scale);
+    /**
+     * This gives the  magnitude standard deviation (for the previously set or default rake)
+     * @return median magnitude
+     */
+    public abstract double getMagStdDev();
 
-    public double getMagStdDev(double scale, double rake) {
+    /**
+     * This gives the magnitude standard deviation according to the given rake
+     * @return median magnitude
+     */
+    public double getMagStdDev(double rake) {
       setRake(rake);
-      return getMagStdDev(scale);
+      return getMagStdDev();
     }
 
+    /**
+     * Computes the median scalar value from magnitude (for a previously set or default rake)
+     */
     public abstract double getMedianScale(double mag);
 
-    public double getScale(double mag, double rake) {
+    /**
+     * Computes the median scalar value from magnitude & rake
+     */
+    public double getMedianScale(double mag, double rake) {
       setRake(rake);
       return getMedianScale(mag);
     }
 
-    public abstract double getMedianScaleStdDev(double mag);
+    /**
+     * Computes the standard deviation of the scalar-value from magnitude (for a
+     * previously set or default rake)
+     */
+    public abstract double getScaleStdDev();
 
-    public double getMedianScaleStdDev(double mag, double rake) {
+    /**
+     * Computes the standard deviation of the scalar-value from rake
+     */
+    public double getScaleStdDev(double rake) {
       setRake(rake);
-      return getMedianScaleStdDev(mag);
+      return getScaleStdDev();
     }
 
     public void setRake(double rake) {
@@ -66,6 +98,6 @@ public abstract class MagScalingRelationship implements NamedObjectAPI  {
      *
      */
     public String getName() {
-      return C;
+      return NAME;
     }
 }

@@ -1,16 +1,15 @@
 package org.scec.calc.magScalingRelations;
 
-//double check what's needed
 import org.scec.util.FaultUtils;
-import org.scec.exceptions.InvalidRangeException;
 import org.scec.data.*;
 
 /**
  * <b>Title:</b>MagAreaRelationship<br>
  *
- * <b>Description:  This is an abstract class that gives the median and standard
+ * <b>Description:</b>  This is an abstract class that gives the median and standard
  * deviation of magnitude as a function of area (km-squared) or visa versa.  The
- * values can also be a function of rake</b>  <p>
+ * values can also be a function of rake.  Note that the standard deviation for area
+ * as a function of mag is given for natural-log(area) not area.  <p>
  *
  * @author Edward H. Field
  * @version 1.0
@@ -39,11 +38,12 @@ public abstract class MagAreaRelationship extends MagScalingRelationship {
     }
 
     /**
-     * Gives the standard deviation for the magnitude as a function of area
+     * Gives the standard deviation for the magnitude as a function of area (for
+     * the previously set or default rake)
      * @param area in km-squared
      * @return standard deviation
      */
-    public abstract double getMagStdDev(double area);
+    public abstract double getMagStdDev();
 
     /**
      * Gives the standard deviation for the magnitude as a function of area & rake
@@ -51,13 +51,13 @@ public abstract class MagAreaRelationship extends MagScalingRelationship {
      * @param rake in degrees
      * @return standard deviation
      */
-    public double getMagStdDev(double area, double rake) {
+    public double getMagStdDev(double rake) {
       setRake(rake);
-      return getMagStdDev(area);
+      return getMagStdDev();
     }
 
     /**
-     * Computes the median rupture area from magnitude
+     * Computes the median rupture area from magnitude (for the previously set or default rake)
      * @param mag - moment magnitude
      * @return median area in km-squared
      */
@@ -74,14 +74,38 @@ public abstract class MagAreaRelationship extends MagScalingRelationship {
       return getMedianArea(mag);
     }
 
+    /**
+     * Computes the standard deviation of log(area) (base-10) from magnitude
+     * (for the previously set or default rake)
+     * @param mag - moment magnitude
+     * @param rake in degrees
+     * @return standard deviation
+     */
+    public abstract double getAreaStdDev();
 
-    public abstract double getMedianAreaStdDev(double mag);
-
-    public double getMedianAreaStdDev(double mag, double rake) {
+    /**
+     * Computes the standard deviation of log(area) (base-10) from magnitude & rake
+     * @param mag - moment magnitude
+     * @param rake in degrees
+     * @return standard deviation
+     */
+    public double getAreaStdDev(double rake) {
       setRake(rake);
-      return getMedianAreaStdDev(mag);
+      return getAreaStdDev();
     }
 
+    /**
+     * over-ride parent method to call getMedainArea(mag) here
+     */
+    public double getMedianScale(double mag) {
+      return getMedianArea(mag);
+    }
 
+    /**
+     * over-ride parent method to call getAreaStdDev() here
+     */
+    public double getScaleStdDev() {
+      return getAreaStdDev();
+    }
 
 }

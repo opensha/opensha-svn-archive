@@ -1,0 +1,138 @@
+package org.scec.calc.magScalingRelations;
+
+import org.scec.util.FaultUtils;
+import org.scec.data.*;
+
+/**
+ * <b>Title:</b>WC1994_MagAreaRelationship<br>
+ *
+ * <b>Description:</b>  This implements the Wells and Coppersmith (1994, Bull.
+ * Seism. Soc. Am., pages 974-2002) magnitude versus rupture area relationships.  The
+ * values are a function of rake.  Setting the rake to Double.NaN causes their "All"
+ * rupture-types to be applied (and this is the default value for rake).  Note that the
+ * standard deviation for area as a function of mag is given for log(area) (base-10)
+ * not area.  <p>
+ *
+ * @author Edward H. Field
+ * @version 1.0
+ */
+
+public abstract class WC1994_MagAreaRelationship extends MagAreaRelationship {
+
+    final static String C = "WC1994_MagAreaRelationship";
+    final static String NAME = "W&C 1994 Mag-Area Rel.";
+
+
+    /**
+     * no-argument constructor.  All this does is set the rake to Double.NaN
+     * (as the default)
+     */
+    public WC1994_MagAreaRelationship() {
+      this.rake = Double.NaN;
+    }
+
+
+    /**
+     * Computes the median magnitude from rupture area (for the previously set or default rake).
+     * Note that thier "All" case is applied if rake=Double.NaN.
+     * @param area in km
+     * @return median magnitude
+     */
+    public double getMedianMag(double area){
+
+      if (rake == Double.NaN)
+        // apply the "All" case
+        return  4.07 + 0.98*Math.log(area)*lnToLog;
+      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+        // strike slip
+        return  3.98 + 1.02*Math.log(area)*lnToLog;
+      else if (rake > 0)
+        // thrust/reverse
+        return  4.33 + 0.90 * Math.log(area)*lnToLog;
+      else
+        // normal
+        return  3.93 + 1.02*Math.log(area)*lnToLog;
+    }
+
+    /**
+     * Gives the standard deviation for the magnitude as a function of area
+     *  (for the previously set or default rake). Note that thier "All" case is applied
+     * if rake=Double.NaN
+     * @param area in km
+     * @return standard deviation
+     */
+    public double getMagStdDev(){
+      if (rake == Double.NaN)
+        // apply the "All" case
+        return  0.24;
+      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+        // strike slip
+        return  0.23;
+      else if (rake > 0)
+        // thrust/reverse
+        return  0.25;
+      else
+        // normal
+        return  0.35;
+
+    }
+
+    /**
+     * Computes the median rupture area from magnitude (for the previously set
+     * or default rake). Note that thier "All" case is applied if rake=Double.NaN
+     * @param mag - moment magnitude
+     * @return median area in km
+     */
+    public double getMedianArea(double mag){
+      if  (rake == Double.NaN)
+          // their "All" case
+          return Math.pow(10.0,-3.49+0.91*mag);
+      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+          // strike slip
+          return  Math.pow(10.0, -3.42 + 0.90*mag);
+      else if (rake > 0)
+          // thrust/reverse
+          return  Math.pow(10.0, -3.99 + 0.98*mag);
+      else
+          // normal
+          return  Math.pow(10.0, -2.87 + 0.82*mag);
+
+    }
+
+
+    /**
+     * Computes the standard deviation of log(area) (base-10) from magnitude
+     *  (for the previously set or default rake)
+     * @param mag - moment magnitude
+     * @param rake in degrees
+     * @return standard deviation
+     */
+    public double getAreaStdDev() {
+      if (rake == Double.NaN)
+        // apply the "All" case
+        return  0.24;
+      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+        // strike slip
+        return  0.22;
+      else if (rake > 0)
+        // thrust/reverse
+        return  0.26;
+      else
+        // normal
+        return  0.22;
+
+    }
+
+    /**
+     * This overides the parent method to allow a value of Double.NaN (which is used
+     * to designate the "All" rupture-types option here).
+     * @param rake
+     */
+    public void setRake(double rake) {
+      if(rake != Double.NaN)
+        FaultUtils.assertValidRake(rake);
+      this.rake = rake;
+    }
+
+
+}

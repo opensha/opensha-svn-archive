@@ -6,7 +6,7 @@ import java.util.Iterator;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.sha.magdist.SingleMagFreqDist;
-import org.scec.sha.calc.WC1994_MagLengthRelationship;
+import org.scec.calc.magScalingRelations.WC1994_MagLengthRelationship;
 import org.scec.data.*;
 import org.scec.calc.RelativeLocation;
 import org.scec.sha.earthquake.*;
@@ -87,7 +87,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
     totNumRups=0;
     WC1994_MagLengthRelationship magLength = new WC1994_MagLengthRelationship();
     for(int i=0;i<num;++i){
-      double rupLen = magLength.getMeanLength(gR.getX(i),rake);
+      double rupLen = magLength.getMedianLength(gR.getX(i),rake);
       totNumRups += getNumRuptures(rupLen);
     }
     if( D ) System.out.println("Frankel96_GR_EqkSource:Frankel96_GR_EqkSource:totNumRups::"+totNumRups);
@@ -118,7 +118,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
     WC1994_MagLengthRelationship magLength = new WC1994_MagLengthRelationship();
     for(int i=0;i<numMags;++i){
       mag=gR.getX(i);
-      rupLen = magLength.getMeanLength(gR.getX(i),rake);
+      rupLen = magLength.getMedianLength(gR.getX(i),rake);
       numRups = getNumRuptures(rupLen);
       tempNumRups += numRups;
       if(nthRupture < tempNumRups)

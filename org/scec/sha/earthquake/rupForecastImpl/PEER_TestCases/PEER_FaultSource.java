@@ -6,7 +6,6 @@ import java.util.Iterator;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.sha.magdist.*;
 import org.scec.sha.magdist.SingleMagFreqDist;
-import org.scec.sha.calc.WC1994_MagLengthRelationship;
 import org.scec.data.*;
 import org.scec.calc.RelativeLocation;
 import org.scec.sha.earthquake.*;
