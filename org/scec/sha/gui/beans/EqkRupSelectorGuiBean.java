@@ -160,6 +160,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
         throw new RuntimeException(e.getMessage());
       }
     }
+
   }
 
 
@@ -168,23 +169,27 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    * and
    * allowing the user to create his own rupture.
    */
-  private void toggleRuptureSelectionMethods() throws InvocationTargetException{
-    rupturePanel.remove((JPanel)eqkRupturePanel);
-    if(!isUserCreatedEqkRupture){
-       //if user has chosen to select eqk rupture from already existing ERF model
-      if(eqkRupturePanelFromERF == null)
-        eqkRupturePanelFromERF = new EqkRuptureFromERFSelectorPanel(supportedERF_Classes);
+  private void toggleRuptureSelectionMethods() throws InvocationTargetException {
+    rupturePanel.remove( (JPanel) eqkRupturePanel);
+    if (!isUserCreatedEqkRupture) {
+      //if user has chosen to select eqk rupture from already existing ERF model
+      if (eqkRupturePanelFromERF == null)
+        eqkRupturePanelFromERF = new EqkRuptureFromERFSelectorPanel(
+            supportedERF_Classes);
       eqkRupturePanel = eqkRupturePanelFromERF;
     }
-    else{ //if user has chosen to create his own rupture.
+    else { //if user has chosen to create his own rupture.
       //if user has chosen to select eqk rupture from already existing ERF model
-      if(eqkRupturePanelFromRupture == null)
+      if (eqkRupturePanelFromRupture == null)
         eqkRupturePanelFromRupture = new EqkRuptureCreationPanel();
       eqkRupturePanel = eqkRupturePanelFromRupture;
     }
 
-    rupturePanel.add((JPanel)eqkRupturePanel.getEqkRuptureSelectorPanel(),  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
+    rupturePanel.add( (JPanel) eqkRupturePanel.getEqkRuptureSelectorPanel(),
+                     new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+                                            , GridBagConstraints.CENTER,
+                                            GridBagConstraints.BOTH,
+                                            new Insets(4, 4, 4, 4), 0, 0));
 
     this.validate();
     this.repaint();

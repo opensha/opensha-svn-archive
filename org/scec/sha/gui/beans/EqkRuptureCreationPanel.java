@@ -296,8 +296,9 @@ public class EqkRuptureCreationPanel
   public void parameterChange(ParameterChangeEvent event) {
 
     String name1 = event.getParameterName();
-    if (name1.equals(this.SRC_TYP_PARAM_NAME)) {
+    if (name1.equals(this.SRC_TYP_PARAM_NAME)){
       setParameterVisibleBasedOnSelectedRuptureType();
+      this.updateUI();
     }
     parameterChangeFlag = true;
     listEditor.refreshParamEditor();
