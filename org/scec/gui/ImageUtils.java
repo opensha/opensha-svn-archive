@@ -28,20 +28,11 @@ public class ImageUtils {
    */
   public static Image loadImage(String fileName) {
     String imageFileName = imagePath+fileName;
-    // load the image from the jar file
-    InputStream jpgStream = ImageUtils.class.getResourceAsStream(imageFileName);
-    Toolkit tk = Toolkit.getDefaultToolkit();
-    Image img = null;
-    try {
-      byte imageBytes[]=new byte[jpgStream.available()];
-      jpgStream.read(imageBytes);
-      img = tk.createImage(imageBytes);
-      return img;
-    }catch (Exception e) {
-      e.printStackTrace();
-    }
-    return null;
+    java.net.URL url = ImageUtils.class.getResource(imageFileName);
+    Image img=Toolkit.getDefaultToolkit().getImage(url);
+    return img;
   }
+
 
 }
 

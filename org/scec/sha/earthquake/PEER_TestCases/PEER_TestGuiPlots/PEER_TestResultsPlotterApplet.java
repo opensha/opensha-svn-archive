@@ -139,6 +139,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
      " the latest results.";
   private final static String GUI_TITLE = "PEER PSHA-Test Results Plotter";
   private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
+  private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
 
 
 
@@ -198,6 +199,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private JLabel dataVersionLabel = new JLabel();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
+  private JLabel powerLabel = new JLabel();
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
 
   //Construct the applet
@@ -309,6 +311,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     dataVersionLabel.setText("jLabel1");
     testCasesPanel.setMinimumSize(new Dimension(115, 480));
     testCasesPanel.setPreferredSize(new Dimension(121, 480));
+    powerLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     dataScrollPane.getViewport().add( pointsTextArea, null );
     xLogCheckBox.setText("XLog");
     yLogCheckBox.setText("YLog");
@@ -341,17 +344,19 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
     buttonPanel.add(yLogCheckBox,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(-1, 0, 7, 0), 14, -1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 0, 0, 0), 15, 3));
     buttonPanel.add(rangeLabel,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, 16, 7, 0), 22, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(29, 16, 0, 0), 8, 7));
     buttonPanel.add(rangeComboBox,  new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(-1, 0, 7, 0), -2, 2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(29, 0, 0, 0), -2, -1));
     buttonPanel.add(toggleButton,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(-1, 16, 7, 92), 48, -3));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 16, 0, 92), 30, 7));
     buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(-1, 10, 7, 0), 6, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 10, 0, 0), 1, 4));
     buttonPanel.add(xLogCheckBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(-1, 0, 7, 0), 21, -3));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 0, 0, 0), 22, 1));
+    buttonPanel.add(powerLabel,  new GridBagConstraints(3, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 45, 8, 0), 210, 34));
     mainPanel.add(guiLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 267, 0, 190), 37, 10));
     mainPanel.add(dataVersionLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
@@ -406,7 +411,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
     frame.setTitle(FRAME_TITLE);
-    //frame.setIconImage(ImageUtils.loadImage(FRAME_ICON_NAME));
+   // frame.setIconImage(ImageUtils.loadImage(FRAME_ICON_NAME));
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
