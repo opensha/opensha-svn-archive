@@ -67,7 +67,8 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
     public DiscretizedFuncAPI deepClone(){
 
         ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc(  );
-
+        function.setTolerance(getTolerance());
+        function.setInfo(getInfo());
         Iterator it = this.getPointsIterator();
         if( it != null ) {
             while(it.hasNext()) {

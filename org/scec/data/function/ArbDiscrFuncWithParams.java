@@ -147,6 +147,7 @@ public class ArbDiscrFuncWithParams
 
         ArbDiscrFuncWithParams function = new ArbDiscrFuncWithParams();
         function.setTolerance( this.getTolerance() );
+        function.setInfo(getInfo());
         function.setParameterList( (ParameterList)this.getParameterList().clone() );
 
         Iterator it = this.getPointsIterator();

@@ -455,8 +455,8 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
     public DiscretizedFuncAPI deepClone(){
 
         ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc(  );
-        function.setTolerance( this.getTolerance() );
-
+        function.setTolerance( getTolerance() );
+        function.setInfo(getInfo());
         Iterator it = this.getPointsIterator();
         if( it != null ) {
             while(it.hasNext()) {
