@@ -288,7 +288,7 @@ public class GraphPanel extends JPanel {
           //checking if individual curves need to be plotted
           if(weightedList.areIndividualCurvesToPlot()){
             //getting the metadata for each individual curves and creating the legend string
-            String listInfo = weightedList.getInfo()+"\n\n"+"(a)"+weightedList.getFunctionTraceInfo();
+            String listInfo = weightedList.getInfo()+"\n"+"(a)"+weightedList.getFunctionTraceInfo();
             String legend=null;
             //setting the font style for the legend
             setLegend =new SimpleAttributeSet();
@@ -310,8 +310,7 @@ public class GraphPanel extends JPanel {
             //setting the font style for the legend
             setLegend =new SimpleAttributeSet();
             StyleConstants.setFontSize(setLegend,12);
-            legend = new String(SystemPropertiesUtils.getSystemLineSeparator()+
-                                fractileListInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            legend = new String(fractileListInfo+SystemPropertiesUtils.getSystemLineSeparator());
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
             j = j+weightedList.getNumFractileFunctions();
@@ -324,8 +323,7 @@ public class GraphPanel extends JPanel {
             //setting the font style for the legend
             setLegend =new SimpleAttributeSet();
             StyleConstants.setFontSize(setLegend,12);
-            legend = new String(SystemPropertiesUtils.getSystemLineSeparator()+
-                                meanInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            legend = new String(meanInfo+SystemPropertiesUtils.getSystemLineSeparator());
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
           }
