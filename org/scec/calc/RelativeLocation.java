@@ -251,6 +251,18 @@ public final class RelativeLocation {
     }
 
 
+    /**
+     * This computes the approximate horizontal distance (in km) using the standard cartesian
+     * coordinate transformation.
+    */
+    public static double getApproxHorzDistance( double lat1, double lon1, double lat2, double lon2 ){
+      double d1 = (lat1-lat2)*111.111;
+      double d2 = (lon1-lon2)*111.111*Math.cos(((lat1+lat2)/(2))*Math.PI/180);
+      return Math.sqrt(d1*d1+d2*d2);
+
+    }
+
+
 
 
     /**
@@ -444,6 +456,15 @@ public final class RelativeLocation {
 
     public static void main( String argv[] ) {
 
+      System.out.println("Starting with accurate horz dist calcs");
+      for(int i=0; i<10000000; i++)
+        RelativeLocation.getHorzDistance( 33, -118, 35, -117.5 );
+        System.out.println("Done with accurate horz dist calcs");
+      System.out.println("Starting with approx horz dist calcs");
+      for(int i=0; i<10000000; i++)
+        RelativeLocation.getApproxHorzDistance( 33, -118, 35, -117.5 );
+        System.out.println("Done with approx horz dist calcs");
+
         /*String S = C + ": main(): ";
 
         Location l1 = new Location(20, 20);
@@ -475,14 +496,14 @@ public final class RelativeLocation {
 
         System.out.println( S + "A(l1,l5): " + latLonDistance( l1.getLatitude(), l5.getLongitude(), l5.getLatitude(), l5.getLongitude() ) );
         System.out.println( S + "B(l1,l5): " + getHorzDistance( l1.getLatitude(), l5.getLongitude(), l5.getLatitude(), l5.getLongitude() ) );
-      */
+
         for(int j = 50; j < 51; j++){
           for(int i = -360; i <= 0; i++){
             System.out.println("j="+j+"i="+i+"distance="+latLonDistance(j, i, j+1, i+1));
             System.out.println("j="+j+"i="+(i+360)+"distance="+latLonDistance(j, i+360, j+1, i+1));
           }
         }
-
+*/
 
        /* if(SPEED_TEST){
 
@@ -564,3 +585,6 @@ public final class RelativeLocation {
     }
 
 }
+
+
+
