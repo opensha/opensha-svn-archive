@@ -218,7 +218,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
           System.out.println(C+":faultTrace::"+faultTrace.toString());
 
           //FIX this is very very temp for the time being, has to ask Ned when he returns on Monday
-          double prob = 1-Math.exp(-(rate*100));
+          double prob = 1-Math.exp(-rate*10000);
 
           // we have to FIX the value of gridspacing here
           factory = new FrankelGriddedFaultFactory(faultTrace,
@@ -236,6 +236,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
           probEqkRup.setProbability(prob);
           probEqkRup.setRuptureSurface(surface);
         }
+
     // Done
     if( D ) System.out.println(S + "Ending");
 
@@ -243,6 +244,6 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
   public static  void main(String args[]){
     Frankel96_EqkRupForecast f= new Frankel96_EqkRupForecast();
-     f.readFrankel96_Char(2);
+    f.readFrankel96_Char(2);
   }
 }
