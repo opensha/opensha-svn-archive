@@ -15,8 +15,8 @@ import javax.swing.*;
 /**
  *  Title: Description: Copyright: Copyright (c) 2001 Company:
  *
- * @author
- * @created    February 22, 2002
+ * @author     Nitin Gupta and Vipin Gupta
+ * @created    July 03, 2002
  * @version    1.0
  */
 

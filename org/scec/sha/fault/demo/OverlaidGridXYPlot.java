@@ -3,7 +3,9 @@
  * OverlaidGridXYPlot.java
  * -------------------
  *
- * Original Author:
+ * Original Author: Nitin Gupta and Vipin Gupta
+ * Created: July 3,2002
+ * version : 1.0
  * Contributor(s):
  *
  *
