@@ -215,8 +215,8 @@ public class MapGuiBean extends JPanel implements
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 0, 13), 361, 226));
     this.add(gmtServerCheck,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 123, 0, 132), 0, 0));
-    this.add(logPlotCheck,       new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 113, 8, 145), 55, 1));
+    this.add(logPlotCheck,                   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 112, 9, 148), 55, 1));
   }
 
   /**

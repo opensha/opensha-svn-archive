@@ -45,8 +45,8 @@ public class GMT_MapGeneratorApplet extends Applet {
   String mapFileName = null;
 
   //variables that determine the window size
-  protected final static int W = 850;
-  protected final static int H = 700;
+  protected final static int W = 1070;
+  protected final static int H = 800;
   private Border border1;
   private JButton addButton = new JButton();
 
@@ -56,7 +56,7 @@ public class GMT_MapGeneratorApplet extends Applet {
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private JScrollPane mapScrollPane = new JScrollPane();
   private JPanel mapPanel = new JPanel();
-  private JLabel gmtMapLabel = new JLabel();
+
   private Border border2;
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private final static String URL_NAME = "Enter URL";
@@ -84,6 +84,8 @@ public class GMT_MapGeneratorApplet extends Applet {
       parameterPanel.add(gmtGuiBean,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0,
                     GridBagConstraints.CENTER,
                     GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+      parameterPanel.validate();
+      parameterPanel.repaint();
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -97,6 +99,7 @@ public class GMT_MapGeneratorApplet extends Applet {
     this.setLayout(borderLayout1);
     mainPanel.setLayout(gridBagLayout3);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    mainSplitPane.setLastDividerLocation(670);
     buttonPanel.setLayout(gridBagLayout2);
     parameterPanel.setLayout(gridBagLayout1);
     addButton.setText("Add");
@@ -105,10 +108,7 @@ public class GMT_MapGeneratorApplet extends Applet {
         addButton_actionPerformed(e);
       }
     });
-    gmtMapLabel.setBorder(border2);
-    gmtMapLabel.setMaximumSize(new Dimension(0, 800));
-    gmtMapLabel.setMinimumSize(new Dimension(0, 600));
-    gmtMapLabel.setPreferredSize(new Dimension(0, 600));
+
     mapPanel.setLayout(gridBagLayout4);
     mapPanel.setMinimumSize(new Dimension(0, 800));
     mapPanel.setPreferredSize(new Dimension(0, 800));
@@ -122,10 +122,8 @@ public class GMT_MapGeneratorApplet extends Applet {
     plotSplitPane.add(parameterPanel, JSplitPane.RIGHT);
     plotSplitPane.add(mapScrollPane, JSplitPane.LEFT);
     mapScrollPane.getViewport().add(mapPanel, null);
-    mapPanel.add(gmtMapLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 557, 200));
-    mainSplitPane.setDividerLocation(620);
-    plotSplitPane.setDividerLocation(588);
+    mainSplitPane.setDividerLocation(700);
+    plotSplitPane.setDividerLocation(600);
   }
 
 
@@ -211,7 +209,14 @@ public class GMT_MapGeneratorApplet extends Applet {
     gmtGuiBean.makeMap(xyzData," ");
 
     String imgName=gmtGuiBean.getImageName();
+    System.out.println("Image Name:"+imgName);
 
+    //creating the instance of the GMT Label where the .jpg image will be shown
+    JLabel gmtMapLabel = new JLabel();
+    gmtMapLabel.setBorder(border2);
+    gmtMapLabel.setMaximumSize(new Dimension(1000, 1000));
+    gmtMapLabel.setMinimumSize(new Dimension(600, 600));
+    gmtMapLabel.setPreferredSize(new Dimension(900, 900));
     mapPanel.removeAll();
     if(gmtGuiBean.isGMT_FromServer()){
       try{
@@ -222,14 +227,8 @@ public class GMT_MapGeneratorApplet extends Applet {
     }
     else
       gmtMapLabel.setIcon(new ImageIcon(imgName));
-    Graphics g=gmtMapLabel.getGraphics();
-    if (g!=null) gmtMapLabel.paintComponents(g);
-    mapPanel.add(gmtMapLabel,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+    mapPanel.add(gmtMapLabel,   new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 2, 1, 0), 0, 0));
-    gmtMapLabel.paintImmediately(gmtMapLabel.getBounds());
-    gmtMapLabel.validate();
-    gmtMapLabel.repaint(100);
-    //mapPanel.setMapFileName(imgName);
     mapPanel.validate();
     mapPanel.repaint();
   }
@@ -238,32 +237,5 @@ public class GMT_MapGeneratorApplet extends Applet {
 
 
 
-/*class ImagePanel extends JPanel {
-  // name of the image file to show
-  private String mapFileName = null;
 
-
-  /**
-   * override the paint method to show the image
-   * @param g
-
-  public void paintComponent(java.awt.Graphics g) {
-    //System.out.println("Paint called with mapFileName:"+mapFileName);
-    //super.paint(g);
-    if(mapFileName!=null) g.drawImage(Toolkit.getDefaultToolkit().getImage(mapFileName),0,0,this);
-
-   // super.paint(g);
-  }
-
-
-  /**
-   * set the name of new image file to show
-   * @param newFileName
-
-  public void setMapFileName(String newFileName) {
-    mapFileName = newFileName;
-  }
-
-
-}*/
 
