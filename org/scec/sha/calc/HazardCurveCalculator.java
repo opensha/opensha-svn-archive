@@ -4,6 +4,8 @@ package org.scec.sha.calc;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 import java.awt.Rectangle;
+import javax.swing.JOptionPane;
+import javax.swing.JLabel;
 
 import org.scec.data.function.*;
 import org.scec.data.Site;
@@ -49,6 +51,23 @@ public class HazardCurveCalculator {
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
         Site site, ClassicIMRAPI imr, EqkRupForecast eqkRupForecast) {
 
+    // make the progress bar
+    JFrame frame = new JFrame("Calculation Status");
+    frame.setLocation(this.FRAME_STARTX, this.FRAME_STARTY);
+    frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
+
+    JProgressBar progress = new JProgressBar(0,100);
+    progress.setStringPainted(true); // display the percentage completed also
+    frame.getContentPane().add(progress);
+    frame.show();
+    frame.validate();
+    frame.repaint();
+
+
+    // update the forecast. any constraint exception is caught by the GuiBean
+    eqkRupForecast.updateForecast();
+    this.updateProgress(progress,2); // assign 2% for updating forecast
+
     try {
       // set the site in IMR
       imr.setSite(site);
@@ -61,17 +80,7 @@ public class HazardCurveCalculator {
     int numSources = eqkRupForecast.getNumSources();
     ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
 
-    // make the progress bar
-    JFrame frame = new JFrame("Calculation Status");
-    frame.setLocation(this.FRAME_STARTX, this.FRAME_STARTY);
-    frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
 
-    JProgressBar progress = new JProgressBar(0,100);
-    progress.setStringPainted(true); // display the percentage completed also
-    frame.getContentPane().add(progress);
-    frame.show();
-    frame.validate();
-    frame.repaint();
 
     // totRuptures holds the total ruptures for all sources
     int totRuptures = 0;

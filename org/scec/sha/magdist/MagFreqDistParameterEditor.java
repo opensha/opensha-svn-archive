@@ -4,8 +4,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.BorderFactory;
 import javax.swing.border.*;
+import java.lang.RuntimeException;
 
 
 import org.scec.param.editor.*;
@@ -216,7 +218,11 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      * @param ae
      */
     public void actionPerformed(ActionEvent ae ) {
-      this.getChoosenFunction();
+      try{
+        this.getChoosenFunction();
+      }catch(RuntimeException e){
+        JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
+      }
     }
 
     /**
@@ -646,21 +652,20 @@ public class MagFreqDistParameterEditor extends ParameterEditor
               if(D) System.out.println(S+" Rate and mag is selected in SINGLE");
               Double rate = (Double)parameterList.getParameter(RATE).getValue();
               Double mag = (Double)parameterList.getParameter(MAG).getValue();
-              single.setMagAndRate(mag.doubleValue(),rate.doubleValue());
               if(mag.doubleValue()>max.doubleValue() || mag.doubleValue()<min.doubleValue()){
                 throw new java.lang.RuntimeException("Value of Mag must lie between the min and max value");
               }
+              single.setMagAndRate(mag.doubleValue(),rate.doubleValue());
               if(D) System.out.println(S+" after setting SINGLE DIST");
            }
            // if mag and moment rate are set
            if(paramToSet.equalsIgnoreCase(MAG_AND_MORATE)) {
               Double mag = (Double)parameterList.getParameter(MAG).getValue();
               Double moRate = (Double)parameterList.getParameter(MO_RATE).getValue();
-              single.setMagAndMomentRate(mag.doubleValue(),moRate.doubleValue());
               if(mag.doubleValue()>max.doubleValue() || mag.doubleValue()<min.doubleValue()){
                 throw new java.lang.RuntimeException("Value of Mag must lie between the min and max value");
               }
-
+              single.setMagAndMomentRate(mag.doubleValue(),moRate.doubleValue());
            }
            // if rate and moment  rate are set
            if(paramToSet.equalsIgnoreCase(RATE_AND_MORATE)) {
@@ -726,27 +731,30 @@ public class MagFreqDistParameterEditor extends ParameterEditor
            if(setAllParamsBut.equalsIgnoreCase(GR_TO_MORATE)) {
               Double magUpper =  (Double)parameterList.getParameter(GR_MAG_UPPER).getValue();
               Double toCumRate = (Double)parameterList.getParameter(TO_CUM_RATE).getValue();
-              gR.setAllButTotMoRate(magLower.doubleValue(),magUpper.doubleValue(),
-                                    toCumRate.doubleValue(), bValue.doubleValue());
+
               if(magUpper.doubleValue()>max.doubleValue() || magUpper.doubleValue()<min.doubleValue()){
-                throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
+               throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
               }
               if(magLower.doubleValue()>magUpper.doubleValue()){
-                throw new java.lang.RuntimeException("Value of MagLower must be less than or equal to MagUpper");
+               throw new java.lang.RuntimeException("Value of MagLower must be <= to MagUpper");
               }
+
+              gR.setAllButTotMoRate(magLower.doubleValue(),magUpper.doubleValue(),
+                                    toCumRate.doubleValue(), bValue.doubleValue());
            }
            // if set all parameters except total cumulative rate
            if(setAllParamsBut.equalsIgnoreCase(TO_CUM_RATE)) {
              Double magUpper =  (Double)parameterList.getParameter(GR_MAG_UPPER).getValue();
              Double toMoRate = (Double)parameterList.getParameter(GR_TO_MORATE).getValue();
-             gR.setAllButTotCumRate(magLower.doubleValue(),magUpper.doubleValue(),
-                                    toMoRate.doubleValue(), bValue.doubleValue());
              if(magUpper.doubleValue()>max.doubleValue() || magUpper.doubleValue()<min.doubleValue()){
                 throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
              }
              if(magLower.doubleValue()>magUpper.doubleValue()){
-               throw new java.lang.RuntimeException("Value of MagLower must be less than or equal to MagUpper");
+               throw new java.lang.RuntimeException("Value of MagLower must be <= to MagUpper");
              }
+             gR.setAllButTotCumRate(magLower.doubleValue(),magUpper.doubleValue(),
+                                    toMoRate.doubleValue(), bValue.doubleValue());
+
            }
            // if set all parameters except mag upper
            if(setAllParamsBut.equalsIgnoreCase(GR_MAG_UPPER)) {

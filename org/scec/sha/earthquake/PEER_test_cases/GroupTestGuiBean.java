@@ -73,8 +73,7 @@ public class GroupTestGuiBean implements
   private final static String SITE_NUMBER_PARAM = "Site Number";
   private final static String IMR_PARAM_NAME = "IMR";
   private final static String IMT_PARAM_NAME =  "IMT";
-
-
+  private final static String IMR_EDITOR_TITLE =  "Select IMR";
   /**
    * Test cases final static string
    */
@@ -414,7 +413,7 @@ public class GroupTestGuiBean implements
     imrParamList.addParameter(sigmaParam);
 
     imrEditor = new ParameterListEditor(imrParamList,searchPaths);
-
+    imrEditor.setTitle(IMR_EDITOR_TITLE);
     // set the trunc level based on trunc type
     String value = (String)imrParamList.getValue(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
     toggleSigmaLevelBasedOnTypeValue(value);
@@ -766,17 +765,7 @@ public class GroupTestGuiBean implements
       eqkRupForecast = this.faultcase2_area;
     }
 
-    // catch the constraint exceptions thrown by the forecasts
-   try {
-      eqkRupForecast.updateForecast();
-    }catch (RuntimeException e) {
-      JOptionPane.showMessageDialog(applet, e.getMessage(),
-        "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-      //e.printStackTrace();
-      return;
-   }
-    // intialize the condProbFunction for each IMR
-    ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
+    // intialize the hazard function
     ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
 
 
@@ -839,10 +828,17 @@ public class GroupTestGuiBean implements
       }
     }
 
+
    // calculate the hazard curve
     HazardCurveCalculator calc = new HazardCurveCalculator();
-    calc.getHazardCurve(hazFunction, site, imr, eqkRupForecast);
-
+    try {
+      calc.getHazardCurve(hazFunction, site, imr, eqkRupForecast);
+    }catch (RuntimeException e) {
+          JOptionPane.showMessageDialog(applet, e.getMessage(),
+            "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+          //e.printStackTrace();
+          return;
+   }
     // add the function to the function list
     funcs.add(hazFunction);
 

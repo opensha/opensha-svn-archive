@@ -20,7 +20,7 @@ import org.scec.data.DataPoint2D;
 public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
 
 
-  public static String NAME = new String("GutenbergRichter Dist"); // for showing messages
+  public static String NAME = new String("Gutenberg Richter Dist"); // for showing messages
 
   private double magLower ; // lowest magnitude that has non zero rate
   private double magUpper ; // highest magnitude that has non zero rate

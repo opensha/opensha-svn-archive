@@ -35,7 +35,7 @@ public class SiteGuiBean {
   public final static String LATITUDE = "Latitude";
 
   // title for site paramter panel
-  protected final static String SITE_PARAMS = "Site Params";
+  protected final static String SITE_PARAMS = "Set Site Params";
 
   /**
    * Longitude and Latitude paramerts to be added to the site params list
