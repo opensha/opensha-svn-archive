@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><!--JBuilder QuickDoc-->
+<HEAD>
+<TITLE>Class org.scec.sha.earthquake.rupForecastImpl.PuenteHillsERF.PuenteHillsFaultERF</TITLE><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+</HEAD>
+<BODY>
+
+<H2>
+<FONT SIZE="-1">org.scec.sha.earthquake.rupForecastImpl.PuenteHillsERF</FONT>
+<BR>Class PuenteHillsFaultERF</H2>
+<DL>
+<DT>public class <B>PuenteHillsFaultERF</B><DT>extends EqkRupForecast<DT>implements ParameterChangeListener
+</DL>
+<DL><DD><p>Title: PuenteHillsFaultERF</p> <p>Description: This is </p><DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Version:</B><DD>1.0</DD>
+<DT><B>Author:</B><DD>Ned Field Date : Oct 24 , 2002</DD>
+</DL>
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Constructor Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>PuenteHillsFaultERF</H3>
+<PRE>
+public <B>PuenteHillsFaultERF</B>()</PRE>
+<DL><DD>Constructor for this source (no arguments)<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Method Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>parameterChange</H3>
+<PRE>
+public void <B>parameterChange</B>(ParameterChangeEvent&nbsp;event)</PRE>
+<DL><DD>This is the method called by any parameter whose value has been changed<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>event</CODE> - </DD>
+</DL>
+<HR>
+
+<H3>updateForecast</H3>
+<PRE>
+public void <B>updateForecast</B>()</PRE>
+<DL><DD>update the source based on the paramters (only if a parameter value has changed)<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>getSource</H3>
+<PRE>
+public ProbEqkSource <B>getSource</B>(int&nbsp;iSource)</PRE>
+<DL><DD>Return the earhthquake source at index i. Note that this returns a pointer to the source held internally, so that if any parameters are changed, and this method is called again, the source obtained by any previous call to this method will no longer be valid.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>iSource</CODE> - : index of the desired source (only "0" allowed here).</DD>
+<DT><B>Returns:</B><DD>Returns the ProbEqkSource at index i</DD>
+</DL>
+<HR>
+
+<H3>getNumSources</H3>
+<PRE>
+public int <B>getNumSources</B>()</PRE>
+<DL><DD>Returns the number of earthquake sources (always "1" here)<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>integer value specifying the number of earthquake sources</DD>
+</DL>
+<HR>
+
+<H3>getSourceList</H3>
+<PRE>
+public Vector <B>getSourceList</B>()</PRE>
+<DL><DD>This returns a list of sources (contains only one here)<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>Vector of Prob Earthquake sources</DD>
+</DL>
+<HR>
+
+<H3>getName</H3>
+<PRE>
+public String <B>getName</B>()</PRE>
+<DL><DD>Return the name for this class<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>: return the name for this class</DD>
+</DL>
+<HR>
+
+</BODY>
+</HTML>
