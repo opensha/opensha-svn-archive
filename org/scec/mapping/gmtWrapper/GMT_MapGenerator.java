@@ -295,7 +295,7 @@ public class GMT_MapGenerator implements Serializable{
        command[2]=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
        RunScript.runScript(command);
 
-       command[2]=GMT_PATH+"psscale -B1:Log_Prob: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+" -K -O -N70 >> " + out_ps;
+       command[2]=GMT_PATH+"psscale -B1:Log_Prob: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
        RunScript.runScript(command);
 
        command[2]=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/100 -O >> " + out_ps;
