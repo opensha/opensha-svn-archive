@@ -542,14 +542,15 @@ public class HazardMapApplet extends JApplet
      //sending the EQK forecast object to the servlet
      toServlet.writeObject(eqkRupForecast);
 
-     //sending the Map parameters info. to the servlet
-     toServlet.writeObject(getMapParametersInfo());
+     //sending the parameters info. to the servlet
+     toServlet.writeObject(getParametersInfo());
      toServlet.flush();
      toServlet.close();
 
      // Receive the datasetnumber from the servlet after it has received all the data
      ObjectInputStream fromServlet = new ObjectInputStream(servletConnection.getInputStream());
      String dataSetNumber=fromServlet.readObject().toString();
+     JOptionPane.showMessageDialog(this, "Generated Dataset id is:"+dataSetNumber);
      if(D) System.out.println("Receiving the Input from the Servlet:"+dataSetNumber);
      fromServlet.close();
 
@@ -560,18 +561,38 @@ public class HazardMapApplet extends JApplet
  }
 
  /**
-      * @returns the String containing the values selected for different parameters
+  * Returns the metadata associated with this calculation
+  *
+  * @returns the String containing the values selected for different parameters
   */
- public String getMapParametersInfo() {
-   return "IMR Param List: \n" +
-       "\t\t" + this.imrGuiBean.getParameterList().toString() + "\n" +
-       "Site Param List: \n" +
-       "\t\t" + sitesGuiBean.getParameterList().toString() + "\n" +
-       "IMT Param List: \n" +
-       "\t\t" + imtGuiBean.getParameterList().toString() + "\n" +
-       "Forecast Param List: \n" +
-       "\t\t" + erfGuiBean.getParameterList().toString();
+ public String getParametersInfo() {
+   String systemSpecificLineSeparator = org.scec.util.SystemPropertiesUtils.getSystemLineSeparator();
+   return "IMR Param List:" + systemSpecificLineSeparator +
+       "---------------" + systemSpecificLineSeparator +
+       this.imrGuiBean.getVisibleParametersCloned().
+       getParameterListMetadataString() + systemSpecificLineSeparator +
+       systemSpecificLineSeparator +
+       "Region Param List: " + systemSpecificLineSeparator +
+       "----------------" + systemSpecificLineSeparator +
+       sitesGuiBean.getVisibleParametersCloned().
+       getParameterListMetadataString() + systemSpecificLineSeparator +
+       systemSpecificLineSeparator + "IMT Param List: " +
+       systemSpecificLineSeparator +
+       "---------------" + systemSpecificLineSeparator +
+       imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString() +
+       systemSpecificLineSeparator +
+       systemSpecificLineSeparator + "Forecast Param List: " +
+       systemSpecificLineSeparator +
+       "--------------------" + systemSpecificLineSeparator +
+       erfGuiBean.getParameterList().getParameterListMetadataString() +
+       systemSpecificLineSeparator +
+       systemSpecificLineSeparator + "TimeSpan Param List: " +
+       systemSpecificLineSeparator +
+       "--------------------" + systemSpecificLineSeparator +
+       timeSpanGuiBean.getVisibleParametersCloned().
+       getParameterListMetadataString() + systemSpecificLineSeparator;
  }
+
 
 
 }

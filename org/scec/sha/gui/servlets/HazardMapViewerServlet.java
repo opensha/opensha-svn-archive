@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.ArrayList;
 import java.io.*;
 import javax.servlet.ServletException;
 import java.util.StringTokenizer;
@@ -14,11 +15,11 @@ import java.text.DecimalFormat;
 
 import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
 import org.scec.sha.gui.beans.IMLorProbSelectorGuiBean;
-import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.param.ParameterList;
-import org.scec.util.RunScript;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
+import org.scec.util.FileUtils;
+import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: HazardMapViewerServlet</p>
@@ -34,8 +35,8 @@ import org.scec.data.ArbDiscretizedXYZ_DataSet;
 public class HazardMapViewerServlet  extends HttpServlet {
 
   // directory where all the hazard map data sets will be saved
-  private static final String GET_DATA = "Get Data";
-  private static final String MAKE_MAP = "Make Map";
+  public static final String GET_DATA = "Get Data";
+  public static final String MAKE_MAP = "Make Map";
 
   //Process the HTTP Get request
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -50,11 +51,12 @@ public class HazardMapViewerServlet  extends HttpServlet {
       String functionDesired  = (String) inputFromApplet.readObject();
 
       if(functionDesired.equalsIgnoreCase(GET_DATA)) {
-        // if user wants to get the existing data
+        // if USER WANTS TO LOAD EXISTING DATA SETS
         loadDataSets(new ObjectOutputStream(response.getOutputStream()));
-      }else if(functionDesired.equalsIgnoreCase(MAKE_MAP)){// if user wants to make the map
 
-        // getthe set selected by the user
+
+      }else if(functionDesired.equalsIgnoreCase(MAKE_MAP)){ // IF USER WANTS TO MAKE MAP
+        // get the set selected by the user
         String selectedSet = (String)inputFromApplet.readObject();
         // map generator object
         GMT_MapGenerator map = (GMT_MapGenerator)inputFromApplet.readObject();
@@ -62,41 +64,16 @@ public class HazardMapViewerServlet  extends HttpServlet {
         String optionSelected = (String)inputFromApplet.readObject();
         // get the value
         double val = ((Double)inputFromApplet.readObject()).doubleValue();
-        // get the prefix for output file
-        String outputFilePrefix = (String)inputFromApplet.readObject();
+
         boolean isProbAt_IML = true;
         if(optionSelected.equalsIgnoreCase(IMLorProbSelectorGuiBean.IML_AT_PROB))
           isProbAt_IML = false;
-        // xyzfilename
-        XYZ_DataSetAPI xyzData = this.readAndWriteFile(selectedSet, isProbAt_IML, val, map);
+        // create the XYZ data set
+        XYZ_DataSetAPI xyzData = getXYZ_DataSet(selectedSet, isProbAt_IML, val, map);
         // jpg file name
-        String jpgFileName  = map.makeMapUsingServlet(xyzData,"???");
-
-        String xyzFileName  = "";//map.getXYZ_FileName();
-        // make the html file
-        makeHTML_File(outputFilePrefix, jpgFileName);
-        // now move the xyz file, ps file and jpg file to webpage directory
-        String command[] = {"sh","-c","mv "+xyzFileName+" webpages/hazardmapoutputfiles/"};
-        RunScript.runScript(command);
-        command[2] = "mv "+outputFilePrefix+".ps webpages/hazardmapoutputfiles/";
-        RunScript.runScript(command);
-        command[2] = "mv "+jpgFileName+" webpages/hazardmapoutputfiles/";
-        RunScript.runScript(command);
-        // remove the temporary files created
-        command[2]="rm "+outputFilePrefix+".grd";
-        RunScript.runScript(command);
-        command[2]="rm temp"+outputFilePrefix+".grd";
-        RunScript.runScript(command);
-        command[2]="rm temp_temp"+outputFilePrefix+".grd_info";
-        RunScript.runScript(command);
-        command[2]="rm "+outputFilePrefix+".cpt";
-        RunScript.runScript(command);
-        command[2]="rm "+outputFilePrefix+"HiResData.grd";
-        RunScript.runScript(command);
-        command[2]="rm "+outputFilePrefix+"Inten.grd";
-        RunScript.runScript(command);
+        String jpgFileName  = map.makeMapUsingServlet(xyzData,"IML");
         ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
-        outputToApplet.writeObject("http://scec.usc.edu:9999/hazardmapoutputfiles/"+outputFilePrefix+".html");
+        outputToApplet.writeObject(jpgFileName);
         outputToApplet.close();
       }
 
@@ -127,16 +104,18 @@ public class HazardMapViewerServlet  extends HttpServlet {
    //Hashtable for storing the lats from each dataSet
    Hashtable latHash= new Hashtable();
    try {
-     File dirs =new File(HazardMapCalculator.DATASETS_PATH);
+     File dirs =new File(HazardMapCalcServlet.PARENT_DIR);
      File[] dirList=dirs.listFiles(); // get the list of all the data in the parent directory
+
      // for each data set, read the meta data and sites info
      for(int i=0;i<dirList.length;++i){
        if(dirList[i].isDirectory()){
-         // read the meta data file
+
+         // READ THE METADATA FILE
          String dataSetDescription= new String();
          try {
-           FileReader dataReader = new FileReader(HazardMapCalculator.DATASETS_PATH+
-               dirList[i].getName()+"/metadata.dat");
+           FileReader dataReader = new FileReader(HazardMapCalcServlet.PARENT_DIR+
+               dirList[i].getName()+"/"+HazardMapCalcServlet.METADATA_FILE_NAME);
            BufferedReader in = new BufferedReader(dataReader);
            dataSetDescription = "";
            String str=in.readLine();
@@ -146,20 +125,17 @@ public class HazardMapViewerServlet  extends HttpServlet {
            }
            metaDataHash.put(dirList[i].getName(),dataSetDescription);
            in.close();
-         }catch(Exception ee) {
-           ee.printStackTrace();
-         }
 
-         try {
-           // read the sites file
-           FileReader dataReader = new FileReader(HazardMapCalculator.DATASETS_PATH+dirList[i].getName()+
-               "/sites.dat");
-           BufferedReader in = new BufferedReader(dataReader);
+           // READ THE SITES FILE
+           FileReader sitesReader = new FileReader(HazardMapCalcServlet.PARENT_DIR
+               + dirList[i].getName() +
+               "/"+HazardMapCalcServlet.SITES_FILE_NAME);
+           BufferedReader sitesin = new BufferedReader(sitesReader);
            // first line in the file contains the min lat, max lat, discretization interval
-           String latitude = in.readLine();
+           String latitude = sitesin.readLine();
            latHash.put(dirList[i].getName(),latitude);
            // Second line in the file contains the min lon, max lon, discretization interval
-           String longitude = in.readLine();
+           String longitude = sitesin.readLine();
            lonHash.put(dirList[i].getName(),longitude);
 
          }catch(Exception e) {
@@ -167,6 +143,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
          }
         }
      }
+
      // report to the user whether the operation was successful or not
      // get an ouput stream from the applet
      outputToApplet.writeObject(metaDataHash);
@@ -190,7 +167,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
   * @param minLon
   * @param maxLon
   */
-  private XYZ_DataSetAPI readAndWriteFile(String selectedSet,
+  private XYZ_DataSetAPI getXYZ_DataSet(String selectedSet,
                                   boolean isProbAt_IML,
                                   double val, GMT_MapGenerator map ){
 
@@ -209,166 +186,48 @@ public class HazardMapViewerServlet  extends HttpServlet {
     Vector zVals= new Vector();
 
     //searching the directory for the list of the files.
-    File dir = new File(HazardMapCalculator.DATASETS_PATH+selectedSet+"/");
+    File dir = new File(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/");
     String[] fileList=dir.list();
     //formatting of the text double Decimal numbers for 2 places of decimal.
     DecimalFormat d= new DecimalFormat("0.00##");
-    for(int i=0;i<fileList.length;++i){
-      if(fileList[i].endsWith("txt")){
-        String lat=fileList[i].substring(0,fileList[i].indexOf("_"));
-        String lon=fileList[i].substring(fileList[i].indexOf("_")+1,fileList[i].indexOf(".txt"));
-        double mLat = Double.parseDouble(lat);
-        double mLon = Double.parseDouble(lon);
-        double diffLat=Double.parseDouble(d.format(mLat-minLat));
-        double diffLon=Double.parseDouble(d.format(mLon-minLon));
 
-        //looking if the file we are reading has lat and lon multiple of gridSpacing
-        //in Math.IEEEremainder method Zero is same as pow(10,-16)
-        if(Math.abs(Math.IEEEremainder(diffLat,gridSpacing)) <.0001
-           && Math.abs(Math.IEEEremainder(diffLon,gridSpacing)) < .0001){
-
-          if(mLat>= minLat && mLat<=maxLat && mLon>=minLon && mLon<=maxLon){
-            try{
-              boolean readFlag=true;
-
-              //reading the desired file line by line.
-              FileReader fr= new FileReader(HazardMapCalculator.DATASETS_PATH+selectedSet+
-                  "/"+fileList[i]);
-              BufferedReader bf= new BufferedReader(fr);
-              String dataLine=bf.readLine();
-              StringTokenizer st;
-              double prevIML=0 ;
-              double prevProb=0;
-              //reading the first of the file
-              if(dataLine!=null){
-                st=new StringTokenizer(dataLine);
-                prevIML = Double.parseDouble(st.nextToken());
-                prevProb= Double.parseDouble(st.nextToken());
-              }
-              while(readFlag){
-                dataLine=bf.readLine();
-                //if the file has been read fully break out of the loop.
-                if(dataLine ==null || dataLine=="" || dataLine.trim().length()==0){
-                  readFlag=false;
-                  break;
-                }
-                st=new StringTokenizer(dataLine);
-                //using the currentIML and currentProb we interpolate the iml or prob
-                //value entered by the user.
-                double currentIML = Double.parseDouble(st.nextToken());
-                double currentProb= Double.parseDouble(st.nextToken());
-                if(isProbAt_IML){
-                  //taking into account the both types of curves, interpolating the value
-                  //interpolating the prob value for the iml value entered by the user.
-                  if((val>=prevIML && val<=currentIML) ||
-                     (val<=prevIML && val>=currentIML)){
-
-                    //final iml value returned after interpolation
-                    double finalProb=interpolateProb(val, prevIML,currentIML,prevProb,currentProb);
-                    //String curveResult=lon+" "+lat+" "+Math.log(finalProb)+"\n";
-                    //appending the iml result to the final output file.
-                    xVals.add(lon);
-                    yVals.add(lat);
-                    zVals.add(new Double(Math.log(finalProb)));
-                    break;
-                  }
-                }
-                else if((val>=prevProb && val<=currentProb) ||
-                        (val<=prevProb && val>=currentProb)){
-                  //interpolating the iml value entered by the user to get the final iml for the
-                  //corresponding prob.
-                  double finalIML=interpolateIML(val, prevProb,currentProb,prevIML,currentIML);
-                  //String curveResult=lon+" "+lat+" "+Math.log(finalIML)+"\n";
-                  xVals.add(lon);
-                  yVals.add(lat);
-                  zVals.add(new Double(Math.log(finalIML)));
-                  break;
-                }
-                prevIML=currentIML;
-                prevProb=currentProb;
-              }
-              fr.close();
-              bf.close();
-            }catch(IOException e){
-              System.out.println("File Not Found :"+e);
-            }
-
+    double interpolatedVal=0;
+    ArrayList fileLines;
+    for(double lat = minLat; lat<=maxLat; lat=lat+gridSpacing){
+      for(double lon = minLon; lon<=maxLon; lon=lon+gridSpacing) {
+        try {
+          fileLines = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+d.format(lat)+"_"+ d.format(lon)+".txt");
+          String dataLine;
+          StringTokenizer st;
+          ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+          for(int i=0;i<fileLines.size();++i) {
+            dataLine=(String)fileLines.get(i);
+            st=new StringTokenizer(dataLine);
+            //using the currentIML and currentProb we interpolate the iml or prob
+            //value entered by the user.
+            double currentIML = Double.parseDouble(st.nextToken());
+            double currentProb= Double.parseDouble(st.nextToken());
+            func.set(currentIML, currentProb);
           }
 
-        }
+          if (isProbAt_IML)
+            //final iml value returned after interpolation
+            interpolatedVal = func.getInterpolatedY(val);
+            // for  IML_AT_PROB
+          else //interpolating the iml value entered by the user to get the final iml for the
+            //corresponding prob.
+            interpolatedVal = func.getFirstInterpolatedX(val);
+
+        }catch(Exception e) { } // catch invalid range exception etc.
+        xVals.add(new Double(lon));
+        yVals.add(new Double(lat));
+        zVals.add(new Double(interpolatedVal));
       }
     }
+
+    // return the XYZ Data set
     xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
     return xyzData;
-  }
-
-
-  /**
-   * interpolating the prob values to get the final prob for the corresponding iml
-   * @param x1=iml1
-   * @param x2=iml2
-   * @param y1=prob1
-   * @param y2=prob2
-   * @return prob value for the iml entered
-   */
-  private double interpolateProb(double iml, double x1,double x2,double y1,double y2){
-    return ((iml-x1)/(x2-x1))*(y2-y1) +y1;
-  }
-
-  /**
-   * interpolating the iml values to get the final iml for the corresponding prob
-   * @param x1=iml1
-   * @param x2=iml2
-   * @param y1=prob1
-   * @param y2=prob2
-   * @return iml value for the prob entered
-   */
-  private double interpolateIML(double prob, double y1,double y2,double x1,double x2){
-    return ((prob-y1)/(y2-y1))*(x2-x1)+x1;
-   }
-
-   /**
-  * Creates a HTML page with the link to the file
-  *
-  * @param htmlFileName : name of HTML page
-  * @param linkFileName : name of file to be linked
-  */
- public void makeHTML_File(String outputFilePrefix, String jpgFileName) {
-    BufferedWriter htmlWriter = null;
-    try{
-
-      FileOutputStream outputfile = new FileOutputStream("/export/home/scec-00/scecweb/jsdk2.1/webpages/hazardmapoutputfiles/"+outputFilePrefix+".html");
-      BufferedOutputStream buffout = new BufferedOutputStream(outputfile);
-      htmlWriter = new BufferedWriter(new OutputStreamWriter(buffout));
-      String htmlData=new String("<html><head><title>Download Page</title></head><body><p><br>");
-      htmlWriter.write(htmlData);
-      htmlWriter.newLine();
-
-      htmlWriter.write("Download the XYZ file from "
-                       +"<a href= "+outputFilePrefix+".xyz target=htmlfile> here</a>");
-      htmlWriter.write("<br>");
-      htmlWriter.write("Download the ps file from "
-                      +"<a href= "+outputFilePrefix+".ps target=htmlfile> here</a>");
-      htmlWriter.write("<br>");
-      htmlWriter.write("Download the jpg file from "
-                      +"<a href= "+jpgFileName+" target=htmlfile> here</a>");
-      htmlWriter.write("<br>");
-
-      htmlWriter.write("Click to View the file<br>");
-      htmlWriter.write("To SAVE the file Right Click (or Shift+click) and Select Save Link As ");
-
-      htmlWriter.write("</body></html>");
-    } catch(Exception e){
-      System.out.println("IOException ocured while outputting file:"+e);
-    } finally {
-       if(htmlWriter!=null) {
-         try{
-           htmlWriter.close();
-         }catch(Exception x) {
-           System.out.println("Unable to close file:"+x);
-         }
-       }
-    }
   }
 }
 

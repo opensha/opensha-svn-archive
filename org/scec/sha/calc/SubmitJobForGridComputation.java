@@ -84,7 +84,7 @@ public class SubmitJobForGridComputation {
    */
   public SubmitJobForGridComputation(String imrFileName, String erfFileName,
                                      String regionFileName, String outputDir,
-                                     int remoteMachineSubdirName,
+                                     long remoteMachineSubdirName,
                                      SitesInGriddedRegion griddedSites) {
     if (!outputDir.endsWith("/"))
       outputDir = outputDir + "/";

@@ -226,5 +226,7 @@ public class HazardMapCalculator {
     } else
       throw new RuntimeException("Unsupported IMT");
   }
+
+
 }
 

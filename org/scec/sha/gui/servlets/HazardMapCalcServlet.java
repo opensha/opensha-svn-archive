@@ -23,12 +23,13 @@ import org.scec.sha.calc.SubmitJobForGridComputation;
 
 public class HazardMapCalcServlet extends HttpServlet {
   // parent directory where each new calculation will have its own subdirectory
-  private String PARENT_DIR = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/HazardMapDatasets/";
+  public static final String PARENT_DIR = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/HazardMapDatasets/";
   // filenames for IMR, ERF, Region, metadata
-  private String IMR_FILE_NAME = "imr.obj";
-  private String ERF_FILE_NAME = "erf.obj";
-  private String REGION_FILE_NAME = "region.obj";
-  private String METADATA_FILE_NAME = "metadata.txt";
+  private static final String IMR_FILE_NAME = "imr.obj";
+  private static final String ERF_FILE_NAME = "erf.obj";
+  private static final String REGION_FILE_NAME = "region.obj";
+  public  static final String METADATA_FILE_NAME = "metadata.txt";
+  public  static final String SITES_FILE_NAME = "sites.txt";
 
   //Process the HTTP Get request
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws
@@ -49,21 +50,38 @@ public class HazardMapCalcServlet extends HttpServlet {
       //get the selected EqkRupForecast
       EqkRupForecast eqkRupForecast =
           (EqkRupForecast) inputFromApplet.readObject();
+
       //get the parameter values in String form needed to reproduce this
       String mapParametersInfo = (String) inputFromApplet.readObject();
+
+      // new directory that will be created
+      long newDirId = System.currentTimeMillis();
 
       // report to the user whether the operation was successful or not
       // get an ouput stream from the applet
       ObjectOutputStream outputToApplet = new ObjectOutputStream(response.
           getOutputStream());
-      outputToApplet.writeObject(new String("Success"));
+      outputToApplet.writeObject(new String(""+newDirId));
       outputToApplet.close();
 
       // write the objects to the files
       File mainDir = new File(PARENT_DIR);
-      int newDirId = mainDir.list().length + 1;
+
       String newDir = this.PARENT_DIR+newDirId+"/";
       new File(newDir).mkdir();
+
+      // write the metadata to the metadata file
+      FileWriter fwMetadata = new FileWriter(newDir+this.METADATA_FILE_NAME);
+      fwMetadata.write(mapParametersInfo);
+      fwMetadata.close();
+
+      // write site information in sites file
+      FileWriter fwSites = new FileWriter(newDir+this.SITES_FILE_NAME);
+      fwSites.write(sites.getMinLat()+" "+sites.getMaxLat()+" "+sites.getGridSpacing()+"\n");
+      fwSites.write(sites.getMinLon()+" "+sites.getMaxLon()+" "+sites.getGridSpacing()+"\n");
+      fwSites.close();
+
+
       String regionFileName = newDir+this.REGION_FILE_NAME;
       String imrFileName = newDir+this.IMR_FILE_NAME;
       String erfFileName = newDir+this.ERF_FILE_NAME;
