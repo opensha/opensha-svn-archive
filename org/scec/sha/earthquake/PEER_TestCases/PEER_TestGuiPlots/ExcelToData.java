@@ -60,11 +60,11 @@ public class ExcelToData {
 
       // create files
       for(int k=0;k<numFiles;)  {
-        files[k]=new FileWriter(outputPath+testCase+site+"-PGA"+"_"+identifier+".dat");
-        logFileWriter.write(testCase+site+"-PGA"+"_"+identifier+".dat"+"\n");
+        files[k]=new FileWriter(outputPath+testCase+"-"+site+"-PGA"+"_"+identifier+".dat");
+        logFileWriter.write(testCase+"-"+site+"-PGA"+"_"+identifier+".dat"+"\n");
         ++k;
-        files[k]=new FileWriter(outputPath+testCase+site+"-1secSA"+"_"+identifier+".dat");
-        logFileWriter.write(testCase+site+"-1secSA"+"_"+identifier+".dat"+"\n");
+        files[k]=new FileWriter(outputPath+testCase+"-"+site+"-1secSA"+"_"+identifier+".dat");
+        logFileWriter.write(testCase+"-"+site+"-1secSA"+"_"+identifier+".dat"+"\n");
         ++k;
         site = (char)(site+1);
       }

@@ -204,8 +204,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private JLabel dataVersionLabel = new JLabel();
   private BorderLayout borderLayout1 = new BorderLayout();
   JLabel powerLabel = new JLabel();
-  GridBagLayout gridBagLayout3 = new GridBagLayout();
   GridBagLayout gridBagLayout7 = new GridBagLayout();
+  private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
   //Construct the applet
   public PEER_TestResultsPlotterApplet() {
@@ -251,8 +251,9 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     plotSplitPane.setDividerSize(5);
     plotSplitPane.setLastDividerLocation(500);
     buttonPanel.setBorder(border1);
-    buttonPanel.setMinimumSize(new Dimension(739, 60));
-    buttonPanel.setPreferredSize(new Dimension(743, 60));
+    buttonPanel.setMaximumSize(new Dimension(2147483647, 25));
+    buttonPanel.setMinimumSize(new Dimension(739, 25));
+    buttonPanel.setPreferredSize(new Dimension(743, 25));
     topPlotPanel.setBorder(border3);
     topPlotPanel.setMinimumSize(new Dimension(467, 500));
     topPlotPanel.setPreferredSize(new Dimension(467, 500));
@@ -289,16 +290,28 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     testPanelLabel.setHorizontalAlignment(SwingConstants.LEFT);
     testPanelLabel.setText("Data In Plot");
     averageCheck.setForeground(new Color(80, 80, 133));
+    averageCheck.setMaximumSize(new Dimension(112, 17));
+    averageCheck.setMinimumSize(new Dimension(112, 17));
+    averageCheck.setPreferredSize(new Dimension(112, 17));
     averageCheck.setSelected(true);
-    averageCheck.setText("Average");
+    averageCheck.setText("Show Average");
     averageCheck.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         averageCheck_actionPerformed(e);
       }
     });
     xLogCheckBox.setForeground(new Color(80, 80, 133));
+    xLogCheckBox.setMaximumSize(new Dimension(59, 17));
+    xLogCheckBox.setMinimumSize(new Dimension(59, 17));
+    xLogCheckBox.setPreferredSize(new Dimension(59, 17));
     yLogCheckBox.setForeground(new Color(80, 80, 133));
+    yLogCheckBox.setMaximumSize(new Dimension(59, 17));
+    yLogCheckBox.setMinimumSize(new Dimension(59, 17));
+    yLogCheckBox.setPreferredSize(new Dimension(59, 17));
     rangeLabel.setForeground(new Color(80, 80, 133));
+    toggleButton.setMaximumSize(new Dimension(87, 27));
+    toggleButton.setMinimumSize(new Dimension(87, 27));
+    toggleButton.setPreferredSize(new Dimension(87, 27));
     toggleButton.setText("Show Data");
     toggleButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -313,6 +326,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     guiLabel.setText("PEER PSHA-TEST RESULTS PLOTTER");
     dataVersionLabel.setForeground(new Color(80, 80, 133));
     dataVersionLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    dataVersionLabel.setHorizontalTextPosition(SwingConstants.CENTER);
     dataVersionLabel.setText("jLabel1");
     testCasesPanel.setMinimumSize(new Dimension(115, 37));
     testCasesPanel.setPreferredSize(new Dimension(121, 37));
@@ -323,6 +337,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     });
     powerLabel.setToolTipText("");
     powerLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+    rangeComboBox.setPreferredSize(new Dimension(130, 17));
     dataScrollPane.getViewport().add( pointsTextArea, null );
     xLogCheckBox.setText("XLog");
     yLogCheckBox.setText("YLog");
@@ -354,26 +369,26 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     avgCasesPanel.add(avgLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    buttonPanel.add(yLogCheckBox,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 0, 17, 0), 15, 3));
-    buttonPanel.add(rangeLabel,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 16, 21, 0), 8, 7));
-    buttonPanel.add(rangeComboBox,  new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(14, 0, 21, 0), 33, 0));
-    buttonPanel.add(toggleButton,      new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 16, 4, 92), 30, 0));
-    buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 10, 16, 0), 1, 4));
-    buttonPanel.add(xLogCheckBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 0, 18, 0), 22, 1));
-    mainPanel.add(guiLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 267, 0, 190), 37, 10));
-    mainPanel.add(dataVersionLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 139, 0, 171), 394, 3));
+    buttonPanel.add(toggleButton,     new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 16, 3, 20), 30, 0));
+    buttonPanel.add(rangeLabel,      new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(3, 32, 3, 0), 8, 0));
+    buttonPanel.add(yLogCheckBox,      new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 0, 3, 0), 15, 0));
+    buttonPanel.add(xLogCheckBox,       new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 16, 3, 0), 22, 0));
+    buttonPanel.add(averageCheck,      new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 10, 3, 0), 1, 0));
+    buttonPanel.add(rangeComboBox,           new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(3, 0, 3, 0), 0, 0));
+    mainPanel.add(guiLabel,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(1, 267, 0, 190), 37, 10));
+    mainPanel.add(dataVersionLabel,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 139, 0, 171), 394, 3));
     mainPanel.add(powerLabel,   new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 329, 0, 206), 70, 0));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    mainSplitPane.setDividerLocation(435);
+    mainSplitPane.setDividerLocation(420);
     plotSplitPane.setDividerLocation(475);
     avgSplitPane.setDividerLocation(140);
     avgCasesPanel.setLayout(gridBagLayout1);
@@ -451,9 +466,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     int colorIndex=0;
     int displayIndex =1;
     //checking which test case is selected
-    String temp = this.testCaseCombo.getSelectedItem().toString();
-    int index1 = temp.indexOf(" ");
-    String testSet= temp.substring(0,index1)+temp.substring(index1+1);
+    String testSet = this.testCaseCombo.getSelectedItem().toString();
     testCasesPanel.removeAll();
     avgCasesPanel.removeAll();
     // clear the function list
@@ -729,9 +742,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
          // this is needed to add a spce between test case and site
          int index=line.indexOf("_");
-         String temp = line.substring(0,index);
-         int index1 = temp.lastIndexOf("-");
-         String testCases = line.substring(0,index1-1)+" "+line.substring(index1-1,index);
+         String testCases = line.substring(0,index);
 
          boolean isTenOrEleven = false;
          boolean flag = false;
@@ -966,7 +977,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
   void powerLabel_mouseClicked(MouseEvent e) {
    try{
-   this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE),"_blank");
+   this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE),"_opensha");
    }catch(java.net.MalformedURLException ee){
      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
