@@ -159,6 +159,9 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
+  private Border border6;
+  private Border border7;
+  private Border border8;
 
 
 
@@ -197,9 +200,12 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
   private void jbInit() throws Exception {
     border1 = BorderFactory.createLineBorder(SystemColor.controlText,1);
     border2 = BorderFactory.createLineBorder(SystemColor.controlText,1);
-    border3 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
+    border3 = BorderFactory.createEmptyBorder();
     border4 = BorderFactory.createLineBorder(SystemColor.controlText,1);
     border5 = BorderFactory.createLineBorder(SystemColor.controlText,1);
+    border6 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
+    border7 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
+    border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     this.getContentPane().setBackground(Color.white);
     this.setSize(new Dimension(959, 644));
     this.getContentPane().setLayout(borderLayout1);
@@ -235,7 +241,7 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
     clearButton.setBackground(new Color(200, 200, 230));
     clearButton.setFont(new java.awt.Font("Dialog", 1, 11));
     clearButton.setForeground(new Color(80, 80, 133));
-    clearButton.setBorder(border3);
+    clearButton.setBorder(border7);
     clearButton.setMaximumSize(new Dimension(80, 21));
     clearButton.setMinimumSize(new Dimension(80, 21));
     clearButton.setPreferredSize(new Dimension(80, 21));
@@ -251,7 +257,7 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
     toggleButton.setBackground(new Color(200, 200, 230));
     toggleButton.setFont(new java.awt.Font("Dialog", 1, 11));
     toggleButton.setForeground(new Color(80, 80, 133));
-    toggleButton.setBorder(border3);
+    toggleButton.setBorder(border8);
     toggleButton.setMaximumSize(new Dimension(80, 39));
     toggleButton.setMinimumSize(new Dimension(80, 21));
     toggleButton.setPreferredSize(new Dimension(80, 21));
@@ -280,7 +286,7 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
     addButton.setBackground(new Color(200, 200, 230));
     addButton.setFont(new java.awt.Font("Dialog", 1, 11));
     addButton.setForeground(new Color(80, 80, 133));
-    addButton.setBorder(border3);
+    addButton.setBorder(border6);
     addButton.setMaximumSize(new Dimension(80, 20));
     addButton.setMinimumSize(new Dimension(80, 20));
     addButton.setPreferredSize(new Dimension(80, 20));
