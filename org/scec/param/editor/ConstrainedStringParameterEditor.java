@@ -16,8 +16,11 @@ import org.scec.exceptions.*;
 /**
  * <b>Title:</b> ConstrainedStringParameterEditor<p>
  *
- * <b>Description:</b> This editor is for editing ConstrainedStringParameter. The widget is
- * simply a picklist of all possible constrained values you can choose from.<>
+ * <b>Description:</b> This editor is for editing
+ * ConstrainedStringParameters. Recall a ConstrainedStringParameter
+ * contains a list of the only allowed values. Therefore this editor
+ * presents a picklist of those allowed values, instead of a
+ * JTextField or subclass. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
@@ -34,9 +37,7 @@ public class ConstrainedStringParameterEditor
     protected final static boolean D = false;
 
 
-    /**
-     * No-Arg constructor calls super();
-     */
+    /** No-Arg constructor calls parent constructtor */
     public ConstrainedStringParameterEditor() {
 
         super();
@@ -51,8 +52,8 @@ public class ConstrainedStringParameterEditor
      * Sets the model in this constructor. The parameter is checked that it is a
      * StringParameter, and the constraint is checked that it is a
      * StringConstraint. Then the constraints are checked that
-     * there is at least one. If any of these fails an error is thrown.
-     * <P>
+     * there is at least one. If any of these fails an error is thrown. <P>
+     *
      * The widget is then added to this editor, based on the number of
      * constraints. If only one the editor is made into a non-editable label,
      * else a picklist of values to choose from are presented to the user.
@@ -131,16 +132,12 @@ public class ConstrainedStringParameterEditor
     }
 
 
-    /**
-     * Not implemented
-     */
-    public void setAsText(String string) throws IllegalArgumentException {
-	/* empty */
-    }
+     /** Not implemented */
+    public void setAsText(String string) throws IllegalArgumentException { }
 
     /**
-     * Set's the name label, and the picklist value from the passed in values,
-     * i.e. model sets the gui
+     * Set's the name label, and the picklist value from the passed in
+     * values, i.e. model sets the gui
      */
     protected void setWidgetObject(String name, Object obj) {
         String S = C + ": setWidgetObject(): ";
@@ -154,7 +151,13 @@ public class ConstrainedStringParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
-
+    /**
+     * This is where the JComboBox picklist is defined and configured.
+     * This function adds a little more intellegence in that if there
+     * is only one constraint, it only adds a lable instead of a picklist.
+     * No need to give a list of choices when there is only one allowed
+     * value.
+     */
     protected void addWidget() {
         String S = C + ": addWidget(): ";
         if(D) System.out.println(S + "Starting");
@@ -200,6 +203,12 @@ public class ConstrainedStringParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
+    /**
+     * Updates the JComboBox selected value with the parameter value. Used when
+     * the parameter is set for the first time, or changed by a background
+     * process independently of the GUI. This could occur with a
+     * ParameterChangeFail event.
+     */
     public void synchToModel(){
         if( valueEditor instanceof JComboBox ){
 
@@ -228,13 +237,18 @@ public class ConstrainedStringParameterEditor
 
 
 
-    public void focusGained(FocusEvent e) {
-        super.focusGained(e);
-    }
+    /**
+     * Called everytime a key is typed in the text field to validate it
+     * as a valid integer character ( digits and - sign in first position ).
+     */
+    public void focusGained(FocusEvent e) { super.focusGained(e); }
 
-    public void focusLost(FocusEvent e) {
-        super.focusLost(e);
-    }
+    /**
+     * Called when the user clicks on another area of the GUI outside
+     * this editor panel. This synchornizes the editor text field
+     * value to the internal parameter reference.
+     */
+    public void focusLost(FocusEvent e) { super.focusLost(e); }
 
 
 }

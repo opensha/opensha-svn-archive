@@ -16,6 +16,7 @@ import org.scec.param.editor.document.NumericPlainDocument;
 import java.lang.reflect.Method;
 
 import java.security.AccessController;
+
 import java.security.PrivilegedAction;
 
 import java.util.Collections;
@@ -46,7 +47,6 @@ import javax.swing.plaf.*;
 
 import javax.accessibility.*;
 
-// Fix - Needs more comments
 
 /**
  * <b>Title:</b> NumericTextField<p>
@@ -55,10 +55,20 @@ import javax.accessibility.*;
  * text field allows for normal number synatx, such as a negative sign, period for decimal point,
  * and commas for deliminating thousands, millions, etc.<p>
  *
+ * Note: This is a fairly complex GUI customization that relies upon a NumjericDocument model
+ * to determine what types of characters are allowed for a numerical number ( digits, - sign
+ * in first location, etc. ) It is beyond the scope of this javadoc to explain it's use
+ * fully. It is not necessary for programmers to understand the details. They can just
+ * use it like a normal JTextField and just expect it to work. <p>
+ *
+ * Please consult Swing doucmentation for further details, specifically JTextField and
+ * PlainDocument. It is required a programmer understands the Model View Component
+ * design architeture to understand the relationship between JTextField and PlainDocument
+ * ( and our corresponding NumericTextField and NumericDocument ).<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class NumericTextField extends JTextField
     implements NumericPlainDocument.InsertErrorListener {
 
@@ -130,7 +140,10 @@ public class NumericTextField extends JTextField
      * This method is thread safe, although most Swing methods
      * are not. Please see
      * <A HREF="http://java.sun.com/products/jfc/swingdoc-archive/threads.html">Threads
-     * and Swing</A> for more information.
+     * and Swing</A> for more information. <p>
+     *
+     * Note: This is where the text field Document model is consulted to see if
+     * the text is viable for insertion.
      *
      * @param t the new text to be set
      * @see #getText

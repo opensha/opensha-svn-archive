@@ -20,8 +20,9 @@ import org.scec.exceptions.ConstraintException;
 /**
  * <b>Title:</b> ConstrainedDoubleDiscreteParameterEditor<p>
  *
- * <b>Description:</b> This editor is for editing DoubleDiscreteParameter. The widget is
- * simply a picklist of all possible constrained values you can choose from.<p>
+ * <b>Description:</b> This editor is for editing DoubleDiscreteParameters.
+ * The widget is simply a picklist of all possible constrained values you
+ * can choose from. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
@@ -39,17 +40,15 @@ public class ConstrainedDoubleDiscreteParameterEditor
 
 
 
-    /**
-     * No-Arg constructor calls super();
-     */
+    /** No-Arg constructor calls super(); */
     public ConstrainedDoubleDiscreteParameterEditor() { super(); }
 
     /**
      * Sets the model in this constructor. The parameter is checked that it is a
      * DoubleDiscreteParameter, and the constraint is checked that it is a
      * DoubleDiscreteConstraint. Then the constraints are checked that
-     * there is at least one. If any of these fails an error is thrown.
-     * <P>
+     * there is at least one. If any of these fails an error is thrown. <P>
+     *
      * The widget is then added to this editor, based on the number of
      * constraints. If only one the editor is made into a non-editable label,
      * else a picklist of values to choose from are presented to the user.
@@ -77,8 +76,8 @@ public class ConstrainedDoubleDiscreteParameterEditor
      * initializing the editor. The parameter is checked that it is a
      * DoubleDiscreteParameter, and the constraint is checked that it is a
      * DoubleDiscreteConstraint. Then the constraints are checked that
-     * there is at least one. If any of these fails an error is thrown.
-     * <P>
+     * there is at least one. If any of these fails an error is thrown. <P>
+     *
      * The widget is then added to this editor, based on the number of
      * constraints. If only one the editor is made into a non-editable label,
      * else a picklist of values to choose from are presented to the user.
@@ -137,14 +136,12 @@ public class ConstrainedDoubleDiscreteParameterEditor
     }
 
 
-    /**
-     * Not implemented
-     */
+    /** Not implemented */
     public void setAsText(String string) throws IllegalArgumentException { }
 
     /**
-     * Set's the name label, and the picklist value from the passed in values,
-     * i.e. model sets the gui
+     * Set's the name label, and the picklist value from the
+     * passed in values, i.e. model sets the gui
      */
     protected void setWidgetObject(String name, Object obj) {
 
@@ -160,6 +157,7 @@ public class ConstrainedDoubleDiscreteParameterEditor
     }
 
 
+     /** Allows customization of the IntegerTextField border. Currently set to do nothing.  */
      public void setWidgetBorder(Border b){
     }
 
@@ -205,7 +203,13 @@ public class ConstrainedDoubleDiscreteParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
-    public void synchToModel(){
+    /**
+     * Updates the IntegerTextField string with the parameter value. Used when
+     * the parameter is set for the first time, or changed by a background
+     * process independently of the GUI. This could occur with a ParameterChangeFail
+     * event.
+     */
+     public void synchToModel(){
 
         if( valueEditor instanceof JComboBox ){
 
@@ -232,6 +236,9 @@ public class ConstrainedDoubleDiscreteParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
+    /**
+     * Called when the user clicks onthis editor panel. Calls super().
+     */
     public void focusGained(FocusEvent e) {
 
         String S = C + ": focusGained(): ";
@@ -240,6 +247,10 @@ public class ConstrainedDoubleDiscreteParameterEditor
         super.focusGained(e);
     }
 
+    /**
+     * Called when the user clicks on another area of the GUI outside
+     * this editor panel. Calls super().
+     */
     public void focusLost(FocusEvent e) {
 
         String S = C + ": focusLost(): ";

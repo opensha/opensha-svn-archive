@@ -5,18 +5,20 @@ import org.scec.exceptions.*;
 import org.scec.param.*;
 import javax.swing.border.*;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> DoubleParameterEditor<p>
  *
- * <b>Description:</b> Special ParameterEditor for editing DoubleParameters. The widget
- * is a NumericTextField so that only numbers can be typed in.<p>
+ * <b>Description:</b> Subclass of ParameterEditor for editing DoubleParameters.
+ * The widget is an DoubleTextField so that only numbers can be typed in. <p>
+ *
+ * The main functionality overidden from the parent class to achive Double
+ * cusomization are the setWidgetObject() and AddWidget() functions. The parent's
+ * class JComponent valueEditor field becomes an NumericTextField,  a subclass
+ * of a JTextField. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class DoubleParameterEditor extends ParameterEditor
 {
 
@@ -25,18 +27,16 @@ public class DoubleParameterEditor extends ParameterEditor
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    /**
-     * No-Arg constructor calls super();
-     */
+    /** No-Arg constructor calls parent constructtor */
     public DoubleParameterEditor() { super(); }
 
     /**
-     * Sets the model in this constructor. The parameter is checked that it is a
-     * DoubleParameter. An error is thrown if not true.
-     * <P>
-     * The widget is then added to this editor as a DoubleTextField that
-     * only allows double values to be typed in.
-     */public DoubleParameterEditor(ParameterAPI model) throws Exception {
+     * Constructor that sets the parameter that it edits.
+     *
+     * Note: When calling the super() constuctor addWidget() is called
+     * which configures the NumericTextField as the editor widget. <p>
+     */
+     public DoubleParameterEditor(ParameterAPI model) throws Exception {
 
         super(model);
 
@@ -70,15 +70,10 @@ public class DoubleParameterEditor extends ParameterEditor
     }
 
 
-    /**
-     * Not implemented
-     */
+    /** Currently does nothing */
     public void setAsText(String string) throws IllegalArgumentException { }
 
-    /**
-     * Set's the name label, and the textfield value from the passed in value,
-     * i.e. model sets the gui
-     */
+    /** Passes in a new Parameter with name to set as the parameter to be editing */
     protected void setWidgetObject(String name, Object obj) {
         String S = C + ": setWidgetObject(): ";
         if(D) System.out.println(S + "Starting");
@@ -92,10 +87,12 @@ public class DoubleParameterEditor extends ParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
+    /** Allwos customization of the NumericTextField border */
     public void setWidgetBorder(Border b){
         ((NumericTextField)valueEditor).setBorder(b);
     }
 
+    /** This is where the NumericTextField is defined and configured. */
     protected void addWidget() {
         String S = C + "DoubleParameterEditor: addWidget(): ";
         if(D) System.out.println(S + "Starting");
@@ -114,7 +111,10 @@ public class DoubleParameterEditor extends ParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
-
+    /**
+     * Called everytime a key is typed in the text field to validate it
+     * as a valid number character ( digits, - sign in first position, etc. ).
+     */
     public void keyTyped(KeyEvent e) throws NumberFormatException {
 
         String S = C + ": keyTyped(): ";
@@ -162,6 +162,11 @@ public class DoubleParameterEditor extends ParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
+    /**
+     * Called when the user clicks on another area of the GUI outside
+     * this editor panel. This synchornizes the editor text field
+     * value to the internal parameter reference.
+     */
     public void focusLost(FocusEvent e)throws ConstraintException {
 
 
@@ -209,6 +214,7 @@ public class DoubleParameterEditor extends ParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
+    /** Sets the parameter to be edited. */
     public void setParameter(ParameterAPI model) {
         String S = C + ": setParameter(): ";
         if(D) System.out.println(S + "Starting");
@@ -226,6 +232,12 @@ public class DoubleParameterEditor extends ParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
+    /**
+     * Updates the NumericTextField string with the parameter value. Used when
+     * the parameter is set for the first time, or changed by a background
+     * process independently of the GUI. This could occur with a ParameterChangeFail
+     * event.
+     */
     public void synchToModel(){
 
         Object obj = model.getValue();

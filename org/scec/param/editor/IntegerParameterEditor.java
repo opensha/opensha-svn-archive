@@ -5,18 +5,20 @@ import javax.swing.border.*;
 import org.scec.exceptions.*;
 import org.scec.param.*;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> IntegerParameterEditor<p>
  *
- * <b>Description:</b> Special ParameterEditor for editing IntegetParameters. The widget
- * is an IntegerTextField so that only integers can be typed in. <p>
+ * <b>Description:</b> Subclass of ParameterEditor for editing IntegerParameters.
+ * The widget is an IntegerTextField so that only integers can be typed in. <p>
+ *
+ * The main functionality overidden from the parent class to achive Integer
+ * cusomization are the setWidgetObject() and AddWidget() functions. The parent's
+ * class JComponent valueEditor field becomes an IntegerTextField,  a subclass
+ * of a JTextField. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class IntegerParameterEditor extends ParameterEditor
 {
 
@@ -25,9 +27,19 @@ public class IntegerParameterEditor extends ParameterEditor
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
+    ** No-Arg constructor calls parent constructtor */
     public IntegerParameterEditor() { super(); }
 
-    public IntegerParameterEditor(ParameterAPI model) throws Exception {
+    /**
+     * Constructor that sets the parameter that it edits. An
+     * Exception is thrown if the model is not an IntegerParameter.
+     * It it is then the updateNameLabel is called which
+     * inderectly calls addWidget. <p>
+     *
+     * Note: When calling the super() constuctor addWidget() is called
+     * which configures the IntegerTextField as the editor widget. <p>
+     */
+     public IntegerParameterEditor(ParameterAPI model) throws Exception {
 
         super(model);
 
@@ -44,8 +56,10 @@ public class IntegerParameterEditor extends ParameterEditor
 
     }
 
+    /** Currently does nothing */
     public void setAsText(String string) throws IllegalArgumentException { }
 
+    /** Passes in a new Parameter with name to set as the parameter to be editing */
     protected void setWidgetObject(String name, Object obj) {
         String S = C + ": setWidgetObject(): ";
         if(D) System.out.println(S + "Starting");
@@ -62,10 +76,12 @@ public class IntegerParameterEditor extends ParameterEditor
     }
 
 
+    /** Allows customization of the IntegerTextField border */
     public void setWidgetBorder(Border b){
         ((IntegerTextField)valueEditor).setBorder(b);
     }
 
+    /** This is where the IntegerTextField is defined and configured. */
     protected void addWidget() {
 
         String S = C + ": addWidget(): ";
@@ -85,7 +101,12 @@ public class IntegerParameterEditor extends ParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
-    public void keyTyped(KeyEvent e) throws NumberFormatException {
+
+    /**
+     * Called everytime a key is typed in the text field to validate it
+     * as a valid integer character ( digits and - sign in first position ).
+     */
+     public void keyTyped(KeyEvent e) throws NumberFormatException {
 
         String S = C + ": valueEditor_keyTyped(): ";
         super.keyTyped(e);
@@ -129,6 +150,11 @@ public class IntegerParameterEditor extends ParameterEditor
         }
     }
 
+    /**
+     * Called when the user clicks on another area of the GUI outside
+     * this editor panel. This synchornizes the editor text field
+     * value to the internal parameter reference.
+     */
     public void focusLost(FocusEvent e) throws ConstraintException {
 
         String S = C + ": focusLost(): ";
@@ -175,6 +201,7 @@ public class IntegerParameterEditor extends ParameterEditor
 
     }
 
+    /** Sets the parameter to be edited. */
     public void setParameter(ParameterAPI model) {
         String S = C + ": setParameter(): ";
         if(D) System.out.println(S.concat("Starting"));
@@ -192,6 +219,12 @@ public class IntegerParameterEditor extends ParameterEditor
         if(D) System.out.println(S.concat("Ending"));
     }
 
+    /**
+     * Updates the IntegerTextField string with the parameter value. Used when
+     * the parameter is set for the first time, or changed by a background
+     * process independently of the GUI. This could occur with a ParameterChangeFail
+     * event.
+     */
     public void synchToModel(){
         Object obj = model.getValue();
         if ( obj != null )

@@ -4,21 +4,20 @@ import org.scec.param.*;
 import org.scec.util.ParamUtils;
 import javax.swing.border.*;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> ConstrainedDoubleParameterEditor<p>
  *
- * <b>Description:</b> Special ParameterEditor for editing Constrained DoubleParameters. The widget
- * is a NumericTextField so that only numbers can be typed in. When hitting <enter> or moving the
- * mouse away from the NumericField, the value will change back to the original
- * if the new number is outside the constraints range. The constraints also appear as a tool tip
- * when you hold the mouse cursor over the NumericTextField<p>
+ * <b>Description:</b> Special ParameterEditor for editing Constrained
+ * DoubleParameters. The widget is a NumericTextField so that only
+ * numbers can be typed in. When hitting <enter> or moving the
+ * mouse away from the NumericField, the value will change back to the
+ * original if the new number is outside the constraints range. The constraints
+ * also appear as a tool tip when you hold the mouse cursor over
+ * the NumericTextField. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
 
     /** Class name for debugging. */
@@ -26,12 +25,21 @@ public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
+    /** No-Arg constructor calls parent constructtor */
     public ConstrainedDoubleParameterEditor() { super(); }
 
+    /**
+     * Constructor that sets the parameter that it edits.
+     * Only calls the super() function.
+     */
     public ConstrainedDoubleParameterEditor(ParameterAPI model)
 	    throws Exception
     { super(model); }
 
+    /**
+     * Calls the super().;setFunction() and uses the constraints
+     * to set the JTextField tooltip to show the constraint values.
+     */
     public void setParameter(ParameterAPI model) {
 
         String S = C + ": setParameter(): ";
