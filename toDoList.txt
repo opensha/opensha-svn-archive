@@ -1,8 +1,6 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-1) Vs30 & Basin-Depth from CVM interpolation problem (high priority)
-
 2) Finish STEP map making capability (including map-viewer GUI) (high
 priority).  Includes map viewing GUI.
 
@@ -14,12 +12,6 @@ GRID Benchmarks:
 	1) gravity (2 cpu server)
 	2) almaak (6 cpu server)
 	2) condor (? cpu server (dynamic))
-
-Make OpenSHA CME Poster
-
-
-
--------------- before meeting above ------------------------
 
 Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings.
 
@@ -44,7 +36,7 @@ Update the makeMapUsingServer() method of the GMT_MapGenerator:
 
 	make functionality consistent with web service
 
-Incorporate the new JFreechart version in the OpenSHA.
+Incorporate the new JFreechart version in OpenSHA.
 
 Make the setting values from CVM to be webservice rather than being the servlet. 
 	Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. 
