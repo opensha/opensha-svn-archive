@@ -468,7 +468,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
         clearButton.setBackground( lightBlue );
         clearButton.setForeground( darkBlue );
         clearButton.setFont( BUTTON_FONT );
-        clearButton.setBorder( BorderFactory.createRaisedBevelBorder() );
         clearButton.setFocusPainted( false );
         clearButton.setText( "Clear Plot" );
 
@@ -493,8 +492,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         addButton.setBackground( lightBlue );
         addButton.setForeground( darkBlue );
         addButton.setFont( BUTTON_FONT );
-        addButton.setBorder( BorderFactory.createRaisedBevelBorder() );
-    addButton.setMaximumSize(new Dimension(55, 21));
+        addButton.setMaximumSize(new Dimension(55, 21));
         addButton.setFocusPainted( false );
         addButton.setText( "Add Trace" );
 
@@ -525,7 +523,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
         toggleButton.setBackground( lightBlue );
         toggleButton.setForeground( darkBlue );
         toggleButton.setFont( BUTTON_FONT );
-        toggleButton.setBorder( BorderFactory.createRaisedBevelBorder() );
         toggleButton.setFocusPainted( false );
         toggleButton.setText( "Show Data" );
 
@@ -679,11 +676,11 @@ public class AttenuationRelationshipTesterApp extends JApplet
    dataScrollPane.getViewport().add( pointsTextArea, null );
 
 
-   buttonPanel.add( clearButton,     new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 0, 0) );
+   buttonPanel.add( clearButton,           new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 6, 12) );
 
-   buttonPanel.add( toggleButton,     new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 1), 0, 0) );
+   buttonPanel.add( toggleButton,           new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 1), 11, 12) );
 
    //buttonPanel.add( imrComboBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
      //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );
@@ -703,8 +700,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
     buttonPanel.add(jAxisScale,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(3, 0, 0, 0), 0, 0));
-    buttonPanel.add(addButton,     new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 0, 0));
+    buttonPanel.add(addButton,             new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 7, 13));
 
 
         parametersSplitPane.setBottomComponent( sheetPanel );
