@@ -1113,7 +1113,7 @@ public class HazardSpectrumApplet extends JApplet
     else{ //If the Deterministic has been chosen by the user
       imr.setSite(site);
       try{
-        imr.setProbEqkRupture(this.erfRupSelectorGuiBean.getRupture());
+        imr.setEqkRupture(this.erfRupSelectorGuiBean.getRupture());
       }catch (Exception ex) {
         timer.stop();
         JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());

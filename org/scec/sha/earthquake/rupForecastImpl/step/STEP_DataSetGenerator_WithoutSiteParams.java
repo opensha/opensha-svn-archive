@@ -266,7 +266,7 @@ public class STEP_DataSetGenerator_WithoutSiteParams implements ParameterChangeW
 
           // set the PQkRup in the IMR
           try {
-            imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
+            imr.setEqkRupture(source.getRupture(n));
           } catch (Exception ex) {
             System.out.println("Parameter change warning caught");
           }

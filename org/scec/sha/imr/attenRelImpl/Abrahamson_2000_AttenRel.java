@@ -40,7 +40,7 @@ import org.scec.util.*;
  * <LI>componentParam - Component of shaking
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL><p>
- * NOTE: setSite and setProbEqkRupture ARE NOT FULLY IMPLEMENTED<p>
+ * NOTE: setSite and setEqkRupture ARE NOT FULLY IMPLEMENTED<p>
  *
  * @author     Edward H. Field
  * @created    June, 2002
@@ -108,7 +108,7 @@ public class Abrahamson_2000_AttenRel
 
 /* NOT NEEDED HERE
      * Joyner-Boore Distance parameter, used as a proxy for computing their
-     * hanging-wall term from a site and probEqkRupture.
+     * hanging-wall term from a site and eqkRupture.
 
     private DistanceJBParameter distanceJBParam = null;
     private final static Double DISTANCE_JB_DEFAULT = new Double( 0 );
@@ -159,7 +159,7 @@ public class Abrahamson_2000_AttenRel
 
     /**
      * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object) and fills in the
+     * comes from the eqkRupture object) and fills in the
      * value of the fltTypeParam; since their paper does not quantify the
      * distinction, Norm advised as follows: Reverse if 67.5<rake<112.5;
      * Oblique-Reverse if 22.5<rake<67.5 or 112.5<rake<157.5; Other is rake
@@ -181,19 +181,19 @@ public class Abrahamson_2000_AttenRel
 
 
     /**
-     *  This sets the probEqkRupture related parameters (magParam
-     *  and fltTypeParam) based on the probEqkRupture passed in.
-     *  The internally held probEqkRupture object is also set as that
+     *  This sets the eqkRupture related parameters (magParam
+     *  and fltTypeParam) based on the eqkRupture passed in.
+     *  The internally held eqkRupture object is also set as that
      *  passed in.  Warning constrains are ingored.
      *
-     * @param  probEqkRupture  The new probEqkRupture value
+     * @param  eqkRupture  The new eqkRupture value
      * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
+    public void setEqkRupture( EqkRupture eqkRupture ) throws InvalidRangeException{
 
-      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
-      setFaultTypeFromRake( probEqkRupture.getAveRake() );
-      this.probEqkRupture = probEqkRupture;
+      magParam.setValueIgnoreWarning( new Double(eqkRupture.getMag()) );
+      setFaultTypeFromRake( eqkRupture.getAveRake() );
+      this.eqkRupture = eqkRupture;
       setPropagationEffectParams();
     }
 
@@ -217,7 +217,7 @@ public class Abrahamson_2000_AttenRel
 
 
     /**
-     * This sets the site and probEqkRupture, and the related parameters,
+     * This sets the site and eqkRupture, and the related parameters,
      * from the propEffect object passed in. Warning constrains are ingored.
      * @param propEffect
      * @throws ParameterExceptionThrown if the Site object doesn't contain a
@@ -228,13 +228,13 @@ public class Abrahamson_2000_AttenRel
                                     ParameterException, InvalidRangeException{
 
       this.site = propEffect.getSite();
-      this.probEqkRupture = propEffect.getProbEqkRupture();
+      this.eqkRupture = propEffect.getEqkRupture();
 
       // set the locat site-type param
       this.siteTypeParam.setValue(site.getParameter( SITE_TYPE_NAME ).getValue());
 
-      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
-      setFaultTypeFromRake( probEqkRupture.getAveRake() );
+      magParam.setValueIgnoreWarning( new Double(eqkRupture.getMag()) );
+      setFaultTypeFromRake( eqkRupture.getAveRake() );
 
       // set the distance param
       propEffect.setParamValue(distanceRupParam);
@@ -248,13 +248,13 @@ public class Abrahamson_2000_AttenRel
 
     /**
      * This calculates the distanceRupParam and isOnHangingWallParam values based
-     * on the current site and probEqkRupture.
+     * on the current site and eqkRupture.
      */
     protected void setPropagationEffectParams() {
 
-        if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
+        if( ( this.site != null ) && ( this.eqkRupture != null ) ){
 
-          distanceRupParam.setValue( probEqkRupture, site );
+          distanceRupParam.setValue( eqkRupture, site );
           setDirectivityParams();
 
         }
@@ -266,9 +266,9 @@ public class Abrahamson_2000_AttenRel
      */
      protected void setDirectivityParams() {
 
-          GriddedSurfaceAPI surface = probEqkRupture.getRuptureSurface();
+          GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
           Location siteLoc = site.getLocation();
-          Location hypLoc = probEqkRupture.getHypocenterLocation();
+          Location hypLoc = eqkRupture.getHypocenterLocation();
           if(hypLoc == null)
             throw new RuntimeException("The hypocenter has not been set for the earthquake rupture!");
           int numTrPts = surface.getNumCols();
@@ -370,7 +370,7 @@ public class Abrahamson_2000_AttenRel
         initCoefficients( );  // This must be called before the next one
         initSupportedIntensityMeasureParams( );
 
-        initProbEqkRuptureParams(  );
+        initEqkRuptureParams(  );
         initPropagationEffectParams( );
         initSiteParams();
         initOtherParams( );
@@ -635,13 +635,13 @@ public class Abrahamson_2000_AttenRel
 
     /**
      *  Creates the two Potential Earthquake parameters (magParam and
-     *  fltTypeParam) and adds them to the probEqkRuptureParams
+     *  fltTypeParam) and adds them to the eqkRuptureParams
      *  list. Makes the parameters noneditable.
      */
-    protected void initProbEqkRuptureParams(  ) {
+    protected void initEqkRuptureParams(  ) {
 
         // Create magParam
-        super.initProbEqkRuptureParams();
+        super.initEqkRuptureParams();
 
         //  Create and add warning constraint to magParam:
         DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
@@ -658,9 +658,9 @@ public class Abrahamson_2000_AttenRel
         fltTypeParam.setInfo( FLT_TYPE_INFO );
         fltTypeParam.setNonEditable();
 
-        probEqkRuptureParams.clear();
-        probEqkRuptureParams.addParameter( magParam );
-        probEqkRuptureParams.addParameter( fltTypeParam );
+        eqkRuptureParams.clear();
+        eqkRuptureParams.addParameter( magParam );
+        eqkRuptureParams.addParameter( fltTypeParam );
     }
 
     /**

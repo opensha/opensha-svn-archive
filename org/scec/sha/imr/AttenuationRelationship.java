@@ -780,7 +780,7 @@ public abstract class AttenuationRelationship
      *  in subclasses.<br>
      *
      */
-    protected void initProbEqkRuptureParams() {
+    protected void initEqkRuptureParams() {
 
         // Moment Magnitude Parameter:
         DoubleConstraint magConstraint = new DoubleConstraint(MAG_MIN, MAG_MAX);

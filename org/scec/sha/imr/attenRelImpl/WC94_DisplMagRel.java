@@ -93,7 +93,7 @@ public class WC94_DisplMagRel
 
     /**
      * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object) and fills in the
+     * comes from the eqkRupture object) and fills in the
      * value of the fltTypeParam.
      *
      * @param rake                      in degrees
@@ -118,20 +118,20 @@ public class WC94_DisplMagRel
 
 
     /**
-     *  This sets the probEqkRupture related parameters (magParam
-     *  and fltTypeParam) based on the probEqkRupture passed in.
-     *  The internally held probEqkRupture object is also set as that
+     *  This sets the eqkRupture related parameters (magParam
+     *  and fltTypeParam) based on the eqkRupture passed in.
+     *  The internally held eqkRupture object is also set as that
      *  passed in.  Warning constrains are ingored.
      *
-     * @param  probEqkRupture  The new probEqkRupture value
+     * @param  eqkRupture  The new eqkRupture value
      * @throws InvalidRangeException    If not valid rake angle
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
+    public void setEqkRupture( EqkRupture eqkRupture ) throws InvalidRangeException{
 
 
-      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
-      setFaultTypeFromRake( probEqkRupture.getAveRake() );
-      this.probEqkRupture = probEqkRupture;
+      magParam.setValueIgnoreWarning( new Double(eqkRupture.getMag()) );
+      setFaultTypeFromRake( eqkRupture.getAveRake() );
+      this.eqkRupture = eqkRupture;
       setPropagationEffectParams();
 
     }
@@ -151,12 +151,12 @@ public class WC94_DisplMagRel
 
     /**
      * This calculates the DistanceRup propagation effect parameter based
-     * on the current site and probEqkRupture. <P>
+     * on the current site and eqkRupture. <P>
      */
     protected void setPropagationEffectParams(){
 
-      if( ( this.site != null ) && ( this.probEqkRupture != null ) )
-        distanceRupParam.setValue( probEqkRupture, site );
+      if( ( this.site != null ) && ( this.eqkRupture != null ) )
+        distanceRupParam.setValue( eqkRupture, site );
 
     }
 
@@ -180,7 +180,7 @@ public class WC94_DisplMagRel
         initCoefficients( );  // This must be called before the next one
         initSupportedIntensityMeasureParams( );
 
-        initProbEqkRuptureParams(  );
+        initEqkRuptureParams(  );
         initPropagationEffectParams( );
         initSiteParams();
         initOtherParams( );
@@ -200,7 +200,7 @@ public class WC94_DisplMagRel
         initCoefficients( );  // This must be called before the next one
         initSupportedIntensityMeasureParams( );
 
-        initProbEqkRuptureParams(  );
+        initEqkRuptureParams(  );
         initPropagationEffectParams( );
         initSiteParams();
         initOtherParams( );
@@ -346,13 +346,13 @@ public class WC94_DisplMagRel
 
     /**
      *  Creates the two Potential Earthquake parameters (magParam and
-     *  fltTypeParam) and adds them to the probEqkRuptureParams
+     *  fltTypeParam) and adds them to the eqkRuptureParams
      *  list. Makes the parameters noneditable.
      */
-    protected void initProbEqkRuptureParams(  ) {
+    protected void initEqkRuptureParams(  ) {
 
         // Create magParam
-        super.initProbEqkRuptureParams();
+        super.initEqkRuptureParams();
 
         //  Create and add warning constraint to magParam:
         DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
@@ -369,9 +369,9 @@ public class WC94_DisplMagRel
         fltTypeParam.setInfo( FLT_TYPE_INFO );
         fltTypeParam.setNonEditable();
 
-        probEqkRuptureParams.clear();
-        probEqkRuptureParams.addParameter( magParam );
-        probEqkRuptureParams.addParameter( fltTypeParam );
+        eqkRuptureParams.clear();
+        eqkRuptureParams.addParameter( magParam );
+        eqkRuptureParams.addParameter( fltTypeParam );
 
     }
 
@@ -444,51 +444,51 @@ public class WC94_DisplMagRel
       Site site = new Site(new Location(30.01,30.0),"test");
       testRel.setSite(site);
 
-      ProbEqkRupture rup = new ProbEqkRupture();
+      EqkRupture rup = new EqkRupture();
       rup.setPointSurface(new Location(30.0,30.0),90.0);
       rup.setAveRake(0.0);
 
       rup.setMag(5);
-      testRel.setProbEqkRupture(rup);
+      testRel.setEqkRupture(rup);
       System.out.println("Mag 5: " + testRel.getMean() + "; " + testRel.getStdDev());
 
       rup.setMag(6);
-      testRel.setProbEqkRupture(rup);
+      testRel.setEqkRupture(rup);
       System.out.println("Mag 6: " + testRel.getMean() + "; " + testRel.getStdDev());
 
       rup.setMag(7);
-      testRel.setProbEqkRupture(rup);
+      testRel.setEqkRupture(rup);
       System.out.println("Mag 7: " + testRel.getMean() + "; " + testRel.getStdDev());
 
       rup.setMag(8);
-      testRel.setProbEqkRupture(rup);
+      testRel.setEqkRupture(rup);
       System.out.println("Mag 8: " + testRel.getMean() + "; " + testRel.getStdDev());
 
       rup.setMag(9);
-      testRel.setProbEqkRupture(rup);
+      testRel.setEqkRupture(rup);
       System.out.println("Mag 9: " + testRel.getMean() + "; " + testRel.getStdDev());
 
 
       rup.setAveRake(90);
 
       rup.setMag(5);
-      testRel.setProbEqkRupture(rup);
+      testRel.setEqkRupture(rup);
       System.out.println("Mag 5: " + testRel.getMean() + "; " + testRel.getStdDev());
 
       rup.setMag(6);
-      testRel.setProbEqkRupture(rup);
+      testRel.setEqkRupture(rup);
       System.out.println("Mag 6: " + testRel.getMean() + "; " + testRel.getStdDev());
 
       rup.setMag(7);
-      testRel.setProbEqkRupture(rup);
+      testRel.setEqkRupture(rup);
       System.out.println("Mag 7: " + testRel.getMean() + "; " + testRel.getStdDev());
 
       rup.setMag(8);
-      testRel.setProbEqkRupture(rup);
+      testRel.setEqkRupture(rup);
       System.out.println("Mag 8: " + testRel.getMean() + "; " + testRel.getStdDev());
 
       rup.setMag(9);
-      testRel.setProbEqkRupture(rup);
+      testRel.setEqkRupture(rup);
       System.out.println("Mag 9: " + testRel.getMean() + "; " + testRel.getStdDev());
     }
 

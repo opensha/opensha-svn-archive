@@ -81,13 +81,13 @@ public class DistanceRupParameter
      * Note that this doesn not throw a warning
      */
     protected void calcValueFromSiteAndPE(){
-        if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
+        if( ( this.site != null ) && ( this.eqkRupture != null ) ){
 
             Location loc1 = site.getLocation();
             double minDistance = 999999;
             double horzDist, vertDist, totalDist;
 
-            ListIterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
+            ListIterator it = eqkRupture.getRuptureSurface().getLocationsIterator();
             while( it.hasNext() ){
 
                 Location loc2 = (Location) it.next();
@@ -152,7 +152,7 @@ public class DistanceRupParameter
         param.name = name;
         param.info = info;
         param.site = site;
-        param.probEqkRupture = probEqkRupture;
+        param.eqkRupture = eqkRupture;
         if( !this.editable ) param.setNonEditable();
         return param;
     }

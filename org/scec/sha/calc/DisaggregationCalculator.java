@@ -167,7 +167,7 @@ public class DisaggregationCalculator {
 
           // set the rupture in the imr
           try {
-            imr.setProbEqkRupture(rupture);
+            imr.setEqkRupture(rupture);
           } catch (Exception ex) {
             System.out.println("Parameter change warning caught");
           }

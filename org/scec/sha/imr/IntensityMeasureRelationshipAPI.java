@@ -49,11 +49,11 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
 
 
     /**
-     *  Returns a reference to the current probEqkRupture object in the IMR
+     *  Returns a reference to the current EqkRupture object in the IMR
      *
-     * @return    The probEqkRupture object
+     * @return    The EqkRupture object
      */
-    public ProbEqkRupture getProbEqkRupture();
+    public EqkRupture getEqkRupture();
 
 
     /**
@@ -61,9 +61,9 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      *  to the one passed in, and sets any earthquake-rupture related
      *  parameters that the IMR depends upon.
      *
-     * @param  probEqkRupture  The new probEqkRupture object
+     * @param  EqkRupture  The new probEqkRupture object
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture );
+    public void setEqkRupture( EqkRupture eqkRupture );
 
 
 
@@ -130,12 +130,12 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      *  Sets the probEqkRupture, site, and intensityMeasure objects
      *  simultaneously.
      *
-     * @param  probEqkRupture         The new probEqkRupture
+     * @param  eqkRupture             The new EqkRupture
      * @param  site                   The new Site
      * @param  intensityMeasure       The new IM
      */
     public void setAll(
-            ProbEqkRupture probEqkRupture,
+            EqkRupture EqkRupture,
             Site site,
             ParameterAPI intensityMeasure
              );
@@ -191,7 +191,7 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      *
      * @return    The Earthquake-Rupture Parameters Iterator
      */
-    public ListIterator getProbEqkRuptureParamsIterator();
+    public ListIterator getEqkRuptureParamsIterator();
 
 
     /**

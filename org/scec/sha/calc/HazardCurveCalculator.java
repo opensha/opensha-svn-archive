@@ -158,7 +158,7 @@ public class HazardCurveCalculator {
         qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
 
         // set the PQkRup in the IMR
-        imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
+        imr.setEqkRupture(source.getRupture(n));
 
         // get the conditional probability of exceedance from the IMR
         condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);

@@ -173,7 +173,7 @@ public class ShakeMap_2004_AttenRel
        this.warningListener = warningListener;
 
        initSupportedIntensityMeasureParams( );
-       initProbEqkRuptureParams(  );
+       initEqkRuptureParams(  );
        initPropagationEffectParams( );
        initSiteParams();
        initOtherParams( );
@@ -211,21 +211,21 @@ public class ShakeMap_2004_AttenRel
    }
 
    /**
-    *  This sets the probEqkRupture related parameters (magParam
-    *  and fltTypeParam) based on the probEqkRupture passed in.
-    *  The internally held probEqkRupture object is also set as that
+    *  This sets the eqkRupture related parameters (magParam
+    *  and fltTypeParam) based on the eqkRupture passed in.
+    *  The internally held eqkRupture object is also set as that
     *  passed in.  Warning constrains are ingored.
     *
-    * @param  probEqkRupture  The new probEqkRupture value
+    * @param  eqkRupture  The new eqkRupture value
     * @throws ParameterException Thrown if the Site object doesn't contain a
     * Wills site parameter
     */
    public void setPropagationEffect(PropagationEffect propEffect) throws ParameterException{
 
      this.site = propEffect.getSite();
-     this.probEqkRupture = propEffect.getProbEqkRupture();
+     this.eqkRupture = propEffect.getEqkRupture();
 
-     this.propEffect.setProbEqkRupture(probEqkRupture);
+     this.propEffect.setEqkRupture(eqkRupture);
 
      vs30Param.setValueIgnoreWarning( site.getParameter( VS30_NAME ).getValue() );
 
@@ -241,23 +241,23 @@ public class ShakeMap_2004_AttenRel
 
 
    /**
-    *  This sets the probEqkRupture.
+    *  This sets the eqkRupture.
     *
-    * @param  probEqkRupture
+    * @param  eqkRupture
     */
-   public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) {
+   public void setEqkRupture( EqkRupture eqkRupture ) {
 
-       // Set the probEqkRupture
-       this.probEqkRupture = probEqkRupture;
+       // Set the eqkRupture
+       this.eqkRupture = eqkRupture;
 /*
        // set the EqkRup in the atten relations
-       as_1997_attenRel.setProbEqkRupture(probEqkRupture);
-       bjf_1997_attenRel.setProbEqkRupture(probEqkRupture);
-       scemy_1997_attenRel.setProbEqkRupture(probEqkRupture);
-       cb_2003_attenRel.setProbEqkRupture(probEqkRupture);
+       as_1997_attenRel.setEqkRupture(eqkRupture);
+       bjf_1997_attenRel.setEqkRupture(eqkRupture);
+       scemy_1997_attenRel.setEqkRupture(eqkRupture);
+       cb_2003_attenRel.setEqkRupture(eqkRupture);
 */
 
-       this.propEffect.setProbEqkRupture(probEqkRupture);
+       this.propEffect.setEqkRupture(eqkRupture);
        if(propEffect.getSite() != null) {
          as_1997_attenRel.setPropagationEffect(propEffect);
          bjf_1997_attenRel.setPropagationEffect(propEffect);
@@ -296,7 +296,7 @@ public class ShakeMap_2004_AttenRel
        cb_2003_attenRel.setSite(site_BC);
 */
        this.propEffect.setSite(site_BC);
-       if(this.probEqkRupture != null) {
+       if(this.eqkRupture != null) {
          as_1997_attenRel.setPropagationEffect(propEffect);
          bjf_1997_attenRel.setPropagationEffect(propEffect);
          scemy_1997_attenRel.setPropagationEffect(propEffect);
@@ -736,7 +736,7 @@ public class ShakeMap_2004_AttenRel
    /**
     *  This does nothing
     */
-   protected void initProbEqkRuptureParams(  ) {
+   protected void initEqkRuptureParams(  ) {
    }
 
    /**
@@ -875,7 +875,7 @@ public class ShakeMap_2004_AttenRel
    /**
     *  This is overridden to throw a runtine exception (the method is not supported).
     */
-   public ListIterator getProbEqkRuptureParamsIterator() {
+   public ListIterator getEqkRuptureParamsIterator() {
      throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
    }
 

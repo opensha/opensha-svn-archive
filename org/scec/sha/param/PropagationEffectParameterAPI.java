@@ -28,19 +28,19 @@ import org.scec.sha.earthquake.*;
 public interface PropagationEffectParameterAPI {
 
 
-     /** Sets the independent variables (Site and ProbEqkRupture) then calculates and returns the value */
-    public Object getValue(ProbEqkRupture probEqkRupture, Site site);
+     /** Sets the independent variables (Site and eqkRupture) then calculates and returns the value */
+    public Object getValue(EqkRupture eqkRupture, Site site);
 
     /** Sets the site and recalculates the value. The ProbEqkRupture must have already been set */
     public Object getValue(Site site);
 
-    /** Sets the ProbEqkRupture and recalculates the value. The Site must have already been set */
-    public Object getValue(ProbEqkRupture probEqkRupture);
+    /** Sets the EqkRupture and recalculates the value. The Site must have already been set */
+    public Object getValue(EqkRupture eqkRupture);
 
-    /** Sets the independent variables (Site and ProbEqkRupture) then calculates the value */
-    public void setValue(ProbEqkRupture probEqkRupture, Site site);
+    /** Sets the independent variables (Site and EqkRupture) then calculates the value */
+    public void setValue(EqkRupture eqkRupture, Site site);
 
-    /** The ProbEqkRupture and Site must have already been set */
+    /** The EqkRupture and Site must have already been set */
     public Object getValue();
 
     /** Sets the Site and the value is recalculated */
@@ -48,10 +48,10 @@ public interface PropagationEffectParameterAPI {
     /** Returns the Site that set this value */
     public Site getSite();
 
-    /** Sets the ProbEqkRupture associated with this Parameter, and the value is recalculated */
-    public void setProbEqkRupture(ProbEqkRupture probEqkRupture);
-    /** Returns the ProbEqkRupture that set this value */
-    public ProbEqkRupture getProbEqkRupture();
+    /** Sets the EqkRupture associated with this Parameter, and the value is recalculated */
+    public void setEqkRupture(EqkRupture eqkRupture);
+    /** Returns the EqkRupture that set this value */
+    public EqkRupture getEqkRupture();
 
     /**
      * Standard Java function. Creates a copy of this class instance

@@ -100,18 +100,18 @@ public class DahleEtAl_1995_AttenRel
 
 
     /**
-     *  This sets the probEqkRupture related parameter (magParam
-     *  based on the probEqkRupture passed in.
-     *  The internally held probEqkRupture object is also set as that
+     *  This sets the eqkRupture related parameter (magParam
+     *  based on the eqkRupture passed in.
+     *  The internally held eqkRupture object is also set as that
      *  passed in.  Warning constrains are ingored.
      *
-     * @param  probEqkRupture  The new probEqkRupture value
+     * @param  eqkRupture  The new eqkRupture value
      * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
+    public void setEqkRupture( EqkRupture eqkRupture ) throws InvalidRangeException{
 
-      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
-      this.probEqkRupture = probEqkRupture;
+      magParam.setValueIgnoreWarning( new Double(eqkRupture.getMag()) );
+      this.eqkRupture = eqkRupture;
       setPropagationEffectParams();
     }
 
@@ -138,12 +138,12 @@ public class DahleEtAl_1995_AttenRel
 
     /**
      * This calculates the Distance JB propagation effect parameter based
-     * on the current site and probEqkRupture. <P>
+     * on the current site and eqkRupture. <P>
      */
     protected void setPropagationEffectParams(){
 
-        if( ( this.site != null ) && ( this.probEqkRupture != null ) )
-            distanceRupParam.setValue( probEqkRupture, site );
+        if( ( this.site != null ) && ( this.eqkRupture != null ) )
+            distanceRupParam.setValue( eqkRupture, site );
     }
 
     /**
@@ -176,7 +176,7 @@ public class DahleEtAl_1995_AttenRel
         this.warningListener = warningListener;
         initCoefficients( );  // This must be called before the next one
         initSupportedIntensityMeasureParams( );
-        initProbEqkRuptureParams(  );
+        initEqkRuptureParams(  );
         initPropagationEffectParams( );
         initSiteParams();
         initOtherParams( );
@@ -333,13 +333,13 @@ public class DahleEtAl_1995_AttenRel
 
     /**
      *  Creates the two Potential Earthquake parameters (magParam and
-     *  fltTypeParam) and adds them to the probEqkRuptureParams
+     *  fltTypeParam) and adds them to the eqkRuptureParams
      *  list. Makes the parameters noneditable.
      */
-    protected void initProbEqkRuptureParams(  ) {
+    protected void initEqkRuptureParams(  ) {
 
         // Create magParam
-        super.initProbEqkRuptureParams();
+        super.initEqkRuptureParams();
 
         //  Create and add warning constraint to magParam:
         DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
@@ -348,8 +348,8 @@ public class DahleEtAl_1995_AttenRel
         magParam.addParameterChangeWarningListener( warningListener );
         magParam.setNonEditable();
 
-        probEqkRuptureParams.clear();
-        probEqkRuptureParams.addParameter( magParam );
+        eqkRuptureParams.clear();
+        eqkRuptureParams.addParameter( magParam );
 
     }
 

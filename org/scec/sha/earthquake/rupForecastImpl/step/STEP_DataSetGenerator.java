@@ -306,7 +306,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
           // set the PQkRup in the IMR
           try {
-            imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
+            imr.setEqkRupture(source.getRupture(n));
           } catch (Exception ex) {
             System.out.println("Parameter change warning caught");
           }

@@ -11,7 +11,7 @@ import org.scec.sha.earthquake.*;
  * <b>Description:</b> Propagation Effectg Paraemters
  * deal with special subclass of Parameters that are associated with
  * earthquakes, and know how to calculate their own
- * values from having a Site and ProbEqkRupture set. <p>
+ * values from having a Site and EqkRupture set. <p>
  *
  * These values are generally self calculated as opposed
  * t normal Parameters where the values are specifically
@@ -42,13 +42,13 @@ public abstract class PropagationEffectParameter
     /** The Site used for calculating the PropagationEffect */
     protected Site site = null;
 
-    /** The ProbEqkRupture used for calculating the PropagationEffect */
-    protected ProbEqkRupture probEqkRupture = null;
+    /** The EqkRupture used for calculating the PropagationEffect */
+    protected EqkRupture eqkRupture = null;
 
 
     /**
      * This is called whenever either the Site or
-     * ProbEqkRupture has been changed to
+     * EqkRupture has been changed to
      * update the value stored in this parameter. <p>
      *
      * Subclasses implement this in their own way. This is what
@@ -66,36 +66,36 @@ public abstract class PropagationEffectParameter
 
 
 
-    /** Sets the independent variables (Site and ProbEqkRupture) then calculates and returns the value */
-    public Object getValue(ProbEqkRupture probEqkRupture, Site site){
-        this.probEqkRupture = probEqkRupture;
+    /** Sets the independent variables (Site and EqkRupture) then calculates and returns the value */
+    public Object getValue(EqkRupture eqkRupture, Site site){
+        this.eqkRupture = eqkRupture;
         this.site = site;
         calcValueFromSiteAndPE();
         return super.getValue();
     }
 
-    /** Sets the site and recalculates the value. The ProbEqkRupture must have already been set */
+    /** Sets the site and recalculates the value. The EqkRupture must have already been set */
     public Object getValue(Site site){
         this.site = site;
         calcValueFromSiteAndPE();
         return this.value;
     }
 
-    /** Sets the ProbEqkRupture and recalculates the value. The Site must have already been set */
-    public Object getValue(ProbEqkRupture probEqkRupture){
-        this.probEqkRupture = probEqkRupture;
+    /** Sets the EqkRupture and recalculates the value. The Site must have already been set */
+    public Object getValue(EqkRupture eqkRupture){
+        this.eqkRupture = eqkRupture;
         calcValueFromSiteAndPE();
         return this.value;
     }
 
-    /** Sets the independent variables (Site and ProbEqkRupture) then calculates the value */
-    public void setValue(ProbEqkRupture probEqkRupture, Site site){
-        this.probEqkRupture = probEqkRupture;
+    /** Sets the independent variables (Site and EqkRupture) then calculates the value */
+    public void setValue(EqkRupture eqkRupture, Site site){
+        this.eqkRupture = eqkRupture;
         this.site = site;
         calcValueFromSiteAndPE();
     }
 
-    /** The ProbEqkRupture and Site must have already been set */
+    /** The EqkRupture and Site must have already been set */
     public Object getValue(){ return this.value; }
 
     /** Sets the Site and the value is recalculated */
@@ -106,17 +106,17 @@ public abstract class PropagationEffectParameter
     /** Returns the Site associated with this Parameter */
     public Site getSite(){ return site; }
 
-    /** Sets the ProbEqkRupture associated with this Parameter */
-    public void setProbEqkRupture(ProbEqkRupture probEqkRupture){
-        this.probEqkRupture = probEqkRupture;
+    /** Sets the EqkRupture associated with this Parameter */
+    public void setEqkRupture(EqkRupture eqkRupture){
+        this.eqkRupture = eqkRupture;
         calcValueFromSiteAndPE();
     }
-    /** Returns the ProbEqkRupture associated with this Parameter */
-    public ProbEqkRupture getProbEqkRupture(){ return probEqkRupture; }
+    /** Returns the EqkRupture associated with this Parameter */
+    public EqkRupture getEqkRupture(){ return eqkRupture; }
 
     /**
      * Overides the calculation. Let's the programmer set the value as in the
-     * standard way as any other parameter. Site and ProbEqkRupture values are
+     * standard way as any other parameter. Site and EqkRupture values are
      * ignored. Of course the constraints are still inquiried if the value is
      * allowed. An ConstraintException excpetion is thrown if the value exceedes
      * the constraint.

@@ -114,7 +114,7 @@ public class CB_2003_AttenRel
 
     /**
      * Joyner-Boore Distance parameter, used to compute the hanging-wall
-     * parameter from a site and probEqkRupture.
+     * parameter from a site and eqkRupture.
      */
     private DistanceJBParameter distanceJBParam = null;
     // No waring constraint needed for this
@@ -136,7 +136,7 @@ public class CB_2003_AttenRel
 
     /**
      * Sets the style of faulting from the rake & dip angles (which
-     * come from the probEqkRupture object).  It's "Thrust" if
+     * come from the eqkRupture object).  It's "Thrust" if
      * 22.5<rake<=67.5  & dip<45 degrees, "Reverse" if 22.5<rake<=67.5  & dip>=45
      * degrees, and "Other" if the rake is any other value.
      *
@@ -160,19 +160,19 @@ public class CB_2003_AttenRel
 
 
     /**
-     *  This sets the probEqkRupture related parameters (magParam
-     *  and fltTypeParam) based on the probEqkRupture passed in.
-     *  The internally held probEqkRupture object is also set as that
+     *  This sets the eqkRupture related parameters (magParam
+     *  and fltTypeParam) based on the eqkRupture passed in.
+     *  The internally held eqkRupture object is also set as that
      *  passed in.  Warning constrains are ingored.
      *
-     * @param  probEqkRupture  The new probEqkRupture value
+     * @param  eqkRupture  The new eqkRupture value
      * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
+    public void setEqkRupture( EqkRupture eqkRupture ) throws InvalidRangeException{
 
-      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
-      setFaultTypeFromRake( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
-      this.probEqkRupture = probEqkRupture;
+      magParam.setValueIgnoreWarning( new Double(eqkRupture.getMag()) );
+      setFaultTypeFromRake( eqkRupture.getAveRake(), eqkRupture.getRuptureSurface().getAveDip() );
+      this.eqkRupture = eqkRupture;
       setPropagationEffectParams();
 
     }
@@ -196,7 +196,7 @@ public class CB_2003_AttenRel
     }
 
     /**
-     * This sets the site and probEqkRupture, and the related parameters,
+     * This sets the site and eqkRupture, and the related parameters,
      *  from the propEffect object passed in. Warning constrains are ingored.
      * @param propEffect
      * @throws ParameterException Thrown if the Site object doesn't contains
@@ -207,22 +207,22 @@ public class CB_2003_AttenRel
                                     ParameterException,InvalidRangeException{
 
       this.site = propEffect.getSite();
-      this.probEqkRupture = propEffect.getProbEqkRupture();
+      this.eqkRupture = propEffect.getEqkRupture();
 
       this.siteTypeParam.setValue(site.getParameter( SITE_TYPE_NAME ).getValue());
 
-      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
-      setFaultTypeFromRake( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
+      magParam.setValueIgnoreWarning( new Double(eqkRupture.getMag()) );
+      setFaultTypeFromRake( eqkRupture.getAveRake(), eqkRupture.getRuptureSurface().getAveDip() );
 
       propEffect.setParamValue(distanceSeisParam);
 
       // set the hanging-wall parameter
-      int numPts = probEqkRupture.getRuptureSurface().getNumCols();
-      double dip = probEqkRupture.getRuptureSurface().getAveDip();
+      int numPts = eqkRupture.getRuptureSurface().getNumCols();
+      double dip = eqkRupture.getRuptureSurface().getAveDip();
       String fltType = (String) fltTypeParam.getValue();
 
       if(dip <= 70.0 && (fltType != FLT_TYPE_OTHER) && numPts > 1) {
-//          double jbDist = ( (Double) distanceJBParam.getValue( probEqkRupture, site ) ).doubleValue();
+//          double jbDist = ( (Double) distanceJBParam.getValue( eqkRupture, site ) ).doubleValue();
         double jbDist = ((Double)propEffect.getParamValue(distanceJBParam.NAME)).doubleValue();
         if ( jbDist < 1.0 )
           hangingWallParam.setValue(1.0);
@@ -247,7 +247,7 @@ public class CB_2003_AttenRel
 
     /**
      * This sets the two propagation-effect parameters (distanceSeisParam and
-     * hangingWallParam) based on the current site and probEqkRupture.  The
+     * hangingWallParam) based on the current site and eqkRupture.  The
      * hanging wall term is nonzero only if the dip is less than 70 degrees
      * AND the fault is of type reverse or thrust.  Point sources are give a
      * zero value regardless of the dip and fault type.  These specifications
@@ -255,17 +255,17 @@ public class CB_2003_AttenRel
      */
     protected void setPropagationEffectParams(){
 
-        if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
+        if( ( this.site != null ) && ( this.eqkRupture != null ) ){
 
-          distanceSeisParam.setValue( probEqkRupture, site );
+          distanceSeisParam.setValue( eqkRupture, site );
 
           // hanging wall effect
-          int numPts = probEqkRupture.getRuptureSurface().getNumCols();
-          double dip = probEqkRupture.getRuptureSurface().getAveDip();
+          int numPts = eqkRupture.getRuptureSurface().getNumCols();
+          double dip = eqkRupture.getRuptureSurface().getAveDip();
           String fltType = (String) fltTypeParam.getValue();
 
           if(dip <= 70.0 && (fltType != FLT_TYPE_OTHER) && numPts > 1) {
-                double jbDist = ( (Double) distanceJBParam.getValue( probEqkRupture, site ) ).doubleValue();
+                double jbDist = ( (Double) distanceJBParam.getValue( eqkRupture, site ) ).doubleValue();
                 if ( jbDist < 1.0 )
                     hangingWallParam.setValue(1.0);
                 else if  ( jbDist < 5.0 )
@@ -331,7 +331,7 @@ public class CB_2003_AttenRel
         initCoefficients();  // These must be called before the next one
         initSupportedIntensityMeasureParams( );
 
-        initProbEqkRuptureParams(  );
+        initEqkRuptureParams(  );
         initPropagationEffectParams( );
         initSiteParams();
         initOtherParams( );
@@ -601,13 +601,13 @@ public class CB_2003_AttenRel
 
     /**
      *  Creates the two Potential Earthquake parameters (magParam and
-     *  fltTypeParam) and adds them to the probEqkRuptureParams
+     *  fltTypeParam) and adds them to the eqkRuptureParams
      *  list. Makes the parameters noneditable.
      */
-    protected void initProbEqkRuptureParams(  ) {
+    protected void initEqkRuptureParams(  ) {
 
         // Create magParam
-        super.initProbEqkRuptureParams();
+        super.initEqkRuptureParams();
 
         //  Create and add warning constraint to magParam:
         DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
@@ -627,9 +627,9 @@ public class CB_2003_AttenRel
         fltTypeParam.setInfo( FLT_TYPE_INFO );
         fltTypeParam.setNonEditable();
 
-        probEqkRuptureParams.clear();
-        probEqkRuptureParams.addParameter( magParam );
-        probEqkRuptureParams.addParameter( fltTypeParam );
+        eqkRuptureParams.clear();
+        eqkRuptureParams.addParameter( magParam );
+        eqkRuptureParams.addParameter( fltTypeParam );
 
     }
 

@@ -21,7 +21,7 @@ import org.scec.sha.param.PropagationEffect;
  *  as a list of "other" parameters that don't fit into those three categories.
  *  This class also contains a list of supported intensity-measure parameters (which
  *  may have internal independent parameters). These five lists combined (siteParams,
- *  probEqkRuptureParams, propagationEffectParams, supportedIMParams, and otherParams)
+ *  EqkRuptureParams, propagationEffectParams, supportedIMParams, and otherParams)
  *  constitutes the complete list of parameters that the exceedance probability depends
  *  upon.  The only other paramter is exceedProbParam, which is used to compute the
  *  IML at a particular probability in subclasses that support the getIML_AtExceedProb()
@@ -61,8 +61,8 @@ public abstract class IntensityMeasureRelationship
     /** ParameterList of all Site parameters */
     protected ParameterList siteParams = new ParameterList();
 
-    /** ParameterList of all ProbEqkRupture parameters */
-    protected ParameterList probEqkRuptureParams = new ParameterList();
+    /** ParameterList of all eqkRupture parameters */
+    protected ParameterList eqkRuptureParams = new ParameterList();
 
     /**
      * ParameterList of all Propagation-Effect parameters (this should perhaps
@@ -85,10 +85,10 @@ public abstract class IntensityMeasureRelationship
     /** The current Site object (passing one in will set site-related parameters). */
     protected Site site;
 
-    /** The current ProbEqkRupture object (passing one in will set Earthquake-
+    /** The current EqkRupture object (passing one in will set Earthquake-
      *  Rupture related parameters.
      */
-    protected ProbEqkRupture probEqkRupture;
+    protected EqkRupture eqkRupture;
 
     protected PropagationEffect propEffect;
 
@@ -135,12 +135,12 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     * This sets the site and probEqkRupture from the propEffect object passed in
+     * This sets the site and EqkRupture from the propEffect object passed in
      * @param propEffect
      */
     public void setPropagationEffect(PropagationEffect propEffect) {
       setSite(propEffect.getSite());
-      setProbEqkRupture(propEffect.getProbEqkRupture());
+      setEqkRupture(propEffect.getEqkRupture());
     }
 
 
@@ -154,21 +154,21 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Returns a reference to the current probEqkRupture object in the IMR
+     *  Returns a reference to the current EqkRupture object in the IMR
      *
-     * @return    The probEqkRupture object
+     * @return    The EqkRupture object
      */
-    public ProbEqkRupture getProbEqkRupture() { return probEqkRupture; }
+    public EqkRupture getEqkRupture() { return eqkRupture; }
 
     /**
-     *  Sets the probEqkRupture object in the IMR as a reference
+     *  Sets the EqkRupture object in the IMR as a reference
      *  to the one passed in, and sets any earthquake-rupture related
      *  parameters that the IMR depends upon.
      *
-     * @param  probEqkRupture  The new probEqkRupture object
+     * @param  eqkRupture  The new EqkRupture object
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) {
-        this.probEqkRupture = probEqkRupture;
+    public void setEqkRupture( EqkRupture eqkRupture ) {
+        this.eqkRupture = eqkRupture;
     }
 
 
@@ -289,7 +289,7 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Sets the probEqkRupture, site, and intensityMeasure objects
+     *  Sets the eqkRupture, site, and intensityMeasure objects
      *  simultaneously.<p>
      *
      *  SWR: Warning - this function doesn't provide full rollback in case of
@@ -302,7 +302,7 @@ public abstract class IntensityMeasureRelationship
      *
      *
      *
-     * @param  probEqkRupture           The new probEqkRupture
+     * @param  eqkRupture           The new EqkRupture
      * @param  site                     The new Site
      * @param  intensityMeasure         The new intensityMeasure
      * @exception  ParameterException   Description of the Exception
@@ -310,13 +310,13 @@ public abstract class IntensityMeasureRelationship
      * @exception  ConstraintException  Description of the Exception
      */
     public void setAll(
-            ProbEqkRupture probEqkRupture,
+            EqkRupture eqkRupture,
             Site site,
             ParameterAPI intensityMeasure
              ) throws ParameterException, IMRException, ConstraintException
     {
         setSite(site);
-        setProbEqkRupture( probEqkRupture );
+        setEqkRupture( eqkRupture );
         setIntensityMeasure( intensityMeasure );
     }
 
@@ -338,7 +338,7 @@ public abstract class IntensityMeasureRelationship
         try{ return siteParams.getParameter(name); }
         catch(ParameterException e){}
 
-        try{ return probEqkRuptureParams.getParameter(name); }
+        try{ return eqkRuptureParams.getParameter(name); }
         catch(ParameterException e){}
 
         try{ return propagationEffectParams.getParameter(name); }
@@ -393,12 +393,12 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Returns an iterator over all ProbEqkRupture related parameters.
+     *  Returns an iterator over all EqkRupture related parameters.
      *
-     * @return    The ProbEqkRupture Parameters Iterator
+     * @return    The EqkRupture Parameters Iterator
      */
-    public ListIterator getProbEqkRuptureParamsIterator() {
-        return probEqkRuptureParams.getParametersIterator();
+    public ListIterator getEqkRuptureParamsIterator() {
+        return eqkRuptureParams.getParametersIterator();
     }
 
 

@@ -192,7 +192,7 @@ public class ScenarioShakeMapCalculator {
 
     // set the ProbEQkRup in the IMR
     try {
-      imr.setProbEqkRupture((ProbEqkRupture)rupture);
+      imr.setEqkRupture(rupture);
     } catch (ParameterException ex) {
       throw new ParameterException("Rupture not allowed for the chosen IMR: "+ex.getMessage());
     }

@@ -158,7 +158,7 @@ public class ShakeMap_2003_AttenRel
 
     /**
      * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object) and fills in the
+     * comes from the eqkRupture object) and fills in the
      * value of the fltTypeParam.  Options are "Reverse" if 150>rake>30,
      * "Strike-Slip" if rake is within 30 degrees of 0 or 180, and "Unkown"
      * otherwise (which means normal-faulting events are assigned as "Unkown";
@@ -189,7 +189,7 @@ public class ShakeMap_2003_AttenRel
         initCoefficients( );  // This must be called before the next one
         initSupportedIntensityMeasureParams( );
 
-        initProbEqkRuptureParams(  );
+        initEqkRuptureParams(  );
         initPropagationEffectParams( );
         initSiteParams();
         initOtherParams( );
@@ -199,19 +199,19 @@ public class ShakeMap_2003_AttenRel
 
 
     /**
-     *  This sets the probEqkRupture related parameters (magParam
-     *  and fltTypeParam) based on the probEqkRupture passed in.
-     *  The internally held probEqkRupture object is also set as that
+     *  This sets the eqkRupture related parameters (magParam
+     *  and fltTypeParam) based on the eqkRupture passed in.
+     *  The internally held eqkRupture object is also set as that
      *  passed in.  Warning constrains are ingored.
      *
-     * @param  probEqkRupture  The new probEqkRupture value
+     * @param  eqkRupture  The new eqkRupture value
      * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
+    public void setEqkRupture( EqkRupture eqkRupture ) throws InvalidRangeException{
 
-      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
-      setFaultTypeFromRake( probEqkRupture.getAveRake() );
-      this.probEqkRupture = probEqkRupture;
+      magParam.setValueIgnoreWarning( new Double(eqkRupture.getMag()) );
+      setFaultTypeFromRake( eqkRupture.getAveRake() );
+      this.eqkRupture = eqkRupture;
       setPropagationEffectParams();
 
     }
@@ -236,7 +236,7 @@ public class ShakeMap_2003_AttenRel
     }
 
     /**
-     * This sets the site and probEqkRupture, and the related parameters,
+     * This sets the site and eqkRupture, and the related parameters,
      *  from the propEffect object passed in. Warning constrains are ingored.
      * @param propEffect
      * @throws ParameterException Thrown if the Site object doesn't contain a
@@ -247,12 +247,12 @@ public class ShakeMap_2003_AttenRel
                                     ParameterException,InvalidRangeException{
 
       this.site = propEffect.getSite();
-      this.probEqkRupture = propEffect.getProbEqkRupture();
+      this.eqkRupture = propEffect.getEqkRupture();
 
       willsSiteParam.setValue( site.getParameter( this.WILLS_SITE_NAME ).getValue() );
 
-      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
-      setFaultTypeFromRake( probEqkRupture.getAveRake() );
+      magParam.setValueIgnoreWarning( new Double(eqkRupture.getMag()) );
+      setFaultTypeFromRake( eqkRupture.getAveRake() );
 
       propEffect.setParamValue(distanceJBParam);
 
@@ -261,12 +261,12 @@ public class ShakeMap_2003_AttenRel
 
     /**
      * This calculates the Distance JB propagation effect parameter based
-     * on the current site and probEqkRupture. <P>
+     * on the current site and eqkRupture. <P>
      */
     protected void setPropagationEffectParams(){
 
-        if( ( this.site != null ) && ( this.probEqkRupture != null ) )
-          distanceJBParam.setValue( probEqkRupture, site );
+        if( ( this.site != null ) && ( this.eqkRupture != null ) )
+          distanceJBParam.setValue( eqkRupture, site );
     }
 
     /**
@@ -583,7 +583,7 @@ public class ShakeMap_2003_AttenRel
             b1_BJF = coeffBJF.b1all;
             b1_SM = coeffSM.b1all;
         } else {
-            throw new ParameterException( C + ": getMean(): Invalid ProbEqkRupture Parameter value for : FaultType" );
+            throw new ParameterException( C + ": getMean(): Invalid EqkRupture Parameter value for : FaultType" );
         }
 
         // Calculate the log rock-site mean for BJF
@@ -820,13 +820,13 @@ public class ShakeMap_2003_AttenRel
 
     /**
      *  Creates the two Potential Earthquake parameters (magParam and
-     *  fltTypeParam) and adds them to the probEqkRuptureParams
+     *  fltTypeParam) and adds them to the eqkRuptureParams
      *  list. Makes the parameters noneditable.
      */
-    protected void initProbEqkRuptureParams(  ) {
+    protected void initEqkRuptureParams(  ) {
 
         // Create magParam
-        super.initProbEqkRuptureParams();
+        super.initEqkRuptureParams();
 
         //  Create and add warning constraint to magParam:
         DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
@@ -844,9 +844,9 @@ public class ShakeMap_2003_AttenRel
         fltTypeParam.setInfo( FLT_TYPE_INFO );
         fltTypeParam.setNonEditable();
 
-        probEqkRuptureParams.clear();
-        probEqkRuptureParams.addParameter( magParam );
-        probEqkRuptureParams.addParameter( fltTypeParam );
+        eqkRuptureParams.clear();
+        eqkRuptureParams.addParameter( magParam );
+        eqkRuptureParams.addParameter( fltTypeParam );
 
     }
 
