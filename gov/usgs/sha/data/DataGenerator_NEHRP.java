@@ -23,8 +23,7 @@ public class DataGenerator_NEHRP
   private String dataEdition;
 
   private ArbitrarilyDiscretizedFunc saFunction;
-  private ArbitrarilyDiscretizedFunc smFunction;
-  private ArbitrarilyDiscretizedFunc sdFunction;
+
   private DiscretizedFuncList mapSpectrumFunctions;
   private DiscretizedFuncList smSpectrumFunctions;
   private DiscretizedFuncList sdSpectrumFunctions;
@@ -114,7 +113,6 @@ public class DataGenerator_NEHRP
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSMSsS1(saFunction,faVal,fvVal,siteClass);
     addDataInfo(function.getInfo());
-    smFunction = function;
   }
 
 
@@ -128,11 +126,11 @@ public class DataGenerator_NEHRP
     ArbitrarilyDiscretizedFunc function = miner.getSDSsS1(saFunction, faVal,
         fvVal,siteClass);
     addDataInfo(function.getInfo());
-    sdFunction = function;
   }
 
 
   /**
+   *
    *
    */
   public void calculateMapSpectrum(){
@@ -142,7 +140,22 @@ public class DataGenerator_NEHRP
     mapSpectrumFunctions= functions;
   }
 
+
+
   /**
+   *
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList getFunctionsForMapSpectrum(){
+
+    return null;
+  }
+
+
+
+
+  /**
+   *
    *
    */
   public void calculateSMSpectrum(){

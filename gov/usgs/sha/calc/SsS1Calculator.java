@@ -88,7 +88,7 @@ public class SsS1Calculator {
     else if ( (latitude == minLat || latitude == maxLat) &&
              (longitude > minLon && longitude < maxLon)) {
       lat = (float) latitude;
-      lon = ( (int) (longitude / gridSpacing)) * gridSpacing;
+      lon = getNearestGridLon(longitude);
       int recNum1 = getRecordNumber(lat, lon);
       int recNum2 = recNum1 + 1;
       float[] vals1 = getPeriodValues(fileName,recNum1);
@@ -99,7 +99,7 @@ public class SsS1Calculator {
     else if ( (longitude == minLon || longitude == maxLon) &&
              (latitude > minLat && latitude < maxLat)) {
       lon = (float) longitude;
-      lat = ( (int) (latitude / gridSpacing) + 1) * gridSpacing;
+      lat = getNearestGridLat(latitude);
       int recNum1 = getRecordNumber(lat, lon);
       int recNum2 = recNum1 + gridPointsPerLatitude;
       float[] vals1 = getPeriodValues(fileName,recNum1);
@@ -109,8 +109,8 @@ public class SsS1Calculator {
     }
     else if (latitude > minLat && latitude < maxLat &&
              longitude > minLon && longitude < maxLon) {
-      lat = ( (int) (latitude / gridSpacing) + 1) * gridSpacing;
-      lon = ( (int) (longitude / gridSpacing)) * gridSpacing;
+      lat = getNearestGridLat(latitude);
+      lon = getNearestGridLon(longitude);
       int recNum1 = getRecordNumber(lat, lon);
       int recNum2 = recNum1 + 1;
       int recNum3 = recNum1 + gridPointsPerLatitude;
@@ -141,12 +141,39 @@ public class SsS1Calculator {
         DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
                                                   GlobalConstants.SITE_CLASS_B,
                                                   Fa, Fv);
-    info += "Data are based on a " + gridSpacing + " deg grid spacing";
+    info += "Data are based on a " + gridSpacingFormat.format(gridSpacing) + " deg grid spacing";
     info +=
         DataDisplayFormatter.createFunctionInfoString(function, SA, Ss_Text, S1_Text,
         GlobalConstants.SITE_CLASS_B);
     function.setInfo(info);
     return function;
+  }
+
+
+  /**
+   *
+   * @param latitude double
+   * @return float
+   */
+  private float getNearestGridLat(double latitude){
+
+    String latGridVal = gridSpacingFormat.format(latitude / gridSpacing);
+    double latVal = Math.ceil(Double.parseDouble(latGridVal));
+
+    return ((int)latVal) * gridSpacing;
+  }
+
+
+  /**
+   *
+   * @param longitude double
+   * @return float
+   */
+  private float getNearestGridLon(double longitude){
+    String lonGridVal = gridSpacingFormat.format(longitude / gridSpacing);
+    double lonVal = Math.floor(Double.parseDouble(lonGridVal));
+
+    return ((int)lonVal) * gridSpacing;
   }
 
   /**
@@ -180,6 +207,7 @@ public class SsS1Calculator {
     NEHRP_Record record_5 = reader.getRecord(fileName,5);
     gridSpacing = Math.abs(record_4.longitude - record_5.longitude);
 
+    gridSpacing = Float.parseFloat(gridSpacingFormat.format(gridSpacing));
     gridPointsPerLatitude = (int) ( (maxLon - minLon) / gridSpacing) + 1;
 
     NEHRP_Record record_3 = reader.getRecord(fileName,3);
@@ -187,6 +215,10 @@ public class SsS1Calculator {
     saPeriods = new float[numPeriods];
     for (int i = 0; i < numPeriods; ++i)
       saPeriods[i] = record_3.values[i];
+
+
+
+
   }
 
   /**
@@ -317,18 +349,18 @@ public class SsS1Calculator {
                DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
                                                   GlobalConstants.SITE_CLASS_B,
                                                   Fa, Fv);
-           info += "Data are based on a " + gridSpacing + " deg grid spacing";
+           info += "Data are based on a " + gridSpacingFormat.format(gridSpacing) + " deg grid spacing";
            info +=
-               DataDisplayFormatter.createFunctionInfoString(function,CENTROID_SA,
+               DataDisplayFormatter.createFunctionInfoString(function,SA,
                Ss_Text,S1_Text,GlobalConstants.SITE_CLASS_B);
            info +=
-               DataDisplayFormatter.createFunctionInfoString(func1,MINIMUM_SA,
+               DataDisplayFormatter.createFunctionInfoString(func1,CENTROID_SA,
                Ss_Text,S1_Text,GlobalConstants.SITE_CLASS_B);
            info +=
                DataDisplayFormatter.createFunctionInfoString(func2,MAXIMUM_SA,
                Ss_Text,S1_Text,GlobalConstants.SITE_CLASS_B);
            info +=
-               DataDisplayFormatter.createFunctionInfoString(func3,SA,
+               DataDisplayFormatter.createFunctionInfoString(func3,MINIMUM_SA,
                Ss_Text,S1_Text,GlobalConstants.SITE_CLASS_B);
            function.setInfo(info);
            break;

@@ -145,6 +145,23 @@ public final class GlobalConstants {
 
 
 
+    //Some constant declaration for map making
+    public final static String MCE_SPECTRUM_SA_Vs_T_GRAPH = "MCE Spectrum Sa Vs T";
+    public final static String MCE_SPECTRUM_SA_Vs_SD_GRAPH = "MCE Spectrum Sa Vs Sd";
+    public final static String MCE_SPECTRUM_SD_Vs_T_GRAPH = "MCE Spectrum Sd Vs T";
+    public final static String SITE_MODIFIED_SA_Vs_T_GRAPH = "Site Modified Sa Vs T";
+    public final static String SITE_MODIFIED_SA_Vs_SD_GRAPH = "Site Modified Sa Vs Sd";
+    public final static String SITE_MODIFIED_SD_Vs_T_GRAPH = "Site Modified Sd Vs T";
+    public final static String DESIGN_SPECTRUM_SA_Vs_T_GRAPH = "Design Spectrum Sa Vs T";
+    public final static String DESIGN_SPECTRUM_SA_Vs_SD_GRAPH = "Design Spectrum Sa Vs Sd";
+    public final static String DESIGN_SPECTRUM_SD_Vs_T_GRAPH = "Design Spectrum Sd Vs T";
+    public final static String SA_Vs_SD_GRAPH_NAME = "Sa Vs Sd";
+    public final static String SD_Vs_T_GRAPH_NAME = "Sd Vs T";
+
+
+
+
+
     /**
      * Returns the supported Site Classes
      * @return ArrayList

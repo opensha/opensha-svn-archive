@@ -1,6 +1,7 @@
 package gov.usgs.sha.data;
 
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import org.scec.data.function.DiscretizedFuncList;
 import java.text.DecimalFormat;
 
 /**
@@ -16,7 +17,7 @@ public final class DataDisplayFormatter {
 
 
   private static DecimalFormat periodFormat = new DecimalFormat("0.0#");
-  private static DecimalFormat saValFormat = new DecimalFormat("0.###");
+  private static DecimalFormat saValFormat = new DecimalFormat("0.000");
 
 
     /**
@@ -65,5 +66,29 @@ public final class DataDisplayFormatter {
     return dataInfo;
   }
 
+
+  /**
+   * Formats the data to be displayed
+   * @param functions DiscretizedFuncList
+   * @param siteClass String
+   * @return String
+   */
+  public static String createFunctionInfoString(DiscretizedFuncList
+                                                 functionList,String siteClass) {
+    String dataInfo = "";
+    dataInfo += "\nPeriod\t" + "Sa\t"+"Sd"+ "\n";
+    dataInfo += "(sec)\t (g)\t (g)\n";
+
+
+
+      ArbitrarilyDiscretizedFunc function1 = (ArbitrarilyDiscretizedFunc)functionList.get(1);
+      ArbitrarilyDiscretizedFunc function2 = (ArbitrarilyDiscretizedFunc)functionList.get(0);
+      for(int i=0;i<function1.getNum();++i) {
+        dataInfo +=saValFormat.format(function1.getX(i))+"\t"+
+            saValFormat.format(function1.getY(i))+"\t"+saValFormat.format(function2.getY(i))+"\n";
+      }
+
+    return dataInfo;
+  }
 
 }
