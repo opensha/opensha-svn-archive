@@ -1,9 +1,13 @@
 package org.scec.sha.param;
 
+import java.util.*;
+
 import org.scec.data.*;
 import org.scec.exceptions.*;
 import org.scec.param.*;
 import org.scec.sha.earthquake.*;
+import org.scec.calc.RelativeLocation;
+
 
 /**
  * <b>Title:</b> PropagationEffect<p>
@@ -52,7 +56,7 @@ import org.scec.sha.earthquake.*;
  * @author Steven W. Rock
  * @version 1.0
  */
-public class PropagationEffect extends ParameterList {
+public class PropagationEffect {
 
 
     /** The Site used for calculating the PropagationEffect parameter values. */
@@ -61,116 +65,100 @@ public class PropagationEffect extends ParameterList {
     /** The ProbEqkRupture used for calculating the PropagationEffect parameter values.*/
     protected ProbEqkRupture probEqkRupture = null;
 
-    /** is held in object, and added to vector of PropagationEffectParameters
-     * values - int 0 or 1. SWR: ??? Not sure what this means.
-     */
-    protected DoubleParameter AS_1997_HangingWall;
 
-    /** is held in object, and added to vector of PropagationEffectParameters
-     * fraction of fault length that ruptures toward
-     * the site; a directivity parameter.  SWR: ??? Not sure what this means.
-     */
-    protected DoubleParameter abrahamson_2000_X;
+    /** this distance measure for the DistanceRupParameter */
+   	protected double distanceRup;
 
-    /** is held in object, and added to vector of PropagationEffectParameters.
-     * Angle between strike and epicentral azimuth; a directivity
-     * parameter.
-     */
-    protected DoubleParameter abrahamson_2000_Theta;
+    /** this distance measure for the DistanceJBParameter */
+   	protected double distanceJB;
 
-    /** is held in object, and added to vector of PropagationEffectParameters */
-   	protected DoubleParameter distanceRup;
-
-    /** is held in object, and added to vector of PropagationEffectParameters */
-   	protected DoubleParameter distanceJB;
-
-    /** is held in object, and added to vector of PropagationEffectParameters */
-   	protected DoubleParameter distanceSeis;
+    /** this distance measure for the DistanceSeisParameter */
+   	protected double distanceSeis;
 
 
     /** No Argument consructor */
     public PropagationEffect() { }
 
-    /** FIX - Currently does nothing, should set the variables */
-    public PropagationEffect( Site site, ProbEqkRupture pe) {}
+    /** Constructor that is give Site and ProbEqkRupture objects */
+    public PropagationEffect( Site site, ProbEqkRupture pe) {
+      this.site = site;
+      this.probEqkRupture = probEqkRupture;
+    }
 
-
-    /** Returns the common Site fo all internal parametes */
+    /** Returns the Site object */
     public Site getSite() { return site; }
 
-    /** Returns the common ProbEqkRupture fo all internal parametes */
+    /** Returns the ProbEqkRupture object */
     public ProbEqkRupture getProbEqkRupture() { return probEqkRupture; }
 
+    /** Sets the Site object */
+    public void setSite(Site site) {
+        this.site = site;
+    }
+
+    /** Sets the ProbEqkRupture object */
+    public void setProbEqkRupture(ProbEqkRupture probEqkRupture) {
+        this.probEqkRupture = probEqkRupture;
+    }
+
+    /** Sets both the ProbEqkRupture and Site object */
+    public void setAll(ProbEqkRupture probEqkRupture, Site site) {
+        this.probEqkRupture = probEqkRupture;
+        this.site = site;
+    }
+
 
     /**
-     * Used to add Propagation Effect Parameters to list. Also can use the
-     * more general parameter list API in the parent class. This one is here
-     * for convinience.
+     */
+    public Object getParamValue(String paramName) {
+      if(paramName.equals(DistanceSeisParameter.)
+    	return null;
+    }
+
+    /**
+     */
+    public void setParamValue( ParameterAPI param ) {
+    	return null;
+    }
+
+    /**
      *
-     * FIX *** Currently does nothing.
      */
-    public void AddPropagationEffectParameter(PropagationEffectParameter parameter) {
+    private void computeParamValues() {
+
+      if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
+
+          Location loc1 = site.getLocation();
+          distanceJB = 9999999;
+          distanceSeis = 9999999;
+          distanceRup = 9999999;
+
+          double horzDist, vertDist, rupDist, jbDist, seisDist;
+
+          ListIterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
+          while( it.hasNext() ){
+
+            Location loc2 = (Location) it.next();
+
+            horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
+            vertDist = RelativeLocation.getVertDistance(loc1, loc2);
+
+            if(horzDist < distanceJB) distanceJB = horzDist;
+
+            rupDist = horzDist * horzDist + vertDist * vertDist;
+            if(rupDist < distanceRup) distanceRup = rupDist;
+
+            if (loc2.getDepth() >= DistanceSeisParameter.seisDepth)
+              if(rupDist < distanceSeis)
+                distanceSeis = rupDist;
+          }
+
+          distanceRup = Math.pow(distanceRup,0.5);
+          distanceSeis = Math.pow(distanceSeis,0.5);
+
+      }
+
+      throw new RuntimeException ("Site or ProbEqkRupture is null");
 
     }
-
-    /**
-     * Update both existing PE and Site, recalculates all parameter.
-     * FIX *** Currently does nothing.
-    */
-    public Object getValue(String paramName, Site site, ProbEqkRupture pe ) {
-    	return null;
-    }
-
-    /**
-     * Update existing Site, then recalculates the parameters,
-     * returning a result for a specific parameter.
-     * FIX *** Currently does nothing.
-     */
-    public Object getValue(String paramName, Site site) {
-    	return null;
-    }
-
-    /**
-     * Update existing ProbEqkRupture, then recalculates the parameters,
-     * returning a result for a specific parameter.
-     * FIX *** Currently does nothing.
-     */
-    public Object getValue(String paramName,
-			   ProbEqkRupture probEqkRuptureObj ) {
-    	return null;
-    }
-
-    /**
-     * Returns the calculated value for one specific parameter in this list.
-     * FIX *** Currently does nothing.
-     */
-    public Object getValue(String paramName) {
-    	return null;
-    }
-
-    /**
-     * Set's a new value to a Parameter in the list, if it exists, else throws exception
-     * FIX *** Currently does nothing.
-     */
-    public void setValue(String name, Object value) throws ParameterException, ConstraintException {
-        throw new java.lang.UnsupportedOperationException("This subclass doesn't permit modifications");
-    }
-
-
-
-    /** Returns the value for the specified rpe-defined parameter */
-    public Double getAS_1997_HangingWall() { return (Double)AS_1997_HangingWall.getValue(); }
-    /** Returns the value for the specified rpe-defined parameter */
-    public Double getAbrahamson_2000_X() { return (Double)abrahamson_2000_X.getValue(); }
-    /** Returns the value for the specified rpe-defined parameter */
-    public Double getAbrahamson_2000_Theta() { return (Double)abrahamson_2000_Theta.getValue(); }
-
-    /** Returns the value for the specified rpe-defined parameter */
-    public Double getDistanceRup() { return (Double)distanceRup.getValue(); }
-    /** Returns the value for the specified rpe-defined parameter */
-    public Double getDistanceJB() { return (Double)distanceJB.getValue(); }
-    /** Returns the value for the specified rpe-defined parameter */
-    public Double getDistanceSeis() { return (Double)distanceSeis.getValue(); }
-
-
 }

@@ -47,7 +47,7 @@ public class DistanceSeisParameter
     private final static Double MAX = new Double(Double.MAX_VALUE);
 
     /** set default seismogenic depth. actually hard-wired for now. */
-    private double seisDepth = 3.0;
+    public final static double seisDepth = 3.0;
 
 
     /**
@@ -92,25 +92,25 @@ public class DistanceSeisParameter
     protected void calcValueFromSiteAndPE(){
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 
-            Location loc1 = site.getLocation();
-            double minDistance = 999999;
-            double totalDist, horzDist, vertDist;
+          Location loc1 = site.getLocation();
+          double minDistance = 999999;
+          double totalDist, horzDist, vertDist;
 
-            ListIterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
-            while( it.hasNext() ){
+          ListIterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
+          while( it.hasNext() ){
 
-                Location loc2 = (Location)it.next();
-                // ignore locations with depth less than siesDepth:
-                if (loc2.getDepth() >= seisDepth) {
-                    horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
-                    vertDist = RelativeLocation.getVertDistance(loc1, loc2);
-                    totalDist = horzDist * horzDist + vertDist * vertDist;
-                    if( totalDist < minDistance )  minDistance = totalDist;
-                }
-            }
-            // take square root before returning
-            // Steve- is this effiecient?
-            this.setValueIgnoreWarning( new Double( Math.pow ( minDistance , 0.5 ) ));
+              Location loc2 = (Location)it.next();
+              // ignore locations with depth less than siesDepth:
+              if (loc2.getDepth() >= seisDepth) {
+                  horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
+                  vertDist = RelativeLocation.getVertDistance(loc1, loc2);
+                  totalDist = horzDist * horzDist + vertDist * vertDist;
+                  if( totalDist < minDistance )  minDistance = totalDist;
+              }
+          }
+          // take square root before returning
+          // Steve- is this effiecient?
+          this.setValueIgnoreWarning( new Double( Math.pow ( minDistance , 0.5 ) ));
 
         }
         else this.setValue(null);
