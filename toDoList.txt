@@ -20,8 +20,6 @@ Implement point source correction option in PropagationEffect.  ************
 
 GMT_MapGenerator:
 
-	If MMI chosen (and not log-plot) use unaltered shakemap pallet  (Ned) **************
-
 	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service (Nitin)
 	
 

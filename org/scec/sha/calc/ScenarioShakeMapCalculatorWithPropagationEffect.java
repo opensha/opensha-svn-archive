@@ -23,8 +23,10 @@ import org.scec.sha.param.PropagationEffect;
  * @version 1.0
  */
 
-public class ScenarioShakeMapCalculatorWithPropagationEffect extends ScenarioShakeMapCalculator{
+public class ScenarioShakeMapCalculatorWithPropagationEffect {
 
+  protected final static String C = "ScenarioShakeMapCalculatorWithPropagationEffect";
+  protected final static boolean D = true;
 
   //stores the number of sites
   private int numSites;
@@ -110,6 +112,39 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect extends ScenarioSha
   }
 
 
+  /**
+   * Gives the ArrayList of Latitudes from the gridded region
+   * @param griddedRegionSites
+   * @return
+   */
+  private ArrayList getSitesLat(SitesInGriddedRegion griddedRegionSites){
+    //getting the gridded Locations list iterator
+    ListIterator it= griddedRegionSites.getGridLocationsIterator();
+
+    //Adding the Latitudes to the ArrayLists for lats
+    ArrayList sitesLat = new ArrayList();
+    while(it.hasNext())
+      sitesLat.add(new Double(((Location)it.next()).getLatitude()));
+   return  sitesLat;
+  }
+
+  /**
+   * Gives the ArrayList of Longitudes from the gridded region
+   * @param griddedRegionSites
+   * @return
+   */
+  private ArrayList getSitesLon(SitesInGriddedRegion griddedRegionSites){
+    //getting the gridded Locations list iterator
+     //iterating over the locations iterator in the reverse order to get the Longitudes.
+    ListIterator it= griddedRegionSites.getGridLocationsIterator();
+    //Adding the Longitudes to the ArrayLists for lons
+    ArrayList sitesLon = new ArrayList();
+    while(it.hasNext())
+      sitesLon.add(new Double(((Location)it.next()).getLongitude()));
+    return sitesLon;
+  }
+
+
 
 
   /**
@@ -131,6 +166,7 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect extends ScenarioSha
       AttenuationRelationship imr,boolean isProbAtIML,double value) throws ParameterException {
 
     imr.setPropagationEffect(propagationEffect);
+    if(D) System.out.println(imr.getAllParamMetadata());
     if(isProbAtIML)
       return imr.getExceedProbability(value);
     else{

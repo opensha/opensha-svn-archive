@@ -28,7 +28,7 @@ import org.scec.exceptions.ParameterException;
 public class ScenarioShakeMapCalculator {
 
   protected final static String C = "ScenarioShakeMapCalculator";
-  protected final static boolean D = false;
+  protected final static boolean D = true;
 
 
 

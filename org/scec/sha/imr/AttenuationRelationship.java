@@ -706,6 +706,24 @@ public abstract class AttenuationRelationship
     }
 
 
+    /**
+     * This returns metadata for all parameters (only showing the independent parameters
+     * relevant for the presently chosen imt)
+     * @return
+     */
+    public String getAllParamMetadata() {
+      String metadata = imlAtExceedProbIndependentParams.getParameterListMetadataString();
+      metadata += "; " + im.getMetadataString() +" [ ";
+      Iterator it = ((DependentParameter) im).getIndependentParametersIterator();
+      while(it.hasNext())
+        metadata += ((ParameterAPI)it.next()).getMetadataString() + "; ";
+      metadata = metadata.substring(0,metadata.length()-2);
+      metadata += " ]";
+      return metadata;
+
+    }
+
+
 
     /**
      *  This function populates the hashtable of coefficients (if there
