@@ -242,6 +242,7 @@ public class IMRTesterApplet extends JApplet
     JPanel sheetPanel = new JPanel();
     JSplitPane parametersSplitPane = new JSplitPane();
     JSplitPane mainSplitPane = new JSplitPane();
+    JSplitPane legendSplitPane =new JSplitPane();
     JScrollPane dataScrollPane = new JScrollPane();
     JTextArea pointsTextArea = new JTextArea();
     JButton toggleButton = new JButton();
@@ -606,6 +607,11 @@ public class IMRTesterApplet extends JApplet
         mainSplitPane.setBorder( null );
         mainSplitPane.setDividerSize( 5 );
 
+
+        legendSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        legendSplitPane.setBorder(null);
+        legendSplitPane.setDividerSize(5);
+
         pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
         pointsTextArea.setText( NO_PLOT_MSG );
 
@@ -662,6 +668,7 @@ public class IMRTesterApplet extends JApplet
     jAxisScale.setFont(new java.awt.Font("Dialog", 1, 11));
     jAxisScale.setForeground(new Color(80, 80, 133));
     jAxisScale.setText("Set Axis Scale: ");
+    legendPane.setEditable(false);
     this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
@@ -698,6 +705,9 @@ public class IMRTesterApplet extends JApplet
 
    plotPanel.add( innerPlotPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ) );
+
+   //innerPlotPanel.add(legendSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+     //           , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
    dataScrollPane.getViewport().add( pointsTextArea, null );
 
@@ -743,6 +753,12 @@ public class IMRTesterApplet extends JApplet
         //mainSplitPane.setDividerLocation( 430 );
         mainSplitPane.setDividerLocation(580 );
         mainSplitPane.setOneTouchExpandable( false );
+
+        legendSplitPane.setBottomComponent(legendScrollPane);
+        legendSplitPane.setTopComponent( panel);
+        legendSplitPane.setDividerLocation(80);
+        legendSplitPane.setOneTouchExpandable( false );
+
 
         //setting the  properties of the legend scrollPane
         legendScrollPane.setBorder(BorderFactory.createEtchedBorder());
@@ -1130,13 +1146,29 @@ public class IMRTesterApplet extends JApplet
                     //newLoc = loc + titleSize;
                 }
 
+
+                innerPlotPanel.add(legendSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                   , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
                 // panel added here
-                innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 10.0
+                innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
+                 );
+
+                innerPlotPanel.add( legendScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+               , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
+                 );
+
+               legendSplitPane.setBottomComponent(legendScrollPane);
+               legendSplitPane.setTopComponent( panel);
+               legendSplitPane.setDividerLocation(450);
+                /*innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 10.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                 //panel for the legend
                   innerPlotPanel.add(legendScrollPane, new GridBagConstraints( 0,1, 1, 1, 1.0, 1.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+                */
+
             }
             else {
                 if ( D )
