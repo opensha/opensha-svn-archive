@@ -153,7 +153,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
   public static void main(String[] args) {
 
-    EvenlyGriddedRectangularGeographicRegion geoReg = new EvenlyGriddedRectangularGeographicRegion(33.,33.9,120.,121.9,1);
+    EvenlyGriddedRectangularGeographicRegion geoReg = new EvenlyGriddedRectangularGeographicRegion(33.,33.9,120.,121.9,.05);
 
     System.out.println(C+": numLocations="+ geoReg.getNumLocations());
 

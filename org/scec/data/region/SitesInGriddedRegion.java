@@ -48,8 +48,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   //Instance of the site TransLator class
   SiteTranslator siteTranslator = new SiteTranslator();
 
-  //Instance of the SiteTranslatorTests to check for the Site Param values
-  SiteTranslatorTests tests = null;
+
 
   /**
    *class constructor
@@ -81,6 +80,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
          //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
          boolean flag = siteTranslator.setParameterValue(tempParam,(String)vs30.get(index),
                                                          ((Double)basinDepth.get(index)).doubleValue());
+         System.out.println((String)vs30.get(index)+"     "+((Double)basinDepth.get(index)).doubleValue());
          //If the value was outside the bounds of CVM
          //and site has no value from CVM then set its value to the default Site Params shown in the application.
          if(!flag){
@@ -92,19 +92,8 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
                tempParam.setValue(param.getValue());
            }
          }
-
-         //writing the site info to the file to test if we are getting the correct site Paramters
-         siteInfo = site.getLocation().getLatitude()+"\t\t"+site.getLocation().getLongitude()+"\t\t\t"+
-            (String)vs30.get(index)+"\t\t\t"+((Double)basinDepth.get(index)).doubleValue()+
-            "\t\t\t"+flag+"\t\t\t"+tempParam.getName()+"\t\t\t"+tempParam.getValue().toString()+"\n";
-
-         tests.writeToSiteParamFile(siteInfo);
        }
 
-       if(index == getNumGridLocs()-1){
-         tests.closeSiteParamFile();
-         tests = null;
-       }
      }
      return site;
   }
@@ -177,7 +166,6 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    for(int i=0;i<size;++i)
      basinDepth.add(new Double(Double.NaN));
 
-   tests = new SiteTranslatorTests();
  }
 
 
@@ -195,7 +183,6 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    }catch(Exception e){
      throw new RuntimeException(e.getMessage());
    }
-   tests = new SiteTranslatorTests();
  }
 
  /**
@@ -306,6 +293,23 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    }catch (Exception exception) {
      System.out.println("Exception in connection with servlet:" +exception);
    }
+ }
+
+
+ /**
+  *
+  * @returns the Wills Class Values for each site
+  */
+ public Vector getWillsClassVector(){
+   return this.vs30;
+ }
+
+ /**
+  *
+  * @returns the basin depth values for each site
+  */
+ public Vector getBasinDepthVector(){
+   return this.basinDepth;
  }
 
 }
