@@ -131,7 +131,7 @@ public class PEER_AreaForecast extends EqkRupForecast
   public PEER_AreaForecast() {
 
     // create the timespan object with start time and duration in years
-    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
     // make adj params list

@@ -150,7 +150,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   public PEER_NonPlanarFaultForecast() {
 
     // create the timespan object with start time and duration in years
-    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
     // make the segModelParam

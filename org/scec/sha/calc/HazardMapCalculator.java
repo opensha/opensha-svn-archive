@@ -42,9 +42,7 @@ public class HazardMapCalculator {
   cases to pass through
   */
   protected double MAX_DISTANCE = 2500;
-
   private CalcProgressBar progressClass ;
-
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
 
 

@@ -126,7 +126,7 @@ public class PEER_FaultForecast extends EqkRupForecast
   public PEER_FaultForecast() {
 
     // create the timespan object with start time and duration in years
-    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
     /* Now make the source in Fault 1 */
