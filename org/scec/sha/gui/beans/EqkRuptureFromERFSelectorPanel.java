@@ -197,6 +197,15 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
 
    //add parameter for selecting the rupture for selected source index
    sourceValue = Integer.parseInt((((String)sourceParam.getValue()).substring(0,((String)sourceParam.getValue()).indexOf("("))).trim());
+   //sets the ruptures information for selected source in the text area.
+   setSelectedSourceRupturesInfo();
+   progress.showProgress(false);
+ }
+
+ /**
+  * Shows information about the EqkRuptures in the text window.
+  */
+ private void setSelectedSourceRupturesInfo(){
    int numRuptures = erf.getNumRuptures(sourceValue);
    //writing the ruptures info. for each selected source in the text Area below the rupture
    String rupturesInfo = "Rupture info for \"";
@@ -206,7 +215,6 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
      rupturesInfo += "\n  rupture #"+i+": \n\n"+erf.getSource(sourceValue).getRupture(i).getInfo();
    sourceRupInfoText.setText(rupturesInfo);
    sourceRupInfoText.setCaretPosition(0);
-   progress.showProgress(false);
  }
 
  /**

@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import java.text.DecimalFormat;
+import java.awt.event.*;
 
 import org.scec.param.*;
 import org.scec.param.event.*;
@@ -12,7 +13,8 @@ import org.scec.sha.param.SimpleFaultParameter;
 import org.scec.sha.earthquake.EqkRupture;
 import org.scec.sha.surface.*;
 import org.scec.data.*;
-import java.awt.event.*;
+import org.scec.sha.gui.infoTools.HypocenterLocationWindow;
+
 
 /**
  * <p>Title: EqkRuptureCreationPanel</p>
@@ -81,13 +83,7 @@ public class EqkRuptureCreationPanel extends  JPanel
   private final static String FAULT_PARAM_INFO = "Source location parameters for finite rupture";
 
 
-  //Parameter to check if Hypocenter needs to be set
-  public final static String HYPOCENTER_PARAM_NAME = "Set Hypocenter";
-  private final static String HYPOCENTER_PARAM_INFO = "Checks if Hypocenter needs to be set";
 
-  //Parameter to set the Hypocenter Location
-  public final static String HYPOCENTER_LOCATION_PARAM_NAME = "Hypocenter Location";
-  private final static String HYPOCENTER_LOCATION_PARAM_INFO = "Sets the Hypocenter Location";
 
   //title for this ParamerterListEditor
   private final static String TITLE= "";
@@ -102,8 +98,7 @@ public class EqkRuptureCreationPanel extends  JPanel
   private DoubleParameter srcLonParam;
   private DoubleParameter srcDepthParam;
   private SimpleFaultParameter faultParam;
-  private BooleanParameter hypocenterParam;
-  private StringParameter hypocenterLocationParam;
+
 
 
   //boolean to check if any parameter has been changed
@@ -111,9 +106,17 @@ public class EqkRuptureCreationPanel extends  JPanel
 
   private ParameterList parameterList;
   private ParameterListEditor listEditor;
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
   //EqkRupture Object
   private EqkRupture eqkRupture;
+  private JButton hypocenterButton = new JButton();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+
+
+  //pop -up window to show the hypocenter locations to set in Eqkrupture.
+  private HypocenterLocationWindow hypocenterLocationWindow;
+
+  //Hypocenter Location List
+  private ArrayList hypocenterList;
 
   public EqkRuptureCreationPanel() {
 
@@ -158,8 +161,6 @@ public class EqkRuptureCreationPanel extends  JPanel
     sourceTypeParam.setInfo(SRC_TYP_PARAM_INFO);
 
 
-    hypocenterParam = new BooleanParameter(this.HYPOCENTER_PARAM_NAME,new Boolean(false));
-    hypocenterParam.setInfo(HYPOCENTER_PARAM_INFO);
 
     parameterList = new ParameterList();
     // add the adjustable parameters to the list
@@ -171,7 +172,6 @@ public class EqkRuptureCreationPanel extends  JPanel
     parameterList.addParameter(srcLatParam);
     parameterList.addParameter(srcLonParam);
     parameterList.addParameter(srcDepthParam);
-    parameterList.addParameter(hypocenterParam);
 
     sourceTypeParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
@@ -180,7 +180,9 @@ public class EqkRuptureCreationPanel extends  JPanel
     srcLonParam.addParameterChangeListener(this);
     dipParam.addParameterChangeListener(this);
     faultParam.addParameterChangeListener(this);
-    hypocenterParam.addParameterChangeListener(this);
+    listEditor = new ParameterListEditor(parameterList);
+    listEditor.setTitle(TITLE);
+
     try {
       jbInit();
     }
@@ -190,17 +192,22 @@ public class EqkRuptureCreationPanel extends  JPanel
     this.validate();
     this.repaint();
     createRupture();
-    listEditor = new ParameterListEditor(parameterList);
-    listEditor.setTitle(TITLE);
     setParameterVisibleBasedOnSelectedRuptureType();
-    setHypocenterLocationParamVisible();
-    this.add(listEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
   }
 
 
   private void jbInit() throws Exception {
+    hypocenterButton.setText("Set Hypocenter Location");
+    hypocenterButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        hypocenterButton_actionPerformed(e);
+      }
+    });
     this.setLayout(gridBagLayout1);
+    this.add(hypocenterButton,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 79, 11, 100), 43, 6));
+    this.add(listEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
   }
 
 
@@ -235,7 +242,11 @@ public class EqkRuptureCreationPanel extends  JPanel
       // The first row of all the rupture surfaces is the list of their hypocenter locations
       ListIterator hypoLocationsIt = ruptureSurface.getColumnIterator(0);
       Location loc;
-      ArrayList hypocenterList = new ArrayList();
+      if(hypocenterList == null){
+        hypocenterList = new ArrayList();
+      }
+      else
+        hypocenterList.clear();
       while(hypoLocationsIt.hasNext()){
         //getting the object of Location from the HypocenterLocations and formatting its string to 3 placees of decimal
         loc= (Location)hypoLocationsIt.next();
@@ -245,18 +256,10 @@ public class EqkRuptureCreationPanel extends  JPanel
         hypocenterList.add(lat+" "+lon+" "+depth);
       }
 
-       //create the HypocenterLocation parameter with new constraints based on the created eqk rupture
-        hypocenterLocationParam = new StringParameter(this.HYPOCENTER_LOCATION_PARAM_NAME,hypocenterList,
-            (String)hypocenterList.get(0));
-        hypocenterLocationParam.setInfo(this.HYPOCENTER_LOCATION_PARAM_INFO);
-        hypocenterLocationParam.addParameterChangeListener(this);
-
-        if(parameterList.containsParameter(hypocenterLocationParam)) // replace the parameter in the Editor
-          //if it already exists else add to the list of parameters.
-          listEditor.replaceParameterForEditor(HYPOCENTER_LOCATION_PARAM_NAME,hypocenterLocationParam);
-        else
-          parameterList.addParameter(hypocenterLocationParam);
-
+      String hypoLocString = "No Hypocenter Location selected";
+      hypocenterButton.setToolTipText(hypoLocString);
+      if(hypocenterLocationWindow !=null)
+        hypocenterLocationWindow.setHypocenterLocationSetFlagInEqkRupture(false);
       parameterChangeFlag = false;
     }
   }
@@ -275,35 +278,9 @@ public class EqkRuptureCreationPanel extends  JPanel
   public void parameterChange( ParameterChangeEvent event ) {
 
     String name1 = event.getParameterName();
-
-    if(name1.equals(this.SRC_TYP_PARAM_NAME)){
+    if(name1.equals(this.SRC_TYP_PARAM_NAME))
       setParameterVisibleBasedOnSelectedRuptureType();
-      parameterChangeFlag = true;
-    }
-    //if the Hypo Center location has been set
-    else if(name1.equals(this.HYPOCENTER_PARAM_NAME)){
-      boolean hypocenterParamVal = ((Boolean)hypocenterParam.getValue()).booleanValue();
-      //create rupture only if the user has choosen to set the hypocenter in the EqkRupture.
-      if(hypocenterParamVal)
-        createRupture();
-      setHypocenterLocationParamVisible();
-    }
-    else if(name1.equals(this.HYPOCENTER_LOCATION_PARAM_NAME))
-      this.eqkRupture.setHypocenterLocation(getHypocenterLocation());
-    else //if rupture parameter are changed then just set parameterChangeFlag to be true.
-      parameterChangeFlag = true;
-
-
-    //making the selected hypocenter invalid if user has changed the following parameters
-    //deselecting the hypocenter if updating the eqkrupture, as hypocenter will be having some new locations.
-    if(name1.equals(this.SRC_TYP_PARAM_NAME) || name1.equals(this.SRC_DEPTH_PARAM_NAME) ||
-       name1.equals(this.SRC_LAT_PARAM_NAME) || name1.equals(this.SRC_LON_PARAM_NAME)||
-       name1.equals(DIP_PARAM_NAME) || name1.equals(FAULT_PARAM_NAME)){
-
-      boolean hypocenterParamVal = ((Boolean)hypocenterParam.getValue()).booleanValue();
-      if(hypocenterParamVal)
-        hypocenterParam.setValue(new Boolean(false));
-    }
+    parameterChangeFlag = true;
     listEditor.refreshParamEditor();
   }
 
@@ -314,16 +291,7 @@ public class EqkRuptureCreationPanel extends  JPanel
    * @returns the Hypocenter Location if selected else return null
    */
   public Location getHypocenterLocation(){
-    boolean hypocenterParamVal = ((Boolean)hypocenterParam.getValue()).booleanValue();
-    if(hypocenterParamVal){
-      StringTokenizer token = new StringTokenizer(hypocenterLocationParam.getValue().toString());
-      double lat= Double.parseDouble(token.nextElement().toString().trim());
-      double lon= Double.parseDouble(token.nextElement().toString().trim());
-      double depth= Double.parseDouble(token.nextElement().toString().trim());
-      Location loc= new Location(lat,lon,depth);
-      return loc;
-    }
-    return null;
+    return hypocenterLocationWindow.getHypocenterLocation();
   }
 
 
@@ -334,15 +302,7 @@ public class EqkRuptureCreationPanel extends  JPanel
    * in the eqkRupture
    */
   private void setHypocenterLocationParamVisible(){
-    boolean hypocenterParamVal = ((Boolean)hypocenterParam.getValue()).booleanValue();
-    if(hypocenterParamVal)
-      listEditor.getParameterEditor(HYPOCENTER_LOCATION_PARAM_NAME).setVisible(true);
-    else
-      listEditor.getParameterEditor(HYPOCENTER_LOCATION_PARAM_NAME).setVisible(false);
-
     eqkRupture.setHypocenterLocation(getHypocenterLocation());
-    this.validate();
-    this.repaint();
   }
 
 
@@ -444,6 +404,23 @@ public class EqkRuptureCreationPanel extends  JPanel
     return null;
   }
 
-
-
+  /**
+   * When Set Hypocenter Location in EqkRupture button is pressed.
+   * @param e
+   */
+  void hypocenterButton_actionPerformed(ActionEvent e) {
+    createRupture();
+    if(hypocenterLocationWindow == null){
+      hypocenterLocationWindow = new HypocenterLocationWindow(this,hypocenterList,eqkRupture);
+    }
+    else{
+      hypocenterLocationWindow.setHypocenterLocationListAndEqkRupture(hypocenterList,eqkRupture);
+    }
+    hypocenterLocationWindow.show();
+    hypocenterLocationWindow.pack();
+    if(hypocenterLocationWindow.isHypocenterLocationSetInEqkRupture()){
+      String hypoLocString = "Hypocenter Location:"+eqkRupture.getHypocenterLocation().toString();
+      hypocenterButton.setToolTipText(hypoLocString);
+    }
+  }
 }
