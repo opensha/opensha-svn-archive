@@ -5,40 +5,40 @@
 For the SCEC-ITR CME:
 ---------------------
 
-Implement retrieval of Primary Key in insert as a JDBC Transaction.
+Implement retrieval of Primary Key in DAO Insert metdhods as a JDBC Transaction.
 
-Create Admin Page JSP that lists the following Selections
-  - Add/View/Delete Predicate Inputs
-  - Add/View/Delete Predicate Outputs
+CVS Cleanup
+  Make CMEDB module accessible on SunOne Module List by
+    - backup up directory
+    - export files
+    - using CVS command line interface
+         add module to repository
+         import CMEDB file
 
-Add "Admin Home Page" link to each JSP, including "Successfully did xxx" pages.
-
-Write JSP, FormBeans, Validation Methods, and Action Methods to 
-  implement the Add/View/Delete Predicate Type pages.
-
-Add URI to URL Mapping to DB Table
-  - Create URI to URL Table DAO
+Create a SCEC-URI generator function.
 
 Create User Main Screen that says"
   "Create Resource"
   "View Resource"
   "Status of Resource"
 
-Create "Construct Resource" Input Pages
+Construct "Create Resource" Input Pages
   - Create "Construct Gridded Region" Page.
   - Create "Construct IMR" Page.
   - Create "Construct ERM" Page.
 
-Create a SCEC-URI generator function.
+Create Server Version of HazardMapCalculator that accepts as inputs
+   String URL's to "resources" only, and URI to ResourceInstanceID.
+   - Write JUnit test to show this version of HazardMapCalculator runs.
 
-Create Form Beans, Action Methods to bring up HazardMapGenerator 
-  Computational Step page.
+Create WebService Interface to this HazardMapCalculator program.
+  - Use One-Way RPC to implement non-blocking calls to the HazardMapCalculator Program.
+  - Talk with Deepak about deploying this service. He has made good progress on Web Service
+     deployment.
 
-Spike on "how can we specify a Predicate with a URL"
 
-Spike on "How can we run a long lasting program from an action method without blocking"
 
-ProjectTestSuite : 24 Tests
+SHA ProjectTestSuite : 24 Tests
 
 For OpenSHA:
 ------------
