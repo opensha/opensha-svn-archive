@@ -199,7 +199,7 @@ public class HazardCurveApplet extends JApplet
 
   // variable needed for plotting Epistemic list
   private boolean isEqkList = false; // whther we are plottin the Eqk List
-  private boolean isIndividualCurves = false; //to keep account that we are first drawing the individual curve for erf in the list
+  //private boolean isIndividualCurves = false; //to keep account that we are first drawing the individual curve for erf in the list
   private boolean isAllCurves = true; // whether to plot all curves
   // whether user wants to plot No percentile, or 5, 50 and 95 percentile or custom percentile
   private String percentileOption ;
@@ -586,13 +586,14 @@ public class HazardCurveApplet extends JApplet
       if(isEqkList) {
         int num = totalProbFuncs.size();
         int numFractiles;
-        if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE) && !isIndividualCurves )
+        if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE)) // && !isIndividualCurves )
           numFractiles = 1;
-        else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE) && !isIndividualCurves)
+        else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE))// && !isIndividualCurves)
           numFractiles = 3;
         else numFractiles = 0;
         int diff ;
-        if(this.avgSelected && !isIndividualCurves) num= num - 1;
+        if(this.avgSelected)// && !isIndividualCurves)
+          num= num - 1;
         diff = num - numFractiles ;
         int i;
         Color [] color = new Color[num+1];
@@ -602,12 +603,12 @@ public class HazardCurveApplet extends JApplet
 
         //checks if the individual curves for each erf in the list are being drawn, if so then don't
         //try to draw the average and fractiles curves
-        if(!isIndividualCurves){
+        //if(!isIndividualCurves){
           for(i=diff;i<num;++i) // set red color for fractiles
             color[i] = new Color(Color.red.getRGB());
           // draw average in green color
           if(this.avgSelected) color[i] = new Color(Color.green.getRGB());
-        }
+        //}
         graphPanel.setSeriesColor(color);
       }
       else //sets the default series color for the curves
@@ -615,7 +616,7 @@ public class HazardCurveApplet extends JApplet
 
       graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
       togglePlot();
-      this.isIndividualCurves = false;
+      //this.isIndividualCurves = false;
    }
 
    //checks if the user has plot the data window or plot window
@@ -717,10 +718,10 @@ public class HazardCurveApplet extends JApplet
             try{
               if(calc.getCurrRuptures()!=-1)
                 progressClass.updateProgress(calc.getCurrRuptures(), calc.getTotRuptures());
-              if(isIndividualCurves) {
-                drawGraph();
+             // if(isIndividualCurves) {
+               // drawGraph();
                 //isIndividualCurves = false;
-              }
+              //}
               if (calc.done()) {
                 // Toolkit.getDefaultToolkit().beep();
                 timer.stop();
@@ -1089,11 +1090,11 @@ public class HazardCurveApplet extends JApplet
    //calc.showProgressBar(this.progressCheckBox.isSelected());
    //check if the curves are to shown in the same black color for each erf.
    // calculate hazard curve for each ERF within the list
-    if(!this.progressCheckBox.isSelected()) this.isIndividualCurves = false;
-    else this.isIndividualCurves = true;
+    //if(!this.progressCheckBox.isSelected()) this.isIndividualCurves = false;
+    //else this.isIndividualCurves = true;
    for(int i=0; i<numERFs; ++i) {
      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-      if(this.progressCheckBox.isSelected()) while(isIndividualCurves);
+      //if(this.progressCheckBox.isSelected()) while(isIndividualCurves);
      // intialize the hazard function
      initX_Values(hazFunction);
      try {
@@ -1112,7 +1113,7 @@ public class HazardCurveApplet extends JApplet
        return;
      }
      totalProbFuncs.add(hazFunction);
-     this.isIndividualCurves = true;
+     //this.isIndividualCurves = true;
     if(!this.progressCheckBox.isSelected()) {
       addGraphPanel();
       //panel that shows the plot curves and metadata
@@ -1149,7 +1150,7 @@ public class HazardCurveApplet extends JApplet
    // set the X-axis label
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
    totalProbFuncs.setYAxisName("Probability of Exceedance");
-   isIndividualCurves = false;
+   //isIndividualCurves = false;
   }
 
 
