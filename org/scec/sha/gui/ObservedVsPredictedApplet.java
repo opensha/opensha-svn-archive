@@ -642,13 +642,12 @@ public class ObservedVsPredictedApplet extends JApplet
       siteParamPanel.repaint();
       siteParamPanel.validate();
     }
-    else if(name1.equalsIgnoreCase(imtGuiBean.IMT_PARAM_NAME)){
+    else if(name1.equalsIgnoreCase(imtGuiBean.IMT_PARAM_NAME))
       siteGuiBean.readIM_DataFile();
-    }
-    else if(name1.equalsIgnoreCase(this.ruptureGuiBean.RUPTURE_PARAM_NAME)){
+    else if(name1.equalsIgnoreCase(this.ruptureGuiBean.RUPTURE_PARAM_NAME))
       siteGuiBean.readIM_DataFile();
-      siteGuiBean.addSiteParamsToSiteList();
-    }
+    else if(name1.equalsIgnoreCase(siteGuiBean.SITE_PARAM_NAME))
+      ruptureGuiBean.readSiteInfoFromFile();
   }
 
   /**
@@ -823,6 +822,7 @@ public class ObservedVsPredictedApplet extends JApplet
     // get the selected IMR
      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+     siteGuiBean.getParameterEditor(siteGuiBean.SITE_PARAM_NAME).getParameter().addParameterChangeListener(this);
     siteParamPanel.add(siteGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
   }

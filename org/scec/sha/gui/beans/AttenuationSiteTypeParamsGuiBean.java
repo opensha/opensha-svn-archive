@@ -260,13 +260,13 @@ public class AttenuationSiteTypeParamsGuiBean extends ParameterListEditor implem
      tempParam = (Parameter)it.next();
      if(!parameterList.containsParameter(tempParam)) { // if this does not exist already
        parameterList.addParameter(tempParam);
-       siteParams.add(tempParam);
+       siteParams.add(tempParam.clone());
      }
    }
 
   editorPanel.removeAll();
   addParameters();
-  addSiteParamsToSiteList();
+  //addSiteParamsToSiteList();
   setSiteParamsVisible();
  }
 
@@ -290,7 +290,7 @@ public class AttenuationSiteTypeParamsGuiBean extends ParameterListEditor implem
    }
    editorPanel.removeAll();
    addParameters();
-   addSiteParamsToSiteList();
+   //addSiteParamsToSiteList();
    setSiteParamsVisible();
  }
 
@@ -306,7 +306,7 @@ public class AttenuationSiteTypeParamsGuiBean extends ParameterListEditor implem
      Site site  = (Site)siteList.get(i);
      int size1 = siteParams.size();
      for(int j=0;j<size1;++j){
-       ParameterAPI tempParam = (ParameterAPI)siteParams.get(j);
+       ParameterAPI tempParam = (ParameterAPI)((ParameterAPI)siteParams.get(j)).clone();
        if(!tempParam.getName().equals(SITE_PARAM_NAME) && !site.containsParameter(tempParam))
          site.addParameter(tempParam);
      }
@@ -354,6 +354,8 @@ public class AttenuationSiteTypeParamsGuiBean extends ParameterListEditor implem
    */
   public void setSites() throws ParameterException,RuntimeException{
 
+    //adding the site params to each site in the list
+    addSiteParamsToSiteList();
 
     if(!((String)siteParam.getValue()).equals(SET_ALL_SITES)){
 

@@ -124,7 +124,7 @@ public class ObservedRuptureSelectorGuiBean extends JPanel implements ParameterC
   /**
    * Reads the rupture info from the each site that rupture was observed
    */
-  private void readSiteInfoFromFile(){
+  public void readSiteInfoFromFile(){
 
     String eqkId = rupture.getEqkId();
     boolean readSitesFlag = true;
