@@ -938,7 +938,7 @@ public class HazardCurveApplet extends JApplet
       //get the selected ERF instance
       eqkRupForecast = erfGuiBean.getSelectedERF();
     }catch(Exception e){
-      //e.printStackTrace();
+      e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
       return;
     }
