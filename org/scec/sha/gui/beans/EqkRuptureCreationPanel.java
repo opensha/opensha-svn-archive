@@ -25,7 +25,7 @@ public class EqkRuptureCreationPanel extends  JPanel
     implements EqkRupSelectorGuiBeanAPI,ParameterChangeListener{
 
   // mag parameter stuff
-  public final static String MAG_PARAM_NAME = "Magnitude Probability";
+  public final static String MAG_PARAM_NAME = "Magnitude";
   private final static String MAG_PARAM_INFO = "The  magnitude of the rupture";
   private final static String MAG_PARAM_UNITS = null;
   private Double MAG_PARAM_MIN = new Double(0);
@@ -77,7 +77,7 @@ public class EqkRuptureCreationPanel extends  JPanel
   public final static String FINITE_SRC_NAME = "Finite source rupture";
 
   //Finite rupture parameters
-  public final static String FAULT_PARAM_NAME = "Finite rupture fault parameters";
+  public final static String FAULT_PARAM_NAME = "Set Fault Surface";
   private final static String FAULT_PARAM_INFO = "Source location parameters for finite rupture";
 
 
@@ -169,11 +169,11 @@ public class EqkRuptureCreationPanel extends  JPanel
     parameterList.addParameter(sourceTypeParam);
     parameterList.addParameter(magParam);
     parameterList.addParameter(rakeParam);
+    parameterList.addParameter(dipParam);
+    parameterList.addParameter(faultParam);
     parameterList.addParameter(srcLatParam);
     parameterList.addParameter(srcLonParam);
-    parameterList.addParameter(dipParam);
     parameterList.addParameter(srcDepthParam);
-    parameterList.addParameter(faultParam);
 
     sourceTypeParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);

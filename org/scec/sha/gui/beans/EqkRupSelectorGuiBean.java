@@ -43,12 +43,12 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   protected final static boolean D = false;
 
   //parameter to select earthquake rupture either from ERF or create your own rupture
-  public final static String RUPTURE_SELECTOR_PARAM_NAME = "Select method of getting eqk rupture";
+  public final static String RUPTURE_SELECTOR_PARAM_NAME = "Select method of getting EqkRupture";
   private StringParameter ruptureSelectorParam;
   private final static String RUPTURE_SELECTOR_PARAM_INFO = "Toggles between methods to allow user "+
       "to allow defining their own rupture or select one from the existing ERF's ";
-  public final static String RUPTURE_FROM_EXISTING_ERF = "Select Eqk rupture from ERF models";
-  public final static String CREATE_RUPTURE = "Create Rupture";
+  public final static String RUPTURE_FROM_EXISTING_ERF = "Select EqkRupture from an ERF";
+  public final static String CREATE_RUPTURE ="Custom EqkRupture";
   private ConstrainedStringParameterEditor ruptureSelectorParamEditor;
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();

@@ -5,34 +5,44 @@ Ned needs to check SRL Paper2 figure calcs after fixing small bug in WG02_CharEq
 
 Ned also needs to document WG02_EqkRupForecast (Java docs).
 
+AttenautionRelationshipApp:
 
-Change app names as follows:
+	Black Background checkbox doesn't work - remove if fix is non trivial
+
+	X & Y axis labels are reversed
+
+	Show data does not have any data shown.
+
+	One can't plot more than one curve
+
+	If you plot a line for SA, then change to symbols (click Apply), and
+	then go to plot PGA, it will use a line with a size of 4 (rather than 1).
+
+	Look for other bugs.
+
+	Add a button that allows user to add custom data points (and an info-metadata
+	string to show in the legend).  The default plotting of these is set as symbols
+	(if possible). Keep that last set of entries in the popup window for convenience 
+	(e.g., for when plot was erased by switching from PGA to SA)
+
+Change app names as follows (on our web site too):
 
 	HazardDataSetPlotter --> PlotCurveFromHazardDataSetApp
 	HazardMapApplet --> HazardDataSetCalcCondorApp
 	HazardMapViewerApp --> PlotMapFromHazardDataSetApp
 
-Change all occurrances of 
-
-	calcValueFromSiteAndPE()   to
-	calcValueFromSiteAndEqkRup()
-
-Make new "EarthquakeRuptureGuiBean" that toggles between choosing a EarthquakeRupture from an ERF (exactly as presently done in the EarthquakeRuptureFromERF_GUI_Bean) and creating a custom earthquake rupture.  If the latter is chosen the following parameters should be given to choose set:
-
-	magnitude
-	average rake
-	toggle between finiteRupture & pointSource as follows:
-
-		use FaultParameter for finiteRupture
-		add lat, lon, depth, & dip params for pointSource
-
-	also add the "Set Hypocenter Location" option as w/ ERF case
+EarthquakeRuptureGuiBean:
 
 	update "Set Params for Puente Hills Scenario" (validate against old)
 
 	make version of above that uses the EqkRup (not ERF) & validate
 
 	make sure metadata is good
+
+	remove the "Create Rupture" button, and create rupture when "Make Map"
+	button is pushed or "Set Hypocenter" is checked; automically un-check latter
+	(& make null) if faultParameter or lat/lon/depth values change.  Don't
+	recreate rupture if it's still fresh
 
 combine TimeSpanGuiBean with ERF_GuiBean & validate.  Make sure the timeSpan elements are distinguishable from the ERF adjustable parameters.
 
