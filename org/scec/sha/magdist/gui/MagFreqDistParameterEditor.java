@@ -61,6 +61,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     private String[] searchPaths;
     final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
+    //Checks if the magDist Params have been changed
+    private boolean magDistParamsChange = false;
 
     /**
      * Paramter List for holding all parameters
@@ -233,7 +235,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      */
     public void actionPerformed(ActionEvent ae ) {
       try{
-        getChoosenFunction();
+        setMagDistFromParams();
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
       }
@@ -272,34 +274,46 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         // make the min, delta and num Parameters
         DoubleParameter minParameter = new DoubleParameter(MIN,new Double(0));
         minParameter.setInfo(MIN_INFO);
+        minParameter.addParameterChangeListener(this);
         DoubleParameter maxParameter = new DoubleParameter(MAX,new Double(10));
         maxParameter.setInfo(MAX_INFO);
+        maxParameter.addParameterChangeListener(this);
         IntegerParameter numParameter = new IntegerParameter(NUM, (int) 0, Integer.MAX_VALUE, new Integer(101));
         numParameter.addParameterChangeFailListener(this);
+        numParameter.addParameterChangeListener(this);
         numParameter.setInfo(NUM_INFO);
 
          // Make the other common parameters (used by more than one distribution)
          DoubleParameter totMoRate=new DoubleParameter(TOT_MO_RATE, 0, Double.POSITIVE_INFINITY,
                                                        MO_RATE_UNITS, new Double(1e19));
          totMoRate.addParameterChangeFailListener(this);
+         totMoRate.addParameterChangeListener(this);
          DoubleParameter magLower = new DoubleParameter(GR_MAG_LOWER, new Double(5));
          magLower.setInfo(GR_MAG_LOWER_INFO);
+         magLower.addParameterChangeListener(this);
          DoubleParameter magUpper = new DoubleParameter(GR_MAG_UPPER, new Double(8));
+         magUpper.addParameterChangeListener(this);
          magUpper.setInfo(GR_MAG_UPPER_INFO);
          DoubleParameter bValue = new DoubleParameter(GR_BVALUE,0, Double.POSITIVE_INFINITY, new Double(1));
          bValue.addParameterChangeFailListener(this);
          bValue.setInfo(BVALUE_INFO);
+         bValue.addParameterChangeListener(this);
          DoubleParameter totCumRate = new DoubleParameter(TOT_CUM_RATE, 0, Double.POSITIVE_INFINITY,
                                                           RATE_UNITS, new Double(3.33));
          totCumRate.addParameterChangeFailListener(this);
+         totCumRate.addParameterChangeListener(this);
 
 
          // add Parameters for single Mag freq dist
          DoubleParameter rate=new DoubleParameter(RATE, 0, Double.POSITIVE_INFINITY, RATE_UNITS, new Double(0.005));
          rate.addParameterChangeFailListener(this);
+
+         rate.addParameterChangeListener(this);
          DoubleParameter moRate=new DoubleParameter(MO_RATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS, new Double(1e19));
          moRate.addParameterChangeFailListener(this);
+         moRate.addParameterChangeListener(this);
          DoubleParameter mag = new DoubleParameter(MAG, new Double(8));
+         mag.addParameterChangeListener(this);
          Vector vStrings=new Vector();
          vStrings.add(RATE_AND_MAG);
          vStrings.add(MAG_AND_MO_RATE);
@@ -316,8 +330,10 @@ public class MagFreqDistParameterEditor extends ParameterEditor
           * Make parameters for Gaussian distribution
           */
          DoubleParameter mean = new DoubleParameter(MEAN, new Double(8));
+         mean.addParameterChangeListener(this);
          DoubleParameter stdDev = new DoubleParameter(STD_DEV, 0, Double.POSITIVE_INFINITY, new Double(0.25));
          stdDev.addParameterChangeFailListener(this);
+         stdDev.addParameterChangeListener(this);
          vStrings=new Vector();
          vStrings.add(TOT_CUM_RATE);
          vStrings.add(TOT_MO_RATE);
@@ -330,6 +346,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          truncType.addParameterChangeListener(this);
          DoubleParameter truncLevel = new DoubleParameter(TRUNCATE_NUM_OF_STD_DEV, 0, Double.POSITIVE_INFINITY, new Double (3));
          truncLevel.addParameterChangeFailListener(this);
+         truncLevel.addParameterChangeListener(this);
 
           /**
            * Make parameters for Gutenberg-Richter distribution
@@ -351,14 +368,18 @@ public class MagFreqDistParameterEditor extends ParameterEditor
                                                             Double.POSITIVE_INFINITY, new Double(1));
          deltaMagChar.setInfo(YC_DELTA_MAG_CHAR_INFO);
          deltaMagChar.addParameterChangeFailListener(this);
+         deltaMagChar.addParameterChangeListener(this);
          DoubleParameter magPrime = new DoubleParameter(YC_MAG_PRIME, new Double(7));
          magPrime.setInfo(YC_MAG_PRIME_INFO);
+         magPrime.addParameterChangeListener(this);
          DoubleParameter deltaMagPrime = new DoubleParameter(YC_DELTA_MAG_PRIME, 0, Double.POSITIVE_INFINITY, new Double(1));
          deltaMagPrime.setInfo(YC_DELTA_MAG_PRIME_INFO);
          deltaMagPrime.addParameterChangeFailListener(this);
+         deltaMagPrime.addParameterChangeListener(this);
          DoubleParameter totCharRate = new DoubleParameter(YC_TOT_CHAR_RATE, 0, Double.POSITIVE_INFINITY, new Double(0.01));
          totCharRate.setInfo(YC_TOT_CHAR_RATE_INFO);
          totCharRate.addParameterChangeFailListener(this);
+         totCharRate.addParameterChangeListener(this);
          vStrings=new Vector();
          vStrings.add(YC_TOT_CHAR_RATE);
          vStrings.add(TOT_MO_RATE);
@@ -714,6 +735,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
         }
 
+        magDistParamsChange = true;
+
     }
 
 
@@ -743,42 +766,43 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      * @return                          The choosenFunction value
      * @exception  ConstraintException  Description of the Exception
      */
-    public void getChoosenFunction()
+    public void setMagDistFromParams()
              throws ConstraintException {
 
 
-        // Starting
-        String S = C + ": getChoosenFunction():";
-        if ( D )
-            System.out.println( S + "Starting" );
+      // Starting
+      String S = C + ": getChoosenFunction():";
+      if ( D )
+        System.out.println( S + "Starting" );
 
+      if(magDistParamsChange) {
 
         String distributionName=parameterList.getParameter(DISTRIBUTION_NAME).getValue().toString();
 
 
         IncrementalMagFreqDist magDist = null;
         try{
-            Double min = (Double)parameterList.getParameter(MIN).getValue();
-            Double max = (Double)parameterList.getParameter(MAX).getValue();
-            Integer num = (Integer)parameterList.getParameter(NUM).getValue();
+          Double min = (Double)parameterList.getParameter(MIN).getValue();
+          Double max = (Double)parameterList.getParameter(MAX).getValue();
+          Integer num = (Integer)parameterList.getParameter(NUM).getValue();
 
-        if(min.doubleValue() > max.doubleValue()) {
-           throw new java.lang.RuntimeException("Min Value cannot be less than the Max Value");
-        }
+          if(min.doubleValue() > max.doubleValue()) {
+            throw new java.lang.RuntimeException("Min Value cannot be less than the Max Value");
+          }
 
 
         /*
-         * If Single MagDist is selected
+          * If Single MagDist is selected
          */
-        if(distributionName.equalsIgnoreCase(SingleMagFreqDist.NAME)) {
+          if(distributionName.equalsIgnoreCase(SingleMagFreqDist.NAME)) {
             if(D) System.out.println(S+" selected distribution is SINGLE");
             SingleMagFreqDist single =new SingleMagFreqDist(min.doubleValue(),
-                                            max.doubleValue(),num.intValue());
+                max.doubleValue(),num.intValue());
             String paramToSet=parameterList.getParameter(SINGLE_PARAMS_TO_SET).getValue().toString();
             String fix=parameterList.getParameter(FIX).getValue().toString();
 
-           // if rate and mag are set
-           if(paramToSet.equalsIgnoreCase(RATE_AND_MAG)) {
+            // if rate and mag are set
+            if(paramToSet.equalsIgnoreCase(RATE_AND_MAG)) {
               if(D) System.out.println(S+" Rate and mag is selected in SINGLE");
               Double rate = (Double)parameterList.getParameter(RATE).getValue();
               Double mag = (Double)parameterList.getParameter(MAG).getValue();
@@ -792,9 +816,9 @@ public class MagFreqDistParameterEditor extends ParameterEditor
               }
 
               if(D) System.out.println(S+" after setting SINGLE DIST");
-           }
-           // if mag and moment rate are set
-           if(paramToSet.equalsIgnoreCase(MAG_AND_MO_RATE)) {
+            }
+            // if mag and moment rate are set
+            if(paramToSet.equalsIgnoreCase(MAG_AND_MO_RATE)) {
               Double mag = (Double)parameterList.getParameter(MAG).getValue();
               Double moRate = (Double)parameterList.getParameter(MO_RATE).getValue();
               if(mag.doubleValue()>max.doubleValue() || mag.doubleValue()<min.doubleValue()){
@@ -805,223 +829,225 @@ public class MagFreqDistParameterEditor extends ParameterEditor
               }catch(RuntimeException e){
                 throw new java.lang.RuntimeException("The chosen magnitude must fall on one of the discrete x-axis values");
               }
-           }
-           // if rate and moment rate are set
-           if(paramToSet.equalsIgnoreCase(RATE_AND_MO_RATE)) {
-               Double rate = (Double)parameterList.getParameter(RATE).getValue();
-               Double moRate = (Double)parameterList.getParameter(MO_RATE).getValue();
-               if(fix.equals(FIX_RATE))
-                  single.setRateAndMomentRate(rate.doubleValue(),moRate.doubleValue(),true);
-               else
-                  single.setRateAndMomentRate(rate.doubleValue(),moRate.doubleValue(),false);
-           }
-          magDist =  (IncrementalMagFreqDist) single;
-        }
+            }
+            // if rate and moment rate are set
+            if(paramToSet.equalsIgnoreCase(RATE_AND_MO_RATE)) {
+              Double rate = (Double)parameterList.getParameter(RATE).getValue();
+              Double moRate = (Double)parameterList.getParameter(MO_RATE).getValue();
+              if(fix.equals(FIX_RATE))
+                single.setRateAndMomentRate(rate.doubleValue(),moRate.doubleValue(),true);
+              else
+                single.setRateAndMomentRate(rate.doubleValue(),moRate.doubleValue(),false);
+            }
+            magDist =  (IncrementalMagFreqDist) single;
+          }
 
 
          /*
-         * If Gaussian MagDist is selected
+          * If Gaussian MagDist is selected
          */
-       if(distributionName.equalsIgnoreCase(GaussianMagFreqDist.NAME)) {
-              Double mean = (Double)parameterList.getParameter(MEAN).getValue();
-              Double stdDev = (Double)parameterList.getParameter(STD_DEV).getValue();
-              String truncTypeValue = parameterList.getParameter(TRUNCATION_REQ).getValue().toString();
-              if(mean.doubleValue()>max.doubleValue() || mean.doubleValue()<min.doubleValue()){
-                throw new java.lang.RuntimeException("Value of Mean must lie between the min and max value");
-              }
-              int truncType = 0;
-              if(truncTypeValue.equalsIgnoreCase(TRUNCATE_UPPER_ONLY))
-                 truncType = 1;
-              else if(truncTypeValue.equalsIgnoreCase(TRUNCATE_ON_BOTH_SIDES))
-                 truncType = 2;
+          if(distributionName.equalsIgnoreCase(GaussianMagFreqDist.NAME)) {
+            Double mean = (Double)parameterList.getParameter(MEAN).getValue();
+            Double stdDev = (Double)parameterList.getParameter(STD_DEV).getValue();
+            String truncTypeValue = parameterList.getParameter(TRUNCATION_REQ).getValue().toString();
+            if(mean.doubleValue()>max.doubleValue() || mean.doubleValue()<min.doubleValue()){
+              throw new java.lang.RuntimeException("Value of Mean must lie between the min and max value");
+            }
+            int truncType = 0;
+            if(truncTypeValue.equalsIgnoreCase(TRUNCATE_UPPER_ONLY))
+              truncType = 1;
+            else if(truncTypeValue.equalsIgnoreCase(TRUNCATE_ON_BOTH_SIDES))
+              truncType = 2;
 
-              GaussianMagFreqDist gaussian = new GaussianMagFreqDist(min.doubleValue(),max.doubleValue(),num.intValue());
+            GaussianMagFreqDist gaussian = new GaussianMagFreqDist(min.doubleValue(),max.doubleValue(),num.intValue());
 
-              String setAllParamsBut = parameterList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
+            String setAllParamsBut = parameterList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
 
-              if(truncType !=0){
-                 Double truncLevel = (Double)parameterList.getParameter(TRUNCATE_NUM_OF_STD_DEV).getValue();
-                 if(truncLevel.doubleValue()<0)
-                   throw new java.lang.RuntimeException("Value of "+ TRUNCATE_NUM_OF_STD_DEV+" must be  positive");
+            if(truncType !=0){
+              Double truncLevel = (Double)parameterList.getParameter(TRUNCATE_NUM_OF_STD_DEV).getValue();
+              if(truncLevel.doubleValue()<0)
+                throw new java.lang.RuntimeException("Value of "+ TRUNCATE_NUM_OF_STD_DEV+" must be  positive");
 
-                 if(setAllParamsBut.equalsIgnoreCase(TOT_CUM_RATE)) {
-                   Double totMoRate = (Double)parameterList.getParameter(TOT_MO_RATE).getValue();
-                   gaussian.setAllButCumRate(mean.doubleValue(), stdDev.doubleValue(),
-                                           totMoRate.doubleValue(),truncLevel.doubleValue(), truncType);
-                 }
-                 else {
-                   Double totCumRate = (Double)parameterList.getParameter(TOT_CUM_RATE).getValue();
-                   gaussian.setAllButTotMoRate(mean.doubleValue(), stdDev.doubleValue(),
-                                           totCumRate.doubleValue(),truncLevel.doubleValue(), truncType);
-                 }
+              if(setAllParamsBut.equalsIgnoreCase(TOT_CUM_RATE)) {
+                Double totMoRate = (Double)parameterList.getParameter(TOT_MO_RATE).getValue();
+                gaussian.setAllButCumRate(mean.doubleValue(), stdDev.doubleValue(),
+                    totMoRate.doubleValue(),truncLevel.doubleValue(), truncType);
               }
               else {
-                if(setAllParamsBut.equalsIgnoreCase(TOT_CUM_RATE)) {
-                  Double totMoRate = (Double)parameterList.getParameter(TOT_MO_RATE).getValue();
-                  gaussian.setAllButCumRate(mean.doubleValue(), stdDev.doubleValue(),
-                                          totMoRate.doubleValue());
-                }
-                else {
-                  Double totCumRate = (Double)parameterList.getParameter(TOT_CUM_RATE).getValue();
-                  gaussian.setAllButTotMoRate(mean.doubleValue(), stdDev.doubleValue(),
-                                          totCumRate.doubleValue());
-                }
-             }
-              magDist =  (IncrementalMagFreqDist) gaussian;
-        }
+                Double totCumRate = (Double)parameterList.getParameter(TOT_CUM_RATE).getValue();
+                gaussian.setAllButTotMoRate(mean.doubleValue(), stdDev.doubleValue(),
+                    totCumRate.doubleValue(),truncLevel.doubleValue(), truncType);
+              }
+            }
+            else {
+              if(setAllParamsBut.equalsIgnoreCase(TOT_CUM_RATE)) {
+                Double totMoRate = (Double)parameterList.getParameter(TOT_MO_RATE).getValue();
+                gaussian.setAllButCumRate(mean.doubleValue(), stdDev.doubleValue(),
+                    totMoRate.doubleValue());
+              }
+              else {
+                Double totCumRate = (Double)parameterList.getParameter(TOT_CUM_RATE).getValue();
+                gaussian.setAllButTotMoRate(mean.doubleValue(), stdDev.doubleValue(),
+                    totCumRate.doubleValue());
+              }
+            }
+            magDist =  (IncrementalMagFreqDist) gaussian;
+          }
 
 
          /*
-         * If Gutenberg Richter MagDist is selected
+          * If Gutenberg Richter MagDist is selected
          */
-       if(distributionName.equalsIgnoreCase(GutenbergRichterMagFreqDist.NAME)) {
-           GutenbergRichterMagFreqDist gR =
-                    new GutenbergRichterMagFreqDist(min.doubleValue(),max.doubleValue(),
-                         num.intValue());
+          if(distributionName.equalsIgnoreCase(GutenbergRichterMagFreqDist.NAME)) {
+            GutenbergRichterMagFreqDist gR =
+                new GutenbergRichterMagFreqDist(min.doubleValue(),max.doubleValue(),
+                num.intValue());
 
-           Double magLower = (Double)parameterList.getParameter(GR_MAG_LOWER).getValue();
-           Double bValue = (Double)parameterList.getParameter(GR_BVALUE).getValue();
-           String setAllParamsBut = parameterList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
-           if(magLower.doubleValue()>max.doubleValue() || magLower.doubleValue()<min.doubleValue()){
-                throw new java.lang.RuntimeException("Value of MagLower must lie between the min and max value");
-           }
-           // if set all parameters except total moment rate
-           if(setAllParamsBut.equalsIgnoreCase(TOT_MO_RATE)) {
+            Double magLower = (Double)parameterList.getParameter(GR_MAG_LOWER).getValue();
+            Double bValue = (Double)parameterList.getParameter(GR_BVALUE).getValue();
+            String setAllParamsBut = parameterList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
+            if(magLower.doubleValue()>max.doubleValue() || magLower.doubleValue()<min.doubleValue()){
+              throw new java.lang.RuntimeException("Value of MagLower must lie between the min and max value");
+            }
+            // if set all parameters except total moment rate
+            if(setAllParamsBut.equalsIgnoreCase(TOT_MO_RATE)) {
               Double magUpper =  (Double)parameterList.getParameter(GR_MAG_UPPER).getValue();
               Double totCumRate = (Double)parameterList.getParameter(TOT_CUM_RATE).getValue();
 
               if(magUpper.doubleValue()>max.doubleValue() || magUpper.doubleValue()<min.doubleValue()){
-               throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
+                throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
               }
               if(magLower.doubleValue()>magUpper.doubleValue()){
-               throw new java.lang.RuntimeException("Value of MagLower must be <= to MagUpper");
+                throw new java.lang.RuntimeException("Value of MagLower must be <= to MagUpper");
               }
               try {
-              gR.setAllButTotMoRate(magLower.doubleValue(),magUpper.doubleValue(),
-                                    totCumRate.doubleValue(), bValue.doubleValue());
+                gR.setAllButTotMoRate(magLower.doubleValue(),magUpper.doubleValue(),
+                                      totCumRate.doubleValue(), bValue.doubleValue());
               }catch(RuntimeException e){
                 throw new java.lang.RuntimeException("magUpper and MagLower must fall on one of the discrete x-axis values");
               }
 
-           }
-           // if set all parameters except total cumulative rate
-           if(setAllParamsBut.equalsIgnoreCase(TOT_CUM_RATE)) {
-             Double magUpper =  (Double)parameterList.getParameter(GR_MAG_UPPER).getValue();
-             Double toMoRate = (Double)parameterList.getParameter(TOT_MO_RATE).getValue();
-             if(magUpper.doubleValue()>max.doubleValue() || magUpper.doubleValue()<min.doubleValue()){
+            }
+            // if set all parameters except total cumulative rate
+            if(setAllParamsBut.equalsIgnoreCase(TOT_CUM_RATE)) {
+              Double magUpper =  (Double)parameterList.getParameter(GR_MAG_UPPER).getValue();
+              Double toMoRate = (Double)parameterList.getParameter(TOT_MO_RATE).getValue();
+              if(magUpper.doubleValue()>max.doubleValue() || magUpper.doubleValue()<min.doubleValue()){
                 throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
-             }
-             if(magLower.doubleValue()>magUpper.doubleValue()){
-               throw new java.lang.RuntimeException("Value of MagLower must be <= to MagUpper");
-             }
-             try {
-               gR.setAllButTotCumRate(magLower.doubleValue(),magUpper.doubleValue(),
-                                    toMoRate.doubleValue(), bValue.doubleValue());
-             }catch(RuntimeException e){
-               throw new java.lang.RuntimeException("magUpper and MagLower must fall on one of the discrete x-axis values");
-             }
+              }
+              if(magLower.doubleValue()>magUpper.doubleValue()){
+                throw new java.lang.RuntimeException("Value of MagLower must be <= to MagUpper");
+              }
+              try {
+                gR.setAllButTotCumRate(magLower.doubleValue(),magUpper.doubleValue(),
+                                       toMoRate.doubleValue(), bValue.doubleValue());
+              }catch(RuntimeException e){
+                throw new java.lang.RuntimeException("magUpper and MagLower must fall on one of the discrete x-axis values");
+              }
 
-           }
-           // if set all parameters except mag upper
-           if(setAllParamsBut.equalsIgnoreCase(GR_MAG_UPPER)) {
-             Double toCumRate = (Double)parameterList.getParameter(TOT_CUM_RATE).getValue();
-             Double toMoRate = (Double)parameterList.getParameter(TOT_MO_RATE).getValue();
-             String  fix = parameterList.getParameter(FIX).getValue().toString();
-             boolean relaxTotMoRate = true;
-             if(fix.equalsIgnoreCase(FIX_TOT_MO_RATE))
+            }
+            // if set all parameters except mag upper
+            if(setAllParamsBut.equalsIgnoreCase(GR_MAG_UPPER)) {
+              Double toCumRate = (Double)parameterList.getParameter(TOT_CUM_RATE).getValue();
+              Double toMoRate = (Double)parameterList.getParameter(TOT_MO_RATE).getValue();
+              String  fix = parameterList.getParameter(FIX).getValue().toString();
+              boolean relaxTotMoRate = true;
+              if(fix.equalsIgnoreCase(FIX_TOT_MO_RATE))
                 relaxTotMoRate = false;
-             try {
-               gR.setAllButMagUpper(magLower.doubleValue(),toMoRate.doubleValue(),
-                                  toCumRate.doubleValue(),bValue.doubleValue(),
-                                  relaxTotMoRate);
-             }catch(RuntimeException e){
-               throw new java.lang.RuntimeException("MagLower must fall on one of the discrete x-axis values");
-             }
+              try {
+                gR.setAllButMagUpper(magLower.doubleValue(),toMoRate.doubleValue(),
+                                     toCumRate.doubleValue(),bValue.doubleValue(),
+                                     relaxTotMoRate);
+              }catch(RuntimeException e){
+                throw new java.lang.RuntimeException("MagLower must fall on one of the discrete x-axis values");
+              }
 
-           }
-          magDist =  (IncrementalMagFreqDist) gR;
-        }
+            }
+            magDist =  (IncrementalMagFreqDist) gR;
+          }
 
 
         /*
-         * If Young and Coppersmith 1985 MagDist is selected
+          * If Young and Coppersmith 1985 MagDist is selected
          */
-       if(distributionName.equalsIgnoreCase(YC_1985_CharMagFreqDist.NAME)) {
+          if(distributionName.equalsIgnoreCase(YC_1985_CharMagFreqDist.NAME)) {
 
-           double magLower = ((Double)parameterList.getParameter(GR_MAG_LOWER).getValue()).doubleValue();
-           double magUpper = ((Double)parameterList.getParameter(GR_MAG_UPPER).getValue()).doubleValue();
-           double deltaMagChar = ((Double)parameterList.getParameter(YC_DELTA_MAG_CHAR).getValue()).doubleValue();
-           double magPrime = ((Double)parameterList.getParameter(YC_MAG_PRIME).getValue()).doubleValue();
-           double deltaMagPrime = ((Double)parameterList.getParameter(YC_DELTA_MAG_PRIME).getValue()).doubleValue();
-           double bValue = ((Double)parameterList.getParameter(GR_BVALUE).getValue()).doubleValue();
+            double magLower = ((Double)parameterList.getParameter(GR_MAG_LOWER).getValue()).doubleValue();
+            double magUpper = ((Double)parameterList.getParameter(GR_MAG_UPPER).getValue()).doubleValue();
+            double deltaMagChar = ((Double)parameterList.getParameter(YC_DELTA_MAG_CHAR).getValue()).doubleValue();
+            double magPrime = ((Double)parameterList.getParameter(YC_MAG_PRIME).getValue()).doubleValue();
+            double deltaMagPrime = ((Double)parameterList.getParameter(YC_DELTA_MAG_PRIME).getValue()).doubleValue();
+            double bValue = ((Double)parameterList.getParameter(GR_BVALUE).getValue()).doubleValue();
 
 
-           // check that maglowe r value lies betwenn min and max
-           if(magLower>max.doubleValue() || magLower<min.doubleValue()){
-                throw new java.lang.RuntimeException("Value of MagLower must lie between the min and max value");
-           }
-           // check that magUpper value lies between min and max
-           if(magUpper>max.doubleValue() || magUpper<min.doubleValue()){
-               throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
-           }
+            // check that maglowe r value lies betwenn min and max
+            if(magLower>max.doubleValue() || magLower<min.doubleValue()){
+              throw new java.lang.RuntimeException("Value of MagLower must lie between the min and max value");
+            }
+            // check that magUpper value lies between min and max
+            if(magUpper>max.doubleValue() || magUpper<min.doubleValue()){
+              throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
+            }
 
-           // creat the distribution
-           YC_1985_CharMagFreqDist yc =
-                  new YC_1985_CharMagFreqDist(min.doubleValue(),max.doubleValue(), num.intValue());
+            // creat the distribution
+            YC_1985_CharMagFreqDist yc =
+                new YC_1985_CharMagFreqDist(min.doubleValue(),max.doubleValue(), num.intValue());
 
-           // Check that the mags fall on valid x increments:
-           int trialInt;
-           try  { trialInt = yc.getXIndex(magLower);
-           } catch(RuntimeException e) {
-               throw new java.lang.RuntimeException("MagLower must fall on one of the discrete x-axis values");
-           }
-           try { trialInt = yc.getXIndex(magUpper); }
-           catch(RuntimeException e) {
-               throw new java.lang.RuntimeException("MagUpper must fall on one of the discrete x-axis values");
-           }
-           try { trialInt = yc.getXIndex(magPrime); }
-           catch(RuntimeException e) {
-               throw new java.lang.RuntimeException("MagPrime must fall on one of the discrete x-axis values");
-           }
-           try { trialInt = yc.getXIndex(magPrime-deltaMagPrime); }
-           catch(RuntimeException e) {
-               throw new java.lang.RuntimeException("MagPrime-DeltaMagPrime must fall on one of the discrete x-axis values");
-           }
-           try {trialInt = yc.getXIndex(magUpper-deltaMagChar); }
-           catch(RuntimeException e) {
-               throw new java.lang.RuntimeException("MagUpper-DeltaMagChar must fall on one of the discrete x-axis values");
-           }
+            // Check that the mags fall on valid x increments:
+            int trialInt;
+            try  { trialInt = yc.getXIndex(magLower);
+            } catch(RuntimeException e) {
+              throw new java.lang.RuntimeException("MagLower must fall on one of the discrete x-axis values");
+            }
+            try { trialInt = yc.getXIndex(magUpper); }
+            catch(RuntimeException e) {
+              throw new java.lang.RuntimeException("MagUpper must fall on one of the discrete x-axis values");
+            }
+            try { trialInt = yc.getXIndex(magPrime); }
+            catch(RuntimeException e) {
+              throw new java.lang.RuntimeException("MagPrime must fall on one of the discrete x-axis values");
+            }
+            try { trialInt = yc.getXIndex(magPrime-deltaMagPrime); }
+            catch(RuntimeException e) {
+              throw new java.lang.RuntimeException("MagPrime-DeltaMagPrime must fall on one of the discrete x-axis values");
+            }
+            try {trialInt = yc.getXIndex(magUpper-deltaMagChar); }
+            catch(RuntimeException e) {
+              throw new java.lang.RuntimeException("MagUpper-DeltaMagChar must fall on one of the discrete x-axis values");
+            }
 
-           String setAllParamsBut = parameterList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
+            String setAllParamsBut = parameterList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
 
-           if(setAllParamsBut.equalsIgnoreCase(YC_TOT_CHAR_RATE)) {
-             double totMoRate = ((Double) parameterList.getParameter(TOT_MO_RATE).getValue()).doubleValue();
-             yc.setAllButTotCharRate(magLower, magUpper,
-                     deltaMagChar, magPrime,
-                     deltaMagPrime, bValue,
-                     totMoRate);
-           }
-           else {
-             double totCharRate = ((Double)parameterList.getParameter(YC_TOT_CHAR_RATE).getValue()).doubleValue();
-             yc.setAllButTotMoRate(magLower, magUpper,
-                     deltaMagChar, magPrime,
-                     deltaMagPrime, bValue,
-                     totCharRate);
-           }
+            if(setAllParamsBut.equalsIgnoreCase(YC_TOT_CHAR_RATE)) {
+              double totMoRate = ((Double) parameterList.getParameter(TOT_MO_RATE).getValue()).doubleValue();
+              yc.setAllButTotCharRate(magLower, magUpper,
+                                      deltaMagChar, magPrime,
+                                      deltaMagPrime, bValue,
+                                      totMoRate);
+            }
+            else {
+              double totCharRate = ((Double)parameterList.getParameter(YC_TOT_CHAR_RATE).getValue()).doubleValue();
+              yc.setAllButTotMoRate(magLower, magUpper,
+                                    deltaMagChar, magPrime,
+                                    deltaMagPrime, bValue,
+                                    totCharRate);
+            }
 
-           magDist =  (IncrementalMagFreqDist) yc;
+            magDist =  (IncrementalMagFreqDist) yc;
+          }
+
+        }catch(java.lang.NumberFormatException e){
+          throw new NumberFormatException("Value entered must be a valid Numerical Value");
         }
-
-
-       }catch(java.lang.NumberFormatException e){
-           throw new NumberFormatException("Value entered must be a valid Numerical Value");
-       }
         catch(java.lang.NullPointerException e){
           throw new NullPointerException("Enter All values");
-       }
-     if(D) System.out.println(S+" before calling setValue in magDistParam");
-     this.magDistParam.setValue(magDist);
-     if(D) System.out.println(S+" after calling setValue in magDistParam");
+        }
+        if(D) System.out.println(S+" before calling setValue in magDistParam");
+        magDistParam.setValue(magDist);
+        if(D) System.out.println(S+" after calling setValue in magDistParam");
+        magDistParamsChange=false;
+      }
+
   }
 
 

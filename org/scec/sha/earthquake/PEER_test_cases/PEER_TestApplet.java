@@ -242,6 +242,7 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
     clearButton.setFont(new java.awt.Font("Dialog", 1, 11));
     clearButton.setForeground(new Color(80, 80, 133));
     clearButton.setBorder(null);
+    //clearButton.setBorder(null);
     clearButton.setMaximumSize(new Dimension(97, 31));
     clearButton.setMinimumSize(new Dimension(97, 31));
     clearButton.setPreferredSize(new Dimension(97, 31));
@@ -258,6 +259,7 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
     toggleButton.setFont(new java.awt.Font("Dialog", 1, 11));
     toggleButton.setForeground(new Color(80, 80, 133));
     toggleButton.setBorder(null);
+    //toggleButton.setBorder(null);
     toggleButton.setMaximumSize(new Dimension(97, 31));
     toggleButton.setMinimumSize(new Dimension(97, 31));
     toggleButton.setPreferredSize(new Dimension(97, 31));
@@ -287,6 +289,7 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
     addButton.setFont(new java.awt.Font("Dialog", 1, 11));
     addButton.setForeground(new Color(80, 80, 133));
     addButton.setBorder(null);
+    //addButton.setBorder(null);
     addButton.setMaximumSize(new Dimension(97, 31));
     addButton.setMinimumSize(new Dimension(97, 31));
     addButton.setPreferredSize(new Dimension(97, 31));
@@ -356,12 +359,12 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 0, 16, 0), 0, 0));
     buttonPanel.add(rangeComboBox,  new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(16, 11, 16, 125), 0, 0));
-    buttonPanel.add(addButton,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 105, 10, 0), -5, 0));
-    buttonPanel.add(clearButton,    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 10, 0), -9, 0));
+    buttonPanel.add(clearButton,        new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 10, 6), -12, 2));
     buttonPanel.add(toggleButton,        new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 10, 0), -8, 0));
+    buttonPanel.add(addButton,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 94, 9, 6), -5, 2));
     topSplitPane.setDividerLocation(575);
     chartSplit.setDividerLocation(575);
     rangeComboBox.addItem(new String(AUTO_SCALE));

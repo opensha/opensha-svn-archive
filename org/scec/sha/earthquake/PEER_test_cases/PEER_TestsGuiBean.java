@@ -24,6 +24,7 @@ import org.scec.data.function.*;
 import org.scec.util.*;
 import org.scec.data.*;
 import org.scec.sha.magdist.*;
+import org.scec.sha.magdist.parameter.*;
 import org.scec.sha.magdist.gui.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.calc.HazardCurveCalculator;
@@ -795,12 +796,23 @@ public class PEER_TestsGuiBean implements
     // get the selected forecast model
     String selectedForecast = (String)this.erf_IndParamList.getValue(this.ERF_PARAM_NAME);
 
+
+    //gets the lists of all the parameters that exists in the ERF parameter Editor
+    //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+    //calls the method to update the magDistParams.
+    ListIterator lit = erf_IndParamList.getParametersIterator();
+    while(lit.hasNext()){
+      ParameterAPI param=(ParameterAPI)lit.next();
+      if(param instanceof MagFreqDistParameter)
+        ((MagFreqDistParameterEditor)erf_Editor.getParameterEditor(param.getName())).setMagDistFromParams();
+    }
+
     // check which forecast has been selected by the user
     int size = this.erfNamesVector.size();
     String erfName;
     for(int i=0; i<size; ++i) {
       erfName = (String)erfNamesVector.get(i);
-      if(selectedForecast.equalsIgnoreCase(erfName)) { // we found seledcted forecast in the lsit
+      if(selectedForecast.equalsIgnoreCase(erfName)) { // we found selected forecast in the list
         eqkRupForecast = (EqkRupForecastAPI)this.erfObject.get(i);
         break;
       }
@@ -1565,7 +1577,7 @@ public class PEER_TestsGuiBean implements
           magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
           magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(.0395));
         }
-        magEditor.getChoosenFunction();
+        magEditor.setMagDistFromParams();
       }
 
       /**

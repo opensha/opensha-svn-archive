@@ -4,7 +4,7 @@ import org.scec.data.DataPoint2D;
 import org.scec.exceptions.DataPoint2DException;
 
 import java.util.*;
-
+import java.io.Serializable;
 import org.scec.util.*;
 import org.scec.exceptions.*;
 import org.scec.param.ParameterList;
@@ -24,7 +24,8 @@ import org.scec.data.*;
  * @version 1.0
  */
 
-public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
+public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
+                                        implements Serializable {
 
     /* Class name Debbuging variables */
     protected final static String C = "ArbitrarilyDiscretizedFunc";

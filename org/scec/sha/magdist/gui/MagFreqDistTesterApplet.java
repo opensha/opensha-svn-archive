@@ -649,7 +649,7 @@ public class MagFreqDistTesterApplet extends JApplet
         if ( D ) System.out.println( S + "Starting" );
 
         try{
-          this.magDistEditor.getChoosenFunction();
+          this.magDistEditor.setMagDistFromParams();
           IncrementalMagFreqDist function= (IncrementalMagFreqDist)this.magDist.getValue();
           if(D) System.out.println(S+" after getting mag dist from editor");
           EvenlyDiscretizedFunc cumRate;
