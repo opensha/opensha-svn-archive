@@ -7,6 +7,7 @@ import com.jrefinery.data.*;
 import org.scec.gui.PSHAXYPlot;
 import java.awt.*;
 import java.awt.geom.*;
+import java.text.DecimalFormat;
 import java.util.*;
 
 import java.math.BigDecimal;
@@ -150,6 +151,8 @@ public class PSHAGridXYPlot
 
         Range rh = this.domainAxis.getRange();
         Range rv=  this.rangeAxis.getRange();
+        HorizontalNumberAxis horz = (HorizontalNumberAxis)domainAxis;
+        VerticalNumberAxis vert = (VerticalNumberAxis)rangeAxis;
         ++counter;
         if(counter == 1)
           cosineY= Math.toRadians((rv.getLowerBound()+rv.getUpperBound())/2);
@@ -162,12 +165,15 @@ public class PSHAGridXYPlot
         double verticaldiff = ((dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound())) * Math.abs(Math.cos(cosineY));
         double horizontaldiff = (dataArea.getMaxX()-dataArea.getMinX())/(rh.getUpperBound()-rh.getLowerBound());
         double upperh = (dataArea.getMaxX()-dataArea.getMinX())/verticaldiff +rh.getLowerBound();
-        if(upperh >= rh.getUpperBound()) // adjust the horizontal scale
-          domainAxis.setRange(rh.getLowerBound(), upperh);
+        if(upperh >= rh.getUpperBound())  {// adjust the horizontal scale
+          //domainAxis.setRange(rh.getLowerBound(), upperh);
+          horz.setTickUnit(new NumberTickUnit(0.71*vert.getTickUnit().getSize(), new DecimalFormat("0.000")));
+        }
         else {
           // adjust the vertical scale according to horizontal scale
           double upperv=(dataArea.getMaxY()-dataArea.getMinY())*Math.abs(Math.cos(cosineY))/horizontaldiff + rv.getLowerBound();
-          rangeAxis.setRange(rv.getLowerBound(),upperv);
+          //rangeAxis.setRange(rv.getLowerBound(),upperv);
+          vert.setTickUnit(new NumberTickUnit(1/0.72*horz.getTickUnit().getSize(), new DecimalFormat("0.000")));
         }
 
         drawOutlineAndBackground(g2, dataArea);
