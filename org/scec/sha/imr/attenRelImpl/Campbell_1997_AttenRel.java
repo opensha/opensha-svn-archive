@@ -423,6 +423,7 @@ public class Campbell_1997_AttenRel
         // Convert back to normal value
         // mean = Math.exp(mean);
 
+// System.out.println("Campbell dist, mean "+dist+", "+ Math.exp(mean));
 
         // return the result
         return(mean);
