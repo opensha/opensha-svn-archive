@@ -102,31 +102,31 @@ public class TimeSpan implements ParameterChangeListener {
     protected GregorianCalendar startTimeCal;
 
     // Start-Time Parameters
-    private final static String START_YEAR = "Start Year";
+    public final static String START_YEAR = "Start Year";
     private IntegerParameter startYearParam;
     private IntegerConstraint startYearConstraint = new IntegerConstraint(0,Integer.MAX_VALUE);
     private final static Integer START_YEAR_DEFAULT = new Integer(2003);
-    private final static String START_MONTH = "Start Month";
+    public final static String START_MONTH = "Start Month";
     private IntegerParameter startMonthParam;
     private IntegerConstraint startMonthConstraint = new IntegerConstraint(1,12);
     private final static Integer START_MONTH_DEFAULT = new Integer(1);
-    private final static String START_DAY = "Start Day";
+    public final static String START_DAY = "Start Day";
     private IntegerParameter startDayParam;
     private final static Integer START_DAY_DEFAULT = new Integer(1);
     private IntegerConstraint startDayConstraint = new IntegerConstraint(1,31);
-    private final static String START_HOUR = "Start Hour";
+    public final static String START_HOUR = "Start Hour";
     private IntegerParameter startHourParam;
     private final static Integer START_HOUR_DEFAULT = new Integer(0);
     private IntegerConstraint startHourConstraint = new IntegerConstraint(0,59);
-    private final static String START_MINUTE = "Start Minute";
+    public final static String START_MINUTE = "Start Minute";
     private IntegerParameter startMinuteParam;
     private final static Integer START_MINUTE_DEFAULT = new Integer(0);
     private IntegerConstraint startMinuteConstraint = new IntegerConstraint(0,59);
-    private final static String START_SECOND = "Start Second";
+    public final static String START_SECOND = "Start Second";
     private IntegerParameter startSecondParam;
     private final static Integer START_SECOND_DEFAULT = new Integer(0);
     private IntegerConstraint startSecondConstraint = new IntegerConstraint(0,Integer.MAX_VALUE);
-    private final static String START_MILLISECOND = "Start Second";
+    public final static String START_MILLISECOND = "Start Second";
     private IntegerParameter startMillisecondParam;
     private IntegerConstraint startMillisecondConstraint = new IntegerConstraint(0,999);
     private final static Integer START_MILLISECOND_DEFAULT = new Integer(0);

@@ -4,6 +4,13 @@
 For OpenSHA:
 ------------
 
+
+ProbEqkRupture -  add a clone() method and use this in getRuptureClone(int nRupture) method of ProbEqkSource (in fact, you can use the latter's method  to create the former).
+
+Change Frankel96_EqkForecast to use PointPoissonEqkSource rather than PointGR_EqkSource (and remove the latter?).
+
+
+
 TimeSpan:
 
 	Look over what Ned did (OK?)

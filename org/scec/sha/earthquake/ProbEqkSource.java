@@ -76,6 +76,8 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * Subsequent calls to this function will not affect the result got previously.
    * This is in contrast with the getRupture(int i) function
    *
+   * THIS SHOULD SIMPLY USE THE clone() METHOD OF ProbEqkRuptur.
+   *
    * @param nRupture
    * @return the clone of the probEqkRupture
    */
