@@ -43,7 +43,7 @@ public class IMRGuiBean
 
 
     protected final static String C = "IMRGuiBean";
-    protected final static boolean D = false;
+    protected final static boolean D = true;
 
     public final static String IM_NAME = "Intensity Measure";
     public final static String IM_V1 = "PGA";
@@ -437,13 +437,24 @@ public class IMRGuiBean
         // to calculate which coefficients to use to calculate the functions
 
 
-        setIgnoreWarnings(true);
-        imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
-        setIgnoreWarnings(false);
-
-        // Get choosen graph controls values
+       // Get choosen graph controls values
         String yAxisName = getGraphControlsParamValue( Y_AXIS );
         String xAxisName = getGraphControlsParamValue( X_AXIS );
+
+        setIgnoreWarnings(true);
+        imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
+
+       // if IML at Exceed Prob. is selected, then set the IML
+        if(yAxisName.equalsIgnoreCase(this.Y_AXIS_V4)) {
+          if(D) System.out.println("Get IML at exceed prob selected at Y-axis");
+          double iml = imr.getIML_AtExceedProb();
+          imr.setIntensityMeasureLevel(new Double(iml));
+          //ParameterAPI periodParam = imr.getParameter("SA Period");
+          //periodParam.setValue(new Double(iml));
+        }
+        setIgnoreWarnings(false);
+
+
 
         // Determine which Y=Axis choice to process
         if ( !yAxisMap.containsKey( yAxisName ) ) throw new ConstraintException( S + "Invalid choice choosen for y-axis." );
@@ -1377,120 +1388,3 @@ public class IMRGuiBean
 }
 
 
-/**
- *  This function assumes that both the name and value of a IM parameter are
- *  given in the passed in string, seperated by a /. For example "SA/0.0". The
- *  name and value has to be parsed from this string. THis string is retrieve
- *  from the GUI in a picklist.
- *
- * @param  nameAndValue            The new selectedIMParameter value
- * @exception  ParameterException  Description of the Exception
- *  public void setSelectedIMParameter( String nameAndValue )
- *  throws ParameterException {
- *  int seperatorIndex = nameAndValue.indexOf( '/' );
- *  if ( seperatorIndex < 1 ) {
- *  throw new ParameterException( C + ":setSelectedIMParameter(): the name value seperator(/) is not present." );
- *  }
- *  selectedIMNameAndValue = nameAndValue;
- *  String name = nameAndValue.substring( 0, seperatorIndex );
- *  String value = nameAndValue.substring( seperatorIndex + 1, nameAndValue.length() );
- *  ListIterator it = imr.getAllSiteParametersIterator();
- *  boolean ok = true;
- *  while( it.hasNext() && ok ){
- *  ParameterAPI param = (ParameterAPI)it.next();
- *  if( param.getName().equals( name ) ) {
- *  selectedIM = param;
- *  if ( selectedIM instanceof StringParameter ) {
- *  selectedIM.setValue( value );
- *  } else if ( selectedIM instanceof DoubleParameter ) {
- *  try {
- *  Double dd = new Double( value );
- *  selectedIM.setValue( dd );
- *  } catch ( NumberFormatException e ) {
- *  throw new ParameterException( C + ":setSelectedIMParameter(): Unable to cast value to Double." );
- *  }
- *  }
- *  ok = false;
- *  }
- *  }
- *  throw new ParameterException( C + ":setSelectedIMParameter(): No Parameter exists named " + name );
- *  }
-
- *  Controller Function: From the selected IM in the controls panel, and it's
- *  corresponding value in the independent variables panel, builds the "IM
- *  Name/value" string which is used to look up coefficients in the coeff
- *  Hashtable. This function is complicated by the fact that in the controls
- *  panel
- *
- * @exception  ParameterException  Description of the Exception
- *
- *
- *  protected void updateSelectedIMNameAndValue() throws ParameterException {
- *  String S = C + ": updateSelectedIMNameAndValue():";
- *  if ( D ) System.out.println( S + ":Starting:" );
- *  ParameterAPI imParamTypes = controlsParameterList.getParameter( IM_NAME );
- *  selectedIMNameAndValue = imParamTypes.getValue().toString();
- *  try{
- *  ParameterAPI saParam = imr.getParameter( selectedIMNameAndValue );
- *  }
- *  catch( ParameterException e) {}
- *  / Determine if choosen im is the name, or constraint value of an im
- *  ListIterator it = imr.getSupportedIntensityMeasureTypesIterator();
- *  while( it.hasNext() ){
- *  ParameterAPI param = (ParameterAPI)it.next();
- *  if( param.getName().equals( selectedIMNameAndValue ) ) {
- *  ParameterAPI period = imr.getParameter( PERIOD_NAME );
- *  param.setValue( period.getValue() );
- *  imr.setIntensityMeasureType(param);
- *  return;
- *  }
- *  }
- *  String paramName = getIndependentParamForIMType( selectedIMNameAndValue );
- *  if ( selectedIMNameAndValue.indexOf( '/' ) < 0 ) {
- *  String paramName = getIndependentParamForIMType( selectedIMNameAndValue );
- *  if ( D ) {
- *  System.out.println( S + ":Independent Param to look up = " + paramName );
- *  }
- *  String value = imr.getParameter( paramName ).getValue().toString();
- *  if ( isName ) {
- *  selectedIMNameAndValue = selectedIMNameAndValue + "/" + value;
- *  } else {
- *  selectedIMNameAndValue = paramName + "/" + value;
- *  }
- *  ** @todo fix
- *  /imr.setCurrentCoefficients( selectedIMNameAndValue );
- *  }
- *  if ( D ) System.out.println( S + "selectedIMNameAndValue = " + selectedIMNameAndValue );
- *  if ( D ) System.out.println( S + ":Ending:" );
- *  }
- *
- *
- *  *
- *  Gets the iMTNameFromConstraintValue attribute of the BJF_1997_IMRHelper
- *  class
- *
- *  @param  name                    Description of the Parameter
- *  @return                         The iMTNameFromConstraintValue value
- *  @exception  ParameterException  Description of the Exception
- *  /
- *  private String getIMNameFromConstraintValue( String name ) throws ParameterException {
- *  ListIterator it = imr.getSupportedIntensityMeasureIterator();
- *  while ( it.hasNext() ) {
- *  ParameterAPI param = ( ParameterAPI ) it.next();
- *  ParameterConstraintAPI constraint = param.getConstraint();
- *  if ( constraint == null && !( constraint instanceof DiscreteParameterConstraintAPI ) ) {
- *  continue;
- *  } else {
- *  DiscreteParameterConstraintAPI discreteConstraint = ( DiscreteParameterConstraintAPI ) constraint;
- *  ListIterator it2 = discreteConstraint.listIterator();
- *  while ( it2.hasNext() ) {
- *  Object constraintValue = it2.next();
- *  if ( name.equals( constraintValue.toString() ) ) {
- *  return param.getName();
- *  }
- *  }
- *  }
- *  }
- *  throw new ParameterException( "IM Type is not found with this constraint value: " + name );
- *  }
- */

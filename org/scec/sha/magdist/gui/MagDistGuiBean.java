@@ -39,11 +39,12 @@ public class MagDistGuiBean implements ParameterChangeListener {
   /**
    *  Temp until figure out way to dynamically load classes during runtime
    */
-  protected static String GAUSSIAN_NAME ;
-  protected static String GR_NAME ;
-  protected static String SINGLE_NAME ;
-  protected static String YC_1985__NAME ;
-  protected static String SUMMED_NAME;
+
+  protected static String GAUSSIAN_NAME = new String("Gaussian Dist");
+  protected static String GR_NAME = new String("GutenbergRichter Dist");
+  protected static String SINGLE_NAME = new String("Single Dist");
+  protected static String YC_1985__NAME = new String("Youngs and Coppersmith Dist");
+  protected static String SUMMED_NAME = new String("Summed Dist");
 
   protected final static String DISTRIBUTION_NAME="Choose Distribution";
 
@@ -188,8 +189,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
         if ( D ) System.out.println( S + "Starting:" );
         this.magFreqAPI = (MagFreqDistTesterAPI)applet;
         this.listener = (ParameterChangeFailListener) applet;
-        //this.GAUSSIAN_NAME = GaussianMagFreqDist_CLASS_NAME.getClass().NAME;
-        this.SINGLE_NAME = SingleMagFreqDist_CLASS_NAME.getClass().getName();
+
         initControlsParamListAndEditor( GAUSSIAN_NAME);
 
         // Create independent parameters
@@ -237,7 +237,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
           magDistClassName = new String(YC_1985_CharMagFreqDist_CLASS_NAME);
 
         if ( magDistClassName == null || magDistClassName.trim().equalsIgnoreCase("") )
-            throw new ParameterException( S + "Distribution is null, unable to continue." );
+            throw new ParameterException( S + "Distributio n is null, unable to continue." );
 
 
         // make the min, delta and num Parameter

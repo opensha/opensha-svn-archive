@@ -1,4 +1,4 @@
-package org.scec.sha.imr.gui;
+ package org.scec.sha.imr.gui;
 
 import java.awt.*;
 import java.awt.event.*;
