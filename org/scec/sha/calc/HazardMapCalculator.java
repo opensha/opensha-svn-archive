@@ -52,6 +52,8 @@ public class HazardMapCalculator {
   public static final String DATASETS_PATH = "HazardMapDataSets/";
   // flag to indicate whether this IMT requires X values to be in log
   boolean xLogFlag = true;
+  // name of the new directory for this data set
+  String newDir;
 
 
   /**
@@ -85,17 +87,6 @@ public class HazardMapCalculator {
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
 
-    Site site;
-    String newDir;
-    this.xLogFlag = imtLogFlag;
-    HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
-    hazCurveCalc.showProgressBar(false);
-
-    if(this.showProgressBar) { // show the progress bar
-      progressClass = new CalcProgressBar("Hazard-Map Calc Status", "Beginning Calculation ");
-      progressClass.displayProgressBar();
-    }
-
     // get the number of data sets presently in directory
     File mainDir = new File(this.DATASETS_PATH);
 
@@ -111,9 +102,61 @@ public class HazardMapCalculator {
         newDir=  DATASETS_PATH+"1";
       }
     }
-
     //creating a new directory that stores all the HazardCurves for that region
     boolean success = (new File(newDir)).mkdir();
+    calculate(imtLogFlag, xValues, griddedSites, imr, eqkRupForecast, mapParametersInfo);
+  }
+
+  /**
+   * this function determines the hazard curve based on the parameters
+   *
+   * @param dirName : Directory name for this new data set
+   * @param imtLogFlag: Checks if the selected IMT is SA, PGA pr PGV, so that we can revert the
+   * the Log X values of the Hazard func values back to the original values, before writing to the file
+   * for each site.
+   * @param hazFunction : it has X values set and result will be returned in this function
+   * @param site  : site parameter
+   * @param imr  :selected IMR object
+   * @param eqkRupForecast  : selected Earthquake rup forecast
+   * @param mapParametersInfo  : Parameters in String form used to generate the map
+   * @return
+   */
+  public void getHazardMapCurves(String dirName, boolean imtLogFlag, double [] xValues,
+                                 SitesInGriddedRegion griddedSites,
+                                 AttenuationRelationshipAPI imr,
+                                 EqkRupForecast eqkRupForecast,
+                                 String mapParametersInfo) {
+    newDir=  new String(dirName);
+    //creating a new directory that stores all the HazardCurves for that region
+    boolean success = (new File(newDir)).mkdir();
+    calculate(imtLogFlag, xValues, griddedSites, imr, eqkRupForecast, mapParametersInfo);
+  }
+
+
+
+  /**
+   * function to compute hazard curves and make the lat/lon files
+   * @param imtLogFlag
+   * @param xValues
+   * @param griddedSites
+   * @param imr
+   * @param eqkRupForecast
+   * @param mapParametersInfo
+   */
+  private void calculate( boolean imtLogFlag, double [] xValues,
+                                  SitesInGriddedRegion griddedSites,
+                                  AttenuationRelationshipAPI imr,
+                                  EqkRupForecast eqkRupForecast,
+                                 String mapParametersInfo) {
+    Site site;
+    this.xLogFlag = imtLogFlag;
+    HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
+    hazCurveCalc.showProgressBar(false);
+
+    if(this.showProgressBar) { // show the progress bar
+      progressClass = new CalcProgressBar("Hazard-Map Calc Status", "Beginning Calculation ");
+      progressClass.displayProgressBar();
+    }
     int numSites = griddedSites.getNumGridLocs();
     if (this.showProgressBar)  progressClass.updateProgress(0, numSites);
     int numPoints = xValues.length;
@@ -128,13 +171,11 @@ public class HazardMapCalculator {
       String lon = decimalFormat.format(site.getLocation().getLongitude());
       hazFunction = this.toggleHazFuncLogValues(hazFunction, xValues);
       try{
-        if(success){
-          FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
+         FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
           for(int i=0;i<numPoints;++i)
             fr.write(hazFunction.getX(i)+" "+hazFunction.getY(i)+"\n");
           fr.close();
-        }
-      }catch(IOException e){
+       }catch(IOException e){
         e.printStackTrace();
       }
     }
