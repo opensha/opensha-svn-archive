@@ -12,6 +12,12 @@ ScenarioShakeMapApp
 
 	Add plotting of rupture surface as a dot at each point on the gridded surface
 
+	I think we should put the "Regions of Interest" pick list into a control panel.  
+	Control panels represent where we put hard-coding of parameter settings, whereas our
+	gui beans should remain relatively pure and general (e.g., SHA practitioners in Japan
+	won't care about regions in California; so they can swap out control panels without
+	rewriting the gui beans).
+
 
 Implement WG99/02 ERF by reading the static file first (not adjustable parameters)
 
@@ -31,8 +37,6 @@ HazardCurveApplet:
 
 	-epistemic list control panal - only redo hazard calculations if needed 
 	(delay solving this until we figure out exactly what we need)
-
-Figure out default for min source-site (USGS value) and set this to 300 or greater for all PEER tests.
 
 Submit our log-log implementation formally to JFreeChart.
 
