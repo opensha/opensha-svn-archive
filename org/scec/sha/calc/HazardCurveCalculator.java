@@ -36,7 +36,10 @@ public class HazardCurveCalculator {
   hazard analysis for that site; this default value is to allow all PEER test
   cases to pass through
   */
-  protected double MAX_DISTANCE = 250;
+  protected double MAX_DISTANCE = 300;
+
+  // boolean for telling whether to show a progress bar
+  boolean showProgressBar = false;
 
   private CalcProgressBar progressClass ;
 
@@ -50,6 +53,15 @@ public class HazardCurveCalculator {
    */
   public void setMaxSourceDistance(double distance) {
     MAX_DISTANCE = distance;
+  }
+
+
+  /**
+   * This allows tuning on or off the showing of a progress bar
+   * @param show - set as true to show it, or false to not show it
+   */
+  public void showProgressBar(boolean show) {
+    this.showProgressBar=show;
   }
 
   /**
@@ -75,94 +87,114 @@ public class HazardCurveCalculator {
   public void getHazardCurve(ArbitrarilyDiscretizedFunc condProbFunc,DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
-    progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+    ArbitrarilyDiscretizedFunc test = (ArbitrarilyDiscretizedFunc) condProbFunc.deepClone();
 
-    // now show the progress bar
-    progressClass.displayProgressBar();
-    this.initDiscretizeValues(hazFunction);
 
+    // declare some varibles used in the calculation
+    double qkProb, distance;
+    int numPoints,k,i,totRuptures=0,currRuptures=0;
+
+    // get total number of sources
+    int numSources = eqkRupForecast.getNumSources();
+
+
+    // check if progress bar is desired and set it up if so
+    if(this.showProgressBar) {
+      progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+      progressClass.displayProgressBar();
+
+      // compute the total number of ruptures for updating the progress bar
+      totRuptures = 0;
+      for(i=0;i<numSources;++i)
+        totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
+
+      // init the current rupture number (also for progress bar)
+      currRuptures = 0;
+
+      // initialize the progress bar to zero ruptures
+      progressClass.updateProgress(currRuptures, totRuptures);
+    }
+
+    // initialize the hazard function to 1.0
+    initDiscretizeValues(hazFunction);
+
+    // set the Site in IMR
     try {
-      // set the site in IMR
       imr.setSite(site);
     }catch (Exception ex) {
       if(D) System.out.println(C + ":Param warning caught"+ex);
       ex.printStackTrace();
     }
 
-    // get total sources
-    int numSources = eqkRupForecast.getNumSources();
-
-
-    // totRuptures holds the total ruptures for all sources
-    int totRuptures = 0;
-    if (D) System.out.println(C+":  starting totNumRup compuation");
-    for(int i=0;i<numSources;++i)
-      totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
-
-    // rupture number presently being processed
-    int currRuptures = 0;
-
-    progressClass.updateProgress(currRuptures, totRuptures);
-
-    // this makes sure a source is actually used
+    // this boolean will tell us whether a source was actually used
+    // (e.g., all could be outside MAX_DISTANCE)
     boolean sourceUsed = false;
 
     if (D) System.out.println(C+": starting hazard curve calculation");
-    for(int i=0;i < numSources ;i++) {
+
+    // loop over sources
+    for(i=0;i < numSources ;i++) {
 
       if (D) System.out.println(C+": getting source #"+i);
-      // get source and get its distance from the site
+      // get the ith source
       ProbEqkSource source = eqkRupForecast.getSource(i);
-      double distance = source.getMinDistance(site);
 
-      // if source is greater than the MAX_DISTANCE, ignore the source
+      // compute it's distance from the site and skip if it's too far away
+      distance = source.getMinDistance(site);
       if(distance > MAX_DISTANCE) {
-        currRuptures += source.getNumRuptures();
-        progressClass.updateProgress(currRuptures, totRuptures);
+        //update progress bar for skipped ruptures
+        if(this.showProgressBar) {
+          currRuptures += source.getNumRuptures();
+          progressClass.updateProgress(currRuptures, totRuptures);
+        }
         continue;
       }
 
-      // to indicate that a source has been used
+      // indicate that a source has been used
       sourceUsed = true;
 
-      // for each source, get the number of ruptures
+      // get the number of ruptures for the current source
       int numRuptures = source.getNumRuptures();
+
+      // loop over these ruptures
       for(int n=0; n < numRuptures ; n++,++currRuptures) {
 
-        //check the progress
-        progressClass.updateProgress(currRuptures, totRuptures);
+        // update the progress bar is necessary
+        if(showProgressBar)
+          progressClass.updateProgress(currRuptures, totRuptures);
 
-        // for each rupture, set in IMR and do computation
-        double qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
+        // get the rupture probability
+        qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
 
-
+        // set the PQkRup in the IMR
         try {
           imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
         } catch (Exception ex) {
           System.out.println("Parameter change warning caught");
         }
 
-          condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
+        // get the conditional probability of exceedance from the IMR
+        condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
 
         // calculate the hazard function
-        int numPoints = condProbFunc.getNum();
-        for(int k=0;k<numPoints;k++)
+        numPoints = condProbFunc.getNum();
+        for(k=0;k<numPoints;k++)
           hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
       }
     }
 
-    int  numPoints = hazFunction.getNum();
+    numPoints = hazFunction.getNum();
 
     // finalize the hazard function
     if(sourceUsed)
-      for(int i=0;i<numPoints;++i)
+      for(i=0;i<numPoints;++i)
         hazFunction.set(i,1-hazFunction.getY(i));
     else
-      for(int i=0;i<numPoints;++i)
+      for(i=0;i<numPoints;++i)
         hazFunction.set(i,0.0);
 
-    //remove the progress frame
-    progressClass.dispose();
+    if(showProgressBar)
+      progressClass.dispose();
 
   }
 
