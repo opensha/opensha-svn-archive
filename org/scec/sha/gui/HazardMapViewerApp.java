@@ -31,6 +31,7 @@ import org.scec.sha.gui.beans.GMT_MapGuiBean;
 import org.scec.sha.gui.beans.GMT_MapGuiBeanAPI;
 import org.scec.sha.gui.infoTools.ImageViewerWindow;
 import ch.randelshofer.quaqua.QuaquaManager;
+import org.scec.sha.gui.infoTools.ExceptionWindow;
 
 /**
  * <p>Title: HazardMapViewerServerModeApp </p>
@@ -129,6 +130,9 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
       fillLatLonAndGridSpacing();
     }
     catch(Exception e) {
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
       e.printStackTrace();
     }
   }
@@ -304,6 +308,9 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
       inputToServlet.close();
 
     }catch (Exception e) {
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
       System.out.println("Exception in connection with servlet:" +e);
       e.printStackTrace();
     }
@@ -525,6 +532,9 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
        ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadata, true);
 
      }catch (Exception e) {
+       ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+       bugWindow.show();
+       bugWindow.pack();
        System.out.println("Exception in connection with servlet:" +e);
        e.printStackTrace();
      }

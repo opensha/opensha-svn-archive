@@ -50,7 +50,9 @@ import org.scec.util.SystemPropertiesUtils;
 import org.scec.util.FileUtils;
 import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
 import ch.randelshofer.quaqua.QuaquaManager;
+import org.scec.sha.gui.infoTools.ExceptionWindow;
 import java.awt.*;
+
 
 /**
  * <p>Title: HazardDataSetPlotter</p>
@@ -209,6 +211,9 @@ public class HazardDataSetPlotter extends JApplet
       initSiteGuiBean();
     }
     catch(Exception e) {
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
       e.printStackTrace();
     }
 
