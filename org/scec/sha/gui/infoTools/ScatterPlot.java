@@ -14,6 +14,9 @@ import org.jfree.data.XYSeries;
 import org.jfree.data.XYSeriesCollection;
 import org.jfree.data.statistics.Statistics;
 
+import org.scec.data.function.*;
+import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
+
 /** Creates scatter plots from data values and returns statistics
  *
  * @author Vijesh Mehta
@@ -25,7 +28,8 @@ public class ScatterPlot {
         /** Values for y Axis */
         List yAxisValues;
         /** holds the series of functions to plot */
-        XYSeriesCollection functions = new XYSeriesCollection();
+        private DiscretizedFuncList functions = new DiscretizedFuncList();
+        private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
         /**
          * Constructs a Scatter Plot Object using a set of values for each Axis
@@ -34,6 +38,7 @@ public class ScatterPlot {
          * @param yAxis the set of values for the y axis
          */
         public ScatterPlot(List xAxis, List yAxis) {
+          data.setFunctions(functions);
                 setXAxisValues(xAxis);
                 setYAxisValues(yAxis);
         }
@@ -124,7 +129,7 @@ public class ScatterPlot {
             NumberAxis rangeAxis = new NumberAxis(yLabel);//"Predicted data - " + imrGuiBean.getSelectedIMR_Name() + " " + imtGuiBean.getParameterListMetadataString());
 
             // Scatter Plot Created
-            XYPlot plot = new XYPlot(functions, domainAxis, rangeAxis, renderer1);
+            XYPlot plot = new XYPlot(data, domainAxis, rangeAxis, renderer1);
 
             // add a second dataset and renderer...for the Average Line
             XYSeries AverageXY = new XYSeries("Average Line");
@@ -149,15 +154,15 @@ public class ScatterPlot {
          *
          * @param function : XYSeries Object
          */
-        public void fillValues(XYSeries function) {
+        public void fillValues() {
 
-                functions.removeAllSeries(); // removes all the series in the functions
-
+                functions.removeAll(functions); // removes all the series in the functions
+                ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
                 for ( int i = 0; i < xAxisValues.size() && i < yAxisValues.size(); i++ ){
-                        function.add((Double)xAxisValues.get(i), (Double)yAxisValues.get(i));
+                        function.set(((Double)xAxisValues.get(i)).doubleValue(), ((Double)yAxisValues.get(i)).doubleValue());
                 }
 
-                functions.addSeries(function); // adds new series to the functions
+                functions.add(function); // adds new series to the functions
         }
 
         /** Main function - tests class methods */
@@ -172,5 +177,17 @@ public class ScatterPlot {
 
                 t.getCorrelation();
         }
+
+        /**
+         *
+         * @returns the info for the selected plot
+         */
+        public String getInfoForPlot(){
+          functions.setXAxisName("Observed Rupture Data");
+          functions.setYAxisName("Predicted Rupture Data");
+          return functions.toString();
+        }
+
+
 
 }

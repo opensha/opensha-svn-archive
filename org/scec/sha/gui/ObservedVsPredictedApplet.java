@@ -58,7 +58,7 @@ import org.scec.data.XYZ_DataSetAPI;
  */
 
 public class ObservedVsPredictedApplet extends JApplet
-    implements Runnable, ParameterChangeListener, AxisLimitsControlPanelAPI{
+    implements ParameterChangeListener{
 
   /**
    * Name of the class
@@ -219,6 +219,7 @@ public class ObservedVsPredictedApplet extends JApplet
   //JSplitPane erfSplitPane = new JSplitPane();
   JPanel imtPanel = new JPanel();
   JPanel imlPanel = new JPanel();
+  JPanel imrPanel = new JPanel();
   JPanel siteParamPanel = new JPanel();
   JSplitPane controlsSplit = new JSplitPane();
   JTabbedPane paramsTabbedPane = new JTabbedPane();
@@ -227,7 +228,7 @@ public class ObservedVsPredictedApplet extends JApplet
   GridBagLayout gridBagLayout15 = new GridBagLayout();
   GridBagLayout gridBagLayout13 = new GridBagLayout();
   GridBagLayout gridBagLayout12 = new GridBagLayout();
-  JPanel imrPanel = new JPanel();
+
   GridBagLayout gridBagLayout10 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
   CalcProgressBar progressClass;
@@ -557,10 +558,6 @@ public class ObservedVsPredictedApplet extends JApplet
     }
 
 
-    public void run() {
-      computeHazardCurve();
-    }
-
 
     /**
      * this function is called to draw the graph - scatter plot
@@ -615,41 +612,6 @@ public class ObservedVsPredictedApplet extends JApplet
     this.togglePlot();
   }
 
-  /**
-   * sets the range for X and Y axis
-   * @param xMin : minimum value for X-axis
-   * @param xMax : maximum value for X-axis
-   * @param yMin : minimum value for Y-axis
-   * @param yMax : maximum value for Y-axis
-   *
-   */
-  public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
-     minXValue=xMin;
-     maxXValue=xMax;
-     minYValue=yMin;
-     maxYValue=yMax;
-     this.customAxis=true;
-     addGraphPanel();
-
-  }
-
-  /**
-   * set the auto range for the axis. This function is called
-   * from the AxisLimitControlPanel
-   */
- public void setAutoRange() {
-   this.customAxis=false;
-   addGraphPanel();
- }
-
-  /**
-    * This function to specify whether disaggregation is selected or not
-    * @param isSelected : True if disaggregation is selected , else false
-    */
-   public void setDisaggregationSelected(boolean isSelected) {
-     disaggregationFlag = isSelected;
-   }
-
 
 
 
@@ -673,6 +635,7 @@ public class ObservedVsPredictedApplet extends JApplet
     if( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
       AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
       imtGuiBean.setIMR(imr);
+      imtGuiBean.getParameterEditor(imtGuiBean.IMT_PARAM_NAME).getParameter().addParameterChangeListener(this);
       // sets Site specific values
       siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
       siteGuiBean.refreshParamEditor();
@@ -774,27 +737,26 @@ public class ObservedVsPredictedApplet extends JApplet
                         //ArrayList xVal = getZValues(XFILE,XMAG);
                         //ArrayList yVal = hazardCurveGenerator.getResults();*/
 
-    System.out.println("Observed Values");
+    /*System.out.println("Observed Values");
     for(int i=0;i<xVals.size();++i)
       System.out.println(i+": "+xVals.get(i));
 
 
     System.out.println("Predicted Values");
     for(int i=0;i<yVals.size();++i)
-      System.out.println(i+": "+yVals.get(i));
+      System.out.println(i+": "+yVals.get(i));*/
 
-    pointsTextArea.setText(getCurveParametersInfo());
+
     // use splotter (ScatterPlot class) to plot the values
     splotter = new ScatterPlot(xVals,yVals);
-    splotter.fillValues(new XYSeries("Pathway 1")); // fill the function with proper scatter values
+    ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
+    splotter.fillValues(); // fill the function with proper scatter values
+
+    String metadata = getCurveParametersInfo() +"\n\n\n"+
+                      splotter.getInfoForPlot();
+    pointsTextArea.setText(metadata);
     this.addGraphPanel();
   }
-
-
-
-
-
-
 
 
 
@@ -849,7 +811,6 @@ public class ObservedVsPredictedApplet extends JApplet
      // create the IMT Gui Bean object
      imtGuiBean = new IMT_GuiBean(imr);
      imtGuiBean.getParameterEditor(imtGuiBean.IMT_PARAM_NAME).getParameter().addParameterChangeListener(this);
-     imtPanel.setLayout(gridBagLayout8);
      imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 
@@ -873,8 +834,6 @@ public class ObservedVsPredictedApplet extends JApplet
     ArrayList ruptureList = dataFile.getNGA_ObservedRuptureList();
     ruptureGuiBean = new ObservedRuptureSelectorGuiBean(ruptureList);
     ruptureGuiBean.getParameterListEditor().getParameterEditor(ruptureGuiBean.RUPTURE_PARAM_NAME).getParameter().addParameterChangeListener(this);
-
-    erfPanel.setLayout(gridBagLayout8);
     erfPanel.add(ruptureGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
           GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 
