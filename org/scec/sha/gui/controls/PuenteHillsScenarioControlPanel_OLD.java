@@ -110,10 +110,10 @@ public class PuenteHillsScenarioControlPanel_OLD {
     imrGuiBean.refreshParamEditor();
 
     //Updating the SitesInGriddedRegionGuiBean with the Puente Hills resion setting
-    regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(regionGuiBean.MIN_LATITUDE).setValue(new Double(33.5));
-    regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(regionGuiBean.MAX_LATITUDE).setValue(new Double(35.0));
-    regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(regionGuiBean.MIN_LONGITUDE).setValue(new Double(-119));
-    regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(regionGuiBean.MAX_LONGITUDE).setValue(new Double(-117.5));
-    regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(regionGuiBean.GRID_SPACING).setValue(new Double(.05));
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LATITUDE).setValue(new Double(33.5));
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LATITUDE).setValue(new Double(35.0));
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LONGITUDE).setValue(new Double(-119));
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LONGITUDE).setValue(new Double(-117.5));
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.GRID_SPACING).setValue(new Double(.05));
   }
 }

@@ -101,11 +101,11 @@ public class RegionsOfInterestControlPanel extends JFrame {
   private void setLatAndLon() {
     int index = this.regionsComboBox.getSelectedIndex();
     // set the lat and lon in the editor
-    regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(SitesInGriddedRegionGuiBean.MIN_LATITUDE).setValue(minLatVector.get(index));
-    regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(SitesInGriddedRegionGuiBean.MAX_LATITUDE).setValue(maxLatVector.get(index));
-    regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(SitesInGriddedRegionGuiBean.MIN_LONGITUDE).setValue(minLonVector.get(index));
-    regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(SitesInGriddedRegionGuiBean.MAX_LONGITUDE).setValue(maxLonVector.get(index));
-    regionGuiBean.getGriddedRegionParameterListEditor().refreshParamEditor();
+    regionGuiBean.getParameterList().getParameter(SitesInGriddedRegionGuiBean.MIN_LATITUDE).setValue(minLatVector.get(index));
+    regionGuiBean.getParameterList().getParameter(SitesInGriddedRegionGuiBean.MAX_LATITUDE).setValue(maxLatVector.get(index));
+    regionGuiBean.getParameterList().getParameter(SitesInGriddedRegionGuiBean.MIN_LONGITUDE).setValue(minLonVector.get(index));
+    regionGuiBean.getParameterList().getParameter(SitesInGriddedRegionGuiBean.MAX_LONGITUDE).setValue(maxLonVector.get(index));
+    regionGuiBean.refreshParamEditor();
   }
 
 

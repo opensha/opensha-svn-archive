@@ -46,10 +46,6 @@ public class MapGuiBean extends ParameterListEditor implements
   //instance of the GMT Control Panel to get the GMT parameters value.
   private GMT_MapGenerator gmtMap= new GMT_MapGenerator();
 
-  //flag to see if one wants to run the GMT from the server
-  private boolean gmtFromServer = true;
-
-
 
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
@@ -147,19 +143,19 @@ public class MapGuiBean extends ParameterListEditor implements
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeMap(XYZ_DataSetAPI xyzVals,String IMT,String paramsInfo){
+  public void makeMap(XYZ_DataSetAPI xyzVals,String imt,String paramsInfo){
 
     boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
     //creating the Metadata file in the GMT_MapGenerator
     gmtMap.createMapInfoFile(paramsInfo);
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
-      imgName =gmtMap.makeMapUsingServlet(xyzVals,IMT);
+      imgName =gmtMap.makeMapUsingServlet(xyzVals,imt);
       paramsInfo +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
     }
     else{
       try{
-        imgName = gmtMap.makeMapLocally(xyzVals,IMT);
+        imgName = gmtMap.makeMapLocally(xyzVals,imt);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;
@@ -169,7 +165,7 @@ public class MapGuiBean extends ParameterListEditor implements
     //checks to see if the user wants to see the Map in a seperate window or not
     if(this.showMapInSeperateWindow){
     //adding the image to the Panel and returning that to the applet
-    ImageViewerWindow imgView = new ImageViewerWindow(imgName,paramsInfo,gmtFromServer);
+    ImageViewerWindow imgView = new ImageViewerWindow(imgName,paramsInfo,gmtServerCheck);
     }
   }
 

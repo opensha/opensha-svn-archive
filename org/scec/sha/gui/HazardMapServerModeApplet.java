@@ -476,7 +476,7 @@ public class HazardMapServerModeApplet extends JApplet implements
     return "IMR Param List: \n" +
         "\t\t"+this.imrGuiBean.getParameterList().toString()+"\n"+
         "Site Param List: \n"+
-        "\t\t"+griddedRegionGuiBean.getGriddedRegionParameterListEditor().getParameterList().toString()+"\n"+
+        "\t\t"+griddedRegionGuiBean.getParameterList().toString()+"\n"+
         "IMT Param List: \n"+
         "\t\t"+imtGuiBean.getParameterList().toString()+"\n"+
         "Forecast Param List: \n"+

@@ -32,8 +32,8 @@ import org.scec.sha.gui.infoTools.CalcProgressBar;
 
 
 
-public class SitesInGriddedRegionGuiBean extends JPanel implements
-     ParameterChangeFailListener, Serializable {
+public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
+     ParameterChangeFailListener, ParameterChangeListener, Serializable {
 
   // for debug purposes
   protected final static String C = "SiteParamList";
@@ -46,6 +46,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   public final static String MIN_LATITUDE =  "Min  Latitude";
   public final static String MAX_LATITUDE =  "Max  Latitude";
   public final static String GRID_SPACING =  "Grid Spacing";
+  public final static String SITE_PARAM_NAME = "Set Site Params";
 
   public final static String DEFAULT = "Default  ";
 
@@ -59,10 +60,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
 
   // title for site paramter panel
   protected final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
-  //ParameterListEditor Instance
-  ParameterListEditor editorPanel;
-  //ParameterList
-  ParameterList parameterList = new ParameterList();
 
   //Site Params Vector
   Vector siteParams = new Vector();
@@ -87,23 +84,19 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
       new Double(.0333),new Double(1.0),new String("Degrees"),new Double(.1));
 
 
+  //StringParameter to set site related params
+  private StringParameter siteParam;
+
+
   //instance of class EvenlyGriddedRectangularGeographicRegion
   private SitesInGriddedRegion gridRectRegion;
-  private JComboBox siteParamCombo = new JComboBox();
-  private JLabel siteParamLabel = new JLabel();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
    * constuctor which builds up mapping between IMRs and their related sites
    */
   public SitesInGriddedRegionGuiBean() {
 
-    // add the longitude and latitude paramters
-    parameterList.addParameter(minLon);
-    parameterList.addParameter(maxLon);
-    parameterList.addParameter(minLat);
-    parameterList.addParameter(maxLat);
-    parameterList.addParameter(gridSpacing);
+
     //defaultVs30.setInfo(this.VS30_DEFAULT_INFO);
     //parameterList.addParameter(defaultVs30);
     minLat.addParameterChangeFailListener(this);
@@ -111,13 +104,27 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     maxLat.addParameterChangeFailListener(this);
     maxLon.addParameterChangeFailListener(this);
     gridSpacing.addParameterChangeFailListener(this);
-    //defaultVs30.addParameterChangeFailListener(this);
 
-    //editorPanel.getParameterEditor(this.VS30_DEFAULT).setVisible(false);
+    //creating the String Param for user to select how to get the site related params
+    Vector siteOptions = new Vector();
+    siteOptions.add(this.SET_ALL_SITES);
+    siteOptions.add(this.SET_SITE_USING_WILLS_SITE_TYPE);
+    siteOptions.add(this.SET_SITES_USING_SCEC_CVM);
+    siteParam = new StringParameter(SITE_PARAM_NAME,siteOptions,(String)siteOptions.get(0));
+    siteParam.addParameterChangeListener(this);
+
+    // add the longitude and latitude paramters
+    parameterList = new ParameterList();
+    parameterList.addParameter(minLon);
+    parameterList.addParameter(maxLon);
+    parameterList.addParameter(minLat);
+    parameterList.addParameter(maxLat);
+    parameterList.addParameter(gridSpacing);
+    parameterList.addParameter(siteParam);
+    editorPanel.removeAll();
+    addParameters();
     createAndUpdateSites();
-    this.siteParamCombo.addItem(this.SET_ALL_SITES);
-    this.siteParamCombo.addItem(this.SET_SITE_USING_WILLS_SITE_TYPE);
-    this.siteParamCombo.addItem(this.SET_SITES_USING_SCEC_CVM);
+
     try {
       jbInit();
     }catch(Exception e) {
@@ -188,7 +195,8 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
         !paramName.equalsIgnoreCase(MIN_LONGITUDE) &&
         !paramName.equalsIgnoreCase(MAX_LATITUDE) &&
         !paramName.equalsIgnoreCase(MAX_LONGITUDE) &&
-        !paramName.equalsIgnoreCase(GRID_SPACING))
+        !paramName.equalsIgnoreCase(GRID_SPACING) &&
+        !paramName.equalsIgnoreCase(SITE_PARAM_NAME))
        parameterList.removeParameter(paramName);
    }
    //removing the existing sites Params from the gridded Region sites
@@ -298,6 +306,16 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
         );
    }
 
+   /**
+    * This function is called when value a parameter is changed
+    * @param e Description of the parameter
+    */
+   public void parameterChange(ParameterChangeEvent e){
+     ParameterAPI param = ( ParameterAPI ) e.getSource();
+
+     if(param.getName().equals(SITE_PARAM_NAME))
+       setSiteParamsVisible();
+   }
 
    /**
     * This method creates the gridded region with the min -max Lat and Lon
@@ -330,9 +348,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
      gridRectRegion= new SitesInGriddedRegion(minLatitude,
                                       maxLatitude,minLongitude,maxLongitude,
                                       ((Double)gridSpacing.getValue()).doubleValue());
-
-
-
   }
 
   /**
@@ -342,7 +357,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   public SitesInGriddedRegion getGriddedRegionSite(){
 
     updateGriddedSiteParams();
-    if(this.siteParamCombo.getSelectedItem().toString().equalsIgnoreCase(this.SET_ALL_SITES))
+    if(((String)siteParam.getValue()).equals(SET_ALL_SITES))
         //if the site params does not need to be set from the CVM
       gridRectRegion.setSameSiteParams();
 
@@ -361,31 +376,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   }
 
 
-  /**
-   *
-   * @returns the ParameterListEditor for the Gridded Region
-   */
-  public ParameterListEditor getGriddedRegionParameterListEditor(){
-    return editorPanel;
-  }
-  private void jbInit() throws Exception {
-    this.setLayout(gridBagLayout1);
-    siteParamLabel.setBackground(Color.white);
-    siteParamLabel.setFont(new java.awt.Font("Dialog", 1, 12));
-    siteParamLabel.setForeground(new Color(80, 80, 133));
-    siteParamLabel.setText("Set Site Params:");
-    siteParamCombo.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        siteParamCombo_actionPerformed(e);
-      }
-    });
-    siteParamCombo.setBackground(new Color(200, 200, 230));
-    siteParamCombo.setForeground(new Color(80, 80, 133));
-    this.add(siteParamCombo,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(4, 4, 4, 4), 0, 0));
-    this.add(siteParamLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
-  }
+
 
 
   /**
@@ -407,8 +398,8 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     //getting the Gridded Region site Object ParamList Iterator
     Iterator it = parameterList.getParametersIterator();
     //if the user decides to fill the values from the CVM
-    if(((String)siteParamCombo.getSelectedItem()).equalsIgnoreCase(this.SET_SITES_USING_SCEC_CVM)||
-       ((String)siteParamCombo.getSelectedItem()).equalsIgnoreCase(this.SET_SITE_USING_WILLS_SITE_TYPE)){
+    if(((String)siteParam.getValue()).equals(SET_SITES_USING_SCEC_CVM)||
+       ((String)siteParam.getValue()).equals(SET_SITE_USING_WILLS_SITE_TYPE)){
       //editorPanel.getParameterEditor(this.VS30_DEFAULT).setVisible(true);
       while(it.hasNext()){
         //adds the default site Parameters becuase each site will have different site types and default value
@@ -418,7 +409,8 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
            !tempParam.getName().equalsIgnoreCase(this.MIN_LATITUDE) &&
            !tempParam.getName().equalsIgnoreCase(this.MAX_LONGITUDE) &&
            !tempParam.getName().equalsIgnoreCase(this.MIN_LONGITUDE) &&
-           !tempParam.getName().equalsIgnoreCase(this.GRID_SPACING)){
+           !tempParam.getName().equalsIgnoreCase(this.GRID_SPACING) &&
+           !tempParam.getName().equalsIgnoreCase(this.SITE_PARAM_NAME)){
           //&& !tempParam.getName().equalsIgnoreCase(this.VS30_DEFAULT))
           //editorPanel.getParameterEditor(tempParam.getName()).setVisible(false);
           //removing the existing site Params from the List and adding the
@@ -441,7 +433,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     }
     //if the user decides to go in with filling all the sites with the same site parameter,
     //then make that site parameter visible to te user
-    else if(((String)siteParamCombo.getSelectedItem()).equalsIgnoreCase(this.SET_ALL_SITES)){
+    else if(((String)siteParam.getValue()).equals(SET_ALL_SITES)){
       while(it.hasNext()){
         //removing the default Site Type Params if same site is to be applied to whole region
         ParameterAPI tempParam= (ParameterAPI)it.next();
@@ -458,15 +450,11 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     }
 
     //creating the ParameterList Editor with the updated ParameterList
-    if(editorPanel!=null)
-      remove(editorPanel);
-    editorPanel = new ParameterListEditor(parameterList);
-    editorPanel.setTitle(GRIDDED_SITE_PARAMS);
-    this.add(editorPanel,  new GridBagConstraints(0, 0, 2, 1, 2.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
-    this.validate();
-    this.repaint();
-
+    editorPanel.removeAll();
+    addParameters();
+    editorPanel.validate();
+    editorPanel.repaint();
+    setTitle(GRIDDED_SITE_PARAMS);
   }
 
   /**
@@ -488,7 +476,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     }
 
     CalcProgressBar calcProgress = new CalcProgressBar("Setting Gridded Region sites","Getting the site paramters from the CVM");
-    if(this.siteParamCombo.getSelectedItem().toString().equalsIgnoreCase(this.SET_SITES_USING_SCEC_CVM))
+    if(((String)siteParam.getValue()).equals(SET_SITES_USING_SCEC_CVM))
       //if we are setting the each site type using Wills site type and SCEC basin depth
       gridRectRegion.setSiteParamsUsing_WILLS_VS30_AndBasinDepth();
     else
