@@ -318,7 +318,6 @@ public class PEER_AreaForecast extends EqkRupForecast
    */
   public ProbEqkSource getSourceClone(int iSource) {
     return null;
-
   }
 
 

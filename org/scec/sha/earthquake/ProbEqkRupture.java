@@ -20,9 +20,6 @@ public class ProbEqkRupture extends EqkRupture{
 
   protected double probability;
 
-  /** Represents a start time and duration => has end time */
-  protected TimeSpan timespan = null;
-
 
 
   /* **********************/
@@ -46,14 +43,6 @@ public class ProbEqkRupture extends EqkRupture{
    }
 
 
-    /**
-     * Get and set methods for Time Span and Probability
-     *
-     * @return
-     */
-  public TimeSpan getTimeSpan() { return timespan; }
-
-  public void setTimeSpan(TimeSpan timespan) { this.timespan = timespan; }
 
   public double getProbability() { return probability; }
   public void setProbability(double p) { probability = p; }
@@ -77,7 +66,6 @@ public class ProbEqkRupture extends EqkRupture{
     eqkRuptureClone.setRuptureSurface(this.ruptureSurface);
     eqkRuptureClone.setHypocenterLocation(this.hypocenterLocation);
     eqkRuptureClone.setProbability(this.probability);
-    eqkRuptureClone.setTimeSpan(this.timespan);
     return eqkRuptureClone;
   }
 

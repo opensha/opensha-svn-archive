@@ -31,7 +31,6 @@ import org.scec.gui.plot.jfreechart.*;
 import org.scec.exceptions.ParameterException;
 
 import org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
-import org.scec.sha.earthquake.rupForecastImpl.WardTest.WardGridTestEqkRupForecast;
 
 /**
  * <p>Title: EqkForecastApplet</p>
@@ -178,7 +177,6 @@ public class EqkForecastApplet extends JApplet
    * objects of diffrent earthquake forecasts
    */
   Frankel96_EqkRupForecast frankelRupForecast;
-  WardGridTestEqkRupForecast wardRupForecast;
 
   // generic forecast API
   EqkRupForecast eqkRupForecast ;
@@ -986,11 +984,6 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
           if(frankelRupForecast == null)
               frankelRupForecast = new Frankel96_EqkRupForecast();
           eqkRupForecast = frankelRupForecast;
-      } else if(selectedForecast.equalsIgnoreCase(this.WARD_GRID_TEST)) {
-        // if ward frid test forecast is selected
-          if(wardRupForecast == null)
-              wardRupForecast = new WardGridTestEqkRupForecast();
-          eqkRupForecast = wardRupForecast;
       }
 
 

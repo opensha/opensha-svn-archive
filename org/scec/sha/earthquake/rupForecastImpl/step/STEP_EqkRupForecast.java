@@ -158,14 +158,7 @@ import org.scec.param.event.ParameterChangeEvent;
   }
 
 
-  /**
-   * REMOVE THIS sets the timeSpan field
-   * @param yrs : does not do anything yet (timespan is an adjustable
-   * DoubleParameter for now)
-   */
-  public void setTimeSpan(double yrs){
 
-  }
 
 
   /**
