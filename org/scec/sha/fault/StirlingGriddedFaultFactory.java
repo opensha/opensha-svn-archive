@@ -15,7 +15,8 @@ import org.scec.data.*;
  * <b>Title:</b> StirlingGriddedFaultFactory.  This creates and EvenlyGriddedSurface
  * representation of the fault using a scheme described by Mark Stirling
  * to Ned Field in 2001, where grid points are projected down dip at
- * an angle perpendicular to the end-points of the faultTrace.<br>
+ * an angle perpendicular to the end-points of the faultTrace.  Use the setAveDipDir()
+ * method to over ride this dipping direction.<br>
  * <b>Description:</b> <br>
  * <b>Copyright:</b> Copyright (c) 2001<br>
  * <b>Company:</b> <br>
@@ -27,6 +28,8 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
 
     protected final static String C = "StirlingGriddedFaultFactory";
     protected final static boolean D = false;
+
+    protected double aveDipDir;
 
     protected final static double PI_RADIANS = Math.PI / 180;
     protected final static String ERR = " is null, unable to process.";
@@ -205,4 +208,13 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
         return surface;
     }
 
+    /**
+     * This method allows one to set the averate dip direction (points going down dip will
+     * be parallel to this direction).  Set this as null to compute this direction as perpendicular
+     * to the end points of the fault (null is the default setting).
+     * @param aveDipDir
+     */
+    public void setAveDipDir(double aveDipDir) {
+      this.aveDipDir = aveDipDir;
+    }
 }

@@ -5,7 +5,9 @@ import java.util.Vector;
 import org.scec.data.TimeSpan;
 
 import org.scec.param.*;
+import org.scec.data.Location;
 import org.scec.sha.surface.*;
+import org.scec.sha.fault.*;
 import org.scec.sha.param.*;
 import org.scec.sha.magdist.*;
 import org.scec.param.event.*;
@@ -77,9 +79,33 @@ public class PuenteHillsFaultERF extends EqkRupForecast
 
        double aveDipDir = 0; // dipping to the north
 
-       EvenlyGriddedSurface surface = null;
+       // the original fault trace points as given by Andreas Plesch (reversed to be in correct order)
+       // Coyote Hills segment:
+       //         B 117.868192971 33.899509717 -2500.00000
+       //         A 118.044407949 33.894579252 -3441.00000
+       // Santa Fe Springs segment:
+       //         B 118.014078570 33.929699246 -2850.00000
+       //         A 118.144918182 33.905266010 -2850.00000
+       // Los Angeles segment:
+       //         B 118.122170045 33.971013662 -3000.00000
+       //         A 118.308353340 34.019965922 -3000.00000
 
-       source = new SimpleFaultRuptureSource(mag, surface,rake, prob);
+       FaultTrace faultTrace = new FaultTrace("Puente Hills Fault Trace");
+       // this is to move the lats north to where depth is 5 km (assumes all orig depths are 3 km)
+       double latIncr= (5.0-3.0)/(Math.tan(27*Math.PI/180)*111.0);
+       if(D) System.out.println("latIncr = "+latIncr);
+       faultTrace.addLocation(new Location(33.899509717+latIncr,117.868192971,5.0));
+       faultTrace.addLocation(new Location(33.894579252+latIncr,118.044407949,5.0));
+       faultTrace.addLocation(new Location(33.929699246+latIncr,118.014078570,5.0));
+       faultTrace.addLocation(new Location(33.905266010+latIncr,118.144918182,5.0));
+       faultTrace.addLocation(new Location(33.971013662+latIncr,118.122170045,5.0));
+       faultTrace.addLocation(new Location(34.019965922+latIncr,118.308353340,5.0));
+
+       StirlingGriddedFaultFactory faultFactory = new StirlingGriddedFaultFactory(faultTrace,27.0,5.0,17.0,1.0);
+       // make it dip exactly north
+       faultFactory.setAveDipDir(0.0);
+
+       source = new SimpleFaultRuptureSource(mag, (EvenlyGriddedSurface) faultFactory.getGriddedSurface(),rake, prob);
        parameterChangeFlag = false;
      }
 

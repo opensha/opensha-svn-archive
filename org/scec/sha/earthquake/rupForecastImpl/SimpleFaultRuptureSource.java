@@ -15,7 +15,7 @@ import org.scec.sha.surface.*;
  * <p>Description: This implements a basic fault source for arbitrary: <p>
  * <UL>
  * <LI>magnitude - the magnitude of the event
- * <LI>faultSurface - any EvenlyDiscretizedSurface
+ * <LI>ruptureSurface - any EvenlyDiscretizedSurface
  * <LI>rake - that rake (in degrees) assigned to all ruptures.
  * <LI>probability - the probabilisty of the source
  * </UL><p>
@@ -49,7 +49,7 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
   /**
    * Constructor.
    * @param magnitude
-   * @param faultSurface - any EvenlyGriddedSurface representation of the fault
+   * @param ruptureSurface - any EvenlyGriddedSurface representation of the fault
    * @param rake - average rake of the ruptures
    * @param probability - the probability of the source
    */
