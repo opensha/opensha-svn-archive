@@ -848,7 +848,7 @@ public class LogarithmicAxis extends NumberAxis {
                                    RectangleEdge edge) {
 
     getTicks().clear();
-    double y0 =0;
+    double y0 =999;
     //get lower bound value:
     double lowerBoundVal = getRange().getLowerBound();
     //if small log values and lower bound value too small

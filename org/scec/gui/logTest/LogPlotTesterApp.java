@@ -463,7 +463,6 @@ public class LogPlotTesterApp extends JApplet  {
        JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
        chart.setBackgroundPaint( lightBlue );
 
-
        panel = new ChartPanel(chart, true, true, true, true, false);
        panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
        panel.setMouseZoomable(true);
