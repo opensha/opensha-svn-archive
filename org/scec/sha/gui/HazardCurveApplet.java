@@ -700,21 +700,36 @@ public class HazardCurveApplet extends JApplet
       if(this.runAllPEER_Tests !=null){
         if(this.runAllPEER_Tests.runAllPEER_TestCases()){
           try{
+            progressCheckBox.setSelected(false);
             FileWriter peerResultsFile = new FileWriter("PEER_TestCasesSetOneResultsFile.txt");
             peerResultsFile.write("PEER Set One Test Cases Results:\n");
             peerResultsFile.close();
             Vector testCasesOne = this.peerTestsControlPanel.getPEER_SetOneTestCasesNames();
             peerResultsFile = new FileWriter("PEER_TestCasesSetOneResultsFile.txt",true);
             int size = testCasesOne.size();
-            for(int i=0;i< size; ++i){
+//            for(int i=0;i< size; ++i){
+            for(int i=0;i< 20; ++i){
+              // first do PGA
               peerTestsControlPanel.setTestCaseAndSite((String)testCasesOne.get(i));
               addButton();
-
-              peerResultsFile.write((String)testCasesOne.get(i)+"\n");
-              peerResultsFile.write(this.totalProbFuncs.toString()+"\n"+"\n");
+              peerResultsFile.write("\n\n"+(String)testCasesOne.get(i)+"--PGA\n\n");
+              for(int j=0; j<totalProbFuncs.get(0).getNum();++j)
+                peerResultsFile.write((float)(totalProbFuncs.get(0).getY(j))+"\n");
               this.repaint();
               this.validate();
               this.clearPlot(true);
+
+              // now do SA
+              imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.SA_NAME);
+              imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
+              addButton();
+              peerResultsFile.write("\n\n"+(String)testCasesOne.get(i)+"-- 1sec SA\n\n");
+              for(int j=0; j<totalProbFuncs.get(0).getNum();++j)
+                peerResultsFile.write((float)(totalProbFuncs.get(0).getY(j))+"\n");
+              this.repaint();
+              this.validate();
+              this.clearPlot(true);
+
             }
             peerResultsFile.close();
           }catch(Exception ee){

@@ -28,7 +28,7 @@ public class SimplePoissonFaultERF extends EqkRupForecast
 
   //for Debug purposes
   private static String  C = new String("Poisson Fault ERF");
-  private boolean D = true;
+  private boolean D = false;
 
   //name for this classs
   public final static String  NAME = C;

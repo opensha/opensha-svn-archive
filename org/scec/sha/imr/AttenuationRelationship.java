@@ -71,7 +71,7 @@ import org.scec.util.*;
  * PERIOD_UNITS = "sec"<br>
  * PERIOD_INFO = "Oscillator Period for SA"<br>
  * PERIOD_DEFAULT = new Double( 0 )<br>
- * <i>Constraint is created and added in sublclasses</i><p>
+ * <i>Constraint is created and added in sub-classes</i><p>
  *
  * <b>dampingParam</b> - a DoubleDiscreteParameter representing the <b>Damping</b> level
  * associated with the Response-Spectral-Acceleration Parameter (dampingParam is

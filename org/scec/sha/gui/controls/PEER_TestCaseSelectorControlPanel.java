@@ -44,7 +44,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
 
   protected final static String C = "PEER_TestCaseSelectorControlPanel";
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
 
   //Supported PEER Test Cases
