@@ -36,7 +36,7 @@ Create WebService Interface to this HazardMapCalculator program.
   - Talk with Deepak about deploying this service. He has made good progress on Web Service
      deployment.
 
-
+GMT_MapGenerator - implement this as a webService so we one doesn't need GMT installed (also implement as a web service and compare performance). NOTE: this is already implemented as a servlet.
 
 SHA ProjectTestSuite : 24 Tests
 
@@ -58,7 +58,6 @@ AttenRelApp:
 
 Get wg99/02 Fortran code compiling on our computers.
 
-GMT_MapGenerator - implement this as a Servlet so we one doesn't need GMT installed (also implement as a web service and compare performance).
 
 
 **************** LONG TERM (LOWER PRIORITY): ****************
@@ -90,9 +89,6 @@ ProbEqkSource	Define field to declare what type of source it is
 ERF		-extend API to include getting max and min magnitude, and the various types of 
 		sources generated (to check for compatibility with each chosen IMR)
 
-		
-Look into memory usage issues (e.g., out of memeory exceptions).
-
 Think about optimizing calculations in terms of not redoing anything that doesn't 
 need to be redone (e.g., don't recompute ERF-list hazard curves if user only wants
 to plot a different fractile).  This should be resolved with consideration to the
@@ -102,9 +98,7 @@ full range of user experiences.
 ScenarioShakeMapApp
 
 	Add plotting of rupture surface as a dot at each point on the gridded surface?
-
 	Use getInfo for each source to provide users with information
-
 
 Fix titles of web pages (Ned's problem)
 
@@ -140,9 +134,9 @@ Investigate what proper longitude limits are with respect to RelativeLocation, 0
 
 DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
 
-PEER_TestsApplet - In the IMT editor section the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
+HazardCurveApplet - In the IMT editor section the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
 
-PEER_TestsApplet - Ned will go through our implementation of the PEER test cases again (to make sure Ned didn't screw anything up since he last did it).  Perhaps this should wait until we can simultaneously show the true or target value in the plot.  Eventually we'll want to make Junit tests for the PEER test cases.
+HazardCurveApplet - Ned will go through our implementation of the PEER test cases again (to make sure Ned didn't screw anything up since he last did it).  Perhaps this should wait until we can simultaneously show the true or target value in the plot.  Eventually we'll want to make Junit tests for the PEER test cases.
 
 EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient, and have the getAveDip() method compute the dip explicitly (in case it's a subset of a listric fault)?
 
