@@ -87,7 +87,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
     parameterList.addParameter(gridSpacing);
     Vector v= new Vector();
     v.add(SF_Bay_Area);
-    interestingRegions = new StringParameter(this.SF_Bay_Area,v,v.get(0).toString());
+    interestingRegions = new StringParameter(this.INTERESTING_REGIONS,v,v.get(0).toString());
     parameterList.addParameter(interestingRegions);
     minLat.addParameterChangeListener(this);
     minLon.addParameterChangeListener(this);
@@ -258,6 +258,9 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
 
     Vector v= new Vector();
     createAndUpdateSites();
+    if(e.getParameterName().equalsIgnoreCase(INTERESTING_REGIONS)){
+       setMinMaxLatLon();
+    }
     //getting the site params for the first element of the siteVector
     //becuase all the sites will be having the same site Parameter
     ListIterator it1=parameterList.getParametersIterator();
@@ -270,9 +273,6 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
          !tempParam.getName().equalsIgnoreCase(INTERESTING_REGIONS))
         v.add(tempParam);
       //interesting region parameter has been selected
-      if(tempParam.getName().equalsIgnoreCase(INTERESTING_REGIONS)){
-        setMinMaxLatLon();
-      }
     }
     gridRectRegion.addSiteParams(v.iterator());
   }
@@ -284,10 +284,10 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   private void setMinMaxLatLon(){
     String preRegionNewValue= interestingRegions.getValue().toString();
     if(preRegionNewValue.equalsIgnoreCase(this.SF_Bay_Area)){
-      minLat.setValue(37);
-      maxLat.setValue(39);
-      minLon.setValue(-123);
-      maxLon.setValue(-121);
+      minLat.setValue(new Double(37));
+      maxLat.setValue(new Double(39));
+      minLon.setValue(new Double(-123));
+      maxLon.setValue(new Double(-121));
     }
     createAndUpdateSites();
 
