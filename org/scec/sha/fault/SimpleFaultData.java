@@ -13,7 +13,7 @@ import org.scec.data.*;
  *  <b>Description:</b> This object contains all the fault-related information needed
  *  by a SimpleGriddedFaultFactory.  This does not check whether the values make sense
  *  (e.g., it doesn not check that 0²aveDip²90) because these will get checked in the
- *  classes that use this data (and we don't want duplicate checks) <p>
+ *  classes that use this data (and we don't want duplicate these checks). <p>
  *
  *
  * @author     Sid Hellman, Steven W. Rock, Ned Field

@@ -12,7 +12,10 @@ import org.scec.data.function.*;
 import org.scec.data.*;
 
 /**
- * <b>Title:</b> FrankelGriddedFaultFactory<br>
+ * <b>Title:</b> FrankelGriddedFaultFactory.  This creates an
+ * EvenlyDiscretizedSurface using the scheme defined by Art Frankel in his
+ * Fortran code for the 1996 USGS hazard maps.  Grid points are projected down
+ * dip at an angle perpendicular to the azimuth of each segment.<br>
  * <b>Description:</b> <br>
  * <b>Copyright:</b> Copyright (c) 2001<br>
  * <b>Company:</b> <br>

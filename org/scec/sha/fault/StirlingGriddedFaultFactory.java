@@ -12,11 +12,14 @@ import org.scec.data.function.*;
 import org.scec.data.*;
 
 /**
- * <b>Title:</b> StirlingGriddedFaultFactory<br>
+ * <b>Title:</b> StirlingGriddedFaultFactory.  This creates and EvenlyGriddedSurface
+ * representation of the fault using a scheme described by Mark Stirling
+ * to Ned Field in 2001, where grid points are projected down dip at
+ * an angle perpendicular to the end-points of the faultTrace.<br>
  * <b>Description:</b> <br>
  * <b>Copyright:</b> Copyright (c) 2001<br>
  * <b>Company:</b> <br>
- * @author Steven W. Rock
+ * @author Ned Field.
  * @version 1.0
  */
 
@@ -34,11 +37,7 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
                                         double gridSpacing)
                                         throws FaultException {
 
-        super(simpleFaultData.getFaultTrace(),
-              simpleFaultData.getAveDip(),
-              simpleFaultData.getUpperSeismogenicDepth(),
-              simpleFaultData.getLowerSeismogenicDepth(),
-              gridSpacing);
+        super(simpleFaultData, gridSpacing);
     }
 
 
@@ -53,40 +52,42 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
     }
 
 
-
-
-
     public GriddedSurfaceAPI getGriddedSurface() throws FaultException {
 
         String S = C + ": getGriddedSurface():";
         if( D ) System.out.println(S + "Starting");
 
-        if( faultTrace == null  ) throw new FaultException(S + "Fault Trace" + ERR);
-        if( aveDip == Double.NaN ) throw new FaultException(S + "aveDip" + ERR);
-        if( upperSeismogenicDepth == Double.NaN  ) throw new FaultException(S + "upperSeismogenicDepth" + ERR);
-        if( lowerSeismogenicDepth == Double.NaN  ) throw new FaultException(S + "lowerSeismogenicDepth" + ERR);
-        if( gridSpacing == Double.NaN  ) throw new FaultException(S + "gridSpacing" + ERR);
+        assertValidData();
 
 
         final int numSegments = faultTrace.getNumLocations() - 1;
-        final double gridSpacingValue = gridSpacing;
         final double avDipRadians = aveDip * PI_RADIANS;
-        final double gridSpacingCosAveDipRadians = gridSpacingValue * Math.cos( avDipRadians );
-        final double gridSpacingSinAveDipRadians = gridSpacingValue * Math.sin( avDipRadians );
+        final double gridSpacingCosAveDipRadians = gridSpacing * Math.cos( avDipRadians );
+        final double gridSpacingSinAveDipRadians = gridSpacing * Math.sin( avDipRadians );
 
-        double[] sementLenth = new double[numSegments];
-        double[] sementAzimuth = new double[numSegments];
-        double[] sementCumLenth = new double[numSegments];
+        double[] segmentLenth = new double[numSegments];
+        double[] segmentAzimuth = new double[numSegments];
+        double[] segmentCumLenth = new double[numSegments];
 
         double cumDistance = 0;
         int i = 0;
+
+       // Find ave dip direction (defined by end locations):
+        Location firstLoc = faultTrace.getLocationAt(0);
+        Location lastLoc = faultTrace.getLocationAt(faultTrace.getNumLocations() - 1);;
+        Direction aveDir = RelativeLocation.getDirection(firstLoc, lastLoc);
+        if(D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
+        double aveDipDirection = ( aveDir.getAzimuth() + 90 );
+
+
+
 
         // Iterate over each Location in Fault Trace
         // Calculate distance, cumulativeDistance and azimuth for
         // each segment
         ListIterator it = faultTrace.listIterator();
-        Location firstLoc = (Location)it.next();
-        Location lastLoc = firstLoc;
+        firstLoc = (Location)it.next();
+        lastLoc = firstLoc;
         Location loc = null;
         Direction dir = null;
         while( it.hasNext() ){
@@ -98,43 +99,38 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
             double distance = dir.getHorzDistance();
             cumDistance += distance;
 
-            sementLenth[i] = distance;
-            sementAzimuth[i] = azimuth;
-            sementCumLenth[i] = cumDistance;
+            segmentLenth[i] = distance;
+            segmentAzimuth[i] = azimuth;
+            segmentCumLenth[i] = cumDistance;
 
-            // prep for next loop
             i++;
             lastLoc = loc;
 
         }
 
-        // Calculate down dipth width
-        double denominator = Math.sin( avDipRadians );
-
-        double downDipWidth = Math.abs(upperSeismogenicDepth - lowerSeismogenicDepth);
-        downDipWidth /= denominator;
+        // Calculate down dip width
+        double downDipWidth = (lowerSeismogenicDepth-upperSeismogenicDepth)/Math.sin( avDipRadians );
 
         // Calculate the number of rows and columns
-        int rows = ( new Double( Math.ceil( downDipWidth / gridSpacingValue ) ) ).intValue();
-        int cols = ( new Double( Math.ceil( sementCumLenth[numSegments - 1] / gridSpacingValue ) ) ).intValue();
+        int rows = 1 + Math.round((float) (downDipWidth/gridSpacing));
+        int cols = 1 + Math.round((float) (segmentCumLenth[numSegments - 1] / gridSpacing));
 
 
-        // Calculate Average Dip Direction
+        if(D) System.out.println("numLocs: = " + faultTrace.getNumLocations());
+        if(D) System.out.println("numSegments: = " + numSegments);
         if(D) System.out.println("firstLoc: = " + firstLoc);
         if(D) System.out.println("lastLoc(): = " + lastLoc);
-
-
-        // Find ave dip (defined by end locations):
-        Direction aveDir = RelativeLocation.getDirection(firstLoc, lastLoc);
-        if(D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
-        double aveDipDirection = ( aveDir.getAzimuth() + 90 );
+        if(D) System.out.println("downDipWidth: = " + downDipWidth);
+        if(D) System.out.println("totTraceLength: = " + segmentCumLenth[ numSegments - 1]);
+        if(D) System.out.println("numRows: = " + rows);
+        if(D) System.out.println("numCols: = " + cols);
 
 
         // Create GriddedSurface
         int segmentNumber, ith_row, ith_col = 0;
         double distanceAlong, distance, hDistance, vDistance;
         Location location1;
-        EvenlyGriddedSurface surface = new EvenlyGriddedSurface(rows, cols, this.getGridSpacing());
+        EvenlyGriddedSurface surface = new EvenlyGriddedSurface(rows, cols, gridSpacing);
 
 
         // Loop over each column - ith_col is ith grid step along the fault trace
@@ -144,27 +140,44 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
             if( D ) System.out.println(S + "ith_col = " + ith_col);
 
             // calculate distance from column number and grid spacing
-            distanceAlong = ith_col * gridSpacingValue;
-            if( D ) System.out.println(S + "distanceAlong = " + distanceAlong);
+            distanceAlong = ith_col * gridSpacing;
+            if( D ) System.out.println(S + "distanceAlongFault = " + distanceAlong);
 
             // Determine which segment distanceAlong is in
             segmentNumber = 1;
-            while( sementCumLenth[ segmentNumber - 1] < distanceAlong ){
+            while( segmentNumber <= numSegments && distanceAlong > segmentCumLenth[ segmentNumber - 1] ){
                 segmentNumber++;
             }
+            // put back in last segment if grid point has just barely stepped off the end
+            if( segmentNumber == numSegments+1) segmentNumber--;
+
             if( D ) System.out.println(S + "segmentNumber " + segmentNumber );
 
             // Calculate the distance from the last segment point
-            if ( segmentNumber > 1 ) distance = distanceAlong - sementCumLenth[ segmentNumber - 2 ];
+            if ( segmentNumber > 1 ) distance = distanceAlong - segmentCumLenth[ segmentNumber - 2 ];
             else distance = distanceAlong;
-            if( D ) System.out.println(S + "distanceAlong " + distanceAlong );
+            if( D ) System.out.println(S + "distanceFromLastSegPt " + distance );
 
             // Calculate the grid location along fault trace and put into grid
             location1 = faultTrace.getLocationAt( segmentNumber - 1 );
-            dir = new Direction(0, distance, sementAzimuth[ segmentNumber - 1 ], 0);
-            Location surfaceLocation = RelativeLocation.getLocation( location1, dir  );
-            surface.setLocation(0, ith_col, (Location)surfaceLocation.clone());
-            if( D ) System.out.println(S + "(x,y) surfaceLocation = (0, " + ith_col + ") " + surfaceLocation );
+            dir = new Direction(0, distance, segmentAzimuth[ segmentNumber - 1 ], 0);
+
+            // location on the trace
+            Location traceLocation = RelativeLocation.getLocation( location1, dir  );
+
+            // get location at the top of the fault surface
+            Location topLocation;
+            if(traceLocation.getDepth() < upperSeismogenicDepth) {
+                vDistance = upperSeismogenicDepth - traceLocation.getDepth();
+                hDistance = vDistance / Math.tan( avDipRadians );
+                dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
+                topLocation = RelativeLocation.getLocation( traceLocation, dir );
+            }
+            else
+                topLocation = traceLocation;
+
+            surface.setLocation(0, ith_col, (Location)topLocation.clone());
+            if( D ) System.out.println(S + "(x,y) topLocation = (0, " + ith_col + ") " + topLocation );
 
             // Loop over each row - calculating location at depth along the fault trace
             ith_row = 1;
@@ -178,7 +191,7 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
 
                 dir = new Direction(vDistance, hDistance, aveDipDirection, 0);
 
-                Location depthLocation = RelativeLocation.getLocation( surfaceLocation, dir );
+                Location depthLocation = RelativeLocation.getLocation( topLocation, dir );
                 surface.setLocation(ith_row, ith_col, (Location)depthLocation.clone());
                 if( D ) System.out.println(S + "(x,y) depthLocation = (" + ith_row + ", " + ith_col + ") " + depthLocation );
 

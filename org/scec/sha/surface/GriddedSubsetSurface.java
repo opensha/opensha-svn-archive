@@ -217,7 +217,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      *
      *  SWR: Note - should we be returning the main GriddedSurface ave. dip, or
      *  the ave. dip for the subsurface, which may be different from the main
-     *  surface.
+     *  surface.  This is especially important now that we have a
+     *  SimpleListricGriddedFaultFactory (Ned's comment).
      *
      * @return    The aveDip value
      */

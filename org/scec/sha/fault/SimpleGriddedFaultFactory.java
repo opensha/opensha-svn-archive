@@ -14,7 +14,9 @@ import org.scec.util.FaultUtils;
 // Fix - Needs more comments
 
 /**
- * <b>Title:</b> SimpleGriddedFaultFactory<p>
+ * <b>Title:</b> SimpleGriddedFaultFactory.  This is the abstract class of any
+ * object that creates a gridded surface (actually an EvenlyGriddedSurface)
+ * using SimpleFaultData (plus a grid spacing)<p>
  * <b>Description:</b> <p>
  *
  * @author Steven W. Rock
