@@ -17,6 +17,11 @@ import org.scec.exceptions.ParameterException;
 import org.scec.sha.param.PropagationEffect;
 import org.scec.param.ParameterList;
 
+import org.scec.sha.param.DistanceRupParameter;
+import org.scec.sha.param.DistanceSeisParameter;
+import org.scec.sha.param.DistanceJBParameter;
+import org.scec.sha.imr.attenRelImpl.*;
+
 /**
  * <p>Title: ScenarioShakeMapCalculatorWithPropagationEffect</p>
  * <p>Description: This class calculates the Scenario Shake Map Data using the
@@ -117,6 +122,20 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
 
       //setting the site in the PropagationEffect
       propagationEffect.setSite(site);
+/*
+      // write out useful info
+      System.out.print((float)site.getLocation().getLatitude()+"\t"+
+                       (float)site.getLocation().getLongitude()+"\t"+
+                       ((Double)site.getParameter(AttenuationRelationship.VS30_NAME).getValue()).floatValue()+"\t"+
+                       site.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).getValue()+"\t"+
+                       site.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).getValue()+"\t"+
+                       site.getParameter(CB_2003_AttenRel.SITE_TYPE_NAME).getValue()+"\t"+
+                       site.getParameter(ShakeMap_2003_AttenRel.WILLS_SITE_NAME).getValue()+"\t"+
+                       ((Double)site.getParameter(Field_2000_AttenRel.BASIN_DEPTH_NAME).getValue()).floatValue()+"\t"+
+                       propagationEffect.getParamValue(DistanceRupParameter.NAME)+"\t"+
+                       propagationEffect.getParamValue(DistanceSeisParameter.NAME)+"\t"+
+                       propagationEffect.getParamValue(DistanceJBParameter.NAME)+"\n");
+*/
       //iterating overe all the selected attenautionRelationShips and getting the XYZ data for them
       for(int i=0;i<size;++i){
         AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);

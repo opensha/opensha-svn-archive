@@ -1171,6 +1171,7 @@ public class ShakeMap_2003_AttenRel
 
     // this is temporary for testing purposes
     public static void main(String[] args) {
+      System.out.println((981.0/(2.0*Math.PI*1.65)));
       ShakeMap_2003_AttenRel ar = new ShakeMap_2003_AttenRel(null);
     }
 
