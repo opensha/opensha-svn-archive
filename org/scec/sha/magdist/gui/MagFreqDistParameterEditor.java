@@ -62,7 +62,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
     //Checks if the magDist Params have been changed
-    private boolean magDistParamsChange = false;
+    private boolean magDistParamsChange = true;
 
     /**
      * Paramter List for holding all parameters

@@ -144,10 +144,9 @@ public class MagFreqDistTesterApplet extends JApplet
   private JPanel titlePanel = new JPanel();
   private JPanel innerPlotPanel = new JPanel();
 
-  Color[] legendColor={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
-                       Color.cyan,Color.pink,Color.yellow,Color.darkGray};
-  Paint[] legendPaint={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
-                       Color.cyan,Color.pink,Color.yellow,Color.darkGray};
+  Color[] legendColor = new Color[11];
+  Paint[] legendPaint = new Paint[11];
+
   Color darkBlue = new Color( 80, 80, 133 );
   Color lightBlue = new Color( 200, 200, 230 );
   protected boolean graphOn = false;
@@ -214,6 +213,28 @@ public class MagFreqDistTesterApplet extends JApplet
       incrData.setConvertZeroToMin(true,.0000001);
       toCumData.setConvertZeroToMin(true,.0000001);
       toMoData.setConvertZeroToMin(true,1);
+
+      //default setting the legend and plot colors
+      int k=0;
+      legendColor[k]= Color.blue;
+      legendPaint[k++]= Color.blue;
+      legendColor[k]= Color.green;
+      legendPaint[k++]= Color.green;
+      legendColor[k]= Color.orange;
+      legendPaint[k++]= Color.orange;
+      legendColor[k]= Color.magenta;
+      legendPaint[k++]= Color.magenta;
+      legendColor[k]= Color.cyan;
+      legendPaint[k++]= Color.cyan;
+
+      legendColor[k]= Color.pink;
+      legendPaint[k++]= Color.pink;
+
+      legendColor[k]= Color.yellow;
+      legendPaint[k++]= Color.yellow;
+
+      legendColor[k]= Color.darkGray;
+      legendPaint[k++]= Color.darkGray;
   }
 
   /**
@@ -325,7 +346,7 @@ public class MagFreqDistTesterApplet extends JApplet
     buttonPanel.setBackground(Color.white);
     buttonPanel.setBorder( topBorder );
     jCheckSumDist.setBackground(Color.white);
-    jCheckSumDist.setForeground(new Color(80, 80, 133));
+    jCheckSumDist.setForeground(Color.red);
     jCheckSumDist.setText("Summed Dist");
     jCheckSumDist.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -726,7 +747,8 @@ public class MagFreqDistTesterApplet extends JApplet
         }catch(NumberFormatException e){
           JOptionPane.showMessageDialog(this,new String("Enter a Valid Numerical Value"),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
         }catch(NullPointerException e) {
-          JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Data Not Entered",JOptionPane.ERROR_MESSAGE);
+          //JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Data Not Entered",JOptionPane.ERROR_MESSAGE);
+          e.printStackTrace();
         }catch(Exception e) {
           JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
         }
@@ -894,12 +916,13 @@ public class MagFreqDistTesterApplet extends JApplet
         moPanel = new ChartPanel(moChart, true, true, true, true, false);
 
 
-        int numOfColors = incrPlot.getSeriesCount();
+
         legendPane.removeAll();
         legendPane.setEditable(false);
         setLegend =new SimpleAttributeSet();
         setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
                                Boolean.TRUE);
+        int numOfColors = incrPlot.getSeriesCount();
         Document doc = legendPane.getStyledDocument();
         try {
 
@@ -1220,7 +1243,11 @@ public class MagFreqDistTesterApplet extends JApplet
    */
   void jCheckSumDist_actionPerformed(ActionEvent e) {
 
+    int k=0;
     if(jCheckSumDist.isSelected()) {
+
+      legendColor[k]= Color.red;
+      legendPaint[k++]=Color.red;
       // if user wants a summed distribution
       double min = magDistEditor.getMin();
       double max = magDistEditor.getMax();
@@ -1254,6 +1281,28 @@ public class MagFreqDistTesterApplet extends JApplet
      toCumFunctions.remove(0);
      toMoFunctions.remove(0);
    }
+
+
+    //making the legend color for the plot and the legend based on the selection of the Summed check box
+     legendColor[k]= Color.blue;
+     legendPaint[k++]= Color.blue;
+     legendColor[k]= Color.green;
+     legendPaint[k++]= Color.green;
+     legendColor[k]= Color.orange;
+     legendPaint[k++]= Color.orange;
+     legendColor[k]= Color.magenta;
+     legendPaint[k++]= Color.magenta;
+     legendColor[k]= Color.cyan;
+     legendPaint[k++]= Color.cyan;
+
+     legendColor[k]= Color.pink;
+     legendPaint[k++]= Color.pink;
+
+     legendColor[k]= Color.yellow;
+     legendPaint[k++]= Color.yellow;
+
+     legendColor[k]= Color.darkGray;
+     legendPaint[k++]= Color.darkGray;
 
    // Add points data to text area, people can see
     pointsTextArea.setText(INCR_RATE +" vs. "+ MAG + '\n' + "--------------------------" + '\n' + incrFunctions.toString());
