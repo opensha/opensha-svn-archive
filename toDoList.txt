@@ -25,17 +25,16 @@ Fix GriddedFaultApplet - colors (red to blue) and horz/vert scaling.
 
 HazardCurveApplet:
 
-	- fix the OpenSHA logo
-
 	- add tabs for better parameter visibility? (e.g., one tab for "IMR, 
 	  IMT, & Site" and one for "ERF & Time Span"; timeSpan guiBean can
 	  then be moved above, with one line of items below -wrapped if need
 	  be)
 
-	Change "Source-Site Distance Control" to "Max Source-Site Distance"
+	Refresh timespan guiBean.
 
-	- sometimes it only shows "Beginning Calculation" (no progress bar) when 
-	I know there are enough ruptures to make the bar visible).
+	sometimes it only shows "Beginning Calculation" (no progress bar) when 
+	I know there are enough ruptures to make the bar visible).  Look into
+	refreshing of the progress bar.
 
 	We're getting out of memeory exceptions; can we kill old 
 	ERFs when a new one is selected?
