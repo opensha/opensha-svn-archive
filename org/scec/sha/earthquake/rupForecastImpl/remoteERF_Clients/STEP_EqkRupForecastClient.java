@@ -18,7 +18,7 @@ public class STEP_EqkRupForecastClient extends RemoteERF_Client{
   // name of this ERF
   public static String  NAME = new String("Server STEP ERF");
 
-  public STEP_EqkRupForecastClient() {
+  public STEP_EqkRupForecastClient() throws java.rmi.RemoteException{
     String className = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
     getRemoteERF(className);
   }

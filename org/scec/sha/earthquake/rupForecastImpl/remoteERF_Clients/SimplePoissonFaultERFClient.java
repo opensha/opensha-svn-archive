@@ -17,7 +17,7 @@ public class SimplePoissonFaultERFClient extends RemoteERF_Client{
   //name of the ERF
   public final static String  NAME = "Server Poisson Fault ERF";
 
-  public SimplePoissonFaultERFClient() {
+  public SimplePoissonFaultERFClient() throws java.rmi.RemoteException{
     String className = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF";
     getRemoteERF(className);
   }

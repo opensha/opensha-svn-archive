@@ -1223,6 +1223,7 @@ public class Temp_HazardCurveApplication extends JApplet
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
+     e.printStackTrace();
      throw new RuntimeException("Connection to ERF's failed");
    }
    erfPanel.setLayout(gridBagLayout5);

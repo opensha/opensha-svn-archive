@@ -135,12 +135,9 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
 
      this.parameterList = new ParameterList();
 
+     System.out.println("Inside the initialization of the Param List");
 
-     //Name of the first ERF class that is to be shown as the default ERF in the ERF Pick List
-     String erfClassName = (String)erfClasses.get(0);
 
-     // make the ERF objects to get their adjustable parameters
-     eqkRupForecast = (EqkRupForecastAPI ) createERFClassInstance(erfClassName);
      if(D)  System.out.println("Iterator Class:"+eqkRupForecast.getName());
 
      //gets the iterator for the class names of all the ERF's
@@ -163,6 +160,10 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
          erfClasses.remove(erfFailed.get(i));
      }
 
+     //Name of the first ERF class that is to be shown as the default ERF in the ERF Pick List
+     String erfClassName = (String)erfClasses.get(0);
+     // make the ERF objects to get their adjustable parameters
+     eqkRupForecast = (EqkRupForecastAPI ) createERFClassInstance(erfClassName);
      Iterator it1 = eqkRupForecast.getAdjustableParameterList().getParametersIterator();
 
      // add the listener for the paramters in the forecast

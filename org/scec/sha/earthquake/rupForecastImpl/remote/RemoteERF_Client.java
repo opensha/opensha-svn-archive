@@ -34,7 +34,7 @@ public abstract class RemoteERF_Client extends EqkRupForecast implements Paramet
   /**
    * Get the reference to the remote ERF
    */
-  protected void getRemoteERF(String className) {
+  protected void getRemoteERF(String className) throws RemoteException{
     try {
       RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(RegisterRemoteERF_Factory.registrationName);
       erfServer = remoteERF_Factory.getRemoteERF(className);
@@ -47,9 +47,6 @@ public abstract class RemoteERF_Client extends EqkRupForecast implements Paramet
     }
     catch (java.rmi.UnmarshalException u) {
       u.printStackTrace();
-    }
-    catch (RemoteException r) {
-      r.printStackTrace();
     }
   }
 
