@@ -157,6 +157,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
     public VerticalLogarithmicAxis(String label) {
 	super(label);
+        verticalLabel = true;
     }
 
 
@@ -459,16 +460,11 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
      */
 
     public void draw(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea) {
-
        String label = this.getLabel();
        Font tickLabelFont = this.getLabelFont();
-
         if (!isVisible()) return;
-
         if (label!=null) {
-
             g2.setFont(tickLabelFont);
-
             g2.setPaint(this.getLabelPaint());
 
             Rectangle2D labelBounds = tickLabelFont.getStringBounds(label, g2.getFontRenderContext());
@@ -546,25 +542,15 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
 
            if (this.isTickLabelsVisible()) {
-
               g2.setPaint(this.getTickLabelPaint());
-
               if(eIndex==-1)
-
                 g2.drawString(tick.getText(), tick.getX(), tick.getY());
-
               else { // show in superscript form
-
                 g2.drawString("10", tick.getX()+4, tick.getY());
-
                 g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()-2));
-
                 g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+20,tick.getY()-6);
-
               }
-
            }
-
            if (this.isTickMarksVisible()) {
              g2.setStroke(this.getTickMarkStroke());
              g2.setPaint(this.getTickMarkPaint());
@@ -572,22 +558,16 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
                             plotArea.getX()+2, yy);
               g2.draw(mark);
            }
-
         }
     }
 
 
 
     /**
-
      * Returns the width required to draw the axis in the specified draw area.
-
      * @param g2 The graphics device;
-
      * @param plot A reference to the plot;
-
      * @param drawArea The area within which the plot should be drawn.
-
      */
 
     public double reserveWidth(Graphics2D g2, Plot plot, Rectangle2D drawArea) {
@@ -595,121 +575,62 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
       String label = this.getLabel();
       Font labelFont = this.getTickLabelFont();
       double labelWidth = 0.0;
-
 	if (label!=null) {
-
           Rectangle2D labelBounds = labelFont.getStringBounds(label, g2.getFontRenderContext());
-
           labelWidth = this.getLabelInsets().left+this.getLabelInsets().right;
-
           if (this.verticalLabel) {
-
             labelWidth = labelWidth + labelBounds.getHeight();  // assume width == height before rotation
-
           }
-
           else {
-
             labelWidth = labelWidth + labelBounds.getWidth();
-
           }
-
         }
-
-
-
         // calculate the width required for the tick labels (if visible);
-
         double tickLabelWidth = this.getTickLabelInsets().left+this.getTickLabelInsets().right;
-
         if (this.isTickLabelsVisible()) {
-
           this.refreshTicks(g2, drawArea, drawArea);
-
           tickLabelWidth = tickLabelWidth+getMaxTickLabelWidth(g2, drawArea);
-
         }
-
         return labelWidth+tickLabelWidth;
-
-
-
     }
 
 
 
     /**
-
      * Returns area in which the axis will be displayed.
-
      * @param g2 The graphics device;
-
      * @param plot A reference to the plot;
-
      * @param drawArea The area in which the plot and axes should be drawn;
-
      * @param reservedHeight The height reserved for the horizontal axis;
-
      */
 
     public Rectangle2D reserveAxisArea(Graphics2D g2, Plot plot, Rectangle2D drawArea,
 
 				       double reservedHeight) {
-
-
-
 	// calculate the width of the axis label...
-
 	double labelWidth = 0.0;
-
 	if (this.getLabel()!=null) {
-
 	    Rectangle2D labelBounds = this.getLabelFont().getStringBounds(this.getLabel(), g2.getFontRenderContext());
-
 	    labelWidth = this.getLabelInsets().left+this.getLabelInsets().right;
-
 	    if (this.verticalLabel) {
-
 		labelWidth = labelWidth + labelBounds.getHeight();  // assume width == height before rotation
-
 	    }
-
 	    else {
-
 		labelWidth = labelWidth + labelBounds.getWidth();
-
 	    }
-
 	}
-
-
-
 	// calculate the width of the tick labels
-
 	double tickLabelWidth = this.getTickLabelInsets().left+this.getTickLabelInsets().right;
-
 	if (this.isTickLabelsVisible()) {
-
 	    Rectangle2D approximatePlotArea = new Rectangle2D.Double(drawArea.getX(), drawArea.getY(),
-
 								     drawArea.getWidth(),
-
 								     drawArea.getHeight()-reservedHeight);
-
 	    this.refreshTicks(g2, drawArea, approximatePlotArea);
-
 	    tickLabelWidth = tickLabelWidth+getMaxTickLabelWidth(g2, approximatePlotArea);
 
 	}
-
-
-
 	return new Rectangle2D.Double(drawArea.getX(), drawArea.getY(), labelWidth+tickLabelWidth,
-
 				      drawArea.getHeight()-reservedHeight);
-
-
-
     }
 
 
