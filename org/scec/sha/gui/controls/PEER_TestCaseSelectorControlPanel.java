@@ -571,44 +571,44 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
       // mag dist parameters for test case 3
      if(selectedTest.equalsIgnoreCase(TEST_CASE_THREE)){
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
-       magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-       magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_CHAR).setValue(new Double(.5));
-       magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.YC_MAG_PRIME).setValue(new Double(5.95));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.45));
-       magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.YC_TOT_CHAR_RATE).setValue(new Double(1e-3));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
+       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
+       magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
+       magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_CHAR).setValue(new Double(.5));
+       magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.05));
+       magEditor.getParameter(MagFreqDistParameter.YC_MAG_PRIME).setValue(new Double(5.95));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
+       magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.YC_TOT_CHAR_RATE).setValue(new Double(1e-3));
        }
        // mag dist parameters for test case 4
      if(selectedTest.equalsIgnoreCase(TEST_CASE_FOUR)){
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
-       magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
-       magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(1e-3));
-       magEditor.getParameter(MagFreqDistParameterEditor.STD_DEV).setValue(new Double(0.25));
-       magEditor.getParameter(MagFreqDistParameterEditor.MEAN).setValue(new Double(6.2));
-       magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATION_REQ).setValue(MagFreqDistParameterEditor.TRUNCATE_UPPER_ONLY);
-       magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.0));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
+       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
+       magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.TOT_CUM_RATE).setValue(new Double(1e-3));
+       magEditor.getParameter(MagFreqDistParameter.STD_DEV).setValue(new Double(0.25));
+       magEditor.getParameter(MagFreqDistParameter.MEAN).setValue(new Double(6.2));
+       magEditor.getParameter(MagFreqDistParameter.TRUNCATION_REQ).setValue(MagFreqDistParameter.TRUNCATE_UPPER_ONLY);
+       magEditor.getParameter(MagFreqDistParameter.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.0));
     }
 
       // mag dist parameters for test case 6
      if(selectedTest.equalsIgnoreCase(TEST_CASE_SIX)){
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_CUM_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
-       magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
-        magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.45));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-       magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(3.8055e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
+       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
+        magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.05));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
+       magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
+       magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(3.8055e16));
      }
 
      // now have the editor create the magFreqDist
@@ -623,165 +623,165 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    private void setMagDistParams_Set1(MagFreqDistParameterEditor magEditor){
 
      // these apply to most (overridden below where not)
-     magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(6));
-     magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(6.5));
-     magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(6));
+     magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(6));
+     magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(6.5));
+     magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(6));
 
      // mag dist parameters for test case 1 & 12
      if(selectedTest.equalsIgnoreCase(TEST_CASE_ONE) || selectedTest.equalsIgnoreCase(TEST_CASE_TWELVE)) {
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.5));
-       magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.5));
+       magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
      }
 
      // mag dist parameters  for test case 2
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_TWO)) {
 
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
+       magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
      }
 
      // mag dist parameters  for test case 3
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_THREE)) {
 
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
+       magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
      }
 
      // mag dist parameters for test case 4
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_FOUR)) {
 
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
+       magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.905e16));
      }
 
      // mag dist parameters for test case 5
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_FIVE)) {
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.005));
-       magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.995));
-       magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(1000));
-       magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_CUM_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(0.005));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.495));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-       magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.005));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.995));
+       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(1000));
+       magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.005));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.495));
+       magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
+       magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(1.8e16));
      }
 
 
      // mag dist parameters for test case 6
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_SIX)) {
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
-       magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
-       magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_CUM_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
-       magEditor.getParameter(MagFreqDistParameterEditor.STD_DEV).setValue(new Double(0.25));
-       magEditor.getParameter(MagFreqDistParameterEditor.MEAN).setValue(new Double(6.2));
-       magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATION_REQ).setValue(MagFreqDistParameterEditor.TRUNCATE_UPPER_ONLY);
-       magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.0));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
+       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
+       magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_CUM_RATE);
+       magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(1.8e16));
+       magEditor.getParameter(MagFreqDistParameter.STD_DEV).setValue(new Double(0.25));
+       magEditor.getParameter(MagFreqDistParameter.MEAN).setValue(new Double(6.2));
+       magEditor.getParameter(MagFreqDistParameter.TRUNCATION_REQ).setValue(MagFreqDistParameter.TRUNCATE_UPPER_ONLY);
+       magEditor.getParameter(MagFreqDistParameter.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.0));
      }
      // mag dist parameters for test case 7
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_SEVEN)) {
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(10));
-       magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(1001));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-       magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_CHAR).setValue(new Double(0.5));
-       magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(0.01));
-       magEditor.getParameter(MagFreqDistParameterEditor.YC_MAG_PRIME).setValue(new Double(5.95));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.45));
-       magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.0));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(10));
+       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(1001));
+       magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
+       magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_CHAR).setValue(new Double(0.5));
+       magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.01));
+       magEditor.getParameter(MagFreqDistParameter.YC_MAG_PRIME).setValue(new Double(5.95));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
+       magEditor.getParameter(MagFreqDistParameter.TOT_MO_RATE).setValue(new Double(1.8e16));
      }
 
      //mag dist parameters for the test case 8_1
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_EIGHT_ONE)) {
 
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
+       magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
      }
 
      //mag dist parameters for the test case 8_2
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_EIGHT_TWO)) {
 
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
+       magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
      }
 
      //mag dist parameters for the test case 8_3
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_EIGHT_THREE)) {
 
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
+       magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.8e16));
      }
 
      //mag dist parameters for the test case 9_1
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_NINE_ONE)) {
 
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
+       magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.905e16));
      }
 
      //mag dist parameters for the test case 9_2
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_NINE_TWO)) {
 
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
+       magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.905e16));
      }
 
      //mag dist parameters for the test case 9_1
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_NINE_THREE)) {
 
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(6.0));
+       magEditor.getParameter(MagFreqDistParameter.MO_RATE).setValue(new Double(1.905e16));
      }
 
      // mag dist parameters for test case 10
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_TEN)) {
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
-       magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
-       magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.45));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-       magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(.0395));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
+       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
+       magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(5.05));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
+       magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
+       magEditor.getParameter(MagFreqDistParameter.TOT_CUM_RATE).setValue(new Double(.0395));
      }
 
      // mag dist parameters for test case 11
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
-       magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
-       magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
-       magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.45));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-       magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(.0395));
+       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
+       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
+       magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(5.05));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
+       magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
+       magEditor.getParameter(MagFreqDistParameter.TOT_CUM_RATE).setValue(new Double(.0395));
      }
 
      // now have the editor create the magFreqDist

@@ -93,72 +93,72 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
 
 
   //Reference to the EvenlyGriddedSurface Param
-  SimpleFaultParameter surfaceParam;
+  private SimpleFaultParameter surfaceParam;
 
   /**
    * Paramter List for holding all parameters
    */
-  ParameterList parameterList = new ParameterList();
+  private ParameterList parameterList = new ParameterList();
 
   /**
    * List to store the Lats
    */
-  ParameterList parameterListForLats ;
+  private ParameterList parameterListForLats ;
 
   /**
    * List to store the Lons
    */
-  ParameterList parameterListForLons ;
+  private ParameterList parameterListForLons ;
   /**
    * ParameterList for the Dips
    */
-  ParameterList parameterListForDips ;
+  private ParameterList parameterListForDips ;
 
   /**
    * ParameterList for the Depths
    */
-  ParameterList parameterListForDepths ;
+  private ParameterList parameterListForDepths ;
 
   /**
    * ParameterListEditor for holding parameters
    */
-  ParameterListEditor editor;
+  private ParameterListEditor editor;
 
   /**
    * ParameterListEditor for holding parameterListForLats
    */
-  ParameterListEditor editorForLats;
+  private ParameterListEditor editorForLats;
 
   /**
    * ParameterListEditor for holding parameterListForLons
    */
-  ParameterListEditor editorForLons;
+  private ParameterListEditor editorForLons;
 
   /**
    * ParameterListEditor for holding parameterListForDips
    */
-  ParameterListEditor editorForDips;
+  private ParameterListEditor editorForDips;
 
   /**
    * ParameterListEditor for holding parameterListForDepths
    */
-  ParameterListEditor editorForDepths;
+  private ParameterListEditor editorForDepths;
 
   /**
    * IntegerParameterEditor for Number of Dips
    */
-  IntegerParameterEditor numDipsEditor;
+  private IntegerParameterEditor numDipsEditor;
 
   /**
    * StringParameter for the Fault type
    */
-  ConstrainedStringParameterEditor faultTypeEditor;
+  private ConstrainedStringParameterEditor faultTypeEditor;
 
   //vectors to store the previous values for the lats, lons,dips and depths
-  Vector prevLats = new Vector();
-  Vector prevLons = new Vector();
-  Vector prevDepths = new Vector();
-  Vector prevDips = new Vector();
+  private Vector prevLats = new Vector();
+  private Vector prevLons = new Vector();
+  private Vector prevDepths = new Vector();
+  private Vector prevDips = new Vector();
 
   public SimpleFaultParameterEditorPanel() {
 
@@ -719,7 +719,6 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
       }
       //gets the griddedsurface from the faultFactory and sets the Value for the
       //SimpleFaultParameter
-
       surfaceParam.setValue((EvenlyGriddedSurface)fltFactory.getGriddedSurface());
 
       //make the change flag to be false
