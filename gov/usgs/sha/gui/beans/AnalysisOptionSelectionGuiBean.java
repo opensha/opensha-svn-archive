@@ -175,6 +175,7 @@ public class AnalysisOptionSelectionGuiBean
     ArrayList  supportedRegionList = new ArrayList();
 
     String selectedAnalysisOption = (String)analysisChoicesParam.getValue();
+    //Prob haz curves choosen
     if(selectedAnalysisOption.equals(PROB_HAZ_CURVES)){
       supportedRegionList.add(CONTER_48_STATES);
       supportedRegionList.add(ALASKA);
@@ -186,6 +187,7 @@ public class AnalysisOptionSelectionGuiBean
       supportedRegionList.add(ST_THOMAS);
       supportedRegionList.add(VIEQUES);
     }
+    // Prob UHRS choosen
     else if(selectedAnalysisOption.equals(PROB_UNIFORM_HAZ_RES)){
       supportedRegionList.add(CONTER_48_STATES);
       supportedRegionList.add(ALASKA);
@@ -197,6 +199,7 @@ public class AnalysisOptionSelectionGuiBean
       supportedRegionList.add(ST_THOMAS);
       supportedRegionList.add(VIEQUES);
     }
+    //NEHRP choosen
     else if(selectedAnalysisOption.equals(NEHRP)){
       supportedRegionList.add(CONTER_48_STATES);
       supportedRegionList.add(ALASKA);
@@ -210,16 +213,19 @@ public class AnalysisOptionSelectionGuiBean
       supportedRegionList.add(TUTUILA);
       supportedRegionList.add(GUAM);
     }
+    // FEMA 273 choosen
     else if(selectedAnalysisOption.equals(FEMA_273)){
       supportedRegionList.add(CONTER_48_STATES);
       supportedRegionList.add(ALASKA);
       supportedRegionList.add(HAWAII);
     }
+    //FEMA 356 choosen
     else if(selectedAnalysisOption.equals(FEMA_356)){
       supportedRegionList.add(CONTER_48_STATES);
       supportedRegionList.add(ALASKA);
       supportedRegionList.add(HAWAII);
     }
+    //International building code chosen
     else if(selectedAnalysisOption.equals(INTL_BUILDING_CODE)){
       supportedRegionList.add(CONTER_48_STATES);
       supportedRegionList.add(ALASKA);
@@ -233,6 +239,7 @@ public class AnalysisOptionSelectionGuiBean
       supportedRegionList.add(TUTUILA);
       supportedRegionList.add(GUAM);
     }
+    //International Residential code
     else if(selectedAnalysisOption.equals(INTL_RESIDENTIAL_CODE)){
       supportedRegionList.add(CONTER_48_STATES);
       supportedRegionList.add(ALASKA);
@@ -247,11 +254,13 @@ public class AnalysisOptionSelectionGuiBean
       supportedRegionList.add(GUAM);
 
     }
+    //International existing building code
     else if(selectedAnalysisOption.equals(INTL_EXIST_CODE)){
       supportedRegionList.add(CONTER_48_STATES);
       supportedRegionList.add(ALASKA);
       supportedRegionList.add(HAWAII);
     }
+    //NFPA
     else if(selectedAnalysisOption.equals(NFPA_5000)){
       supportedRegionList.add(CONTER_48_STATES);
       supportedRegionList.add(ALASKA);
@@ -265,6 +274,7 @@ public class AnalysisOptionSelectionGuiBean
       supportedRegionList.add(TUTUILA);
       supportedRegionList.add(GUAM);
     }
+    //ASCE
     else if(selectedAnalysisOption.equals(ASCE_7)){
       supportedRegionList.add(CONTER_48_STATES);
       supportedRegionList.add(ALASKA);
@@ -285,7 +295,8 @@ public class AnalysisOptionSelectionGuiBean
   }
 
   /**
-   *
+   * Creates the Parameter that allows user to select  the Editions based on the
+   * selected Analysis and choosen geographic region.
    */
   private void createEditionSelectionParameter(){
 
@@ -294,17 +305,20 @@ public class AnalysisOptionSelectionGuiBean
 
     String selectedRegionOption = (String)geographicRegionSelectionParam.getValue();
 
+    //Prob Haz. curves
     if(selectedAnalysisOption.equals(PROB_HAZ_CURVES)){
+      //selected region is Alaska or Hawaii
       if(selectedRegionOption.equals(ALASKA) || selectedRegionOption.equals(HAWAII))
         supportedEditionList.add(data_1998);
+      //selected region is conterminous 48 states
       else if(selectedRegionOption.equals(CONTER_48_STATES)){
         supportedEditionList.add(data_1996);
         supportedEditionList.add(data_2002);
       }
-      else
+      else //if anything else is selected
         supportedEditionList.add(data_2003);
     }
-
+    //Prob UHRS selected
     else if(selectedAnalysisOption.equals(PROB_UNIFORM_HAZ_RES)){
       if (selectedRegionOption.equals(ALASKA) || selectedRegionOption.equals(HAWAII))
         supportedEditionList.add(data_1998);
@@ -315,11 +329,13 @@ public class AnalysisOptionSelectionGuiBean
       else
         supportedEditionList.add(data_2003);
     }
+    //NEHRP selected
     else if(selectedAnalysisOption.equals(NEHRP)){
       supportedEditionList.add(NEHRP_1997);
       supportedEditionList.add(NEHRP_2000);
       supportedEditionList.add(NEHRP_2003);
     }
+    //FEMA 273 selected
     else if(selectedAnalysisOption.equals(FEMA_273)){
       supportedEditionList.add(FEMA_273_DATA);
       supportedEditionList.add(FEMA_310_DATA);
@@ -327,6 +343,8 @@ public class AnalysisOptionSelectionGuiBean
       supportedEditionList.add(ASCE_PRESTANDARD);
       supportedEditionList.add(IEBC_2003);
     }
+
+    //FEMA 356 selected
     else if(selectedAnalysisOption.equals(FEMA_356)){
       supportedEditionList.add(FEMA_273_DATA);
       supportedEditionList.add(FEMA_310_DATA);
@@ -334,18 +352,21 @@ public class AnalysisOptionSelectionGuiBean
       supportedEditionList.add(ASCE_PRESTANDARD);
       supportedEditionList.add(IEBC_2003);
     }
+    //International Building code
     else if(selectedAnalysisOption.equals(INTL_BUILDING_CODE)){
       supportedEditionList.add(IBC_2000);
       supportedEditionList.add(IBC_2003);
       supportedEditionList.add(IBC_2004);
       supportedEditionList.add(IBC_2006);
     }
+    //International Residential Code
     else if(selectedAnalysisOption.equals(INTL_RESIDENTIAL_CODE)){
       supportedEditionList.add(IRC_2000);
       supportedEditionList.add(IRC_2003);
       supportedEditionList.add(IRC_2004);
       supportedEditionList.add(IRC_2006);
     }
+    //International Existing Building code
     else if(selectedAnalysisOption.equals(INTL_EXIST_CODE)){
       supportedEditionList.add(FEMA_273_DATA);
       supportedEditionList.add(FEMA_310_DATA);
@@ -353,11 +374,13 @@ public class AnalysisOptionSelectionGuiBean
       supportedEditionList.add(ASCE_PRESTANDARD);
       supportedEditionList.add(IEBC_2003);
     }
+    //NFPA
     else if(selectedAnalysisOption.equals(NFPA_5000)){
       supportedEditionList.add(ASCE_1998);
       supportedEditionList.add(ASCE_2002);
       supportedEditionList.add(ASCE_2005);
     }
+    //ASCE
     else if(selectedAnalysisOption.equals(ASCE_7)){
       supportedEditionList.add(ASCE_1998);
       supportedEditionList.add(ASCE_2002);

@@ -398,6 +398,23 @@ public class DoubleParameter
         return isAllowed( (Object)d );
     }
 
+    /**
+     *
+     *  Uses the constraint object to determine if the new value being set is
+     *  allowed. If no Constraints are present all values are allowed. This
+     *  function is now available to all subclasses, since any type of
+     *  constraint object follows the same api.
+     *
+     * @param  obj  Object to check if allowed via constraints, must be object of type
+     * Double else it will return false
+     * @return      True if the value is allowed
+     */
+    public boolean isAllowed(Object d){
+      if (d instanceof Double)
+        return super.isAllowed(d);
+
+      return false;
+    }
 
     /**
      *  Uses the constraint object to determine if the new value being set is
