@@ -620,6 +620,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     //make sures that next time user wants to generate the shapefiles for hazus
     //he would have to pull up the control panel again and punch the button.
     hazusControl.setGenerateShapeFilesForHazus(false);
+    //running the garbage collector to collect the objects
+    System.gc();
   }
 
 
@@ -718,6 +720,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,mapParametersInfo);
     else //if calculation are to be done on the server
       mapGuiBean.makeMap(serverXYZDataSetFilePath,erfGuiBean.getRupture(),label,mapParametersInfo);
+    //running the garbage collector to collect the objects
+    System.gc();
     step =0;
   }
 
