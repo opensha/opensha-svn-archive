@@ -611,6 +611,9 @@ public class HazardMapApplet extends JApplet
    timer.start();
    try{
      step =1;
+     //use the default values for IML's if user does not specifies any custom values.
+     if(!useCustomX_Values)
+       function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
      //this connects to the servlet on web server to check if dataset name already exists
      //or computation have already been for these parameter settings.
      Object obj= checkForHazardMapComputation();
@@ -728,9 +731,6 @@ public class HazardMapApplet extends JApplet
 
      ObjectOutputStream toServlet = new
          ObjectOutputStream(servletConnection.getOutputStream());
-
-     if(!useCustomX_Values)
-       function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
 
      //sending the object of the gridded region sites to the servlet
      toServlet.writeObject(regionSites);
