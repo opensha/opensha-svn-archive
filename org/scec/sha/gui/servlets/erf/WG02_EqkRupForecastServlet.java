@@ -187,8 +187,8 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
         //command to be executed during the runtime.
         String[] command ={"sh","-c","sh "+ WG02_CODE_PATH+"wg02.sh"};
         RunScript.runScript(command);
-        command[2]="rm "+WG02_CODE_PATH+"*.out*";
-        RunScript.runScript(command);
+        //command[2]="rm "+WG02_CODE_PATH+"*.out*";
+        //RunScript.runScript(command);
         command[2]="rm "+WG02_CODE_PATH+"wg02.sh";
         RunScript.runScript(command);
       }

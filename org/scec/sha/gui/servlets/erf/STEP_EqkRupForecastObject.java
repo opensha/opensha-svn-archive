@@ -18,6 +18,7 @@ import org.scec.util.FileUtils;
 import org.scec.exceptions.FaultException;
 import org.scec.calc.MomentMagCalc;
 import org.scec.util.FileUtils;
+import org.scec.sha.gui.servlets.erf.STEP_ERF_AdjustableParamClass;
 
 /**
  * <p>Title: STEP_EqkRupForecastObject</p>
@@ -30,6 +31,11 @@ import org.scec.util.FileUtils;
 public class STEP_EqkRupForecastObject implements ERF_API,java.io.Serializable{
 
 
+  //Background rate file
+  private final static String BACKGROUND_RATES_FILE_NAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/DailyRates96Model.txt";
+  //BackGroundRate File Lines
+  private ArrayList backgroundRateFileLines;
+
   /**
    * timespan field in yrs for now (but have to ultimately make it a TimeSpan class variable)
    */
@@ -41,16 +47,41 @@ public class STEP_EqkRupForecastObject implements ERF_API,java.io.Serializable{
   private static final double MAG_UPPER=8;
   private static final int    NUM_MAG=41;
   private static final double DEPTH=0;
+  private double oldMinMag=MAG_LOWER;
 
-  // vector to hold the sources
-  Vector sources;
+
+  // vectors to hold the sources
+  private Vector deltaRateSources;
+  private Vector backgroundRateSources;
+  private Vector allSources;
+
+  // booleans to help decide if sources need to be made
+  private boolean deltaSourcesAlreadyMade = false;
+  private boolean backgroundSourcesAlreadyMade = false;
+  private boolean backgroundRatesFileAlreadyRead = false;
 
   //timeSpan Object
   private TimeSpan timeSpan;
 
-  public STEP_EqkRupForecastObject(TimeSpan time, ArrayList inputFileLines) {
+  public STEP_EqkRupForecastObject(TimeSpan time, ArrayList inputFileLines,ParameterList param) {
     setTimeSpan(time);
-    makeSources(inputFileLines);
+    allSources = new Vector();
+    String seisType = (String) param.getParameter(STEP_ERF_AdjustableParamClass.SEIS_TYPE_NAME).getValue();
+    double minMag = ((Double) param.getParameter(STEP_ERF_AdjustableParamClass.MIN_MAG_PARAM_NAME).getValue()).doubleValue();
+    // add delta rates if needed
+    if(seisType.equals(STEP_ERF_AdjustableParamClass.SEIS_TYPE_ADD_ON) || seisType.equals(STEP_ERF_AdjustableParamClass.SEIS_TYPE_BOTH)) {
+      // make them if needed
+      //if(!deltaSourcesAlreadyMade || minMag != oldMinMag)
+        makeDeltaRateSources(inputFileLines, minMag);
+      allSources.addAll(deltaRateSources);
+    }
+
+    if(seisType.equals(STEP_ERF_AdjustableParamClass.SEIS_TYPE_BACKGROUND) || seisType.equals(STEP_ERF_AdjustableParamClass.SEIS_TYPE_BOTH)) {
+     // if(!backgroundSourcesAlreadyMade || minMag != oldMinMag)
+        makeBackgroundRateSources(minMag);
+      allSources.addAll(backgroundRateSources);
+    }
+    //oldMinMag = minMag;
   }
 
   /**
@@ -59,7 +90,7 @@ public class STEP_EqkRupForecastObject implements ERF_API,java.io.Serializable{
    * @return integer value specifying the number of earthquake sources
    */
   public int getNumSources(){
-    return sources.size();
+    return allSources.size();
   }
 
 
@@ -69,7 +100,7 @@ public class STEP_EqkRupForecastObject implements ERF_API,java.io.Serializable{
    * @return Vector of Prob Earthquake sources
    */
   public Vector  getSourceList(){
-    return sources;
+    return allSources;
   }
 
 
@@ -100,7 +131,7 @@ public class STEP_EqkRupForecastObject implements ERF_API,java.io.Serializable{
    *
    */
   public ProbEqkSource getSource(int iSource) {
-    return (ProbEqkSource) sources.get(iSource);
+    return (ProbEqkSource) allSources.get(iSource);
   }
 
   /**
@@ -122,16 +153,27 @@ public class STEP_EqkRupForecastObject implements ERF_API,java.io.Serializable{
     this.timeSpan=time;
   }
 
+
   /**
-   * Make the sources
+   * Make the background rate sources
    *
    */
-  private  void makeSources(ArrayList inputFileLines) {
+  private  void makeBackgroundRateSources(double minMag) {
 
     // Debug
-    String S =  ": makeSources(): ";
+    String S = ": makeBackgroundRateSources(): ";
 
-    this.sources = new Vector();
+    //read background rates file if needed
+    if(!backgroundRatesFileAlreadyRead){
+      try {
+        backgroundRateFileLines = FileUtils.loadFile( BACKGROUND_RATES_FILE_NAME );
+      } catch(Exception e) {
+        throw new RuntimeException("Background file could not be loaded");
+      }
+      backgroundRatesFileAlreadyRead = true;
+    }
+
+    backgroundRateSources = new Vector();
     double lat, lon;
     double duration = timeSpan.getDuration();
 
@@ -139,7 +181,61 @@ public class STEP_EqkRupForecastObject implements ERF_API,java.io.Serializable{
     PointPoissonEqkSource ptSource;
 
     // Get iterator over input-file lines
-    ListIterator it = inputFileLines.listIterator();
+    ListIterator it = backgroundRateFileLines.listIterator();
+
+    StringTokenizer st;
+
+    while( it.hasNext() ) {
+
+      // get next line
+      st = new StringTokenizer(it.next().toString());
+
+      // skip the event ID
+      st.nextToken();
+
+      // get lat and lon
+      lon =  Double.parseDouble(st.nextToken());
+      lat =  Double.parseDouble(st.nextToken());
+
+      magFreqDist = new IncrementalMagFreqDist(MAG_LOWER,MAG_UPPER,NUM_MAG);
+
+      // skip the mag=2, 2.1, ... 3.9
+      for(int j=0; j<20; j++) st.nextToken();
+
+      for(int i=0;i<NUM_MAG;i++) {
+        double rate = Double.parseDouble(st.nextToken());
+        magFreqDist.set(i,rate);
+      }
+
+      ptSource = new PointPoissonEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP,minMag);
+      if(ptSource.getNumRuptures() > 0) {
+          backgroundRateSources.add(ptSource);
+
+      }
+    }
+    backgroundSourcesAlreadyMade = true;
+  }
+
+
+
+  /**
+   * Make the delta rate sources
+   *
+   */
+  private  void makeDeltaRateSources(ArrayList deltaRateFileLines,double minMag) {
+
+    // Debug
+    String S = ": makeDeltaRateSources(): ";
+
+    deltaRateSources = new Vector();
+    double lat, lon;
+    double duration = timeSpan.getDuration();
+
+    IncrementalMagFreqDist magFreqDist;
+    PointPoissonEqkSource ptSource;
+
+    // Get iterator over input-file lines
+    ListIterator it = deltaRateFileLines.listIterator();
 
     // skip first two lines
     StringTokenizer st;
@@ -161,11 +257,11 @@ public class STEP_EqkRupForecastObject implements ERF_API,java.io.Serializable{
         magFreqDist.set(i,rate);
       }
 
-      ptSource = new PointPoissonEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP);
-      sources.add(ptSource);
-
+      ptSource = new PointPoissonEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP,minMag);
+      if(ptSource.getNumRuptures() > 0) {
+        deltaRateSources.add(ptSource);
+      }
     }
+    deltaSourcesAlreadyMade = true;
   }
-
-
 }
