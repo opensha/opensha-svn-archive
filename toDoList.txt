@@ -10,18 +10,17 @@ GuiBeans - rename some of the titles (e.g., some say "Set ..." or "Choose ..." a
 
 HazardCurveApplet:
 
-	Move the OpenSHA logo to the same line as the elements above, and wrap
-	these elements if app width is too small.
-
 	sometimes it only shows "Beginning Calculation" (no progress bar) when 
 	I know there are enough ruptures to make the bar visible).  Look into
 	refreshing of the progress bar.
+
+	Mystery exception (may be reason for above)
 
 	We're getting out of memeory exceptions; can we kill old 
 	ERFs when a new one is selected?
 
 	For ERF lists, can we plot the individual curves as they are computed
-	(rather than waiting for all to end)?
+	(in black)?
 
 	-epistemic list control panal - only redo hazard calculations if needed 
 	(delay solving this until we figure out exactly what we need)
