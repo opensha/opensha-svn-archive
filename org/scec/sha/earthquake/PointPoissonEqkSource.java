@@ -33,24 +33,28 @@ public class PointPoissonEqkSource extends ProbEqkSource implements java.io.Seri
   private double aveRake=Double.NaN;
   private double duration;
 
+  private double minMag = 0.0;
+
   // to hold the non-zero mags and rates
   //ArbitrarilyDiscretizedFunc magsAndRates;
   //vector of Mag and Rates. I am using it over the ArbitrarilyDiscretisedFunc becuase
   //that class cannot be serialsed as it uses the tree map. So I am using the vector of Mag and Rate
   Vector mags, rates;
 
+
   /**
    * Constructor specifying the location object, the IncrementalMagFreqDist
-   * object, the duration, the average rake, and the dip.
+   * object, the duration, the average rake, the dip, and the minimum magnitude
+   * to consider from the magFreqDist in making the source (those below are ingored).
    *
    */
-
   public PointPoissonEqkSource(Location loc, IncrementalMagFreqDist magFreqDist,double duration,
-                        double aveRake, double aveDip){
+                        double aveRake, double aveDip, double minMag){
     this.location =loc;
     this.duration=duration;
     this.aveRake=aveRake;
     this.aveDip=aveDip;
+    this.minMag=minMag;
 
     // set the magFreqDist
     this.setMagFreqDist(magFreqDist);
@@ -66,6 +70,19 @@ public class PointPoissonEqkSource extends ProbEqkSource implements java.io.Seri
 
 
   /**
+   * Constructor specifying the location object, the IncrementalMagFreqDist
+   * object, the duration, the average rake, and the dip.  This sets minMag to
+   * zero (magnitudes from magFreqDist below are ignored in making the source)
+   *
+   */
+  public PointPoissonEqkSource(Location loc, IncrementalMagFreqDist magFreqDist,double duration,
+                        double aveRake, double aveDip){
+    this( loc,  magFreqDist, duration, aveRake,  aveDip, 0.0);
+
+  }
+
+
+  /**
    * This sets the magFreqDist
    * @param magFreqDist
    */
@@ -73,12 +90,12 @@ public class PointPoissonEqkSource extends ProbEqkSource implements java.io.Seri
 
     this.magFreqDist=magFreqDist;
 
-    // make list of non-zero rates and mags
+    // make list of non-zero rates and mags (if mag >= minMag)
     //magsAndRates = new ArbitrarilyDiscretizedFunc();
     mags = new Vector();
     rates = new Vector();
     for (int i=0; i<magFreqDist.getNum(); ++i){
-        if(magFreqDist.getY(i) > 0){
+        if(magFreqDist.getY(i) > 0 && magFreqDist.getX(i) >= minMag){
             //magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
           mags.add(new Double(magFreqDist.getX(i)));
           rates.add(new Double(magFreqDist.getY(i)));
@@ -127,6 +144,19 @@ public class PointPoissonEqkSource extends ProbEqkSource implements java.io.Seri
 
 
   /**
+   * This sets minimum magnitude to be used from the mag-freq dist (those
+   * below are ignored in making the source).  Default is zero.
+   */
+  public void setMinMag(double minMag) {
+    this.minMag=minMag;
+    // redo the mag & rate vectors:
+    setMagFreqDist(this.magFreqDist);
+  }
+
+
+
+
+  /**
   * This gets the duration used in computing Poisson probabilities
   * @param duration
   */
@@ -150,6 +180,16 @@ public class PointPoissonEqkSource extends ProbEqkSource implements java.io.Seri
    */
   public Location getLocation(){
     return location;
+  }
+
+
+  /**
+   * This gets the minimum magnitude considered from the mag-freq dist (those
+   * below are ignored in making the source).
+   * @return minMag
+   */
+  public double getMinMag(){
+    return minMag;
   }
 
 

@@ -36,7 +36,7 @@ import org.scec.param.event.ParameterChangeEvent;
 
   //for Debug purposes
   private static String  C = new String("STEP_AlaskanPipeForecast");
-  private boolean D = true;
+  private boolean D = false;
 
   // name of this ERF
   public static String  NAME = new String("STEP Alaskan Pipeline ERF");

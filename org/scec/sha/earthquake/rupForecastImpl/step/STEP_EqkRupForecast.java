@@ -28,7 +28,7 @@ import org.scec.param.event.ParameterChangeEvent;
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author :Edward Field
- * @Date : March 24, 2003
+ * @Date : Aug 30, 2003
  * @version 1.0
  */
 
@@ -42,18 +42,15 @@ import org.scec.param.event.ParameterChangeEvent;
   // name of this ERF
   public static String  NAME = new String("STEP ERF");
 
-  // Input file name
-  //private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/SoCalDeltaRates.txt";
-  private final static String INPUT_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
+  // Input file names
+  private final static String DELTA_RATES_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
+  private final static String BACKGROUND_RATES_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/DailyRates96Model.txt";
 
-  // ArrayList of input file lines
-  private ArrayList inputFileLines;
+  // ArrayLists of input file lines
+  private ArrayList deltaRateFileLines;
+  private ArrayList backgroundRateFileLines;
 
-  /**
-   * timespan field in yrs for now (but have to ultimately make it a TimeSpan class variable)
-   */
-//  private TimeSpan timeSpan;
-
+  // misc values
   private static final double RAKE=0.0;
   private static final double DIP=90.0;
   private static final double MAG_LOWER=4;
@@ -61,21 +58,47 @@ import org.scec.param.event.ParameterChangeEvent;
   private static final int    NUM_MAG=41;
   private static final double DEPTH=0;
 
-  // vector to hold the sources
-  Vector sources;
+  private double oldMinMag=MAG_LOWER;
+
+  // vectors to hold the sources
+  private Vector deltaRateSources;
+  private Vector backgroundRateSources;
+  private Vector allSources;
+
+  // booleans to help decide if sources need to be made
+  private boolean deltaSourcesAlreadyMade = false;
+  private boolean backgroundSourcesAlreadyMade = false;
+  private boolean backgroundRatesFileAlreadyRead = false;
+
+  // seismicity type parameter stuff
+  public final static String SEIS_TYPE_NAME = new String ("Seismicity Type");
+  public final static String SEIS_TYPE_ADD_ON = new String ("STEP Add-On Rates");
+  public final static String SEIS_TYPE_BACKGROUND = new String ("Background Rates");
+  public final static String SEIS_TYPE_BOTH = new String ("Both");
+  public final static String SEIS_TYPE_INFO = new String ("Seismicity-type to use in the forecast");
+  private StringParameter seisTypeParam;
+
+
+  // minimum magnitude parameter stuff
+  private final static String MIN_MAG_PARAM_NAME ="Minimum Magnitude";
+  private Double MIN_MAG_PARAM_DEFAULT = new Double(4.0);
+  private final static String MIN_MAG_PARAM_UNITS = null;
+  private final static String MIN_MAG_PARAM_INFO = "The minimum magnitude to be considered (those below are ignored)";
+  private final static double MIN_MAG_PARAM_MIN = 4.0;
+  private final static double MIN_MAG_PARAM_MAX = 8.0;
+  DoubleParameter minMagParam;
 
 
   /**
-   *
    * No argument constructor
    */
   public STEP_EqkRupForecast() throws Exception{
 
-    // read the lines of the input files into a list
-    inputFileLines = FileUtils.loadFile( new URL(INPUT_FILE_NAME) );
+    // read the delta rates here so we have the timespan info
+    deltaRateFileLines = FileUtils.loadFile( new URL(DELTA_RATES_FILE_NAME) );
 
     // Create the timeSpan & set its constraints
-    StringTokenizer st = new StringTokenizer(inputFileLines.get(0).toString());
+    StringTokenizer st = new StringTokenizer(deltaRateFileLines.get(0).toString());
     int year =  (new Integer(st.nextToken())).intValue();
     int month =  (new Integer(st.nextToken())).intValue();
     int day =  (new Integer(st.nextToken())).intValue();
@@ -86,7 +109,7 @@ import org.scec.param.event.ParameterChangeEvent;
     if(D) System.out.println("year="+year+"; month="+month+"; day="+day+"; hour="+
                              hour+"; minute="+minute+"; second="+second);
 
-    st = new StringTokenizer(inputFileLines.get(1).toString());
+    st = new StringTokenizer(deltaRateFileLines.get(1).toString());
     double duration = (new Double(st.nextToken())).doubleValue();
     if(D) System.out.println("duration="+duration);
 
@@ -103,32 +126,66 @@ import org.scec.param.event.ParameterChangeEvent;
 
     if (D) System.out.println("Start-Time Calendar toString: \n"+(timeSpan.getStartTimeCalendar()).toString());
 
-    if (D) System.out.println("Number of lines in file = "+inputFileLines.size());
+    if (D) System.out.println("Number of lines in delta rate file = "+deltaRateFileLines.size());
+    if (D) System.out.println("Number of lines in background rate file = "+backgroundRateFileLines.size());
 
-    // Make the sources
-    makeSources();
+    // init adjustable params:
+    intiAdjParams();
+
   }
 
 
+// make the adjustable parameters & the list
+  private void intiAdjParams() {
+
+    // make the seisTypeParam
+    Vector seisOptionsStrings = new Vector();
+    seisOptionsStrings.add(SEIS_TYPE_ADD_ON);
+    seisOptionsStrings.add(SEIS_TYPE_BACKGROUND);
+    seisOptionsStrings.add(SEIS_TYPE_BOTH);
+    StringConstraint constraint = new StringConstraint(seisOptionsStrings);
+    seisTypeParam = new StringParameter(SEIS_TYPE_NAME,constraint,SEIS_TYPE_ADD_ON);
+    seisTypeParam.setInfo(SEIS_TYPE_INFO);
+
+
+    // make the minMagParam
+    minMagParam = new DoubleParameter(MIN_MAG_PARAM_NAME,MIN_MAG_PARAM_MIN,
+                                      MIN_MAG_PARAM_MAX, MIN_MAG_PARAM_DEFAULT);
+    minMagParam.setInfo(MIN_MAG_PARAM_INFO);
+
+    //add these to the adjustable parameters list
+    adjustableParams.addParameter(seisTypeParam);
+    adjustableParams.addParameter(minMagParam);
+
+    // add the change listener to parameters so that forecast can be updated
+    // whenever any paramater changes
+    seisTypeParam.addParameterChangeListener(this);
+    minMagParam.addParameterChangeListener(this);
+  }
+
+
+
+
   /**
-  * Make the sources
+  * Make the delta rate sources
   *
   */
-  private  void makeSources() {
+  private  void makeDeltaRateSources() {
 
     // Debug
-    String S = C + ": makeSources(): ";
+    String S = C + ": makeDeltaRateSources(): ";
     if( D ) System.out.println(S + "Starting");
 
-    this.sources = new Vector();
+    deltaRateSources = new Vector();
     double lat, lon;
     double duration = timeSpan.getDuration();
+    double minMag = ((Double)minMagParam.getValue()).doubleValue();
 
     IncrementalMagFreqDist magFreqDist;
     PointPoissonEqkSource ptSource;
 
     // Get iterator over input-file lines
-    ListIterator it = inputFileLines.listIterator();
+    ListIterator it = deltaRateFileLines.listIterator();
 
     // skip first two lines
     StringTokenizer st;
@@ -150,23 +207,82 @@ import org.scec.param.event.ParameterChangeEvent;
         magFreqDist.set(i,rate);
       }
 
-      ptSource = new PointPoissonEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP);
-      sources.add(ptSource);
-
-      if(D) System.out.println(C+"makeSources(): numRups="+ptSource.getNumRuptures()+
-                               " for source "+sources.size());
+      ptSource = new PointPoissonEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP,minMag);
+      if(ptSource.getNumRuptures() > 0) {
+          deltaRateSources.add(ptSource);
+          if(D) System.out.println(C+"makeDeltaRateSources(): numRups="+ptSource.getNumRuptures()+
+                               " for source "+deltaRateSources.size());
+      }
     }
+    deltaSourcesAlreadyMade = true;
   }
 
 
 
-
-
   /**
-   * This method sets the time-span field
-   * @param time
-   */
-  public void setTimeSpan(TimeSpan timeSpan){
+  * Make the background rate sources
+  *
+  */
+  private  void makeBackgroundRateSources() {
+
+    // Debug
+    String S = C + ": makeBackgroundRateSources(): ";
+    if( D ) System.out.println(S + "Starting");
+
+    //read background rates file if needed
+    if(!backgroundRatesFileAlreadyRead){
+      try {
+        backgroundRateFileLines = FileUtils.loadFile( BACKGROUND_RATES_FILE_NAME );
+      } catch(Exception e) {
+        throw new RuntimeException("Background file could not be loaded");
+      }
+      backgroundRatesFileAlreadyRead = true;
+    }
+
+    backgroundRateSources = new Vector();
+    double lat, lon;
+    double duration = timeSpan.getDuration();
+    double minMag = ((Double)minMagParam.getValue()).doubleValue();
+
+    IncrementalMagFreqDist magFreqDist;
+    PointPoissonEqkSource ptSource;
+
+    // Get iterator over input-file lines
+    ListIterator it = backgroundRateFileLines.listIterator();
+
+    StringTokenizer st;
+
+    while( it.hasNext() ) {
+
+      // get next line
+      st = new StringTokenizer(it.next().toString());
+
+      // skip the event ID
+      st.nextToken();
+
+      // get lat and lon
+      lon =  Double.parseDouble(st.nextToken());
+      lat =  Double.parseDouble(st.nextToken());
+
+      magFreqDist = new IncrementalMagFreqDist(MAG_LOWER,MAG_UPPER,NUM_MAG);
+
+      // skip the mag=2, 2.1, ... 3.9
+      for(int j=0; j<20; j++) st.nextToken();
+
+      for(int i=0;i<NUM_MAG;i++) {
+        double rate = Double.parseDouble(st.nextToken());
+        magFreqDist.set(i,rate);
+      }
+
+      ptSource = new PointPoissonEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP,minMag);
+      if(ptSource.getNumRuptures() > 0) {
+          backgroundRateSources.add(ptSource);
+
+          if(D) System.out.println(C+"makeBackgroundRateSources(): numRups="+ptSource.getNumRuptures()+
+                               " for source "+backgroundRateSources.size());
+      }
+    }
+    backgroundSourcesAlreadyMade = true;
   }
 
 
@@ -176,9 +292,9 @@ import org.scec.param.event.ParameterChangeEvent;
      * @param iSource : index of the source needed
     */
     public ProbEqkSource getSource(int iSource) {
-
-      return (ProbEqkSource) sources.get(iSource);
+      return (ProbEqkSource) allSources.get(iSource);
     }
+
 
     /**
      * Get the number of earthquake sources
@@ -186,13 +302,12 @@ import org.scec.param.event.ParameterChangeEvent;
      * @return integer
      */
     public int getNumSources(){
-      return sources.size();
+      return allSources.size();
     }
+
 
     /**
      * Return  iterator over all the earthquake sources
-     *
-     * @return Iterator over all earhtquake sources
      */
     public Iterator getSourcesIterator() {
       Iterator i = getSourceList().iterator();
@@ -205,7 +320,7 @@ import org.scec.param.event.ParameterChangeEvent;
       * @return Vector of Prob Earthquake sources
       */
      public Vector getSourceList(){
-       return sources;
+       return allSources;
      }
 
 
@@ -222,12 +337,33 @@ import org.scec.param.event.ParameterChangeEvent;
    /**
     * update the forecast
     **/
-
    public void updateForecast() {
 
      // make sure something has changed
-//     if(parameterChangeFlag) {
+     if(parameterChangeFlag) {
 
+       allSources = new Vector();
+       String seisType = (String) seisTypeParam.getValue();
+       double minMag = ((Double)minMagParam.getValue()).doubleValue();
+
+       // add delta rates if needed
+       if(seisType.equals(SEIS_TYPE_ADD_ON) || seisType.equals(SEIS_TYPE_BOTH)) {
+         // make them if needed
+         if(!deltaSourcesAlreadyMade || minMag != oldMinMag)
+             makeDeltaRateSources();
+         allSources.addAll(deltaRateSources);
+       }
+
+       if(seisType.equals(SEIS_TYPE_BACKGROUND) || seisType.equals(SEIS_TYPE_BOTH)) {
+         if(!backgroundSourcesAlreadyMade || minMag != oldMinMag)
+             makeBackgroundRateSources();
+         allSources.addAll(backgroundRateSources);
+       }
+
+       parameterChangeFlag = false;
+       oldMinMag = minMag;
+
+     }
 
    }
 
@@ -249,10 +385,12 @@ import org.scec.param.event.ParameterChangeEvent;
    public static void main(String[] args) throws Exception{
 
      STEP_EqkRupForecast forecast = new STEP_EqkRupForecast();
+     forecast.updateForecast();
      System.out.println("startTimeFromCal:\n " + forecast.getTimeSpan().getStartTimeCalendar().toString());
      System.out.println("Duration: " + forecast.getTimeSpan().getDuration()+"  "+
                         forecast.getTimeSpan().getDurationUnits());
      System.out.println("getNumSources(): "+forecast.getNumSources());
+
      ProbEqkRupture rup;
      double rate;
 
