@@ -48,6 +48,10 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
   //keeps the indexing for the Attenuation Relationship for which any event is generated.
   private int indexOfAttenRel;
 
+  //keeps the index of the last button pressed, so as to keep track of parameter list editor shown
+  //So helps in corresponding to shown parameterList editor with the AttenuationRelation model.
+  private int lastAttenRelButtonIndex;
+
   //name of the attenuationrelationship weights parameter
   public static final String wtsParamName = "Wgt-";
   public static final String attenRelParamsButtonName = "Set IMR Params";
@@ -66,10 +70,10 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
   private ParameterListEditor editor[];
   private JDialog imrParamsFrame[];
 
-  private ParameterList otherParams= new ParameterList();
+  /*private ParameterList otherParams= new ParameterList();
   private ParameterListEditor otherParamsEditor;
   private JDialog otherIMR_paramsFrame;
-  private JButton setAllParamButtons = new JButton("Set All Params");
+  private JButton setAllParamButtons = new JButton("Set All Params");*/
   // this flag is needed else messages are shown twice on focus lost
   private boolean inParameterChangeWarning = false;
 
@@ -160,15 +164,15 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
             ,GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
     }
 
-    imrPanel.add(setAllParamButtons,new GridBagConstraints(0, numSupportedAttenRels+1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.EAST, new Insets(7, 200, 5, 5), 15, 5));
+    /*imrPanel.add(setAllParamButtons,new GridBagConstraints(0, numSupportedAttenRels+1, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.EAST, new Insets(7, 200, 5, 5), 15, 5));*/
 
     setIMR_Params();
-    setAllParamButtons.addActionListener(new java.awt.event.ActionListener() {
+    /*setAllParamButtons.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         setAllParamButtons_actionPerformed(e);
       }
-    });
+    });*/
   }
 
 
@@ -200,13 +204,15 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
       //iterating over all the Attenuation relationship parameters for the IMR.
       while(it.hasNext()){
         ParameterAPI tempParam  = (ParameterAPI)it.next();
-        if(!tempParam.getName().equals(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME) &&
-           !tempParam.getName().equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME))
+
+        /*if(!tempParam.getName().equals(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME) &&
+           !tempParam.getName().equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME))*/
           paramList[i].addParameter(tempParam);
         //adding the other common parameters ( same for all attenuation relationship)
         // to the list of the other param list.
-        else if(!otherParams.containsParameter(tempParam.getName()))
-          otherParams.addParameter(tempParam);
+        /*else if(!otherParams.containsParameter(tempParam.getName()))
+          otherParams.addParameter(tempParam);*/
+
         //adding the change listener events to the parameters
         tempParam.addParameterChangeFailListener(this);
         tempParam.addParameterChangeListener(this);
@@ -220,21 +226,21 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
       imrParamsFrame[i].getContentPane().setLayout(new GridBagLayout());
       imrParamsFrame[i].getContentPane().add(editor[i],new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
           ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+      String value = (String)paramList[i].getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
+      toggleSigmaLevelBasedOnTypeValue(value,i);
     }
 
     //creating the parameterList editor for the Other parameters editor and
     //putting this editor in a frame to be shown in the window
-    otherParamsEditor = new ParameterListEditor(otherParams);
+    /*otherParamsEditor = new ParameterListEditor(otherParams);
     otherParamsEditor.setTitle(attenRelIdenticalParams);
     otherIMR_paramsFrame = new JDialog((JFrame)parent,attenRelIdenticalParamsFrameTitle);
     otherIMR_paramsFrame.setSize(300,200);
     otherIMR_paramsFrame.getContentPane().setLayout(new GridBagLayout());
     otherIMR_paramsFrame.getContentPane().add(otherParamsEditor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));*/
 
     // set the trunc level based on trunc type
-    String value = (String)otherParams.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
-    toggleSigmaLevelBasedOnTypeValue(value);
   }
 
 
@@ -244,11 +250,11 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
    * selected AttenuationRelationship.
    * @param e
    */
-  public void setAllParamButtons_actionPerformed(ActionEvent e){
+  /*public void setAllParamButtons_actionPerformed(ActionEvent e){
     indexOfAttenRel = 0;
     //otherIMR_paramsFrame.pack();
     otherIMR_paramsFrame.show();
-  }
+  }*/
 
   /**
    * This is a common function if any action is performed on the AttenuationRelationship
@@ -266,9 +272,13 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
       for(int i=0;i<numSupportedAttenRels;++i){
         if(button.equals(paramButtons[i])){
           indexOfAttenRel = i;
+          //keeps the track which was the last button pressed, which will correspond to the AttenRel model.
+          lastAttenRelButtonIndex = i;
+
           //getting the AttenRel params from the AttenRel whose button was pressed
           //imrParamsFrame[i].pack();
           imrParamsFrame[i].show();
+
         }
       }
     }
@@ -326,7 +336,7 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
      if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){
        // special case hardcoded. Not the best way to do it, but need framework to handle it.
        String value = event.getNewValue().toString();
-       toggleSigmaLevelBasedOnTypeValue(value);
+       toggleSigmaLevelBasedOnTypeValue(value, lastAttenRelButtonIndex);
      }
    }
 
@@ -434,14 +444,14 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
     * sigma level is visible or not
     * @param value
     */
-   private void toggleSigmaLevelBasedOnTypeValue(String value){
+   private void toggleSigmaLevelBasedOnTypeValue(String value, int buttonIndex){
      if( value.equalsIgnoreCase("none") ) {
        if(D) System.out.println("Value = " + value + ", need to set value param off.");
-       otherParamsEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
+       editor[buttonIndex].setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
      }
      else{
        if(D) System.out.println("Value = " + value + ", need to set value param on.");
-       otherParamsEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
+       editor[buttonIndex].setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
      }
    }
 
@@ -784,7 +794,7 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
       }
     }
 
-    metadata +=" Identical Param: "+otherParamsEditor.getVisibleParameters().toString();
+    //metadata +=" Identical Param: "+otherParamsEditor.getVisibleParameters().toString();
     String imtMetadata = getIMT_ParameterListMetadataString()+"\n<br>";
     metadata = imtMetadata + metadata;
     return metadata;
