@@ -169,13 +169,14 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
     jLabel1.setForeground(new Color(80, 80, 133));
     jLabel1.setText("Choose Data Set:");
     imlProbPanel.setLayout(gridBagLayout3);
-    mainSplitPane.setMinimumSize(new Dimension(100, 578));
+    mainSplitPane.setMinimumSize(new Dimension(50, 578));
     mainSplitPane.setBottomComponent(gmtSplitPane);
     mainSplitPane.setLastDividerLocation(150);
     mainSplitPane.setLeftComponent(null);
     mainSplitPane.setRightComponent(gmtSplitPane);
     dataSetText.setBorder(border1);
     dataSetText.setLineWrap(true);
+    dataSetPanel.setMinimumSize(new Dimension(50, 581));
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 9), 600, 543));
