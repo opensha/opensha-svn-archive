@@ -186,9 +186,9 @@ public class PEER_TestGuiPlotter extends JApplet implements
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
   private JLabel testPanelLabel = new JLabel();
-  private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private JCheckBox averageCheck = new JCheckBox();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private GridBagLayout gridBagLayout5 = new GridBagLayout();
 
   //Construct the applet
   public PEER_TestGuiPlotter() {
@@ -247,7 +247,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
     avgSplitPane.setDividerSize(1);
     testCasesPanel.setLayout(gridBagLayout5);
     avgLabel.setForeground(Color.red);
-    avgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    avgLabel.setHorizontalAlignment(SwingConstants.LEFT);
     avgLabel.setText("Included In Average");
     testCaseCombo.setFont(new java.awt.Font("Lucida Grande", 1, 14));
     testCaseCombo.setForeground(new Color(80, 80, 133));
@@ -258,7 +258,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
     testPanelLabel.setForeground(new Color(80, 80, 133));
     testPanelLabel.setMaximumSize(new Dimension(63, 18));
     testPanelLabel.setMinimumSize(new Dimension(63, 18));
-    testPanelLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    testPanelLabel.setHorizontalAlignment(SwingConstants.LEFT);
     testPanelLabel.setText("Data In Plot");
     averageCheck.setForeground(new Color(80, 80, 133));
     averageCheck.setSelected(true);
@@ -295,11 +295,11 @@ public class PEER_TestGuiPlotter extends JApplet implements
     avgSplitPane.add(avgScrollPane, JSplitPane.RIGHT);
     avgSplitPane.add(plotScrollPane, JSplitPane.LEFT);
     plotScrollPane.getViewport().add(testCasesPanel, null);
-    testCasesPanel.add(testPanelLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(7, 9, 10, 0), 12, 3));
+    testCasesPanel.add(testPanelLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(241, 0, 245, 20), 32, 3));
     avgScrollPane.getViewport().add(avgCasesPanel, null);
-    avgCasesPanel.add(avgLabel,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(7, 9, 10, 7), 12, 3));
+    avgCasesPanel.add(avgLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
     buttonPanel.add(xLogCheckBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 18, 15, 0), 21, 0));
@@ -309,8 +309,8 @@ public class PEER_TestGuiPlotter extends JApplet implements
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 15, 185), 14, 1));
     buttonPanel.add(rangeLabel,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 9, 15, 0), 7, 6));
-    buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 40, 15, 0), 13, -8));
+    buttonPanel.add(averageCheck,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 18, 15, 0), 21, 0));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     mainSplitPane.setDividerLocation(540);
     plotSplitPane.setDividerLocation(475);
