@@ -1,15 +1,16 @@
 package gov.usgs.sha.calc;
 
 import gov.usgs.sha.io.DataFileNameSelector;
-import gov.usgs.sha.io.DataFileReader;
-import gov.usgs.sha.data.NEHRP_Record;
+
+import gov.usgs.sha.io.NEHRP_Record;
 import gov.usgs.util.*;
+import gov.usgs.sha.data.SiteInterpolation;
 import gov.usgs.exceptions.ZipCodeErrorException;
 
 import org.scec.data.function.DiscretizedFuncList;
 import org.scec.data.Location;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import gov.usgs.sha.data.DataDisplayFormatter;
+import gov.usgs.util.ui.DataDisplayFormatter;
 
 import java.util.StringTokenizer;
 import java.io.*;
@@ -26,15 +27,8 @@ import java.text.DecimalFormat;
  */
 public class SsS1Calculator {
 
-  private float minLat;
-  private float minLon;
-  private float maxLat;
-  private float maxLon;
   private float gridSpacing;
-  private int gridPointsPerLatitude;
 
-  private float[] saPeriods;
-  private int numPeriods;
 
   /**
    * Some static String for the data printing
@@ -53,8 +47,6 @@ public class SsS1Calculator {
   private static final float Fa = 1;
   private static final float Fv = 1;
 
-
-  private DecimalFormat gridSpacingFormat = new DecimalFormat("0.0#");
   private DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
 
 
@@ -67,69 +59,13 @@ public class SsS1Calculator {
   public ArbitrarilyDiscretizedFunc getSsS1(String selectedRegion,
                                             String selectedEdition,
                                             double latitude, double longitude) {
-    float lat = 0;
-    float lon = 0;
-    float[] saArray = null;
 
-    DataFileNameSelector dataFileSelector = new DataFileNameSelector();
-    //getting the fileName to be read for the selected location
-    String fileName = dataFileSelector.getFileName(selectedRegion,
-        selectedEdition, latitude, longitude);
-    getRegionEndPoints(fileName);
-    if ( (latitude == minLat && longitude == minLon) ||
-        (latitude == maxLat && longitude == minLon) ||
-        (latitude == minLat && longitude == maxLon) ||
-        (latitude == maxLat && longitude == maxLon)) {
-      lat = (float) latitude;
-      lon = (float) longitude;
-      int recNum = getRecordNumber(lat, lon);
-      saArray = getPeriodValues(fileName,recNum);
-    }
-    else if ( (latitude == minLat || latitude == maxLat) &&
-             (longitude > minLon && longitude < maxLon)) {
-      lat = (float) latitude;
-      lon = getNearestGridLon(longitude);
-      int recNum1 = getRecordNumber(lat, lon);
-      int recNum2 = recNum1 + 1;
-      float[] vals1 = getPeriodValues(fileName,recNum1);
-      float[] vals2 = getPeriodValues(fileName,recNum2);
-      float flon = (float) (longitude - lon) / gridSpacing;
-      saArray = getPeriodValues(vals1, vals2, flon);
-    }
-    else if ( (longitude == minLon || longitude == maxLon) &&
-             (latitude > minLat && latitude < maxLat)) {
-      lon = (float) longitude;
-      lat = getNearestGridLat(latitude);
-      int recNum1 = getRecordNumber(lat, lon);
-      int recNum2 = recNum1 + gridPointsPerLatitude;
-      float[] vals1 = getPeriodValues(fileName,recNum1);
-      float[] vals2 = getPeriodValues(fileName,recNum2);
-      float flat = (float) (lat - latitude) / gridSpacing;
-      saArray = getPeriodValues(vals1, vals2, flat);
-    }
-    else if (latitude > minLat && latitude < maxLat &&
-             longitude > minLon && longitude < maxLon) {
-      lat = getNearestGridLat(latitude);
-      lon = getNearestGridLon(longitude);
-      int recNum1 = getRecordNumber(lat, lon);
-      int recNum2 = recNum1 + 1;
-      int recNum3 = recNum1 + gridPointsPerLatitude;
-      int recNum4 = recNum3 + 1;
-      float[] vals1 = getPeriodValues(fileName,recNum1);
-      float[] vals2 = getPeriodValues(fileName,recNum2);
-      float[] vals3 = getPeriodValues(fileName,recNum3);
-      float[] vals4 = getPeriodValues(fileName,recNum4);
-      float flon = (float) (longitude - lon) / gridSpacing;
-      float flat = (float) (lat - latitude) / gridSpacing;
-      float[] periodVals1 = getPeriodValues(vals1, vals2, flon);
-      float[] periodVals2 = getPeriodValues(vals3, vals4, flon);
-      saArray = getPeriodValues(periodVals1, periodVals2, flat);
-    }
-    else {
-      new RuntimeException("Latitude and Longitude outside the Region bounds");
-    }
+    NEHRP_Record record = new NEHRP_Record();
+    SiteInterpolation siteSaVals = new SiteInterpolation();
+    ArbitrarilyDiscretizedFunc function = siteSaVals.getPeriodValuesForLocation(record,
+        selectedRegion,selectedEdition,latitude,longitude);
 
-    ArbitrarilyDiscretizedFunc function = createFunction(saArray);
+    gridSpacing = siteSaVals.getGridSpacing();
 
     //set the info for the function being added
     String info = "";
@@ -141,7 +77,7 @@ public class SsS1Calculator {
         DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
                                                   GlobalConstants.SITE_CLASS_B,
                                                   Fa, Fv);
-    info += "Data are based on a " + gridSpacingFormat.format(gridSpacing) + " deg grid spacing";
+    info += "Data are based on a " + gridSpacing + " deg grid spacing";
     info +=
         DataDisplayFormatter.createFunctionInfoString(function, SA, Ss_Text, S1_Text,
         GlobalConstants.SITE_CLASS_B);
@@ -150,91 +86,7 @@ public class SsS1Calculator {
   }
 
 
-  /**
-   *
-   * @param latitude double
-   * @return float
-   */
-  private float getNearestGridLat(double latitude){
 
-    String latGridVal = gridSpacingFormat.format(latitude / gridSpacing);
-    double latVal = Math.ceil(Double.parseDouble(latGridVal));
-
-    return ((int)latVal) * gridSpacing;
-  }
-
-
-  /**
-   *
-   * @param longitude double
-   * @return float
-   */
-  private float getNearestGridLon(double longitude){
-    String lonGridVal = gridSpacingFormat.format(longitude / gridSpacing);
-    double lonVal = Math.floor(Double.parseDouble(lonGridVal));
-
-    return ((int)lonVal) * gridSpacing;
-  }
-
-  /**
-   *
-   * @param lat float
-   * @param lon float
-   * @return int
-   */
-  private int getRecordNumber(float lat, float lon) {
-    int colIndex = (int) ( (lon - minLon) / gridSpacing) + 1;
-    int rowIndex = (int) ( (maxLat - lat) / gridSpacing) + 1;
-    int recNum = (rowIndex - 1) * gridPointsPerLatitude + (colIndex - 1) + 1;
-    return recNum + 3;
-  }
-
-  /**
-   * Gets the end points for the region for the selected region and edition
-   * @param fileName String
-   * @return EvenlyGriddedRectangularGeographicRegion
-   */
-  private void getRegionEndPoints(String fileName) {
-
-    DataFileReader reader = new DataFileReader();
-    NEHRP_Record nwRecord = reader.getRecord(fileName,1);
-    NEHRP_Record seRecord = reader.getRecord(fileName,2);
-    minLat = seRecord.latitude;
-    maxLon = seRecord.longitude;
-    maxLat = nwRecord.latitude;
-    minLon = nwRecord.longitude;
-    NEHRP_Record record_4 = reader.getRecord(fileName,4);
-    NEHRP_Record record_5 = reader.getRecord(fileName,5);
-    gridSpacing = Math.abs(record_4.longitude - record_5.longitude);
-
-    gridSpacing = Float.parseFloat(gridSpacingFormat.format(gridSpacing));
-    gridPointsPerLatitude = (int) ( (maxLon - minLon) / gridSpacing) + 1;
-
-    NEHRP_Record record_3 = reader.getRecord(fileName,3);
-    numPeriods = record_3.numValues;
-    saPeriods = new float[numPeriods];
-    for (int i = 0; i < numPeriods; ++i)
-      saPeriods[i] = record_3.values[i];
-
-
-
-
-  }
-
-  /**
-    *
-    * @param periodVals1 float[]
-    * @param periodVals2 float[]
-    * @param val float
-    * @return float[]
-    */
-   private float[] getPeriodValues(float[] periodVals1,float[] periodVals2,float val){
-     float[] periodsVal = new float[numPeriods];
-     for(int i=0;i<numPeriods;++i)
-       periodsVal[i] = periodVals1[i]+val*(periodVals2[i]-periodVals1[i]);
-
-     return periodsVal;
-   }
 
    /**
     * returns the Ss and S1 for Territory
@@ -288,7 +140,7 @@ public class SsS1Calculator {
      try {
        DataFileNameSelector dataFileSelector = new DataFileNameSelector();
        //getting the fileName to be read for the selected location
-       String zipCodeFileName=dataFileSelector.getFileName(selectedRegion,selectedEdition);
+       String zipCodeFileName=dataFileSelector.getFileName(selectedEdition);
 
        FileReader fin = new FileReader(zipCodeFileName);
        BufferedReader bin = new BufferedReader(fin);
@@ -298,8 +150,8 @@ public class SsS1Calculator {
        // read the number of periods  and value of those periods
        String str = bin.readLine();
        StringTokenizer tokenizer = new StringTokenizer(str);
-       this.numPeriods = Integer.parseInt(tokenizer.nextToken());
-       this.saPeriods = new float[numPeriods];
+       int numPeriods = Integer.parseInt(tokenizer.nextToken());
+       float[] saPeriods = new float[numPeriods];
        for (int i = 0; i < numPeriods; ++i)
          saPeriods[i] = Float.parseFloat(tokenizer.nextToken());
 
@@ -349,7 +201,7 @@ public class SsS1Calculator {
                DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
                                                   GlobalConstants.SITE_CLASS_B,
                                                   Fa, Fv);
-           info += "Data are based on a " + gridSpacingFormat.format(gridSpacing) + " deg grid spacing";
+           info += "Data are based on a " + gridSpacing + " deg grid spacing";
            info +=
                DataDisplayFormatter.createFunctionInfoString(function,SA,
                Ss_Text,S1_Text,GlobalConstants.SITE_CLASS_B);
@@ -375,32 +227,5 @@ public class SsS1Calculator {
      }
      return function;
    }
-
-
-
-
-   private ArbitrarilyDiscretizedFunc createFunction(float[] saVals){
-     ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
-     for(int i=0;i<numPeriods;++i)
-       function.set(saPeriods[i], saVals[i]);
-     return function;
-   }
-
-
-  /**
-   *
-   * @param recNo int
-   * @return float[]
-   */
-  private float[] getPeriodValues(String fileName,int recNo) {
-    DataFileReader reader = new DataFileReader();
-    NEHRP_Record record = reader.getRecord(fileName,recNo);
-
-    float[] vals = new float[numPeriods];
-    for (int i = 0; i < numPeriods; ++i)
-      vals[i] = record.values[i] / GlobalConstants.DIVIDING_FACTOR_HUNDRED;
-
-    return vals;
-  }
 
 }

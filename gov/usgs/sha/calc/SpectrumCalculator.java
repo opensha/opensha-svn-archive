@@ -2,7 +2,7 @@ package gov.usgs.sha.calc;
 
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.data.function.DiscretizedFuncList;
-import gov.usgs.sha.data.DataDisplayFormatter;
+import gov.usgs.util.ui.DataDisplayFormatter;
 import gov.usgs.util.GlobalConstants;
 
 import java.text.DecimalFormat;

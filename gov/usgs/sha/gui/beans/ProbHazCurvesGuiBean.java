@@ -28,6 +28,7 @@ import gov.usgs.sha.data.DataGenerator_NEHRP;
 import gov.usgs.sha.gui.infoTools.SiteCoefficientInfoWindow;
 import gov.usgs.sha.gui.infoTools.GraphWindow;
 import java.awt.event.*;
+import gov.usgs.exceptions.LocationErrorException;
 
 /**
  * <p>Title:NEHRP_GuiBean</p>
@@ -278,12 +279,17 @@ public class ProbHazCurvesGuiBean
 
     String paramName = event.getParameterName();
 
-    if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME) ||
-        paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
+    if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
+      //creating the edition parameter when user changes the region
+      createEditionSelectionParameter();
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       createLocation();
       createIMT_PeriodsParameter();
+
+    }
+    else if(paramName.equals(datasetGui.EDITION_PARAM_NAME)){
+      selectedEdition = datasetGui.getSelectedDataSetEdition();
     }
     else if (paramName.equals(HAZ_CURVE_IMT_PERIOD_PARAM_NAME))
       imt = (String) hazardCurveIMTPeriodSelectionParam.getValue();
@@ -341,10 +347,16 @@ public class ProbHazCurvesGuiBean
   private void createEditionSelectionParameter() {
 
     ArrayList supportedEditionList = new ArrayList();
+    if(selectedRegion.equals(GlobalConstants.CONTER_48_STATES)){
+      supportedEditionList.add(GlobalConstants.data_1996);
+      supportedEditionList.add(GlobalConstants.data_2002);
+    }
+    else if(selectedRegion.equals(GlobalConstants.ALASKA)||
+            selectedRegion.equals(GlobalConstants.HAWAII))
+      supportedEditionList.add(GlobalConstants.data_1998);
+    else
+      supportedEditionList.add(GlobalConstants.data_2003);
 
-    supportedEditionList.add(GlobalConstants.NEHRP_2003);
-    supportedEditionList.add(GlobalConstants.NEHRP_2000);
-    supportedEditionList.add(GlobalConstants.NEHRP_1997);
     datasetGui.createEditionSelectionParameter(supportedEditionList);
     datasetGui.getEditionSelectionParameter().addParameterChangeListener(this);
     selectedEdition = datasetGui.getSelectedDataSetEdition();
@@ -378,21 +390,34 @@ public class ProbHazCurvesGuiBean
     if (locationVisible) {
       String locationMode = locGuiBean.getLocationMode();
       if (locationMode.equals(locGuiBean.LAT_LON)) {
-        Location loc = locGuiBean.getSelectedLocation();
-        double lat = loc.getLatitude();
-        double lon = loc.getLongitude();
-        dataGenerator.calculateSsS1(lat,lon);
+        try {
+          Location loc = locGuiBean.getSelectedLocation();
+          double lat = loc.getLatitude();
+          double lon = loc.getLongitude();
+          dataGenerator.calculateSsS1(lat, lon);
+        }
+        catch (LocationErrorException e) {
+          JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
+                                        JOptionPane.OK_OPTION);
+          return;
+        }
 
       }
       else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
-        String zipCode = locGuiBean.getZipCode();
         try {
+          String zipCode = locGuiBean.getZipCode();
+
           dataGenerator.calculateSsS1(zipCode);
         }
         catch (ZipCodeErrorException e) {
           JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
                                         JOptionPane.OK_OPTION);
           e.printStackTrace();
+          return;
+        }
+        catch (LocationErrorException e) {
+          JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
+                                        JOptionPane.OK_OPTION);
           return;
         }
       }

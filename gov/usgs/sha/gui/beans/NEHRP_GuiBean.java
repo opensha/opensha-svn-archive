@@ -26,6 +26,7 @@ import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
 import gov.usgs.sha.data.DataGenerator_NEHRP;
 import gov.usgs.sha.gui.infoTools.SiteCoefficientInfoWindow;
 import gov.usgs.sha.gui.infoTools.GraphWindow;
+import gov.usgs.exceptions.LocationErrorException;
 
 
 /**
@@ -291,11 +292,12 @@ public class NEHRP_GuiBean
 
     String paramName = event.getParameterName();
 
-    if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)||
-        paramName.equals(datasetGui.EDITION_PARAM_NAME)){
+    if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
-      selectedEdition = datasetGui.getSelectedDataSetEdition();
       createLocation();
+    }
+    else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
+      selectedEdition = datasetGui.getSelectedDataSetEdition();
     }
   }
 
@@ -393,21 +395,28 @@ public class NEHRP_GuiBean
     if (locationVisible) {
       String locationMode = locGuiBean.getLocationMode();
       if (locationMode.equals(locGuiBean.LAT_LON)) {
-        Location loc = locGuiBean.getSelectedLocation();
-        double lat = loc.getLatitude();
-        double lon = loc.getLongitude();
-        dataGenerator.calculateSsS1(lat,lon);
+        try{
+          Location loc = locGuiBean.getSelectedLocation();
+          double lat = loc.getLatitude();
+          double lon = loc.getLongitude();
+          dataGenerator.calculateSsS1(lat,lon);
+        }catch(LocationErrorException e){
+          JOptionPane.showMessageDialog(this,e.getMessage(),"Location Error",JOptionPane.OK_OPTION);
+          return;
+        }
 
       }
       else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
-        String zipCode = locGuiBean.getZipCode();
         try {
+          String zipCode = locGuiBean.getZipCode();
           dataGenerator.calculateSsS1(zipCode);
         }
         catch (ZipCodeErrorException e) {
           JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
                                         JOptionPane.OK_OPTION);
-          e.printStackTrace();
+          return;
+        }catch(LocationErrorException e){
+          JOptionPane.showMessageDialog(this,e.getMessage(),"Location Error",JOptionPane.OK_OPTION);
           return;
         }
       }

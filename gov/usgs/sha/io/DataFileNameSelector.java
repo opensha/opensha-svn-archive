@@ -15,8 +15,8 @@ public class DataFileNameSelector {
 
   public DataFileNameSelector() {}
 
-  private final static String filePath ="/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/";
-  private static final String ZIP_CODE_TO_LAT_LON_FILE =filePath+"2003-ZipCodes.txt";
+  private final static String filePath = GlobalConstants.DATA_FILE_PATH;
+
 
 
   /**
@@ -46,8 +46,7 @@ public class DataFileNameSelector {
    * @param selectedEdition String
    * @return String
    */
-  public String getFileName(String selectedRegion, String selectedEdition) {
-
+  public String getFileName(String selectedEdition) {
     return getZipCodeFileName(selectedEdition);
   }
 
@@ -64,16 +63,6 @@ public class DataFileNameSelector {
     }
     return null;
   }
-
-
-  /**
-   * Returns the name of the Zip code to Lat- Lon conversion file
-   * @return String
-   */
-  public static String getZipCodeToLatLonFileName(){
-    return ZIP_CODE_TO_LAT_LON_FILE;
-  }
-
 
 
   /**

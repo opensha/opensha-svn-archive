@@ -17,6 +17,8 @@ import java.util.StringTokenizer;
  */
 public final class ZipCodeToLatLonConvertor {
 
+ private static final String ZIP_CODE_TO_LAT_LON_FILE =GlobalConstants.DATA_FILE_PATH+"2003-ZipCodes.txt";
+
   /**
    * Returns the location for the selected zip code
    * @param zipCode String
@@ -29,8 +31,7 @@ public final class ZipCodeToLatLonConvertor {
     boolean zipCodeFound = false;
     try {
 
-      FileReader fin = new FileReader(DataFileNameSelector.
-                                      getZipCodeToLatLonFileName());
+      FileReader fin = new FileReader(ZIP_CODE_TO_LAT_LON_FILE);
       BufferedReader bin = new BufferedReader(fin);
 
       // now read line by line until the zip code is found in file

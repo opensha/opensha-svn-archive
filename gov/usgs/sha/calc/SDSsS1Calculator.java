@@ -1,7 +1,7 @@
 package gov.usgs.sha.calc;
 
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import gov.usgs.sha.data.DataDisplayFormatter;
+import gov.usgs.util.ui.DataDisplayFormatter;
 
 /**
  * <p>Title: SDSsS1Calculator </p>

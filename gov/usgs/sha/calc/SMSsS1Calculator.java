@@ -2,7 +2,7 @@ package gov.usgs.sha.calc;
 
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import gov.usgs.util.GlobalConstants;
-import gov.usgs.sha.data.DataDisplayFormatter;
+import gov.usgs.util.ui.DataDisplayFormatter;
 
 /**
  * <p>Title: SMSsS1Calculator</p>

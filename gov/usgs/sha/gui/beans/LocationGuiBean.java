@@ -11,7 +11,7 @@ import org.scec.data.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
-
+import gov.usgs.exceptions.LocationErrorException;
 
 /**
  * <p>Title: LocationGuiBean</p>
@@ -65,10 +65,19 @@ public class LocationGuiBean
    * Returns the Location object
    * @return Location
    */
-  public Location getSelectedLocation(){
-    double lat = ((Double)parameterList.getParameter(LAT_PARAM_NAME).getValue()).doubleValue();
-    double lon = ((Double)parameterList.getParameter(LON_PARAM_NAME).getValue()).doubleValue();
-    return new Location(lat,lon);
+  public Location getSelectedLocation() throws LocationErrorException{
+    Double latObj  = (Double)parameterList.getParameter(LAT_PARAM_NAME).getValue();
+    Double lonObj = (Double)parameterList.getParameter(LON_PARAM_NAME).getValue();
+
+
+    if(latObj == null || lonObj == null){
+      throw new LocationErrorException("Location not specified!\nPlease fill in the location parameter.");
+    }
+    else{
+      double lat = latObj.doubleValue();
+      double lon = lonObj.doubleValue();
+      return new Location(lat, lon);
+    }
   }
 
 
@@ -84,8 +93,15 @@ public class LocationGuiBean
    * Returns zip code
    * @return String
    */
-  public String getZipCode(){
-    return (String)parameterList.getParameter(ZIP_CODE_PARAM_NAME).getValue();
+  public String getZipCode() throws LocationErrorException{
+
+    String zipCode = (String)parameterList.getParameter(ZIP_CODE_PARAM_NAME).getValue();
+
+    if(zipCode == null){
+      throw new LocationErrorException("Zip Code not specified!\nPlease fill in the valid location.");
+    }
+
+    return zipCode;
   }
 
   /**
@@ -94,9 +110,9 @@ public class LocationGuiBean
   public void createLocationGUI(double minLat, double maxLat, double minLon,
                                 double maxLon, boolean isZipCodeSupported) {
     DoubleParameter latParam = new DoubleParameter(LAT_PARAM_NAME, minLat,
-        maxLat, "Degrees",new Double (DEFAULT_LAT));
+        maxLat, "Degrees");
     DoubleParameter lonParam = new DoubleParameter(LON_PARAM_NAME, minLon,
-        maxLon, "Degrees",new Double(DEFAULT_LON));
+        maxLon, "Degrees");
 
     //add the zip code in the location mode selection only if it is supported.
     createLocationModeParam(isZipCodeSupported);
@@ -110,7 +126,7 @@ public class LocationGuiBean
 
     StringParameter zipParam = null;
     if (isZipCodeSupported) {
-      zipParam = new StringParameter(ZIP_CODE_PARAM_NAME,DEFAULT_ZIP_CODE);
+      zipParam = new StringParameter(ZIP_CODE_PARAM_NAME);
       zipParam.addParameterChangeListener(this);
       parameterList.addParameter(zipParam);
     }
@@ -177,7 +193,11 @@ public class LocationGuiBean
     StringBuffer b = new StringBuffer();
 
     ParameterAPI param = ( ParameterAPI ) event.getSource();
-    String oldValueStr = event.getOldValue().toString();
+    Object oldValue = event.getOldValue();
+    String oldValueStr = null;
+    if(oldValue !=null)
+      oldValueStr = oldValue.toString();
+
     String badValueStr = event.getBadValue().toString();
     String name = param.getName();
 
@@ -190,7 +210,10 @@ public class LocationGuiBean
       b.append(name);
       b.append("'.\n");
       b.append("Resetting to ");
-      b.append(oldValueStr);
+      if(oldValueStr !=null)
+        b.append(oldValueStr);
+      else
+        b.append("Null");
       b.append(". The constraints are: \n");
       b.append(constraint.toString());
 

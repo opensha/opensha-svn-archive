@@ -1,4 +1,4 @@
-package gov.usgs.sha.data;
+package gov.usgs.util.ui;
 
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.data.function.DiscretizedFuncList;

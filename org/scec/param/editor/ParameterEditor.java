@@ -334,10 +334,13 @@ public class ParameterEditor
         if ( ( value != null ) && ( model != null ) ) {
             Object obj = model.getValue();
             if ( D ) System.out.println( S + "Old Value = " + obj.toString() );
-
-            if ( !obj.toString().equals( value.toString() ) ) {
+            if(obj !=null){
+              if (!obj.toString().equals(value.toString())) {
                 model.unableToSetValue(value);
+              }
             }
+            else
+              model.unableToSetValue(value);
         }
     }
 
