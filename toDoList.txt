@@ -1,10 +1,6 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Ned needs to check SRL Paper2 figure calcs after fixing small bug in WG02_CharEqkSource (should the figs be updated)?
-
-Ned also needs to document WG02_EqkRupForecast (Java docs).
-
 AttenautionRelationshipApp:
 
 	Add peel-off feature
@@ -30,18 +26,26 @@ Change app names as follows (on our web site):
 
 EarthquakeRuptureGuiBean:
 
-	update "Set Params for Puente Hills Scenario" (validate against old)
+	problem with metadata: says "Forecast Param List" for both rup from ERF and custom rup
+	(lets discuss the fix)
 
-	make version of above that uses the EqkRup (not ERF) & validate
+	if a user has set the hypocenter and later changes the fault surface, there is no notification 
+	that the hypocenter has been un-selected.  This could be solved by showing the hypocenter in
+	the gui bean; for example, could the current lat/lon/depth settings be shown directly below the
+	button (as un-editable text).  Also, we need an option to set the hypocenter back to null - could
+	this be the first (and default) option in the list?  We also need to add
+	"," between the listed lat, lon, and depth values, and we need to change the name of the pick-list
+	from  "Hypocenter Location" to "Hypocenter Location (lat, lon, depth)".
+	
 
-	make sure metadata is good
+ScenarioShakeMapApp
 
-	remove the "Create Rupture" button, and create rupture when "Make Map"
-	button is pushed or "Set Hypocenter" is checked; automically un-check latter
-	(& make null) if faultParameter or lat/lon/depth values change.  Don't
-	recreate rupture if it's still fresh
-
-combine TimeSpanGuiBean with ERF_GuiBean & validate.  Make sure the timeSpan elements are distinguishable from the ERF adjustable parameters.
+	In reproducing the figs in the PuenteHillsPaper for the Field_2000 IMR, I notice a discrepancy 
+	that results from the "Default Basin-Depth-2.5" not being set in the calculation (rather, it 
+	appears to use the last value set).  The very first point in the Map_data.txt file (33.2 -119.5)
+	uses this default, and the mean-IML value doesn't change with changes of this basin depth default.
+	
+Ned needs to document WG02_EqkRupForecast (Java docs).
 
 Implement color schemes at (including option for the visually impaired):
 
