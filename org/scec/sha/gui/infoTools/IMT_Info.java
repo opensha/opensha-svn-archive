@@ -5,10 +5,10 @@ import java.text.DecimalFormat;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.sha.imr.AttenuationRelationship;
 import org.scec.param.*;
-import org.scec.sha.imr.attenRelImpl.WC94_DisplMagRel;
+import org.scec.sha.imr.attenRelImpl.*;
 /**
  * <p>Title: IMT_Info</p>
- * <p>Description: This class provides the provide the default X values for the selected
+ * <p>Description: This class provides the default X values for the selected
  * IMT. The discretization is done in the </p>
  * @author : Edward (Ned) Field and Nitin  Gupta
  * @created : Nov 24,2003
@@ -246,6 +246,7 @@ public final class IMT_Info {
     if(imt.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
        imt.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
        imt.equalsIgnoreCase(AttenuationRelationship.SA_NAME)  ||
+       imt.equalsIgnoreCase(ShakeMap_2003_AttenRel.MMI_NAME)  ||
        imt.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return true;
     return false;

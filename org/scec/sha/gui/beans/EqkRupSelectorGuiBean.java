@@ -201,9 +201,11 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    }
 
    //writing the ruptures info. for each selected source in the text Area below the rupture
-   String rupturesInfo = ((String)sourceParam.getValue()).substring(((String)sourceParam.getValue()).indexOf("(")+1,((String)sourceParam.getValue()).indexOf(")")).trim()+":\n";
+   String rupturesInfo = "Rupture info for \"";
+   rupturesInfo += ((String)sourceParam.getValue()).substring(((String)sourceParam.getValue()).indexOf("(")+1,((String)sourceParam.getValue()).indexOf(")")).trim();
+   rupturesInfo += "\":\n";
    for(int i=0;i< numRuptures;++i)
-     rupturesInfo += "  rupture #"+i+": \n\n"+erf.getSource(sourceValue).getRupture(i).getInfo();
+     rupturesInfo += "\n  rupture #"+i+": \n\n"+erf.getSource(sourceValue).getRupture(i).getInfo();
    sourceRupInfoText.setText(rupturesInfo);
 
 

@@ -42,8 +42,6 @@ public class AttenuationRelationshipGuiBean
     protected final static boolean D = false;
 
     public final static String IM_NAME = "Intensity Measure Type";
-    public final static String IM_V1 = "PGA";
-    public final static String IM_V2 = "SA";
     public final static String X_AXIS_NAME = "X-Axis";
     public final static String Y_AXIS_NAME = "Y-Axis";
     public final static String Y_AXIS_V1 = "Median";

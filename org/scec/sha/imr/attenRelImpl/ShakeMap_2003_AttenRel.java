@@ -46,7 +46,7 @@ public class ShakeMap_2003_AttenRel
 
     // debugging stuff:
     private final static String C = "ShakeMap_2003_AttenRel";
-    private final static boolean D = true;
+    private final static boolean D = false;
     public final static String NAME = "ShakeMap (2003)";
 
     // PGA thresholds for computing amp factors (convert from gals to g)
@@ -94,6 +94,7 @@ public class ShakeMap_2003_AttenRel
     public final static String MMI_INFO = "Modified Mercalli Intensity";
     protected final static Double MMI_MIN = new Double( Math.log(1.0) );
     protected final static Double MMI_MAX = new Double( Math.log(10.0) );
+    protected final static String MMI_ERROR_STRING= "Cannot comput the standard deviation for MMI";
 
 
     /**
@@ -296,13 +297,15 @@ public class ShakeMap_2003_AttenRel
      */
     private double getAmpFactor(String imt) {
 
+      String S = ".getAmpFactor()";
+
       // get the PGA for B category
       coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGA_NAME );
       coeffSM  = ( BJF_1997_AttenRelCoefficients )coefficientsSM.get( PGA_NAME );
       double b_pga = get_B_Mean();
 
       if(D) {
-        System.out.println(C+"b_pag (gals) = "+Math.exp(b_pga)*980.0);
+        System.out.println(C+S+" b_pag (gals) = "+Math.exp(b_pga)*980.0);
 //        System.out.println(C+"pga_low = "+pga_low);
 //        System.out.println(C+"pga_mid = "+pga_mid);
 //        System.out.println(C+"pga_high = "+pga_high);
@@ -325,9 +328,8 @@ public class ShakeMap_2003_AttenRel
         throw new RuntimeException(C+"IMT not supported");
 
       if(D) {
-        System.out.println(C+"shortPeriod = "+shortPeriod);
+        System.out.println(C+S+" shortPeriod = "+shortPeriod);
       }
-
 
       //now get the amp factor
       // These are from an email from Bruce Worden on 12/04/03
@@ -468,7 +470,7 @@ public class ShakeMap_2003_AttenRel
       }
 
       if(D) {
-        System.out.println(C+"amp = "+amp);
+        System.out.println(C+S+"amp = "+amp);
       }
 
       // return the value
@@ -485,20 +487,27 @@ public class ShakeMap_2003_AttenRel
      */
     private double getMMI(){
       double pgv, pga;
+      String S = ".getMMI()";
 
       // get PGA
       coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGA_NAME );
+      coeffSM = ( BJF_1997_AttenRelCoefficients )coefficientsSM.get( PGA_NAME );
       double b_pga = get_B_Mean();
       pga = b_pga + Math.log(getAmpFactor(PGA_NAME));
       // Convert to linear domain in gals (what's needed below)
       pga = Math.exp(pga)*980.0;
 
+      if(D) System.out.println(C+S+" pga = "+(float) pga);
+
       // get PGV
       coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGV_NAME );
+      coeffSM = ( BJF_1997_AttenRelCoefficients )coefficientsSM.get( PGV_NAME );
       double b_pgv = get_B_Mean();
       pgv = b_pgv + Math.log(getAmpFactor(PGV_NAME));
       // Convert to linear domain (what's needed below)
       pgv = Math.exp(pgv);
+
+      if(D) System.out.println(" pgv = "+(float) pgv);
 
       // now compute MMI
       double a_scale, v_scale;
@@ -516,7 +525,7 @@ public class ShakeMap_2003_AttenRel
       double vmmi; // Intensity from velocity
 
       ammi = (0.43429*Math.log(pga) * sma) + ba;
-      if (ammi <= 5.0);
+      if (ammi <= 5.0)
         ammi = (0.43429*Math.log(pga) * sma_low) + ba_low;
 
       vmmi = (0.43429*Math.log(pgv) * smv) + bv;
@@ -544,8 +553,9 @@ public class ShakeMap_2003_AttenRel
 
 
     /**
-     * Calculates the mean for the BC category. The exact
-     * formula is: <p>
+     * Calculates the mean for the BC category for whatever set of coefficients were
+     * set before this method was called.
+     * The exact formula is: <p>
      *
      * double mean = b1 + <br>
      * coeff.b2 * ( mag - 6 ) + <br>
@@ -610,13 +620,36 @@ public class ShakeMap_2003_AttenRel
 
 
     /**
+     *  This overides the parent to take care if MMI is the chosen IMT.
+     *
+     * @return                         The intensity-measure level
+     * @exception  ParameterException  Description of the Exception
+     */
+    public double getIML_AtExceedProb() throws ParameterException {
+
+        if(im.getName().equals(MMI_NAME)) {
+          double exceedProb = ( ( Double ) ( ( ParameterAPI ) exceedProbParam ).getValue() ).doubleValue();
+          if(exceedProb == 0.5) {
+            if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) )
+              throw new RuntimeException(MMI_ERROR_STRING);
+            else
+              return getMean();
+          }
+          else
+            throw new RuntimeException(MMI_ERROR_STRING);
+        }
+        else
+          return super.getIML_AtExceedProb();
+    }
+
+    /**
      * @return    The stdDev value
      */
     public double getStdDev() throws IMRException {
 
-       // throw a runtime exception if they are trying for MMI
+       // throw a runtime exception if trying for MMI
        if(im.getName().equals(MMI_NAME))
-         throw new RuntimeException("Cannot comput the standard deviation for MMI");
+         throw new RuntimeException(MMI_ERROR_STRING);
 
         String stdDevType = stdDevTypeParam.getValue().toString();
         String component = componentParam.getValue().toString();

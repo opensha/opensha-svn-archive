@@ -1377,14 +1377,15 @@ public class HazardCurveServerModeApp extends JApplet
 
 
   /**
-   * It forces the users the use the default X Values for the selected IMT
+   * This forces use of default X-axis values (according to the selected IMT)
    */
   public void setX_ValuesForHazardCurve(){
     useCustomX_Values = false;
   }
 
   /**
-   * Sets the ArbitrarilyDiscretizedFunc if user wants to have its own custom values.
+   * Sets the hazard curve x-axis values (if user wants custom values x-axis values).
+   * Note that what's passed in is not cloned (the y-axis values will get modified).
    * @param func
    */
   public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func){
