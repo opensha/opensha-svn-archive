@@ -643,7 +643,7 @@ public class ShakeMap_2003_AttenRel
         coefficientsSM.clear();
         // PGA
         BJF_1997_AttenRelCoefficients coeffSM = new BJF_1997_AttenRelCoefficients(PGA_NAME,
-            0, 2.4066, 2.4066, 2.4066, 1.3171, 0.000, -1.757, -0.473, 760, 6.0, 0.660,
+            0, 2.408, 2.408, 2.408, 1.3171, 0.000, -1.757, -0.473, 760, 6.0, 0.660,
             0.328, 0.737, 0.3948, 0.8361 );
         coefficientsSM.put( coeffSM.getName(), coeffSM );
 
