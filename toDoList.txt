@@ -14,8 +14,8 @@ MultipleIMR_GuiBean:
 	3) Implement the "Generate Jazus Shape files for Scenario" control panel
 
 	4) Move averaging of XYZ datasets to the scenario shakeMap calculator 
-	(created a method that takes the list of IMRs and their associated weights).
-	This will later be optimized using the PropagationEffect object.
+	   (created a method that takes the list of IMRs and their associated weights).
+	   This will later be optimized using the PropagationEffect object.
 
 	5) check how averaging is done (e.g., on log values?); ned will do this.
 
