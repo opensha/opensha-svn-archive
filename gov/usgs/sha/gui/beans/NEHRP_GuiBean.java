@@ -468,7 +468,7 @@ public class NEHRP_GuiBean
   private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
     if(siteCoefficientWindow == null)
       siteCoefficientWindow = new SiteCoefficientInfoWindow();
-    siteCoefficientWindow.pack();
+
     siteCoefficientWindow.show();
   }
 
