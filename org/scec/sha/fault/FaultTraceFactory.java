@@ -146,7 +146,7 @@ public class FaultTraceFactory {
                     try{ lon = new Double(lonStr).doubleValue(); }
                     catch( NumberFormatException e){ throw ERR; }
 
-                    Location loc = new Location(lat, lon, 0);
+                    Location loc = new Location(lat, lon, upperSeismoDepth);
                     trace.addLocation( (Location)loc.clone() );
 
                     if( D ) System.out.println(S + "Location" + loc.toString());
