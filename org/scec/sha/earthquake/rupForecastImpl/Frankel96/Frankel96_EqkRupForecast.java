@@ -617,8 +617,9 @@ for(int i=0;i<allSources.size();i++) {
      Frankel96_EqkRupForecast frankCast = new Frankel96_EqkRupForecast();
      frankCast.updateForecast();
      System.out.println("num sources="+frankCast.getNumSources());
-//     for(int i=0; i<frankCast.getNumSources(); i++)
-//       System.out.println(frankCast.getSource(i).getName());
+     for(int i=0; i<frankCast.getNumSources(); i++)
+       System.out.println(i+"th source: "+frankCast.getSource(i).getName());
+/*
      double totRate=0, totProb=1, prob;
      int i,j, totRup;
      int totSrc= frankCast.getNumSources();
@@ -640,6 +641,7 @@ for(int i=0;i<allSources.size();i++) {
        }
      }
        System.out.println("main(): totRate="+totRate+"; totProb="+totProb);
+*/
   }
 
 }
