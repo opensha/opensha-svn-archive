@@ -546,7 +546,8 @@ public class LogarithmicAxis extends NumberAxis {
 
     //Add one major Axis in ther range if there is none in the range.
     //The one major Axis added is the one below the lowerBoundVal.
-    if(iEndCount - iBegCount ==1)
+    //And checks if the upperBound is not a major Axis, then no need to include one major axis
+    if(iEndCount - iBegCount ==1 && (upperBoundVal!=Double.parseDouble("1e"+iEndCount)))
       setRange(Double.parseDouble("1e"+iBegCount),upperBoundVal);
 
 
@@ -701,9 +702,9 @@ public class LogarithmicAxis extends NumberAxis {
 
     //Add one major Axis in ther range if there is none in the range.
     //The one major Axis added is the one below the lowerBoundVal.
-    if(iEndCount - iBegCount ==1)
+    //And checks if the upperBound is not a major Axis, then no need to include one major axis
+    if(iEndCount - iBegCount ==1 && (upperBoundVal!=Double.parseDouble("1e"+iEndCount)))
       setRange(Double.parseDouble("1e"+iBegCount),upperBoundVal);
-
 
     double tickVal;
     String tickLabel;
@@ -886,8 +887,9 @@ public class LogarithmicAxis extends NumberAxis {
           if(eIndex==-1)
             g2.drawString(tick.getText(), tick.getX(), tick.getY());
           else {
-            g2.drawString("10", tick.getX()+3, tick.getY());
-            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+14,tick.getY()-4);
+            g2.drawString("10", tick.getX()+6, tick.getY());
+            g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-2));
+            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+20,tick.getY()-4);
           }
         }
       }
