@@ -3,9 +3,12 @@ package org.scec.sha.gui.controls;
 import java.awt.*;
 import javax.swing.*;
 import java.util.*;
+import java.awt.event.*;
+import java.text.DecimalFormat;
 
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import java.awt.event.*;
+import org.scec.sha.gui.infoTools.DefaultHazardCurveForIMTs;
+
 
 /**
  * <p>Title: X_ValuesInCurveControlPanel</p>
@@ -16,31 +19,55 @@ import java.awt.event.*;
  */
 
 public class X_ValuesInCurveControlPanel extends JFrame {
+
+  //static Strings for the Different X Vlaues that the user can choose from.
+  private final static String PEER_X_VALUES = "PEER Test-Case Values";
+  private final static String CUSTOM_VALUES = "Custom Values";
+  private final static String DEFAULT = "DEFAULT";
+  private final static String MIN_MAX_NUM = "Enter Min, Max and Num";
+
+
   private JPanel jPanel1 = new JPanel();
   private JLabel xValuesLabel = new JLabel();
   private JScrollPane xValuesScrollPane = new JScrollPane();
   private JTextArea xValuesText = new JTextArea();
-  private JButton xValuesButton = new JButton();
-
 
   //function containing x,y values
   ArbitrarilyDiscretizedFunc function;
   private JButton doneButton = new JButton();
+  private JComboBox xValuesSelectionCombo = new JComboBox();
+  private JLabel minLabel = new JLabel();
+  private JLabel maxLabel = new JLabel();
+  private JLabel numLabel = new JLabel();
+  private JTextField minText = new JTextField();
+  private JTextField maxText = new JTextField();
+  private JTextField numText = new JTextField();
+  private JButton setButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
 
-  public X_ValuesInCurveControlPanel(Component parent) {
+
+  private DecimalFormat format = new DecimalFormat("0.000000##");
+
+  //Instance of the application using the X_ValueControlPanel
+  X_ValuesInCurveControlPanelAPI api;
+
+  public X_ValuesInCurveControlPanel(Component parent,X_ValuesInCurveControlPanelAPI app) {
     try {
       jbInit();
       // show the window at center of the parent component
       this.setLocation(parent.getX()+parent.getWidth()/2,
                        parent.getY());
+
+
     }
     catch(Exception e) {
       e.printStackTrace();
     }
-    this.createFunction();
-    this.setX_Values();
+    api= app;
+    format.setMaximumFractionDigits(6);
+    //initialise the function with the PEER values
+    generateXValues();
   }
   private void jbInit() throws Exception {
     xValuesLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -50,20 +77,53 @@ public class X_ValuesInCurveControlPanel extends JFrame {
         doneButton_actionPerformed(e);
       }
     });
-    jPanel1.setLayout(gridBagLayout1);
+
     //jPanel1.setPreferredSize(new Dimension(300, 500));
-    jPanel1.add(doneButton,   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 30, 11, 0), 24, 0));
-    jPanel1.add(xValuesLabel,   new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(4, 4, 0, 12), 0, 0));
-    jPanel1.add(xValuesScrollPane,     new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 45, 0, 79), 20, 60));
-    jPanel1.add(xValuesButton,   new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 0, 11, 27), 0, 0));
+    minLabel.setForeground(new Color(80, 80, 133));
+    minLabel.setText("Min :");
+    maxLabel.setForeground(new Color(80, 80, 133));
+    maxLabel.setText("Max :");
+    numLabel.setForeground(new Color(80, 80, 133));
+    numLabel.setText("Num :");
+    setButton.setText("Set Values");
+    setButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        setButton_actionPerformed(e);
+      }
+    });
+    xValuesSelectionCombo.addItemListener(new java.awt.event.ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        xValuesSelectionCombo_itemStateChanged(e);
+      }
+    });
+    this.getContentPane().setLayout(borderLayout1);
+    getContentPane().add(jPanel1, BorderLayout.CENTER);
+    jPanel1.setLayout(gridBagLayout1);
+    jPanel1.add(xValuesLabel,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 15, 0, 68), 7, 0));
+    jPanel1.add(xValuesScrollPane,  new GridBagConstraints(0, 2, 1, 5, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(17, 28, 15, 0), 87, 400));
+    jPanel1.add(xValuesSelectionCombo,  new GridBagConstraints(0, 1, 3, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(9, 15, 0, 74), 94, 0));
     xValuesScrollPane.getViewport().add(xValuesText, null);
-    xValuesButton.setBackground(new Color(200, 200, 230));
-    xValuesButton.setForeground(new Color(80, 80, 133));
-    xValuesButton.setText("Set Default");
+
+    jPanel1.add(numLabel,  new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(9, 35, 0, 0), 10, 9));
+    jPanel1.add(minText,  new GridBagConstraints(2, 2, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(54, 0, 0, 26), 84, 9));
+    jPanel1.add(maxText,  new GridBagConstraints(2, 3, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(11, 0, 0, 26), 84, 9));
+    jPanel1.add(numText,  new GridBagConstraints(2, 4, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 0, 0, 26), 84, 9));
+    jPanel1.add(doneButton,     new GridBagConstraints(1, 6, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(172, 30, 20, 68), 12, 20));
+    jPanel1.add(maxLabel,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 35, 0, 0), 13, 9));
+    jPanel1.add(setButton,  new GridBagConstraints(1, 5, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 70, 0, 26), 2, 4));
+    jPanel1.add(minLabel,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(56, 35, 0, 0), 13, 9));
+
     this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     this.setTitle("X Values Control Panel");
     this.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -71,29 +131,35 @@ public class X_ValuesInCurveControlPanel extends JFrame {
         this_windowClosing(e);
       }
     });
-    xValuesButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        xValuesButton_actionPerformed(e);
-      }
-    });
     xValuesText.setBackground(new Color(200, 200, 230));
     xValuesText.setForeground(new Color(80, 80, 133));
     xValuesText.setLineWrap(false);
-    this.getContentPane().setLayout(borderLayout1);
     xValuesLabel.setBackground(new Color(200, 200, 230));
     xValuesLabel.setForeground(new Color(80, 80, 133));
-    xValuesLabel.setText("Enter X-Values for Hazard Curve");
+    xValuesLabel.setText("X-axis (IML) Values for Hazard Curves");
     doneButton.setForeground(new Color(80, 80, 133));
     doneButton.setText("Done");
-    this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    this.setSize(150,200);
+    this.setSize(new Dimension(250, 400));
+    //adding the variuos choices to the Combo Selection for the X Values
+    xValuesSelectionCombo.addItem(PEER_X_VALUES);
+    xValuesSelectionCombo.addItem(CUSTOM_VALUES);
+    xValuesSelectionCombo.addItem(DEFAULT);
+    xValuesSelectionCombo.addItem(MIN_MAX_NUM);
+    xValuesSelectionCombo.setSelectedItem(PEER_X_VALUES);
+    maxLabel.setVisible(false);
+    minLabel.setVisible(false);
+    numLabel.setVisible(false);
+    maxText.setVisible(false);
+    minText.setVisible(false);
+    numText.setVisible(false);
+    setButton.setVisible(false);
   }
 
   /**
-   * initialises the function with the x and y values
+   * initialises the function with the x and y values if the user has chosen the PEER X Vals
    * the y values are modified with the values entered by the user
    */
-  private void createFunction(){
+  private void createPEER_Function(){
     function= new ArbitrarilyDiscretizedFunc();
     function.set(.001,1);
     function.set(.01,1);
@@ -116,6 +182,44 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     function.set(1.4,1);
     function.set(1.5,1);
   }
+
+  /**
+   * initialises the function with the x and y values if the user has chosen the Min Max Num Vals.
+   * The user enters the min, max and num and using that we create the ArbitrarilyDiscretizedFunc
+   * using the log space.
+   */
+  private void createFunctionFromMinMaxNum(){
+    function  = new ArbitrarilyDiscretizedFunc();
+    try{
+      //get the min,  max and num values enter by the user.
+      int numIMT_Vals = Integer.parseInt(numText.getText().trim());
+      double minIMT_Val = Double.parseDouble(minText.getText().trim());
+      double maxIMT_Val = Double.parseDouble(maxText.getText().trim());
+      if(minIMT_Val >= maxIMT_Val){
+        JOptionPane.showMessageDialog(this,"Min Val should be less than Max Val",
+                                      "Incorrect Input",JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+      double discretizationIMT = (Math.log(maxIMT_Val) - Math.log(minIMT_Val))/(numIMT_Vals-1);
+      for(int i=0; i < numIMT_Vals ;++i){
+        double xVal =Double.parseDouble(format.format(Math.exp(Math.log(minIMT_Val)+i*discretizationIMT)));
+        function.set(xVal,1.0);
+      }
+
+
+    }catch(NumberFormatException e){
+      JOptionPane.showMessageDialog(this,"Must enter a Valid Number",
+                                      "Incorrect Input",JOptionPane.ERROR_MESSAGE);
+      return;
+
+    }catch(NullPointerException e){
+      JOptionPane.showMessageDialog(this,"Null not allowed, must enter a valid number",
+                                "Incorrect Input",JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+
+  }
+
 
   /**
    * initialise the X values with the default X values in the textArea
@@ -152,14 +256,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     }
   }
 
-  /**
-   * If the user wants to have the default set of X values
-   * @param e
-   */
-  void xValuesButton_actionPerformed(ActionEvent e) {
-    this.createFunction();
-    this.setX_Values();
-  }
+
 
   /**
    * Sets the ArbitrarilyDiscretizedFunc with the X values and provides all the
@@ -213,6 +310,81 @@ public class X_ValuesInCurveControlPanel extends JFrame {
    */
   void doneButton_actionPerformed(ActionEvent e) {
     closeWindow();
+  }
+
+  //making the GUI visible or invisible based on the selection of "Type of X-Values"
+  void xValuesSelectionCombo_itemStateChanged(ItemEvent e) {
+    String selectedItem = (String)xValuesSelectionCombo.getSelectedItem();
+    if(selectedItem.equals(this.PEER_X_VALUES) || selectedItem.equals(this.CUSTOM_VALUES)){
+      maxLabel.setVisible(false);
+      minLabel.setVisible(false);
+      numLabel.setVisible(false);
+      maxText.setVisible(false);
+      minText.setVisible(false);
+      numText.setVisible(false);
+      setButton.setVisible(false);
+      xValuesText.setEditable(false);
+      if(selectedItem.equals(this.CUSTOM_VALUES))
+        xValuesText.setEditable(true);
+    }
+    else if(selectedItem.equals(this.DEFAULT) || selectedItem.equals(this.MIN_MAX_NUM)){
+      maxLabel.setVisible(true);
+      minLabel.setVisible(true);
+      numLabel.setVisible(true);
+      maxText.setVisible(true);
+      minText.setVisible(true);
+      numText.setVisible(true);
+      setButton.setVisible(true);
+      this.xValuesText.setEditable(false);
+      if(selectedItem.equals(this.DEFAULT)){
+        setButton.setVisible(false);
+        minText.setEditable(false);
+        maxText.setEditable(false);
+        numText.setEditable(false);
+      }
+      if(selectedItem.equals(this.MIN_MAX_NUM)){
+        minText.setEditable(true);
+        maxText.setEditable(true);
+        numText.setEditable(true);
+      }
+    }
+    generateXValues();
+  }
+
+  /**
+   * This function initialises the ArbitrarilyDiscretizedFunction with the X Values
+   * and Y Values based on the selection made by the user to choose the X Values.
+   */
+  public void generateXValues(){
+    String selectedItem = (String)xValuesSelectionCombo.getSelectedItem();
+    if(selectedItem.equals(this.PEER_X_VALUES)){
+      this.createPEER_Function();
+      setX_Values();
+    }
+    else if(selectedItem.equals(this.DEFAULT)){
+      String imt = api.getSelectedIMT();
+      minText.setText(""+DefaultHazardCurveForIMTs.getMinIMT_Val(imt));
+      maxText.setText(""+DefaultHazardCurveForIMTs.getMaxIMT_Val(imt));
+      numText.setText(""+DefaultHazardCurveForIMTs.getNumIMT_Val(imt));
+      DefaultHazardCurveForIMTs defaultX_Vals = new DefaultHazardCurveForIMTs();
+      function = defaultX_Vals.getHazardCurve(imt);
+      setX_Values();
+    }
+    else if(selectedItem.equals(this.MIN_MAX_NUM)){
+      minText.setText("");
+      maxText.setText("");
+      numText.setText("");
+      xValuesText.setText("");
+    }
+    else if(selectedItem.equals(this.CUSTOM_VALUES)){
+      xValuesText.setText("");
+    }
+
+  }
+
+  void setButton_actionPerformed(ActionEvent e) {
+    createFunctionFromMinMaxNum();
+    setX_Values();
   }
 
 }

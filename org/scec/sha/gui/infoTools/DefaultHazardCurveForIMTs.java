@@ -3,6 +3,7 @@ package org.scec.sha.gui.infoTools;
 import java.text.DecimalFormat;
 
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import org.scec.sha.imr.AttenuationRelationship;
 import org.scec.param.*;
 /**
  * <p>Title: DefaultHazardCurveForIMTs</p>
@@ -15,9 +16,6 @@ import org.scec.param.*;
 
 public final class DefaultHazardCurveForIMTs {
 
-  private final static String SA_NAME = "SA";
-  private final static String PGA_NAME = "PGA";
-  private final static String PGV_NAME = "PGV";
 
   //Default values for the SA and PGA
   private final static double MIN_SA_PGA = .0001;
@@ -58,14 +56,14 @@ public final class DefaultHazardCurveForIMTs {
    */
   public ArbitrarilyDiscretizedFunc getHazardCurve(String imtName){
     ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
-    if(imtName.equals(SA_NAME) || imtName.equals(PGA_NAME)){
+    if(imtName.equals(AttenuationRelationship.SA_NAME) || imtName.equals(AttenuationRelationship.PGA_NAME)){
       for(int i=0; i < NUM_SA_PGA ;++i){
         double xVal =Double.parseDouble(format.format(Math.exp(Math.log(MIN_SA_PGA)+i*discretization_pga_sa)));
         function.set(xVal,1.0);
       }
       return function;
     }
-    else if((imtName.equals(PGV_NAME))){
+    else if((imtName.equals(AttenuationRelationship.PGV_NAME))){
       for(int i=0; i < NUM_PGV ;++i){
         double xVal = Double.parseDouble(format.format(Math.exp(Math.log(MIN_PGV)+i*discretization_pgv)));
         function.set(xVal,1.0);
@@ -95,7 +93,7 @@ public final class DefaultHazardCurveForIMTs {
    *
    * @returns the total number of default X Values for SA
    */
-  public static double getSA_NUM(){
+  public static double getSA_Num(){
     return NUM_SA_PGA;
   }
 
@@ -119,7 +117,7 @@ public final class DefaultHazardCurveForIMTs {
    *
    * @returns the total number of default X Values for PGA
    */
-  public static double getPGA_NUM(){
+  public static double getPGA_Num(){
     return NUM_SA_PGA;
   }
 
@@ -145,6 +143,51 @@ public final class DefaultHazardCurveForIMTs {
    */
   public static double getPGV_Num(){
     return NUM_PGV;
+  }
+
+  /**
+   *  Returns the minimum default value for the selectd IMT
+   * @param imt: Selected IMT
+   * @return
+   */
+  public static double getMinIMT_Val(String imt){
+    if(imt.equals(AttenuationRelationship.SA_NAME))
+      return getSA_Min();
+    else if(imt.equals(AttenuationRelationship.PGA_NAME))
+      return getPGA_Min();
+    else if(imt.equals(AttenuationRelationship.PGV_NAME))
+      return getPGV_Min();
+    return 0;
+  }
+
+  /**
+   *  Returns the maximum default value for the selectd IMT
+   * @param imt: Selected IMT
+   * @return
+   */
+  public static double getMaxIMT_Val(String imt){
+    if(imt.equals(AttenuationRelationship.SA_NAME))
+      return getSA_Max();
+    else if(imt.equals(AttenuationRelationship.PGA_NAME))
+      return getPGA_Max();
+    else if(imt.equals(AttenuationRelationship.PGV_NAME))
+      return getPGV_Max();
+    return 0;
+  }
+
+  /**
+   * Returns the total number of values for the selectd IMT
+   * @param imt: Selected IMT
+   * @return
+   */
+  public static double getNumIMT_Val(String imt){
+    if(imt.equals(AttenuationRelationship.SA_NAME))
+      return getSA_Num();
+    else if(imt.equals(AttenuationRelationship.PGA_NAME))
+      return getPGA_Num();
+    else if(imt.equals(AttenuationRelationship.PGV_NAME))
+      return getPGV_Num();
+    return 0;
   }
 
   //added for debugging purposes
