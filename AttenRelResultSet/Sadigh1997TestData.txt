@@ -145,7 +145,7 @@ Y-Axis = Median
 Magnitude = 7.0
 DistanceRup = 10
 Fault Type = Reverse
-Sadigh Site Type = Deep Soil
+Sadigh Site Type = Deep-Soil
 
 #start of result values for this test set
 0.411116	
@@ -168,7 +168,7 @@ Y-Axis = Median
 Magnitude = 7.0
 DistanceRup = 10
 Fault Type = Other
-Sadigh Site Type = Deep Soil
+Sadigh Site Type = Deep-Soil
 
 #start of result values for this test set
 0.320178	
@@ -191,7 +191,7 @@ Y-Axis = Median
 Magnitude = 6.0
 DistanceRup = 10
 Fault Type = Other
-Sadigh Site Type = Deep Soil
+Sadigh Site Type = Deep-Soil
 
 #start of result values for this test set
 0.194730	
@@ -213,7 +213,7 @@ Set-10
 Y-Axis = Std. Dev.
 Magnitude = 7.5
 Std Dev Type = Total
-Site Type = Deep Soil
+Sadigh Site Type = Deep-Soil
 
 #start of result values for this test set
 0.400000	
@@ -236,7 +236,7 @@ Y-Axis = Std. Dev.
 Magnitude = 7.0
 DistanceRup = 10.0
 Std Dev Type = Total
-Sadigh Site Type = Deep Soil
+Sadigh Site Type = Deep-Soil
 
 #start of result values for this test set
 0.400000	
@@ -259,7 +259,7 @@ Y-Axis = Std. Dev.
 Magnitude = 6
 DistanceRup = 10.0
 Std Dev Type = Total
-Sadigh Site Type = Deep Soil
+Sadigh Site Type = Deep-Soil
 
 #start of result values for this test set
 0.560000	
