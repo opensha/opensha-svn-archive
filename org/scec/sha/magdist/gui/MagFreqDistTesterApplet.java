@@ -920,15 +920,18 @@ public class MagFreqDistTesterApplet extends JApplet
 
         String title = this.getCurrentMagDistName();
 
-        incrData.setConvertZeroToMin(true,new Double(.0000001));
+        incrData.setConvertZeroToMin(true,.0000001);
         toCumData.setConvertZeroToMin(true,.0000001);
         toMoData.setConvertZeroToMin(true,.0000000001);
 
+
+        TickUnits units = MyTickUnits.createStandardTickUnits();
         // create X- axis for mag vs incremental rate
         incrXAxis = new SHAHorizontalNumberAxis( incrXAxisLabel );
         incrXAxis.setAutoRangeIncludesZero( false );
         incrXAxis.setCrosshairLockedOnData( false );
         incrXAxis.setCrosshairVisible(false);
+        incrXAxis.setStandardTickUnits(units);
 
 
         // create X- axis for mag vs cum rate
@@ -936,12 +939,14 @@ public class MagFreqDistTesterApplet extends JApplet
         cumXAxis.setAutoRangeIncludesZero( false );
         cumXAxis.setCrosshairLockedOnData( false );
         cumXAxis.setCrosshairVisible(false);
+        cumXAxis.setStandardTickUnits(units);
 
         // create x- axis for mag vs moment rate
         moXAxis = new SHAHorizontalNumberAxis( moXAxisLabel );
         moXAxis.setAutoRangeIncludesZero( false );
         moXAxis.setCrosshairLockedOnData( false );
         moXAxis.setCrosshairVisible(false);
+        moXAxis.setStandardTickUnits(units);
 
 
         if (yLog)  {
@@ -959,17 +964,20 @@ public class MagFreqDistTesterApplet extends JApplet
         incrYAxis.setAutoRangeIncludesZero( false );
         incrYAxis.setCrosshairLockedOnData( false );
         incrYAxis.setCrosshairVisible( false);
+        incrYAxis.setStandardTickUnits(units);
 
 
         // set properties for mag vs incremental rate Y- axis
         cumYAxis.setAutoRangeIncludesZero( false );
         cumYAxis.setCrosshairLockedOnData( false );
         cumYAxis.setCrosshairVisible( false);
+        cumYAxis.setStandardTickUnits(units);
 
         // set properties for mag vs incremental rate Y- axis
         moYAxis.setAutoRangeIncludesZero( false );
         moYAxis.setCrosshairLockedOnData( false );
         moYAxis.setCrosshairVisible( false);
+        moYAxis.setStandardTickUnits(units);
 
 
 

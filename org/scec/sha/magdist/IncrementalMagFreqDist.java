@@ -28,7 +28,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      */
     public IncrementalMagFreqDist(double min,int num,double delta){
      super(min,num,delta);
-
+     setTolerance(delta/.000001);
     }
 
     /**
@@ -40,7 +40,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      */
     public IncrementalMagFreqDist(double min,double max,int num) {
       super(min,max,num);
-
+      setTolerance(delta/.000001);
    }
 
 
