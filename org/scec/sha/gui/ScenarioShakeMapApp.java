@@ -259,11 +259,6 @@ public class ScenarioShakeMapApp extends JApplet implements
      // show the sitebean in JPanel
      gridRegionSitePanel.add(this.sitesGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
          GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    sitesGuiBean.getParameterEditor(sitesGuiBean.MIN_LATITUDE).getParameter().addParameterChangeListener(this);
-    sitesGuiBean.getParameterEditor(sitesGuiBean.MAX_LATITUDE).getParameter().addParameterChangeListener(this);
-    sitesGuiBean.getParameterEditor(sitesGuiBean.MIN_LONGITUDE).getParameter().addParameterChangeListener(this);
-    sitesGuiBean.getParameterEditor(sitesGuiBean.MAX_LONGITUDE).getParameter().addParameterChangeListener(this);
-    sitesGuiBean.getParameterEditor(sitesGuiBean.GRID_SPACING).getParameter().addParameterChangeListener(this);
   }
 
   /**
@@ -404,20 +399,7 @@ public class ScenarioShakeMapApp extends JApplet implements
        */
       this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
 
-   if(name1.equalsIgnoreCase(sitesGuiBean.MIN_LATITUDE)||
-      name1.equalsIgnoreCase(sitesGuiBean.MAX_LATITUDE)||
-      name1.equalsIgnoreCase(sitesGuiBean.MIN_LONGITUDE)||
-      name1.equalsIgnoreCase(sitesGuiBean.MAX_LONGITUDE)||
-      name1.equalsIgnoreCase(sitesGuiBean.GRID_SPACING)){
 
-     //updates the GMT region parameters if the sites region parameters are updated
-     double minLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
-     double maxLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
-     double minLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
-     double maxLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
-     double gridSpacing=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
-     mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
-   }
   }
 
 
@@ -482,6 +464,12 @@ public class ScenarioShakeMapApp extends JApplet implements
     }catch(Exception e) {
       e.printStackTrace();
     }
+    double minLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
+    double maxLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
+    double minLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
+    double maxLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
+    double gridSpacing=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
+    mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
     mapGuiBean.makeMap(this.fileNameTextField.getText().trim()+".txt");
   }
 
