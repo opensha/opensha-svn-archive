@@ -43,16 +43,12 @@ public class WeightedFuncListforPlotting {
     funcList = new ArrayList();
     //adding individual curves if they needed to be added
     if(showIndividualCurves){
-      ListIterator it =weightedFuncList.getWeightedFunctionList().listIterator();
-      //while(it.hasNext())
-      funcList.add(it.next());
+      funcList.add(weightedFuncList.getWeightedFunctionList());
     }
     //adding fractile function if they need to be shown
-    if(showFractiles){
-      ListIterator it =weightedFuncList.getFractileList().listIterator();
+    if(showFractiles)
       //while(it.hasNext())
-        funcList.add(it.next());
-    }
+        funcList.add(weightedFuncList.getFractileList());
     //adding mean function if they need to be shown
     if(showMean){
       if(weightedFuncList.isMeanFunctionCalculated())
