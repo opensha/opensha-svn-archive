@@ -152,19 +152,19 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
             Object obj = functions.get( series );
             if( obj != null && obj instanceof DiscretizedFuncAPI){
 
-                if( this.xLog && ((Boolean)xLogs.get(series)).booleanValue() ) item += 1;
+                // adjust for log axis with zero points if necessary
+                if( item == 0 ) item = getAdjustedIndexIfZeros(( DiscretizedFuncAPI ) obj, item, xLog, yLog);
 
+                // get the value
                 double x = ( ( DiscretizedFuncAPI ) obj ).getX(item);
-                if( x != Double.NaN ) {
-                    if ( D )  System.out.println( C + ": getXValue(): X = " + x);
-                    return (Number)(new Double(x));
-                }
+
+                // return if not NaN
+                if( x != Double.NaN ) return (Number)(new Double(x));
             }
         }
         return null;
 
     }
-
 
     /**
      *  Returns the y-value for an item within a series.
@@ -179,18 +179,30 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
             Object obj = functions.get( series );
             if( obj != null && obj instanceof DiscretizedFuncAPI){
 
-                if( this.xLog && ((Boolean)xLogs.get(series)).booleanValue() ) item += 1;
+                // adjust for log axis with zero points if necessary
+                if( item == 0 ) item = getAdjustedIndexIfZeros(( DiscretizedFuncAPI ) obj, item, xLog, yLog);
 
+                // get the value
                 double y = ( ( DiscretizedFuncAPI ) obj ).getY(item);
-                if( y != Double.NaN ) {
-                    if ( D )  System.out.println( C + ": getYValue(): Y = " + y);
-                    return ( Number )(new Double(y));
-                }
+
+                // return if not NaN
+                if( y != Double.NaN ) return (Number)(new Double(y));
+
             }
         }
         return null;
     }
 
+    protected final static int getAdjustedIndexIfZeros(DiscretizedFuncAPI func, int index, boolean xLog, boolean yLog){
+
+        // only check first point
+        if( index > 0 ) return index;
+
+        // if xlog and first x value = 0 increment index, even if y first value not zero,
+        // and vice versa fro yLog. This call used by both getXValue and getYValue
+        if( ( xLog && func.getX(index) == 0 ) || ( yLog && func.getY(index) == 0 ) ) return ++index;
+        else return index;
+    }
 
 
 
@@ -270,6 +282,18 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         }
     }
 
+
+
+    public DiscretizedFuncList getFunctions() { return functions; }
+    public void setFunctions(DiscretizedFuncList functions) {
+        this.functions = functions;
+//      prepForXLog();
+    }
+
+}
+
+
+/*
     public void prepForXLog(){
         xLogs.clear();
 
@@ -291,11 +315,4 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         }
 
     }
-
-    public DiscretizedFuncList getFunctions() { return functions; }
-    public void setFunctions(DiscretizedFuncList functions) {
-        this.functions = functions;
-        prepForXLog();
-    }
-
-}
+    */
