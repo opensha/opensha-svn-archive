@@ -53,8 +53,8 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
 
   public SingleMagFreqDist(double min,int num,double delta, double mag,double moRate) {
     super(min,num,delta);
-    this.mag=mag;
-    this.rate=moRate/MomentMagCalc.getMoment(mag);
+    rate = moRate/MomentMagCalc.getMoment(mag);
+    setMagAndRate(mag, rate);
   }
 
   /**
@@ -81,6 +81,9 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   public void setMagAndRate(double mag, double rate) {
     this.mag=mag;
     this.rate=rate;
+    for(int i=0;i<num;++i)
+       set(i,0.0);
+    set(mag,rate);
   }
 
   /**
@@ -91,8 +94,8 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param moRate
    */
   public void setMagAndMomentRate(double mag,double moRate) {
-    this.mag=mag;
     this.rate=moRate/MomentMagCalc.getMoment(mag);
+    setMagAndRate(mag,rate);
   }
 
   /**
@@ -103,8 +106,8 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param moRate
    */
   public void setRateAndMomentRate(double rate,double moRate) {
-    this.rate=rate;
     this.mag=MomentMagCalc.getMag(moRate);
+    setMagAndRate(mag,rate);
   }
 
   /**
