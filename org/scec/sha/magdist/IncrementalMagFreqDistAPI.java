@@ -7,7 +7,7 @@ import org.scec.data.function.EvenlyDiscretizedFunc;
  * has been made as a generalised API for others to implement depending on their functionality</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author :Nitin Gupta Date: July,26,2002
  * @version 1.0
  */
 
