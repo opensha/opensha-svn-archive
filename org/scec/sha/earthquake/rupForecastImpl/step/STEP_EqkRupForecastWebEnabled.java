@@ -41,6 +41,7 @@ import org.scec.param.event.ParameterChangeEvent;
   private static String  name = new String("STEP ERF");
 
   // Input file name
+  private final static String INPUT_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
 
   // ArrayList of input file lines
   private ArrayList inputFileLines;
@@ -57,11 +58,10 @@ import org.scec.param.event.ParameterChangeEvent;
   private static final int    NUM_MAG=41;
   private static final double DEPTH=0;
 
+
+
   // vector to hold the sources
   Vector sources;
-
-  // private declaration of the flag to check if any parameter has been changed.
-  private boolean  parameterChangeFlag = false;
 
 
   /**
@@ -357,7 +357,7 @@ import org.scec.param.event.ParameterChangeEvent;
       // send the student object to the servlet using serialization
       ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
 
-      outputToServlet.writeObject("Read Step File");
+      outputToServlet.writeObject(INPUT_FILE_NAME);
 
       outputToServlet.flush();
       outputToServlet.close();

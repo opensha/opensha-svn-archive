@@ -59,7 +59,7 @@ import org.scec.sha.imr.AttenuationRelationship;
  * @version 1.0
  */
 
-public class SiteTranslator {
+public class SiteTranslator implements java.io.Serializable{
 
 
   public SiteTranslator() {

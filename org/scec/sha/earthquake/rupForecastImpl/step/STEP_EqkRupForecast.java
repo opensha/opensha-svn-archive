@@ -63,9 +63,6 @@ import org.scec.param.event.ParameterChangeEvent;
   // vector to hold the sources
   Vector sources;
 
-  // private declaration of the flag to check if any parameter has been changed.
-  private boolean  parameterChangeFlag = false;
-
 
   /**
    *
