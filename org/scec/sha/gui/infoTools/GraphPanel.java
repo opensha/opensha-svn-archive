@@ -152,7 +152,19 @@ public class GraphPanel extends JPanel {
   }
 
 
-
+  /**
+   * Draws curves using the plot preferences which defines color,width and line type
+   * for each curve.
+   * @param xAxisName : X-Axis Label
+   * @param yAxisName : Y-Axis Label
+   * @param funcList  : ArrayList containing individual functions and weighted functionlist
+   * @param xLog      : boolean tell if xLog is selected
+   * @param yLog      : boolean tells if yLog is selected
+   * @param customAxis : boolean tells if graph needs to ne plotted using custom axis range
+   * @param title  :
+   * @param buttonControlPanel
+   * @param plotCharacterstics
+   */
   public void drawGraphPanel(String xAxisName,String yAxisName,ArrayList funcList,
                              boolean xLog,boolean yLog,boolean customAxis,String title,
                              ButtonControlPanel buttonControlPanel,
@@ -663,19 +675,21 @@ public class GraphPanel extends JPanel {
         StyleConstants.setFontSize(setLegend,12);
         //checking if element in the list is weighted function list object
         Object obj = funcList.get(i);
+        String datasetName = "DATASET #"+(i+1);
         if(obj instanceof WeightedFuncListforPlotting){
           //getting the metadata for weighted functionlist
           WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
 
           String listInfo = weightedList.getInfo();
-          legend = new String("DATASET #"+(i+1)+"\n"+
+
+          legend = new String(datasetName+"\n"+
                               listInfo+SystemPropertiesUtils.getSystemLineSeparator());
           StyleConstants.setForeground(setLegend,Color.black);
           doc.insertString(doc.getLength(),legend,setLegend);
           //checking if individual curves need to be plotted
           if(weightedList.areIndividualCurvesToPlot()){
-            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(plotType,legendColor[j],lineWidth);
-            plotChar.setNumContinuousCurvesWithSameCharaceterstics(weightedList.getNumWeightedFunctions());
+            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(datasetName+" Curves",
+                plotType,legendColor[j],lineWidth,weightedList.getNumWeightedFunctions());
             plottingFeatures.add(plotChar);
             //getting the metadata for each individual curves and creating the legend string
             String listFunctionsInfo = weightedList.getFunctionTraceInfo();
@@ -689,8 +703,8 @@ public class GraphPanel extends JPanel {
           }
           //checking if fractiles need to be plotted
           if(weightedList.areFractilesToPlot()){
-            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(plotType,legendColor[j],lineWidth);
-            plotChar.setNumContinuousCurvesWithSameCharaceterstics(weightedList.getNumFractileFunctions());
+            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(datasetName+" Fractiles",
+                plotType,legendColor[j],lineWidth,weightedList.getNumFractileFunctions());
             plottingFeatures.add(plotChar);
              //getting the fractile info for the weighted function list and adding that to the legend
             String fractileListInfo = weightedList.getFractileInfo();
@@ -702,7 +716,8 @@ public class GraphPanel extends JPanel {
           }
           //checking if mean fractile need to be plotted
           if(weightedList.isMeanToPlot()){
-            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(plotType,legendColor[j],lineWidth);
+            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(datasetName+" Mean",
+                plotType,legendColor[j],lineWidth);
             plottingFeatures.add(plotChar);
             //getting the fractileinfo and showing it as legend
             String meanInfo = weightedList.getMeanFunctionInfo();
@@ -714,13 +729,14 @@ public class GraphPanel extends JPanel {
            }
         }
         else{ //if element in the list are individual function then get their info and show as legend
-          PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(plotType,legendColor[j],lineWidth);
+          PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(datasetName,
+              plotType,legendColor[j],lineWidth);
           plottingFeatures.add(plotChar);
           DiscretizedFuncAPI func = (DiscretizedFuncAPI)funcList.get(i);
           String functionInfo = func.getInfo();
           String name = func.getName();
 
-          legend = new String("DATASET #"+(i+1)+"\n"+
+          legend = new String(datasetName+"\n"+
                               name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
                               functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
           StyleConstants.setForeground(setLegend,legendColor[j]);

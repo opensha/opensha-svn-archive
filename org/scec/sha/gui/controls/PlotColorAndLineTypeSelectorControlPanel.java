@@ -12,7 +12,7 @@ import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * <p>Title: PlotColorAndLineTypeSelectorControlPanel</p>
- * <p>Description: This class </p>
+ * <p>Description: This class allows user to </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed
@@ -29,9 +29,8 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   //static String definitions
   private final static String colorChooserString = "Choose Color";
   private final static String lineTypeString = "Choose Line Type";
-  private final static String datasetNumberString = "Dataset #";
   //name of the attenuationrelationship weights parameter
-  public static final String lineWidthParamName = "Line Width -";
+  public static final String lineWidthParamName = "Size -";
 
   //static line types that allows user to select in combobox.
   public final static String LINE = "Line";
@@ -51,7 +50,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   private DoubleParameter[] lineWidthParameter;
   private DoubleParameterEditor[] lineWidthParameterEditor;
 
-  private JButton okButton = new JButton();
+  private JButton applyButton = new JButton();
   private JButton cancelButton = new JButton();
   private BorderLayout borderLayout1 = new BorderLayout();
 
@@ -59,12 +58,13 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   private PlotCurveCharacterstics[] plottingFeatures;
   //default curve characterstics with values , when this control panel was called
   private PlotCurveCharacterstics[] defaultPlottingFeatures;
-  private JButton defaultButton = new JButton();
+  private JButton RevertButton = new JButton();
   //instance of application using this control panel
   private PlotColorAndLineTypeSelectorControlPanelAPI application;
   private JPanel curveFeaturePanel = new JPanel();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private JButton doneButton = new JButton();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 
   public PlotColorAndLineTypeSelectorControlPanel(PlotColorAndLineTypeSelectorControlPanelAPI api,
@@ -89,10 +89,10 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     jPanel1.setLayout(gridBagLayout1);
     jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel1.setText("Set Dataset color and plot line type");
-    okButton.setText("OK");
-    okButton.addActionListener(new java.awt.event.ActionListener() {
+    applyButton.setText("Apply");
+    applyButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        okButton_actionPerformed(e);
+        applyButton_actionPerformed(e);
       }
     });
     cancelButton.setText("Cancel");
@@ -101,45 +101,51 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
         cancelButton_actionPerformed(e);
       }
     });
-    defaultButton.setText("Default");
-    defaultButton.addActionListener(new java.awt.event.ActionListener() {
+    RevertButton.setText("Revert");
+    RevertButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        defaultButton_actionPerformed(e);
+        RevertButton_actionPerformed(e);
       }
     });
     curveFeaturePanel.setLayout(gridBagLayout2);
+    doneButton.setText("Done");
+    doneButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        doneButton_actionPerformed(e);
+      }
+    });
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    jPanel1.add(jLabel1,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 40, 0, 32), 107, 12));
-    jPanel1.add(colorAndLineTypeSelectorPanel,  new GridBagConstraints(0, 1, 3, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 11), 347, 277));
+    jPanel1.add(jLabel1,  new GridBagConstraints(0, 0, 4, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 40, 0, 132), 107, 12));
+    jPanel1.add(colorAndLineTypeSelectorPanel,  new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 11), 457, 151));
     colorAndLineTypeSelectorPanel.getViewport().add(curveFeaturePanel, null);
-    jPanel1.add(okButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 36, 9, 0), 11, 5));
-    jPanel1.add(cancelButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 14, 9, 0), 11, 5));
-    jPanel1.add(defaultButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 19, 9, 54), 3, 5));
-    jPanel1.setSize(400,200);
-    colorAndLineTypeSelectorPanel.setSize(400,200);
-    setSize(400,200);
+    jPanel1.add(applyButton,  new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 9, 5, 60), 6, 5));
+    jPanel1.add(RevertButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 54, 5, 0), 6, 5));
+    jPanel1.add(doneButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 9, 5, 0), 6, 5));
+    jPanel1.add(cancelButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 8, 5, 0), 6, 5));
+    jPanel1.setSize(600,300);
+    //colorAndLineTypeSelectorPanel.setSize(500,250);
+    setSize(600,300);
   }
 
 
   /**
    *
    */
-  public void setPlotColorAndLineType(PlotCurveCharacterstics[] curveCharacterstics){
+  private void setPlotColorAndLineType(PlotCurveCharacterstics[] curveCharacterstics){
     int numCurves = curveCharacterstics.length;
     plottingFeatures = curveCharacterstics;
     defaultPlottingFeatures = new PlotCurveCharacterstics[numCurves];
 
     //creating the defaultPlotting features with original color scheme.
-    for(int i=0;i<numCurves;++i){
+    for(int i=0;i<numCurves;++i)
       defaultPlottingFeatures[i] =new PlotCurveCharacterstics(curveCharacterstics[i].getCurveType(),
           curveCharacterstics[i].getCurveColor(),curveCharacterstics[i].getCurveWidth());
-      defaultPlottingFeatures[i].setNumContinuousCurvesWithSameCharaceterstics(curveCharacterstics[i].getNumContinuousCurvesWithSameCharacterstics());
-    }
 
 
     datasetSelector = new JLabel[numCurves];
@@ -149,7 +155,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     lineWidthParameterEditor = new DoubleParameterEditor[numCurves];
     for(int i=0;i<numCurves;++i){
       //creating the dataset Labl with the color in which they are shown in plots.
-      datasetSelector[i] = new JLabel(datasetNumberString+(i+1));
+      datasetSelector[i] = new JLabel(plottingFeatures[i].getCurveName());
       datasetSelector[i].setForeground(plottingFeatures[i].getCurveColor());
       colorChooserButton[i] = new JButton(colorChooserString);
       colorChooserButton[i].addActionListener(this);
@@ -168,7 +174,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       lineTypeSelector[i].addActionListener(this);
 
       try{
-        lineWidthParameter[i] = new DoubleParameter(lineWidthParamName+(i+1),
+        lineWidthParameter[i] = new DoubleParameter(lineWidthParamName+(i+1),0,10,
             new Double(plottingFeatures[i].getCurveWidth()));
         lineWidthParameterEditor[i] = new DoubleParameterEditor(lineWidthParameter[i]);
       }catch(Exception e){
@@ -225,7 +231,15 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
 
 
 
-  void okButton_actionPerformed(ActionEvent e) {
+  /**
+   * Apply changes to the Plot and keeps the control panel for user to view the results
+   * @param e
+   */
+  void applyButton_actionPerformed(ActionEvent e) {
+    applyChangesToPlot();
+  }
+
+  private void applyChangesToPlot(){
     int numCurves = plottingFeatures.length;
     //getting the line width parameter
     for(int i=0;i<numCurves;++i)
@@ -234,6 +248,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   }
 
   void cancelButton_actionPerformed(ActionEvent e) {
+    revertPlotToOriginal();
     this.dispose();
   }
 
@@ -241,24 +256,36 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
    * Restoring the original values for plotting features
    * @param e
    */
-  void defaultButton_actionPerformed(ActionEvent e) {
+  void RevertButton_actionPerformed(ActionEvent e) {
     int flag =JOptionPane.showConfirmDialog(this,"Restore Original Values","Reverting changes",JOptionPane.OK_CANCEL_OPTION);
     if(flag == JOptionPane.OK_OPTION){
-      int numCurves = defaultPlottingFeatures.length;
-      for(int i=0;i<numCurves;++i){
-        datasetSelector[i].setForeground(defaultPlottingFeatures[i].getCurveColor());
-        plottingFeatures[i].setCurveColor(defaultPlottingFeatures[i].getCurveColor());
-        //setting the selected plot type to be one currently selected.
-        lineTypeSelector[i].setSelectedItem(defaultPlottingFeatures[i].getCurveType());
-        plottingFeatures[i].setCurveType(defaultPlottingFeatures[i].getCurveType());
-        lineWidthParameterEditor[i].setValue(new Double(defaultPlottingFeatures[i].getCurveWidth()));
-        lineWidthParameterEditor[i].refreshParamEditor();
-        plottingFeatures[i].setCurveWidth(defaultPlottingFeatures[i].getCurveWidth());
-        plottingFeatures[i].setNumContinuousCurvesWithSameCharaceterstics(defaultPlottingFeatures[i].getNumContinuousCurvesWithSameCharacterstics());
-        curveFeaturePanel.repaint();
-        curveFeaturePanel.validate();
-        application.drawGraph(plottingFeatures);
-      }
+      revertPlotToOriginal();
     }
+  }
+
+  private void revertPlotToOriginal(){
+    int numCurves = defaultPlottingFeatures.length;
+    for(int i=0;i<numCurves;++i){
+      datasetSelector[i].setForeground(defaultPlottingFeatures[i].getCurveColor());
+      plottingFeatures[i].setCurveColor(defaultPlottingFeatures[i].getCurveColor());
+      //setting the selected plot type to be one currently selected.
+      lineTypeSelector[i].setSelectedItem(defaultPlottingFeatures[i].getCurveType());
+      plottingFeatures[i].setCurveType(defaultPlottingFeatures[i].getCurveType());
+      lineWidthParameterEditor[i].setValue(new Double(defaultPlottingFeatures[i].getCurveWidth()));
+      lineWidthParameterEditor[i].refreshParamEditor();
+      plottingFeatures[i].setCurveWidth(defaultPlottingFeatures[i].getCurveWidth());
+      curveFeaturePanel.repaint();
+      curveFeaturePanel.validate();
+      application.drawGraph(plottingFeatures);
+    }
+  }
+
+  /**
+   * Apply all changes to Plot and closes the control window
+   * @param e
+   */
+  void doneButton_actionPerformed(ActionEvent e) {
+    applyChangesToPlot();
+    this.dispose();
   }
 }

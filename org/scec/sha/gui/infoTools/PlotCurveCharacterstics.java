@@ -19,6 +19,9 @@ public class PlotCurveCharacterstics {
   //width of the curve when plotted
   private double curveWidth;
 
+  //name of selected curve
+  private String curveName = "Data";
+
   //num of continuous curves with same characterstics as above
   private int numCurvesWithSamePlottingFeatures =1;
 
@@ -35,6 +38,51 @@ public class PlotCurveCharacterstics {
     curveColor =lineColor;
     curveWidth =lineWidth;
   }
+
+  /**
+   * @param lineName
+   * @param lineType
+   * @param lineColor
+   * @param lineWidth
+   */
+  public PlotCurveCharacterstics(String lineName,String lineType,Color lineColor,double lineWidth){
+    curveName = lineName;
+    curveType =lineType;
+    curveColor =lineColor;
+    curveWidth =lineWidth;
+  }
+
+  /**
+   *
+   * @param lineType
+   * @param lineColor
+   * @param lineWidth
+   * @param numConsecutiveCurvesWithSamePlotFeatures
+   */
+  public PlotCurveCharacterstics(String lineType,Color lineColor,double lineWidth,
+                                 int numConsecutiveCurvesWithSamePlotFeatures){
+    curveType =lineType;
+    curveColor =lineColor;
+    curveWidth =lineWidth;
+    numCurvesWithSamePlottingFeatures = numConsecutiveCurvesWithSamePlotFeatures;
+  }
+
+  /**
+   * @param lineName
+   * @param lineType
+   * @param lineColor
+   * @param lineWidth
+   * @param numConsecutiveCurvesWithSamePlotFeatures
+   */
+  public PlotCurveCharacterstics(String lineName,String lineType,Color lineColor,
+                                 double lineWidth,int numConsecutiveCurvesWithSamePlotFeatures){
+    curveName = lineName;
+    curveType =lineType;
+    curveColor =lineColor;
+    curveWidth =lineWidth;
+    numCurvesWithSamePlottingFeatures = numConsecutiveCurvesWithSamePlotFeatures;
+  }
+
 
   /**
    * Sets the shape of curve
@@ -73,6 +121,53 @@ public class PlotCurveCharacterstics {
     curveWidth = lineWidth;
   }
 
+
+  /**
+   * set the curve characterstics for plotting
+   * @param lineName
+   * @param lineType
+   * @param lineColor
+   * @param lineWidth
+   */
+  public void setCurveCharacterstics(String lineName,String lineType,Color lineColor,double lineWidth){
+    curveName = lineName;
+    curveType = lineType;
+    curveColor = lineColor;
+    curveWidth = lineWidth;
+  }
+
+  /**
+   * set the curve characterstics for plotting
+   * @param lineName
+   * @param lineType
+   * @param lineColor
+   * @param lineWidth
+   * @param numConsecutiveCurvesWithSamePlotFeatures
+   */
+  public void setCurveCharacterstics(String lineName,String lineType,Color lineColor,
+                                     double lineWidth,int numConsecutiveCurvesWithSamePlotFeatures){
+    curveName = lineName;
+    curveType = lineType;
+    curveColor = lineColor;
+    curveWidth = lineWidth;
+    numCurvesWithSamePlottingFeatures = numConsecutiveCurvesWithSamePlotFeatures;
+  }
+
+  /**
+   * set the curve characterstics for plotting
+   * @param lineType
+   * @param lineColor
+   * @param lineWidth
+   * @param numConsecutiveCurvesWithSamePlotFeatures
+   */
+  public void setCurveCharacterstics(String lineType,Color lineColor,double lineWidth,
+                                     int numConsecutiveCurvesWithSamePlotFeatures){
+    curveType = lineType;
+    curveColor = lineColor;
+    curveWidth = lineWidth;
+    numCurvesWithSamePlottingFeatures = numConsecutiveCurvesWithSamePlotFeatures;
+  }
+
   /**
    *
    * @returns the shape of curve like line, dashed, triangle
@@ -95,6 +190,23 @@ public class PlotCurveCharacterstics {
    */
   public double getCurveWidth(){
     return curveWidth;
+  }
+
+
+  /**
+   * Sets the name of the plot curve
+   * @param name
+   */
+  public void setCurveName(String name){
+    curveName = name;
+  }
+
+  /**
+   *
+   * @returns the name of curve
+   */
+  public String getCurveName(){
+    return curveName;
   }
 
 

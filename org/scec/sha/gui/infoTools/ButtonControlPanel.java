@@ -257,8 +257,8 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     PlotCurveCharacterstics[] plotFeatures = application.getPlottingFeatures();
     if(plotControl == null)
       plotControl = new PlotColorAndLineTypeSelectorControlPanel(this,plotFeatures);
-    else
-      plotControl.setPlotColorAndLineType(plotFeatures);
+    //else
+      //plotControl.setPlotColorAndLineType(plotFeatures);
       plotControl.show();
       //plotControl.pack();
       //use plot preferences to plot the curves.
