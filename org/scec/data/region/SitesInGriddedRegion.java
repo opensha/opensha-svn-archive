@@ -89,7 +89,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
            while(defaultSiteParams.hasNext()){
              ParameterAPI param = (ParameterAPI)defaultSiteParams.next();
              if(tempParam.getName().equals(param.getName()))
-               tempParam = param;
+               tempParam.setValue(param.getValue());
            }
          }
 
