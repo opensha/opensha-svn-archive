@@ -11,7 +11,7 @@ import org.scec.param.ParameterList;
 import org.scec.data.*;
 
 /**
- * <b>Title:</b> EmpiricalDistributionFunc<p>
+ * <b>Title:</b> ArbDiscrEmpiricalDistFunc<p>
  *
  * <b>Description:</b>  This class is similar to ArbitraryDiscretizedFunction,
  * except that rather than replacing a point that has the same x value (or within
@@ -31,11 +31,11 @@ import org.scec.data.*;
  * @version 1.0
  */
 
-public class EmpiricalDistributionFunc extends ArbitrarilyDiscretizedFunc
+public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
                                         implements Serializable {
 
     /* Class name Debbuging variables */
-    protected final static String C = "EmpiricalDistributionFunc";
+    protected final static String C = "ArbDiscrEmpiricalDistFunc";
 
     /* Boolean debugging variable to switch on and off debug printouts */
     protected final static boolean D = true;
@@ -43,7 +43,7 @@ public class EmpiricalDistributionFunc extends ArbitrarilyDiscretizedFunc
     /**
      * No-Arg Constructor.
      */
-    public EmpiricalDistributionFunc() { super.points = new EmpiricalDistributionTreeMap(); }
+    public ArbDiscrEmpiricalDistFunc() { super.points = new EmpiricalDistributionTreeMap(); }
 
 
     /**
@@ -66,7 +66,7 @@ public class EmpiricalDistributionFunc extends ArbitrarilyDiscretizedFunc
      */
     public DiscretizedFuncAPI deepClone(){
 
-        EmpiricalDistributionFunc function = new EmpiricalDistributionFunc(  );
+        ArbDiscrEmpiricalDistFunc function = new ArbDiscrEmpiricalDistFunc(  );
 
         Iterator it = this.getPointsIterator();
         if( it != null ) {
@@ -131,7 +131,7 @@ public class EmpiricalDistributionFunc extends ArbitrarilyDiscretizedFunc
 /*  temp main method to test and to investige numerical precision issues */
 public static void main( String[] args ) {
 
-  EmpiricalDistributionFunc func = new EmpiricalDistributionFunc();
+  ArbDiscrEmpiricalDistFunc func = new ArbDiscrEmpiricalDistFunc();
   func.set(0.0,0);
   func.set(1.0,0);
   func.set(1.0,1);
