@@ -580,12 +580,12 @@ public class Campbell_1997_IMR
     protected void initStdDevIndependentParamsList(){
         stdDevIndependentParams.clear();
         stdDevIndependentParams.addParameter(stdDevTypeParam);
-        meanIndependentParams.addParameter( siteTypeParam );
-        meanIndependentParams.addParameter( basinDepthParam );
-        meanIndependentParams.addParameter( magParam );
-        meanIndependentParams.addParameter( fltTypeParam );
-        meanIndependentParams.addParameter( distanceSeisParam );
-        meanIndependentParams.addParameter( componentParam );
+        stdDevIndependentParams.addParameter( siteTypeParam );
+        stdDevIndependentParams.addParameter( basinDepthParam );
+        stdDevIndependentParams.addParameter( magParam );
+        stdDevIndependentParams.addParameter( fltTypeParam );
+        stdDevIndependentParams.addParameter( distanceSeisParam );
+        stdDevIndependentParams.addParameter( componentParam );
     }
 
 

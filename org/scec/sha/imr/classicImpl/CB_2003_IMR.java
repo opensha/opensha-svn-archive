@@ -313,7 +313,7 @@ public class CB_2003_IMR
         if( im.getName() == SA_NAME ) key.append( "/" + periodParam.getValue() );
 
         // Set coefficients depending on component:
-        if ( componentParam.equals( COMPONENT_AVE_HORZ ) ) {
+        if ( componentParam.getValue().toString().equals( COMPONENT_AVE_HORZ ) ) {
             if( horzCoefficients.containsKey( key.toString() ) )
                 coeff = ( CB_2003_IMRCoefficients ) horzCoefficients.get( key.toString() );
             else
@@ -512,7 +512,6 @@ public class CB_2003_IMR
         periodParam.setValue( PERIOD_DEFAULT );
         dampingParam.setValue(DAMPING_DEFAULT);
         pgaParam.setValue( PGA_DEFAULT );
-        pgvParam.setValue( PGV_DEFAULT );
         componentParam.setValue( COMPONENT_DEFAULT );
         stdDevTypeParam.setValue( STD_DEV_TYPE_DEFAULT );
    }
@@ -547,11 +546,11 @@ public class CB_2003_IMR
     protected void initStdDevIndependentParamsList(){
         stdDevIndependentParams.clear();
         stdDevIndependentParams.addParameter(stdDevTypeParam);
-        meanIndependentParams.addParameter( magParam );
-        meanIndependentParams.addParameter( fltTypeParam );
-        meanIndependentParams.addParameter( distanceSeisParam );
-        meanIndependentParams.addParameter( hangingWallParam );
-        meanIndependentParams.addParameter( componentParam );
+        stdDevIndependentParams.addParameter( magParam );
+        stdDevIndependentParams.addParameter( fltTypeParam );
+        stdDevIndependentParams.addParameter( distanceSeisParam );
+        stdDevIndependentParams.addParameter( hangingWallParam );
+        stdDevIndependentParams.addParameter( componentParam );
     }
 
 
@@ -566,6 +565,8 @@ public class CB_2003_IMR
         siteConstraint.addString( SITE_TYPE_VERY_FIRM_SOIL );
         siteConstraint.addString( SITE_TYPE_SOFT_ROCK );
         siteConstraint.addString( SITE_TYPE_FIRM_ROCK );
+        siteConstraint.addString( SITE_TYPE_SOIL );
+        siteConstraint.addString( SITE_TYPE_ROCK );
         siteConstraint.addString( SITE_TYPE_NEHRP_BC );
         siteConstraint.setNonEditable();
         siteTypeParam = new StringParameter( SITE_TYPE_NAME, siteConstraint, null);
