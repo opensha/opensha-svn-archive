@@ -18,8 +18,8 @@ public class GMT_WebServiceServer implements GMT_WebServiceAPI{
 
   private final static String FILE_PATH="/opt/install/jakarta-tomcat-4.1.24/webapps/gmtWS/";
   private final static String GMT_DATA_DIR ="gmtData/" ;
-  private final static String DATA_PATH ="/usr/scec/data/gmt/";
-  private final static String GMT_SCRIPT_FILE = "gmtScript.txt";
+  //private final static String DATA_PATH ="/usr/scec/data/gmt/";
+  private final static String GMT_SCRIPT_FILE = "temp_gmtScript.txt";
   public GMT_WebServiceServer() {
   }
 
@@ -61,38 +61,31 @@ public class GMT_WebServiceServer implements GMT_WebServiceAPI{
       FileWriter fw = new FileWriter(gmtScriptFile);
       BufferedWriter bw = new BufferedWriter(fw);
       bw.write("cd "+newDir+"/"+"\n");
-      String gmtCommand = br.readLine();
-
-      while(gmtCommand != null){
-        bw.write(gmtCommand+"\n");
-        gmtCommand = br.readLine();
-      }
-      br.close();
+      bw.write("chmod 777 "+fileName[0]+"\n");
+      bw.write(fileName[0]+"\n");
       bw.close();
       //writing the XYZ dataSet file to the disk
-      dh[1].writeTo(new FileOutputStream(newDir+"/"+fileName[1]));
+      //dh[1].writeTo(new FileOutputStream(newDir+"/"+fileName[1]));
 
-      System.out.println("GMT file: "+fileName[0]);
-      System.out.println("XYZ file: "+fileName[1]);
 
-      //writing the rest of the data files to the disk
-      for(int i=2;i<fileName.length;++i)
-        dh[i].writeTo(new FileOutputStream(DATA_PATH+fileName[i]));
+      //writing the rest of the data files including the xyz file (if any) to the disk
+      for(int i=1;i<fileName.length;++i)
+        dh[i].writeTo(new FileOutputStream(newDir+"/"+fileName[i]));
 
       //running the gmtScript file
       String[] command ={"sh","-c","sh "+gmtScriptFile};
       RunScript.runScript(command);
       //name of the outputfiles
-      outFile = fileName[1].substring(0,fileName[1].indexOf("."));
+      //outFile = fileName[1].substring(0,fileName[1].indexOf("."));
       // remove the temporary files created
-      command[2]="rm "+newDir+"/"+fileName[0];
+      command[2]="rm "+newDir+"/"+gmtScriptFile;
       RunScript.runScript(command);
-      command[2]="rm temp"+outFile+".grd";
+      /*command[2]="rm temp"+outFile+".grd";
       RunScript.runScript(command);
       command[2]="rm temp_temp"+outFile+".grd_info";
       RunScript.runScript(command);
       command[2]="rm "+outFile+".cpt";
-      RunScript.runScript(command);
+      RunScript.runScript(command);*/
     }catch(Exception e){
       e.printStackTrace();
     }
