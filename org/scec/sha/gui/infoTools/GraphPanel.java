@@ -44,8 +44,8 @@ public class GraphPanel extends JPanel {
   /**
    * default color scheme for plotting curves
    */
-  Color[] defaultColor = {Color.red,Color.blue,Color.cyan,Color.darkGray,Color.magenta,
-    Color.gray,Color.green,Color.orange,Color.pink,Color.yellow};
+  Color[] defaultColor = {Color.red,Color.blue,Color.green,Color.darkGray,Color.magenta,Color.cyan,
+    Color.orange,Color.pink,Color.yellow,Color.gray};
 
   /**
   * custom color scheme using which curves will be plotted
