@@ -141,7 +141,6 @@ public class OverlaidGridXYPlot extends OverlaidXYPlot {
          this.rangeAxis.draw(g2, plotArea, dataArea);
      }
 
-
      render(g2, dataArea, info, crosshairInfo);
 
 
