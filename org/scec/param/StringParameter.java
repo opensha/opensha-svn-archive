@@ -259,7 +259,9 @@ public class StringParameter
      */
     public Object clone() {
 
-        StringConstraint c1 = ( StringConstraint ) constraint.clone();
+      StringConstraint c1=null;
+      if(constraint != null)
+         c1 = ( StringConstraint ) constraint.clone();
 
         StringParameter param = null;
         if( value == null ) param = new StringParameter( name, c1, units);

@@ -590,7 +590,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    */
   private void initPuenteHillScenarioControl() {
     int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to Puente Hills Scenario?",
-                                    "Puete Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
+                                    "Puente Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
       if(this.puenteHillControl==null)
         puenteHillControl = new PuenteHillsScenarioControlPanel(this.erfGuiBean, this.imrGuiBean,this.sitesGuiBean);

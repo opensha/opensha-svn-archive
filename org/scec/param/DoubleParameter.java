@@ -441,7 +441,9 @@ public class DoubleParameter
 
     /** Returns a copy so you can't edit or damage the origial. */
     public Object clone() {
-        DoubleConstraint c1 = ( DoubleConstraint ) constraint.clone();
+      DoubleConstraint c1=null;
+      if(constraint != null)
+         c1 = ( DoubleConstraint ) constraint.clone();
         DoubleParameter param = null;
         if( value == null ) param = new DoubleParameter( name, c1, units);
         else param = new DoubleParameter( name, c1, units, new Double( this.value.toString() )  );

@@ -312,7 +312,9 @@ public class DoubleDiscreteParameter
 
     /** Returns a copy so you can't edit or damage the original. */
     public Object clone() {
-        DoubleDiscreteConstraint c1 = ( DoubleDiscreteConstraint ) constraint.clone();
+      DoubleDiscreteConstraint c1=null;
+      if(constraint != null)
+         c1 = ( DoubleDiscreteConstraint ) constraint.clone();
 
         DoubleDiscreteParameter param = null;
         if( value == null ) param = new DoubleDiscreteParameter( name, c1, units);

@@ -404,6 +404,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
           parameterList.removeParameter(tempParam.getName());
           //creating the new Site Param, with "Default " added to its name, with existing site Params
           ParameterAPI newParam = (ParameterAPI)tempParam.clone();
+          //If the parameterList already contains the site param with the "Default" name, then no need to change the existing name.
           if(!newParam.getName().startsWith(this.DEFAULT))
             newParam.setName(this.DEFAULT+newParam.getName());
           //making the new parameter to uneditable same as the earlier site Param, so that

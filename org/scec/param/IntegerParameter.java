@@ -415,7 +415,9 @@ public class IntegerParameter
 
     /** Returns a copy so you can't edit or damage the original. */
     public Object clone() {
-        IntegerConstraint c1 = ( IntegerConstraint ) constraint.clone();
+      IntegerConstraint c1=null;
+      if(constraint != null)
+         c1 = ( IntegerConstraint ) constraint.clone();
         IntegerParameter param = null;
         if( value == null ) param = new IntegerParameter( name, c1, units);
         else param = new IntegerParameter( name, c1, units, new Integer( this.value.toString() )  );
