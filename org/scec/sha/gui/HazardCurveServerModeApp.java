@@ -1432,19 +1432,19 @@ public class HazardCurveServerModeApp extends JApplet
     String systemSpecificLineSeparator = SystemPropertiesUtils.getSystemLineSeparator();
     return "IMR Param List:" +systemSpecificLineSeparator+
            "---------------"+systemSpecificLineSeparator+
-        this.imrGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+systemSpecificLineSeparator+
+        this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator+systemSpecificLineSeparator+
         "Site Param List: "+systemSpecificLineSeparator+
         "----------------"+systemSpecificLineSeparator+
-        siteGuiBean.getParameterListEditor().getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
+        siteGuiBean.getParameterListEditor().getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"IMT Param List: "+systemSpecificLineSeparator+
         "---------------"+systemSpecificLineSeparator+
-        imtGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
+        imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"Forecast Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
-        /*erfGuiBean.getParameterList().toString()+systemSpecificLineSeparator+*/
+        erfGuiBean.getParameterList().getParameterListMetadataString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
-        timeSpanGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator;
+        timeSpanGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator;
   }
 
   void imgLabel_mousePressed(MouseEvent e) {

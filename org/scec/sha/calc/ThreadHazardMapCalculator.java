@@ -72,8 +72,8 @@ public void getHazardMapCurves(String[] args) {
     SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
     hazCurveCalc.setMaxSourceDistance(this.MAX_DISTANCE);
     int numSites = griddedSites.getNumGridLocs();
-    for(int j=0;j<numSites;j +=100){
-      int endIndex = j+100;
+    for(int j=0;j<numSites;j +=50){
+      int endIndex = j+50;
       if(endIndex >=numSites)
         endIndex = numSites;
       Thread t = new Thread(new HazardCurvesGenerator(args,j,endIndex));
