@@ -276,7 +276,10 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       //only add the vs30 value if it not a Double.NaN otherwise the default value which is 760m/s .
       if(!(Double.isNaN(vs30)))
         ((WarningDoubleParameter)imr.getSite().getParameter(imr.VS30_NAME)).setValueIgnoreWarning(vs30Vals.get(j));
-      System.out.println("Vs30 Value:"+((Double)imr.getParameter(imr.VS30_NAME).getValue()).doubleValue());
+      //if Vs30 is in water then it's value is zero, so we take a small value for it as 10
+      if(vs30 == 0)
+        ((WarningDoubleParameter)imr.getSite().getParameter(imr.VS30_NAME)).setValueIgnoreWarning(new Double(10.00));
+      //System.out.println("Vs30 Value:"+((Double)imr.getParameter(imr.VS30_NAME).getValue()).doubleValue());
       // loop over sources
       for(i=0;i < numSources ;i++) {
 
@@ -323,7 +326,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       }
       else
         hazVal = 0.0;
-      System.out.println("HazVal: "+hazVal);
+      //System.out.println("HazVal: "+hazVal);
       probVals.add(new Double(hazVal));
     }
 
