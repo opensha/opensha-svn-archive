@@ -36,15 +36,18 @@ public class GMT_MapGenerator implements Serializable{
   private String XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
   private String PS_FILE_NAME = "map.ps";
   private String JPG_FILE_NAME = "map.jpg";
-  private String GMT_PATH;
+  private String SCALE_LABEL; // what's used to label the color scale
 
-  XYZ_DataSetAPI xyzDataSet;
+  // paths to needed code
+  private String GMT_PATH;
+  private String GS_PATH;
+  private String CONVERT_PATH;
+  private static String COMMAND_PATH = "/bin/";
 
   // this is the path where general data (e.g., topography) are found:
   private static String SCEC_GMT_DATA_PATH = "/usr/scec/data/gmt/";
 
-  // this is the path to find the "cat" command
-  private static String COMMAND_PATH = "/bin/";
+  XYZ_DataSetAPI xyzDataSet;
 
   // for map boundary parameters
   public final static String MIN_LAT_PARAM_NAME = "Min Latitude";
@@ -226,9 +229,14 @@ public class GMT_MapGenerator implements Serializable{
    */
   public String makeMapLocally(XYZ_DataSetAPI xyzDataSet){
 
-    // where to find GMT on the local computer
-    // THIS SHOULD BE DETERMINED DYNAMICALLY (e.g., w/ "which psxy" command?)
+    // THESE SHOULD BE SET DYNAMICALLY
+    // CURRENTLY HARD CODED FOR Ned and Nitin's Macs
     GMT_PATH="/sw/bin/";
+    GS_PATH="/sw/bin/gs";
+    CONVERT_PATH="/sw/bin/convert";
+
+    // The color scale label (will be an input param eventually)
+    SCALE_LABEL = "IML";
 
     this.xyzDataSet = xyzDataSet;
 
@@ -237,9 +245,6 @@ public class GMT_MapGenerator implements Serializable{
 
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
-
-    // add a command line to convert the ps file to a jpg file
-    gmtLines.add(GMT_PATH+"convert " + PS_FILE_NAME + " " + JPG_FILE_NAME+"\n");
 
     // Add time stamp to script name and make the script
     gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
@@ -262,9 +267,13 @@ public class GMT_MapGenerator implements Serializable{
    */
   public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet){
 
-    // Where to find the GMT code on the SCEC server
-    // THIS SHOULD BE SET DYNAMICALLY
+    // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
+    GS_PATH="/usr/bin/gs";
+    CONVERT_PATH="/usr/X11R6/bin/convert";
+
+    // The color scale label (will be an input param eventually)
+    SCALE_LABEL = "IML";
 
     this.xyzDataSet = xyzDataSet;
 
@@ -274,9 +283,6 @@ public class GMT_MapGenerator implements Serializable{
 
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
-
-    // add a command line to convert the ps file to a jpg file
-    gmtLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | gs -sDEVICE=jpeg -sOutputFile=" + JPG_FILE_NAME + " -"+"\n");
 
     imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines);
 
@@ -292,9 +298,13 @@ public class GMT_MapGenerator implements Serializable{
    */
   public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet){
 
-    // where to find GMT on the SCEC server
-    // THIS SHOULD BE SET DYNAMICALLY
+    // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
+    GS_PATH="/usr/bin/gs";
+    CONVERT_PATH="/usr/X11R6/bin/convert";
+
+    // The color scale label (will be an input param eventually)
+    SCALE_LABEL = "IML";
 
     this.xyzDataSet = xyzDataSet;
 
@@ -303,9 +313,6 @@ public class GMT_MapGenerator implements Serializable{
 
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
-
-    // add a command line to convert the ps file to a jpg file
-    gmtLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | gs -sDEVICE=jpeg -sOutputFile=" + JPG_FILE_NAME + " -"+"\n");
 
     // Add time stamp to script name and make the script
     gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
@@ -364,6 +371,31 @@ public class GMT_MapGenerator implements Serializable{
 
     makeFileFromLines(lines, XYZ_FILE_NAME);
   }
+
+
+  // make the xyzDataSet from a local file
+  private void make_xyzDataSet(String fileName) {
+
+    Vector xVals = new Vector();
+    Vector yVals =  new Vector();
+    Vector zVals =  new Vector();
+    try {
+      FileReader fr = new FileReader(fileName); //open the xyx file
+      BufferedReader bf = new BufferedReader(fr);
+      String str=bf.readLine();
+      StringTokenizer tokenizer;
+      while(str!=null) {
+        tokenizer = new StringTokenizer(str);
+        xVals.add(new Double(tokenizer.nextToken())); // lat
+        yVals.add(new Double(tokenizer.nextToken()));  // lon
+        zVals.add(new Double(tokenizer.nextToken()));  // z value
+        str = bf.readLine();
+      }
+      bf.close();
+      }catch(Exception e) { e.printStackTrace(); }
+      this.xyzDataSet = new org.scec.data.ArbDiscretizedXYZ_DataSet(xVals, yVals, zVals) ;
+  }
+
 
   // make a local file from a vector of strings
   private void makeFileFromLines(Vector lines, String fileName) {
@@ -478,37 +510,21 @@ public class GMT_MapGenerator implements Serializable{
    */
   public void makeMapLocally(String xyzFileName) {
 
-    // where to find GMT on SCEC server
-    // THIS SHOULD BE SET DYNAMICALLY
-    GMT_PATH="/opt/install/gmt/bin/";
-
     XYZ_FILE_NAME = xyzFileName;
 
-    // contstruct the xyz datatset using the xyz file
-    Vector xVals = new Vector();
-    Vector yVals =  new Vector();
-    Vector zVals =  new Vector();
-    try {
-      FileReader fr = new FileReader(xyzFileName); //open the xyx file
-      BufferedReader bf = new BufferedReader(fr);
-      String str=bf.readLine();
-      StringTokenizer tokenizer;
-      while(str!=null) {
-        tokenizer = new StringTokenizer(str);
-        xVals.add(new Double(tokenizer.nextToken())); // lat
-        yVals.add(new Double(tokenizer.nextToken()));  // lon
-        zVals.add(new Double(tokenizer.nextToken()));  // z value
-        str = bf.readLine();
-      }
-      bf.close();
-    }catch(Exception e) { e.printStackTrace(); }
-    this.xyzDataSet = new org.scec.data.ArbDiscretizedXYZ_DataSet(xVals, yVals, zVals) ;
+    // THESE SHOULD BE SET DYNAMICALLY
+    // CURRENTLY HARD CODED FOR gravity AT SCEC (for Vipin)
+    GMT_PATH="/opt/install/gmt/bin/";
+    GS_PATH="/usr/bin/gs";
+    CONVERT_PATH="/usr/X11R6/bin/convert";
+
+    // The color scale label (will be an input param eventually)
+    SCALE_LABEL = "IML";
+
+    this.make_xyzDataSet(XYZ_FILE_NAME);
 
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
-
-    // add a command line to convert the ps file to a jpg file
-    gmtLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | gs -sDEVICE=jpeg -sOutputFile=" + JPG_FILE_NAME + " -"+"\n");
 
     // Add time stamp to script name and make the script
     gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
@@ -543,6 +559,52 @@ public class GMT_MapGenerator implements Serializable{
     return this.imgWebAddr;
   }
 
+
+  // this computes a nice length for the km_scale
+  private double getNiceKmScaleLength(double lat,double minLon,double maxLon) {
+
+    double target = (maxLon-minLon)*111*Math.cos(Math.PI*lat/180) / 4;
+    double test = 0.1;
+
+    while(target > test) {
+      test*=10;
+    }
+    test /= 10;
+    return Math.ceil(target/test)*test;
+  }
+
+  // this computes a nice map tick intervale
+  private double getNiceMapTickInterval(double minLat,double maxLat,double minLon,double maxLon) {
+
+    double diff, niceTick=Double.NaN;
+
+    // find the minimum range
+    if( maxLat-minLat < maxLon-minLon)
+      diff = maxLat-minLat;
+    else
+      diff = maxLon-minLon;
+
+    // now divide this by two to ensureat least two labeled segments
+    diff /= 2;
+
+    // now find the first nice value below this one
+    boolean finished = false;
+    double fact = 100;
+    while(!finished) {
+
+      if((niceTick=1.0*fact) <= diff)
+        finished = true;
+      else if((niceTick=0.5*fact) <= diff)
+        finished = true;
+      else if((niceTick=0.25*fact) <= diff)
+        finished = true;
+      else
+        fact /= 10.0;
+
+    }
+    return (double) ((float) niceTick);
+
+  }
 
   /**
    * This method generates a list of strings needed for the GMT script
@@ -592,7 +654,10 @@ public class GMT_MapGenerator implements Serializable{
     double plotHght = ((maxLat-minLat)/(maxLon-minLon))*plotWdth/Math.cos(Math.PI*(maxLat+minLat)/(2*180));
 
     double yOffset = 11 - plotHght - 0.5;
-    String yOff = "-Y" + yOffset + "i";
+    String yOff = " -Y" + yOffset + "i";
+
+    // set x-axis offset to 1 inch
+    String xOff = " -X1.0i";
 
     // command line to convert xyz file to grd file
     commandLine =GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
@@ -620,7 +685,7 @@ public class GMT_MapGenerator implements Serializable{
 
     // generate the image depending on whether topo relief is desired
     if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-      commandLine=GMT_PATH+"grdimage "+grdFileName+" -X0.75i " + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"grdimage "+ grdFileName + xOff + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
     else {
@@ -628,7 +693,7 @@ public class GMT_MapGenerator implements Serializable{
       gmtCommandLines.add(commandLine+"\n");
       commandLine=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
       gmtCommandLines.add(commandLine+"\n");
-      commandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd -X0.75i " + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd "+xOff + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
 
@@ -656,12 +721,23 @@ public class GMT_MapGenerator implements Serializable{
     DecimalFormat df2 = new DecimalFormat("0.E0");
     Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
     inc = tickInc.floatValue();
-    String tempLabel = "IML";
-    commandLine=GMT_PATH+"psscale -Ba"+inc+":"+tempLabel+": -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + PS_FILE_NAME;
+    commandLine=GMT_PATH+"psscale -Ba"+inc+":"+SCALE_LABEL+": -D3.25i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + PS_FILE_NAME;
+    gmtCommandLines.add(commandLine+"\n");
 
     // add the basemap
-    commandLine=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/50 -O >> " + PS_FILE_NAME;
+    double niceKmLength = getNiceKmScaleLength(minLat, minLon, maxLon);
+    double kmScaleXoffset = plotWdth/2;
+    double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
+    commandLine=GMT_PATH+"psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth + " "+region+
+                " -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
     gmtCommandLines.add(commandLine+"\n");
+
+    // add a command line to convert the ps file to a jpg file - using convert
+//    gmtCommandLines.add(CONVERT_PATH+" " + PS_FILE_NAME + " " + JPG_FILE_NAME+"\n");
+
+    // add a command line to convert the ps file to a jpg file - using gs
+    gmtCommandLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg -sOutputFile=" + JPG_FILE_NAME + " -"+"\n");
+
 
     return gmtCommandLines;
   }
