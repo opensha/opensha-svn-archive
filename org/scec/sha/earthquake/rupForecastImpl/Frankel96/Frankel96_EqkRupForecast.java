@@ -181,12 +181,13 @@ private void intiAdjParams() {
 
   faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
   faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
-  faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,(String)faultModelNamesStrings.get(0));
+  faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,
+                                        (String)faultModelNamesStrings.get(0));
 
   backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
   backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
   backSeisOptionsStrings.add(BACK_SEIS_ONLY);
-  backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_EXCLUDE);
+  backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_ONLY);
 
   timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
                                       TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
@@ -407,9 +408,10 @@ private void intiAdjParams() {
     // GR dist between mag 0 and 7, delta=0.2
     GutenbergRichterMagFreqDist grDist1 = new GutenbergRichterMagFreqDist(magLower1,numMag1,magDelta,
                                                                           tempMoRate,bValue);
+
     // GR dist between mag 5 and 7, delta=0.2
-    GutenbergRichterMagFreqDist grDist2 = new GutenbergRichterMagFreqDist(magLower2,numMag2,magDelta,
-                                                                          tempMoRate,bValue);
+    GutenbergRichterMagFreqDist grDist2;
+
     PointGR_EqkSource grSource;
 
     // set timespan
@@ -443,6 +445,7 @@ private void intiAdjParams() {
         rateAtMag5 = grDist1.getIncrRate((int) 25);
 
         // now scale all in the dist we want by rateAtMag5 (index 0 here)
+        grDist2 = new GutenbergRichterMagFreqDist(magLower2,numMag2,magDelta,tempMoRate,bValue);
         grDist2.scaleToIncrRate((int) (0),rateAtMag5);
 
         // now make the source
@@ -621,6 +624,23 @@ private void intiAdjParams() {
        }
 
        parameterChangeFlag = false;
+
+/* TEMP STUFF
+       double totRate=0, totProb=1, prob;
+       int i,j, totRup;
+       int totSrc= allSources.size();
+       for(i=totSrc; i<totSrc; i++){
+         ProbEqkSource src = (ProbEqkSource) allSources.get(i);
+         totRup=src.getNumRuptures();
+         for(j=0; j<totRup; j++) {
+           prob = src.getRupture(j).getProbability();
+           totProb *= (1-prob);
+           totRate += -1*Math.log(1-prob)/50;
+         }
+       }
+       System.out.println("updateForecast: totRate="+totRate+"; totProb="+totProb);
+// END TEMP STUFF
+*/
      }
 
    }
@@ -645,8 +665,29 @@ private void intiAdjParams() {
      Frankel96_EqkRupForecast frankCast = new Frankel96_EqkRupForecast();
      frankCast.updateForecast();
      System.out.println("num sources="+frankCast.getNumSources());
-     for(int i=0; i<frankCast.getNumSources(); i++)
-       System.out.println(frankCast.getSource(i).getName());
+//     for(int i=0; i<frankCast.getNumSources(); i++)
+//       System.out.println(frankCast.getSource(i).getName());
+     double totRate=0, totProb=1, prob;
+     int i,j, totRup;
+     int totSrc= frankCast.getNumSources();
+     for(i=0; i<totSrc; i++){
+       ProbEqkSource src = (ProbEqkSource) frankCast.getSource(i);
+       totRup=src.getNumRuptures();
+       if(i==0) System.out.println("numRup for src0 ="+totRup);
+       for(j=0; j<totRup; j++) {
+         prob = src.getRupture(j).getProbability();
+         totProb *= (1-prob);
+         totRate += -1*Math.log(1-prob)/50;
+         if(j==0 && i==0)
+           System.out.println("mag, prob for src0, rup 0="+src.getRupture(j).getMag()+"; "+prob);
+         if(j==0 && i==1)
+           System.out.println("mag, prob for src1, rup 0="+src.getRupture(j).getMag()+"; "+prob);
+         if(j==0 && i==2)
+           System.out.println("mag, prob for src2, rup 0="+src.getRupture(j).getMag()+"; "+prob);
+
+       }
+     }
+       System.out.println("main(): totRate="+totRate+"; totProb="+totProb);
   }
 
 }
