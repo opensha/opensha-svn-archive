@@ -3,8 +3,9 @@ package org.scec.util;
 import java.io.*;
 import java.util.*;
 /**
- * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Title: Test</p>
+ * <p>Description: Following program compares the 2 text files with line by line
+ * and check if float value at each line on both files are same.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed

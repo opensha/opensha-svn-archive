@@ -3,8 +3,10 @@ package org.scec.util;
 import java.io.*;
 
 /**
- * <p>Title: Binary2Ascii</p>
- * <p>Description: </p>
+ * <p>Title: Bin2Ascii4Floats</p>
+ * <p>Description: Converts the Binary to Ascii for the floats because
+ * each element in the binary is of 4 bytes and it is equivalent to float or
+ * int in java.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed
