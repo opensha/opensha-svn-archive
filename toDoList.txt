@@ -1,6 +1,7 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Add the  revised version of the test results for AttenuationRelationhships by Ken Campbell to the JUnit test.
 
 dd site translation for SEA_1999_AttenRel
 
