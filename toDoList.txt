@@ -6,17 +6,9 @@ For OpenSHA:
 
 Add the Se2-Case5 Mean, 5%Fractile, and 95%Fractile cases to PEER results plotter and data-submission tool.
 
-Finish moving the PEER_tests hard coding to an external class called sha/gui/controls/PEER_TestsParamSetter.
-
 PEER_TestsApplet - everyone get to know this very well and meet later to discuss it.
 
-PEER_TestsApplet - catch exceptions thrown by MagFreqDist (e.g., if Min > Max; parameter constraints are presently handled).  Revisit this when we've all become very familiar with the HazardCurveApplet and HazardCurveGuiBean.
-
 PEER_TestResultsPlotterApplet - hand fix any missing data that comes after a zero.
-
-Change ordering problem in the toString method of a ParameterList.
-
-Handling of magFreqDist in toString method above.
 
 Add getApplicableRegion and isLocWithinApplicableRegion methods to EqkRupForecastAPI.
 
@@ -32,18 +24,16 @@ PEER_TestResultPlotterApplet -Following files need to be added in our PEER plott
 result of todays checking of files for finding whether last value is 0 or not
 before the missing values. 
 
-SET 1 files
------------
-1. Harmsen : Case 2,4,5,7,8(2sigtrunc)
-2. Rowshandel : 7
+	SET 1 files
+		1. Harmsen : Case 2,4,5,7,8(2sigtrunc)
+		2. Rowshandel : 7
 
-SET 2 files
------------
-1. Toro - Case 5
-2. Mendez - Case 5
-3. Harmsen - Case 5
-4. Rowshandel - Case 5
-5. Tan - Case 5
+	SET 2 files
+		1. Toro - Case 5
+		2. Mendez - Case 5
+		3. Harmsen - Case 5
+		4. Rowshandel - Case 5
+		5. Tan - Case 5
 
 
 For the SCEC-ITR CME:
