@@ -29,12 +29,14 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   // make a array for saving the X values
   private  double [] xValues = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
     .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
+  private double [] pgvXValues = { 1, 15, 30, 45, 60, 75, 90, 105, 120, 135,
+    150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300} ;
   public HazusDataGenerator() {
 
     Campbell_1997_AttenRel attenRel = new Campbell_1997_AttenRel(this);
     Frankel96_EqkRupForecast forecast = new Frankel96_EqkRupForecast();
-    attenRel.setIntensityMeasure(attenRel.SA_NAME);
-    ((DoubleDiscreteParameter)attenRel.getParameter(attenRel.PERIOD_NAME)).setValue(new Double(1.0));
+    attenRel.setIntensityMeasure(attenRel.PGV_NAME);
+    //((DoubleDiscreteParameter)attenRel.getParameter(attenRel.PERIOD_NAME)).setValue(new Double(1.0));
     //make the Gridded Region object
     SitesInGriddedRegion region = new SitesInGriddedRegion(MIN_LAT, MAX_LAT, MIN_LON,
         MAX_LON, GRID_SPACING);
@@ -44,13 +46,13 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
     HazardMapCalculator calc = new HazardMapCalculator();
     calc.showProgressBar(false);
-    String metaData = "For SA at 1-sec Values\n\n"+
+    String metaData = "For PGV Values\n\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+
                       "\t"+"Site Name: "+ attenRel.SITE_TYPE_GEN_ROCK+"\n"+
                       "Region Info: "+region.toString()+"\n";
 
-    calc.getHazardMapCurves(DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
+    calc.getHazardMapCurves(DIR_NAME,true,pgvXValues,region,attenRel,forecast,metaData);
 
   }
   public static void main(String[] args) {
