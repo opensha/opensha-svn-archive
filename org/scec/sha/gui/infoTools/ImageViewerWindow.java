@@ -12,12 +12,16 @@ import javax.swing.*;
  */
 
 public class ImageViewerWindow extends JFrame {
+  private final static int W=550;
+  private final static int H=680;
+
   private JSplitPane mapSplitPane = new JSplitPane();
   private JScrollPane mapScrollPane = new JScrollPane();
   private JTextPane mapText = new JTextPane();
   private JLabel mapLabel = new JLabel();
 
   private String imageFile = new String();
+  private BorderLayout borderLayout1 = new BorderLayout();
   public ImageViewerWindow(String imageFileName) {
     imageFile = imageFileName;
     try {
@@ -30,15 +34,15 @@ public class ImageViewerWindow extends JFrame {
     this.pack();
   }
   private void jbInit() throws Exception {
-    this.getContentPane().setLayout(null);
+    this.setSize(W,H);
+    this.getContentPane().setLayout(borderLayout1);
     mapSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    mapSplitPane.setBounds(new Rectangle(0, 0, 648, 719));
     mapText.setEditable(false);
     mapText.setSelectionColor(Color.blue);
 
     //adding the image to the label
     mapLabel.setIcon(new ImageIcon(imageFile));
-    this.getContentPane().add(mapSplitPane, null);
+    this.getContentPane().add(mapSplitPane, BorderLayout.CENTER);
     mapSplitPane.add(mapScrollPane, JSplitPane.TOP);
     mapSplitPane.add(mapText, JSplitPane.BOTTOM);
     mapScrollPane.getViewport().add(mapLabel, null);
