@@ -336,7 +336,19 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    * for the selecetd ERF.
    */
   public ERF_GuiBean getERF_ParamEditor(){
-    return this.erfGuiBean;
+    return erfGuiBean;
+  }
+
+  /**
+   *
+   * @returns the Metadata String of parameters that constitute the making of this
+   * ERF_RupSelectorGUI  bean.
+   */
+  public String getMetadataString(){
+    erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setVisible(false);
+    String metadata = getParameterListEditor().getVisibleParametersCloned().getParameterListMetadataString()+";"+
+                      erfGuiBean.getVisibleParametersCloned().getParameterListMetadataString();
+    return metadata;
   }
 
   /**
