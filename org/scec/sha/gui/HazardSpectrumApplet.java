@@ -56,7 +56,7 @@ public class HazardSpectrumApplet extends JApplet
   /**
    * Name of the class
    */
-  private final static String C = "PEER_TestApplet";
+  private final static String C = "Hazard Spectrum Applet";
   // for debug purpose
   private final static boolean D = false;
 
@@ -85,7 +85,7 @@ public class HazardSpectrumApplet extends JApplet
   public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-  public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
+  //public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
   public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String WG02_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
@@ -531,7 +531,7 @@ public class HazardSpectrumApplet extends JApplet
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle("Hazard Curve Calculator");
+    frame.setTitle("Hazard Spectrum Applet");
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
@@ -1016,10 +1016,14 @@ public class HazardSpectrumApplet extends JApplet
     //gets the IML or Prob value filled in by the user
     double imlProbValue=imlProbGuiBean.getIML_Prob();
     boolean imlAtProb = false, probAtIML = false;
-    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
+    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB)){
+      totalProbFuncs.setYAxisName("IML");
       imlAtProb=true;
-    else probAtIML=true;
-
+    }
+    else{
+      totalProbFuncs.setYAxisName("Probability of Exceedance");
+      probAtIML=true;
+    }
 
     //If the user has chosen the Probabilistic
     if(((String)probDeterSelection.getSelectedItem()).equalsIgnoreCase(this.PROBABILISTIC)){
@@ -1060,7 +1064,7 @@ public class HazardSpectrumApplet extends JApplet
           //number of SA Periods for which we have ran the Hazard Curve
           this.numSA_PeriodValDone =i;
           hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
-          double val = toggleHazFuncLogValues(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
+          double val = getHazFuncIML_ProbValues(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
           hazFunction.set(saPeriodVal,val);
         }
       }catch (RuntimeException e) {
@@ -1164,7 +1168,7 @@ public class HazardSpectrumApplet extends JApplet
     //only supported IMT for this Application
     String imt = this.SA_NAME;
     totalProbFuncs.setXAxisName(imt + " ("+imr.getParameter(imt).getUnits()+")");
-    totalProbFuncs.setYAxisName("Probability of Exceedance");
+
   }
 
 
@@ -1224,6 +1228,13 @@ public class HazardSpectrumApplet extends JApplet
    // calculate hazard curve for each ERF within the list
     if(!this.progressCheckBox.isSelected()) this.isIndividualCurves = false;
     else this.isIndividualCurves = true;
+
+    //fixing the value for the Y Axis
+    if(probAtIML)
+      totalProbFuncs.setYAxisName("Probability of Exceedance");
+    else
+      totalProbFuncs.setYAxisName("IML");
+
    for(int i=0; i<numERFs; ++i) {
      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
      ArbitrarilyDiscretizedFunc tempHazFunction = new ArbitrarilyDiscretizedFunc();
@@ -1240,7 +1251,8 @@ public class HazardSpectrumApplet extends JApplet
          //number of SA Periods for which we have ran the Hazard Curve
           this.numSA_PeriodValDone =j;
          hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
-         double val= toggleHazFuncLogValues(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
+         double val= getHazFuncIML_ProbValues(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
+         System.out.println("Val:"+val);
          hazFunction.set(saPeriodVal,val);
        }
      }catch (RuntimeException e) {
@@ -1286,7 +1298,7 @@ public class HazardSpectrumApplet extends JApplet
    this.hazCalcDone = true;
    // set the X-axis label
    totalProbFuncs.setXAxisName(this.SA_NAME);
-   totalProbFuncs.setYAxisName("Probability of Exceedance");
+
    isIndividualCurves = false;
   }
 
@@ -1317,7 +1329,7 @@ public class HazardSpectrumApplet extends JApplet
    *
    * @param hazFunction :  this is the function with X values set
    */
-  private double toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,
+  private double getHazFuncIML_ProbValues(ArbitrarilyDiscretizedFunc hazFunc,
                                      double imlProbVal,boolean imlAtProb, boolean probAtIML) {
 
     int numPoints = hazFunc.getNum();
@@ -1333,8 +1345,8 @@ public class HazardSpectrumApplet extends JApplet
           break;
       }
       //interpolating the IML value over the range of the X Values
-      double imlVal = (((tempFunc.getY(i+1)-tempFunc.getY(i)) * (imlProbVal - xValuesSA[i])) /
-                         ( xValuesSA[i+1] - xValuesSA[i])) + tempFunc.getY(i);
+      double imlVal = (((imlProbVal - xValuesSA[i]) *( xValuesSA[i+1] - xValuesSA[i])) /
+                       (tempFunc.getY(i+1)-tempFunc.getY(i))) + tempFunc.getY(i);
 
       return imlVal;
     }
@@ -1429,7 +1441,7 @@ public class HazardSpectrumApplet extends JApplet
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
    try{
@@ -1461,7 +1473,7 @@ public class HazardSpectrumApplet extends JApplet
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
    try{
      if(erfRupSelectorGuiBean == null)
