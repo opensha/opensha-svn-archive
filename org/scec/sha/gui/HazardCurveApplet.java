@@ -103,6 +103,7 @@ public class HazardCurveApplet extends JApplet
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
   private final static String CVM_CONTROL = "Set Site Params from CVM";
+  private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
 
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
@@ -112,6 +113,7 @@ public class HazardCurveApplet extends JApplet
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
   private SitesOfInterestControlPanel sitesOfInterest;
   private SetSiteParamsFromCVMControlPanel cvmControlPanel;
+  private X_ValuesInCurveControlPanel xValuesPanel;
 
   // message string to be dispalayed if user chooses Axis Scale
    // without first clicking on "Add Graph"
@@ -1263,7 +1265,8 @@ public class HazardCurveApplet extends JApplet
     this.controlComboBox.addItem(AXIS_CONTROL);
     this.controlComboBox.addItem(DISTANCE_CONTROL);
     this.controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
-     this.controlComboBox.addItem(CVM_CONTROL);
+    this.controlComboBox.addItem(CVM_CONTROL);
+    this.controlComboBox.addItem(X_VALUES_CONTROL);
   }
 
   /**
@@ -1289,7 +1292,8 @@ public class HazardCurveApplet extends JApplet
       initSitesOfInterestControl();
     else if(selectedControl.equalsIgnoreCase(this.CVM_CONTROL))
       initCVMControl();
-
+    else if(selectedControl.equalsIgnoreCase(this.X_VALUES_CONTROL))
+      initX_ValuesControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -1371,6 +1375,17 @@ public class HazardCurveApplet extends JApplet
   }
 
   /**
+   * initialize the X values for the Hazard Curve control Panel
+   * It will enable the user to set the X values
+   */
+  private void initX_ValuesControl(){
+    if(xValuesPanel == null)
+      xValuesPanel = new X_ValuesInCurveControlPanel(this);
+    xValuesPanel.pack();
+    xValuesPanel.show();
+  }
+
+  /**
    * Initialize the PEER Test control.
    * This function is called when user selects "Axis Control"
    * from controls pick list
@@ -1417,6 +1432,19 @@ public class HazardCurveApplet extends JApplet
   private void initX_Values(DiscretizedFuncAPI arb){
     // take log only if it is PGA, PGV or SA
     String selectedIMT = isIMTLogEnabled();
+
+    //if the person has selected the control panel for setting the X values for he Hazard curve computation
+    if(this.xValuesPanel !=null){
+      //gets the X values from the X_ValueControlPanel
+      ArbitrarilyDiscretizedFunc func= xValuesPanel.getX_ValuesFunctions();
+      //after getting the X values we are storing the values in the double array for
+      //PGA,PGV and SA
+      for(int i=0;i<func.getNum();++i){
+        xValuesPGA[i] = func.getX(i);
+        xValuesPGV[i] = func.getX(i);
+        xValuesSA[i] = func.getX(i);
+      }
+    }
     if (selectedIMT!=null) {
       // if PGA is chosen
       if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME))
