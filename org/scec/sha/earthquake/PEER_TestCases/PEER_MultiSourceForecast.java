@@ -71,7 +71,7 @@ public class PEER_MultiSourceForecast extends EqkRupForecast
   // this is the dip and rake for all events in all sources
 
   private static final double DIP = 90.0;
-  private static final double RAKE = 90.0;
+  private static final double RAKE = 0.0;
 
   // this is the source used for the area-source points
   private PointGR_EqkSource pointGR_EqkSource;

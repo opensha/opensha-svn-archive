@@ -677,7 +677,7 @@ public class PEER_TestsGuiBean implements
     //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
     //calls the method to make the update MagDist button invisible
 
-    MagFreqDistParameterEditor magDistEditor=isAvailableMagDist();
+    MagFreqDistParameterEditor magDistEditor=getMagDistEditor();
     if(magDistEditor !=null)
       magDistEditor.setUpdateButtonVisible(false);
 
@@ -744,7 +744,7 @@ public class PEER_TestsGuiBean implements
 
     //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
     //calls the method to update the magDistParams.
-    MagFreqDistParameterEditor magEditor=isAvailableMagDist();
+    MagFreqDistParameterEditor magEditor=getMagDistEditor();
 
     if(magEditor!=null)
       magEditor.setMagDistFromParams();
@@ -864,7 +864,7 @@ public class PEER_TestsGuiBean implements
    * else return null.
    * @returns MagFreDistParameterEditor
    */
-  public MagFreqDistParameterEditor isAvailableMagDist(){
+  public MagFreqDistParameterEditor getMagDistEditor(){
 
     ListIterator lit = erf_IndParamList.getParametersIterator();
     while(lit.hasNext()){
@@ -1060,21 +1060,11 @@ public class PEER_TestsGuiBean implements
     protected final static String C = "GroupTestDefaultParameterClass";
     protected final static boolean D = false;
 
-    // Fault 1 , Fault 2 and Area
-    private final static String FAULT_ONE = "Fault 1";
-    private final static String FAULT_TWO = "Fault 2";
-    private final static String FAULT_AREA = "Fault Area";
-    private final static String FAULT_NON_PLANAR = "Fault Non Planar";
-    private final static String FAULT_LISTRIC = "Fault Listic";
-    private final static String FAULT_MULTI_SOURCE = "Fault Multi Source";
-
-
     private  PEER_FaultForecast peer_Fault_ERF;
     private  PEER_AreaForecast peer_Area_ERF;
     private  PEER_NonPlanarFaultForecast peer_NonPlanar_ERF;
     private  PEER_ListricFaultForecast peer_Listric_ERF;
     private  PEER_MultiSourceForecast peer_MultiSource_ERF;
-
 
     protected PEER_TestsGuiBean peerTestGuiBean;
 
@@ -1125,121 +1115,35 @@ public class PEER_TestsGuiBean implements
      */
     private void set_Set1Params(ParameterList siteParams){
 
-      String selectedFault= new String(FAULT_ONE);
-      if(!selectedTest.equalsIgnoreCase(applet.TEST_CASE_TEN) && !selectedTest.equalsIgnoreCase(applet.TEST_CASE_ELEVEN))
-        // it is fault test case
-        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_Fault_ERF.getName());
-      else // if it area case
-        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_Area_ERF.getName());
 
+      // ******* Set the IMR, IMT, & Site-Related Parameters (except lat and lon) first ************
 
-      // set the mag dist params based on test case
-      //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
-      //calls the method to set magDistParams.
-      MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
-      if(magDistEditor !=null)
-        setMagDistParams(magDistEditor);
-
-      //if selected test case is number 1
-      if(selectedTest.equals(applet.TEST_CASE_ONE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_ONE);
-      }
-
-      //if selected test case is number 2
-      if(selectedTest.equals(applet.TEST_CASE_TWO)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_ONE);
-      }
-
-      //if selected test case is number 3
-      if(selectedTest.equals(applet.TEST_CASE_THREE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_ONE);
-      }
-
-      //if selected test case is number 4
-      if(selectedTest.equals(applet.TEST_CASE_FOUR)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_TWO);
-      }
-
-      //if selected test case is number 5
-      if(selectedTest.equals(applet.TEST_CASE_FIVE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_ONE);
-      }
-
-      //if selected test case is number 6
-      if(selectedTest.equals(applet.TEST_CASE_SIX)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_ONE);
-      }
-
-      //if selected test case is number 7
-      if(selectedTest.equals(applet.TEST_CASE_SEVEN)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_ONE);
-      }
+      /*   the following settings apply to most test cases; these are subsequently
+           overridded where needed below */
+      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
+      imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
+      imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
+      imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+      siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
 
       //if the selected test case is number 8_1
       if(selectedTest.equals(applet.TEST_CASE_EIGHT_ONE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_ONE);
       }
 
       //if the selected test case is number 8_2
       if(selectedTest.equals(applet.TEST_CASE_EIGHT_TWO)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(2.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_ONE);
       }
 
       //if the selected test case is number 8_3
       if(selectedTest.equals(applet.TEST_CASE_EIGHT_THREE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_2SIDED);
+        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_ONE);
       }
 
       //if the selected test case is number 9_1
@@ -1250,7 +1154,6 @@ public class PEER_TestsGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
         siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_TWO);
       }
 
       //if the selected test case is number 9_2
@@ -1261,7 +1164,6 @@ public class PEER_TestsGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
         siteParams.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
-        selectedFault = new String(FAULT_TWO);
       }
 
       //if the selected test case is number 9_3
@@ -1273,60 +1175,62 @@ public class PEER_TestsGuiBean implements
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
         siteParamEditor.getParameterList().getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
         siteParams.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
-        selectedFault = new String(FAULT_TWO);
       }
 
-      //if the selected test case is number 10
-      if(selectedTest.equals(applet.TEST_CASE_TEN)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+      // *********** Now fill in the forecast parameters ************************
 
-        /**
-         * This fills the default values for the forecast paramters based
-         * on the selected test case 10
-         */
-        erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
-        erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
-        erf_IndParamList.getParameter(peer_Area_ERF.DIP_PARAM_NAME).setValue(new Double(90));
-        erf_IndParamList.getParameter(peer_Area_ERF.RAKE_PARAM_NAME).setValue(new Double(0));
-        erf_IndParamList.getParameter(peer_Area_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
-        erf_IndParamList.getParameter(peer_Area_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
-
-        selectedFault = new String(FAULT_AREA);
-      }
-
-      //if the selected test case is number 11
-      if(selectedTest.equals(applet.TEST_CASE_ELEVEN)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-
-        /**
-         * This fills the default values for the forecast paramters based
-         * on the selected test case 11
-         */
-
-        erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
-        erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
-        erf_IndParamList.getParameter(peer_Area_ERF.DIP_PARAM_NAME).setValue(new Double(90));
-        erf_IndParamList.getParameter(peer_Area_ERF.RAKE_PARAM_NAME).setValue(new Double(0));
-        erf_IndParamList.getParameter(peer_Area_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
-        erf_IndParamList.getParameter(peer_Area_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
-
-        selectedFault = new String(FAULT_AREA);
-      }
-
-      // set the latitude and longitude and selected forecast is area or fault
-      //if selected site number is not 10 or 11 i.e for fault sites
+      // if it's one of the "PEER fault" problems (cases 1-9)
       if(!selectedTest.equalsIgnoreCase(applet.TEST_CASE_TEN) && !selectedTest.equalsIgnoreCase(applet.TEST_CASE_ELEVEN)) {
 
-        // it is fault test case
-        setForecastParams(selectedFault,selectedTest);
+        // set the ERF
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_Fault_ERF.getName());
+
+        // set the common parameters like timespan, grid spacing
+        erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+
+        // magLengthSigma parameter is changed if the test case chosen is 3
+        if(selectedTest.equals(applet.TEST_CASE_THREE))
+          erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
+
+        // set the dip and rake
+        if( selectedTest.equals(applet.TEST_CASE_FOUR) ||
+            selectedTest.equals(applet.TEST_CASE_NINE_ONE) ||
+            selectedTest.equals(applet.TEST_CASE_NINE_TWO) ||
+            selectedTest.equals(applet.TEST_CASE_NINE_THREE) ) {
+                 erf_IndParamList.getParameter(peer_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(60.0));
+                 erf_IndParamList.getParameter(peer_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
+        }
+        else {
+          erf_IndParamList.getParameter(peer_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
+          erf_IndParamList.getParameter(peer_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
+        }
+
+      }
+      else {// if it area case
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_Area_ERF.getName());
+
+        erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(peer_Area_ERF.DIP_PARAM_NAME).setValue(new Double(90));
+        erf_IndParamList.getParameter(peer_Area_ERF.RAKE_PARAM_NAME).setValue(new Double(0));
+        erf_IndParamList.getParameter(peer_Area_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Area_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
+        if(selectedTest.equals(applet.TEST_CASE_TEN))
+          erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
+        else
+          erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
+      }
+
+      // set magFreqDist parameters using seperate method
+      MagFreqDistParameterEditor magDistEditor = getMagDistEditor();
+      setMagDistParams_Set1(magDistEditor);
+
+
+      // *********** set the Site latitude and longitude  **************************
+
+      if(!selectedTest.equalsIgnoreCase(applet.TEST_CASE_TEN) && !selectedTest.equalsIgnoreCase(applet.TEST_CASE_ELEVEN)) {
 
         // for fault site 1
         if(selectedSite.equals(applet.SITE_ONE)) {
@@ -1370,9 +1274,6 @@ public class PEER_TestsGuiBean implements
         }
       } else { // for area sites
 
-        // it is area test case
-        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.peer_Area_ERF.getName());
-
         siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
         // for area site 1
         if(selectedSite.equals(applet.SITE_ONE))
@@ -1400,7 +1301,26 @@ public class PEER_TestsGuiBean implements
      */
     private void set_Set2Params(ParameterList siteParams){
 
-      //set the site (only case two has a different set of sites)
+
+      // ******* Set the IMR, IMT, & Site-Related Parameters (except lat and lon) first ************
+
+      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
+      imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
+      imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
+      imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+      siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+
+      // change IMR sigma if it's Case 2
+      if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_TWO)){
+        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
+        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
+        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
+
+      }
+
+
+      // ********* set the site latitude and longitude ************
+
       if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_TWO)){
         siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122));
         if(selectedSite.equalsIgnoreCase(applet.SITE_ONE)){
@@ -1428,26 +1348,14 @@ public class PEER_TestsGuiBean implements
         }
       }
 
+      // ************ Set the ERF parameters ********************
 
       //if test case -1
       if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_ONE)){
         erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_NonPlanar_ERF.getName());
 
-        // set the mag dist params based on test case
-        //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
-        //calls the method to set magDistParams.
-        MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
-        if(magDistEditor !=null)
-          setMagDistParams(magDistEditor);
-
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         // add sigma for maglength(0-1)
-        erf_IndParamList.getParameter(peer_NonPlanar_ERF.SIGMA_PARAM_NAME).setValue(peer_NonPlanar_ERF.DEFAULT_SIGMA_VAL);
-        // set the common parameters like timespan, grid spacing
+        erf_IndParamList.getParameter(peer_NonPlanar_ERF.SIGMA_PARAM_NAME).setValue(new Double(0));
         erf_IndParamList.getParameter(peer_NonPlanar_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
         erf_IndParamList.getParameter(peer_NonPlanar_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
         erf_IndParamList.getParameter(peer_NonPlanar_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
@@ -1461,18 +1369,6 @@ public class PEER_TestsGuiBean implements
       if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_TWO)){
         erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.peer_MultiSource_ERF.getName());
 
-        // set the mag dist params based on test case
-        //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
-        //calls the method to set magDistParams.
-        MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
-        if(magDistEditor !=null)
-          setMagDistParams(magDistEditor);
-
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         erf_IndParamList.getParameter(peer_MultiSource_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
         erf_IndParamList.getParameter(peer_MultiSource_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
         erf_IndParamList.getParameter(peer_MultiSource_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
@@ -1480,22 +1376,10 @@ public class PEER_TestsGuiBean implements
         erf_IndParamList.getParameter(peer_MultiSource_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
       }
 
-      //if test case -3
-      if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_THREE)){
+      //if test case 3 or 4
+      if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_THREE) || selectedTest.equalsIgnoreCase(applet.TEST_CASE_FOUR) ) {
         erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.peer_Fault_ERF.getName());
 
-        // set the mag dist params based on test case
-        //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
-        //calls the method to set magDistParams.
-        MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
-        if(magDistEditor !=null)
-          setMagDistParams(magDistEditor);
-
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         erf_IndParamList.getParameter(peer_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
         erf_IndParamList.getParameter(peer_Fault_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
         erf_IndParamList.getParameter(peer_Fault_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
@@ -1504,82 +1388,33 @@ public class PEER_TestsGuiBean implements
         erf_IndParamList.getParameter(peer_Fault_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
       }
 
-      //if test case -4
-      if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_FOUR)){
-        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.peer_Fault_ERF.getName());
-
-        // set the mag dist params based on test case
-        //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
-        //calls the method to set magDistParams.
-        MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
-        if(magDistEditor !=null)
-          setMagDistParams(magDistEditor);
-
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-        erf_IndParamList.getParameter(peer_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
-        erf_IndParamList.getParameter(peer_Fault_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
-        erf_IndParamList.getParameter(peer_Fault_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-        erf_IndParamList.getParameter(peer_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
-        erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.0));
-        erf_IndParamList.getParameter(peer_Fault_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1000.0));
-      }
-
       //if test case -6
       if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_SIX)){
         erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.peer_Listric_ERF.getName());
 
-        // set the mag dist params based on test case
-        //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
-        //calls the method to set magDistParams.
-        MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
-        if(magDistEditor !=null)
-          setMagDistParams(magDistEditor);
-
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
-        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
-        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
-
         erf_IndParamList.getParameter(peer_Listric_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
         erf_IndParamList.getParameter(peer_Listric_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-        erf_IndParamList.getParameter(peer_Listric_ERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
+        erf_IndParamList.getParameter(peer_Listric_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
         erf_IndParamList.getParameter(peer_Listric_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.0));
         erf_IndParamList.getParameter(peer_Listric_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
       }
+
+      // now set the magFreqDist parameters (if there is one) using the separate method
+      MagFreqDistParameterEditor magDistEditor =getMagDistEditor();
+      if(magDistEditor !=null)
+        setMagDistParams_Set2(magDistEditor);
+
    }
 
 
-     /**
-      * set the mag dist params according to test case
-      *
-      * @param testCase
-      */
-     public void setMagDistParams(MagFreqDistParameterEditor magEditor) {
-
-        magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.0));
-        magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(10.0));
-        magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(101));
-
-        if(selectedSet.equalsIgnoreCase(applet.PEER_TESTS_SET_ONE))
-          setMagDistParams_Set1(magEditor);
-
-        else if(selectedSet.equalsIgnoreCase(applet.PEER_TESTS_SET_TWO))
-          setMagDistParams_Set2(magEditor);
-
-        magEditor.setMagDistFromParams();
-      }
-
 
       /**
-       * Sets the default magdist values for the set-2
+       * Sets the default magdist values for the set 2 (only cases 3, 4, and 6 have magFreqDist as
+       * an adjustable parameter
        * @param magEditor
        */
       private void setMagDistParams_Set2(MagFreqDistParameterEditor magEditor){
+
          // mag dist parameters for test case 3
         if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_THREE)){
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
@@ -1598,25 +1433,32 @@ public class PEER_TestsGuiBean implements
           // mag dist parameters for test case 4
         if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_FOUR)){
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
-          magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(5.0));
-          magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(6.5));
-          magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(16));//becuase delta is incrementing in steps of .1
-          magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
+          magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
+          magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
+          magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
+          magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(1e-3));
           magEditor.getParameter(MagFreqDistParameterEditor.STD_DEV).setValue(new Double(0.25));
           magEditor.getParameter(MagFreqDistParameterEditor.MEAN).setValue(new Double(6.2));
           magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATION_REQ).setValue(MagFreqDistParameterEditor.TRUNCATE_UPPER_ONLY);
-          magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.2));
-        }
+          magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.0));
+       }
 
          // mag dist parameters for test case 6
         if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_SIX)){
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_CUM_RATE);
-          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
-          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
+          magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
+          magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
+           magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(0.05));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.45));
           magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-          magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
+          magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(3.8055e16));
         }
+
+        // now have the editor create the magFreqDist
+        magEditor.setMagDistFromParams();
       }
 
 
@@ -1625,6 +1467,12 @@ public class PEER_TestsGuiBean implements
        * @param magEditor
        */
       private void setMagDistParams_Set1(MagFreqDistParameterEditor magEditor){
+
+        // these apply to most (overridden below where not)
+        magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(6));
+        magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(6.5));
+        magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(6));
+
         // mag dist parameters for test case 1
         if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_ONE)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
@@ -1680,6 +1528,7 @@ public class PEER_TestsGuiBean implements
           magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
           magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
           magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
+          magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_CUM_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
           magEditor.getParameter(MagFreqDistParameterEditor.STD_DEV).setValue(new Double(0.25));
           magEditor.getParameter(MagFreqDistParameterEditor.MEAN).setValue(new Double(6.2));
@@ -1780,40 +1629,11 @@ public class PEER_TestsGuiBean implements
           magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
           magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(.0395));
         }
+
+        // now have the editor create the magFreqDist
+        magEditor.setMagDistFromParams();
       }
 
 
-      /**
-       * Fault-1 or Fault-2 source
-       * This functions fills the default values for the forecast paramters based
-       * on the selected fault which is passed as the argument to the function.
-       * Based on the selected test case we are modifying the value of the magLengthSigma
-       * @param faultType : tells whether the fault1 or fault2
-       * @param testCaseVal: tells which test case is selected
-       */
-
-      public void setForecastParams(String faultType, String testCaseVal){
-
-        // add sigma for maglength(0-1)
-        erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(peer_Fault_ERF.DEFAULT_SIGMA_VAL);
-        // set the common parameters like timespan, grid spacing
-        erf_IndParamList.getParameter(peer_Fault_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
-        erf_IndParamList.getParameter(peer_Fault_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
-        erf_IndParamList.getParameter(peer_Fault_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-
-        // magLengthSigma parameter is changed if the test case chosen is 3
-        if(testCaseVal.equalsIgnoreCase(applet.TEST_CASE_THREE))
-          erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
-        // set the parameters for fault1
-        if(faultType.equals(FAULT_ONE)) {
-          erf_IndParamList.getParameter(peer_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
-          erf_IndParamList.getParameter(peer_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
-        }
-        // set the parameters for fault 2
-        if(faultType.equals(FAULT_TWO)) {
-          erf_IndParamList.getParameter(peer_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(60.0));
-          erf_IndParamList.getParameter(peer_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
-        }
-      }
   }
 }
