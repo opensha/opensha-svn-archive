@@ -5,55 +5,23 @@ For OpenSHA:
 ------------
 
 
-ProbEqkRupture -  add a clone() method and use this in getRuptureClone(int nRupture) method of ProbEqkSource (in fact, you can use the latter's method  to create the former).
+ProbEqkRupture -  add a clone() method and use this in getRuptureClone(*) methods of ProbEqkSource and ProbEqkForecast objects.
 
-ProbEqkRupture - does this need a TimeSpan field (some of our sources do not have a timespan object, and so will not be capable of setting this)?
+ProbEqkRupture - does this need a TimeSpan field (some of our sources do not have a timespan object, and so will not be capable of setting this)?  Lets take it out for now.
 
-Change Frankel96_EqkForecast to use PointPoissonEqkSource rather than PointGR_EqkSource (and remove the latter?).
+Check changes from PointGR_EqkSource to PointPoissonEqkSource (and remove the former?).
 
 Move PEER_TESTCases dir into the rupForecastImpl directory, and the directory PEER_TestGuiPlots to:
 
 	org/scec/sha/PEER_TestsGroupResults
 
-TimeSpan:
+Change startTime constraint in all PEER test cases to TimeSpan.NONE
 
-	Look over what Ned did (OK?)
-
-	Add parameter change listener (e.g., so an ERF can know whether
-	its timespan object has been changed by an external object 
-	(e.g., GUI))
-
-	Create a TimeSpanGuiBean - should only need to use the 
-	getAdjustableParamsList() method.
-
-	Implement this in the HazardCurveApplet (GuiBean is a wrapper of the TimeSpan in the
-	chosen ERF).
-
-	Methods in EqkRupForecast (in abstract class):
-
-		setTimeSpan(tspan) takes the input time-span object, gets a startTimeCalendar 
-		from it, and passes this to its own timeSpan object (relevant fields will 
-		be set or ignored according to precision).  Also get/set the duration for
-		for the duration, being careful to specify the desired units.
-
-		getTimeSpan() - return the actual object (not a clone).
-
-	Create a "timeSpan" object in each ERF constructed as: 
-
-		TimeSpan timeSpan = new TimeSpan("Years",Years")
-
-	Remove double timeSpan field in all ERFs
-
-	Document limitations on duration conversions (assumes 365.25 days/yr which is rarely correct).
-
-
-
-EqkRupForecast.getAdjustableParamsList() - this actually returns an iterator, so shouldn't it be called getAdjustableParamsIterator()?
-
+Remove WardTest
 
 Look over FractileCurveCalculator (Ned)
 
-Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) )
+Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
 
 HazardCurveApplet:
 
@@ -61,6 +29,9 @@ HazardCurveApplet:
 	 (rather than centered in the vertical direction)
 
 	-epistemic list control panal; only redo hazard calculations if needed
+
+create setMinSourceSiteDistanceControlPanel & implement (default = 250 km, but set at 300 or greater for all PEER tests)
+
 
 Evaluate:
 	
@@ -77,26 +48,23 @@ Evaluate:
 Create the following control panels in the future:
 
 	X_ValuesInCurveControlPanel
-	setMinSourceSiteDistanceControlPanel
-
-
-Add progress bar when updating an ERF (inside ERF_GuiBean)
+	
 
 ProgressBars - enable turning on and off in both HazardMapCalculator add  HazardCurveCalculator; quantify the computation cost of using these (as will as if these are completely commented out).
 
-Check Cross hairs in log-log plots (e.g., try it in the LogPlotTesterApp).
+Ned - Check Cross hairs in log-log plots (e.g., try it in the LogPlotTesterApp).
 
 Give JFreechart heads up on our submission, and ask the how we should do it
 
 Submit our log-log implementation formally to JFreeChart.
 
-Look at GriddedFaultApplet - plotting symbols (make all circles) and check that horz and vert scaling is correct.
+Ned - Look at GriddedFaultApplet - plotting symbols (make all circles) and check that horz and vert scaling is correct.
 
-Check - AttenRelApp (made "Set Axes" button rather than JcomoBox)
+Ned - Check - AttenRelApp (made "Set Axes" button rather than JcomoBox)
 
-Check HazardCurveCalc - moved initialization of hazFunction y-values to 1 inside the calculator (outside of applet), and moved taking the log of it's x-axis values (for condProbFunc) outside the calculator (inside the applet with an if(IMT = SA or PGA or PGV) statement before).
+Ned - Check HazardCurveCalc - moved initialization of hazFunction y-values to 1 inside the calculator (outside of applet), and moved taking the log of it's x-axis values (for condProbFunc) outside the calculator (inside the applet with an if(IMT = SA or PGA or PGV) statement before).
 
-In applets, put an if statement (if IMT=PGA, SA, or PGV) before taking logs of X-axis values before sending to HazardCurveCalculator (else throw an exception to require hard coding other cases later).
+Ned Check - In applets, put an if statement (if IMT=PGA, SA, or PGV) before taking logs of X-axis values before sending to HazardCurveCalculator (else throw an exception to require hard coding other cases later).
 
 HazardCurveCalc - fix calculation sequence to be consistent with SRL paper.
 
