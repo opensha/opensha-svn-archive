@@ -82,7 +82,11 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
   //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
   private ScenarioShakeMapCalculatorWithPropagationEffect shakeMapCalc = new ScenarioShakeMapCalculatorWithPropagationEffect();
 
+  //timer to show thw progress bar
   Timer timer;
+
+  //Metadata String
+  private static String mapParametersInfo = null;
 
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
@@ -592,6 +596,10 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
 
   void addButton_actionPerformed(ActionEvent e) {
 
+    //gets the metadata as soon as the user presses the button to make map.
+    mapParametersInfo = getMapParametersInfo();
+
+    addButton.setEnabled(false);
     calcProgress = new CalcProgressBar("ScenarioShakeMapApp","Initialising for shakemap calculation");
    //sets the Gridded region Sites and the type of plot user wants to see
    //IML@Prob or Prob@IML and it value.
@@ -608,8 +616,9 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
         else if(step == 2)
           calcProgress.setProgressMessage("Generating the shakemap ...");
         else if(step ==0){
-         timer.stop();
-         calcProgress.dispose();
+          addButton.setEnabled(true);
+          timer.stop();
+          calcProgress.dispose();
         }
       }
     });
@@ -642,7 +651,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
             hazusControl.getXYZ_DataForPGA(),hazusControl.getXYZ_DataForPGV(),
             erfGuiBean.getRupture(),label,getMapParametersInfo());
       else
-        mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
+        mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,mapParametersInfo);
     }
     step =0;
 }

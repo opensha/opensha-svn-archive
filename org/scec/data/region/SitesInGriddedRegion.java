@@ -25,6 +25,11 @@ import org.scec.sha.gui.infoTools.ConnectToCVM;
 public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegion
                                           implements Serializable{
 
+  //Debug parameter
+  public static final boolean D= true;
+
+
+  //definition for the Siet Object
   Site site = new Site();
 
   private static final String WILLS_SITE_CLASS_FILE = "cvmfiles/usgs_cgs_geology_60s_mod.txt";
@@ -76,8 +81,14 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
      if(!setSameSiteParams){
        //getting the Site Parameters Iterator
        Iterator it = site.getParametersIterator();
+       //checking to see if we are getting the correct value for vs30 and basin depth.
+       if(D){
+         System.out.println(site.getLocation().toString()+"\t"+vs30.get(index)+
+                            "\t\t"+((Double)basinDepth.get(index)).doubleValue());
+       }
        while(it.hasNext()){
          ParameterAPI tempParam = (ParameterAPI)it.next();
+
          //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
          boolean flag = siteTranslator.setParameterValue(tempParam,(String)vs30.get(index),
                                                          ((Double)basinDepth.get(index)).doubleValue());

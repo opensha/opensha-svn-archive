@@ -120,8 +120,12 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
   private boolean singleAttenRelSelected =true;
 
   //ParameterList and Editor declaration for the single AttenRels selection
-  ParameterList singleAttenRelParamList = new ParameterList();
+  ParameterList singleAttenRelParamList =null;
   ParameterListEditor singleAttenRelParamListEditor=null;
+
+  //saves the name of the previuosly selected AttenRel
+  String selectedAttenRelName=null;
+
 
 
 
@@ -251,9 +255,17 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
       }
     }
 
+    //checking if the imrNames contains the previously selected AttenRel Name
+    int index =imrNamesVector.indexOf(selectedAttenRelName);
+
+    //AttenRel Name Param
+    StringParameter selectIMR = null;
+    if(index !=-1) //if the previuosly selected AttenRel is contained in the list
     // make the IMR selection paramter
-    StringParameter selectIMR = new StringParameter(IMR_PARAM_NAME,
-        imrNamesVector,(String)imrNamesVector.get(0));
+      selectIMR = new StringParameter(IMR_PARAM_NAME,imrNamesVector,(String)imrNamesVector.get(index));
+    else //if previuosly selected AttenRel is not pesent in it.
+      selectIMR = new StringParameter(IMR_PARAM_NAME,imrNamesVector,(String)imrNamesVector.get(0));
+
     // listen to IMR paramter to change site params when it changes
     selectIMR.addParameterChangeListener(this);
     singleAttenRelParamList.addParameter(selectIMR);
@@ -487,6 +499,8 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
        updateIMT((String)event.getNewValue());
        //update the AttenRels List supported by the choosen IM
        getAttenRelsSupportedForSelectedIM();
+       if(singleAttenRelSelected)
+         selectedAttenRelName = (String)singleAttenRelParamList.getParameter(IMR_PARAM_NAME).getValue();
        singleAttenRelParamList = null;
        selectIMRsForChoosenIMT();
      }
@@ -494,14 +508,16 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
      else if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){
        // special case hardcoded. Not the best way to do it, but need framework to handle it.
        String value = event.getNewValue().toString();
-       if(singleAttenRelParamList ==null) //if the multipleAtten is selected
+       if(!singleAttenRelSelected) //if the multipleAtten is selected
          toggleSigmaLevelBasedOnTypeValue(value, lastAttenRelButtonIndex);
-       else //if the sin
+       else //if the single attenRel is selected
          toggleSigmaLevelBasedOnTypeValue(value);
      }
      else if(name1.equals(AttenuationRelationship.PERIOD_NAME)){
        //update the AttenRels List supported by the choosen IM
        getAttenRelsSupportedForSelectedIM();
+       if(singleAttenRelSelected)
+         selectedAttenRelName = (String)singleAttenRelParamList.getParameter(IMR_PARAM_NAME).getValue();
        singleAttenRelParamList = null;
        selectIMRsForChoosenIMT();
      }
@@ -1045,21 +1061,50 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
     * If it is supported make its parameters and check box enabled and set the
     * parameters default values, else disable the choice of that AttenuationRelationship.
     */
-   public void selectIMRsForChoosenIMT(){
+   private void selectIMRsForChoosenIMT(){
      ParameterAPI param = getSelectedIntensityMeasure();
      //Iterating over all the supported AttenRels to check if they support the selected IMT
      String paramName = param.getName();
 
      //only update the multiple attenRel check boxes if person has once selected it.
      if(attenRelCheckBox !=null){
+       int size =0;
+       //Keeps records of the previously selected AttenuationRelationships
+       LinkedList prevSelectedAttenRel = null;
+       //do this processing only if multiple attenRels is selected.
+       if(!singleAttenRelSelected){
+         prevSelectedAttenRel =  new LinkedList();
+         //adding the previuosly already selected AttenRels
+         for(int i=0;i< numSupportedAttenRels;++i){
+           if(attenRelCheckBox[i].isSelected()) //getting the previously selected AttenRels
+             prevSelectedAttenRel.add(attenRelsSupported.get(i));
+         }
+         size  = prevSelectedAttenRel.size();
+       }
+
        for(int i=0;i < numSupportedAttenRels;++i){
          AttenuationRelationship attenRel = (AttenuationRelationship)attenRelsSupported.get(i);
-         if(!attenRel.isIntensityMeasureSupported(param)){
+         if(!attenRel.isIntensityMeasureSupported(param)){ //if AttenRel selected does not support IMT
            attenRelCheckBox[i].setSelected(false);
            attenRelCheckBox[i].setEnabled(false);
          }
-         else{
-           attenRelCheckBox[i].setSelected(true);
+         else{ //if selectedAttenRel supports IMT
+
+           //if there are previously selected AttenRels then iterate over those to
+           //keep the one previuosly selected.
+           if(size > 0){
+             for(int j=0;j < size;++j){
+               //Attenuation Relation at the index i supports the IMT then see
+               //if it was previously selected, if so then keep it selected
+               AttenuationRelationship attenRelTemp = (AttenuationRelationship)prevSelectedAttenRel.get(j);
+               if(attenRelTemp.getName().equals(((JCheckBox)attenRelCheckBox[i]).getText())){
+                 attenRelCheckBox[i].setSelected(true);
+                 break;
+               }
+             }
+           }
+           else
+             attenRelCheckBox[i].setSelected(true);
            attenRelCheckBox[i].setEnabled(true);
          }
        }
@@ -1100,7 +1145,6 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
           metadata += "AttenuationRelationship = "+((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName()+
                 " ; "+ wtsParameter[i].getName()+" = "+wtsParameter[i].getValue()+" ; "+
                 "Non Identical Param: "+editor[i].getVisibleParameters().toString()+"<br>\n";
-
         }
       }
     }
