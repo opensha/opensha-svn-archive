@@ -247,10 +247,12 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
 	double minY = plotArea.getMinY();
 
         if (inverted) {
-            return minY + (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
+           return minY + (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
+
         }
         else {
-	    return maxY - (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
+            return maxY - (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
+
         }
 
     }
@@ -290,7 +292,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
 	double axisMin = range.getLowerBound();
 	double axisMax = range.getUpperBound();
 
-	double plotY = plotArea.getY();
+	double plotMinY = plotArea.getMinY();
 	double plotMaxY = plotArea.getMaxY();
 
         // The Math.log() funtion is based on e not 10.
@@ -304,45 +306,19 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             axisMax = Math.log(axisMax)/LOG10_VALUE;
         }
 
-        if (inverted) {
-            return axisMin + Math.pow(10, ((java2DValue-plotY)/(plotMaxY-plotY))*(axisMax - axisMin));
-        }
-        else {
-            return axisMax - Math.pow(10, ((java2DValue-plotY)/(plotMaxY-plotY))*(axisMax - axisMin));
-        }
+        if (inverted)
+       {
+         double logVal=(java2DValue-plotMinY)/(plotMaxY-plotMinY)*(axisMax-axisMin)+axisMin;
+         return Math.pow(10,logVal);
+       }
+       else
+       {
+         double logVal=( plotMaxY-java2DValue)/(plotMaxY-plotMinY)*(axisMax-axisMin)+axisMin;
+         return Math.pow(10,logVal);
+       }
     }
 
-    /**
-     * Rescales the axis to ensure that all data is visible.
-     */
-    /*public void autoAdjustRange() {
 
-	if (plot!=null) {
-	    if (plot instanceof VerticalValuePlot) {
-		VerticalValuePlot vvp = (VerticalValuePlot)plot;
-
-                Number u = vvp.getMaximumVerticalDataValue();
-                double upper = this.DEFAULT_MAXIMUM_AXIS_VALUE;
-                if (u!=null) {
-		    upper = u.doubleValue();
-                }
-
-                upper = computeLogCeil(upper);
-
-                Number l = vvp.getMinimumVerticalDataValue();
-                double lower = this.DEFAULT_MINIMUM_AXIS_VALUE;
-                if (l!=null) {
-		    lower = l.doubleValue();
-                }
-
-                lower = computeLogFloor(lower);
-
-		this.minimumAxisValue=lower;
-		this.maximumAxisValue=upper;
-	    }
-	}
-
-    }*/
 
     /**
      * Returns the smallest (closest to negative infinity) double value that is
@@ -355,7 +331,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
     private double computeLogCeil(double upper) {
 
         // The Math.log() funtion is based on e not 10.
-        double logCeil = Math.log(upper)/Math.log(10);
+        double logCeil = Math.log(upper)/LOG10_VALUE;
 
         logCeil = Math.ceil(logCeil);
 
@@ -375,7 +351,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
     private double computeLogFloor(double lower) {
 
         // The Math.log() funtion is based on e not 10.
-        double logFloor = Math.log(lower)/Math.log(10);
+        double logFloor = Math.log(lower)/LOG10_VALUE;
 
         logFloor = Math.floor(logFloor);
 
@@ -508,7 +484,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             if(tick.getNumericalValue()==range.getLowerBound())
               yy=(float)plotArea.getMaxY();
             else {
-              double logval=Math.log(tick.getNumericalValue())/Math.log(10);
+              double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
               yy = (float)this.myTranslateValueToJava2D(logval, plotArea);
             }
             if (tickLabelsVisible) {
@@ -659,23 +635,9 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
 	double y0=plotArea.getMaxY();
         float sum=0.1f;
         int i=-20;
-        System.out.println("VerticalLogarithmicAxis:refreshTicks()::size="+size);
         if(counter==2)
          this.tickUnit.formatter.setMaximumFractionDigits(4);
 
-        /**
-         * For loop- finds the nearest power of 10 which corresponds to the tick size.
-         */
-     /* for(;;++i) {
-         if(i==-1 &&  (size==Math.pow(10,i+1))) {
-            --i;
-            break;
-            }
-         if((size>Math.pow(10,i)) &&(size<=Math.pow(10,i+1))) {
-            --i;
-            break;
-           }
-        }*/
 
 
         /**
@@ -684,9 +646,6 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
         for (i=-20; ; i++) {
 	    for(int j=0;j<10;++j) {
               sum =j*(float)Math.pow(10,i);
-              System.out.println("VerticalLogarithmicAxis:refreshTicks()::range.getLowerBound()="+range.getLowerBound());
-              System.out.println("VerticalLogarithmicAxis:refreshTicks()::sum="+sum);
-              System.out.println("VerticalLogarithmicAxis:refreshTicks()::sum="+(sum<range.getLowerBound()));
               if(sum<range.getLowerBound())
                  continue;
              double currentTickValue = sum;
@@ -696,7 +655,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             if(sum==range.getLowerBound())
                yy=plotArea.getMaxY();
             else {
-               logval=Math.log(val)/Math.log(10);
+               logval=Math.log(val)/LOG10_VALUE;
                 yy = this.myTranslateValueToJava2D(logval, plotArea);
             }
 

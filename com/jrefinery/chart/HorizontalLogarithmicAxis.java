@@ -240,8 +240,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
      */
     public double translateValueToJava2D(double value, Rectangle2D plotArea) {
 
-       // double axisMin = switchedLog10(range.getLowerBound());
-       // double axisMax = switchedLog10(range.getUpperBound());
+
 
         double axisMin = range.getLowerBound();
         double axisMax = range.getUpperBound();
@@ -250,17 +249,6 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         double maxX = plotArea.getMaxX();
         double minX = plotArea.getMinX();
 
-//        System.out.print("translateValueToJava2D(" + value + "):  ");
-
-       // value = switchedLog10(value);
-
-//        System.out.println("axisMin=" + axisMin + ", axisMax=" + axisMax +
-//                 ", minX=" + minX + ", maxX=" + maxX + ", value=" + value +
-//                                                  ", retVal=" + (inverted ?
-//                         (minX + (((value - axisMin)/(axisMax - axisMin)) *
-//                                                          (maxX - minX))) :
-//                         (maxX - (((value - axisMin)/(axisMax - axisMin)) *
-//                                                         (maxX - minX)))));
 
         if (inverted)
         {
@@ -292,8 +280,8 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
            axisMin=this.tickUnit.getSize()/15;//.01;//this.tickUnit.getSize()/3.5;
 
          if(axisMin!=0)
-             axisMin = Math.log(axisMin)/Math.log(10);
-         axisMax = Math.log(axisMax)/Math.log(10);
+             axisMin = Math.log(axisMin)/LOG10_VALUE;
+         axisMax = Math.log(axisMax)/LOG10_VALUE;
 
 
          if (inverted) {
@@ -315,21 +303,21 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
      */
     public double translateJava2DtoValue(float java2DValue, Rectangle2D plotArea) {
 
-        double axisMin = switchedLog10(range.getLowerBound());
-        double axisMax = switchedLog10(range.getUpperBound());
+        double axisMin = Math.log(range.getLowerBound())/LOG10_VALUE;
+        double axisMax = Math.log(range.getUpperBound())/LOG10_VALUE;
 
-        double plotX = plotArea.getX();
+        double plotMinX = plotArea.getMinX();
         double plotMaxX = plotArea.getMaxX();
 
         if (inverted)
         {
-          return axisMax - Math.pow(10,
-                ((java2DValue-plotX)/(plotMaxX-plotX))*(axisMax - axisMin));
+          double logVal=(plotMaxX - java2DValue)/(plotMaxX-plotMinX)*(axisMax-axisMin)+axisMin;
+          return Math.pow(10,logVal);
         }
         else
         {
-          return axisMin + Math.pow(10,
-                ((java2DValue-plotX)/(plotMaxX-plotX))*(axisMax - axisMin));
+          double logVal=( java2DValue - plotMinX)/(plotMaxX-plotMinX)*(axisMax-axisMin)+axisMin;
+          return Math.pow(10,logVal);
         }
     }
 
@@ -587,7 +575,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
                  xx = plotArea.getMinX();
 
                else {
-                logval=Math.log(val)/Math.log(10);
+                logval=Math.log(val)/LOG10_VALUE;
 	         xx = this.myTranslateValueToJava2D(logval, plotArea);
                 }
                 if(sum<=0.0)
@@ -724,7 +712,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
             if(tick.getNumericalValue()==range.getLowerBound())
                xx = (float)plotArea.getMinX();
             else {
-                double logval=Math.log(tick.getNumericalValue())/Math.log(10);
+                double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
 	         xx = (float)this.myTranslateValueToJava2D(logval, plotArea);
             }
 
