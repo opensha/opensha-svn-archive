@@ -1,4 +1,4 @@
-package org.scec.sha.surface.gui;
+package org.scec.sha.fault.parameter.gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -10,29 +10,30 @@ import org.scec.param.editor.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.param.*;
-import org.scec.sha.surface.parameter.*;
-import org.scec.sha.surface.*;
+import org.scec.sha.fault.parameter.*;
+import org.scec.sha.fault.parameter.gui.*;
 import org.scec.sha.fault.*;
+import org.scec.sha.surface.*;
 import org.scec.data.Location;
 
 
 /**
- * <p>Title: EvenlyGriddedSurfaceParameterEditor</p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <p>Title: SimpleFaultParameterEditor</p>
+ * <p>Description: It is a more general parameter than just a Simple Fault Parameter
+ * Editor because actually inside it creates an object of the EvenlyGriddedSurface.</p>
+ * @author : Edward Field, Nitin Gupta and Vipin Gupta
+ * @created : July 31, 2003
  * @version 1.0
  */
 
-public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
+public class SimpleFaultParameterEditor extends ParameterEditor
     implements ParameterChangeListener,
     ParameterChangeFailListener,
     ActionListener {
 
 
   /** Class name for debugging. */
-  protected final static String C = "EvenlyGriddedSurfaceParameterEditor";
+  protected final static String C = "SimpleFaultParameterEditor";
   /** If true print out debug statements. */
   protected final static boolean D = false;
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
@@ -60,7 +61,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
 
 
   // title of Parameter List Editor
-  public static final String EVENLY_GRIDDED_EDITOR_TITLE = new String("Evenly Gridded Surface Param");
+  public static final String SIMPLE_FAULT_EDITOR_TITLE = new String("Simple Fault Editor");
   public static final String LAT_EDITOR_TITLE = "Latitudes";
   public static final String LON_EDITOR_TITLE = "Longitudes";
   public static final String DIP_EDITOR_TITLE = "Dips";
@@ -94,7 +95,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
 
 
   //Reference to the EvenlyGriddedSurface Param
-  EvenlyGriddedSurfaceParameter surfaceParam;
+  SimpleFaultParameter surfaceParam;
 
   /**
    * Paramter List for holding all parameters
@@ -157,7 +158,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
    */
   ConstrainedStringParameterEditor faultTypeEditor;
 
-  public EvenlyGriddedSurfaceParameterEditor() {
+  public SimpleFaultParameterEditor() {
     button.addActionListener(this);
   }
 
@@ -170,7 +171,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     if ( D ) System.out.println( S + "Starting:" );
     // remove the previous editor
     removeAll();
-    surfaceParam = (EvenlyGriddedSurfaceParameter) param;
+    surfaceParam = (SimpleFaultParameter) param;
 
     // make the params editor
     initParamListAndEditor();
@@ -252,7 +253,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     parameterList.addParameter(gridSpacing);
     parameterList.addParameter(numFltTrace);
     this.editor = new ParameterListEditor(parameterList, searchPaths);
-    editor.setTitle(EVENLY_GRIDDED_EDITOR_TITLE);
+    editor.setTitle(SIMPLE_FAULT_EDITOR_TITLE);
     //creating the table for the Lat and Lon of the FltTrace
     setLatLon();
     //creating the Double parameter for the Dips
@@ -645,7 +646,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
         fltFactory = new SimpleListricGriddedFaultFactory(fltTrace,dips,depths,gridSpacing);
       }
       //gets the griddedsurface from the faultFactory and sets the Value for the
-      //EvenlyGriddedSurfaceParameter
+      //SimpleFaultParameter
       surfaceParam.setValue((EvenlyGriddedSurface)fltFactory.getGriddedSurface());
 
       //make the change flag to be false

@@ -30,8 +30,8 @@ import org.scec.param.event.ParameterChangeWarningEvent;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeWarningListener;
-import org.scec.sha.surface.parameter.EvenlyGriddedSurfaceParameter;
-import org.scec.sha.surface.gui.EvenlyGriddedSurfaceParameterEditor;
+import org.scec.sha.fault.parameter.SimpleFaultParameter;
+import org.scec.sha.fault.parameter.gui.SimpleFaultParameterEditor;
 
 
 
@@ -226,7 +226,7 @@ public class ParameterApplet
     /** Makes the parameter example of type EvenlyGriddedSurface **/
     private ParameterAPI makeEvenlyGriddedsurfaceParameter(){
       String name = "Name " + paramCount;
-      ParameterAPI param = new EvenlyGriddedSurfaceParameter(name,null);
+      ParameterAPI param = new SimpleFaultParameter(name,null);
       paramCount++;
       return param;
     }

@@ -1,23 +1,23 @@
-package org.scec.sha.surface.parameter;
+package org.scec.sha.fault.parameter;
 
 import org.scec.param.*;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.exceptions.ParameterException;
 
 /**
- * <p>Title: EvenlyGriddedSurfaceParameter</p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <p>Title: SimpleFaultParameter</p>
+ * <p>Description: This is a more general parameter than the simple fault.
+ * Actually it creates an object for the EvenlyGriddedSurface</p>
+ * @author : Edward Field, Nitin Gupta and Vipin Gupta
+ * @created : July 30, 2003
  * @version 1.0
  */
 
-public class EvenlyGriddedSurfaceParameter extends Parameter
+public class SimpleFaultParameter extends Parameter
              implements ParameterAPI, java.io.Serializable {
 
   /** Class name for debugging. */
-  protected final static String C = "EvenlyGriddedSurfaceParameter";
+  protected final static String C = "SimpleFaultParameter";
   /** If true print out debug statements. */
   protected final static boolean D = false;
 
@@ -28,7 +28,7 @@ public class EvenlyGriddedSurfaceParameter extends Parameter
    *
    * @param  name  Name of the parameter
    */
-  public EvenlyGriddedSurfaceParameter(String name) {
+  public SimpleFaultParameter(String name) {
     super(name,null,null,null);
   }
 
@@ -38,7 +38,7 @@ public class EvenlyGriddedSurfaceParameter extends Parameter
    * @param  name   Name of the parameter
    * @param  surface  EvenlyGriddedSurface  object
    */
-  public EvenlyGriddedSurfaceParameter(String name, EvenlyGriddedSurface surface){
+  public SimpleFaultParameter(String name, EvenlyGriddedSurface surface){
     super(name,null,null,surface);
   }
 

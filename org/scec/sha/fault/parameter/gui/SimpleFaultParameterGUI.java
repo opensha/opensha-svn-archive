@@ -1,20 +1,21 @@
-package org.scec.sha.surface.gui;
+package org.scec.sha.fault.parameter.gui;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import org.scec.param.ParameterAPI;
-import org.scec.sha.surface.parameter.*;
-import org.scec.sha.surface.gui.*;
+import org.scec.sha.fault.parameter.*;
+import org.scec.sha.fault.parameter.gui.*;
 
 /**
- * <p>Title: EvenlyGriddedSurfaceParameterGUI</p>
+ * <p>Title: SimpleFaultParameterGUI</p>
  * <p>Description: Creates a GUI interface to the EvelyGriddedSurface Parameter</p>
  * @author : Edward Field, Nitin Gupta and Vipin Gupta
+ * @created : Aug 3,2003
  * @version 1.0
  */
 
-public class EvenlyGriddedSurfaceParameterGUI extends JFrame{
+public class SimpleFaultParameterGUI extends JFrame{
   private JPanel evenlyGriddedSurfacePanel = new JPanel();
   private JScrollPane evenlyGriddedParamsScroll = new JScrollPane();
   private JButton button = new JButton();
@@ -23,10 +24,10 @@ public class EvenlyGriddedSurfaceParameterGUI extends JFrame{
   private JPanel parameterPanel = new JPanel();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
-  // Object for the EvenlyGriddedSurfaceParameter Editor
-  EvenlyGriddedSurfaceParameterEditor gridSurface;
+  // Object for the SimpleFaultParameter Editor
+  SimpleFaultParameterEditor gridSurface;
 
-  public EvenlyGriddedSurfaceParameterGUI(EvenlyGriddedSurfaceParameter surfaceParam) {
+  public SimpleFaultParameterGUI(SimpleFaultParameter surfaceParam) {
     try {
       jbInit();
     }
@@ -34,8 +35,8 @@ public class EvenlyGriddedSurfaceParameterGUI extends JFrame{
       e.printStackTrace();
     }
 
-    //creating the object for the EvenlyGriddedSurfaceParameter Editor
-    gridSurface = new EvenlyGriddedSurfaceParameterEditor();
+    //creating the object for the SimpleFaultParameter Editor
+    gridSurface = new SimpleFaultParameterEditor();
     gridSurface.setParameter(surfaceParam);
     gridSurface.setUpdateButtonVisible(false);
     parameterPanel.add(gridSurface,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -43,10 +44,10 @@ public class EvenlyGriddedSurfaceParameterGUI extends JFrame{
   }
 
   public static void main(String[] args) {
-    EvenlyGriddedSurfaceParameter surfaceParam = new EvenlyGriddedSurfaceParameter("Fault-1",null);
-    EvenlyGriddedSurfaceParameterGUI evenlyGriddedSurfaceParameterGUI = new EvenlyGriddedSurfaceParameterGUI(surfaceParam);
-    evenlyGriddedSurfaceParameterGUI.show();
-    evenlyGriddedSurfaceParameterGUI.pack();
+    SimpleFaultParameter surfaceParam = new SimpleFaultParameter("Fault-1",null);
+    SimpleFaultParameterGUI simpleFaultParameterGUI = new SimpleFaultParameterGUI(surfaceParam);
+    simpleFaultParameterGUI.show();
+    simpleFaultParameterGUI.pack();
   }
 
   private void jbInit() throws Exception {
@@ -69,7 +70,7 @@ public class EvenlyGriddedSurfaceParameterGUI extends JFrame{
     });
     evenlyGriddedParamsScroll.getViewport().add(parameterPanel, null);
 
-    this.setTitle("EvenlyGriddedSurface Parameter");
+    this.setTitle("Simple Fault Parameter Settings");
   }
 
   void button_actionPerformed(ActionEvent e) {
