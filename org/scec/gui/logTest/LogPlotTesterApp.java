@@ -491,18 +491,17 @@ public class LogPlotTesterApp extends JApplet  {
       plot.setDomainCrosshairVisible(false);
       plot.setRangeCrosshairLockedOnData(false);
       plot.setRangeCrosshairVisible(false);
-
+      plot.setInsets(new Insets(0, 0, 0, 15));
 
       JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
       chart.setBackgroundPaint( lightBlue );
+      panel = new ChartPanel(chart, true, true, true, true, true);
 
-      panel = new ChartPanel(chart, true, true, true, true, false);
       panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
       panel.setMouseZoomable(true);
       panel.setDisplayToolTips(true);
       panel.setHorizontalAxisTrace(false);
       panel.setVerticalAxisTrace(false);
-
       innerPlotPanel.removeAll();
       // panel added here
       innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -820,10 +819,10 @@ public class LogPlotTesterApp extends JApplet  {
 
   private void setLog10AsCaretFlag(){
     if(log10CaretCheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setLog10TickLabelsFlag();
-      ((LogarithmicAxis)yAxis).setLog10TickLabelsFlag();
       ((LogarithmicAxis)xAxis).setAllowNegativesFlag(true);
       ((LogarithmicAxis)yAxis).setAllowNegativesFlag(true);
+      ((LogarithmicAxis)xAxis).setLog10TickLabelsFlag();
+      ((LogarithmicAxis)yAxis).setLog10TickLabelsFlag();
     }
   }
 
@@ -834,10 +833,10 @@ public class LogPlotTesterApp extends JApplet  {
 
   private void setLog10AsPowerFlag(){
     if(log10PowerCheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setLog10TickLabelsInPowerFlag();
-      ((LogarithmicAxis)yAxis).setLog10TickLabelsInPowerFlag();
       ((LogarithmicAxis)xAxis).setAllowNegativesFlag(false);
       ((LogarithmicAxis)yAxis).setAllowNegativesFlag(false);
+      ((LogarithmicAxis)xAxis).setLog10TickLabelsInPowerFlag();
+      ((LogarithmicAxis)yAxis).setLog10TickLabelsInPowerFlag();
     }
   }
 
@@ -848,10 +847,10 @@ public class LogPlotTesterApp extends JApplet  {
 
   private void setLog10AsEFlag(){
     if(log10AsECheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setExpTickLabelsFlag();
-      ((LogarithmicAxis)yAxis).setExpTickLabelsFlag();
       ((LogarithmicAxis)xAxis).setAllowNegativesFlag(true);
       ((LogarithmicAxis)yAxis).setAllowNegativesFlag(true);
+      ((LogarithmicAxis)xAxis).setExpTickLabelsFlag();
+      ((LogarithmicAxis)yAxis).setExpTickLabelsFlag();
     }
   }
 

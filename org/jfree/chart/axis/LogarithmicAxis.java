@@ -185,7 +185,6 @@ public class LogarithmicAxis extends NumberAxis {
     expTickLabelsFlag = true;
     log10TickLabelsFlag = false;
     log10TickLabelsInPowerFlag = false;
-    setupSmallLogFlag();
     setupNumberFmtObj();             //setup number formatter obj
   }
 
@@ -208,7 +207,6 @@ public class LogarithmicAxis extends NumberAxis {
     log10TickLabelsFlag = true;
     expTickLabelsFlag = false;
     log10TickLabelsInPowerFlag = false;
-    setupSmallLogFlag();
   }
 
 
@@ -295,7 +293,7 @@ public class LogarithmicAxis extends NumberAxis {
   protected void setupSmallLogFlag() {
     // set flag true if negative values not allowed and the
     // lower bound is between 0 and 10:
-    final double lowerVal = getRange().getLowerBound();
+    double lowerVal = getRange().getLowerBound();
     if(!log10TickLabelsInPowerFlag)
       smallLogFlag = (!allowNegativesFlag && lowerVal < 10.0 && lowerVal > 0.0);
     else
