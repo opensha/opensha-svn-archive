@@ -3,8 +3,12 @@ package org.scec.sha.gui.controls;
 import java.util.*;
 import org.scec.sha.gui.controls.*;
 import org.scec.sha.imr.attenRelImpl.*;
-import org.scec.sha.gui.beans.IMR_GuiBean;
+import org.scec.sha.gui.beans.*;
 import org.scec.util.RunScript;
+import org.scec.sha.param.editor.MagFreqDistParameterEditor;
+import org.scec.sha.param.*;
+import org.scec.sha.magdist.SingleMagFreqDist;
+
 
 /**
  * <p>Title: RunAll_PuenteHillsScenariosControlPanel</p>
@@ -53,14 +57,25 @@ public class RunAll_PuenteHillsScenariosControlPanel {
    * @param imrGuiBean
    */
   public void runAllScenarios(PuenteHillsScenarioControlPanel puenteHillsControl,
-                              GenerateHazusFilesControlPanel hazusControl,IMR_GuiBean imrGuiBean){
+                              GenerateHazusFilesControlPanel hazusControl,IMR_GuiBean imrGuiBean,
+                              EqkRupSelectorGuiBean erfGuiBean){
     String COMMAND_PATH = "/bin/";
     int magSize = magnitudes.size();
     int attenRelSize = attenuationRelationships.size();
     String[] command ={"sh","-c",""};
     hazusControl.getRegionAndMapType();
     for(int i=0;i<magSize;++i){
-      puenteHillsControl.setMagnitude(((Double)magnitudes.get(i)).doubleValue());
+
+      //set the magnitude
+      ERF_GuiBean erfParamGuiBean =erfGuiBean.getERF_ParamEditor();
+      MagFreqDistParameterEditor magEditor = erfParamGuiBean.getMagDistEditor();
+      magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+      magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
+      magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(((Double)magnitudes.get(i)).doubleValue()));
+      erfParamGuiBean.refreshParamEditor();
+      magEditor.setMagDistFromParams();
+      erfGuiBean.setParamsInForecast(0,0);
+
       for(int j=0;j<attenRelSize;++j){
         imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).setValue(attenuationRelationships.get(j));
         //calls the Hazus Control method to generate the XYZ datset for generating shapefiles
@@ -69,7 +84,7 @@ public class RunAll_PuenteHillsScenariosControlPanel {
         application.addButton();
         // Make a directory and move all the files into it
         StringTokenizer st = new StringTokenizer((String)attenuationRelationships.get(j));
-        String dirName = st.nextToken()+"_"+((Double)magnitudes.get(i)).doubleValue();
+        String dirName = "PH_"+st.nextToken()+"_"+((Double)magnitudes.get(i)).doubleValue();
 
         Vector scriptLines = new Vector();
         command[2] = COMMAND_PATH+"mkdir "+dirName;

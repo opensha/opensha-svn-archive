@@ -553,7 +553,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       getGriddedSitesAndMapType();
     //checking if the person wants to run all the cases for the Puente Hill Scenarios
     if(puenteHillsScenariosControl !=null){
-      puenteHillsScenariosControl.runAllScenarios(puenteHillsControl,hazusControl,imrGuiBean);
+      puenteHillsScenariosControl.runAllScenarios(puenteHillsControl,hazusControl,imrGuiBean,erfGuiBean);
       puenteHillsScenariosControl = null;
     }
     else //if the person just want to run one scenario at time.
