@@ -168,7 +168,7 @@ public class RemoteERF_Client extends EqkRupForecast implements
   public String getName() {
     // TODO Auto-generated method stub
     try {
-      return null;
+      return erfServer.getName();
     }
     catch (Exception e) {
       e.printStackTrace();

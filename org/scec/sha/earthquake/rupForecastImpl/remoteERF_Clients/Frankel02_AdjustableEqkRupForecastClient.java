@@ -14,7 +14,7 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
 public class Frankel02_AdjustableEqkRupForecastClient extends RemoteERF_Client {
 
-  public final static String NAME = new String("Server USGS/CGS 2002 Adj. Cal. ERF");
+ // public final static String NAME = new String("Server USGS/CGS 2002 Adj. Cal. ERF");
 
   public Frankel02_AdjustableEqkRupForecastClient() throws java.rmi.RemoteException{
     String className = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
@@ -25,7 +25,7 @@ public class Frankel02_AdjustableEqkRupForecastClient extends RemoteERF_Client {
   /*
   * Returns the name of the ERF
   */
-  public String getName() {
+  /*public String getName() {
     try {
       return NAME;
     }
@@ -33,5 +33,5 @@ public class Frankel02_AdjustableEqkRupForecastClient extends RemoteERF_Client {
       e.printStackTrace();
     }
     return null;
-  }
+  }*/
 }

@@ -16,7 +16,7 @@ public class STEP_EqkRupForecastClient extends RemoteERF_Client{
 
 
   // name of this ERF
-  public static String  NAME = new String("Server STEP ERF");
+  //public static String  NAME = new String("Server STEP ERF");
 
   public STEP_EqkRupForecastClient() throws java.rmi.RemoteException{
     String className = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
@@ -27,7 +27,7 @@ public class STEP_EqkRupForecastClient extends RemoteERF_Client{
   /*
   * Returns the name of the ERF
   */
-  public String getName() {
+  /*public String getName() {
     try {
       return NAME;
     }
@@ -35,5 +35,5 @@ public class STEP_EqkRupForecastClient extends RemoteERF_Client{
       e.printStackTrace();
     }
     return null;
-  }
+  }*/
 }

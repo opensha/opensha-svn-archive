@@ -124,6 +124,9 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
   public final static String RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient";
   public final static String RMI_WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient";
+  public final static String RMI_SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimpleFaultRuptureERF_Client";
+
+
 
   // instances of the GUI Beans which will be shown in this applet
   protected ERF_GuiBean erfGuiBean;
@@ -1170,6 +1173,7 @@ public class Temp_HazardCurveApplication extends JApplet
    erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_WG02_ERF_LIST_CLASS_NAME);
+   erf_Classes.add(RMI_SIMPLE_FAULT_ERF_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){

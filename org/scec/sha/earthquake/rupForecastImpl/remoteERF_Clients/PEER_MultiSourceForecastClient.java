@@ -14,7 +14,7 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
 public class PEER_MultiSourceForecastClient extends RemoteERF_Client {
 
-  public final static String NAME = new String("Server PEER Multi-Source");
+  //public final static String NAME = new String("Server PEER Multi-Source");
 
   public PEER_MultiSourceForecastClient() throws java.rmi.RemoteException{
     String className = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
@@ -25,7 +25,7 @@ public class PEER_MultiSourceForecastClient extends RemoteERF_Client {
   /*
   * Returns the name of the ERF
   */
-  public String getName() {
+  /*public String getName() {
     try {
       return NAME;
     }
@@ -33,5 +33,5 @@ public class PEER_MultiSourceForecastClient extends RemoteERF_Client {
       e.printStackTrace();
     }
     return null;
-  }
+  }*/
 }
