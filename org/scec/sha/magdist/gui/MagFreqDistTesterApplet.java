@@ -306,41 +306,6 @@ static {
     mainSplitPane.setDividerSize(5);
     mainSplitPane.setOneTouchExpandable(false);
 
-    /*clearButton.addFocusListener(new java.awt.event.FocusListener() {
-                public void focusGained(FocusEvent e){
-                    clearButtonFocusGained();
-                }
-                public void focusLost(FocusEvent e){ }
-            });
-    clearButton.addActionListener(new java.awt.event.MouseAdapter() {
-                public void mouseClicked( MouseEvent e ) {
-                    clearButton_mouseClicked( e );
-                }
-            });
-
-    toggleButton.addFocusListener(new java.awt.event.FocusListener() {
-                public void focusGained(FocusEvent e){
-                    toggleButtonFocusGained();
-                }
-                public void focusLost(FocusEvent e){ }
-            });
-    toggleButton.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseClicked( MouseEvent e ) {
-                    toggleButton_mouseClicked( e );
-                }
-            });
-    addButton.addFocusListener(new java.awt.event.FocusListener() {
-                public void focusGained(FocusEvent e){
-                    addButtonFocusGained();
-                }
-                public void focusLost(FocusEvent e){ }
-            });
-    addButton.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseClicked( MouseEvent e ) {
-                   // System.out.println(C + ": addButton(): Mouse Clicked: ");
-                    addButton_mouseClicked( e );
-                }
-            });*/
     jCumAxisScale.setFont(new java.awt.Font("Dialog", 1, 12));
     jCumAxisScale.setForeground(new Color(80, 80, 133));
     jCumAxisScale.setToolTipText("");
@@ -1206,8 +1171,8 @@ static {
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                 // panel for mag vs moment-rate graph
-               // innerPlotPanel.add( moPanel, new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0
-               //        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+                innerPlotPanel.add( moPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
             }
             else {
