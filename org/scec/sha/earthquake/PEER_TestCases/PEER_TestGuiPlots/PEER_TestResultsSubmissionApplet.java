@@ -435,55 +435,58 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
   /**
    * This method is called when the submit button is clicked
-   * Provides Error checking to se that user has entered all the valid values in
-   * the parameters
-   */
+   * Provides Error checking to se that user has entered all the valid
+  values in
+  * the parameters
+  */
   private boolean submitButton() throws RuntimeException{
 
-      //creating the new file name in which function data has to be stored.
-      String fileName =new String(testComboBox.getSelectedItem().toString());
-      boolean flag = true;
-      boolean fileFlag=true;
-      fileName=fileName.concat("_");
-      fileName=fileName.concat(fileNameText.getText());
-      fileName=fileName.concat(".dat");
-      int size= testFiles.size();
-      //checking if the fileName already exists, if so then ask user to input another fileName
-      for(int i=0;i<size;++i)
-        if(fileName.equals(testFiles.get(i).toString())){
-          flag=false;
-          break;
-        }
-      if(flag)
-        function.setName(fileName.toString());
-      else{
-        int flag1=JOptionPane.showConfirmDialog(this,new String("Identifier already exists, Want to overwrite??"),
-                                      "Information message",JOptionPane.OK_CANCEL_OPTION);
-        int found=0;
-        if(flag1 ==JOptionPane.OK_OPTION)
-          found=1;
-        else {
-          fileFlag=false;
+    //creating the new file name in which function data has to be stored.
+    String fileName =new  String(testComboBox.getSelectedItem().toString());
+    boolean flag = true;
+    overwriteFlag=false;
+    fileName=fileName.concat("_");
+    fileName=fileName.concat(fileNameText.getText());
+    fileName=fileName.concat(".dat");
+    int size= testFiles.size();
+
+    //checking for the Y-values input by the user
+    boolean yValFlag = getYValues();
+    if(!yValFlag) return false;
+
+    //checking if the fileName already exists, if so then ask user to input another fileName
+    for(int i=0;i<size;++i){
+      if(fileName.equals(testFiles.get(i).toString())){
+        flag=false;
+        break;
+      }
+    }
+    if(flag)  function.setName(fileName.toString());
+    else{
+      int flag1=JOptionPane.showConfirmDialog(this,new
+          String("Identifier already exists, Want to overwrite??"),
+          "Information message",JOptionPane.OK_CANCEL_OPTION);
+      int found=0;
+      //user wants to overwrite
+      if(flag1 ==JOptionPane.OK_OPTION)  found=1;
+      else {
+        //user does not want to overwrite
+          overwriteFlag=false;
           fileNameText.setText("");
         }
         //Overwrite window
         if(found==1)  {
-          peerOverwrite = new PEER_FileOverwriteWindow(this,fileName);
-          peerOverwrite.setLocation(this.getAppletXAxisCenterCoor()-60,this.getAppletYAxisCenterCoor()-50);
-          peerOverwrite.pack();
-          peerOverwrite.show();
-          overwriteFlag=true;
+            peerOverwrite = new PEER_FileOverwriteWindow(this,fileName);
+            peerOverwrite.setLocation(this.getAppletXAxisCenterCoor()-60,this.getAppletYAxisCenterCoor()-50);
+            peerOverwrite.pack();
+            peerOverwrite.show();
+            overwriteFlag=true;
         }
-        //throw new RuntimeException("Identifier Name already exists, Please enter new Identifier Name");
       }
-      if(fileFlag){
-        flag = getYValues();
-        return flag;
-      }
-      else
-        return false;
+    //if the user has input correct Y values and unique Identifier name
+    if(yValFlag && flag)  return true;
+    else  return false;
   }
-
 
   /**
    * This method gets the Y values entered by the user and updates the ArbDiscretizedFunc
