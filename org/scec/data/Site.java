@@ -202,17 +202,10 @@ public class Site extends ParameterList implements NamedObjectAPI {
 
         if( this.size() < 1 ) return site;
 
-        Enumeration enum = params.keys();
-        while(enum.hasMoreElements()){
+        int size = params.size();
+        for(int i =0;i<size;++i) {
 
-
-            String key = (String)enum.nextElement();
-            if(D) System.out.println(S + "Next Parameter Key = " + key);
-
-
-            ParameterAPI param = (ParameterAPI)params.get(key);
-            if(D) System.out.println(S + param.toString());
-
+            ParameterAPI param = (ParameterAPI)params.get(i);
             site.addParameter( (ParameterAPI)param.clone() );
         }
 

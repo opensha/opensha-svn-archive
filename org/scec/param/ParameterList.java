@@ -1,6 +1,7 @@
 package org.scec.param;
 
 import java.util.*;
+
 import org.scec.exceptions.ConstraintException;
 import org.scec.exceptions.ParameterException;
 
@@ -47,7 +48,7 @@ public class ParameterList {
     protected final static boolean D = false;
 
     /** Internal list of parameters - indexed by name */
-    protected Hashtable params = new Hashtable();
+    protected Vector params = new Vector();
 
     /** Internal list of constraint name mapped to parameter name */
     protected Hashtable constraintNameMap = new Hashtable();
@@ -86,7 +87,7 @@ public class ParameterList {
         String name = param.getName();
         String constraintName = param.getConstraintName();
 
-        if( !params.containsKey(name) ) params.put(name, param);
+        if( getIndexOf(name)== -1) params.add(param);
         else throw new ParameterException(S + "A Parameter already exists named " + name);
 
 
@@ -119,8 +120,9 @@ public class ParameterList {
     public ParameterAPI getParameter(String name) throws ParameterException {
 
         name = getParameterName( name );
-        if( params.containsKey(name) ) {
-            ParameterAPI param = (ParameterAPI)params.get(name);
+        int index = getIndexOf(name);
+        if( index!=-1 ) {
+            ParameterAPI param = (ParameterAPI)params.get(index);
             return param;
         }
         else{
@@ -135,9 +137,9 @@ public class ParameterList {
     public Object getValue(String name) throws ParameterException{
 
         name = getParameterName( name );
-
-        if( params.containsKey(name) ) {
-            ParameterAPI param = (ParameterAPI)params.get(name);
+        int index = getIndexOf(name);
+        if( (index!=-1) ) {
+            ParameterAPI param = (ParameterAPI)params.get(index);
             Object obj = param.getValue();
             return obj;
         }
@@ -154,9 +156,9 @@ public class ParameterList {
         if(D) System.out.println(S + "Starting");
 
         name = getParameterName( name );
-
-        if( params.containsKey(name) ) {
-            ParameterAPI param = (ParameterAPI)params.get(name);
+        int index = getIndexOf(name);
+        if( index !=-1 ) {
+            ParameterAPI param = (ParameterAPI)params.get(index);
             param.setValue(value);
         }
         else{
@@ -171,9 +173,9 @@ public class ParameterList {
     /** returns parameter type of named parameter in list, if not exist throws exception */
     public String getType(String name) throws ParameterException {
         name = getParameterName( name );
-
-        if( params.containsKey(name) ) {
-            ParameterAPI param = (ParameterAPI)params.get(name);
+        int index = getIndexOf(name);
+        if( index!=-1) {
+            ParameterAPI param = (ParameterAPI)params.get(index);
             String str = param.getType();
             return str;
         }
@@ -188,14 +190,16 @@ public class ParameterList {
     public boolean containsParameter(ParameterAPI param){
 
         String name = param.getName();
-        if( params.containsKey(name) ) { return true; }
+        int index = getIndexOf(name);
+        if( index!=-1 ) { return true; }
         else{ return false; }
 
     }
 
     /** checks if the parameter exists in the list */
     public boolean containsParameter(String paramName){
-        if( params.containsKey(paramName) ) { return true; }
+        int index = getIndexOf(paramName);
+        if( index!=-1 ) { return true; }
         else{ return false; }
 
     }
@@ -206,7 +210,8 @@ public class ParameterList {
      */
     public void removeParameter(ParameterAPI param) throws ParameterException {
         String name = param.getName();
-        if( params.containsKey(name) ) {
+        int index = getIndexOf(name);
+        if( index!=-1 ) {
             if( params.contains( param ) ) params.remove(param);
             else{
                 String S = C + ": removeParameter(): ";
@@ -224,8 +229,8 @@ public class ParameterList {
      *  throws exception
      */
     public void removeParameter(String name) throws ParameterException {
-
-        if( params.containsKey(name) ) { params.remove(name); }
+        int index = getIndexOf(name);
+        if( index!=-1 ) { params.remove(index); }
         else{
             String S = C + ": removeParameter(): ";
             throw new ParameterException(S + "No Parameter exist named " + name + ", unable to remove");
@@ -247,11 +252,10 @@ public class ParameterList {
     public ListIterator getParametersIterator(){
 
         Vector v = new Vector();
-        Enumeration enum = params.elements();
-
-        while(enum.hasMoreElements()){
-            Object obj = enum.nextElement();
-            v.add(obj);
+        int size = this.params.size();
+        for(int i = 0; i<size;++i) {
+          Object obj = params.get(i);
+          v.add(obj);
         }
 
         return v.listIterator();
@@ -260,14 +264,11 @@ public class ParameterList {
     /** returns an iterator of all parameters in the list */
     public ListIterator getParameterNamesIterator(){
         Vector v = new Vector();
-        Enumeration enum = params.keys();
-
-        while(enum.hasMoreElements()){
-            Object obj = enum.nextElement();
-            v.add(obj);
+        int size = this.params.size();
+         for(int i = 0; i<size;++i) {
+            ParameterAPI obj = (ParameterAPI)params.get(i);
+            v.add(obj.getName());
         }
-
-        java.util.Collections.sort(v);
         return v.listIterator();
     }
 
@@ -352,24 +353,14 @@ public class ParameterList {
         String S = C + ": clone(): ";
         ParameterList list = new ParameterList();
         if( this.size() < 1 ) return list;
-
-        Enumeration enum = params.keys();
-        while(enum.hasMoreElements()){
-
-
-            String key = (String)enum.nextElement();
-            if(D) System.out.println(S + "Next Parameter Key = " + key);
-
-
-            ParameterAPI param = (ParameterAPI)params.get(key);
-            if(D) System.out.println(S + param.toString());
-
-            list.addParameter( (ParameterAPI)param.clone() );
+        int size = this.params.size();
+        for(int i = 0; i<size;++i) {
+          ParameterAPI param = (ParameterAPI)params.get(i);
+          list.addParameter( (ParameterAPI)param.clone() );
         }
 
-        return list;
-
-    }
+     return list;
+   }
 
 
     public String toString(){
@@ -378,16 +369,12 @@ public class ParameterList {
 
         StringBuffer b = new StringBuffer();
         boolean first = true;
-        Enumeration enum = params.keys();
 
         TreeMap map = new TreeMap();
-        while(enum.hasMoreElements()){
-
-            String key = (String)enum.nextElement();
-            ParameterAPI param = (ParameterAPI)params.get(key);
-
-            map.put(key, param);
-
+        int vectorSize = params.size();
+        for(int i = 0; i<vectorSize;++i) {
+            ParameterAPI param = (ParameterAPI)params.get(i);
+            map.put(param.getName(), param);
         }
 
 
@@ -400,7 +387,8 @@ public class ParameterList {
             if(D) System.out.println(S + "Next Parameter Key = " + key);
             counter++;
 
-            ParameterAPI param = (ParameterAPI)params.get(key);
+            int index = getIndexOf(key);
+            ParameterAPI param = (ParameterAPI)params.get(index);
             ParameterConstraintAPI constraint = param.getConstraint();
 
             boolean ok = true;
@@ -436,6 +424,21 @@ public class ParameterList {
 
     }
 
-
+    /**
+     * this function finds the paramter in the vector on basis of paramter name
+     *
+     * @param key paramter name
+     *
+     * @return index at which this paramter exists
+     */
+    private int getIndexOf(String key) {
+      int size = params.size();
+      for(int i=0;i<size;++i) {
+        ParameterAPI param = (ParameterAPI)params.get(i);
+        if(key.equalsIgnoreCase(param.getName()))
+           return i;
+      }
+      return -1;
+    }
 
 }
