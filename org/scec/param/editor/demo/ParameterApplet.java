@@ -30,6 +30,8 @@ import org.scec.param.event.ParameterChangeWarningEvent;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeWarningListener;
+import org.scec.sha.surface.parameter.EvenlyGriddedSurfaceParameter;
+import org.scec.sha.surface.gui.EvenlyGriddedSurfaceParameterEditor;
 
 
 
@@ -64,7 +66,7 @@ public class ParameterApplet
 
 
 
-    final static int NUM = 5;
+    final static int NUM = 6;
     static int paramCount = 0;
     boolean isStandalone = false;
     GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -74,6 +76,8 @@ public class ParameterApplet
     JLabel mainTitleLabel = new JLabel();
     JPanel jPanel1 = new JPanel();
     JPanel jPanel2 = new JPanel();
+    public String searchPaths[];
+    final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
     /**
      *  Gets the applet parameter attribute of the ParameterApplet object
@@ -112,6 +116,7 @@ public class ParameterApplet
     public void init() {
         try { jbInit(); }
         catch ( Exception e ) { e.printStackTrace(); }
+
     }
 
     /**
@@ -145,7 +150,12 @@ public class ParameterApplet
                 new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
         ParameterList list = makeParameterList( 5 );
-        ParameterListEditor editor = new ParameterListEditor( list );
+        // Build package names search path
+        searchPaths = new String[3];
+        searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+        searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
+        searchPaths[2] = "org.scec.sha.surface.gui" ;
+        ParameterListEditor editor = new ParameterListEditor( list,searchPaths );
 
         jPanel1.add( editor,
                 new GridBagConstraints( 1, 2, 1, 1, 1.0, 1.0, 10, 1,
@@ -177,6 +187,7 @@ public class ParameterApplet
         list.addParameter( makeConstrainedDoubleDiscreteParameter() );
         list.addParameter( makeWarningDoubleParameter());
         list.addParameter( makeWarningIntegerParameter());
+        list.addParameter(this.makeEvenlyGriddedsurfaceParameter());
         for ( int i = 3; i < number; i++ )
             list.addParameter( makeStringParameter() );
         return list;
@@ -210,6 +221,14 @@ public class ParameterApplet
         param.addParameterChangeListener(this);
 
         return param;
+    }
+
+    /** Makes the parameter example of type EvenlyGriddedSurface **/
+    private ParameterAPI makeEvenlyGriddedsurfaceParameter(){
+      String name = "Name " + paramCount;
+      ParameterAPI param = new EvenlyGriddedSurfaceParameter(name,null);
+      paramCount++;
+      return param;
     }
 
     /** Makes a parameter example of this type */
