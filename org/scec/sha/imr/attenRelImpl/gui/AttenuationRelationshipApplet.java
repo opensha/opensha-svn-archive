@@ -48,7 +48,7 @@ public class AttenuationRelationshipApplet extends JApplet
         XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    private final static String version = "0.8.15";
+    protected final static String version = "0.8.15";
     protected final static boolean D = false;
   /**
    * these four values save the custom axis scale specified by user
@@ -67,10 +67,10 @@ public class AttenuationRelationshipApplet extends JApplet
 
 
     //instance for the ButtonControlPanel
-   ButtonControlPanel buttonControlPanel;
+   protected ButtonControlPanel buttonControlPanel;
 
    //instance of the GraphPanel (window that shows all the plots)
-   private GraphPanel graphPanel;
+   protected GraphPanel graphPanel;
 
    //instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
    private GraphWindow graphWindow;
@@ -80,7 +80,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
     //images for the OpenSHA
     private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
-    private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
+    protected final static String POWERED_BY_IMAGE = "PoweredBy.gif";
 
     //static string for the OPENSHA website
     private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
@@ -260,22 +260,22 @@ public class AttenuationRelationshipApplet extends JApplet
 
     boolean isWhite = true;
 
-    private AxisLimitsControlPanel axisLimits;
+    protected AxisLimitsControlPanel axisLimits;
 
 
     /**
      * for Y-log, 0 values will be converted to this small value
      */
     private double Y_MIN_VAL = 1e-8;
-    private JLabel imgLabel = new JLabel();
+    protected JLabel imgLabel = new JLabel();
     private JLabel jLabel1 = new JLabel();
-    private Border border1;
-    private FlowLayout flowLayout1 = new FlowLayout();
-    private JButton xyDatasetButton = new JButton();
+    protected Border border1;
+    protected FlowLayout flowLayout1 = new FlowLayout();
+    protected JButton xyDatasetButton = new JButton();
 
     //XY new Dataset control
-    private XY_ValuesControlPanel xyNewDatasetControl;
-    private JButton peelOffButton = new JButton();
+    protected XY_ValuesControlPanel xyNewDatasetControl;
+    protected JButton peelOffButton = new JButton();
 
 
     /**
@@ -435,7 +435,7 @@ public class AttenuationRelationshipApplet extends JApplet
      *
      * @exception  Exception  Description of the Exception
      */
-    private void jbInit() throws Exception {
+    protected void jbInit() throws Exception {
 
         String S = C + ": jbInit(): ";
 
@@ -624,6 +624,8 @@ public class AttenuationRelationshipApplet extends JApplet
      */
     public void destroy() { }
 
+
+
     /**
      *  Main method
      *
@@ -689,7 +691,7 @@ public class AttenuationRelationshipApplet extends JApplet
      *  Used for synch applet with new AttenuationRelationship choosen. Updates lables and
      *  initializes the AttenuationRelationship if needed.
      */
-    private void updateChoosenAttenuationRelationship() {
+    protected void updateChoosenAttenuationRelationship() {
 
         // Starting
         String S = C + ": updateChoosenAttenuationRelationship(): ";
@@ -740,11 +742,13 @@ public class AttenuationRelationshipApplet extends JApplet
      *  Adds a feature to the GraphPanel attribute of the AttenuationRelationshipApplet object
      */
     private void addGraphPanel() {
+      graphPanel.drawGraphPanel(xAxisName, yAxisName, functionList, xLog,
+                                yLog, customAxis, plotTitle,
+                                buttonControlPanel);
 
-      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,plotTitle,buttonControlPanel);
       togglePlot();
-      if( isWhite ) graphPanel.setPlotBackgroundColor(Color.white );
-      else graphPanel.setPlotBackgroundColor( Color.black );
+      if (isWhite) graphPanel.setPlotBackgroundColor(Color.white);
+      else graphPanel.setPlotBackgroundColor(Color.black);
 
     }
 
@@ -914,7 +918,7 @@ public class AttenuationRelationshipApplet extends JApplet
         if(D) System.out.println(S + "Ending");
     }
 
-    private void addButton_actionPerformed(ActionEvent e) {
+    protected void addButton_actionPerformed(ActionEvent e) {
       String S = C + " : addButton_actionPerformed";
       if(D) System.out.println(S + "Starting");
       addButton();
@@ -1092,7 +1096,7 @@ public class AttenuationRelationshipApplet extends JApplet
     }
 
 
-    private void clearButton_actionPerformed(ActionEvent e){
+    protected void clearButton_actionPerformed(ActionEvent e){
 
       String S = C + " : clearButtonFocusGained(): ";
       if(D) System.out.println(S + "Starting");
@@ -1102,7 +1106,7 @@ public class AttenuationRelationshipApplet extends JApplet
     }
 
 
-    private void toggleButton_actionPerformed(ActionEvent e){
+    protected void toggleButton_actionPerformed(ActionEvent e){
 
         String S = C + " : toggleButtonFocusGained(): ";
         if(D) System.out.println(S + "Starting");
@@ -1291,7 +1295,7 @@ public class AttenuationRelationshipApplet extends JApplet
   }
 
 
-  private void imgLabel_mouseClicked(MouseEvent e) {
+  protected void imgLabel_mouseClicked(MouseEvent e) {
     try{
       this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE),"_new");
     }catch(java.net.MalformedURLException ee){

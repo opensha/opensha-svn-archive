@@ -559,7 +559,7 @@ public class GraphPanel extends JPanel {
 
     plot = null;
     // build the plot
-    plot = new XYPlot(null,xAxis, yAxis, null);
+    plot = new XYPlot(null, xAxis, yAxis, null);
 
     //setting the plot properties
     plot.setDomainCrosshairLockedOnData(false);
