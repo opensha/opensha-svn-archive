@@ -5,6 +5,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import java.lang.reflect.*;
+import java.net.*;
+import java.io.*;
 
 import org.scec.param.event.*;
 import org.scec.param.*;
@@ -55,6 +57,9 @@ public class EqkForecastApplet extends JApplet
   protected final static String SA = "SA";
   protected final static String SA_PERIOD = "SA Period";
   protected final static String FRANKEL_1996_FORECAST = "Frankel 1996";
+
+  protected final static String LONGITUDE = "Longitude";
+  protected final static String LATITUDE = "Latitude";
   protected final static int W = 915;
   protected final static int H = 725;
 
@@ -104,8 +109,8 @@ public class EqkForecastApplet extends JApplet
   /**
    * Longitude and Latitude paramerts to be added to the site params list
    */
-  private DoubleParameter longitude = new DoubleParameter("Longitude");
-  private DoubleParameter latitude = new DoubleParameter("Latitude");
+  private DoubleParameter longitude = new DoubleParameter(LONGITUDE);
+  private DoubleParameter latitude = new DoubleParameter(LATITUDE);
 
 
   /**
@@ -172,6 +177,11 @@ public class EqkForecastApplet extends JApplet
     jBCalc.setBounds(new Rectangle(687, 614, 122, 33));
     jBCalc.setForeground(new Color(80, 80, 133));
     jBCalc.setText("Add Graph");
+    jCheckCVM.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        jCheckCVM_actionPerformed(e);
+      }
+    });
     jEqkForecastPanel.add(jPanel1, null);
     jEqkForecastPanel.add(jForecastLabel, null);
     jEqkForecastPanel.add(jEqkForeType, null);
@@ -701,4 +711,56 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
   repaint();
  }
 
+ /**
+  * this function is called when we want to get the paramters from the CVM servlet
+  * That servlet will return basin depth and Vs30
+  *
+  * @param e
+  */
+  void jCheckCVM_actionPerformed(ActionEvent e) {
+
+    try{
+
+    // make connection with servlet
+     URL velocityServlet = new URL("http://scec.usc.edu:9999/examples/servlet/Vs30Servlet");
+     URLConnection servletConnection = velocityServlet.openConnection();
+
+     servletConnection.setDoOutput(true);
+
+     // Don't use a cached version of URL connection.
+     servletConnection.setUseCaches (false);
+     servletConnection.setDefaultUseCaches (false);
+
+     // Specify the content type that we will send binary data
+     servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
+
+     // send the student object to the servlet using serialization
+     ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
+
+   // give latitude and longitude to the servlet
+     Double longitude_value = (Double)siteParamList.getParameter(LONGITUDE).getValue();
+     Double latitude_value = (Double)siteParamList.getParameter(LATITUDE).getValue();
+
+     // if values in longitude and latitude are invalid
+     if(longitude_value == null || latitude_value == null) {
+       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
+       this.jCheckCVM.setSelected(false);
+       return;
+     }
+     outputToServlet.writeObject(longitude_value);
+     outputToServlet.writeObject(latitude_value);
+     outputToServlet.flush();
+     outputToServlet.close();
+
+  // now read the connection again to get the vs30 as sent by the servlet
+    ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
+    Double vs30=(Double)ois.readObject();
+    ois.close();
+    JOptionPane.showMessageDialog(this,"Vs30 is "+vs30.doubleValue());
+   }catch (NumberFormatException ex) {
+      JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
+   }catch (Exception exception) {
+     System.out.println("Exception in connection with servlet:" +exception);
+   }
+  }
 }
