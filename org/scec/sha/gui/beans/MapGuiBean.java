@@ -197,7 +197,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
       String webaddr = imgNames[0].substring(0,imgNames[0].lastIndexOf("/")+1);
       /*imgNames =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
           pgv_xyzVals,eqkRupture,metadata);*/
-      metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
+      metadata +="<br><p>Click:  "+"<a href=\""+webaddr+"\">"+webaddr+"</a>"+"  to download files.</p>";
     }catch(RuntimeException e){
       e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
