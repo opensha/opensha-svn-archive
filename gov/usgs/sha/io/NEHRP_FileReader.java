@@ -187,7 +187,7 @@ public class NEHRP_FileReader {
 
   public static void main(String[] args) {
     NEHRP_FileReader NEHRP_FileReader1 =new NEHRP_FileReader();
-    NEHRP_FileReader1.getRegionEndPoints("/Users/nitingupta/projects/USGS_DataFiles/2004CD-MasterDataFiles_2/1997-CANV-MCE-R2.rnd");
+    NEHRP_FileReader1.getRegionEndPoints("/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/1997-CANV-MCE-R2.rnd");
   }
 
   private MCE_Record getRecord(long recordNum){

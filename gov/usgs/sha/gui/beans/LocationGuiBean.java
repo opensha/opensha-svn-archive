@@ -1,14 +1,17 @@
 package gov.usgs.sha.gui.beans;
 
 
+import java.util.*;
+
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.*;
+
+import org.scec.data.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 
-import java.awt.*;
-import javax.swing.*;
-import java.util.ArrayList;
-import javax.swing.border.*;
 
 /**
  * <p>Title: LocationGuiBean</p>
@@ -51,6 +54,34 @@ public class LocationGuiBean
     catch (Exception ex) {
       ex.printStackTrace();
     }
+  }
+
+
+  /**
+   * Returns the Location object
+   * @return Location
+   */
+  public Location getSelectedLocation(){
+    double lat = ((Double)parameterList.getParameter(LAT_PARAM_NAME).getValue()).doubleValue();
+    double lon = ((Double)parameterList.getParameter(LON_PARAM_NAME).getValue()).doubleValue();
+    return new Location(lat,lon);
+  }
+
+
+  /**
+   * Returns what how user has chosen to set the location
+   * @return String
+   */
+  public String getLocationMode(){
+    return (String)locationSelectionModeParam.getValue();
+  }
+
+  /**
+   * Returns zip code
+   * @return String
+   */
+  public String getZipCode(){
+    return (String)parameterList.getParameter(ZIP_CODE_PARAM_NAME).getValue();
   }
 
   /**

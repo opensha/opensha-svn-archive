@@ -62,9 +62,7 @@ public class NEHRP_GuiBean
   BorderLayout borderLayout1 = new BorderLayout();
 
 
-  private final static String filePath_2 ="/Users/nitingupta/projects/USGS_DataFiles/2004CD-MasterDataFiles_2/";
-  private final static String filePath_1 ="/Users/nitingupta/projects/USGS_DataFiles/2004CD-MasterDataFiles_1/";
-  private String fileName;
+
 
   //creating the Ground Motion selection parameter
   StringParameter groundMotionParam;
@@ -392,39 +390,46 @@ public class NEHRP_GuiBean
         addParameterChangeListener(this);
   }
 
-  public void ssButton_actionPerformed(ActionEvent actionEvent) {
+
+  private void getDataForSA_Period(){
 
   }
 
-  public void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
+  private void ssButton_actionPerformed(ActionEvent actionEvent) {
+    getDataForSA_Period();
+  }
+
+
+
+  private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
 
   }
 
-  public void smSDButton_actionPerformed(ActionEvent actionEvent) {
+  private void smSDButton_actionPerformed(ActionEvent actionEvent) {
 
   }
 
-  public void mapSpecButton_actionPerformed(ActionEvent actionEvent) {
+  private void mapSpecButton_actionPerformed(ActionEvent actionEvent) {
 
   }
 
-  public void smSpecButton_actionPerformed(ActionEvent actionEvent) {
+  private void smSpecButton_actionPerformed(ActionEvent actionEvent) {
 
   }
 
-  public void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
+  private void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
 
   }
 
-  public void viewMapSpectrumButton_actionPerformed(ActionEvent actionEvent) {
+  private void viewMapSpectrumButton_actionPerformed(ActionEvent actionEvent) {
 
   }
 
-  public void viewSMSpecButton_actionPerformed(ActionEvent actionEvent) {
+  private void viewSMSpecButton_actionPerformed(ActionEvent actionEvent) {
 
   }
 
-  public void viewSDSpecButton_actionPerformed(ActionEvent actionEvent) {
+  private void viewSDSpecButton_actionPerformed(ActionEvent actionEvent) {
 
   }
 }
