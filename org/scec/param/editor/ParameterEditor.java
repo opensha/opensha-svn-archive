@@ -68,8 +68,8 @@ public class ParameterEditor
     // dimensions for layout of components
     protected final static Dimension LABEL_DIM = new Dimension( 100, 14 );
     protected final static Dimension LABEL_PANEL_DIM = new Dimension( 100, 15 );
-    protected final static Dimension WIGET_PANEL_DIM = new Dimension( 100, 19 );
-    protected final static Dimension JCOMBO_DIM = new Dimension( 100, 18 );
+    protected final static Dimension WIGET_PANEL_DIM = new Dimension( 100, 23 );
+    protected final static Dimension JCOMBO_DIM = new Dimension( 100, 22 );
 
     // Panel layout manager
     protected final static GridBagLayout GBL = new GridBagLayout();

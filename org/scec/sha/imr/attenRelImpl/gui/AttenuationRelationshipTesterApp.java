@@ -279,6 +279,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     private double Y_MIN_VAL = 1e-8;
     private JLabel imgLabel = new JLabel();
   private JLabel jLabel1 = new JLabel();
+  private Border border1;
 
     /**
      *  Construct the applet
@@ -446,7 +447,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
         String S = C + ": jbInit(): ";
 
 
-        this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
+    border1 = BorderFactory.createLineBorder(new Color(80, 80, 133),2);
+    this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
         this.getContentPane().setBackground( background );
         this.setSize(new Dimension(900, 690) );
         this.getContentPane().setLayout( GBL );
@@ -455,7 +457,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         outerPanel.setLayout( GBL );
 
         mainPanel.setBackground( background );
-        mainPanel.setBorder( oval );
+        mainPanel.setBorder(border1 );
         // mainPanel.setBorder(BorderFactory.createLineBorder( darkBlue ) );
         mainPanel.setLayout( GBL );
 
