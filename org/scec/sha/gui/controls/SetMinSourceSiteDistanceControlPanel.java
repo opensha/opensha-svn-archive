@@ -46,7 +46,7 @@ public class SetMinSourceSiteDistanceControlPanel extends JFrame {
     // add the distance editor to the window
     distanceEditor.setParameter(distanceParam);
     this.getContentPane().add(distanceEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 0, 0), 280, 241));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 8, 7), 0, 0));
   }
 
   /**

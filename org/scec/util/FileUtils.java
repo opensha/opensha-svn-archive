@@ -3,6 +3,8 @@ package org.scec.util;
 
 import java.io.*;
 import java.util.*;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * <b>Title:</b>FileUtils<p>
@@ -83,4 +85,38 @@ public class FileUtils {
 
     }
 
+    /**
+     *
+     * @param url : URL of file to be read
+     * @return : arrayList containing the lines in file
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static ArrayList loadFile(URL url)
+        throws  FileNotFoundException, IOException {
+      try {
+        URLConnection uc = url.openConnection();
+        ArrayList list = new ArrayList();
+        BufferedReader tis =
+            new BufferedReader(new InputStreamReader((InputStream) uc.getContent()));
+        String str = tis.readLine();
+        while(str != null) {
+          list.add(str);
+          str = tis.readLine();
+        }
+        tis.close();
+        return list;
+      }
+      catch (Exception e) {
+        e.printStackTrace(System.err);
+      }
+     return null;
+    }
 }
+
+
+
+
+
+
+

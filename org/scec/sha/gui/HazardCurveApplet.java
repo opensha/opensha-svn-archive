@@ -79,6 +79,7 @@ public class HazardCurveApplet extends JApplet
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_MultiSourceForecast";
   public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_LogicTreeERF_List";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
+  public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -94,12 +95,14 @@ public class HazardCurveApplet extends JApplet
   private final static String DISAGGREGATION_CONTROL = "Disaggregation";
   private final static String EPISTEMIC_CONTROL = "ERF Epistemic Control";
   private final static String AXIS_CONTROL = "Axis Control";
+  private final static String DISTANCE_CONTROL = "Source-Site Distance Control";
 
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
   private DisaggregationControlPanel disaggregationControlPanel;
   private AxisLimitsControlPanel axisControlPanel;
   private ERF_EpistemicListControlPanel epistemicControlPanel;
+  private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
 
   // message string to be dispalayed if user chooses Axis Scale
    // without first clicking on "Add Graph"
@@ -954,6 +957,8 @@ public class HazardCurveApplet extends JApplet
    this.isEqkList = false;
     // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
+   if(distanceControlPanel!=null)
+     calc.setMaxSourceDistance(distanceControlPanel.getDistance());
    // initialize the values in condProbfunc with log values as passed in hazFunction
    initIMTLogFunc(hazFunction);
    try {
@@ -1017,6 +1022,9 @@ public class HazardCurveApplet extends JApplet
    totalProbFuncs.clear();
    // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
+   if(distanceControlPanel!=null)
+     calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+
 
 
    // calculate hazard curve for each ERF within the list
@@ -1145,6 +1153,7 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
+   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erfGuiBean = new ERF_GuiBean(erf_Classes);
    erfPanel.setLayout(gridBagLayout5);
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
@@ -1181,6 +1190,7 @@ public class HazardCurveApplet extends JApplet
     this.controlComboBox.addItem(PEER_TEST_CONTROL);
     this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
     this.controlComboBox.addItem(AXIS_CONTROL);
+    this.controlComboBox.addItem(DISTANCE_CONTROL);
   }
 
   /**
@@ -1198,6 +1208,8 @@ public class HazardCurveApplet extends JApplet
       initEpistemicControl();
     if(selectedControl.equalsIgnoreCase(this.AXIS_CONTROL))
       initAxisControl();
+    if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
+      initDistanceControl();
    controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -1239,6 +1251,18 @@ public class HazardCurveApplet extends JApplet
      if(this.epistemicControlPanel==null)
        epistemicControlPanel = new ERF_EpistemicListControlPanel(this,this);
      epistemicControlPanel.show();
+  }
+
+  /**
+   * Initialize the Min Source and site distance control.
+   * This function is called when user selects "Source Site Distance Control"
+   * from controls pick list
+   */
+  private void initDistanceControl() {
+    if(this.distanceControlPanel==null)
+      distanceControlPanel = new SetMinSourceSiteDistanceControlPanel(this);
+    distanceControlPanel.pack();
+    distanceControlPanel.show();
   }
 
   /**

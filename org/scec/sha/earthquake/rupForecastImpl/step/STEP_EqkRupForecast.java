@@ -7,6 +7,7 @@ import java.util.StringTokenizer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
+import java.net.URL;
 
 import org.scec.param.*;
 import org.scec.util.*;
@@ -38,7 +39,8 @@ import org.scec.param.event.ParameterChangeEvent;
   private boolean D = false;
 
   // Input file name
-  private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/SoCalDeltaRates.txt";
+  //private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/SoCalDeltaRates.txt";
+  private final static String INPUT_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
 
   // ArrayList of input file lines
   private ArrayList inputFileLines;
@@ -69,7 +71,7 @@ import org.scec.param.event.ParameterChangeEvent;
   public STEP_EqkRupForecast() {
 
     // read the lines of the input files into a list
-    try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
+    try{ inputFileLines = FileUtils.loadFile( new URL(INPUT_FILE_NAME) ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
