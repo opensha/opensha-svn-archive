@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -20,6 +21,7 @@ import org.scec.gui.plot.jfreechart.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
+import org.scec.util.*;
 
 
 /**
@@ -70,6 +72,13 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
     protected Object lock = new Object();
 
+    //images for the OpenSHA
+    private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
+    private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
+
+    //static string for the OPENSHA website
+    private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
+
 
     /**
      *  Currently selected IMR and related information needed for the gui to
@@ -98,8 +107,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
     Insets defaultInsets = new Insets( 4, 4, 4, 4 );
     Insets emptyInsets = new Insets( 0, 0, 0, 0 );
 
-    protected final static int W = 820;
-    protected final static int H = 670;
+    protected final static int W = 860;
+    protected final static int H = 700;
     protected final static int A1 = 360;
     protected final static int A2 = 430;
     protected final static Font BUTTON_FONT = new java.awt.Font( "Dialog", 1, 11 );
@@ -260,6 +269,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
      * for Y-log, 0 values will be converted to this small value
      */
     private double Y_MIN_VAL = 1e-8;
+    private JLabel imgLabel = new JLabel();
 
     /**
      *  Construct the applet
@@ -429,7 +439,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
         this.getContentPane().setBackground( background );
-        this.setSize(new Dimension(842, 513) );
+        this.setSize(new Dimension(900, 660) );
         this.getContentPane().setLayout( GBL );
 
         outerPanel.setBackground( background );
@@ -446,6 +456,11 @@ public class AttenuationRelationshipTesterApp extends JApplet
         titlePanel.setPreferredSize(new Dimension(40, 40));
         titlePanel.setLayout( GBL );
 
+        imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+          public void mouseClicked(MouseEvent e) {
+            imgLabel_mouseClicked(e);
+          }
+        });
         //titleLabel.setHorizontalAlignment( SwingConstants.CENTER );
         //titleLabel.setText(this.getAppletInfo());
         //titleLabel.setFont( new java.awt.Font( "Dialog", 1, 16 ) );
@@ -634,11 +649,15 @@ public class AttenuationRelationshipTesterApp extends JApplet
     jAxisScale.setForeground(new Color(80, 80, 133));
     jAxisScale.setText("Set Axis Scale: ");
     legendPane.setEditable(false);
+
+    //loading the OpenSHA Logo
+    imgLabel.setText("");
+    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
-    outerPanel.add( mainPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
+    outerPanel.add( mainPanel,      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 0, 5), 0, 0) );
 
     titlePanel.add( this.imrLabel, new GridBagConstraints( 0, 0 , 1, 1, 1.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
@@ -651,8 +670,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
     mainPanel.add( mainSplitPane, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 2, 4, 4, 4 ), 0, 0 ) );
 
-    mainPanel.add(buttonPanel, new GridBagConstraints( 0, 2, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 1.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 1, 1, 1, 1 ), 0, 0 ) );
+    mainPanel.add(buttonPanel,  new GridBagConstraints(0, 2, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0) );
 
 
    controlPanel.add(parametersPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -695,14 +714,16 @@ public class AttenuationRelationshipTesterApp extends JApplet
    buttonPanel.add(jCheckxlog,         new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 0), 0, 0));
 
-        buttonPanel.add(plotColorCheckBox,          new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 0), 0, 0));
+        buttonPanel.add(plotColorCheckBox,           new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 3), 0, 0));
     buttonPanel.add(rangeComboBox,    new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
     buttonPanel.add(jAxisScale,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(3, 0, 0, 0), 0, 0));
     buttonPanel.add(addButton,               new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13));
+    outerPanel.add(imgLabel,        new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
 
 
         parametersSplitPane.setBottomComponent( sheetPanel );
@@ -716,12 +737,12 @@ public class AttenuationRelationshipTesterApp extends JApplet
         mainSplitPane.setTopComponent(plotPanel );
 
         //mainSplitPane.setDividerLocation( 430 );
-        mainSplitPane.setDividerLocation(580 );
+        mainSplitPane.setDividerLocation(600 );
         mainSplitPane.setOneTouchExpandable( false );
 
         legendSplitPane.setBottomComponent(legendScrollPane);
         legendSplitPane.setTopComponent( panel);
-        legendSplitPane.setDividerLocation(450);
+        legendSplitPane.setDividerLocation(420);
         legendSplitPane.setOneTouchExpandable( false );
 
 
@@ -1664,4 +1685,12 @@ public class AttenuationRelationshipTesterApp extends JApplet
     return (this.getY() + this.getHeight())/2;
   }
 
+  void imgLabel_mouseClicked(MouseEvent e) {
+    try{
+      this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE),"_new");
+    }catch(java.net.MalformedURLException ee){
+      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
+                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
+    }
+  }
 }
