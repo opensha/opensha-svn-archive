@@ -112,8 +112,6 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 
 HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  This will take some thought because the present implementation of the GuiBeans are a subclass of ParameterEditor which leads to even worse memory problems for the first attempted solution.  Solve this once we have a better idea of exactly what Caltrans wants.  Perhaps we should merge the two GuiBeans into one?
 
-Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done. **************
-
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use LA 3D?
 
 Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.  ned should look at.  Nitin says there are still important discrepancies.
