@@ -20,6 +20,17 @@ import java.util.ListIterator;
 public interface EqkRupForecastAPI extends NamedObjectAPI{
 
 
+    /**
+     * This method updates the forecast according to the currently specified
+     * parameters.  Call this once before looping over the getRupture() or
+     * getSource() methods to ensure a fresh forecast.  This approach was chosen
+     * over checking whether parameters have changed during each getRupture() etc.
+     * method call because a user might inadvertently change a parameter value in
+     * the middle of the loop.  This approach is also faster.
+     * @return
+     */
+     public void updateForecast();
+
 
 
     /**

@@ -245,33 +245,6 @@ public final class RelativeLocation {
     }
 
 
-    /**
-     *  Great Circle distance Calculator. Radius of the Earth in km... change
-     *  this to express the great cirle in other units. Coordinates must be
-     *  entered in decimal degrees of longitude and latitude. Longitude for the
-     *  western hemisphere and latitude for the southern hemisphere are
-     *  expressed as negative values.
-
-     * @return       Description of the Return Value
-     */
-    public static double latLonDistance( double lat1, double lon1, double lat2, double lon2 ) {
-
-        double deltaLon = Math.toRadians( lon2 ) - Math.toRadians( lon1 );
-        double deltaLat = Math.toRadians( lat2 ) - Math.toRadians( lat1 );
-
-        double sin2DeltaLat = Math.pow( Math.sin( deltaLat / 2 ), 2 );
-        double sin2DeltaLon = Math.pow( Math.sin( deltaLon / 2 ), 2 );
-        double cosLat1 = Math.cos( Math.toRadians( lat1 ) );
-        double cosLat2 = Math.cos( Math.toRadians( lat2 ) );
-
-        double a = sin2DeltaLat + cosLat1 * cosLat2 * sin2DeltaLon;
-        double b = getMin( 1, Math.sqrt( a ) );
-        double c = 2 * Math.asin( b );
-        return R * c;
-    }
-
-
-
 
 
     /**
@@ -415,6 +388,36 @@ public final class RelativeLocation {
 
 
 
+
+    /**
+     * Converts the latitudes in Kms based on the gridSpacing
+     * @return
+     */
+
+    public static double getDeltaLatFromKm(double km) {
+
+      //1 degree of Latitude is equal to 111.14kms.
+      return km/111.14;
+    }
+
+    /**
+     * As the earth is sperical, and does not have a constant radius for each longitude,
+     * so we calculate the longitude spacing (in Kms) for ever latitude
+     * @param lat= value of long for every lat according to gridSpacing
+     * @return
+     */
+    public static double getDeltaLonFromKm(double lat,double km){
+
+      double radius = R * Math.cos(Math.toRadians(lat));
+      double longDistVal = 2*Math.PI *radius /360;
+      return km/longDistVal;
+    }
+}
+
+
+
+
+
     /**
      *  Purely a tester function. I like to put main() functions for unit testing
      *  java files. This is a convinient and quick test of the class, and shows
@@ -425,7 +428,7 @@ public final class RelativeLocation {
      *  function
      *
      * @param  argv  Passed in command line arguments
-     */
+
     public static void main( String argv[] ) {
 
         String S = C + ": main(): ";
@@ -513,4 +516,33 @@ public final class RelativeLocation {
         System.out.println( S + d.toString());
 
     }
-}
+
+    */
+
+
+    /**
+     *  THIS ONE SHOULD Great Circle distance Calculator. Radius of the Earth in km... change
+     *  this to express the great cirle in other units. Coordinates must be
+     *  entered in decimal degrees of longitude and latitude. Longitude for the
+     *  western hemisphere and latitude for the southern hemisphere are
+     *  expressed as negative values.
+
+     * @return       Description of the Return Value
+
+    public static double latLonDistance( double lat1, double lon1, double lat2, double lon2 ) {
+
+        double deltaLon = Math.toRadians( lon2 ) - Math.toRadians( lon1 );
+        double deltaLat = Math.toRadians( lat2 ) - Math.toRadians( lat1 );
+
+        double sin2DeltaLat = Math.pow( Math.sin( deltaLat / 2 ), 2 );
+        double sin2DeltaLon = Math.pow( Math.sin( deltaLon / 2 ), 2 );
+        double cosLat1 = Math.cos( Math.toRadians( lat1 ) );
+        double cosLat2 = Math.cos( Math.toRadians( lat2 ) );
+
+        double a = sin2DeltaLat + cosLat1 * cosLat2 * sin2DeltaLon;
+        double b = getMin( 1, Math.sqrt( a ) );
+        double c = 2 * Math.asin( b );
+        return R * c;
+    }
+
+    */

@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import org.scec.data.TimeSpan;
 import org.scec.data.Location;
+import org.scec.data.LocationList;
 import org.scec.data.Direction;
 import org.scec.calc.RelativeLocation;
 import org.scec.param.*;
@@ -19,8 +20,8 @@ import org.scec.param.event.*;
 
 
 /**
- * <p>Title: FaultCaseSet1_Fault</p>
- * <p>Description: Fault 1 Equake rupture forecast. The Peer Group Test cases </p>
+ * <p>Title: Set1_Area_Forecast</p>
+ * <p>Description: Area Equake rupture forecast. The Peer Group Test cases </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta & Vipin Gupta
@@ -35,7 +36,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("FaultCaseTest1_Fault");
+  private static String  C = new String("Set1_Area_Forecast");
   private boolean D = false;
 
   /**
@@ -45,25 +46,16 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private TimeSpan time;
 
   /**
-   * Radius of the earth in Kms at the equator
-   */
-  private static final double EARTH_RADIUS= 6367;
-
-  /**
    * Declaration for the static lat and longs for the Area
    */
   private static final double LAT_TOP= 38.901;
   private static final double LAT_BOTTOM = 37.099;
+  private static final double LAT_CENTER = 38.0;
   private static final double LONG_LEFT= -123.138;
   private static final double LONG_RIGHT= -120.862;
+  private static final double LONG_CENTER= -122.0;
 
-  /**
-   * Definition for the Center location , to compare for the sites within 100 kms of this location
-   */
-
-  Location centerLoc = new Location(38.00,-122.00,0);
-
-  private static final double SITE_DISTANCE =100;
+  private static final double MAX_DISTANCE =100;
   /**
    * definition of the vectors for storing the sources
    */
@@ -71,50 +63,67 @@ public class Set1_Area_Forecast extends EqkRupForecast
 
 
   //Param Name
-  private final static String GRID_PARAM_NAME =  "Area Grid Spacing (km)";
-  private final static String DEPTH_LOWER_PARAM_NAME =  "Depth Lower(km)";
-  private final static String DEPTH_UPPER_PARAM_NAME =  "Depth Upper(km)";
+  private final static String GRID_PARAM_NAME =  "Area Grid Spacing";
+  private final static String GRID_PARAM_UNITS =  "km";
+  private final static double GRID_PARAM_MIN = 0.001;
+  private final static double GRID_PARAM_MAX = 100;
+  private final static String DEPTH_LOWER_PARAM_NAME =  "Lower Seis Depth";
+  private final static String DEPTH_UPPER_PARAM_NAME =  "Upper Seis Depth";
+  private final static String DEPTH_PARAM_UNITS = "km";
+  private final static double DEPTH_PARAM_MIN = 0;
+  private final static double DEPTH_PARAM_MAX = 30;
+  private final static Double DEPTH_PARAM_DEFAULT = new Double(5);
   private final static String MAG_DIST_PARAM_NAME = "Area Mag Dist";
 
   //timespan Variable
-  private final static String TIMESPAN_PARAM_NAME = "Timespan(#yrs)";
+  private final static String TIMESPAN_PARAM_NAME = "Timespan";
+  private final static String TIMESPAN_PARAM_UNITS = "yrs";
+  private final static Double TIMESPAN_PARAM_DEFAULT = new Double(1);
+  private final static double TIMESPAN_PARAM_MIN = 1e-10;
+  private final static double TIMESPAN_PARAM_MAX = 1e10;
+
+   //Rake Variable
+  private final static String RAKE_PARAM_NAME = "Rake Angle";
+  private final static String RAKE_PARAM_UNITS = "degrees";
+  private final static Double RAKE_PARAM_DEFAULT = new Double(0);
+  private final static double RAKE_PARAM_MIN = -180;
+  private final static double RAKE_PARAM_MAX = 180;
 
   // default grid spacing is 1km
   private Double DEFAULT_GRID_VAL = new Double(1);
-  // Number of locations in this area
-  private int NUM_LOCATIONS = 90;
-
-  // values for Seismo depths
-  private double UPPER_SEISMO_DEPTH = 0.0;
-  private double LOWER_SEISMO_DEPTH = 25.0;
-
-  // area name
-  private String FAULT1_NAME = new String("Area");
 
   //top loaction
-  private Location []area_Location = new Location[90];
+  private LocationList locationList;
 
 
-  // add the grid spacing field
-  DoubleParameter gridParam=new DoubleParameter(this.GRID_PARAM_NAME,this.DEFAULT_GRID_VAL);
+  // create the grid spacing field
+  DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
+                                                GRID_PARAM_MAX,GRID_PARAM_UNITS,
+                                                DEFAULT_GRID_VAL);
 
-  //add Depth Lower
-  DoubleParameter depthLowerParam = new DoubleParameter(DEPTH_LOWER_PARAM_NAME);
+  // create Depth Lower
+  DoubleParameter depthLowerParam = new DoubleParameter(DEPTH_LOWER_PARAM_NAME,DEPTH_PARAM_MIN,
+                                                        DEPTH_PARAM_MAX,DEPTH_PARAM_UNITS,
+                                                        DEPTH_PARAM_DEFAULT);
 
-  //add depth Upper
-  DoubleParameter depthUpperParam = new DoubleParameter(DEPTH_UPPER_PARAM_NAME);
+  // create depth Upper
+  DoubleParameter depthUpperParam = new DoubleParameter(DEPTH_UPPER_PARAM_NAME,DEPTH_PARAM_MIN,
+                                                        DEPTH_PARAM_MAX,DEPTH_PARAM_UNITS,
+                                                        DEPTH_PARAM_DEFAULT);
+  // create the timespan parameter
+  DoubleParameter timespanParam = new DoubleParameter(TIMESPAN_PARAM_NAME, TIMESPAN_PARAM_MIN,
+                                                      TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,
+                                                      TIMESPAN_PARAM_DEFAULT);
+  // create the rake parameter
+  DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME, RAKE_PARAM_MIN,
+                                                      RAKE_PARAM_MAX,RAKE_PARAM_UNITS,
+                                                      RAKE_PARAM_DEFAULT);
 
-  //add the timespan parameter
-  DoubleParameter timespanParam = new DoubleParameter(this.TIMESPAN_PARAM_NAME);
-
-  //adding the supported MagDists
+  // create the supported MagDists
   Vector supportedMagDists=new Vector();
 
   //Mag Freq Dist Parameter
   MagFreqDistParameter magDistParam ;
-
-  // Fault trace
-  FaultTrace faultTrace;
 
   // private declaration of the flag to check if any parameter has been changed from its original value.
   private boolean  parameterChangeFlag = true;
@@ -127,13 +136,14 @@ public class Set1_Area_Forecast extends EqkRupForecast
    */
   public Set1_Area_Forecast() {
 
-    /* Now make the source in Fault 1 */
+    // make adj params list
     adjustableParams.addParameter(gridParam);
     adjustableParams.addParameter(depthLowerParam);
     adjustableParams.addParameter(depthUpperParam);
+    adjustableParams.addParameter(rakeParam);
     adjustableParams.addParameter(timespanParam);
 
-    // adding the supported MagDistclasses
+    // create the supported Mag-Dist parameter
     supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
     magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
     //add the magdist parameter
@@ -146,9 +156,8 @@ public class Set1_Area_Forecast extends EqkRupForecast
     depthUpperParam.addParameterChangeListener(this);
     timespanParam.addParameterChangeListener(this);
     magDistParam.addParameterChangeListener(this);
+    rakeParam.addParameterChangeListener(this);
 
-    // set the fault locations
-    this.setLocations();
   }
 
 
@@ -172,54 +181,48 @@ public class Set1_Area_Forecast extends EqkRupForecast
   /**
    * update the sources based on the user paramters, only when user has changed any parameter
    */
-  public void updateGUI(){
+  public void updateForecast(){
+
     if(parameterChangeFlag) {
-
-
-      // first build the fault trace, then add
-      // add the location to the trace
 
       double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
 
       double depthLower =((Double)this.depthLowerParam.getValue()).doubleValue();
       double depthUpper =((Double)this.depthUpperParam.getValue()).doubleValue();
 
-      //gets the change in latitude for grid spacing specified
-      double latDiff=latConversion(gridSpacing);
+      if (depthUpper > depthLower)
+          throw new RuntimeException("Upper Seis Depth must be ² Lower Seis Depth");
 
-      //number of locations withing the distance of 100kms from the radius
-      int numLocs=0;
-      for(double lat=LAT_TOP;lat >=LAT_BOTTOM; lat-=latDiff){
-        double longDiff=longConversion(lat,gridSpacing);
-        for(double longitude=LONG_LEFT;longitude <=LONG_RIGHT; longitude+=longDiff)
-          for(double depth=depthLower;depth<=depthUpper;depth+=gridSpacing){
-                Location loc =new Location(lat,longitude,depth);
-                Direction dir =RelativeLocation.getDirection(loc,centerLoc);
-                double horzDistance = dir.getHorzDistance();
-                double vertDistance = dir.getVertDistance();
-                double locDiff = Math.sqrt(Math.pow(horzDistance,2)+Math.pow(vertDistance,2));
-                if(locDiff <=SITE_DISTANCE){
-                   area_Location[numLocs++] =loc;
-                }
-          }
-       }
+      //gets the change in latitude for grid spacing specified
+      double latDiff = RelativeLocation.getDeltaLatFromKm(gridSpacing);
+      double longDiff= RelativeLocation.getDeltaLonFromKm(LAT_CENTER,gridSpacing);
+
+      // Create the grid of locations in the circular area
+      locationList = new LocationList();
+      for(double lat=LAT_TOP;lat >=LAT_BOTTOM; lat-=latDiff)
+        for(double lon=LONG_LEFT;lon <=LONG_RIGHT; lon+=longDiff)
+          if(RelativeLocation.getLatLonDistance(LAT_CENTER,LONG_CENTER,lat,lon) <= MAX_DISTANCE)
+            for(double depth=depthLower;depth<=depthUpper;depth+=gridSpacing)
+                locationList.addLocation(new Location(lat,lon,depth));
+
+      double numLocs = locationList.size();
 
       /* getting the Gutenberg magnitude distribution and scaling its cumRate to the original cumRate
        * divided by the number of the locations
        */
+      GutenbergRichterMagFreqDist gR = (GutenbergRichterMagFreqDist) ((GutenbergRichterMagFreqDist)magDistParam.getValue()).deepClone();
 
-      GutenbergRichterMagFreqDist gR =(GutenbergRichterMagFreqDist)magDistParam.getValue();
-      double cumRate = gR.getCumRate(0);
-      cumRate /=numLocs;
+      double cumRate = gR.getCumRate((int) 0);
+      cumRate /= numLocs;
       gR.scaleToCumRate(0,cumRate);
 
       //creating the PointGR sources  and adding the objects for sources in the vector.
-      //FIX FIX have to replace the 90 by rake;
+      //FIX FIX have to have rake parameter;
       for(int i=0;i<numLocs;++i){
-        PointGR_EqkSource pointGR_EqkSource = new PointGR_EqkSource(area_Location[i],gR,90);
-        this.area_EqkSources.add(pointGR_EqkSource);
+        PointGR_EqkSource pointGR_EqkSource = new PointGR_EqkSource(locationList.getLocationAt(i),gR,90);
+        area_EqkSources.add(pointGR_EqkSource);
       }
-      setTimeSpan(((Double)this.timespanParam.getValue()).doubleValue());
+      setTimeSpan(((Double) timespanParam.getValue()).doubleValue());
     }
     parameterChangeFlag = false;
   }
@@ -233,7 +236,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
    */
   public void setTimeSpan(double yrs){
     timeSpan =yrs;
-    int size = this.area_EqkSources.size();
+    int size = area_EqkSources.size();
     for( int i =0; i<size; ++i)
       ((PointGR_EqkSource)area_EqkSources.get(i)).setTimeSpan(yrs);
 
@@ -370,139 +373,5 @@ public class Set1_Area_Forecast extends EqkRupForecast
     return C;
   }
 
-  /**
-   * set the fault locations
-   */
-  private void setLocations() {
 
-    int count=0;
-
-    //Top location
-    area_Location[count++]= new Location(38.901,-122);
-    area_Location[count++]= new Location(38.899, -121.920);
-    area_Location[count++] = new Location(38.892 ,-121.840);
-    area_Location[count++] = new Location(38.881,-121.760);
-    area_Location[count++] = new Location(38.866,-121.682);
-    area_Location[count++] = new Location(38.846,-121.606);
-    area_Location[count++] = new Location(38.822,-121.532);
-    area_Location[count++]= new Location(38.794,-121.460);
-    area_Location[count++] = new Location(38.762,-121.390);
-    area_Location[count++] = new Location(38.727,-121.324);
-    area_Location[count++] = new Location(38.688,-121.261);
-    area_Location[count++] = new Location(38.645,-121.202);
-    area_Location[count++] = new Location(38.600,-121.147);
-    area_Location[count++] = new Location(38.551,-121.096);
-    area_Location[count++]= new Location(38.500,-121.050);
-    area_Location[count++] = new Location(38.446,-121.008);
-    area_Location[count++] = new Location(38.390,-120.971);
-    area_Location[count++]= new Location(38.333,-120.940);
-    area_Location[count++] = new Location(38.273,-120.913);
-    area_Location[count++] = new Location(38.213,-120.892);
-    area_Location[count++] = new Location(38.151,-120.876);
-    area_Location[count++] = new Location(38.089,-120.866);
-
-
-
-
-    //right location
-    area_Location[count++] = new Location(38.026,-120.862);
-    area_Location[count++] = new Location(37.963,-120.863 );
-    area_Location[count++]= new Location(37.900,-120.869);
-    area_Location[count++] = new Location(37.838,-120.881);
-    area_Location[count++] = new Location(37.777,-120.899);
-    area_Location[count++] = new Location(37.717,-120.921);
-    area_Location[count++] = new Location(37.658,-120.949);
-    area_Location[count++] = new Location(37.601,-120.982);
-    area_Location[count++] = new Location(37.545,-121.020);
-    area_Location[count++] = new Location(37.492,-121.063);
-    area_Location[count++] = new Location(37.442,-121.110);
-    area_Location[count++] = new Location(37.394,-121.161);
-    area_Location[count++]= new Location(37.349,-121.216);
-    area_Location[count++] = new Location(37.308,-121.275);
-    area_Location[count++] = new Location(37.269,-121.337);
-    area_Location[count++] = new Location(37.234,-121.403);
-    area_Location[count++] = new Location(37.203,-121.471);
-    area_Location[count++] = new Location(37.176,-121.542);
-    area_Location[count++] = new Location(37.153,-121.615);
-    area_Location[count++] = new Location(37.133,-121.690);
-    area_Location[count++] = new Location(37.118,-121.766);
-    area_Location[count++] = new Location(37.118,-121.843);
-    area_Location[count++] = new Location(37.101,-121.922);
-
-
-    //bottom location
-    area_Location[count++] = new Location(37.099,-122.0);
-    area_Location[count++]= new Location(37.101,-122.78);
-    area_Location[count++] = new Location(37.108,-122.157);
-    area_Location[count++] = new Location(37.118,-122.234);
-    area_Location[count++] = new Location(37.133,-122.310);
-    area_Location[count++]= new Location(37.153,-122.385);
-    area_Location[count++] = new Location(37.176,-122.458);
-    area_Location[count++] = new Location(37.203,-122.529);
-    area_Location[count++]= new Location(37.234,-122.597);
-    area_Location[count++] = new Location(37.269,-122.663);
-    area_Location[count++] = new Location(37.308,-122.725);
-    area_Location[count++] = new Location(37.349,-122.784);
-    area_Location[count++] = new Location(37.394,-122.839);
-    area_Location[count++]= new Location(37.442,-122.890);
-    area_Location[count++]= new Location(37.492,-122.937);
-    area_Location[count++]= new Location(37.545,-122.980);
-    area_Location[count++] = new Location(37.601,-123.018);
-    area_Location[count++] = new Location(37.658,-123.051);
-    area_Location[count++]= new Location(37.717,-123.079);
-    area_Location[count++] = new Location(37.777,-123.101);
-    area_Location[count++] = new Location(37.838,-123.119);
-    area_Location[count++] = new Location(37.900,-123.131);
-    area_Location[count++]= new Location(37.963,-123.137);
-
-    //left location
-    area_Location[count++]= new Location(38.026,-123.138);
-    area_Location[count++] = new Location(38.089,-123.134);
-    area_Location[count++] = new Location(38.151,-123.124);
-    area_Location[count++]= new Location(38.123,-123.108);
-    area_Location[count++]= new Location(38.273,-123.087);
-    area_Location[count++] = new Location(38.333,-123.060);
-    area_Location[count++] = new Location(38.390,-123.029);
-    area_Location[count++]= new Location(38.446,-122.992);
-    area_Location[count++] = new Location(38.500,-122.950);
-    area_Location[count++] = new Location(38.551,-122.904);
-    area_Location[count++]= new Location(38.600,-122.853);
-    area_Location[count++] = new Location(38.645,-122.798);
-    area_Location[count++] = new Location(38.688,-122.739);
-    area_Location[count++] = new Location(38.727,-122.676);
-    area_Location[count++] = new Location(38.762,-122.610);
-    area_Location[count++]= new Location(38.794,-122.540);
-    area_Location[count++]= new Location(38.822,-122.468);
-    area_Location[count++] = new Location(38.846,-122.394);
-    area_Location[count++] = new Location(38.866,-122.318);
-    area_Location[count++] = new Location(38.881,-122.240);
-    area_Location[count++] = new Location(38.892,-122.160);
-    area_Location[count++] = new Location(38.899,-122.080);
-  }
-
-  /**
-   * Converts the latitudes in Kms based on the gridSpacing
-   * @return
-   */
-
-  private double latConversion(double gridVal) {
-
-    gridVal = ((Double)gridParam.getValue()).doubleValue();
-
-    //1 degree of Latitude is equal to 111.14kms.
-    return gridVal/111.14;
-  }
-
-  /**
-   * As the earth is sperical, and does not have a constant radius for each longitude,
-   * so we calculate the longitude spacing (in Kms) for ever latitude
-   * @param lat= value of long for every lat according to gridSpacing
-   * @return
-   */
-  private double longConversion(double lat,double gridVal){
-
-    double radius = EARTH_RADIUS * Math.cos(Math.toRadians(lat));
-    double longDistVal = 2*Math.PI *radius /360;
-    return gridVal/longDistVal;
-  }
 }

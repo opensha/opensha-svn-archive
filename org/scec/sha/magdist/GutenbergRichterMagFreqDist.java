@@ -320,11 +320,6 @@ public DiscretizedFuncAPI deepClone(){
     GutenbergRichterMagFreqDist f = new GutenbergRichterMagFreqDist(minX, num, delta);
     f.setAllButTotMoRate(this.magLower, this.magUpper, this.getTotCumRate(), this.bValue);
     f.tolerance = tolerance;
-    f.setInfo(this.getInfo());
-    f.setName(this.getName());
-    for(int i = 0; i<num; i++)
-        f.set(i, points[i]);
-
     return f;
    }
 
