@@ -7,7 +7,6 @@ import java.util.Vector;
 import java.awt.event.*;
 import javax.swing.*;
 
-import org.scec.gui.SidesBorder;
 import org.scec.param.ParameterAPI;
 import org.scec.param.StringConstraint;
 import org.scec.param.StringParameter;
@@ -15,11 +14,10 @@ import org.scec.param.ParameterConstraintAPI;
 import org.scec.exceptions.*;
 
 /**
- * <b>Title:</b> ConstrainedStringParameterEditor<br>
+ * <b>Title:</b> ConstrainedStringParameterEditor<p>
  * <b>Description:</b> This editor is for editing ConstrainedStringParameter. The widget is
- * simply a picklist of all possible constrained values you can choose from.<br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * simply a picklist of all possible constrained values you can choose from.<>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

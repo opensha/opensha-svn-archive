@@ -227,6 +227,9 @@ public abstract class ClassicIMR
     protected final static Double PGA_WARN_MAX = new Double(2);
 
 
+
+
+
     /**
      * PGV parameter, reserved for the "Peak Ground Velocity" Intensity-
      * Measure Parameter that most subclasses will support; all of the "PGV_*"
@@ -256,12 +259,22 @@ public abstract class ClassicIMR
     protected  WarningDoubleParameter saParam = null;
     protected final static String SA_NAME = "SA";
     protected final static String SA_UNITS = "g";
-    protected final static Double SA_DEFAULT = new Double( 0.5 );
+    protected final static Double SA_DEFAULT = new Double( Math.log(0.5) );
     protected final static String SA_INFO = "Response Spectral Acceleration";
-    protected final static Double SA_MIN = new Double(0);
-    protected final static Double SA_MAX = new Double(2);
-    protected final static Double SA_WARN_MIN = new Double(0);
-    protected final static Double SA_WARN_MAX = new Double(2);
+
+
+    protected TranslatedWarningDoubleParameter logTransSAParam = null;
+
+
+    //protected final static Double SA_MIN = new Double(0);
+    protected final static Double SA_MIN = new Double( Math.log( 0.00000000000000000000001 ) );
+
+    protected final static Double SA_MAX = new Double( Math.log( 2 ) );
+
+    //protected final static Double SA_WARN_MIN = new Double(0);
+    protected final static Double SA_WARN_MIN = new Double( Math.log( 0.00000000000000000000001  ) );
+
+    protected final static Double SA_WARN_MAX = new Double( Math.log( 2 ));
 
     /**
      * Period parameter, reserved for the oscillator period that Spectral
@@ -535,7 +548,11 @@ public abstract class ClassicIMR
         double iml;
         iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
         if ( iml < IML_MIN ) iml = IML_MIN;
-        iml = Math.log( iml );
+
+        /** Fix Needs to be removed */
+        System.out.println("The IML Value is : " + iml ) ;
+
+        //iml = Math.log( iml );
 
         double prob = gauss.getCDF( iml );
 
@@ -657,6 +674,8 @@ public abstract class ClassicIMR
         DoubleConstraint warn1 = new DoubleConstraint(SA_WARN_MIN, SA_WARN_MAX);
         warn1.setNonEditable();
         saParam.setWarningConstraint(warn1);
+
+        logTransSAParam = new TranslatedWarningDoubleParameter(saParam);
 
         // Damping-level parameter for SA
         // (overide this in subclass of other damping levels are available)

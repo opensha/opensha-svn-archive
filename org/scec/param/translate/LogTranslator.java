@@ -20,7 +20,7 @@ public class LogTranslator implements TranslatorAPI {
         return Math.log(val);
     }
     public double reverse(double val)  throws TranslateException{
-        if( val < 0 ) throw new TranslateException("Cannot reverse log negative values from log space.");
+        //if( val < 0 ) throw new TranslateException("Cannot reverse log negative values from log space.");
         return Math.pow(Math.E, val);
     }
 }
