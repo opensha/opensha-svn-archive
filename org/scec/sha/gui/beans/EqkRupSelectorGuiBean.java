@@ -9,6 +9,7 @@ import org.scec.param.ParameterList;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
+import org.scec.sha.earthquake.EqkRupForecast;
 
 
 /**
@@ -53,7 +54,7 @@ public class EqkRupSelectorGuiBean extends ERF_GuiBean  {
 
 
    // get the selected forecast
-   EqkRupForecastAPI erf = this.getSelectedERF();
+   EqkRupForecast erf = (EqkRupForecast)this.getSelectedERF();
 
    if(!first) {
      // update the Forecast to get the sources and ruptures

@@ -180,7 +180,7 @@ public class EqkForecastApplet extends JApplet
   WardGridTestEqkRupForecast wardRupForecast;
 
   // generic forecast API
-  EqkRupForecastAPI eqkRupForecast ;
+  EqkRupForecast eqkRupForecast ;
 
   // whther Add Graph button is clicked or not
   private boolean buttonClicked =  false;

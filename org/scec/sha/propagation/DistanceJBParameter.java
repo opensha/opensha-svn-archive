@@ -100,7 +100,7 @@ public class DistanceJBParameter
                 if( currentDistance < minDistance ) minDistance = currentDistance;
 
             }
-            this.setValue( new Double( minDistance ) );
+            this.setValueIgnoreWarning( new Double( minDistance ) );
         }
         else this.setValue(null);
     }

@@ -30,6 +30,7 @@ import org.scec.sha.gui.controls.*;
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
+import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.data.Site;
@@ -581,7 +582,7 @@ public class HazardMapApplet extends JApplet implements
      // calculate the hazard curve for each site
      //creating the directory that stores all the HazardCurves for that region
 
-       calc.getHazardMapCurves(hazFunction, it, imr, eqkRupForecast);
+       calc.getHazardMapCurves(hazFunction, it, imr, (EqkRupForecast)eqkRupForecast);
        //hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),

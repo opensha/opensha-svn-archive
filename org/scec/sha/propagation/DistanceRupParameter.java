@@ -103,7 +103,7 @@ public class DistanceRupParameter
             }
             // take square root before returning
             // Steve- is this effiecient?
-            this.setValue( new Double( Math.pow ( minDistance , 0.5 ) ));
+            this.setValueIgnoreWarning( new Double( Math.pow ( minDistance , 0.5 ) ));
 
         }
         else this.value = null;

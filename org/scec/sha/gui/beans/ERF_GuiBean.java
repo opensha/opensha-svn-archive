@@ -55,18 +55,6 @@ public class ERF_GuiBean extends ParameterListEditor implements
     init_erf_IndParamListAndEditor(erfClassNames);
     // forecast 1  is selected initially
     setParamsInForecast((String)erfNamesVector.get(0));
-
-    // get the panel for increasing the font and border
-    // this is hard coding for increasing the IMR font
-    // the colors used here are from ParameterEditor
-    JPanel panel = this.getParameterEditor(this.ERF_PARAM_NAME).getOuterPanel();
-    TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
-    titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
-    Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
-    titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
-    titledBorder1.setTitle(ERF_PARAM_NAME);
-    Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
-    panel.setBorder(border1);
   }
 
 
@@ -96,6 +84,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
        throw new RuntimeException( S + e.toString() );
      } catch ( InvocationTargetException e ) {
        System.out.println(S + e.toString());
+       e.printStackTrace();
        throw new RuntimeException( S + e.toString() );
      } catch ( IllegalAccessException e ) {
        System.out.println(S + e.toString());
@@ -144,6 +133,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
      parameterList.addParameter(selectERF);
   }
 
+
   /**
     * this function is called to add the paramters based on the forecast
     *  selected by the user
@@ -168,6 +158,17 @@ public class ERF_GuiBean extends ParameterListEditor implements
      // now make the editor based on the paramter list
      setTitle( this.ERF_EDITOR_TITLE );
 
+     // get the panel for increasing the font and border
+     // this is hard coding for increasing the IMR font
+     // the colors used here are from ParameterEditor
+     JPanel panel = this.getParameterEditor(this.ERF_PARAM_NAME).getOuterPanel();
+     TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
+     titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
+     Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
+     titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
+     titledBorder1.setTitle(ERF_PARAM_NAME);
+     Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
+     panel.setBorder(border1);
 
      //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
      //calls the method to make the update MagDist button invisible

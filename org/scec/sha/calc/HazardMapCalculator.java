@@ -70,7 +70,7 @@ public class HazardMapCalculator {
    * @return
    */
   public void getHazardMapCurves(DiscretizedFuncAPI hazFunction,
-                             Iterator it, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
+                             Iterator it, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
     Site site;
     HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();

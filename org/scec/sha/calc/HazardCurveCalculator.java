@@ -62,7 +62,7 @@ public class HazardCurveCalculator {
    * @return
    */
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
-                             Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
+                             Site site, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
     progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
     // initiliaze the progress bar frame in which to show progress bar

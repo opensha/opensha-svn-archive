@@ -419,7 +419,6 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    //if test case -1
    if(selectedTest.equalsIgnoreCase(TEST_CASE_ONE)){
      erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_NonPlanarFaultForecast.NAME);
-
      // add sigma for maglength(0-1)
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0));
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
@@ -454,10 +453,13 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
    }
 
+   //if test case 5
+     if(selectedTest.equalsIgnoreCase(TEST_CASE_FIVE) )
+       erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_LogicTreeERF_List.NAME);
+
    //if test case -6
    if(selectedTest.equalsIgnoreCase(TEST_CASE_SIX)){
      erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_ListricFaultForecast.NAME);
-
      erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.RAKE_PARAM_NAME).setValue(new Double(0.0));
@@ -866,6 +868,11 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_FOUR+"-"+this.SITE_ONE));
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_FOUR+"-"+this.SITE_TWO));
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_FOUR+"-"+this.SITE_THREE));
+
+      //test case-5 , Set-2
+     v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_FIVE+"-"+this.SITE_ONE));
+     v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_FIVE+"-"+this.SITE_TWO));
+     v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_FIVE+"-"+this.SITE_THREE));
 
      //test case-6 , Set-2
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_SIX+"-"+this.SITE_ONE));

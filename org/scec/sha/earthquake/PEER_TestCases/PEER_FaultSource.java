@@ -100,14 +100,14 @@ public class PEER_FaultSource extends ProbEqkSource {
               rate = magDist.getY(mag);
               // Create the ruptures and add to the list
               for(int r=0; r < numRup; ++r) {
-                    probEqkRupture = new ProbEqkRupture();
-                    probEqkRupture.setAveRake(rake);
-                    // set rupture surface
-                    probEqkRupture.setRuptureSurface(surface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
-                    probEqkRupture.setMag(mag);
-                    prob = 1- Math.exp(-timeSpan*rate/numRup);
-                    probEqkRupture.setProbability(prob);
-                    ruptureList.add(probEqkRupture);
+                probEqkRupture = new ProbEqkRupture();
+                probEqkRupture.setAveRake(rake);
+                // set rupture surface
+                probEqkRupture.setRuptureSurface(surface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
+                probEqkRupture.setMag(mag);
+                prob = 1- Math.exp(-timeSpan*rate/numRup);
+                probEqkRupture.setProbability(prob);
+                ruptureList.add(probEqkRupture);
               }
               if( D ) System.out.println("PEER_FaultSource: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
                                           "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);

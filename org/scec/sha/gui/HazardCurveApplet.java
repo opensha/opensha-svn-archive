@@ -30,6 +30,8 @@ import org.scec.sha.gui.beans.*;
 import org.scec.sha.gui.infoTools.*;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
+import org.scec.sha.earthquake.EqkRupForecast;
+import org.scec.sha.earthquake.ERF_List;
 import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.data.Site;
@@ -73,6 +75,7 @@ public class HazardCurveApplet extends JApplet
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_ListricFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_MultiSourceForecast";
+  public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_LogicTreeERF_List";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
 
 
@@ -547,10 +550,7 @@ public class HazardCurveApplet extends JApplet
       plot.setRangeCrosshairVisible(false);
       plot.setBackgroundAlpha( .8f );
 
-
-
       plot.setRenderer( renderer );
-
 
       JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
 
@@ -871,6 +871,7 @@ public class HazardCurveApplet extends JApplet
     // get the selected forecast model
     EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
 
+
     // get the selected IMR
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
@@ -885,11 +886,20 @@ public class HazardCurveApplet extends JApplet
       ex.printStackTrace();
     }
 
+
+    // check whether this forecast is a Forecast List
+    // if this is forecast list , handle it differently
+    boolean isEqkForecastList = false;
+    if(eqkRupForecast instanceof ERF_List)  {
+      handleForecastList(site, imr, eqkRupForecast);
+      return;
+    }
+
     // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
    try {
      // calculate the hazard curve
-     calc.getHazardCurve(hazFunction, site, imr, eqkRupForecast);
+     calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
      hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
@@ -916,10 +926,12 @@ public class HazardCurveApplet extends JApplet
     else{
       //gets the Disaggregation data
       double iml= hazFunction.getFirstInterpolatedX(disaggregationProb);
-      disaggCalc.disaggregate(Math.log(iml),site,imr,eqkRupForecast);
+      disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)eqkRupForecast);
       disaggregationString=disaggCalc.getResultsString();
     }
    }
+
+
    // add the function to the function list
    totalProbFuncs.add(hazFunction);
 
@@ -928,6 +940,43 @@ public class HazardCurveApplet extends JApplet
    totalProbFuncs.setYAxisName("Probability of Exceedance");
   }
 
+
+  /**
+   * Handle the Eqk Forecast List.
+   * @param site : Selected site
+   * @param imr : selected IMR
+   * @param eqkRupForecast : List of Eqk Rup forecasts
+   */
+  private void handleForecastList(Site site,
+                                  AttenuationRelationshipAPI imr,
+                                  EqkRupForecastAPI eqkRupForecast) {
+   ERF_List erfList  = (ERF_List)eqkRupForecast;
+   int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
+   ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+   // clear the function list
+   totalProbFuncs.clear();
+   // calculate the hazard curve
+   HazardCurveCalculator calc = new HazardCurveCalculator();
+   // calculate hazard curve for each ERF within the list
+   for(int i=0; i<numERFs; ++i) {
+      // intialize the hazard function
+     initDiscretizeValues(hazFunction);
+     try {
+       // calculate the hazard curve
+       calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+       hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+     }catch (RuntimeException e) {
+       JOptionPane.showMessageDialog(this, e.getMessage(),
+                                     "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+       e.printStackTrace();
+       return;
+     }
+     totalProbFuncs.add(hazFunction);
+   }
+   // set the X-axis label
+   totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
+   totalProbFuncs.setYAxisName("Probability of Exceedance");
+  }
 
   /**
    *
@@ -1003,6 +1052,7 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+   erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erfGuiBean = new ERF_GuiBean(erf_Classes);
    erfPanel.setLayout(gridBagLayout5);

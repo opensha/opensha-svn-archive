@@ -56,19 +56,6 @@ public class IMR_GuiBean extends ParameterListEditor
    searchPaths = new String[1];
    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
    init_imrParamListAndEditor();
-
-
-   // get the panel for increasing the font and border
-   // this is hard coding for increasing the IMR font
-   // the colors used here are from ParameterEditor
-   JPanel panel = this.getParameterEditor(this.IMR_PARAM_NAME).getOuterPanel();
-   TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
-   titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
-   Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
-   titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
-   titledBorder1.setTitle(IMR_PARAM_NAME);
-   Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
-   panel.setBorder(border1);
  }
 
  /**
@@ -135,6 +122,19 @@ public class IMR_GuiBean extends ParameterListEditor
     this.editorPanel.removeAll();
     addParameters();
     setTitle(IMR_EDITOR_TITLE);
+
+    // get the panel for increasing the font and border
+    // this is hard coding for increasing the IMR font
+    // the colors used here are from ParameterEditor
+    JPanel panel = this.getParameterEditor(this.IMR_PARAM_NAME).getOuterPanel();
+    TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
+    titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
+    Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
+    titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
+    titledBorder1.setTitle(IMR_PARAM_NAME);
+    Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
+    panel.setBorder(border1);
+
     // set the trunc level based on trunc type
     String value = (String)parameterList.getValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
     toggleSigmaLevelBasedOnTypeValue(value);

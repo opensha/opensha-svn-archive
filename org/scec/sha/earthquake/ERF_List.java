@@ -5,6 +5,9 @@ import java.util.Vector;
 import java.util.ListIterator;
 
 import org.scec.data.Location;
+import org.scec.data.TimeSpan;
+import org.scec.param.ParameterList;
+import org.scec.data.region.GeographicRegion;
 /**
  * <p>Title: ERF_List </p>
  * <p>Description: This class hols the list of Eqk Rup Forecast </p>
@@ -14,12 +17,16 @@ import org.scec.data.Location;
  * @version 1.0
  */
 
-public abstract class ERF_List {
+public abstract class ERF_List implements EqkRupForecastAPI {
 
   // vector to hold the instances of Eqk Rup Forecasts
   private Vector erf_List = new Vector();
   //vector to hold relative weight of each ERF
   private Vector relativeWeight  = new Vector();
+  // declaration of the flag to check if any parameter has been changed from its original value.
+  protected boolean  parameterChangeFlag = true;
+  // parameter list for adjustable params
+  protected ParameterList adjustableParams = new ParameterList();
 
 
 
@@ -41,13 +48,14 @@ public abstract class ERF_List {
     return erf_List.size();
   }
 
+
   /**
    * get the ERF in the list with the specified index
    * @param index : index of Eqk rup forecast to return
    * @return
    */
-  public EqkRupForecastAPI getERF(int index) {
-    return (EqkRupForecastAPI)erf_List.get(index);
+  public EqkRupForecast getERF(int index) {
+    return (EqkRupForecast)erf_List.get(index);
   }
 
   /**
@@ -59,6 +67,17 @@ public abstract class ERF_List {
     return ((Double)relativeWeight.get(index)).doubleValue();
   }
 
+  /**
+   * return the list of adjustable params
+   * Presently there are no adjustable params.
+   * @return
+   */
+  public ListIterator getAdjustableParamsList() {
+    return adjustableParams.getParametersIterator();
+  }
+
+
+
 
   /**
    * get the name of this class
@@ -69,31 +88,52 @@ public abstract class ERF_List {
   }
 
 
-  /**************
-   *  add the method getApplicableRegion after geogriphical region classes are made
-   *****************/
-
-
   /**
    * Checks whether this location lies wothin the applicable region of this ERF list
    * @param loc : Location to check
    */
-  public abstract boolean isLocWithinApplicableRegion(Location loc);
-
-
-  /**
-   * get the adjustable parameters for this List
-   *
-   * @return
-   */
-  public abstract ListIterator getAdjustableParamsList();
-
+  public boolean isLocWithinApplicableRegion(Location loc) {
+    return true;
+  }
 
   /**
    * update the list of the ERFs based on the new parameters
    */
-  public abstract void updateERF_List();
+  public void updateForecast() {
+    if(this.parameterChangeFlag) {
+      int num = erf_List.size();
+      for(int i=0; i< num; ++i)
+        this.getERF(i).updateForecast();
+    }
+    this.parameterChangeFlag = false;
+  }
 
+  /**
+   * Get the region for which this forecast is applicable
+   * @return : Geographic region object specifying the applicable region of forecast
+   */
+  public GeographicRegion getApplicableRegion() {
+    return null;
+  }
+
+  /**
+   * This method sets the time-span field.
+   * This is not implemented yet
+   * @param time
+   */
+  public void setTimeSpan(TimeSpan time) {
+
+  }
+
+
+  /**
+   * This method sets the tim span field
+   * this is not implemented yet
+   * @param time
+   */
+  public void setTimeSpan(double yrs) {
+
+  }
 
 
 }

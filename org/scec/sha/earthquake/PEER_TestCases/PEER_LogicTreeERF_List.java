@@ -1,8 +1,10 @@
 package org.scec.sha.earthquake.PEER_TestCases;
 
 import java.util.ListIterator;
+
 import org.scec.sha.earthquake.*;
 import org.scec.data.*;
+import org.scec.param.ParameterList;
 
 /**
  * <p>Title: PEER_LogicTreeERF_List </p>
@@ -15,21 +17,26 @@ import org.scec.data.*;
 
 public class PEER_LogicTreeERF_List extends ERF_EpistemicList {
 
+  /**
+   * @todo variables
+   */
+  //for Debug purposes
+  public static String  NAME = new String("PEER Logic Tree");
+
   // declare the slip rates
   private double SLIP_RATE_1 = 0.1;
   private double SLIP_RATE_2 = 0.2;
   private double SLIP_RATE_3 = 0.5;
 
   //declare the mag Upper
-  private double MAG_1 = 7.2;
-  private double MAG_2 = 6.5;
+  private double MAG_1 = 7.15;
+  private double MAG_2 = 6.45;
 
   //declare the weights
   private double REL_WEIGHT_1 = 0.1;
   private double REL_WEIGHT_2 = 0.3;
   private double REL_WEIGHT_3 = 0.02;
   private double REL_WEIGHT_4 = 0.06;
-
 
   /**
    * default constructor for this class
@@ -81,30 +88,19 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList {
   private PEER_NonPlanarFaultForecast createERF(String segmentation,
                                         double slipRate, double magUpper) {
     PEER_NonPlanarFaultForecast forecast = new PEER_NonPlanarFaultForecast();
-    forecast.segModelParam.setValue(segmentation);
-    forecast.slipRateParam.setValue(slipRate);
-    forecast.magUpperParam.setValue(magUpper);
-    forecast.updateForecast();
+    forecast.getParameter(PEER_NonPlanarFaultForecast.SEGMENTATION_NAME).setValue(segmentation);
+    forecast.getParameter(PEER_NonPlanarFaultForecast.SLIP_RATE_NAME).setValue(new Double(slipRate));
+    forecast.getParameter(PEER_NonPlanarFaultForecast.GR_MAG_UPPER).setValue(new Double(magUpper));
     return forecast;
   }
 
-
-  public ListIterator getAdjustableParamsList() {
-    /**@todo Implement this org.scec.sha.earthquake.ERF_List abstract method*/
-    throw new java.lang.UnsupportedOperationException("Method getAdjustableParamsList() not yet implemented.");
-  }
-
   /**
-   * This does nothing because there are no adjustable params so it's more efficient to update
-   * each forecast at creation (in createERF() method).
+   * Return the name for this class
+   *
+   * @return : return the name for this class
    */
-  public void updateERF_List() {
-
-  }
-
-  public boolean isLocWithinApplicableRegion(Location loc) {
-    /**@todo Implement this org.scec.sha.earthquake.ERF_List abstract method*/
-    throw new java.lang.UnsupportedOperationException("Method isLocWithinApplicableRegion() not yet implemented.");
-  }
+   public String getName(){
+     return NAME;
+   }
 
 }
