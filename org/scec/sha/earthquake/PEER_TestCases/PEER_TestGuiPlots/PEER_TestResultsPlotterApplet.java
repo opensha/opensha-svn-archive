@@ -53,7 +53,6 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private JSplitPane plotSplitPane = new JSplitPane();
 
   private static final String C="PEER_Test_GuiPlotter";
-  private static final String version = "0.0.0";
 
   private static final boolean D= false;
 
@@ -111,11 +110,6 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   protected double maxYValue;
   protected boolean customAxis = false;
 
-  private final static String AUTO_SCALE = "Auto Scale";
-  private final static String CUSTOM_SCALE = "Custom Scale";
-  private final static String PEER_TEST_TITLE ="PEER Test Selection";
-
-
   // light blue color
   Color lightBlue = new Color( 200, 200, 230 );
   Color AVERAGE_COLOR = Color.red;
@@ -126,15 +120,22 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private double Y_MIN_VAL = 1e-16;
 
   //X and Y AXIS Labels
-  String X_AXIS_TITLE = "Intensity Measure Level";
-  String Y_AXIS_TITLE = "Probability";
-
+  private String X_AXIS_TITLE = "Intensity Measure Level";
+  private String Y_AXIS_TITLE = "Probability";
 
   //static definition  of the strings
-  private String TEST_CASE_FILES= new String("PEER Test Sets");
+  private final static String FRAME_TITLE = "PEER Tests Plots";
+  private final static String AUTO_SCALE = "Auto Scale";
+  private final static String CUSTOM_SCALE = "Custom Scale";
+  private final static String JFREECHART_TITLE = "Hazard Curves";
+  private final static String STANDALONE_WARNING =
+      "Because you are running this application from the stand-alone "+
+      " jar file (as opposed to the applet)\nthe data might now be out of date.\n\n"+
+      "Downloading the latest version of this jar file  will get you"+
+     " the latest results.";
+  private final static String GUI_TITLE = "PEER PSHA-Test Results Plotter";
 
-  //static definition PLOT Title
-  private final static String TITLE = new String("PEER Test Plots");
+
 
   private JPanel buttonPanel = new JPanel();
   private JPanel topPlotPanel = new JPanel();
@@ -344,6 +345,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   //Destroy the applet
   public void destroy() {
   }
+
   //Get Applet information
   public String getAppletInfo() {
     return C;
@@ -366,14 +368,13 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   public static void main(String[] args) {
 
     PEER_TestResultsPlotterApplet applet = new PEER_TestResultsPlotterApplet();
-    JOptionPane.showMessageDialog(applet,
-                                  new String("If you are running this Application as Standalone, it might not contain upto data, you can go to the Website www.opensha.org to get the latest application"),
+    JOptionPane.showMessageDialog(applet,STANDALONE_WARNING,
                                   "Information Message",JOptionPane.INFORMATION_MESSAGE);
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle("PEER Tests Plots (Version " + version +")");
+    frame.setTitle(FRAME_TITLE);
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
@@ -578,7 +579,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       plot.setRenderer( renderer );
 
 
-      JFreeChart chart = new JFreeChart(" ",JFreeChart.DEFAULT_TITLE_FONT, plot, false );
+      JFreeChart chart = new JFreeChart(JFREECHART_TITLE,JFreeChart.DEFAULT_TITLE_FONT, plot, false );
 
       chart.setBackgroundPaint( lightBlue );
 
