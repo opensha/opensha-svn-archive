@@ -139,7 +139,7 @@ public class PEER_InputFilesServlet extends HttpServlet {
      RunScript.runScript("rm  GroupTestDataFiles/"+fileName);
      RunScript.runScript("rm "+JAR_PATH+"PEER_TestResultsPlotterApp.jar");
      RunScript.runScript("jar cfm "+JAR_PATH+"PEER_TestResultsPlotterApp.jar "+
-                                    "PEER_MANIFEST.MF org/");
+                                    "META-INF/MANIFEST.MF org/");
      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar "+
                                    "com/");
      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar "+
@@ -147,9 +147,9 @@ public class PEER_InputFilesServlet extends HttpServlet {
      // remove the files created by the above
      RunScript.runScript("rm -rf com/");
      RunScript.runScript("rm -rf org/");
+     RunScript.runScript("rm -rf META-INF/");
      for(int i =0; i< size; ++i)
        RunScript.runScript("rm GroupTestDataFiles/"+(String)fileNamesVector.get(i));
-     RunScript.runScript("rm PEER_MANIFEST.MF");
 
 
      // remove this file from the Data Submission JAR also
@@ -209,10 +209,41 @@ class RunScript {
       System.out.println("Command to execute: " +command);
       Process p=runtime.exec(command);
       p.waitFor();
+      int i=p.exitValue();
 
+      // check the process status after the process ends
+      if ( i == 0 ) {
+        // Display the normal o/p if script completed successfully.
+        System.out.println("script exited with i =" + i);
+       displayOutput(p.getInputStream());
+      }
+      else {
+        // Display the normal and error o/p if script failed.
+       System.out.println("script exited with i =" + i);
+       displayOutput(p.getErrorStream());
+       displayOutput(p.getInputStream());
+      }
     } catch(Exception e) {
       // if there is some other exception, print the detailed explanation
       System.out.println("Exception in Executing Shell Script:"+e);
+      e.printStackTrace();
+    }
+  }
+
+
+  /**
+   * display the input stream
+   * @param is inputstream
+   * @throws Exception
+   */
+  public static void displayOutput(InputStream is) throws Exception {
+    String s;
+    try {
+      BufferedReader br = new BufferedReader(new InputStreamReader(is));
+      while ((s = br.readLine()) != null)
+        System.out.println(s);
+    } catch (Exception e) {
+      System.out.println("Exception in RunCoreCode:displayOutput:"+e);
       e.printStackTrace();
     }
   }
