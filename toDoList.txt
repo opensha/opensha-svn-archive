@@ -1,38 +1,24 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+
+For the SCEC-ITR CME:
+---------------------
+
+Port stand-alone applications to server mode.
+
+
+
+
+
 For OpenSHA:
 ------------
 
-GuiBeans - rename some of the titles (e.g., some say "Set ..." or "Choose ..." and some do not) 
+(ONLY THE FIRST FOUR NEED TO BE DONE BY END OF MAY, UNLESS THE CME GOALS DEPENDENT)
 
-HazardCurveApplet:
+Go through existing apps and polish as necessary.
 
-	sometimes it only shows "Beginning Calculation" (no progress bar) when 
-	I know there are enough ruptures to make the bar visible).  Look into
-	refreshing of the progress bar.
-
-	Mystery exception (may be reason for above)
-
-	We're getting out of memeory exceptions; can we kill old 
-	ERFs when a new one is selected?
-
-	For ERF lists, can we plot the individual curves as they are computed
-	(in black)?
-
-	-epistemic list control panal - only redo hazard calculations if needed 
-	(delay solving this until we figure out exactly what we need)
-
-
-ScenarioShakeMapApp
-
-	We're getting out of memeory exceptions; can we kill old 
-	ERFs when a new one is selected?
-
-	Add plotting of rupture surface as a dot at each point on the gridded surface
-
-	Use getInfo for each source to provide users with information
-
+Get wg99/02 Fortran code compiling on our computers.
 
 AttenRelApp:
 
@@ -42,17 +28,53 @@ AttenRelApp:
 	(after accepting violation), now set Vs30=-10 and hit return (not add trace),
 	now set Mag=8.1 and try to add (it defaults back to previous value).
 
-	Update *.jar at web site when ready for Golden Demo
+Submit our log-log implementation formally to JFreeChart.
 
-Fix titles of web pages
+
+
+
+
+**************** LONG TERM (LOWER PRIORITY): ****************
+-------------------------------------------------------------
+
+IMR_GuiBean 	-extend to allow multiple IMRs to be selected, with relative weights 
+		applied to each.  This will require using an epistemic list control 
+		panel (generalize existing one?) to declare what to compute and 
+		plot(ind. curves, mean, fractile, ...). 
+
+		-Create capability to associate IMRs to specific source types in the calculations
+		(this will take some thought).
+
+ProbEqkSource	Define field to declare what type of source it is 
+		(e.g., subduction zone vs normal vs reverse ...) and add to API. 
+		Ned will work on what the various options should be.
+
+ERF		-extend API to include getting max and min magnitude, and the various types of 
+		sources generated (to check for compatibility with each chosen IMR)
+
+		
+Look into memory usage issues (e.g., out of memeory exceptions).
+
+Think about optimizing calculations in terms of not redoing anything that doesn't 
+need to be redone (e.g., don't recompute ERF-list hazard curves if user only wants
+to plot a different fractile).  This should be resolved with consideration to the
+full range of user experiences.
+
+
+ScenarioShakeMapApp
+
+	Add plotting of rupture surface as a dot at each point on the gridded surface?
+
+	Use getInfo for each source to provide users with information
+
+
+Fix titles of web pages (Ned's problem)
 
 Fix GriddedFaultApplet - horz/vert scaling.
 
-Finish implementing WG99/02 ERF
+Finish implementing WG99/02 ERF (Ned's problem)
 
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
-
-Submit our log-log implementation formally to JFreeChart.
 
 
 SimpleGriddedFaultFactory
@@ -62,18 +84,11 @@ SimpleGriddedFaultFactory
 	before getting a new surface (use the setAll() method added by Ned).
 
 
+(even lower priority below)
 
 
-For the SCEC-ITR CME:
----------------------
 
-Port stand-alone applications to server mode.
-
-Get wg99/02 Fortran code compiling on our computers.
-
-
-**************** LONG TERM (LOWER PRIORITY): ****************
--------------------------------------------------------------
+Allow choosing of multiple ERFs (e.g., hand built ERF_EpistemicList)
 
 Create the following control panels in the future:
 
