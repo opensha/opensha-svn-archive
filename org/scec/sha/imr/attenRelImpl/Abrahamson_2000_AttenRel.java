@@ -293,7 +293,7 @@ public class Abrahamson_2000_AttenRel
           double L = RelativeLocation.getHorzDistance(surface.getLocation(0,0),surface.getLocation(0,numTrPts-1));
           double x = s/L;
           // make sure that x isn't slightly larger (due to numerical impecision)
-          if( x > 1.0 & x < 1.000001) x = 1.0;
+          if( x > 1.0 & x < 1.001) x = 1.0;
           // now set the x parameter
           xDirParam.setValue(x);
 
