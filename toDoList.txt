@@ -5,6 +5,8 @@ Add the  revised version of the test results for AttenuationRelationhships by Ke
 
 add site translation for SEA_1999_AttenRel
 
+Compare JBuilder-2005 with Jbuilder-7 that we currently have on our Mac's
+
 Make sure that averages over probabilities are not log averages (Nitin will change ScenarioShakeMapCalculator & Ned will change USGS_Combined Atten. Rel. accordingly).
 
 In the case of our HazardCurve Calculator applications, if ERF List is choosen and we select 1 or more realizations and average is selected, then it throws an exception. --Nitin knows about this problems and will look into it.
