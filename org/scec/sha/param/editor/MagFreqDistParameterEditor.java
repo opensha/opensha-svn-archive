@@ -168,40 +168,12 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          * get adjustable params from MagFreqDistParam and add listeners to them
          */
         parameterList = magDistParam.getAdjustableParams();
-        parameterList.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.MIN).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.MAX).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.NUM).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.NUM).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.TOT_MO_RATE).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.TOT_MO_RATE).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.GR_MAG_LOWER).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.GR_MAG_UPPER).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.GR_BVALUE).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.GR_BVALUE).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.TOT_CUM_RATE).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.TOT_CUM_RATE).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.RATE).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.RATE).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.MO_RATE).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.MO_RATE).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.MAG).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.MEAN).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.STD_DEV).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.STD_DEV).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.TRUNCATION_REQ).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.TRUNCATE_NUM_OF_STD_DEV).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.TRUNCATE_NUM_OF_STD_DEV).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.YC_DELTA_MAG_CHAR).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.YC_DELTA_MAG_CHAR).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.YC_MAG_PRIME).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.YC_DELTA_MAG_PRIME).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.YC_DELTA_MAG_PRIME).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.YC_TOT_CHAR_RATE).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.YC_TOT_CHAR_RATE).addParameterChangeFailListener(this);
-        parameterList.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).addParameterChangeListener(this);
-        parameterList.getParameter(MagFreqDistParameter.FIX).addParameterChangeListener(this);
+        ListIterator it  = parameterList.getParametersIterator();
+        while(it.hasNext()){
+          ParameterAPI param = (ParameterAPI)it.next();
+          param.addParameterChangeFailListener(this);
+          param.addParameterChangeListener(this);
+        }
         // String Constraints
         sdFixOptions = magDistParam.getSingleDistFixOptions();
         grSetAllButOptions = magDistParam.getGRSetAllButOptions();

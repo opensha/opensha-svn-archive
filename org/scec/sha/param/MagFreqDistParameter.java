@@ -29,12 +29,12 @@ public class MagFreqDistParameter
     protected final static boolean D = false;
 
     /**
-    * the string for the distribution choice parameter
-    */
-   public final static String DISTRIBUTION_NAME="Choose Distribution";
+     * the string for the distribution choice parameter
+     */
+    public final static String DISTRIBUTION_NAME="Choose Distribution";
 
-   /**
-    * Name and Info strings of params needed by all distributions
+    /**
+     * Name and Info strings of params needed by all distributions
     */
    public static final String MIN=new String("Min");
    public static final String MIN_INFO=new String("Minimum magnitude of the discetized function");
