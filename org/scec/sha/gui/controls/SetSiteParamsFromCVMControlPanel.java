@@ -251,7 +251,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       ois.close();
 
       System.out.println("basindepth is:"+ basinDepth );
-      JOptionPane.showMessageDialog(this,"We have got the Site Params from SCEC CVM");
+      JOptionPane.showMessageDialog(this,"We have obtained the site parameters from the CVM");
       return basinDepth;
 
     }catch (NumberFormatException ex) {

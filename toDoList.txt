@@ -1,7 +1,32 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Axis control panel doesn't seem to work in HazardCurveApp (try setting custom).
+HazardCurveApplet:
+
+	Axis control panel doesn't seem to work for log-log plots (try setting custom)
+
+	Exception thrown by MagFreqDistParameterEditor are not shown in a popup window
+
+	"Set X values for Hazard Curve Calc." control panel doesn't seem to work
+	(and lacks a "set" or "done" button)
+
+	"Set Site Params from CVM" control panel doesn't work if basin depth is not available (e.g., in bay area).
+
+Deploy SimplePoissonFaultERF in servlet mode and remove the servlet mode PEER_FaultForecast (update the ERF servlet-mode GUIbean accordingly).
+
+Remove the following since they are no longer needed (after doing the above):
+
+	PEER_FaultForecast
+	PEER_ListricFaultForecast
+	PEER_FaultSource
+
+	org.scec.sha.earthquake.demo	(old demo that we don't need anymore)
+
+Move the following from org.scec.sha.earthquake to org.scec.sha.earthquake.rupForecastImple:
+
+	PointPoissonEqkSource
+	SimplePoissonFaultERF
+	SimplePoissonFaultSource
 
 
 Lets chance syncToModel (and "synchToModel" as it is spelled in some places) method to something like refreshParamEditor (assuming this is used only to refresh editors).
@@ -12,19 +37,11 @@ JFreeChart:  add method to allow our style of log-plot labeling (remove booleans
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out.
 
-Try to solve problem with cutting and pasting on Mac OS X with Java 1.4.1. - Apple is working on this with info from Nitin.
-
-Change SimpleFaultParameterEditor from what it is now to a button that pops up what's shown now in a separate window (but still can be edited from outside like in the PEER test-case selector control panel).  Focus should not leave the popup window until a user is done (& closing the window is the same as punching the button at the bottom).  Make it so the ERF_GuiBean (or any other similar bean) does not need to know anything about this parameter (it's automatically created by the ParameterListEditor).  Done - Ned will evaluate when he implements PEER test cases.
+Try to solve problem with cutting and pasting on Mac OS X with Java 1.4.1. - Apple is working on this with info from Nitin.  Actually they claim that Panther no longer has this problem.
 
 Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.
 
 Generalize ERF servlets so that one object can be used for any arbitrary ERF (or ERF epistemic list).  Ned will check this out.
-
-7) move the Fortran-Wrapped version of the WG02 ERF to the org.scec.sha.earthquake.rupForecastImpl.WG02 directory  (this way I can add adjustable parameters myself).  I understand that you might not want to do this until after you generalize the ERF Servlet implementation.  Let's call it:
-
-    WG02_FortranWrappedERF_EpistemicList.java
-
-Done - Ned will check this out.
 
 Finish STEP map making capability according to feedback from Matt and Lucy (and solve the Vs30 on water issue).
 
@@ -62,10 +79,6 @@ Fix horizontal streaking due to setting site effects in gridded region from CVM 
 Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
 
 Make the setting values from CVM to be webservice rather than a servlet. Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. 
-
-Make apps that use internet connection graceful if it's not available (if not connected locally or if remote server is down).
-
-Create X_ValuesInCurveControlPanel for the hazard curve calculator (include a button to revert back to defaults); done - Ned needs to look at.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  Should we be using UTM coordinates?
 

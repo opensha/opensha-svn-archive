@@ -70,7 +70,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
 
   //Static String for setting the site Params
   public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
-  public final static String SET_SITES_USING_CVM = "Set site parameters from SCEC CVM";
+  public final static String SET_SITES_USING_CVM = "Set site parameters from CVM";
 
   /**
    * Longitude and Latitude paramerts to be added to the site params list
@@ -482,7 +482,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     CalcProgressBar calcProgress = new CalcProgressBar("Setting Gridded Region sites","Getting the site paramters from the CVM");
     getVS30FromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
     getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
-    JOptionPane.showMessageDialog(this,"We have site Paramaters from SCEC CVM");
+    JOptionPane.showMessageDialog(this,"We have obtained the site paramaters from the CVM");
     calcProgress.dispose();
   }
 
