@@ -1662,16 +1662,19 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
      if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
        this.jCheckxlog.setSelected(false);
+       this.data.setXLog(false);
        ShowMessage showMessage=new ShowMessage(this, "      X-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
      }
      if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
        this.jCheckylog.setSelected(false);
+       this.data.setYLog(false);
        ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
      }
+     this.addGraphPanel();
   }
 
 

@@ -757,7 +757,6 @@ public class HazardCurveApplet extends JApplet
        this.jCheckxlog.setSelected(false);
        xLog  = false;
        data.setXLog(xLog);
-
      }
 
      if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {

@@ -1021,7 +1021,11 @@ public class MagFreqDistTesterApplet extends JApplet
        ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
+       incrData.setYLog(false);
+       toCumData.setYLog(false);
+       this.toMoData.setYLog(false);
      }
+     this.addGraphPanel();
   }
 
 
