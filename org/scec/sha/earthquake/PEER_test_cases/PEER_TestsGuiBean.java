@@ -1105,8 +1105,8 @@ public class PEER_TestsGuiBean implements
       // set the mag dist params based on test case
       setMagDistParams(value);
 
-      String selectedFault= new String(FAULT_ONE);
 
+      String selectedFault= new String(FAULT_ONE);
       ParameterList siteParams = siteParamEditor.getParameterList();
 
       //if selected test case is number 1
@@ -1260,6 +1260,11 @@ public class PEER_TestsGuiBean implements
          */
         erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
         erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(peer_Area_ERF.DIP_PARAM_NAME).setValue(new Double(90));
+        erf_IndParamList.getParameter(peer_Area_ERF.RAKE_PARAM_NAME).setValue(new Double(0));
+        erf_IndParamList.getParameter(peer_Area_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Area_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
+
         selectedFault = new String(FAULT_AREA);
       }
 
@@ -1278,6 +1283,11 @@ public class PEER_TestsGuiBean implements
 
         erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
         erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(peer_Area_ERF.DIP_PARAM_NAME).setValue(new Double(90));
+        erf_IndParamList.getParameter(peer_Area_ERF.RAKE_PARAM_NAME).setValue(new Double(0));
+        erf_IndParamList.getParameter(peer_Area_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Area_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
+
         selectedFault = new String(FAULT_AREA);
       }
 
@@ -1571,6 +1581,11 @@ public class PEER_TestsGuiBean implements
 
         // add sigma for maglength(0-1)
         erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(peer_Fault_ERF.DEFAULT_SIGMA_VAL);
+        // set the common parameters like timespan, grid spacing
+        erf_IndParamList.getParameter(peer_Fault_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+
         // magLengthSigma parameter is changed if the test case chosen is 3
         if(testCaseVal.equalsIgnoreCase(TEST_CASE_THREE))
           erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
