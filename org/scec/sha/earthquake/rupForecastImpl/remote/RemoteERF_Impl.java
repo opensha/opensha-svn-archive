@@ -1,9 +1,4 @@
-/*
- * Created on Apr 1, 2004
- *
- * To change the template for this generated file go to
- * Window>Preferences>Java>Code Generation>Code and Comments
- */
+
 package org.scec.sha.earthquake.rupForecastImpl.remote;
 
 import java.io.IOException;
@@ -21,23 +16,34 @@ import org.scec.param.ParameterList;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.earthquake.ProbEqkSource;
 import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_API;
-import org.scec.sha.earthquake.rupForecastImpl.Frankel02.*;
+import org.scec.sha.earthquake.EqkRupForecast;
 
 /**
- * @author cmeutils
  *
- * To change the template for this generated type comment go to
- * Window>Preferences>Java>Code Generation>Code and Comments
+ * <p>Title: ERFFrankel02ServerImpl.java </p>
+ * <p>Description: This class wraps the ERFs for remote access </p>
+ * <p>Copyright: Copyright (c) 2002</p>
+ * <p>Company: </p>
+ * @author Nitin Gupta, Vipin Gupta
+ * @version 1.0
  */
-public class ERFFrankel02ServerImpl
+public class RemoteERF_Impl
 	extends UnicastRemoteObject
 	implements RemoteERF_API {
 
-   private Frankel02_AdjustableEqkRupForecast forecast = null;
-   private static final boolean D = true;
-   public ERFFrankel02ServerImpl() throws java.rmi.RemoteException, IOException {
-     forecast = new Frankel02_AdjustableEqkRupForecast();
-     System.out.println("On ERFServer: " + forecast.getTimeSpan());
+   private EqkRupForecast eqkRupForecast = null;
+   private static final boolean D = false;
+
+   /**
+    * creates the EqkRupForecast object based on received className
+    *
+    * @param className
+    * @throws java.rmi.RemoteException
+    * @throws IOException
+    */
+   public RemoteERF_Impl(String className)
+       throws java.rmi.RemoteException, IOException {
+     eqkRupForecast = (EqkRupForecast)org.scec.util.ClassUtils.createNoArgConstructorClassInstance(className);;
    }
 
    /* (non-Javadoc)
@@ -48,11 +54,11 @@ public class ERFFrankel02ServerImpl
      Iterator it = list.getParametersIterator();
      while (it.hasNext()) {
        ParameterAPI param = (ParameterAPI) it.next();
-       forecast.getParameter(param.getName()).setValue(param.getValue());
+       eqkRupForecast.getParameter(param.getName()).setValue(param.getValue());
        if(D) System.out.println("Param Name:"+param.getName()+",value="+param.getValue());
      }
-     forecast.setTimeSpan(timeSpan);
-     forecast.updateForecast();
+     eqkRupForecast.setTimeSpan(timeSpan);
+     eqkRupForecast.updateForecast();
      // TODO Auto-generated method stub
    }
 
@@ -67,7 +73,7 @@ public class ERFFrankel02ServerImpl
      String subDir = "OpenSHA/HazardMapDatasets/savedERFs/";
      String fileName = System.currentTimeMillis() + ".javaobject";
      org.scec.util.FileUtils.saveObjectInFile(parentDir + subDir + fileName,
-                                              forecast);
+                                              eqkRupForecast);
      return parentDir + subDir + fileName;
    }
 
@@ -75,7 +81,7 @@ public class ERFFrankel02ServerImpl
     * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getName()
     */
    public String getName() throws RemoteException {
-     return forecast.getName();
+     return eqkRupForecast.getName();
      // TODO Auto-generated method stub
    }
 
@@ -83,16 +89,14 @@ public class ERFFrankel02ServerImpl
     * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#setTimeSpan(org.scec.data.TimeSpan)
     */
    public void setTimeSpan(TimeSpan time) throws RemoteException {
-     forecast.setTimeSpan(time);
+     eqkRupForecast.setTimeSpan(time);
    }
 
    /* (non-Javadoc)
     * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getTimeSpan()
     */
    public TimeSpan getTimeSpan() throws RemoteException {
-     TimeSpan timeSpan = forecast.getTimeSpan();
-     System.out.println("ERFFrankel02ServerImpl getTimeSpan() called. Timespan=" +
-                        timeSpan);
+     TimeSpan timeSpan = eqkRupForecast.getTimeSpan();
      // TODO Auto-generated method stub
      return timeSpan;
    }
@@ -102,7 +106,7 @@ public class ERFFrankel02ServerImpl
     */
    public ListIterator getAdjustableParamsIterator() throws RemoteException {
      // TODO Auto-generated method stub
-     return forecast.getAdjustableParamsIterator();
+     return eqkRupForecast.getAdjustableParamsIterator();
    }
 
    /* (non-Javadoc)
@@ -111,7 +115,7 @@ public class ERFFrankel02ServerImpl
    public boolean isLocWithinApplicableRegion(Location loc) throws
        RemoteException {
      // TODO Auto-generated method stub
-     return forecast.isLocWithinApplicableRegion(loc);
+     return eqkRupForecast.isLocWithinApplicableRegion(loc);
    }
 
    /* (non-Javadoc)
@@ -119,7 +123,7 @@ public class ERFFrankel02ServerImpl
     */
    public GeographicRegion getApplicableRegion() throws RemoteException {
      // TODO Auto-generated method stub
-     return forecast.getApplicableRegion();
+     return eqkRupForecast.getApplicableRegion();
    }
 
    /* (non-Javadoc)
@@ -127,7 +131,7 @@ public class ERFFrankel02ServerImpl
     */
    public ParameterList getAdjustableParameterList() throws RemoteException {
      // TODO Auto-generated method stub
-     return forecast.getAdjustableParameterList();
+     return eqkRupForecast.getAdjustableParameterList();
    }
 
    /* (non-Javadoc)
@@ -135,7 +139,7 @@ public class ERFFrankel02ServerImpl
     */
    public int getNumSources() throws RemoteException {
      // TODO Auto-generated method stub
-     return forecast.getNumSources();
+     return eqkRupForecast.getNumSources();
    }
 
    /* (non-Javadoc)
@@ -143,7 +147,7 @@ public class ERFFrankel02ServerImpl
     */
    public ArrayList getSourceList() throws RemoteException {
      // TODO Auto-generated method stub
-     return forecast.getSourceList();
+     return eqkRupForecast.getSourceList();
    }
 
    /* (non-Javadoc)
@@ -151,7 +155,7 @@ public class ERFFrankel02ServerImpl
     */
    public ProbEqkSource getSource(int iSource) throws RemoteException {
      // TODO Auto-generated method stub
-     return forecast.getSource(iSource);
+     return eqkRupForecast.getSource(iSource);
    }
 
    /* (non-Javadoc)
@@ -159,7 +163,7 @@ public class ERFFrankel02ServerImpl
     */
    public int getNumRuptures(int iSource) throws RemoteException {
      // TODO Auto-generated method stub
-     return forecast.getNumRuptures(iSource);
+     return eqkRupForecast.getNumRuptures(iSource);
    }
 
    /* (non-Javadoc)
@@ -168,7 +172,7 @@ public class ERFFrankel02ServerImpl
    public ProbEqkRupture getRupture(int iSource, int nRupture) throws
        RemoteException {
      // TODO Auto-generated method stub
-     return forecast.getRupture(iSource, nRupture);
+     return eqkRupForecast.getRupture(iSource, nRupture);
    }
 
 }

@@ -17,6 +17,12 @@ import java.rmi.RemoteException;
 
 public interface RemoteERF_FactoryAPI extends Remote {
 
-  public RemoteERF_API getRemoteERF() throws java.rmi.RemoteException;
+  /**
+   * Get the reference to the remote ERF
+   * @param className
+   * @return
+   * @throws java.rmi.RemoteException
+   */
+  public RemoteERF_API getRemoteERF(String className) throws java.rmi.RemoteException;
 
 }

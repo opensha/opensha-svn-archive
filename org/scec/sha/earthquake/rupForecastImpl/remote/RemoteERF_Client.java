@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-package org.scec.sha.earthquake.rupForecastImpl.Frankel02;
+package org.scec.sha.earthquake.rupForecastImpl.remote;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -27,39 +27,33 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.*;
  * To change the template for this generated type comment go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-public class ERFFrankel02Client extends EqkRupForecast implements ParameterChangeListener {
+public abstract class RemoteERF_Client extends EqkRupForecast implements ParameterChangeListener {
 
   private RemoteERF_API erfServer = null;
+  protected String className = null;
 
-  String remoteName = "ERFFrankel02Server";
-  public ERFFrankel02Client() throws Exception {
-    System.out.println("Constructor of ERFClient");
+  /**
+   * Get the reference to the remote ERF
+   */
+  protected void getRemoteERF() {
     try {
       RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(RegisterRemoteERF_Factory.registrationName);
-      //erfServer = (RemoteERF_API) Naming.lookup(remoteERF_Factory.getRemoteERF());
-      erfServer = remoteERF_Factory.getRemoteERF();
-      System.out.println("erfserver:"+erfServer);
-      System.out.println("ERFSErver lookup successful");
+      erfServer = remoteERF_Factory.getRemoteERF(className);
     }
     catch (NotBoundException n) {
-      System.out.println("Constructor of ERFClient Not Bound");
-      throw new Exception(n.getMessage());
+      n.printStackTrace();
     }
     catch (MalformedURLException m) {
-      System.out.println("Constructor of ERFClient Malformed");
-      throw new Exception(m.getMessage());
+      m.printStackTrace();
     }
     catch (java.rmi.UnmarshalException u) {
-      System.out.println("Constructor of ERFClient unmarshalExeption");
-      throw new Exception(u.getMessage());
+      u.printStackTrace();
     }
     catch (RemoteException r) {
       r.printStackTrace();
-      System.out.println("Constructor of ERFClient remoteExeption");
-      throw new Exception(r.getMessage());
     }
-
   }
+
 
   /* (non-Javadoc)
    * @see org.scec.sha.earthquake.ERF_API#getNumSources()
