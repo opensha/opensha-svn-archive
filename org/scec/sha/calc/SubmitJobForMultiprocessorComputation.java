@@ -200,7 +200,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
                            "queue" + "\n";
 
     String arguments = imrFileName+" "+regionFileName + " " + erfFileName+" "+
-                       xValuesFileName+" "+maxDistance;
+                       xValuesFileName+" "+maxDistance+" "+NUM_OF_PROCESSORS_AVAILABLE;
     return createCondorScript(fileDataPrefix, fileDataSuffix,
                               arguments,
                               outputDir, submitFilesDir, HAZARD_CURVES_SUBMIT,
