@@ -33,11 +33,11 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   // VS 30 value to be set in the IMR
   private final Double VS_30= new Double(760);
 
-  private final double MIN_LAT= 35.5;
-  private final double MAX_LAT= 36.5;
-  private final double MIN_LON = -121.5 ;
-  private final double MAX_LON= -120.5;
-  private final double GRID_SPACING= .5;
+  private final double MIN_LAT= 32.45;
+  private final double MAX_LAT= 36.6;
+  private final double MIN_LON = -121.45 ;
+  private final double MAX_LON= -114.5;
+  private final double GRID_SPACING= .05;
   private static final String BACKGROUND_STEP_DIR ="backGround/";
   private static final String STEP_DIR = "step/";
 
