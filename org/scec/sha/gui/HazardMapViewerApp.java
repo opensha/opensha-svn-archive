@@ -10,6 +10,8 @@ import java.util.Vector;
 import java.util.StringTokenizer;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.BufferedReader;
 import java.text.DecimalFormat;
 
@@ -139,6 +141,11 @@ public class HazardMapViewerApp extends JApplet {
     mapButton.setBackground(new Color(200, 200, 230));
     mapButton.setForeground(new Color(80, 80, 133));
     mapButton.setText("Show Map");
+    mapButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        mapButton_actionPerformed(e);
+      }
+    });
     mainSplitPane.add(gmtSplitPane, JSplitPane.BOTTOM);
     mainSplitPane.setRightComponent(gmtSplitPane);
     gmtSplitPane.setLeftComponent(siteSplitPane);
@@ -356,7 +363,8 @@ public class HazardMapViewerApp extends JApplet {
    this.sitePanel.add(sitesEditor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 
-
+   // also set it in map gui bean
+   this.mapGuiBean.setGMTRegionParams(minLat, maxLat, minLon, maxLon, intervalLat);
 
   }
 
@@ -390,8 +398,176 @@ public class HazardMapViewerApp extends JApplet {
     // show this gui bean the JPanel
     this.gmtPanel.add(this.mapGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    mapGuiBean.showGMTParams(false);
+  }
+
+  /**
+   * this function is called when user chooses  "show Map"
+   * @param e
+   */
+  void mapButton_actionPerformed(ActionEvent e) {
+    // get he min/max lat/lon and gridspacing
+    double minLat = Double.parseDouble((String)sitesParamList.getParameter(this.MIN_LAT_PARAM_NAME).getValue());
+    double maxLat = Double.parseDouble((String)sitesParamList.getParameter(this.MAX_LAT_PARAM_NAME).getValue());
+    double minLon = Double.parseDouble((String)sitesParamList.getParameter(this.MIN_LON_PARAM_NAME).getValue());
+    double maxLon = Double.parseDouble((String)sitesParamList.getParameter(this.MAX_LON_PARAM_NAME).getValue());
+    double gridSpacing = ((Double)sitesParamList.getParameter(this.GRIDSPACING_PARAM_NAME).getValue()).doubleValue();
+    String selectedSet = this.dataSetCombo.getSelectedItem().toString();
+    // whethert IML@prob is selected or vics versa
+    boolean isProbAt_IML = true;
+    if(imlProbGuiBean.getSelectedOption().equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
+      isProbAt_IML = false;
+    double val = this.imlProbGuiBean.getIML_Prob();
+    // make the xyz file and pass the name of xyz file to mapguibean
+    mapGuiBean.makeMap(this.readAndWriteFile(minLat, maxLat, minLon, maxLon,
+        gridSpacing, selectedSet, isProbAt_IML, val));
 
   }
+
+  /**
+   * This method reads the file and generates the final outputfile
+   * for the range of the lat and lon selected by the user . The final output is
+   * generated based on the selcetion made by the user either for the iml@prob or
+   * prob@iml. The data is appended to the end of the until all the list of the
+   * files have been searched for thr input iml or prob value. The final output
+   * file is given as the input to generate the grd file.
+   * @param minLat
+   * @param maxLat
+   * @param minLon
+   * @param maxLon
+   */
+   private String readAndWriteFile(double minLat,double maxLat,double minLon,
+                                 double maxLon,double gridSpacing,
+                                 String selectedSet, boolean isProbAt_IML, double val){
+     String finalFile = null;;
+     try {
+       finalFile=selectedSet+".xyz";
+       FileWriter fw1= new FileWriter(finalFile);
+       fw1.close();
+     }catch(Exception e) {
+       e.printStackTrace();
+     }
+     //searching the directory for the list of the files.
+     File dir = new File(HazardMapCalculator.DATASETS_PATH+selectedSet+"/");
+     String[] fileList=dir.list();
+     //formatting of the text double Decimal numbers for 2 places of decimal.
+     DecimalFormat d= new DecimalFormat("0.00##");
+     for(int i=0;i<fileList.length;++i){
+       if(fileList[i].endsWith("txt")){
+         String lat=fileList[i].substring(0,fileList[i].indexOf("_"));
+         String lon=fileList[i].substring(fileList[i].indexOf("_")+1,fileList[i].indexOf(".txt"));
+         double mLat = Double.parseDouble(lat);
+         double mLon = Double.parseDouble(lon);
+         double diffLat=Double.parseDouble(d.format(mLat-minLat));
+         double diffLon=Double.parseDouble(d.format(mLon-minLon));
+
+         //looking if the file we are reading has lat and lon multiple of gridSpacing
+         //in Math.IEEEremainder method Zero is same as pow(10,-16)
+         if(Math.abs(Math.IEEEremainder(diffLat,gridSpacing)) <.0001
+            && Math.abs(Math.IEEEremainder(diffLon,gridSpacing)) < .0001){
+
+           if(mLat>= minLat && mLat<=maxLat && mLon>=minLon && mLon<=maxLon){
+             try{
+               boolean readFlag=true;
+
+               //reading the desired file line by line.
+               FileReader fr= new FileReader(HazardMapCalculator.DATASETS_PATH+selectedSet+
+                   "/"+fileList[i]);
+               BufferedReader bf= new BufferedReader(fr);
+               String dataLine=bf.readLine();
+               StringTokenizer st;
+               double prevIML=0 ;
+               double prevProb=0;
+               //reading the first of the file
+               if(dataLine!=null){
+                 st=new StringTokenizer(dataLine);
+                 prevIML = Double.parseDouble(st.nextToken());
+                 prevProb= Double.parseDouble(st.nextToken());
+               }
+               while(readFlag){
+                 dataLine=bf.readLine();
+                 //if the file has been read fully break out of the loop.
+                 if(dataLine ==null || dataLine=="" || dataLine.trim().length()==0){
+                   readFlag=false;
+                   break;
+                 }
+                 st=new StringTokenizer(dataLine);
+                 //using the currentIML and currentProb we interpolate the iml or prob
+                 //value entered by the user.
+                 double currentIML = Double.parseDouble(st.nextToken());
+                 double currentProb= Double.parseDouble(st.nextToken());
+                 if(isProbAt_IML){
+                   //taking into account the both types of curves, interpolating the value
+                   //interpolating the prob value for the iml value entered by the user.
+                   if((val>=prevIML && val<=currentIML) ||
+                      (val<=prevIML && val>=currentIML)){
+
+                     //final iml value returned after interpolation
+                     double finalIML=interpolateIML(val, prevIML,currentIML,prevProb,currentProb);
+                     String curveResult=lat+" "+lon+" "+finalIML+"\n";
+                     //appending the iml result to the final output file.
+
+                     FileWriter fw= new FileWriter(finalFile,true);
+                     fw.write(curveResult);
+                     fw.close();
+                     break;
+                   }
+                 }
+                 else if((val>=prevProb && val<=currentProb) ||
+                         (val<=prevProb && val>=currentProb)){
+                   //interpolating the iml value entered by the user to get the final iml for the
+                   //corresponding prob.
+                   double finalProb=interpolateProb(val, prevProb,currentProb,prevIML,currentIML);
+                   String curveResult=lat+" "+lon+" "+finalProb+"\n";
+                   finalFile=selectedSet+".xyz";
+                   FileWriter fw= new FileWriter(finalFile,true);
+                   fw.write(curveResult);
+                   fw.close();
+                   break;
+                 }
+                 prevIML=currentIML;
+                 prevProb=currentProb;
+               }
+               fr.close();
+               bf.close();
+             }catch(IOException e){
+               System.out.println("File Not Found :"+e);
+             }
+
+           }
+
+         }
+       }
+     }
+     return finalFile;
+   }
+
+
+   /**
+    * interpolating the prob values to get the final prob for the corresponding iml
+    * @param x1=iml1
+    * @param x2=iml2
+    * @param y1=prob1
+    * @param y2=prob2
+    * @return prob value for the iml entered
+    */
+   private double interpolateIML(double iml, double x1,double x2,double y1,double y2){
+     return ((iml-x1)/(x2-x1))*(y2-y1) +y1;
+   }
+
+   /**
+    * interpolating the iml values to get the
+  final iml for the corresponding prob
+    * @param x1=iml1
+    * @param x2=iml2
+    * @param y1=prob1
+    * @param y2=prob2
+    * @return iml value for the prob entered
+    */
+   private double interpolateProb(double prob, double y1,double y2,double x1,double x2){
+     return ((prob-y1)/(y2-y1))*(x2-x1)+x1;
+   }
+
 
 }
 

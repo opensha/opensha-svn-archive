@@ -21,8 +21,8 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
 
 
   //definition of the class final static variables
-  private final static String IML_AT_PROB="IML@Prob";
-  private final static String PROB_AT_IML="Prob@IML";
+  public final static String IML_AT_PROB="IML@Prob";
+  public final static String PROB_AT_IML="Prob@IML";
   private final static String PROBABILITY="Probability";
   private final static String MAP_TYPE = "Map Type";
   private final static String IML="IML";
@@ -97,7 +97,15 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
    */
  public double getIML_Prob(){
    if(parameterList.getParameter(MAP_TYPE).getValue().toString().equalsIgnoreCase(IML_AT_PROB))
-     return ((Double)iml.getValue()).doubleValue();
-   else return ((Double)prob.getValue()).doubleValue();
+     return ((Double)prob.getValue()).doubleValue();
+   else return ((Double)iml.getValue()).doubleValue();
+ }
+
+ /**
+  * returns whether IML@Prob is selcted or Prob@IML
+  * @return
+  */
+ public String getSelectedOption() {
+   return this.imlProb.getValue().toString();
  }
 }
