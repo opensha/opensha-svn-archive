@@ -5,7 +5,7 @@ import org.scec.param.event.*;
 import org.scec.param.*;
 import org.scec.sha.earthquake.rupForecastImpl.Frankel96.*;
 import org.scec.data.region.SitesInGriddedRegion;
-import org.scec.sha.calc.HazardMapCalculator;
+import org.scec.sha.calc.HazusMapCalculator;
 import org.scec.sha.earthquake.*;
 import org.scec.util.*;
 import org.scec.sha.gui.infoTools.*;
@@ -47,7 +47,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     region.addSiteParams(attenRel.getSiteParamsIterator());
     forecast.updateForecast();
 
-    HazardMapCalculator calc = new HazardMapCalculator();
+    HazusMapCalculator calc = new HazusMapCalculator();
     calc.showProgressBar(false);
     String metaData = "For Hazus Values\n\n"+
                       "ERF: "+forecast.getName()+"\n"+
@@ -59,13 +59,14 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
                       " Grid Spacing: "+region.getGridSpacing()+"\n";
     //doing ofr PGA
     ArbitrarilyDiscretizedFunc function = defaultXVals.getHazardCurve(attenRel.PGA_NAME);
-    double[] xValues =null;
+    double[] xValues =new double[function.getNum()];
     for(int i=0;i<function.getNum();++i)
       xValues[i] = function.getX(i);
     calc.getHazardMapCurves(PGA_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
 
     //Doing for SA
     function = defaultXVals.getHazardCurve(attenRel.SA_NAME);
+    xValues =new double[function.getNum()];
     for(int i=0;i<function.getNum();++i)
       xValues[i] = function.getX(i);
     attenRel.setIntensityMeasure(attenRel.SA_NAME);
@@ -76,6 +77,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
     //Doing for PGV
     function = defaultXVals.getHazardCurve(attenRel.PGV_NAME);
+    xValues =new double[function.getNum()];
     for(int i=0;i<function.getNum();++i)
       xValues[i] = function.getX(i);
     attenRel.setIntensityMeasure(attenRel.PGV_NAME);
