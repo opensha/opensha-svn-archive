@@ -1,11 +1,11 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ---------------------
  * JCommonResources.java
  * ---------------------
- * (C) Copyright 2002, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -38,6 +38,7 @@
  * 26-Jun-2002 : Changed version number to 0.6.4 (DG);
  * 27-Aug-2002 : Changed version number to 0.7.0 (DG);
  * 16-Oct-2002 : Changed version number to 0.7.1 (DG);
+ * 29-Jan-2003 : Changed version number to 0.7.2 (DG);
  *
  */
 
@@ -47,6 +48,8 @@ import java.util.ListResourceBundle;
 
 /**
  * Localised resources for the JCommon Class Library.
+ * 
+ * @author David Gilbert
  */
 public class JCommonResources extends ListResourceBundle {
 
@@ -55,16 +58,16 @@ public class JCommonResources extends ListResourceBundle {
      * @return the array of strings in the resource bundle.
      */
     public Object[][] getContents() {
-        return contents;
+        return CONTENTS;
     }
 
     /** The resources to be localised. */
-    static final Object[][] contents = {
+    private static final Object[][] CONTENTS = {
 
         {"project.name",      "JCommon"},
-        {"project.version",   "0.7.1"},
+        {"project.version",   "0.7.2"},
         {"project.info",      "http://www.object-refinery.com/jcommon/index.html"},
-        {"project.copyright", "(C)opyright 2000-2002, by Simba Management Limited and"
+        {"project.copyright", "(C)opyright 2000-2003, by Simba Management Limited and"
                             + " Contributors"}
 
     };
