@@ -180,10 +180,10 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
         !paramName.equalsIgnoreCase(GRID_SPACING))
        parameterList.removeParameter(paramName);
    }
-
+   //removing the existing sites Params from the gridded Region sites
+   gridRectRegion.replaceSiteParams(it);
    // now add all the new params
    addSiteParams(it);
-
  }
 
 
