@@ -4,8 +4,8 @@ import java.util.*;
 /**
  *  A simple implementation of a data distribution
  *
- *  
- *  
+ *
+ *
  */
 public class Data {
     //Variables
@@ -161,7 +161,6 @@ public class Data {
      */
     public double getMaxValue() {
         return getValue( size - 1 );
-        ;
     }
 
     /**

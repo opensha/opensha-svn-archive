@@ -543,7 +543,7 @@ public class AttenuationRelationshipGuiBean
         }
 
         //returns the Y-Axis Value for the Selected X-Val
-        return getCalculation(type);;
+        return getCalculation(type);
     }
 
     /**
