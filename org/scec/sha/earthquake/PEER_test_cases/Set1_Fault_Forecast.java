@@ -46,27 +46,40 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   // save the source. Fault1 has only 1 source
   private Set1_Fault_Source source;
 
+
   //Param Name
   private final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
-  private final static String TRUNCTYPE_PARAM_NAME =  "Trunc-Type";
-  private final static String TRUNCLEVEL_PARAM_NAME =  "Trunc-Level";
-  private final static String GRID_PARAM_NAME =  "Fault Grid Spacing (km)";
-  private final static String OFFSET_PARAM_NAME =  "Offset (km)";
+  private final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
+  private final static String OFFSET_PARAM_NAME =  "Offset";
   private final static String MAG_DIST_PARAM_NAME = "Fault Mag Dist";
   private final static String RAKE_PARAM_NAME ="Rake";
-  private final static String TIMESPAN_PARAM_NAME ="TimeSpan #years";
+  private final static String TIMESPAN_PARAM_NAME ="Fault TimeSpan";
   // dip name
   private final static String DIP_PARAM_NAME = "Dip";
 
   // default grid spacing is 1km
   private Double DEFAULT_GRID_VAL = new Double(1);
+  private final static String GRID_PARAM_UNITS = "kms";
+  private final static double GRID_PARAM_MIN = .001;
+  private final static double GRID_PARAM_MAX = 1000;
+
+
   //default rupture offset is 1km
   private Double DEFAULT_OFFSET_VAL = new Double(1);
+  private final static String OFFSET_PARAM_UNITS = "kms";
+  private final static double OFFSET_PARAM_MIN = .01;
+  private final static double OFFSET_PARAM_MAX = 10000;
+
+  //default timeSpan is 1 year
+  private Double DEFAULT_TIMESPAN_VAL= new Double(1);
+  private final static String TIMESPAN_PARAM_UNITS = "yrs";
+  private final static double TIMESPAN_PARAM_MIN = 1e-10;
+  private final static double TIMESPAN_PARAM_MAX = 1e10;
 
   // values for Mag length sigma
   private Double SIGMA_PARAM_MIN = new Double(0);
   private Double SIGMA_PARAM_MAX = new Double(1);
-  private Double DEFAULT_SIGMA_VAL = new Double(0.5);
+  private Double DEFAULT_SIGMA_VAL = new Double(0.0);
   private double UPPER_SEISMO_DEPTH = 0.0;
   private double LOWER_SEISMO_DEPTH = 12.0;
 
@@ -82,21 +95,25 @@ public class Set1_Fault_Forecast extends EqkRupForecast
 
 
   // add the grid spacing field
-  DoubleParameter gridParam=new DoubleParameter(this.GRID_PARAM_NAME,this.DEFAULT_GRID_VAL);
+  DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
+                                               GRID_PARAM_MAX,GRID_PARAM_UNITS,DEFAULT_GRID_VAL);
 
   // add the rupOffset spacing field
-  DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME, DEFAULT_OFFSET_VAL);
+  DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM_MIN,
+                                               OFFSET_PARAM_MAX,OFFSET_PARAM_UNITS,DEFAULT_OFFSET_VAL);
+
 
 
   // add sigma for maglength(0-1)
   DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
                          SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
-
   DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME);
 
 
   //add the dip parameter
-  DoubleParameter timeSpanParam = new DoubleParameter(this.TIMESPAN_PARAM_NAME);
+  DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
+                                               TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
+
 
   //add the dip parameter
   DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME);
@@ -368,5 +385,24 @@ public class Set1_Fault_Forecast extends EqkRupForecast
    */
    public String getName(){
      return C;
+   }
+
+
+   /**
+    * This functions fills the default values for the forecast paramters based
+    * on the selected fault which is passed as the argument to the function
+    * @param value
+    */
+   public void setForecastParams(String value){
+     // set the parameters for fault1
+     if(value.equals(this.FAULT1_NAME)) {
+       this.adjustableParams.getParameter(this.DIP_PARAM_NAME).setValue(new Double(90.0));
+       this.adjustableParams.getParameter(this.RAKE_PARAM_NAME).setValue(new Double(0.0));
+     }
+     // set the parameters for fault 2
+     if(value.equals(this.FAULT2_NAME)) {
+       this.adjustableParams.getParameter(this.DIP_PARAM_NAME).setValue(new Double(60.0));
+       this.adjustableParams.getParameter(this.RAKE_PARAM_NAME).setValue(new Double(90.0));
+     }
    }
 }

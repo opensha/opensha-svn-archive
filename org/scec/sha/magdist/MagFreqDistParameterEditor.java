@@ -38,7 +38,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
 
 
-    protected final static String DISTRIBUTION_NAME="Choose Distribution";
+    public final static String DISTRIBUTION_NAME="Choose Distribution";
 
 
    /**
@@ -67,62 +67,62 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     /**
      * Params string value
      */
-     private static final String MAG_DIST_TITLE = new String("Mag Dist Params");
-     private static final String PARAMS_TO_SET=new String("Params to Set");
-     private static final String SET_ALL_PARAMS_BUT=new String("Set All Params BUT");
-     private static final String MIN=new String("Min");
-     private static final String MAX=new String("Max");
-     private static final String NUM=new String("Num");
+     public static final String MAG_DIST_TITLE = new String("Mag Dist Params");
+     public static final String PARAMS_TO_SET=new String("Params to Set");
+     public static final String SET_ALL_PARAMS_BUT=new String("Set All Params BUT");
+     public static final String MIN=new String("Min");
+     public static final String MAX=new String("Max");
+     public static final String NUM=new String("Num");
 
 
    /**
     * Single Magnitude Frequency Distribution Parameter string list  constant
     */
-     private static final String RATE_AND_MAG =new String("Rate & Mag");
-     private static final String MAG_AND_MORATE =new String("Mag & Moment Rate");
-     private static final String RATE_AND_MORATE=new String("Rate & Moment Rate");
-     private static final String RATE=new String("Rate");
-     private static final String MAG=new String("Mag");
-     private static final String MO_RATE=new String("Moment Rate");
+     public static final String RATE_AND_MAG =new String("Rate & Mag");
+     public static final String MAG_AND_MORATE =new String("Mag & Moment Rate");
+     public static final String RATE_AND_MORATE=new String("Rate & Moment Rate");
+     public static final String RATE=new String("Rate");
+     public static final String MAG=new String("Mag");
+     public static final String MO_RATE=new String("Moment Rate");
 
 
 
   /**
    * GutenbergRichter Magnitude Frequency Distribution Parameter string list constant
    */
-    private static final String GR_TO_MORATE=new String("Total Moment Rate");
-    private static final String TO_CUM_RATE=new String("Total Cum Rate");
-    private static final String GR_MAG_UPPER=new String("Mag Upper");
-    private static final String GR_MAG_LOWER=new String("Mag Lower");
-    private static final String GR_BVALUE=new String("b Value");
-    private static final String FIX=new String("fix");
-    private static final String FIX_TO_MORATE=new String("Fix Total Moment Rate");
-    private static final String FIX_TO_CUM_RATE=new String("Fix Total CUM Rate");
+    public static final String GR_TO_MORATE=new String("Total Moment Rate");
+    public static final String TO_CUM_RATE=new String("Total Cum Rate");
+    public static final String GR_MAG_UPPER=new String("Mag Upper");
+    public static final String GR_MAG_LOWER=new String("Mag Lower");
+    public static final String GR_BVALUE=new String("b Value");
+    public static final String FIX=new String("fix");
+    public static final String FIX_TO_MORATE=new String("Fix Total Moment Rate");
+    public static final String FIX_TO_CUM_RATE=new String("Fix Total CUM Rate");
 
 
     /**
      * Young and Coppersmith, 1985 Char
      */
-    private static final String YC_MAG_UPPER=new String("Mag Upper");
-    private static final String YC_MAG_LOWER=new String("Mag Lower");
-    private static final String YC_BVALUE=new String("b Value");
-    private static final String YC_DELTA_MAG_CHAR = new String("Delta Mag Char");
-    private static final String YC_MAG_PRIME = new String("Mag Prime");
-    private static final String YC_DELTA_MAG_PRIME = new String("Delta Mag Prime");
-    private static final String YC_TO_MORATE=new String("Total Moment Rate");
+    public static final String YC_MAG_UPPER=new String("Mag Upper");
+    public static final String YC_MAG_LOWER=new String("Mag Lower");
+    public static final String YC_BVALUE=new String("b Value");
+    public static final String YC_DELTA_MAG_CHAR = new String("Delta Mag Char");
+    public static final String YC_MAG_PRIME = new String("Mag Prime");
+    public static final String YC_DELTA_MAG_PRIME = new String("Delta Mag Prime");
+    public static final String YC_TO_MORATE=new String("Total Moment Rate");
 
 
   /**
    * Gaussian Magnitude Frequency Distribution Parameter string list constant
    */
-    private static final String GAUSSIAN_TO_MORATE=new String("Total Moment Rate");
-    private static final String MEAN=new String("Mean");
-    private static final String STD_DEV=new String("Std Dev");
-    private static final String TRUNCATION_REQ=new String("Truncation Required");
-    private static final String TRUNCATE_FROM_RIGHT= new String("Truncate from Right");
-    private static final String TRUNCATE_ON_BOTH_SIDES= new String("Truncate on Both Sides");
-    private static final String TRUNCATE_NUM_OF_STD_DEV= new String("Truncation(# of Std Devs)");
-    private static final String NONE= new String("None");
+    public static final String GAUSSIAN_TO_MORATE=new String("Total Moment Rate");
+    public static final String MEAN=new String("Mean");
+    public static final String STD_DEV=new String("Std Dev");
+    public static final String TRUNCATION_REQ=new String("Truncation Required");
+    public static final String TRUNCATE_FROM_RIGHT= new String("Truncate from Right");
+    public static final String TRUNCATE_ON_BOTH_SIDES= new String("Truncate on Both Sides");
+    public static final String TRUNCATE_NUM_OF_STD_DEV= new String("Truncation(# of Std Devs)");
+    public static final String NONE= new String("None");
 
     /**
      *  This is name of various classes
@@ -208,6 +208,17 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      */
     public void actionPerformed(ActionEvent ae ) {
       this.getChoosenFunction();
+    }
+
+    /**
+     * Called when the parameter has changed independently from
+     * the editor, such as with the ParameterWarningListener.
+     * This function needs to be called to to update
+     * the GUI component ( text field, picklsit, etc. ) with
+     * the new parameter value.
+     */
+    public void synchToModel() {
+      this.editor.synchToModel();
     }
 
 
@@ -562,14 +573,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
     }
 
-    /**
-     *  Resets all GUI controls back to the model values. Some models have been
-     *  changed when iterating over an independent variable. This function
-     *  ensures these changes are reflected in the independent parameter list.
-     */
-    public void synchToModel() {
-        synchToModel();
-    }
+
 
 
 
@@ -799,20 +803,49 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
 
 
-
+  /**
+   * returns the MagDistName
+   * @return
+   */
   public String getMagDistName() {
     return parameterList.getParameter(DISTRIBUTION_NAME).getValue().toString();
   }
+
+  /**
+   * returns the Min of the magnitude for the distribution
+   * @return
+   */
   public double getMin(){
     return ((Double)parameterList.getParameter(MIN).getValue()).doubleValue();
   }
 
+  /**
+   * returns the Max of the magnitude for thr distribution
+   * @return
+   */
   public double getMax(){
     return ((Double)parameterList.getParameter(MAX).getValue()).doubleValue();
   }
 
+  /**
+   * returns the Number of magnitudes for the Distribution
+   * @return
+   */
   public int getNum(){
     return ((Integer)parameterList.getParameter(NUM).getValue()).intValue();
+  }
+
+  /**
+   * returns the ParamterList for the MagfreqDistParameter
+   * @return
+   */
+  public ParameterList getParamterList() {
+    return parameterList;
+  }
+
+  /** Returns each parameter for the MagFreqDist */
+  public ParameterAPI getParameter(String name) throws ParameterException {
+    return parameterList.getParameter(name);
   }
 
 }

@@ -45,6 +45,14 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private double timeSpan;
   private TimeSpan time;
 
+
+  /**
+   * Test cases final static string
+   */
+   private final static String TEST_CASE_TEN ="10";
+   private final static String TEST_CASE_ELEVEN ="11";
+
+
   /**
    * Declaration for the static lat and longs for the Area
    */
@@ -76,7 +84,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private final static String MAG_DIST_PARAM_NAME = "Area Mag Dist";
 
   //timespan Variable
-  private final static String TIMESPAN_PARAM_NAME = "Timespan";
+  private final static String TIMESPAN_PARAM_NAME = "Area Timespan";
   private final static String TIMESPAN_PARAM_UNITS = "yrs";
   private final static Double TIMESPAN_PARAM_DEFAULT = new Double(1);
   private final static double TIMESPAN_PARAM_MIN = 1e-10;
@@ -223,7 +231,8 @@ public class Set1_Area_Forecast extends EqkRupForecast
       //creating the PointGR sources  and adding the objects for sources in the vector.
       //FIX FIX have to have rake parameter;
       for(int i=0;i<numLocs;++i){
-        PointGR_EqkSource pointGR_EqkSource = new PointGR_EqkSource(locationList.getLocationAt(i),gR,90);
+        PointGR_EqkSource pointGR_EqkSource = new PointGR_EqkSource(locationList.getLocationAt(i),gR,
+                                              ((Double)this.rakeParam.getValue()).doubleValue());
         area_EqkSources.add(pointGR_EqkSource);
       }
       setTimeSpan(((Double) timespanParam.getValue()).doubleValue());
@@ -377,5 +386,19 @@ public class Set1_Area_Forecast extends EqkRupForecast
     return C;
   }
 
-
+  /**
+   * This functions fills the default values for the forecast paramters based
+   * on the selected test case which is passed as the argument to the function
+   * @param value
+   */
+  public void setForecastParams(String value){
+    if(value.equals(this.TEST_CASE_TEN)) {
+      adjustableParams.getParameter(this.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
+      adjustableParams.getParameter(this.DEPTH_UPPER_PARAM_NAME).setValue(new Double(0));
+    }
+    if(value.equals(this.TEST_CASE_ELEVEN)) {
+      adjustableParams.getParameter(this.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
+      adjustableParams.getParameter(this.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+    }
+  }
 }

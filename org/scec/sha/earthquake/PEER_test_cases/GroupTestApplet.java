@@ -177,9 +177,14 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
   //Initialize the applet
   public void init() {
     try {
+
+      jbInit();
       // make the GroupTestGuiBean
       groupTestBean = new GroupTestGuiBean(this);
-      jbInit();
+      this.updateChoosenIMR();
+      this.updateChoosenTestCase();
+      this.updateChoosenIMT();
+      this.updateChoosenEqkSource();
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -341,42 +346,9 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
     controlsSplit.add(testSplitPane, JSplitPane.TOP);
     siteSplitPane.add(sitePanel, JSplitPane.TOP);
     siteSplitPane.add(imtPanel, JSplitPane.BOTTOM);
-
-
-    updateChoosenTestCase();
-    updateChoosenIMT();
-    updateChoosenIMR();
-    updateChoosenEqkSource();
-    controlsSplit.setDividerLocation(235);
+    controlsSplit.setDividerLocation(350);
     siteSplitPane.setDividerLocation(125);
-    sitePanel.removeAll();
-    sitePanel.add(groupTestBean.getSiteEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                 GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    sitePanel.validate();
-    sitePanel.repaint();
-    testCasesPanel.removeAll();
-    testCasesPanel.add(groupTestBean.getTestCasesEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                       GridBagConstraints.CENTER,
-                       GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    testSplitPane.setDividerLocation(90);
-    imrPanel.removeAll();
-    imrPanel.add(groupTestBean.getImrEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                 GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    imrPanel.validate();
-    imrPanel.repaint();
     chartSplit.setDividerLocation(500);
-    imtPanel.removeAll();
-    imtPanel.add(groupTestBean.getIMTEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                 GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    imtPanel.validate();
-    imtPanel.repaint();
-    sourcePanel.removeAll();
-    sourcePanel.add(groupTestBean.getEqkSourceEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                    GridBagConstraints.CENTER,
-                    GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
     buttonPanel.add(jCustomAxisLabel,                  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 11), 0, 0));
     buttonPanel.add(rangeComboBox,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
@@ -385,8 +357,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
     sourcePanel.validate();
     sourcePanel.repaint();
-
-
+    testSplitPane.setDividerLocation(150);
 
   }
   //Start the applet
@@ -426,8 +397,8 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
   //static initializer for setting look & feel
   static {
     try {
-      //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
     }
     catch(Exception e) {
     }
@@ -438,11 +409,15 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
    *  update the GUI with the test case choosen
    */
   public void updateChoosenTestCase() {
+    if(this.groupTestBean==null)
+      return;
     testCasesPanel.removeAll();
     testCasesPanel.add(groupTestBean.getTestCasesEditor(),
                        new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                        GridBagConstraints.CENTER,
                        GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    testCasesPanel.validate();
+    testCasesPanel.repaint();
 
   }
 
@@ -452,6 +427,8 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
    *  update the GUI with the IMT choosen
    */
   public void updateChoosenIMT() {
+    if(this.groupTestBean==null)
+      return;
     imtPanel.removeAll();
     imtPanel.setLayout(gridBagLayout8);
     imtPanel.add(groupTestBean.getIMTEditor(),
@@ -468,6 +445,8 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
    */
   public void updateChoosenIMR() {
     // update the IMR and site panel
+    if(this.groupTestBean==null)
+      return;
     imrPanel.removeAll();
     sitePanel.removeAll();
     // update the imr editor
@@ -492,6 +471,8 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
    */
   public void updateChoosenEqkSource() {
     // update the EqkSource panel
+    if(this.groupTestBean==null)
+      return;
     this.sourcePanel.removeAll();
     sourcePanel.setLayout(gridBagLayout5);
     sourcePanel.add(groupTestBean.getEqkSourceEditor(),
@@ -585,21 +566,14 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
       chartPanel.setHorizontalAxisTrace(false);
       chartPanel.setVerticalAxisTrace(false);
 
-      //panel.removeAll();
-      //panel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-        //                      , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-
 
       if(D) System.out.println(this.totalProbFuncs.toString());
       if(D) System.out.println(S + "data:" + data);
 
-      //validate();
-      //repaint();
       graphOn=false;
       togglePlot();
 
    }
-
 
 
    /**
