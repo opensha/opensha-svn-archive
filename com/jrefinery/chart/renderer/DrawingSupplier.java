@@ -19,10 +19,10 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------------
- * EntityCollection.java
- * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * --------------------
+ * DrawingSupplier.java
+ * --------------------
+ * (C) Copyright 2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -31,51 +31,57 @@
  *
  * Changes
  * -------
- * 23-May-2002 : Version 1 (DG);
- * 25-Jun-2002 : Removed unnecessary import (DG);
- * 26-Jun-2002 : Added iterator() method (DG);
- * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
- *
+ * 16-Jan-2003 : Version 1 (DG);
+ * 17-Jan-2003 : Renamed PaintSupplier --> DrawingSupplier (DG);
+ * 
  */
 
-package com.jrefinery.chart.entity;
+package com.jrefinery.chart.renderer;
 
-import java.util.Iterator;
+import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.Stroke;
 
 /**
- * Defines the methods that a collection of entities is required to implement.
- *
+ * A supplier of <code>Paint</code> and <code>Stroke</code> objects.
+ * 
  * @author David Gilbert
  */
-public interface EntityCollection {
+public interface DrawingSupplier {
 
     /**
-     * Clears all entities.
+     * Returns the next paint in a sequence maintained by the supplier. 
+     * 
+     * @return The paint.
      */
-    public void clear();
+    public Paint getNextPaint();
 
     /**
-     * Adds an entity to the collection.
-     *
-     * @param entity  the entity.
-     */
-    public void addEntity(ChartEntity entity);
+     * Returns the next outline paint in a sequence maintained by the supplier.
+     * 
+     * @return The paint.
+     */    
+    public Paint getNextOutlinePaint();
 
     /**
-     * Returns an entity whose area contains the specified point.
-     *
-     * @param x  the x coordinate.
-     * @param y  the y coordinate.
-     *
-     * @return The entity.
+     * Returns the next <code>Stroke</code> object in a sequence maintained by the supplier.
+     * 
+     * @return The stroke.
      */
-    public ChartEntity getEntity(double x, double y);
+    public Stroke getNextStroke();
+        
+    /**
+     * Returns the next <code>Stroke</code> object in a sequence maintained by the supplier.
+     * 
+     * @return The stroke.
+     */
+    public Stroke getNextOutlineStroke();
 
     /**
-     * Returns an iterator for the entities in the collection.
-     *
-     * @return an iterator.
+     * Returns the next <code>Shape</code> object in a sequence maintained by the supplier.
+     * 
+     * @return The shape.
      */
-    public Iterator iterator();
-
+    public Shape getNextShape();
+        
 }

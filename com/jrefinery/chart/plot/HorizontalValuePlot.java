@@ -19,63 +19,56 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------------
- * EntityCollection.java
- * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * ------------------------
+ * HorizontalValuePlot.java
+ * ------------------------
+ * (C) Copyright 2000-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
  *
  * $Id$
  *
- * Changes
- * -------
- * 23-May-2002 : Version 1 (DG);
- * 25-Jun-2002 : Removed unnecessary import (DG);
- * 26-Jun-2002 : Added iterator() method (DG);
- * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * Changes (from 18-Sep-2001)
+ * --------------------------
+ * 18-Sep-2001 : Added standard header and fixed DOS encoding problem (DG);
+ * 22-Apr-2002 : Replaced existing methods with getHorizontalRange() method (DG);
+ * 29-Apr-2002 : Added getHorizontalAxis() method (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 20-Nov-2002 : Added axis parameter to getHorizontalDataRange(...) method (DG);
  *
  */
 
-package com.jrefinery.chart.entity;
+package com.jrefinery.chart.plot;
 
-import java.util.Iterator;
+import com.jrefinery.chart.axis.ValueAxis;
+import com.jrefinery.data.Range;
 
 /**
- * Defines the methods that a collection of entities is required to implement.
+ * An interface defining methods for interrogating a plot that displays values
+ * along the horizontal axis.
+ * <P>
+ * Used by horizontal axes (when auto-adjusting the axis range) to determine
+ * the minimum and maximum data values.
  *
  * @author David Gilbert
  */
-public interface EntityCollection {
+public interface HorizontalValuePlot {
 
     /**
-     * Clears all entities.
+     * Returns the range of data values to be plotted along the horizontal axis.
+     *
+     * @param axis  the axis.
+     * 
+     * @return  the range.
      */
-    public void clear();
+    public Range getHorizontalDataRange(ValueAxis axis);
 
     /**
-     * Adds an entity to the collection.
+     * Get the value axis.
      *
-     * @param entity  the entity.
+     * @return  the value axis.
      */
-    public void addEntity(ChartEntity entity);
-
-    /**
-     * Returns an entity whose area contains the specified point.
-     *
-     * @param x  the x coordinate.
-     * @param y  the y coordinate.
-     *
-     * @return The entity.
-     */
-    public ChartEntity getEntity(double x, double y);
-
-    /**
-     * Returns an iterator for the entities in the collection.
-     *
-     * @return an iterator.
-     */
-    public Iterator iterator();
+    public ValueAxis getHorizontalValueAxis();
 
 }

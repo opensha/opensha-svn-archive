@@ -20,62 +20,45 @@
  * Boston, MA 02111-1307, USA.
  *
  * ---------------------
- * EntityCollection.java
+ * ContourValuePlot.java
  * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by David M. O'Donnell and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David M. O'Donnell;
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * $Id$
  *
  * Changes
  * -------
- * 23-May-2002 : Version 1 (DG);
- * 25-Jun-2002 : Removed unnecessary import (DG);
- * 26-Jun-2002 : Added iterator() method (DG);
- * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 26-Nov-2002 : Version 1 contributed by David M. O'Donnell (DG);
  *
  */
 
-package com.jrefinery.chart.entity;
+package com.jrefinery.chart.plot;
 
-import java.util.Iterator;
+import com.jrefinery.chart.axis.ValueAxis;
+import com.jrefinery.data.Range;
 
 /**
- * Defines the methods that a collection of entities is required to implement.
- *
- * @author David Gilbert
+ * An interface defining methods related to contour plots.
+ * 
+ * @author David M. O'Donnell
  */
-public interface EntityCollection {
+public interface ContourValuePlot {
 
     /**
-     * Clears all entities.
+     * Returns the range of data values to be plotted.
+     *
+     * @return  the range.
      */
-    public void clear();
+    public Range getContourDataRange();
 
     /**
-     * Adds an entity to the collection.
+     * Returns the color bar axis.
      *
-     * @param entity  the entity.
+     * @return  the value axis.
      */
-    public void addEntity(ChartEntity entity);
-
-    /**
-     * Returns an entity whose area contains the specified point.
-     *
-     * @param x  the x coordinate.
-     * @param y  the y coordinate.
-     *
-     * @return The entity.
-     */
-    public ChartEntity getEntity(double x, double y);
-
-    /**
-     * Returns an iterator for the entities in the collection.
-     *
-     * @return an iterator.
-     */
-    public Iterator iterator();
+    public ValueAxis getColorBarValueAxis();
 
 }

@@ -19,63 +19,40 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------------
- * EntityCollection.java
- * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * ------------------
+ * PlotException.java
+ * ------------------
+ * (C) Copyright 2000-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
  *
  * $Id$
  *
- * Changes
- * -------
- * 23-May-2002 : Version 1 (DG);
- * 25-Jun-2002 : Removed unnecessary import (DG);
- * 26-Jun-2002 : Added iterator() method (DG);
- * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * Changes (from 18-Sep-2001)
+ * --------------------------
+ * 18-Sep-2001 : Added standard header and fixed DOS encoding problem (DG);
+ * 15-Nov-2001 : Changed name from DataSourceNotCompatibleException to PlotException (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
-package com.jrefinery.chart.entity;
-
-import java.util.Iterator;
+package com.jrefinery.chart.plot;
 
 /**
- * Defines the methods that a collection of entities is required to implement.
+ * A general purpose exception class for plots.
  *
  * @author David Gilbert
  */
-public interface EntityCollection {
+public class PlotException extends Exception {
 
     /**
-     * Clears all entities.
-     */
-    public void clear();
-
-    /**
-     * Adds an entity to the collection.
+     * Constructs a new plot exception.
      *
-     * @param entity  the entity.
+     * @param message  a message describing the exception.
      */
-    public void addEntity(ChartEntity entity);
-
-    /**
-     * Returns an entity whose area contains the specified point.
-     *
-     * @param x  the x coordinate.
-     * @param y  the y coordinate.
-     *
-     * @return The entity.
-     */
-    public ChartEntity getEntity(double x, double y);
-
-    /**
-     * Returns an iterator for the entities in the collection.
-     *
-     * @return an iterator.
-     */
-    public Iterator iterator();
+    public PlotException(String message) {
+        super(message);
+    }
 
 }

@@ -19,63 +19,52 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------------
- * EntityCollection.java
- * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * ------------------
+ * ContourEntity.java
+ * ------------------
+ * (C) Copyright 2002, 2003, by David M. O'Donnell and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David M. O'Donnell;
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * $Id$
  *
  * Changes
  * -------
- * 23-May-2002 : Version 1 (DG);
- * 25-Jun-2002 : Removed unnecessary import (DG);
- * 26-Jun-2002 : Added iterator() method (DG);
- * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 26-Nov-2002 : Version 1 contributed by David M. O'Donnell (DG);
  *
  */
 
 package com.jrefinery.chart.entity;
 
-import java.util.Iterator;
+import java.awt.Shape;
 
 /**
- * Defines the methods that a collection of entities is required to implement.
- *
- * @author David Gilbert
+ * Represents an item on a contour chart.
+ * 
+ * @author David M. O'Donnell
  */
-public interface EntityCollection {
+public class ContourEntity extends ChartEntity {
 
     /**
-     * Clears all entities.
+     * Constructor for ContourEntity.
+     *
+     * @param area  the area.
+     * @param toolTipText  the tooltip text.
      */
-    public void clear();
+    public ContourEntity(Shape area, String toolTipText) {
+        super(area, toolTipText);
+    }
 
     /**
-     * Adds an entity to the collection.
+     * Constructor for ContourEntity.
      *
-     * @param entity  the entity.
+     * @param area  the area.
+     * @param toolTipText  the tooltip text.
+     * @param urlText  the URL text.
      */
-    public void addEntity(ChartEntity entity);
-
-    /**
-     * Returns an entity whose area contains the specified point.
-     *
-     * @param x  the x coordinate.
-     * @param y  the y coordinate.
-     *
-     * @return The entity.
-     */
-    public ChartEntity getEntity(double x, double y);
-
-    /**
-     * Returns an iterator for the entities in the collection.
-     *
-     * @return an iterator.
-     */
-    public Iterator iterator();
+    public ContourEntity(Shape area, String toolTipText, String urlText) {
+        super(area, toolTipText, urlText);
+    }
 
 }

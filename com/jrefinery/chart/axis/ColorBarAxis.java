@@ -19,63 +19,56 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------------
- * EntityCollection.java
- * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * -----------------
+ * ColorBarAxis.java
+ * -----------------
+ * (C) Copyright 2002, 2003 by David M. O'Donnell and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David M. O'Donnell;
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * $Id$
  *
  * Changes
  * -------
- * 23-May-2002 : Version 1 (DG);
- * 25-Jun-2002 : Removed unnecessary import (DG);
- * 26-Jun-2002 : Added iterator() method (DG);
- * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 26-Nov-2002 : Version 1 contributed by David M. O'Donnell (DG);
  *
  */
 
-package com.jrefinery.chart.entity;
+package com.jrefinery.chart.axis;
 
-import java.util.Iterator;
+import java.awt.Paint;
+
+import com.jrefinery.ui.ColorPalette;
 
 /**
- * Defines the methods that a collection of entities is required to implement.
+ * An interface required for color bar axes.
  *
- * @author David Gilbert
+ * @author David M. O'Donnell
  */
-public interface EntityCollection {
+public interface ColorBarAxis {
 
     /**
-     * Clears all entities.
+     * Returns the current color palette.
+     *
+     * @return the color palette.
      */
-    public void clear();
+    public ColorPalette getColorPalette();
 
     /**
-     * Adds an entity to the collection.
+     * Sets the current color palette.
      *
-     * @param entity  the entity.
+     * @param palette the new palette.
      */
-    public void addEntity(ChartEntity entity);
+    public void setColorPalette(ColorPalette palette);
 
     /**
-     * Returns an entity whose area contains the specified point.
+     * Returns the Paint associated with a value.
      *
-     * @param x  the x coordinate.
-     * @param y  the y coordinate.
+     * @param value  the value.
      *
-     * @return The entity.
+     * @return the paint.
      */
-    public ChartEntity getEntity(double x, double y);
-
-    /**
-     * Returns an iterator for the entities in the collection.
-     *
-     * @return an iterator.
-     */
-    public Iterator iterator();
+    public Paint getPaint(double value);
 
 }

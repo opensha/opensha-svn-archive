@@ -19,63 +19,45 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------------
- * EntityCollection.java
- * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * -------------------------------
+ * AxisNotCompatibleException.java
+ * -------------------------------
+ * (C) Copyright 2000-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
  *
  * $Id$
  *
- * Changes
- * -------
- * 23-May-2002 : Version 1 (DG);
- * 25-Jun-2002 : Removed unnecessary import (DG);
- * 26-Jun-2002 : Added iterator() method (DG);
- * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * Changes (from 21-Aug-2001)
+ * --------------------------
+ * 21-Aug-2001 : Added standard header. Fixed DOS encoding problem (DG);
+ * 18-Sep-2001 : Updated header (DG);
+ * 30-Nov-2001 : Now extends RuntimeException rather than Exception, as suggested by Joao Guilherme
+ *               Del Valle (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 08-Nov-2002 : Moved to new package com.jrefinery.chart.axis (DG);
  *
  */
 
-package com.jrefinery.chart.entity;
-
-import java.util.Iterator;
+package com.jrefinery.chart.axis;
 
 /**
- * Defines the methods that a collection of entities is required to implement.
+ * An exception that is generated when assigning an axis to a plot *if* the
+ * axis is not compatible with the plot type.  For example, a CategoryAxis is
+ * not compatible with an XYPlot.
  *
  * @author David Gilbert
  */
-public interface EntityCollection {
+public class AxisNotCompatibleException extends RuntimeException {
 
     /**
-     * Clears all entities.
-     */
-    public void clear();
-
-    /**
-     * Adds an entity to the collection.
+     * Constructs a new exception.
      *
-     * @param entity  the entity.
+     * @param message  a message describing the exception.
      */
-    public void addEntity(ChartEntity entity);
-
-    /**
-     * Returns an entity whose area contains the specified point.
-     *
-     * @param x  the x coordinate.
-     * @param y  the y coordinate.
-     *
-     * @return The entity.
-     */
-    public ChartEntity getEntity(double x, double y);
-
-    /**
-     * Returns an iterator for the entities in the collection.
-     *
-     * @return an iterator.
-     */
-    public Iterator iterator();
+    public AxisNotCompatibleException(String message) {
+        super(message);
+    }
 
 }

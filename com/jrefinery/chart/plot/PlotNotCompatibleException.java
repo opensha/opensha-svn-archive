@@ -6,7 +6,7 @@
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
- *
+
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
  * either version 2.1 of the License, or (at your option) any later version.
@@ -19,63 +19,43 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------------
- * EntityCollection.java
- * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * -------------------------------
+ * PlotNotCompatibleException.java
+ * -------------------------------
+ * (C) Copyright 2000-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
  *
  * $Id$
  *
- * Changes
- * -------
- * 23-May-2002 : Version 1 (DG);
- * 25-Jun-2002 : Removed unnecessary import (DG);
- * 26-Jun-2002 : Added iterator() method (DG);
- * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * Changes (from 18-Sep-2001)
+ * --------------------------
+ * 18-Sep-2001 : Added standard header and fixed DOS encoding problem (DG);
+ * 30-Nov-2001 : Now extends RuntimeException rather than Exception, as suggested by Joao Guilherme
+ *               Del Valle (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
-package com.jrefinery.chart.entity;
-
-import java.util.Iterator;
+package com.jrefinery.chart.plot;
 
 /**
- * Defines the methods that a collection of entities is required to implement.
+ * An exception that is generated when assigning a plot to a chart *if* the
+ * plot is not compatible with the chart's current data source.  For example,
+ * a HorizontalBarPlot is not compatible with an XYDataset.
  *
  * @author David Gilbert
  */
-public interface EntityCollection {
+public class PlotNotCompatibleException extends RuntimeException {
 
     /**
-     * Clears all entities.
-     */
-    public void clear();
-
-    /**
-     * Adds an entity to the collection.
+     * Constructs a new exception.
      *
-     * @param entity  the entity.
+     * @param message  a message describing the exception.
      */
-    public void addEntity(ChartEntity entity);
-
-    /**
-     * Returns an entity whose area contains the specified point.
-     *
-     * @param x  the x coordinate.
-     * @param y  the y coordinate.
-     *
-     * @return The entity.
-     */
-    public ChartEntity getEntity(double x, double y);
-
-    /**
-     * Returns an iterator for the entities in the collection.
-     *
-     * @return an iterator.
-     */
-    public Iterator iterator();
+    public PlotNotCompatibleException(String message) {
+        super(message);
+    }
 
 }

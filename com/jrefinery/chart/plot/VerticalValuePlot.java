@@ -19,63 +19,55 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------------
- * EntityCollection.java
- * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * ----------------------
+ * VerticalValuePlot.java
+ * ----------------------
+ * (C) Copyright 2000-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
  *
  * $Id$
  *
- * Changes
- * -------
- * 23-May-2002 : Version 1 (DG);
- * 25-Jun-2002 : Removed unnecessary import (DG);
- * 26-Jun-2002 : Added iterator() method (DG);
- * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * Changes (from 18-Sep-2001)
+ * --------------------------
+ * 18-Sep-2001 : Added standard header and fixed DOS encoding problem (DG);
+ * 23-Apr-2002 : Replaced existing methods with getVerticalDataRange() (DG);
+ * 29-Apr-2002 : Added getVerticalAxis() method (DG);
+ * 19-Nov-2002 : Added axis parameter to getVerticalDataRange(...) method (DG);
  *
  */
 
-package com.jrefinery.chart.entity;
+package com.jrefinery.chart.plot;
 
-import java.util.Iterator;
+import com.jrefinery.chart.axis.ValueAxis;
+import com.jrefinery.data.Range;
 
 /**
- * Defines the methods that a collection of entities is required to implement.
+ * An interface defining methods for interrogating a plot that displays values
+ * along the vertical axis.
+ * <P>
+ * Used by vertical axes (when auto-adjusting the axis range) to determine the
+ * minimum and maximum data values.  Also used by the ChartPanel class for zooming.
  *
  * @author David Gilbert
  */
-public interface EntityCollection {
+public interface VerticalValuePlot {
 
     /**
-     * Clears all entities.
+     * Returns the range for the data to be plotted against the vertical axis.
+     *
+     * @param axis  the axis.
+     * 
+     * @return The range.
      */
-    public void clear();
+    public Range getVerticalDataRange(ValueAxis axis);
 
     /**
-     * Adds an entity to the collection.
+     * Returns the vertical axis.
      *
-     * @param entity  the entity.
+     * @return the axis.
      */
-    public void addEntity(ChartEntity entity);
-
-    /**
-     * Returns an entity whose area contains the specified point.
-     *
-     * @param x  the x coordinate.
-     * @param y  the y coordinate.
-     *
-     * @return The entity.
-     */
-    public ChartEntity getEntity(double x, double y);
-
-    /**
-     * Returns an iterator for the entities in the collection.
-     *
-     * @return an iterator.
-     */
-    public Iterator iterator();
+    public ValueAxis getVerticalValueAxis();
 
 }
