@@ -119,12 +119,13 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   private final static double RUP_OFFSET_PARAM_MAX = 100;
   DoubleParameter rupOffset_Param;
 
-/**/
+/*
   // fault file parameter for testing
   public final static String FAULT_FILE_NAME = new String ("Fault File");
   // make the fault-model parameter
   ArrayList faultFileNamesStrings = new ArrayList();
   StringParameter faultFileParam;
+*/
 
   /**
    *
@@ -147,7 +148,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     rupOffset_Param.addParameterChangeListener(this);
     backSeisParam.addParameterChangeListener(this);
     backSeisRupParam.addParameterChangeListener(this);
-    faultFileParam.addParameterChangeListener(this);
+//    faultFileParam.addParameterChangeListener(this);
 
   }
 
@@ -159,10 +160,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,
         (String)faultModelNamesStrings.get(0));
 
-//    backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
-//    backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
+    backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
+    backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
     backSeisOptionsStrings.add(BACK_SEIS_ONLY);
-    backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_ONLY);
+    backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_EXCLUDE);
 
     rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
         RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
@@ -170,7 +171,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
     backSeisRupStrings.add(BACK_SEIS_RUP_POINT);
     backSeisRupStrings.add(BACK_SEIS_RUP_FINITE);
-    backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_FINITE);
+    backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_POINT);
 
     rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
         RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
@@ -183,6 +184,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     adjustableParams.addParameter(backSeisParam);
     adjustableParams.addParameter(backSeisRupParam);
 
+/*
 // this was for testing:
         faultFileNamesStrings.add("CAmapC_OpenSHA");
         faultFileNamesStrings.add("CAmapG_OpenSHA");
@@ -201,7 +203,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
         faultFileParam = new StringParameter(FAULT_FILE_NAME, faultFileNamesStrings,
         (String)faultFileNamesStrings.get(0));
         adjustableParams.addParameter(faultFileParam);
-
+*/
 /*
     faultFileNamesStrings.add("ca-a-other-fixed-char");
     faultFileNamesStrings.add("ca-a-other-norm-char");
@@ -270,22 +272,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     makeGridSources("shear3_OpenSHA", 1.0, null, 0.0);
     makeGridSources("shear4_OpenSHA", 1.0, null, 0.0);
 
-/*
-    makeGridSources("CAmapC_OpenSHA", 0.667, null, 0.0);
-    makeGridSources("CAmapG_OpenSHA", 0.333, null, 0.0);
-    makeGridSources("EXTmapC_OpenSHA", 0.5, null, 0.0);
-    makeGridSources("EXTmapGW_OpenSHA", 0.5, null, 0.0);
-    makeGridSources("WUSmapC_OpenSHA", 0.5, null, 0.0);
-    makeGridSources("WUSmapG_OpenSHA", 0.5, null, 0.0);
-    makeGridSources("brawmap_OpenSHA", 1.0, null, 1.0);
-    makeGridSources("cadeepAB_OpenSHA", 0.5, null, 1.0);
-    makeGridSources("cadeepY_OpenSHA", 0.5, null, 1.0);
-    makeGridSources("creepmap_OpenSHA", 1.0, null, 1.0);
-    makeGridSources("shear1_OpenSHA", 1.0, null, 1.0);
-    makeGridSources("shear2_OpenSHA", 1.0, null, 1.0);
-    makeGridSources("shear3_OpenSHA", 1.0, null, 1.0);
-    makeGridSources("shear4_OpenSHA", 1.0, null, 1.0);
-*/
   }
 
 
@@ -875,7 +861,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     deltaMag = Double.parseDouble(st.nextToken());
     magRef = Double.parseDouble(st.nextToken());  // this is ignored in Frankel's code
 
-//System.out.println(fileName1);
+    if(D)  System.out.println(fileName1);
 
     // get the 2nd line
     st = new StringTokenizer(it.next().toString());
@@ -906,7 +892,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
     double lat,lon,aVal, moRate, rateAtZeroMag;
     Location loc;
-    Point2Vert_SS_FaultPoisSource2 src;
+    Point2Vert_SS_FaultPoisSource src;
     IncrementalMagFreqDist magFreqDist;
     while( it.hasNext() ){
 
@@ -917,7 +903,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
       lat =  Double.parseDouble(st.nextToken());
       rateAtZeroMag = Double.parseDouble(st.nextToken());
       aVal = 0.434294*Math.log(rateAtZeroMag);
-//System.out.print("lat="+lat+"  lon="+lon+"  rateAtZeroMag="+ rateAtZeroMag+"  aVal="+aVal);
       loc = new Location(lat,lon);
 
       // get max-mag element(s) if necessary
@@ -976,12 +961,11 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
       // now make the source
       if(iflt == 2)
-        src = new Point2Vert_SS_FaultPoisSource2(loc,magFreqDist,magLenRel,strike,
+        src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel,strike,
                                                 duration,magCutOff,frankelFaultFactory);
       else
-        src = new Point2Vert_SS_FaultPoisSource2(loc,magFreqDist,magLenRel,duration,
+        src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel, duration,
                                                 magCutOff, frankelFaultFactory);
-
 
       // add the source
       frankelBackgrSeisSources.add(src);
