@@ -123,9 +123,11 @@ public class MapGuiBean extends ParameterListEditor implements
     gmtMapLabel.setPreferredSize(new Dimension(600, 600));
     gmtMapLabel.setIcon(new ImageIcon(imgName));
     JFrame frame = new JFrame(imgName);
-    frame.getContentPane().setLayout(new GridBagLayout());
-    frame.getContentPane().add(gmtMapLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 557, 200));
+    JScrollPane mapScroll = new JScrollPane();
+    mapScroll.setBorder( BorderFactory.createEtchedBorder() );
+    frame.getContentPane().setLayout(new BorderLayout());
+    mapScroll.getViewport().add(gmtMapLabel,  null);
+    frame.getContentPane().add(mapScroll,BorderLayout.CENTER);
     frame.pack();
     frame.show();
 

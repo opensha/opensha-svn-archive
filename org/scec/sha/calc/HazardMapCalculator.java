@@ -115,7 +115,7 @@ public class HazardMapCalculator {
     //creating a new directory that stores all the HazardCurves for that region
     boolean success = (new File(newDir)).mkdir();
     int numSites = griddedSites.getNumGridLocs();
-    if(this.showProgressBar) progressClass.updateProgress(0, numSites);
+    progressClass.updateProgress(0, numSites);
     int numPoints = xValues.length;
     for(int j=0;j<numSites;++j){
       if(this.showProgressBar) progressClass.updateProgress(j, numSites);
