@@ -5,7 +5,7 @@ Add the  revised version of the test results for AttenuationRelationhships by Ke
 
 add site translation for SEA_1999_AttenRel
 
-Make sure that averages over probabilities are not log averages (change ScenarioShakeMapCalculator & USGS_Combined accordingly).
+Make sure that averages over probabilities are not log averages (Nitin will change ScenarioShakeMapCalculator & Ned will change USGS_Combined Atten. Rel. accordingly).
 
 HazardCurveApps:
 
