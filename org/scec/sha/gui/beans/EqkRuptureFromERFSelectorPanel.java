@@ -73,7 +73,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   public final static String RUPTURE_PARAM_NAME = "Rupture Index";
 
   //Rupture Hypocenterlocation Param
-  public final static String RUPTURE_HYPOLOCATIONS_PARAM_NAME="Hypocentre Location(Lat,Lon,Depth)";
+  public final static String RUPTURE_HYPOLOCATIONS_PARAM_NAME="Hypocenter Location (Lat,Lon,Depth)";
 
   //Object of ProbEqkRupture
   ProbEqkRupture probEqkRupture;

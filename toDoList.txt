@@ -1,6 +1,28 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Create LocationParameter:
+
+	where we get/set a Loction object
+	
+	If constraint = null, editor contains lat, lon, and depth DoubleParameters (which might be constrained)
+
+	If constraint = LocationList, editor makes JCombo with lat,lon,depth options listed
+
+EarthquakeRuptureGuiBean:
+
+	Custrom Eqk Rupture
+
+		Change hypocenter picking to an additionion parameter (LocationParameter 
+		with a ParameterList constraint), and have this listen and update with any 
+		changes to the point-source or finite-fault surface.
+
+	EqkRup from ERF:
+
+		Have metadata show hypocenter from EqkRup rather than ERF params (add it to the 
+		EqkRupture.getInfo() method and remove from the ERF parameter-list values)
+
+
 AttenautionRelationshipApp:
 
 	The "Plot Label" is not visible if used in the "Plot Prefs" button
@@ -17,10 +39,6 @@ Change app names as follows (on our web site):
 	HazardMapApplet --> HazardDataSetCalcCondorApp
 	HazardMapViewerApp --> PlotMapFromHazardDataSetApp
 
-EarthquakeRuptureGuiBean:
-
-	There are still problems with the hypocenter picking (e.g., list not refreshed if fault surface changed)
-	& metadata problems.
 	
 Set up registration for HazMapDataGenerator - Phil has good ideas about this.
 	
@@ -33,8 +51,6 @@ Implement color schemes at (including option for the visually impaired):
 Add faults to GMT plotting options.
 
 add site translation for SEA_1999_AttenRel
-
-Install JBuilder-2005.
 
 Make sure that averages over probabilities are not log averages (Nitin will change ScenarioShakeMapCalculator & Ned will change USGS_Combined Atten. Rel. accordingly).
 
