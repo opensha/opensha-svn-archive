@@ -4,19 +4,37 @@
 For OpenSHA:
 ------------
 
+Create FractileCurveCalculator
+
+	methods:	set(DiscretizedFuncList curves, Vector weights)
+
+				curves.size() = weights.size()
+
+				all curves in list have same num points
+
+				assume all curves have same x values
+
+			getFractile(double fraction)
+
+				0²fraction²1
+
+
 For the editors of IntegerParameter, DoubleParameter, and WarningDoubleParameter, make the text field un-editable if min = max.
 
 Create a WarningIntegerParameter & an associated editor (if needed).
 
 Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., pow(-num, non-integer) )
 
-
 HazardCurveApplet:
 
 	-fix format of disaggregation results window 
 
+	- check disaggregation (seems to be messed up)
+
 	-put parameter editors at the top in the ParameterListEditor 
 	 (rather than centered in the vertical direction)
+
+	-change "Select Control" to "Control Panels"
 
 
 Evaluate:
@@ -31,42 +49,39 @@ Evaluate:
 		First version can simply be a JComboBox hard-wired ruptures or use an ERF and 
 		selection of src and rup index
 
+ERF_EpistemicListControlPanel
+
+	add to control panels list only when an ERF_EpistemicList has been chosen 
+	(and pop it up automatically so the user knows he has to do something)
+
 Create the following control panels in the future:
 
-	ERF_EpistemicListControlPanel
 	X_ValuesInCurveControlPanel
 	setMinSourceSiteDistanceControlPanel
 
-Finish moving progress bar in HazardCurveCalculator (and Disagg calculator) to a separate and general class; put in 
 
-	sha/gui/infoTools/calcProgressBar.java
+CalcProgressBar - move initProgressFrame() method inside?
 
-Define TimeSpan object.
+Finish TimeSpan object.
 
 HazardMapCalculator - move iteration over sites inside, add progress bar for sites, and turn off progress bar in HazardCurveCalculator.
 
-Implement ERF_List objects in the HazardCurveApplet.
-
-Create an object that will compute fractiles from a list of hazard curves - Ned will provide a detailed description.
+Debug ERF_List objects in the HazardCurveApplet.
 
 Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g., try it in the LogPlotTesterApp).
 
 Mail JFreechart to include our log-log implementation into the official JFreeChart framework.
 
-GriddedFaultApplet - fix plotting symbols (make all circles) and check that horz and vert scaling is correct.
+Look at GriddedFaultApplet - plotting symbols (make all circles) and check that horz and vert scaling is correct.
 
 AttenRelApp - make "Set Axes" button (rather than JcomoBox)
 
-TimeSpan object:
-
-	
+HazardCurveCalc - move initialization of hazFunction y-values to 1 inside the calculator (outside of applet), and move taking the log of it's x-axis values (for condProbFunc) outside the calculator (inside the applet with an if(IMT = SA or PGA or PGV) statement before).  Reconsider this entire calculation sequence.
 
 
 For the SCEC-ITR CME:
 ---------------------
 
-
-Implement getApplicableRegion() and isLocWithinApplicableRegion() methods in implemented ERFs.
 
 Think about porting our stand-alone applications to server mode.
 
@@ -77,10 +92,10 @@ Build ScenarioShakeMapApplet (with HazardMapApplet in mind).  Then do this on se
 Get site params from Vs30 and basin depth translator, and get Vs30 and basin depth for lat/lon.
 
 
-
-
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
+
+Implement getApplicableRegion() and isLocWithinApplicableRegion() methods in implemented ERFs.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 

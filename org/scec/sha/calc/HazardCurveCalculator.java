@@ -127,7 +127,7 @@ public class HazardCurveCalculator {
         double qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
 
         // initialize the values in condProbfunc with log values as passed in hazFunction
-        initLogDiscretizeValues(hazFunction, condProbFunc);
+        initCondProbFunc(hazFunction, condProbFunc);
         try {
           imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
         } catch (Exception ex) {
@@ -171,8 +171,8 @@ public class HazardCurveCalculator {
    * @param originalFunc :  this is the function with X values set
    * @param logFunc : this is the functin in which log X values are set
    */
-  private void initLogDiscretizeValues(DiscretizedFuncAPI originalFunc,
-                                       DiscretizedFuncAPI logFunc){
+  private void initCondProbFunc(DiscretizedFuncAPI originalFunc,
+                                DiscretizedFuncAPI logFunc){
 
     int numPoints = originalFunc.getNum();
     for(int i=0; i<numPoints; ++i)
