@@ -135,6 +135,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   //private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
   private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
   private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
+  private final static String SF_BAY_CONTROL = "Set Params and generate shapefiles for SF Bay Area";
   //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
   private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
   private final static String CALC_PARAMS_CONTROL = "Calculation Settings";
@@ -146,6 +147,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
   private CalcOptionControl calcControl;
   private CalculationSettingsControlPanel calcParamsControl;
+  private SF_BayAreaScenarioControlPanel bayAreaControl;
 
   // instances of the GUI Beans which will be shown in this applet
   private EqkRupSelectorGuiBean erfGuiBean;
@@ -768,6 +770,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     this.controlComboBox.addItem(HAZUS_CONTROL);
     //this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
+    this.controlComboBox.addItem(SF_BAY_CONTROL);
     this.controlComboBox.addItem(MAP_CALC_CONTROL);
     this.controlComboBox.addItem(CALC_PARAMS_CONTROL);
     //this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);
@@ -788,6 +791,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       //initPuenteHillTestScenarioControl();
     else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL))
       initPuenteHillScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(SF_BAY_CONTROL))
+      initSF_BayAreaScenarioControl();
     else if(selectedControl.equalsIgnoreCase(MAP_CALC_CONTROL))
       initMapCalcMethodSelectionControl();
     else if(selectedControl.equalsIgnoreCase(CALC_PARAMS_CONTROL))
@@ -806,6 +811,24 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   }
 
 
+  /**
+   * sets the parameter for the SF Bay Area Scenarios and loops through the list
+   * that Paul provided to generate the Hazus Shapefiles and Scenario shakemap files.
+   */
+  private void initSF_BayAreaScenarioControl(){
+    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to SF Bay Area Scenario?",
+                                    "SF Bay Area Control",JOptionPane.YES_NO_CANCEL_OPTION);
+    if(selectedOption == JOptionPane.OK_OPTION){
+      if(bayAreaControl == null){
+        if(hazusControl == null)
+          hazusControl = new GenerateHazusControlPanelForSingleMultipleIMRs(this,this);
+        bayAreaControl = new SF_BayAreaScenarioControlPanel(erfGuiBean,imrGuiBean,
+            sitesGuiBean,hazusControl);
+      }
+      bayAreaControl.setParamsForSF_BayAreaScenario();
+    }
+
+  }
 
 
   /**
@@ -853,6 +876,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    calcControl.show();
    calcControl.pack();
  }
+
+
 
 
   /**

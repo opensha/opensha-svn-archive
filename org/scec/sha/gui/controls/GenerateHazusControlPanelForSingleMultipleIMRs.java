@@ -154,10 +154,6 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
       application.makeMapForHazus(sa03_xyzdata,sa10_xyzdata,pga_xyzdata,pgv_xyzdata);
     else
       application.makeMapForHazus(sa_03xyzDataString,sa_10xyzDataString,pga_xyzDataString,pgv_xyzDataString);
-
-    calcProgress.showProgress(false);
-    calcProgress.dispose();
-    //imtParamEditor.refreshParamEditor();
   }
 
 
@@ -453,11 +449,23 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * thread method
    */
   public void run(){
+    runToGenerateShapeFilesAndMaps();
+  }
+
+
+  /**
+   * This method creates the shapefiles data for Hazus and scenario shake maps
+   * for the same data.
+   */
+  public void runToGenerateShapeFilesAndMaps(){
     getRegionAndMapType();
     //checks if the calculation are to be done on the server
     calcOnServer = application.doCalculationOnServer();
     generateShapeFilesForHazus();
   }
+
+
+
 
   /**
    * When the Button to generate dataset for hazus is pressed
@@ -481,6 +489,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
           calcProgress.setProgressMessage("Generating the Map images for Hazus ...");
         else if(step ==0){
           timer.stop();
+          calcProgress.showProgress(false);
           calcProgress.dispose();
           calcProgress = null;
         }
@@ -523,7 +532,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
   public void getRegionAndMapType(){
     application.getGriddedSitesMapTypeAndSelectedAttenRels();
     step =1;
-    timer.start();
+    if(timer !=null)
+      timer.start();
   }
 
   /**
