@@ -1,6 +1,6 @@
 package org.scec.sha.gui.controls;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.awt.event.*;
 
 
@@ -106,13 +106,13 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private JComboBox testCaseComboBox = new JComboBox();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
-  //Vector to store the peer test cases names
-  private Vector peerTestSetOne = new Vector();
-  private Vector peerTestSetTwo = new Vector();
+  //ArrayList to store the peer test cases names
+  private ArrayList peerTestSetOne = new ArrayList();
+  private ArrayList peerTestSetTwo = new ArrayList();
 
   //These hold the lats, lons, dips, and depths of the faults used in the SimplePoissonFaultERF
-  private Vector fault1and2_Lats, fault1and2_Lons, fault1_Dips, fault2_Dips, fault1_Depths, fault2_Depths;
-  private Vector faultE_Lats, faultE_Lons, faultE_Dips, faultE_Depths;
+  private ArrayList fault1and2_Lats, fault1and2_Lons, fault1_Dips, fault2_Dips, fault1_Depths, fault2_Depths;
+  private ArrayList faultE_Lats, faultE_Lons, faultE_Dips, faultE_Depths;
 
   //Instance of the application implementing the PEER_TestCaseSelectorControlPanelAPI
   PEER_TestCaseSelectorControlPanelAPI api;
@@ -876,42 +876,42 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    private void initializeFaultData() {
 
      // Set1 faults
-     fault1and2_Lats = new Vector();
+     fault1and2_Lats = new ArrayList();
      fault1and2_Lats.add(new Double(38.22480));
      fault1and2_Lats.add(new Double(38.0));
 
-     fault1and2_Lons = new Vector();
+     fault1and2_Lons = new ArrayList();
      fault1and2_Lons.add(new Double(-122.0));
      fault1and2_Lons.add(new Double(-122.0));
 
-     fault1_Dips = new Vector();
+     fault1_Dips = new ArrayList();
      fault1_Dips.add(new Double(90.0));
 
-     fault1_Depths = new Vector();
+     fault1_Depths = new ArrayList();
      fault1_Depths.add(new Double(0.0));
      fault1_Depths.add(new Double(12.0));
 
-     fault2_Dips = new Vector();
+     fault2_Dips = new ArrayList();
      fault2_Dips.add(new Double(60.0));
 
-     fault2_Depths = new Vector();
+     fault2_Depths = new ArrayList();
      fault2_Depths.add(new Double(1.0));
      fault2_Depths.add(new Double(12.0));
 
      // Set2 faults
-     faultE_Lats = new Vector();
+     faultE_Lats = new ArrayList();
      faultE_Lats.add(new Double(38.0));
      faultE_Lats.add(new Double(38.2248));
 
-     faultE_Lons = new Vector();
+     faultE_Lons = new ArrayList();
      faultE_Lons.add(new Double(-122.0));
      faultE_Lons.add(new Double(-122.0));
 
-     faultE_Dips = new Vector();
+     faultE_Dips = new ArrayList();
      faultE_Dips.add(new Double(50.0));
      faultE_Dips.add(new Double(20.0));
 
-     faultE_Depths = new Vector();
+     faultE_Depths = new ArrayList();
      faultE_Depths.add(new Double(0.0));
      faultE_Depths.add(new Double(6.0));
      faultE_Depths.add(new Double(12.0));
@@ -924,7 +924,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     */
    private void initializeTestsAndSites() {
      //initialising the values inside the combobox for the supported test cases and sites
-     Vector v = new Vector();
+     ArrayList v = new ArrayList();
 
      //test case-1 ,Set-1
      v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ONE+"-"+this.SITE_ONE));
@@ -1077,7 +1077,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      for(int i=0;i<size;++i)
        this.peerTestSetOne.add(v.get(i));
 
-     v.removeAllElements();
+     v.clear();
      //test case-1 , Set-2
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_ONE+"-"+this.SITE_ONE));
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_ONE+"-"+this.SITE_TWO));
@@ -1139,18 +1139,18 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
   /**
    *
-   * @returns the Vector of the PEER Test Case set One
+   * @returns the ArrayList of the PEER Test Case set One
    */
-  public Vector getPEER_SetOneTestCasesNames(){
+  public ArrayList getPEER_SetOneTestCasesNames(){
    return this.peerTestSetOne;
   }
 
 
   /**
    *
-   * @returns the Vector of the PEER Test Case set Two
+   * @returns the ArrayList of the PEER Test Case set Two
    */
-  public Vector getPEER_SetTwoTestCasesNames(){
+  public ArrayList getPEER_SetTwoTestCasesNames(){
    return this.peerTestSetTwo;
   }
 }

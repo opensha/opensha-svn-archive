@@ -263,14 +263,14 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    * This sets all the fault data needed to make a evenly discretized fault
    * @param name : Name of the fault
    * @param gridSpacing
-   * @param lats : Vector of Latitudes for the discretized fault
-   * @param lons : Vector of Longitudes for the discretized fault
-   * @param dips : Vector of Dips
-   * @param depths : Vector of Depths, which are one more then the number of dips
+   * @param lats : ArrayList of Latitudes for the discretized fault
+   * @param lons : ArrayList of Longitudes for the discretized fault
+   * @param dips : ArrayList of Dips
+   * @param depths : ArrayList of Depths, which are one more then the number of dips
    * @param faultType : STIRLING or FRANKEL fault
    */
-  public void setAll(String name, double gridSpacing, Vector lats, Vector lons,
-                     Vector dips, Vector depths, String faultType) {
+  public void setAll(String name, double gridSpacing, ArrayList lats, ArrayList lons,
+                     ArrayList dips, ArrayList depths, String faultType) {
     surfaceParam.setAll(name, gridSpacing, lats, lons, dips, depths, faultType);
     refreshParamEditor();
   }
@@ -279,14 +279,14 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   /**
    * This sets all the fault data needed to make a evenly discretized fault
    * @param gridSpacing
-   * @param lats : Vector of Latitudes for the discretized fault
-   * @param lons : Vector of Longitudes for the discretized fault
-   * @param dips : Vector of Dips
-   * @param depths : Vector of Depths, which are one more then the number of dips
+   * @param lats : ArrayList of Latitudes for the discretized fault
+   * @param lons : ArrayList of Longitudes for the discretized fault
+   * @param dips : ArrayList of Dips
+   * @param depths : ArrayList of Depths, which are one more then the number of dips
    * @param faultType : STIRLING or FRANKEL fault
    */
-  public void setAll(double gridSpacing, Vector lats, Vector lons,
-                     Vector dips, Vector depths, String faultType) {
+  public void setAll(double gridSpacing, ArrayList lats, ArrayList lons,
+                     ArrayList dips, ArrayList depths, String faultType) {
     surfaceParam.setAll(gridSpacing,lats,lons,dips,depths,faultType);
     refreshParamEditor();
   }
@@ -377,8 +377,8 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
      * If the changed parameter is the number of the fault trace param
      */
     if(name1.equalsIgnoreCase(SimpleFaultParameter.NUMBER_OF_FAULT_TRACE)){
-      surfaceParam.getLatParamVals().removeAllElements();
-      surfaceParam.getLonParamVals().removeAllElements();
+      surfaceParam.getLatParamVals().clear();
+      surfaceParam.getLonParamVals().clear();
       //System.out.println("Inside the Fault Trace param change");
       ListIterator it = editorForLats.getParameterList().getParametersIterator();
       //saving the previous lat values in the vector
@@ -418,8 +418,8 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
      */
     if(name1.equalsIgnoreCase(SimpleFaultParameter.NUM_DIPS)) {
       //System.out.println("Inside the Num dips param change");
-      surfaceParam.getDipParamVals().removeAllElements();
-      surfaceParam.getDepthParamVals().removeAllElements();
+      surfaceParam.getDipParamVals().clear();
+      surfaceParam.getDepthParamVals().clear();
       ListIterator it = editorForDips.getParameterList().getParametersIterator();
       //saving the previous Dip values in the vector
       while(it.hasNext()){

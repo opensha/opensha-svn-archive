@@ -57,14 +57,14 @@ public class AttenRelResultsChecker {
 
 
 
-  //Vector to store the failed testCases
-  //private Vector testCaseNumberVector = new Vector();
+  //ArrayList to store the failed testCases
+  //private ArrayList testCaseNumberVector = new ArrayList();
 
-  //Vector to store the ControlParams name and Value
-  private Vector controlParamVector = new Vector();
+  //ArrayList to store the ControlParams name and Value
+  private ArrayList controlParamVector = new ArrayList();
 
-  //Vector to store the IndependentParams name and Value
-  private Vector independentParamVector = new Vector();
+  //ArrayList to store the IndependentParams name and Value
+  private ArrayList independentParamVector = new ArrayList();
 
   //keeps the counts of the test cases in the file
   int testCaseNumber =0;
@@ -248,9 +248,9 @@ public class AttenRelResultsChecker {
               return result;
             //  this.testCaseNumberVector.add(new Integer(this.testCaseNumber));*/
 
-            //adding the Control Param names and Value to Vector for all the test cases
+            //adding the Control Param names and Value to ArrayList for all the test cases
             this.controlParamVector.add(this.getControlParametersValueForTest());
-            //adding the Independent Param names and Value to Vector for all the test cases
+            //adding the Independent Param names and Value to ArrayList for all the test cases
             this.independentParamVector.add(this.getIndependentParametersValueForTest());
           }
           //reads the next line in the file
@@ -367,26 +367,26 @@ public class AttenRelResultsChecker {
 
   /**
    *
-   * @returns the Vector that contains the Values for control param value for all the test cases
+   * @returns the ArrayList that contains the Values for control param value for all the test cases
    */
 
-  public Vector getControlParamsValueForAllTests(){
+  public ArrayList getControlParamsValueForAllTests(){
     return this.controlParamVector;
   }
 
   /**
    *
-   * @returns the Vector that contains the Values for independent param value for all the test cases
+   * @returns the ArrayList that contains the Values for independent param value for all the test cases
    */
-  public Vector getIndependentParamsValueForAllTests(){
+  public ArrayList getIndependentParamsValueForAllTests(){
     return this.independentParamVector;
   }
 
   /**
    *
-   * @returns the Vector for the testCases number that failed
+   * @returns the ArrayList for the testCases number that failed
    */
- /* public Vector getFailedTestResultNumberList(){
+ /* public ArrayList getFailedTestResultNumberList(){
     return this.testCaseNumberVector;
   }*/
 }

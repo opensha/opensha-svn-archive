@@ -280,7 +280,7 @@ public class GMT_MapGenerator implements Serializable{
     makeXYZ_File(XYZ_FILE_NAME);
 
     // get the GMT script lines
-    Vector gmtLines = getGMT_ScriptLines();
+    ArrayList gmtLines = getGMT_ScriptLines();
 
     // make the script
     makeFileFromLines(gmtLines,GMT_SCRIPT_NAME);
@@ -323,10 +323,10 @@ public class GMT_MapGenerator implements Serializable{
       throw new RuntimeException("X, Y and Z dataset does not have equal size");
 
     // get the GMT script lines
-    Vector gmtLines = getGMT_ScriptLines();
+    ArrayList gmtLines = getGMT_ScriptLines();
 
     //get the metadata lines
-    Vector metaDataLines = getMapInfoLines();
+    ArrayList metaDataLines = getMapInfoLines();
     try{
       imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metaDataLines);
     }catch(RuntimeException e){
@@ -364,7 +364,7 @@ public class GMT_MapGenerator implements Serializable{
     makeXYZ_File(XYZ_FILE_NAME);
 
     // get the GMT script lines
-    Vector gmtLines = getGMT_ScriptLines();
+    ArrayList gmtLines = getGMT_ScriptLines();
 
     // make the script
     makeFileFromLines(gmtLines,GMT_SCRIPT_NAME);
@@ -410,10 +410,10 @@ public class GMT_MapGenerator implements Serializable{
 
   /**
    *
-   * @returns the Vector containing the Metadata Info
+   * @returns the ArrayList containing the Metadata Info
    */
-  protected Vector getMapInfoLines(){
-    Vector metadataFilesLines = new Vector();
+  protected ArrayList getMapInfoLines(){
+    ArrayList metadataFilesLines = new ArrayList();
     try{
       FileReader  fr = new FileReader(METADATA_FILE_NAME);
       BufferedReader br = new BufferedReader(fr);
@@ -432,10 +432,10 @@ public class GMT_MapGenerator implements Serializable{
 
   // make the local XYZ file
   protected void makeXYZ_File(String fileName) {
-    Vector lines = new Vector();
-    Vector xVals = xyzDataSet.getX_DataSet();
-    Vector yVals = xyzDataSet.getY_DataSet();
-    Vector zVals = xyzDataSet.getZ_DataSet();
+    ArrayList lines = new ArrayList();
+    ArrayList xVals = xyzDataSet.getX_DataSet();
+    ArrayList yVals = xyzDataSet.getY_DataSet();
+    ArrayList zVals = xyzDataSet.getZ_DataSet();
 
     if(xyzDataSet.checkXYZ_NumVals()){
       int size = xVals.size();
@@ -452,9 +452,9 @@ public class GMT_MapGenerator implements Serializable{
   // make the xyzDataSet from a local file
   protected void make_xyzDataSet(String fileName) {
 
-    Vector xVals = new Vector();
-    Vector yVals =  new Vector();
-    Vector zVals =  new Vector();
+    ArrayList xVals = new ArrayList();
+    ArrayList yVals =  new ArrayList();
+    ArrayList zVals =  new ArrayList();
     try {
       FileReader fr = new FileReader(fileName); //open the xyx file
       BufferedReader bf = new BufferedReader(fr);
@@ -474,7 +474,7 @@ public class GMT_MapGenerator implements Serializable{
 
 
   // make a local file from a vector of strings
-  protected void makeFileFromLines(Vector lines, String fileName) {
+  protected void makeFileFromLines(ArrayList lines, String fileName) {
     try{
         FileWriter fw = new FileWriter(fileName);
         BufferedWriter br = new BufferedWriter(fw);
@@ -522,8 +522,8 @@ public class GMT_MapGenerator implements Serializable{
    * sets up the connection with the servlet on the server (gravity.usc.edu)
    */
   protected String openServletConnection(XYZ_DataSetAPI xyzDataVals,
-                                       Vector gmtFileLines,
-                                       Vector metadataLines) throws RuntimeException{
+                                       ArrayList gmtFileLines,
+                                       ArrayList metadataLines) throws RuntimeException{
 
     String webaddr=null;
     try{
@@ -550,7 +550,7 @@ public class GMT_MapGenerator implements Serializable{
           ObjectOutputStream(servletConnection.getOutputStream());
 
 
-      //sending the Vector of the gmt Script Lines
+      //sending the ArrayList of the gmt Script Lines
       outputToServlet.writeObject(gmtFileLines);
 
 
@@ -625,7 +625,7 @@ public class GMT_MapGenerator implements Serializable{
     }
 
     // get the GMT script lines
-    Vector gmtLines = getGMT_ScriptLines();
+    ArrayList gmtLines = getGMT_ScriptLines();
 
     // make the script
     makeFileFromLines(gmtLines,GMT_SCRIPT_NAME);
@@ -711,11 +711,11 @@ public class GMT_MapGenerator implements Serializable{
   /**
    * This method generates a list of strings needed for the GMT script
    */
-  protected Vector getGMT_ScriptLines() {
+  protected ArrayList getGMT_ScriptLines() {
 
     String commandLine;
 
-    Vector gmtCommandLines = new Vector();
+    ArrayList gmtCommandLines = new ArrayList();
 
     // Get the limits and discretization of the map
     double minLat = ((Double) minLatParam.getValue()).doubleValue();
@@ -892,16 +892,16 @@ public class GMT_MapGenerator implements Serializable{
    * These lines have to be added at an intermediate step because the last layer in GMT
    * has to have the "-O" but not "-K" option.
    */
-  protected void addIntermediateGMT_ScriptLines(Vector gmtLines) {
+  protected void addIntermediateGMT_ScriptLines(ArrayList gmtLines) {
 
   }
 
 
   /**
    * Function to adds any final commands desired by a subclass.
-   * @param gmtCommandLines : Vector to store the command line
+   * @param gmtCommandLines : ArrayList to store the command line
    */
-  protected void addFinalGMT_ScriptLines(Vector gmtCommandLines){
+  protected void addFinalGMT_ScriptLines(ArrayList gmtCommandLines){
 
   }
 
@@ -916,10 +916,10 @@ public class GMT_MapGenerator implements Serializable{
     //checks to see if the user wants Log Plot, if so then convert the zValues to the Log Space
     boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
     if(logPlotCheck){
-      //Vector of the Original z Values in the linear space
-      Vector zLinearVals = xyzDataSet.getZ_DataSet();
-      //Vector to add the Z Values as the Log space
-      Vector zLogVals = new Vector();
+      //ArrayList of the Original z Values in the linear space
+      ArrayList zLinearVals = xyzDataSet.getZ_DataSet();
+      //ArrayList to add the Z Values as the Log space
+      ArrayList zLogVals = new ArrayList();
       int size = zLinearVals.size();
       for(int i=0;i<size;++i){
         double zVal = ((Double)zLinearVals.get(i)).doubleValue();
@@ -940,7 +940,7 @@ public class GMT_MapGenerator implements Serializable{
    * metatdata associated with a map.
    */
   public void createMapInfoFile(String mapInfo){
-    Vector mapInfoLines = new Vector();
+    ArrayList mapInfoLines = new ArrayList();
     StringTokenizer st = new StringTokenizer(mapInfo,"\n");
     while(st.hasMoreTokens())
       mapInfoLines.add(st.nextToken());

@@ -243,7 +243,7 @@ public class AttenuationRelationshipApplet extends JApplet
     DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
     AxisLimitsControlPanel axisLimits;
 
-    private Vector attenRelsSelected=new Vector();
+    private ArrayList attenRelsSelected=new ArrayList();
 
     /**
      * for Y-log, 0 values will be converted to this small value

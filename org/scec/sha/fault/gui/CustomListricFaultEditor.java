@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.event.*;
-import  java.util.Vector;
+import  java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import org.scec.sha.fault.FaultTrace;
@@ -130,7 +130,7 @@ public class CustomListricFaultEditor extends JFrame {
 
        // check for dips text area
        // vector of dips
-       Vector dips = new Vector();
+       ArrayList dips = new ArrayList();
        double dip;
        // first check the dips. Check that there is only one value in 1 row
        // also only numbers are allowed
@@ -151,7 +151,7 @@ public class CustomListricFaultEditor extends JFrame {
 
        // check for depths text area
        // vector of depths
-        Vector depths = new Vector();
+        ArrayList depths = new ArrayList();
         double upperSeismo = Double.NaN;
         double lowerSeismo;
         // first check the depths. Check that there is only one value in 1 row

@@ -313,19 +313,19 @@ public class PuenteHillsScenarioControlPanel {
     SimpleFaultParameterEditorPanel faultPanel= erfParamGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
     //creating the Lat vector for the SimpleFaultParameter
 
-    Vector lats = new Vector();
-    Vector lons = new Vector();
+    ArrayList lats = new ArrayList();
+    ArrayList lons = new ArrayList();
     for(int i = 0; i<faultTrace.getNumLocations(); i++) {
       lats.add(new Double(faultTrace.getLocationAt(i).getLatitude()));
       lons.add(new Double(faultTrace.getLocationAt(i).getLongitude()));
     }
 
     //creating the dip vector for the SimpleFaultParameter
-    Vector dips = new Vector();
+    ArrayList dips = new ArrayList();
     dips.add(new Double(dip));
 
     //creating the depth vector for the SimpleFaultParameter
-    Vector depths = new Vector();
+    ArrayList depths = new ArrayList();
     depths.add(new Double(depth1));
     depths.add(new Double(depth2));
 

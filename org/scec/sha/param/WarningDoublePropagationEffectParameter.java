@@ -38,7 +38,7 @@ public abstract class WarningDoublePropagationEffectParameter
      * warnings when the warning constraints are exceeded.
      * Only created if needed, else kept null, i.e. "Lazy Instantiation".
      */
-    protected transient Vector warningListeners = null;
+    protected transient ArrayList warningListeners = null;
 
     /**
      * Set to true to turn off warnings, will automatically set the value,
@@ -76,8 +76,8 @@ public abstract class WarningDoublePropagationEffectParameter
         if( !this.editable ) throw new EditableException(C + ": setStrings(): " +
             "This constraint is currently not editable." );
 
-        if ( warningListeners == null ) warningListeners = new Vector();
-        if ( !warningListeners.contains( listener ) ) warningListeners.addElement( listener );
+        if ( warningListeners == null ) warningListeners = new ArrayList();
+        if ( !warningListeners.contains( listener ) ) warningListeners.add( listener );
 
     }
 
@@ -93,7 +93,7 @@ public abstract class WarningDoublePropagationEffectParameter
             "This constraint is currently not editable." );
 
         if ( warningListeners != null && warningListeners.contains( listener ) )
-            warningListeners.removeElement( listener );
+            warningListeners.remove( listener );
     }
 
      /**
@@ -216,14 +216,14 @@ public abstract class WarningDoublePropagationEffectParameter
      */
     public void fireParameterChangeWarning( ParameterChangeWarningEvent event ) {
 
-        Vector vector;
+        ArrayList vector;
         synchronized ( this ) {
             if ( warningListeners == null ) return;
-            vector = ( Vector ) warningListeners.clone();
+            vector = ( ArrayList ) warningListeners.clone();
         }
 
         for ( int i = 0; i < vector.size(); i++ ) {
-            ParameterChangeWarningListener listener = ( ParameterChangeWarningListener ) vector.elementAt( i );
+            ParameterChangeWarningListener listener = ( ParameterChangeWarningListener ) vector.get( i );
             listener.parameterChangeWarning( event );
         }
 

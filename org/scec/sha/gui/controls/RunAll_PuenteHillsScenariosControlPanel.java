@@ -21,9 +21,9 @@ import org.scec.sha.magdist.SingleMagFreqDist;
 public class RunAll_PuenteHillsScenariosControlPanel {
 
 
-  //Vector to store the magnitudes
-  Vector magnitudes = new Vector();
-  Vector attenuationRelationships = new Vector();
+  //ArrayList to store the magnitudes
+  ArrayList magnitudes = new ArrayList();
+  ArrayList attenuationRelationships = new ArrayList();
 
   //instance of the application using this control panel
   RunAll_PuenteHillsScenariosControlPanelAPI application;
@@ -34,14 +34,14 @@ public class RunAll_PuenteHillsScenariosControlPanel {
    */
   public RunAll_PuenteHillsScenariosControlPanel(RunAll_PuenteHillsScenariosControlPanelAPI api){
     application = api;
-    //adding the magnitudes to the Vector List
+    //adding the magnitudes to the ArrayList List
     magnitudes.add(new Double(7.1));
     magnitudes.add(new Double(7.2));
     magnitudes.add(new Double(7.3));
     magnitudes.add(new Double(7.4));
     magnitudes.add(new Double(7.5));
 
-    //adding the supported AttenuationRelationshipsName to the Vector List
+    //adding the supported AttenuationRelationshipsName to the ArrayList List
     attenuationRelationships.add(AS_1997_AttenRel.NAME);
     attenuationRelationships.add(BJF_1997_AttenRel.NAME);
     attenuationRelationships.add(CB_2003_AttenRel.NAME);
@@ -87,7 +87,7 @@ public class RunAll_PuenteHillsScenariosControlPanel {
         StringTokenizer st = new StringTokenizer((String)attenuationRelationships.get(j));
         String dirName = "PH_"+st.nextToken()+"_"+((Double)magnitudes.get(i)).doubleValue();
 
-        Vector scriptLines = new Vector();
+        ArrayList scriptLines = new ArrayList();
         command[2] = COMMAND_PATH+"mkdir "+dirName;
         RunScript.runScript(command);
 //        command[2] = COMMAND_PATH+"mv *.txt *.ps *.jpg *.shx *.shp *.dbf  "+dirName;

@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.scec.sha.surface.EvenlyGriddedSurface;
@@ -45,8 +45,8 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
 
   protected double duration;
 
-  private Vector ruptureList;  // keep this in case we add more mags later
-  private Vector faultCornerLocations = new Vector();   // used for the getMinDistance(Site) method
+  private ArrayList ruptureList;  // keep this in case we add more mags later
+  private ArrayList faultCornerLocations = new ArrayList();   // used for the getMinDistance(Site) method
 
   /**
    * Constructor - this is for a single mag, non-poissonian rupture.
@@ -73,7 +73,7 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
       makeFaultCornerLocs(ruptureSurface);
 
       // make the rupture list
-      ruptureList = new Vector();
+      ruptureList = new ArrayList();
 
       probEqkRupture = new ProbEqkRupture();
       probEqkRupture.setAveRake(rake);
@@ -111,7 +111,7 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
       makeFaultCornerLocs(ruptureSurface);
 
       // make the rupture list
-      ruptureList = new Vector();
+      ruptureList = new ArrayList();
       double mag;
       double prob;
 

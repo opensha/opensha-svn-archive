@@ -1,6 +1,6 @@
 package org.scec.param;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import org.scec.exceptions.*;
 
 /**
@@ -60,7 +60,7 @@ public class DoubleDiscreteParameter
      * @param  doubles                  List of allowed doubles
      * @exception  ConstraintException  Description of the Exception
      */
-    public DoubleDiscreteParameter( String name, Vector doubles ) throws ConstraintException {
+    public DoubleDiscreteParameter( String name, ArrayList doubles ) throws ConstraintException {
         super( name, new DoubleDiscreteConstraint( doubles ), null, null );
         //if( constraint != null ) constraint.setName( name );
     }
@@ -74,7 +74,7 @@ public class DoubleDiscreteParameter
      * @param  units                    Units string for this parameter
      * @exception  ConstraintException  Description of the Exception
      */
-    public DoubleDiscreteParameter( String name, Vector doubles, String units ) throws ConstraintException {
+    public DoubleDiscreteParameter( String name, ArrayList doubles, String units ) throws ConstraintException {
         super( name, new DoubleDiscreteConstraint( doubles ), units, null );
         //if( constraint != null ) constraint.setName( name );
     }
@@ -142,7 +142,7 @@ public class DoubleDiscreteParameter
      * @param  doubles                  list of allowed values
      * @exception  ConstraintException  Thrown if value not allowed
      */
-    public DoubleDiscreteParameter( String name, Vector doubles, Double value ) throws ConstraintException {
+    public DoubleDiscreteParameter( String name, ArrayList doubles, Double value ) throws ConstraintException {
         super( name, new DoubleDiscreteConstraint( doubles ), null, value );
         //if( constraint != null ) constraint.setName( name );
     }
@@ -157,7 +157,7 @@ public class DoubleDiscreteParameter
      * @param  doubles                  list of allowed values
      * @exception  ConstraintException  Thrown if value not allowed
      */
-    public DoubleDiscreteParameter( String name, Vector doubles, String units, Double value ) throws ConstraintException {
+    public DoubleDiscreteParameter( String name, ArrayList doubles, String units, Double value ) throws ConstraintException {
         super( name, new DoubleDiscreteConstraint( doubles ), units, value );
         //if( constraint != null ) constraint.setName( name );
     }
@@ -246,7 +246,7 @@ public class DoubleDiscreteParameter
 
 
     /** Returns a clone of all allowed values. Proxy to constraint object. */
-    public Vector getAllowedDoubles() {
+    public ArrayList getAllowedDoubles() {
         return ( ( DoubleDiscreteConstraint ) this.constraint ).getAllowedDoubles();
     }
 

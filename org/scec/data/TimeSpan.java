@@ -165,7 +165,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
 
     // this vector will hold all the listeners of this time span object
     // whenver any change is made in this timespan object, all the listeners are notified
-    private transient Vector changeListeners;
+    private transient ArrayList changeListeners;
 
 
     /**
@@ -554,7 +554,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
      * (0 and Double.MAX_VALUE, respectively).
      * @param doubles - a vector of doubles
      */
-    public void setDurationConstraint(Vector doubles) {
+    public void setDurationConstraint(ArrayList doubles) {
 
       // make sure new values are all positive (within the originals)
       Iterator it = doubles.iterator();
@@ -1031,7 +1031,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
      * listener must implement the TimeSpanChangeListener interface
      */
     public void addParameterChangeListener(TimeSpanChangeListener listener) {
-      if ( changeListeners == null ) changeListeners = new Vector();
+      if ( changeListeners == null ) changeListeners = new ArrayList();
       if ( !changeListeners.contains( listener ) ) changeListeners.add( listener );
     }
 
@@ -1050,7 +1050,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
       // dispatch the time span change event to all the listeners
       for ( int i = 0; i < numListeners; i++ ) {
         TimeSpanChangeListener listener =
-                    ( TimeSpanChangeListener ) changeListeners.elementAt( i );
+                    ( TimeSpanChangeListener ) changeListeners.get( i );
         listener.parameterChange( event );
       }
     }

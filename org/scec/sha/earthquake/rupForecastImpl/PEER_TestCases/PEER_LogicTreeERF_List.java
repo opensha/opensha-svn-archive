@@ -1,7 +1,7 @@
 package org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases;
 
 import java.util.ListIterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.sha.earthquake.*;
 import org.scec.data.*;
@@ -81,7 +81,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
 
 
  // make the fault-model parameter
- private Vector faultModelNamesStrings = new Vector();
+ private ArrayList faultModelNamesStrings = new ArrayList();
  private StringParameter faultModelParam;
 
 

@@ -87,7 +87,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
   // vector to save which forecasts have already been selected by the user
   // which this forecast  has already been selected it will not pop up adjustable params window
-  private Vector  alreadySeenERFs = new Vector();
+  private ArrayList  alreadySeenERFs = new ArrayList();
 
   //progressBar class to be shown when ruptures are being updated
   CalcProgressBar progress;
@@ -96,7 +96,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   * Constructor : It accepts the classNames of the ERFs to be shown in the editor
   * @param erfClassNames
   */
- public EqkRupSelectorGuiBean(Vector erfClassNames) throws InvocationTargetException{
+ public EqkRupSelectorGuiBean(ArrayList erfClassNames) throws InvocationTargetException{
 
    // create the instance of ERFs
    erfGuiBean= new ERF_GuiBean(erfClassNames);
@@ -140,7 +140,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    parameterList.addParameter(chooseERF_Param);
 
    int numSources = erf.getNumSources();
-   Vector sourcesVector = new Vector();
+   ArrayList sourcesVector = new ArrayList();
 
    if(progress == null)
      progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures are being updated");
@@ -164,7 +164,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    parameterList.addParameter(ruptureParam);
 
    //getting the surface of the rupture
-   Vector v = new  Vector();
+   ArrayList v = new  ArrayList();
    int ruptureValue = ((Integer)ruptureParam.getValue()).intValue();
 
    //writing the ruptures info. for each selected source in the text Area below the rupture
@@ -368,7 +368,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    * @param erfList
    * @throws InvocationTargetException
    */
-  public void addERFs_ToList(Vector erfList) throws InvocationTargetException{
+  public void addERFs_ToList(ArrayList erfList) throws InvocationTargetException{
     erfGuiBean.addERFs_ToList(erfList);
   }
 
@@ -380,7 +380,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    * @param erfList
    * @throws InvocationTargetException
    */
-  public void removeERFs_FromList(Vector erfList) throws InvocationTargetException{
+  public void removeERFs_FromList(ArrayList erfList) throws InvocationTargetException{
     erfGuiBean.removeERFs_FromList(erfList);
   }
 

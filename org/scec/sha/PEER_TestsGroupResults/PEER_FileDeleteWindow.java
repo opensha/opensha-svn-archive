@@ -2,7 +2,7 @@ package org.scec.sha.PEER_TestsGroupResults;
 
 import java.awt.*;
 import javax.swing.*;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Collections;
@@ -33,8 +33,8 @@ public class PEER_FileDeleteWindow extends JFrame {
   //Instance of the PEER_TestResultsSubmissionApplet
   PEER_TestResultsSubmissionApplet peer=null;
 
-  //Vector to store all the fileNames, gets is value from the PEER_TestResultsSubmissionApplet
-  Vector dataFiles=null;
+  //ArrayList to store all the fileNames, gets is value from the PEER_TestResultsSubmissionApplet
+  ArrayList dataFiles=null;
   private JLabel jLabel5 = new JLabel();
   private JLabel jLabel6 = new JLabel();
   private JTextArea deletionMessageText = new JTextArea();
@@ -42,7 +42,7 @@ public class PEER_FileDeleteWindow extends JFrame {
   private JLabel jLabel3 = new JLabel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
-  public PEER_FileDeleteWindow(PEER_TestResultsSubmissionApplet p,Vector fileNames) {
+  public PEER_FileDeleteWindow(PEER_TestResultsSubmissionApplet p,ArrayList fileNames) {
     try {
       jbInit();
     }
@@ -140,9 +140,9 @@ public class PEER_FileDeleteWindow extends JFrame {
    * This method updates the test cases and the identifer names in the combo box
    * If PEER file is added or deleted, this method updates the combo box with
    * latest changes to the PEER data
-   * @param dataFiles: Vector that contains all the peer file names
+   * @param dataFiles: ArrayList that contains all the peer file names
    */
-  void updateFileNames(Vector dataFiles){
+  void updateFileNames(ArrayList dataFiles){
     testComboBox.removeAllItems();
     identifierComboBox.removeAllItems();
     // arraylist are needed below for sorting purposes

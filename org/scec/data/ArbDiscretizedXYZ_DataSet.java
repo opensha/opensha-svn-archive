@@ -16,7 +16,7 @@ import java.util.*;
 
 public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Serializable{
 
-  Vector xValues, yValues, zValues;
+  ArrayList xValues, yValues, zValues;
 
 
   /**
@@ -25,12 +25,12 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
   public ArbDiscretizedXYZ_DataSet(){};
   /**
    * constructor that takes the xVals,yVals and zVals as the argument
-   * @param xVals = Vector containing the xValues
-   * @param yVals = Vector containing the yValues
-   * @param zVals = Vector containing the zValues
+   * @param xVals = ArrayList containing the xValues
+   * @param yVals = ArrayList containing the yValues
+   * @param zVals = ArrayList containing the zValues
    */
-  public ArbDiscretizedXYZ_DataSet(Vector xVals, Vector yVals,
-                                   Vector zVals) {
+  public ArbDiscretizedXYZ_DataSet(ArrayList xVals, ArrayList yVals,
+                                   ArrayList zVals) {
 
     xValues = xVals;
     yValues = yVals;
@@ -38,12 +38,12 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
   }
 
   /**
-   * Initialises the x, y and z Values Vector
+   * Initialises the x, y and z Values ArrayList
    * @param xVals
    * @param yVals
    * @param zVals
    */
-  public void setXYZ_DataSet(Vector xVals, Vector yVals, Vector zVals){
+  public void setXYZ_DataSet(ArrayList xVals, ArrayList yVals, ArrayList zVals){
 
     xValues = xVals;
     yValues = yVals;
@@ -54,7 +54,7 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
    *
    * @returns the X Values dataSet
    */
-  public Vector getX_DataSet(){
+  public ArrayList getX_DataSet(){
     return xValues;
   }
 
@@ -62,7 +62,7 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
    *
    * @returns the Y value DataSet
    */
-  public Vector getY_DataSet(){
+  public ArrayList getY_DataSet(){
     return yValues;
   }
 
@@ -71,7 +71,7 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
    *
    * @returns the Z value DataSet
    */
-  public Vector getZ_DataSet(){
+  public ArrayList getZ_DataSet(){
     return zValues;
   }
 
@@ -125,7 +125,7 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
 
   /**
    *
-   * @returns true if size Vector for X,Y and Z dataset values is equal else return false
+   * @returns true if size ArrayList for X,Y and Z dataset values is equal else return false
    */
   public boolean checkXYZ_NumVals(){
     if((xValues.size() == yValues.size()) && (xValues.size() == zValues.size()))
@@ -135,11 +135,11 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
   }
 
   /**
-   * private function of the class that finds the minimum value in the Vector
+   * private function of the class that finds the minimum value in the ArrayList
    * @param xyz
    * @return
    */
-  private double getMin(Vector xyz){
+  private double getMin(ArrayList xyz){
     int size = xyz.size();
     double min =((Double)xyz.get(0)).doubleValue();
     for(int i=1;i<size;++i){
@@ -151,11 +151,11 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
   }
 
   /**
-   * private function of the class that finds the maximum value in the Vector
+   * private function of the class that finds the maximum value in the ArrayList
    * @param xyz
    * @return
    */
-  private double getMax(Vector xyz){
+  private double getMax(ArrayList xyz){
     int size = xyz.size();
     double max =((Double)xyz.get(size-1)).doubleValue();
     for(int i=1;i<size;++i){

@@ -132,9 +132,9 @@ public class GenerateHazusFilesControlPanel extends JFrame {
       else{
         //if PGV is not supported by the attenuation then use the SA-1sec pd
         //and multiply the value by scaler 37.24*2.54
-        Vector zVals = sa10_xyzdata.getZ_DataSet();
+        ArrayList zVals = sa10_xyzdata.getZ_DataSet();
         int size = zVals.size();
-        Vector newZVals = new Vector();
+        ArrayList newZVals = new ArrayList();
         for(int i=0;i<size;++i){
           double val = ((Double)zVals.get(i)).doubleValue()*37.24*2.54;
           newZVals.add(new Double(val));

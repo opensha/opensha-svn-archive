@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.step;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -61,9 +61,9 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
   private double oldMinMag=MAG_LOWER;
 
   // vectors to hold the sources
-  private Vector deltaRateSources;
-  private Vector backgroundRateSources;
-  private Vector allSources;
+  private ArrayList deltaRateSources;
+  private ArrayList backgroundRateSources;
+  private ArrayList allSources;
 
   // booleans to help decide if sources need to be made
   private boolean deltaSourcesAlreadyMade = false;
@@ -143,7 +143,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
   private void intiAdjParams() {
 
     // make the seisTypeParam
-    Vector seisOptionsStrings = new Vector();
+    ArrayList seisOptionsStrings = new ArrayList();
     seisOptionsStrings.add(SEIS_TYPE_ADD_ON);
     seisOptionsStrings.add(SEIS_TYPE_BACKGROUND);
     seisOptionsStrings.add(SEIS_TYPE_BOTH);
@@ -180,7 +180,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
     String S = C + ": makeDeltaRateSources(): ";
     if( D ) System.out.println(S + "Starting");
 
-    deltaRateSources = new Vector();
+    deltaRateSources = new ArrayList();
     double lat, lon;
     double duration = timeSpan.getDuration();
     double minMag = ((Double)minMagParam.getValue()).doubleValue();
@@ -243,7 +243,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
       backgroundRatesFileAlreadyRead = true;
     }
 
-    backgroundRateSources = new Vector();
+    backgroundRateSources = new ArrayList();
     double lat, lon;
     double duration = timeSpan.getDuration();
     double minMag = ((Double)minMagParam.getValue()).doubleValue();
@@ -321,9 +321,9 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
      /**
       * Get the list of all earthquake sources.
       *
-      * @return Vector of Prob Earthquake sources
+      * @return ArrayList of Prob Earthquake sources
       */
-     public Vector getSourceList(){
+     public ArrayList getSourceList(){
        return allSources;
      }
 
@@ -346,7 +346,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
      // make sure something has changed
      if(parameterChangeFlag) {
 
-       allSources = new Vector();
+       allSources = new ArrayList();
        String seisType = (String) seisTypeParam.getValue();
        double minMag = ((Double)minMagParam.getValue()).doubleValue();
 

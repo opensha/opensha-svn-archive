@@ -1,7 +1,7 @@
 package org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases;
 
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 
@@ -118,7 +118,7 @@ public class PEER_AreaForecast extends EqkRupForecast
                                                       DIP_PARAM_MAX,DIP_PARAM_UNITS,
                                                       DIP_PARAM_DEFAULT);
   // create the supported MagDists
-  Vector supportedMagDists=new Vector();
+  ArrayList supportedMagDists=new ArrayList();
 
   //Mag Freq Dist Parameter
   MagFreqDistParameter magDistParam ;
@@ -272,9 +272,9 @@ public class PEER_AreaForecast extends EqkRupForecast
   /**
    * Not yet implemented
    *
-   * @return Vector of Prob Earthquake sources
+   * @return ArrayList of Prob Earthquake sources
    */
-  public Vector  getSourceList(){
+  public ArrayList  getSourceList(){
     return null;
   }
 

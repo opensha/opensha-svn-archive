@@ -45,7 +45,7 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
 
 
     //combo Box that provides the user to choose either the IML@prob or vis-a-versa
-    Vector imlProbVector=new Vector();
+    ArrayList imlProbVector=new ArrayList();
 
     imlProbVector.add(IML_AT_PROB);
     imlProbVector.add(PROB_AT_IML);

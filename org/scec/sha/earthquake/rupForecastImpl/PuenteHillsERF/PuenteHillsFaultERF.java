@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.PuenteHillsERF;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.data.TimeSpan;
 
@@ -37,7 +37,7 @@ public class PuenteHillsFaultERF extends EqkRupForecast
   //name for this classs
   public final static String  NAME = C;
 
-  private Vector sourceList;
+  private ArrayList sourceList;
 
   /**
    * Constructor for this source (no arguments)
@@ -104,7 +104,7 @@ public class PuenteHillsFaultERF extends EqkRupForecast
     if(D) System.out.println(this.NAME+" aveDipDir = "+ aveDipDir);
     if(D) System.out.println(this.NAME+" rake = "+ rake);
 
-    sourceList = new Vector();
+    sourceList = new ArrayList();
     for(int mag=71; mag<=75;mag += 1) {
       source = new SimpleFaultRuptureSource((double)mag/10.0, (EvenlyGriddedSurface) faultFactory.getGriddedSurface(), rake, 0.2);
       source.setName("mag = "+(double)mag/10.0+" PH fault source");
@@ -168,9 +168,9 @@ public class PuenteHillsFaultERF extends EqkRupForecast
     /**
      *  This returns a list of sources
      *
-     * @return Vector of Prob Earthquake sources
+     * @return ArrayList of Prob Earthquake sources
      */
-    public Vector  getSourceList(){
+    public ArrayList  getSourceList(){
       return this.sourceList;
     }
 

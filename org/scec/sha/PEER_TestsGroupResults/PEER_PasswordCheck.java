@@ -2,7 +2,7 @@ package org.scec.sha.PEER_TestsGroupResults;
 
 import java.awt.*;
 import javax.swing.*;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.net.*;
 import java.io.*;
 import java.net.*;

@@ -56,7 +56,7 @@ public class ParameterList implements Serializable {
     protected final static boolean D = false;
 
     /** Internal vector list of parameters. */
-    protected Vector params = new Vector();
+    protected ArrayList params = new ArrayList();
 
     /** Internal list of constraint name mapped to parameter name. */
     protected Hashtable constraintNameMap = new Hashtable();
@@ -253,7 +253,7 @@ public class ParameterList implements Serializable {
      */
     public ListIterator getParametersIterator(){
 
-        Vector v = new Vector();
+        ArrayList v = new ArrayList();
         int size = this.params.size();
         for(int i = 0; i<size;++i) {
           Object obj = params.get(i);
@@ -268,7 +268,7 @@ public class ParameterList implements Serializable {
      * Returns the list in the order the elements were added.
      */
     public ListIterator getParameterNamesIterator(){
-        Vector v = new Vector();
+        ArrayList v = new ArrayList();
         int size = this.params.size();
          for(int i = 0; i<size;++i) {
             ParameterAPI obj = (ParameterAPI)params.get(i);
@@ -374,7 +374,7 @@ public class ParameterList implements Serializable {
        StringBuffer b = new StringBuffer();
        boolean first = true;
 
-       Vector v=new Vector();
+       ArrayList v=new ArrayList();
 
        int vectorSize = params.size();
        for(int i = 0; i<vectorSize;++i) {

@@ -37,17 +37,17 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
     protected FaultTrace faultTrace;
 
     /**
-     * A Vector of Double objects representing the dips (from top to
+     * A ArrayList of Double objects representing the dips (from top to
      * bottom) over the various depth intervals.  The number of elements here must be
-     * one less that those in the depths Vector.
+     * one less that those in the depths ArrayList.
      */
-    protected Vector dips;
+    protected ArrayList dips;
 
     /**
-     * A Vector of Double objects representing the depth intervals on the fault
-     * surface (from top to bottom).  This must have one more element that the dips Vector.
+     * A ArrayList of Double objects representing the depth intervals on the fault
+     * surface (from top to bottom).  This must have one more element that the dips ArrayList.
      */
-    protected Vector depths;
+    protected ArrayList depths;
 
     /**
      * The grid spacing to use (³0)
@@ -58,8 +58,8 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
 
 
     public SimpleListricGriddedFaultFactory( FaultTrace faultTrace,
-                                        Vector dips,
-                                        Vector depths,
+                                        ArrayList dips,
+                                        ArrayList depths,
                                         double gridSpacing )
                                         throws FaultException {
 
@@ -291,7 +291,7 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
         ListIterator it=faultTrace.listIterator();
         while(it.hasNext()) {
           if(((Location)it.next()).getDepth() != depth){
-            throw new FaultException(C + "All depths of faultTrace locations must be same as the first in the depths Vector");
+            throw new FaultException(C + "All depths of faultTrace locations must be same as the first in the depths ArrayList");
           }
         }
 
@@ -311,11 +311,11 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
          faultTrace.addLocation(new Location(38.00000, -122.0, 0.0));
          faultTrace.addLocation(new Location(37.80000, -122.2, 0.0));
 
-         Vector dips = new Vector();
+         ArrayList dips = new ArrayList();
          dips.add(new Double(60.0));
          dips.add(new Double(45.0));
 
-         Vector depths = new Vector();
+         ArrayList depths = new ArrayList();
          depths.add(new Double(0.0));
          depths.add(new Double(5.0));
          depths.add(new Double(10.0));

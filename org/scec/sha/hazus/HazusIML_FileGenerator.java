@@ -75,7 +75,7 @@ public class HazusIML_FileGenerator {
   }
 
   private void createReturnPdFile(String fileName,double rate,String metaData){
-    Vector imlVector = new Vector();
+    ArrayList imlVector = new ArrayList();
     File dirsPGA =new File(Hazus+"pga/");
     String[] dirListPGA=dirsPGA.list();
     File dirsPGV =new File(Hazus+"pgv/");
@@ -91,7 +91,7 @@ public class HazusIML_FileGenerator {
     fw.write(metaData);
     fw.write("#Column Info: Lat,Lon,PGA,PGV,SA-0.3,SA-1"+"\n\n");
     for(int i=0;i<dirListPGA.length;++i){
-      imlVector.removeAllElements();
+      imlVector.clear();
       if(dirListPGA[i].endsWith(".txt")){
         imlVector.add(new Double(getIML(Hazus+"pga/"+dirListPGA[i],rate)));
         imlVector.add(new Double(getIML(Hazus+"pgv/"+dirListPGV[i],rate)/2.5));

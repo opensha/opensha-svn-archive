@@ -55,7 +55,7 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       ObjectInputStream inputFromApplet = new ObjectInputStream(request.getInputStream());
 
       //gets the object for the GMT_MapGenerator script
-      Vector gmtMapScript = (Vector) inputFromApplet.readObject();
+      ArrayList gmtMapScript = (ArrayList) inputFromApplet.readObject();
 
       //XYZ dataset object being received from the applet
       XYZ_DataSetAPI xyzDataSet = (XYZ_DataSetAPI)inputFromApplet.readObject();
@@ -64,7 +64,7 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       String xyzFileName = (String)inputFromApplet.readObject();
 
       //Metadata content: Map Info
-      Vector metadataVector = (Vector)inputFromApplet.readObject();
+      ArrayList metadataVector = (ArrayList)inputFromApplet.readObject();
 
       //Name of the Metadata file
       String metadataFileName = (String)inputFromApplet.readObject();
@@ -98,9 +98,9 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       bw.close();
 
       //creating the XYZ file from the XYZ file from the XYZ dataSet
-      Vector xVals = xyzDataSet.getX_DataSet();
-      Vector yVals = xyzDataSet.getY_DataSet();
-      Vector zVals = xyzDataSet.getZ_DataSet();
+      ArrayList xVals = xyzDataSet.getX_DataSet();
+      ArrayList yVals = xyzDataSet.getY_DataSet();
+      ArrayList zVals = xyzDataSet.getZ_DataSet();
       //file follows the convention lat, lon and Z value
       if(xyzDataSet.checkXYZ_NumVals()){
         size = xVals.size();

@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.WG02;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -65,7 +65,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
 
   // vector to hold the line numbers where each iteration starts
-  private Vector iterationLineNumbers;
+  private ArrayList iterationLineNumbers;
 
   // adjustable parameter primitives
   private int numIterations;
@@ -83,8 +83,8 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
   public final static String GR_TAIL_NAME = new String ("GR Tail Seismicity");
   public final static String SEIS_INCLUDE = new String ("Include");
   public final static String SEIS_EXCLUDE = new String ("Exclude");
-  Vector backSeisOptionsStrings = new Vector();
-  Vector grTailOptionsStrings = new Vector();
+  ArrayList backSeisOptionsStrings = new ArrayList();
+  ArrayList grTailOptionsStrings = new ArrayList();
   StringParameter backSeisParam;
   StringParameter grTailParam;
 
@@ -150,7 +150,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
     // set the duration constraint as a list of Doubles
-    Vector durationOptions = new Vector();
+    ArrayList durationOptions = new ArrayList();
     durationOptions.add(new Double(1));
     durationOptions.add(new Double(5));
     durationOptions.add(new Double(10));
@@ -489,7 +489,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
            FaultException(C + "No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
 
          // find the line numbers for the beginning of each iteration
-         iterationLineNumbers = new Vector();
+         iterationLineNumbers = new ArrayList();
          StringTokenizer st;
          String test=null;
          for(int lineNum=0; lineNum < inputFileLines.size(); lineNum++) {
@@ -572,10 +572,10 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
   /**
    * Return the vector containing the Double values with
    * relative weights for each ERF
-   * @return : Vector of Double values
+   * @return : ArrayList of Double values
    */
-  public Vector getRelativeWeightsList() {
-    Vector relativeWeight  = new Vector();
+  public ArrayList getRelativeWeightsList() {
+    ArrayList relativeWeight  = new ArrayList();
     for(int i=0; i<numIterations; i++)
       relativeWeight.add(new Double(1.0));
     return relativeWeight;

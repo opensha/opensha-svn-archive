@@ -2,7 +2,7 @@ package org.scec.sha.gui.controls;
 
 import java.awt.*;
 import javax.swing.*;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.sha.gui.beans.SitesInGriddedRegionGuiBean;
 import java.awt.event.*;
@@ -19,10 +19,10 @@ public class RegionsOfInterestControlPanel extends JFrame {
   private JLabel jLabel1 = new JLabel();
   private JComboBox regionsComboBox = new JComboBox();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private Vector minLatVector = new Vector();
-  private Vector maxLatVector = new Vector();
-  private Vector minLonVector = new Vector();
-  private Vector maxLonVector = new Vector();
+  private ArrayList minLatVector = new ArrayList();
+  private ArrayList maxLatVector = new ArrayList();
+  private ArrayList minLonVector = new ArrayList();
+  private ArrayList maxLonVector = new ArrayList();
   private SitesInGriddedRegionGuiBean regionGuiBean;
 
   /**

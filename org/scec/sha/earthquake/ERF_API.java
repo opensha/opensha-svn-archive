@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.earthquake.ProbEqkSource;
@@ -28,7 +28,7 @@ public interface ERF_API extends ForecastAPI{
    *
    * @returns the sourceList
    */
-  public Vector getSourceList();
+  public ArrayList getSourceList();
 
   /**
    * Return the earhthquake source at index i.   Note that this returns a

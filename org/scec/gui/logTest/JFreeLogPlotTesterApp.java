@@ -5,7 +5,7 @@ import java.awt.event.*;
 import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.jfree.chart.*;
@@ -54,7 +54,7 @@ public class JFreeLogPlotTesterApp extends JApplet  {
   private JButton clearButton = new JButton();
 
   //this vector stores the different plot ranges text string
-  private Vector logRanges = new Vector();
+  private ArrayList logRanges = new ArrayList();
 
   //static string declaration for the test cases
   private static final String TEST_0= new String("Auto Scale"); // draws the graph according to the given default values

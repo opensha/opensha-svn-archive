@@ -866,7 +866,7 @@ while(it.hasNext()) {
         super.initSiteParams();
 
         // create and add the warning constraint:
-        Vector willsSiteTypes = new Vector();
+        ArrayList willsSiteTypes = new ArrayList();
         willsSiteTypes.add(WILLS_SITE_B);
         willsSiteTypes.add(WILLS_SITE_BC);
         willsSiteTypes.add(WILLS_SITE_C);

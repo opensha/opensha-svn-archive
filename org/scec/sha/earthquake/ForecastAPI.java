@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.earthquake.ProbEqkSource;

@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.Frankel96;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -76,11 +76,11 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
   /**
    * Vectors for holding the various sources, separated by type
    */
-  private Vector FrankelA_CharEqkSources;
-  private Vector FrankelB_CharEqkSources;
-  private Vector FrankelB_GR_EqkSources;
-  private Vector FrankelBackgrSeisSources;
-  private Vector allSources;
+  private ArrayList FrankelA_CharEqkSources;
+  private ArrayList FrankelB_CharEqkSources;
+  private ArrayList FrankelB_GR_EqkSources;
+  private ArrayList FrankelBackgrSeisSources;
+  private ArrayList allSources;
 
 
   // This is an array holding each line of the input file
@@ -93,7 +93,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
   public final static String FAULT_MODEL_FRANKEL = new String ("Frankel's");
   public final static String FAULT_MODEL_STIRLING = new String ("Stirling's");
   // make the fault-model parameter
-  Vector faultModelNamesStrings = new Vector();
+  ArrayList faultModelNamesStrings = new ArrayList();
   StringParameter faultModelParam;
 
   // fault-model parameter stuff
@@ -102,7 +102,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
   public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
   public final static String BACK_SEIS_ONLY = new String ("Only Background");
   // make the fault-model parameter
-  Vector backSeisOptionsStrings = new Vector();
+  ArrayList backSeisOptionsStrings = new ArrayList();
   StringParameter backSeisParam;
 
 
@@ -203,9 +203,9 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
    */
   private  void makeFaultSources() throws FaultException{
 
-    FrankelA_CharEqkSources = new Vector();
-    FrankelB_CharEqkSources = new Vector();
-    FrankelB_GR_EqkSources = new Vector();
+    FrankelA_CharEqkSources = new ArrayList();
+    FrankelB_CharEqkSources = new ArrayList();
+    FrankelB_GR_EqkSources = new ArrayList();
 
     // Debug
     String S = C + ": makeSoureces(): ";
@@ -374,7 +374,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
     String S = C + ": makeBackSeisSources(): ";
     if( D ) System.out.println(S + "Starting");
 
-    FrankelBackgrSeisSources = new Vector();
+    FrankelBackgrSeisSources = new ArrayList();
 
     double lat, lon, rate, rateAtMag5;
 
@@ -468,9 +468,9 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
      /**
       * Get the list of all earthquake sources.
       *
-      * @return Vector of Prob Earthquake sources
+      * @return ArrayList of Prob Earthquake sources
       */
-     public Vector  getSourceList(){
+     public ArrayList  getSourceList(){
 
        return allSources;
      }
@@ -498,7 +498,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
        // get value of background seismicity paramter
        String backSeis = (String) backSeisParam.getValue();
 
-       allSources = new Vector();
+       allSources = new ArrayList();
 
        if (backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE)) {
          makeFaultSources();

@@ -27,7 +27,7 @@ public class SimpleFaultDataList {
 
     /**
      *  Returns parameter at the specified index if exist, else throws
-     *  exception. Recall that these list are stored in a Vector, which is
+     *  exception. Recall that these list are stored in a ArrayList, which is
      *  like an array. Therefore you can access items by index.
      *
      * @param  index  Description of the Parameter

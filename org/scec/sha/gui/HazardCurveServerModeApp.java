@@ -5,7 +5,7 @@ import java.awt.event.*;
 import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.net.*;
 
@@ -969,7 +969,7 @@ public class HazardCurveServerModeApp extends JApplet
   private void initIMR_GuiBean() {
     // create the IMR Gui Bean object
      // It accepts the vector of IMR class names
-     Vector imrClasses = new Vector();
+     ArrayList imrClasses = new ArrayList();
      //imrClasses.add(this.A_CLASS_NAME);
      imrClasses.add(this.AS_CLASS_NAME);
      imrClasses.add(this.BJF_CLASS_NAME);

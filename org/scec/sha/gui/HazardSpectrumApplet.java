@@ -5,7 +5,7 @@ import java.awt.event.*;
 import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.net.*;
@@ -123,8 +123,8 @@ public class HazardSpectrumApplet extends JApplet
   private static final String PROB_AT_EXCEED = "Probability of Exceedance";
   private static final String X_AXIS_LABEL = "Period (sec)";
 
-  //Vector that stores the SA Period values for the IMR
-  private Vector saPeriodVector ;
+  //ArrayList that stores the SA Period values for the IMR
+  private ArrayList saPeriodVector ;
   //Total number of the SA Period Values
   private int numSA_PeriodVals;
   //Total number of the values for which we have ran the Hazard Curve
@@ -1394,7 +1394,7 @@ public class HazardSpectrumApplet extends JApplet
   private void initIMR_GuiBean() {
     // create the IMR Gui Bean object
      // It accepts the vector of IMR class names
-     Vector imrClasses = new Vector();
+     ArrayList imrClasses = new ArrayList();
      //imrClasses.add(this.A_CLASS_NAME);
      imrClasses.add(this.AS_CLASS_NAME);
      imrClasses.add(this.BJF_CLASS_NAME);
@@ -1447,7 +1447,7 @@ public class HazardSpectrumApplet extends JApplet
    */
   private void initERF_GuiBean() {
      // create the ERF Gui Bean object
-   Vector erf_Classes = new Vector();
+   ArrayList erf_Classes = new ArrayList();
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
@@ -1479,7 +1479,7 @@ public class HazardSpectrumApplet extends JApplet
    */
   private void initERFSelector_GuiBean() {
      // create the ERF Gui Bean object
-   Vector erf_Classes = new Vector();
+   ArrayList erf_Classes = new ArrayList();
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);

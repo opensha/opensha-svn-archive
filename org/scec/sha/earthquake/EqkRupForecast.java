@@ -1,7 +1,7 @@
 package org.scec.sha.earthquake;
 
 import java.util.ListIterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.EventObject;
 import java.util.GregorianCalendar;
@@ -128,11 +128,11 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI, ERF_API,
 
   /**
    * Get the list of all earthquake sources. Clone is returned.
-   * So, list can be save in Vector and this object subsequently destroyed
+   * So, list can be save in ArrayList and this object subsequently destroyed
    *
-   * @return Vector of Prob Earthquake sources
+   * @return ArrayList of Prob Earthquake sources
    */
-  public abstract Vector  getSourceList();
+  public abstract ArrayList  getSourceList();
 
 
   /**

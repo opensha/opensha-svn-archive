@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.WG02;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -49,7 +49,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
   /**
    * Vectors for holding the various sources, separated by type
    */
-  private Vector allSources;
+  private ArrayList allSources;
 
  // This is an array holding the relevant lines of the input file
   private List inputFileStrings = null;
@@ -162,7 +162,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
   private  void makeSources() throws FaultException{
 
     if(D) System.out.println(C+": last line of inputFileStrings = "+inputFileStrings.get(inputFileStrings.size()-1));
-    allSources = new Vector();
+    allSources = new ArrayList();
 
     FaultTrace faultTrace;
     GriddedFaultFactory faultFactory;
@@ -290,9 +290,9 @@ public class WG02_EqkRupForecast extends EqkRupForecast
      /**
       * Get the list of all earthquake sources.
       *
-      * @return Vector of Prob Earthquake sources
+      * @return ArrayList of Prob Earthquake sources
       */
-     public Vector  getSourceList(){
+     public ArrayList  getSourceList(){
        return null;
      }
 

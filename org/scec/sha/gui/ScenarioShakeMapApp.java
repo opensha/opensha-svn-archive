@@ -342,7 +342,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private void initIMRGuiBean() {
     // create the IMR Gui Bean object
      // It accepts the vector of IMR class names
-     Vector imrClasses = new Vector();
+     ArrayList imrClasses = new ArrayList();
 //     imrClasses.add(this.SM_CLASS_NAME);
      imrClasses.add(this.AS_CLASS_NAME);
      imrClasses.add(this.BJF_CLASS_NAME);
@@ -366,7 +366,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    */
   private void initERFSelector_GuiBean() {
      // create the ERF Gui Bean object
-   Vector erf_Classes = new Vector();
+   ArrayList erf_Classes = new ArrayList();
 
 //   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
@@ -499,7 +499,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
   /**
    * This method calculates the probablity or the IML for the selected Gridded Region
-   * and stores the value in each vectors(lat-Vector, Lon-Vector and IML or Prob Vector)
+   * and stores the value in each vectors(lat-ArrayList, Lon-ArrayList and IML or Prob ArrayList)
    * The IML or prob vector contains value based on what the user has selected in the Map type
    */
   public XYZ_DataSetAPI generateShakeMap() throws ParameterException,RuntimeException{

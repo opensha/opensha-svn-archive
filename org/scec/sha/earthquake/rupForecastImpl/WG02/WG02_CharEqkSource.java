@@ -6,7 +6,7 @@ import org.scec.data.*;
 import org.scec.calc.RelativeLocation;
 import org.scec.sha.magdist.GaussianMagFreqDist;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * <p>Title: WG02_CharEqkSource</p>

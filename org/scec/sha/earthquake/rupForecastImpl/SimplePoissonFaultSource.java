@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.scec.calc.magScalingRelations.*;
@@ -62,8 +62,8 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
 
   // private fields
   private int totNumRups;
-  private Vector ruptureList;
-  private Vector faultCornerLocations = new Vector();   // used for the getMinDistance(Site) method
+  private ArrayList ruptureList;
+  private ArrayList faultCornerLocations = new ArrayList();   // used for the getMinDistance(Site) method
   private double timeSpan;
 
   /* Note that none of the input objects are saved after the ruptureList is created
@@ -111,7 +111,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
       makeFaultCornerLocs(faultSurface);
 
       // make the rupture list
-      ruptureList = new Vector();
+      ruptureList = new ArrayList();
       if(magScalingSigma == 0.0)
         addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, minMag, 0.0, 1.0);
       else {

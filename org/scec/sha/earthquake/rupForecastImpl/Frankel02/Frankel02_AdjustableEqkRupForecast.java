@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.Frankel02;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -48,7 +48,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   // name of this ERF
   public final static String NAME = new String("USGS/CGS 2002 Adj. Cal. ERF");
 
-//  Vector allSourceNames;
+//  ArrayList allSourceNames;
 
   private String CHAR_MAG_FREQ_DIST = "1";
   private String GR_MAG_FREQ_DIST = "2";
@@ -119,15 +119,15 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   private final static double SUBD_ZONE_FILE_WT_8 = 0.05;
 
 
-  Vector faultFiles, faultFileWts, areaGridFiles, areaGridFileWts;
+  ArrayList faultFiles, faultFileWts, areaGridFiles, areaGridFileWts;
 
   /**
    * Vectors for holding the various sources, separated by type
    */
-  private Vector charFaultSources;
-  private Vector grFaultSources;
-  private Vector FrankelBackgrSeisSources;
-  private Vector allSources;
+  private ArrayList charFaultSources;
+  private ArrayList grFaultSources;
+  private ArrayList FrankelBackgrSeisSources;
+  private ArrayList allSources;
 
   // This is an array holding each line of the input file
   private ArrayList inputBackSeisFileLines = null;
@@ -137,7 +137,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   public final static String FAULT_MODEL_FRANKEL = new String ("Frankel's");
   public final static String FAULT_MODEL_STIRLING = new String ("Stirling's");
   // make the fault-model parameter
-  Vector faultModelNamesStrings = new Vector();
+  ArrayList faultModelNamesStrings = new ArrayList();
   StringParameter faultModelParam;
 
   // fault-model parameter stuff
@@ -146,7 +146,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
   public final static String BACK_SEIS_ONLY = new String ("Only Background");
   // make the fault-model parameter
-  Vector backSeisOptionsStrings = new Vector();
+  ArrayList backSeisOptionsStrings = new ArrayList();
   StringParameter backSeisParam;
 
   // For rupture offset lenth along fault parameter
@@ -162,7 +162,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   // fault file parameter for testing
   public final static String FAULT_FILE_NAME = new String ("Fault File");
   // make the fault-model parameter
-  Vector faultFileNamesStrings = new Vector();
+  ArrayList faultFileNamesStrings = new ArrayList();
   StringParameter faultFileParam;
 */
 
@@ -282,8 +282,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
    */
   private void makeAllFaultSources() {
 
-    charFaultSources = new Vector();
-    grFaultSources = new Vector();
+    charFaultSources = new ArrayList();
+    grFaultSources = new ArrayList();
 
 // these were for testing
 //    makeFaultSources(test1,1.0,null,0.0);
@@ -363,8 +363,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     String  magFreqDistType = "", faultingStyle, sourceName="";
     double gridSpacing, dmove;                 // fault discretization and floater offset, respectively
     int numBranches, numMags, numMags2;                    // num branches for mag epistemic uncertainty
-    Vector branchDmags = new Vector();  // delta mags for epistemic uncertainty
-    Vector branchWts = new Vector();    // wts for epistemic uncertainty
+    ArrayList branchDmags = new ArrayList();  // delta mags for epistemic uncertainty
+    ArrayList branchWts = new ArrayList();    // wts for epistemic uncertainty
     double aleStdDev, aleWidth;         // aleatory mag uncertainties
 
     FrankelGriddedFaultFactory frankelFaultFactory = null;
@@ -838,7 +838,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     String S = C + ": makeBackSeisSources(): ";
     if( D ) System.out.println(S + "Starting");
 
-    FrankelBackgrSeisSources = new Vector();
+    FrankelBackgrSeisSources = new ArrayList();
 
     double lat, lon, rate, rateAtMag5;
 
@@ -933,9 +933,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
      /**
       * Get the list of all earthquake sources.
       *
-      * @return Vector of Prob Earthquake sources
+      * @return ArrayList of Prob Earthquake sources
       */
-     public Vector  getSourceList(){
+     public ArrayList  getSourceList(){
 
        return allSources;
      }
@@ -963,7 +963,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
        // get value of background seismicity paramter
        String backSeis = (String) backSeisParam.getValue();
 
-       allSources = new Vector();
+       allSources = new ArrayList();
 
        if (backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE)) {
          makeBackSeisSources();

@@ -1,7 +1,7 @@
 package org.scec.sha.earthquake;
 
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.EventObject;
 
@@ -23,9 +23,9 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
     TimeSpanChangeListener {
 
   // vector to hold the instances of Eqk Rup Forecasts
-  private Vector erf_List = new Vector();
+  private ArrayList erf_List = new ArrayList();
   //vector to hold relative weight of each ERF
-  private Vector relativeWeight  = new Vector();
+  private ArrayList relativeWeight  = new ArrayList();
   // declaration of the flag to check if any parameter has been changed from its original value.
   protected boolean  parameterChangeFlag = true;
   // parameter list for adjustable params
@@ -75,9 +75,9 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
   /**
    * Return the vector containing the Double values with
    * relative weights for each ERF
-   * @return : Vector of Double values
+   * @return : ArrayList of Double values
    */
-  public Vector getRelativeWeightsList() {
+  public ArrayList getRelativeWeightsList() {
     return relativeWeight;
   }
 

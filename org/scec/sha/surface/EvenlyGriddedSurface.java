@@ -1,7 +1,7 @@
 package org.scec.sha.surface;
 
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * <p>Title: EvenlyGriddedSurface </p>
@@ -19,7 +19,7 @@ public class EvenlyGriddedSurface extends GriddedSurface {
      private double gridSpacing;
 
      //vector to store the GriddedSurface
-     Vector v= new Vector();
+     ArrayList v= new ArrayList();
 
     /**
      *  Constructor for the GriddedSurface object
@@ -151,9 +151,9 @@ public class EvenlyGriddedSurface extends GriddedSurface {
         //getting the total number of subsetSurfaces
         int totalSubSetSurface = nSubSurfaceAlong * nSubSurfaceDown;
         //emptying the vector
-        v.removeAllElements();
+        v.clear();
 
-        //adding each subset surface to the Vector
+        //adding each subset surface to the ArrayList
         for(int i=0;i<totalSubSetSurface;++i)
           v.add(getNthSubsetSurface(numSubSurfaceCols,numSubSurfaceRows,numSubSurfaceOffset,nSubSurfaceAlong,i));
 

@@ -121,10 +121,10 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
   StringParameter faultTypeParam;
 
   //vectors to store the previous values for the lats, lons,dips and depths
-  private Vector prevLats = new Vector();
-  private Vector prevLons = new Vector();
-  private Vector prevDepths = new Vector();
-  private Vector prevDips = new Vector();
+  private ArrayList prevLats = new ArrayList();
+  private ArrayList prevLons = new ArrayList();
+  private ArrayList prevDepths = new ArrayList();
+  private ArrayList prevDips = new ArrayList();
 
   /**
    *  No constraints specified for this parameter. Sets the name of this
@@ -230,7 +230,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
     dipDirectionParam.setInfo(DIP_DIRECTION_INFO);
     dipDirectionParam.getConstraint().setNullAllowed(true);
     //create the String parameter if the dip is one
-    Vector fltType = new Vector();
+    ArrayList fltType = new ArrayList();
     fltType.add(this.FRANKEL);
     fltType.add(this.STIRLING);
     faultTypeParam = new StringParameter(this.FAULT_TYPE_TITLE,fltType,(String)fltType.get(0));
@@ -446,10 +446,10 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
       independentParamList.addParameter(parameterList.getParameter(this.FAULT_NAME));
 
     //initialising the vectors for the lats, lons, depths and dips
-    Vector lats = new Vector();
-    Vector lons = new Vector();
-    Vector depths = new Vector();
-    Vector dips = new Vector();
+    ArrayList lats = new ArrayList();
+    ArrayList lons = new ArrayList();
+    ArrayList depths = new ArrayList();
+    ArrayList dips = new ArrayList();
     //getting the number of  fault trace
     int fltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
     //getting the number of dips
@@ -459,13 +459,13 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
     independentParamList.addParameter(parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE));
     independentParamList.addParameter(numDipParam);
 
-    //adding the latitudes to the Vector
+    //adding the latitudes to the ArrayList
     for(int i=0;i<fltTracePoints;++i){
       Double latLocation =(Double)parameterListParameterForLats.getParameter().getParameter(this.LAT_PARAM_NAME+(i+1)).getValue();
       lats.add(latLocation);
     }
 
-    //adding the longitudes to the Vector
+    //adding the longitudes to the ArrayList
     for(int i=0;i<fltTracePoints;++i){
       Double lonLocation =(Double)parameterListParameterForLons.getParameter().getParameter(this.LON_PARAM_NAME+(i+1)).getValue();
       lons.add(lonLocation);
@@ -474,7 +474,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
     //variable added to store the previous Depth (to make sure they're in ascending order)
     double prevDepth=((Double)parameterListParameterForDepths.getParameter().getParameter(this.DEPTH_PARAM_NAME+("1")).getValue()).doubleValue();
 
-    //adding the depths(equal to numDips +1) to the Vector
+    //adding the depths(equal to numDips +1) to the ArrayList
     for(int i=0;i<=numDips;++i){
       Double depthLocation = (Double)parameterListParameterForDepths.getParameter().getParameter(this.DEPTH_PARAM_NAME+(i+1)).getValue();
       depths.add(depthLocation);
@@ -620,14 +620,14 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
    * This sets all the fault data needed to make a evenly discretized fault
    * @param name : Name of the fault
    * @param gridSpacing
-   * @param lats : Vector of Latitudes for the discretized fault
-   * @param lons : Vector of Longitudes for the discretized fault
-   * @param dips : Vector of Dips
-   * @param depths : Vector of Depths, which are one more then the number of dips
+   * @param lats : ArrayList of Latitudes for the discretized fault
+   * @param lons : ArrayList of Longitudes for the discretized fault
+   * @param dips : ArrayList of Dips
+   * @param depths : ArrayList of Depths, which are one more then the number of dips
    * @param faultType : STIRLING or FRANKEL fault
    */
-  public void setAll(String name, double gridSpacing, Vector lats, Vector lons,
-                     Vector dips, Vector depths, String faultType) {
+  public void setAll(String name, double gridSpacing, ArrayList lats, ArrayList lons,
+                     ArrayList dips, ArrayList depths, String faultType) {
     parameterList.getParameter(SimpleFaultParameter.FAULT_NAME).setValue(name);
     setAll(gridSpacing, lats, lons, dips, depths, faultType);
   }
@@ -636,14 +636,14 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
   /**
    * This sets all the fault data needed to make a evenly discretized fault
    * @param gridSpacing
-   * @param lats : Vector of Latitudes for the discretized fault
-   * @param lons : Vector of Longitudes for the discretized fault
-   * @param dips : Vector of Dips
-   * @param depths : Vector of Depths, which are one more then the number of dips
+   * @param lats : ArrayList of Latitudes for the discretized fault
+   * @param lons : ArrayList of Longitudes for the discretized fault
+   * @param dips : ArrayList of Dips
+   * @param depths : ArrayList of Depths, which are one more then the number of dips
    * @param faultType : STIRLING or FRANKEL fault
    */
-  public void setAll(double gridSpacing, Vector lats, Vector lons,
-                     Vector dips, Vector depths, String faultType) {
+  public void setAll(double gridSpacing, ArrayList lats, ArrayList lons,
+                     ArrayList dips, ArrayList depths, String faultType) {
     int numFltPts = lats.size();
     int numDips = dips.size();
 
@@ -651,7 +651,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
       throw new RuntimeException(C+".setAll(): lats and lons Vectors must be the same size");
 
     if (dips.size() != depths.size()-1)
-      throw new RuntimeException(C+".setAll(): size of dips Vector must one less than the depths Vector");
+      throw new RuntimeException(C+".setAll(): size of dips ArrayList must one less than the depths ArrayList");
 
     if (dips.size()>1 && faultType.equals(SimpleFaultParameter.FRANKEL))
       throw new RuntimeException(C+".setAll(): "+SimpleFaultParameter.FRANKEL+" fault type can't be used if dips.size() > 1");
@@ -678,33 +678,33 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
 
   /**
    *
-   * @returns the Vector containing the values for all the specified Latitudes
+   * @returns the ArrayList containing the values for all the specified Latitudes
    */
-  public Vector getLatParamVals(){
+  public ArrayList getLatParamVals(){
    return prevLats;
   }
 
   /**
    *
-   * @returns the Vector containing the values for all the specified Longitudes
+   * @returns the ArrayList containing the values for all the specified Longitudes
    */
-  public Vector getLonParamVals(){
+  public ArrayList getLonParamVals(){
    return prevLons;
   }
 
   /**
    *
-   * @returns the Vector containing the values for all the specified Dips
+   * @returns the ArrayList containing the values for all the specified Dips
    */
-  public Vector getDipParamVals(){
+  public ArrayList getDipParamVals(){
    return prevDips;
   }
 
   /**
    *
-   * @returns the Vector containing the values for all the specified Depths
+   * @returns the ArrayList containing the values for all the specified Depths
    */
-  public Vector getDepthParamVals(){
+  public ArrayList getDepthParamVals(){
    return prevDepths;
   }
 

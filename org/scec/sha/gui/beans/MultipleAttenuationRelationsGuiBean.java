@@ -85,7 +85,7 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
   public final static String IMT_EDITOR_TITLE =  "Set IMT";
 
   //stores the IMT Params for the choosen IMR
-  private Vector imtParam;
+  private ArrayList imtParam;
 
 
   private JPanel imrPanel = new JPanel();
@@ -339,8 +339,8 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
      imtParamList = new ParameterList();
 
      //vector to store all the IMT's supported by an IMR
-     Vector imt=new Vector();
-     imtParam = new Vector();
+     ArrayList imt=new ArrayList();
+     imtParam = new ArrayList();
      for(int i=0;i<numSupportedAttenRels;++i){
        Iterator it = ((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getSupportedIntensityMeasuresIterator();
 
@@ -372,8 +372,8 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
            ParameterAPI param2 = (ParameterAPI ) it2.next();
            DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
            ListIterator it3 = values.listIterator();
-           //Vector to store the independent params values option.
-           Vector indParamOptions = new Vector();
+           //ArrayList to store the independent params values option.
+           ArrayList indParamOptions = new ArrayList();
            while(it3.hasNext())   // add all the periods relating to the SA
              indParamOptions.add(it3.next().toString());
 
@@ -393,7 +393,7 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
             * new constraint for the independent parameter.
             */
            if(param1.containsIndependentParameter(independentParam.getName())){
-             Vector paramVals = ((StringConstraint)param1.getIndependentParameter(independentParam.getName()).getConstraint()).getAllowedValues();
+             ArrayList paramVals = ((StringConstraint)param1.getIndependentParameter(independentParam.getName()).getConstraint()).getAllowedValues();
              for(int j=0;j<indParamOptions.size();++j)
                if(!paramVals.contains(indParamOptions.get(j)))
                  paramVals.add(indParamOptions.get(j));
@@ -412,7 +412,7 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
      imtParamList.addParameter(imtParameter);
 
      /* gets the iterator for each supported IMT and iterates over all its indepenedent
-     * parameters to add them to the common Vector to display in the IMT Panel
+     * parameters to add them to the common ArrayList to display in the IMT Panel
      **/
 
      Iterator it=imtParam.iterator();

@@ -7,7 +7,7 @@ import org.scec.data.Location;
 import org.scec.data.region.GeographicRegion;
 
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.ListIterator;
 
 /**

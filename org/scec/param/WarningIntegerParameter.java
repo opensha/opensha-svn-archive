@@ -67,7 +67,7 @@ public class WarningIntegerParameter
      * Only created if needed, else kept null. This is
      * known as "lazy instantiation".
      */
-    protected transient Vector warningListeners = null;
+    protected transient ArrayList warningListeners = null;
 
 
     /**
@@ -320,10 +320,10 @@ public class WarningIntegerParameter
         String S = C + ": addParameterChangeWarningListener(): ";
         //checkEditable(S);
 
-        if ( warningListeners == null ) warningListeners = new Vector();
+        if ( warningListeners == null ) warningListeners = new ArrayList();
         if ( !warningListeners.contains( listener ) ) {
             if(D) System.out.println(S + "Adding listener: " + listener.getClass().getName() );
-            warningListeners.addElement( listener );
+            warningListeners.add( listener );
 
         }
 
@@ -340,7 +340,7 @@ public class WarningIntegerParameter
         //checkEditable(S);
 
         if ( warningListeners != null && warningListeners.contains( listener ) )
-            warningListeners.removeElement( listener );
+            warningListeners.remove( listener );
     }
 
     /**
@@ -490,13 +490,13 @@ public class WarningIntegerParameter
         if(D) System.out.println(S + "Starting: " + this.getName() );
 
 
-        Vector vector;
+        ArrayList vector;
         synchronized ( this ) {
             if ( warningListeners == null ) return;
-            vector = ( Vector ) warningListeners.clone();
+            vector = ( ArrayList ) warningListeners.clone();
        }
         for ( int i = 0; i < vector.size(); i++ ) {
-            ParameterChangeWarningListener listener = ( ParameterChangeWarningListener ) vector.elementAt( i );
+            ParameterChangeWarningListener listener = ( ParameterChangeWarningListener ) vector.get( i );
             if(D) System.out.println(S + "Firing warning to (" + i + ") " + listener.getClass().getName());
             listener.parameterChangeWarning( event );
         }

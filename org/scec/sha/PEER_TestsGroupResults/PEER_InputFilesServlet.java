@@ -90,7 +90,7 @@ public class PEER_InputFilesServlet extends HttpServlet {
     try {
       System.out.println("Addition of a file desired");
       // read the data
-      Vector data  = (Vector) inputFromApplet.readObject();
+      ArrayList data  = (ArrayList) inputFromApplet.readObject();
       inputFromApplet.close();
 
       // create the file
@@ -131,7 +131,7 @@ public class PEER_InputFilesServlet extends HttpServlet {
     try {
       System.out.println("Overwrite of file desired");
       // read the data
-      Vector data  = (Vector) inputFromApplet.readObject();
+      ArrayList data  = (ArrayList) inputFromApplet.readObject();
       inputFromApplet.close();
 
 
@@ -165,11 +165,11 @@ public class PEER_InputFilesServlet extends HttpServlet {
 
 
   /**
-   * create the file with name filename and values specified in Vector values
+   * create the file with name filename and values specified in ArrayList values
    * @param fileName : filename to create
    * @param data  : vector of values
    */
-  private void createFile(String fileName, Vector data) {
+  private void createFile(String fileName, ArrayList data) {
     try {
       System.out.println("filename to upload:"+fileName);
       FileWriter file = new FileWriter("GroupTestDataFiles/"+fileName);
@@ -235,7 +235,7 @@ public class PEER_InputFilesServlet extends HttpServlet {
      // now update the files.log file to reflect the removed file
      FileReader logFile = new FileReader("GroupTestDataFiles/files.log");
      LineNumberReader lin = new LineNumberReader(logFile);
-     Vector fileNamesVector = new Vector();
+     ArrayList fileNamesVector = new ArrayList();
      String str = lin.readLine();
      while(str!=null) {
        if(!str.equals(fileName)) fileNamesVector.add(str);

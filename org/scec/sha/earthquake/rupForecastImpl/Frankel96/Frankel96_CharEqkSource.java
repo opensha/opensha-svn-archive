@@ -5,7 +5,7 @@ import org.scec.sha.earthquake.*;
 import org.scec.data.*;
 import org.scec.calc.RelativeLocation;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * <p>Title: Frankel96CharEqkSource</p>

@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.Frankel96;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.scec.sha.surface.EvenlyGriddedSurface;

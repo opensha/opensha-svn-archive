@@ -1,6 +1,6 @@
 package org.scec.sha.param;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.param.*;
 import org.scec.sha.magdist.IncrementalMagFreqDist;
@@ -24,7 +24,7 @@ public class MagFreqDistConstraint extends ParameterConstraint {
   /** If true print out debug statements. */
   protected final static boolean D = false;
   /**Vector of Distribution names to be shown */
-  Vector allowedMagDists = new Vector();
+  ArrayList allowedMagDists = new ArrayList();
 
   /** No-Arg Constructor, constraints are null so all values allowed */
   public MagFreqDistConstraint() { super(); }
@@ -35,12 +35,12 @@ public class MagFreqDistConstraint extends ParameterConstraint {
    *
    * @param  allowedVals  Vector of strings of allowed MagFreqDists
    */
-  public MagFreqDistConstraint( Vector allowedVals ) {
+  public MagFreqDistConstraint( ArrayList allowedVals ) {
     allowedMagDists = allowedVals;
   }
 
   /** Returns the vector of allowed Mag Dists  */
-  public Vector getAllowedMagDists() { return allowedMagDists; }
+  public ArrayList getAllowedMagDists() { return allowedMagDists; }
 
 
   /**
@@ -101,7 +101,7 @@ public class MagFreqDistConstraint extends ParameterConstraint {
 
   /** Creates a copy of this object instance so the original cannot be altered. */
   public Object clone() {
-    Vector cloneVector  = new Vector();
+    ArrayList cloneVector  = new ArrayList();
     int size = allowedMagDists.size();
     for(int i=0; i<size ;++i)
       cloneVector.add(allowedMagDists.get(i));

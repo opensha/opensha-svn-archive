@@ -40,7 +40,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
 public class ERF_ServletModeGuiBean extends ParameterListEditor
     implements ERF_GuiBeanAPI,TimeSpanChangeListener {
   //this vector saves the names of all the supported Eqk Rup Forecasts
-  protected Vector erfNamesVector=new Vector();
+  protected ArrayList erfNamesVector=new ArrayList();
 
    // ERF Editor stuff
   public final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
@@ -98,7 +98,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     this.parameterList = new ParameterList();
 
     //open the connections to all the ERF servlets to get their paramList and timspan
-    //It also initialises all Vector with names of all the ERF's
+    //It also initialises all ArrayList with names of all the ERF's
     this.openConnectionToAllERF_Servlets();
 
     // make the forecast selection parameter

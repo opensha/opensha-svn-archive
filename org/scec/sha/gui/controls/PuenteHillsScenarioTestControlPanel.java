@@ -73,25 +73,25 @@ public class PuenteHillsScenarioTestControlPanel {
     //getting the instance for the SimpleFaultParameterEditorPanel from the GuiBean to adjust the fault Params
     SimpleFaultParameterEditorPanel faultPanel= erfParamGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
     //creating the Lat vector for the SimpleFaultParameter
-    Vector lats = new Vector();
+    ArrayList lats = new ArrayList();
     lats.add(new Double(33.92690));
     lats.add(new Double(33.93150));
     lats.add(new Double(33.95410));
     lats.add(new Double(34.05860));
 
     //creating the Lon vector for the SimpleFaultParameter
-    Vector lons = new Vector();
+    ArrayList lons = new ArrayList();
     lons.add(new Double(-117.86730));
     lons.add(new Double(-118.04320));
     lons.add(new Double(-118.14350));
     lons.add(new Double(-118.29760));
 
     //creating the dip vector for the SimpleFaultParameter
-    Vector dips = new Vector();
+    ArrayList dips = new ArrayList();
     dips.add(new Double(25));
 
     //creating the depth vector for the SimpleFaultParameter
-    Vector depths = new Vector();
+    ArrayList depths = new ArrayList();
     depths.add(new Double(5));
     depths.add(new Double(13));
 

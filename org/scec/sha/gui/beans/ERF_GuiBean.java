@@ -30,9 +30,9 @@ import org.scec.sha.param.editor.*;
 
 public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
   //this vector saves the names of all the supported Eqk Rup Forecasts
-  protected Vector erfNamesVector=new Vector();
+  protected ArrayList erfNamesVector=new ArrayList();
   //this vector holds the full class names of all the supported Eqk Rup Forecasts
-  private Vector erfClasses;
+  private ArrayList erfClasses;
 
   // ERF Editor stuff
   public final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
@@ -55,7 +55,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    * Constructor : It accepts the classNames of the ERFs to be shown in the editor
    * @param erfClassNames
    */
-  public ERF_GuiBean(Vector erfClassNames) throws InvocationTargetException{
+  public ERF_GuiBean(ArrayList erfClassNames) throws InvocationTargetException{
     // save the classs names of ERFs to be shown
      this.erfClasses = erfClassNames;
 
@@ -119,7 +119,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    /**
     * init erf_IndParamList. List of all available forecasts at this time
     */
-   protected void init_erf_IndParamListAndEditor(Vector erfClassNames) throws InvocationTargetException{
+   protected void init_erf_IndParamListAndEditor(ArrayList erfClassNames) throws InvocationTargetException{
 
      this.parameterList = new ParameterList();
 
@@ -134,8 +134,8 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      //gets the iterator for the class names of all the ERF's
      Iterator it = erfClasses.iterator();
 
-     //Vector to maintain which erf cannot be instatiated and have to be removed from the list
-     Vector erfFailed = new Vector();
+     //ArrayList to maintain which erf cannot be instatiated and have to be removed from the list
+     ArrayList erfFailed = new ArrayList();
      //adding the names of all the ERF's to the erfNamesVector- Pick List for the ERF's
      while(it.hasNext()){
        String erfClass = (String)it.next();
@@ -146,11 +146,11 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
          erfFailed.add(erfClass);
      }
 
-     //removing the erf's from the erfClasses Vector which could not be instantiated
+     //removing the erf's from the erfClasses ArrayList which could not be instantiated
      if(erfFailed.size() >0){
        int size =erfFailed.size();
        for(int i=0;i<size;++i)
-         erfClasses.removeElement(erfFailed.get(i));
+         erfClasses.remove(erfFailed.get(i));
      }
 
      Iterator it1 = eqkRupForecast.getAdjustableParamsIterator();
@@ -416,14 +416,14 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     * @param erfList
     * @throws InvocationTargetException
     */
-   public void addERFs_ToList(Vector erfList) throws InvocationTargetException{
+   public void addERFs_ToList(ArrayList erfList) throws InvocationTargetException{
 
      int size = erfList.size();
      for(int i=0;i<size;++i)
        if(!erfClasses.contains(erfList.get(i)))
          erfClasses.add(erfList.get(i));
      // create the instance of ERFs
-     erfNamesVector.removeAllElements();
+     erfNamesVector.clear();
      init_erf_IndParamListAndEditor(erfClasses);
      setParamsInForecast(getSelectedERF_Name());
    }
@@ -436,14 +436,14 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     * @param erfList
     * @throws InvocationTargetException
     */
-   public void removeERFs_FromList(Vector erfList) throws InvocationTargetException{
+   public void removeERFs_FromList(ArrayList erfList) throws InvocationTargetException{
 
     int size = erfList.size();
     for(int i=0;i<size;++i)
       if(erfClasses.contains(erfList.get(i)))
         erfClasses.remove(erfList.get(i));
     // create the instance of ERFs
-    erfNamesVector.removeAllElements();
+    erfNamesVector.clear();
     init_erf_IndParamListAndEditor(erfClasses);
     setParamsInForecast(getSelectedERF_Name());
    }

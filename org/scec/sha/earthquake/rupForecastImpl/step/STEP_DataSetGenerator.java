@@ -48,10 +48,10 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private static final String METADATA_FILE_SUFFIX = "_metadata.dat";
   private static final String VS30_FILE_NAME = "vs30.txt";
   private static final double IML_VALUE = Math.log(0.126);
-  private Vector latVals = new Vector();
-  private Vector lonVals = new Vector();
+  private ArrayList latVals = new ArrayList();
+  private ArrayList lonVals = new ArrayList();
   //vector to store the vs30 values
-  private Vector vs30Vals = new Vector();
+  private ArrayList vs30Vals = new ArrayList();
   DecimalFormat format = new DecimalFormat("0.00##");
 
   public STEP_DataSetGenerator() {
@@ -77,7 +77,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
     int numSites = region.getNumGridLocs();
 
-    //adding the numSites to the lat and Lon Vector
+    //adding the numSites to the lat and Lon ArrayList
     for(int i=0;i<numSites;++i){
 
       latVals.add(new Double(format.format(region.getSite(i).getLocation().getLatitude())));
@@ -125,7 +125,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     forecast.updateForecast();
     //generating the file for the BackGround
     File backSiesFile = new File(this.STEP_DIR+this.STEP_BACKGROUND_FILE);
-    Vector backSiesProbVals = new Vector();
+    ArrayList backSiesProbVals = new ArrayList();
     //if the file for the backGround already exists then just pick up the values for the Prob from the file
     if(backSiesFile.exists())
       getValForLatLon(backSiesProbVals,this.STEP_DIR+this.STEP_BACKGROUND_FILE);
@@ -149,7 +149,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     //getting the name of the STEP data(XYZ )file from the first line on the STEP website which basically tells the time of updation
     String stepDirName = this.getStepDirName();
     //creating the dataFile for the STEP Addon Probabilities
-    Vector stepAddonProbVals = new Vector();
+    ArrayList stepAddonProbVals = new ArrayList();
 
     File addonFile = new File(this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
     //if addon file already exists
@@ -170,7 +170,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
                metadata;
     //combining the backgound and Addon dataSet and wrinting the result to the file
     STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
-    Vector stepBothProbVals = addStepData.addDataSet(backSiesProbVals,stepAddonProbVals);
+    ArrayList stepBothProbVals = addStepData.addDataSet(backSiesProbVals,stepAddonProbVals);
     File bothFile = new File(this.STEP_DIR+stepDirName+this.STEP_COMBINED_FILE_SUFFIX);
     if(!bothFile.exists()){
       createFile(stepBothProbVals,this.STEP_DIR+stepDirName+this.STEP_COMBINED_FILE_SUFFIX);
@@ -183,12 +183,12 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
   /**
    * craetes the output xyz files
-   * @param probVals : Probablity values Vector for each Lat and Lon
+   * @param probVals : Probablity values ArrayList for each Lat and Lon
    * @param fileName : File to create
    */
-  private void createFile(Vector probVals, String fileName){
+  private void createFile(ArrayList probVals, String fileName){
     int size = probVals.size();
-   // System.out.println("Size of the Prob Vector is:"+size);
+   // System.out.println("Size of the Prob ArrayList is:"+size);
     try{
       FileWriter fr = new FileWriter(fileName);
       for(int i=0;i<size;++i)
@@ -202,10 +202,10 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
   /**
    * returns the prob or VS30 vals in a vector(vals) for the file( fileName)
-   * @param vals : Vector containing the values( z values)
+   * @param vals : ArrayList containing the values( z values)
    * @param fileName : Name of the file from which we collect the values
    */
-  private void getValForLatLon(Vector vals,String fileName){
+  private void getValForLatLon(ArrayList vals,String fileName){
     try{
       ArrayList fileLines = FileUtils.loadFile(fileName);
       ListIterator it = fileLines.listIterator();
@@ -247,12 +247,12 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    * @param imr : ShakeMap_2003_AttenRel for the STEP Calculation
    * @param region
    * @param eqkRupForecast : STEP Forecast
-   * @returns the Vector of Probability values for the given region
+   * @returns the ArrayList of Probability values for the given region
    */
-  private Vector getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
+  private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
                                      EqkRupForecast eqkRupForecast){
 
-    Vector probVals = new Vector();
+    ArrayList probVals = new ArrayList();
     double MAX_DISTANCE = 1000;
 
     // declare some varibles used in the calculation
@@ -369,7 +369,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   /**
    * Gets the VS30 from the CVM servlet
    */
-  private Vector getVS30FromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax,
+  private ArrayList getVS30FromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax,
                               Double gridSpacing) {
 
     // if we want to the paramter from the servlet
@@ -404,7 +404,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       // now read the connection again to get the vs30 as sent by the servlet
       ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
       //vectors of lat and lon for the Vs30
-      Vector vs30Vector=(Vector)ois.readObject();
+      ArrayList vs30Vector=(ArrayList)ois.readObject();
       ois.close();
       return vs30Vector;
     }catch (Exception exception) {

@@ -46,8 +46,8 @@ public class STEP_DataSetGenerator_WithoutSiteParams implements ParameterChangeW
   private static final String STEP_COMBINED_FILE_SUFFIX = "_both.txt";
   private static final String METADATA_FILE_SUFFIX = "_metadata.dat";
   private static final double IML_VALUE = Math.log(0.126);
-  private Vector latVals = new Vector();
-  private Vector lonVals = new Vector();
+  private ArrayList latVals = new ArrayList();
+  private ArrayList lonVals = new ArrayList();
   DecimalFormat format = new DecimalFormat("0.00##");
 
   public STEP_DataSetGenerator_WithoutSiteParams() {
@@ -73,7 +73,7 @@ public class STEP_DataSetGenerator_WithoutSiteParams implements ParameterChangeW
 
     int numSites = region.getNumGridLocs();
 
-    //adding the numSites to the lat and Lon Vector
+    //adding the numSites to the lat and Lon ArrayList
     for(int i=0;i<numSites;++i){
 
       latVals.add(new Double(format.format(region.getSite(i).getLocation().getLatitude())));
@@ -110,7 +110,7 @@ public class STEP_DataSetGenerator_WithoutSiteParams implements ParameterChangeW
     forecast.updateForecast();
     //generating the file for the BackGround
     File backSiesFile = new File(this.STEP_DIR+this.STEP_BACKGROUND_FILE);
-    Vector backSiesProbVals = new Vector();
+    ArrayList backSiesProbVals = new ArrayList();
     //if the file for the backGround already exists then just pick up the values for the Prob from the file
     if(backSiesFile.exists()){
       try{
@@ -146,7 +146,7 @@ public class STEP_DataSetGenerator_WithoutSiteParams implements ParameterChangeW
     //getting the name of the STEP data(XYZ )file from the first line on the STEP website which basically tells the time of updation
     String stepDirName = this.getStepDirName();
     //creating the dataFile for the STEP Addon Probabilities
-    Vector stepAddonProbVals = getProbVals(imr,region,(EqkRupForecast)forecast);
+    ArrayList stepAddonProbVals = getProbVals(imr,region,(EqkRupForecast)forecast);
 
     File addonFile = new File(this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
     if(!addonFile.exists()){
@@ -162,7 +162,7 @@ public class STEP_DataSetGenerator_WithoutSiteParams implements ParameterChangeW
                metadata;
     //combining the backgound and Addon dataSet and wrinting the result to the file
     STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
-    Vector stepBothProbVals = addStepData.addDataSet(backSiesProbVals,stepAddonProbVals);
+    ArrayList stepBothProbVals = addStepData.addDataSet(backSiesProbVals,stepAddonProbVals);
     File bothFile = new File(this.STEP_DIR+stepDirName+this.STEP_COMBINED_FILE_SUFFIX);
     if(!bothFile.exists()){
       createFile(stepBothProbVals,this.STEP_DIR+stepDirName+this.STEP_COMBINED_FILE_SUFFIX);
@@ -176,12 +176,12 @@ public class STEP_DataSetGenerator_WithoutSiteParams implements ParameterChangeW
 
   /**
    * craetes the output xyz files
-   * @param probVals : Probablity values Vector for each Lat and Lon
+   * @param probVals : Probablity values ArrayList for each Lat and Lon
    * @param fileName : File to create
    */
-  private void createFile(Vector probVals, String fileName){
+  private void createFile(ArrayList probVals, String fileName){
     int size = probVals.size();
-    System.out.println("Size of the Prob Vector is:"+size);
+    System.out.println("Size of the Prob ArrayList is:"+size);
     try{
       FileWriter fr = new FileWriter(fileName);
       for(int i=0;i<size;++i)
@@ -215,12 +215,12 @@ public class STEP_DataSetGenerator_WithoutSiteParams implements ParameterChangeW
    * @param imr : ShakeMap_2003_AttenRel for the STEP Calculation
    * @param region
    * @param eqkRupForecast : STEP Forecast
-   * @returns the Vector of Probability values for the given region
+   * @returns the ArrayList of Probability values for the given region
    */
-  private Vector getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
+  private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
                                      EqkRupForecast eqkRupForecast){
 
-    Vector probVals = new Vector();
+    ArrayList probVals = new ArrayList();
     double MAX_DISTANCE = 1000;
 
     // declare some varibles used in the calculation

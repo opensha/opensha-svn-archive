@@ -1,7 +1,7 @@
 package org.scec.param;
 
 import java.util.ListIterator;
-import java.util.Vector;
+import java.util.ArrayList;
 import org.scec.exceptions.ConstraintException;
 import org.scec.exceptions.EditableException;
 
@@ -28,7 +28,7 @@ public class DoubleDiscreteConstraint
     protected final static boolean D = false;
 
     /** List of possible Double values allowed by this constraint */
-    private Vector doubles = new Vector();
+    private ArrayList doubles = new ArrayList();
 
 
     /** No-arg Constructor, just calls super() */
@@ -41,12 +41,12 @@ public class DoubleDiscreteConstraint
      * @param  doubles                  A vector of allowed Doubles in this constraint.
      * @exception  ConstraintException  Is thrown if passed in list is empty.
      */
-    public DoubleDiscreteConstraint( Vector doubles ) throws ConstraintException {
+    public DoubleDiscreteConstraint( ArrayList doubles ) throws ConstraintException {
 
         if ( doubles.size() > 0 ) {
             this.doubles = doubles;
         } else {
-            String S = "DoubleDiscreteConstraint: Constructor(Vector doubles): ";
+            String S = "DoubleDiscreteConstraint: Constructor(ArrayList doubles): ";
             throw new ConstraintException( S + "Input vector of constraint values cannot be empty" );
         }
     }
@@ -58,7 +58,7 @@ public class DoubleDiscreteConstraint
      *
      * @param  doubles  The new list of allowed doubles
      */
-    public void setDoubles( Vector doubles ) throws EditableException {
+    public void setDoubles( ArrayList doubles ) throws EditableException {
 
         if( !this.editable ) throw new EditableException(C + ": setStrings(): " +
             "This constraint is currently not editable." );
@@ -73,7 +73,7 @@ public class DoubleDiscreteConstraint
      *
      * @return    The allowed doubles in a Vectoru
      */
-    public Vector getAllowedValues() { return getAllowedDoubles(); }
+    public ArrayList getAllowedValues() { return getAllowedDoubles(); }
 
 
     /**
@@ -82,8 +82,8 @@ public class DoubleDiscreteConstraint
      *
      * @return    The allowed doubles in a Vectoru
      */
-    public Vector getAllowedDoubles() {
-        return ( Vector ) doubles.clone();
+    public ArrayList getAllowedDoubles() {
+        return ( ArrayList ) doubles.clone();
     }
 
 
@@ -227,7 +227,7 @@ public class DoubleDiscreteConstraint
 
         DoubleDiscreteConstraint c1 = new DoubleDiscreteConstraint();
         c1.setName( name );
-        Vector v = getAllowedDoubles();
+        ArrayList v = getAllowedDoubles();
         ListIterator it = v.listIterator();
         while ( it.hasNext() ) {
             Double val = ( Double ) it.next();

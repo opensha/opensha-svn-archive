@@ -1,6 +1,6 @@
 package org.scec.param;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.exceptions.ConstraintException;
 import org.scec.exceptions.ParameterException;
@@ -68,15 +68,15 @@ public abstract class Parameter
     protected Object value = null;
 
     /**
-     *  Vector of all the objects who want to listen on change of this paramter
+     *  ArrayList of all the objects who want to listen on change of this paramter
      */
-    private transient Vector changeListeners;
+    private transient ArrayList changeListeners;
 
     /**
-     * Vector of all the objects who want to listen if the value
+     * ArrayList of all the objects who want to listen if the value
      * for this paramter is not valid
      */
-    private transient Vector failListeners;
+    private transient ArrayList failListeners;
 
 
     /** Empty no-arg constructor. Does nothing but initialize object.  */
@@ -197,8 +197,8 @@ public abstract class Parameter
      *      ParameterChangeFailListener attribute
      */
     public synchronized void addParameterChangeFailListener( org.scec.param.event.ParameterChangeFailListener listener ) {
-        if ( failListeners == null ) failListeners = new Vector();
-        if ( !failListeners.contains( listener ) ) failListeners.addElement( listener );
+        if ( failListeners == null ) failListeners = new ArrayList();
+        if ( !failListeners.contains( listener ) ) failListeners.add( listener );
      }
 
     /**
@@ -222,7 +222,7 @@ public abstract class Parameter
      */
     public synchronized void removeParameterChangeFailListener( org.scec.param.event.ParameterChangeFailListener listener ) {
         if ( failListeners != null && failListeners.contains( listener ) )
-            failListeners.removeElement( listener );
+            failListeners.remove( listener );
     }
 
 
@@ -239,14 +239,14 @@ public abstract class Parameter
         if ( D ) System.out.println( S + "Bad Value = " + event.getBadValue() );
         if ( D ) System.out.println( S + "Model Value = " + event.getSource().toString() );
 
-        Vector vector;
+        ArrayList vector;
         synchronized ( this ) {
             if ( failListeners == null ) return;
-            vector = ( Vector ) failListeners.clone();
+            vector = ( ArrayList ) failListeners.clone();
         }
 
         for ( int i = 0; i < vector.size(); i++ ) {
-            org.scec.param.event.ParameterChangeFailListener listener = ( org.scec.param.event.ParameterChangeFailListener ) vector.elementAt( i );
+            org.scec.param.event.ParameterChangeFailListener listener = ( org.scec.param.event.ParameterChangeFailListener ) vector.get( i );
             listener.parameterChangeFailed( event );
         }
     }
@@ -263,8 +263,8 @@ public abstract class Parameter
      */
 
     public synchronized void addParameterChangeListener( org.scec.param.event.ParameterChangeListener listener ) {
-        if ( changeListeners == null ) changeListeners = new Vector();
-        if ( !changeListeners.contains( listener ) ) changeListeners.addElement( listener );
+        if ( changeListeners == null ) changeListeners = new ArrayList();
+        if ( !changeListeners.contains( listener ) ) changeListeners.add( listener );
     }
 
     /**
@@ -274,7 +274,7 @@ public abstract class Parameter
      */
     public synchronized void removeParameterChangeListener( org.scec.param.event.ParameterChangeListener listener ) {
         if ( changeListeners != null && changeListeners.contains( listener ) )
-            changeListeners.removeElement( listener );
+            changeListeners.remove( listener );
     }
 
 
@@ -298,14 +298,14 @@ public abstract class Parameter
         if ( D ) System.out.println( S + "New Value = " + event.getNewValue() );
         if ( D ) System.out.println( S + "Model Value = " + event.getSource().toString() );
 
-        Vector vector;
+        ArrayList vector;
         synchronized ( this ) {
             if ( changeListeners == null ) return;
-            vector = ( Vector ) changeListeners.clone();
+            vector = ( ArrayList ) changeListeners.clone();
         }
 
         for ( int i = 0; i < vector.size(); i++ ) {
-            org.scec.param.event.ParameterChangeListener listener = ( org.scec.param.event.ParameterChangeListener ) vector.elementAt( i );
+            org.scec.param.event.ParameterChangeListener listener = ( org.scec.param.event.ParameterChangeListener ) vector.get( i );
             listener.parameterChange( event );
         }
     }

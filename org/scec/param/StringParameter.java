@@ -55,7 +55,7 @@ public class StringParameter
      * @throws  ConstraintException     Thrown if vector of allowed values is
      *      empty
      */
-    public StringParameter( String name, Vector strings ) throws ConstraintException {
+    public StringParameter( String name, ArrayList strings ) throws ConstraintException {
         this( name, new StringConstraint( strings ), null, null );
     }
 
@@ -110,7 +110,7 @@ public class StringParameter
      * @exception  ConstraintException  Is thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public StringParameter( String name, Vector strings, String value ) throws ConstraintException {
+    public StringParameter( String name, ArrayList strings, String value ) throws ConstraintException {
         this( name, new StringConstraint( strings ), null, value );
     }
 
@@ -187,7 +187,7 @@ public class StringParameter
      * Useful for presenting in a picklist
      * @return    The allowedStrings vector
      */
-    public Vector getAllowedStrings() {
+    public ArrayList getAllowedStrings() {
         return ( ( StringConstraint ) this.constraint ).getAllowedStrings();
     }
 

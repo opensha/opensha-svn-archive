@@ -2,7 +2,7 @@ package org.scec.sha.gui.controls;
 
 import java.awt.*;
 import javax.swing.*;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.awt.event.*;
 import java.io.*;
@@ -138,7 +138,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
        setSiteParamsInIMR(imr, lonMin.doubleValue(), latMin.doubleValue(),
                           vs30, basinDepth);
     } else { // do for all IMRS
-       Vector imrObjects = this.imrGuiBean.getIMR_Objects();
+       ArrayList imrObjects = this.imrGuiBean.getIMR_Objects();
        int num = imrObjects.size();
        for(int i=0; i<num; ++i)
          setSiteParamsInIMR((AttenuationRelationshipAPI)imrObjects.get(i),

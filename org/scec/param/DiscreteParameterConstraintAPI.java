@@ -1,7 +1,7 @@
 package org.scec.param;
 
 import java.util.ListIterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * <b>Title:</b> DiscreteParameterConstraintAPI<p>
@@ -17,7 +17,7 @@ import java.util.Vector;
 public interface DiscreteParameterConstraintAPI extends ParameterConstraintAPI {
 
     /** Returns cloned vector of allowed values, unable to modify original values. */
-    public Vector getAllowedValues();
+    public ArrayList getAllowedValues();
 
     /**  Returns Iterator over allowed values, able to modify original. */
     public ListIterator listIterator();

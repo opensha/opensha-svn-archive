@@ -17,7 +17,7 @@ public interface GenerateHazusFilesConrolPanelAPI {
 
   /**
    * This method calculates the probablity or the IML for the selected Gridded Region
-   * and stores the value in each vectors(lat-Vector, Lon-Vector and IML or Prob Vector)
+   * and stores the value in each vectors(lat-ArrayList, Lon-ArrayList and IML or Prob ArrayList)
    * The IML or prob vector contains value based on what the user has selected in the Map type
    */
   public XYZ_DataSetAPI generateShakeMap();

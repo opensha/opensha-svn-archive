@@ -173,12 +173,12 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
 
   // reads the full file names of all the stored files in the directory
-  Vector testFiles = new Vector();
+  ArrayList testFiles = new ArrayList();
 
-  //Vector to store all the checkboxes for the selected test file
-  Vector checkBoxVector = new Vector();
+  //ArrayList to store all the checkboxes for the selected test file
+  ArrayList checkBoxVector = new ArrayList();
   // vector of check boxes for calculating the average
-  Vector avgCheckBoxVector = new Vector();
+  ArrayList avgCheckBoxVector = new ArrayList();
 
   /*setting the colors for the different plots so that legends checkboxes
    *can be shown with the same color
@@ -481,8 +481,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     //gets the iterator for the files, so that we can extract the string as the test for the check boxes
     //for the selected test case
     Iterator it=testFiles.iterator();
-    checkBoxVector= new Vector();
-    avgCheckBoxVector = new Vector();
+    checkBoxVector= new ArrayList();
+    avgCheckBoxVector = new ArrayList();
     while(it.hasNext()) {
       String tempName=it.next().toString();
       int index=tempName.indexOf("_");
@@ -736,7 +736,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
    /**
     * This function looks for all the test cases files within the directory
-    * and stores their name in Vector
+    * and stores their name in ArrayList
     */
    private  void searchTestFiles(){
      // ArrayList is needed for the sorted list

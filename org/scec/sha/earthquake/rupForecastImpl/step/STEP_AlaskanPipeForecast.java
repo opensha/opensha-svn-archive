@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.step;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -62,7 +62,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
   private static final double DEPTH=0;
 
   // vector to hold the sources
-  Vector sources;
+  ArrayList sources;
 
 
   /**
@@ -122,7 +122,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
     String S = C + ": makeSources(): ";
     if( D ) System.out.println(S + "Starting");
 
-    this.sources = new Vector();
+    this.sources = new ArrayList();
     double lat, lon;
     double duration = timeSpan.getDuration();
 
@@ -215,9 +215,9 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
      /**
       * Get the list of all earthquake sources.
       *
-      * @return Vector of Prob Earthquake sources
+      * @return ArrayList of Prob Earthquake sources
       */
-     public Vector getSourceList(){
+     public ArrayList getSourceList(){
        return sources;
      }
 

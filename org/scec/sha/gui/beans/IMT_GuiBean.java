@@ -25,7 +25,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
   public final static String IMT_EDITOR_TITLE =  "Set IMT";
 
   //stores the IMT Params for the choosen IMR
-  private Vector imtParam;
+  private ArrayList imtParam;
 
   // imr for which IMT is to be displayed
   AttenuationRelationshipAPI imr;
@@ -55,8 +55,8 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
     parameterList = new ParameterList();
 
     //vector to store all the IMT's supported by an IMR
-    Vector imt=new Vector();
-    imtParam = new Vector();
+    ArrayList imt=new ArrayList();
+    imtParam = new ArrayList();
 
 
     Iterator it = imr.getSupportedIntensityMeasuresIterator();
@@ -72,7 +72,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
       ListIterator it2 = param.getIndependentParametersIterator();
       if(D) System.out.println("IMT is:"+param.getName());
       while ( it2.hasNext() ) {
-        Vector indParamOptions = new Vector();
+        ArrayList indParamOptions = new ArrayList();
         ParameterAPI param2 = (ParameterAPI ) it2.next();
         DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
         ListIterator it3 = values.listIterator();
@@ -99,7 +99,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
     parameterList.addParameter(imtParameter);
 
     /* gets the iterator for each supported IMT and iterates over all its indepenedent
-    * parameters to add them to the common Vector to display in the IMT Panel
+    * parameters to add them to the common ArrayList to display in the IMT Panel
     **/
 
     it=imtParam.iterator();

@@ -1248,7 +1248,7 @@ public class AttenuationRelationshipGuiBean
         //if the user has chosen the the Individual Value on X-Axis.
         /*if(xAxisName.equals(this.X_AXIS_SINGLE_VAL)){
           String paramName = null;
-          Vector v = param2.getAllowedStrings();
+          ArrayList v = param2.getAllowedStrings();
           int size =v.size();
           for(int i=0;i<size;++i){
             paramName = (String)v.get(i);

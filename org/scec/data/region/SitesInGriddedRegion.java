@@ -40,11 +40,11 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   //set the same site type for each site
   private boolean setSameSiteParams = true;
 
-  //Vs30 and basinDepth Vector
+  //Vs30 and basinDepth ArrayList
   ArrayList vs30,basinDepth;
 
-  //Vector that contains the default Values for the Site parameters if CVM do not cover that site
-  private Vector defaultSiteParams;
+  //ArrayList that contains the default Values for the Site parameters if CVM do not cover that site
+  private ArrayList defaultSiteParams;
 
   //Instance of the site TransLator class
   SiteTranslator siteTranslator = new SiteTranslator();
@@ -130,13 +130,13 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   * @return
   */
  public Iterator getSitesIterator(){
-   Vector sitesVector=new Vector();
+   ArrayList sitesVector=new ArrayList();
    //get the iterator of all the locations within that region
    ListIterator it=this.getGridLocationsIterator();
    //get the iterator for all the site types
    ListIterator siteParamsIt = site.getParametersIterator();
    while(it.hasNext()){
-     //create the site object and add it to tbe Vector List
+     //create the site object and add it to tbe ArrayList List
      Site newSite = new Site((Location)it.next());
      while(siteParamsIt.hasNext()){
        ParameterAPI tempParam = (ParameterAPI)siteParamsIt.next();
@@ -207,7 +207,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   * Sets the default Site Parameters in case CVM don't cover the regions
   * @param defaultSiteParamsIt : Iterator for the Site Params and their Values
   */
- public void setDefaultSiteParams(Vector defaultSiteParams){
+ public void setDefaultSiteParams(ArrayList defaultSiteParams){
    this.defaultSiteParams = defaultSiteParams;
  }
 

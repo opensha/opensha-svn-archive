@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.data.TimeSpan;
 
@@ -54,7 +54,7 @@ public class SimplePoissonFaultERF extends EqkRupForecast
   // Mag-scaling relationship parameter stuff
   public final static String MAG_SCALING_REL_PARAM_NAME = "Mag-Scaling Relationship";
   private final static String MAG_SCALING_REL_PARAM_INFO = "Relationship to use for Area(Mag) or Area(Length) calculations";
-  private Vector magScalingRelOptions;
+  private ArrayList magScalingRelOptions;
 
 
   // Mag-scaling sigma parameter stuff
@@ -107,7 +107,7 @@ public class SimplePoissonFaultERF extends EqkRupForecast
     timeSpan.addParameterChangeListener(this);
 
     // make the magFreqDistParameter
-    Vector supportedMagDists=new Vector();
+    ArrayList supportedMagDists=new ArrayList();
     supportedMagDists.add(GaussianMagFreqDist.NAME);
     supportedMagDists.add(SingleMagFreqDist.NAME);
     supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
@@ -122,7 +122,7 @@ public class SimplePoissonFaultERF extends EqkRupForecast
     rupOffsetParam.setInfo(OFFSET_PARAM_INFO);
 
     // create the mag-scaling relationship param
-    magScalingRelOptions = new Vector();
+    magScalingRelOptions = new ArrayList();
     magScalingRelOptions.add(WC1994_MagAreaRelationship.NAME);
     magScalingRelOptions.add(WC1994_MagLengthRelationship.NAME);
     magScalingRelOptions.add(PEER_testsMagAreaRelationship.NAME);
@@ -256,10 +256,10 @@ public class SimplePoissonFaultERF extends EqkRupForecast
     /**
      *  This returns a list of sources (contains only one here)
      *
-     * @return Vector of Prob Earthquake sources
+     * @return ArrayList of Prob Earthquake sources
      */
-    public Vector  getSourceList(){
-      Vector v =new Vector();
+    public ArrayList  getSourceList(){
+      ArrayList v =new ArrayList();
       v.add(source);
       return v;
     }

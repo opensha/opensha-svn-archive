@@ -155,6 +155,7 @@ public class MapGuiBean extends ParameterListEditor implements
         imgName =gmtMap.makeMapUsingServlet(xyzVals,eqkRupture,imt);
         metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
       }catch(RuntimeException e){
+        e.printStackTrace();
        JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
        return;
       }

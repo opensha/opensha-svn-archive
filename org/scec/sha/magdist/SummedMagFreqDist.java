@@ -1,6 +1,6 @@
 package org.scec.sha.magdist;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.data.DataPoint2D;
 import org.scec.data.function.DiscretizedFuncList;
@@ -23,7 +23,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
   private boolean saveMagFreqDists=false;     // whether you want to store each distribution
   private boolean saveAllInfo=false;          // whether you want to save info for each distribution
   private DiscretizedFuncList savedMagFreqDists;  // to save the each distribution
-  private Vector savedInfoList;     // to save the info strings only
+  private ArrayList savedInfoList;     // to save the info strings only
 
   private static String NAME = "Summed Dist";
 
@@ -79,7 +79,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
      if(saveMagFreqDists)     // if complete distribution needs to be saved
        savedMagFreqDists = new DiscretizedFuncList();
      else if(saveAllInfo)     // to save info
-       savedInfoList = new Vector();
+       savedInfoList = new ArrayList();
    }
 
 
@@ -104,7 +104,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
      if(saveMagFreqDists)     // if complete distribution needs to be saved
        savedMagFreqDists = new DiscretizedFuncList();
      else if(saveAllInfo)     // to save info
-       savedInfoList = new Vector();
+       savedInfoList = new ArrayList();
    }
 
 
@@ -215,17 +215,17 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * @return : returns the vector of Strings of Info about each added distribution
     */
 
-  public Vector getAllInfo() {
+  public ArrayList getAllInfo() {
 
     if(saveMagFreqDists) {
       // construct the info vector on fly from saved distributions
-      Vector infoVector = new Vector();
+      ArrayList infoVector = new ArrayList();
       for(int i=0; i< savedMagFreqDists.size();++i)
         infoVector.add(savedMagFreqDists.get(i).getInfo());
       return infoVector;
     }
 
-    else if(saveAllInfo) {  // return the info Vector
+    else if(saveAllInfo) {  // return the info ArrayList
       return savedInfoList;
     }
 

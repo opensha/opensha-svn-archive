@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.Frankel02;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.scec.sha.surface.EvenlyGriddedSurface;
@@ -43,7 +43,7 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
   private double rupOffset;
   private int totNumRups;
   private EvenlyGriddedSurface surface;
-  private Vector mags, rates;
+  private ArrayList mags, rates;
 
   /**
    * constructor specifying the values needed for the source
@@ -72,8 +72,8 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
     probEqkRupture.setAveRake(rake);
 
     // get a list of mags and rates for non-zero rates
-    mags = new Vector();
-    rates = new Vector();
+    mags = new ArrayList();
+    rates = new ArrayList();
     for (int i=0; i<magFreqDist.getNum(); ++i){
       if(magFreqDist.getY(i) > 0){
         //magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));

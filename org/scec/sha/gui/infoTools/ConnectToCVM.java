@@ -97,7 +97,7 @@ public final class ConnectToCVM {
 
     // now read the connection again to get the vs30 as sent by the servlet
     ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-    //Vector of Wills Site Class Values translated from the Vs30 Values.
+    //ArrayList of Wills Site Class Values translated from the Vs30 Values.
     vs30=(ArrayList)ois.readObject();
     ois.close();
 

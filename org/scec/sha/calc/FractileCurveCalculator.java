@@ -4,7 +4,7 @@ import org.scec.data.function.DiscretizedFuncList;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.data.function.ArbDiscrEmpiricalDistFunc;
 
-import java.util.Vector;
+import java.util.ArrayList;
 /**
  * <p>Title:  FractileCurveCalculator</p>
  * <p>Description: This class calculates fractiles based on various hazard curves
@@ -20,11 +20,11 @@ public class FractileCurveCalculator {
   // function list to save the curves
   private DiscretizedFuncList funcList;
   // save the relative weight of each curve
-  private Vector relativeWeights;
+  private ArrayList relativeWeights;
   // save the number of X values
   private int num;
   // vector to save the empirical distributions
-  private Vector empiricalDists;
+  private ArrayList empiricalDists;
 
   // Error Strings to be dispalyed
   private final static String ERROR_WEIGHTS =
@@ -37,11 +37,11 @@ public class FractileCurveCalculator {
   /**
    * Constructor : Calls the set function
    * @param functionList : List of curves for which fractile needs to be calculated
-   * @param relativeWts : weight assigned to each curves. It expects the Vector
+   * @param relativeWts : weight assigned to each curves. It expects the ArrayList
    *  to contain Double values
    */
   public FractileCurveCalculator(DiscretizedFuncList functionList,
-                               Vector relativeWts) {
+                               ArrayList relativeWts) {
     set(functionList, relativeWts);
   }
 
@@ -59,11 +59,11 @@ public class FractileCurveCalculator {
    *   X values for in the curves are same
    *
    * @param functionList : List of curves for which fractile needs to be calculated
-   * @param relativeWts : weight assigned to each curves. It expects the Vector
+   * @param relativeWts : weight assigned to each curves. It expects the ArrayList
    *  to contain Double values
    */
   public void set(DiscretizedFuncList functionList,
-                                 Vector relativeWts) {
+                                 ArrayList relativeWts) {
 
 
     // check that number of weights are equal to number of curves give
@@ -83,12 +83,12 @@ public class FractileCurveCalculator {
     is changed elsewhere this won't get messed up
     */
     this.funcList = functionList.deepClone();
-    relativeWeights = (Vector)relativeWts.clone();
+    relativeWeights = (ArrayList)relativeWts.clone();
     // save the number of X values
     this.num = numPoints;
 
-    //Vector for saving empirical distributions
-    empiricalDists = new Vector();
+    //ArrayList for saving empirical distributions
+    empiricalDists = new ArrayList();
 
     // make a empirical dist for each X value
     for(int i=0; i<num; ++i) {

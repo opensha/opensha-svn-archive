@@ -39,12 +39,12 @@ public class STEP_BackSiesDataAdditionObject {
 
   /**
    * Adds the 2 dataset for the backSies and Step and generates a final dataset
-   * @param backSies : Vector for the Step BackGround Prob
-   * @param step : Vector for the Step Addon Prob
+   * @param backSies : ArrayList for the Step BackGround Prob
+   * @param step : ArrayList for the Step Addon Prob
    * backGround and Addon
    */
-  public Vector addDataSet(Vector backSiesDataSet,Vector stepDataSet){
-    Vector resultSet = new Vector();
+  public ArrayList addDataSet(ArrayList backSiesDataSet,ArrayList stepDataSet){
+    ArrayList resultSet = new ArrayList();
     int size = backSiesDataSet.size();
     for(int i=0;i<size;++i){
       double backSiesProb = ((Double)backSiesDataSet.get(i)).doubleValue();

@@ -1,8 +1,7 @@
 package org.scec.param.editor;
 
 import java.awt.*;
-import java.util.ListIterator;
-import java.util.Vector;
+import java.util.*;
 
 import java.awt.event.*;
 import javax.swing.*;

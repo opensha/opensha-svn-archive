@@ -1,7 +1,7 @@
 package org.scec.sha.surface;
 
 import java.util.ListIterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.util.FaultUtils;
 import org.scec.data.Location;
@@ -176,7 +176,7 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
     /** Does same thing as listIterator() in super Interface. Will contain only one Location */
     public ListIterator getLocationsIterator() {
 
-        Vector v = new Vector();
+        ArrayList v = new ArrayList();
         v.add( ( Location ) this );
         return v.listIterator();
     }

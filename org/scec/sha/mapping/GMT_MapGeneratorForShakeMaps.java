@@ -123,7 +123,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     GS_PATH="/sw/bin/gs";
     CONVERT_PATH="/sw/bin/convert";
 
-    Vector gmtLines = new Vector();
+    ArrayList gmtLines = new ArrayList();
 
     // Do 0.3-sec SA first
     imt="SA";
@@ -188,7 +188,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     GS_PATH="/usr/bin/gs";
     CONVERT_PATH="/usr/X11R6/bin/convert";
 
-    Vector gmtLines = new Vector();
+    ArrayList gmtLines = new ArrayList();
 
     // Do 0.3-sec SA first
     imt="SA";
@@ -219,7 +219,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     gmtLines.addAll(getGMT_ScriptLines());
 
     //get the metadata lines
-    Vector metaDataLines = getMapInfoLines();
+    ArrayList metaDataLines = getMapInfoLines();
     String img;
     try{
       imgWebAddr = this.openServletConnection(sa03DataSet, sa10DataSet, pgaDataSet,
@@ -249,7 +249,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   protected String openServletConnection(XYZ_DataSetAPI sa03_xyzDataVals,
       XYZ_DataSetAPI sa10_xyzDataVals, XYZ_DataSetAPI pga_xyzDataVals,
-      XYZ_DataSetAPI pgv_xyzDataVals, Vector gmtFileLines,Vector metadataLines) throws RuntimeException{
+      XYZ_DataSetAPI pgv_xyzDataVals, ArrayList gmtFileLines,ArrayList metadataLines) throws RuntimeException{
 
     String webaddr=null;
     try{
@@ -276,7 +276,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
           ObjectOutputStream(servletConnection.getOutputStream());
 
 
-      //sending the Vector of the Script Lines to be executed on the server
+      //sending the ArrayList of the Script Lines to be executed on the server
       outputToServlet.writeObject(gmtFileLines);
 
 
@@ -353,7 +353,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     // Make a directory and move all the files into it
     String dirName = "UserShakeMaps_"+System.currentTimeMillis();
     String tempScript = "temp"+System.currentTimeMillis();
-    Vector scriptLines = new Vector();
+    ArrayList scriptLines = new ArrayList();
     String commandLine = COMMAND_PATH+"mkdir "+dirName;
     scriptLines.add(commandLine+"\n");
     commandLine = COMMAND_PATH+"mv "+GMT_SCRIPT_NAME+" "+XYZ_FILE_NAME+" "+
@@ -405,9 +405,9 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
   /**
    * Function adds script lines  to generate Hazus Shape files if that option has been selected.
-   * @param gmtCommandLines : Vector to store the command line
+   * @param gmtCommandLines : ArrayList to store the command line
    */
-  protected void addFinalGMT_ScriptLines(Vector gmtCommandLines){
+  protected void addFinalGMT_ScriptLines(ArrayList gmtCommandLines){
 
     boolean doHaveToGenerateShapeFile = ((Boolean)hazusShapeParam.getValue()).booleanValue();
     if(doHaveToGenerateShapeFile){
@@ -477,7 +477,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
   /**
    * This method adds intermediate script commands to plot the earthquake rupture and hypocenter.
    */
-  protected void addIntermediateGMT_ScriptLines(Vector gmtLines) {
+  protected void addIntermediateGMT_ScriptLines(ArrayList gmtLines) {
 
     String rupPlot = (String) rupPlotParam.getValue();
 
@@ -487,7 +487,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
       // Get the surface and associated info
       GriddedSurfaceAPI surface = eqkRup.getRuptureSurface();
-      Vector fileLines = new Vector();
+      ArrayList fileLines = new ArrayList();
       Location loc;
       int rows = surface.getNumRows();
       int cols = surface.getNumCols();

@@ -37,7 +37,7 @@ public class SCEC_BasinDepthServlet  extends HttpServlet {
   public void doGet(HttpServletRequest request,  HttpServletResponse response)
                                   throws IOException, ServletException {
     //Vectors for computing the lat and lons for the given gridded region
-    Vector locationVector= new Vector();
+    ArrayList locationVector= new ArrayList();
     try {
       // get all the input stream from the applet
       ObjectInputStream inputFromApplication = new ObjectInputStream(request.getInputStream());

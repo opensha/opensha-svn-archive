@@ -42,7 +42,7 @@ import org.scec.exceptions.ParameterException;
  */
 
 public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements ParameterChangeListener,
-    AttenuationRelationshipSiteParamsRegionAPI{
+    AttenuationRelationshipSiteParamsRegionAPI {
 
   /**
    * Name of the class
@@ -104,15 +104,15 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
   /*private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
-  private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
+  private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";*/
   private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
-  private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";*/
+  //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
   //private PuenteHillsScenarioTestControlPanel puenteHillsTestControl;
   //private PuenteHillsScenarioControlPanel puenteHillsControl;
-  //private GenerateHazusFilesControlPanel hazusControl;
+  private GenerateHazusFilesControlPanel hazusControl;
 
   // instances of the GUI Beans which will be shown in this applet
   private EqkRupSelectorGuiBean erfGuiBean;
@@ -328,7 +328,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
    */
   private void initERFSelector_GuiBean() {
      // create the ERF Gui Bean object
-   Vector erf_Classes = new Vector();
+   ArrayList erf_Classes = new ArrayList();
 
 //   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
@@ -435,8 +435,8 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     // get the selected IMR
     attenRel = imrGuiBean.getSelectedIMRs();
 
-    //Vector to store the siteParams for all selected AttenRel
-    Vector siteParams = new Vector();
+    //ArrayList to store the siteParams for all selected AttenRel
+    ArrayList siteParams = new ArrayList();
     //getting all the selected AttenRels and iterating over their site params
     //adding them as clones to the vector but avoiding the duplicity.
     //There can be a scenario when the AttenRels have same site type, so we
@@ -499,7 +499,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
 
   /**
    * This method calculates the probablity or the IML for the selected Gridded Region
-   * and stores the value in each vectors(lat-Vector, Lon-Vector and IML or Prob Vector)
+   * and stores the value in each vectors(lat-ArrayList, Lon-ArrayList and IML or Prob ArrayList)
    * The IML or prob vector contains value based on what the user has selected in the Map type
    */
   public XYZ_DataSetAPI generateShakeMap() throws ParameterException,RuntimeException{
@@ -511,31 +511,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
      ex.printStackTrace();
     }
     try{
-      // get the selected IMR
-      int size = attenRel.size();
-      Vector zVals;
-      Vector sumZVals = null;
-      //iterating overe all the selected attenautionRelationShips and getting the XYZ data for them
-      for(int i=0;i<size;++i){
-        xyzDataSet =shakeMapCalc.getScenarioShakeMapData(griddedRegionSites,(AttenuationRelationship)attenRel.get(i),erfGuiBean.getRupture(),
-        probAtIML,imlProbValue);
-        //getting the Z Value from the XYZ data set
-        zVals = xyzDataSet.getZ_DataSet();
-        int size1 = zVals.size();
-        //multiplying the zValue for the attenuation with the relative normalised wt for it
-        for(int j=0;j<size1;++j)
-          zVals.set(j,new Double(((Double)zVals.get(j)).doubleValue()*((Double)attenRelWts.get(i)).doubleValue()));
-        //adding the Z Values for all the Attenuation Relationships together.
-        if(sumZVals == null)
-          sumZVals =zVals;
-        else {
-          size1 = sumZVals.size();
-          for(int j=0;j<size1;++j)
-            sumZVals.set(j,new Double(((Double)sumZVals.get(j)).doubleValue() + ((Double)zVals.get(j)).doubleValue()));
-        }
-      }
-      //updating the Z Values for the XYZ data after averaging the values for all selected attenuations.
-      xyzDataSet.setXYZ_DataSet(xyzDataSet.getX_DataSet(),xyzDataSet.getY_DataSet(),sumZVals);
+        xyzDataSet = shakeMapCalc.getScenarioShakeMapData(attenRel,attenRelWts,griddedRegionSites,erfGuiBean.getRupture(),probAtIML,imlProbValue);
     }catch(ParameterException e){
       throw new ParameterException(e.getMessage());
     }
@@ -573,14 +549,15 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   void addButton_actionPerformed(ActionEvent e) {
    //sets the Gridded region Sites and the type of plot user wants to see
    //IML@Prob or Prob@IML and it value.
-    /*if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())*/
+    if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())
+      getGriddedSitesAndMapType();
 
     //selected IMR's
     attenRel= imrGuiBean.getSelectedIMRs();
     //selected IMR's normalised wts
     attenRelWts = imrGuiBean.getSelectedIMR_Weights();
 
-    getGriddedSitesAndMapType();
+
     try{
       addButton();
     }catch(ParameterException ee){
@@ -590,12 +567,13 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
       return;
     }
     catch(Exception ee){
+      //ee.printStackTrace();
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.INFORMATION_MESSAGE);
       calcProgress.showProgress(false);
       calcProgress.dispose();
       return;
     }
-    //hazusControl = null;
+    hazusControl = null;
   }
 
   /**
@@ -606,7 +584,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
 
     if(step ==1)
       calcProgress = new CalcProgressBar("ShakeMapApp","  Calculating ShakeMap Data ...");
-      /*if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())*/
+    if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())
       generateShakeMap();
     //sets the region coordinates for the GMT using the MapGuiBean
     setRegionForGMT();
@@ -639,10 +617,11 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   private void initControlList() {
     this.controlComboBox.addItem(CONTROL_PANELS);
     this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
-    /*this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
-    this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
     this.controlComboBox.addItem(HAZUS_CONTROL);
-    this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);*/
+    /*this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
+    this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);*/
+
+    //this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);
   }
 
   /**
@@ -654,12 +633,13 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     String selectedControl = controlComboBox.getSelectedItem().toString();
     if(selectedControl.equalsIgnoreCase(this.REGIONS_OF_INTEREST_CONTROL))
       initRegionsOfInterestControl();
-    /*else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_TEST_CONTROL))
+    /*else if(selectedControl.equalsIgnoreCase(this.HAZUS_CONTROL))
+      initHazusScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_TEST_CONTROL))
       initPuenteHillTestScenarioControl();
     else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_CONTROL))
       initPuenteHillScenarioControl();
-    else if(selectedControl.equalsIgnoreCase(this.HAZUS_CONTROL))
-      initHazusScenarioControl();*/
+    */
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 

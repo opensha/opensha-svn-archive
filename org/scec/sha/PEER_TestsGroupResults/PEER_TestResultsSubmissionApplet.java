@@ -81,8 +81,8 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   //Reads the selected test case file. returns the function conatining x,y values
   ArbitrarilyDiscretizedFunc function= new ArbitrarilyDiscretizedFunc();
 
-  //Vector to store all the existing Test Case file names
-   Vector testFiles= new Vector();
+  //ArrayList to store all the existing Test Case file names
+   ArrayList testFiles= new ArrayList();
 
   //Instance for the PEER Delete window class
   PEER_FileDeleteWindow peerDelete;
@@ -377,7 +377,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
   /**
    * This function looks for all the test cases files within the directory
-   * and stores their name in Vector
+   * and stores their name in ArrayList
    */
   private  void searchTestFiles(){
     // ArrayList is needed for the sorted list
@@ -558,8 +558,8 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     }
     //if the user has entered the Y Values in the TextArea.
     else{
-      Vector vt = new Vector();
-      //getting each Y value and adding to the Vector.
+      ArrayList vt = new ArrayList();
+      //getting each Y value and adding to the ArrayList.
       StringTokenizer st = new StringTokenizer(yValues.trim(),"\n");
       while(st.hasMoreTokens())
         vt.add(st.nextToken());
@@ -686,7 +686,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
     //vector which contains all the X and Y values from the function  to be send to the
     //servlet.
-    Vector vt =new Vector();
+    ArrayList vt =new ArrayList();
 
     int size = function.getNum();
     for(int i=0;i<size;i++){
@@ -906,7 +906,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
       showInformationFrame(frame,MSG_FILE_OVERWRITE);
       //vector which contains all the X and Y values from the function  to be send to the
       //servlet.
-      Vector vt =new Vector();
+      ArrayList vt =new ArrayList();
       int size = function.getNum();
       for(int i=0;i<size;i++){
         String temp= new String(function.getX(i) +" "+function.getY(i));

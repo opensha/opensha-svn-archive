@@ -126,15 +126,15 @@ public class MagFreqDistParameter
 
 
     /**
-     *  Sets the name, defines the constraints as Vector of String values. Creates the
+     *  Sets the name, defines the constraints as ArrayList of String values. Creates the
      *  constraint object from these values.
      *
      * @param  name                     Name of the parameter
-     * @param  allowedMagDists          Vector of allowed values
+     * @param  allowedMagDists          ArrayList of allowed values
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public MagFreqDistParameter( String name, Vector allowedMagDists ) throws ConstraintException {
+    public MagFreqDistParameter( String name, ArrayList allowedMagDists ) throws ConstraintException {
         super( name, new MagFreqDistConstraint( allowedMagDists ), null, null );
     }
 
@@ -170,11 +170,11 @@ public class MagFreqDistParameter
      *
      * @param  name                     Name of the parameter
      * @param  value                    IncrementalMagFreqDist object of this parameter
-     * @param  allowedMagDists          Vector  of allowed Mag Dists
+     * @param  allowedMagDists          ArrayList  of allowed Mag Dists
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public MagFreqDistParameter( String name, Vector allowedMagDists, IncrementalMagFreqDist value )
+    public MagFreqDistParameter( String name, ArrayList allowedMagDists, IncrementalMagFreqDist value )
                                 throws ConstraintException {
         super( name, new MagFreqDistConstraint( allowedMagDists ), null, value );
     }
@@ -223,9 +223,9 @@ public class MagFreqDistParameter
     /**
      *  Gets the min value of the constraint object.
      *
-     * @return                Vector of allowed Mag Dists
+     * @return                ArrayList of allowed Mag Dists
      */
-    public Vector getAllowedMagDists()  {
+    public ArrayList getAllowedMagDists()  {
         if ( constraint != null )
             return ( ( MagFreqDistConstraint ) constraint ).getAllowedMagDists();
         else return null;
@@ -346,13 +346,13 @@ public class MagFreqDistParameter
         DoubleParameter rate=new DoubleParameter(RATE, 0, Double.POSITIVE_INFINITY, RATE_UNITS, new Double(0.005));
         DoubleParameter moRate=new DoubleParameter(MO_RATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS, new Double(1e19));
         DoubleParameter mag = new DoubleParameter(MAG, new Double(8));
-        Vector vStrings=new Vector();
+        ArrayList vStrings=new ArrayList();
         vStrings.add(RATE_AND_MAG);
         vStrings.add(MAG_AND_MO_RATE);
         vStrings.add(RATE_AND_MO_RATE);
         StringParameter singleParamsToSet=new StringParameter(SINGLE_PARAMS_TO_SET,
                                           vStrings,(String)vStrings.get(0));
-        Vector vStrings3 = new Vector ();
+        ArrayList vStrings3 = new ArrayList ();
         vStrings3.add(FIX_RATE);
         vStrings3.add(FIX_TOT_MO_RATE);
         sdFixOptions = new StringConstraint(vStrings3);
@@ -362,11 +362,11 @@ public class MagFreqDistParameter
          */
         DoubleParameter mean = new DoubleParameter(MEAN, new Double(8));
         DoubleParameter stdDev = new DoubleParameter(STD_DEV, 0, Double.POSITIVE_INFINITY, new Double(0.25));
-        vStrings=new Vector();
+        vStrings=new ArrayList();
         vStrings.add(TOT_CUM_RATE);
         vStrings.add(TOT_MO_RATE);
         gdSetAllButOptions = new StringConstraint(vStrings);
-        vStrings=new Vector();
+        vStrings=new ArrayList();
         vStrings.add(NONE);
         vStrings.add(TRUNCATE_UPPER_ONLY);
         vStrings.add(TRUNCATE_ON_BOTH_SIDES);
@@ -376,7 +376,7 @@ public class MagFreqDistParameter
          /**
           * Make parameters for Gutenberg-Richter distribution
           */
-        Vector vStrings1 = new Vector ();
+        ArrayList vStrings1 = new ArrayList ();
         vStrings1.add(FIX_TO_CUM_RATE);
         vStrings1.add(FIX_TOT_MO_RATE);
         grFixOptions = new StringConstraint(vStrings1);
@@ -393,7 +393,7 @@ public class MagFreqDistParameter
         deltaMagPrime.setInfo(YC_DELTA_MAG_PRIME_INFO);
         DoubleParameter totCharRate = new DoubleParameter(YC_TOT_CHAR_RATE, 0, Double.POSITIVE_INFINITY, new Double(0.01));
         totCharRate.setInfo(YC_TOT_CHAR_RATE_INFO);
-        vStrings=new Vector();
+        vStrings=new ArrayList();
         vStrings.add(YC_TOT_CHAR_RATE);
         vStrings.add(TOT_MO_RATE);
         ycSetAllButOptions = new StringConstraint(vStrings);
@@ -408,7 +408,7 @@ public class MagFreqDistParameter
         fixParam.setInfo(FIX_INFO);
 
         // for Gutenberg-Richter SET ALL BUT option
-        vStrings=new Vector();
+        vStrings=new ArrayList();
         vStrings.add(MagFreqDistParameter.TOT_MO_RATE);
         vStrings.add(MagFreqDistParameter.TOT_CUM_RATE);
         vStrings.add(MagFreqDistParameter.GR_MAG_UPPER);

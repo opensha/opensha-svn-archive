@@ -54,7 +54,7 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
       ObjectInputStream inputFromApplet = new ObjectInputStream(request.getInputStream());
 
       //gets the object for the GMT_MapGenerator script
-      Vector gmtMapScript = (Vector) inputFromApplet.readObject();
+      ArrayList gmtMapScript = (ArrayList) inputFromApplet.readObject();
 
       //XYZ dataset for SA-0.3sec being received from the applet
       XYZ_DataSetAPI sa03_xyzDataSet = (XYZ_DataSetAPI)inputFromApplet.readObject();
@@ -80,7 +80,7 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
       String xyzFileName = (String)inputFromApplet.readObject();
 
       //Metadata content: Map Info
-      Vector metadataVector = (Vector)inputFromApplet.readObject();
+      ArrayList metadataVector = (ArrayList)inputFromApplet.readObject();
 
       //Name of the Metadata file
       String metadataFileName = (String)inputFromApplet.readObject();
@@ -143,7 +143,7 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
    * @param metadataVector
    * @param metadataFileName
    */
-  private void writeMetadataFile(String newDir, Vector metadataVector, String metadataFileName){
+  private void writeMetadataFile(String newDir, ArrayList metadataVector, String metadataFileName){
     String metadataFile = newDir+"/"+metadataFileName;
     try{
     //creating the metadata (map Info) file in the new directory created for user
@@ -171,9 +171,9 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
   private void writeXYZ_DataFile(String dirName,String imtPrefix,String xyzFileName,
                                      XYZ_DataSetAPI xyzDataSet){
     //creating the XYZ file from the XYZ file from the XYZ dataSet
-    Vector xVals = xyzDataSet.getX_DataSet();
-    Vector yVals = xyzDataSet.getY_DataSet();
-    Vector zVals = xyzDataSet.getZ_DataSet();
+    ArrayList xVals = xyzDataSet.getX_DataSet();
+    ArrayList yVals = xyzDataSet.getY_DataSet();
+    ArrayList zVals = xyzDataSet.getZ_DataSet();
     //file follows the convention lat, lon and Z value
     if(xyzDataSet.checkXYZ_NumVals()){
       int size = xVals.size();

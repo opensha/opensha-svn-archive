@@ -56,7 +56,7 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
     protected GriddedSurfaceAPI surface = null;
 
     /** XYDatasetAPI - list of listeners for data changes */
-    protected Vector listeners = new Vector();
+    protected ArrayList listeners = new ArrayList();
 
     /**
      *  Name of this Function2DList. Used for display purposes and identifying

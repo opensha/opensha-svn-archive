@@ -2,7 +2,7 @@ package org.scec.sha.gui.controls;
 
 import java.awt.*;
 import javax.swing.*;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.sha.gui.beans.Site_GuiBean;
 import java.awt.event.*;
@@ -19,8 +19,8 @@ public class SitesOfInterestControlPanel extends JFrame {
   private JLabel jLabel1 = new JLabel();
   private JComboBox sitesComboBox = new JComboBox();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private Vector latVector;
-  private Vector lonVector;
+  private ArrayList latVector;
+  private ArrayList lonVector;
   private Site_GuiBean siteGuiBean;
 
   /**
@@ -31,8 +31,8 @@ public class SitesOfInterestControlPanel extends JFrame {
    */
   public SitesOfInterestControlPanel(Component parent, Site_GuiBean siteGuiBean) {
     try {
-      latVector = new Vector();
-      lonVector = new Vector();
+      latVector = new ArrayList();
+      lonVector = new ArrayList();
       this.siteGuiBean = siteGuiBean;
 
 

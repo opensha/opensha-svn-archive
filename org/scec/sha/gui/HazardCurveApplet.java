@@ -5,7 +5,7 @@ import java.awt.event.*;
 import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.net.*;
 import java.lang.reflect.InvocationTargetException;
@@ -607,7 +607,7 @@ public class HazardCurveApplet extends JApplet
               boolean success = (new File(peerDirName)).mkdir();
             }
 
-            Vector testCasesTwo = this.peerTestsControlPanel.getPEER_SetTwoTestCasesNames();
+            ArrayList testCasesTwo = this.peerTestsControlPanel.getPEER_SetTwoTestCasesNames();
 
             int size = testCasesTwo.size();
             /*if(epistemicControlPanel == null)
@@ -1088,7 +1088,7 @@ public class HazardCurveApplet extends JApplet
   private void initIMR_GuiBean() {
     // create the IMR Gui Bean object
      // It accepts the vector of IMR class names
-     Vector imrClasses = new Vector();
+     ArrayList imrClasses = new ArrayList();
      //imrClasses.add(this.A_CLASS_NAME);
      imrClasses.add(this.AS_CLASS_NAME);
      imrClasses.add(this.BJF_CLASS_NAME);
@@ -1143,7 +1143,7 @@ public class HazardCurveApplet extends JApplet
    */
   private void initERF_GuiBean() {
      // create the ERF Gui Bean object
-   Vector erf_Classes = new Vector();
+   ArrayList erf_Classes = new ArrayList();
    erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);

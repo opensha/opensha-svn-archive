@@ -181,9 +181,9 @@ public class GMT_MapGeneratorApplet extends Applet {
     String fileName = (String)this.xyzFileName.getValue();
     XYZ_DataSetAPI xyzData = null;
     if(fileName != null){
-      Vector xVals = new Vector();
-      Vector yVals = new Vector();
-      Vector zVals = new Vector();
+      ArrayList xVals = new ArrayList();
+      ArrayList yVals = new ArrayList();
+      ArrayList zVals = new ArrayList();
       try{
         URL fileURL = new URL((String)this.xyzFileName.getValue());
         ArrayList fileLines =FileUtils.loadFile(fileURL);

@@ -44,8 +44,8 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
   public final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
 
 
-  //Vector to store the IMR objects
-  Vector imrObject = new Vector();
+  //ArrayList to store the IMR objects
+  ArrayList imrObject = new ArrayList();
 
   SitesInGriddedRegion griddedRegion = new SitesInGriddedRegion(MIN_LAT,MAX_LAT,
                                         MIN_LON, MAX_LON,GRID_SPACING);
@@ -95,7 +95,7 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
   }
 
   private void createIMRs_Object(){
-    Vector imrClasses = new Vector();
+    ArrayList imrClasses = new ArrayList();
     //     imrClasses.add(this.SM_CLASS_NAME);
     imrClasses.add(this.AS_CLASS_NAME);
     imrClasses.add(this.BJF_CLASS_NAME);

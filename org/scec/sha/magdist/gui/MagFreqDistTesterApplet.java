@@ -414,7 +414,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
     // make  the mag dist parameter
-    Vector distNames = new Vector();
+    ArrayList distNames = new ArrayList();
     distNames.add(SingleMagFreqDist.NAME);
     distNames.add(GutenbergRichterMagFreqDist.NAME);
     distNames.add(GaussianMagFreqDist.NAME);

@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import org.scec.sha.earthquake.ProbEqkSource;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.earthquake.*;
@@ -35,9 +35,9 @@ public interface ERF_ListAPI extends ForecastAPI{
   /**
    * Return the vector containing the Double values with
    * relative weights for each ERF
-   * @return : Vector of Double values
+   * @return : ArrayList of Double values
    */
-  public Vector getRelativeWeightsList();
+  public ArrayList getRelativeWeightsList();
 
 
   /**

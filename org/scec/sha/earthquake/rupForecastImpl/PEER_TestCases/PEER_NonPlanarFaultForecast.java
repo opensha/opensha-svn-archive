@@ -1,7 +1,7 @@
 package org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases;
 
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 
@@ -45,7 +45,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
   // the prob eqk source (only one)
   private SimplePoissonFaultSource source;
-  private Vector sourceList;
+  private ArrayList sourceList;
 
   PEER_testsMagAreaRelationship magScalingRel = new PEER_testsMagAreaRelationship();
   private double rupAspectRatio = 2;
@@ -119,15 +119,15 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   private DoubleParameter magUpperParam = new DoubleParameter(GR_MAG_UPPER,GR_MAG_UPPER_DEFAULT);
 
   // make the segmetation model parameter
-  private Vector dipDirectionStrings=new Vector();
+  private ArrayList dipDirectionStrings=new ArrayList();
   private StringParameter dipDirectionParam;
 
   // make the segmetation model parameter
-  private Vector segModelNamesStrings=new Vector();
+  private ArrayList segModelNamesStrings=new ArrayList();
   private StringParameter segModelParam;
 
   // make the fault-model parameter
-  private Vector faultModelNamesStrings = new Vector();
+  private ArrayList faultModelNamesStrings = new ArrayList();
   private StringParameter faultModelParam;
 
   // fault stuff
@@ -262,7 +262,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
      if(parameterChangeFlag) {
 
-       sourceList = new Vector();
+       sourceList = new ArrayList();
 
        String dipDir = (String) dipDirectionParam.getValue();
 
@@ -433,12 +433,12 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
     /**
      *  Clone is returned.
-     * All the 3 different Vector source List are combined into the one Vector list
-     * So, list can be save in Vector and this object subsequently destroyed
+     * All the 3 different ArrayList source List are combined into the one ArrayList list
+     * So, list can be save in ArrayList and this object subsequently destroyed
      *
-     * @return Vector of Prob Earthquake sources
+     * @return ArrayList of Prob Earthquake sources
      */
-    public Vector  getSourceList(){
+    public ArrayList  getSourceList(){
       return sourceList;
     }
 

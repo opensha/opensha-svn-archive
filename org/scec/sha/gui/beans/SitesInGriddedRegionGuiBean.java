@@ -62,8 +62,8 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   // title for site paramter panel
   public final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
 
-  //Site Params Vector
-  Vector siteParams = new Vector();
+  //Site Params ArrayList
+  ArrayList siteParams = new ArrayList();
 
   //Static String for setting the site Params
   public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
@@ -109,7 +109,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
     gridSpacing.addParameterChangeFailListener(this);
 
     //creating the String Param for user to select how to get the site related params
-    Vector siteOptions = new Vector();
+    ArrayList siteOptions = new ArrayList();
     siteOptions.add(SET_ALL_SITES);
     siteOptions.add(SET_SITE_USING_WILLS_SITE_TYPE);
     siteOptions.add(SET_SITES_USING_SCEC_CVM);
@@ -145,17 +145,17 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
    */
  public void addSiteParams(Iterator it) {
    Parameter tempParam;
-   Vector siteTempVector= new Vector();
+   ArrayList siteTempVector= new ArrayList();
    while(it.hasNext()) {
      tempParam = (Parameter)it.next();
      if(!parameterList.containsParameter(tempParam)) { // if this does not exist already
        parameterList.addParameter(tempParam);
        //adding the parameter to the vector,
-       //Vector is used to pass the add the site parameters to the gridded region sites.
+       //ArrayList is used to pass the add the site parameters to the gridded region sites.
        siteTempVector.add(tempParam);
      }
    }
-   //adding the Site Params to the Vector, so that we can add those later if we want to.
+   //adding the Site Params to the ArrayList, so that we can add those later if we want to.
    siteParams = siteTempVector;
    gridRectRegion.addSiteParams(siteTempVector.iterator());
    setSiteParamsVisible();
@@ -170,7 +170,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   */
  public void addSiteParamsClone(Iterator it) {
    Parameter tempParam;
-   Vector v= new Vector();
+   ArrayList v= new ArrayList();
    while(it.hasNext()) {
      tempParam = (Parameter)it.next();
      if(!parameterList.containsParameter(tempParam)) { // if this does not exist already
@@ -235,7 +235,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
         ((Double)gridSpacing.getValue()).doubleValue());
 
     ListIterator lIt=gridRectRegion.getGridLocationsIterator();
-    Vector newSiteVector=new Vector();
+    ArrayList newSiteVector=new ArrayList();
     while(lIt.hasNext())
       newSiteVector.add(new Site((Location)lIt.next()));
 
@@ -259,7 +259,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
    */
   private void updateGriddedSiteParams() {
 
-    Vector v= new Vector();
+    ArrayList v= new ArrayList();
     createAndUpdateSites();
     //getting the site params for the first element of the siteVector
     //becuase all the sites will be having the same site Parameter
@@ -364,7 +364,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
       }catch(Exception e){
         throw new RuntimeException("Server is down , please try again later");
       }
-      Vector defaultSiteParams = new Vector();
+      ArrayList defaultSiteParams = new ArrayList();
       for(int i=0;i<siteParams.size();++i){
         ParameterAPI tempParam = (ParameterAPI)((ParameterAPI)siteParams.get(i)).clone();
         tempParam.setValue(parameterList.getParameter(this.DEFAULT+tempParam.getName()).getValue());

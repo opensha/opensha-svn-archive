@@ -43,7 +43,7 @@ public class FaultTraceXYDataSet extends ArrayList implements XYDataset, NamedOb
     //private ArrayList traces = new ArrayList();
 
     /** list of listeners for data changes */
-    private Vector listeners = new Vector();
+    private ArrayList listeners = new ArrayList();
 
     /**
      *  Name of this Function2DList. Used for display purposes and identifying

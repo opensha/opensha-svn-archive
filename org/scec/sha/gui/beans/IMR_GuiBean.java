@@ -37,11 +37,11 @@ public class IMR_GuiBean extends ParameterListEditor
   public final static String IMR_PARAM_NAME = "IMR";
   public final static String IMR_EDITOR_TITLE =  "Set IMR";
   //this vector saves the names of all the supported IMRs
-  private Vector imrNamesVector=new Vector();
+  private ArrayList imrNamesVector=new ArrayList();
   //this vector holds the full class names of all the supported IMRs
-  private Vector imrClasses = new Vector();
+  private ArrayList imrClasses = new ArrayList();
   //saves the IMR objects, to the parameters related to an IMR.
-  private Vector imrObject = new Vector();
+  private ArrayList imrObject = new ArrayList();
   // this flag is needed else messages are shown twice on focus lost
   private boolean inParameterChangeWarning = false;
 
@@ -49,7 +49,7 @@ public class IMR_GuiBean extends ParameterListEditor
    * constructor which accepts the class names of the imrs to be shown in pick list
    * @param classNames
    */
- public IMR_GuiBean(Vector classNames) {
+ public IMR_GuiBean(ArrayList classNames) {
    this.imrClasses = classNames;
    parameterList = new ParameterList();
 
@@ -427,7 +427,7 @@ public class IMR_GuiBean extends ParameterListEditor
     *
     * @return
     */
-   public Vector getIMR_Objects() {
+   public ArrayList getIMR_Objects() {
      return this.imrObject;
    }
 

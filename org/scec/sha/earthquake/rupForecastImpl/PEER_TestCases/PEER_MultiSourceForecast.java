@@ -1,7 +1,7 @@
 package org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases;
 
 
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 
@@ -325,9 +325,9 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
   /**
    * Not yet implemented
    *
-   * @return Vector of Prob Earthquake sources
+   * @return ArrayList of Prob Earthquake sources
    */
-  public Vector  getSourceList(){
+  public ArrayList  getSourceList(){
 
     return null;
   }

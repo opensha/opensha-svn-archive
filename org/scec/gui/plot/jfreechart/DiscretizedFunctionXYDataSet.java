@@ -67,7 +67,7 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
     protected DiscretizedFuncList functions = null;
 
     /** list of listeners for data changes */
-    protected Vector listeners = new Vector();
+    protected ArrayList listeners = new ArrayList();
 
     /** SWR: Not sure what this is used for - Gupta code */
     protected LinkedList xLogs = new LinkedList();

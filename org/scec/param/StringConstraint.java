@@ -1,7 +1,7 @@
 package org.scec.param;
 import java.util.ListIterator;
 
-import java.util.Vector;
+import java.util.ArrayList;
 import org.scec.exceptions.ConstraintException;
 import org.scec.exceptions.EditableException;
 
@@ -27,8 +27,8 @@ public class StringConstraint
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    /** Vector list of possible string values, i.e. allowed values. */
-    private Vector strings = new Vector();
+    /** ArrayList list of possible string values, i.e. allowed values. */
+    private ArrayList strings = new ArrayList();
 
 
     /** No-Arg constructor for the StringConstraint object. Calls the super() constructor. */
@@ -37,29 +37,29 @@ public class StringConstraint
 
     /**
      *  Constructor for the StringConstraint object. Sets all allowed strings
-     *  via a Vector, which is copied into this object's internal storage
+     *  via a ArrayList, which is copied into this object's internal storage
      *  structure.
      *
-     * @param  strings                  Vector of allowed strings
+     * @param  strings                  ArrayList of allowed strings
      * @exception  ConstraintException  Thrown if the passed in vector size is 0
      */
-    public StringConstraint( Vector strings ) throws ConstraintException {
+    public StringConstraint( ArrayList strings ) throws ConstraintException {
         if ( strings.size() > 0 ) this.strings = strings;
         else {
-            String S = C + ": Constructor(Vector strings): ";
+            String S = C + ": Constructor(ArrayList strings): ";
             throw new ConstraintException( S + "Input vector of constraint values cannot be empty" );
         }
     }
 
 
     /**
-     *  Sets all allowed strings via a Vector, which is copied into this
+     *  Sets all allowed strings via a ArrayList, which is copied into this
      *  object's internal storage structure.
      *
-     * @param  strings                  Vector of allowed strings
+     * @param  strings                  ArrayList of allowed strings
      * @exception  ConstraintException  Thrown if the passed in vector size is 0
      */
-    public void setStrings( Vector strings ) throws ConstraintException, EditableException {
+    public void setStrings( ArrayList strings ) throws ConstraintException, EditableException {
 
         String S = C + ": setStrings(): ";
         checkEditable(S);
@@ -68,11 +68,11 @@ public class StringConstraint
 
     }
 
-    /** Returns a cloned Vector of the allowed Strings. */
-    public Vector getAllowedStrings() { return ( Vector ) strings.clone(); }
+    /** Returns a cloned ArrayList of the allowed Strings. */
+    public ArrayList getAllowedStrings() { return ( ArrayList ) strings.clone(); }
 
-    /** Returns a cloned Vector of the allowed Strings. */
-    public Vector getAllowedValues() { return getAllowedStrings(); }
+    /** Returns a cloned ArrayList of the allowed Strings. */
+    public ArrayList getAllowedValues() { return getAllowedStrings(); }
 
 
     /**
@@ -156,7 +156,7 @@ public class StringConstraint
 
         StringConstraint c1 = new StringConstraint();
         c1.name = name;
-        Vector v = getAllowedStrings();
+        ArrayList v = getAllowedStrings();
         ListIterator it = v.listIterator();
         while ( it.hasNext() ) {
             String val = ( String ) it.next();

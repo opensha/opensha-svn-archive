@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl;
 
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.data.TimeSpan;
 
@@ -73,7 +73,7 @@ public class SimpleFaultRuptureERF extends EqkRupForecast
     timeSpan.addParameterChangeListener(this);
 
     // make the magFreqDistParameter
-    Vector supportedMagDists=new Vector();
+    ArrayList supportedMagDists=new ArrayList();
     supportedMagDists.add(GaussianMagFreqDist.NAME);
     supportedMagDists.add(SingleMagFreqDist.NAME);
     magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
@@ -160,10 +160,10 @@ public class SimpleFaultRuptureERF extends EqkRupForecast
     /**
      *  This returns a list of sources (contains only one here)
      *
-     * @return Vector of Prob Earthquake sources
+     * @return ArrayList of Prob Earthquake sources
      */
-    public Vector  getSourceList(){
-      Vector v =new Vector();
+    public ArrayList  getSourceList(){
+      ArrayList v =new ArrayList();
       v.add(source);
       return v;
     }

@@ -1772,11 +1772,11 @@ public class GriddedFaultApplet
   /**
    * Set the parameters for the custom fault
    *
-   * @param dips : Vector for dips
-   * @param depths : Vector for depths
+   * @param dips : ArrayList for dips
+   * @param depths : ArrayList for depths
    * @param faultTrace : Faulttrace for this custom fault
    */
-  /*public void setCustomFaultParams(Vector dips, Vector depths, FaultTrace faultTrace) {
+  /*public void setCustomFaultParams(ArrayList dips, ArrayList depths, FaultTrace faultTrace) {
     this.customDips = dips;
     this.customDepths = depths;
     this.customFaultTrace = faultTrace;
@@ -1828,15 +1828,15 @@ public class GriddedFaultApplet
         customFault = new SimpleFaultParameterGUI(faultParam);
         SimpleFaultParameterEditorPanel customFaultEditor = customFault.getSimpleFaultEditorPanel();
 
-        Vector lats = new Vector();
+        ArrayList lats = new ArrayList();
         lats.add(new Double(38.22480));
         lats.add(new Double(38.00));
-        Vector lons = new Vector();
+        ArrayList lons = new ArrayList();
         lons.add(new Double(-122.0));
         lons.add(new Double(-122.0));
-        Vector dips = new Vector();
+        ArrayList dips = new ArrayList();
         dips.add(new Double(45));
-        Vector depths = new Vector();
+        ArrayList depths = new ArrayList();
         depths.add(new Double(0));
         depths.add(new Double(10));
 

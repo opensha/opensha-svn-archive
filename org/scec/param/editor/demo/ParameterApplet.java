@@ -7,7 +7,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -175,7 +175,7 @@ public class ParameterApplet
      *  Builds a ParameterList of all the example Parameters
      */
     private ParameterList makeParameterList( int number ) {
-        Vector val = new Vector();
+        ArrayList val = new ArrayList();
         val.add( "Steven" );
         val.add( "William" );
         val.add( "Michael" );
@@ -212,7 +212,7 @@ public class ParameterApplet
         String name = "Name " + paramCount;
         String value = "12.1";
         paramCount++;
-        Vector val = new Vector();
+        ArrayList val = new ArrayList();
         val.add( new Double( 11.1 ) );
         val.add( new Double( 12.1 ) );
         val.add( new Double( 13.1 ) );

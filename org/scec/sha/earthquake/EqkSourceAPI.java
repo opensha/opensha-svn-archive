@@ -1,7 +1,7 @@
 package org.scec.sha.earthquake;
 
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import org.scec.data.NamedObjectAPI;
 
@@ -56,12 +56,12 @@ public interface EqkSourceAPI extends NamedObjectAPI{
   public ProbEqkRupture getRuptureClone(int nRupture);
 
   /**
-   * Returns the Vector consisting of all ruptures for this source
+   * Returns the ArrayList consisting of all ruptures for this source
    * all the objects are cloned. so this vector can be saved by the user
    *
-   * @return Vector consisting of
+   * @return ArrayList consisting of
    */
-  public Vector getRuptureList();
+  public ArrayList getRuptureList();
 
 
 

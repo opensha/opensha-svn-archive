@@ -6,7 +6,7 @@ import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.Hashtable;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.io.File;
 import java.io.FileReader;
@@ -299,8 +299,8 @@ public class STEP_MapViewerApp extends JApplet {
     StringTokenizer tokenizer = new StringTokenizer(latitude);
     double minLat = Double.parseDouble(tokenizer.nextToken());
     double maxLat = Double.parseDouble(tokenizer.nextToken());
-    Vector minLatVector = new Vector();
-    Vector maxLatVector = new Vector();
+    ArrayList minLatVector = new ArrayList();
+    ArrayList maxLatVector = new ArrayList();
     double intervalLat = Double.parseDouble(tokenizer.nextToken());
     double lat = minLat;
     // fill the in lat vector
@@ -324,10 +324,10 @@ public class STEP_MapViewerApp extends JApplet {
    double minLon = Double.parseDouble(tokenizer.nextToken());
    double maxLon = Double.parseDouble(tokenizer.nextToken());
    double intervalLon = Double.parseDouble(tokenizer.nextToken());
-   Vector minLonVector = new Vector();
-   Vector maxLonVector = new Vector();
+   ArrayList minLonVector = new ArrayList();
+   ArrayList maxLonVector = new ArrayList();
    double lon = minLon;
-   // fill the minlon Vector
+   // fill the minlon ArrayList
    while(lon<maxLon) {
     minLonVector.add(""+d.format(lon)); // fill the min Lat combobox
     lon = lon+intervalLon;
@@ -453,9 +453,9 @@ public class STEP_MapViewerApp extends JApplet {
      //searching the directory for the list of the files.
      File dir = new File(this.STEP_DIR+selectedSet+"/");
      XYZ_DataSetAPI xyzData;
-     Vector xVals = new Vector();
-     Vector yVals = new Vector();
-     Vector zVals = new Vector();
+     ArrayList xVals = new ArrayList();
+     ArrayList yVals = new ArrayList();
+     ArrayList zVals = new ArrayList();
      String[] fileList=dir.list();
      //formatting of the text double Decimal numbers for 2 places of decimal.
      DecimalFormat d= new DecimalFormat("0.00##");
