@@ -64,7 +64,7 @@ Move Frankel input files to where the forecast class is.
 
 Create ERF_List and its subclasses ERF_EpistemicList and ERF_AleatoryList, and then the PEER_LogicTreeERF_List
 
-Create and object that will compute fractiles from a list of hazard curves - Ned will provide a detailed description.
+Create an object that will compute fractiles from a list of hazard curves - Ned will provide a detailed description.
 
 Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g., try it in the LogPlotTesterApp).
 
