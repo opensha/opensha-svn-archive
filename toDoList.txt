@@ -39,8 +39,6 @@ Evaluate:
 		- toggle adj params on and off?
 		- set hypocenter option (Finish Abrahamson2000 IMR.)?
 
-Add STEP ERF to hazardCurveApplet
-
 ProgressBars - 
 
 	-enable turning on and off in both HazardMapCalculator add  HazardCurveCalculator; 
@@ -53,14 +51,7 @@ AttenRelApp - update web site app (and others?).
 
 HazardCurveApplet 
 
-		- change name of condProbFunc to something like logX_Values_func
-
-		- mouse over on points in plot gives strange information 
-		  (at least for log-log plots).
-
-		- selecting region (zooming) in plot hangs the computer?
-
-HazardCurveCalc -  Ned fix calculation sequence to be consistent with SRL paper.
+	- add "Interesting Sites" control panel that will set the lat and lon for some interesting locations
 
 Create SimpleFaultParameter and editor (so we can replace two PEER ERFs with one general ERF)
 
