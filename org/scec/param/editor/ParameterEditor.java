@@ -487,4 +487,16 @@ public class ParameterEditor
     /** Called when a key was pressed and is now released in this editor. */
     public void keyReleased( KeyEvent e ) { }
 
+
+    /**
+     * return the JPanel
+     * This is needed so that we can set the border or font differently
+     * This function is called from IMR gui Bean and ERF Gui Bean
+     * @return
+     */
+    public JPanel getOuterPanel() {
+      return this.outerPanel;
+    }
+
 }
+

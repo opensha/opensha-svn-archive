@@ -220,6 +220,9 @@ public class HazardCurveApplet extends JApplet
 
   private JLabel imgLabel = new JLabel();
   private JComboBox controlComboBox = new JComboBox();
+  GridBagLayout gridBagLayout10 = new GridBagLayout();
+  GridBagLayout gridBagLayout12 = new GridBagLayout();
+  BorderLayout borderLayout1 = new BorderLayout();
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -267,7 +270,7 @@ public class HazardCurveApplet extends JApplet
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     this.getContentPane().setBackground(Color.white);
     this.setSize(new Dimension(973, 670));
-    this.getContentPane().setLayout(null);
+    this.getContentPane().setLayout(borderLayout1);
 
 
     // for showing the data on click of "show data" button
@@ -276,7 +279,7 @@ public class HazardCurveApplet extends JApplet
     pointsTextArea.setLineWrap(true);
     dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
-    jPanel1.setLayout(null);
+    jPanel1.setLayout(gridBagLayout12);
 
 
 
@@ -284,14 +287,11 @@ public class HazardCurveApplet extends JApplet
     jPanel1.setBorder(border4);
     jPanel1.setMinimumSize(new Dimension(959, 600));
     jPanel1.setPreferredSize(new Dimension(959, 600));
-    jPanel1.setBounds(new Rectangle(0, 0, 973, 670));
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     topSplitPane.setBottomComponent(buttonPanel);
     topSplitPane.setDividerSize(5);
     topSplitPane.setTopComponent(chartSplit);
-    topSplitPane.setBounds(new Rectangle(10, 0, 959, 667));
     clearButton.setBackground(new Color(200, 200, 230));
-    clearButton.setBounds(new Rectangle(515, 30, 92, 33));
     clearButton.setFont(new java.awt.Font("Dialog", 1, 11));
     clearButton.setForeground(new Color(80, 80, 133));
     clearButton.setBorder(null);
@@ -306,7 +306,6 @@ public class HazardCurveApplet extends JApplet
       }
     });
     toggleButton.setBackground(new Color(200, 200, 230));
-    toggleButton.setBounds(new Rectangle(620, 30, 92, 33));
     toggleButton.setFont(new java.awt.Font("Dialog", 1, 11));
     toggleButton.setForeground(new Color(80, 80, 133));
     toggleButton.setBorder(null);
@@ -325,7 +324,6 @@ public class HazardCurveApplet extends JApplet
     jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
     jCheckylog.setForeground(new Color(80, 80, 133));
     jCheckylog.setText("Y Log");
-    jCheckylog.setBounds(new Rectangle(800, 36, 53, 21));
     jCheckylog.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jCheckylog_actionPerformed(e);
@@ -336,9 +334,8 @@ public class HazardCurveApplet extends JApplet
     buttonPanel.setMaximumSize(new Dimension(2147483647, 40));
     buttonPanel.setMinimumSize(new Dimension(726, 40));
     buttonPanel.setPreferredSize(new Dimension(726, 40));
-    buttonPanel.setLayout(null);
+    buttonPanel.setLayout(gridBagLayout10);
     addButton.setBackground(new Color(200, 200, 230));
-    addButton.setBounds(new Rectangle(403, 31, 97, 31));
     addButton.setFont(new java.awt.Font("Dialog", 1, 11));
     addButton.setForeground(new Color(80, 80, 133));
     addButton.setBorder(null);
@@ -356,7 +353,6 @@ public class HazardCurveApplet extends JApplet
     jCheckxlog.setFont(new java.awt.Font("Dialog", 1, 11));
     jCheckxlog.setForeground(new Color(80, 80, 133));
     jCheckxlog.setText("X Log");
-    jCheckxlog.setBounds(new Rectangle(728, 34, 53, 25));
     jCheckxlog.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jCheckxlog_actionPerformed(e);
@@ -396,15 +392,15 @@ public class HazardCurveApplet extends JApplet
     });
     controlComboBox.setBackground(new Color(200, 200, 230));
     controlComboBox.setForeground(new Color(80, 80, 133));
-    controlComboBox.setBounds(new Rectangle(114, 33, 206, 27));
     controlComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         controlComboBox_actionPerformed(e);
       }
     });
     dataScrollPane.getViewport().add( pointsTextArea, null );
-    this.getContentPane().add(jPanel1, null);
-    jPanel1.add(topSplitPane, null);
+    this.getContentPane().add(jPanel1, BorderLayout.CENTER);
+    jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(-1, 9, 2, 3), 223, 292));
     topSplitPane.add(chartSplit, JSplitPane.TOP);
     chartSplit.add(panel, JSplitPane.LEFT);
     chartSplit.add(parameterSplitPane, JSplitPane.RIGHT);
@@ -415,13 +411,20 @@ public class HazardCurveApplet extends JApplet
     parameterSplitPane.add(erfPanel, JSplitPane.RIGHT);
     controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(addButton, null);
-    buttonPanel.add(clearButton, null);
-    buttonPanel.add(toggleButton, null);
-    buttonPanel.add(jCheckxlog, null);
-    buttonPanel.add(jCheckylog, null);
-    buttonPanel.add(controlComboBox, null);
-    jPanel1.add(imgLabel, null);
+    buttonPanel.add(addButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 83, 33, 0), 0, 0));
+    buttonPanel.add(clearButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 15, 33, 0), 0, 0));
+    buttonPanel.add(toggleButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 13, 33, 0), 0, 0));
+    buttonPanel.add(jCheckxlog,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 16, 33, 0), 1, 7));
+    buttonPanel.add(jCheckylog,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(35, 19, 33, 95), 1, 3));
+    buttonPanel.add(controlComboBox,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(29, 113, 33, 0), 61, 2));
+    jPanel1.add(imgLabel,  new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, -1, 0, 0), 0, 0));
     topSplitPane.setDividerLocation(560);
     chartSplit.setDividerLocation(575);
     parameterSplitPane.setDividerLocation(175);
