@@ -57,12 +57,6 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
  private final static double OFFSET_PARAM_MIN = .01;
  private final static double OFFSET_PARAM_MAX = 10000;
 
- // timeSpan parameter stuff
- public final static String TIMESPAN_PARAM_NAME ="Time Span";
- private Double DEFAULT_TIMESPAN_VAL= new Double(1);
- public final static String TIMESPAN_PARAM_UNITS = "yrs";
- private final static double TIMESPAN_PARAM_MIN = 1e-10;
- private final static double TIMESPAN_PARAM_MAX = 1e10;
 
  // Mag-length sigma parameter stuff
  public final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
@@ -87,9 +81,6 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
  private DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
      SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
 
- //make the timeSpan parameter
- private DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
-     TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
 
  // make the fault-model parameter
  private Vector faultModelNamesStrings = new Vector();
@@ -102,6 +93,10 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
    */
   public PEER_LogicTreeERF_List() {
 
+    // create the timespan object with start time and duration in years
+    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    timeSpan.addParameterChangeListener(this);
+
     // make the faultModelParam
     faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
     faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
@@ -111,14 +106,12 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
     adjustableParams.addParameter(gridParam);
     adjustableParams.addParameter(offsetParam);
     adjustableParams.addParameter(lengthSigmaParam);
-    adjustableParams.addParameter(timeSpanParam);
     adjustableParams.addParameter(faultModelParam);
 
     // listen for change in the parameters
     gridParam.addParameterChangeListener(this);
     offsetParam.addParameterChangeListener(this);
     lengthSigmaParam.addParameterChangeListener(this);
-    timeSpanParam.addParameterChangeListener(this);
     faultModelParam.addParameterChangeListener(this);
 
     // this constructor will create the instances of the non-planar with various parameters
@@ -211,7 +204,6 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
         eqkRupForecast.getParameter(GRID_PARAM_NAME).setValue(gridParam.getValue());
         eqkRupForecast.getParameter(OFFSET_PARAM_NAME).setValue(offsetParam.getValue());
         eqkRupForecast.getParameter(SIGMA_PARAM_NAME).setValue(lengthSigmaParam.getValue());
-        eqkRupForecast.getParameter(TIMESPAN_PARAM_NAME).setValue(timeSpanParam.getValue());
         eqkRupForecast.getParameter(FAULT_MODEL_NAME).setValue(faultModelParam.getValue());
       }
     }

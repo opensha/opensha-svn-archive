@@ -48,10 +48,9 @@ public interface EqkRupForecastAPI extends NamedObjectAPI{
 
 
      /**
-      * This method sets the tim span field
-      * @param time
+      * This method gets the time-span field
       */
-     public void setTimeSpan(double yrs);
+     public TimeSpan getTimeSpan();
 
 
      /**
@@ -59,7 +58,7 @@ public interface EqkRupForecastAPI extends NamedObjectAPI{
       *
       * @return
       */
-     public ListIterator getAdjustableParamsList();
+     public ListIterator getAdjustableParamsIterator();
 
      /**
       * This function finds whether a particular location lies in applicable

@@ -40,12 +40,6 @@ public class PEER_AreaForecast extends EqkRupForecast
   //name for this classs
   public final static String  NAME = C;
 
-  /**
-   * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
-   */
-  private double timeSpan;
-  private TimeSpan time;
-
   // this is the GR distribution used for all sources
   private GutenbergRichterMagFreqDist dist_GR;
 
@@ -77,13 +71,6 @@ public class PEER_AreaForecast extends EqkRupForecast
   private final static double DEPTH_PARAM_MAX = 30;
   private final static Double DEPTH_PARAM_DEFAULT = new Double(5);
   public final static String MAG_DIST_PARAM_NAME = "Mag Dist";
-
-  //timespan Variable
-  public final static String TIMESPAN_PARAM_NAME = "Area Timespan";
-  public final static String TIMESPAN_PARAM_UNITS = "yrs";
-  private final static Double TIMESPAN_PARAM_DEFAULT = new Double(1);
-  private final static double TIMESPAN_PARAM_MIN = 1e-10;
-  private final static double TIMESPAN_PARAM_MAX = 1e10;
 
    //Rake Variable
   public final static String RAKE_PARAM_NAME = "Ave Rake";
@@ -121,11 +108,7 @@ public class PEER_AreaForecast extends EqkRupForecast
   DoubleParameter depthUpperParam = new DoubleParameter(DEPTH_UPPER_PARAM_NAME,DEPTH_PARAM_MIN,
                                                         DEPTH_PARAM_MAX,DEPTH_PARAM_UNITS,
                                                         DEPTH_PARAM_DEFAULT);
-  // create the timespan parameter
-  DoubleParameter timespanParam = new DoubleParameter(TIMESPAN_PARAM_NAME, TIMESPAN_PARAM_MIN,
-                                                      TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,
-                                                      TIMESPAN_PARAM_DEFAULT);
-  // create the rake parameter
+ // create the rake parameter
   DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME, RAKE_PARAM_MIN,
                                                       RAKE_PARAM_MAX,RAKE_PARAM_UNITS,
                                                       RAKE_PARAM_DEFAULT);
@@ -139,9 +122,6 @@ public class PEER_AreaForecast extends EqkRupForecast
   //Mag Freq Dist Parameter
   MagFreqDistParameter magDistParam ;
 
-  // private declaration of the flag to check if any parameter has been changed from its original value.
-  private boolean  parameterChangeFlag = true;
-
 
   /**
    * This constructor constructs the source
@@ -150,13 +130,16 @@ public class PEER_AreaForecast extends EqkRupForecast
    */
   public PEER_AreaForecast() {
 
+    // create the timespan object with start time and duration in years
+    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    timeSpan.addParameterChangeListener(this);
+
     // make adj params list
     adjustableParams.addParameter(gridParam);
     adjustableParams.addParameter(depthLowerParam);
     adjustableParams.addParameter(depthUpperParam);
     adjustableParams.addParameter(rakeParam);
     adjustableParams.addParameter(dipParam);
-    adjustableParams.addParameter(timespanParam);
 
     // create the supported Mag-Dist parameter
     supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
@@ -168,7 +151,6 @@ public class PEER_AreaForecast extends EqkRupForecast
     gridParam.addParameterChangeListener(this);
     depthLowerParam.addParameterChangeListener(this);
     depthUpperParam.addParameterChangeListener(this);
-    timespanParam.addParameterChangeListener(this);
     magDistParam.addParameterChangeListener(this);
     rakeParam.addParameterChangeListener(this);
     dipParam.addParameterChangeListener(this);
@@ -237,8 +219,6 @@ public class PEER_AreaForecast extends EqkRupForecast
       double rake = ((Double) rakeParam.getValue()).doubleValue();
       double dip = ((Double) dipParam.getValue()).doubleValue();
 
-      setTimeSpan(((Double) timespanParam.getValue()).doubleValue());
-
       // Dip is hard wired at 90 degrees
       pointGR_EqkSource = new PointGR_EqkSource(new Location(),dist_GR, rake, dip);
 
@@ -250,22 +230,6 @@ public class PEER_AreaForecast extends EqkRupForecast
   }
 
 
-
-
-  /**
-   * sets the timeSpan field
-   * @param yrs : have to be modfied from the double varible to the timeSpan field variable
-   */
-  public void setTimeSpan(double yrs){
-    timeSpan =yrs;
-  }
-
-  /**
-   * This method sets the time-span field
-   * @param time
-   */
-  public void setTimeSpan(TimeSpan timeSpan){
-  }
 
   /**
    * Get number of ruptures for source at index iSource
@@ -319,7 +283,7 @@ public class PEER_AreaForecast extends EqkRupForecast
   public ProbEqkSource getSource(int iSource) {
 
     pointGR_EqkSource.setLocation(locationList.getLocationAt(iSource));
-    pointGR_EqkSource.setTimeSpan(timeSpan);
+    pointGR_EqkSource.setTimeSpan(timeSpan.getDuration());
 
     if (D) System.out.println(iSource + "th source location: "+ locationList.getLocationAt(iSource).toString() +
                               "; numRups="+pointGR_EqkSource.getNumRuptures());
@@ -373,7 +337,6 @@ public class PEER_AreaForecast extends EqkRupForecast
    * @return Vector of Prob Earthquake sources
    */
   public Vector  getSourceList(){
-
     return null;
   }
 

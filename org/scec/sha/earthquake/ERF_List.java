@@ -3,7 +3,9 @@ package org.scec.sha.earthquake;
 
 import java.util.Vector;
 import java.util.ListIterator;
+import java.util.EventObject;
 
+import org.scec.param.event.TimeSpanChangeListener;
 import org.scec.data.Location;
 import org.scec.data.TimeSpan;
 import org.scec.param.ParameterList;
@@ -17,7 +19,8 @@ import org.scec.data.region.GeographicRegion;
  * @version 1.0
  */
 
-public abstract class ERF_List implements EqkRupForecastAPI {
+public abstract class ERF_List implements EqkRupForecastAPI,
+    TimeSpanChangeListener {
 
   // vector to hold the instances of Eqk Rup Forecasts
   private Vector erf_List = new Vector();
@@ -27,7 +30,8 @@ public abstract class ERF_List implements EqkRupForecastAPI {
   protected boolean  parameterChangeFlag = true;
   // parameter list for adjustable params
   protected ParameterList adjustableParams = new ParameterList();
-
+  // time span param
+  protected TimeSpan timeSpan;
 
 
   /**
@@ -78,12 +82,12 @@ public abstract class ERF_List implements EqkRupForecastAPI {
 
   /**
    * return the list of adjustable params
-   * Presently there are no adjustable params.
    * @return
    */
-  public ListIterator getAdjustableParamsList() {
+  public ListIterator getAdjustableParamsIterator() {
     return adjustableParams.getParametersIterator();
   }
+
 
 
 
@@ -93,7 +97,7 @@ public abstract class ERF_List implements EqkRupForecastAPI {
    * @return
    */
   public String getName() {
-    return "list of Earthquake Rupture Forecasts";
+    return "List of Earthquake Rupture Forecasts";
   }
 
 
@@ -127,23 +131,32 @@ public abstract class ERF_List implements EqkRupForecastAPI {
 
   /**
    * This method sets the time-span field.
-   * This is not implemented yet
    * @param time
    */
   public void setTimeSpan(TimeSpan time) {
+    int  numERFs = erf_List.size();
+    for(int i=0; i<numERFs; ++i)
+      ((EqkRupForecast)erf_List.get(i)).setTimeSpan(time);
+ }
 
-  }
+ /**
+  * get the timespan
+  *
+  * @return : TimeSpan
+  */
+ public TimeSpan getTimeSpan() {
+   return this.timeSpan;
+ }
 
-
-  /**
-   * This method sets the tim span field
-   * this is not implemented yet
-   * @param time
-   */
-  public void setTimeSpan(double yrs) {
-
-  }
-
+ /**
+  *  Function that must be implemented by all Timespan Listeners for
+  *  ParameterChangeEvents.
+  *
+  * @param  event  The Event which triggered this function call
+  */
+ public void parameterChange( EventObject event ) {
+   this.parameterChangeFlag = true;
+ }
 
 }
 

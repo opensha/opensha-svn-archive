@@ -80,6 +80,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private IMR_GuiBean imrGuiBean;
   private Site_GuiBean siteGuiBean;
   private ERF_GuiBean erfGuiBean;
+  private TimeSpanGuiBean timeSpanGuiBean;
 
   //Stores the test case,
   private String selectedTest;
@@ -93,7 +94,8 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   public PEER_TestCaseSelectorControlPanel(Component parent, IMR_GuiBean imrGuiBean,
                                Site_GuiBean siteGuiBean,
                                IMT_GuiBean imtGuiBean,
-                               ERF_GuiBean erfGuiBean){
+                               ERF_GuiBean erfGuiBean,
+                               TimeSpanGuiBean timeSpanGuiBean){
 
     try {
      jbInit();
@@ -106,6 +108,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     this.siteGuiBean = siteGuiBean;
     this.imtGuiBean = imtGuiBean;
     this.erfGuiBean = erfGuiBean;
+    this.timeSpanGuiBean = timeSpanGuiBean;
     // fill the combo box with tests and sites
     this.initializeTestsAndSites();
 
@@ -173,6 +176,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     imtGuiBean.synchToModel();
     siteGuiBean.synchToModel();
     erfGuiBean.synchToModel();
+    timeSpanGuiBean.synchToModel();
   }
 
   /**
@@ -253,7 +257,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
      // set the common parameters like timespan, grid spacing
      erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0));
-     erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+     timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
 
@@ -281,7 +285,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
      erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.DIP_PARAM_NAME).setValue(new Double(90));
      erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.RAKE_PARAM_NAME).setValue(new Double(0));
-     erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+     timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
      if(selectedTest.equals(TEST_CASE_TEN))
        erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
@@ -421,7 +425,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_NonPlanarFaultForecast.NAME);
      // add sigma for maglength(0-1)
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0));
-     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+     timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.GR_MAG_UPPER).setValue(new Double(7.15));
@@ -438,7 +442,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      erfGuiBean.getParameterList().getParameter(PEER_MultiSourceForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
      erfGuiBean.getParameterList().getParameter(PEER_MultiSourceForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_MultiSourceForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_MultiSourceForecast.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+     timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
    }
 
    //if test case 3 or 4
@@ -450,7 +454,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.RAKE_PARAM_NAME).setValue(new Double(0.0));
      erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0.0));
-     erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+     timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
    }
 
    //if test case 5
@@ -464,7 +468,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.RAKE_PARAM_NAME).setValue(new Double(0.0));
      erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0.0));
-     erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+     timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
    }
 
    // now set the magFreqDist parameters (if there is one) using the separate method
@@ -894,6 +898,5 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     String testSelected = this.testCaseComboBox.getSelectedItem().toString();
     setTestCaseAndSite(testSelected);
   }
-
 
 }

@@ -83,61 +83,42 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
   private ArrayList inputFaultFileLines = null;
   private ArrayList inputBackSeisFileLines = null;
 
-  /**
-   * timespan field in yrs for now (but have to ultimately make it a TimeSpan class variable)
-   */
-  private double timeSpan;
-  private TimeSpan time;
+
+  // fault-model parameter stuff
+  public final static String FAULT_MODEL_NAME = new String ("Fault Model");
+  public final static String FAULT_MODEL_FRANKEL = new String ("Frankel's");
+  public final static String FAULT_MODEL_STIRLING = new String ("Stirling's");
+  // make the fault-model parameter
+  Vector faultModelNamesStrings = new Vector();
+  StringParameter faultModelParam;
+
+  // fault-model parameter stuff
+  public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
+  public final static String BACK_SEIS_INCLUDE = new String ("Include");
+  public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
+  public final static String BACK_SEIS_ONLY = new String ("Only Background");
+  // make the fault-model parameter
+  Vector backSeisOptionsStrings = new Vector();
+  StringParameter backSeisParam;
 
 
-  // adjustable parameters stuff
-    public final static String TIMESPAN_PARAM_NAME ="Time Span";
-    private Double DEFAULT_TIMESPAN_VAL= new Double(50);
-    public final static String TIMESPAN_PARAM_UNITS = "yrs";
-    private final static double TIMESPAN_PARAM_MIN = 1e-10;
-    private final static double TIMESPAN_PARAM_MAX = 1e10;
-    DoubleParameter timeSpanParam;
+  // For fraction of moment rate on GR parameter
+  private final static String FRAC_GR_PARAM_NAME ="GR Fraction on B Faults";
+  private Double DEFAULT_FRAC_GR_VAL= new Double(0.5);
+  private final static String FRAC_GR_PARAM_UNITS = null;
+  private final static String FRAC_GR_PARAM_INFO = "Fraction of moment-rate put into GR dist on class-B faults";
+  private final static double FRAC_GR_PARAM_MIN = 0;
+  private final static double FRAC_GR_PARAM_MAX = 1;
+  DoubleParameter fracGR_Param;
 
-    // fault-model parameter stuff
-    public final static String FAULT_MODEL_NAME = new String ("Fault Model");
-    public final static String FAULT_MODEL_FRANKEL = new String ("Frankel's");
-    public final static String FAULT_MODEL_STIRLING = new String ("Stirling's");
-    // make the fault-model parameter
-    Vector faultModelNamesStrings = new Vector();
-    StringParameter faultModelParam;
-
-    // fault-model parameter stuff
-    public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
-    public final static String BACK_SEIS_INCLUDE = new String ("Include");
-    public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
-    public final static String BACK_SEIS_ONLY = new String ("Only Background");
-    // make the fault-model parameter
-    Vector backSeisOptionsStrings = new Vector();
-    StringParameter backSeisParam;
-
-
-    // For fraction of moment rate on GR parameter
-    private final static String FRAC_GR_PARAM_NAME ="GR Fraction on B Faults";
-    private Double DEFAULT_FRAC_GR_VAL= new Double(0.5);
-    private final static String FRAC_GR_PARAM_UNITS = null;
-    private final static String FRAC_GR_PARAM_INFO = "Fraction of moment-rate put into GR dist on class-B faults";
-    private final static double FRAC_GR_PARAM_MIN = 0;
-    private final static double FRAC_GR_PARAM_MAX = 1;
-    DoubleParameter fracGR_Param;
-
-    // For rupture offset lenth along fault parameter
-    private final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
-    private Double DEFAULT_RUP_OFFSET_VAL= new Double(10);
-    private final static String RUP_OFFSET_PARAM_UNITS = "km";
-    private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
-    private final static double RUP_OFFSET_PARAM_MIN = 1;
-    private final static double RUP_OFFSET_PARAM_MAX = 100;
-    DoubleParameter rupOffset_Param;
-
-    // private declaration of the flag to check if any parameter has been changed from its original value.
-    private boolean  parameterChangeFlag = true;
-
-
+  // For rupture offset lenth along fault parameter
+  private final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
+  private Double DEFAULT_RUP_OFFSET_VAL= new Double(10);
+  private final static String RUP_OFFSET_PARAM_UNITS = "km";
+  private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
+  private final static double RUP_OFFSET_PARAM_MIN = 1;
+  private final static double RUP_OFFSET_PARAM_MAX = 100;
+  DoubleParameter rupOffset_Param;
 
   /**
    *
@@ -145,13 +126,16 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
    */
   public Frankel96_EqkRupForecast() {
 
+    // create the timespan object with start time and duration in years
+    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    timeSpan.addParameterChangeListener(this);
+
     // create and add adj params to list
     intiAdjParams();
 
 
     // add the change listener to parameters so that forecast can be updated
     // whenever any paramater changes
-    timeSpanParam.addParameterChangeListener(this);
     faultModelParam.addParameterChangeListener(this);
     fracGR_Param.addParameterChangeListener(this);
     rupOffset_Param.addParameterChangeListener(this);
@@ -189,9 +173,6 @@ private void intiAdjParams() {
   backSeisOptionsStrings.add(BACK_SEIS_ONLY);
   backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_ONLY);
 
-  timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
-                                      TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
-
   fracGR_Param = new DoubleParameter(FRAC_GR_PARAM_NAME,FRAC_GR_PARAM_MIN,
                                      FRAC_GR_PARAM_MAX,FRAC_GR_PARAM_UNITS,DEFAULT_FRAC_GR_VAL);
   fracGR_Param.setInfo(FRAC_GR_PARAM_INFO);
@@ -202,7 +183,6 @@ private void intiAdjParams() {
 
 
 // add adjustable parameters to the list
-  adjustableParams.addParameter(timeSpanParam);
   adjustableParams.addParameter(faultModelParam);
   adjustableParams.addParameter(fracGR_Param);
   adjustableParams.addParameter(rupOffset_Param);
@@ -239,7 +219,7 @@ private void intiAdjParams() {
     String faultModel = (String) faultModelParam.getValue();
     double rupOffset = ((Double) rupOffset_Param.getValue()).doubleValue();
 
-    timeSpan = ((Double) timeSpanParam.getValue()).doubleValue();
+    double timeDuration =  timeSpan.getDuration();
 
     // Loop over lines of input file and create each source in the process
     ListIterator it = inputFaultFileLines.listIterator();
@@ -340,28 +320,28 @@ private void intiAdjParams() {
             if(moRate>0.0) {
               Frankel96_GR_EqkSource frankel96_GR_src = new Frankel96_GR_EqkSource(rake,B_VALUE,MAG_LOWER,
                                                    mag,moRate,DELTA_MAG,rupOffset,(EvenlyGriddedSurface)surface, faultName);
-              frankel96_GR_src.setTimeSpan(timeSpan);
+              frankel96_GR_src.setTimeSpan(timeDuration);
               FrankelB_GR_EqkSources.add(frankel96_GR_src);
             }
             // now make the Char source
             if(rate>0.0) {
               Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,rate,
                                                       (EvenlyGriddedSurface)surface, faultName);
-              frankel96_Char_src.setTimeSpan(timeSpan);
+              frankel96_Char_src.setTimeSpan(timeDuration);
               FrankelB_CharEqkSources.add(frankel96_Char_src);
             }
           }
           else if (faultClass.equalsIgnoreCase(FAULT_CLASS_B)) {    // if class B and mag<=6.5, it's all characteristic
             Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,charRate,
                                                       (EvenlyGriddedSurface)surface, faultName);
-            frankel96_Char_src.setTimeSpan(timeSpan);
+            frankel96_Char_src.setTimeSpan(timeDuration);
             FrankelB_CharEqkSources.add(frankel96_Char_src);
 
           }
           else if (faultClass.equalsIgnoreCase(FAULT_CLASS_A)) {   // class A fault
             Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,charRate,
                                                       (EvenlyGriddedSurface)surface, faultName);
-            frankel96_Char_src.setTimeSpan(timeSpan);
+            frankel96_Char_src.setTimeSpan(timeDuration);
             FrankelA_CharEqkSources.add(frankel96_Char_src);
           }
           else {
@@ -415,7 +395,7 @@ private void intiAdjParams() {
     PointGR_EqkSource grSource;
 
     // set timespan
-    timeSpan = ((Double) timeSpanParam.getValue()).doubleValue();
+    double timeDuration = timeSpan.getDuration();
 
     // Get iterator over input-file lines
     ListIterator it = inputBackSeisFileLines.listIterator();
@@ -452,7 +432,7 @@ private void intiAdjParams() {
         grSource = new PointGR_EqkSource(new Location(lat,lon),grDist2,aveRake,aveDip);
 
         // set the timespan
-        grSource.setTimeSpan(timeSpan);
+        grSource.setTimeSpan(timeDuration);
 
         // add the source
         FrankelBackgrSeisSources.add(grSource);
@@ -460,23 +440,6 @@ private void intiAdjParams() {
     }
   }
 
-
-  /**
-   * sets the timeSpan field
-   * @param yrs : does not do anything yet (timespan is an adjustable
-   * DoubleParameter for now)
-   */
-  public void setTimeSpan(double yrs){
-
-  }
-
-
-  /**
-   * This method sets the time-span field
-   * @param time
-   */
-  public void setTimeSpan(TimeSpan timeSpan){
-  }
 
 
   /**

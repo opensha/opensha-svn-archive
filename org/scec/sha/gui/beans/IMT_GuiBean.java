@@ -9,8 +9,8 @@ import org.scec.param.event.*;
 import java.util.*;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Title: IMT_GuiBean </p>
+ * <p>Description: this dispalys the various IMTs supported by the selected IMR</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed

@@ -63,11 +63,7 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
    */
   private Vector wardGR_EqkSources = new Vector();
 
-  /**
-   * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
-   */
-  private double timeSpan;
-  private TimeSpan time;
+
 
   /**
    * This constructor file and creates the sources
@@ -139,28 +135,6 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
     // Done
     if( D ) System.out.println(S + "Ending");
 
-  }
-
-  /**
-   * sets the timeSpan field
-   * @param yrs : have to be modfied from the double varible to the timeSpan field variable
-   */
-  public void setTimeSpan(double yrs){
-    timeSpan =yrs;
-    int size = this.wardGR_EqkSources.size();
-    for( int i =0; i<size; ++i)
-      ((PointGR_EqkSource)wardGR_EqkSources.get(i)).setTimeSpan(yrs);
-
-  }
-
-
-
-
-  /**
-   * This method sets the time-span field
-   * @param time
-   */
-  public void setTimeSpan(TimeSpan timeSpan){
   }
 
 

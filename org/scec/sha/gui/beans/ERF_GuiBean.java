@@ -18,8 +18,8 @@ import org.scec.sha.earthquake.ERF_EpistemicList;
 
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Title: ERF_GuiBean </p>
+ * <p>Description: It displays ERFs and parameters supported by them</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed
@@ -118,7 +118,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
        if(D)  System.out.println("Iterator Class:"+erf.getName());
        erfObject.add(erf);
        erfNamesVector.add(erf.getName());
-       Iterator it1 = erf.getAdjustableParamsList();
+       Iterator it1 = erf.getAdjustableParamsIterator();
 
        // add the listener for the paramters in the forecast
        while(it1.hasNext()) {
@@ -149,7 +149,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
      // get the selected forecast
      EqkRupForecastAPI erf = this.getSelectedERF_Instance();
 
-     Iterator it = erf.getAdjustableParamsList();
+     Iterator it = erf.getAdjustableParamsIterator();
 
     // make the parameters visible based on selected forecast
      while(it.hasNext()) parameterList.addParameter((ParameterAPI)it.next());
@@ -212,9 +212,10 @@ public class ERF_GuiBean extends ParameterListEditor implements
 
    /**
     * get the selected ERF instance
+    * It returns the forecast without updating the forecast
     * @return
     */
-   private EqkRupForecastAPI getSelectedERF_Instance() {
+   public EqkRupForecastAPI getSelectedERF_Instance() {
      EqkRupForecastAPI eqkRupForecast = null;
      // get the selected forecast model
      String selectedForecast = getSelectedERF_Name();
@@ -234,6 +235,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
        this.updateMagDistParam();
      return eqkRupForecast;
    }
+
 
    /**
     * get the selected ERF instance.

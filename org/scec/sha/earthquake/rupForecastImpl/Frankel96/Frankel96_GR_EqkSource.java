@@ -151,18 +151,6 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
 
 
 
-  /** Set the time span in years
-   * FIX Mehthod not implemented yet
-   *
-   * @param yrs : timeSpan
-   *
-   */
-  public void setTimeSpan(TimeSpan timeSpan) {
-
-     // set the probability according to the specifed timespan
-    throw new UnsupportedOperationException(C+"setTimeSpan(timeSpan) Not implemented.");
-  }
-
 
  /**
   * Returns the Vector consisting of all ruptures for this source

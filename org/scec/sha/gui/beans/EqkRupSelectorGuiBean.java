@@ -90,7 +90,7 @@ public class EqkRupSelectorGuiBean extends ERF_GuiBean  {
    }
 
 
-   Iterator it = erf.getAdjustableParamsList();
+   Iterator it = erf.getAdjustableParamsIterator();
    // make the parameters visible based on selected forecast
    while(it.hasNext()) parameterList.addParameter((ParameterAPI)it.next());
 

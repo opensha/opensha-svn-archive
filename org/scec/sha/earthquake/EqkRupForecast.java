@@ -3,10 +3,14 @@ package org.scec.sha.earthquake;
 import java.util.ListIterator;
 import java.util.Vector;
 import java.util.Iterator;
+import java.util.EventObject;
+import java.util.GregorianCalendar;
 
 import org.scec.param.ParameterList;
 import org.scec.param.ParameterAPI;
+import org.scec.param.event.TimeSpanChangeListener;
 import org.scec.data.Location;
+import org.scec.data.TimeSpan;
 import org.scec.data.region.GeographicRegion;
 
 /**
@@ -18,16 +22,25 @@ import org.scec.data.region.GeographicRegion;
  * @version 1.0
  */
 
-public abstract class EqkRupForecast implements EqkRupForecastAPI{
+public abstract class EqkRupForecast implements EqkRupForecastAPI,
+    TimeSpanChangeListener {
 
+  // adjustable params for each forecast
   protected ParameterList adjustableParams = new ParameterList();
+  // timespan object for each forecast
+  protected TimeSpan timeSpan;
+
+  // it is flag which indiactes whether any parameter have changed.
+  // if it is true it means that forecast needs to be updated
+  protected boolean parameterChangeFlag = true;
+
 
   /**
    * get the adjustable parameters for this forecast
    *
    * @return
    */
-   public ListIterator getAdjustableParamsList() {
+   public ListIterator getAdjustableParamsIterator() {
      return adjustableParams.getParametersIterator();
    }
 
@@ -61,10 +74,40 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI{
    }
 
    /**
-   * Return  iterator over all the earthquake sources
-   *
-   * @return Iterator over all earhtquake sources
-   */
+    * set the TimeSpan in the ERF
+    * @param timeSpan : TimeSpan object
+    */
+   public void setTimeSpan(TimeSpan time) {
+     // set the start time
+     this.timeSpan.setStartTime( time.getStartTimeCalendar());
+     //set the duration as well
+     this.timeSpan.setDuration(time.getDuration(), time.getDurationUnits());
+   }
+
+   /**
+    * return the time span object
+    *
+    * @return : time span object is returned which contains start time and duration
+    */
+   public TimeSpan getTimeSpan() {
+     return this.timeSpan;
+   }
+
+   /**
+    *  Function that must be implemented by all Timespan Listeners for
+    *  ParameterChangeEvents.
+    *
+    * @param  event  The Event which triggered this function call
+    */
+   public void parameterChange( EventObject event ) {
+     this.parameterChangeFlag = true;
+   }
+
+   /**
+    * Return  iterator over all the earthquake sources
+    *
+    * @return Iterator over all earhtquake sources
+    */
   public abstract Iterator getSourcesIterator() ;
 
 

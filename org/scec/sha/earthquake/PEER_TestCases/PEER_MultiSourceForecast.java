@@ -43,12 +43,6 @@ public class PEER_MultiSourceForecast extends EqkRupForecast
   //name for this classs
   public final static String  NAME = C;
 
-  /**
-   * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
-   */
-  private double timeSpan;
-  private TimeSpan time;
-
   // the GR distribution used for the area source
   private GutenbergRichterMagFreqDist dist_gr_A_orig;
 
@@ -111,12 +105,6 @@ public class PEER_MultiSourceForecast extends EqkRupForecast
   private final static double DEPTH_PARAM_MAX = 30;
   private final static Double DEPTH_PARAM_DEFAULT = new Double(5);
 
-  //timespan Variable
-  public final static String TIMESPAN_PARAM_NAME = "Timespan";
-  public final static String TIMESPAN_PARAM_UNITS = "yrs";
-  private final static Double TIMESPAN_PARAM_DEFAULT = new Double(1);
-  private final static double TIMESPAN_PARAM_MIN = 1e-10;
-  private final static double TIMESPAN_PARAM_MAX = 1e10;
 
   // list of area forecast locations
   private LocationList locationList;
@@ -138,13 +126,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
   DoubleParameter depthUpperParam = new DoubleParameter(DEPTH_UPPER_PARAM_NAME,DEPTH_PARAM_MIN,
                                                         DEPTH_PARAM_MAX,DEPTH_PARAM_UNITS,
                                                         DEPTH_PARAM_DEFAULT);
-  // create the timespan parameter
-  DoubleParameter timespanParam = new DoubleParameter(TIMESPAN_PARAM_NAME, TIMESPAN_PARAM_MIN,
-                                                      TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,
-                                                      TIMESPAN_PARAM_DEFAULT);
 
-  // private declaration of the flag to check if any parameter has been changed from its original value.
-  private boolean  parameterChangeFlag = true;
 
 
   /**
@@ -154,19 +136,21 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
    */
   public PEER_MultiSourceForecast() {
 
+    // create the timespan object with start time and duration in years
+    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    timeSpan.addParameterChangeListener(this);
+
     // make adj params list
     adjustableParams.addParameter(gridParam);
     adjustableParams.addParameter(offsetParam);
     adjustableParams.addParameter(depthLowerParam);
     adjustableParams.addParameter(depthUpperParam);
-    adjustableParams.addParameter(timespanParam);
 
     // listen for change in the parameters
     gridParam.addParameterChangeListener(this);
     offsetParam.addParameterChangeListener(this);
     depthLowerParam.addParameterChangeListener(this);
     depthUpperParam.addParameterChangeListener(this);
-    timespanParam.addParameterChangeListener(this);
 
     // make the mag-freq dists for the sources
     double bValue = 0.9;
@@ -225,9 +209,6 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
 
     if(parameterChangeFlag) {
 
-      // first update the timespan with what's in the parameter
-      timeSpan = ((Double) timespanParam.getValue()).doubleValue();
-
       // set the grid spacing used for all sources
       double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
 
@@ -259,7 +240,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
       dist_GR.scaleToCumRate((int) 0,cumRate);
 
       pointGR_EqkSource = new PointGR_EqkSource(new Location(),dist_GR, RAKE, DIP);
-      pointGR_EqkSource.setTimeSpan(timeSpan);
+      pointGR_EqkSource.setTimeSpan(timeSpan.getDuration());
 
       if (D) System.out.println(C+" updateForecast(): rake="+pointGR_EqkSource.getRupture(0).getAveRake() +
                           "; dip="+ pointGR_EqkSource.getRupture(0).getRuptureSurface().getAveDip());
@@ -282,39 +263,19 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
       GriddedSurfaceAPI surfaceB = factory.getGriddedSurface();
       fltSourceB = new  PEER_FaultSource(dist_yc_B, RAKE, offset,
                                           (EvenlyGriddedSurface) surfaceB,
-                                          timeSpan, lengthSigma );
+                                          timeSpan.getDuration(), lengthSigma );
 
       // for fault C:
       factory.setFaultTrace(faultTraceC);
       GriddedSurfaceAPI surfaceC = factory.getGriddedSurface();
       fltSourceC = new  PEER_FaultSource(dist_yc_C, RAKE, offset,
                                           (EvenlyGriddedSurface)surfaceC,
-                                          timeSpan, lengthSigma );
+                                          timeSpan.getDuration(), lengthSigma );
 
     }
     parameterChangeFlag = false;
   }
 
-
-
-
-  /**
-   * sets the timeSpan field
-   * @param yrs : have to be modfied from the double varible to the timeSpan field variable
-   */
-  public void setTimeSpan(double yrs){
-    timeSpan =yrs;
-    fltSourceB.setTimeSpan(timeSpan);
-    fltSourceC.setTimeSpan(timeSpan);
-    this.pointGR_EqkSource.setTimeSpan(timeSpan);
-   }
-
-  /**
-   * This method sets the time-span field
-   * @param time
-   */
-  public void setTimeSpan(TimeSpan timeSpan){
-  }
 
   /**
    * Get number of ruptures for source at index iSource

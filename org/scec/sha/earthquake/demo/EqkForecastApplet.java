@@ -25,6 +25,7 @@ import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.earthquake.*;
 import org.scec.data.Site;
 import org.scec.data.Location;
+import org.scec.data.TimeSpan;
 import org.scec.data.function.*;
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.exceptions.ParameterException;
@@ -997,8 +998,12 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
        int imrSize=imrNames.size();
        ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
 
+       // make the time span object
+       TimeSpan timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
+       timeSpan.setDuration(Double.parseDouble(jTimeField.getText()));
+
        // set the time span for the forecats model
-      eqkRupForecast.setTimeSpan(Double.parseDouble(jTimeField.getText()));
+      eqkRupForecast.setTimeSpan(timeSpan);
 
       // clear the function list
       this.totalProbFuncs.clear();

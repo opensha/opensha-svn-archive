@@ -41,11 +41,6 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   //name for this classs
   public final static String  NAME = C;
 
-  /**
-   * timespan field in yrs for now (but have to ultimately make it a TimeSpan class variable
-   */
-  private double timeSpan;
-  private TimeSpan time;
 
   // the prob eqk source (only one)
   private PEER_FaultSource source;
@@ -63,13 +58,6 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   public final static String OFFSET_PARAM_UNITS = "kms";
   private final static double OFFSET_PARAM_MIN = .01;
   private final static double OFFSET_PARAM_MAX = 10000;
-
-  // timeSpan parameter stuff
-  public final static String TIMESPAN_PARAM_NAME ="Time Span";
-  private Double DEFAULT_TIMESPAN_VAL= new Double(1);
-  public final static String TIMESPAN_PARAM_UNITS = "yrs";
-  private final static double TIMESPAN_PARAM_MIN = 1e-10;
-  private final static double TIMESPAN_PARAM_MAX = 1e10;
 
   // Mag-length sigma parameter stuff
   public final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
@@ -115,9 +103,6 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   private DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
       SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
 
-  //make the timeSpan parameter
-  private DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
-      TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
 
   // make the mag-length sigma parameter
   private DoubleParameter slipRateParam = new DoubleParameter(SLIP_RATE_NAME,
@@ -156,9 +141,6 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   public final static  double GR_BVALUE = 0.9;
   public final static  double GR_MAG_LOWER = 0.05;
 
-  // private declaration of the flag to check if any parameter has been changed from its original value.
-  private boolean  parameterChangeFlag = true;
-
 
   /**
    * This constructor makes the parameters and sets up the source
@@ -166,6 +148,10 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
    * No argument constructor
    */
   public PEER_NonPlanarFaultForecast() {
+
+    // create the timespan object with start time and duration in years
+    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    timeSpan.addParameterChangeListener(this);
 
     // make the segModelParam
     segModelNamesStrings.add(SEGMENTATION_NONE);
@@ -189,7 +175,6 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     adjustableParams.addParameter(slipRateParam);
     adjustableParams.addParameter(magUpperParam);
     adjustableParams.addParameter(segModelParam);
-    adjustableParams.addParameter(timeSpanParam);
     adjustableParams.addParameter(faultModelParam);
 
     // listen for change in the parameters
@@ -199,7 +184,6 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     slipRateParam.addParameterChangeListener(this);
     magUpperParam.addParameterChangeListener(this);
     segModelParam.addParameterChangeListener(this);
-    timeSpanParam.addParameterChangeListener(this);
     faultModelParam.addParameterChangeListener(this);
 
     grMagFreqDist = new GutenbergRichterMagFreqDist(GR_MIN, GR_MAX, GR_NUM);
@@ -207,14 +191,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   }
 
 
-  /**
-   * sets the timeSpan field
-   * @param yrs : have to be modfied from the double varible to the timeSpan field variable
-   */
-  public void setTimeSpan(double yrs){
-    timeSpan =yrs;
-    source.setTimeSpan(yrs);
-  }
+
 
   /**
     *  This is the main function of this interface. Any time a control
@@ -301,18 +278,13 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
        source = new  PEER_FaultSource(grMagFreqDist, RAKE ,
                                         ((Double)offsetParam.getValue()).doubleValue(),
                                         (EvenlyGriddedSurface)surface,
-                                        ((Double)timeSpanParam.getValue()).doubleValue(),
+                                        timeSpan.getDuration(),
                                         ((Double)lengthSigmaParam.getValue()).doubleValue() );
      }
      parameterChangeFlag = false;
    }
 
-  /**
-   * This method sets the time-span field
-   * @param time
-   */
-  public void setTimeSpan(TimeSpan timeSpan){
-  }
+
 
 
   /**

@@ -69,18 +69,6 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
 
 
 
-  /** Set the time span in years
-   * FIX Mehthod not implemented yet
-   *
-   * @param yrs : timeSpan
-   *
-   */
-  public void setTimeSpan(TimeSpan timeSpan) {
-
-     // set the probability according to the specifed timespan
-
-  }
-
  /**
   * @return the total num of rutures for the mag which is 1 for the char type fault
   */

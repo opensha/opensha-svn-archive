@@ -149,7 +149,7 @@ public class TimeSpan implements ParameterChangeListener {
     private StringParameter durationUnitsParam;
 
     // For Duration Parameter
-    private final static String DURATION = "Duration";
+    public final static String DURATION = "Duration";
     private final static Double DURATION_DEFAULT = new Double(50.);
     private DoubleConstraint durationConstraint = new DoubleConstraint(0.0,Double.MAX_VALUE);
     private DoubleParameter durationParam;
@@ -914,7 +914,7 @@ public class TimeSpan implements ParameterChangeListener {
      * This only includes start-time parameters that are within the chosen precision.
      * @return
      */
-    public ParameterList getAdjustableParamsList() {
+    public ListIterator getAdjustableParamsIterator() {
       ParameterList list = new ParameterList();
 
       // always add duration
@@ -935,7 +935,7 @@ public class TimeSpan implements ParameterChangeListener {
       if(getStartTimePrecInt() > 6)
         list.addParameter(startMillisecondParam);
 
-      return list;
+      return list.getParametersIterator();
     }
 
 
