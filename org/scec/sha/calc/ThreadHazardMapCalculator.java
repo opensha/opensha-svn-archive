@@ -198,17 +198,17 @@ public void getHazardMapCurves(String[] args) {
    public void run(){
      Site site =null;
      String[] command ={"sh","-c",""};
-     Calendar calendar = Calendar.getInstance();
-     String datetime = new String(calendar.get(Calendar.YEAR) + "-" +
-                                  (calendar.get(Calendar.MONTH) + 1) + "-" +
-                                  calendar.get(Calendar.DAY_OF_MONTH) + "  " +
-                                  calendar.get(Calendar.HOUR_OF_DAY) + ":" +
-                                  calendar.get(Calendar.MINUTE) + ":" +
-                                  calendar.get(Calendar.SECOND));
+     //Calendar calendar = Calendar.getInstance();
+     //String datetime = new String(calendar.get(Calendar.YEAR) + "-" +
+      //                            (calendar.get(Calendar.MONTH) + 1) + "-" +
+       //                           calendar.get(Calendar.DAY_OF_MONTH) + "  " +
+        //                          calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+         //                         calendar.get(Calendar.MINUTE) + ":" +
+          //                        calendar.get(Calendar.SECOND));
      try{
-       FileWriter fw = new FileWriter("ThreadTime.txt", true);
-       fw.write("Thread for : "+startIndex+"-"+endIndex+" started at: "+datetime+"\n");
-       fw.close();
+       //FileWriter fw = new FileWriter("ThreadTime.txt", true);
+       //fw.write("Thread for : "+startIndex+"-"+endIndex+" started at: "+datetime+"\n");
+       //fw.close();
        /**
         * calling a standalone java program that takes the following arguments in the order:
         * startSite index, endSite index ,regionfilename, erfFileName,imrFileName,
@@ -218,16 +218,16 @@ public void getHazardMapCurves(String[] args) {
                     "GridHazardMapCalculator "+ startIndex +" "+ endIndex+" "+args[1]+" "+args[2]+
                     " "+args[0]+" "+args[3]+" "+args[4];
        RunScript.runScript(command);
-       calendar = Calendar.getInstance();
-       datetime = new String(calendar.get(Calendar.YEAR) + "-" +
-                                  (calendar.get(Calendar.MONTH) + 1) + "-" +
-                                  calendar.get(Calendar.DAY_OF_MONTH) + "  " +
-                                  calendar.get(Calendar.HOUR_OF_DAY) + ":" +
-                                  calendar.get(Calendar.MINUTE) + ":" +
-                                  calendar.get(Calendar.SECOND));
-       fw = new FileWriter("ThreadTime.txt", true);
-       fw.write("Thread for : "+startIndex+"-"+endIndex+" finished at: "+datetime+"\n");
-       fw.close();
+       //calendar = Calendar.getInstance();
+       //datetime = new String(calendar.get(Calendar.YEAR) + "-" +
+         //                         (calendar.get(Calendar.MONTH) + 1) + "-" +
+          //                        calendar.get(Calendar.DAY_OF_MONTH) + "  " +
+           //                       calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+            //                      calendar.get(Calendar.MINUTE) + ":" +
+             //                     calendar.get(Calendar.SECOND));
+       //fw = new FileWriter("ThreadTime.txt", true);
+       //fw.write("Thread for : "+startIndex+"-"+endIndex+" finished at: "+datetime+"\n");
+       //fw.close();
       }catch(Exception e){
         e.printStackTrace();
       }
