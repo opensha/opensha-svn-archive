@@ -75,17 +75,23 @@ public class SimpleFaultParameterGUI extends JFrame{
   }
 
   void button_actionPerformed(ActionEvent e) {
-    gridSurface.setEvenlyGriddedSurfaceFromParams();
-    this.dispose();
+    boolean disposeFlag = true;
+    try{
+      gridSurface.setEvenlyGriddedSurfaceFromParams();
+    }catch(RuntimeException ee){
+      disposeFlag = false;
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Incorrect input Parameters",JOptionPane.OK_OPTION);
+    }
+
+    //donot close the application  if any exception has been thrown by the application
+    if(disposeFlag)
+      this.dispose();
   }
 
   public FaultTrace getFaultTrace(){
    return gridSurface.getFaultTrace();
   }
 
-  public double getAvgDip(){
-    return gridSurface.getAvgDip();
-  }
 
   public double getUpperSies(){
     return gridSurface.getUpperSiesmogenicDepth();

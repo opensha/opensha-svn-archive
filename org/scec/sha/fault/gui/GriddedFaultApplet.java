@@ -942,7 +942,7 @@ public class GriddedFaultApplet
                   faultNameLabel.setValue( faultData.getFaultTrace().getName() );
                 }
                 else {
-                  dipLabel.setValue( "" + this.customFault.getAvgDip());
+                  dipLabel.setValue( "NA");
                   upperSeismoLabel.setValue( "" + this.customFault.getUpperSies() );
                   lowerSeismoLabel.setValue( "" + this.customFault.getLowerSies() );
                   faultNameLabel.setValue( this.customFault.getFaultTrace().getName());

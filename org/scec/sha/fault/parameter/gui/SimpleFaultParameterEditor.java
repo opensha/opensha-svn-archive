@@ -670,7 +670,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
   }
 
 
-  public void setEvenlyGriddedSurfaceFromParams(){
+  public void setEvenlyGriddedSurfaceFromParams()throws RuntimeException{
 
     //checks if any parameter has been only then updates the Griddedsurface
     if(this.evenlyGriddedParamChange){
@@ -703,10 +703,18 @@ public class SimpleFaultParameterEditor extends ParameterEditor
         lons.add(lonLocation);
       }
 
+
+      //variable added to store the previous Depth
+      double prevDepth=((Double)this.editorForDepths.getParameterList().getParameter(this.DEPTH_PARAM_NAME+("1")).getValue()).doubleValue();
+
       //adding the depths(equal to numDips +1) to the Vector
       for(int i=0;i<=numDips;++i){
         Double depthLocation = (Double)this.editorForDepths.getParameterList().getParameter(this.DEPTH_PARAM_NAME+(i+1)).getValue();
         depths.add(depthLocation);
+        //compares the depths, becuase depths should be entered in the increasing order
+        if(depthLocation.doubleValue() < prevDepth)
+          throw new RuntimeException("Depths should be entered in increasing order");
+        prevDepth = depthLocation.doubleValue();
       }
       //adding the dips to the vector
       for(int i=0;i<numDips;++i){
@@ -777,9 +785,6 @@ public class SimpleFaultParameterEditor extends ParameterEditor
   }
 
 
-  public double getAvgDip(){
-    return avgDip;
-  }
 
   public FaultTrace getFaultTrace(){
     return fltTrace;
