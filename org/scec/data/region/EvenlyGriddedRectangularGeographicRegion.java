@@ -6,11 +6,12 @@ import org.scec.data.LocationList;
 import org.scec.data.Location;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Title: EvenlyGriddedRectangularGrographicRegion</p>
+ * <p>Description: It creates a evenly gridded geographic region for the
+ * specified gridded region provided by the user</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author : Ned Field & Nitin Gupta & Vipin Gupta
  * @version 1.0
  */
 

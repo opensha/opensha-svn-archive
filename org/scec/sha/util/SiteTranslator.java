@@ -62,12 +62,27 @@ import org.scec.sha.imr.AttenuationRelationship;
 public class SiteTranslator implements java.io.Serializable{
 
 
+
+  public static double DEFAULT_VS30;
+
   public SiteTranslator() {
   }
 
-  public void setSiteParams(Site s, double vs30,double basinDepth ){
-    if(vs30 <180)
-      throw new RuntimeException("Site Params not applicable for this region");
+
+  /**
+   *
+   * @param s : site Object
+   * @param vs30
+   * @param basinDepth
+   * @returns the boolean which is required in the case of the HazardCurveApp
+   * to tell the user that site is in the water.
+   */
+  public boolean setSiteParams(Site s, double vs30,double basinDepth ){
+    boolean isDefaultVs30Set = false;
+    if(vs30 <=180){
+      isDefaultVs30Set= true;
+      vs30=DEFAULT_VS30;
+    }
     ListIterator  it = s.getParametersIterator();
     while(it.hasNext()){
       ParameterAPI tempParam = (ParameterAPI)it.next();
@@ -135,5 +150,6 @@ public class SiteTranslator implements java.io.Serializable{
           tempParam.setValue(new Double(vs30));
       }
     }
+    return isDefaultVs30Set;
   }
 }
