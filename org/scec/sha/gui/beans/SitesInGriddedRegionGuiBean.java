@@ -374,7 +374,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
    */
   public SitesInGriddedRegion getGriddedRegionSite(){
 
-    createAndUpdateSites();
+    updateGriddedSiteParams();
     //if the site Params needs to be set from the CVM
     if(this.siteParamCombo.getSelectedItem().toString().equalsIgnoreCase(this.SET_SITES_USING_CVM)){
       setSiteParamsFromCVM();
