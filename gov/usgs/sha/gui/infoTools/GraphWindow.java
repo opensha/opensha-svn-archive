@@ -47,7 +47,7 @@ public class GraphWindow
 
 
   private final static int W = 650;
-  private final static int H = 700;
+  private final static int H = 760;
   private JSplitPane chartSplitPane = new JSplitPane();
   private JPanel chartPane = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -234,7 +234,7 @@ public class GraphWindow
     chartSplitPane.setDividerLocation(600);
     //object for the ButtonControl Panel
     buttonControlPanel = new ButtonControlPanel(this);
-    buttonPanel.add(buttonControlPanel,null);
+    buttonPanel.add(buttonControlPanel,0);
     chartPane.add(graphListCombo, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(4, 4, 4, 4), 0, 0));

@@ -74,5 +74,23 @@ public final class LocationUtil {
 
   }
 
+  /**
+   *
+   * @return boolean
+   */
+  public static boolean isZipCodeSupportedBySelectedEdition(String selectedRegion) {
+
+    if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES)) {
+      return true;
+    }
+    else if (selectedRegion.equals(GlobalConstants.ALASKA)) {
+      return true;
+    }
+    else if (selectedRegion.equals(GlobalConstants.HAWAII)) {
+      return true;
+    }
+
+    return false;
+  }
 
 }

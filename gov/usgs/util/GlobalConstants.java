@@ -1,6 +1,7 @@
 package gov.usgs.util;
 
 import java.util.ArrayList ;
+import gov.usgs.exceptions.*;
 
 /**
  * <p>Title: GlobalConstants</p>
@@ -174,6 +175,123 @@ public final class GlobalConstants {
     //some SA constants
     public final static String SA_DAMPING = "5% Damping";
 
+
+
+    //IMT Periods supported
+    public final static String PGA = "Hazard Curve for PGA";
+    public final static String IMT_POINT_ONE_SEC = "Hazard Curve for 0.1sec";
+    public final static String IMT_POINT_TWO_SEC = "Hazard Curve for 0.2sec";
+    public final static String IMT_POINT_THREE_SEC = "Hazard Curve for 0.3sec";
+    public final static String IMT_POINT_FOUR_SEC = "Hazard Curve for 0.4sec";
+    public final static String IMT_POINT_FIVE_SEC = "Hazard Curve for 0.5sec";
+    public final static String IMT_ONE_SEC = "Hazard Curve for 1.0sec";
+    public final static String IMT_TWO_SEC = "Hazard Curve for 2.0sec";
+
+
+    //supported Return periods
+    public final static String PERIOD_10_YEARS = "10";
+    public final static String PERIOD_20_YEARS = "20";
+    public final static String PERIOD_30_YEARS = "30";
+    public final static String PERIOD_40_YEARS = "40";
+    public final static String PERIOD_50_YEARS = "50";
+    public final static String PERIOD_72_YEARS = "72";
+    public final static String PERIOD_100_YEARS = "100";
+    public final static String PERIOD_200_YEARS = "200";
+    public final static String PERIOD_224_YEARS = "224";
+    public final static String PERIOD_475_YEARS = "475";
+    public final static String PERIOD_500_YEARS = "500";
+    public final static String PERIOD_975_YEARS = "975";
+    public final static String PERIOD_1000_YEARS = "1000";
+    public final static String PERIOD_1500_YEARS = "1500";
+    public final static String PERIOD_2475_YEARS = "2475";
+    public final static String PERIOD_2500_YEARS = "2500";
+    public final static String PERIOD_4975_YEARS = "4975";
+    public final static String PERIOD_5000_YEARS = "5000";
+    public final static String PERIOD_10000_YEARS = "10000";
+
+
+
+    //supported exceed probabilities
+    public final static String PROB_EXCEED_1 = "1";
+    public final static String PROB_EXCEED_2 = "2";
+    public final static String PROB_EXCEED_3 = "3";
+    public final static String PROB_EXCEED_5 = "5";
+    public final static String PROB_EXCEED_10 = "10";
+    public final static String PROB_EXCEED_20 = "20";
+    public final static String PROB_EXCEED_50 = "50";
+
+
+    //supported exposure time
+    public final static String EXP_TIME_10 = "10";
+    public final static String EXP_TIME_30 = "30";
+    public final static String EXP_TIME_50 = "50";
+    public final static String EXP_TIME_75 = "75";
+    public final static String EXP_TIME_100 = "100";
+    public final static String EXP_TIME_250 = "250";
+
+
+    /**
+     * Supported Return Periods.
+     * @return ArrayList
+     */
+    public static ArrayList getSupportedReturnPeriods(){
+      ArrayList supportedReturnPeriods = new ArrayList();
+      supportedReturnPeriods.add(PERIOD_10_YEARS);
+      supportedReturnPeriods.add(PERIOD_20_YEARS);
+      supportedReturnPeriods.add(PERIOD_30_YEARS);
+      supportedReturnPeriods.add(PERIOD_40_YEARS);
+      supportedReturnPeriods.add(PERIOD_50_YEARS);
+      supportedReturnPeriods.add(PERIOD_72_YEARS);
+      supportedReturnPeriods.add(PERIOD_100_YEARS);
+      supportedReturnPeriods.add(PERIOD_200_YEARS);
+      supportedReturnPeriods.add(PERIOD_224_YEARS);
+      supportedReturnPeriods.add(PERIOD_475_YEARS);
+      supportedReturnPeriods.add(PERIOD_500_YEARS);
+      supportedReturnPeriods.add(PERIOD_975_YEARS);
+      supportedReturnPeriods.add(PERIOD_1000_YEARS);
+      supportedReturnPeriods.add(PERIOD_1500_YEARS);
+      supportedReturnPeriods.add(PERIOD_2475_YEARS);
+      supportedReturnPeriods.add(PERIOD_2500_YEARS);
+      supportedReturnPeriods.add(PERIOD_4975_YEARS);
+      supportedReturnPeriods.add(PERIOD_5000_YEARS);
+      supportedReturnPeriods.add(PERIOD_10000_YEARS);
+      return supportedReturnPeriods;
+    }
+
+
+
+    /**
+     * Returns the list of the supported Exceedance Prob List
+     * @return ArrayList
+     */
+    public static ArrayList getSupportedExceedanceProb(){
+      ArrayList supportedExceedProbList = new ArrayList();
+      supportedExceedProbList.add(PROB_EXCEED_1);
+      supportedExceedProbList.add(PROB_EXCEED_2);
+      supportedExceedProbList.add(PROB_EXCEED_3);
+      supportedExceedProbList.add(PROB_EXCEED_5);
+      supportedExceedProbList.add(PROB_EXCEED_10);
+      supportedExceedProbList.add(PROB_EXCEED_20);
+      supportedExceedProbList.add(PROB_EXCEED_50);
+      return supportedExceedProbList;
+    }
+
+    /**
+     * Returns the list of the supported Exposure time
+     * @return ArrayList
+     */
+    public static ArrayList getSupportedExposureTime(){
+      ArrayList supportedExposureProbList = new ArrayList();
+      supportedExposureProbList.add(EXP_TIME_10);
+      supportedExposureProbList.add(EXP_TIME_30);
+      supportedExposureProbList.add(EXP_TIME_50);
+      supportedExposureProbList.add(EXP_TIME_75);
+      supportedExposureProbList.add(EXP_TIME_100);
+      supportedExposureProbList.add(EXP_TIME_250);
+      return supportedExposureProbList;
+    }
+
+
     /**
      * Returns the supported Site Classes
      * @return ArrayList
@@ -207,66 +325,4 @@ public final class GlobalConstants {
       supportedAnalysisOption.add(ASCE_7);
       return supportedAnalysisOption;
     }
-
-    /**
-     * Swaps the byte ordering for the integer value
-     * @param value int
-     * @return int
-     */
-    public static int swap(int value) {
-      int b1 = (value >> 0) & 0xff;
-      int b2 = (value >> 8) & 0xff;
-      int b3 = (value >> 16) & 0xff;
-      int b4 = (value >> 24) & 0xff;
-
-      return b1 << 24 | b2 << 16 | b3 << 8 | b4 << 0;
-    }
-
-    /**
-     * Swaps the byte prdering for the float value
-     * @param value float
-     * @return float
-     */
-    public static float swap(float value) {
-      int intValue = Float.floatToIntBits(value);
-      intValue = swap(intValue);
-      return Float.intBitsToFloat(intValue);
-    }
-
-    /**
-    * Byte swap a single short value.
-    *
-    * @param value  Value to byte swap.
-    * @return       Byte swapped representation.
-    */
-   public static short swap (short value){
-
-     int b1 = value & 0xff;
-     int b2 = (value >> 8) & 0xff;
-
-     return (short) (b1 << 8 | b2 << 0);
-   }
-
-    /**
-      * Byte swap a single long value.
-      *
-      * @param value  Value to byte swap.
-      * @return       Byte swapped representation.
-      */
-     public static long swap (long value)
-     {
-       long b1 = (value >>  0) & 0xff;
-       long b2 = (value >>  8) & 0xff;
-       long b3 = (value >> 16) & 0xff;
-       long b4 = (value >> 24) & 0xff;
-       long b5 = (value >> 32) & 0xff;
-       long b6 = (value >> 40) & 0xff;
-       long b7 = (value >> 48) & 0xff;
-       long b8 = (value >> 56) & 0xff;
-
-       return b1 << 56 | b2 << 48 | b3 << 40 | b4 << 32 |
-              b5 << 24 | b6 << 16 | b7 <<  8 | b8 <<  0;
-  }
-
-
 }

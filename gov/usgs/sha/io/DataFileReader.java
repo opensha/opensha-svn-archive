@@ -2,7 +2,7 @@ package gov.usgs.sha.io;
 
 import java.io.*;
 import java.util.StringTokenizer;
-import gov.usgs.util.GlobalConstants;
+import gov.usgs.util.*;
 import java.text.DecimalFormat;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.data.function.DiscretizedFuncList;
@@ -32,12 +32,12 @@ public class DataFileReader {
     try {
       fin = new RandomAccessFile(fileName, "r");
       fin.seek((recordNum-1)*record.recordLength);
-      record.recordNumber = GlobalConstants.swap(fin.readInt());
-      record.latitude = GlobalConstants.swap(fin.readFloat());
-      record.longitude = GlobalConstants.swap(fin.readFloat());
-      record.numValues = GlobalConstants.swap(fin.readShort());
-      record.values[0] = GlobalConstants.swap(fin.readFloat());
-      record.values[1] = GlobalConstants.swap(fin.readFloat());
+      record.recordNumber = ByteSwapUtil.swap(fin.readInt());
+      record.latitude = ByteSwapUtil.swap(fin.readFloat());
+      record.longitude = ByteSwapUtil.swap(fin.readFloat());
+      record.numValues = ByteSwapUtil.swap(fin.readShort());
+      record.values[0] = ByteSwapUtil.swap(fin.readFloat());
+      record.values[1] = ByteSwapUtil.swap(fin.readFloat());
 
       fin.close();
       return record;

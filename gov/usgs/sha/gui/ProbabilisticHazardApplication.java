@@ -59,6 +59,7 @@ public class ProbabilisticHazardApplication
   JComboBox analysisOptionSelectionCombo = new JComboBox();
   JSplitPane dataSplitPane = new JSplitPane();
   JScrollPane dataScrollPane = new JScrollPane();
+  JScrollPane parametersScrollPane = new JScrollPane();
   JPanel parametersPanel = new JPanel();
   JPanel buttonPanel = new JPanel();
   JTextArea dataTextArea = new JTextArea();
@@ -108,6 +109,11 @@ public class ProbabilisticHazardApplication
     contentPane.setLayout(borderLayout1);
     setSize(new Dimension(W, H));
     setTitle("Seismic Hazard Curves and Uniform Hazard Response Spectra");
+    this.addWindowListener(new java.awt.event.WindowAdapter() {
+      public void windowClosing(WindowEvent e) {
+        this_windowClosing(e);
+      }
+    });
     fileMenu.setText("File");
     fileExitMenu.setText("Exit");
     fileSaveMenu.setText("Save");
@@ -159,6 +165,7 @@ public class ProbabilisticHazardApplication
     outputBorder.setTitleColor(Color.RED);
     dataTextArea.setText("");
     dataScrollPane.setBounds(new Rectangle(10, 10, 484, 548));
+    parametersScrollPane.setBounds(new Rectangle(2,2,530,720));
     parametersPanel.setLayout(borderLayout4);
     buttonPanel.setLayout(flowLayout1);
     clearDataButton.setText("Clear Data");
@@ -187,7 +194,7 @@ public class ProbabilisticHazardApplication
     fileMenu.add(filePrintMenu);
     fileMenu.add(fileExitMenu);
     mainSplitPane.add(dataSplitPane, JSplitPane.RIGHT);
-    mainSplitPane.add(parametersPanel, JSplitPane.LEFT);
+    mainSplitPane.add(parametersScrollPane, JSplitPane.LEFT);
     dataSplitPane.add(dataScrollPane, JSplitPane.TOP);
     dataSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     contentPane.add(jPanel1, java.awt.BorderLayout.CENTER);
@@ -196,6 +203,7 @@ public class ProbabilisticHazardApplication
     explainationText.setEditable(false);
 
     dataScrollPane.getViewport().add(dataTextArea, java.awt.BorderLayout.CENTER);
+    parametersScrollPane.getViewport().add(parametersPanel,java.awt.BorderLayout.CENTER);
     buttonPanel.add(clearDataButton, null);
     buttonPanel.add(viewMapsButton, null);
     jPanel1.add(analysisOptionLabel,
@@ -228,13 +236,21 @@ public class ProbabilisticHazardApplication
    */
   void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
 
-    int option = JOptionPane.showConfirmDialog(this,"Do you really want to exit the application?\n"+
-        "You will loose any unsaved data","Closing Application",JOptionPane.OK_CANCEL_OPTION);
-    if(option == JOptionPane.OK_OPTION)
-      System.exit(0);
-    return;
+    closeWindow();
   }
 
+
+  private void closeWindow(){
+    int option = JOptionPane.showConfirmDialog(this,
+        "Do you really want to exit the application?\n" +
+                                               "You will loose any unsaved data",
+                                               "Closing Application",
+                                               JOptionPane.OK_CANCEL_OPTION);
+    if (option == JOptionPane.OK_OPTION)
+      System.exit(0);
+    return;
+
+  }
 
   /**
    * File | Save action performed.
@@ -298,6 +314,7 @@ public class ProbabilisticHazardApplication
   private void createGuiBeanInstance(){
     String selectedAnalysisOption = (String)(String)analysisOptionSelectionCombo.getSelectedItem();
     if (selectedAnalysisOption.equals(GlobalConstants.PROB_HAZ_CURVES)) {
+      guiBeanAPI = new ProbHazCurvesGuiBean(this);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.PROB_UNIFORM_HAZ_RES)) {
     }
@@ -509,6 +526,10 @@ public class ProbabilisticHazardApplication
           "parameters and response spectra (both for " +
           "period and displacement), for Site Class A through E.");
     }
+  }
+
+  void this_windowClosing(WindowEvent e) {
+    closeWindow();
   }
 
 }

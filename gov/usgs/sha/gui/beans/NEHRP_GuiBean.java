@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
 
-import gov.usgs.util.GlobalConstants;
+import gov.usgs.util.*;
 import org.scec.param.event.*;
 
 import org.scec.data.region.RectangularGeographicRegion;
@@ -20,11 +20,13 @@ import javax.swing.border.TitledBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
-import gov.usgs.exceptions.ZipCodeErrorException;
+import gov.usgs.exceptions.ZipCodeErrorException ;
+import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
 import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
 import gov.usgs.sha.data.DataGenerator_NEHRP;
 import gov.usgs.sha.gui.infoTools.SiteCoefficientInfoWindow;
 import gov.usgs.sha.gui.infoTools.GraphWindow;
+
 
 /**
  * <p>Title:NEHRP_GuiBean</p>
@@ -87,6 +89,8 @@ public class NEHRP_GuiBean
 
   private boolean mapSpectrumCalculated,smSpectrumCalculated,sdSpectrumCalculated ;
 
+  private String selectedRegion,selectedEdition;
+
   public NEHRP_GuiBean(ProbabilisticHazardApplicationAPI api) {
     application = api;
     try {
@@ -99,7 +103,14 @@ public class NEHRP_GuiBean
     catch (Exception exception) {
       exception.printStackTrace();
     }
-    createGeographicRegionSelectionParameter();
+
+    try {
+      createGeographicRegionSelectionParameter();
+    }
+    catch (AnalysisOptionNotSupportedException ex) {
+      JOptionPane.showMessageDialog(this,ex.getMessage(),"Analysis Option selection error",JOptionPane.ERROR_MESSAGE);
+      return;
+    }
     createEditionSelectionParameter();
     //creating the datasetEditor to show the geographic region and edition dataset.
     datasetGui.createDataSetEditor();
@@ -281,8 +292,11 @@ public class NEHRP_GuiBean
     String paramName = event.getParameterName();
 
     if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)||
-        paramName.equals(datasetGui.EDITION_PARAM_NAME))
+        paramName.equals(datasetGui.EDITION_PARAM_NAME)){
+      selectedRegion = datasetGui.getSelectedGeographicRegion();
+      selectedEdition = datasetGui.getSelectedDataSetEdition();
       createLocation();
+    }
   }
 
 
@@ -305,7 +319,7 @@ public class NEHRP_GuiBean
     if (region != null) {
       locationVisible = true;
       //checking if Zip code is supported by the selected choice
-      boolean zipCodeSupported = isZipCodeSupportedBySelectedEdition();
+      boolean zipCodeSupported = LocationUtil.isZipCodeSupportedBySelectedEdition(selectedRegion);
       locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
                                    region.getMinLon(), region.getMaxLon(),
                                    zipCodeSupported);
@@ -322,58 +336,17 @@ public class NEHRP_GuiBean
    * @return RectangularGeographicRegion
    */
   private RectangularGeographicRegion getRegionConstraint() {
-    String selectedGeographicRegion = datasetGui.getSelectedGeographicRegion();
-    String editionDataset = datasetGui.getSelectedDataSetEdition();
-    if (selectedGeographicRegion.equals(GlobalConstants.CONTER_48_STATES)) {
-      return new RectangularGeographicRegion(24.6, 50, -125, -65);
-    }
-    else if (selectedGeographicRegion.equals(GlobalConstants.ALASKA)) {
-      return new RectangularGeographicRegion(48, 72, -200, -125);
-    }
-    else if (selectedGeographicRegion.equals(GlobalConstants.HAWAII)) {
-      return new RectangularGeographicRegion(18, 23, -161, -154);
-    }
-    if (editionDataset.equals(GlobalConstants.NEHRP_2003)) {
-      if (selectedGeographicRegion.equals(GlobalConstants.PUERTO_RICO)) {
-        return new RectangularGeographicRegion(17.89, 18.55, -67.36, -65.47);
-      }
-      else if (selectedGeographicRegion.equals(GlobalConstants.CULEBRA)) {
-        return new RectangularGeographicRegion(18.27, 18.36, -65.39, -65.21);
-      }
-      else if (selectedGeographicRegion.equals(GlobalConstants.ST_CROIX)) {
-        return new RectangularGeographicRegion(17.67, 17.8, -64.93, -65.54);
-      }
-      else if (selectedGeographicRegion.equals(GlobalConstants.ST_JOHN)) {
-        return new RectangularGeographicRegion(18.29, 18.38, -64.85, -64.65);
-      }
-      else if (selectedGeographicRegion.equals(GlobalConstants.ST_THOMAS)) {
-        return new RectangularGeographicRegion(18.26, 18.43, -65.10, -64.80);
-      }
-      else if (selectedGeographicRegion.equals(GlobalConstants.VIEQUES)) {
-        return new RectangularGeographicRegion(18.07, 18.17, -65.6, -65.25);
-      }
-    }
+
+    if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
+        selectedRegion.equals(GlobalConstants.ALASKA) ||
+        selectedRegion.equals(GlobalConstants.HAWAII) ||
+        selectedRegion.equals(GlobalConstants.NEHRP_2003))
+
+      return RegionUtil.getRegionConstraint(selectedRegion);
+
     return null;
   }
 
-  /**
-   *
-   * @return boolean
-   */
-  private boolean isZipCodeSupportedBySelectedEdition() {
-    String selectedGeographicRegion = datasetGui.getSelectedGeographicRegion();
-    if (selectedGeographicRegion.equals(GlobalConstants.CONTER_48_STATES)) {
-      return true;
-    }
-    else if (selectedGeographicRegion.equals(GlobalConstants.ALASKA)) {
-      return true;
-    }
-    else if (selectedGeographicRegion.equals(GlobalConstants.HAWAII)) {
-      return true;
-    }
-
-    return false;
-  }
 
   /**
    * Creates the Parameter that allows user to select  the Editions based on the
@@ -388,6 +361,7 @@ public class NEHRP_GuiBean
     supportedEditionList.add(GlobalConstants.NEHRP_1997);
     datasetGui.createEditionSelectionParameter(supportedEditionList);
     datasetGui.getEditionSelectionParameter().addParameterChangeListener(this);
+    selectedEdition = datasetGui.getSelectedDataSetEdition();
   }
 
   /**
@@ -396,22 +370,14 @@ public class NEHRP_GuiBean
    * if selected Analysis option is NEHRP.
    *
    */
-  private void createGeographicRegionSelectionParameter() {
-    ArrayList supportedRegionList = new ArrayList();
-    supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
-    supportedRegionList.add(GlobalConstants.ALASKA);
-    supportedRegionList.add(GlobalConstants.HAWAII);
-    supportedRegionList.add(GlobalConstants.PUERTO_RICO);
-    supportedRegionList.add(GlobalConstants.CULEBRA);
-    supportedRegionList.add(GlobalConstants.ST_CROIX);
-    supportedRegionList.add(GlobalConstants.ST_JOHN);
-    supportedRegionList.add(GlobalConstants.ST_THOMAS);
-    supportedRegionList.add(GlobalConstants.VIEQUES);
-    supportedRegionList.add(GlobalConstants.TUTUILA);
-    supportedRegionList.add(GlobalConstants.GUAM);
+  private void createGeographicRegionSelectionParameter() throws AnalysisOptionNotSupportedException{
+
+    ArrayList supportedRegionList = RegionUtil.
+        getSupportedGeographicalRegions(GlobalConstants.NEHRP) ;
     datasetGui.createGeographicRegionSelectionParameter(supportedRegionList);
     datasetGui.getGeographicRegionSelectionParameter().
         addParameterChangeListener(this);
+    selectedRegion = datasetGui.getSelectedGeographicRegion();
   }
 
   /**
@@ -419,10 +385,9 @@ public class NEHRP_GuiBean
    */
   private void getDataForSA_Period() {
 
-    String selectedGeographicRegion = datasetGui.getSelectedGeographicRegion();
-    String selectedDataEdition = datasetGui.getSelectedDataSetEdition();
-    dataGenerator.setRegion(selectedGeographicRegion);
-    dataGenerator.setEdition(selectedDataEdition);
+
+    dataGenerator.setRegion(selectedRegion);
+    dataGenerator.setEdition(selectedEdition);
 
     //doing the calculation if not territory and Location GUI is visible
     if (locationVisible) {
