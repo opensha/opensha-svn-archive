@@ -50,7 +50,7 @@ import org.scec.exceptions.ParameterException;
  * 6) That the HAZUS files are generated correctly was checked.
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author : Edward (Ned) Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
