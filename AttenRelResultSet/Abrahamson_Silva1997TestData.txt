@@ -7,7 +7,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
 Fault Type = Reverse
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 On Hanging Wall? = No
 
 #start of result values for this test set
@@ -46,8 +46,8 @@ Set-2
 Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
-Fault Type = Reverse Oblique
-AS Site Type = Rock/Shallow Soil
+Fault Type = Reverse-Oblique
+AS Site Type = Rock/Shallow-Soil
 On Hanging Wall? = No
 
 #start of result values for this test set
@@ -87,7 +87,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
 Fault Type = Other
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 On Hanging Wall? = No
 
 #start of result values for this test set
@@ -127,7 +127,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
 Fault Type = Other
-AS Site Type = Deep Soil
+AS Site Type = Deep-Soil
 On Hanging Wall? = No
 
 #start of result values for this test set
@@ -167,7 +167,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
 Fault Type = Other
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 On Hanging Wall? = Yes
 
 #start of result values for this test set
@@ -359,7 +359,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 6.0
 Fault Type = Reverse
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 On Hanging Wall? = No
 
 #start of result values for this test set
@@ -399,7 +399,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 6.0
 Fault Type = Other
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 On Hanging Wall? = No
 
 #start of result values for this test set
@@ -439,7 +439,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 6.0
 Fault Type = Other
-AS Site Type = Deep Soil
+AS Site Type = Deep-Soil
 On Hanging Wall? = No
 
 #start of result values for this test set
@@ -479,7 +479,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 6.0
 Fault Type = Other
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 On Hanging Wall? = Yes
 
 #start of result values for this test set
