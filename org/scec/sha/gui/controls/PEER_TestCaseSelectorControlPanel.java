@@ -23,6 +23,7 @@ import org.scec.sha.gui.beans.*;
 import org.scec.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.scec.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
 import org.scec.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
+import org.scec.sha.earthquake.rupForecastImpl.*;
 import java.awt.*;
 import javax.swing.*;
 

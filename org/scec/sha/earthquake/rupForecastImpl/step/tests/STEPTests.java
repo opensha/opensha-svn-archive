@@ -2,7 +2,7 @@ package org.scec.sha.earthquake.rupForecastImpl.step.tests;
 
 import org.scec.sha.earthquake.rupForecastImpl.step.*;
 import org.scec.sha.earthquake.*;
-
+import org.scec.sha.earthquake.rupForecastImpl.*;
 import junit.framework.*;
 import org.scec.data.*;
 

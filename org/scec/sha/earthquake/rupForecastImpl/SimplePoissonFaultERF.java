@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake;
+package org.scec.sha.earthquake.rupForecastImpl;
 
 import java.util.Vector;
 
@@ -12,6 +12,7 @@ import org.scec.param.event.*;
 import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
 import org.scec.calc.magScalingRelations.*;
 import org.scec.sha.param.SimpleFaultParameter;
+import org.scec.sha.earthquake.*;
 
 
 /**

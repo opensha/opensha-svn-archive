@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake;
+package org.scec.sha.earthquake.rupForecastImpl;
 
 import java.util.Vector;
 import java.util.Iterator;

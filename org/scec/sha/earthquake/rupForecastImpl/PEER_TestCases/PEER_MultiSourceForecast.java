@@ -18,7 +18,7 @@ import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.*;
 import org.scec.param.event.*;
 import org.scec.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
-
+import org.scec.sha.earthquake.rupForecastImpl.*;
 
 /**
  * <p>Title: PEER_MultiSourceForecast</p>

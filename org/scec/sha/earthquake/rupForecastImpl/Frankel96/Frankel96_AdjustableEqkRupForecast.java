@@ -23,6 +23,7 @@ import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
+import org.scec.sha.earthquake.rupForecastImpl.*;
 
 
 /**

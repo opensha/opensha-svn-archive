@@ -14,7 +14,7 @@ import org.scec.param.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.SimplePoissonFaultERF;
+import org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF;
 import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.*;
 import org.scec.param.event.*;
@@ -23,6 +23,7 @@ import org.scec.data.region.*;
 import org.scec.util.FileUtils;
 import org.scec.exceptions.FaultException;
 import org.scec.calc.MomentMagCalc;
+
 
 
 /**

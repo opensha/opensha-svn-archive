@@ -18,7 +18,7 @@ import org.scec.sha.surface.GriddedSurfaceAPI;
 import org.scec.data.TimeSpan;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
-
+import org.scec.sha.earthquake.rupForecastImpl.*;
 
 /**
  * <p>Title: STEP_EqkRupForecast</p>

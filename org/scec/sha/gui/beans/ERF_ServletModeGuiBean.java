@@ -27,7 +27,7 @@ import org.scec.sha.earthquake.*;
 import org.scec.data.TimeSpan;
 import org.scec.sha.earthquake.rupForecastImpl.Frankel96.*;
 import org.scec.sha.earthquake.rupForecastImpl.step.*;
-
+import org.scec.sha.earthquake.rupForecastImpl.*;
 
 /**
  * <p>Title: ERF_ServletModeGuiBean </p>
