@@ -1,11 +1,11 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ----------------------
  * ChartPackageTests.java
  * ----------------------
- * (C) Copyright 2002, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -32,22 +32,29 @@
  * Changes:
  * --------
  * 11-Jun-2002 : Version 1 (DG);
+ * 17-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.junit;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
- * An incomplete collection of tests for the com.jrefinery.chart package.
+ * A collection of tests for the com.jrefinery.chart package.
  * <P>
  * These tests can be run using JUnit (http://www.junit.org).
+ *
+ * @author David Gilbert
  */
 public class ChartPackageTests extends TestCase {
 
     /**
      * Returns a test suite to the JUnit test runner.
+     *
+     * @return the test suite.
      */
     public static Test suite() {
         TestSuite suite = new TestSuite("com.jrefinery.chart");
@@ -65,6 +72,8 @@ public class ChartPackageTests extends TestCase {
 
     /**
      * Constructs the test suite.
+     *
+     * @param name  the suite name.
      */
     public ChartPackageTests(String name) {
         super(name);

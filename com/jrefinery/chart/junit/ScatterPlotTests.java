@@ -1,11 +1,11 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ---------------------
  * ScatterPlotTests.java
  * ---------------------
- * (C) Copyright 2002, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -32,16 +32,21 @@
  * Changes:
  * --------
  * 11-Jun-2002 : Version 1 (DG);
+ * 17-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.junit;
 
-import junit.framework.*;
-
+import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.ChartFactory;
-import com.jrefinery.chart.ValueAxis;
+import com.jrefinery.chart.axis.ValueAxis;
 import com.jrefinery.chart.event.ChartChangeEvent;
 import com.jrefinery.chart.event.ChartChangeListener;
 import com.jrefinery.data.XYDataset;
@@ -49,19 +54,20 @@ import com.jrefinery.data.XYSeries;
 import com.jrefinery.data.XYSeriesCollection;
 import com.jrefinery.data.Range;
 
-import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-
 /**
  * Tests for a scatter plot.
+ *
+ * @author David Gilbert
  */
 public class ScatterPlotTests extends TestCase {
 
+    /** A chart. */
     private JFreeChart chart;
 
     /**
      * Returns the tests as a test suite.
+     *
+     * @return the test suite.
      */
     public static Test suite() {
         return new TestSuite(ScatterPlotTests.class);
@@ -70,7 +76,7 @@ public class ScatterPlotTests extends TestCase {
     /**
      * Constructs a new set of tests.
      *
-     * @param The name of the tests.
+     * @param name  the name of the tests.
      */
     public ScatterPlotTests(String name) {
         super(name);
@@ -92,8 +98,8 @@ public class ScatterPlotTests extends TestCase {
     public void testDrawWithNullInfo() {
 
         boolean success = false;
-        try {
 
+        try {
             BufferedImage image = new BufferedImage(200 , 100, BufferedImage.TYPE_INT_RGB);
             Graphics2D g2 = image.createGraphics();
             chart.draw(g2, new Rectangle2D.Double(0, 0, 200, 100), null);
@@ -104,10 +110,13 @@ public class ScatterPlotTests extends TestCase {
           success = false;
         }
 
-        this.assertTrue(success);
+        assertTrue(success);
 
     }
 
+    /**
+     * Replaces the dataset and checks that it has changed as expected.
+     */
     public void testReplaceDataset() {
 
         // create a dataset...
@@ -120,20 +129,20 @@ public class ScatterPlotTests extends TestCase {
         LocalListener l = new LocalListener();
         chart.addChangeListener(l);
         chart.getPlot().setDataset(dataset);
-        this.assertEquals(true, l.flag);
+        assertEquals(true, l.flag);
         ValueAxis axis = chart.getXYPlot().getRangeAxis();
         Range range = axis.getRange();
-        this.assertTrue("Expecting the lower bound of the range to be around 10."+
-                        range.getLowerBound(),
-                        range.getLowerBound()<=10);
-        this.assertTrue("Expecting the upper bound of the range to be around 30:"+
-                        range.getUpperBound(),
-                        range.getUpperBound()>=30);
+        assertTrue("Expecting the lower bound of the range to be around 10: "
+                   + range.getLowerBound(), range.getLowerBound() <= 10);
+        assertTrue("Expecting the upper bound of the range to be around 30: "
+                   + range.getUpperBound(), range.getUpperBound() >= 30);
 
     }
 
     /**
      * Create a horizontal bar chart with sample data in the range -3 to +3.
+     *
+     * @return the chart.
      */
     private static JFreeChart createChart() {
 
@@ -146,18 +155,35 @@ public class ScatterPlotTests extends TestCase {
 
         // create the chart...
         return ChartFactory.createScatterPlot("Scatter Plot",  // chart title
-                                              "Domain", "Range",
+                                              "Domain", 
+                                              "Range",
                                               dataset,         // data
-                                              true          // include legend
+                                              true,            // include legend
+                                              true,            // tooltips
+                                              false            // urls
                                             );
 
     }
 
+    /**
+     * A chart change listener.
+     *
+     * @author David Gilbert
+     */
     static class LocalListener implements ChartChangeListener {
-        boolean flag = false;
+
+        /** A flag. */
+        private boolean flag = false;
+
+        /**
+         * Event handler.
+         *
+         * @param event  the event.
+         */
         public void chartChanged(ChartChangeEvent event) {
             flag = true;
         }
+
     }
 
 }

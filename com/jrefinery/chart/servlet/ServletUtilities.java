@@ -5,7 +5,7 @@
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ---------------------
  * ServletUtilities.java
  * ---------------------
- * (C) Copyright 2002, by Richard Atkinson and Contributors.
+ * (C) Copyright 2002, 2003, by Richard Atkinson and Contributors.
  *
  * Original Author:  Richard Atkinson (richard_c_atkinson@ntlworld.com);
  * Contributor(s):   -;
@@ -51,7 +51,7 @@ import com.jrefinery.chart.ChartRenderingInfo;
 /**
  * Utility class used for servlet related JFreeChart operations.
  *
- * @author RA
+ * @author Richard Atkinson
  */
 public class ServletUtilities {
 

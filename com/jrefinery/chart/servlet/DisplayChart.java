@@ -5,7 +5,7 @@
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -----------------
  * DisplayChart.java
  * -----------------
- * (C) Copyright 2002, by Richard Atkinson and Contributors.
+ * (C) Copyright 2002, 2003, by Richard Atkinson and Contributors.
  *
  * Original Author:  Richard Atkinson (richard_c_atkinson@ntlworld.com);
  * Contributor(s):   -;
@@ -46,16 +46,20 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Servlet used for streaming charts to the client browser from the temporary
- * directory.  You need to add this servlet to your deployment descriptor (web.xml)
- * in order to get it to work.  The syntax is as follows:
+ * directory.  You need to add this servlet and mapping to your deployment descriptor
+ * (web.xml) in order to get it to work.  The syntax is as follows:
  * <xmp>
  * <servlet>
  *    <servlet-name>DisplayChart</servlet-name>
  *    <servlet-class>com.jrefinery.chart.servlet.DisplayChart</servlet-class>
  * </servlet>
+ * <servlet-mapping>
+ *     <servlet-name>DisplayChart</servlet-name>
+ *     <url-pattern>/servlet/DisplayChart</url-pattern>
+ * </servlet-mapping>
  * </xmp>
  *
- * @author RA
+ * @author Richard Atkinson
  */
 public class DisplayChart extends HttpServlet {
 
