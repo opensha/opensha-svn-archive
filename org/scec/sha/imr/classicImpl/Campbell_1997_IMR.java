@@ -308,9 +308,8 @@ public class Campbell_1997_IMR
         initSiteParams();
         initOtherParams( );
 
-        initMeanIndependentParamsList(); // These last two must be called
-        initStdDevIndependentParamsList();  // after the above four
-        initExceedProbIndependentParamsList();
+        initIndependentParamLists(); // Do this after the above
+
     }
 
 
@@ -559,42 +558,51 @@ public class Campbell_1997_IMR
         stdDevTypeParam.setValue( STD_DEV_TYPE_DEFAULT );
    }
 
-   protected void initExceedProbIndependentParamsList(){
-        exceedProbIndependentParams.clear();
-        exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
-        exceedProbIndependentParams.addParameter(this.sigmaTruncLevelParam);
-    }
 
     /**
-     * This creates the list of paramters that the Mean depends upon <br>
-     * NOTE: This doesn not include the intensity-measure parameters
-     * or any of thier internal independentParameters
+     * This creates the lists of independent parameters that the various dependent
+     * parameters (mean, standard deviation, exceedance probability, and IML at
+     * exceedance probability) depend upon. NOTE: these lists do not include anything
+     * about the intensity-measure parameters or any of thier internal
+     * independentParamaters.
      */
-    protected void initMeanIndependentParamsList(){
+    protected void initIndependentParamLists(){
+
+        // params that the mean depends upon
         meanIndependentParams.clear();
+        meanIndependentParams.addParameter( distanceSeisParam );
         meanIndependentParams.addParameter( siteTypeParam );
         meanIndependentParams.addParameter( basinDepthParam );
         meanIndependentParams.addParameter( magParam );
         meanIndependentParams.addParameter( fltTypeParam );
-        meanIndependentParams.addParameter( distanceSeisParam );
         meanIndependentParams.addParameter( componentParam );
-    }
 
-
-    /**
-     * This creates the list of parameters that StdDev depends upon <br>
-     * NOTE: This doesn not include the intensity-measure parameters
-     * or any of thier internal independentParamaters.
-     */
-    protected void initStdDevIndependentParamsList(){
+        // params that the stdDev depends upon
         stdDevIndependentParams.clear();
         stdDevIndependentParams.addParameter(stdDevTypeParam);
+        stdDevIndependentParams.addParameter( distanceSeisParam );
         stdDevIndependentParams.addParameter( siteTypeParam );
         stdDevIndependentParams.addParameter( basinDepthParam );
         stdDevIndependentParams.addParameter( magParam );
         stdDevIndependentParams.addParameter( fltTypeParam );
-        stdDevIndependentParams.addParameter( distanceSeisParam );
         stdDevIndependentParams.addParameter( componentParam );
+
+        // params that the exceed. prob. depends upon
+        exceedProbIndependentParams.clear();
+        exceedProbIndependentParams.addParameter( distanceSeisParam );
+        exceedProbIndependentParams.addParameter( siteTypeParam );
+        exceedProbIndependentParams.addParameter( basinDepthParam );
+        exceedProbIndependentParams.addParameter( magParam );
+        exceedProbIndependentParams.addParameter( fltTypeParam );
+        exceedProbIndependentParams.addParameter( componentParam );
+        exceedProbIndependentParams.addParameter(stdDevTypeParam);
+        exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
+        exceedProbIndependentParams.addParameter(this.sigmaTruncLevelParam);
+
+        // params that the IML at exceed. prob. depends upon
+        imlAtExceedProbIndependentParams.addParameterList(exceedProbIndependentParams);
+        imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
+
     }
 
 

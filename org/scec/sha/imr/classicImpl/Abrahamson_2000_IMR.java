@@ -358,9 +358,7 @@ public class Abrahamson_2000_IMR
         initSiteParams();
         initOtherParams( );
 
-        initMeanIndependentParamsList(); // These last two must be called
-        initStdDevIndependentParamsList();  // after the above four
-        initExceedProbIndependentParamsList();
+        initIndependentParamLists(); // Do this after the above
 
     }
 
@@ -555,39 +553,49 @@ public class Abrahamson_2000_IMR
     }
 
     /**
-     * This creates the list of paramters that the Mean depends upon <br>
-     * NOTE: This doesn not include the intensity-measure parameters
-     * or any of thier internal independentParameters
+     * This creates the lists of independent parameters that the various dependent
+     * parameters (mean, standard deviation, exceedance probability, and IML at
+     * exceedance probability) depend upon. NOTE: these lists do not include anything
+     * about the intensity-measure parameters or any of thier internal
+     * independentParamaters.
      */
-    protected void initMeanIndependentParamsList(){
+    protected void initIndependentParamLists(){
+
+        // params that the mean depends upon
         meanIndependentParams.clear();
+        meanIndependentParams.addParameter( distanceRupParam );
         meanIndependentParams.addParameter( siteTypeParam );
         meanIndependentParams.addParameter( magParam );
         meanIndependentParams.addParameter( fltTypeParam );
  //       meanIndependentParams.addParameter( isOnHangingWallParam );
-        meanIndependentParams.addParameter( distanceRupParam );
-        meanIndependentParams.addParameter( componentParam );
         meanIndependentParams.addParameter( xDirParam );
         meanIndependentParams.addParameter( thetaDirParam );
-    }
+        meanIndependentParams.addParameter( componentParam );
 
-    /**
-     * This creates the list of parameters that StdDev depends upon <br>
-     * NOTE: This doesn not include the intensity-measure parameters
-     * or any of thier internal independentParamaters
-     */
-    protected void initStdDevIndependentParamsList(){
+        // params that the stdDev depends upon
         stdDevIndependentParams.clear();
         stdDevIndependentParams.addParameter(stdDevTypeParam);
         stdDevIndependentParams.addParameter(magParam);
         stdDevIndependentParams.addParameter( componentParam );
-    }
 
-
-    protected void initExceedProbIndependentParamsList(){
+        // params that the exceed. prob. depends upon
         exceedProbIndependentParams.clear();
+        exceedProbIndependentParams.addParameter( distanceRupParam );
+        exceedProbIndependentParams.addParameter( siteTypeParam );
+        exceedProbIndependentParams.addParameter( magParam );
+        exceedProbIndependentParams.addParameter( fltTypeParam );
+ //       exceedProbIndependentParams.addParameter( isOnHangingWallParam );
+        exceedProbIndependentParams.addParameter( xDirParam );
+        exceedProbIndependentParams.addParameter( thetaDirParam );
+        exceedProbIndependentParams.addParameter( componentParam );
+        exceedProbIndependentParams.addParameter(stdDevTypeParam);
         exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
         exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
+
+        // params that the IML at exceed. prob. depends upon
+        imlAtExceedProbIndependentParams.addParameterList(exceedProbIndependentParams);
+        imlAtExceedProbIndependentParams.addParameter(exceedProbParam);
+
     }
 
     /**

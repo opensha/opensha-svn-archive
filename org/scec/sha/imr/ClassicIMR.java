@@ -421,22 +421,35 @@ public abstract class ClassicIMR
 
 
     /**
-     *  List of all Parameters that the mean depends upon.
+     *  List of all Parameters that the mean calculation depends upon, except for
+     *  the intensity-measure related parameters (type/level) and any independentdent parameters
+     *  they contain.
      */
     protected ParameterList meanIndependentParams = new ParameterList();
 
+
     /**
-     *  List of all Parameters that the stdDev depends upon.
+     *  List of all Parameters that the stdDev calculation depends upon, except for
+     *  the intensity-measure related parameters (type/level) and any independentdent parameters
+     *  they contain.
      */
     protected ParameterList stdDevIndependentParams = new ParameterList();
 
+
     /**
-     *  List of all Parameters that the exceedProb depends upon seperate from
-     *  mean and stdDeve parameters. Note that exceedProb uses the mean and
-     *  stdDev so alltheir parameters in stdDevIndependentParams and
-     *  meanIndependentParams are required as well.
+     *  List of all Parameters that the exceed. prob. calculation depends upon, except for
+     *  the intensity-measure related parameters (type/level) and any independentdent parameters
+     *  they contain.
      */
     protected ParameterList exceedProbIndependentParams = new ParameterList();
+
+
+    /**
+     *  List of all Parameters that the IML at exceed. prob. calculation depends upon, except for
+     *  the intensity-measure related parameters (type/level) and any independentdent parameters
+     *  they contain.
+     */
+    protected ParameterList imlAtExceedProbIndependentParams = new ParameterList();
 
 
     /**
@@ -646,9 +659,22 @@ public abstract class ClassicIMR
 
 
     /**
-     *  Returns an iterator over all the Parameters that the StdDev depends upon.
+     *  Returns an iterator over all the Parameters that the Mean calculation depends upon.
+     *  (not including the intensity-measure related paramters and their internal,
+     *  independent parameters).
      *
-     * @return    The StdDev Independent Parameters Iterator
+     * @return    The Independent Params Iterator
+     */
+    public ListIterator getMeanIndependentParamsIterator() {
+        return meanIndependentParams.getParametersIterator();
+    }
+
+    /**
+     *  Returns an iterator over all the Parameters that the StdDev calculation depends upon
+     *  (not including the intensity-measure related paramters and their internal,
+     *  independent parameters).
+     *
+     * @return    The Independent Parameters Iterator
      */
     public ListIterator getStdDevIndependentParamsIterator() {
         return stdDevIndependentParams.getParametersIterator();
@@ -656,23 +682,27 @@ public abstract class ClassicIMR
 
 
     /**
-     *  Returns an iterator over all the Parameters that the Mean depends upon.
+     *  Returns an iterator over all the Parameters that the exceedProb calculation
+     *  depends upon (not including the intensity-measure related paramters and
+     *  their internal, independent parameters).
      *
-     * @return    The Mean Independent Params Iterator
-     */
-    public ListIterator getMeanIndependentParamsIterator() {
-        return meanIndependentParams.getParametersIterator();
-    }
-
-    /**
-     *  Returns an iterator over all the Parameters that the exceedProb
-     *  depends upon in addition to mean and stdDev params.
-     *
-     * @return    The Mean Independent Params Iterator
+     * @return    The Independent Params Iterator
      */
     public ListIterator getExceedProbIndependentParamsIterator() {
         return exceedProbIndependentParams.getParametersIterator();
     }
+
+    /**
+     *  Returns an iterator over all the Parameters that the IML-at-exceed-
+     *  probability calculation depends upon. (not including the intensity-measure
+     *  related paramters and their internal, independent parameters).
+     *
+     * @return    The Independent Params Iterator
+     */
+    public ListIterator getIML_AtExceedProbIndependentParamsIterator() {
+        return imlAtExceedProbIndependentParams.getParametersIterator();
+    }
+
 
 
     /**
@@ -802,34 +832,6 @@ public abstract class ClassicIMR
         exceedProbParam.setNonEditable();
 
     }
-
-    /**
-     * Adds all parameters that StdDev depends upon to the
-     * stdDevIndependentParams list: <br>
-     * NOTE: This doesn not include the intensity-measure parameters
-     * or any of thier internal independentParamaters.
-     * This must be executed after the parameters have been created.
-     */
-    protected abstract void initStdDevIndependentParamsList();
-
-    /**
-     * Adds all parameters that the Mean depends upon to the
-     * MeanIndependentParams list.
-     * NOTE: This doesn not include the intensity-measure parameters
-     * or any of thier internal independentParamaters.
-     * This must be executed after the parameters have been created.
-     */
-    protected abstract void initMeanIndependentParamsList();
-
-
-    /**
-     * Adds all parameters that the Exceed. Prob. depends upon to the
-     * ExceedProbIndependentParams list.
-     * NOTE: This doesn not include the intensity-measure parameters
-     * or any of thier internal independentParamaters.
-     * This must be executed after the parameters have been created.
-     */
-    protected abstract void initExceedProbIndependentParamsList();
 
 
 }

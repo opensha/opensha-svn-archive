@@ -99,29 +99,44 @@ public interface ClassicIMRAPI
      */
     public ParameterAPI getComponentParam();
 
+
     /**
-     *  Returns an iterator over all the Parameters that the Mean depends upon.
+     *  Returns an iterator over all the Parameters that the Mean calculation depends upon.
+     *  (not including the intensity-measure related paramters and their internal,
+     *  independent parameters).
      *
-     * @return    The Mean Independent Params Iterator
+     * @return    The Independent Params Iterator
      */
     public ListIterator getMeanIndependentParamsIterator();
 
-     /**
-     *  Returns an iterator over all the Parameters that the StdDev depends upon.
-     *
-     * @return    The stdDev Independent Params Iterator
-     */
 
+    /**
+     *  Returns an iterator over all the Parameters that the StdDev calculation depends upon
+     *  (not including the intensity-measure related paramters and their internal,
+     *  independent parameters).
+     *
+     * @return    The Independent Parameters Iterator
+     */
     public ListIterator getStdDevIndependentParamsIterator();
 
-     /**
-     *  Returns an iterator over all the additional ????????? Parameters that the
-     *  exceedence probability depends upon.
-     *
-     * @return    The exceeProb Independent Params Iterator
-     */
 
+    /**
+     *  Returns an iterator over all the Parameters that the exceedProb calculation
+     *  depends upon (not including the intensity-measure related paramters and
+     *  their internal, independent parameters).
+     *
+     * @return    The Independent Params Iterator
+     */
     public ListIterator getExceedProbIndependentParamsIterator();
 
+
+    /**
+     *  Returns an iterator over all the Parameters that the IML-at-exceed-
+     *  probability calculation depends upon. (not including the intensity-measure
+     *  related paramters and their internal, independent parameters).
+     *
+     * @return    The Independent Params Iterator
+     */
+    public ListIterator getIML_AtExceedProbIndependentParamsIterator();
 
 }
