@@ -1,7 +1,41 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-JFreeChart - figure out is there is a way to increase space on right side of plot without increasing the upper axis limit (e.g., if "1000" is the upper limit it's label gets cut off; JFreeChart solves this by making the upper axis limit 1.05*1000).  Also offset the man X-axis labels further down on Log plots (they touch the bar)
+JFreeChart - figure out is there is a way to increase space on right side of plot without increasing the upper axis limit (e.g., if "1000" is the upper limit it's label gets cut off; JFreeChart solves this by making the upper axis limit 1.05*1000).  Also offset the man X-axis labels further down on Log plots (they touch the bar).
+
+Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).
+
+Change "Set X Values for Hazard Curve Calc" as follows:
+
+	new name: "X-axis (IML) Values for Hazard Curves"
+
+	add a pick list with three options (for now)
+
+		a) "PEER Test-Case Values"
+
+		b) "Custom Values"
+
+		c) "Min, Max, and Num"
+
+		d) "Default"
+
+	if (a) is chosen, set as the PEER values 
+	(and don't allow user to hand-edit values, but do show them)
+
+	if (b) is chosen, user will paste their own values in (allow hand-editing)
+
+	if (c) is chosen, allow user to set the min, max, num, and then make discrete values 
+	that are evenly discretized in the log domain (don't allow hand editing, but do show)
+
+		e.g., 	delta_in_log_domain = (log(max)-log(min))/(num-1)
+
+	if (d) is chosen, use (c) with min=0.001, max=10.0, and num=41  
+	(note that these defaults are good for PGA and SA but not necessarily for other 
+	IMTs (e.g., PGV); we have a problem that this control panel does not know what IMT
+	has been selected).  Don't allow hand editing, but do show values.  When this is done
+	we will have to change the PEER test case selector control panel to choose the right
+	X values (since they will no longer be the default).
+
 
 See if mac can now handle different styles of tabs.
 
