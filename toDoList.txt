@@ -1,26 +1,9 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Solve problem with cutting and pasting on Mac OS X with Java 1.4.4.
+1) Try to solve problem with cutting and pasting on Mac OS X with Java 1.4.1.
 
-Move all parameters and parameter editors anywhere in org.scec.sha.* into org.scec.sha.param.* so that there is only one additional search directory for parameter list editor (update all GUI beans accordingly).
-
-Change SimpleFaultParameterEditor from what it is now to a button that pops up what's shown now in a separate window (but still can be edited from outside like in the PEER test-case selector control panel).  Focus should not leave the popup window until a user is done (& closing the window is the same as punching the button at the bottom).  Make it so the ERF_GuiBean (or any other similar bean) does not need to know anything about this parameter (it's automatically created by the ParameterListEditor).
-
-Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); waiting for Ken to finish before finalizing these.
-
-Generalize ERF servlets so that one object can be used for any arbitrary ERF (or ERF epistemic list).
-
-move the Fortran-Wrapped version of the WG02 ERF to
-the org.scec.sha.earthquake.rupForecastImpl.WG02 directory  (this way I can
-add adjustable parameters myself).  I understand that you might not want to
-do this until after you generalize the ERF Servlet implementation.  Let's
-call it:
-
-    WG02_FortranWrappedERF_EpistemicList.java
-
-
-Update the makeMapUsingServer() method of the GMT_MapGenerator:
+2) Update the makeMapUsingServer() method of the GMT_MapGenerator:
 
 	(we want this for applet based map making where local files can't be created)
 	(and also so all the web-service jar file contents don't have to be included)
@@ -29,9 +12,25 @@ Update the makeMapUsingServer() method of the GMT_MapGenerator:
 
 	make functionality consistent with web service
 
-Finish STEP map making capability (including map-viewer GUI) (high priority).  Includes map viewing GUI.
+3) Move all parameters and parameter editors anywhere in org.scec.sha.* into org.scec.sha.param.* so that there is only one additional search directory for parameter list editor (update all GUI beans accordingly).
 
-Incorporate the new JFreechart version in OpenSHA.
+4) Change SimpleFaultParameterEditor from what it is now to a button that pops up what's shown now in a separate window (but still can be edited from outside like in the PEER test-case selector control panel).  Focus should not leave the popup window until a user is done (& closing the window is the same as punching the button at the bottom).  Make it so the ERF_GuiBean (or any other similar bean) does not need to know anything about this parameter (it's automatically created by the ParameterListEditor).
+
+5) Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.
+
+6) Generalize ERF servlets so that one object can be used for any arbitrary ERF (or ERF epistemic list).
+
+7) move the Fortran-Wrapped version of the WG02 ERF to the org.scec.sha.earthquake.rupForecastImpl.WG02 directory  (this way I can add adjustable parameters myself).  I understand that you might not want to do this until after you generalize the ERF Servlet implementation.  Let's call it:
+
+    WG02_FortranWrappedERF_EpistemicList.java
+
+8) Finish STEP map making capability according to feedback from Matt and Lucy.
+
+9) Incorporate the new JFreechart version in OpenSHA.
+
+
+
+
 
 SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
 
