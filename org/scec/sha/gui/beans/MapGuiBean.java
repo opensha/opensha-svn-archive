@@ -8,7 +8,6 @@ import javax.swing.border.*;
 import java.awt.event.*;
 
 
-
 import org.scec.mapping.gmtWrapper.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
@@ -178,9 +177,8 @@ public class MapGuiBean extends JPanel implements
     if(this.gmtServerCheck.isSelected()){
 
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
-      imgName = gmtMap.makeMapUsingServlet(xyzVals);
-      paramsInfo +="\n\t"+imgName+
-                   "\n\t"+imgName.substring(0,imgName.indexOf(".jpg"))+".ps"+"\n";
+      imgName =gmtMap.makeMapUsingServlet(xyzVals);
+      paramsInfo +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
     }
     else{
       try{

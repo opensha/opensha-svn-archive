@@ -590,17 +590,17 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    * @returns the String containing the values selected for different parameters
    */
   public String getMapParametersInfo(){
-    return "IMR Param List: \n" +
-           "---------------\n"+
-        this.imrGuiBean.getVisibleParametersCloned().toString()+"\n\n"+
-        "Site Param List: \n"+
-        "----------------\n"+
-        sitesGuiBean.getGriddedRegionParameterListEditor().getVisibleParametersCloned().toString()+"\n\n"+
-        "IMT Param List: \n"+
-        "---------------\n"+
-        imtGuiBean.getVisibleParametersCloned().toString()+"\n\n"+
-        "Forecast Param List: \n"+
-        "--------------------\n"+
-        erfGuiBean.getParameterListEditor().getVisibleParametersCloned().toString();
+    return "IMR Param List: " +
+           "<br>---------------<br>"+
+        this.imrGuiBean.getVisibleParametersCloned().toString()+
+        "<p>Site Param List: <br>"+
+        "----------------<br>"+
+        sitesGuiBean.getGriddedRegionParameterListEditor().getVisibleParametersCloned().toString()+"</p>"+
+        "<p>IMT Param List: <br>"+
+        "---------------<br>"+
+        imtGuiBean.getVisibleParametersCloned().toString()+"</p>"+
+        "<p>Forecast Param List: <br>"+
+        "--------------------<br>"+
+        erfGuiBean.getParameterListEditor().getVisibleParametersCloned().toString()+"</p>";
   }
 }

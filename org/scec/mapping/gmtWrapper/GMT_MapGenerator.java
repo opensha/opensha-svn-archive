@@ -318,9 +318,9 @@ public class GMT_MapGenerator implements Serializable{
       e.printStackTrace();
     }
 
-    String webAddr = this.openServletConnection(xyzDataSet,gmtFileName);
+    imgWebAddr = this.openServletConnection(xyzDataSet,gmtFileName);
 
-    return webAddr+out_jpg;
+    return imgWebAddr+out_jpg;
   }
 
 

@@ -35,7 +35,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   private Iterator defaultSiteParams;
 
   //Instance of the site TransLator class
-  SiteTranslatorNew siteTranslator = new SiteTranslatorNew();
+  SiteTranslator siteTranslator = new SiteTranslator();
 
   /**
    *class constructor
@@ -64,7 +64,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
        while(it.hasNext()){
          ParameterAPI tempParam = (ParameterAPI)it.next();
          //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
-         boolean flag = siteTranslator.setParameterValue(tempParam,((Double)vs30.get(index)).doubleValue(),
+         boolean flag = siteTranslator.setParameterValue(tempParam,(String)vs30.get(index),
                                                          ((Double)basinDepth.get(index)).doubleValue());
          //If the value was outside the bounds of CVM
          //and site has no value from CVM then set its value to the default Site Params shown in the application.
