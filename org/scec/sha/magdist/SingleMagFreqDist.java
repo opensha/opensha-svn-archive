@@ -15,7 +15,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   /**
    * todo variables
    */
-  public static String NAME = "Single-Mag Dist." ;
+  public static String NAME = "Single-Mag Dist" ;
   private double mag;
   private double rate;
 
@@ -129,7 +129,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   */
  public String getInfo() {
    double totMoRate= this.rate * MomentMagCalc.getMoment(this.mag);
-   return "mag="+this.mag+";"+"rate="+(float)rate+";"+"totMoRate="+(float)totMoRate;
+   return "mag="+this.mag+"; rate="+(float)rate+"; totMoRate="+(float)totMoRate;
  }
 
  /**

@@ -268,7 +268,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    */
 
   public String getInfo() {
-    return ("Sum of several Incremental Mag-Freq Dists");
+    return ("Sum of these Incremental Mag-Freq Dists");
   }
 
   /**

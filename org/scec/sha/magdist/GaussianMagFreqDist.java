@@ -22,7 +22,7 @@ import org.scec.exceptions.DataPoint2DException;
 
 public class GaussianMagFreqDist extends IncrementalMagFreqDist {
 
-  public  static String NAME = "Gaussian Dist.";
+  public  static String NAME = "Gaussian Dist";
   private double mean= Double.NaN;
   private double stdDev= Double.NaN;
 
@@ -267,9 +267,9 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    */
   public String getInfo() {
 
-    return "mean="+mean+";stdDev="+stdDev+";totMoRate="+(float)getTotalMomentRate()+
-           ";totCumRate="+(float)this.getCumRate(0)+";truncType="+
-           truncType+";truncLevel="+truncLevel;
+    return "mean="+mean+"; stdDev="+stdDev+"; totMoRate="+(float)getTotalMomentRate()+
+           "; totCumRate="+(float)this.getCumRate(0)+"; truncType="+
+           truncType+"; truncLevel="+truncLevel;
 
   }
 

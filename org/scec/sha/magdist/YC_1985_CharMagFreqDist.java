@@ -25,7 +25,7 @@ import org.scec.data.DataPoint2D;
 public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
   private String C = new String("YC_1985_CharMagFreqDist"); // for showing messages
-  public static String NAME = new String("Youngs and Coppersmith Dist.");
+  public static String NAME = new String("Youngs and Coppersmith Dist");
   private double magLower;
   private double magUpper;
   private double deltaMagChar;
@@ -335,10 +335,10 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    * @return : returns the String which is needed for Legend in graph
    */
   public String getInfo() {
-    return (";magLower="+magLower+";magUpper="+magUpper+";deltaMagChar="+this.getDeltaMagChar()+
-        ";magPrime="+this.getMagPrime()+";deltaMagPrime="+getDeltaMagPrime()+
-        "bValue="+bValue+";totMoRate="+(float)this.getTotalMomentRate()+
-        ";totCumRate="+(float)getCumRate(magLower));
+    return ("magLower="+magLower+"; magUpper="+magUpper+"; deltaMagChar="+this.getDeltaMagChar()+
+        "; magPrime="+this.getMagPrime()+"; deltaMagPrime="+getDeltaMagPrime()+
+        " bValue="+bValue+"; totMoRate="+(float)this.getTotalMomentRate()+
+        "; totCumRate="+(float)getCumRate(magLower));
 
   }
 
