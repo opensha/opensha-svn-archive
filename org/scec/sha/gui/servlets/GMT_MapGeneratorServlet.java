@@ -47,8 +47,9 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
      }
 
      fileWriter.close();
+
      //jpg image name returned back by the gmt
-     String imgName=gmtMapInfo.makeMap(fileName);
+     String imgName=gmtMapInfo.makeMapUsingServer(fileName);
 
 
      //moving the .jpg , .ps and .xyz

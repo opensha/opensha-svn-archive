@@ -17,13 +17,14 @@ public class RunScript {
    *
    * @param command : command to execute
    */
-  public static void runScript(String[] command) {
+  public static int runScript(String[] command) {
+    int i=0;
     try {
       // wait for the shell script to end
       System.out.println("Command to execute: " +command[2]);
       Process p=Runtime.getRuntime().exec(command);
       p.waitFor();
-      int i=p.exitValue();
+      i=p.exitValue();
 
       // check the process status after the process ends
       if ( i == 0 ) {
@@ -38,11 +39,13 @@ public class RunScript {
         displayOutput(p.getInputStream());
       }
 
+
     } catch(Exception e) {
       // if there is some other exception, print the detailed explanation
       System.out.println("Exception in Executing Shell Script:"+e);
       e.printStackTrace();
     }
+    return i;
   }
 
   /**

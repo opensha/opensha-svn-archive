@@ -64,17 +64,17 @@ public class GRD_InfoFromFile {
   /**
    * non-empty constructor
    */
-  public GRD_InfoFromFile(String filename) { setFilename(filename); }
+  public GRD_InfoFromFile(String filename,String gmtPath) { setFilename(filename,gmtPath); }
 
 
-  public void setFilename(String filename) {
+  public void setFilename(String filename, String gmtPath) {
 
     this.filename = filename;
     //line 6,7 and 8 strings declaration
     String line6=null,line7=null,line8=null;
 
     String tempFileName = "temp_" + filename + "_info";
-    String[] command ={"sh","-c",GMT_MapGenerator.GMT_PATH + "grdinfo " + filename + " > " + tempFileName};
+    String[] command ={"sh","-c",gmtPath + "grdinfo " + filename + " > " + tempFileName};
     RunScript.runScript(command);
 
     /* What if multiple instances of this object are working doing this simultaneously with
@@ -160,7 +160,7 @@ public class GRD_InfoFromFile {
   public static void main(String[] args) {
     // to test this class, it should create a temp.jpg
     GRD_InfoFromFile grdInfo = new GRD_InfoFromFile();
-    grdInfo.setFilename("testData.grd");
+   // grdInfo.setFilename("testData.grd");
   }
 
 

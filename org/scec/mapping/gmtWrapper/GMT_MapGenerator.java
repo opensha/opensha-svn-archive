@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import org.scec.param.*;
 
+
 /**
  * <p>Title: GMT_MapGenerator</p>
  * <p>Description: This class generates Maps using the java wrapper around GMT</p>
@@ -23,7 +24,7 @@ public class GMT_MapGenerator implements Serializable{
   protected final static boolean D = true;
 
   // PATH where the gmt commands and some others exist.
-  public static String GMT_PATH = "/sw/bin/";
+  public static String gmtPath = null;
 
   // this is the path where general data (e.g., topography) are found:
   private static String SCEC_GMT_DATA_PATH = "/usr/scec/data/gmt/";
@@ -215,6 +216,10 @@ public class GMT_MapGenerator implements Serializable{
     double minLon = ((Double) minLonParam.getValue()).doubleValue();
     double maxLon = ((Double) maxLonParam.getValue()).doubleValue();
     double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
+    String GMT_PATH="/sw/bin/";
+    this.gmtPath=GMT_PATH;
+
+    int scriptReturn=0;
     String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
 
     if(D) System.out.println(C+" region = "+region);
@@ -253,7 +258,158 @@ public class GMT_MapGenerator implements Serializable{
 
     try {
 
-       //command to be executed during the runtime.
+      //command to be executed during the runtime.
+//       String[] command ={"sh","-c",GMT_PATH+"xyz2grd LatLonAmpData.txt -Gdata.grd -I0.05 "+ region +" -D/degree/degree/amp/=/=/= -V -:"};
+//       RunScript.runScript(command);
+
+//     xyz2grd LatLonAmpData.txt -GtestData.grd -I0.05 -R-121/-115/32.5/35.5 -D/degree/degree/amp/=/=/= -V -:
+
+      //command to be executed during the runtime.
+      String[] command ={"sh","-c",GMT_PATH+"xyz2grd "+ xyzFileName+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0"};
+      scriptReturn=RunScript.runScript(command);
+
+      if(scriptReturn !=0)
+        throw new RuntimeException("GMT not found on the computer");
+
+      command[2] = GMT_PATH + "grdcut " + grdFileName +" -Gtemp"+grdFileName +" " + region;
+      RunScript.runScript(command);
+
+
+      double colorScaleMin, colorScaleMax;
+      if( colorScaleMode.equals(COLOR_SCALE_MODE_MANUALLY) ) {
+        colorScaleMin = ((Double) this.colorScaleMinParam.getValue()).doubleValue();
+        colorScaleMax = ((Double) this.colorScaleMaxParam.getValue()).doubleValue();
+      }
+      else {
+        GRD_InfoFromFile grdInfo = new GRD_InfoFromFile("temp"+grdFileName,this.getGMT_PATH());
+        colorScaleMin = grdInfo.get_z_min();
+        colorScaleMax = grdInfo.get_z_max();
+      }
+
+      float inc = (float) ((colorScaleMax-colorScaleMin)/20);
+      command[2]=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
+      RunScript.runScript(command);
+
+      command[2]=GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait";
+      RunScript.runScript(command);
+
+      if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
+        command[2]=GMT_PATH+"grdimage temp"+grdFileName+" -X0.75i " + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
+        RunScript.runScript(command);
+      }
+      else {
+        command[2]=GMT_PATH+"grdsample temp"+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q";
+        RunScript.runScript(command);
+
+        command[2]=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
+        RunScript.runScript(command);
+
+        command[2]=GMT_PATH+"grdimage "+fileName+"HiResData.grd -X0.75i " + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
+        RunScript.runScript(command);
+      }
+
+      if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
+        command[2]=GMT_PATH+"psxy  "+region+" " + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + out_ps;
+        scriptReturn=RunScript.runScript(command);
+        throw new RuntimeException("Highway Data not found on the computer");
+      }
+
+      if(coast.equals(COAST_FILL)) {
+        command[2]=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + out_ps;
+        RunScript.runScript(command);
+      }
+      else if(coast.equals(COAST_DRAW)) {
+        command[2]=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + out_ps;
+        RunScript.runScript(command);
+      }
+
+      command[2]=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+      RunScript.runScript(command);
+
+      command[2]=GMT_PATH+"psscale -B1:LogIML: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
+      RunScript.runScript(command);
+
+      command[2]=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/50 -O >> " + out_ps;
+      RunScript.runScript(command);
+/*
+       command[2] =COMMAND_PATH+"cat "+ out_ps + " | "+GMT_PATH+"gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
+       RunScript.runScript(command);
+*/
+//       command[2] = GMT_PATH+"convert -crop "+ imageWdthPix + "x" + imageHghtPix + " " + out_ps + " " + out_jpg;
+      command[2] = GMT_PATH+"convert " + out_ps + " " + out_jpg;
+      RunScript.runScript(command);
+
+//       command[2] = "/Applications/Preview.app/Contents/MacOS/Preview " + out_jpg + " &";
+//       RunScript.runScript(command);
+
+    }catch(RuntimeException ee){
+      throw new RuntimeException(ee.getMessage());
+    }catch (Exception e) {
+      // report to the user whether the operation was successful or not
+      e.printStackTrace();
+    }
+        ++imageCounter;
+        return out_jpg;
+  }
+
+
+  /**
+   * this function generates GMT map using the GMT from the SCEC server
+   * It is a wrapper function around GMT tool
+   * It acccepts the name of xyz file
+   */
+  public String makeMapUsingServer(String xyzFileName){
+
+
+    double minLat = ((Double) minLatParam.getValue()).doubleValue();
+    double maxLat = ((Double) maxLatParam.getValue()).doubleValue();
+    double minLon = ((Double) minLonParam.getValue()).doubleValue();
+    double maxLon = ((Double) maxLonParam.getValue()).doubleValue();
+    double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
+
+    String GMT_PATH="/usr/scec/share/graphics/GMT3.3.6/bin/";
+    this.gmtPath=GMT_PATH;
+
+
+    String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
+
+    if(D) System.out.println(C+" region = "+region);
+    //all the files of the GMT will be created by this fileName
+    String fileName=xyzFileName.substring(0,xyzFileName.indexOf("."));
+
+    String grdFileName  = fileName+".grd";
+
+    String cptFile = SCEC_GMT_DATA_PATH + (String) cptFileParam.getValue();
+
+    String colorScaleMode = (String) colorScaleModeParam.getValue();
+    String coast = (String) coastParam.getValue();
+
+    // Set resolution according to the topoInten file chosen (options are 3, 6, 18, or 30):
+    String resolution = (String) topoResolutionParam.getValue();
+    String topoIntenFile = SCEC_GMT_DATA_PATH + "calTopoInten" + resolution+".grd";
+
+    // Set highways String
+    String showHiwys = (String) showHiwysParam.getValue();
+
+    String out_ps = fileName + ".ps";
+    out_jpg = fileName+"-"+imageCounter+ ".jpg";
+
+
+    // plot size parameter
+    double plotWdth = 6.5;
+    String projWdth = "-JM"+plotWdth+"i";
+    double plotHght = ((maxLat-minLat)/(maxLon-minLon))*plotWdth/Math.cos(Math.PI*(maxLat+minLat)/(2*180));
+
+    double yOffset = 11 - plotHght - 0.5;
+    String yOff = "-Y" + yOffset + "i";
+//    int imageWdthPix = (int) (8.5*72);
+//    int imageHghtPix = (int) (( plotHght + 2.5 )*72);
+//    System.out.println("plot height = " + plotHght + " imageHightPix = "+ imageHghtPix);
+
+
+    try {
+
+      //command to be executed during the runtime.
 //       String[] command ={"sh","-c",GMT_PATH+"xyz2grd LatLonAmpData.txt -Gdata.grd -I0.05 "+ region +" -D/degree/degree/amp/=/=/= -V -:"};
 //       RunScript.runScript(command);
 
@@ -263,72 +419,72 @@ public class GMT_MapGenerator implements Serializable{
       String[] command ={"sh","-c",GMT_PATH+"xyz2grd "+ xyzFileName+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0"};
       RunScript.runScript(command);
 
-       command[2] = GMT_PATH + "grdcut " + grdFileName +" -Gtemp"+grdFileName +" " + region;
-       RunScript.runScript(command);
+      command[2] = GMT_PATH + "grdcut " + grdFileName +" -Gtemp"+grdFileName +" " + region;
+      RunScript.runScript(command);
 
 
-       double colorScaleMin, colorScaleMax;
-       if( colorScaleMode.equals(COLOR_SCALE_MODE_MANUALLY) ) {
-         colorScaleMin = ((Double) this.colorScaleMinParam.getValue()).doubleValue();
-         colorScaleMax = ((Double) this.colorScaleMaxParam.getValue()).doubleValue();
-       }
-       else {
-         GRD_InfoFromFile grdInfo = new GRD_InfoFromFile("temp"+grdFileName);
-         colorScaleMin = grdInfo.get_z_min();
-         colorScaleMax = grdInfo.get_z_max();
-       }
+      double colorScaleMin, colorScaleMax;
+      if( colorScaleMode.equals(COLOR_SCALE_MODE_MANUALLY) ) {
+        colorScaleMin = ((Double) this.colorScaleMinParam.getValue()).doubleValue();
+        colorScaleMax = ((Double) this.colorScaleMaxParam.getValue()).doubleValue();
+      }
+      else {
+        GRD_InfoFromFile grdInfo = new GRD_InfoFromFile("temp"+grdFileName, this.getGMT_PATH());
+        colorScaleMin = grdInfo.get_z_min();
+        colorScaleMax = grdInfo.get_z_max();
+      }
 
-       float inc = (float) ((colorScaleMax-colorScaleMin)/20);
-       command[2]=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
-       RunScript.runScript(command);
+      float inc = (float) ((colorScaleMax-colorScaleMin)/20);
+      command[2]=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
+      RunScript.runScript(command);
 
-       command[2]=GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait";
-       RunScript.runScript(command);
+      command[2]=GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait";
+      RunScript.runScript(command);
 
-       if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-         command[2]=GMT_PATH+"grdimage temp"+grdFileName+" -X0.75i " + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
-         RunScript.runScript(command);
-       }
-       else {
-         command[2]=GMT_PATH+"grdsample temp"+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q";
-         RunScript.runScript(command);
+      if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
+        command[2]=GMT_PATH+"grdimage temp"+grdFileName+" -X0.75i " + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
+        RunScript.runScript(command);
+      }
+      else {
+        command[2]=GMT_PATH+"grdsample temp"+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q";
+        RunScript.runScript(command);
 
-         command[2]=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
-         RunScript.runScript(command);
+        command[2]=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
+        RunScript.runScript(command);
 
-         command[2]=GMT_PATH+"grdimage "+fileName+"HiResData.grd -X0.75i " + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
-         RunScript.runScript(command);
-       }
+        command[2]=GMT_PATH+"grdimage "+fileName+"HiResData.grd -X0.75i " + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
+        RunScript.runScript(command);
+      }
 
-       if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
-         command[2]=GMT_PATH+"psxy  "+region+" " + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + out_ps;
-         RunScript.runScript(command);
-       }
+      if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
+        command[2]=GMT_PATH+"psxy  "+region+" " + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + out_ps;
+        RunScript.runScript(command);
+      }
 
-       if(coast.equals(COAST_FILL)) {
-         command[2]=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + out_ps;
-         RunScript.runScript(command);
-       }
-       else if(coast.equals(COAST_DRAW)) {
-         command[2]=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + out_ps;
-         RunScript.runScript(command);
-       }
+      if(coast.equals(COAST_FILL)) {
+        command[2]=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + out_ps;
+        RunScript.runScript(command);
+      }
+      else if(coast.equals(COAST_DRAW)) {
+        command[2]=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + out_ps;
+        RunScript.runScript(command);
+      }
 
-       command[2]=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
-       RunScript.runScript(command);
+      command[2]=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+      RunScript.runScript(command);
 
-       command[2]=GMT_PATH+"psscale -B1:LogIML: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
-       RunScript.runScript(command);
+      command[2]=GMT_PATH+"psscale -B1:LogIML: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
+      RunScript.runScript(command);
 
-       command[2]=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/50 -O >> " + out_ps;
-       RunScript.runScript(command);
-/*
-       command[2] =COMMAND_PATH+"cat "+ out_ps + " | "+GMT_PATH+"gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
-       RunScript.runScript(command);
-*/
+      command[2]=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/50 -O >> " + out_ps;
+      RunScript.runScript(command);
+
+     command[2] =COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
+     RunScript.runScript(command);
+
 //       command[2] = GMT_PATH+"convert -crop "+ imageWdthPix + "x" + imageHghtPix + " " + out_ps + " " + out_jpg;
-       command[2] = GMT_PATH+"convert " + out_ps + " " + out_jpg;
-       RunScript.runScript(command);
+/*      command[2] = GMT_PATH+"convert " + out_ps + " " + out_jpg;
+      RunScript.runScript(command);*/
 
 //       command[2] = "/Applications/Preview.app/Contents/MacOS/Preview " + out_jpg + " &";
 //       RunScript.runScript(command);
@@ -337,9 +493,13 @@ public class GMT_MapGenerator implements Serializable{
       // report to the user whether the operation was successful or not
       e.printStackTrace();
     }
-    ++imageCounter;
-     return out_jpg;
+        ++imageCounter;
+        return out_jpg;
   }
+
+
+
+
 
   /**
   * method to get the adjustable parameters
@@ -363,5 +523,13 @@ public class GMT_MapGenerator implements Serializable{
    */
   public String getImageFileName(){
     return this.out_jpg;
+  }
+
+  /**
+   *
+   * @returns the GMT path
+   */
+  public String getGMT_PATH(){
+    return this.gmtPath;
   }
 }

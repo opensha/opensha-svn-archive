@@ -545,19 +545,26 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   }
 
   void addButton_actionPerformed(ActionEvent e) {
+    addButton();
+  }
+
+  /**
+   * when the generate Map button is pressed
+   */
+  private void addButton(){
     calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
     step = 0;
     timer = new javax.swing.Timer(200, new ActionListener() {
-         public void actionPerformed(ActionEvent evt) {
-           if(step==1)
-             calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
-           if(step==2) {
-             mapGuiBean.makeMap(fileNameTextField.getText().trim()+".txt",getMapParametersInfo());
-             calcProgress.dispose();
-             timer.stop();
-           }
-         }
-       });
+      public void actionPerformed(ActionEvent evt) {
+        if(step==1)
+          calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
+        if(step==2) {
+          mapGuiBean.makeMap(fileNameTextField.getText().trim()+".txt",getMapParametersInfo());
+          calcProgress.dispose();
+          timer.stop();
+        }
+      }
+    });
 
     timer.start();
     Thread t = new Thread(this);
