@@ -46,7 +46,8 @@ public class HazardMapCalculator {
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   // directory where all the hazard map data sets will be saved
   private static final String DATASETS_PATH = "HazardMapDataSets";
-
+  // flag to indicate whether this IMT requires X values to be in log
+ boolean xLogFlag = true;
 
 
   /**
@@ -74,7 +75,7 @@ public class HazardMapCalculator {
      * @param mapParametersInfo  : Parameters in String form used to generate the map
      * @return
    */
-  public void getHazardMapCurves(boolean imtLogFlag,DiscretizedFuncAPI hazFunction,
+  public void getHazardMapCurves(boolean imtLogFlag, double [] xValues,
                                  SitesInGriddedRegion griddedSites,
                                  AttenuationRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
@@ -82,7 +83,9 @@ public class HazardMapCalculator {
 
     Site site;
     String newDir;
+    this.xLogFlag = imtLogFlag;
     HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
+
     // get the number of data sets presently in directory
     File mainDir = new File(this.DATASETS_PATH);
 
@@ -102,21 +105,16 @@ public class HazardMapCalculator {
     //creating a new directory that stores all the HazardCurves for that region
     boolean success = (new File(newDir)).mkdir();
     int numSites = griddedSites.getNumGridLocs();
+    int numPoints = xValues.length;
     for(int j=0;j<numSites;++j){
       site = griddedSites.getSite(j);
-      int numPoints=hazFunction.getNum();
-
-     /*set x values back from the log space to the original linear values
-       for Hazard Function after completion of the Hazard Calculations
-       if the selected IMT are SA , PGA or PGV*/
-      for(int i=0;i<numPoints;i++)
-        hazFunction.set(i,1.0);
+      // make and initialize the haz function
+      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+      this.initX_Values(hazFunction,xValues);
       hazCurveCalc.getHazardCurve(hazFunction,site,imr,eqkRupForecast);
       String lat = decimalFormat.format(site.getLocation().getLatitude());
       String lon = decimalFormat.format(site.getLocation().getLongitude());
-      if(imtLogFlag)
-        for(int i=0;i<hazFunction.getNum();++i)
-          Math.exp(hazFunction.getX(i));
+      hazFunction = this.toggleHazFuncLogValues(hazFunction, xValues);
       try{
         if(success){
           FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
@@ -142,7 +140,45 @@ public class HazardMapCalculator {
     }catch(IOException ee){
       ee.printStackTrace();
     }
+  }
 
+  /**
+   * set x values in log space for Hazard Function to be passed to IMR
+   * if the selected IMT are SA , PGA or PGV
+   * It accepts 1 parameters
+   *
+   * @param originalFunc :  this is the function with X values set
+   */
+  private void initX_Values(DiscretizedFuncAPI arb, double[]xValues){
+    // take log only if it is PGA, PGV or SA
+    if (this.xLogFlag) {
+      for(int i=0; i<xValues.length; ++i)
+        arb.set(Math.log(xValues[i]),1 );
+    } else
+      throw new RuntimeException("Unsupported IMT");
+  }
+
+  /**
+   * set x values back from the log space to the original linear values
+   * for Hazard Function after completion of the Hazard Calculations
+   * if the selected IMT are SA , PGA or PGV
+   * It accepts 1 parameters
+   *
+   * @param hazFunction :  this is the function with X values set
+   */
+  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(
+      ArbitrarilyDiscretizedFunc hazFunc, double [] xValues){
+    int numPoints = hazFunc.getNum();
+    DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
+    hazFunc = new ArbitrarilyDiscretizedFunc();
+    // take log only if it is PGA, PGV or SA
+    if (this.xLogFlag) {
+      for(int i=0; i<numPoints; ++i)
+        hazFunc.set(xValues[i], tempFunc.getY(i));
+      return hazFunc;
+    } else
+      throw new RuntimeException("Unsupported IMT");
   }
 
 }
+

@@ -97,8 +97,10 @@ public class HazardMapApplet extends JApplet implements
   protected final static int W = 600;
   protected final static int H = 750;
 
-  //boolean to check whether the selcetd IMT is PGS, PGV or SA
-  private boolean imtLogFlag=true;
+  // make a array for saving the X values
+  private  double [] xValues = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
+                              .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
+
 
   // PEER Test Cases
   public final static String TITLE = new String("Map DataSet Generator");
@@ -383,8 +385,8 @@ public class HazardMapApplet extends JApplet implements
     arb.set(.001,1);
     arb.set(.01,1);
     arb.set(.05,1);
-    arb.set(.15,1);
     arb.set(.1,1);
+    arb.set(.15,1);
     arb.set(.2,1);
     arb.set(.25,1);
     arb.set(.3,1);
@@ -408,10 +410,6 @@ public class HazardMapApplet extends JApplet implements
    */
   public void computeHazardCurve() {
 
-    // intialize the hazard function
-    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-    initDiscretizeValues(hazFunction);
-
     // get the selected forecast model
     EqkRupForecast eqkRupForecast = (EqkRupForecast)erfGuiBean.getSelectedERF();
 
@@ -429,14 +427,13 @@ public class HazardMapApplet extends JApplet implements
     // calculate the hazard curve
    HazardMapCalculator calc = new HazardMapCalculator();
 
-   // initialize the values in condProbfunc with log values as passed in hazFunction
-   initIMTLogFunc(hazFunction);
    try {
 
      SitesInGriddedRegion griddedRegionSites = griddedRegionGuiBean.getGriddedRegionSite();
      // calculate the hazard curve for each site
-     calc.getHazardMapCurves(imtLogFlag,hazFunction,griddedRegionSites ,
-                             imr, eqkRupForecast, this.getMapParametersInfo());
+     calc.getHazardMapCurves(this.isIMTLogEnabled(), xValues,
+                             griddedRegionSites ,imr, eqkRupForecast,
+                             this.getMapParametersInfo());
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -554,24 +551,6 @@ public class HazardMapApplet extends JApplet implements
 
  }
 
- /**
-  * set x values in log space for Hazard Function to be passed to IMR
-  * if the selected IMT are SA , PGA or PGV
-  * It accepts 1 parameters
-  *
-  * @param originalFunc :  this is the function with X values set
-  */
- private void initIMTLogFunc(DiscretizedFuncAPI originalFunc){
-   int numPoints = originalFunc.getNum();
-   // take log only if it is PGA, PGV or SA
-   isIMTLogEnabled();
-   if (imtLogFlag) {
-     for(int i=0; i<numPoints; ++i)
-       originalFunc.set(Math.log(originalFunc.getX(i)), 1);
-   } else
-     throw new RuntimeException("Unsupported IMT");
- }
-
 
 
 
@@ -579,13 +558,13 @@ public class HazardMapApplet extends JApplet implements
   * @return true if the selected IMT is PGA, PGV or SA
   * else returns false
   */
- private void isIMTLogEnabled(){
+ private boolean isIMTLogEnabled(){
    String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
    if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
       selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
       selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
-     imtLogFlag = true;
-   else imtLogFlag=false;
+     return true;
+   else return false;
  }
 
 }

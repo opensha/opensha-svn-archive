@@ -137,6 +137,9 @@ public class HazardCurveApplet extends JApplet
   private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
+  // make a array for saving the X values
+  private  double [] xValues = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
+                               .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
 
   // Create the x-axis and y-axis - either normal or log
   private com.jrefinery.chart.axis.NumberAxis xAxis = null;
@@ -887,34 +890,6 @@ public class HazardCurveApplet extends JApplet
       }
   }
 
-  /**
-   * Initialize the X values and the prob as 1
-   *
-   * @param arb
-   */
-  private void initDiscretizeValues(ArbitrarilyDiscretizedFunc arb){
-
-    arb.set(.001,1);
-    arb.set(.01,1);
-    arb.set(.05,1);
-    arb.set(.15,1);
-    arb.set(.1,1);
-    arb.set(.2,1);
-    arb.set(.25,1);
-    arb.set(.3,1);
-    arb.set(.4,1);
-    arb.set(.5,1);
-    arb.set(.6,1);
-    arb.set(.7,1);
-    arb.set(.8,1);
-    arb.set(.9,1);
-    arb.set(1.0,1);
-    arb.set(1.1,1);
-    arb.set(1.2,1);
-    arb.set(1.3,1);
-    arb.set(1.4,1);
-    arb.set(1.5,1);
-  }
 
   /**
    * Gets the probabilities functiion based on selected parameters
@@ -923,9 +898,7 @@ public class HazardCurveApplet extends JApplet
   private void computeHazardCurve() {
     this.isEqkList = false;
 
-    // intialize the hazard function
-    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-    initDiscretizeValues(hazFunction);
+
 
     // get the selected forecast model
     EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
@@ -960,12 +933,14 @@ public class HazardCurveApplet extends JApplet
    if(distanceControlPanel!=null)
      calc.setMaxSourceDistance(distanceControlPanel.getDistance());
    // initialize the values in condProbfunc with log values as passed in hazFunction
-   initIMTLogFunc(hazFunction);
+   // intialize the hazard function
+   ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+   initX_Values(hazFunction);
    try {
      // calculate the hazard curve
      calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
      hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
-     toggleHazFuncLogValues(hazFunction);
+     hazFunction = toggleHazFuncLogValues(hazFunction);
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1031,13 +1006,12 @@ public class HazardCurveApplet extends JApplet
    for(int i=0; i<numERFs; ++i) {
      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
      // intialize the hazard function
-     initDiscretizeValues(hazFunction);
-     initIMTLogFunc(hazFunction);
+     initX_Values(hazFunction);
      try {
        // calculate the hazard curve
        calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
        hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
-       toggleHazFuncLogValues(hazFunction);
+       hazFunction = toggleHazFuncLogValues(hazFunction);
      }catch (RuntimeException e) {
        JOptionPane.showMessageDialog(this, e.getMessage(),
                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1309,12 +1283,11 @@ public class HazardCurveApplet extends JApplet
    *
    * @param originalFunc :  this is the function with X values set
    */
-  private void initIMTLogFunc(DiscretizedFuncAPI originalFunc){
-    int numPoints = originalFunc.getNum();
+  private void initX_Values(DiscretizedFuncAPI arb){
     // take log only if it is PGA, PGV or SA
     if (isIMTLogEnabled()) {
-      for(int i=0; i<numPoints; ++i)
-        originalFunc.set(Math.log(originalFunc.getX(i)), 1);
+      for(int i=0; i<this.xValues.length; ++i)
+        arb.set(Math.log(xValues[i]),1 );
     } else
       throw new RuntimeException("Unsupported IMT");
   }
@@ -1327,12 +1300,15 @@ public class HazardCurveApplet extends JApplet
      *
      * @param hazFunction :  this is the function with X values set
    */
-  private void toggleHazFuncLogValues(DiscretizedFuncAPI hazFunc){
+  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc){
     int numPoints = hazFunc.getNum();
+    DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
+    hazFunc = new ArbitrarilyDiscretizedFunc();
     // take log only if it is PGA, PGV or SA
     if (isIMTLogEnabled()) {
       for(int i=0; i<numPoints; ++i)
-        hazFunc.set(Math.exp(hazFunc.getX(i)), 1);
+        hazFunc.set(xValues[i], tempFunc.getY(i));
+    return hazFunc;
     } else
       throw new RuntimeException("Unsupported IMT");
   }

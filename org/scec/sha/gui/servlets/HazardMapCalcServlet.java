@@ -46,8 +46,10 @@ public class HazardMapCalcServlet extends HttpServlet {
       * get the vector of x-values for hazfunction
       */
      Vector hazVector  = (Vector) inputFromApplet.readObject();
-     // now convert this vector to arbitrary discretized function
-     ArbitrarilyDiscretizedFunc hazFunc = convertToFunc(hazVector);
+     int num = hazVector.size();
+     double []xValues = new double[hazVector.size()];
+     for(int i=0; i<num; ++i)
+       xValues[i] = ((Double)hazVector.get(i)).doubleValue();
 
 
      /**
@@ -83,7 +85,7 @@ public class HazardMapCalcServlet extends HttpServlet {
      // now run the calculation
      HazardMapCalculator calc = new HazardMapCalculator();
      boolean flag = true;
-     calc.getHazardMapCurves(flag, hazFunc, sites, imr,
+     calc.getHazardMapCurves(flag, xValues, sites, imr,
                              eqkRupForecast, mapParametersInfo );
 
    } catch (Exception e) {
