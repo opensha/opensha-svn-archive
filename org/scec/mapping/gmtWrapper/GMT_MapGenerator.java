@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 import javax.activation.*;
 import java.text.DecimalFormat;
+import java.net.*;
+import java.io.*;
 
 import org.scec.param.*;
 import org.scec.data.XYZ_DataSetAPI;
@@ -285,31 +287,17 @@ public class GMT_MapGenerator implements Serializable{
    * It is a wrapper function around GMT tool
    * It acccepts the xyz dataset
    */
-  public String makeMapUsingServer(XYZ_DataSetAPI xyzDataSet){
+  public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet){
 
-    String GMT_PATH="/usr/scec/share/graphics/GMT3.3.6/bin/";
+    String GMT_PATH="/opt/install/gmt/bin/";
     FileWriter fw = null;
     BufferedWriter br =null;
     Vector xVals = xyzDataSet.getX_DataSet();
     Vector yVals = xyzDataSet.getY_DataSet();
     Vector zVals = xyzDataSet.getZ_DataSet();
 
-    //creating the XYZ file from the XYZ dataSet
-    try{
-      //file follows the convention lon,lat and Z value
-      if(xyzDataSet.checkXYZ_NumVals()){
-        int size = yVals.size();
-        fw = new FileWriter(this.XYZ_FILE_NAME);
-        br = new BufferedWriter(fw);
-        for(int i=0;i<size;++i)
-          br.write(yVals.get(i)+" "+xVals.get(i)+" "+zVals.get(i)+"\n");
-        br.close();
-      }
-      else
-        throw new RuntimeException("X, Y and Z dataset does not have equal size");
-    }catch(Exception e){
-      e.printStackTrace();
-    }
+    if(!xyzDataSet.checkXYZ_NumVals())
+      throw new RuntimeException("X, Y and Z dataset does not have equal size");
 
     //writing the GMT commands to the file
     try{
@@ -318,7 +306,7 @@ public class GMT_MapGenerator implements Serializable{
       br = new BufferedWriter(fw);
       String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
       out_ps = fileName + ".ps";
-      out_jpg = fileName+"-"+imageCounter+ ".jpg";
+      out_jpg = fileName+ ".jpg";
 
       runMapScript(GMT_PATH,br,xyzDataSet);
       String gmtCommandLine=COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
@@ -330,11 +318,9 @@ public class GMT_MapGenerator implements Serializable{
       e.printStackTrace();
     }
 
-    //running the GMT script from the file
-    String[] command ={"sh","-c","sh "+gmtFileName};
-    RunScript.runScript(command);
-    ++imageCounter;
-    return out_jpg;
+    String webAddr = this.openServletConnection(xyzDataSet,gmtFileName);
+
+    return webAddr+out_jpg;
   }
 
 
@@ -598,6 +584,79 @@ public class GMT_MapGenerator implements Serializable{
       e.printStackTrace();
     }
   }
+
+
+  /**
+   * sets up the connection with the servlet on the server (gravity.usc.edu)
+   */
+  private String openServletConnection(XYZ_DataSetAPI xyzDataVals, String gmtFile) {
+
+    String webaddr=null;
+    try{
+
+      //reading the GMT Script file line by line and adding the script to the Vector
+      FileReader fr = new FileReader(gmtFile);
+      BufferedReader br = new BufferedReader(fr);
+      Vector gmtFileLines = new Vector();
+      String gmtLine = br.readLine();
+      while(gmtLine!=null){
+        gmtFileLines.add(gmtLine);
+        gmtLine= br.readLine();
+      }
+
+
+      if(D) System.out.println("starting to make connection with servlet");
+      URL gmtMapServlet = new
+                             URL("http://gravity.usc.edu/OpenSHA/servlet/GMT_MapGeneratorServlet");
+
+
+      URLConnection servletConnection = gmtMapServlet.openConnection();
+      if(D) System.out.println("connection established");
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+
+      //sending the Vector of the gmt Script Lines
+      outputToServlet.writeObject(gmtFileLines);
+
+
+      //sending the contents of the XYZ data set to the servlet
+      outputToServlet.writeObject(xyzDataVals);
+
+      //sending the xyz file name to the servlet
+      outputToServlet.writeObject(this.XYZ_FILE_NAME);
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "actual webaddress of all the gmt related files"
+     // from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      webaddr=inputToServlet.readObject().toString();
+      if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
+      inputToServlet.close();
+
+    }
+    catch (Exception e) {
+      System.out.println("Exception in connection with servlet:" +e);
+      e.printStackTrace();
+    }
+    return webaddr;
+  }
+
 
 
   /**

@@ -4,10 +4,9 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.net.*;
-import java.io.*;
+
 import java.awt.event.*;
-import javax.activation.*;
+
 
 
 import org.scec.mapping.gmtWrapper.*;
@@ -179,9 +178,9 @@ public class MapGuiBean extends JPanel implements
       xyzVals.setXYZ_DataSet(xyzVals.getX_DataSet(),xyzVals.getY_DataSet(),zLogVals);
     }
     if(this.gmtServerCheck.isSelected()){
-      //imgName = openConnection(xyzVals);
-      imgName=gmtMap.makeMapUsingWebServer(xyzVals);
-      //imgName=openWebServiceConnection(fileName);
+
+      //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
+      imgName = gmtMap.makeMapUsingServlet(xyzVals);
       paramsInfo +="\n\t"+imgName+
                    "\n\t"+imgName.substring(0,imgName.indexOf(".jpg"))+".ps"+"\n";
     }
@@ -231,62 +230,6 @@ public class MapGuiBean extends JPanel implements
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 112, 9, 148), 55, 1));
   }
 
-  /**
-   * sets up the connection with the servlet on the server (scec.usc.edu)
-   */
-  String openConnection(XYZ_DataSetAPI xyzDataVals) {
-
-    String imgURL=null;
-
-    try{
-
-      if(D) System.out.println("starting to make connection with servlet");
-      URL hazardMapServlet = new
-                             URL("http://scec.usc.edu:9999/examples/servlet/GMT_MapGeneratorServlet");
-
-
-      URLConnection servletConnection = hazardMapServlet.openConnection();
-      if(D) System.out.println("connection established");
-
-      // inform the connection that we will send output and accept input
-      servletConnection.setDoInput(true);
-      servletConnection.setDoOutput(true);
-
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
-
-      ObjectOutputStream outputToServlet = new
-          ObjectOutputStream(servletConnection.getOutputStream());
-
-
-      //sending the object of GMT_MapGenerator to servlet
-      outputToServlet.writeObject(this.gmtMap);
-
-
-      //sending the contents of the XYZ data set to the servlet
-      outputToServlet.writeObject(xyzDataVals);
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // Receive the "destroy" from the servlet after it has received all the data
-      ObjectInputStream inputToServlet = new
-          ObjectInputStream(servletConnection.getInputStream());
-
-      imgURL=inputToServlet.readObject().toString();
-      if(D) System.out.println("Receiving the Input from the Servlet:"+imgURL);
-      inputToServlet.close();
-
-    }
-    catch (Exception e) {
-      System.out.println("Exception in connection with servlet:" +e);
-      e.printStackTrace();
-    }
-    return imgURL;
-  }
 
   /**
    * Flag to determine whether to show the Map in a seperate pop up window

@@ -13,7 +13,7 @@ import java.util.*;
  * @version 1.0
  */
 
-public interface XYZ_DataSetAPI {
+public interface XYZ_DataSetAPI extends java.io.Serializable{
 
 
   //gets the Min of the  X values

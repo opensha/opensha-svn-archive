@@ -14,7 +14,7 @@ import java.util.*;
  * @version 1.0
  */
 
-public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI{
+public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Serializable{
 
   Vector xValues, yValues, zValues;
 
