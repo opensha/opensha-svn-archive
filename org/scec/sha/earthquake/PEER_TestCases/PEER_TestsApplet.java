@@ -410,7 +410,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
       }
     });
     //loading the OpenSHA Logo
-    imgLabel.setText("ddddddhjmmjhmjjmjm");
+    imgLabel.setText("");
     imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
