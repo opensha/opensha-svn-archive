@@ -47,6 +47,8 @@
   <property category="sys" name="max.package.levels" value="2"/>
   <property category="sys"
     name="uidesign.size.org.scec.sha.imr.gui.IMRAxisScale" value="301,151"/>
+  <property category="sys"
+    name="uidesign.size.org.scec.sha.imr.gui.ShowMessage" value="450,163"/>
   <property category="team" name="ignorePath.0" value="com"/>
   <property category="team" name="ignorePath.1" value="classes"/>
   <property category="team" name="ignorePath.10" value=".DS_Store"/>
