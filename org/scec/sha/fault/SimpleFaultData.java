@@ -10,11 +10,13 @@ import org.scec.data.*;
 
 /**
  *  <b>Title:</b> SimpleFaultData<p>
- *  <b>Description:</b> This object contains all the information needed
- *  by a SimpleGriddedFaultFactory. <p>
+ *  <b>Description:</b> This object contains all the fault-related information needed
+ *  by a SimpleGriddedFaultFactory.  This does not check whether the values make sense
+ *  (e.g., it doesn not check that 0²aveDip²90) because these will get checked in the
+ *  classes that use this data (and we don't want duplicate checks) <p>
  *
  *
- * @author     Sid Hellman, Steven W. Rock
+ * @author     Sid Hellman, Steven W. Rock, Ned Field
  * @created    February 26, 2002
  * @version    1.0
  */

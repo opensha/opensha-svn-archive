@@ -1,10 +1,15 @@
 package org.scec.sha.fault;
 
+import java.util.ListIterator;
+import java.io.*;
+
 import org.scec.sha.surface.GriddedSurfaceFactoryAPI;
 import org.scec.sha.surface.GriddedSurfaceAPI;
 import org.scec.sha.fault.FaultTrace;
-import java.io.*;
+import org.scec.data.Location;
 import org.scec.exceptions.*;
+import org.scec.util.FaultUtils;
+
 
 // Fix - Needs more comments
 
@@ -33,10 +38,6 @@ public abstract class SimpleGriddedFaultFactory extends GriddedFaultFactory impl
     protected double gridSpacing = Double.NaN;
 
 
-    private static final double zero = 0;
-    private static final double ninety = 90;
-
-
     // **********************
     /** @todo  Constructors */
     // **********************
@@ -60,6 +61,17 @@ public abstract class SimpleGriddedFaultFactory extends GriddedFaultFactory impl
     }
 
 
+    public SimpleGriddedFaultFactory( SimpleFaultData simpleFaultData,
+                                        double gridSpacing)
+                                        throws FaultException {
+
+        this(simpleFaultData.getFaultTrace(),
+              simpleFaultData.getAveDip(),
+              simpleFaultData.getUpperSeismogenicDepth(),
+              simpleFaultData.getLowerSeismogenicDepth(),
+              gridSpacing);
+    }
+
 
     // ***************************************************************
     /** @todo  Serializing Helpers - overide to increase performance */
@@ -82,37 +94,55 @@ public abstract class SimpleGriddedFaultFactory extends GriddedFaultFactory impl
     public FaultTrace getFaultTrace() { return faultTrace; }
 
     public void setAveDip(double aveDip) throws FaultException {
-        if ( aveDip < zero || aveDip > ninety){
-            throw new FaultException(C + " : setAveDip(): Input value must be between 0 and 90, inclusive");
-        }
+        FaultUtils.assertValidDip(aveDip);
         this.aveDip = aveDip;
     }
     public double getAveDip() { return aveDip; }
 
     public void setUpperSeismogenicDepth(double upperSeismogenicDepth) throws FaultException {
-        if ( upperSeismogenicDepth < zero ){
-            throw new FaultException(C + " : setUpperSeismogenicDepth(): Input value must be greater than or equal to 0.");
-        }
+        FaultUtils.assertValidDepth(upperSeismogenicDepth);
         this.upperSeismogenicDepth = upperSeismogenicDepth;
     }
     public double getUpperSeismogenicDepth() { return upperSeismogenicDepth; }
 
     public void setLowerSeismogenicDepth(double lowerSeismogenicDepth) throws FaultException {
-        if ( lowerSeismogenicDepth < zero  ){
-            throw new FaultException(C + " : setLowerSeismogenicDepth(): Input value must be greater than or equal to 0.");
-        }
+        FaultUtils.assertValidDepth(lowerSeismogenicDepth);
         this.lowerSeismogenicDepth = lowerSeismogenicDepth;
     }
     public double getLowerSeismogenicDepth() { return lowerSeismogenicDepth; }
 
     public void setGridSpacing(double gridSpacing) throws FaultException {
-        if ( gridSpacing <= zero  ){
+        if ( gridSpacing <= 0.0  ){
             throw new FaultException(C + " : setGridSpacing(): Input value must be greater than 0.");
         }
         this.gridSpacing = gridSpacing;
     }
     public double getGridSpacing() { return gridSpacing; }
 
+    /**
+     * This method checks the simple-fault data to make sure it's all OK.
+     * @throws FaultException
+     */
+    protected void assertValidData() throws FaultException {
+
+        if( faultTrace == null ) throw new FaultException(C + "Fault Trace is null");
+
+        FaultUtils.assertValidDip(aveDip);
+        FaultUtils.assertValidSeisUpperAndLower(upperSeismogenicDepth, lowerSeismogenicDepth);
+
+        if( gridSpacing == Double.NaN ) throw new FaultException(C + "invalid gridSpacing");
+
+        double depth = faultTrace.getLocationAt(0).getDepth();
+        if(depth > upperSeismogenicDepth)
+                throw new FaultException(C + "depth on faultTrace locations must be < upperSeisDepth");
+
+        ListIterator it=faultTrace.listIterator();
+        while(it.hasNext()) {
+          if(((Location)it.next()).getDepth() !=depth){
+            throw new FaultException(C + "All depth on faultTrace locations must be equal");
+          }
+        }
+    }
 
 
 }

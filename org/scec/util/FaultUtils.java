@@ -78,6 +78,32 @@ public final class FaultUtils {
     }
 
 
+     /**
+     * This makes sure that a depth on the fault is a positive number<p>
+     * @param depth
+     * @throws InvalidRangeException
+     */
+    public static void assertValidDepth( double depth)
+        throws InvalidRangeException
+    {
+        if( !(depth >= 0) ) throw new InvalidRangeException( S2 +
+            "Depth on fault must be positive" );
+    }
+
+
+    /**
+     * This makes sure that a depth on the fault is a positive number<p>
+     * @param depth
+     * @throws InvalidRangeException
+     */
+    public static void assertValidSeisUpperAndLower(double upperSeis, double lowerSeis)
+        throws InvalidRangeException {
+
+        assertValidDepth(upperSeis);
+        assertValidDepth(lowerSeis);
+        if( upperSeis > lowerSeis ) throw new InvalidRangeException( S2 +
+            "upperSeisDepth must be < lowerSeisDepth" );
+    }
     /**
      * Checks that the rake angle fits within the definition<p>
      * <code>-180 <= rake <= 180</code><p>
