@@ -44,6 +44,9 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
   //List of the AttenuationRelations supported by this selected IM param
   ArrayList attenRelsSupportedForIM;
 
+  //list of AttenuationRelationships not supported by the selected IM param
+
+
   //Gui elements
   private JScrollPane jScrollPane1 = new JScrollPane();
 
@@ -118,6 +121,9 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
 
   //Flag to keep check which if single multiple attenRel is being used.
   private boolean singleAttenRelSelected =true;
+
+  //Flag to keep track if we are setting the values of the IMR param for the first time
+  private boolean firstTimeIMR_ParamInit = true;
 
   //ParameterList and Editor declaration for the single AttenRels selection
   ParameterList singleAttenRelParamList =null;
@@ -244,16 +250,23 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
     while(it.hasNext()){
       // make the IMR objects as needed to get the site params later
       AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )it.next();
-      imr.setParamDefaults();
-      imrNamesVector.add(imr.getName());
-      Iterator it1 = imr.getSiteParamsIterator();
+      //checks to see if we are showing the IMR param for the first time,
+      //if so then initialise it with the default param settings.
+      if(firstTimeIMR_ParamInit){
+        imr.setParamDefaults();
+        Iterator it1 = imr.getSiteParamsIterator();
 
-      // add change fail listener to the site parameters for this IMR
-      while(it1.hasNext()) {
-        ParameterAPI param = (ParameterAPI)it1.next();
-        param.addParameterChangeFailListener(this);
+        // add change fail listener to the site parameters for this IMR
+        while(it1.hasNext()) {
+          ParameterAPI param = (ParameterAPI)it1.next();
+          param.addParameterChangeFailListener(this);
+        }
       }
+      imrNamesVector.add(imr.getName());
     }
+    //no need to initialise the IMR params again as they already have the default values.
+    firstTimeIMR_ParamInit = false;
+
 
     //checking if the imrNames contains the previously selected AttenRel Name
     int index =imrNamesVector.indexOf(selectedAttenRelName);
