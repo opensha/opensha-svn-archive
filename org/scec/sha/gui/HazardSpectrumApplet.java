@@ -124,7 +124,7 @@ public class HazardSpectrumApplet extends JApplet
   //Total number of the SA Period Values
   private int numSA_PeriodVals;
   //Total number of the values for which we have ran the Hazard Curve
-  private int numSA_PeriodValDone;
+  private int numSA_PeriodValDone=0;
 
   //flag to check whether calculation for the Deterministic Model completed
   private boolean deterministicCalcDone=false;
@@ -995,6 +995,9 @@ public class HazardSpectrumApplet extends JApplet
     //flag to initialise if Deterministic Model Calc have been completed
     deterministicCalcDone=false;
 
+    //checks how many SA Periods has been completed
+    this.numSA_PeriodValDone =0;
+
     //flag to check whether Hazard Curve Calc are done
     hazCalcDone = false;
 
@@ -1046,6 +1049,7 @@ public class HazardSpectrumApplet extends JApplet
       if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
       // initialize the values in condProbfunc with log values as passed in hazFunction
       initX_Values(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
+
       try {
         //iterating over all the SA Periods for the IMR's
         for(int i=0;i< numSA_PeriodVals;++i){
@@ -1203,6 +1207,9 @@ public class HazardSpectrumApplet extends JApplet
 
    //flag to check whether the Hazard Calc are done
    this.hazCalcDone = false;
+
+   //checks how many SA Periods has been completed
+   this.numSA_PeriodValDone =0;
 
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
    calc.setNumForecasts(numERFs);
