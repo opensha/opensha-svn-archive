@@ -250,6 +250,14 @@ public class WeightedFuncList {
     return null;
   }
 
+  /**
+   * This method returns list of values for which fractiles are computed
+   * @return
+   */
+  public ArrayList getFractileValuesList(){
+    return fractionList;
+  }
+
 
   /**
    *

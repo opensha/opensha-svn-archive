@@ -279,23 +279,27 @@ public class GraphPanel extends JPanel {
       int totalNumofFunctions = funcList.size();
       //getting the metadata associated with each function in the list
       for(int i=0,j=0;i<totalNumofFunctions;++i){
-
+        String legend=null;
+        //setting the font style for the legend
+        setLegend =new SimpleAttributeSet();
+        StyleConstants.setFontSize(setLegend,12);
         //checking if element in the list is weighted function list object
         Object obj = funcList.get(i);
         if(obj instanceof WeightedFuncListforPlotting){
           //getting the metadata for weighted functionlist
           WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
+
+          String listInfo = weightedList.getInfo();
+          legend = new String("DATASET #"+(i+1)+"\n\n"+
+                              listInfo+SystemPropertiesUtils.getSystemLineSeparator());
+          StyleConstants.setForeground(setLegend,Color.black);
+          doc.insertString(doc.getLength(),legend,setLegend);
           //checking if individual curves need to be plotted
           if(weightedList.areIndividualCurvesToPlot()){
             //getting the metadata for each individual curves and creating the legend string
-            String listInfo = weightedList.getInfo()+"\n"+weightedList.getFunctionTraceInfo();
-            String legend=null;
-            //setting the font style for the legend
-            setLegend =new SimpleAttributeSet();
-            StyleConstants.setFontSize(setLegend,12);
+            String listFunctionsInfo = weightedList.getFunctionTraceInfo();
 
-            legend = new String("DATASET "+(i+1)+"\n\n"+
-                                listInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            legend = new String(listFunctionsInfo+SystemPropertiesUtils.getSystemLineSeparator());
 
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
@@ -306,10 +310,7 @@ public class GraphPanel extends JPanel {
 
             //getting the fractile info for the weighted function list and adding that to the legend
             String fractileListInfo = weightedList.getFractileInfo();
-            String legend=null;
-            //setting the font style for the legend
-            setLegend =new SimpleAttributeSet();
-            StyleConstants.setFontSize(setLegend,12);
+
             legend = new String(fractileListInfo+SystemPropertiesUtils.getSystemLineSeparator());
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
@@ -319,10 +320,7 @@ public class GraphPanel extends JPanel {
           if(weightedList.isMeanToPlot()){
             //getting the fractileinfo and showing it as legend
             String meanInfo = weightedList.getMeanFunctionInfo();
-            String legend=null;
-            //setting the font style for the legend
-            setLegend =new SimpleAttributeSet();
-            StyleConstants.setFontSize(setLegend,12);
+
             legend = new String(meanInfo+SystemPropertiesUtils.getSystemLineSeparator());
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
@@ -333,11 +331,8 @@ public class GraphPanel extends JPanel {
           DiscretizedFuncAPI func = (DiscretizedFuncAPI)funcList.get(i);
           String functionInfo = func.getInfo();
           String name = func.getName();
-          String legend=null;
-          //setting the font style for the legend
-          setLegend =new SimpleAttributeSet();
-          StyleConstants.setFontSize(setLegend,12);
-          legend = new String("DATASET "+(i+1)+"\n\n"+
+
+          legend = new String("DATASET #"+(i+1)+"\n\n"+
                               name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
                               functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
           StyleConstants.setForeground(setLegend,legendColor[j]);
@@ -385,12 +380,12 @@ public class GraphPanel extends JPanel {
 
       if(!(obj instanceof WeightedFuncListforPlotting)){ //showing data for the individual function
         DiscretizedFuncAPI function = (DiscretizedFuncAPI)obj;
-        b.append("\nDATASET " + (i+1) + "\n\n");
+        b.append("\nDATASET #" + (i+1) + "\n\n");
         b.append(function.toString()+ '\n');
       }
       else{ //showing data for weighted function list
         WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
-        b.append("\nDATASET " + (i+1) + "   Weighted Function List"+'\n');
+        b.append("\nDATASET #" + (i+1) + "   Weighted Function List"+'\n');
         b.append(weightedList.getInfo()+"\n\n");
         //checking if individual curves need to be plotted
         if(weightedList.areIndividualCurvesToPlot()){
@@ -399,7 +394,7 @@ public class GraphPanel extends JPanel {
           ArrayList wtList = weightedList.getRelativeWtList();
           int listSize = list.size();
           for(int j=0;j<listSize;++j){
-            b.append("\nFunction "+(j+1)+" of "+listSize+", from Data Set "+(i+1)+
+            b.append("\nFunction #"+(j+1)+" of "+listSize+", from Dataset #"+(i+1)+
             ", with relative wt = "+(Double)wtList.get(j)+"\n");
             DiscretizedFuncAPI function = (DiscretizedFuncAPI)list.get(j);
             b.append(function.getMetadataString()+ '\n');
@@ -410,9 +405,10 @@ public class GraphPanel extends JPanel {
 
           //getting the fractile info for the weighted function list and adding that to the legend
           DiscretizedFuncList list = weightedList.getFractileList();
+          ArrayList fractileValueList = weightedList.getFractileValuesList();
           int listSize = list.size();
           for(int j=0;j<listSize;++j){
-            b.append("\nFractile #"+(j+1)+" of "+listSize+" from Data Set #"+(i+1)+"\n");
+            b.append("\n"+(Double)fractileValueList.get(j)+" Fractile for Dataset #"+(i+1)+"\n");
             DiscretizedFuncAPI function = (DiscretizedFuncAPI)list.get(j);
             b.append(function.getMetadataString()+ '\n');
           }
@@ -421,7 +417,7 @@ public class GraphPanel extends JPanel {
         //checking if mean fractile need to be plotted
         if(weightedList.isMeanToPlot()){
           //getting the fractileinfo and showing it as legend
-          b.append("\nMean for Data Set #"+(i+1)+"\n");
+          b.append("\nMean for Dataset #"+(i+1)+"\n");
           b.append(weightedList.getMean().getMetadataString()+"\n");
         }
       }
