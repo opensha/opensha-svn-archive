@@ -369,7 +369,8 @@ public class SubmitJobForGridComputation {
       String fileName = outputDir + "ActualFilesLog.log";
       frFTP.write("ls -l *_*.txt | wc -l > " + fileName + "\n");
       frFTP.write("java -classpath /opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/ERF.jar:/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/mail.jar:$CLASSPATH org.scec.sha.gui.infoTools.HazardMapCalcPostProcessing " +
-                  fileName + " " + expectedNumOfFiles + " " + emailAddr + "\n");
+                  fileName + " " + expectedNumOfFiles + " " + emailAddr + " "+
+                  datasetId+"\n");
       frFTP.close();
     }
     catch (Exception e) {

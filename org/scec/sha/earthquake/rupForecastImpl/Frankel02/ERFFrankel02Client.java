@@ -38,8 +38,6 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
       //System.setSecurityManager(new java.rmi.RMISecurityManager());
       erfServer = (ERFFrankel02Server) Naming.lookup(dnsString);
       System.out.println("erfserver:"+erfServer);
-      String str[] = Naming.list(dnsString);
-      for(int i=0; i<str.length; ++i) System.out.println("string:"+str[i]);
       System.out.println("ERFSErver lookup successful");
     }
     catch (NotBoundException n) {
