@@ -322,7 +322,7 @@ public class ShakeMap_2003_AttenRel
       String imt = im.getName();
       if(!imt.equals(MMI_NAME)) {
         updateCoefficients();
-        double b_mean = get_B_Mean();
+        double b_mean = getRockMean();
         return b_mean + Math.log(getAmpFactor(im.getName()));
       }
       else
@@ -342,7 +342,7 @@ public class ShakeMap_2003_AttenRel
       // get the PGA for B category
       coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGA_NAME );
       coeffSM  = ( BJF_1997_AttenRelCoefficients )coefficientsSM.get( PGA_NAME );
-      double b_pga = get_B_Mean();
+      double b_pga = getRockMean();
 
       if(D) {
         System.out.println(C+S+" b_pag (gals) = "+Math.exp(b_pga)*980.0);
@@ -532,7 +532,7 @@ public class ShakeMap_2003_AttenRel
       // get PGA
       coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGA_NAME );
       coeffSM = ( BJF_1997_AttenRelCoefficients )coefficientsSM.get( PGA_NAME );
-      double b_pga = get_B_Mean();
+      double b_pga = getRockMean();
       pga = b_pga + Math.log(getAmpFactor(PGA_NAME));
       // Convert to linear domain in gals (what's needed below)
       pga = Math.exp(pga)*980.0;
@@ -542,7 +542,7 @@ public class ShakeMap_2003_AttenRel
       // get PGV
       coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGV_NAME );
       coeffSM = ( BJF_1997_AttenRelCoefficients )coefficientsSM.get( PGV_NAME );
-      double b_pgv = get_B_Mean();
+      double b_pgv = getRockMean();
       pgv = b_pgv + Math.log(getAmpFactor(PGV_NAME));
       // Convert to linear domain (what's needed below)
       pgv = Math.exp(pgv);
@@ -594,7 +594,7 @@ public class ShakeMap_2003_AttenRel
 
 
     /**
-     * Calculates the mean for the BC category for whatever set of coefficients were
+     * Calculates the mean for Rock using whatever set of coefficients were
      * set before this method was called.
      * The exact formula is: <p>
      *
@@ -602,14 +602,15 @@ public class ShakeMap_2003_AttenRel
      * coeff.b2 * ( mag - 6 ) + <br>
      * coeff.b3 * ( Math.pow( ( mag - 6 ), 2 ) ) +  <br>
      * coeff.b5 * ( Math.log( Math.pow( ( distanceJB * distanceJB  + coeff.h * coeff.h  ), 0.5 ) ) ) + <br>
-     * coeff.bv * ( Math.log( 740 / coeff.va ) ) <br>
+     * coeff.bv * ( Math.log( rockVs30 / coeff.va ) ) <br>
      * @return    The mean value
      */
-    private double get_B_Mean(){
+    private double getRockMean(){
 
         double mag, distanceJB;
         String fltTypeValue, willsSite;
-        double vs30 = 686;
+        double rockVs30_SM = 620;    // these values are from their code
+        double rockVs30_BJF = 724;
 
         try{
             mag = ((Double)magParam.getValue()).doubleValue();
@@ -641,14 +642,14 @@ public class ShakeMap_2003_AttenRel
             coeffBJF.b2 * ( mag - 6 ) +
             coeffBJF.b3 * ( Math.pow( ( mag - 6 ), 2 ) ) +
             coeffBJF.b5 * ( Math.log( Math.pow( ( distanceJB * distanceJB  + coeffBJF.h * coeffBJF.h  ), 0.5 ) ) ) +
-            coeffBJF.bv * ( Math.log( vs30 / coeffBJF.va ) );
+            coeffBJF.bv * ( Math.log( rockVs30_BJF / coeffBJF.va ) );
 
         // Calculate the log rock-site mean for SM
         double meanSM = b1_SM +
             coeffSM.b2 * ( mag - 6 ) +
             coeffSM.b3 * ( Math.pow( ( mag - 6 ), 2 ) ) +
             coeffSM.b5 * ( Math.log( Math.pow( ( distanceJB * distanceJB  + coeffSM.h * coeffSM.h  ), 0.5 ) ) ) +
-            coeffSM.bv * ( Math.log( vs30 / coeffSM.va ) );
+            coeffSM.bv * ( Math.log( rockVs30_SM / coeffSM.va ) );
 
         // now return the appropriate mean
         if(mag <=5)

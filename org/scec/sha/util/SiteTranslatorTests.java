@@ -28,7 +28,7 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
   private double MAX_LAT= 34.7;
   private double MIN_LON= -119.5;
   private double MAX_LON= -117.0;
-  private double GRID_SPACING = .05;
+  private double GRID_SPACING = .1;
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
