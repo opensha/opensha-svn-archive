@@ -277,9 +277,11 @@ public class AS_1997_IMR
     protected void setPropagationEffectParams(){
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
-
+          try{
             distanceRupParam.setValue( probEqkRupture, site );
-
+          }catch (WarningException e){
+            if(D) System.out.println(C+"Warning Exception:"+e);
+          }
             /* The following is a bit of a hack. It assumes the fault grid spacing
                is less than 1 km, and that points off the bottem end of the fault
                don't have significant hanging-wall effects;p Norm said the latter

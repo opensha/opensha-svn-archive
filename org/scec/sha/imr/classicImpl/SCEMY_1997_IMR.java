@@ -213,7 +213,11 @@ public class SCEMY_1997_IMR
     protected void setPropagationEffectParams(){
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) )
-            distanceRupParam.setValue( probEqkRupture, site );
+          try{
+          distanceRupParam.setValue( probEqkRupture, site );
+          }catch (WarningException e){
+           if(D) System.out.println(C+"Warning Exception:"+e);
+         }
 
     }
 

@@ -284,8 +284,11 @@ public class Abrahamson_2000_IMR
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 
+          try{
             distanceRupParam.setValue( probEqkRupture, site );
-
+          }catch (WarningException e){
+            if(D) System.out.println(C+"Warning Exception:"+e);
+          }
 
             /*
             NOT NEEDED HERE

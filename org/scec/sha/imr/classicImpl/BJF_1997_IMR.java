@@ -201,6 +201,7 @@ public class BJF_1997_IMR
         // are set before getting the mean, stdDev, or ExceedProbability
         setPropagationEffectParams();
 
+
     }
 
     /**
@@ -210,7 +211,11 @@ public class BJF_1997_IMR
     protected void setPropagationEffectParams(){
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
+          try{
             distanceJBParam.setValue( probEqkRupture, site );
+          }catch (WarningException e){
+            if(D) System.out.println(C+"Warning Exception:"+e);
+          }
         }
     }
 

@@ -229,7 +229,11 @@ public class Field_2000_IMR
     protected void setPropagationEffectParams(){
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
+          try{
             distanceJBParam.setValue( probEqkRupture, site );
+          }catch (WarningException e){
+            if(D) System.out.println(C+"Warning Exception:"+e);
+          }
         }
     }
 
