@@ -18,6 +18,7 @@ import org.scec.data.Site;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.gui.infoTools.*;
+import org.scec.data.region.*;
 
 
 /**
@@ -70,13 +71,18 @@ public class HazardMapCalculator {
    * @return
    */
   public void getHazardMapCurves(DiscretizedFuncAPI hazFunction,
+/** @merge workspace: Changes in the Workspace */
+                                 SitesInGriddedRegion sites, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
+/** @merge repository: Changes from the Repository
                              Iterator it, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
+*/
 
     Site site;
     HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
     boolean success = (new File("tempData")).mkdir();
-    while(it.hasNext()){
-      site=(Site)it.next();
+    int numSites = sites.getNumGridLocs();
+    for(int j=0;j<numSites;++j){
+      site = sites.getSite(j);
       int numPoints=hazFunction.getNum();
       for(int i=0;i<numPoints;i++)
         hazFunction.set(i,1.0);
@@ -100,9 +106,8 @@ public class HazardMapCalculator {
       }
     }
     //remove the progress frame
-   // progressClass.dispose();
+    // progressClass.dispose();
 
   }
 
 }
-

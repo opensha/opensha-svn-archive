@@ -19,6 +19,7 @@ import com.jrefinery.data.*;
 
 
 import org.scec.data.function.*;
+import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.gui.*;
 import org.scec.gui.plot.LogPlotAPI;
 import org.scec.gui.plot.jfreechart.*;
@@ -563,8 +564,6 @@ public class HazardMapApplet extends JApplet implements
     // get the selected IMR
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
-
-
     try {
       // this function will get the selected IMT parameter and set it in IMT
       imtGuiBean.setIMR_Param();
@@ -577,12 +576,11 @@ public class HazardMapApplet extends JApplet implements
    HazardMapCalculator calc = new HazardMapCalculator();
    try {
 
-     // make a site object to pass to IMR
-    Iterator it = griddedRegionGuiBean.getSites();
+     SitesInGriddedRegion griddedRegionSites = griddedRegionGuiBean.getGriddedRegionSite();
      // calculate the hazard curve for each site
      //creating the directory that stores all the HazardCurves for that region
 
-       calc.getHazardMapCurves(hazFunction, it, imr, (EqkRupForecast)eqkRupForecast);
+       calc.getHazardMapCurves(hazFunction,griddedRegionSites , imr, eqkRupForecast);
        //hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
