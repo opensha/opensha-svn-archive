@@ -334,7 +334,7 @@ public abstract class AttenuationRelationship
     public final static String VS30_NAME = "Vs30";
     public final static String VS30_UNITS = "m/sec";
     public final static String VS30_INFO = "Average 30 meter shear wave velocity at surface";
-    public final static Double VS30_DEFAULT = new Double( "360" );
+    public final static Double VS30_DEFAULT = new Double( "760" );
     protected final static Double VS30_MIN = new Double(0.0);
     protected final static Double VS30_MAX = new Double(5000.0);
     // warning values set in subclasses

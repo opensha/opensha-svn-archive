@@ -45,7 +45,7 @@ public class RegionsOfInterestControlPanel extends JFrame {
       regionsComboBox.addItem("SF Bay Area");
       minLatVector.add(new Double(37));
       maxLatVector.add(new Double(39));
-      minLonVector.add(new Double(-123));
+      minLonVector.add(new Double(-123.5));
       maxLonVector.add(new Double(-121));
 
       //CVM region
