@@ -208,13 +208,14 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
      }
    }
 
-   public String getMetadataForSelectedDataSet(){
-     return (String)metaDataHash.get(selectedDataSet);
+   private String getMetadataForSelectedDataSet(){
+     String metadata = "Latitude :"+(Double)latParam.getValue()+"\t";
+     metadata += "Longitude :"+(Double)lonParam.getValue()+"\n\n\n";
+     return metadata+(String)metaDataHash.get(selectedDataSet);
    }
 
    public ArbitrarilyDiscretizedFunc getChoosenFunction(){
      ArrayList dataValues = openConnection();
-     System.out.println("DataValues: "+dataValues.size());
      ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
      int size = dataValues.size();
      for(int i=0;i<size;++i){
@@ -223,7 +224,7 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
        double yVal = Double.parseDouble(st.nextToken().trim());
        function.set(xVal,yVal);
      }
-     System.out.println("Function Values:" +function.toString());
+     function.setInfo(getMetadataForSelectedDataSet());
      return function;
    }
 }

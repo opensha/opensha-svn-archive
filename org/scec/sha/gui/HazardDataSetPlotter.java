@@ -338,7 +338,7 @@ public class HazardDataSetPlotter extends JApplet
 
   //Get Applet information
   public String getAppletInfo() {
-    return "Hazard Curves Applet";
+    return "Hazard Data Set Plotter Applet";
   }
 
 
@@ -424,8 +424,6 @@ public class HazardDataSetPlotter extends JApplet
         JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Parameter Input",JOptionPane.ERROR_MESSAGE);
         return;
       }
-
-
 
       if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
       data.setXLog(xLog);
@@ -519,14 +517,6 @@ public class HazardDataSetPlotter extends JApplet
                                     "Error Connecting to Internet",JOptionPane.OK_OPTION);
     }
   }
-
-
-
-
-
-
-
-
 
   /**
    *
