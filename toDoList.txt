@@ -26,7 +26,7 @@ Go through existing apps and list issues we'd like to improve.
 
 
 
-
+For Ned: test the new SimplePoissonFaultSource and incorporate it into a new SimplePoissonFault_ERF (to be created) and into the Frankel1996_ERF.  Apply the latter in the PEER test cases where it can be used.
 
 For Ned: RelativeLocation object is a bit of a mess in terms of documentation.  .  Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.  Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  Should we be using UTM coordinates?
 

@@ -19,11 +19,11 @@ import org.scec.sha.surface.*;
  * <LI>magDist - any IncrementalMagFreqDist
  * <LI>faultSurface - any EvenlyDiscretizedSurface
  * <LI>magScalingRel- any magLenthRelationship or magAreaRelalationship
- * <LI>magScalingSigma - the standard deviation of log(Lenth) or log(Area)
- * <LI>rupAspectRatio - the ratio of rutpure length to rutpure width (down-dip)
+ * <LI>magScalingSigma - the standard deviation of log(Length) or log(Area)
+ * <LI>rupAspectRatio - the ratio of rupture length to rupture width (down-dip)
  * <LI>rupOffset - the amount by which ruptures are offset on the fault.
  * <LI>rake - that rake (in degrees) assigned to all ruptures.
- * <LI>timeSpan - the duration of the forecast (in same usints as in the magFreqDist)
+ * <LI>timeSpan - the duration of the forecast (in same units as in the magFreqDist)
  * </UL><p>
  * Note that none of these input objects are saved internally (after construction) in
  * order to conserve memory (this is why there are no associated get/set methods for each).<p>
@@ -33,10 +33,10 @@ import org.scec.sha.surface.*;
  * one uses the constructor that allows the "minMag" to be set by hand). <p>
  * Note that magScalingSigma can be either a MagAreaRelationship or a
  * MagLengthRelationship.  If a MagAreaRelationship is being used, and the rupture
- * width implied for a given mangitude exceeds the down-dip width of the faultSurface,
+ * width implied for a given magnitude exceeds the down-dip width of the faultSurface,
  * then the rupture length is increased accordingly and the rupture width is set as
  * the down-dip width.  If a MagLengthRelationship is being used, and the rupture
- * width impled by the rupAspectRatio exceeds the down-dip width, everything below
+ * width implied by the rupAspectRatio exceeds the down-dip width, everything below
  * the bottom edge of the fault is simply cut off (ignored).  Thus, with a
  * MagLengthRelationship you can force rupture of the entire down-dip width by giving
  * rupAspecRatio a very small value.</p>
