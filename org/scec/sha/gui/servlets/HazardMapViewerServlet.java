@@ -10,7 +10,7 @@ import java.io.*;
 import javax.servlet.ServletException;
 import java.util.StringTokenizer;
 import java.text.DecimalFormat;
-
+import java.util.Collections;
 
 import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
 import org.scec.sha.gui.beans.IMLorProbSelectorGuiBean;
@@ -199,10 +199,10 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
     // get the min lat, max lat, min lon ,max lon, gridspacing
     ParameterList paramList = map.getAdjustableParamsList();
-    double minLat =((Double) paramList.getValue(GMT_MapGenerator.MIN_LAT_PARAM_NAME)).doubleValue();
-    double maxLat =((Double) paramList.getValue(GMT_MapGenerator.MAX_LAT_PARAM_NAME)).doubleValue();
-    double minLon =((Double) paramList.getValue(GMT_MapGenerator.MIN_LON_PARAM_NAME)).doubleValue();
-    double maxLon =((Double) paramList.getValue(GMT_MapGenerator.MAX_LON_PARAM_NAME)).doubleValue();
+    String minLat = paramList.getValue(GMT_MapGenerator.MIN_LAT_PARAM_NAME).toString();
+    String maxLat = paramList.getValue(GMT_MapGenerator.MAX_LAT_PARAM_NAME).toString();
+    String minLon = paramList.getValue(GMT_MapGenerator.MIN_LON_PARAM_NAME).toString();
+    String maxLon = paramList.getValue(GMT_MapGenerator.MAX_LON_PARAM_NAME).toString();
     double gridSpacing =((Double) paramList.getValue(GMT_MapGenerator.GRID_SPACING_PARAM_NAME)).doubleValue();
 
     //adding the xyz data set to the object of XYZ_DataSetAPI
@@ -213,22 +213,87 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
     //searching the directory for the list of the files.
     File dir = new File(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/");
-    String[] fileList=dir.list();
-    //formatting of the text double Decimal numbers for 2 places of decimal.
-    DecimalFormat d= new DecimalFormat("0.00##");
+    File[] fileList=dir.listFiles();
+
+    int numFiles = fileList.length;
+    //creating the arraylist to get the lat and lons in this dataset
+    ArrayList latList = new ArrayList();
+    ArrayList lonList = new ArrayList();
+
+    /*
+    *Reading all the Hazard files in the dataset to get their Lat and Lons
+    */
+
+    for(int i=0;i<numFiles;++i){
+      //only taking the files into consideration
+      if(fileList[i].isFile()){
+        String fileName = fileList[i].getName();
+        //files that ends with ".txt"
+        if(fileName.endsWith(".txt")){
+          int index = fileName.indexOf("_");
+          int firstIndex = fileName.indexOf(".");
+          int lastIndex = fileName.lastIndexOf(".");
+          // Hazard data files have 3 "." in their names
+          if(firstIndex != lastIndex){
+
+            //getting the lat and Lon values from file names
+            String latVal = fileName.substring(0,index).trim();
+            String lonVal = fileName.substring(index+1,lastIndex).trim();
+            if(!latList.contains(latVal))
+              latList.add(latVal);
+            if(!lonList.contains(lonVal))
+              lonList.add(lonVal);
+          }
+        }
+      }
+    }
+
+    Collections.sort(latList);
+    Collections.sort(lonList);
 
     double interpolatedVal=0;
     ArrayList fileLines;
-    //lat and lon to compare with maxLat and maxLon, as double varies in precision
-    //so we need different variable for comparison with maximum lat & lons
-    //this needs to eb formatted to be compared.
-    //String latForComparison = d.format(minLat);
-    for(double lat = minLat;lat<=maxLat; lat=Double.parseDouble(d.format(lat+gridSpacing))){
-      //String lonForComparison = d.format(minLon);
-      for(double lon = minLon;lon<=maxLon; lon=Double.parseDouble(d.format(lon+gridSpacing))) {
+    //getting the indexes of the lat and lon( filled by the user)
+   // from the list of Lat and Lons( for which we computed the dataset).
+    int latListSize = latList.size();
+    int lonListSize = lonList.size();
+    int minLatIndex =0;
+    int maxLatIndex =0;
+    double minLatVal = Double.parseDouble(minLat);
+    double maxLatVal = Double.parseDouble(maxLat);
+
+    double gridSpacingForCloseValue = gridSpacing/2;
+
+    for(int i=0;i<latListSize;++i){
+      if(Math.abs(minLatVal - Double.parseDouble((String)latList.get(i))) < gridSpacingForCloseValue)
+         minLatIndex = i;
+      if(Math.abs(maxLatVal - Double.parseDouble((String)latList.get(i))) < gridSpacingForCloseValue)
+         maxLatIndex = i;
+    }
+
+
+    int minLonIndex =0;
+    int maxLonIndex =0;
+    double minLonVal = Double.parseDouble(minLon);
+    double maxLonVal = Double.parseDouble(maxLon);
+    for(int i=0;i<lonListSize;++i){
+      if(Math.abs(minLonVal - Double.parseDouble((String)lonList.get(i))) < gridSpacingForCloseValue)
+         minLonIndex = i;
+      if(Math.abs(maxLonVal - Double.parseDouble((String)lonList.get(i))) < gridSpacingForCloseValue)
+         maxLonIndex = i;
+    }
+
+    System.out.println("Indexes: "+minLatIndex+" "+maxLatIndex+" "+minLonIndex+" "+maxLonIndex);
+
+    for(int k=minLatIndex;k<=maxLatIndex;++k){
+      for(int j=minLonIndex;j>=maxLonIndex;--j) {
+        //getting Lat and Lons
+        String lat = (String)latList.get(k);
+        String lon = (String)lonList.get(j);
+
         try {
-          String fileToRead = d.format(lat)+"_"+ d.format(lon)+".txt";
-          //System.out.println("File to read: "+fileToRead);
+          String fileToRead = lat+"_"+ lon+".txt";
+          System.out.println("File to read: "+fileToRead);
           fileLines = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+fileToRead);
           String dataLine;
           StringTokenizer st;
@@ -256,11 +321,12 @@ public class HazardMapViewerServlet  extends HttpServlet {
             interpolatedVal = func.getFirstInterpolatedX_inLogXLogYDomain(val);
 
         }catch(Exception e) {
-          //e.printStackTrace();
+          e.printStackTrace();
         } // catch invalid range exception etc.
         xVals.add(new Double(lat));
         yVals.add(new Double(lon));
         zVals.add(new Double(interpolatedVal));
+        System.out.println("Interpolated Z Val: "+interpolatedVal);
       }
     }
 

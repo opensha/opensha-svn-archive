@@ -369,9 +369,17 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
        minLonVector, (String)minLonVector.get(0));
    StringParameter maxLonParam = new StringParameter(MAX_LON_PARAM_NAME,
        maxLonVector, (String)maxLonVector.get(0));
+
    // make the gridspacing param
-   DoubleParameter gridSpacingParam = new DoubleParameter(GRIDSPACING_PARAM_NAME,
-                                                   new Double(intervalLat));
+   //creating the grid spacing constraint for parameter
+   //does not allow the user to edit the gridspacing and it remains the same
+   //using dataset was computed
+   ArrayList gridSpacingConstraint = new ArrayList();
+   gridSpacingConstraint.add(new String(""+intervalLat));
+
+   StringParameter gridSpacingParam = new StringParameter(GRIDSPACING_PARAM_NAME,
+                                                   gridSpacingConstraint,(String)gridSpacingConstraint.get(0));
+
 
    // add the params to the list
    this.sitesParamList = new ParameterList();
@@ -435,7 +443,7 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
     double maxLat = Double.parseDouble((String)sitesParamList.getParameter(this.MAX_LAT_PARAM_NAME).getValue());
     double minLon = Double.parseDouble((String)sitesParamList.getParameter(this.MIN_LON_PARAM_NAME).getValue());
     double maxLon = Double.parseDouble((String)sitesParamList.getParameter(this.MAX_LON_PARAM_NAME).getValue());
-    double gridSpacing = ((Double)sitesParamList.getParameter(this.GRIDSPACING_PARAM_NAME).getValue()).doubleValue();
+    double gridSpacing = Double.parseDouble((String)sitesParamList.getParameter(this.GRIDSPACING_PARAM_NAME).getValue());
     String selectedSet = this.dataSetCombo.getSelectedItem().toString();
     // set the lat and lon limits in mao gui bean
     mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon, gridSpacing);
