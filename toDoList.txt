@@ -1,7 +1,9 @@
    **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Automate HAZUS shape-file generation.
+Automate HAZUS shape-file generation & validate
+
+Make a library to represent t-surfaces (or look on internet to see if someone else has come up with a good object-oriented design).
 
 ===================================
 

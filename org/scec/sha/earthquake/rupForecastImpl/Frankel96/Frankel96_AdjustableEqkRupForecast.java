@@ -44,7 +44,7 @@ public class Frankel96_AdjustableEqkRupForecast extends EqkRupForecast
     implements ParameterChangeListener{
 
   //for Debug purposes
-  private static String  C = new String("Frankel96_EqkRupForecast");
+  private static String  C = new String("Frankel96_AdjustableEqkRupForecast");
   private boolean D = false;
 
   // name of this ERF
