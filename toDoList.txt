@@ -3,9 +3,7 @@
 
 Create the SiteClass Test to test if our applications are getting the correct values for the Wills site Class and Basin Depth from the servlets.
 
-In the GMT_MapGenerator if the data file has all the same z-values in it a blank map will be returned if the user has selected "Color Scale Limits" = "From Data"; we could throw an exception if the max = min in such cases.
-
-Add site translation for SEA_1999_AttenRel
+dd site translation for SEA_1999_AttenRel
 
 Ned added a main method to test the SiteTranslator which is more efficient than the SiteTranslatorTest object.  Do we need the latter any longer?
 
