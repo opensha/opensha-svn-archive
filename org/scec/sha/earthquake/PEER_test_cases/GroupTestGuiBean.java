@@ -69,10 +69,10 @@ public class GroupTestGuiBean implements
    /**
     * Param Names
     */
-  private final static String TEST_PARAM_NAME = "Test Cases";
+  private final static String TEST_PARAM_NAME = "Test Case";
   private final static String SITE_NUMBER_PARAM = "Site Number";
-  private final static String IMR_PARAM_NAME = "IMR NAMES";
-  private final static String IMT_PARAM_NAME =  "Select IMT";
+  private final static String IMR_PARAM_NAME = "IMR";
+  private final static String IMT_PARAM_NAME =  "IMT";
 
 
   /**
@@ -111,11 +111,11 @@ public class GroupTestGuiBean implements
   private final static String SITE_EIGHT = "Site-8";
 
   //source Name
-  private final static String SOURCE_PARAM_NAME = "Forecast";
+  private final static String SOURCE_PARAM_NAME = "Eqk Rup Forecast";
 
   //Source Fault Name
-  private final static String SOURCE_FAULT_ONE = "Fault";
-  private final static String SOURCE_FAULT_AREA = "Area";
+  private final static String SOURCE_FAULT_ONE = "Test Set1 Fault";
+  private final static String SOURCE_FAULT_AREA = "Test Set1 Area";
 
   // Fault 1 , Fault 2 and Area
   private final static String FAULT_ONE = "Fault 1";
@@ -337,7 +337,7 @@ public class GroupTestGuiBean implements
    testCasesParamList.addParameter(availableSites);
    // now make the editor based on the paramter list
    testCasesEditor = new ParameterListEditor( testCasesParamList, searchPaths);
-   testCasesEditor.setTitle( "Test Cases" );
+   testCasesEditor.setTitle( "Select Test" );
 
   }
 
