@@ -71,9 +71,9 @@ public class GriddedFaultApplet3D
 
     protected final static String SURFACE = "Grid Plot";
     protected final static String SUB_SURFACE = "Grid Sub Plot";
-    protected final static String FAULT = "Fault Plot";
-    protected final static String BOTH_PLOTS = "Grid & Fault Plot";
-    protected final static String ALL_FAULTS = "All Faults Plot";
+    protected final static String FAULT = "Fault Trace";
+    protected final static String BOTH_PLOTS = "Grid & Fault Trace";
+    protected final static String ALL_FAULTS = "All Fault Traces";
     protected final static String BOTH_SUB_AND_SURFACE_PLOTS = "Grid & Sub Plot";
     protected final static String THREE_D = "3D Gridded Surface";
 
@@ -101,7 +101,7 @@ public class GriddedFaultApplet3D
     ParameterEditor gridSpacingEditor;
     SubRectanglePanel rect = new SubRectanglePanel(0,100,0,100);
 
-    FaultTraceList faultTraces;
+    SimpleFaultDataList simpleFaultDataList;
 
     protected int currentControlsBar = A1;
     protected int currentMainBar = A2;
@@ -267,7 +267,7 @@ public class GriddedFaultApplet3D
         ArrayList files = new ArrayList();
         files.add("CALA.char");
         files.add("CALB.char");
-        faultTraces = FaultTraceFactory.loadFaultTraces(files);
+        simpleFaultDataList = Frankel96_SimpleFaultDataFileReader.getSimpleFaultDataList(files);
 
         oval.setBottomColor( darkBlue );
         oval.setTopColor( darkBlue );
@@ -293,11 +293,11 @@ public class GriddedFaultApplet3D
 
         // starting
         String S = C + ": initFaults()(): ";
-        if( this.faultTraces.size() < 1 )
+        if( this.simpleFaultDataList.size() < 1 )
             throw new RuntimeException( S + "No faults specified, unable to continue" );
 
         boolean first = true;
-        ListIterator it = faultTraces.listIterator();
+        ListIterator it = simpleFaultDataList.listIterator();
         ArrayList list = new ArrayList();
         while( it.hasNext() ){
 
@@ -334,36 +334,28 @@ public class GriddedFaultApplet3D
         String S = C + " ; getFaultGriddedSurface(): ";
         if( D ) System.out.println(S + "Starting");
 
-        if( D ) System.out.println(S + "Getting Sierra Madre fault trace");
-        FaultTrace faultTrace = faultTraces.getFaultTrace(faultName);
+
+        SimpleFaultData faultData = simpleFaultDataList.getSimpleFaultData(faultName);
 
 
-        if( D ) System.out.println(S + "Creating StirlingGriddedFaultFactory with " + faultTrace.getName());
-        if( D ) System.out.println(S + "Dip = " +faultTrace.getAveDip());
-        if( D ) System.out.println(S + "UpperSeismogenicDepth = " +faultTrace.getUpperSeismogenicDepth());
-        if( D ) System.out.println(S + "LowerSeismogenicDepth = " +faultTrace.getLowerSeismogenicDepth());
+        if( D ) System.out.println(S + "Creating StirlingGriddedFaultFactory with " + faultName);
 
 
-        factory = new StirlingGriddedFaultFactory(
-            faultTrace,
-            new Double( faultTrace.getAveDip() ),
-            new Double( faultTrace.getUpperSeismogenicDepth() ),
-            new Double( faultTrace.getLowerSeismogenicDepth() ),
-            new Double( ( (Double)gridSpacingEditor.getValue() ).doubleValue() )
-        );
+        factory = new StirlingGriddedFaultFactory(faultData,
+                      ((Double)gridSpacingEditor.getValue()).doubleValue());
 
 
-        if( D ) System.out.println(S + "Factory creating gridded surface for Sierra Madre Fault");
+
         GriddedSurfaceAPI surface = factory.getGriddedSurface();
-        surface.setName(faultTrace.getName());
+        surface.setName(faultName);
 
         gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km");
         rowsLabel.setValue("" + surface.getNumRows() );
         colsLabel.setValue("" + surface.getNumCols() );
-        dipLabel.setValue( "" + faultTrace.getAveDip() );
-        upperSeismoLabel.setValue( "" + faultTrace.getUpperSeismogenicDepth() );
-        lowerSeismoLabel.setValue( "" + faultTrace.getLowerSeismogenicDepth() );
-        faultNameLabel.setValue( faultTrace.getName() );
+        dipLabel.setValue( "" + faultData.getAveDip() );
+        upperSeismoLabel.setValue( "" + faultData.getUpperSeismogenicDepth() );
+        lowerSeismoLabel.setValue( "" + faultData.getLowerSeismogenicDepth() );
+        faultNameLabel.setValue( faultName );
 
 
         if( D ) System.out.println(S + "Surface = " + surface.toString());
@@ -596,9 +588,9 @@ public class GriddedFaultApplet3D
                 if ( frame != null )
                     frame.setTitle( this.getAppletInfo() + ": [" + currentGriddedSurfaceName + ']');
 
-                int max = faultTraces.size();
+                int max = this.simpleFaultDataList.size();
                 for( int i = 0; i < max; i++){
-                    FaultTraceXYDataSet dataSet = new FaultTraceXYDataSet( faultTraces.getFaultTraceAt(i) );
+                    FaultTraceXYDataSet dataSet = new FaultTraceXYDataSet( simpleFaultDataList.getSimpleFaultDataAt(i).getFaultTrace() );
                     plotter.add(dataSet);
                 }
                 addGraphPanel();
@@ -606,20 +598,20 @@ public class GriddedFaultApplet3D
 
             case FAULT_PLOT_TYPE:
 
-                FaultTrace trace = faultTraces.getFaultTrace(currentGriddedSurfaceName);
+                SimpleFaultData simpleFaultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
                 comp3D = null;
                 threeD = false;
                 clearInfo();
                 rect.disable();
 
-                dipLabel.setValue( "" + trace.getAveDip() );
-                upperSeismoLabel.setValue( "" + trace.getUpperSeismogenicDepth() );
-                lowerSeismoLabel.setValue( "" + trace.getLowerSeismogenicDepth() );
-                faultNameLabel.setValue( trace.getName() );
+                dipLabel.setValue( "" + simpleFaultData.getAveDip() );
+                upperSeismoLabel.setValue( "" + simpleFaultData.getUpperSeismogenicDepth() );
+                lowerSeismoLabel.setValue( "" + simpleFaultData.getLowerSeismogenicDepth() );
+                faultNameLabel.setValue( simpleFaultData.getFaultTrace().getName() );
 
                 plotter.clear();
                 plotter.setPlotType( GriddedFaultPlotter.SHAPES_AND_LINES);
-                plotter.add( new FaultTraceXYDataSet(trace) );
+                plotter.add( new FaultTraceXYDataSet(simpleFaultData.getFaultTrace()) );
                 addGraphPanel();
                 break;
 
@@ -694,14 +686,14 @@ public class GriddedFaultApplet3D
                 }
                 else{
 
-                    FaultTrace faultTrace = faultTraces.getFaultTrace(currentGriddedSurfaceName);
-                    gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km" );
-                    rowsLabel.setValue("" + surface.getNumRows() );
-                    colsLabel.setValue("" + surface.getNumCols() );
-                    dipLabel.setValue( "" + faultTrace.getAveDip() );
-                    upperSeismoLabel.setValue( "" + faultTrace.getUpperSeismogenicDepth() );
-                    lowerSeismoLabel.setValue( "" + faultTrace.getLowerSeismogenicDepth() );
-                    faultNameLabel.setValue( faultTrace.getName() );
+                  SimpleFaultData faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                  gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km" );
+                  rowsLabel.setValue("" + surface.getNumRows() );
+                  colsLabel.setValue("" + surface.getNumCols() );
+                  dipLabel.setValue( "" + faultData.getAveDip() );
+                  upperSeismoLabel.setValue( "" + faultData.getUpperSeismogenicDepth() );
+                  lowerSeismoLabel.setValue( "" + faultData.getLowerSeismogenicDepth() );
+                  faultNameLabel.setValue( faultData.getFaultTrace().getName() );
                 }
 
                 rect.enable();
@@ -788,14 +780,14 @@ public class GriddedFaultApplet3D
                 }
                 else{
 
-                    FaultTrace faultTrace = faultTraces.getFaultTrace(currentGriddedSurfaceName);
-                    gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km" );
-                    rowsLabel.setValue("" + surface.getNumRows() );
-                    colsLabel.setValue("" + surface.getNumCols() );
-                    dipLabel.setValue( "" + faultTrace.getAveDip() );
-                    upperSeismoLabel.setValue( "" + faultTrace.getUpperSeismogenicDepth() );
-                    lowerSeismoLabel.setValue( "" + faultTrace.getLowerSeismogenicDepth() );
-                    faultNameLabel.setValue( faultTrace.getName() );
+                   SimpleFaultData faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                   gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km" );
+                   rowsLabel.setValue("" + surface.getNumRows() );
+                   colsLabel.setValue("" + surface.getNumCols() );
+                   dipLabel.setValue( "" + faultData.getAveDip() );
+                   upperSeismoLabel.setValue( "" + faultData.getUpperSeismogenicDepth() );
+                   lowerSeismoLabel.setValue( "" + faultData.getLowerSeismogenicDepth() );
+                   faultNameLabel.setValue( faultData.getFaultTrace().getName() );
                 }
 
                 plotter.add(new GriddedSurfaceXYDataSet(surface));
@@ -862,21 +854,21 @@ public class GriddedFaultApplet3D
                 //plotter.add(functions3);
 
 
-                FaultTrace trace1 = faultTraces.getFaultTrace(currentGriddedSurfaceName);
+                SimpleFaultData faultData1 = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
 
                 gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km");
                 rowsLabel.setValue("" + surface.getNumRows() );
                 colsLabel.setValue("" + surface.getNumCols() );
 
-                dipLabel.setValue( "" + trace1.getAveDip() );
-                upperSeismoLabel.setValue( "" + trace1.getUpperSeismogenicDepth() );
-                lowerSeismoLabel.setValue( "" + trace1.getLowerSeismogenicDepth() );
-                faultNameLabel.setValue( trace1.getName() );
+                dipLabel.setValue( "" + faultData1.getAveDip() );
+                upperSeismoLabel.setValue( "" + faultData1.getUpperSeismogenicDepth() );
+                lowerSeismoLabel.setValue( "" + faultData1.getLowerSeismogenicDepth() );
+                faultNameLabel.setValue( faultData1.getFaultTrace().getName() );
 
 
                 plotter.clear();
                 plotter.setPlotType( GriddedFaultPlotter.SHAPES);
-                plotter.add( new FaultTraceXYDataSet(trace1) );
+                plotter.add( new FaultTraceXYDataSet(faultData1.getFaultTrace()) );
                 plotter.add(functions3);
                 addGraphPanel();
                 break;
