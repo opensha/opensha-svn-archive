@@ -33,6 +33,8 @@ public class ShowMessage extends JFrame {
   }
   private void jbInit() throws Exception {
     jMessagePanel.setLayout(gridBagLayout1);
+    this.setResizable(false);
+    this.setTitle("Log-Plot Information");
     this.getContentPane().setLayout(gridBagLayout2);
     jMessageButton.setBackground(new Color(200, 200, 230));
     jMessageButton.setForeground(new Color(80, 80, 133));

@@ -1520,6 +1520,7 @@ public class IMRTesterApplet
    * it reverts back to the linear scale displaying a message box to the user.
    */
  public void invalidLogPlot(String message) {
+
      if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
        this.jCheckxlog.setSelected(false);
        ShowMessage showMessage=new ShowMessage(this,"      X-Log Plot Error as it contains Zero Values");
@@ -1535,7 +1536,4 @@ public class IMRTesterApplet
 
 
  }
-
-
-
 }
