@@ -371,7 +371,7 @@ public class HazardCurveServerModeApplication extends JApplet
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
       bugWindow.show();
       bugWindow.pack();
-      e.printStackTrace();
+      //e.printStackTrace();
     }
   }
 

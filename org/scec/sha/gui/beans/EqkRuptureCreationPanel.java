@@ -216,12 +216,12 @@ public class EqkRuptureCreationPanel
     this.setLayout(gridBagLayout1);
     this.add(hypocenterButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(4, 79, 11, 100), 43, 6));
+        new Insets(4, 50, 11, 50), 43, 6));
     this.add(hypocenterLocationLabel,
              new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
                                     , GridBagConstraints.CENTER,
                                     GridBagConstraints.NONE,
-                                    new Insets(4, 79, 11, 100), 43, 6));
+                                    new Insets(4, 50, 11, 50), 43, 6));
     this.add(listEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.BOTH,

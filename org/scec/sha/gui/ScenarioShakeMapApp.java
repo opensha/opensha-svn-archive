@@ -30,7 +30,7 @@ import org.scec.sha.calc.ScenarioShakeMapCalculator;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.exceptions.ParameterException;
 import org.scec.sha.earthquake.EqkRupture;
-
+import org.scec.sha.gui.infoTools.ExceptionWindow;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -210,16 +210,21 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     }
     catch(Exception e) {
       step =0;
-      e.printStackTrace();
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
     }
     try{
       //initialises the IMR and IMT Gui Bean
       initIMRGuiBean();
     }catch(RuntimeException e){
-      e.printStackTrace();
+      //e.printStackTrace();
       step =0;
-      JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
-      return;
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
+      //JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
+      //return;
     }
     this.initGriddedRegionGuiBean();
     try{
@@ -230,7 +235,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
         step =0;
         JOptionPane.showMessageDialog(this,"Could not create ERF Object","Error occur in ERF",
                                       JOptionPane.OK_OPTION);
-        return;
+        System.exit(0);
+        //return;
       }
 
     this.initImlProb_GuiBean();
@@ -372,7 +378,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    try{
      erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
    }catch(InvocationTargetException e){
-     throw new RuntimeException("Connection to ERF servlets failed");
+     throw new RuntimeException("Connection to ERF's failed");
    }
    eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -536,7 +542,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
         return serverXYZDataSetFilePath;
       }
     }catch(ParameterException e){
-      e.printStackTrace();
+      //e.printStackTrace();
       throw new ParameterException(e.getMessage());
     }
   }
@@ -669,6 +675,9 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     try{
       getGriddedSitesMapTypeAndSelectedAttenRels();
     }catch(RuntimeException ee){
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
       addButton.setEnabled(true);
       return;
     }

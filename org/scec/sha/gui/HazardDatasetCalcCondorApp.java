@@ -28,6 +28,7 @@ import org.scec.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.util.ImageUtils;
+import org.scec.sha.gui.infoTools.ExceptionWindow;
 
 
 /**
@@ -190,7 +191,7 @@ public class HazardDatasetCalcCondorApp extends JApplet
     try{
         this.initERFSelector_GuiBean();
       }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,"Could not create ERF Object","Error occur in ERF",
+      JOptionPane.showMessageDialog(this,"Could not connect with ERF's","Error occur in ERF",
                                     JOptionPane.OK_OPTION);
       return;
       }
@@ -363,10 +364,7 @@ public class HazardDatasetCalcCondorApp extends JApplet
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
-     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
-     bugWindow.show();
-     bugWindow.pack();
-     //throw new RuntimeException("Connection to ERF servlets failed");
+     throw new RuntimeException("Connection to ERF servlets failed");
    }
    eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -405,22 +403,6 @@ public class HazardDatasetCalcCondorApp extends JApplet
 
 
   }
-
-  /**
-   *
-   * @returns the Sites Values for each site in the region chosen by the user
-   */
-  private void getGriddedRegionSites(){
-    try {
-      griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-    }catch(ParameterException e) {
-      throw  new ParameterException(e.getMessage());
-    }
-    catch(Exception e){
-      throw new RuntimeException(e.getMessage());
-    }
-  }
-
 
   /**
    * Initialize the items to be added to the control list
