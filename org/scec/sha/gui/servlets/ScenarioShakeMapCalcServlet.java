@@ -215,7 +215,7 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
         zVals.set(i,new Double(val));
       }
     }
-    else{ //if Attenuations support PGV
+   if(attenRelsSupportingPGV_size>0){ //if Attenuations support PGV
       xyzDataSetForPGV=calc.getScenarioShakeMapData(attenRelsSupportingPGV,attenRelsWtsSupportingPGV,
                                    region,rupture,isProbAtIML,value);
       convertIML_ValuesToExpo((ArbDiscretizedXYZ_DataSet)xyzDataSetForPGV,AttenuationRelationship.PGV_NAME,isProbAtIML);
