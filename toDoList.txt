@@ -4,6 +4,14 @@
 For OpenSHA:
 ------------
 
+SimpleGriddedFaultFactory
+
+	we create a new instance of this object every time we create 
+	a new surface; it would be more efficient to use the set methods
+	before getting a new surface (use the setAll() method added by Ned).
+
+
+
 ScenarioShakeMapApp
 
 	Have a window pop up if imr.setProbEqkRupture(*) fails

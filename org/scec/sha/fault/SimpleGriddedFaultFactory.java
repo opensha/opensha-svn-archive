@@ -87,10 +87,15 @@ public abstract class SimpleGriddedFaultFactory extends GriddedFaultFactory impl
     }
 
 
+    public void setAll(FaultTrace faultTrace,double aveDip,double upperSeismogenicDepth,
+                       double lowerSeismogenicDepth, double gridSpacing ) {
 
-    // **********************************
-    /** @todo  Data Accessors / Setters */
-    // **********************************
+      setFaultTrace(faultTrace);
+      setAveDip(aveDip);
+      setUpperSeismogenicDepth(upperSeismogenicDepth);
+      setLowerSeismogenicDepth(lowerSeismogenicDepth);
+      setGridSpacing(gridSpacing);
+    }
 
     public void setFaultTrace(FaultTrace faultTrace) { this.faultTrace = faultTrace; }
     public FaultTrace getFaultTrace() { return faultTrace; }

@@ -26,7 +26,7 @@ import org.scec.param.event.ParameterChangeEvent;
 
 
 /**
- * <p>Title: WG02_EqkRupForecast</p>
+ * <p>Title: WG02_ERF_Epistemic_List</p>
  * <p>Description: Working Group 2002 Earthquake Rupture Forecast. This class
  * reads a single file and constructs the forecast.
  * </p>
@@ -37,7 +37,7 @@ import org.scec.param.event.ParameterChangeEvent;
  * @version 1.0
  */
 
-public class WG02_EqkRupForecast extends EqkRupForecast
+public class WG02_ERF_Epistemic_List extends EqkRupForecast
     implements ParameterChangeListener{
 
   //for Debug purposes
@@ -45,39 +45,78 @@ public class WG02_EqkRupForecast extends EqkRupForecast
   private boolean D = true;
 
   /**
+   * used for error checking
+   */
+  protected final static FaultException ERR = new FaultException(
+           C + ": loadFaultTraces(): Missing metadata from trace, file bad format.");
+
+  /**
+   * Static variable for input file name
+   */
+  private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/WG02_WRAPPER_INPUT.DAT";
+
+  /**
    * Vectors for holding the various sources, separated by type
    */
   private Vector charEqkSources;
   private Vector tail_GR_EqkSources;
 
- // This is an array holding each line of the input file
+  // number of interations in the input file
+  private int numIterations;
+
+
+  // This is an array holding each line of the input file
   private ArrayList inputFileLines = null;
 
-  // This is the start-line for this iteration
-  private int startLine;
-  double rupOffset;
-  String backSeisValue;
-  String grTailValue;
-  String name;
+  // Stuff for background & GR tail seismicity params
+  public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
+  public final static String GR_TAIL_NAME = new String ("GR Tail Seismicity");
+  public final static String SEIS_INCLUDE = new String ("Include");
+  public final static String SEIS_EXCLUDE = new String ("Exclude");
+  Vector backSeisOptionsStrings = new Vector();
+  Vector grTailOptionsStrings = new Vector();
+  StringParameter backSeisParam;
+  StringParameter grTailParam;
+
+  // For rupture offset lenth along fault parameter
+  private final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
+  private Double DEFAULT_RUP_OFFSET_VAL= new Double(5);
+  private final static String RUP_OFFSET_PARAM_UNITS = "km";
+  private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
+  private final static double RUP_OFFSET_PARAM_MIN = 1;
+  private final static double RUP_OFFSET_PARAM_MAX = 50;
+  DoubleParameter rupOffset_Param;
 
   /**
    *
    * No argument constructor
    */
-  public WG02_EqkRupForecast() {
+  public WG02_ERF_Epistemic_List() {
 
-    String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/WG02_WRAPPER_INPUT.DAT";
+    // create the timespan object with start time and duration in years
+    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    timeSpan.addParameterChangeListener(this);
+
+    // create and add adj params to list
+    intiAdjParams();
+
+
+    // add the change listener to parameters so that forecast can be updated
+    // whenever any paramater changes
+    rupOffset_Param.addParameterChangeListener(this);
+    backSeisParam.addParameterChangeListener(this);
+    grTailParam.addParameterChangeListener(this);
 
     // read the lines of the input files into a list
     try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
-// Exit if no data found in list
+    // Exit if no data found in list
     if( inputFileLines == null) throw new
-      FaultException(C + "No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
+           FaultException(C + "No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
 
-// set the timespan from the 2nd line of the file
+    // set the timespan from the 2nd line of the file
     ListIterator it = inputFileLines.listIterator();
     StringTokenizer st;
     st = new StringTokenizer(it.next().toString()); // skip first line
@@ -89,42 +128,38 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     st.nextToken();
     int year = new Double(st.nextToken()).intValue();
     double duration = new Double(st.nextToken()).doubleValue();
-    int numIterations = new Double(st.nextToken()).intValue();
+    numIterations = new Double(st.nextToken()).intValue();
     if (D) System.out.println("year="+year+"; duration="+duration+"; numIterations="+numIterations);
     timeSpan.setDuractionConstraint(duration,duration);
     timeSpan.setDuration(duration);
     timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,year,year);
     timeSpan.setStartTime(year);
-
-    // set the startLine to get the first iteration ERF (only)
-    startLine = 2;
-    rupOffset = 2;
-    backSeisValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
-    grTailValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
-    name = "noName";
-
-    // now make the sources
-    makeSources();
   }
 
 
+  // make the adjustable parameters & the list
+  private void intiAdjParams() {
 
-  public WG02_EqkRupForecast(ArrayList inputFileLines, int startLine, double rupOffset,
-                             String backSeisValue, String grTailValue, String name,
-                             TimeSpan timespan) {
 
-    this.inputFileLines = inputFileLines;
-    this.startLine=startLine;
-    this.rupOffset=rupOffset;
-    this.backSeisValue=backSeisValue;
-    this.grTailValue=grTailValue;
-    this.name = name;
-    this.timeSpan = timeSpan;
+    backSeisOptionsStrings.add(SEIS_EXCLUDE);
+    //  backSeisOptionsStrings.add(SEIS_INCLUDE);
+    backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,SEIS_EXCLUDE);
 
-    // now make the sources
-    makeSources();
+    grTailOptionsStrings.add(SEIS_EXCLUDE);
+    //  grTailOptionsStrings.add(SEIS_INCLUDE);
+    grTailParam = new StringParameter(GR_TAIL_NAME, backSeisOptionsStrings,SEIS_EXCLUDE);
+
+    rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
+        RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
+    rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
+
+    // add adjustable parameters to the list
+    adjustableParams.addParameter(rupOffset_Param);
+    adjustableParams.addParameter(backSeisParam);
+    adjustableParams.addParameter(grTailParam);
 
   }
+
 
   /**
    * Make the sources
@@ -134,7 +169,10 @@ public class WG02_EqkRupForecast extends EqkRupForecast
   private  void makeSources() throws FaultException{
 
     charEqkSources = new Vector();
-//    tail_GR_EqkSources = new Vector();
+    tail_GR_EqkSources = new Vector();
+
+    // Debug
+    String S = C + ": makeSoureces(): ";
 
     FaultTrace faultTrace;
     GriddedFaultFactory faultFactory;
@@ -149,10 +187,11 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     String ruptureName;
     int iFault, iRup, numPts, i;
 
+    // get adjustable parameters values
+    double rupOffset = ((Double) rupOffset_Param.getValue()).doubleValue();
+
     // Loop over lines of input file and create each source in the process
     ListIterator it = inputFileLines.listIterator();
-
-
     StringTokenizer st;
 
     // skip first two lines of the file
@@ -329,8 +368,14 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
    public void updateForecast() {
 
-     // does nothing for now
+     // make sure something has changed
      if(parameterChangeFlag) {
+
+       // get value of background seismicity paramter
+       String backSeis = (String) backSeisParam.getValue();
+
+       makeSources();
+
 
        parameterChangeFlag = false;
 
