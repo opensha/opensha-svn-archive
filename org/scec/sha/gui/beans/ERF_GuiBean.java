@@ -1,22 +1,32 @@
 package org.scec.sha.gui.beans;
+import java.awt.Color;
+import java.awt.Font;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
-
-import java.util.*;
-import java.lang.reflect.*;
+import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
+import org.scec.param.ParameterAPI;
+import org.scec.param.ParameterConstraintAPI;
+import org.scec.param.ParameterList;
+import org.scec.param.StringParameter;
 import org.scec.param.editor.ParameterListEditor;
-import org.scec.param.*;
-import org.scec.param.event.*;
-import org.scec.sha.earthquake.EqkRupForecastAPI;
-
-import org.scec.sha.param.*;
+import org.scec.param.event.ParameterChangeEvent;
+import org.scec.param.event.ParameterChangeFailEvent;
 import org.scec.sha.earthquake.ERF_EpistemicList;
+import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
-import org.scec.sha.param.editor.*;
+import org.scec.sha.param.MagFreqDistParameter;
+import org.scec.sha.param.SimpleFaultParameter;
+import org.scec.sha.param.editor.MagFreqDistParameterEditor;
+import org.scec.sha.param.editor.SimpleFaultParameterEditor;
 
 
 /**
@@ -153,7 +163,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
          erfClasses.remove(erfFailed.get(i));
      }
 
-     Iterator it1 = eqkRupForecast.getAdjustableParamsIterator();
+     Iterator it1 = eqkRupForecast.getAdjustableParameterList().getParametersIterator();
 
      // add the listener for the paramters in the forecast
      while(it1.hasNext()) {
@@ -183,7 +193,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      // get the selected forecast
      getSelectedERF_Instance();
 
-     Iterator it = eqkRupForecast.getAdjustableParamsIterator();
+     Iterator it = eqkRupForecast.getAdjustableParameterList().getParametersIterator();
 
     // make the parameters visible based on selected forecast
      while(it.hasNext()){
@@ -448,7 +458,3 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     setParamsInForecast(getSelectedERF_Name());
    }
 }
-
-
-
-

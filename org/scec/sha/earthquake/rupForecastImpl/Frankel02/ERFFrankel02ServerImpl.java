@@ -10,15 +10,16 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 import org.scec.data.Location;
 import org.scec.data.TimeSpan;
 import org.scec.data.region.GeographicRegion;
+import org.scec.param.ParameterAPI;
 import org.scec.param.ParameterList;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.earthquake.ProbEqkSource;
-import org.scec.sha.earthquake.rupForecastImpl.Frankel02.*;
 
 /**
  * @author cmeutils
@@ -34,16 +35,22 @@ public class ERFFrankel02ServerImpl
    
    public ERFFrankel02ServerImpl() throws IOException {
 	 forecast = new Frankel02_AdjustableEqkRupForecast();
+	 System.out.println("On ERFServer: " + forecast.getTimeSpan());
    }
 
 	
 	/* (non-Javadoc)
 	 * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#updateForecast()
 	 */
-	public void updateForecast() throws RemoteException {
+	public void updateForecast(ParameterList list, TimeSpan timeSpan) throws RemoteException {
+		Iterator it = list.getParametersIterator();
+		while(it.hasNext()) {
+		  ParameterAPI param = (ParameterAPI) it.next();
+		  forecast.getParameter(param.getName()).setValue(param.getValue());	
+		}
+		forecast.setTimeSpan(timeSpan);
 		forecast.updateForecast();
 		// TODO Auto-generated method stub
-
 	}
 
 	/* (non-Javadoc)
@@ -58,7 +65,6 @@ public class ERFFrankel02ServerImpl
 	 * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#setTimeSpan(org.scec.data.TimeSpan)
 	 */
 	public void setTimeSpan(TimeSpan time) throws RemoteException {
-		// TODO Auto-generated method stub
 	    forecast.setTimeSpan(time);
 	}
 
@@ -66,8 +72,10 @@ public class ERFFrankel02ServerImpl
 	 * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getTimeSpan()
 	 */
 	public TimeSpan getTimeSpan() throws RemoteException {
+		TimeSpan timeSpan = forecast.getTimeSpan();
+		System.out.println("ERFFrankel02ServerImpl getTimeSpan() called. Timespan="+timeSpan);
 		// TODO Auto-generated method stub
-		return forecast.getTimeSpan();
+		return timeSpan;
 	}
 
 	/* (non-Javadoc)

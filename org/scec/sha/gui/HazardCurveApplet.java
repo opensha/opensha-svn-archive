@@ -1,42 +1,85 @@
 package org.scec.sha.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.net.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.SystemColor;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.io.*;
+import java.net.URL;
+import java.util.ArrayList;
 
-import ch.randelshofer.quaqua.QuaquaManager;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JApplet;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 
-import org.jfree.data.*;
-import org.scec.data.function.*;
-import org.scec.gui.*;
-import org.scec.gui.plot.jfreechart.*;
-import org.scec.param.*;
-import org.scec.param.editor.*;
-import org.scec.param.event.*;
-import org.scec.util.*;
-import org.scec.sha.gui.controls.*;
-import org.scec.sha.gui.beans.*;
-import org.scec.sha.gui.infoTools.*;
-import org.scec.sha.imr.AttenuationRelationshipAPI;
-import org.scec.sha.imr.AttenuationRelationship;
-import org.scec.sha.imr.attenRelImpl.WC94_DisplMagRel;
-import org.scec.sha.earthquake.EqkRupForecastAPI;
-import org.scec.sha.earthquake.EqkRupForecast;
-import org.scec.sha.earthquake.ERF_List;
-import org.scec.sha.calc.HazardCurveCalculator;
+import org.jfree.data.Range;
+import org.scec.data.Site;
+import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import org.scec.data.function.DiscretizedFuncAPI;
+import org.scec.data.function.DiscretizedFuncList;
+import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
+import org.scec.param.event.ParameterChangeEvent;
+import org.scec.param.event.ParameterChangeListener;
 import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.sha.calc.FractileCurveCalculator;
-import org.scec.data.Site;
-import org.scec.sha.gui.infoTools.IMT_Info;
-import org.scec.sha.gui.infoTools.ButtonControlPanelAPI;
+import org.scec.sha.calc.HazardCurveCalculator;
+import org.scec.sha.earthquake.ERF_List;
+import org.scec.sha.earthquake.EqkRupForecast;
+import org.scec.sha.earthquake.EqkRupForecastAPI;
+import org.scec.sha.gui.beans.ERF_GuiBean;
+import org.scec.sha.gui.beans.IMR_GuiBean;
+import org.scec.sha.gui.beans.IMT_GuiBean;
+import org.scec.sha.gui.beans.Site_GuiBean;
+import org.scec.sha.gui.beans.TimeSpanGuiBean;
+import org.scec.sha.gui.controls.DisaggregationControlPanel;
+import org.scec.sha.gui.controls.DisaggregationControlPanelAPI;
+import org.scec.sha.gui.controls.ERF_EpistemicListControlPanel;
+import org.scec.sha.gui.controls.ERF_EpistemicListControlPanelAPI;
+import org.scec.sha.gui.controls.PEER_TestCaseSelectorControlPanel;
+import org.scec.sha.gui.controls.PEER_TestCaseSelectorControlPanelAPI;
+import org.scec.sha.gui.controls.RunAll_PEER_TestCasesControlPanel;
+import org.scec.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
+import org.scec.sha.gui.controls.SetSiteParamsFromWebServicesControlPanel;
+import org.scec.sha.gui.controls.SitesOfInterestControlPanel;
+import org.scec.sha.gui.controls.X_ValuesInCurveControlPanel;
+import org.scec.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.scec.sha.gui.infoTools.ButtonControlPanel;
+import org.scec.sha.gui.infoTools.ButtonControlPanelAPI;
+import org.scec.sha.gui.infoTools.CalcProgressBar;
+import org.scec.sha.gui.infoTools.GraphPanel;
+import org.scec.sha.gui.infoTools.GraphPanelAPI;
+import org.scec.sha.gui.infoTools.GraphWindow;
+import org.scec.sha.gui.infoTools.GraphWindowAPI;
+import org.scec.sha.gui.infoTools.HazardCurveDisaggregationWindow;
+import org.scec.sha.gui.infoTools.IMT_Info;
+import org.scec.sha.imr.AttenuationRelationshipAPI;
+import org.scec.util.ImageUtils;
+import org.scec.util.SystemPropertiesUtils;
+
+import ch.randelshofer.quaqua.QuaquaManager;
 
 /**
  * <p>Title: HazardCurveApplet</p>
@@ -88,6 +131,7 @@ public class HazardCurveApplet extends JApplet
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF";
   public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureERF";
   public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
+  public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Client";
   // instances of the GUI Beans which will be shown in this applet
   private ERF_GuiBean erfGuiBean;
   private IMR_GuiBean imrGuiBean;
@@ -1155,7 +1199,8 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
    erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
-   erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+   //erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){

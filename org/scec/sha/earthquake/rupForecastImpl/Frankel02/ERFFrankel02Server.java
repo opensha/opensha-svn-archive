@@ -35,7 +35,7 @@ public interface ERFFrankel02Server extends Remote {
 	 * the middle of the loop.  This approach is also faster.
 	 * @return
 	 */
-	 public void updateForecast() throws RemoteException ;
+	 public void updateForecast(ParameterList list, TimeSpan timeSpan) throws RemoteException ;
 
 	/**
 	 * Return the name for this class

@@ -1,26 +1,42 @@
 package org.scec.sha.gui.beans;
 
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
-import java.awt.event.*;
-import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.StringTokenizer;
 
-import org.scec.param.ParameterAPI;
-import org.scec.param.StringParameter;
-import org.scec.param.ParameterList;
-import org.scec.param.event.ParameterChangeEvent;
-import org.scec.sha.param.editor.*;
-import org.scec.sha.earthquake.EqkRupForecastAPI;
-import org.scec.sha.earthquake.EqkRupForecast;
-import org.scec.sha.earthquake.ProbEqkRupture;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
+
 import org.scec.data.Location;
-import org.scec.param.*;
-import org.scec.param.editor.*;
-import org.scec.param.event.*;
+import org.scec.param.IntegerParameter;
+import org.scec.param.ParameterAPI;
+import org.scec.param.ParameterList;
+import org.scec.param.StringConstraint;
+import org.scec.param.StringParameter;
+import org.scec.param.editor.ParameterListEditor;
+import org.scec.param.event.ParameterChangeEvent;
+import org.scec.param.event.ParameterChangeListener;
+import org.scec.sha.earthquake.EqkRupForecast;
+import org.scec.sha.earthquake.EqkRupForecastAPI;
+import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
 
 

@@ -19,7 +19,7 @@ public class ERFFrankel02ServerMain {
 	public static void main(String[] args) {
 		try {   
 			System.out.println("Starting Main ERF Server");
-			String 	 registrationName = "Frankel02";
+			String 	 registrationName = "ERFFrankel02";
 			ERFFrankel02ServerImpl erfServer = new ERFFrankel02ServerImpl();
 			Naming.rebind(registrationName,erfServer);
 		    System.out.println("Registered ERFServer as " + registrationName);

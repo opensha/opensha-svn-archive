@@ -1,17 +1,16 @@
 package org.scec.sha.earthquake;
 
-import java.util.ListIterator;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.EventObject;
-import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.ListIterator;
 
-import org.scec.param.ParameterList;
-import org.scec.param.ParameterAPI;
-import org.scec.param.event.TimeSpanChangeListener;
 import org.scec.data.Location;
 import org.scec.data.TimeSpan;
 import org.scec.data.region.GeographicRegion;
+import org.scec.param.ParameterAPI;
+import org.scec.param.ParameterList;
+import org.scec.param.event.TimeSpanChangeListener;
 
 /**
  * <p>Title: </p>
@@ -79,7 +78,8 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI, ERF_API,
     */
    public void setTimeSpan(TimeSpan time) {
      // set the start time
-     this.timeSpan.setStartTime( time.getStartTimeCalendar());
+     if(!time.getStartTimePrecision().equalsIgnoreCase(TimeSpan.NONE))
+       this.timeSpan.setStartTime( time.getStartTimeCalendar());	
      //set the duration as well
      this.timeSpan.setDuration(time.getDuration(), time.getDurationUnits());
    }
