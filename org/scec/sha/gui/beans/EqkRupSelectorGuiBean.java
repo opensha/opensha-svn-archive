@@ -142,6 +142,11 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    int numSources = erf.getNumSources();
    Vector sourcesVector = new Vector();
 
+   if(progress == null)
+     progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures are being updated");
+   else
+     progress.show();
+
    for(int i=0;i<numSources;++i)
      sourcesVector.add(i+" ( "+erf.getSource(i).getName()+" )");
 
@@ -202,10 +207,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      probEqkRupture.setHypocenterLocation(loc);
    }
 
-   if(progress ==null)
-     progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures are being updated");
-   else
-     progress.showProgress(true);
    //writing the ruptures info. for each selected source in the text Area below the rupture
    String rupturesInfo = "Rupture info for \"";
    rupturesInfo += ((String)sourceParam.getValue()).substring(((String)sourceParam.getValue()).indexOf("(")+1,((String)sourceParam.getValue()).indexOf(")")).trim();

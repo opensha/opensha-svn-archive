@@ -457,6 +457,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     try {
       griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
     }catch(Exception e) {
+      calcProgress.showProgress(false);
       JOptionPane.showMessageDialog(this,e.getMessage());
        timer.stop();
       return;
@@ -490,6 +491,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
       try {
         imr.setProbEqkRupture(erfGuiBean.getRupture());
       } catch (Exception ex) {
+        calcProgress.showProgress(false);
         timer.stop();
         JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
         this.repaint();
@@ -500,7 +502,16 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
         siteValue.add( new Double(imr.getExceedProbability(Math.log(imlProbValue))));
       else{
         imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(imlProbValue));
-        siteValue.add(new Double(StrictMath.exp(imr.getIML_AtExceedProb())));
+        try{
+          siteValue.add(new Double(StrictMath.exp(imr.getIML_AtExceedProb())));
+        }catch(RuntimeException e){
+          calcProgress.showProgress(false);
+          timer.stop();
+          JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid parameter value",JOptionPane.ERROR_MESSAGE);
+          this.repaint();
+          this.validate();
+          return;
+        }
       }
     }
 
