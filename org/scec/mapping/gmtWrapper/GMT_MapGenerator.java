@@ -400,10 +400,15 @@ public class GMT_MapGenerator implements Serializable{
                             XYZ_DataSetAPI xyzData) throws Exception{
 
     double minLat = ((Double) minLatParam.getValue()).doubleValue();
-    double maxLat = ((Double) maxLatParam.getValue()).doubleValue();
+    double maxTempLat = ((Double) maxLatParam.getValue()).doubleValue();
     double minLon = ((Double) minLonParam.getValue()).doubleValue();
-    double maxLon = ((Double) maxLonParam.getValue()).doubleValue();
+    double maxTempLon = ((Double) maxLonParam.getValue()).doubleValue();
     double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
+
+    // adjust the max lat and lon to be an exact increment (needed for xyz2grd)
+    double maxLat = ((int) ((maxTempLat-minLat)/gridSpacing))*gridSpacing;
+    double maxLon = ((int) ((maxTempLon-minLon)/gridSpacing))*gridSpacing;
+
     this.gmtPath= GMT_PATH;
     String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
 
