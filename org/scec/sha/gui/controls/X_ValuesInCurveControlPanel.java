@@ -378,6 +378,9 @@ public class X_ValuesInCurveControlPanel extends JFrame {
       setX_Values();
     }
     else if(selectedItem.equals(this.DEFAULT)){
+      //gets the selected IMT from application , is the user was working with custom
+      //and then chooses the default then the IMT should be the latest one  selcetd in the application.
+      imt = api.getSelectedIMT();
       minText.setText(""+DefaultHazardCurveForIMTs.getMinIMT_Val(imt));
       maxText.setText(""+DefaultHazardCurveForIMTs.getMaxIMT_Val(imt));
       numText.setText(""+DefaultHazardCurveForIMTs.getNumIMT_Val(imt));
@@ -385,15 +388,10 @@ public class X_ValuesInCurveControlPanel extends JFrame {
       function = defaultX_Vals.getHazardCurve(imt);
       setX_Values();
     }
-    else if(selectedItem.equals(this.MIN_MAX_NUM)){
-      /*minText.setText("");
-      maxText.setText("");
-      numText.setText("");
-      xValuesText.setText("");*/
-    }
-    else if(selectedItem.equals(this.CUSTOM_VALUES)){
+    else if(selectedItem.equals(this.MIN_MAX_NUM))
       xValuesText.setText("");
-    }
+    else if(selectedItem.equals(this.CUSTOM_VALUES))
+      xValuesText.setText("");
   }
 
   void setButton_actionPerformed(ActionEvent e) {
