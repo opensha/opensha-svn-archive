@@ -60,6 +60,7 @@ AttenRelApp:
 
 Get wg99/02 Fortran code compiling on our computers.
 
+Develop HazardSpectrumApplet for Caltrans.
 
 
 **************** LONG TERM (LOWER PRIORITY): ****************
