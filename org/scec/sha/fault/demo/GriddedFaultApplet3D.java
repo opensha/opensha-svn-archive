@@ -48,7 +48,7 @@ public class GriddedFaultApplet3D
     protected final static String C = "GriddedFaultApplet3D";
     protected final static boolean D = false;
 
-    protected StirlingGriddedFaultFactory factory = null;
+    protected GriddedFaultFactory factory = null;
 
     boolean isStandalone = false;
 
@@ -77,6 +77,8 @@ public class GriddedFaultApplet3D
     protected final static String BOTH_SUB_AND_SURFACE_PLOTS = "Grid & Sub Plot";
     protected final static String THREE_D = "3D Gridded Surface";
 
+    protected final static String FRANKEL = "Frankel";
+    protected final static String STIRLING = "Stirling";
 
     protected final static int SUB_SURFACE_PLOT_TYPE = 4;
     protected final static int SURFACE_PLOT_TYPE = 2;
@@ -110,6 +112,7 @@ public class GriddedFaultApplet3D
 
     protected final static Dimension COMBO_DIM = new Dimension( 180, 20 );
     protected final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
+    protected final static Dimension SMALL_COMBO_DIM = new Dimension(70, 20 );
 
     protected final static GridBagLayout GBL = new GridBagLayout();
 
@@ -162,6 +165,7 @@ public class GriddedFaultApplet3D
     JTextArea pointsTextArea = new JTextArea();
 
     JComboBox faultComboBox = new JComboBox();
+    JComboBox frankel_StirlingComboBox = new JComboBox();
 
     NameValueLabel gridSpacingLabel = new NameValueLabel();
     NameValueLabel rowsLabel = new NameValueLabel();
@@ -208,6 +212,7 @@ public class GriddedFaultApplet3D
      *  Used to determine if shoudl switch to new IMR, and for display purposes
      */
     public String currentGriddedSurfaceName = "Sierra Madre";
+    public String currentGriddedFaultType = this.STIRLING;
 
     /**
      *  Construct the applet
@@ -297,6 +302,11 @@ public class GriddedFaultApplet3D
             throw new RuntimeException( S + "No faults specified, unable to continue" );
 
         boolean first = true;
+
+        frankel_StirlingComboBox.addItem(FRANKEL);
+        frankel_StirlingComboBox.addItem(STIRLING);
+        currentGriddedFaultType = (String)frankel_StirlingComboBox.getSelectedItem();
+
         ListIterator it = simpleFaultDataList.listIterator();
         ArrayList list = new ArrayList();
         while( it.hasNext() ){
@@ -341,7 +351,12 @@ public class GriddedFaultApplet3D
         if( D ) System.out.println(S + "Creating StirlingGriddedFaultFactory with " + faultName);
 
 
-        factory = new StirlingGriddedFaultFactory(faultData,
+       currentGriddedFaultType = (String)frankel_StirlingComboBox.getSelectedItem();
+       if(currentGriddedFaultType.equalsIgnoreCase(this.STIRLING))
+         factory = new StirlingGriddedFaultFactory(faultData,
+                     ((Double)gridSpacingEditor.getValue()).doubleValue());
+       else
+         factory = new FrankelGriddedFaultFactory(faultData,
                       ((Double)gridSpacingEditor.getValue()).doubleValue());
 
 
@@ -402,8 +417,9 @@ public class GriddedFaultApplet3D
         if ( src.equals( faultComboBox ) ){
             updateChoosenFault();
             rect.disable();
-        }
-        else {
+        } else if(src.equals(this.frankel_StirlingComboBox)) {
+           addPlot();
+        } else  {
 
             ItemSelectable selectable = e.getItemSelectable();
             if( selectable instanceof AbstractButton){
@@ -538,14 +554,17 @@ public class GriddedFaultApplet3D
             frame.setTitle( this.getAppletInfo() + ": " + currentGriddedSurfaceName );
 
 
-
+        String selectedFaultType = (String)frankel_StirlingComboBox.getSelectedItem();
         switch (faultTracePlot) {
 
             case THREE_D_PLOT_TYPE:
 
                 panel = null;
                 threeD = true;
-                if( surface == null || !surface.getName().equals(currentGriddedSurfaceName) || gridSpacingChanged()){
+                if( surface == null ||
+                    !surface.getName().equals(currentGriddedSurfaceName) ||
+                    gridSpacingChanged() ||
+                    !currentGriddedFaultType.equalsIgnoreCase(selectedFaultType)){
 
                     gridSpacingChanged();
                     surface = getFaultGriddedSurface(currentGriddedSurfaceName);
@@ -621,7 +640,10 @@ public class GriddedFaultApplet3D
 
                 comp3D = null;
                 threeD = false;
-                if( surface == null || !surface.getName().equals(currentGriddedSurfaceName) || gridSpacingChanged()){
+                if( surface == null ||
+                    !surface.getName().equals(currentGriddedSurfaceName) ||
+                    gridSpacingChanged() ||
+                    !currentGriddedFaultType.equalsIgnoreCase(selectedFaultType)){
 
                     gridSpacingChanged();
                     surface = getFaultGriddedSurface(currentGriddedSurfaceName);
@@ -671,18 +693,16 @@ public class GriddedFaultApplet3D
 
                 //if( surface == null || !surface.getName().equals(currentGriddedSurfaceName) || gridSpacingChanged() ){
 
-                if( newSurfaceNeeded ){
-                    surface = getFaultGriddedSurface(currentGriddedSurfaceName);
 
-                    int rows = surface.getNumRows();
-                    int cols = surface.getNumCols();
-
-                    rect.enable();
-                    rect.setFullRange(0, rows - 1, 0, cols - 1);
-                    rect.disable();
-
-                    double newGridSpacing = ( (Double)gridSpacingEditor.getValue() ).doubleValue();
-                    currentGridSpacing = newGridSpacing;
+                if( newSurfaceNeeded ||
+                    !currentGriddedFaultType.equalsIgnoreCase(selectedFaultType)){
+                  int rows = surface.getNumRows();
+                  int cols = surface.getNumCols();
+                  rect.enable();
+                  rect.setFullRange(0, rows - 1, 0, cols - 1);
+                  rect.disable();
+                  double newGridSpacing = ( (Double)gridSpacingEditor.getValue() ).doubleValue();
+                  currentGridSpacing = newGridSpacing;
 
                 }
                 else{
@@ -766,7 +786,8 @@ public class GriddedFaultApplet3D
 
                 //if( surface == null || !surface.getName().equals(currentGriddedSurfaceName) || gridSpacingChanged() ){
 
-                if( newSurfaceNeeded2 ){
+                if( newSurfaceNeeded2 ||
+                    !currentGriddedFaultType.equalsIgnoreCase(selectedFaultType)){
                     surface = getFaultGriddedSurface(currentGriddedSurfaceName);
 
                     int rows = surface.getNumRows();
@@ -837,7 +858,10 @@ public class GriddedFaultApplet3D
 
                 comp3D = null;
                 threeD = false;
-                if( surface == null || !surface.getName().equals(currentGriddedSurfaceName) || gridSpacingChanged()){
+                if( surface == null ||
+                    !surface.getName().equals(currentGriddedSurfaceName) ||
+                    gridSpacingChanged()||
+                    !currentGriddedFaultType.equalsIgnoreCase(selectedFaultType)){
 
                     surface = getFaultGriddedSurface(currentGriddedSurfaceName);
 
@@ -868,7 +892,7 @@ public class GriddedFaultApplet3D
 
 
                 plotter.clear();
-                plotter.setPlotType( GriddedFaultPlotter.SHAPES);
+                plotter.setPlotType( GriddedFaultPlotter.SHAPES_LINES_AND_SHAPES);
                 plotter.add( new FaultTraceXYDataSet(faultData1.getFaultTrace()) );
                 plotter.add(functions3);
                 addGraphPanel();
@@ -1364,6 +1388,15 @@ public class GriddedFaultApplet3D
         faultComboBox.addItemListener( this );
         faultComboBox.setMinimumSize( COMBO_DIM );
 
+        frankel_StirlingComboBox.setBackground( lightBlue );
+        frankel_StirlingComboBox.setForeground( darkBlue );
+        frankel_StirlingComboBox.setFont( new java.awt.Font( "Dialog", 0, 11 ) );
+        frankel_StirlingComboBox.setBorder( null );
+        frankel_StirlingComboBox.setPreferredSize( SMALL_COMBO_DIM );
+
+        frankel_StirlingComboBox.addItemListener( this );
+        frankel_StirlingComboBox.setMinimumSize( SMALL_COMBO_DIM );
+
 
         this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
@@ -1412,21 +1445,24 @@ public class GriddedFaultApplet3D
 
         dataScrollPane.getViewport().add( pointsTextArea, null );
 
-        buttonPanel.add( addButton, new GridBagConstraints( 2, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( addButton, new GridBagConstraints( 3, 0, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
-        buttonPanel.add( clearButton, new GridBagConstraints( 3, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
-
-        buttonPanel.add( toggleButton, new GridBagConstraints( 4, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( clearButton, new GridBagConstraints( 4, 0, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
 
-        buttonPanel.add( plotColorCheckBox, new GridBagConstraints( 5, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( toggleButton, new GridBagConstraints( 5, 0, 1, 1, 0.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
+
+        buttonPanel.add( plotColorCheckBox, new GridBagConstraints( 6, 0, 1, 1, 0.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 1 ), 0, 0 ) );
 
         buttonPanel.add( faultComboBox, new GridBagConstraints( 1, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 15 ), 0, 0 ) );
+                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
         buttonPanel.add( faultLabel, new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 0, 0, 0 ), 0, 0 ) );
+                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+        buttonPanel.add( frankel_StirlingComboBox, new GridBagConstraints( 2, 0, 1, 1, 0.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
 
 
         parametersSplitPane.setBottomComponent( gridInfoPanel );
