@@ -142,9 +142,11 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     //updating the STEP forecast for the STEP Addon Probabilities
     forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_ADD_ON);
     forecast.updateForecast();
+    //getting the name of the STEP data(XYZ )file from the first line on the STEP website which basically tells the time of updation
+    String stepDirName = this.getStepDirName();
     //creating the dataFile for the STEP Addon Probabilities
     Vector stepAddonProbVals = getProbVals(imr,region,(EqkRupForecast)forecast);
-    String stepDirName = this.getStepDirName();
+
     File addonFile = new File(this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
     if(!addonFile.exists()){
       createFile(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
