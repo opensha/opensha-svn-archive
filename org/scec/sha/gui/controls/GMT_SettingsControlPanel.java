@@ -234,4 +234,12 @@ public class GMT_SettingsControlPanel extends JFrame {
     this.dispose();
   }
 
+  /**
+   * Return the list of all parameters in GMT control panel
+   * @return : list of all parameters in GMT control panel
+   */
+  public ParameterList getParameterList() {
+    return this.gmtParamList;
+  }
+
 }
