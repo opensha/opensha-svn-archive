@@ -369,8 +369,8 @@ public class EqkRuptureCreationPanel extends  JPanel
    * ERF_RupSelectorGUI  bean.
    */
   public String getParameterListMetadataString(){
-    String metadata = listEditor.getVisibleParameters().getParameterListMetadataString();
-                    //+"<br>"+  "<br>\nRupture Info: "+eqkRupture.getInfo();
+    String metadata = listEditor.getVisibleParameters().getParameterListMetadataString()
+                    +"<br>"+  "<br>\nRupture Info: "+eqkRupture.getInfo();
     return metadata;
   }
 
