@@ -184,7 +184,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
  /**
   * set the IMT parameter in IMR
   */
- public void setIMR_Param() {
+ public void setIMT() {
    String selectedImt = this.parameterList.getValue(this.IMT_PARAM_NAME).toString();
    //set all the  parameters related to this IMT
    Iterator it= imtParam.iterator();
@@ -194,5 +194,32 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
        imr.setIntensityMeasure(param);
    }
  }
+
+ /**
+  *
+  * @returns the Metadata string for the IMT Gui Bean
+  */
+public String getParameterListMetadataString(){
+  String metadata=null;
+  ListIterator it = getVisibleParametersCloned().getParametersIterator();
+  int paramSize = getVisibleParametersCloned().size();
+  while(it.hasNext()){
+    //iterates over all the visible parameters
+    ParameterAPI tempParam = (ParameterAPI)it.next();
+    //if the param name is IMT Param then it is the Dependent param
+    if(tempParam.getName().equals(this.IMT_PARAM_NAME)){
+      metadata = tempParam.getName()+" = "+(String)tempParam.getValue();
+      if(paramSize>1)
+        metadata +="[ ";
+    }
+    else{ //rest all are the independent params
+      metadata += tempParam.getName()+" = "+(String)tempParam.getValue()+" ; ";
+    }
+  }
+  metadata.substring(0,metadata.length()-5);
+  if(paramSize >1)
+  metadata +=" ] ";
+  return metadata;
+}
 
 }

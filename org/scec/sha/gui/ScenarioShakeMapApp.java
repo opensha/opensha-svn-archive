@@ -67,6 +67,17 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   //store the site values for each site in the griddded region
   private SitesInGriddedRegion griddedRegionSites;
 
+  //stores the IML or Prob selection and their value for which we want to compute the
+  //scenario shake map. Value we get from the respective guibeans.
+  private boolean probAtIML=false;
+  private  double imlProbValue;
+
+  //gets the instance of the selected AttenuationRelationship
+  private AttenuationRelationship attenRel;
+
+  //Instance to the ShakeMap calculator to get the XYZ data for the selected scenario
+  private ScenarioShakeMapCalculator shakeMapCalc;
+
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
    *  Temp until figure out way to dynamically load classes during runtime
@@ -298,10 +309,10 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    */
   private void initGriddedRegionGuiBean(){
     // get the selected IMR
-     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
      // create the Site Gui Bean object
      sitesGuiBean = new SitesInGriddedRegionGuiBean();
-     sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+     sitesGuiBean.replaceSiteParams(attenRel.getSiteParamsIterator());
      // show the sitebean in JPanel
      gridRegionSitePanel.add(this.sitesGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
          GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -312,13 +323,13 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    */
   private void initIMTGuiBean(){
     // get the selected IMR
-    AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
     /**
      * Initialize the IMT Gui Bean
      */
 
     // create the IMT Gui Bean object
-    imtGuiBean = new IMT_GuiBean(imr);
+    imtGuiBean = new IMT_GuiBean(attenRel);
 
     imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -439,11 +450,11 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
     // if IMR selection changed, update the site parameter list and supported IMT
     if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
-      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-      imtGuiBean.setIMR(imr);
+      attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
+      imtGuiBean.setIMR(attenRel);
       imtGuiBean.validate();
       imtGuiBean.repaint();
-      sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+      sitesGuiBean.replaceSiteParams(attenRel.getSiteParamsIterator());
       sitesGuiBean.validate();
       sitesGuiBean.repaint();
     }
@@ -475,33 +486,31 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   }
 
   /**
+   * gets the IML or Prob selected option and its value from the respective guiBean
+   */
+  private void getIMLorProb(){
+    imlProbValue=imlProbGuiBean.getIML_Prob();
+    String imlOrProb=imlProbGuiBean.getSelectedOption();
+    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
+      probAtIML=true;
+  }
+
+  /**
    * This method calculates the probablity or the IML for the selected Gridded Region
    * and stores the value in each vectors(lat-Vector, Lon-Vector and IML or Prob Vector)
    * The IML or prob vector contains value based on what the user has selected in the Map type
    */
   public XYZ_DataSetAPI generateShakeMap() throws ParameterException,RuntimeException{
-
-    boolean probAtIML=false;
-    double imlProbValue=imlProbGuiBean.getIML_Prob();
-    String imlOrProb=imlProbGuiBean.getSelectedOption();
-    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
-      probAtIML=true;
-
-    // get the selected IMR
-    AttenuationRelationship imr = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
     try {
      // this function will get the selected IMT parameter and set it in IMT
-     imtGuiBean.setIMR_Param();
+     imtGuiBean.setIMT();
    } catch (Exception ex) {
      if(D) System.out.println(C + ":Param warning caught"+ex);
      ex.printStackTrace();
     }
 
-    //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
-    ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
-
     try{
-      xyzDataSet =shakeMapCalc.getScenarioShakeMapData(griddedRegionSites,imr,erfGuiBean.getRupture(),
+      xyzDataSet =shakeMapCalc.getScenarioShakeMapData(griddedRegionSites,attenRel,erfGuiBean.getRupture(),
                                         probAtIML,imlProbValue);
     }catch(ParameterException e){
       throw new ParameterException(e.getMessage());
@@ -524,8 +533,12 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
 
   void addButton_actionPerformed(ActionEvent e) {
+    //gets the IML or Prob selected value
+    getIMLorProb();
     //get the site values for each site in the gridded region
     getGriddedRegionSites();
+    //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
+    shakeMapCalc = new ScenarioShakeMapCalculator();
     if(puenteHillsScenariosControl !=null){
       puenteHillsScenariosControl.runAllScenarios(puenteHillsControl,imrGuiBean);
       puenteHillsScenariosControl = null;
@@ -543,7 +556,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     try{
       calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
       if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
-        hazusControl.generateHazusFiles(this.imtGuiBean,(AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance());
+        hazusControl.generateHazusFiles(this.imtGuiBean,attenRel);
       else
         generateShakeMap();
       //sets the region coordinates for the GMT using the MapGuiBean
@@ -712,8 +725,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
       imtMetadata = hazusControl.getIMT_Metadata();
     else //else get the metadata from the IMT GuiBean.
-      imtMetadata = imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString();
-
+      //imtMetadata = imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString();
+      imtMetadata = imtGuiBean.getParameterListMetadataString();
     return "IMR Param List:<br>\n " +
            "---------------<br>\n"+
         this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
@@ -725,7 +738,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
         imtMetadata+"\n"+
         "<br><br>Forecast Param List: <br>\n"+
         "--------------------<br>\n"+
-        erfGuiBean.getMetadataString()+"\n"+
+        erfGuiBean.getParameterListMetadataString()+"\n"+
         "<br><br>TimeSpan Param List: <br>\n"+
         "--------------------<br>\n"+
         timeSpanGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+

@@ -437,7 +437,7 @@ public class HazardMapApplet extends JApplet implements
 
     try {
       // this function will get the selected IMT parameter and set it in IMT
-      imtGuiBean.setIMR_Param();
+      imtGuiBean.setIMT();
     } catch (Exception ex) {
       if(D) System.out.println(C + ":Param warning caught"+ex);
       ex.printStackTrace();
