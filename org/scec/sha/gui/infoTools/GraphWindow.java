@@ -6,8 +6,6 @@ import java.util.ArrayList;
 
 import org.jfree.data.Range;
 import org.scec.sha.gui.infoTools.*;
-import org.scec.data.function.*;
-import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 
 
 /**

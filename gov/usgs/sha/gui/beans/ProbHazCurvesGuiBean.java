@@ -189,6 +189,8 @@ public class ProbHazCurvesGuiBean
     singleHazardCalcMethod = (String) singleHazardCalcMethodParam.getValue();
 
     returnPeriod = (String) returnPeriodParam.getValue();
+    exceedProbVal = (String) exceedProbParam.getValue();
+    expTimeVal = (String) expTimeParam.getValue();
 
     singleHazardValParameterList = new ParameterList();
     singleHazardValParameterList.addParameter(singleHazardCalcMethodParam);

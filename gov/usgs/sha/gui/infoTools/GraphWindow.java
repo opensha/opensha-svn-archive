@@ -347,9 +347,8 @@ public class GraphWindow
     xAxisName = func.getXAxisName();
     yAxisName = func.getYAxisName();
 
-    //sending the list of curves to be plotted
-    //graphPanel.getCurvePlottingCharacterstic().clear();
-    graphPanel.removeChartAndMetadata();
+
+    //creating the graph to be shown in the window
     graphPanel.drawGraphPanel(xAxisName, yAxisName, functionsToPlot, xLog, yLog,
                               customAxis, plotTitle, buttonControlPanel);
     togglePlot();
@@ -486,6 +485,7 @@ public class GraphWindow
   }
 
   public void graphListCombo_itemStateChanged(ItemEvent itemEvent) {
+    graphPanel.removeChartAndMetadata();
     drawGraph();
   }
 
