@@ -302,10 +302,12 @@ public class WC94_DisplMagRel
       if (stdDevType.equals(this.STD_DEV_TYPE_NONE))
           return 0.0;
       else {
+        // first term below is stddev from WC94, second term converts this from log10 to ln,
+        // and the last term is an attemp to account for the intra-event variability
         if ( fltTypeValue.equals( FLT_TYPE_SS ) )
-          return 0.28;
+          return 0.28*2.3026*2.0;   // last term to convert from log10 to ln
         else
-          return 0.36;
+          return 0.36*2.3026*2.0;
       }
 
     }
@@ -317,7 +319,7 @@ public class WC94_DisplMagRel
         fltTypeParam.setValue( FLT_TYPE_SS );
         distanceRupParam.setValue( DISTANCE_RUP_DEFAULT );
         faultDisplParam.setValue( FAULT_DISPL_DEFAULT );
-        stdDevTypeParam.setValue( STD_DEV_TYPE_INTER );
+        stdDevTypeParam.setValue( STD_DEV_TYPE_TOTAL );
     }
 
 
@@ -447,10 +449,10 @@ public class WC94_DisplMagRel
 
         // the stdDevType Parameter
         StringConstraint stdDevTypeConstraint = new StringConstraint();
-        stdDevTypeConstraint.addString( STD_DEV_TYPE_INTER );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL );
         stdDevTypeConstraint.addString( STD_DEV_TYPE_NONE );
         stdDevTypeConstraint.setNonEditable();
-        stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_INTER );
+        stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_TOTAL );
         stdDevTypeParam.setInfo( STD_DEV_TYPE_INFO );
         stdDevTypeParam.setNonEditable();
 

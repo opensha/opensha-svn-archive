@@ -36,13 +36,13 @@ import org.scec.param.event.ParameterChangeEvent;
 
   //for Debug purposes
   private static String  C = new String("STEP_AlaskanPipeForecast");
-  private boolean D = false;
+  private boolean D = true;
 
   // name of this ERF
   private static String  name = new String("STEP Alaskan Pipeline ERF");
 
   // Input file name
-  private final static String INPUT_FILE_NAME = "AlaskanPipelineRates.txt";
+  private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/PipelineGrid.txt";
 
   // ArrayList of input file lines
   private ArrayList inputFileLines;
@@ -88,8 +88,6 @@ import org.scec.param.event.ParameterChangeEvent;
 
     st = new StringTokenizer(inputFileLines.get(1).toString());
     double duration = (new Double(st.nextToken())).doubleValue();
-// change duration to be equivalent to 18-months worth of days for Lucy's correction
-duration = 540;
     if(D) System.out.println("duration="+duration);
 
     this.timeSpan = new TimeSpan(TimeSpan.SECONDS,TimeSpan.DAYS);
@@ -153,11 +151,11 @@ duration = 540;
           magFreqDist.set(i,0.0);
         else {
           // Lucy's 1 day --> 18 months correction, divided by the number of days to get the rate per day
-          rate *= 230/timeSpan.getDuration();
+//          rate *= 230/timeSpan.getDuration();
           // rupLen correction
           double rupLen = Math.pow(10.0,-3.55 + 0.74*magFreqDist.getX(i) );
-          if (D) System.out.println("rupLen(mag="+magFreqDist.getX(i)+")="+rupLen);
-          rate *= rupLen/15.5;
+//          if (D) System.out.println("rupLen(mag="+magFreqDist.getX(i)+")="+rupLen);
+          rate *= rupLen/10.6;
           magFreqDist.set(i,rate);
         }
       }
