@@ -127,7 +127,7 @@ public class EqkRupture {
         setPointSurface(ps);
     }
 
-    public void setPointSurface(Location location, double aveDip){
+    public void setPointSurface(Location location, double aveDip ){
         setPointSurface(location);
         ruptureSurface.setAveDip(aveDip);
     }
