@@ -196,8 +196,6 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     imrPanel.setLayout(borderLayout2);
     imtPanel.setLayout(gridBagLayout8);
     prob_IMLPanel.setLayout(gridBagLayout2);
-    addButton.setBackground(new Color(200, 200, 230));
-    addButton.setForeground(new Color(80, 80, 133));
     addButton.setText("Make Map");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -207,8 +205,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     buttonPanel.setMinimumSize(new Dimension(391, 50));
     gridRegionSitePanel.setLayout(gridLayout1);
     imrSelectionPanel.setLayout(gridBagLayout5);
-    controlComboBox.setBackground(new Color(200, 200, 230));
-    controlComboBox.setForeground(new Color(80, 80, 133));
+    controlComboBox.setBackground(Color.white);
     controlComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         controlComboBox_actionPerformed(e);
