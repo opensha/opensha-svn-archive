@@ -41,10 +41,15 @@ public class GraphPanel extends JPanel {
   // mesage needed in case of show data if plot is not available
   private final static String NO_PLOT_MSG = "No Plot Data Available";
 
-
+  /**
+   * default color scheme for plotting curves
+   */
   Color[] defaultColor = {Color.red,Color.blue,Color.cyan,Color.darkGray,Color.magenta,
     Color.gray,Color.green,Color.orange,Color.pink,Color.yellow};
 
+  /**
+  * custom color scheme using which curves will be plotted
+  */
   Color[] legendColor = null;
   Paint[] legendPaint = null;
 
@@ -64,7 +69,7 @@ public class GraphPanel extends JPanel {
 
   //dataset to handover the data to JFreechart
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
-  //functionList
+  //list containing Discretized function set
   private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
 
   //variable to see how many datasets exists with different types of color coding scheme.
@@ -125,6 +130,7 @@ public class GraphPanel extends JPanel {
     // for Y-log, convert 0 values in Y axis to this small value, it just sets the minimum
     //value
     data.setConvertZeroToMin(true,Y_MIN_VAL);
+    //instance of application using this class.
     application = api;
     try {
       jbInit();
@@ -133,6 +139,11 @@ public class GraphPanel extends JPanel {
       ex.printStackTrace();
     }
   }
+
+  /**
+   * Function to add GUI component to Graphpanel class
+   * @throws Exception
+   */
   void jbInit() throws Exception {
     this.setLayout(borderLayout1);
     chartSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -164,9 +175,10 @@ public class GraphPanel extends JPanel {
    * @param xLog      : boolean tell if xLog is selected
    * @param yLog      : boolean tells if yLog is selected
    * @param customAxis : boolean tells if graph needs to ne plotted using custom axis range
-   * @param title  :
-   * @param buttonControlPanel
-   * @param plotCharacterstics
+   * @param title  : JFreechart window title
+   * @param buttonControlPanel : Instance of class which called this method
+   * @param plotCharacterstics : Array of class that contains plotting preference
+   * for each curve in the list.
    */
   public void drawGraphPanel(String xAxisName,String yAxisName,ArrayList funcList,
                              boolean xLog,boolean yLog,boolean customAxis,String title,
@@ -179,13 +191,9 @@ public class GraphPanel extends JPanel {
     // Starting
     String S = "drawGraphPanel(): ";
 
+    //setting X and Y axis name in the function list.
     totalProbFuncs.setXAxisName(xAxisName);
     totalProbFuncs.setYAxisName(yAxisName);
-
-
-    // set the log flag in the XY dataset
-    //data.setXLog(xLog);
-    //data.setYLog(yLog);
 
 
     //flags to check if the exception was thrown on selection of the x-log or y-log.
@@ -251,11 +259,7 @@ public class GraphPanel extends JPanel {
       logErrorFlag = false;
     }
 
-    //DiscretizedFuncList primaryDataFunctions = new DiscretizedFuncList();
-    //DiscretizedFunctionXYDataSet primaryDataset = new DiscretizedFunctionXYDataSet();
 
-    //primaryDataFunctions.add(totalProbFuncs.get(0));
-    //primaryDataset.setFunctions(primaryDataFunctions);
 
     plot = null;
     // build the plot
@@ -269,8 +273,10 @@ public class GraphPanel extends JPanel {
     plot.setInsets(new Insets(10, 0, 0, 20));
 
 
-    //total number of funtions that need to be plotted differently
+    //total number of funtions that need to be plotted differently using different characterstics
     int numFuncs = plotCharacterstics.length;
+    //index of dataset from total prob functionlist (list containing each curve as
+    //individual discretized function).
     int datasetIndex = 0;
     //secondarydataset index keeps track where do we have to add the seconadary data set in plot
     for(int j=0,secondaryDatasetIndex=0; j < numFuncs; ++j,++secondaryDatasetIndex){
@@ -281,14 +287,22 @@ public class GraphPanel extends JPanel {
       int numCurves = plotCharacterstics[j].getNumContinuousCurvesWithSameCharacterstics();
       //if size of that plot size then don't add it to the dataset
       if(lineWidth ==0){
+        //adding the number of consecutive curves with same plotting characterstics to dataset index.
         datasetIndex +=numCurves;
+        //decrement the secondary dataset index so that we seconday dataset is added to correct place.
         --secondaryDatasetIndex;
         continue;
       }
+      //creating dataset for each curve and its consecutive curves which have same plotting
+      //characterstics. Eg: can be weighted functions in weighted functionlist  have same
+      //plotting characterstics, also fractiles in weighted function list share same
+      //plotting characterstics. So creating dataset for each list of curves with
+      //same plotting characterstics.
       DiscretizedFuncList dataFunctions = new DiscretizedFuncList();
       DiscretizedFunctionXYDataSet dataset = new DiscretizedFunctionXYDataSet();
       dataset.setXLog(xLog);
       dataset.setYLog(yLog);
+      //converting the zero in Y-axis to some minimum value.
       dataset.setConvertZeroToMin(true,Y_MIN_VAL);
       dataset.setFunctions(dataFunctions);
 
@@ -298,16 +312,22 @@ public class GraphPanel extends JPanel {
         dataFunctions.add(totalProbFuncs.get(i));
       datasetIndex +=numCurves;
 
+      //making the first funtion in the list to be primary dataset and all others
+      //to be secondary datasets.
       if(secondaryDatasetIndex!=0)
+        //adding secondarydata set to the plot
         plot.setSecondaryDataset(secondaryDatasetIndex-1,dataset);
-      else
+      else //adding the first dataset as primary dataset of the plot
         plot.setDataset(dataset);
-
+      //based on plotting characterstics for each curve sending configuring plot object
+      //to be send to JFreechart for plotting.
       drawCurvesUsingPlottingFeatures(lineType,color,lineWidth,secondaryDatasetIndex);
     }
 
     plot.setBackgroundAlpha( .8f );
 
+    //giving off all the data that needs to be plotted to JFreechart, which return backs
+    //a panel fo curves,
     JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
 
     chart.setBackgroundPaint( lightBlue );
@@ -418,7 +438,7 @@ public class GraphPanel extends JPanel {
     if(!logErrorFlag && !yLog)
       yAxis1 = yAxis;
 
-    //setting the info in the
+    //setting the info for the plotted curves in data window.
     pointsTextArea.setText(this.showDataInWindow(funcList,xAxisName,yAxisName));
     return ;
 
@@ -428,10 +448,12 @@ public class GraphPanel extends JPanel {
   /**
    * For each function in the list it sets the plotting characeterstics of the curve
    * so that when that list is given to JFreechart , it creates it with these characterstics.
-   * @param lineType
-   * @param color
-   * @param curveWidth
-   * @param functionIndex
+   * @param lineType : Plotting style
+   * @param color : Plotting cure color
+   * @param curveWidth : size of each plot
+   * @param functionIndex : secondary datset index.
+   * This method creates a new renderer for each dataset based on user's selected
+   * plotting style.If index is zero then set primary renderer else set secondary renderer
    */
   private void drawCurvesUsingPlottingFeatures(String lineType,Color color,
       double curveWidth,int functionIndex){
@@ -705,7 +727,15 @@ public class GraphPanel extends JPanel {
 
 
   /**
-   * Draws the graph panel
+   * Draws curves
+   * @param xAxisName : X-Axis Label
+   * @param yAxisName : Y-Axis Label
+   * @param funcList  : ArrayList containing individual functions and weighted functionlist
+   * @param xLog      : boolean tell if xLog is selected
+   * @param yLog      : boolean tells if yLog is selected
+   * @param customAxis : boolean tells if graph needs to ne plotted using custom axis range
+   * @param title  : JFreechart window title
+   * @param buttonControlPanel : Instance of class which called this method.
    */
   public void drawGraphPanel(String xAxisName, String yAxisName,ArrayList funcList,
                              boolean xLog,boolean yLog,boolean customAxis, String title,

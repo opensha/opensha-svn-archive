@@ -253,14 +253,16 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     toggleButton.setEnabled(flag);
   }
 
+  /**
+   * If button to set the plot Prefernces is "clicked" by user.
+   * @param e
+   */
   void colorLineTypeButton_actionPerformed(ActionEvent e) {
     PlotCurveCharacterstics[] plotFeatures = application.getPlottingFeatures();
     if(plotControl == null)
       plotControl = new PlotColorAndLineTypeSelectorControlPanel(this,plotFeatures);
-    //else
-      //plotControl.setPlotColorAndLineType(plotFeatures);
       plotControl.show();
-      //plotControl.pack();
+
       //use plot preferences to plot the curves.
       application.setCurvesToUsePlotPrefs(true);
   }

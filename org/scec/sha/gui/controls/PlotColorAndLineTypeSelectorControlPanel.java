@@ -13,10 +13,30 @@ import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * <p>Title: PlotColorAndLineTypeSelectorControlPanel</p>
- * <p>Description: This class allows user to </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <p>Description: This class allows user to select different plotting
+ * styles for curves. Here user can specify color, curve style and
+ * it size. the default value for lines are 1.0f and and for shapes
+ * it is 4.0f.
+ * Currently supported Styles are:
+ * SOLID_LINE
+ * DOTTED_LINE
+ * DASHED_LINE
+ * DOT_DASH_LINE
+ * X Symbols
+ * CROSS_SYMBOLS
+ * FILLED_CIRCLES
+ * CIRCLES
+ * FILLED_SQUARES
+ * SQUARES
+ * FILLED_TRIANGLES
+ * TRIANGLES
+ * FILLED_INV_TRIANGLES
+ * INV_TRIANGLES
+ * FILLED_DIAMONDS
+ * DIAMONDS
+ * LINE_AND_CIRCLES
+ * LINE_AND_TRIANGLES</p>
+ * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
@@ -151,7 +171,10 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
 
 
   /**
-   *
+   * creates the control panel with plotting characterstics for each curve in list.
+   * This function shows plotting characterstics (curve style, color, and its width)
+   * for each curve in list ,so creates these gui components dynamically based on
+   * number of functions in list.
    */
   private void setPlotColorAndLineType(PlotCurveCharacterstics[] curveCharacterstics){
     int numCurves = curveCharacterstics.length;
@@ -201,6 +224,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       lineTypeSelector[i].addActionListener(this);
 
       try{
+        //creating double parameter for size of each curve.
         lineWidthParameter[i] = new DoubleParameter(lineWidthParamName+(i+1),sizeConstraint,
             new Double(plottingFeatures[i].getCurveWidth()));
 
@@ -211,6 +235,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     }
 
     //curveFeaturePanel.removeAll();
+    //adding color chooser button,plot style and size to GUI.
     for(int i=0;i<numCurves;++i){
       curveFeaturePanel.add(datasetSelector[i],new GridBagConstraints(0, i+1, 1, 1, 1.0, 1.0
       ,GridBagConstraints.WEST, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
@@ -257,15 +282,16 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
           break;
         }
       }
-
+      //method to set the default value for line and shapes
       setStyleSizeBasedOnSelectedShape(itemIndex,(String)lineTypeSelector[itemIndex].getSelectedItem());
     }
   }
 
 
   /**
-   * Set the default size value based on the selected Style
-   * @param index : number of
+   * Set the default size value based on the selected Style. For line it is 1.0f
+   * and for shapes it is 4.0f.
+   * @param index : Curve index
    * @param selectedStyle
    */
   private void setStyleSizeBasedOnSelectedShape(int index,String selectedStyle){
@@ -297,6 +323,10 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     application.drawGraph(plottingFeatures);
   }
 
+  /**
+   * reverts the plots to original values and close the window
+   * @param e
+   */
   void cancelButton_actionPerformed(ActionEvent e) {
     revertPlotToOriginal();
     this.dispose();
