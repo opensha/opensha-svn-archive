@@ -25,7 +25,8 @@ See if mac can now handle different styles of tabs - can change only if you chan
 
 	Rename old sevlet: SCEC_BasinDepthServlet
 
-	Once you get the servlet revised, then we can change the site-type translator together (Ned will do this).
+	Use the new site-type translator that Ned created (it's in SiteTranlator.java, 
+	and he moved the SiteTranslatorNew.java to SiteTranslatorOld.java).
 
 Get Bruce's code running on Mac OS X.
 
