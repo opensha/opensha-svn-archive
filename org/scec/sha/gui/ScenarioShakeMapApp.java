@@ -367,12 +367,12 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
+//   erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
    erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+//   erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
+//   erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+//   erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_WG02_ERF_CLASS_NAME);
 
    try{

@@ -19,16 +19,8 @@ Change app names as follows (on our web site):
 
 EarthquakeRuptureGuiBean:
 
-	problem with metadata: says "Forecast Param List" for both rup from ERF and custom rup
-	(lets discuss the fix)
-
-	if a user has set the hypocenter and later changes the fault surface, there is no notification 
-	that the hypocenter has been un-selected.  This could be solved by showing the hypocenter in
-	the gui bean; for example, could the current lat/lon/depth settings be shown directly below the
-	button (as un-editable text).  Also, we need an option to set the hypocenter back to null - could
-	this be the first (and default) option in the list?  We also need to add
-	"," between the listed lat, lon, and depth values, and we need to change the name of the pick-list
-	from  "Hypocenter Location" to "Hypocenter Location (lat, lon, depth)".
+	There are still problems with the hypocenter picking (e.g., list not refreshed if fault surface changed)
+	& metadata problems.
 	
 
 ScenarioShakeMapApp
