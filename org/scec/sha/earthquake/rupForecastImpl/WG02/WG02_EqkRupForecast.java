@@ -13,10 +13,10 @@ import org.scec.param.*;
 import org.scec.calc.MomentMagCalc;
 import org.scec.util.*;
 import org.scec.sha.earthquake.*;
+import org.scec.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
 import org.scec.sha.fault.FaultTrace;
 import org.scec.data.Location;
 import org.scec.sha.fault.*;
-import org.scec.sha.fault.GriddedFaultFactory;
 import org.scec.sha.surface.GriddedSurfaceAPI;
 import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.exceptions.FaultException;
@@ -24,6 +24,8 @@ import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
+import org.scec.data.LocationList;
+import org.scec.data.region.EvenlyGriddedGeographicRegion;
 
 
 /**
@@ -108,7 +110,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     rupOffset = 2;
     gridSpacing = 1;
     deltaMag = 0.1;
-    backSeisValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
+    backSeisValue = WG02_ERF_Epistemic_List.SEIS_INCLUDE;
     grTailValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
     name = "noName";
 
@@ -151,6 +153,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     EvenlyGriddedSurface faultSurface;
 
     WG02_CharEqkSource wg02_source;
+    GriddedRegionPoissonEqkSource backSource = null;
 
     double   lowerSeismoDepth, upperSeismoDepth;
     double lat, lon;
@@ -158,6 +161,13 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     double prob, meanMag, magSigma, nSigmaTrunc, rake;
     String fault, rup, sourceName;
     int numPts, i, lineIndex;
+
+    double back_N, back_b, back_M1, back_M2;
+    int back_num;
+
+    double tail_N, tail_b, tail_M1, tail_M2;
+    int tail_num;
+
 
     // Create iterator over inputFileStrings
     ListIterator it = inputFileStrings.listIterator();
@@ -167,11 +177,42 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     st = new StringTokenizer(it.next().toString());
     String interation = st.nextToken().toString();
 
-    // 2nd line is background seismicity stuff (Ignored for now)
+    // 2nd line is background seismicity stuff
     // the vals are N(M³M1), b_val, M1, M2 -- Extrapolate this down to M = 5.0! (M1 > 5.0)
     st = new StringTokenizer(it.next().toString());
 
-    // Now loop over ruptures within this iteration
+    // make the background source if it's desired
+    if(backSeisValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE)) {
+      back_N = new Double(st.nextToken()).doubleValue();
+      back_b = new Double(st.nextToken()).doubleValue();
+      back_M1 = new Double(st.nextToken()).doubleValue();
+      back_M1 = ((double)Math.round(back_M1*100))/100.0; // round it to nice value
+      back_M2 = new Double(st.nextToken()).doubleValue();
+      back_num = (int)((back_M2-5.0)/0.05);
+      GutenbergRichterMagFreqDist back_GR_dist = new GutenbergRichterMagFreqDist(5.0, back_num, 0.05, 1.0, back_b);
+      back_GR_dist.scaleToCumRate(back_M1,back_N);
+
+      LocationList locList = new LocationList();
+      locList.addLocation(new Location(37.19, -120.61, 0.0));
+      locList.addLocation(new Location(36.43, -122.09, 0.0));
+      locList.addLocation(new Location(38.23, -123.61, 0.0));
+      locList.addLocation(new Location(39.02, -122.08, 0.0));
+      EvenlyGriddedGeographicRegion gridReg = new EvenlyGriddedGeographicRegion(locList,0.1);
+
+      backSource = new GriddedRegionPoissonEqkSource(gridReg, back_GR_dist, timeSpan.getDuration(),
+                                                     0.0, 90.0); // aveRake=0; aveDip=90
+
+
+//      if(D) {
+        System.out.println("back_N="+back_N+"\nback_b="+back_b+"\nback_M1="+back_M1+"\nback_M2="+back_M2+"\nback_num="+back_num);
+        System.out.println("GR_rate(M1)="+back_GR_dist.getCumRate(back_M1));
+        System.out.println("num_back_grid_points="+gridReg.getNumGridLocs());
+//      }
+
+      // add this source later so it's at the end of the list
+    }
+
+    // Now loop over the ruptures within this iteration
     while(it.hasNext()) {
 
       faultTrace = new FaultTrace("noName");
@@ -244,6 +285,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast
       // add the source
       allSources.add(wg02_source);
     }
+    if(backSeisValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE))
+      allSources.add(backSource);
   }
 
 
@@ -317,6 +360,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast
    // this is temporary for testing purposes
    public static void main(String[] args) {
      WG02_EqkRupForecast qkCast = new WG02_EqkRupForecast();
+     System.out.println("num_sources="+qkCast.getNumSources());
+     System.out.println("num_rups(lastSrc)="+qkCast.getNumRuptures(qkCast.getNumSources()-1));
 
      // write out source names
 //     for(int i=0;i<qkCast.getNumSources();i++)
