@@ -41,9 +41,9 @@ import org.scec.util.*;
 
 
 public class Field_2000_IMR
-         extends ClassicIMR
+         extends AttenuationRelationship
          implements
-        ClassicIMRAPI,
+        AttenuationRelationshipAPI,
         NamedObjectAPI {
 
     // debugging stuff:

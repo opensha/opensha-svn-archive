@@ -49,7 +49,7 @@ public class HazardCurveCalculator {
    * @return
    */
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
-        Site site, ClassicIMRAPI imr, EqkRupForecast eqkRupForecast) {
+        Site site, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
     // make the progress bar
     JFrame frame = new JFrame("Calculation Status");

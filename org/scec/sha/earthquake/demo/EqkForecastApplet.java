@@ -18,8 +18,8 @@ import com.jrefinery.data.*;
 import org.scec.param.event.*;
 import org.scec.param.*;
 import org.scec.param.editor.ParameterListEditor;
-import org.scec.sha.imr.classicImpl.gui.ClassicIMRGuiBean;
-import org.scec.sha.imr.ClassicIMRAPI;
+import org.scec.sha.imr.classicImpl.gui.AttenuationRelationshipGuiBean;
+import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.earthquake.*;
 import org.scec.data.Site;
 import org.scec.data.Location;
@@ -418,7 +418,7 @@ public class EqkForecastApplet extends JApplet
 
    // create the object for each IMR and get all the supported IMTs for each IMR
    Iterator it = this.imrNames.keySet().iterator();
-   ClassicIMRAPI imr;
+   AttenuationRelationshipAPI imr;
    String className;
 
    // hashmap used so that we do not get duplicate IMTs
@@ -469,7 +469,7 @@ public class EqkForecastApplet extends JApplet
 
 
      // create the imr instance
-     imr = ( ClassicIMRAPI ) createIMRClassInstance(className ,this);
+     imr = ( AttenuationRelationshipAPI ) createIMRClassInstance(className ,this);
      imrObject.add(imr);
 
      // get the list of sites supported by this IMR
@@ -1047,19 +1047,19 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
           if(!imt.equalsIgnoreCase(SA)) {
             // if it is not SA
-            ((ClassicIMRAPI)imrObject.get(i)).setIntensityMeasure(imt);
+            ((AttenuationRelationshipAPI)imrObject.get(i)).setIntensityMeasure(imt);
           }
           else{
               //if it is SA, set SA and period as well
-              ((ClassicIMRAPI)imrObject.get(i)).setIntensityMeasure(SA);
-              ParameterAPI periodParam = ((ClassicIMRAPI)imrObject.get(i)).getParameter("SA Period");
+              ((AttenuationRelationshipAPI)imrObject.get(i)).setIntensityMeasure(SA);
+              ParameterAPI periodParam = ((AttenuationRelationshipAPI)imrObject.get(i)).getParameter("SA Period");
               periodParam.setValue(new Double(period));
            }
           // pass the site object to each IMR
           try {
              if(D) System.out.println("siteString:::"+site.toString());
               currIMR_Name = new String(jIMRNum[i].getText());
-             ((ClassicIMRAPI)imrObject.get(i)).setSite(site);
+             ((AttenuationRelationshipAPI)imrObject.get(i)).setSite(site);
           } catch (Exception ex) {
                  if(D) System.out.println(C + ":Param warning caught"+ex);
                  ex.printStackTrace();
@@ -1095,11 +1095,11 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
                 initLogDiscretizeValues(condProbFunc);
                 try {
                   if(D) System.out.println("imr:::"+imr);
-                   ((ClassicIMRAPI)imrObject.get(imr)).setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(i,n));
+                   ((AttenuationRelationshipAPI)imrObject.get(imr)).setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(i,n));
                 } catch (Exception ex) {
                    if(D) System.out.println(C + ":Param warning caught");
                 }
-                   condProbFunc=(ArbitrarilyDiscretizedFunc)((ClassicIMRAPI)imrObject.get(imr)).getExceedProbabilities(condProbFunc);
+                   condProbFunc=(ArbitrarilyDiscretizedFunc)((AttenuationRelationshipAPI)imrObject.get(imr)).getExceedProbabilities(condProbFunc);
 
                 for(int k=0;k<condProbFunc.getNum();k++){
                     hazFunction[imr].set(k,hazFunction[imr].getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));

@@ -18,7 +18,7 @@ import java.util.*;
  * @see        AS_1997_IMR
  * @version    1.0
  */
-public class ClassicIMRGuiList {
+public class AttenuationRelationshipGuiList {
 
 
     protected final static String C = "IMRGuiList";
@@ -28,13 +28,13 @@ public class ClassicIMRGuiList {
     private HashMap imrGuis = new HashMap();
 
     /** This is the current selected IMR contained within an IMRGuiBean.  */
-    private ClassicIMRGuiBean currentGui = null;
+    private AttenuationRelationshipGuiBean currentGui = null;
 
 
     /**
      *  Constructor for the IMRGuiList object
      */
-    public ClassicIMRGuiList() { }
+    public AttenuationRelationshipGuiList() { }
 
 
     /**
@@ -51,17 +51,17 @@ public class ClassicIMRGuiList {
      *      create the IMRGuiBean.
      * @return          Description of the Return Value
      */
-    public ClassicIMRGuiBean setImr( String imrName, ClassicIMRTesterApp applet ) {
+    public AttenuationRelationshipGuiBean setImr( String imrName, AttenuationRelationshipTesterApp applet ) {
 
         if ( ( currentGui != null )  && ( currentGui.getName().equals( imrName ) ) )  return currentGui;
         else if ( imrGuis.containsKey( imrName ) ) {
-            currentGui = ( ClassicIMRGuiBean ) imrGuis.get( imrName );
+            currentGui = ( AttenuationRelationshipGuiBean ) imrGuis.get( imrName );
             return currentGui;
         }
         else {
 
-            String className = ClassicIMRTesterApp.imrNames.get( imrName ).toString();
-            ClassicIMRGuiBean bean = new ClassicIMRGuiBean( className, imrName, applet );
+            String className = AttenuationRelationshipTesterApp.imrNames.get( imrName ).toString();
+            AttenuationRelationshipGuiBean bean = new AttenuationRelationshipGuiBean( className, imrName, applet );
             imrGuis.put( imrName, bean );
             currentGui = bean;
             return currentGui;

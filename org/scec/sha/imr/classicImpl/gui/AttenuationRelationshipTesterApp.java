@@ -40,7 +40,7 @@ import org.scec.param.event.*;
  * @version    1.0
  */
 
-public class ClassicIMRTesterApp extends JApplet
+public class AttenuationRelationshipTesterApp extends JApplet
     implements
         ParameterChangeFailListener,
         ParameterChangeWarningListener,
@@ -101,13 +101,13 @@ public class ClassicIMRTesterApp extends JApplet
      *  Currently selected IMR and related information needed for the gui to
      *  work
      */
-    ClassicIMRGuiBean imr = null;
+    AttenuationRelationshipGuiBean imr = null;
 
     /**
      *  List that contains the lazy instantiation of imrs via reflection and the
      *  imr full class names
      */
-    protected ClassicIMRGuiList imrs = new ClassicIMRGuiList();
+    protected AttenuationRelationshipGuiList imrs = new AttenuationRelationshipGuiList();
 
 
     protected boolean inParameterChangeWarning = false;
@@ -295,7 +295,7 @@ public class ClassicIMRTesterApp extends JApplet
     /**
      *  Construct the applet
      */
-    public ClassicIMRTesterApp() {
+    public AttenuationRelationshipTesterApp() {
       data.setFunctions(functions);
 
       // for Y-log, convert 0 values in Y axis to this small value
@@ -792,7 +792,7 @@ public class ClassicIMRTesterApp extends JApplet
      */
     public static void main( String[] args ) {
 
-        ClassicIMRTesterApp applet = new ClassicIMRTesterApp();
+        AttenuationRelationshipTesterApp applet = new AttenuationRelationshipTesterApp();
 
         Color c = new Color( .9f, .9f, 1.0f, 1f );
         Font f = new Font( "Dialog", Font.PLAIN, 11 );

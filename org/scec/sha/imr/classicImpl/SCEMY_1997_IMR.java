@@ -40,9 +40,9 @@ import org.scec.util.*;
 
 
 public class SCEMY_1997_IMR
-         extends ClassicIMR
+         extends AttenuationRelationship
          implements
-        ClassicIMRAPI,
+        AttenuationRelationshipAPI,
         NamedObjectAPI {
 
 

@@ -11,11 +11,10 @@ import org.scec.sha.earthquake.*;
 import org.scec.util.*;
 
 /**
- *  <b>Title:</b> ClassicIMR</p> <p>
+ *  <b>Title:</b> AttenuationRelationship</p> <p>
  *
- *  <b>Description:</b> This subclass of IntensityMeasureRealtionship is an
- *  implementation of what's traditionally been called an "Attenuation
- *  Relationship".  The shaking is assumed to follow a Gaussian distribution,
+ *  <b>Description:</b> This is subclass of IntensityMeasureRealtionship .
+ *  The shaking is assumed to follow a Gaussian distribution,
  *  which is why there's a getMean() and a getStdDev() method in addition to
  *  the getExceedProbability() method of its parent class.  For this subclass of IMR
  *  the value field of the Intensity-Measure Parameter must be a Double.  As an
@@ -189,14 +188,14 @@ import org.scec.util.*;
  * This is the best optimized solution and recorded here just for reference. <p>
  */
 
-public abstract class ClassicIMR
+public abstract class AttenuationRelationship
          extends IntensityMeasureRelationship
-         implements ClassicIMRAPI {
+         implements AttenuationRelationshipAPI {
 
     /**
      *  Classname constant used for debugging statements
      */
-    public final static String C = "ClassicIMR";
+    public final static String C = "AttenuationRelationship";
 
     /**
      *  Prints out debugging statements if true
@@ -447,10 +446,10 @@ public abstract class ClassicIMR
 
 
     /**
-     *  Constructor for the ClassicIMR object - subclasses should execute the
+     *  Constructor for the AttenuationRelationship object - subclasses should execute the
      *  various init*() methods (in proper order)
      */
-    public ClassicIMR() {
+    public AttenuationRelationship() {
         super();
     }
 

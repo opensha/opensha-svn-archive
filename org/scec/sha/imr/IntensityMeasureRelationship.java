@@ -14,7 +14,7 @@ import org.scec.sha.earthquake.*;
  *  <b>Description:</b> Abstract base class for Intensity Measure Relationship (IMR).
  *  All IMRs compute the probability of exceeding a particular shaking level (specified
  *  by an intenisty-measure Parameter) given a Site and ProbEqkRupture object.
- *  Subclasses will implement specific types of IMRs.  For example, ClassicIMR
+ *  Subclasses will implement specific types of IMRs.  For example, AttenuationRelationship
  *  implements what is traditionally called an "Attenuation Relationship".
  *  This abstract IMR class also contains seperate parameterList objects for the
  *  site, potential-earthquake, and propagation-effect related parameters, as well

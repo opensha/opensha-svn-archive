@@ -31,7 +31,7 @@ import org.scec.data.*;
  * @version    1.0
  */
 
-public class ClassicIMRGuiBean
+public class AttenuationRelationshipGuiBean
          implements
         NamedObjectAPI,
         ParameterChangeListener
@@ -80,7 +80,7 @@ public class ClassicIMRGuiBean
      *  The IMR is the tester IMR that will perform the exceedence probability
      *  calculations as needed by the Gui.
      */
-    protected ClassicIMRAPI imr = null;
+    protected AttenuationRelationshipAPI imr = null;
 
     /**
      *  This is the paramater list editor that contains all the control
@@ -119,7 +119,7 @@ public class ClassicIMRGuiBean
     protected ParameterList independentParams = new ParameterList();
 
 
-    ClassicIMRTesterApp applet = null;
+    AttenuationRelationshipTesterApp applet = null;
 
     protected ArrayList translatedList = new ArrayList();
     private boolean translateIMR = true;
@@ -138,7 +138,7 @@ public class ClassicIMRGuiBean
      * @param  applet     The main applet application that will use these beans
      *      to swap in and out different IMR's.
      */
-    public ClassicIMRGuiBean( String className, String name, ClassicIMRTesterApp applet ) {
+    public AttenuationRelationshipGuiBean( String className, String name, AttenuationRelationshipTesterApp applet ) {
 
         // Starting
         String S = C + ": Constructor(): ";
@@ -149,7 +149,7 @@ public class ClassicIMRGuiBean
         // Create IMR class dynamically from string name
         if ( className == null || className.equals( "" ) )
             throw new ParameterException( S + "IMR Class name cannot be empty or null" );
-        imr = ( ClassicIMRAPI ) createIMRClassInstance( className,  (org.scec.param.event.ParameterChangeWarningListener)applet );
+        imr = ( AttenuationRelationshipAPI ) createIMRClassInstance( className,  (org.scec.param.event.ParameterChangeWarningListener)applet );
         imr.setParamDefaults();
 
         // Create the control parameters for this imr
@@ -273,7 +273,7 @@ public class ClassicIMRGuiBean
      *
      * @return    The imr value
      */
-    public ClassicIMRAPI getImr() {
+    public AttenuationRelationshipAPI getImr() {
         return imr;
     }
 
@@ -742,9 +742,9 @@ public class ClassicIMRGuiBean
                 System.out.println( S +":Control Parameter changed, need to update gui parameter editors" );
             synchRequiredVisibleParameters();
         }
-        else if( name1.equals(ClassicIMR.SIGMA_TRUNC_TYPE_NAME) ){  // special case hardcoded. Not the best way to do it, but need framework to handle it.
+        else if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){  // special case hardcoded. Not the best way to do it, but need framework to handle it.
 
-        //    System.out.println(S + ClassicIMR.SIGMA_TRUNC_TYPE_NAME + " has changed");
+        //    System.out.println(S + AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME + " has changed");
             String value = event.getNewValue().toString();
             toggleSigmaLevelBasedOnTypeValue(value);
 
@@ -755,11 +755,11 @@ public class ClassicIMRGuiBean
 
         if( value.equalsIgnoreCase("none") ) {
             if(D) System.out.println("Value = " + value + ", need to set value param off.");
-            independentsEditor.setParameterInvisible( ClassicIMR.SIGMA_TRUNC_LEVEL_NAME, false );
+            independentsEditor.setParameterInvisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
         }
         else{
             if(D) System.out.println("Value = " + value + ", need to set value param on.");
-            independentsEditor.setParameterInvisible( ClassicIMR.SIGMA_TRUNC_LEVEL_NAME, true );
+            independentsEditor.setParameterInvisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
         }
 
     }
@@ -778,7 +778,7 @@ public class ClassicIMRGuiBean
      *
      * @param  applet  Description of the Parameter
      */
-    protected void initControlsParamListAndEditor( ClassicIMRTesterApp applet ) {
+    protected void initControlsParamListAndEditor( AttenuationRelationshipTesterApp applet ) {
 
         // Starting
         String S = C + ": initControlsParamListAndEditor(): ";
@@ -888,7 +888,7 @@ public class ClassicIMRGuiBean
      * @param  applet                  Description of the Parameter
      * @exception  ParameterException  Description of the Exception
      */
-    private void initIndependentParamListAndEditor( ClassicIMRTesterApp applet )
+    private void initIndependentParamListAndEditor( AttenuationRelationshipTesterApp applet )
              throws ParameterException {
 
         // Starting
@@ -1047,7 +1047,7 @@ public class ClassicIMRGuiBean
             setParamsInIteratorVisible( imr.getExceedProbIndependentParamsIterator() );
 
             // Hardcoded for special values
-            ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
+            ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
             if( paramEditor != null ){
                 String value = paramEditor.getParameter().getValue().toString();
                 toggleSigmaLevelBasedOnTypeValue(value);
@@ -1057,7 +1057,7 @@ public class ClassicIMRGuiBean
         else if ( yAxisName.equals( Y_AXIS_V4 ) ) {
             setParamsInIteratorVisible( imr.getIML_AtExceedProbIndependentParamsIterator());
             // Hardcoded for special values
-            ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
+            ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
             if( paramEditor != null ){
                String value = paramEditor.getParameter().getValue().toString();
                toggleSigmaLevelBasedOnTypeValue(value);
@@ -1105,7 +1105,7 @@ public class ClassicIMRGuiBean
 
         // Get the x-axis editor
         ConstrainedStringParameterEditor editor =
-                ( ConstrainedStringParameterEditor ) controlsEditor.getParameterEditor( ClassicIMRGuiBean.X_AXIS_NAME );
+                ( ConstrainedStringParameterEditor ) controlsEditor.getParameterEditor( AttenuationRelationshipGuiBean.X_AXIS_NAME );
 
         // Get the x-axis parameter
         StringParameter param = ( StringParameter ) editor.getParameter();

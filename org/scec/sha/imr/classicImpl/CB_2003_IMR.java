@@ -47,9 +47,9 @@ import org.scec.util.*;
 
 
 public class CB_2003_IMR
-         extends ClassicIMR
+         extends AttenuationRelationship
          implements
-        ClassicIMRAPI,
+        AttenuationRelationshipAPI,
         NamedObjectAPI {
 
 

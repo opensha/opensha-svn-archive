@@ -9,8 +9,8 @@ import org.scec.data.function.*;
 
 
 /**
- *  <b>Title:</b> ClassicIMRAPI<br>
- *  <b>Description:</b> ClassicIMR is a subclass of IntensityMeasureParameter that
+ *  <b>Title:</b> AttenuationRelationshipAPI<br>
+ *  <b>Description:</b> AttenuationRelationship is a subclass of IntensityMeasureParameter that
  *  uses a Gaussian distribution to compute probabilities.  Thus in addition to the
  *  method for getting the exceedance probability, this has methods to get the mean
  *  and standard deviation of the gaussian distribution. This API defines these
@@ -21,7 +21,7 @@ import org.scec.data.function.*;
  * @version    1.0
  */
 
-public interface ClassicIMRAPI
+public interface AttenuationRelationshipAPI
     extends IntensityMeasureRelationshipAPI
 {
 

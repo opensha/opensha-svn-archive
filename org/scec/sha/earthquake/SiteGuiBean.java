@@ -7,7 +7,7 @@ import java.lang.reflect.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
-import org.scec.sha.imr.ClassicIMRAPI;
+import org.scec.sha.imr.AttenuationRelationshipAPI;
 
 /**
  * <p>Title:SiteGuiBean </p>
@@ -101,7 +101,7 @@ public class SiteGuiBean {
     // siteMap mantains mapping of each IMR with its supported sites
     siteMap =new ArrayList[classNames.size()];
 
-    ClassicIMRAPI imr;
+    AttenuationRelationshipAPI imr;
 
     // number of IMR
     int numOfIMR = 0;
@@ -114,7 +114,7 @@ public class SiteGuiBean {
       siteMap[numOfIMR] = new ArrayList();
 
       // create the imr instance
-      imr = ( ClassicIMRAPI ) createIMRClassInstance((String) it.next() , warningListener);
+      imr = ( AttenuationRelationshipAPI ) createIMRClassInstance((String) it.next() , warningListener);
       imrObjects.add(imr);
 
       // get the list of sites supported by this IMR
@@ -162,7 +162,7 @@ public class SiteGuiBean {
 
    // check which IMR has been selected
    for(int i=0; i <numOfIMRs ; ++i) {
-     int index = imrNames.indexOf(((ClassicIMRAPI)imrObjects.get(i)).getName());
+     int index = imrNames.indexOf(((AttenuationRelationshipAPI)imrObjects.get(i)).getName());
      //if ith IMR is selected then add its site params
      if(index!=-1) {
          // number of sites for this IMR
