@@ -67,7 +67,80 @@ import org.scec.sha.imr.AttenuationRelationship;
  * <LI> Firm-Soil		if DE or D
  * <LI> Very-Firm-Soil	        if CD
  * <LI> Soft-Rock		if C
- * <LI> Firm-Rock		if BC or B
+ * <LI> BC-Bounday              if BC
+ * <LI> Firm-Rock		if BÊ
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * </UL>
  *
  * ShakeMap_2003_AttenRel.WILLS_SITE_NAME (ShakeMap (2003))<p>
