@@ -253,6 +253,7 @@ public class AttenuationRelationshipApplet extends JApplet
      */
     private double Y_MIN_VAL = 1e-8;
     private JLabel imgLabel = new JLabel();
+    private JLabel jLabel1 = new JLabel();
     private Border border1;
     private FlowLayout flowLayout1 = new FlowLayout();
 
@@ -504,6 +505,9 @@ public class AttenuationRelationshipApplet extends JApplet
         //loading the OpenSHA Logo
         imgLabel.setText("");
         imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+        jLabel1.setFont(new java.awt.Font("Dialog", 0, 18));
+        jLabel1.setForeground(new Color(80, 80, 133));
+        jLabel1.setText("Attenuation Relationship Plotter");
         this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
@@ -553,6 +557,8 @@ public class AttenuationRelationshipApplet extends JApplet
 
         outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
+        outerPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 4, 0));
 
 
         parametersSplitPane.setBottomComponent( sheetPanel );
