@@ -265,9 +265,6 @@ public class PEER_FaultForecast extends EqkRupForecast
    * @param time
    */
   public void setTimeSpan(TimeSpan timeSpan){
-    time = new TimeSpan();
-    time= timeSpan;
-    source.setTimeSpan(timeSpan);
   }
 
 

@@ -161,8 +161,6 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
    * @param time
    */
   public void setTimeSpan(TimeSpan timeSpan){
-    time = new TimeSpan();
-    time= timeSpan;
   }
 
 

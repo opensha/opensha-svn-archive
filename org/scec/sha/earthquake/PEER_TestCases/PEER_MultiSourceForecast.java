@@ -314,8 +314,6 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
    * @param time
    */
   public void setTimeSpan(TimeSpan timeSpan){
-    time = new TimeSpan();
-    time= timeSpan;
   }
 
   /**

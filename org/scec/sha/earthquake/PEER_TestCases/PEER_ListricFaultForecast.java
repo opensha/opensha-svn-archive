@@ -238,9 +238,6 @@ public class PEER_ListricFaultForecast extends EqkRupForecast
    * @param time
    */
   public void setTimeSpan(TimeSpan timeSpan){
-    time = new TimeSpan();
-    time= timeSpan;
-    source.setTimeSpan(timeSpan);
   }
 
 

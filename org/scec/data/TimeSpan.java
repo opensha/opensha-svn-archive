@@ -16,10 +16,29 @@ import org.scec.param.*;
  * Duration can be specified in units of  YEARS, MONTHS, DAYS, HOURS, MINUTES,
  * SECONDS, or MILLISECONDS (only one cas be used to set duration).<p>
  *
+ * Important notes:
+ *
+ * The allowed values of the start-time "Month" parameter here goes from 1-12, which is
+ * different from the 0-11 values of the GregorianCalendar.MONTH field.
+ * This means that what's returned from the getStartTimeMonth() method is always
+ * one greater than what's obtained using getStartTimeCalendar().get(Calendar.MONTH)).
+ * Keep this in mind if you use the setStartTimeCalendar(), getStartTimeCalendar(),
+ * or getEndTimeCalendar methods.
+ *
+ * The start-time "Day" field here corresponds to the DATE field of GregorianCalendar,
+ * with allowed values starting at 1 (not 0).
+ *
+ * The start-time Hour field here corresponds to the HOUR_OF_DAY field in GregorianCalendar
+ * (values between 0 and 23 are allowed; the HOUR field of GregorianCalendar goes
+ * between 0 and 11 (with AM vs PM needing to be defined)).
+ *
+ * The minimum/maximum for the Minutes and Seconds parameters here are 0/59, and
+ * the minimum/maximum for the Milliseconds parameter is 0/999.
  *
  *
- * @author     Sid Hellman, Steven W. Rock, and Ned Field
- * @created    February 20, 2002
+ *
+ * @author     Edward Field, based on an earlier version by Sid Hellman and Steven W. Rock.
+ * @created    March, 2003
  * @version    1.0
  */
 public class TimeSpan {
@@ -31,12 +50,6 @@ public class TimeSpan {
     protected final static boolean D = false;
 
     protected GregorianCalendar startTimeCal;
-
-    // End Time In Milliseconds
-    protected long endTime_mSec;
-
-    // temp duration????
-    double duration;
 
     // Start-Time Parameters
     private final static String START_YEAR = "Start Year";
@@ -68,7 +81,7 @@ public class TimeSpan {
     private IntegerConstraint startMillisecondConstraint = new IntegerConstraint(0,999);
     private final static Integer START_MILLISECOND_DEFAULT = new Integer(0);
 
-    // Misc Strings
+    // Misc Strings (e.g., for setting units)
     public final static String YEARS = "Years";
     public final static String MONTHS = "Months";
     public final static String DAYS = "Days";
@@ -77,6 +90,8 @@ public class TimeSpan {
     public final static String SECONDS = "Seconds";
     public final static String MILLISECONDS = "Milliseconds";
     public final static String NONE = "None";
+
+    private final static String START_TIME_ERR = "Start-Time Precision Violation: ";
 
     // For Duration Units Parameter
     private final static String DURATION_UNITS = "Duration Units";
@@ -95,30 +110,22 @@ public class TimeSpan {
     private StringParameter startTimePrecisionParam;
 
     /**
-     *  Constructor
+     *  Constructor; this should actually take the start-time precision string since it
+     *  cannot be set publically (do later or I'll have to change TimeSpan construction
+     *  in existing ERFs)
      */
-    public TimeSpan() {
+    public TimeSpan(String startTimePrecision, String durationUnits) {
       initParams();
-
+      setStartTimePrecision(startTimePrecision);
+      setDurationUnits(durationUnits);
     }
 
 
-    /**
-     *  Create a TimeSpan with a duration (seconds). Defaults to right
-     *  now as the start time.
-     *
-     * @param  interval  duration  of the event
-     */
-    public TimeSpan( double interval ) {
-        this.duration = interval;
-        endTime_mSec =  startTimeCal.getTime().getTime() + (long)(duration * 1000)  ;
-    }
 
 
     /**
      * Initialize Parameters
      */
-
     private void initParams() {
 
       // Start Time Parameters
@@ -160,16 +167,22 @@ public class TimeSpan {
                                                     START_TIME_PRECISION_DEFAULT);
     }
 
-
-
     /**
-     * Sets the Start-Time Precision
+     * Sets the Start-Time Precision.  Options are "Years", "Months", "Days",
+     * "Hours", "Minutes", "Seconds" and "Milliseconds".  "None" can also be
+     * set if the start-time is not needed (e.g., for Poissonian models).
      * @param startTimePrecision
      */
-    public void setStartTimePrecision(String startTimePrecision) {
+    private void setStartTimePrecision(String startTimePrecision) {
       startTimePrecisionParam.setValue(startTimePrecision);
     }
 
+    /**
+     * This returns the start-time precision's integer equivalent (0 for NONE,
+     * 1 for YEARS, 2 for MONTHS, 3 for DAYS, 4 for HOURS, 5 for MINUTES, 6 for
+     * SECONDS, and 7 for MILLISECONDS).
+     * @return precision integer
+     */
     private int getStartTimePrecInt() {
       String precisionUnitString = (String) startTimePrecisionParam.getValue();
       if(precisionUnitString.equalsIgnoreCase(NONE)) return 0;
@@ -183,47 +196,143 @@ public class TimeSpan {
     }
 
 
-    // NEEDED ?
-    private boolean isAbovePrecision(String timeUnitString) {
-      int timeUnitInt, precisionInt;
-      String precisionUnitString = (String) startYearParam.getValue();
-
-      // Quantify the relative precision of the timeUnitString
-      if(timeUnitString.equalsIgnoreCase(YEARS)) timeUnitInt = 1;
-      else if(timeUnitString.equalsIgnoreCase(MONTHS)) timeUnitInt = 2;
-      else if(timeUnitString.equalsIgnoreCase(DAYS)) timeUnitInt = 3;
-      else if(timeUnitString.equalsIgnoreCase(HOURS)) timeUnitInt = 4;
-      else if(timeUnitString.equalsIgnoreCase(MINUTES)) timeUnitInt = 5;
-      else if(timeUnitString.equalsIgnoreCase(SECONDS)) timeUnitInt = 6;
-      else timeUnitInt = 7; // milliseconds
-
-      // Quantify the relative precision of the precisionUnitString
-      if(precisionUnitString.equalsIgnoreCase(YEARS)) precisionInt = 1;
-      else if(precisionUnitString.equalsIgnoreCase(MONTHS)) precisionInt = 2;
-      else if(precisionUnitString.equalsIgnoreCase(DAYS)) precisionInt = 3;
-      else if(precisionUnitString.equalsIgnoreCase(HOURS)) precisionInt = 4;
-      else if(precisionUnitString.equalsIgnoreCase(MINUTES)) precisionInt = 5;
-      else if(precisionUnitString.equalsIgnoreCase(SECONDS)) precisionInt = 6;
-      else precisionInt = 7; // milliseconds
-
-      if(timeUnitInt > precisionInt) return true;
-      else return false;
-
-    }
-
     /**
-     * Gets the Start-Time Precision
+     * This returns the Start-Time Precision String
      * @return
      */
     public String getStartTimePrecision() {
       return (String) startTimePrecisionParam.getValue();
     }
 
+
     /**
-     * Sets the units for the duration
+     * @return Start-time year
+     * @throws RuntimeException if year is not within the start-time precision.
+     */
+    public int getStartTimeYear() throws RuntimeException {
+      if(getStartTimePrecInt() >= 1) {
+        // check the start-time parameter settings (e.g., to make sure day exists in chosen month)
+        checkStartTimeValues();
+        return ((Integer)startYearParam.getValue()).intValue();
+      }
+      else {
+        String str = "cannot use the getStartTimeYear() method because start-time precision is \"";
+        String prec = getStartTimePrecision();
+        throw new RuntimeException(START_TIME_ERR+str+prec+"\"");
+      }
+    }
+
+
+    /**
+     * @return Start-time month
+     * @throws RuntimeException if month is not within the start-time precision.
+     */
+    public int getStartTimeMonth() throws RuntimeException {
+      if(getStartTimePrecInt() >= 2) {
+        // check the start-time parameter settings (e.g., to make sure day exists in chosen month)
+        checkStartTimeValues();
+        return ((Integer)startMonthParam.getValue()).intValue();
+      }
+      else {
+        String str = "cannot use the getStartTimeMonth() method because start-time precision is \"";
+        String prec = getStartTimePrecision();
+        throw new RuntimeException(START_TIME_ERR+str+prec+"\"");
+      }
+    }
+
+
+    /**
+     * @return Start-time day
+     * @throws RuntimeException if day is not within the start-time precision.
+     */
+    public int getStartTimeDay() throws RuntimeException {
+      if(getStartTimePrecInt() >= 3) {
+        // check the start-time parameter settings (e.g., to make sure day exists in chosen month)
+        checkStartTimeValues();
+        return ((Integer)startDayParam.getValue()).intValue();
+      }
+      else {
+        String str = "cannot use the getStartTimeDay() method because start-time precision is \"";
+        String prec = getStartTimePrecision();
+        throw new RuntimeException(START_TIME_ERR+str+prec+"\"");
+      }
+    }
+
+
+    /**
+     * @return Start-time hour
+     * @throws RuntimeException if hour is not within the start-time precision.
+     */
+    public int getStartTimeHour() throws RuntimeException {
+      if(getStartTimePrecInt() >= 4) {
+        // check the start-time parameter settings (e.g., to make sure day exists in chosen month)
+        checkStartTimeValues();
+        return ((Integer)startHourParam.getValue()).intValue();
+      }
+      else {
+        String str = "cannot use the getStartTimeHour() method because start-time precision is \"";
+        String prec = getStartTimePrecision();
+        throw new RuntimeException(START_TIME_ERR+str+prec+"\"");
+      }
+    }
+
+    /**
+     * @return Start-time minute
+     * @throws RuntimeException if minute is not within the start-time precision.
+     */
+    public int getStartTimeMinute() throws RuntimeException {
+      if(getStartTimePrecInt() >= 5) {
+        // check the start-time parameter settings (e.g., to make sure day exists in chosen month)
+        checkStartTimeValues();
+        return ((Integer)startMinuteParam.getValue()).intValue();
+      }
+      else {
+        String str = "cannot use the getStartTimeMinute() method because start-time precision is \"";
+        String prec = getStartTimePrecision();
+        throw new RuntimeException(START_TIME_ERR+str+prec+"\"");
+      }
+    }
+
+    /**
+     * @return Start-time second
+     * @throws RuntimeException if second is not within the start-time precision.
+     */
+    public int getStartTimeSecond() throws RuntimeException {
+      if(getStartTimePrecInt() >= 6) {
+        // check the start-time parameter settings (e.g., to make sure day exists in chosen month)
+        checkStartTimeValues();
+        return ((Integer)startSecondParam.getValue()).intValue();
+      }
+      else {
+        String str = "cannot use the getStartTimeSecond() method because start-time precision is \"";
+        String prec = getStartTimePrecision();
+        throw new RuntimeException(START_TIME_ERR+str+prec+"\"");
+      }
+    }
+
+    /**
+     * @return Start-time millisecond
+     * @throws RuntimeException if millisecond is not within the start-time precision.
+     */
+    public int getStartTimeMillisecond() throws RuntimeException {
+      if(getStartTimePrecInt() >= 7) {
+        // check the start-time parameter settings (e.g., to make sure day exists in chosen month)
+        checkStartTimeValues();
+        return ((Integer)startMillisecondParam.getValue()).intValue();
+      }
+      else {
+        String str = "cannot use the getStartTimeMillisecond() method because start-time precision is \"";
+        String prec = getStartTimePrecision();
+        throw new RuntimeException(START_TIME_ERR+str+prec+"\"");
+      }
+    }
+
+    /**
+     * Sets the units for the duration; presently private until we know how to
+     * handle changes after instantiation.
      * @param durationUnits
      */
-    public void setDurationUnits(String durationUnits) {
+    private void setDurationUnits(String durationUnits) {
       durationUnitsParam.setValue(durationUnits);
     }
 
@@ -237,7 +346,7 @@ public class TimeSpan {
 
 
     /**
-     * Sets the the duration
+     * Sets the the duration; assumes the units are as they've been set
      * @param duration
      */
     public void setDuration( double duration ) {
@@ -253,82 +362,173 @@ public class TimeSpan {
     }
 
     /**
-     * Set the Start Year.
-     * @param startYear
+     * Sets the start time if start-time precision = "Years".
+     * @param year
+     * @throws RuntimeException if start-time precision is not "Years"
      */
-    public void setStartYear(int startYear) {
-      if(getStartTimePrecInt() >= 1)
-        startYearParam.setValue(new Integer(startYear));
-      else
-        startMonthParam.setValue(START_YEAR_DEFAULT);
+    public void setStartTime(int year) throws RuntimeException {
+
+      if(getStartTimePrecInt() == 1)
+        startYearParam.setValue(new Integer(year));
+      else {
+        String prec = (String) startTimePrecisionParam.getValue();
+        String method = "setStartTime(int year)";
+        throw new RuntimeException(START_TIME_ERR+
+                                   "can't use the "+method+" method because start-time precision is \""+
+                                   prec+"\"");
+      }
     }
 
     /**
-     * Set the Start Month.  This reverts to null
-     * @param startMonth
+     * Sets the start time if start-time precision = "Months".
+     * @params year, month
+     * @throws RuntimeException if start-time precision is not "Months"
      */
-    public void setStartMonth(int startMonth) {
-      if(getStartTimePrecInt() >= 2)
-        startMonthParam.setValue(new Integer(startMonth));
-      else
-        startMonthParam.setValue(START_MONTH_DEFAULT);
+    public void setStartTime(int year, int month) throws RuntimeException {
+
+      if(getStartTimePrecInt() == 2) {
+        startYearParam.setValue(new Integer(year));
+        startMonthParam.setValue(new Integer(month));
+      }
+      else {
+        String prec = (String) startTimePrecisionParam.getValue();
+        String method = "setStartTime(int year, int month)";
+        throw new RuntimeException(START_TIME_ERR+
+                                   "can't use the "+method+" method because start-time precision is \""+
+                                   prec+"\"");
+      }
     }
 
     /**
-     * Set the Start Day
-     * @param startDay
+     * Sets the start time if start-time precision = "Days".
+     * @params year, month, day
+     * @throws RuntimeException if start-time precision is not "Days"
      */
-    public void setStartDay(int startDay) {
-      if(getStartTimePrecInt() >= 3)
-        startDayParam.setValue(new Integer(startDay));
-      else
-        startDayParam.setValue(START_DAY_DEFAULT);
+    public void setStartTime(int year, int month, int day) throws RuntimeException {
+
+      if(getStartTimePrecInt() == 3) {
+        startYearParam.setValue(new Integer(year));
+        startMonthParam.setValue(new Integer(month));
+        startDayParam.setValue(new Integer(day));
+      }
+      else {
+        String prec = (String) startTimePrecisionParam.getValue();
+        String method = "setStartTime(int year, int month, int day)";
+        throw new RuntimeException(START_TIME_ERR+
+                                   "can't use the "+method+" method because start-time precision is \""+
+                                   prec+"\"");
+      }
     }
 
     /**
-     * Set the Start Hour
-     * @param startHour
+     * Sets the start time if start-time precision = "Hours".
+     * @params year, month, day, hour
+     * @throws RuntimeException if start-time precision is not "Hours"
      */
-    public void setStartHour(int startHour) {
-      if(getStartTimePrecInt() >= 4)
-        startHourParam.setValue(new Integer(startHour));
-      else
-        throw new RuntimeException("any string");
+    public void setStartTime(int year, int month, int day, int hour) throws RuntimeException {
+
+      if(getStartTimePrecInt() == 4) {
+        startYearParam.setValue(new Integer(year));
+        startMonthParam.setValue(new Integer(month));
+        startDayParam.setValue(new Integer(day));
+        startHourParam.setValue(new Integer(hour));
+      }
+      else {
+        String prec = (String) startTimePrecisionParam.getValue();
+        String method = "setStartTime(int year, int month, int day, int hour)";
+        throw new RuntimeException(START_TIME_ERR+
+                                   "can't use the "+method+" method because start-time precision is \""+
+                                   prec+"\"");
+      }
+    }
+
+
+    /**
+     * Sets the start time if start-time precision = "Minutes".
+     * @params year, month, day, hour, minute
+     * @throws RuntimeException if start-time precision is not "Minutes"
+     */
+    public void setStartTime(int year, int month, int day, int hour, int minute) throws RuntimeException {
+
+      if(getStartTimePrecInt() == 5) {
+        startYearParam.setValue(new Integer(year));
+        startMonthParam.setValue(new Integer(month));
+        startDayParam.setValue(new Integer(day));
+        startHourParam.setValue(new Integer(hour));
+        startMinuteParam.setValue(new Integer(minute));
+      }
+      else {
+        String prec = (String) startTimePrecisionParam.getValue();
+        String method = "setStartTime(int year, int month, int day, int hour, int minute)";
+        throw new RuntimeException(START_TIME_ERR+
+                                   "can't use the "+method+" method because start-time precision is \""+
+                                   prec+"\"");
+      }
     }
 
     /**
-     * Set the Start Minute
-     * @param startMinute
+     * Sets the start time if start-time precision = "Seconds".
+     * @params year, month, day, hour, minute, second
+     * @throws RuntimeException if start-time precision is not "Seconds"
      */
-    public void setStartMinute(int startMinute) {
-      if(getStartTimePrecInt() >= 5)
-        startMinuteParam.setValue(new Integer(startMinute));
-      else
-        startMinuteParam.setValue(START_MINUTE_DEFAULT);
+    public void setStartTime(int year, int month, int day, int hour, int minute, int second) throws RuntimeException {
+
+      if(getStartTimePrecInt() == 6) {
+        startYearParam.setValue(new Integer(year));
+        startMonthParam.setValue(new Integer(month));
+        startDayParam.setValue(new Integer(day));
+        startHourParam.setValue(new Integer(hour));
+        startMinuteParam.setValue(new Integer(minute));
+        startSecondParam.setValue(new Integer(second));
+      }
+      else {
+        String prec = (String) startTimePrecisionParam.getValue();
+        String method = "setStartTime(int year, int month, int day, int hour, int minute, int second)";
+        throw new RuntimeException(START_TIME_ERR+
+                                   "can't use the "+method+" method because start-time precision is \""+
+                                   prec+"\"");
+      }
     }
 
     /**
-     * Set the Start Second
-     * @param startSecond
+     * Sets the start time if start-time precision = "Milliseconds".
+     * @params year, month, day, hour, minute, second, millisecond
+     * @throws RuntimeException if start-time precision is not "Milliseconds"
      */
-    public void setStartSecond(int startSecond) {
-      if(getStartTimePrecInt() >= 6)
-        startSecondParam.setValue(new Integer(startSecond));
-      else
-        startSecondParam.setValue(START_SECOND_DEFAULT);
+    public void setStartTime(int year, int month, int day, int hour,
+                             int minute, int second, int millisecond)
+                             throws RuntimeException {
+
+      if(getStartTimePrecInt() == 7) {
+        startYearParam.setValue(new Integer(year));
+        startMonthParam.setValue(new Integer(month));
+        startDayParam.setValue(new Integer(day));
+        startHourParam.setValue(new Integer(hour));
+        startMinuteParam.setValue(new Integer(minute));
+        startSecondParam.setValue(new Integer(second));
+        startMillisecondParam.setValue(new Integer(millisecond));
+      }
+      else {
+        String prec = (String) startTimePrecisionParam.getValue();
+        String method = "setStartTime(int year, int month, int day, int hour, int minute, int second, int millisecond)";
+        throw new RuntimeException(START_TIME_ERR+
+                                   "can't use the "+method+" method because start-time precision is \""+
+                                   prec+"\"");
+      }
     }
 
     /**
-     * Set the Start Millisecond
-     * @param startMillisecond
+     * This checks whether the start-time parameter values correspond to an actaul
+     * date (e.g., can't have day=29 if month=2, unless it's a leap year).
+     * Currently this is done by simply rebuilding the startTimeCalendar
+     * (which will throw and exception if there is a problem), but a
+     * more efficient approach could be implemented later.
+     * @return
      */
-    public void setStartMillisecond(int startMillisecond) {
-      if(getStartTimePrecInt() >= 7)
-        startMillisecondParam.setValue(new Integer(startMillisecond));
-      else
-        startMillisecondParam.setValue(START_MILLISECOND_DEFAULT);
+    private void checkStartTimeValues() {
+        // for efficiency there should be an if statement here to check whether any parameters have changed
+        buildStartTimeCalendar();
     }
-
 
     /**
      * This sets the Start-Time Calendar, making any fields greater than the
@@ -336,17 +536,20 @@ public class TimeSpan {
      * This throws an exception if the Day is incompatable with the chosen Month
      * @throws Exception
      */
-    private void buildStartTimeCal() throws Exception {
+    private void buildStartTimeCalendar() throws RuntimeException {
 
       int year, month, day, hour, minute, second, millisecond;
 
       // get the precision integer
       int precisionInt = getStartTimePrecInt();
 
-      // now set each field's primitave according to the precision
+      // get a primitave for each field according to the precision
 
-      // set year since this is always used
-      year = ((Integer) startYearParam.getValue()).intValue();
+      // set the year
+      if(precisionInt>0)
+        year = ((Integer) startYearParam.getValue()).intValue();
+      else
+        year = this.START_YEAR_DEFAULT.intValue();
 
       // set the month (subtract one to make compatible with GregorianCalendar indexing)
       if(precisionInt>1)
@@ -395,7 +598,7 @@ public class TimeSpan {
       try {
         startTimeCal.set(Calendar.DATE,day);
       } catch (Exception e) {
-        throw new Exception("TimeSpan: Invalid Day for the chosen Month");
+        throw new RuntimeException("Calendar Error: Invalid Day for the chosen Month");
       }
       startTimeCal.set(Calendar.HOUR_OF_DAY,hour);
       startTimeCal.set(Calendar.MINUTE,minute);
@@ -405,64 +608,105 @@ public class TimeSpan {
 
 
 
-    /** Sets the elapsed time of this event in seconds. */
-    public void setStartTimeCal( GregorianCalendar cal ) {
-
-    }
-
-    /** Sets the end time of this event in seconds.  The duration is then computed
-     *  from the startTime
+    /**
+     * This sets the start-time fields (year, month, day, hour, minute, second,
+     * and millisecond) from the inpute GregorianCalendar.  Fields above
+     * the start-time precision are igored.  For example, if the start-
+     * time precision equals "Hour", then the year, month, day, and hour are
+     * set, but the minute, second, and millisecond fields are not.  If start-
+     * time precision equals "None", then none of the fields are filled in.
+     * @param cal
      */
-    public void setEndTime( GregorianCalendar cal ) throws InvalidRangeException{
+    public void setStartTimeCalendar( GregorianCalendar cal ) {
+      int year = cal.get(Calendar.YEAR);
+      int month = cal.get(Calendar.MONTH) + 1; // our indexing starts from 1
+      int day = cal.get(Calendar.DATE);
+      int hour = cal.get(Calendar.HOUR_OF_DAY);
+      int minute = cal.get(Calendar.MINUTE);
+      int second = cal.get(Calendar.SECOND);
+      int millisecond = cal.get(Calendar.MILLISECOND);
+      if(getStartTimePrecInt() == 7)
+        setStartTime(year,month,day,hour,minute,second,millisecond);
+      else if(getStartTimePrecInt() == 6)
+        setStartTime(year,month,day,hour,minute,second);
+      else if(getStartTimePrecInt() == 5)
+        setStartTime(year,month,day,hour,minute);
+      else if(getStartTimePrecInt() == 4)
+        setStartTime(year,month,day,hour);
+      else if(getStartTimePrecInt() == 3)
+        setStartTime(year,month,day);
+      else if(getStartTimePrecInt() == 2)
+        setStartTime(year,month);
+      else if(getStartTimePrecInt() == 1)
+        setStartTime(year);
+      else {} // do nothing if getStartTimePrecInt() == 0
 
-        String S = C + ": setEndTime():";
-
-        long start = startTimeCal.getTime().getTime();  //1st getTime returns a Date object, second (long) milliseconds
-        long end = cal.getTime().getTime();
-
-        if( end <= start ) throw new InvalidRangeException(S + "End time cannot be before or equal to the start time");
-
-        endTime_mSec = end;
-        this.duration =  Math.round( (double) ( ( end - start ) / 1000 ) );
     }
 
 
     /**
-     *  get the end time.
-     *
+     *  NEEDS TO BE FINISHED & TESTED
+     *  Not that fields above start-time precision are given their default values
      */
-    public GregorianCalendar getEndTime(  ) {
+    public GregorianCalendar getEndTime() {
+      if(getStartTimePrecInt() > 0) {
+        // build the startTime Calendar
+        buildStartTimeCalendar();
+        // compute duration in mSec from the duration parameter FINISH
+        long duration_MSec = 1000; //?????????????????????????????????
+        long endTime_mSec =  startTimeCal.getTime().getTime() + duration_MSec;
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime( new Date( endTime_mSec ) );
         return cal;
+      }
+      else {
+        String str = "Can't use getEndTime() method because start-time precision = \"";
+        String prec = (String) startTimePrecisionParam.getValue();
+        throw new RuntimeException(START_TIME_ERR+str+prec+"\"");
+      }
     }
 
-    /** Returns the start time of this event */
-    public GregorianCalendar getStartTimeCal(  ) throws Exception{
-
-      buildStartTimeCal();
+    /**
+     * This returns a GregorianCalendar representation of the start-time fields.
+     * Those fields above the start-time precision are set to their defaults
+     * (generally the lowest possible value).  For example, if start-time precision
+     * equals "Day", then the HOUR_OF_DAY, MINUTE, SECOND, and MILLISECOND fields
+     * of the returned GregorianCalendar are all set to 0.
+     * @return
+     * @throws Exception
+     */
+    public GregorianCalendar getStartTimeCalendar(  ) throws RuntimeException{
+      buildStartTimeCalendar();
       return startTimeCal;
     }
 
 
     // this is temporary for testing purposes
     public static void main(String[] args) {
-      TimeSpan tSpan = new TimeSpan();
-      tSpan.setStartTimePrecision(MILLISECONDS);
-      tSpan.setStartYear(1964);
-      tSpan.setStartMonth(11);
-      tSpan.setStartDay(18);
-      tSpan.setStartHour(19);
-      tSpan.setStartMinute(20);
-      tSpan.setStartSecond(21);
-      tSpan.setStartMillisecond(22);
-
-      GregorianCalendar cal = new GregorianCalendar();
+      TimeSpan tSpan = new TimeSpan(YEARS,YEARS);
       try {
-      cal = tSpan.getStartTimeCal();
+        tSpan.setStartTime(1964);
+//        tSpan.setStartTime(1964,11,18,19,20,21);
+      }catch (Exception e) {
+        System.out.println(e.getMessage());
       }
-      catch(Exception e) {
+      try {
+        int i = tSpan.getStartTimeMonth();
+      }catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+/*
 
+      GregorianCalendar cal = tSpan.getStartTimeCalendar();
+
+      int int1, int2;
+
+      int1 = tSpan.getStartTimeCalendar().get(Calendar.MONTH);
+      int2 = tSpan.getStartTimeMonth();
+      System.out.println("getStartTimeCalendar().get(Calendar.MONTH)) = "+int1);
+      System.out.println("getStartTimeMonth() = "+int2);
+
+/*
       }
       System.out.println(cal.toString());
       System.out.print("Start: \nYear: "+cal.get(Calendar.YEAR)+"; ");
