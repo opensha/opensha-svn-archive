@@ -54,10 +54,7 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 
         super.setParameter(model);
 
-        IntegerConstraint constraint=getConstraint();
-
-        valueEditor.setToolTipText( "Min = " + constraint.getMin().toString() + "; Max = " + constraint.getMax().toString() );
-
+        setToolTipText();
         this.setNameLabelToolTip(model.getInfo());
 
         if(D) System.out.println(S.concat("Ending"));
@@ -104,5 +101,26 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 
       return constraint;
     }
+
+    /**
+    * Updates the NumericTextField string with the parameter value. Used when
+    * the parameter is set for the first time, or changed by a background
+    * process independently of the GUI. This could occur with a ParameterChangeFail
+    * event.
+    */
+   public void refreshParamEditor(){
+      super.refreshParamEditor();
+      setToolTipText();
+
+   }
+
+   /**
+    * set the tool tip contraint text
+    */
+   private void setToolTipText() {
+     IntegerConstraint constraint =getConstraint();
+     valueEditor.setToolTipText( "Min = " + constraint.getMin().toString() + "; Max = " + constraint.getMax().toString() );
+   }
+
 
 }
