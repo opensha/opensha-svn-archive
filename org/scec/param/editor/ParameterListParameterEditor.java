@@ -53,7 +53,6 @@ public class ParameterListParameterEditor extends ParameterEditor {
 
     // make the params editor
     initParamListAndEditor();
-
     // All done
     if ( D ) System.out.println( S + "Ending:" );
   }
@@ -71,6 +70,7 @@ public class ParameterListParameterEditor extends ParameterEditor {
 
     editor = new ParameterListEditor(paramList);
     editor.setTitle(EDITOR_TITLE);
+    param.setValue(paramList);
   }
 
   /**
