@@ -339,7 +339,7 @@ public class GriddedFaultApplet
         if( D ) System.out.println(S + "Creating StirlingGriddedFaultFactory for " + faultName);
 
         factory = new StirlingGriddedFaultFactory(faultData,
-                      new Double( ( (Double)gridSpacingEditor.getValue() ).doubleValue() ));
+                      ((Double)gridSpacingEditor.getValue()).doubleValue());
 
         GriddedSurfaceAPI surface = factory.getGriddedSurface();
         surface.setName(faultName);

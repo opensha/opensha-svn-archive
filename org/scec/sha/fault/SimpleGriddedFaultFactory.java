@@ -27,14 +27,14 @@ public abstract class SimpleGriddedFaultFactory extends GriddedFaultFactory impl
     protected final static boolean D = false;
 
     protected FaultTrace faultTrace;
-    protected Double aveDip;
-    protected Double upperSeismogenicDepth;
-    protected Double lowerSeismogenicDepth;
-    protected Double gridSpacing;
+    protected double aveDip = Double.NaN;
+    protected double upperSeismogenicDepth = Double.NaN;
+    protected double lowerSeismogenicDepth = Double.NaN;
+    protected double gridSpacing = Double.NaN;
 
 
-    private static final Double zero = new Double(0);
-    private static final Double ninety = new Double(90);
+    private static final double zero = 0;
+    private static final double ninety = 90;
 
 
     // **********************
@@ -45,10 +45,10 @@ public abstract class SimpleGriddedFaultFactory extends GriddedFaultFactory impl
 
     public SimpleGriddedFaultFactory(
         FaultTrace faultTrace,
-        Double aveDip,
-        Double upperSeismogenicDepth,
-        Double lowerSeismogenicDepth,
-        Double gridSpacing
+        double aveDip,
+        double upperSeismogenicDepth,
+        double lowerSeismogenicDepth,
+        double gridSpacing
     )
         throws FaultException
     {
@@ -81,37 +81,37 @@ public abstract class SimpleGriddedFaultFactory extends GriddedFaultFactory impl
     public void setFaultTrace(FaultTrace faultTrace) { this.faultTrace = faultTrace; }
     public FaultTrace getFaultTrace() { return faultTrace; }
 
-    public void setAveDip(Double aveDip) throws FaultException {
-        if ( aveDip.compareTo( zero ) < 0 || aveDip.compareTo( ninety ) > 0 ){
+    public void setAveDip(double aveDip) throws FaultException {
+        if ( aveDip < zero || aveDip > ninety){
             throw new FaultException(C + " : setAveDip(): Input value must be between 0 and 90, inclusive");
         }
         this.aveDip = aveDip;
     }
-    public Double getAveDip() { return aveDip; }
+    public double getAveDip() { return aveDip; }
 
-    public void setUpperSeismogenicDepth(Double upperSeismogenicDepth) throws FaultException {
-        if ( upperSeismogenicDepth.compareTo( zero ) < 0  ){
+    public void setUpperSeismogenicDepth(double upperSeismogenicDepth) throws FaultException {
+        if ( upperSeismogenicDepth < zero ){
             throw new FaultException(C + " : setUpperSeismogenicDepth(): Input value must be greater than or equal to 0.");
         }
         this.upperSeismogenicDepth = upperSeismogenicDepth;
     }
-    public Double getUpperSeismogenicDepth() { return upperSeismogenicDepth; }
+    public double getUpperSeismogenicDepth() { return upperSeismogenicDepth; }
 
-    public void setLowerSeismogenicDepth(Double lowerSeismogenicDepth) throws FaultException {
-        if ( lowerSeismogenicDepth.compareTo( zero ) < 0  ){
+    public void setLowerSeismogenicDepth(double lowerSeismogenicDepth) throws FaultException {
+        if ( lowerSeismogenicDepth < zero  ){
             throw new FaultException(C + " : setLowerSeismogenicDepth(): Input value must be greater than or equal to 0.");
         }
         this.lowerSeismogenicDepth = lowerSeismogenicDepth;
     }
-    public Double getLowerSeismogenicDepth() { return lowerSeismogenicDepth; }
+    public double getLowerSeismogenicDepth() { return lowerSeismogenicDepth; }
 
-    public void setGridSpacing(Double gridSpacing) throws FaultException {
-        if ( gridSpacing.compareTo( zero ) <= 0  ){
+    public void setGridSpacing(double gridSpacing) throws FaultException {
+        if ( gridSpacing <= zero  ){
             throw new FaultException(C + " : setGridSpacing(): Input value must be greater than 0.");
         }
         this.gridSpacing = gridSpacing;
     }
-    public Double getGridSpacing() { return gridSpacing; }
+    public double getGridSpacing() { return gridSpacing; }
 
 
 

@@ -31,22 +31,22 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
     public StirlingGriddedFaultFactory() { super(); }
 
     public StirlingGriddedFaultFactory( SimpleFaultData simpleFaultData,
-                                        Double gridSpacing)
+                                        double gridSpacing)
                                         throws FaultException {
 
         super(simpleFaultData.getFaultTrace(),
-              new Double(simpleFaultData.getAveDip()),
-              new Double(simpleFaultData.getUpperSeismogenicDepth()),
-              new Double(simpleFaultData.getLowerSeismogenicDepth()),
+              simpleFaultData.getAveDip(),
+              simpleFaultData.getUpperSeismogenicDepth(),
+              simpleFaultData.getLowerSeismogenicDepth(),
               gridSpacing);
     }
 
 
     public StirlingGriddedFaultFactory( FaultTrace faultTrace,
-                                        Double aveDip,
-                                        Double upperSeismogenicDepth,
-                                        Double lowerSeismogenicDepth,
-                                        Double gridSpacing )
+                                        double aveDip,
+                                        double upperSeismogenicDepth,
+                                        double lowerSeismogenicDepth,
+                                        double gridSpacing )
                                         throws FaultException {
 
         super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
@@ -61,16 +61,16 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
         String S = C + ": getGriddedSurface():";
         if( D ) System.out.println(S + "Starting");
 
-        if( faultTrace == null ) throw new FaultException(S + "Fault Trace" + ERR);
-        if( aveDip == null ) throw new FaultException(S + "aveDip" + ERR);
-        if( upperSeismogenicDepth == null ) throw new FaultException(S + "upperSeismogenicDepth" + ERR);
-        if( lowerSeismogenicDepth == null ) throw new FaultException(S + "lowerSeismogenicDepth" + ERR);
-        if( gridSpacing == null ) throw new FaultException(S + "gridSpacing" + ERR);
+        if( faultTrace == null  ) throw new FaultException(S + "Fault Trace" + ERR);
+        if( aveDip == Double.NaN ) throw new FaultException(S + "aveDip" + ERR);
+        if( upperSeismogenicDepth == Double.NaN  ) throw new FaultException(S + "upperSeismogenicDepth" + ERR);
+        if( lowerSeismogenicDepth == Double.NaN  ) throw new FaultException(S + "lowerSeismogenicDepth" + ERR);
+        if( gridSpacing == Double.NaN  ) throw new FaultException(S + "gridSpacing" + ERR);
 
 
         final int numSegments = faultTrace.getNumLocations() - 1;
-        final double gridSpacingValue = gridSpacing.doubleValue();
-        final double avDipRadians = aveDip.doubleValue() * PI_RADIANS;
+        final double gridSpacingValue = gridSpacing;
+        final double avDipRadians = aveDip * PI_RADIANS;
         final double gridSpacingCosAveDipRadians = gridSpacingValue * Math.cos( avDipRadians );
         final double gridSpacingSinAveDipRadians = gridSpacingValue * Math.sin( avDipRadians );
 
@@ -111,7 +111,7 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
         // Calculate down dipth width
         double denominator = Math.sin( avDipRadians );
 
-        double downDipWidth = Math.abs(upperSeismogenicDepth.doubleValue() - lowerSeismogenicDepth.doubleValue());
+        double downDipWidth = Math.abs(upperSeismogenicDepth - lowerSeismogenicDepth);
         downDipWidth /= denominator;
 
         // Calculate the number of rows and columns
