@@ -17,6 +17,7 @@ import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
 import org.jfree.chart.labels.*;
 
+import ch.randelshofer.quaqua.QuaquaManager;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
@@ -504,10 +505,14 @@ public class HazardCurveServerModeApp extends JApplet
   }
 
   //static initializer for setting look & feel
+  //static initializer for setting look & feel
   static {
+    String osName = System.getProperty("os.name");
     try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+      if(osName.startsWith("Mac OS"))
+        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
+      else
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch(Exception e) {
     }
