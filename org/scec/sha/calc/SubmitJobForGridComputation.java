@@ -153,7 +153,7 @@ public class SubmitJobForGridComputation {
       // this will create  a new directory for each run on the remote machine
       String condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
                                                "" + remoteMachineSubdirName,
-                                               logFiles,submitFilesDir,
+                                               outputDir,submitFilesDir,
                                                PRE_PROCESSOR_CONDOR_SUBMIT,
                                                REMOTE_DIR,
                                                PRE_PROCESSOR_EXECUTABLE);
@@ -205,7 +205,7 @@ public class SubmitJobForGridComputation {
       while(it.hasNext()) {
         condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
                                           (String) it.next(),
-                                          logFiles,submitFilesDir,
+                                          outputDir,submitFilesDir,
                                           PERL_CONDOR_SUBMIT + "_" + i,
                                           remoteDir, PERL_EXECUTABLE);
         String jobName = PERL_JOB_NAME + i;
@@ -311,20 +311,20 @@ public class SubmitJobForGridComputation {
    */
   private String createCondorScript(String fileDataPrefix,
                                     String fileDataSuffix,
-                                    String arguments, String logFileDir,String outputDir,
+                                    String arguments, String outputDir,String submitFilesDir,
                                     String condorFileNamePrefix,
                                     String remoteDir, String executableName) {
     try {
       String fileName = condorFileNamePrefix + ".sub";
       // make the preprocessor submit script to make new directory for each run
-      FileWriter fileWriter = new FileWriter(outputDir + fileName);
+      FileWriter fileWriter = new FileWriter(submitFilesDir + fileName);
       fileWriter.write("executable = " + executableName + "\n");
       fileWriter.write(fileDataPrefix);
       fileWriter.write("remote_initialdir=" + remoteDir + "\n");
       fileWriter.write("arguments = " + arguments + "\n");
-      fileWriter.write("Output = " + condorFileNamePrefix + "." + "out\n");
-      fileWriter.write("Error = " + condorFileNamePrefix + ".err\n");
-      fileWriter.write("Log = " + logFileDir+LOG_FILE_NAME + "\n");
+      fileWriter.write("Output = " + outputDir+LOG_FILES_DIR+condorFileNamePrefix + "." + "out\n");
+      fileWriter.write("Error = " + outputDir+LOG_FILES_DIR+condorFileNamePrefix + ".err\n");
+      fileWriter.write("Log = " + outputDir+LOG_FILES_DIR+LOG_FILE_NAME + "\n");
       fileWriter.write(fileDataSuffix);
       fileWriter.close();
       return fileName;
