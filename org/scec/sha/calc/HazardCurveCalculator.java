@@ -8,6 +8,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JLabel;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
 import org.scec.data.function.*;
 import org.scec.data.Site;
@@ -54,7 +55,7 @@ public class HazardCurveCalculator {
    * @return
    */
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
-        Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
+                             Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
 
     // make the progress bar
     JFrame frame = new JFrame("Calculation Status");
@@ -62,22 +63,23 @@ public class HazardCurveCalculator {
     frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
 
     progress = new JProgressBar(0,100);
-    progress.setSize(this.FRAME_WIDTH-150,this.FRAME_HEIGHT-20);
     progress.setStringPainted(true); // display the percentage completed also
     JLabel label = new JLabel(" Updating Forecast ...");
-    frame.getContentPane().add(label);
+    frame.getContentPane().setLayout(new GridBagLayout());
+    frame.getContentPane().add(label, new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0
+        ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 110, 4));
     frame.show();
     label.paintImmediately(label.getBounds());
-    frame.validate();
-    frame.repaint();
-
 
     // update the forecast. any constraint exception is caught by the GuiBean
     eqkRupForecast.updateForecast();
 
     // now add the  progress bar
+    label.setVisible(false);
     frame.getContentPane().remove(label);
-    frame.getContentPane().add(progress);
+    frame.getContentPane().add(progress, new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 110, 4));
+    frame.getContentPane().remove(label);
     frame.getContentPane().validate();
     frame.getContentPane().repaint();
 
@@ -85,7 +87,7 @@ public class HazardCurveCalculator {
     try {
       // set the site in IMR
       imr.setSite(site);
-     }catch (Exception ex) {
+    }catch (Exception ex) {
       if(D) System.out.println(C + ":Param warning caught"+ex);
       ex.printStackTrace();
     }
@@ -98,7 +100,7 @@ public class HazardCurveCalculator {
     int totRuptures = 0;
     if (D) System.out.println(C+":  starting totNumRup compuation");
     for(int i=0;i<numSources;++i)
-        totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
+      totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
 
     // rupture number presently being processed
     int currRuptures = 0;
@@ -172,65 +174,65 @@ public class HazardCurveCalculator {
    * @param num:    the current number
    * @param totNum: the total number
    */
-   private void updateProgress(int num, int totNum) {
+  private void updateProgress(int num, int totNum) {
 
-        int val=0;
-        boolean update = false;
+    int val=0;
+    boolean update = false;
 
-        // find if we're at a point to update
-        if(num == (int) (totNum*0.9)) { // 90% complete
-              val = 90;
-              update = true;
-        }
-        else if(num == (int) (totNum*0.8)) { // 80% complete
-              val = 80;
-              update = true;        }
-        else if(num == (int) (totNum*0.7)) { // 70% complete
-              val = 70;
-              update = true;        }
-        else if(num == (int) (totNum*0.6)) { // 60% complete
-              val = 60;
-              update = true;        }
-        else if(num == (int) (totNum*0.5)) { // 50% complete
-              val = 50;
-              update = true;        }
-        else if(num == (int) (totNum*0.4)) { // 40% complete
-              val = 40;
-              update = true;        }
-        else if(num == (int) (totNum*0.3)) { // 30% complete
-              val = 30;
-              update = true;        }
-        else if(num == (int) (totNum*0.2)) { // 20% complete
-              val = 20;
-              update = true;        }
-        else if(num == (int) (totNum*0.1)) { // 10% complete
-              val = 10;
-              update = true;        }
+    // find if we're at a point to update
+    if(num == (int) (totNum*0.9)) { // 90% complete
+      val = 90;
+      update = true;
+    }
+    else if(num == (int) (totNum*0.8)) { // 80% complete
+      val = 80;
+    update = true;        }
+    else if(num == (int) (totNum*0.7)) { // 70% complete
+      val = 70;
+    update = true;        }
+    else if(num == (int) (totNum*0.6)) { // 60% complete
+      val = 60;
+    update = true;        }
+    else if(num == (int) (totNum*0.5)) { // 50% complete
+      val = 50;
+    update = true;        }
+    else if(num == (int) (totNum*0.4)) { // 40% complete
+      val = 40;
+    update = true;        }
+    else if(num == (int) (totNum*0.3)) { // 30% complete
+      val = 30;
+    update = true;        }
+    else if(num == (int) (totNum*0.2)) { // 20% complete
+      val = 20;
+    update = true;        }
+    else if(num == (int) (totNum*0.1)) { // 10% complete
+      val = 10;
+    update = true;        }
 
-        // update the progress bar
-        if(update == true) {
-            progress.setString(Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
-            progress.setValue(val);
-            Rectangle rect = progress.getBounds();
-            progress.paintImmediately(rect);
-        }
-   }
+    // update the progress bar
+    if(update == true) {
+      progress.setString(Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
+      progress.setValue(val);
+      Rectangle rect = progress.getBounds();
+      progress.paintImmediately(rect);
+    }
+  }
 
 
 
   /**
-  * set x values in log space for condition Prob function to be passed to IMR
-  * It accepts 2 parameters
-  *
-  * @param originalFunc :  this is the function with X values set
-  * @param logFunc : this is the functin in which log X values are set
-  */
- private void initLogDiscretizeValues(DiscretizedFuncAPI originalFunc,
-                                      DiscretizedFuncAPI logFunc){
+   * set x values in log space for condition Prob function to be passed to IMR
+   * It accepts 2 parameters
+   *
+   * @param originalFunc :  this is the function with X values set
+   * @param logFunc : this is the functin in which log X values are set
+   */
+  private void initLogDiscretizeValues(DiscretizedFuncAPI originalFunc,
+                                       DiscretizedFuncAPI logFunc){
 
-   int numPoints = originalFunc.getNum();
-   for(int i=0; i<numPoints; ++i)
-     logFunc.set(Math.log(originalFunc.getX(i)), 1);
- }
+    int numPoints = originalFunc.getNum();
+    for(int i=0; i<numPoints; ++i)
+      logFunc.set(Math.log(originalFunc.getX(i)), 1);
+  }
 
 }
