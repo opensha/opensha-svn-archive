@@ -235,13 +235,26 @@ public class PuenteHillsScenarioControlPanel {
     FaultTrace tempTr = new FaultTrace("");
     tempTr.addLocation(finalLoc1);
     tempTr.addLocation(finalLoc2);
-    if (D) System.out.println("\n new CH seg Length = "+tempTr.getTraceLength());
+    if (D) System.out.println("\n new-merged CH seg Length = "+tempTr.getTraceLength());
     tempTr = new FaultTrace("");
     tempTr.addLocation(finalLoc2);
     tempTr.addLocation(finalLoc3);
-    if (D) System.out.println("\n new SF seg Length = "+tempTr.getTraceLength());
+    if (D) System.out.println("\n new-merged SF seg Length = "+tempTr.getTraceLength());
     tempTr = new FaultTrace("");
     tempTr.addLocation(finalLoc3);
+    tempTr.addLocation(finalLoc4);
+    if (D) System.out.println("\n new-merged LA seg Length = "+tempTr.getTraceLength());
+
+    tempTr = new FaultTrace("");
+    tempTr.addLocation(finalLoc1);
+    tempTr.addLocation(tempLoc1);
+    if (D) System.out.println("\n new CH seg Length = "+tempTr.getTraceLength());
+    tempTr = new FaultTrace("");
+    tempTr.addLocation(tempLoc2);
+    tempTr.addLocation(tempLoc3);
+    if (D) System.out.println("\n new SF seg Length = "+tempTr.getTraceLength());
+    tempTr = new FaultTrace("");
+    tempTr.addLocation(tempLoc4);
     tempTr.addLocation(finalLoc4);
     if (D) System.out.println("\n new LA seg Length = "+tempTr.getTraceLength());
   }
