@@ -54,9 +54,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   Vector allSourceNames;
 
   private double GRID_SPACING = 1.0;
-  private double B_VALUE =0.9;
-  private double MAG_LOWER = 6.5;
-  private double DELTA_MAG = 0.1;
 
   private String CHAR_MAG_FREQ_DIST = "1";
   private String GR_MAG_FREQ_DIST = "2";
@@ -159,6 +156,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   private final static double FAULT_FILE_WT_40 = 1.0;
   private final static String FAULT_FILE_41 = "creepflt";
   private final static double FAULT_FILE_WT_41 = 1.0;
+
+  // not sure if the rest are needed
   private final static String FAULT_FILE_42 = "ext-norm-65";
   private final static double FAULT_FILE_WT_42 = 1.0;
   private final static String FAULT_FILE_43 = "ext-norm-char";
@@ -232,10 +231,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   private Vector FrankelBackgrSeisSources;
   private Vector allSources;
 
-
   // This is an array holding each line of the input file
   private ArrayList inputBackSeisFileLines = null;
-
 
   // fault-model parameter stuff
   public final static String FAULT_MODEL_NAME = new String ("Fault Model");
@@ -422,6 +419,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     faultFileWts.add(new Double(1.0));
     faultFiles.add(FAULT_FILE_41);
     faultFileWts.add(new Double(1.0));
+/* don't need these for now
     faultFiles.add(FAULT_FILE_42);
     faultFileWts.add(new Double(1.0));
     faultFiles.add(FAULT_FILE_43);
@@ -434,7 +432,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     faultFileWts.add(new Double(0.5));
     faultFiles.add(FAULT_FILE_47);
     faultFileWts.add(new Double(0.5));
-
+*/
   }
 
 
@@ -465,7 +463,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     String  magFreqDistType = "", faultingStyle, sourceName="";
 
     double dlen, dmove;                 // fault discretization and floater offset, respectively
-    int numBranches;                    // num branches for mag epistemic uncertainty
+    int numBranches, numMags;                    // num branches for mag epistemic uncertainty
     Vector branchDmags = new Vector();  // delta mags for epistemic uncertainty
     Vector branchWts = new Vector();    // wts for epistemic uncertainty
     double aleStdDev, aleWidth;         // aleatory mag uncertainties
@@ -474,8 +472,11 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     double   lowerSeismoDepth, upperSeismoDepth;
     double lat, lon, rake=Double.NaN;
     double mag=0;  // used for magChar and magUpper (latter for the GR distributions)
-    double aVal=0, bVal=0, magLower, deltaMag;
+    double aVal=0, bVal=0, magLower, deltaMag, moRate;
     double charRate=0, dip=0, downDipWidth=0, depthToTop=0;
+
+    double test;
+    boolean itest;
 
     // get adjustable parameters values
     String faultModel = (String) faultModelParam.getValue();
@@ -546,7 +547,16 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           if(fileName.equals("ca-wg99-dist-char")) sourceName += " M="+mag;
           sourceName += " Char";
 
-          // calculate moment rate & itest here
+          // get itest
+          // I DON'T UNDERSTAND THE LAST TERM IN THE NEXT LINE!
+          test = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+          if(test < 5.8)
+            itest = true;
+          else
+            itest = false;
+          if (aleStdDev == 0.0) itest = true;
+
+          moRate = charRate*MomentMagCalc.getMoment(mag);
       }
       else { // It's a GR distribution
 
@@ -560,8 +570,25 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
             sourceName += " fl-Char";
           else
             sourceName += " GR";
-//System.out.println(sourceName+"  aVal="+aVal+"  bVal="+bVal+"  magLower="+magLower+"  mag="+mag+"  deltaMag="+deltaMag);
-          //calculate moment rate & itest here
+
+          // mover lower and upper mags to be bin centered
+          if(mag != magLower){
+            magLower += deltaMag/2.0;
+            mag -= deltaMag/2.0;
+          }
+          numMags = Math.round( (float)((mag-magLower)/deltaMag + 1.0) );
+
+          // set itest
+          itest = false;
+          test = mag + ((Double)branchDmags.get(0)).doubleValue();
+          if( test < 6.5 && numMags > 1 )  itest = true;
+          test = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+          if (numMags == 1 && test < 5.8) itest = true;
+          if (aleStdDev == 0.0) itest = true;
+
+          //calculate moment rate
+          moRate = getMomentRate(magLower, numMags,deltaMag,aVal,bVal);
+
       }
 
       if(D) System.out.println("    "+sourceName);
@@ -680,7 +707,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     double aveRake=0.0;
     double aveDip=90;
     double tempMoRate = 1.0;
-    double bValue = B_VALUE;
+    double bValue = 0.9;
     double magUpper=7.0;
     double magDelta=0.2;
     double magLower1=0.0;
@@ -842,6 +869,20 @@ for(int i=0;i<allSources.size();i++) {
     */
    public void parameterChange( ParameterChangeEvent event ) {
      parameterChangeFlag=true;
+   }
+
+
+   /**
+    * this computes the moment for the GR distribution exactly the way frankel does is
+    */
+   private double getMomentRate(double magLower, int numMag, double deltaMag, double aVal, double bVal) {
+     double mo = 0;
+     double mag;
+     for(int i = 0; i <numMag; i++) {
+       mag = magLower + i*deltaMag;
+       mo += Math.pow(10,aVal-bVal*mag+1.5*mag+9.05);
+     }
+     return mo;
    }
 
 

@@ -2,7 +2,7 @@ These input files came from the directory:
 
 	PSHA/Frankel_2002_Stuff/InputFilesForOpenSHA
 
-on Ned Field's computer (these were originally sent from Cao of the CGS, and everything up through the attenuation relationship stuff was cut from the beginning of each file).  Some other minor changes were made as noted in the above directory.
+on Ned Field's computer (these were originally sent from Cao of the CGS, and everything up through the attenuation relationship stuff was cut from the beginning of each file).  Some other minor changes were made as noted in the above directory.  Some extra blank lines at the end of some of the files also had to be removed.
 
 Only fault files are included so far (used in haxFXv3 and haxFXv3a)
 
