@@ -6,37 +6,39 @@ For OpenSHA:
 
 The labels for Set1-Case8-??? are incorrect in PEER_TestsApplet, PEER_TestResultsPlotterApplet, and PEER_TestResultsSubmissionApplet.  Please change "0sig", "1sig", and "2sig" to "noTrunc", "2sigTrunc", and "3sigTrunc", respectively.  This needs to be done for all three applications.  Ned tried to make this change himself in PEER_TestsApplet, but couldn't get it to work.
 
-PEER_TestsApplet - the label "Case9-SA97" should actually be "Case9-AS97" (it's correct in the other two apps).
-
 PEER_TestsApplet - presently the disaggregation window must be closed before one can return to the main app.  Can we relax this?
 
 PEER_TestsApplet - seems to throw a non-fatal exception at launch (or shortly thereafter)
 
-PEER_TestsApplet - Show any exceptions thrown by an ERF in a message window (presently nothing is reported).
-
-PEER_TestsApplet - Go through our implementation of the PEER test cases again (to make sure Ned didn't screw anything up since he last did it).  Perhaps this should wait until we can simultaneously show the true or target value in the plot.  Eventually we'll want to make Junit tests for the PEER test cases.
-
-PEER_TestsApplet - This represents are most advanced implementation of the community modeling environment or CME (with only setting parameter values for the various test cases being hard wired).  Double check that this implementation (including the PEER_TestsGuiBean) is as "clean" as possible, and that the hard coded elements can easily be remove to constitute our most advanced and general implementation of the CME.
-
-PEER_TestsApplet - In the IMT editor section the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
+PEER_TestsApplet - Look into how all possible exceptions are being handled (e.g., from a MagFreqDist) - let's show a message to user when possible.  Put constraints on lat and lon in SiteParamListEditor (use DoubleConstraint objects; -90 to 90 for lat; investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360).
 
 PEER_TestResultsPlotterApplet - The horizontal split-pane divider is hard to move (seems too sensitive).
 
-PEER_TestResultsPlotterApplet - add other data and make password protection more secure.
+PEER_TestResultsPlotterApplet - add other data and make password protection more secure (if possible).
 
-Add StirlyingFaultFactory as an option to PEER Set2-Case1 test problem (will be interesting).
+ArbitrarilyDiscretizedFunc - make getFirstInt*X(yval) handle both increasing and decreasing data.  Same with evenly discr func.
+
+EmpiricalDistributionFunc - change name to ArbDiscrEmpiricalDistFunc
+
+DataPoint2DTreeMap - investigate bug regarding min and max clacluations.
+
+StirlyingFaultFactory - Ned will add this as an option to PEER Set2-Case1 test problem (will be interesting).
 
 Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g., try it in the LogPlotTesterApp).
 
 Is the setParameterInvisible() method correct (looks like it might make parameters visible rather than invisible)?
 
-DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
-
 Find out status of getting out log-log implementation into the official JFreeChart framework.
 
 All downloadable apps at our website need to be updated.
 
-We need to define something like a WeightedERF_List in order to implement Set2-Case5 (the logic trees problem).  This will require making the GUI app know how to deal with this in addition to a normal ERF (shouldn't be a big deal).  Ned has already made some of the tools needed to pull this off.  This is a general capability that we will be implementing for other ERF models very soon.
+Move PEER_TestsApplet and PEER_TestsGuiBean to HazardCurveApplet and HazardCurveGuiBean; put these in a new dir called: sha/gui. Also move the PEER_tests hard coding inner class to an external class called sha/gui/controls.
+
+Ned needs to define the ERF_EpistemicList in order to implement Set2-Case5 (the logic trees problem).  This will require making the GUI app know how to deal with this in addition to a normal ERF (shouldn't be a big deal).  Ned has already made some of the tools needed to pull this off.  This is a general capability that we will be implementing for other ERF models very soon.
+
+PEER_TestsApplet - This represents are most advanced implementation of the community modeling environment or CME (with only setting parameter values for the various test cases being hard wired).  Double check that this implementation (including the PEER_TestsGuiBean) is as "clean" as possible, and that the hard coded elements can easily be remove to constitute our most advanced and general implementation of the CME.
+
+PEER_TestsApplet - implement ParameterListEditors' toString() methods to keep track of the parameter selections for each hazard curve.
 
 
 For the SCEC-ITR CME:
@@ -51,6 +53,13 @@ When we generate hazard maps, we need to develop a storage scheme for saving the
 
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
+
+DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
+
+PEER_TestsApplet - In the IMT editor section the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
+
+PEER_TestsApplet - Ned will go through our implementation of the PEER test cases again (to make sure Ned didn't screw anything up since he last did it).  Perhaps this should wait until we can simultaneously show the true or target value in the plot.  Eventually we'll want to make Junit tests for the PEER test cases.
+
 Move the Frankel96* data files to a better location (w/ a README or INFO file, or a header with an explanation.
 
 X vs Y scaling still seems to be incorrect in GriddedFaultApplet
