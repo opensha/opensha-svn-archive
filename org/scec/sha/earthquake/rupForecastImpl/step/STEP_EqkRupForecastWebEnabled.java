@@ -38,8 +38,6 @@ import org.scec.param.event.ParameterChangeEvent;
   private boolean D = false;
 
   // Input file name
-  //private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/SoCalDeltaRates.txt";
-  private final static String INPUT_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
 
   // ArrayList of input file lines
   private ArrayList inputFileLines;
@@ -341,7 +339,7 @@ import org.scec.param.event.ParameterChangeEvent;
     try{
 
       // make connection with servlet
-      URL stepServlet = new URL(INPUT_FILE_NAME);
+      URL stepServlet = new URL("http://scec.usc.edu:9999/examples/servlet/STEP_Servlet");
       URLConnection servletConnection = stepServlet.openConnection();
 
       servletConnection.setDoOutput(true);
