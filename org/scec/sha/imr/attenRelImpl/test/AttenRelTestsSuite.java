@@ -2,6 +2,7 @@ package org.scec.sha.imr.attenRelImpl.test;
 
 
 import junit.framework.*;
+import javax.swing.UIManager;
 
 
 /**
@@ -14,6 +15,13 @@ import junit.framework.*;
  */
 
 public class AttenRelTestsSuite extends TestCase {
+
+
+  //Look and Feel for the Mac
+  static{
+  try { UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName()); }
+  catch ( Exception e ) {}
+  }
 
   public AttenRelTestsSuite(){
     super("AttenRel Tests");
