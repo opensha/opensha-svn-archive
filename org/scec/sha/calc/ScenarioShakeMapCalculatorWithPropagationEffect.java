@@ -37,10 +37,21 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
   private int currentSiteBeingProcessed;
 
   //the propagation effect object
-  PropagationEffect propagationEffect;
+  private PropagationEffect propagationEffect;
+
+  /**
+   * class constructor that receives the propagation effect from the outside source and sets
+   * as its own propagation.
+   * Currently used in the server side so as to set the Propagation from the application to the
+   * server , where we create a new instance of the propagationEffect.
+   * @param propEffect: PropagationEffect Object.
+   */
+  public ScenarioShakeMapCalculatorWithPropagationEffect(PropagationEffect propEffect) {
+    propagationEffect = propEffect;
+  }
 
 
-
+  //class default constructor
   public ScenarioShakeMapCalculatorWithPropagationEffect() {
     propagationEffect = new PropagationEffect();
   }
@@ -207,6 +218,8 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
       //sending the selected IMT to the server
       outputToServlet.writeObject(selectedIMT);
 
+      //sending the Propagation effect parameter to the servlet
+      outputToServlet.writeObject(propagationEffect);
 
 
       // Receive the "actual webaddress of all the gmt related files"

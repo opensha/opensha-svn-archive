@@ -16,6 +16,7 @@ import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.sha.gui.infoTools.IMT_Info;
 import org.scec.util.FileUtils;
+import org.scec.sha.param.PropagationEffect;
 
 /**
  * <p>Title: ScenarioShakeMapCalcServlet  </p>
@@ -87,6 +88,11 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
       //gets the selected IMT
       String selectedIMT = (String)inputFromApplication.readObject();
 
+      //getting the propagationEffect from the application. This would set the propagation Effect
+      //in the ScenarioshakeMap Calc so as to serialize the propagation from the application on to
+      //the server.
+      PropagationEffect propEffect = (PropagationEffect)inputFromApplication.readObject();
+
       //close of the input from the application
       inputFromApplication.close();
 
@@ -94,7 +100,7 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
       getIMR_ParametersAndAddListeners(selectedAttenRels);
 
       //creating the object for the ScenarioShakeMapCalculator to compute the XYZ data for the selected region
-      ScenarioShakeMapCalculatorWithPropagationEffect calc = new ScenarioShakeMapCalculatorWithPropagationEffect();
+      ScenarioShakeMapCalculatorWithPropagationEffect calc = new ScenarioShakeMapCalculatorWithPropagationEffect(propEffect);
 
       ArbDiscretizedXYZ_DataSet xyzData = null;
       if(!selectedIMT.equals(AttenuationRelationship.PGV_NAME)){
