@@ -26,7 +26,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
                                           implements Serializable{
 
   //Debug parameter
-  public static final boolean D= true;
+  public static final boolean D= false;
 
 
   //definition for the Siet Object

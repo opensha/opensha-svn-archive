@@ -32,7 +32,7 @@ public class PuenteHillsFaultERF extends EqkRupForecast
 
   //for Debug purposes
   private static String  C = new String("Puente Hills Fault ERF");
-  private boolean D = true;
+  private boolean D = false;
 
   //name for this classs
   public final static String  NAME = C;

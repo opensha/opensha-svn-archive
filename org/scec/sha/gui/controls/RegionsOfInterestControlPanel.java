@@ -43,10 +43,10 @@ public class RegionsOfInterestControlPanel extends JFrame {
 
       // san francisco
       regionsComboBox.addItem("SF Bay Area");
-      minLatVector.add(new Double(37.3));
-      maxLatVector.add(new Double(38.5));
-      minLonVector.add(new Double(-123));
-      maxLonVector.add(new Double(-121.5));
+      minLatVector.add(new Double(36.5500));
+      maxLatVector.add(new Double(39.6167));
+      minLonVector.add(new Double(-124.7333));
+      maxLonVector.add(new Double(-120.1333));
 
       //CVM region
       regionsComboBox.addItem("Greater LA Region");

@@ -24,11 +24,11 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
 
   private FileWriter fw;
 
-  private double MIN_LAT= 32.5;
-  private double MAX_LAT= 34.7;
-  private double MIN_LON= -119.5;
-  private double MAX_LON= -117.0;
-  private double GRID_SPACING = .1;
+  private double MIN_LAT= 36.55;
+  private double MAX_LAT= 39.6167;
+  private double MIN_LON= -124.7333;
+  private double MAX_LON= -120.1333;
+  private double GRID_SPACING = .01667;
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
@@ -63,8 +63,7 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
     LocationList list= griddedRegion.getGridLocationsList();
     try{
       fw = new FileWriter("siteTranslationTestResults.txt");
-      fw.write("Lat\t\tLon\t\tWillsClass\t\tBasinDepth\t\tSiteTranslatorFlag\t\tSiteTypeName\t\tSiteTypeValue\n");
-      fw.write("---\t\t---\t\t----------\t\t----------\t\t------------------\t\t------------\t\t-------------\n\n");
+      fw.write("Lat\t\tLon\tWillsClass\tBasinDepth\tSiteTranslatorFlag\tSiteTypeName\tSiteTypeValue\n");
       //Iterating over all the site one at a time
       for(int i=0;i<list.size();++i){
         //Iterating over all the supported IMR's
@@ -77,9 +76,12 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
             boolean flag = siteTranslator.setParameterValue(tempParam,(String)vs30.get(i),((Double)basinDepth.get(i)).doubleValue());
             //writing the site info to the file to test if we are getting the correct site Paramters
             Object value = tempParam.getValue();
-            siteInfo = list.getLocationAt(i).getLatitude()+"\t\t"+list.getLocationAt(i).getLongitude()+"\t\t\t"+
-              (String)vs30.get(i)+"\t\t\t"+((Double)basinDepth.get(i)).doubleValue()+
-              "\t\t\t"+flag+"\t\t\t"+tempParam.getName()+"\t\t\t" ;
+//            siteInfo = list.getLocationAt(i).getLatitude()+"\t\t"+list.getLocationAt(i).getLongitude()+"\t\t\t"+
+//              (String)vs30.get(i)+"\t\t\t"+((Double)basinDepth.get(i)).doubleValue()+
+//              "\t\t\t"+flag+"\t\t\t"+tempParam.getName()+"\t\t\t" ;
+            siteInfo = list.getLocationAt(i).getLatitude()+"\t"+
+                       list.getLocationAt(i).getLongitude()+"\t"+
+                       (String)vs30.get(i)+"\t"+flag+"\t";
             if(value !=null)
               siteInfo += tempParam.getValue().toString()+"\n";
             else
@@ -97,14 +99,14 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
   private void createIMRs_Object(){
     ArrayList imrClasses = new ArrayList();
     //     imrClasses.add(this.SM_CLASS_NAME);
-    imrClasses.add(this.AS_CLASS_NAME);
+//    imrClasses.add(this.AS_CLASS_NAME);
     imrClasses.add(this.BJF_CLASS_NAME);
-    imrClasses.add(this.C_CLASS_NAME);
-    imrClasses.add(this.SCEMY_CLASS_NAME);
-    imrClasses.add(this.CB_CLASS_NAME);
-    imrClasses.add(this.F_CLASS_NAME);
-    imrClasses.add(this.A_CLASS_NAME);
-    imrClasses.add(this.SM_CLASS_NAME);
+//    imrClasses.add(this.C_CLASS_NAME);
+//    imrClasses.add(this.SCEMY_CLASS_NAME);
+//    imrClasses.add(this.CB_CLASS_NAME);
+//    imrClasses.add(this.F_CLASS_NAME);
+//    imrClasses.add(this.A_CLASS_NAME);
+//    imrClasses.add(this.SM_CLASS_NAME);
     Iterator it = imrClasses.iterator();
     while(it.hasNext()){
       // make the IMR objects as needed to get the site params later

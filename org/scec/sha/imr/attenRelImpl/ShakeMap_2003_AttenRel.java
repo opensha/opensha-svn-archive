@@ -24,8 +24,7 @@ import org.scec.util.*;
  * nonlinear amplification factors of Borcherdt (1994, Earthquake Spectra, 10, 617-654).
  * There is very little written documentation of this relationship, and what exists
  * is full of typos and outdated information.  This class was composed by Ned Field
- * based on numerous queries to David Wald, Vincent Quitoriano, and Bruce Worden.
- * This relationship has not been thoroughly tested so use at your own risk. <p>
+ * based on numerous queries to David Wald, Vincent Quitoriano, and Bruce Worden. <p>
  *
  * Supported Intensity-Measure Parameters:
  * <UL>

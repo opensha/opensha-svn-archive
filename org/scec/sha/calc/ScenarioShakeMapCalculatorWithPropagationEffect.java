@@ -26,7 +26,7 @@ import org.scec.sha.param.PropagationEffect;
 public class ScenarioShakeMapCalculatorWithPropagationEffect {
 
   protected final static String C = "ScenarioShakeMapCalculatorWithPropagationEffect";
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
   //stores the number of sites
   private int numSites;
