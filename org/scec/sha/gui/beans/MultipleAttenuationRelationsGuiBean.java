@@ -703,14 +703,28 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
    public ParameterAPI getSelectedIntensityMeasure(){
      String selectedImt = imtParamList.getValue(this.IMT_PARAM_NAME).toString();
      //set all the  parameters related to this IMT
-     Iterator it= imtParam.iterator();
-     while(it.hasNext()){
-       DependentParameterAPI param=(DependentParameterAPI)it.next();
-       if(param.getName().equalsIgnoreCase(selectedImt))
-         return param;
-     }
-     return null;
+     return getSelectedIntensityMeasure(selectedImt);
  }
+
+
+
+
+ /**
+  * gets the selected Intensity Measure Parameter and its dependent Parameter
+  * for given IMT name
+  * @param imtName
+  */
+ public ParameterAPI getSelectedIntensityMeasure(String imtName){
+   Iterator it= imtParam.iterator();
+   while(it.hasNext()){
+     DependentParameterAPI param=(DependentParameterAPI)it.next();
+     if(param.getName().equalsIgnoreCase(imtName))
+       return param;
+   }
+   return null;
+
+ }
+
 
 
    /**

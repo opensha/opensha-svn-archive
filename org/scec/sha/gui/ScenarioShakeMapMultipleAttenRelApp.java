@@ -505,9 +505,6 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
    */
   public XYZ_DataSetAPI generateShakeMap(ArrayList attenRel) throws ParameterException,RuntimeException{
     try {
-
-      // this function will get the selected IMT parameter and set it in IMT
-      imrGuiBean.setIMT();
       xyzDataSet = shakeMapCalc.getScenarioShakeMapData(attenRel,attenRelWts,griddedRegionSites,erfGuiBean.getRupture(),probAtIML,imlProbValue);
     }catch(ParameterException e){
       throw new ParameterException(e.getMessage());
@@ -530,6 +527,16 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
 
 
   /**
+   * Returns the selected IM in the IMR GuiBean
+   * @return
+   */
+  public ParameterAPI getSelectedIntensityMeasure(){
+   return imrGuiBean.getSelectedIntensityMeasure();
+  }
+
+
+
+  /**
    * This function sets the Gridded region Sites and the type of plot user wants to see
    * IML@Prob or Prob@IML and it value.
    */
@@ -539,10 +546,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     getIMLorProb();
     //get the site values for each site in the gridded region
     getGriddedRegionSites();
-    //selected IMRs Wts
-    attenRelWts = imrGuiBean.getSelectedIMR_Weights();
-    //selected IMR's
-    attenRel= imrGuiBean.getSelectedIMRs();
+
     calcProgress.dispose();
     calcProgress.showProgress(false);
   }
@@ -550,8 +554,15 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   void addButton_actionPerformed(ActionEvent e) {
    //sets the Gridded region Sites and the type of plot user wants to see
    //IML@Prob or Prob@IML and it value.
-    if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())
+    if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed()){
       getGriddedSitesAndMapType();
+      //selected IMRs Wts
+      attenRelWts = imrGuiBean.getSelectedIMR_Weights();
+      //selected IMR's
+      attenRel= imrGuiBean.getSelectedIMRs();
+      // this function will get the selected IMT parameter and set it in IMT
+      imrGuiBean.setIMT();
+    }
 
     try{
       addButton();

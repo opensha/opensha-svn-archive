@@ -7,11 +7,13 @@ import java.util.*;
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.gui.controls.GenerateHazusFilesConrolPanelAPI;
 import org.scec.sha.imr.AttenuationRelationship;
+import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import java.awt.event.*;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.param.editor.ParameterListEditor;
+import org.scec.param.ParameterAPI;
 import org.scec.sha.gui.ScenarioShakeMapMultipleAttenRelApp;
 
 /**
@@ -153,7 +155,7 @@ public class GenerateHazusControlPanelForMultipleIMRs extends JFrame {
 
 
     //Doing for PGA
-    hazusCalcForSA(selectedAttenRels);
+    hazusCalcForPGA(selectedAttenRels);
 
     calcProgress.showProgress(false);
     calcProgress.dispose();
@@ -166,6 +168,7 @@ public class GenerateHazusControlPanelForMultipleIMRs extends JFrame {
    */
   private void hazusCalcForPGA(ArrayList selectedAttenRels){
     imtParamEditor.getParameterList().getParameter(MultipleAttenuationRelationsGuiBean.IMT_PARAM_NAME).setValue(pga);
+    setIntensityMeasureForSelectedIMRs(selectedAttenRels);
     pga_xyzdata = application.generateShakeMap(selectedAttenRels);
     metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
   }
@@ -180,12 +183,13 @@ public class GenerateHazusControlPanelForMultipleIMRs extends JFrame {
     imtParamEditor.getParameterList().getParameter(MultipleAttenuationRelationsGuiBean.IMT_PARAM_NAME).setValue(sa);
     //Doing for SA-0.3sec
     imtParamEditor.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue("0.3");
+    setIntensityMeasureForSelectedIMRs(selectedAttenRels);
     sa03_xyzdata = application.generateShakeMap(selectedAttenRels);
-
     metadata = imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
 
     //Doing for SA-1.0sec
     imtParamEditor.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue("1.0");
+    setIntensityMeasureForSelectedIMRs(selectedAttenRels);
     sa10_xyzdata = application.generateShakeMap(selectedAttenRels);
     metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
   }
@@ -196,18 +200,20 @@ public class GenerateHazusControlPanelForMultipleIMRs extends JFrame {
    * @param pgvSupported : Checks if the list of the AttenRels support PGV
    * @return
    */
-  private XYZ_DataSetAPI hazusCalcForPGV(ArrayList AttenRelList, boolean pgvSupported){
+  private XYZ_DataSetAPI hazusCalcForPGV(ArrayList attenRelList, boolean pgvSupported){
     //if the PGV is supportd by the AttenuationRelationships
     XYZ_DataSetAPI pgvDataSet = null;
     if(pgvSupported){
       imtParamEditor.getParameterList().getParameter(MultipleAttenuationRelationsGuiBean.IMT_PARAM_NAME).setValue(pgv);
-      pgvDataSet = application.generateShakeMap(AttenRelList);
+      setIntensityMeasureForSelectedIMRs(attenRelList);
+      pgvDataSet = application.generateShakeMap(attenRelList);
       metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
     }
     else{ //if the List of the attenRels does not support IMT then use SA at 1sec for PGV
       imtParamEditor.getParameterList().getParameter(MultipleAttenuationRelationsGuiBean.IMT_PARAM_NAME).setValue(sa);
       imtParamEditor.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue("1.0");
-      pgvDataSet = application.generateShakeMap(AttenRelList);
+      setIntensityMeasureForSelectedIMRs(attenRelList);
+      pgvDataSet = application.generateShakeMap(attenRelList);
 
       //if PGV is not supported by the attenuation then use the SA-1sec pd
       //and multiply the value by scaler 37.24*2.54
@@ -224,6 +230,20 @@ public class GenerateHazusControlPanelForMultipleIMRs extends JFrame {
     }
     return pgvDataSet;
   }
+
+
+  /**
+   * set the IMT parameter in selected IMR's
+   */
+  private void setIntensityMeasureForSelectedIMRs(ArrayList selectedAttenRels) {
+    ParameterAPI param = application.getSelectedIntensityMeasure();
+    int size = selectedAttenRels.size();
+    for(int i=0;i<size;++i)
+      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(param);
+  }
+
+
+
 
 
   /**
