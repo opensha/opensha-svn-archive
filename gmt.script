@@ -1,0 +1,50 @@
+#!/bin/sh
+
+region="-R-121/-115/32.5/35.5"
+#region="-R-121.5/-114.5/32.45/36.55"
+
+filename="probMap.ps"
+
+# This defines the color scale
+cat                                     << END                  > color.cpt
+-13    0     0     125     -6    0     0     125
+-6    0     0     125     -5.    0     0     255
+-5.    0     0     255     -4    0     255     255
+-4   0     255    255     -2.5     255     255     0
+-2.5    255   255     0       0     255   0     0
+END
+
+#  This one is only used for the scale (looks better)
+cat                                     << END                  > color2.cpt
+-6    0     0     125     -5.    0     0     255
+-5.    0     0     255     -4    0     255     255
+-4   0     255    255     -2.5     255     255     0
+-2.5    255   255     0       0     255   0     0
+END
+
+
+xyz2grd LatLonAmpData.txt -Gdata.grd -I0.05 $region -D/degree/degree/amp/=/=/= -V -:
+
+grdsample data.grd -Gdata.hiRes.grd -I0.3m -Q
+
+grdcut 18.grd -Gtopo.grd $region
+grdgradient topo.grd -A330 -Ginten.grd -Nt -V
+grdmath inten.grd -1 ADD 2 DIV  = inten2.grd
+
+gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0
+
+grdimage data.hiRes.grd -X1.5i -Y2i -JM8i -Iinten2.grd -Ccolor.cpt -K -E250 $region > $filename
+
+
+# this will be added later
+# psxy   ${region} -JM8i -O -K  -W5/0/0/0 -: -Ms ca_hiwys.main.asc >> $filename
+
+pscoast ${region} -JM8i -K -O -W1/17/73/71 -P -S17/73/71 -Di >> $filename
+
+gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255
+
+psscale -B1:Log_Prob: -D4i/-0.5i/8i/0.3ih -Ccolor2.cpt -K -O -N200 >> $filename
+
+psbasemap -B1/1eWNs -JM8i ${region} -Lfx1.25i/0.6i/33.0/100 -O >> $filename
+
+cat probMap.ps | gs -sDEVICE=jpeg -sOutputFile=temp.jpg -
