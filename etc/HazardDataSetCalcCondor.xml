@@ -144,7 +144,7 @@
   <target depends="javacompile" name="compile"/>
   <target depends="compile,package" name="make"/>
   <target depends="resource" name="package"/>
-  <target depends="jarfile" name="postcompile"/>
+  <target depends="precompilecleanup" name="postcompile"/>
   <target name="init">
     <mkdir dir="${dest}"/>
   </target>
