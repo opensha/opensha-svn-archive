@@ -1253,6 +1253,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
         String S = C + " : parameterChangeWarning(): ";
         if(D) System.out.println(S + "Starting");
 
+        if(this.inParameterChangeWarning) return;
+
         inParameterChangeWarning = true;
 
         StringBuffer b = new StringBuffer();
@@ -1313,7 +1315,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
                 if(D) System.out.println(S + "Not sure what you choose, not changing value.");
                 break;
         }
-
+        inParameterChangeWarning = true;
         if(D) System.out.println(S + "Ending");
 
     }
