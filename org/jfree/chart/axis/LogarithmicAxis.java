@@ -593,9 +593,9 @@ public class LogarithmicAxis extends NumberAxis {
         final double upperBoundVal = getRange().getUpperBound();
 
         //get log10 version of lower bound and round to integer:
-        int iBegCount = (int) Math.rint(switchedLog10(lowerBoundVal));
+        int iBegCount = (int) Math.floor(switchedLog10(lowerBoundVal));
         //get log10 version of upper bound and round to integer:
-        final int iEndCount = (int) Math.rint(switchedLog10(upperBoundVal));
+        final int iEndCount = (int) Math.ceil(switchedLog10(upperBoundVal));
 
         if (iBegCount == iEndCount && iBegCount > 0 && Math.pow(10, iBegCount) > lowerBoundVal) {
               //only 1 power of 10 value, it's > 0 and its resulting
@@ -606,6 +606,7 @@ public class LogarithmicAxis extends NumberAxis {
         double tickVal;
         String tickLabel;
         boolean zeroTickFlag = false;
+        setRange(Math.pow(10,iBegCount),Math.pow(10,iEndCount));
         for (int i = iBegCount; i <= iEndCount; i++) {
             //for each tick with a label to be displayed
             int jEndCount = 10;
@@ -696,7 +697,7 @@ public class LogarithmicAxis extends NumberAxis {
                     return;     //if past highest data value then exit method
                 }
 
-                if (tickVal >= lowerBoundVal - SMALL_LOG_VALUE) {
+               if (tickVal >= lowerBoundVal - SMALL_LOG_VALUE) {
                   //tick value not below lowest data value
                   double xx = translateValueToJava2D(tickVal, dataArea, edge);
                   Rectangle2D tickLabelBounds = getTickLabelFont().getStringBounds(
@@ -760,9 +761,9 @@ public class LogarithmicAxis extends NumberAxis {
         final double upperBoundVal = getRange().getUpperBound();
 
         //get log10 version of lower bound and round to integer:
-        int iBegCount = (int) Math.rint(switchedLog10(lowerBoundVal));
+        int iBegCount = (int) Math.floor(switchedLog10(lowerBoundVal));
         //get log10 version of upper bound and round to integer:
-        final int iEndCount = (int) Math.rint(switchedLog10(upperBoundVal));
+        final int iEndCount = (int) Math.ceil(switchedLog10(upperBoundVal));
 
         if (iBegCount == iEndCount && iBegCount > 0 && Math.pow(10, iBegCount) > lowerBoundVal) {
               //only 1 power of 10 value, it's > 0 and its resulting
@@ -773,6 +774,7 @@ public class LogarithmicAxis extends NumberAxis {
         double tickVal;
         String tickLabel;
         boolean zeroTickFlag = false;
+        setRange(Math.pow(10,iBegCount),Math.pow(10,iEndCount));
         for (int i = iBegCount; i <= iEndCount; i++) {
             //for each tick with a label to be displayed
             int jEndCount = 10;
@@ -913,52 +915,6 @@ public class LogarithmicAxis extends NumberAxis {
         double il = getTickMarkInsideLength();
 
         refreshTicks(g2, cursor, plotArea, dataArea, edge);
-
-
-        //       float maxY = (float)plotArea.getMaxY();
-
-/*        g2.setFont(getTickLabelFont());
-
-        Iterator iterator = this.getTicks().iterator();
-
-        while (iterator.hasNext()) {
-
-          Tick tick = (Tick)iterator.next();
-
-          //float xx = (float)tick.getX();
-
-          double val=1;
-          int eIndex =-1;
-          if(!this.expTickLabelsFlag)
-            eIndex =tick.getText().indexOf("^");
-          else
-            eIndex =tick.getText().indexOf("e");
-          // check whether this is minor axis. for minor axis we save,2-9 in label
-
-          if(!tick.getText().trim().equalsIgnoreCase("") && eIndex==-1)
-            val = Double.parseDouble(tick.getText());
-          //double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
-          //xx = (float)this.translateValueToJava2D(logval, plotArea);
-          if(eIndex!=-1) // for major axis
-            g2.setFont(this.getTickLabelFont());
-          else  // show minor axis in smaller font
-            g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()+3));
-          if (this.isTickLabelsVisible()) {
-            g2.setPaint(this.getTickLabelPaint());
-            if (this.isVerticalTickLabels()) {
-              RefineryUtilities.drawRotatedString(tick.getText(), g2,
-                  tick.getX(), tick.getY(), -Math.PI/2);
-            }
-            else {
-              if(eIndex==-1) g2.drawString(tick.getText(), tick.getX(), tick.getY());
-              else { // show in superscript form
-                g2.drawString("10", tick.getX(), tick.getY());
-                g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-2));
-                g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+16,tick.getY()-6);
-              }
-            }
-          }
-        }*/
 
 
         g2.setFont(getTickLabelFont());
