@@ -1,6 +1,11 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Ned needs to check SRL Paper2 figure calcs after fixing small bug in WG02_CharEqkSource (should the figs be updated)?
+
+Ned also needs to document WG02_EqkRupForecast (Java docs).
+
+
 Change app names as follows:
 
 	HazardDataSetPlotter --> PlotCurveFromHazardDataSetApp

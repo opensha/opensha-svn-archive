@@ -198,13 +198,14 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
       GutenbergRichterMagFreqDist back_GR_dist = new GutenbergRichterMagFreqDist(5.0, back_num, back_deltaMag,
                                                                                  1.0, back_b);
       back_GR_dist.scaleToCumRate(back_M1,back_N);
-
+// System.out.println("background: M1="+back_M1+"; M2="+back_M2+"; deltaM="+back_deltaMag+"; num="+back_num);
       LocationList locList = new LocationList();
       locList.addLocation(new Location(37.19, -120.61, 0.0));
       locList.addLocation(new Location(36.43, -122.09, 0.0));
       locList.addLocation(new Location(38.23, -123.61, 0.0));
       locList.addLocation(new Location(39.02, -122.08, 0.0));
       EvenlyGriddedGeographicRegion gridReg = new EvenlyGriddedGeographicRegion(locList,0.1);
+System.out.println("num background locs = "+gridReg.getNumGridLocs());
 
       backSource = new GriddedRegionPoissonEqkSource(gridReg, back_GR_dist, timeSpan.getDuration(),
                                                      0.0, 90.0); // aveRake=0; aveDip=90
@@ -443,8 +444,10 @@ System.out.println("Char_momentRate="+tempMoRate);
      WG02_EqkRupForecast qkCast = new WG02_EqkRupForecast();
      System.out.println("num_sources="+qkCast.getNumSources());
      int num = 0;
-     for (int i=0; i < qkCast.getNumSources(); i++)
+     for (int i=0; i < qkCast.getNumSources(); i++) {
        num += qkCast.getNumRuptures(i);
+//       System.out.println(qkCast.getSource(i).getName()+" has "+qkCast.getNumRuptures(i)+" ruptures");
+     }
      System.out.println("tot_ruptures="+num);
 
 
