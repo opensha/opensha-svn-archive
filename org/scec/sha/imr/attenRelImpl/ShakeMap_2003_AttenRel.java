@@ -1026,7 +1026,7 @@ public class ShakeMap_2003_AttenRel
             (1.082/0.836)*0.836 );
         // PGV - They actually give PGV coeffs so no scaling of 1-sec SA is needed.
         BJF_1997_AttenRelCoefficients coeffSM5 = new BJF_1997_AttenRelCoefficients( PGV_NAME,
-            -1, 5.1185, 5.1185, 5.1185, 1.70391, 0.000, -1.386, -0.668, 760, 6.0,
+            -1, 5.1186, 5.1186, 5.1186, 1.70391, 0.000, -1.386, -0.668, 760, 6.0,
             (0.753/0.836)*0.660, (0.753/0.836)*0.328, (0.753/0.836)*0.737, (0.753/0.836)*0.3948,
             (0.753/0.836)*0.836 );
 
