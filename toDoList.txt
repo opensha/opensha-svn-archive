@@ -26,13 +26,6 @@ Finish the PropagationEffect object and utilize it (Ned will do this).
 
 Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
 
-AttenuationRelationshipApp
-
-	Fix this plotting problem: Choose ShakeMap (2003), select "Std. Dev." for the Y axis, and 
-	then add plot (you can't see anything, presumably because the data only has one value).  This
-	is only a problem for linear plots, which means it my be JFreeChart's issue?
-
-
 GMT_MapGenerator:
 
 	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service
