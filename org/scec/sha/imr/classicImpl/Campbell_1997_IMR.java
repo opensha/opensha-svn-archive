@@ -317,7 +317,7 @@ public class Campbell_1997_IMR
      * Calculates the mean of the exceedence probability distribution. <p>
      * @return    The mean value
      */
-    public Double getMean() throws IMRException{
+    public double getMean() throws IMRException{
 
         double mag, dist, depth, F, mean, lnPGA;
         String fltType, siteType, component, im_name;
@@ -413,7 +413,7 @@ public class Campbell_1997_IMR
         mean = Math.pow(Math.E, mean);
 
         // return the result
-        return new Double(mean);
+        return(mean);
 
     }
 
@@ -422,7 +422,7 @@ public class Campbell_1997_IMR
     /**
      * @return    The stdDev value
      */
-    public Double getStdDev() throws IMRException {
+    public double getStdDev() throws IMRException {
 
         String fltType, siteType, component, im_name, stdevType;
         double mag, dist, sigma, pga, depth, F;
@@ -492,9 +492,9 @@ public class Campbell_1997_IMR
         // Do PGA first:
         if (im_name.equals ( PGA_NAME ) ) {
             if ( component.equals( COMPONENT_AVE_HORZ ) )
-                return new Double (sigma);
+                return (sigma);
             else // vertical component
-                return new Double (Math.pow(sigma*sigma + 0.1296, 0.5));
+                return (Math.pow(sigma*sigma + 0.1296, 0.5));
         }
 
         // Now do SA:
@@ -502,9 +502,9 @@ public class Campbell_1997_IMR
             // compute horz comp SA sigma:
             sigma = Math.pow(sigma*sigma + 0.0729, 0.5);
             if ( component.equals( COMPONENT_AVE_HORZ ) )
-                return new Double (sigma);
+                return (sigma);
             else // vertical component
-                return new Double (Math.pow(sigma*sigma + 0.152, 0.5));
+                return (Math.pow(sigma*sigma + 0.152, 0.5));
         }
 
         // Now do PGV:
@@ -512,9 +512,9 @@ public class Campbell_1997_IMR
             // compute horz comp PGV sigma:
             sigma = Math.pow(sigma*sigma + 0.0036, 0.5);
             if ( component.equals( COMPONENT_AVE_HORZ ) )
-                return new Double (sigma);
+                return (sigma);
             else // vertical component
-                return new Double (Math.pow(sigma*sigma + 0.09, 0.5));
+                return (Math.pow(sigma*sigma + 0.09, 0.5));
         }
     }
 

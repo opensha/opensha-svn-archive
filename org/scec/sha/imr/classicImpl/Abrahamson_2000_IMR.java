@@ -363,7 +363,7 @@ public class Abrahamson_2000_IMR
      * Calculates the mean of the exceedence probability distribution. <p>
      * @return    The mean value
      */
-    public Double getMean() throws IMRException{
+    public double getMean() throws IMRException{
 
         double mag, dist, mean, x, theta;
         String fltType, isHW, siteType, component;
@@ -437,7 +437,7 @@ public class Abrahamson_2000_IMR
         mean = Math.pow(Math.E, mean);
 
         // return the result
-        return new Double(mean);
+        return (mean);
     }
 
     /**
@@ -499,7 +499,7 @@ public class Abrahamson_2000_IMR
     /**
      * @return    The stdDev value
      */
-    public Double getStdDev() throws IMRException {
+    public double getStdDev() throws IMRException {
 
         // this is inefficient if the im has not been changed in any way
         updateCoefficients();
@@ -519,7 +519,7 @@ public class Abrahamson_2000_IMR
 
         sigma -= 0.05*coeff.c2/1.333;
 
-        return new Double( sigma );
+        return ( sigma );
     }
 
 

@@ -331,7 +331,7 @@ public class AS_1997_IMR
      * Calculates the mean of the exceedence probability distribution. <p>
      * @return    The mean value
      */
-    public Double getMean() throws IMRException{
+    public double getMean() throws IMRException{
 
         double mag, dist, mean;
         String fltType, isHW, siteType, component;
@@ -382,7 +382,7 @@ public class AS_1997_IMR
         mean = Math.pow(Math.E, mean);
 
         // return the result
-        return new Double(mean);
+        return mean;
     }
 
     /**
@@ -452,7 +452,7 @@ System.out.println( a13 );
     /**
      * @return    The stdDev value
      */
-    public Double getStdDev() throws IMRException {
+    public double getStdDev() throws IMRException {
 
         // this is inefficient if the im has not been changed in any way
         updateCoefficients();
@@ -460,11 +460,11 @@ System.out.println( a13 );
         // only horz case implemented
         double mag = ((Double)magParam.getValue()).doubleValue();
         if(mag <= 5.0)
-            return new Double( coeff.b5 );
+            return  coeff.b5 ;
         else if (mag > 5.0 && mag < 7.0)
-            return new Double (coeff.b5 - coeff.b6*(mag-5.0));
+            return (coeff.b5 - coeff.b6*(mag-5.0));
         else
-            return new Double (coeff.b5-2*coeff.b6);
+            return (coeff.b5-2*coeff.b6);
     }
 
 

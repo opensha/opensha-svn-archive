@@ -276,7 +276,7 @@ public class BJF_1997_IMR
      * coeff.bv * ( Math.log( vs30 / coeff.va ) ) <br>
      * @return    The mean value
      */
-    public Double getMean() throws IMRException{
+    public double getMean() throws IMRException{
 
         double mag, vs30, distanceJB;
         String fltTypeValue;
@@ -322,14 +322,14 @@ public class BJF_1997_IMR
         */
 
         // return the result
-        return new Double(mean);
+        return (mean);
     }
 
 
     /**
      * @return    The stdDev value
      */
-    public Double getStdDev() throws IMRException {
+    public double getStdDev() throws IMRException {
 
         String stdDevType = stdDevTypeParam.getValue().toString();
         String component = componentParam.getValue().toString();
@@ -342,13 +342,13 @@ public class BJF_1997_IMR
 
             if ( stdDevType.equals( STD_DEV_TYPE_TOTAL ) ) {           // "Total"
               Double stdev = new Double( Math.pow( ( coeff.sigmaE * coeff.sigmaE + coeff.sigma1 * coeff.sigma1 ) , 0.5) );
-              return  stdev;
+              return  stdev.doubleValue();
             }
             else if ( stdDevType.equals( STD_DEV_TYPE_INTER ) ) {    // "Inter-Event"
-              return  new Double( coeff.sigmaE );
+              return  coeff.sigmaE;
             }
             else if ( stdDevType.equals( STD_DEV_TYPE_INTRA ) ) {    // "Intra-Event"
-              return  new Double( coeff.sigma1 );
+              return  ( coeff.sigma1 );
             }
             else {
               throw new ParameterException( C + ": getStdDev(): Invalid StdDevType" );
@@ -357,13 +357,13 @@ public class BJF_1997_IMR
         else if ( component.equals(COMPONENT_RANDOM_HORZ ) ) {
 
             if ( stdDevType.equals( STD_DEV_TYPE_TOTAL ) ) {           // "Total"
-              return  new Double( coeff.sigmaLnY );
+              return  (coeff.sigmaLnY );
             }
             else if ( stdDevType.equals( STD_DEV_TYPE_INTER ) ) {    // "Inter-Event"
-              return  new Double( coeff.sigmaE );
+              return  (coeff.sigmaE );
             }
             else if ( stdDevType.equals( STD_DEV_TYPE_INTRA ) ) {    // "Intra-Event"
-              return  new Double( coeff.sigmaR );
+              return   (coeff.sigmaR );
             }
             else {
               throw new ParameterException( C + ": getStdDev(): Invalid StdDevType" );

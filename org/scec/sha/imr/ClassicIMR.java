@@ -519,7 +519,7 @@ public abstract class ClassicIMR
      * @exception  ParameterException  Description of the Exception
      * @exception  IMRException        Description of the Exception
      */
-    public Double getExceedProbability() throws ParameterException, IMRException {
+    public double getExceedProbability() throws ParameterException, IMRException {
 
         if ( ( im == null ) || ( im.getValue() == null ) )
             throw new ParameterException( C +
@@ -527,8 +527,8 @@ public abstract class ClassicIMR
                      );
 
         // Calculate the NormalDistribution
-        double mean = Math.log( getMean().doubleValue() );
-        double stdDev = getStdDev().doubleValue();
+        double mean = Math.log( getMean());
+        double stdDev = getStdDev();
         NormalDistribution gauss = new NormalDistribution( mean, stdDev );
 
         // Calculate the probability of exceeding the iml value
@@ -541,27 +541,27 @@ public abstract class ClassicIMR
 
         // compute probability based on truncation type
         if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_NONE ) ) {
-            return new Double( 1.0 - prob );
+            return (1.0 - prob );
         }
         else if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) ) {
             double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
             if (iml > mean + numSig*stdDev)
-                return new Double( 0.0 );
+                return  0.0;
             else {
                 double pUp = gauss.getCDF( mean + numSig*stdDev );
-                return new Double( 1.0 - prob/pUp );
+                return  (1.0 - prob/pUp) ;
             }
         }
         else {  // the two sided case
             double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
             if (iml > mean + numSig*stdDev)
-                return new Double( 0.0 );
+                return (0.0);
             else if (iml < mean - numSig*stdDev)
-                return new Double( 1.0 );
+                return (1.0);
             else {
                 double pUp = gauss.getCDF( mean + numSig*stdDev );
                 double pLow = gauss.getCDF( mean - numSig*stdDev );
-                return new Double( (pUp-prob)/(pUp-pLow) );
+                return ( (pUp-prob)/(pUp-pLow) );
             }
         }
 
@@ -599,7 +599,7 @@ public abstract class ClassicIMR
             DataPoint2D point = ( DataPoint2D ) it.next();
             iml = new Double(point.getX());
             this.im.setValue( iml );
-            point.setY(getExceedProbability().doubleValue());
+            point.setY(getExceedProbability());
 
         }
 

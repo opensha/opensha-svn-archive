@@ -277,7 +277,7 @@ public class Field_2000_IMR
      *
      * @return    The mean value
      */
-    public Double getMean() throws IMRException{
+    public double getMean() throws IMRException{
 
         double mag, vs30, distanceJB, depth;
         String fltTypeValue;
@@ -325,14 +325,14 @@ public class Field_2000_IMR
         mean = Math.pow(Math.E, mean);
 
         // return the result
-        return new Double(mean);
+        return (mean);
     }
 
 
     /**
      * @return    The stdDev value
      */
-    public Double getStdDev() throws IMRException {
+    public double getStdDev() throws IMRException {
 
         double mag;
         String stdDevType = stdDevTypeParam.getValue().toString();
@@ -351,14 +351,14 @@ public class Field_2000_IMR
         // set the correct standard deviation depending on component and type
 
         if ( stdDevType.equals( STD_DEV_TYPE_TOTAL ) ) {           // "Total"
-            Double stdev = new Double( Math.pow( ( coeff.intra_slope*mag + coeff.intra_intercept + coeff.tau*coeff.tau ) , 0.5) );
+            double stdev =  Math.pow( ( coeff.intra_slope*mag + coeff.intra_intercept + coeff.tau*coeff.tau ) , 0.5) ;
             return  stdev;
         }
         else if ( stdDevType.equals( STD_DEV_TYPE_INTER ) ) {    // "Inter-Event"
-            return  new Double( coeff.tau );
+            return  coeff.tau;
         }
         else if ( stdDevType.equals( STD_DEV_TYPE_INTRA ) ) {    // "Intra-Event"
-            return  new Double( Math.pow(coeff.intra_slope*mag + coeff.intra_intercept , 0.5 ) );
+            return Math.pow(coeff.intra_slope*mag + coeff.intra_intercept , 0.5 ) ;
         }
             else {
               throw new ParameterException( C + ": getStdDev(): Invalid StdDevType" );

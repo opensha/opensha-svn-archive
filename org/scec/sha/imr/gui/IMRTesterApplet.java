@@ -845,7 +845,8 @@ public class IMRTesterApplet
         // Starting
         String S = C + ": addGraphPanel(): ";
         if ( D ) System.out.println( S + "Starting: Last xy axis name = " + lastXYAxisName );
-
+        this.jCheckxlog.enable();
+        this.jCheckylog.enable();
         // ImageIcon icon  = new ImageIcon(this.imagePath + File.separator + "z_splash.jpg");
         // Image image = icon.getImage();
 
@@ -878,6 +879,7 @@ public class IMRTesterApplet
 
         //boolean loglog = false;
         com.jrefinery.chart.NumberAxis yAxis = null;
+
         if (yLog) yAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(yAxisLabel);
         else yAxis = new com.jrefinery.chart.VerticalNumberAxis( yAxisLabel );
 
@@ -903,9 +905,10 @@ public class IMRTesterApplet
           xAxis.setRange(this.minXValue,this.maxXValue);
           yAxis.setRange(this.minYValue,this.maxYValue);
         }
-        // build the plot
-        org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(data, xAxis, yAxis, xLog, yLog);
 
+        // build the plot
+        try{
+        org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(data, xAxis, yAxis, xLog, yLog);
 
 
 
@@ -932,6 +935,18 @@ public class IMRTesterApplet
         panel.setGenerateToolTips(true);
         panel.setHorizontalAxisTrace(false);
         panel.setVerticalAxisTrace(false);
+        }catch(ArithmeticException ae){
+          if(xLog)
+            this.jCheckxlog.setSelected(false);
+          if(yLog)
+            this.jCheckylog.setSelected(false);
+          if(xLog && yLog) {
+            this.jCheckxlog.setSelected(false);
+            this.jCheckylog.setSelected(false);
+          }
+         JOptionPane.showMessageDialog(this,new String("Data Contains Zero values, so no log Plot"),new String("Log Plot"),JOptionPane.INFORMATION_MESSAGE);
+         addGraphPanel();
+        }
 
         if ( D ) System.out.println( S + "Toggling plot on" );
         graphOn = false;

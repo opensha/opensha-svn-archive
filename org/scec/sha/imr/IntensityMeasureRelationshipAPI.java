@@ -153,7 +153,7 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      *
      * @return    The exceed Probability value
      */
-    public Double getExceedProbability();
+    public double getExceedProbability();
 
 
     /**

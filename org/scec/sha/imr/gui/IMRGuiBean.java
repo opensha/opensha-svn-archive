@@ -585,7 +585,7 @@ public class IMRGuiBean
      * @return       The imr calculation
      */
     private double getCalculation( int type ) {
-        Double result = new Double( 0 );
+        double result =  0.0;
         switch ( type ) {
             case MEAN:
                 result = imr.getMean();
@@ -597,7 +597,7 @@ public class IMRGuiBean
                 result = imr.getStdDev();
                 break;
         }
-        return result.doubleValue();
+        return result;
     }
 
 

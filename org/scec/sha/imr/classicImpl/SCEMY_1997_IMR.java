@@ -265,7 +265,7 @@ public class SCEMY_1997_IMR
      *
      * @return    The mean value
      */
-    public Double getMean() throws IMRException{
+    public double getMean() throws IMRException{
 
         double mag, dist;
         String fltType, siteType, component;
@@ -341,14 +341,14 @@ public class SCEMY_1997_IMR
         mean = Math.pow(Math.E, mean);
 
         // return the result
-        return new Double(mean);
+        return (mean);
     }
 
 
     /**
      * @return    The stdDev value
      */
-    public Double getStdDev() throws IMRException {
+    public double getStdDev() throws IMRException {
 
         String siteType;
         double mag;
@@ -366,15 +366,15 @@ public class SCEMY_1997_IMR
 
         if ( siteType.equals( SITE_TYPE_ROCK ) ) {
             if ( mag <= 7.21 )
-                return new Double ( coeff.sigma_ri - mag * 0.14 );
+                return  ( coeff.sigma_ri - mag * 0.14 );
             else
-                return new Double ( coeff.sigma_ri - 1.01 ); // 1.01=7.21*0.14
+                return ( coeff.sigma_ri - 1.01 ); // 1.01=7.21*0.14
         }
         else {
             if ( mag <= 7.0 )
-                return new Double ( coeff.sigma_si - mag * 0.16 );
+                return ( coeff.sigma_si - mag * 0.16 );
             else
-                return new Double ( coeff.sigma_si - 1.12 ); // 1.12=7.0*0.16
+                return ( coeff.sigma_si - 1.12 ); // 1.12=7.0*0.16
         }
 
 //        return  new Double( coeff.sigmaLnY );

@@ -55,7 +55,7 @@ public interface ClassicIMRAPI
      *
      * @return    The mean value
      */
-    public Double getMean();
+    public double getMean();
 
 
     /**
@@ -64,7 +64,7 @@ public interface ClassicIMRAPI
      *
      * @return    The stdDev value
      */
-    public Double getStdDev();
+    public double getStdDev();
 
 
     /**
