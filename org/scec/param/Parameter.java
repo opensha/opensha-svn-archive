@@ -70,13 +70,13 @@ public abstract class Parameter
     /**
      *  Vector of all the objects who want to listen on change of this paramter
      */
-    private Vector changeListeners;
+    private transient Vector changeListeners;
 
     /**
      * Vector of all the objects who want to listen if the value
      * for this paramter is not valid
      */
-    private Vector failListeners;
+    private transient Vector failListeners;
 
 
     /** Empty no-arg constructor. Does nothing but initialize object.  */

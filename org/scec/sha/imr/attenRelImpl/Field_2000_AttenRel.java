@@ -93,7 +93,7 @@ public class Field_2000_AttenRel
     protected Hashtable coefficients = new Hashtable();
 
     // for issuing warnings:
-    ParameterChangeWarningListener warningListener = null;
+    private transient  ParameterChangeWarningListener warningListener = null;
 
 
     /**

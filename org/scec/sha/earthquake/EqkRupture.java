@@ -17,7 +17,7 @@ import org.scec.util.*;
  * @version 1.0
  */
 
-public class EqkRupture {
+public class EqkRupture implements java.io.Serializable {
 
     /* *******************/
     /** @todo  Variables */

@@ -67,7 +67,7 @@ public class WarningIntegerParameter
      * Only created if needed, else kept null. This is
      * known as "lazy instantiation".
      */
-    protected Vector warningListeners = null;
+    protected transient Vector warningListeners = null;
 
 
     /**

@@ -122,7 +122,7 @@ public class Campbell_1997_AttenRel
     protected Hashtable coefficients = new Hashtable();
 
     // for issuing warnings:
-    ParameterChangeWarningListener warningListener = null;
+    private transient ParameterChangeWarningListener warningListener = null;
 
 
     /**

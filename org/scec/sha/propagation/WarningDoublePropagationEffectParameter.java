@@ -38,7 +38,7 @@ public abstract class WarningDoublePropagationEffectParameter
      * warnings when the warning constraints are exceeded.
      * Only created if needed, else kept null, i.e. "Lazy Instantiation".
      */
-    protected Vector warningListeners = null;
+    protected transient Vector warningListeners = null;
 
     /**
      * Set to true to turn off warnings, will automatically set the value,

@@ -124,7 +124,7 @@ public class AS_1997_AttenRel
     private double a2, a4, a13, c1, c5, n;
 
     // for issuing warnings:
-    ParameterChangeWarningListener warningListener = null;
+    private transient ParameterChangeWarningListener warningListener = null;
 
 
 

@@ -1,6 +1,7 @@
 package org.scec.param;
 
 import java.util.*;
+import java.io.Serializable;
 
 import org.scec.exceptions.ConstraintException;
 import org.scec.exceptions.ParameterException;
@@ -42,7 +43,7 @@ import org.scec.exceptions.ParameterException;
  * @version 1.0
  */
 
-public class ParameterList {
+public class ParameterList implements Serializable {
 
 
     // *******************/

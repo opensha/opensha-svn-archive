@@ -133,7 +133,7 @@ public class CB_2003_AttenRel
     protected Hashtable vertCoefficients = new Hashtable();
 
     // for issuing warnings:
-    ParameterChangeWarningListener warningListener = null;
+    private transient ParameterChangeWarningListener warningListener = null;
 
 
     /**

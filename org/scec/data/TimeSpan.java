@@ -1,6 +1,8 @@
 package org.scec.data;
 
 import java.util.*;
+import java.io.Serializable;
+
 import org.scec.exceptions.InvalidRangeException;
 import org.scec.param.*;
 import org.scec.param.event.*;
@@ -91,7 +93,7 @@ import org.scec.param.event.*;
  * @created    March, 2003
  * @version    1.0
  */
-public class TimeSpan implements ParameterChangeListener {
+public class TimeSpan implements ParameterChangeListener, Serializable {
 
     /** The name of this class, used for debug statements */
     protected final static String C = "TimeSpan";
@@ -161,7 +163,7 @@ public class TimeSpan implements ParameterChangeListener {
 
     // this vector will hold all the listeners of this time span object
     // whenver any change is made in this timespan object, all the listeners are notified
-    private Vector changeListeners;
+    private transient Vector changeListeners;
 
     /**
      *  Constructor; this should actually take the start-time precision string since it

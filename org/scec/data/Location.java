@@ -22,7 +22,7 @@ import org.scec.param.*;
  * @version    1.0
  */
 
-public class Location {
+public class Location implements java.io.Serializable {
 
     /** Class name used for debugging strings  */
     protected final static String C = "Location";
