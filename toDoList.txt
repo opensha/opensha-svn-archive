@@ -4,55 +4,46 @@
 For OpenSHA:
 ------------
 
-The labels for Set1-Case8-??? are incorrect in PEER_TestsApplet, PEER_TestResultsPlotterApplet, and PEER_TestResultsSubmissionApplet.  Please change "0sig", "1sig", and "2sig" to "noTrunc", "2sigTrunc", and "3sigTrunc", respectively.  This needs to be done for all three applications.  Ned tried to make this change himself in PEER_TestsApplet, but couldn't get it to work.
+Xlog and Ylog axis labeling is screwed up.
 
-PEER_TestsApplet - presently the disaggregation window must be closed before one can return to the main app.  Can we relax this?
+Finish moving the PEER_tests hard coding to an external class called sha/gui/controls/PEER_TestsParamSetter.
 
-PEER_TestsApplet - seems to throw a non-fatal exception at launch (or shortly thereafter)
+PEER_TestsApplet - everyone get to know this very well and meet later to discuss it.
 
-PEER_TestsApplet - Look into how all possible exceptions are being handled (e.g., from a MagFreqDist) - let's show a message to user when possible.  Put constraints on lat and lon in SiteParamListEditor (use DoubleConstraint objects; -90 to 90 for lat; investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360).
+PEER_TestsApplet - catch exceptions thrown by MagFreqDist (e.g., if Min > Max; parameter constraints are presently handled).  Revisit this when we've all become very familiar with the HazardCurveApplet and HazardCurveGuiBean.
 
-PEER_TestResultsPlotterApplet - The horizontal split-pane divider is hard to move (seems too sensitive).
+PEER_TestResultsPlotterApplet - hand fix any missing data that comes after a zero.
 
-PEER_TestResultsPlotterApplet - add other data and make password protection more secure (if possible).
+Change ordering problem in the toString method of a ParameterList.
 
-ArbitrarilyDiscretizedFunc - make getFirstInt*X(yval) handle both increasing and decreasing data.  Same with evenly discr func.
+Handling of magFreqDist in toString method above.
 
-EmpiricalDistributionFunc - change name to ArbDiscrEmpiricalDistFunc
+Add getApplicableRegion and isLocWithinApplicableRegion methods to EqkRupForecastAPI.
 
-DataPoint2DTreeMap - investigate bug regarding min and max clacluations.
-
-StirlyingFaultFactory - Ned will add this as an option to PEER Set2-Case1 test problem (will be interesting).
-
-Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g., try it in the LogPlotTesterApp).
-
-Is the setParameterInvisible() method correct (looks like it might make parameters visible rather than invisible)?
+Create ERF_List and its subclasses ERF_EpistemicList and ERF_AleatoryList, and then the PEER_LogicTreeERF_List
 
 Find out status of getting out log-log implementation into the official JFreeChart framework.
 
-All downloadable apps at our website need to be updated.
+Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g., try it in the LogPlotTesterApp).
 
-Move PEER_TestsApplet and PEER_TestsGuiBean to HazardCurveApplet and HazardCurveGuiBean; put these in a new dir called: sha/gui. Also move the PEER_tests hard coding inner class to an external class called sha/gui/controls.
-
-Ned needs to define the ERF_EpistemicList in order to implement Set2-Case5 (the logic trees problem).  This will require making the GUI app know how to deal with this in addition to a normal ERF (shouldn't be a big deal).  Ned has already made some of the tools needed to pull this off.  This is a general capability that we will be implementing for other ERF models very soon.
-
-PEER_TestsApplet - This represents are most advanced implementation of the community modeling environment or CME (with only setting parameter values for the various test cases being hard wired).  Double check that this implementation (including the PEER_TestsGuiBean) is as "clean" as possible, and that the hard coded elements can easily be remove to constitute our most advanced and general implementation of the CME.
-
-PEER_TestsApplet - implement ParameterListEditors' toString() methods to keep track of the parameter selections for each hazard curve.
-
+PEER_TestResultsPlotterApplet - make password protection more secure (if needed)?
 
 For the SCEC-ITR CME:
 ---------------------
 
+Reorganize output files for hazard map database.
+
 Define and implement a GeographicalRegion object (the most general being one represented with an arbitrary polygon, but we'll want a basic rectangular (& circular?) region as well).  This should have methods for determining wether an arbitrary Location object is within the Region.  This will be used by ERFs to define their region of applicability.  They will also be used to define a region for making a map.  We will also want to define methods (or subclasses) for creating a DiscretizedGeographicalRegion (again, for maps or for creating EarthquakeSource objects).  We need to think about these definitions together.
 
-We need to create an object that can write our discretized data to a GMT grd file, which we can then make a map from using our GMT_MapGenerator.  See http://gmt.soest.hawaii.edu/gmt/doc/html/GMT_Docs/node113.html for grd-format info.  GMT uses netCDF routines to read and write these files, so NetCDF for Java (http://www.unidata.ucar.edu/packages/netcdf-java/) will presumably be helpful?
+Build ScenarioShakeMapApplet (with HazardMapApplet in mind).  Then do this on server side.
 
-When we generate hazard maps, we need to develop a storage scheme for saving the hazard curves computed for each grid point (as well as the meta data about what models were used in the calculations).  This will enable us to quickly plot probs for different IMLs (or IMLs for different probs).
+Get site params from Vs30 and basin depth translator, and get Vs30 and basin depth for lat/lon.
 
 
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
+
+Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
 DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
 
@@ -77,3 +68,6 @@ Create an archived email list or discussion board for OpenSHA.
 Add 3D visualization to GriddedFaultApplet (need Java3D on Mac OS first)?
 
 Go over exception throwing in entire package to make sure it looks appropriate.
+
+We need to create an object that can write our discretized data to a GMT grd file, which we can then make a map from using our GMT_MapGenerator.  See http://gmt.soest.hawaii.edu/gmt/doc/html/GMT_Docs/node113.html for grd-format info.  GMT uses netCDF routines to read and write these files, so NetCDF for Java (http://www.unidata.ucar.edu/packages/netcdf-java/) will presumably be helpful?
+
