@@ -118,9 +118,14 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
       double total = 0;
       int lineCount = 0;
       int size= locationVector.size();
+      double prevLat=Double.NaN;
       for(int i=0;i<size;++i){
+
         double lat = ((Location)locationVector.get(i)).getLatitude();
         double lon = ((Location)locationVector.get(i)).getLongitude();
+        boolean latFlag= false;
+        if(prevLat == lat)
+          latFlag=true;
         while(strNext!=null) {
           ++lineCount;
           StringTokenizer st = new StringTokenizer(str);
@@ -131,11 +136,15 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           double valLat = Double.parseDouble(st.nextToken());
           double valLatNext = Double.parseDouble(stNext.nextToken());
           // add vs30 for new location
-          if((lat>=valLat || lat<=valLatNext)&&(lon>=val || lon<=valNext)){
+          if(lat>=valLat && lat<=valLatNext){
+            System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
+            latFlag=true;
+          }
+          if(lon>=val && lon<=valNext && latFlag){
             double vs30_Curr =Double.parseDouble(st.nextToken());
             double vs30_Next = Double.parseDouble(stNext.nextToken());
-            System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
-            System.out.print(";lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
+
+            System.out.println("lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
             System.out.print(";vs30_Curr:"+vs30_Curr+";vs30_Next:"+vs30_Next);
             //returns the actual value for the vs30
             vs30.add(new Double(this.interpolateVs30OrBasinDepth(lon,val,valNext,vs30_Curr,vs30_Next)));
@@ -145,6 +154,8 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           str=strNext;
           strNext= iBuf.readLine();
         }
+         //stores the lat that was read currently from the vector and we are now going a new Lat from Vector
+         prevLat =lat;
       }
 
       System.out.println("size of vs30 vector:"+vs30.size());
@@ -179,9 +190,13 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
       double total = 0;
       int lineCount = 0;
       int size= locationVector.size();
+      double prevLat=Double.NaN;
       for(int i=0;i<size;++i){
         double lat = ((Location)locationVector.get(i)).getLatitude();
         double lon = ((Location)locationVector.get(i)).getLongitude();
+        boolean latFlag=false;
+        if(prevLat == lat)
+          latFlag=true;
         while(strNext!=null) {
           ++lineCount;
           StringTokenizer st = new StringTokenizer(str);
@@ -192,11 +207,14 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           double valLat = Double.parseDouble(st.nextToken());
           double valLatNext = Double.parseDouble(stNext.nextToken());
           // add basinDepth for new location
-          if((lat>=valLat || lat<=valLatNext)&&(lon>=val || lon<=valNext)){
+          if(lat>=valLat && lat<=valLatNext){
+            System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
+            latFlag=true;
+          }
+          if(lon>=val && lon<=valNext && latFlag){
             double bd_Curr =Double.parseDouble(st.nextToken());
             double bd_Next = Double.parseDouble(stNext.nextToken());
-            System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
-            System.out.print(";lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
+            System.out.println("lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
             System.out.print(";bd_Curr:"+bd_Curr+";bd_Next:"+bd_Next);
             //returns the actual value for the basinDepth
             basinDepth.add(new Double(this.interpolateVs30OrBasinDepth(lon,val,valNext,bd_Curr,bd_Next)));
@@ -206,6 +224,8 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           str=strNext;
           strNext= iBuf.readLine();
         }
+        //stores the lat that was read currently from the vector and we are now going a new Lat from Vector
+         prevLat =lat;
       }
 
       System.out.println("size of basinDepth vector:"+basinDepth.size());
