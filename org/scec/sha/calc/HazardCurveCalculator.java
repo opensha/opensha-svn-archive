@@ -110,8 +110,6 @@ public class HazardCurveCalculator {
       ProbEqkSource source = eqkRupForecast.getSource(i);
       double distance = source.getMinDistance(site);
 
-      if (D) System.out.println("distance="+distance);
-
       // if source is greater than the MAX_DISTANCE, ignore the source
       if(distance > MAX_DISTANCE)  continue;
 

@@ -218,7 +218,6 @@ public class Set1_Area_Forecast extends EqkRupForecast
                 locationList.addLocation(new Location(lat,lon,depth));
 
       int numLocs = locationList.size();
-System.out.println("done making location list; numLocs="+numLocs);
 
       /* getting the Gutenberg magnitude distribution and scaling its cumRate to the original cumRate
        * divided by the number of the locations (note that this is a clone of what's in the magDistParam)

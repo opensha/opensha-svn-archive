@@ -12,7 +12,7 @@ import org.scec.data.Site;
 import org.scec.data.Location;
 
 /**
- * <p>Title:SiteGuiBean </p>
+ * <p>Title:SiteParamList </p>
  * <p>Description: this class will make the site parameter editor based on selected
  * IMRs. Here duplicate site params in multiple IMRs are removed.
  * Also parameters are the cloned parameters. </p>
@@ -29,7 +29,7 @@ public class SiteParamList extends ParameterList
      implements ParameterChangeListener {
 
 // for debug purposes
- protected final static String C = "SiteGuiBean";
+ protected final static String C = "SiteParamList";
 
   /**
    * Latitude and longitude are added to the site paraattenRelImplmeters
