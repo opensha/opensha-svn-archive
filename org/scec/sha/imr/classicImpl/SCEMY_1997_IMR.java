@@ -145,8 +145,12 @@ public class SCEMY_1997_IMR
         Double magOld = (Double)magParam.getValue( );
         String fltOld = (String)fltTypeParam.getValue();
 
+        try {
         // constraints get checked
-        magParam.setValue( probEqkRupture.getMag() );
+          magParam.setValue( probEqkRupture.getMag() );
+        } catch (WarningException e){
+          if(D) System.out.println(C+"Warning Exception:"+e);
+        }
 
         // If fail, rollback to all old values
         try{

@@ -195,9 +195,6 @@ public class Set1_Area_Forecast extends EqkRupForecast
 
   }
 
-
-
-
   /**
    * This method sets the time-span field
    * @param time
@@ -206,8 +203,6 @@ public class Set1_Area_Forecast extends EqkRupForecast
     time = new TimeSpan();
     time= timeSpan;
   }
-
-
 
   /**
    * Get number of ruptures for source at index iSource

@@ -342,7 +342,7 @@ public class GroupTestGuiBean implements
     int size = this.imrObject.size();
     ClassicIMRAPI imr;
     Vector iml=new Vector();
-    Vector imlParamsVector=new Vector();
+
 
     // loop over each IMR
     for(int i=0; i < size ; ++i) {
@@ -357,7 +357,7 @@ public class GroupTestGuiBean implements
       while ( it1.hasNext() ) {
         DependentParameterAPI param = ( DependentParameterAPI ) it1.next();
         imt.add(new String(param.getName()));
-
+        Vector imlParamsVector=new Vector();
         // add all the independent parameters related to this IMT
         ListIterator it2 = param.getIndependentParametersIterator();
         if(D) System.out.println("IMT is:"+param.getName());
@@ -467,10 +467,6 @@ public class GroupTestGuiBean implements
 
      // if this is the selected IMR
      if(imr.getName().equalsIgnoreCase(value)) {
-       // add std dev parameter
-       //it =  imr.getStdDevIndependentParamsIterator();
-       //while(it.hasNext())
-        // imrParamList.addParameter((ParameterAPI)it.next());
        imrParamList.addParameter(imr.getParameter("Std Dev Type"));
        it = imr.getSiteParamsIterator();
        while(it.hasNext())

@@ -33,7 +33,7 @@ public class HazardCurveCalculator {
    * @param eqkRupForecast  : selected Earthquake rup forecast
    * @return
    */
-  public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
+  public void getHazardCurve(DiscretizedFuncAPI hazFunction,
         Site site, ClassicIMRAPI imr, EqkRupForecast eqkRupForecast) {
 
     try {
@@ -74,7 +74,8 @@ public class HazardCurveCalculator {
         condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
 
         // calculate the hazard function
-        for(int k=0;k<condProbFunc.getNum();k++)
+        int numPoints = condProbFunc.getNum();
+        for(int k=0;k<numPoints;k++)
           hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
       }
     }
@@ -85,7 +86,6 @@ public class HazardCurveCalculator {
     for(int i=0;i<numPoints;++i)
       hazFunction.set(i,1-hazFunction.getY(i));
 
-    return hazFunction;
   }
 
 
