@@ -524,7 +524,11 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
     // get the sublist from the inputFileLines
     int firstLine = ((Integer) iterationLineNumbers.get(index)).intValue();
-    int lastLine = ((Integer) iterationLineNumbers.get(index+1)).intValue();
+    int lastLine =0;
+    if(index != (numIterations-1))
+      lastLine = ((Integer) iterationLineNumbers.get(index+1)).intValue();
+    else
+      lastLine = inputFileLines.size();
     List inputFileStrings = inputFileLines.subList(firstLine,lastLine);
 
     return new WG02_EqkRupForecast(inputFileStrings, rupOffset, gridSpacing,
