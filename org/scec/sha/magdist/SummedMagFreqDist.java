@@ -4,9 +4,7 @@ import java.util.Vector;
 
 import org.scec.data.DataPoint2D;
 import org.scec.data.function.DiscretizedFuncList;
-import org.scec.exceptions.DiscretizedFuncException;
-import org.scec.exceptions.MagFreqDistException;
-import org.scec.exceptions.DataPoint2DException;
+import org.scec.exceptions.*;
 
 
 
@@ -40,7 +38,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * using the parameters we call the parent class constructors to initialise the parent class variables
     */
 
-   public SummedMagFreqDist(double min,int num,double delta){
+   public SummedMagFreqDist(double min,int num,double delta) throws InvalidRangeException{
      super(min,num,delta);
    }
 
@@ -55,9 +53,9 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * using the min, max and num we calculate the delta
     */
 
-   public  SummedMagFreqDist(double min,double max,int num) {
+   public  SummedMagFreqDist(double min,double max,int num)
+                             throws DiscretizedFuncException,InvalidRangeException {
      super(min,max,num);
-
    }
 
 
@@ -72,7 +70,8 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public SummedMagFreqDist(double min,int num,double delta,
-                            boolean saveMagFreqDist,boolean saveAllInfo){
+                            boolean saveMagFreqDist,boolean saveAllInfo)
+                            throws InvalidRangeException{
      super(min,num,delta);
      this.saveMagFreqDists=saveMagFreqDist;
      this.saveAllInfo = saveAllInfo;
@@ -97,7 +96,8 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public  SummedMagFreqDist(double min,double max,int num,
-                             boolean saveMagFreqDist,boolean saveAllInfo) {
+                             boolean saveMagFreqDist,boolean saveAllInfo)
+                             throws DiscretizedFuncException,InvalidRangeException {
      super(min,max,num);
      this.saveMagFreqDists=saveMagFreqDist;
      this.saveAllInfo = saveAllInfo;
@@ -106,8 +106,6 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
      else if(saveAllInfo)     // to save info
        savedInfoList = new Vector();
    }
-
-
 
 
    /**
@@ -275,17 +273,16 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    * this function is for setting the name
    **/
 
-  public void setName(String name) {
+  public void setName(String name) throws UnsupportedOperationException{
     throw new UnsupportedOperationException("setName not allowed for MagFreqDist.");
-
   }
 
   /**
    * this function is for setting the info
-   **/
-  public void setInfo(String info) {
+   *
+   * */
+  public void setInfo(String info) throws UnsupportedOperationException{
     throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
-
   }
 
 }

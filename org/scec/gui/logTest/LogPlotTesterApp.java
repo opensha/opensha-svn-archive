@@ -32,6 +32,9 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
   protected final static String C = "LogPlotTesterApp";
   protected final static boolean D = false;
 
+  //auto scales the graph
+  private boolean autoScale =true;
+
   private boolean isStandalone = false;
   private BorderLayout borderLayout1 = new BorderLayout();
   private JSplitPane jSplitPane1 = new JSplitPane();
@@ -54,6 +57,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
   private Vector logRanges = new Vector();
 
   //static string declaration for the test cases
+  private static final String TEST_0= new String("Auto Scale"); // draws the graph according to the given default values
   private static final String TEST_1= new String("1");
   private static final String TEST_2= new String("2");
   private static final String TEST_3= new String("3");
@@ -80,6 +84,11 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
   protected final static int W = 820;
   protected final static int H = 670;
 
+
+  /**
+   * for Y-log, 0 values will be converted to this small value
+   */
+  private double Y_MIN_VAL = 1e-8;
 
   /**
    * these four values save the log axis scale specified by selection of different
@@ -111,6 +120,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
   //Construct the applet
   public LogPlotTesterApp() {
 
+    logRanges.add(TEST_0);;
     logRanges.add(TEST_1);
     logRanges.add(TEST_2);
     logRanges.add(TEST_3);
@@ -128,6 +138,8 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
     logRanges.add(TEST_15);
 
     data.setFunctions(functions);
+    // for Y-log, convert 0 values in Y axis to this small value
+    data.setConvertZeroToMin(true,Y_MIN_VAL);
   }
   //Initialize the applet
   public void init() {
@@ -278,7 +290,10 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
    * @param  e  The feature to be added to the Button_mouseClicked attribute
    */
   void addButton_actionPerformed(ActionEvent e){
+     addButton();
+  }
 
+  private void addButton(){
     String S = C + ": addButton(): ";
     if ( D ) System.out.println( S + "Starting" );
 
@@ -287,15 +302,11 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
 
     if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
 
-    data.setXLog(true);
-    data.setYLog(true);
-
     functions.clear();
     functions.add(function);
     addGraphPanel();
     return;
   }
-
 
   /**
    * this method is the interface between the JFreechart plotting capability
@@ -308,6 +319,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
        String S = C + ": addGraphPanel(): ";
 
 
+       if(!autoScale){
        // get the min and max Y values
        minYValue=Double.parseDouble(minYText.getText());
        maxYValue=Double.parseDouble(maxYText.getText());
@@ -315,19 +327,19 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
        //get the min and max Y values
        minXValue=Double.parseDouble(minXText.getText());
        maxXValue=Double.parseDouble(maxXText.getText());
-
+       }
 
        //create the standard ticks so that smaller values too can plotted on the chart
        TickUnits units = MyTickUnits.createStandardTickUnits();
 
-       HorizontalLogarithmicAxis xAxis = new com.jrefinery.chart.HorizontalLogarithmicAxis("X-Axis");
+       xAxis = new com.jrefinery.chart.HorizontalLogarithmicAxis("X-Axis");
        xAxis.setAutoRangeIncludesZero( false );
        xAxis.setCrosshairLockedOnData( false );
        xAxis.setCrosshairVisible(false);
        xAxis.setStandardTickUnits(units);
 
 
-       VerticalLogarithmicAxis yAxis = new com.jrefinery.chart.VerticalLogarithmicAxis("Y-Axis");
+       yAxis = new com.jrefinery.chart.VerticalLogarithmicAxis("Y-Axis");
 
        yAxis.setAutoRangeIncludesZero( false );
        yAxis.setCrosshairLockedOnData( false );
@@ -339,8 +351,12 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
 
        LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
-       xAxis.setRange(minXValue,maxXValue);
-       yAxis.setRange(minYValue,maxYValue);
+
+       //If the first test case is not chosen then plot the graph acording to the default x and y axis values
+       if(!autoScale){
+         xAxis.setRange(minXValue,maxXValue);
+         yAxis.setRange(minYValue,maxYValue);
+       }
 
 
        // build the plot
@@ -440,72 +456,88 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
 
   void clearButton_actionPerformed(ActionEvent e) {
    functions.clear();
+   innerPlotPanel.removeAll();
+   panel = null;
+
    validate();
    repaint();
   }
 
   //sets the default range for the log Plots
   void rangeCombo_itemStateChanged(ItemEvent e) {
-    if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_1)){
-       setXRange(.5e-20,1e-20);
-       setYRange(.5e-20,1e-20);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_2)){
-       setXRange(1e-20,1e-19);
-       setYRange(1e-20,1e-19);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_3)){
-       setXRange(1e-20,1e-17);
-       setYRange(1e-20,1e-17);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_4)){
-       setXRange(1e-20,1e-16);
-       setYRange(1e-20,1e-16);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_5)){
-       setXRange(1e-20,1e-15);
-       setYRange(1e-20,1e-15);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_6)){
-       setXRange(1e-11,1e-7);
-       setYRange(1e-11,1e-7);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_7)){
-       setXRange(1e-2,10);
-       setYRange(1e-2,10);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_8)){
-       setXRange(1e-2,100);
-       setYRange(1e-2,100);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_9)){
-       setXRange(1e-2,1000);
-       setYRange(1e-2,1000);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_10)){
-       setXRange(10,10000);
-       setYRange(10,10000);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_11)){
-       setXRange(10,100000);
-       setYRange(10,100000);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_12)){
-       setXRange(2,2);
-       setYRange(2,2);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_13)){
-       setXRange(1,1);
-       setYRange(1,1);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_14)){
-       setXRange(10e4,10e6);
-       setYRange(10e4,10e6);
-     }
-     else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_15)){
-       setXRange(2,8);
-       setYRange(2,8);
-     }
+    if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_0)){
+      autoScale=true;
+      addButton();
+      Range rX = xAxis.getRange();
+      Range rY= yAxis.getRange();
+      this.minXText.setText(""+rX.getLowerBound());
+      this.maxXText.setText(""+rX.getUpperBound());
+      this.minYText.setText(""+rY.getLowerBound());
+      this.maxYText.setText(""+rY.getUpperBound());
+    }
+    else {
+      autoScale=false;
+      if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_1)){
+        setXRange(.5e-20,1e-20);
+        setYRange(.5e-20,1e-20);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_2)){
+        setXRange(1e-20,1e-19);
+        setYRange(1e-20,1e-19);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_3)){
+        setXRange(1e-20,1e-17);
+        setYRange(1e-20,1e-17);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_4)){
+        setXRange(1e-20,1e-16);
+        setYRange(1e-20,1e-16);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_5)){
+        setXRange(1e-20,1e-15);
+        setYRange(1e-20,1e-15);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_6)){
+        setXRange(1e-11,1e-7);
+        setYRange(1e-11,1e-7);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_7)){
+        setXRange(1e-2,10);
+        setYRange(1e-2,10);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_8)){
+        setXRange(1e-2,100);
+        setYRange(1e-2,100);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_9)){
+        setXRange(1e-2,1000);
+        setYRange(1e-2,1000);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_10)){
+        setXRange(10,10000);
+        setYRange(10,10000);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_11)){
+        setXRange(10,100000);
+        setYRange(10,100000);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_12)){
+        setXRange(2,2);
+        setYRange(2,2);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_13)){
+        setXRange(1,1);
+        setYRange(1,1);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_14)){
+        setXRange(10e4,10e6);
+        setYRange(10e4,10e6);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_15)){
+        setXRange(2,8);
+        setYRange(2,8);
+      }
+    }
   }
 
   /**
@@ -515,6 +547,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
    */
   private  DiscretizedFuncAPI fillValues(DiscretizedFuncAPI function) {
 
+   // function.set(0.0 , 0.3709240147258726);
     function.set(1.02, 0.3252989675766);
     function.set(2.03,0.28831584981256364);
     function.set(3.04, 0.25759059645019516);

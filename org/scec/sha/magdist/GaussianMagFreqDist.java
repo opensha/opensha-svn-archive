@@ -1,8 +1,7 @@
 package org.scec.sha.magdist;
 
 import org.scec.data.DataPoint2D;
-import org.scec.exceptions.MagFreqDistException;
-import org.scec.exceptions.DataPoint2DException;
+import org.scec.exceptions.*;
 
 
 
@@ -48,7 +47,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param num - number of points in distribution
    * @param delta - discretization interval
    */
-  public GaussianMagFreqDist(double min,int num,double delta) throws DataPoint2DException{
+  public GaussianMagFreqDist(double min,int num,double delta) throws InvalidRangeException{
     super(min,num,delta);
 
   }
@@ -59,7 +58,9 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param max - maximum mag of distribution
    * @param num - number of points in distribution
    */
-  public GaussianMagFreqDist(double min,double max,int num) throws DataPoint2DException{
+  public GaussianMagFreqDist(double min,double max,int num)
+    throws DiscretizedFuncException,InvalidRangeException {
+
     super(min,max,num);
 
   }
@@ -75,7 +76,8 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param totMoRate - the total moment rate
    */
   public GaussianMagFreqDist(double min,double max,int num,double mean,double stdDev,
-                             double totMoRate) throws DataPoint2DException{
+                             double totMoRate) throws DiscretizedFuncException,
+                             InvalidRangeException,DataPoint2DException {
     super(min,max,num);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -95,7 +97,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    */
 
   public GaussianMagFreqDist(double min,int num,double delta,double mean,double stdDev,
-                             double totMoRate) throws DataPoint2DException{
+                             double totMoRate) throws DataPoint2DException,InvalidRangeException {
     super(min,num,delta);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -117,7 +119,8 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param truncType - 0 for none; 1 for upper only; and 2 for upper and lower
    */
   public GaussianMagFreqDist(double min,int num,double delta,double mean,double stdDev,
-                             double totMoRate,double truncLevel,int truncType) throws DataPoint2DException{
+                             double totMoRate,double truncLevel,int truncType)
+                             throws DataPoint2DException, InvalidRangeException{
     super(min,num,delta);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -140,7 +143,9 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param truncType - 0 for none; 1 for upper only; and 2 for upper and lower
    */
   public GaussianMagFreqDist(double min,double max,int num,double mean,double stdDev,
-                             double totMoRate,double truncLevel,int truncType) throws DataPoint2DException{
+                             double totMoRate,double truncLevel,int truncType)
+                             throws DiscretizedFuncException, InvalidRangeException,
+                             DataPoint2DException {
     super(min,max,num);
     this.mean=mean;
     this.stdDev=stdDev;
@@ -157,7 +162,8 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param stdDev - the standard deviation
    * @param totMoRate - the total moment rate
    */
-  public void setAllButCumRate(double mean,double stdDev, double totMoRate) {
+  public void setAllButCumRate(double mean,double stdDev, double totMoRate)
+                               throws DataPoint2DException {
   this.mean=mean;
   this.stdDev=stdDev;
   this.truncType = 0;
@@ -174,7 +180,8 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param truncLevel - in units of stdDev from the mean
    * @param truncType - 0 for none; 1 for upper only; and 2 for upper and lower
    */
-  public void setAllButCumRate(double mean,double stdDev, double totMoRate,double truncLevel,int truncType) {
+  public void setAllButCumRate(double mean,double stdDev, double totMoRate,
+                               double truncLevel,int truncType) throws DataPoint2DException{
     this.mean=mean;
     this.stdDev=stdDev;
     this.truncLevel=truncLevel;
@@ -191,7 +198,8 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param stdDev - the standard deviation
    * @param totCumRate - the total cumulative rate (at the lowest magnitude)
    */
-  public void setAllButTotMoRate(double mean,double stdDev, double totCumRate) {
+  public void setAllButTotMoRate(double mean,double stdDev, double totCumRate)
+                                throws DataPoint2DException {
   this.mean=mean;
   this.stdDev=stdDev;
   this.truncType = 0;
@@ -208,7 +216,9 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * @param truncLevel - in units of stdDev from the mean
    * @param truncType - 0 for none; 1 for upper only; and 2 for upper and lower
   */
-  public void setAllButTotMoRate(double mean,double stdDev, double totCumRate,double truncLevel,int truncType) {
+  public void setAllButTotMoRate(double mean,double stdDev, double totCumRate,
+                                 double truncLevel,int truncType)
+                                 throws DataPoint2DException{
     this.mean=mean;
     this.stdDev=stdDev;
     this.truncLevel=truncLevel;
@@ -346,7 +356,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * this method (defined in parent) is deactivated here (name is finalized)
    **/
 
-  public void setName(String name) {
+  public void setName(String name) throws  UnsupportedOperationException{
     throw new UnsupportedOperationException("setName not allowed for MagFreqDist.");
 
   }
@@ -354,7 +364,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
   /**
    * this method (defined in parent) is deactivated here (name is finalized)
    **/
-  public void setInfo(String info) {
+  public void setInfo(String info)throws  UnsupportedOperationException{
     throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
   }

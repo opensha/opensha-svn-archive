@@ -1,6 +1,7 @@
 package org.scec.sha.magdist;
 
 import org.scec.calc.*;
+import org.scec.exceptions.*;
 /**
  * <p>Title: SingleMagFreqDist</p>
  * <p>Description: This has only a single magnitude with a non-zero rate.
@@ -29,7 +30,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param num
    * @param delta
    */
-  public SingleMagFreqDist(double min,int num,double delta) {
+  public SingleMagFreqDist(double min,int num,double delta) throws InvalidRangeException {
     super(min,num,delta);
   }
 
@@ -39,7 +40,8 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param max
    * @param num
    */
-  public SingleMagFreqDist(double min,double max,int num) {
+  public SingleMagFreqDist(double min,double max,int num) throws DiscretizedFuncException,
+                           InvalidRangeException {
     super(min,max,num);
   }
 
@@ -52,7 +54,8 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param moRate
    */
 
-  public SingleMagFreqDist(double min,int num,double delta, double mag,double moRate) {
+  public SingleMagFreqDist(double min,int num,double delta, double mag,double moRate)
+                           throws InvalidRangeException,DataPoint2DException {
     super(min,num,delta);
     rate = moRate/MomentMagCalc.getMoment(mag);
     setMagAndRate(mag, rate);
@@ -79,7 +82,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param mag
    * @param rate
    */
-  public void setMagAndRate(double mag, double rate) {
+  public void setMagAndRate(double mag, double rate) throws DataPoint2DException{
     this.mag=mag;
     this.rate=rate;
     for(int i=0;i<num;++i)
@@ -94,7 +97,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param mag
    * @param moRate
    */
-  public void setMagAndMomentRate(double mag,double moRate) {
+  public void setMagAndMomentRate(double mag,double moRate) throws DataPoint2DException{
     this.rate=moRate/MomentMagCalc.getMoment(mag);
     setMagAndRate(mag,rate);
   }
@@ -108,7 +111,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param rate
    * @param moRate
    */
-  public void setRateAndMomentRate(double rate,double moRate) {
+  public void setRateAndMomentRate(double rate,double moRate) throws DataPoint2DException{
 
     this.mag = MomentMagCalc.getMag(moRate/rate);
     int index = (int) Math.rint((mag - minX)/delta);
@@ -136,7 +139,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * this method (defined in parent) is deactivated here (name is finalized)
    **/
 
-  public void setName(String name) {
+  public void setName(String name) throws UnsupportedOperationException{
     throw new UnsupportedOperationException(C+"::setName not allowed for MagFreqDist.");
 
   }
@@ -144,7 +147,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   /**
    * this method (defined in parent) is deactivated here (info is generated internally)
    **/
-  public void setInfo(String info) {
+  public void setInfo(String info) throws UnsupportedOperationException{
     throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
   }

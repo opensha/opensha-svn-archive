@@ -740,7 +740,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
 
-  /**
+    /**
      *  This causes the model data to be calculated and a plot trace added to
      *  the current plot
      *

@@ -3,8 +3,7 @@ package org.scec.sha.magdist;
 import org.scec.data.function.*;
 import org.scec.calc.MomentMagCalc;
 import org.scec.data.DataPoint2D;
-import org.scec.exceptions.MagFreqDistException;
-import org.scec.exceptions.DataPoint2DException;
+import org.scec.exceptions.*;
 
 
 /**
@@ -29,7 +28,8 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * @param delta
      * using the parameters we call the parent class constructors to initialise the parent class variables
      */
-    public IncrementalMagFreqDist(double min,int num,double delta){
+    public IncrementalMagFreqDist (double min,int num,double delta)
+                                  throws InvalidRangeException {
      super(min,num,delta);
      setTolerance(delta/1000000);
     }
@@ -41,7 +41,8 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * @param num
      * using the min, max and num we calculate the delta
      */
-    public IncrementalMagFreqDist(double min,double max,int num) {
+    public IncrementalMagFreqDist(double min,double max,int num)
+                                 throws DiscretizedFuncException,InvalidRangeException {
       super(min,max,num);
       setTolerance(delta/1000000);
    }
@@ -52,7 +53,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
     * @param mag
     * @return
     */
-    public double getIncrRate(double mag) {
+    public double getIncrRate(double mag) throws DataPoint2DException{
          int xIndex = getXIndex(mag);
          return getIncrRate(xIndex);
     }
@@ -73,7 +74,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
        * @param mag
        * @return
        */
-    public double getCumRate(double mag) {
+    public double getCumRate(double mag) throws DataPoint2DException{
         return getCumRate(getXIndex(mag));
     }
 
@@ -99,7 +100,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * @return
      */
 
-    public double getMomentRate(double mag) {
+    public double getMomentRate(double mag) throws DataPoint2DException{
       return getIncrRate(mag) * MomentMagCalc.getMoment(mag);
     }
 
@@ -147,7 +148,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * comes to be 1.
      */
 
-    public void normalizeByTotalRate() {
+    public void normalizeByTotalRate()throws DataPoint2DException {
       double totalIncrRate=getTotalIncrRate();
       for(int i=0;i<num;++i) {
           double newRate= getIncrRate(i)/totalIncrRate;
@@ -163,7 +164,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
       * @return
       */
 
-    public EvenlyDiscretizedFunc getCumRateDist() {
+    public EvenlyDiscretizedFunc getCumRateDist() throws DataPoint2DException{
       EvenlyDiscretizedFunc cumRateDist = new EvenlyDiscretizedFunc(minX,num,delta);
       double sum=0.0;
       for(int i=num-1;i>=0;--i) {
@@ -182,7 +183,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * @return
      */
 
-    public EvenlyDiscretizedFunc getMomentRateDist() {
+    public EvenlyDiscretizedFunc getMomentRateDist() throws DataPoint2DException{
         EvenlyDiscretizedFunc momentRateDist = new EvenlyDiscretizedFunc(minX,num,delta);
         for(int i=num-1;i>=0;--i) {
             momentRateDist.set(i,getMomentRate(i));
@@ -200,7 +201,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * @param newTotMoRate
      */
 
-    public void scaleToTotalMomentRate(double newTotMoRate) {
+    public void scaleToTotalMomentRate(double newTotMoRate) throws DataPoint2DException{
         double oldTotMoRate=getTotalMomentRate();
         if(D) System.out.println("old Mo. Rate = " + oldTotMoRate);
         if(D) System.out.println("target Mo. Rate = " + newTotMoRate);
@@ -221,7 +222,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * @param rate
      */
 
-    public void scaleToCumRate(double mag,double rate) {
+    public void scaleToCumRate(double mag,double rate) throws DataPoint2DException{
         int index = getXIndex(mag);
         scaleToCumRate(index,rate);
     }
@@ -235,7 +236,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * @param rate
      */
 
-   public void scaleToCumRate(int index,double rate) {
+   public void scaleToCumRate(int index,double rate) throws DataPoint2DException{
         double temp=getCumRate(index);
         double scaleCumRate=rate/temp;
         for(int i=0;i<num;++i)
@@ -251,7 +252,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
     * @param newRate
     */
 
-    public void scaleToIncrRate(double mag, double newRate) {
+    public void scaleToIncrRate(double mag, double newRate) throws DataPoint2DException{
         int index = getXIndex(mag);
         scaleToIncrRate(index,newRate);
     }
@@ -264,7 +265,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * @param newRate
      */
 
-    public void scaleToIncrRate(int index, double newRate) {
+    public void scaleToIncrRate(int index, double newRate) throws DataPoint2DException{
         double temp=getIncrRate(index);
         double scaleIncrRate=newRate/temp;
         for(int i=0;i<num;++i)
@@ -273,7 +274,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
 
 
     /** Returns a copy of this and all points in this DiscretizedFunction */
-   public DiscretizedFuncAPI deepClone(){
+   public DiscretizedFuncAPI deepClone()throws DataPoint2DException{
 
        IncrementalMagFreqDist f = new IncrementalMagFreqDist(
            minX, num, delta

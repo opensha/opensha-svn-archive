@@ -39,10 +39,10 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     * using the parameters we call the parent class constructors to initialise the parent class variables
     */
 
-   public GutenbergRichterMagFreqDist(double min,int num,double delta){
+   public GutenbergRichterMagFreqDist(double min,int num,double delta)
+                                      throws InvalidRangeException {
      super(min,num,delta);
    }
-
 
 
 
@@ -54,7 +54,8 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     * using the min, max and num we calculate the delta
     */
 
-   public GutenbergRichterMagFreqDist(double min,double max,int num) {
+   public GutenbergRichterMagFreqDist(double min,double max,int num)
+                         throws DiscretizedFuncException,InvalidRangeException{
      super(min,max,num);
 
    }
@@ -93,8 +94,9 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public GutenbergRichterMagFreqDist(double min,int num,double delta,
-                                       double magLower, double magUpper,
-                                       double totMoRate,double bValue) throws DataPoint2DException {
+                                      double magLower, double magUpper,
+                                      double totMoRate,double bValue) throws InvalidRangeException,
+                                      DataPoint2DException {
      super(min,num,delta);
      setAllButTotCumRate(magLower,magUpper,totMoRate,bValue);
    }
@@ -150,7 +152,9 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     * totMoRate exactly else it matches totCumRate exactly
     */
    public void setAllButMagUpper(double magLower, double totMoRate, double totCumRate,
-                                 double bValue, boolean relaxCumRate) throws DiscretizedFuncException {
+                                 double bValue, boolean relaxCumRate)
+                                 throws MagFreqDistException,DiscretizedFuncException,
+                                 DataPoint2DException {
 
      if(D) System.out.println("magLower = " + magLower);
      if(D) System.out.println("totMoRate = " + totMoRate);
@@ -247,7 +251,7 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     * private function to set the rate values
     */
 
-  private void calculateRelativeRates() throws DataPoint2DException {
+  private void calculateRelativeRates() throws DataPoint2DException{
 
 
     // checks that magUpper, magLower lie between minX and maxX
@@ -281,7 +285,7 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
    * @returns the cumulative rate at magLower
    */
 
-  public double getTotCumRate() {
+  public double getTotCumRate() throws DataPoint2DException{
     return getCumRate(magLower);
   }
 
@@ -332,13 +336,13 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
    * this function returns String for drawing Legen in JFreechart
    * @return : returns the String which is needed for Legend in graph
    */
-  public String getInfo() {
+  public String getInfo() throws DataPoint2DException{
     return ("bValue="+bValue+"; magLower="+magLower+"; magUpper="+magUpper +
         "; totMoRate="+ (float) this.getTotalMomentRate()+"; totCumRate="+ (float) getCumRate(magLower));
   }
 
   /** Returns a rcopy of this and all points in this GutenbergRichter */
-public DiscretizedFuncAPI deepClone(){
+public DiscretizedFuncAPI deepClone() throws DataPoint2DException{
 
     GutenbergRichterMagFreqDist f = new GutenbergRichterMagFreqDist(minX, num, delta);
     f.setAllButTotMoRate(this.magLower, this.magUpper, this.getTotCumRate(), this.bValue);
@@ -350,7 +354,7 @@ public DiscretizedFuncAPI deepClone(){
     * this method (defined in parent) is deactivated here (name is finalized)
     **/
 
-   public void setName(String name) {
+   public void setName(String name) throws UnsupportedOperationException {
      throw new UnsupportedOperationException("setName not allowed for MagFreqDist.");
 
    }
@@ -358,7 +362,7 @@ public DiscretizedFuncAPI deepClone(){
    /**
     * this method (defined in parent) is deactivated here (info is generated internally)
     **/
-   public void setInfo(String info) {
+   public void setInfo(String info) throws UnsupportedOperationException{
      throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
    }

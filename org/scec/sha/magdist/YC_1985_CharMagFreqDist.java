@@ -40,7 +40,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     * @param num - number of points in distribution
     * @param delta - discretization interval
     */
-   public YC_1985_CharMagFreqDist(double min,int num,double delta){
+   public YC_1985_CharMagFreqDist(double min,int num,double delta) throws InvalidRangeException {
      super(min,num,delta);
    }
 
@@ -51,7 +51,8 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     * @param max - maximum mag of distribution
     * @param num - number of points in distribution
     */
-   public YC_1985_CharMagFreqDist(double min,double max,int num) {
+   public YC_1985_CharMagFreqDist(double min,double max,int num)
+                                 throws DiscretizedFuncException,InvalidRangeException{
      super(min,max,num);
    }
 
@@ -74,7 +75,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    public YC_1985_CharMagFreqDist(double min,int num,double delta, double magLower,
                               double magUpper, double deltaMagChar, double magPrime,
                               double deltaMagPrime, double bValue, double totMoRate)
-                              throws DataPoint2DException {
+                              throws InvalidRangeException,DataPoint2DException {
      super(min,num,delta);
 
      this.magLower = magLower;
@@ -102,7 +103,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     */
    public YC_1985_CharMagFreqDist(double min,int num,double delta, double deltaMagChar, double magPrime,
                               double deltaMagPrime, double bValue, double totMoRate)
-                              throws DataPoint2DException {
+                              throws InvalidRangeException,DataPoint2DException {
      super(min,num,delta);
      // assumes magLower = minX and magUpper = maxX
      magLower=minX;
@@ -132,7 +133,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
    public void setAllButTotCharRate(double magLower, double magUpper, double deltaMagChar,
                       double magPrime, double deltaMagPrime, double bValue,
-                      double totMoRate) throws DataPoint2DException {
+                      double totMoRate) throws DataPoint2DException,InvalidRangeException {
 
         this.magLower = magLower;
         this.magUpper = magUpper;
@@ -159,7 +160,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
    public void setAllButTotMoRate(double magLower, double magUpper, double deltaMagChar,
                       double magPrime, double deltaMagPrime, double bValue,
-                      double totCharRate) throws DataPoint2DException {
+                      double totCharRate) throws DataPoint2DException,InvalidRangeException {
 
         this.magLower = magLower;
         this.magUpper = magUpper;
@@ -216,7 +217,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     * private function to set the rate values
     */
 
-  private void calculateRelativeRates() throws DataPoint2DException {
+  private void calculateRelativeRates() throws DataPoint2DException,InvalidRangeException{
 
 
     // checks that magUpper, magLower, magPrime, deltaMagPrime, and deltaMagChar
@@ -346,7 +347,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    * this method (defined in parent) is deactivated here (name is finalized)
    **/
 
-  public void setName(String name) {
+  public void setName(String name) throws UnsupportedOperationException{
     throw new UnsupportedOperationException("setName not allowed for MagFreqDist.");
 
   }
@@ -354,7 +355,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
   /**
    * this method (defined in parent) is deactivated here (info is generated internally)
    **/
-  public void setInfo(String info) {
+  public void setInfo(String info) throws UnsupportedOperationException{
     throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
   }
