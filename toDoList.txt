@@ -8,9 +8,9 @@ HazardCurveApplet:
 	Exception thrown by MagFreqDistParameterEditor are not shown in a popup window
 
 	"Set X values for Hazard Curve Calc." control panel doesn't seem to work
-	(and lacks a "set" or "done" button)
+	(and lacks "Done" button)
 
-	"Set Site Params from CVM" control panel doesn't work if basin depth is not available (e.g., in bay area).
+	"Set Site Params from CVM" control panel doesn't work for bay area.
 
 Deploy SimplePoissonFaultERF in servlet mode and remove the servlet mode PEER_FaultForecast (update the ERF servlet-mode GUIbean accordingly).
 
