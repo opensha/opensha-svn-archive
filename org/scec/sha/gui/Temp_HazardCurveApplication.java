@@ -1115,7 +1115,7 @@ public class Temp_HazardCurveApplication extends JApplet
      try {
        try{
          // calculate the hazard curve
-         calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+         hazFunction=(ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
        }catch(RemoteException e){
          e.printStackTrace();
        }
