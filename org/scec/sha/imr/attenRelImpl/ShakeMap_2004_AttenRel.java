@@ -302,11 +302,12 @@ public class ShakeMap_2004_AttenRel
     * @param attenRel
     * @return
     */
-   private double getExceedProbability(AttenuationRelationship attenRel) {
+   private double getExceedProbability(AttenuationRelationship attenRel, double iml) {
 
-     double mean = getMean(attenRel);
+//     double mean = getMean(attenRel);
      double stdDev = getStdDev(attenRel);
-     double iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
+     double mean = 0;
+//     double stdDev = 0.5;
      return getExceedProbability(mean, stdDev, iml);
 
    }
@@ -323,6 +324,13 @@ public class ShakeMap_2004_AttenRel
    private double getStdDev(AttenuationRelationship attenRel) {
 
      String imt = im.getName();
+     attenRel.setIntensityMeasure(imt);
+     if(imt.equals(this.SA_NAME))
+       attenRel.getParameter(PERIOD_NAME).setValue(periodParam.getValue());
+     return attenRel.getStdDev();
+
+/*
+     String imt = im.getName();
      if(imt.equals(MMI_NAME)) {
        throw new RuntimeException(MMI_ERROR_STRING);
      }
@@ -335,6 +343,7 @@ public class ShakeMap_2004_AttenRel
      }
 
      return attenRel.getStdDev();
+*/
    }
 
 
@@ -498,21 +507,21 @@ public class ShakeMap_2004_AttenRel
     * @exception  ParameterException  Description of the Exception
     * @exception  IMRException        Description of the Exception
     */
-   private double getExceedProbability(double vs30, String imt) throws ParameterException, IMRException {
+   private double getExceedProbability(double vs30, String imt, double iml) throws ParameterException, IMRException {
 
      double per = ((Double) periodParam.getValue()).doubleValue();
      double prob = 0;
      if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
-       prob += Math.log(getExceedProbability(as_1997_attenRel));
-       prob += Math.log(getExceedProbability(cb_2003_attenRel));
-       prob += Math.log(getExceedProbability(scemy_1997_attenRel));
+       prob += Math.log(getExceedProbability(as_1997_attenRel, iml));
+       prob += Math.log(getExceedProbability(cb_2003_attenRel, iml));
+       prob += Math.log(getExceedProbability(scemy_1997_attenRel, iml));
        return Math.exp(prob/3.0);
      }
      else {
-       prob += Math.log(getExceedProbability(as_1997_attenRel));
-       prob += Math.log(getExceedProbability(cb_2003_attenRel));
-       prob += Math.log(getExceedProbability(bjf_1997_attenRel));
-       prob += Math.log(getExceedProbability(scemy_1997_attenRel));
+       prob += Math.log(getExceedProbability(as_1997_attenRel, iml));
+       prob += Math.log(getExceedProbability(cb_2003_attenRel, iml));
+       prob += Math.log(getExceedProbability(bjf_1997_attenRel, iml));
+       prob += Math.log(getExceedProbability(scemy_1997_attenRel, iml));
        return Math.exp(prob/4.0);
      }
    }
@@ -540,8 +549,7 @@ public class ShakeMap_2004_AttenRel
      // set the standard deviation types
      setAttenRelsStdDevTypes();
 
-     String imt = (String) im.getName();
-     return getExceedProbability(vs30,imt);
+     return getExceedProbability(vs30,im.getName(),((Double)im.getValue()).doubleValue());
    }
 
 
@@ -561,6 +569,8 @@ public class ShakeMap_2004_AttenRel
        DiscretizedFuncAPI intensityMeasureLevels
        ) throws ParameterException {
 
+     DataPoint2D point;
+
      // set vs30
      vs30 = ((Double) vs30Param.getValue()).doubleValue();
 
@@ -569,13 +579,8 @@ public class ShakeMap_2004_AttenRel
      Iterator it = intensityMeasureLevels.getPointsIterator();
      String imt = im.getName();
      while ( it.hasNext() ) {
-       DataPoint2D point = ( DataPoint2D ) it.next();
-      try{
-         im.setValue(new Double(point.getX()));
-       } catch (WarningException e){
-         if(D) System.out.println(C+"Warning Exception:"+e);
-       }
-       point.setY(getExceedProbability(vs30,imt));
+       point = ( DataPoint2D ) it.next();
+       point.setY(getExceedProbability(vs30,imt,point.getX()));
      }
      return intensityMeasureLevels;
    }

@@ -205,15 +205,12 @@ public abstract class IntensityMeasureRelationship
      */
     public void setIntensityMeasure( ParameterAPI intensityMeasure ) throws ParameterException, ConstraintException {
 
-        if( isIntensityMeasureSupported( intensityMeasure ) ) {
-            setIntensityMeasure( intensityMeasure.getName() );
-            ListIterator it=((DependentParameterAPI)intensityMeasure).getIndependentParametersIterator();
-            while(it.hasNext()){
-              ParameterAPI param = (ParameterAPI)it.next();
-              getParameter(param.getName()).setValue(param.getValue());
-            }
-        }
-        else throw new ParameterException("This im is not supported, name = " + intensityMeasure.getName() );
+      setIntensityMeasure( intensityMeasure.getName() );
+      ListIterator it=((DependentParameterAPI)intensityMeasure).getIndependentParametersIterator();
+      while(it.hasNext()){
+        ParameterAPI param = (ParameterAPI)it.next();
+        getParameter(param.getName()).setValue(param.getValue());
+      }
     }
 
 
