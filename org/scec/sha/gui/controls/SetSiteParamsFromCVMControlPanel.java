@@ -186,7 +186,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       outputToServlet.writeObject(lonMax);
       outputToServlet.writeObject(latMin);
       outputToServlet.writeObject(latMax);
-      Double gridSpacing = new Double(0.05);
+      Double gridSpacing = new Double(0.0);
       outputToServlet.writeObject(gridSpacing);
 
       outputToServlet.flush();
@@ -233,7 +233,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
 
       // send the student object to the servlet using serialization
       ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-      Double gridSpacing = new Double(0.05);
+      Double gridSpacing = new Double(0.0);
       outputToServlet.writeObject("BasinDepth");
       outputToServlet.writeObject(lonMin);
       outputToServlet.writeObject(lonMax);
