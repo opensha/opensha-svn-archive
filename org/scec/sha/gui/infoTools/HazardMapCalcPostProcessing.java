@@ -33,7 +33,7 @@ public class HazardMapCalcPostProcessing {
   public HazardMapCalcPostProcessing(String fileName,
                                      int expectedNumOfFiles,
                                      String emailAddr,
-                                     long datasetId,
+                                     String datasetId,
                                      String startTime) {
     try {
       FileReader file = new FileReader(fileName);
@@ -67,7 +67,7 @@ public class HazardMapCalcPostProcessing {
   public static void main(String[] args) {
     HazardMapCalcPostProcessing hazardMapCalcPostProcessing1 =
         new HazardMapCalcPostProcessing(args[0], Integer.parseInt(args[1]),
-                                        args[2], Long.parseLong(args[3]),
+                                        args[2], args[3],
                                         args[4]);
   }
 
