@@ -19,7 +19,7 @@ import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPanelAPI{
 
   private final static int W=650;
-  private final static int H=800;
+  private final static int H=700;
   private JSplitPane chartSplitPane = new JSplitPane();
   private JPanel chartPane = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -92,7 +92,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     this.getContentPane().add(chartSplitPane, BorderLayout.CENTER);
     chartSplitPane.add(chartPane, JSplitPane.TOP);
     chartSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    chartSplitPane.setDividerLocation(525);
+    chartSplitPane.setDividerLocation(600);
     //object for the ButtonControl Panel
     buttonControlPanel = new ButtonControlPanel(this);
     buttonPanel.add(buttonControlPanel,null);
