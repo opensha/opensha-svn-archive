@@ -2,14 +2,12 @@ package org.scec.data.region;
 
 import java.util.*;
 import java.io.Serializable;
-import java.net.*;
-import java.io.Serializable;
-import java.io.*;
+
 
 import org.scec.data.*;
 import org.scec.param.*;
 import org.scec.sha.util.*;
-
+import org.scec.sha.gui.infoTools.ConnectToCVM;
 /**
  * <p>Title: SitesInGriddedRegion</p>
  * <p>Description: This Class adds and replace the site params to each site for a gridded
@@ -156,7 +154,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    setSiteParamsUsingVs30AndBasinDepth = false;
    setSameSiteParams = false;
    try{
-     getWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+     vs30 = ConnectToCVM.getWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
    }catch(Exception e){
      throw new RuntimeException(e.getMessage());
    }
@@ -177,8 +175,8 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    setSiteParamsUsingVs30AndBasinDepth = true;
    setSameSiteParams = false;
    try{
-     getWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
-     getBasinDepthFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+     vs30 = ConnectToCVM.getWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+     basinDepth = ConnectToCVM.getBasinDepthFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
    }catch(Exception e){
      throw new RuntimeException(e.getMessage());
    }
@@ -201,100 +199,6 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   */
  public void setDefaultSiteParams(Iterator defaultSiteParamsIt){
    defaultSiteParams = defaultSiteParamsIt;
- }
-
- /**
-  * Gets the Wills et al. Site Type (2000) Map Web Service from the CVM servlet
-  */
- private void getWillsSiteTypeFromCVM(double lonMin,double lonMax,double latMin,double latMax,
-                             double gridSpacing) {
-
-   // if we want to the paramter from the servlet
-   try{
-
-     // make connection with servlet
-     URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/WillsSiteClassServlet");
-     URLConnection servletConnection = cvmServlet.openConnection();
-
-     servletConnection.setDoOutput(true);
-
-     // Don't use a cached version of URL connection.
-     servletConnection.setUseCaches (false);
-     servletConnection.setDefaultUseCaches (false);
-
-     // Specify the content type that we will send binary data
-     servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
-
-     // send the student object to the servlet using serialization
-     ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-
-
-     outputToServlet.writeObject(new Double(lonMin));
-     outputToServlet.writeObject(new Double(lonMax));
-     outputToServlet.writeObject(new Double(latMin));
-     outputToServlet.writeObject(new Double(latMax));
-     outputToServlet.writeObject(new Double(gridSpacing));
-
-     outputToServlet.flush();
-     outputToServlet.close();
-
-     // now read the connection again to get the vs30 as sent by the servlet
-     ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-     //vectors of lat and lon for the Vs30
-     vs30=(Vector)ois.readObject();
-     ois.close();
-   }catch (Exception exception) {
-     System.out.println("Exception in connection with servlet:" +exception);
-   }
- }
-
-
-
-
- /**
-  * Gets the Basin Depth from the CVM servlet
-  */
- private void getBasinDepthFromCVM(double lonMin,double lonMax,double latMin,double latMax,
-                                   double gridSpacing) {
-
-   // if we want to the paramter from the servlet
-   try{
-
-     // make connection with servlet
-     URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/SCEC_BasinDepthServlet");
-     URLConnection servletConnection = cvmServlet.openConnection();
-
-     servletConnection.setDoOutput(true);
-
-     // Don't use a cached version of URL connection.
-     servletConnection.setUseCaches (false);
-     servletConnection.setDefaultUseCaches (false);
-
-     // Specify the content type that we will send binary data
-     servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
-
-     // send the student object to the servlet using serialization
-     ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-
-     outputToServlet.writeObject(new Double(lonMin));
-     outputToServlet.writeObject(new Double(lonMax));
-     outputToServlet.writeObject(new Double(latMin));
-     outputToServlet.writeObject(new Double(latMax));
-     outputToServlet.writeObject(new Double(gridSpacing));
-
-     outputToServlet.flush();
-     outputToServlet.close();
-
-     // now read the connection again to get the vs30 as sent by the servlet
-     ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-
-     //vectors of Basin Depth for each gridded site
-     basinDepth=(Vector)ois.readObject();
-     ois.close();
-   }catch (Exception exception) {
-     exception.printStackTrace();
-     System.out.println("Exception in connection with servlet:" +exception);
-   }
  }
 
 

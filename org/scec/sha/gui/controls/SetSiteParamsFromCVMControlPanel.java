@@ -16,6 +16,7 @@ import org.scec.sha.util.SiteTranslator;
 import org.scec.data.Site;
 import org.scec.data.Location;
 import org.scec.param.ParameterAPI;
+import org.scec.sha.gui.infoTools.ConnectToCVM;
 
 /**
  * <p>Title:SetSiteParamsFromCVMControlPanel </p>
@@ -103,24 +104,16 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
    Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
    Double latMax = new Double(latMin.doubleValue());
 
-   /*
-   // check that it lies within the constraints of southern california
-   if(lonMin.doubleValue()<this.MIN_CVM_LON ||
-      lonMax.doubleValue()>this.MAX_CVM_LON ||
-      latMin.doubleValue()<this.MIN_CVM_LAT ||
-      latMax.doubleValue()>this.MAX_CVM_LAT) {
-
-     JOptionPane.showMessageDialog(this, "CVM can not get params for this site\n"+
-                                   "Constraints are:\n "+
-                                   MIN_CVM_LON+" < Longitude < "+MAX_CVM_LON +"\n"+
-                                   MIN_CVM_LAT+" < Latitude < "+MAX_CVM_LAT);
-     return;
-   }*/
 
    // get the vs 30 and basin depth from cvm
-   String vs30 = getVS30FromCVM(lonMin,lonMax,latMin,latMax);
-   double basinDepth = getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax);
+   String vs30 = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
+                                                      latMin.doubleValue(),latMax.doubleValue(),
+                                                      0.5)).get(0);
+   double basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
+                                                      latMin.doubleValue(),latMax.doubleValue(),
+                                                      0.5)).get(0)).doubleValue();
 
+   System.out.println("Vs30: "+vs30+"  BasinDepth: "+basinDepth);
    // now set the paramerts in the IMR
    if(this.imrComboBox.getSelectedItem().equals(this.SET_SELECTED_IMR)) { // do for selected IMR
        AttenuationRelationshipAPI imr =   this.imrGuiBean.getSelectedIMR_Instance();
@@ -160,110 +153,5 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       site.addParameter(tempParam);
     }
 
-  }
-
-  /**
-   * Gets the VS30 from the CVM servlet
-   */
-  private String getVS30FromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax) {
-
-    // if we want to the paramter from the servlet
-    try{
-
-      // make connection with servlet
-      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/WillsSiteClassServlet");
-      URLConnection servletConnection = cvmServlet.openConnection();
-
-      servletConnection.setDoOutput(true);
-
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
-
-      // send the student object to the servlet using serialization
-      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-
-      outputToServlet.writeObject(lonMin);
-      outputToServlet.writeObject(lonMax);
-      outputToServlet.writeObject(latMin);
-      outputToServlet.writeObject(latMax);
-      Double gridSpacing = new Double(0.5);
-      outputToServlet.writeObject(gridSpacing);
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // now read the connection again to get the vs30 as sent by the servlet
-      ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-      // vector for vs30
-      Vector vs30Vector=(Vector)ois.readObject();
-      String vs30 = (String)vs30Vector.get(0);
-      ois.close();
-
-      System.out.println("Vs30 is:"+vs30);
-      return vs30;
-    }catch (NumberFormatException ex) {
-      JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
-    }catch (Exception exception) {
-      System.out.println("Exception in connection with servlet:" +exception);
-    }
-    return null;
-  }
-
-  /**
-   * Gets the Basin Depth from the CVM servlet
-   */
-  private double getBasinDepthFromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax) {
-
-    // if we want to the paramter from the servlet
-    try{
-
-      // make connection with servlet
-      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/SCEC_BasinDepthServlet");
-      URLConnection servletConnection = cvmServlet.openConnection();
-
-      servletConnection.setDoOutput(true);
-
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
-
-      // send the student object to the servlet using serialization
-      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-      Double gridSpacing = new Double(0.5);
-
-      outputToServlet.writeObject(lonMin);
-      outputToServlet.writeObject(lonMax);
-      outputToServlet.writeObject(latMin);
-      outputToServlet.writeObject(latMax);
-      outputToServlet.writeObject(gridSpacing);
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // now read the connection again to get the basin depth as sent by the servlet
-      ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-
-      // vector for basin depth
-      Vector basinDepthVector=(Vector)ois.readObject();
-      double basinDepth = ((Double)basinDepthVector.get(0)).doubleValue();
-      ois.close();
-
-      System.out.println("basindepth is:"+ basinDepth );
-      JOptionPane.showMessageDialog(this,"We have obtained the site parameters from the CVM");
-      return basinDepth;
-
-    }catch (NumberFormatException ex) {
-      JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
-    }catch (Exception exception) {
-      System.out.println("Exception in connection with servlet:" +exception);
-    }
-    return -1;
   }
 }
