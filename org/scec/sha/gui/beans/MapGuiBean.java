@@ -127,7 +127,7 @@ public class MapGuiBean extends ParameterListEditor implements
 
     String imgName = gmtMap.makeMap(fileName);
     //adding the image to the Panel and returning that to the applet
-
+    System.out.println("Map Params Info:"+paramsInfo);
     ImageViewerWindow imgView = new ImageViewerWindow(imgName,paramsInfo);
   }
 
