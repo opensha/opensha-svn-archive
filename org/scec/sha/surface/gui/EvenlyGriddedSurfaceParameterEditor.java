@@ -315,8 +315,10 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     editorForLons = new ParameterListEditor(parameterListForLons,searchPaths);
     editorForLons.setTitle(this.LON_EDITOR_TITLE);
     editorForLats.validate();
+    editorForLats.revalidate();
     editorForLats.repaint();
     editorForLons.validate();
+    editorForLons.revalidate();
     editorForLons.repaint();
   }
 
@@ -338,6 +340,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     editorForDips = new ParameterListEditor(parameterListForDips,searchPaths);
     editorForDips.setTitle(this.DIP_EDITOR_TITLE);
     editorForDips.validate();
+    editorForDips.revalidate();
     editorForDips.repaint();
   }
 
@@ -359,6 +362,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     editorForDepths = new ParameterListEditor(parameterListForDepths,searchPaths);
     editorForDepths.setTitle(this.DEPTH_EDITOR_TITLE);
     editorForDepths.validate();
+    editorForDepths.revalidate();
     editorForDepths.repaint();
   }
 
@@ -462,8 +466,6 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
 
       add(this.editorForLons,new GridBagConstraints( 0, 1, 0, 1, 1.0, 0.0
           , GridBagConstraints.EAST, GridBagConstraints.EAST, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-     // this.validate();
-      //this.repaint();
     }
 
     /**
@@ -490,10 +492,9 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
         add(button,  new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
       }
-      //this.validate();
-      //this.repaint();
     }
     this.validate();
+    this.revalidate();
     this.repaint();
     evenlyGriddedParamChange = true;
   }
