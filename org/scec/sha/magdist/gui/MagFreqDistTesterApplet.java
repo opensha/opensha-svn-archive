@@ -1281,7 +1281,7 @@ public class MagFreqDistTesterApplet extends JApplet
    * @param xMax : maximum value for X-axis
    */
   public void setXRange(double xMin,double xMax) {
-    throw new UnsupportedOperationException(C+"setXRange(double,double) Not supported.");
+    throw new UnsupportedOperationException("setXRange(double,double) Not supported.");
 
   }
 
@@ -1291,7 +1291,7 @@ public class MagFreqDistTesterApplet extends JApplet
    * @param yMax : maximum value for Y-axis
    */
   public void setYRange(double yMin,double yMax) {
-    throw new UnsupportedOperationException(C+"setYRange(double,double) Not supported.");
+    throw new UnsupportedOperationException("setYRange(double,double) Not supported.");
 
   }
 

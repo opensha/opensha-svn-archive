@@ -125,7 +125,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
      if(magFreqDist.getMinX()!=minX || magFreqDist.getDelta()!=delta
                                     || magFreqDist.getNum()!=num)
-        throw new DiscretizedFuncException(C+":addIncrementalMagFreqDist"+
+        throw new DiscretizedFuncException("addIncrementalMagFreqDist "+
                   "invalid value of min, num or delta of new distribution");
 
 
@@ -276,7 +276,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    **/
 
   public void setName(String name) {
-    throw new UnsupportedOperationException(C+"::setName not allowed for MagFreqDist.");
+    throw new UnsupportedOperationException("setName not allowed for MagFreqDist.");
 
   }
 
@@ -284,7 +284,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    * this function is for setting the info
    **/
   public void setInfo(String info) {
-    throw new UnsupportedOperationException(C+"::::setInfo not allowed for MagFreqDist.");
+    throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
   }
 

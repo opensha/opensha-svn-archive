@@ -108,7 +108,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
     int numRups=0, tempNumRups=0;
 
     if(nthRupture < 0 || nthRupture>=getNumRuptures())
-       throw new RuntimeException(C+":getRupture():: Invalid rupture index. This index does not exist");
+       throw new RuntimeException("Invalid rupture index. This index does not exist");
 
     // this finds the magnitude:
     WC1994_MagLengthRelationship magLength = new WC1994_MagLengthRelationship();

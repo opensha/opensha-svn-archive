@@ -41,7 +41,7 @@ public class GroupTestGuiBean implements
 
 
   //innner class instance
-  GroupTestDefaultParameterClass groupTestParameterClass =new GroupTestDefaultParameterClass(this);
+  GroupTestDefaultParameterClass groupTestParameterClass;
 
   /**
    *  Search path for finding editors in non-default packages.
@@ -78,20 +78,26 @@ public class GroupTestGuiBean implements
 
     // Site Gui Editor
     private ParameterListEditor siteEditor = null;
-    private SiteGuiBean siteBean;
+    private SiteParamList siteParams;
 
-    //supported forecast objects:  CHANGE TO BE HANDLED LIKE IMRs
-    Set1_Fault_Forecast set1_Fault_ERF=new Set1_Fault_Forecast();
-    Set1_Area_Forecast  set1_Area_ERF=new Set1_Area_Forecast();
+    /**
+     *  The object class names for all the supported Eqk Rup Forecasts
+     */
+    public final static String SET1_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set1_Fault_Forecast";
+    public final static String SET1_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set1_Area_Forecast";
+    //this vector saves the names of all the supported Eqk Rup Forecasts
+    private Vector erfNamesVector=new Vector();
+    //this vector holds the full class names of all the supported Eqk Rup Forecasts
+    private Vector erfClasses;
+    //saves the erf objects
+    private Vector erfObject = new Vector();
 
-    //Source Fault Name  NOTE: THESE SHOULD BE READ FROM THE OBJECTS
-    private final static String SET1_FAULT_ERF_NAME = "Test Set1 Fault";
-    private final static String SET1_AREA_ERF_NAME = "Test Set1 Area";
 
     // ERF Editor stuff
     private final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
     // these are to store the list of independ params for chosen ERF
     private ParameterListEditor erf_Editor = null;
+    private final static String ERF_EDITOR_TITLE =  "Select Forecast";
     private ParameterList erf_IndParamList = new ParameterList();
 
     // hash map to mantain mapping between IMT and all IMLs supported by it
@@ -169,13 +175,16 @@ public class GroupTestGuiBean implements
     init_erf_IndParamListAndEditor();
 
     // make the site gui bean
-    siteBean = new SiteGuiBean(this, this, this);
+    siteParams = new SiteParamList(this, this, this);
 
     // Create site parameters
     updateSiteParamListAndEditor( );
 
     // Stuff hard coded for PEER test cases below
     // ******************************************
+
+    // this class handles all the hard coding stuff needed for test cases
+    groupTestParameterClass =new GroupTestDefaultParameterClass(this);
 
     //MAKE changes in this function for any change in test cases
     initTestCasesParamListAndEditor();
@@ -235,6 +244,43 @@ public class GroupTestGuiBean implements
 
    }
 
+
+   /**
+    * Creates a class instance from a string of the full class name including packages.
+    * This is how you dynamically make objects at runtime if you don't know which\
+    * class beforehand.
+    *
+    */
+   public Object createERFClassInstance( String className){
+     String S = C + ": createERFClassInstance(): ";
+     try {
+       Object[] paramObjects = new Object[]{};
+       Class[] params = new Class[]{};
+       Class erfClass = Class.forName( className );
+       Constructor con = erfClass.getConstructor(params);
+       Object obj = con.newInstance( paramObjects );
+       return obj;
+     } catch ( ClassCastException e ) {
+       System.out.println(S + e.toString());
+       throw new RuntimeException( S + e.toString() );
+     } catch ( ClassNotFoundException e ) {
+       System.out.println(S + e.toString());
+       throw new RuntimeException( S + e.toString() );
+     } catch ( NoSuchMethodException e ) {
+       System.out.println(S + e.toString());
+       throw new RuntimeException( S + e.toString() );
+     } catch ( InvocationTargetException e ) {
+       System.out.println(S + e.toString());
+       throw new RuntimeException( S + e.toString() );
+     } catch ( IllegalAccessException e ) {
+       System.out.println(S + e.toString());
+       throw new RuntimeException( S + e.toString() );
+     } catch ( InstantiationException e ) {
+       System.out.println(S + e.toString());
+       throw new RuntimeException( S + e.toString() );
+     }
+
+   }
 
 
   /**
@@ -452,37 +498,46 @@ public class GroupTestGuiBean implements
 
 
    /**
-    * init erf_IndParamList. List of all available sources at this time
+    * init erf_IndParamList. List of all available forecasts at this time
     */
     protected void init_erf_IndParamListAndEditor() {
 
+      EqkRupForecastAPI erf;
+      //add the available ERFs
+      erfClasses = new Vector();
+      erfClasses.add( SET1_FAULT_FORECAST_CLASS_NAME );
+      erfClasses.add( SET1_AREA_FORECAST_CLASS_NAME );
+      Iterator it= erfClasses.iterator();
+      while(it.hasNext()){
+        // make the ERF objects to get their adjustable parameters
+        erf = (EqkRupForecastAPI ) createERFClassInstance((String)it.next());
+        erfObject.add(erf);
+        erfNamesVector.add(erf.getName());
+      }
 
-      //add the source Parameter
-      Vector faultVector=new Vector();
-      faultVector.add(SET1_FAULT_ERF_NAME);
-      faultVector.add(SET1_AREA_ERF_NAME);
+      // make the forecast selection parameter
       StringParameter selectSource= new StringParameter(ERF_PARAM_NAME,
-                                  faultVector, SET1_FAULT_ERF_NAME);
+                                  erfNamesVector, (String)erfNamesVector.get(0));
       selectSource.addParameterChangeListener(this);
       erf_IndParamList.addParameter(selectSource);
 
-      //getting the value of the parameters for the fault
-      ListIterator it=set1_Fault_ERF.getAdjustableParamsList();
-      while(it.hasNext()){
-        erf_IndParamList.addParameter((ParameterAPI)it.next());
-      }
 
-      //getting the value of the parameters for the Area
-      it=set1_Area_ERF.getAdjustableParamsList();
+      //getting the value of the parameters for the Eqk Rup forecast
+      it=erfObject.iterator();
       while(it.hasNext()){
-        erf_IndParamList.addParameter((ParameterAPI)it.next());
+        erf = (EqkRupForecastAPI )it.next();
+        // add all the adjustable parameters
+        Iterator it1 =  erf.getAdjustableParamsList();
+        while(it1.hasNext())
+          erf_IndParamList.addParameter((ParameterAPI)it1.next());
       }
 
       // now make the editor based on the paramter list
       erf_Editor = new ParameterListEditor( erf_IndParamList, searchPaths);
-      erf_Editor.setTitle( "Select Forecast" );
-      // fault 1 is selected initially
-      setParamsInSourceVisible(this.SET1_FAULT_ERF_NAME);
+      erf_Editor.setTitle( this.ERF_EDITOR_TITLE );
+
+      // forecast 1  is selected initially
+      setParamsInSourceVisible((String)erfNamesVector.get(0));
    }
 
 
@@ -503,7 +558,7 @@ public class GroupTestGuiBean implements
    Vector imrNames = new Vector();
    imrNames.add(value);
    // now make the editor based on the parameter list
-   siteEditor = this.siteBean.updateSite(imrNames);
+   siteEditor = siteParams.replaceSiteParamsWithIMRs(imrNames);
 
  }
 
@@ -629,32 +684,38 @@ public class GroupTestGuiBean implements
 
   /**
    * this function is called to make the paramters visible and invisible
-   * based on the source selected by the user
-   * @param source
+   * based on the forecast selected by the user
+   * @param forecast
    */
-  private void setParamsInSourceVisible(String source) {
+  private void setParamsInSourceVisible(String selectedForecast) {
 
     // Turn off all parameters - start fresh, then make visible as required below
     ListIterator it = this.erf_IndParamList.getParametersIterator();
-
     while ( it.hasNext() )
       erf_Editor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false );
-    //make the source parameter visible
+
+    //make the forecast parameter visible
     erf_Editor.setParameterInvisible(this.ERF_PARAM_NAME,true);
 
-    Vector supportedMagDists = new Vector();
     // if fault1 or fault2 is selected
-    if(source.equalsIgnoreCase(this.SET1_FAULT_ERF_NAME))
-      it = set1_Fault_ERF.getAdjustableParamsList();
-    else // if Area source is selected
-      it = set1_Area_ERF.getAdjustableParamsList();
+    int size = this.erfNamesVector.size();
+    String erfName;
+    EqkRupForecastAPI erf = null;
+    for(int i=0; i<size; ++i) {
+      erfName = (String)erfNamesVector.get(i);
+      if(selectedForecast.equalsIgnoreCase(erfName)) { // we found seledcted forecast in the lsit
+        erf = (EqkRupForecastAPI)this.erfObject.get(i);
+        break;
+      }
+    }
 
-   // make the parameters visible or invisible
+    it = erf.getAdjustableParamsList();
+
+   // make the parameters visible based on selected forecast
     while(it.hasNext()) {
       String paramName=((ParameterAPI)it.next()).getName();
       erf_Editor.setParameterInvisible(paramName, true);
     }
-
 
   }
 
@@ -710,18 +771,20 @@ public class GroupTestGuiBean implements
    * this function is called when add Graph is clicked
    */
   public void getChoosenFunction(DiscretizedFuncList funcs) {
-    EqkRupForecast eqkRupForecast = null;
+    EqkRupForecastAPI eqkRupForecast = null;
 
     // get the selected forecast model
     String selectedForecast = (String)this.erf_IndParamList.getValue(this.ERF_PARAM_NAME);
 
     // check which forecast has been selected by the user
-    if(selectedForecast.equalsIgnoreCase(this.SET1_FAULT_ERF_NAME)) {
-      //if fault forecast is selected
-      eqkRupForecast = this.set1_Fault_ERF;
-    } else if(selectedForecast.equalsIgnoreCase(this.SET1_AREA_ERF_NAME)) {
-      // if Area forecast is selected
-      eqkRupForecast = this.set1_Area_ERF;
+    int size = this.erfNamesVector.size();
+    String erfName;
+    for(int i=0; i<size; ++i) {
+      erfName = (String)erfNamesVector.get(i);
+      if(selectedForecast.equalsIgnoreCase(erfName)) { // we found seledcted forecast in the lsit
+        eqkRupForecast = (EqkRupForecastAPI)this.erfObject.get(i);
+        break;
+      }
     }
 
     // intialize the hazard function
@@ -742,12 +805,7 @@ public class GroupTestGuiBean implements
     AttenuationRelationshipAPI imr = null;
 
     // make a site object to pass to each IMR
-    //  ENCAPSULATE THE FOLLOWING IN; siteBean.getSite()
-    ParameterList siteParams = siteBean.getSiteParamList();
-    double longVal= siteBean.getLongitude();
-    double latVal = siteBean.getLatitude();
-    Site site = new Site(new Location(latVal,longVal));
-    site.addParameterList(siteParams);
+    Site site = siteParams.getSite();
 
 
     // do for each IMR
@@ -997,10 +1055,18 @@ public class GroupTestGuiBean implements
     private final static String FAULT_AREA = "Fault Area";
 
 
+    private Set1_Fault_Forecast set1_Fault_ERF;
+    private  Set1_Area_Forecast set1_Area_ERF;
+
     protected GroupTestGuiBean groupTestGuiBean;
 
     public GroupTestDefaultParameterClass(GroupTestGuiBean groupTestGuiBean){
       this.groupTestGuiBean = groupTestGuiBean;
+
+      // hard coded values for setting in the test cases
+      set1_Fault_ERF = (Set1_Fault_Forecast)erfObject.get(0);
+      set1_Area_ERF =  (Set1_Area_Forecast)erfObject.get(1);
+
     }
     /**
      * This function sets the site Paramters and the IMR parameters based on the
@@ -1013,6 +1079,8 @@ public class GroupTestGuiBean implements
       if(D) System.out.println(S+"::entering");
       String value = (String)testCasesParamList.getParameter(TEST_PARAM_NAME).getValue();
 
+
+
       // set the mag dist params based on test case
       setMagDistParams(value);
 
@@ -1024,7 +1092,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
@@ -1035,7 +1103,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
@@ -1045,7 +1113,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
@@ -1055,7 +1123,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_TWO);
       }
 
@@ -1065,7 +1133,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
@@ -1075,7 +1143,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
@@ -1085,7 +1153,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
@@ -1095,7 +1163,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
@@ -1106,7 +1174,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(2.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_TWO);
       }
 
@@ -1117,7 +1185,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
@@ -1128,7 +1196,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_TWO);
       }
 
@@ -1139,7 +1207,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_TWO);
       }
 
@@ -1150,8 +1218,8 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(Campbell_1997_AttenRel.STD_DEV_TYPE_MAG_DEP);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
-        siteBean.getSiteParamList().getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
+        siteParams.getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
+        siteParams.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
         selectedFault = new String(FAULT_TWO);
       }
 
@@ -1161,15 +1229,14 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
 
         /**
          * This fills the default values for the forecast paramters based
          * on the selected test case 10
          */
-
-        erf_IndParamList.getParameter(groupTestGuiBean.set1_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
-        erf_IndParamList.getParameter(groupTestGuiBean.set1_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(set1_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(set1_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
         selectedFault = new String(FAULT_AREA);
       }
 
@@ -1179,15 +1246,15 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
 
         /**
          * This fills the default values for the forecast paramters based
          * on the selected test case 11
          */
 
-        erf_IndParamList.getParameter(groupTestGuiBean.set1_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
-        erf_IndParamList.getParameter(groupTestGuiBean.set1_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(set1_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
+        erf_IndParamList.getParameter(set1_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
         selectedFault = new String(FAULT_AREA);
       }
 
@@ -1196,70 +1263,70 @@ public class GroupTestGuiBean implements
       if(!value.equalsIgnoreCase(TEST_CASE_TEN) && !value.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
 
         // it is fault test case
-        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(SET1_FAULT_ERF_NAME);
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(set1_Fault_ERF.getName());
         setForecastParams(selectedFault,value);
 
         // for fault site 1
         if(siteNumber.equals(SITE_ONE)) {
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.113));
-          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.113));
+          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.0));
         }
         // for fault site 2
         if(siteNumber.equals(SITE_TWO)) {
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.113));
-          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.114));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.113));
+          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.114));
 
         }
         // for fault site 3
         if(siteNumber.equals(SITE_THREE)) {
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.111));
-          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.570));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.111));
+          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.570));
 
         }
         // for fault site 4
         if(siteNumber.equals(SITE_FOUR)) {
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.000));
-          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.000));
+          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.0));
 
         }
         // for fault site 5
         if(siteNumber.equals(SITE_FIVE)) {
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(37.910));
-          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(37.910));
+          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.0));
 
         }
         // for fault site 6
         if(siteNumber.equals(SITE_SIX)) {
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.225));
-          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.225));
+          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.0));
 
         }
         // for fault site 7
         if(siteNumber.equals(SITE_SEVEN)) {
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.113));
-          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-121.886));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.113));
+          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-121.886));
         }
       } else { // for area sites
 
         // it is area test case
-        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(SET1_AREA_ERF_NAME);
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.set1_Area_ERF.getName());
 
-        siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
+        siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.0));
         // for area site 1
         if(siteNumber.equals(SITE_ONE))
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.0));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.0));
 
         // for area site 2
         if(siteNumber.equals(SITE_TWO))
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(37.550));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(37.550));
 
         // for area site 3
         if(siteNumber.equals(SITE_THREE))
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(37.099));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(37.099));
 
         // for area site 4
         if(siteNumber.equals(SITE_FOUR))
-          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(36.874));
+          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(36.874));
       }
 
       // refresh the editor according to parameter values
@@ -1486,20 +1553,19 @@ public class GroupTestGuiBean implements
       public void setForecastParams(String faultType, String testCaseVal){
 
         // add sigma for maglength(0-1)
-        erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.SIGMA_PARAM_NAME).setValue(set1_Fault_ERF.DEFAULT_SIGMA_VAL);
-
+        erf_IndParamList.getParameter(set1_Fault_ERF.SIGMA_PARAM_NAME).setValue(set1_Fault_ERF.DEFAULT_SIGMA_VAL);
         // magLengthSigma parameter is changed if the test case chosen is 3
         if(testCaseVal.equalsIgnoreCase(TEST_CASE_THREE))
-          erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
+          erf_IndParamList.getParameter(set1_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
         // set the parameters for fault1
         if(faultType.equals(FAULT_ONE)) {
-          erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
-          erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
+          erf_IndParamList.getParameter(set1_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
+          erf_IndParamList.getParameter(set1_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
         }
         // set the parameters for fault 2
         if(faultType.equals(FAULT_TWO)) {
-          erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(60.0));
-          erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
+          erf_IndParamList.getParameter(set1_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(60.0));
+          erf_IndParamList.getParameter(set1_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
         }
       }
   }

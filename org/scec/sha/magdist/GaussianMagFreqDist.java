@@ -347,7 +347,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    **/
 
   public void setName(String name) {
-    throw new UnsupportedOperationException(C+"::setName not allowed for MagFreqDist.");
+    throw new UnsupportedOperationException("setName not allowed for MagFreqDist.");
 
   }
 
@@ -355,7 +355,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * this method (defined in parent) is deactivated here (name is finalized)
    **/
   public void setInfo(String info) {
-    throw new UnsupportedOperationException(C+"::::setInfo not allowed for MagFreqDist.");
+    throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
   }
 

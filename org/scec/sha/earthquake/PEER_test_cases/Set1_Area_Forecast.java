@@ -36,7 +36,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("Set1_Area_Forecast");
+  private static String  C = new String("Test Set1 Area");
   private boolean D = false;
 
   /**

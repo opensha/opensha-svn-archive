@@ -1,4 +1,4 @@
-package org.scec.sha.fault.demo;
+package org.scec.sha.fault.gui;
 
 import java.awt.*;
 import javax.swing.*;
@@ -20,7 +20,7 @@ import org.scec.util.FaultUtils;
  * @version 1.0
  */
 
-public class CustomSimpleFault extends JFrame {
+public class CustomSimpleFaultEditor extends JFrame {
   private BorderLayout borderLayout1 = new BorderLayout();
   private JPanel jPanel1 = new JPanel();
   private JLabel dipLabel = new JLabel();
@@ -45,7 +45,7 @@ public class CustomSimpleFault extends JFrame {
    *
    * @param applet
    */
-  public CustomSimpleFault(GriddedFaultApplet applet) {
+  public CustomSimpleFaultEditor(GriddedFaultApplet applet) {
     try {
       this.applet = applet;
       jbInit();

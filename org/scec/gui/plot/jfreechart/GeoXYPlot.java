@@ -1,4 +1,4 @@
-package org.scec.sha.fault.demo;
+package org.scec.gui.plot.jfreechart;
 
 import com.jrefinery.chart.*;
 import com.jrefinery.chart.event.*;
@@ -21,7 +21,7 @@ import javax.swing.*;
  * @version    1.0
  */
 
-public class PSHAGridXYPlot
+public class GeoXYPlot
          extends PSHAXYPlot{
 
 
@@ -42,7 +42,7 @@ public class PSHAGridXYPlot
      * @param domainAxis The domain axis.
      * @param rangeAxis The range axis.
      */
-    public PSHAGridXYPlot(XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis) {
+    public GeoXYPlot(XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis) {
         super(data, domainAxis, rangeAxis,false,false);
     }
 
@@ -54,7 +54,7 @@ public class PSHAGridXYPlot
      * @param rangeAxis The range axis.
      * @param renderer The renderer
      */
-    public PSHAGridXYPlot(XYDataset data,
+    public GeoXYPlot(XYDataset data,
                   ValueAxis domainAxis, ValueAxis rangeAxis, XYItemRenderer renderer) {
         super(data, domainAxis, rangeAxis, renderer);
     }
@@ -73,7 +73,7 @@ public class PSHAGridXYPlot
      * @param alpha The alpha-transparency.
      * @param renderer The renderer.
      */
-    public PSHAGridXYPlot(XYDataset data,
+    public GeoXYPlot(XYDataset data,
                   ValueAxis domainAxis, ValueAxis rangeAxis,
                   Insets insets,
                   Paint backgroundPaint, Image backgroundImage, float backgroundAlpha,

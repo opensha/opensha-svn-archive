@@ -1,4 +1,4 @@
-package org.scec.sha.fault.demo;
+package org.scec.sha.fault.gui;
 
 import org.scec.sha.fault.*;
 import org.scec.sha.fault.*;
@@ -1807,7 +1807,7 @@ public class GriddedFaultApplet
       this.faultComboBox.setVisible(false);
       this.faultLabel.setVisible(false);
       allFaultsRadioButton.setVisible(false);
-      CustomSimpleFault custom = new CustomSimpleFault(this);
+      CustomSimpleFaultEditor custom = new CustomSimpleFaultEditor(this);
       custom.pack();
       custom.show();
     } else if(selected.equalsIgnoreCase(CUSTOM_LISTRIC_FAULT)) {
@@ -1815,7 +1815,7 @@ public class GriddedFaultApplet
       this.faultComboBox.setVisible(false);
       this.faultLabel.setVisible(false);
       allFaultsRadioButton.setVisible(false);
-      CustomListricFault custom = new CustomListricFault(this);
+      CustomListricFaultEditor custom = new CustomListricFaultEditor(this);
       custom.pack();
       custom.show();
     } else {

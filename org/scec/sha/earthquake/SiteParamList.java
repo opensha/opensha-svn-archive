@@ -8,6 +8,8 @@ import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
+import org.scec.data.Site;
+import org.scec.data.Location;
 
 /**
  * <p>Title:SiteGuiBean </p>
@@ -23,7 +25,8 @@ import org.scec.sha.imr.AttenuationRelationshipAPI;
 
 
 
-public class SiteGuiBean {
+public class SiteParamList extends ParameterList
+     implements ParameterChangeListener {
 
 // for debug purposes
  protected final static String C = "SiteGuiBean";
@@ -34,20 +37,20 @@ public class SiteGuiBean {
   public final static String LONGITUDE = "Longitude";
   public final static String LATITUDE = "Latitude";
 
+  /**
+   * Site object
+   */
+  private Site site;
+
   // title for site paramter panel
   protected final static String SITE_PARAMS = "Set Site Params";
 
   /**
    * Longitude and Latitude paramerts to be added to the site params list
    */
-  private DoubleParameter longitude = new DoubleParameter(LONGITUDE);
-  private DoubleParameter latitude = new DoubleParameter(LATITUDE);
+  private DoubleParameter longitude = new DoubleParameter(LONGITUDE,new Double(-118));
+  private DoubleParameter latitude = new DoubleParameter(LATITUDE,new Double(34.0));
 
-
-  /**
-   * paremeter list to hold all the site parameters
-   */
-  private ParameterList siteParamList = new ParameterList();
 
   /**
    * editor to hold the site
@@ -83,7 +86,7 @@ public class SiteGuiBean {
   /**
    * constuctor which builds up mapping between IMRs and their related sites
    */
-  public SiteGuiBean(ParameterChangeListener changeListener,
+  public SiteParamList(ParameterChangeListener changeListener,
                      ParameterChangeWarningListener warningListener,
                      ParameterChangeFailListener failListener) {
 
@@ -97,6 +100,10 @@ public class SiteGuiBean {
     classNames.add(C_CLASS_NAME);
     classNames.add(SCEMY_CLASS_NAME);
     classNames.add(F_CLASS_NAME);
+
+    // listen for latitude and longitude so that site object can be updated
+    this.latitude.addParameterChangeListener(this);
+    this.longitude.addParameterChangeListener(this);
 
     // siteMap mantains mapping of each IMR with its supported sites
     siteMap =new ArrayList[classNames.size()];
@@ -120,7 +127,7 @@ public class SiteGuiBean {
       // get the list of sites supported by this IMR
       ListIterator listIt = imr.getSiteParamsIterator();
 
-      // save the Sit Types supported by this IMR in a list
+      // save the Site Types supported by this IMR in a list
       Parameter tempParam;
       while(listIt.hasNext()) {
         tempParam = (Parameter)listIt.next();
@@ -141,13 +148,25 @@ public class SiteGuiBean {
 
 
   /**
+   * this function when longitude or latitude are updated
+   * So, we update the site object as well
+   *
+   * @param e
+   */
+ public void parameterChange(ParameterChangeEvent e) {
+   site.setLocation(new Location(((Double)latitude.getValue()).doubleValue(),
+                                 ((Double)longitude.getValue()).doubleValue()));
+ }
+
+
+  /**
    * Add the site parameters for the list of IMR names passed as the parameter
    *
    * @param imr : IMR for which site needs to be added
    */
-  public ParameterListEditor updateSite(Vector imrNames) {
+  public ParameterListEditor replaceSiteParamsWithIMRs(Vector imrNames) {
 
-   siteParamList.clear();
+   clear();
 
    // make a paramter variable as it is used frequently in this function
    Parameter paramTemp;
@@ -157,8 +176,10 @@ public class SiteGuiBean {
    int numOfIMRs = imrObjects.size();
 
   // add the longitude and latitude paramters
-   siteParamList.addParameter(longitude);
-   siteParamList.addParameter(latitude);
+   addParameter(longitude);
+   addParameter(latitude);
+   site= new Site(new Location(((Double)latitude.getValue()).doubleValue(),
+                                 ((Double)longitude.getValue()).doubleValue()));
 
    // check which IMR has been selected
    for(int i=0; i <numOfIMRs ; ++i) {
@@ -175,9 +196,9 @@ public class SiteGuiBean {
              paramTemp.setValue(strConstraint.getAllowedStrings().get(0));
            }
            //if this paramter has not been added till now
-           if(!siteParamList.containsParameter(paramTemp.getName())) {
-              siteParamList.addParameter(paramTemp);
-
+           if(!containsParameter(paramTemp.getName())) {
+              addParameter(paramTemp);
+              site.addParameter(paramTemp);
            }
          }
      }
@@ -185,28 +206,71 @@ public class SiteGuiBean {
    }
 
    // update the site editor based on the paramlist
-   this.siteEditor = new ParameterListEditor(siteParamList);
+   this.siteEditor = new ParameterListEditor(this);
    siteEditor.setTitle(SITE_PARAMS);
    return siteEditor;
   }
 
   /**
-   * returns the paramert list realted to site
+   * get the site object from the site params
    *
    * @return
    */
- public ParameterList getSiteParamList() {
-   return this.siteParamList;
-
+ public Site getSite() {
+   return site;
  }
+
+
+ /**
+  * get the clone of site object from the site params
+  *
+  * @return
+  */
+ public Site getSiteClone() {
+   Site newSite = new Site(new Location(((Double)latitude.getValue()).doubleValue(),
+                                 ((Double)longitude.getValue()).doubleValue()));
+   Iterator it  = site.getParametersIterator();
+
+   // clone the paramters
+   while(it.hasNext())
+     newSite.addParameter( (ParameterAPI) ((ParameterAPI)it.next()).clone());
+   return site;
+ }
+
+
+ /**
+  * Display the site params based on the site passed as the parameter
+  */
+ public void setSite(Site site) {
+   this.site = site;
+
+   clear();
+
+   // set the latitude and longitude values passed into site object
+  longitude.setValue(site.getLocation().getLongitude());
+  latitude.setValue(site.getLocation().getLatitude());
+
+  // add the longitude and latitude paramters
+  addParameter(longitude);
+  addParameter(latitude);
+
+  ListIterator it  = site.getParametersIterator();
+
+  // add the parameters
+  while(it.hasNext())
+    addParameter((ParameterAPI)it.next());
+ }
+
+
+
 
  /**
   * returns the logitude for this site
   *
   * @return
   */
-public double getLongitude() {
-   return ((Double)siteParamList.getValue(this.LONGITUDE)).doubleValue();
+ public double getLongitude() {
+   return ((Double)getValue(this.LONGITUDE)).doubleValue();
  }
 
  /**
@@ -214,8 +278,8 @@ public double getLongitude() {
   *
   * @return
   */
-public double getLatitude() {
-   return ((Double)siteParamList.getValue(this.LATITUDE)).doubleValue();
+ public double getLatitude() {
+   return ((Double)getValue(this.LATITUDE)).doubleValue();
  }
 
 

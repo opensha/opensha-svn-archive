@@ -1,4 +1,4 @@
-package org.scec.sha.fault.demo;
+package org.scec.sha.fault.gui;
 
 import java.awt.*;
 import java.util.*;
@@ -7,7 +7,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.scec.gui.*;
-
+import org.scec.gui.plot.jfreechart.*;
 import com.jrefinery.chart.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.data.*;
@@ -90,7 +90,7 @@ public class GriddedFaultPlotter extends ArrayList{
 
     }
 
-    protected void setRenderer(PSHAGridXYPlot plot){
+    protected void setRenderer(GeoXYPlot plot){
         switch (plotType) {
             case SHAPES: plot.setRenderer( SHAPE_RENDERER ); break;
             case LINES: plot.setRenderer( LINE_RENDERER ); break;
@@ -176,7 +176,7 @@ public class GriddedFaultPlotter extends ArrayList{
         if( functions == null ) return null;
 
         // build the plot
-         PSHAGridXYPlot plot = new PSHAGridXYPlot(functions, xAxis, yAxis);
+         GeoXYPlot plot = new GeoXYPlot(functions, xAxis, yAxis);
 
 
         /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
@@ -225,7 +225,7 @@ public class GriddedFaultPlotter extends ArrayList{
         xAxis.setAutoRange(true) ;
         yAxis.setAutoRange(true);
         // multi plot
-        OverlaidGridXYPlot plot = new OverlaidGridXYPlot(xAxis, yAxis);
+        OverlaidGeoXYPlot plot = new OverlaidGeoXYPlot(xAxis, yAxis);
         // Get the data
         XYDataset functions ;
         if(this.plotType == this.SHAPES_LINES_AND_SHAPES)
@@ -259,7 +259,7 @@ public class GriddedFaultPlotter extends ArrayList{
 
 
 
-            PSHAGridXYPlot plot1 = new PSHAGridXYPlot(dataSet, null, null);
+            GeoXYPlot plot1 = new GeoXYPlot(dataSet, null, null);
             plot1.setSeriesPaint(seriesPaint);
             plot1.setBackgroundPaint( plotColor );
 

@@ -11,7 +11,7 @@
  *
  */
 
-package org.scec.sha.fault.demo;
+package org.scec.gui.plot.jfreechart;
 import com.jrefinery.data.Range;
 import java.awt.Graphics2D;
 import java.awt.geom.*;
@@ -35,7 +35,7 @@ import java.text.DecimalFormat;
  *
  * @author Bill Kelemen (bill@kelemen-usa.com)
  */
-public class OverlaidGridXYPlot extends OverlaidXYPlot {
+public class OverlaidGeoXYPlot extends OverlaidXYPlot {
 
      /**
       * counter to track the number of times draw function is called
@@ -58,7 +58,7 @@ public class OverlaidGridXYPlot extends OverlaidXYPlot {
          * @param domainAxisLabel The label for the domain axis.
          * @param rangeAxisLabel The label for the range axis.
          */
-        public OverlaidGridXYPlot(String domainAxisLabel, String rangeAxisLabel) {
+        public OverlaidGeoXYPlot(String domainAxisLabel, String rangeAxisLabel) {
 
             super(domainAxisLabel,rangeAxisLabel);
 
@@ -70,7 +70,7 @@ public class OverlaidGridXYPlot extends OverlaidXYPlot {
          * @param domain Horizontal axis to use for all sub-plots.
          * @param range Vertical axis to use for all sub-plots.
          */
-        public OverlaidGridXYPlot(ValueAxis domain, ValueAxis range) {
+        public OverlaidGeoXYPlot(ValueAxis domain, ValueAxis range) {
             super(domain, range);
         }
 

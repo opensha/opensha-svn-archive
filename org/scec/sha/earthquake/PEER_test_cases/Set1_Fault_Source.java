@@ -233,7 +233,7 @@ public class Set1_Fault_Source extends ProbEqkSource {
   public void setTimeSpan(TimeSpan timeSpan) {
 
      // set the probability according to the specifed timespan
-    throw new UnsupportedOperationException(C+"setTimeSpan(timeSpan) Not implemented.");
+    throw new UnsupportedOperationException("setTimeSpan(timeSpan) Not implemented.");
   }
 
 

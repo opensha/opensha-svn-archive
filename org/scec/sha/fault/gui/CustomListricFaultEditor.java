@@ -1,4 +1,4 @@
-package org.scec.sha.fault.demo;
+package org.scec.sha.fault.gui;
 
 import java.awt.*;
 import javax.swing.*;
@@ -22,7 +22,7 @@ import org.scec.util.FaultUtils;
  * @version 1.0
  */
 
-public class CustomListricFault extends JFrame {
+public class CustomListricFaultEditor extends JFrame {
   private Border border1;
   private GriddedFaultApplet applet;
   private BorderLayout borderLayout1 = new BorderLayout();
@@ -50,7 +50,7 @@ public class CustomListricFault extends JFrame {
    *
    * @param applet
    */
-  public CustomListricFault(GriddedFaultApplet applet) {
+  public CustomListricFaultEditor(GriddedFaultApplet applet) {
     try {
       this.applet = applet;
       jbInit();

@@ -28,13 +28,13 @@ import org.scec.param.event.*;
  */
 
 public class Set1_Fault_Forecast extends EqkRupForecast
-    implements ParameterChangeListener{
+    implements ParameterChangeListener {
 
   /**
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("FaultCaseTest1_Fault");
+  private static String  C = new String("Test Set1 Fault");
   private boolean D = false;
 
   /**
@@ -272,8 +272,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
 
     // we have only one source
     if(iSource!=0)
-      throw new RuntimeException(C+":getNumRuptures():"+
-                                 "Only 1 source available, iSource should be equal to 0");
+      throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
 
     return source.getNumRuptures();
   }
@@ -292,8 +291,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   public EqkRupture getRuptureClone(int iSource, int nRupture) {
     // we have only one source
     if(iSource!=0)
-      throw new RuntimeException(C+":getNumRuptures():"+
-                               "Only 1 source available, iSource should be equal to 0");
+      throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
 
     // get the source and return its rupture
     return source.getRuptureClone(nRupture);
@@ -313,8 +311,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
    public EqkRupture getRupture(int iSource, int nRupture) {
      // we have only one source
      if(iSource!=0)
-       throw new RuntimeException(C+":getNumRuptures():"+
-                               "Only 1 source available, iSource should be equal to 0");
+       throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
 
       return source.getRupture(nRupture);
    }
@@ -334,8 +331,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
 
      // we have only one source
    if(iSource!=0)
-     throw new RuntimeException(C+":getNumRuptures():"+
-                                "Only 1 source available, iSource should be equal to 0");
+     throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
 
     return source;
    }

@@ -145,7 +145,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * this method (defined in parent) is deactivated here (info is generated internally)
    **/
   public void setInfo(String info) {
-    throw new UnsupportedOperationException(C+"::::setInfo not allowed for MagFreqDist.");
+    throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
   }
 
