@@ -120,7 +120,7 @@ public class XY_ValuesControlPanel
       }
       function.set(tempX_Val,tempY_Val);
     }
-    function.setName("Manual entered XY Dataset using XY_ValuesControlPanel");
+    function.setName("(manually entered XY data)");
     String metadata = metadataText.getText();
     if(metadata == null || metadata.equals(""))
       function.setInfo(" ");

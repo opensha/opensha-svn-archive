@@ -3,20 +3,13 @@
 
 AttenautionRelationshipApp:
 
-	Add peel-off feature
-
-	Change "Add Trace" to "Add Curve"
+	The "Plot Label" is not visible if used in the "Plot Prefs" button
 
 	Custom data points:
 
-		Change button name from "Add new data" to "Add Data Points"
+		Throw exception if more than two numbers on a line (e.g., 3 goes through right now).
 
-		Change default color to black
-
-		Make sure it throws a sensible exception and popup window if bogus data added
-		(e.g., if y-value missing or something line "1.0p" is entered)
-
-		Ned will play around with it after these things done.
+		If only one number on the line the exception massage is blank
 
 Change app names as follows (on our web site):
 

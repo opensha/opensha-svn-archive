@@ -138,9 +138,9 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
   //private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
-  private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
-  private final static String PUENTE_HILLS_CONTROL_USING_EQK_RUPTURE_CREATION_METHOD =
-      "Set Params for Puente Hills Sceanrio using EqkRupture creation panel";
+  private final static String PUENTE_HILLS_CONTROL_OLD = "Set Params for Puente Hills Scenario (old)";
+  private final static String PUENTE_HILLS_CONTROL =
+      "Set Params for Puente Hills Sceanrio";
   private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
   //private final static String SF_BAY_CONTROL = "Set Params and generate shapefiles for SF Bay Area";
   //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
@@ -768,8 +768,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(HAZUS_CONTROL);
     //this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
+    this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_OLD);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
-    this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_USING_EQK_RUPTURE_CREATION_METHOD);
     //this.controlComboBox.addItem(SF_BAY_CONTROL);
     this.controlComboBox.addItem(MAP_CALC_CONTROL);
     this.controlComboBox.addItem(CALC_PARAMS_CONTROL);
@@ -787,10 +787,10 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       initRegionsOfInterestControl();
     else if(selectedControl.equalsIgnoreCase(this.HAZUS_CONTROL))
       initHazusScenarioControl();
-    else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_CONTROL_USING_EQK_RUPTURE_CREATION_METHOD))
-      initPuenteHillTestScenarioControl();
-    else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL))
-      initPuenteHillScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_CONTROL))
+      initPuenteHillsScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL_OLD))
+      initPuenteHillsScenarioControlOld();
     //else if(selectedControl.equalsIgnoreCase(SF_BAY_CONTROL))
       //initSF_BayAreaScenarioControl();
     else if(selectedControl.equalsIgnoreCase(MAP_CALC_CONTROL))
@@ -845,10 +845,10 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * Initialize the parameter settings for Puente Hills Scenario
    */
-  private void initPuenteHillTestScenarioControl() {
-    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters"+
-        " to Puente Hills Scenario Using the EarthquakeRupture Creation Panel?",
-                                    "Puente Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
+  private void initPuenteHillsScenarioControl() {
+    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters"+
+        " for a Puente Hills scenario?",
+                                    "Puente Hills Control Panel",JOptionPane.OK_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
       if(puenteHillsControlUsingEqkRupture==null)
         puenteHillsControlUsingEqkRupture = new PuenteHillsScenarioControlPanelUsingEqkRuptureCreation(erfGuiBean,imrGuiBean,
@@ -881,9 +881,9 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
  /**
   * Initialize the parameter settings for Puente Hills Scenario
    */
-  private void initPuenteHillScenarioControl() {
-    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to Puente Hills Scenario?",
-                                    "Puente Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
+  private void initPuenteHillsScenarioControlOld() {
+    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters for a Puente Hills scenario?",
+                                    "Puente Hills Control Panel (old)",JOptionPane.OK_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
       if(puenteHillsControl==null)
         puenteHillsControl = new PuenteHillsScenarioControlPanelForSingleMultipleAttenRel(erfGuiBean,imrGuiBean,

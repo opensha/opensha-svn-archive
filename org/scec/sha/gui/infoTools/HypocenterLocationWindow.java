@@ -31,7 +31,7 @@ public class HypocenterLocationWindow extends JDialog {
   private EqkRupture rupture;
 
   //Parameter to set the Hypocenter Location
-  public final static String HYPOCENTER_LOCATION_PARAM_NAME = "Hypocenter Location(Lat,Lon,Depth)";
+  public final static String HYPOCENTER_LOCATION_PARAM_NAME = "Hypocenter Location (Lat,Lon,Depth)";
   private final static String HYPOCENTER_LOCATION_PARAM_INFO = "Sets the Hypocenter Location";
   private StringParameter hypocenterLocationParam;
   private ConstrainedStringParameterEditor hypocenterLocationParamEditor;

@@ -92,7 +92,7 @@ public class EqkRuptureCreationPanel
 
   //label to dispay hypocenter location for eqkRupture
   private final static String hypocenterLocLabelString =
-      "Hypocenter Location(Lat,Lon,Depth): ";
+      "Hypocenter Location (Lat,Lon,Depth): ";
   private JLabel hypocenterLocationLabel = new JLabel();
 
   //title for this ParamerterListEditor
@@ -382,10 +382,10 @@ public class EqkRuptureCreationPanel
    * ERF_RupSelectorGUI  bean.
    */
   public String getParameterListMetadataString() {
-    String metadata = "<br><br>Eqk Rupture Param List: <br>\n" +
+    String metadata = "<br><br>Custom Eqk Rupture Param List: <br>\n" +
         "-------------------------<br>\n" +
-        listEditor.getVisibleParameters().getParameterListMetadataString()
-        + "<br>" + "<br>\nRupture Info: " + eqkRupture.getInfo();
+        listEditor.getVisibleParameters().getParameterListMetadataString();
+//      + "<br>" + "<br>\nRupture Info: " + eqkRupture.getInfo();
     return metadata;
   }
 
