@@ -28,7 +28,7 @@ import org.scec.param.event.*;
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author Nitin gupta and Vipin Gupta
+ * @author Nitin Gupta and Vipin Gupta
  * Date : Sept 23 , 2002
  * @version 1.0
  */
@@ -368,23 +368,29 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
     sourcePanel.repaint();
 
   }
+
   //Start the applet
   public void start() {
   }
+
   //Stop the applet
   public void stop() {
   }
+
   //Destroy the applet
   public void destroy() {
   }
+
   //Get Applet information
   public String getAppletInfo() {
     return "Applet Information";
   }
+
   //Get parameter info
   public String[][] getParameterInfo() {
     return null;
   }
+
   //Main method
   public static void main(String[] args) {
     GroupTestApplet applet = new GroupTestApplet();
@@ -580,7 +586,6 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
 
       graphOn=false;
       togglePlot();
-
    }
 
 

@@ -293,7 +293,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
       }
     };
-    frame.setTitle("Applet Frame");
+    frame.setTitle("Log Plot Tester Applet");
     frame.add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
