@@ -99,6 +99,9 @@ public class GMT_MapGenerator implements Serializable{
   public final static String SHOW_HIWYS_NONE = "None";
   StringParameter showHiwysParam;
 
+  //image counter
+  private static int imageCounter=0;
+
 
   protected ParameterList adjustableParams;
 
@@ -217,7 +220,7 @@ public class GMT_MapGenerator implements Serializable{
     String showHiwys = (String) showHiwysParam.getValue();
 
     String out_ps = fileName + ".ps";
-    out_jpg = fileName + ".jpg";
+    out_jpg = fileName+"-"+imageCounter+ ".jpg";
 
 
     // plot size parameter
@@ -312,6 +315,7 @@ public class GMT_MapGenerator implements Serializable{
       // report to the user whether the operation was successful or not
       e.printStackTrace();
     }
+    ++imageCounter;
      return out_jpg;
   }
 
