@@ -44,7 +44,7 @@ public class PEER_AreaForecast extends EqkRupForecast
   private GutenbergRichterMagFreqDist dist_GR;
 
   // this is the source
-  private PointGR_EqkSource pointGR_EqkSource;
+  private PointPoissonEqkSource pointPoissonEqkSource;
 
 
   /**
@@ -220,10 +220,11 @@ public class PEER_AreaForecast extends EqkRupForecast
       double dip = ((Double) dipParam.getValue()).doubleValue();
 
       // Dip is hard wired at 90 degrees
-      pointGR_EqkSource = new PointGR_EqkSource(new Location(),dist_GR, rake, dip);
+      pointPoissonEqkSource = new PointPoissonEqkSource(new Location(),
+          dist_GR, timeSpan.getDuration(), rake, dip);
 
-      if (D) System.out.println(C+" updateForecast(): rake="+pointGR_EqkSource.getRupture(0).getAveRake() +
-                          "; dip="+ pointGR_EqkSource.getRupture(0).getRuptureSurface().getAveDip());
+      if (D) System.out.println(C+" updateForecast(): rake="+pointPoissonEqkSource.getRupture(0).getAveRake() +
+                          "; dip="+ pointPoissonEqkSource.getRupture(0).getRuptureSurface().getAveDip());
 
     }
     parameterChangeFlag = false;
@@ -282,15 +283,15 @@ public class PEER_AreaForecast extends EqkRupForecast
    */
   public ProbEqkSource getSource(int iSource) {
 
-    pointGR_EqkSource.setLocation(locationList.getLocationAt(iSource));
-    pointGR_EqkSource.setTimeSpan(timeSpan.getDuration());
+    pointPoissonEqkSource.setLocation(locationList.getLocationAt(iSource));
+    pointPoissonEqkSource.setDuration(timeSpan.getDuration());
 
     if (D) System.out.println(iSource + "th source location: "+ locationList.getLocationAt(iSource).toString() +
-                              "; numRups="+pointGR_EqkSource.getNumRuptures());
-    if (D) System.out.println("                     rake="+pointGR_EqkSource.getRupture(0).getAveRake() +
-                              "; dip="+ pointGR_EqkSource.getRupture(0).getRuptureSurface().getAveDip());
+                              "; numRups="+pointPoissonEqkSource.getNumRuptures());
+    if (D) System.out.println("                     rake="+pointPoissonEqkSource.getRupture(0).getAveRake() +
+                              "; dip="+ pointPoissonEqkSource.getRupture(0).getRuptureSurface().getAveDip());
 
-    return pointGR_EqkSource;
+    return pointPoissonEqkSource;
   }
 
   /**

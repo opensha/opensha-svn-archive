@@ -71,7 +71,7 @@ public class PEER_MultiSourceForecast extends EqkRupForecast
   private static final double RAKE = 0.0;
 
   // this is the source used for the area-source points
-  private PointGR_EqkSource pointGR_EqkSource;
+  private PointPoissonEqkSource pointPoissonEqkSource;
 
   // lat & lon data that define the Area source
   private static final double LAT_TOP= 38.901;
@@ -239,11 +239,11 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
       cumRate /= numLocs;
       dist_GR.scaleToCumRate((int) 0,cumRate);
 
-      pointGR_EqkSource = new PointGR_EqkSource(new Location(),dist_GR, RAKE, DIP);
-      pointGR_EqkSource.setTimeSpan(timeSpan.getDuration());
+      pointPoissonEqkSource = new PointPoissonEqkSource(new Location(),
+          dist_GR, timeSpan.getDuration(), RAKE, DIP);
 
-      if (D) System.out.println(C+" updateForecast(): rake="+pointGR_EqkSource.getRupture(0).getAveRake() +
-                          "; dip="+ pointGR_EqkSource.getRupture(0).getRuptureSurface().getAveDip());
+      if (D) System.out.println(C+" updateForecast(): rake="+pointPoissonEqkSource.getRupture(0).getAveRake() +
+                          "; dip="+ pointPoissonEqkSource.getRupture(0).getRuptureSurface().getAveDip());
 
       // now make the fault sources
       double seisUpper = 0;
@@ -330,8 +330,8 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
     int numSrc = this.getNumSources();
 
     if(iSource < numSrc-2 && iSource >= 0) {
-      pointGR_EqkSource.setLocation(locationList.getLocationAt(iSource));
-      return pointGR_EqkSource;
+      pointPoissonEqkSource.setLocation(locationList.getLocationAt(iSource));
+      return pointPoissonEqkSource;
     }
     else if(iSource == numSrc-2)
       return fltSourceB;
