@@ -1114,7 +1114,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
 
  void imgLabel_mouseClicked(MouseEvent e) {
      try{
-     this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE));
+     this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE), "new_peer_win");
      }catch(java.net.MalformedURLException ee){
        JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
                                      "Error Connecting to Internet",JOptionPane.OK_OPTION);

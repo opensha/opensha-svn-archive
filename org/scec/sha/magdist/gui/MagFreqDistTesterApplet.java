@@ -3,6 +3,7 @@ package org.scec.sha.magdist.gui;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.*;
@@ -22,6 +23,7 @@ import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.data.function.*;
 import org.scec.gui.plot.jfreechart.*;
+import org.scec.util.ImageUtils;
 
 
 import org.scec.sha.magdist.*;
@@ -58,8 +60,8 @@ public class MagFreqDistTesterApplet extends JApplet
   protected boolean moCustomAxis = false;
 
   protected String legend=null;
-  protected final static int W = 850;
-  protected final static int H = 670;
+  protected final static int W = 870;
+  protected final static int H = 710;
   protected final static int A1 = 360;
   protected final static int A2 = 430;
   protected final static Font BUTTON_FONT = new java.awt.Font( "Dialog", 1, 11 );
@@ -189,6 +191,15 @@ public class MagFreqDistTesterApplet extends JApplet
 
    private boolean yLog = false;
   JCheckBox jCheckSumDist = new JCheckBox();
+  private JLabel imgLabel = new JLabel();
+
+
+  //images for the OpenSHA
+  private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
+  private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
+
+  //static string for the OPENSHA website
+  private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
 
  static {
@@ -258,6 +269,7 @@ public class MagFreqDistTesterApplet extends JApplet
     mainPanel.setBorder( oval );
 
     this.getContentPane().setLayout(GBL);
+
     rangeComboBox.setBackground(new Color(200, 200, 230));
     rangeComboBox.setForeground(new Color(80, 80, 133));
     rangeComboBox.setMaximumSize(new Dimension(125, 19));
@@ -354,12 +366,21 @@ public class MagFreqDistTesterApplet extends JApplet
         jCheckSumDist_actionPerformed(e);
       }
     });
+
+    //loading the OpenSHA Logo
+   imgLabel.setText("");
+    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        imgLabel_mouseClicked(e);
+      }
+    });
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 4, 4, 4), 0, 0));
     mainPanel.add(buttonPanel,         new GridBagConstraints(0, 1, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
-    this.getContentPane().add(outerPanel,      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(9, 9, 9, 9), 109, 399));
+    this.getContentPane().add(outerPanel,         new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(9, 9, 0, 9), 109, 399));
     outerPanel.add(mainPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ));
     buttonPanel.add(toggleButton,                        new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
@@ -382,6 +403,8 @@ public class MagFreqDistTesterApplet extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 0, 0), 0, 0));
     buttonPanel.add(rangeComboBox,    new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(4, 0, 0, 4), 0, 0));
+    this.getContentPane().add(imgLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 0, 0, 0), 0, 0));
 
 
 
@@ -401,7 +424,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
     mainSplitPane.setBottomComponent( magDistEditor );
     mainSplitPane.setTopComponent( plotPanel );
-    mainSplitPane.setDividerLocation(580);
+    mainSplitPane.setDividerLocation(600);
 
     dataScrollPane.getViewport().add(pointsTextArea, null);
     legendScrollPane.getViewport().add(this.legendPane,null);
@@ -1349,6 +1372,15 @@ public class MagFreqDistTesterApplet extends JApplet
        toMoFunctions.add(cloneMoFunctions.get(i));
      }
 
+  }
+
+  void imgLabel_mouseClicked(MouseEvent e) {
+    try{
+    this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE),"new_mag_win");
+    }catch(java.net.MalformedURLException ee){
+      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
+                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
+    }
   }
 
 }
