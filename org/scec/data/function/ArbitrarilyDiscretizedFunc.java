@@ -154,8 +154,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * so this function returns very quickly. Slows down adding new points
      * slightly.  I assume that most of the time these lists will be created
      * once, then used for plotting and in other functions, in other words
-     * more lookups than inserts.  NOTE: there may be a bug in that minY and maxY
-     * are not updated if a point is removed (see comment in DataPoint2DTreeMap)!
+     * more lookups than inserts.
      */
     public double getMinY(){ return points.getMinY(); }
     /**
@@ -164,8 +163,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * so this function returns very quickly. Slows down adding new points
      * slightly.  I assume that most of the time these lists will be created
      * once, then used for plotting and in other functions, in other words
-     * more lookups than inserts.  NOTE: there may be a bug in that minY and maxY
-     * are not updated if a point is removed (see comment in DataPoint2DTreeMap)!
+     * more lookups than inserts.
      */
      public double getMaxY(){ return points.getMaxY(); }
 

@@ -21,11 +21,6 @@ import org.scec.util.*;
  *  had to reimplement the TreeMap in this package instead of using the
  *  java.util.TreeMap<P>
  *
- *  <b>NOTE:</b> SWR: This class may have a bug in that the min and max are not
- *  recalculated if any points are removed. Need to investigate further. May not
- *  be a problem because currently the series is not modified after all the
- *  points are set. <P>
- *
  *  Java's offical Description for TreeMap<P>
  *
  *  Red-Black tree based implementation of the <tt>SortedMap</tt> interface.
@@ -284,6 +279,7 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
       }
       return minY;
     }
+
     /**
      *  Returns the largest Y-Value in this series
      *
