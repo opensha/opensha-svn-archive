@@ -117,7 +117,11 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   public String[] makeHazusFileSetLocally(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
                                        XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
-                                       EqkRupture eqkRupture) {
+                                       EqkRupture eqkRupture, String metadata) {
+
+    //creating the Metadata file in the GMT_MapGenerator
+    createMapInfoFile(metadata);
+
     eqkRup = eqkRupture;
 
     GMT_PATH="/sw/bin/";
@@ -194,7 +198,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   public String[] makeHazusFileSetUsingServlet(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
                                        XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
-                                       EqkRupture eqkRupture) {
+                                       EqkRupture eqkRupture,String metadata) {
     eqkRup = eqkRupture;
 
     GMT_PATH="/opt/install/gmt/bin/";
@@ -235,12 +239,11 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     String pgvImage = this.JPG_FILE_NAME;
     gmtLines.addAll(getGMT_ScriptLines());
 
-    //get the metadata lines
-    ArrayList metaDataLines = getMapInfoLines();
+
     String img[] = new String[4];
     try{
       imgWebAddr = this.openServletConnection(sa03DataSet, sa10DataSet, pgaDataSet,
-                                              pgvDataSet, gmtLines, metaDataLines);
+                                              pgvDataSet, gmtLines, metadata);
       img[0] = new String(imgWebAddr + sa_03Image);
       img[1] = new String(imgWebAddr + sa_10Image);
       img[2] = new String(imgWebAddr + pgaImage);
@@ -270,7 +273,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   protected String openServletConnection(XYZ_DataSetAPI sa03_xyzDataVals,
       XYZ_DataSetAPI sa10_xyzDataVals, XYZ_DataSetAPI pga_xyzDataVals,
-      XYZ_DataSetAPI pgv_xyzDataVals, ArrayList gmtFileLines,ArrayList metadataLines) throws RuntimeException{
+      XYZ_DataSetAPI pgv_xyzDataVals, ArrayList gmtFileLines,String metadata) throws RuntimeException{
 
     String webaddr=null;
     try{
@@ -293,26 +296,42 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       // Specify the content type that we will send binary data
       servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
 
+
+
+      //as all the dataset have the same X and Y values so just send them once
+      //but as Z data differ for all dataset so send them seperately.
+      ArrayList xValues = sa03_xyzDataVals.getX_DataSet();
+      ArrayList yValues = sa03_xyzDataVals.getY_DataSet();
+
+
       ObjectOutputStream outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
 
 
+
       //sending the ArrayList of the Script Lines to be executed on the server
       outputToServlet.writeObject(gmtFileLines);
+      gmtFileLines = null;
 
+      //sending the X and Y values for all the datasets.
+      outputToServlet.writeObject(xValues);
+      outputToServlet.writeObject(yValues);
 
-      //sending the contents of the SA-0.3sec XYZ data set to the servlet
-      outputToServlet.writeObject(sa03_xyzDataVals);
+      //sending the contents of the SA-0.3sec Z values set to the servlet
+      outputToServlet.writeObject(sa03_xyzDataVals.getZ_DataSet());
+      sa03_xyzDataVals=null;
 
-      //sending the contents of the SA-1.0sec XYZ data set to the servlet
-      outputToServlet.writeObject(sa10_xyzDataVals);
+      //sending the contents of the SA-1.0sec Z values set to the servlet
+      outputToServlet.writeObject(sa10_xyzDataVals.getZ_DataSet());
+      sa10_xyzDataVals = null;
 
-      //sending the contents of the PGA XYZ data set to the servlet
-      outputToServlet.writeObject(pga_xyzDataVals);
+      //sending the contents of the PGA Z values set to the servlet
+      outputToServlet.writeObject(pga_xyzDataVals.getZ_DataSet());
+      pga_xyzDataVals =null;
 
-      //sending the contents of the PGV XYZ data set to the servlet
-      outputToServlet.writeObject(pgv_xyzDataVals);
-
+      //sending the contents of the PGV Z values set to the servlet
+      outputToServlet.writeObject(pgv_xyzDataVals.getZ_DataSet());
+      pgv_xyzDataVals = null;
 
       //sending the static String as IMT names to be prefixed before the names of the
       //the files when generating the files for the Hazus.
@@ -325,7 +344,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       outputToServlet.writeObject(DEFAULT_XYZ_FILE_NAME);
 
       //sending the contents of the Metadata file to the server.
-      outputToServlet.writeObject(metadataLines);
+      outputToServlet.writeObject(metadata);
 
       //sending the name of the MetadataFile to the server.
       outputToServlet.writeObject(METADATA_FILE_NAME);
@@ -343,6 +362,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       inputToServlet.close();
 
     }catch (Exception e) {
+      e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
     }
     return webaddr;
@@ -359,7 +379,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param imtString - the IMT string for labeling and filenames
    * @return
    */
-  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture, String imtString){
+  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,
+                               String imtString, String metadata){
     eqkRup = eqkRupture;
     imt = imtString;
 
@@ -369,7 +390,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     // Add time stamp to script name (for when we want to save many scripts locally)
 //    GMT_SCRIPT_NAME=DEFAULT_GMT_SCRIPT_NAME.substring(0,DEFAULT_GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
 
-    String jpgFileName = super.makeMapLocally(xyzDataSet,imtString);
+    String jpgFileName = super.makeMapLocally(xyzDataSet,imtString,metadata);
 
     // Make a directory and move all the files into it
     String dirName = "UserShakeMaps_"+System.currentTimeMillis();
@@ -402,10 +423,10 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
                                     EqkRupture eqkRupture,
-                                    String imtString) throws RuntimeException{
+                                    String imtString,String metadata) throws RuntimeException{
     eqkRup = eqkRupture;
     imt = imtString;
-    return super.makeMapUsingServlet(xyzDataSet, imtString);
+    return super.makeMapUsingServlet(xyzDataSet, imtString, metadata);
   }
 
   /**
@@ -417,10 +438,11 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param imtString - the IMT string for labeling and filenames
    * @return: URL to the image
    */
-  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,String imtString){
+  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,
+                                      String imtString, String metadata){
     eqkRup = eqkRupture;
     imt = imtString;
-    return super.makeMapUsingWebServer(xyzDataSet, imtString);
+    return super.makeMapUsingWebServer(xyzDataSet, imtString, metadata);
   }
 
 

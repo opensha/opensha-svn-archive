@@ -260,7 +260,10 @@ public class GMT_MapGenerator implements Serializable{
    * @param scaleLabel - a string for the label (with no spaces!)
    * @return - the name of the jpg file
    */
-  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, String scaleLabel){
+  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, String scaleLabel,String metadata){
+
+    //creates the metadata file
+    createMapInfoFile(metadata);
 
     // THESE SHOULD BE SET DYNAMICALLY
     // CURRENTLY HARD CODED FOR Ned and Nitin's Macs
@@ -303,7 +306,7 @@ public class GMT_MapGenerator implements Serializable{
    * @return - the name of the jpg file
    */
   public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
-                                    String scaleLabel) throws RuntimeException{
+                                    String scaleLabel, String metadata) throws RuntimeException{
 
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
@@ -325,11 +328,10 @@ public class GMT_MapGenerator implements Serializable{
     // get the GMT script lines
     ArrayList gmtLines = getGMT_ScriptLines();
 
-    //get the metadata lines
-    ArrayList metaDataLines = getMapInfoLines();
     try{
-      imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metaDataLines);
+      imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metadata);
     }catch(RuntimeException e){
+      e.printStackTrace();
       throw new RuntimeException(e.getMessage());
     }
 
@@ -345,8 +347,9 @@ public class GMT_MapGenerator implements Serializable{
    * @param scaleLabel - a string for the label (with no spaces!)
    * @return - the name of the jpg file
    */
-  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, String scaleLabel){
-
+  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, String scaleLabel, String metadata){
+    //creates the metadata file
+    createMapInfoFile(metadata);
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
     GS_PATH="/usr/bin/gs";
@@ -529,7 +532,7 @@ public class GMT_MapGenerator implements Serializable{
    */
   protected String openServletConnection(XYZ_DataSetAPI xyzDataVals,
                                        ArrayList gmtFileLines,
-                                       ArrayList metadataLines) throws RuntimeException{
+                                       String metadataLines) throws RuntimeException{
 
     String webaddr=null;
     try{
@@ -585,6 +588,7 @@ public class GMT_MapGenerator implements Serializable{
       inputToServlet.close();
 
     }catch (Exception e) {
+      e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
     }
     return webaddr;
@@ -926,17 +930,14 @@ public class GMT_MapGenerator implements Serializable{
     if(logPlotCheck){
       //ArrayList of the Original z Values in the linear space
       ArrayList zLinearVals = xyzDataSet.getZ_DataSet();
-      //ArrayList to add the Z Values as the Log space
-      ArrayList zLogVals = new ArrayList();
       int size = zLinearVals.size();
       for(int i=0;i<size;++i){
         double zVal = ((Double)zLinearVals.get(i)).doubleValue();
         if(zVal == 0)
           zVal = StrictMath.pow(10,-16);
-        zLogVals.add(new Double(0.4343 * StrictMath.log(zVal)));
+        //converting the Z linear Vals to the Log space.
+        zLinearVals.set(i,new Double(0.4343 * StrictMath.log(zVal)));
       }
-      //setting the values in the XYZ Dataset.
-      xyzDataSet.setXYZ_DataSet(xyzDataSet.getX_DataSet(),xyzDataSet.getY_DataSet(),zLogVals);
       SCALE_LABEL = "\"log@-10@-\050"+SCALE_LABEL+"\051\"";
     }
   }

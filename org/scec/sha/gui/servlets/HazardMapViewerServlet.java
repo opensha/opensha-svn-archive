@@ -78,7 +78,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
         fw.close();
         // jpg file name
         map.setMetatdataFileName(metadataFileName);
-        String jpgFileName  = map.makeMapUsingServlet(xyzData,"IML");
+        String jpgFileName  = map.makeMapUsingServlet(xyzData,"IML",metadata);
         ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
         outputToApplet.writeObject(jpgFileName);
         outputToApplet.close();

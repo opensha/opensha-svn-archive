@@ -8,8 +8,7 @@ import java.util.*;
 
 import org.scec.util.RunScript;
 import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
-import org.scec.data.XYZ_DataSetAPI;
-import org.scec.data.ArbDiscretizedXYZ_DataSet;
+
 
 /**
  * <p>Title: HazusAndGMT_MapsGeneratorServlet </p>
@@ -55,19 +54,28 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
 
       //gets the object for the GMT_MapGenerator script
       ArrayList gmtMapScript = (ArrayList) inputFromApplet.readObject();
+      System.out.println("Received GMT Lines");
 
-      //XYZ dataset for SA-0.3sec being received from the applet
-      XYZ_DataSetAPI sa03_xyzDataSet = (XYZ_DataSetAPI)inputFromApplet.readObject();
+      //XValues recieved from the application from the XYZ dataset
+      ArrayList xValues = (ArrayList) inputFromApplet.readObject();
+      //YValues recieved from the application from XYZ dataset
+      ArrayList yValues = (ArrayList) inputFromApplet.readObject();
 
-      //XYZ dataset for SA-1.0sec being received from the applet
-      XYZ_DataSetAPI sa10_xyzDataSet = (XYZ_DataSetAPI)inputFromApplet.readObject();
+      //Z dataset for SA-0.3sec being received from the applet
+      ArrayList sa03_zDataSet = (ArrayList)inputFromApplet.readObject();
+      System.out.println("Received SA-03 object");
 
-      //XYZ dataset for PGA being received from the applet
-      XYZ_DataSetAPI pga_xyzDataSet = (XYZ_DataSetAPI)inputFromApplet.readObject();
+      //Z dataset for SA-1.0sec being received from the applet
+      ArrayList sa10_zDataSet = (ArrayList)inputFromApplet.readObject();
+      System.out.println("Received SA-10 object");
 
-      //XYZ dataset for PGV being received from the applet
-      XYZ_DataSetAPI pgv_xyzDataSet = (XYZ_DataSetAPI)inputFromApplet.readObject();
+      //Z dataset for PGA being received from the applet
+      ArrayList pga_zDataSet = (ArrayList)inputFromApplet.readObject();
+      System.out.println("Received PGA object");
 
+      //Z dataset for PGV being received from the applet
+      ArrayList pgv_zDataSet = (ArrayList)inputFromApplet.readObject();
+      System.out.println("Received PGV object");
 
       //Prefix String being received to be prefixed before the name of the files
       String sa03 = (String)inputFromApplet.readObject();
@@ -80,7 +88,7 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
       String xyzFileName = (String)inputFromApplet.readObject();
 
       //Metadata content: Map Info
-      ArrayList metadataVector = (ArrayList)inputFromApplet.readObject();
+      String metadata = (String)inputFromApplet.readObject();
 
       //Name of the Metadata file
       String metadataFileName = (String)inputFromApplet.readObject();
@@ -103,13 +111,13 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
       bw.close();
 
       //write the metadata file
-      writeMetadataFile(newDir,metadataVector,metadataFileName);
+      writeMetadataFile(newDir,metadata,metadataFileName);
 
       //writes the XYZ data files for each selected IMT.
-      writeXYZ_DataFile(newDir,sa03,xyzFileName,sa03_xyzDataSet);
-      writeXYZ_DataFile(newDir,sa01,xyzFileName,sa10_xyzDataSet);
-      writeXYZ_DataFile(newDir,pga,xyzFileName,pga_xyzDataSet);
-      writeXYZ_DataFile(newDir,pgv,xyzFileName,pgv_xyzDataSet);
+      writeXYZ_DataFile(newDir,sa03,xyzFileName,xValues,yValues,sa03_zDataSet);
+      writeXYZ_DataFile(newDir,sa01,xyzFileName,xValues,yValues,sa10_zDataSet);
+      writeXYZ_DataFile(newDir,pga,xyzFileName,xValues,yValues,pga_zDataSet);
+      writeXYZ_DataFile(newDir,pgv,xyzFileName,xValues,yValues,pgv_zDataSet);
 
       //running the gmtScript file
       String[] command ={"sh","-c","sh "+gmtScriptFile};
@@ -143,16 +151,13 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
    * @param metadataVector
    * @param metadataFileName
    */
-  private void writeMetadataFile(String newDir, ArrayList metadataVector, String metadataFileName){
+  private void writeMetadataFile(String newDir, String metadata, String metadataFileName){
     String metadataFile = newDir+"/"+metadataFileName;
     try{
     //creating the metadata (map Info) file in the new directory created for user
     FileWriter fw = new FileWriter(metadataFile);
     BufferedWriter bw = new BufferedWriter(fw);
-    int size = metadataVector.size();
-
-    for(int i=0;i<size;++i)
-      bw.write(" "+(String)metadataVector.get(i)+"\n");
+    bw.write(" "+metadata+"\n");
     bw.close();
     }catch(Exception e){
       e.printStackTrace();
@@ -169,19 +174,18 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
    * @param xyzDataSet
    */
   private void writeXYZ_DataFile(String dirName,String imtPrefix,String xyzFileName,
-                                     XYZ_DataSetAPI xyzDataSet){
-    //creating the XYZ file from the XYZ file from the XYZ dataSet
-    ArrayList xVals = xyzDataSet.getX_DataSet();
-    ArrayList yVals = xyzDataSet.getY_DataSet();
-    ArrayList zVals = xyzDataSet.getZ_DataSet();
+                                     ArrayList xValues,ArrayList yValues,ArrayList zValues){
+   int xSize = xValues.size();
+   int ySize = yValues.size();
+   int zSize = zValues.size();
+
     //file follows the convention lat, lon and Z value
-    if(xyzDataSet.checkXYZ_NumVals()){
-      int size = xVals.size();
+    if((xSize==ySize) && (ySize==zSize)){
       try{
         FileWriter fw = new FileWriter(dirName+"/"+imtPrefix+"_"+xyzFileName);
         BufferedWriter bw = new BufferedWriter(fw);
-        for(int i=0;i<size;++i){
-          bw.write(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
+        for(int i=0;i<xSize;++i){
+          bw.write(xValues.get(i)+" "+yValues.get(i)+" "+zValues.get(i)+"\n");
         }
         bw.close();
       }catch(Exception e){

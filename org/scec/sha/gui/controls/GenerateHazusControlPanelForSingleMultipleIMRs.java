@@ -36,11 +36,22 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
   private ScenarioShakeMapApp application;
 
 
-  //Stores the XYZ data set for the SA-0.3, SA-1.0, PGA and PGV
+  //Stores the XYZ data set for the SA-0.3, SA-1.0, PGA and PGV, if the calculation
+  //have to be done on the standalone system
   private XYZ_DataSetAPI sa03_xyzdata;
   private XYZ_DataSetAPI sa10_xyzdata;
   private XYZ_DataSetAPI pga_xyzdata;
   private XYZ_DataSetAPI pgv_xyzdata;
+
+  //Stores the full path to the file where the XYZ data set objects are stored, if the
+  //calculation are to be done on the server
+  private String sa_03xyzDataString;
+  private String sa_10xyzDataString;
+  private String pga_xyzDataString;
+  private String pgv_xyzDataString;
+
+  //boolean to check if the calculation are to be done on the server
+  private boolean calcOnServer = true;
 
   //metadata string for the different IMT required to generate the shapefiles for Hazus.
   private String metadata="";
@@ -120,102 +131,181 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * For that it iterates over all the following IMT(SA-1sec, SA-0.3sec, PGA and PGV) to
    * create the dataset for them.
    * @param selectedAttenRels : List of the selected AttenuationRelationships selected
+   * @param selectedAttenRelsWts : List of teh wts of the selected AttenRels
    */
-  private void generateHazusFiles(ArrayList selectedAttenRels){
+  private void generateHazusFiles(ArrayList selectedAttenRels,ArrayList selectedAttenRelWts){
 
     //metadata String
     metadata="<br>Hazus Metadata: \n<br>"+
              "-------------------\n<br>";
 
     //doing for SA
-    hazusCalcForSA(selectedAttenRels);
+    hazusCalcForSA(selectedAttenRels,selectedAttenRelWts);
 
     //Doing for PGV
-    metadata += "IMT = PGV"+"<br>\n";
-    //creating the 2 seperate list for the attenRels selected, for one suuporting
-    //the PGV and results calculated using PGV and other not supporting PGV and result
-    //calculated using the SA at 1sec and multiplying by 37.24*2.54.
-    ArrayList attenRelListSupportingPGV = new ArrayList();
-
-    ArrayList attenRelListNotSupportingPGV = new ArrayList();
-    int size = selectedAttenRels.size();
-    for(int i=0;i<size;++i){
-      AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
-      if(attenRel.isIntensityMeasureSupported(AttenuationRelationship.PGV_NAME))
-        attenRelListSupportingPGV.add(attenRel);
-      else
-        attenRelListNotSupportingPGV.add(attenRel);
-    }
-
-    //arrayList declaration for the Atten Rel not supporting PGV
-    ArrayList list = null;
-    //arrayList declaration for the Atten Rel supporting PGV
-    ArrayList pgvList = null;
-    //XYZ data set supporting the PGV
-    XYZ_DataSetAPI xyzDataSet_PGV = null;
-    //XYZ data set not supporting the PGV
-    XYZ_DataSetAPI xyzDataSet = null;
-
-    if(attenRelListSupportingPGV.size() >0){
-      //if the AttenRels support PGV
-      xyzDataSet_PGV =hazusCalcForPGV(attenRelListSupportingPGV,true);
-      //ArrayLists containing the Z Values for the XYZ dataset.
-      pgvList = xyzDataSet_PGV.getZ_DataSet();
-      size = pgvList.size();
-    }
-
-    if(attenRelListNotSupportingPGV.size()>0){
-      //if the AttenRels do not support PGV
-      xyzDataSet = hazusCalcForPGV(attenRelListNotSupportingPGV,false);
-      //ArrayLists containing the Z Values for the XYZ dataset for attenRel not supporting PGV.
-      list = xyzDataSet.getZ_DataSet();
-      size = list.size();
-    }
-
-    if(xyzDataSet_PGV != null && xyzDataSet!=null){
-      //ArrayList to store the combine( added) result(from Atten that support PGV
-      //and that do not support PGV) of the Z Values for the PGV.
-      ArrayList finalPGV_Vals = new ArrayList();
-      //adding the values from both the above list for PGV( one calculated using PGV
-      //and other calculated using the SA at 1sec and mutipling by the scalar 37.24*2.54).
-      for(int i=0;i<size;++i)
-        finalPGV_Vals.add(new Double(((Double)pgvList.get(i)).doubleValue()+((Double)list.get(i)).doubleValue()));
-      //creating the final dataste for the PGV dataset.
-      pgv_xyzdata = new ArbDiscretizedXYZ_DataSet(xyzDataSet_PGV.getX_DataSet(),
-          xyzDataSet_PGV.getY_DataSet(),finalPGV_Vals);
-    }
-    else{
-      //if XYZ dataset supporting PGV is null
-      if(xyzDataSet_PGV ==null)
-        pgv_xyzdata = xyzDataSet;
-      //if XYZ dataset not supporting PGV is null
-      else if(xyzDataSet ==null)
-        pgv_xyzdata = xyzDataSet_PGV;
-    }
+    doCalcForPGV(selectedAttenRels,selectedAttenRelWts);
 
     //Doing for PGA
-    hazusCalcForPGA(selectedAttenRels);
+    hazusCalcForPGA(selectedAttenRels,selectedAttenRelWts);
 
     step =6;
     //generating the maps for the Hazus
-    application.makeMapForHazus(sa03_xyzdata,sa10_xyzdata,pga_xyzdata,pgv_xyzdata);
+    if(!calcOnServer)
+      application.makeMapForHazus(sa03_xyzdata,sa10_xyzdata,pga_xyzdata,pgv_xyzdata);
+    else
+      application.makeMapForHazus(sa_03xyzDataString,sa_10xyzDataString,pga_xyzDataString,pgv_xyzDataString);
 
     calcProgress.showProgress(false);
     calcProgress.dispose();
     //imtParamEditor.refreshParamEditor();
   }
 
+
+  /**
+   * Does the Hazus Calc for the IMT being PGV for all the selected AttenRels
+   * @param selectedAttenRels
+   */
+  private void doCalcForPGV(ArrayList selectedAttenRels, ArrayList selectedAttenRelsWts){
+
+    step =4;
+    metadata += "IMT = PGV"+"<br>\n";
+
+    //creating the 2 seperate list for the attenRels selected, for one suuporting
+    //the PGV and results calculated using PGV and other not supporting PGV and result
+    //calculated using the SA at 1sec and multiplying by 37.24*2.54.
+    ArrayList attenRelListSupportingPGV = new ArrayList();
+    ArrayList attenRelListNotSupportingPGV = new ArrayList();
+
+    //List of the Attenuations Wts supporting PGV
+    ArrayList attenRelListPGV_Wts = new ArrayList();
+    //List of the Attenuations Wts not supporting PGV
+    ArrayList attenRelListNot_PGV_Wts = new ArrayList();
+
+    int size = selectedAttenRels.size();
+    for(int i=0;i<size;++i){
+      AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
+      if(attenRel.isIntensityMeasureSupported(AttenuationRelationship.PGV_NAME)){
+        attenRelListSupportingPGV.add(attenRel);
+        attenRelListPGV_Wts.add(selectedAttenRelsWts.get(i));
+      }
+      else{
+        attenRelListNotSupportingPGV.add(attenRel);
+        attenRelListNot_PGV_Wts.add(selectedAttenRelsWts.get(i));
+      }
+    }
+    if(!calcOnServer){ // if the calculation are to be done one the standalone system
+      //arrayList declaration for the Atten Rel not supporting PGV
+      ArrayList list = null;
+      //arrayList declaration for the Atten Rel supporting PGV
+      ArrayList pgvList = null;
+      //XYZ data set supporting the PGV
+      XYZ_DataSetAPI xyzDataSet_PGV = null;
+      //XYZ data set not supporting the PGV
+      XYZ_DataSetAPI xyzDataSet = null;
+
+      if(attenRelListSupportingPGV.size() >0){
+        //if the AttenRels support PGV
+        xyzDataSet_PGV =hazusCalcForPGV(attenRelListSupportingPGV,attenRelListPGV_Wts,true);
+        //ArrayLists containing the Z Values for the XYZ dataset.
+        pgvList = xyzDataSet_PGV.getZ_DataSet();
+        size = pgvList.size();
+      }
+
+      if(attenRelListNotSupportingPGV.size()>0){
+        //if the AttenRels do not support PGV
+        xyzDataSet = hazusCalcForPGV(attenRelListNotSupportingPGV,attenRelListNot_PGV_Wts,false);
+        //ArrayLists containing the Z Values for the XYZ dataset for attenRel not supporting PGV.
+        list = xyzDataSet.getZ_DataSet();
+        size = list.size();
+      }
+
+      if(xyzDataSet_PGV != null && xyzDataSet!=null){
+        //ArrayList to store the combine( added) result(from Atten that support PGV
+        //and that do not support PGV) of the Z Values for the PGV.
+        ArrayList finalPGV_Vals = new ArrayList();
+        //adding the values from both the above list for PGV( one calculated using PGV
+        //and other calculated using the SA at 1sec and mutipling by the scalar 37.24*2.54).
+        for(int i=0;i<size;++i)
+          finalPGV_Vals.add(new Double(((Double)pgvList.get(i)).doubleValue()+((Double)list.get(i)).doubleValue()));
+        //creating the final dataste for the PGV dataset.
+        pgv_xyzdata = new ArbDiscretizedXYZ_DataSet(xyzDataSet_PGV.getX_DataSet(),
+            xyzDataSet_PGV.getY_DataSet(),finalPGV_Vals);
+      }
+      else{
+        //if XYZ dataset supporting PGV is null
+        if(xyzDataSet_PGV ==null)
+          pgv_xyzdata = xyzDataSet;
+        //if XYZ dataset not supporting PGV is null
+        else if(xyzDataSet ==null)
+          pgv_xyzdata = xyzDataSet_PGV;
+      }
+    }
+    else{ //if the calc to be done on the server
+      //this function does the PGV calc on the server
+      doCalcForPGV_OnServer(attenRelListSupportingPGV,attenRelListNotSupportingPGV,
+                            attenRelListPGV_Wts,attenRelListNot_PGV_Wts);
+    }
+  }
+
+  /**
+   * This function does the PGV calc on the server and just save the result there.
+   * For Attenuations not supporting PGV it calculates the result by SA-1sec and the
+   * multiplying by  37.24*2.54.
+   * @param attenRelsSupportingPGV : List of AttenRels supporting PGV
+   * @param attenRelsNotSupportingPGV : List of AttenRels not supporting PGV
+   */
+  private void doCalcForPGV_OnServer(ArrayList attenRelsSupportingPGV,
+                                     ArrayList attenRelsNotSupportingPGV,
+                                     ArrayList attenRelListPGV_Wts,
+                                     ArrayList attenRelListNot_PGV_Wts){
+
+    //contains the list of all the selected AttenuationRelationship models
+    ArrayList attenRelList = new ArrayList();
+
+    //contains the list of all the selected AttenuationRelationship with their wts.
+    ArrayList attenRelWtList = new ArrayList();
+
+    //setting the IMT to PGV for the AttenRels supporting PGV
+    int size = attenRelsSupportingPGV.size();
+
+    for(int i=0;i<size;++i){
+      ((AttenuationRelationshipAPI)attenRelsSupportingPGV.get(i)).setIntensityMeasure(AttenuationRelationship.PGV_NAME);
+      attenRelList.add((AttenuationRelationshipAPI)attenRelsSupportingPGV.get(i));
+      attenRelWtList.add(attenRelListPGV_Wts.get(i));
+    }
+
+    //setting the IMT to SA-1sec for the AttenRels not supporting PGV
+    size = attenRelsNotSupportingPGV.size();
+    for(int i=0;i<size;++i){
+      ((AttenuationRelationshipAPI)attenRelsNotSupportingPGV.get(i)).setIntensityMeasure(AttenuationRelationship.SA_NAME);
+      attenRelList.add((AttenuationRelationshipAPI)attenRelsNotSupportingPGV.get(i));
+      attenRelWtList.add(attenRelListNot_PGV_Wts.get(i));
+    }
+    //setting the SA period to 1.0 for the atten rels not supporting PGV
+    this.setSA_PeriodForSelectedIMRs(attenRelsNotSupportingPGV,1.0);
+
+    //as the calculation will be done on the server so saves the XYZ object and returns the path to object file.
+    pgv_xyzDataString = (String)application.generateShakeMap(attenRelList,attenRelWtList,AttenuationRelationship.PGV_NAME);
+
+  }
+
+
+
+
   /**
    * Hazus Calculation for PGA
    * @param selectedAttenRels: List of AttenuationRelation models
    */
-  private void hazusCalcForPGA(ArrayList selectedAttenRels){
+  private void hazusCalcForPGA(ArrayList selectedAttenRels,ArrayList selectedAttenRelsWt){
     step =5;
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i)
       ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(AttenuationRelationship.PGA_NAME);
 
-    pga_xyzdata = application.generateShakeMap(selectedAttenRels);
+    if(!calcOnServer) //if calculation are not to be done on the server
+      pga_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.PGA_NAME);
+    else //if calculation are to be done on the server
+      pga_xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.PGA_NAME);
     metadata += "IMT = PGA"+"\n";
   }
 
@@ -224,7 +314,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * Hazus Calculation for SA at 1sec and 0.3 sec
    * @param selectedAttenRels: List of AttenuationRelation models
    */
-  private void hazusCalcForSA(ArrayList selectedAttenRels){
+  private void hazusCalcForSA(ArrayList selectedAttenRels, ArrayList selectedAttenRelsWt){
     //Doing for SA
     step =2;
     int size = selectedAttenRels.size();
@@ -233,13 +323,23 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
 
     //Doing for SA-0.3sec
     setSA_PeriodForSelectedIMRs(selectedAttenRels,0.3);
-    sa03_xyzdata = application.generateShakeMap(selectedAttenRels);
+
+    //if calculation are not to be done on the server
+    if(!calcOnServer)
+      sa03_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.SA_NAME);
+    else //if calculation are to be done on the server
+      sa_03xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.SA_NAME);
     metadata += "IMT = SA [ SA Damping = 5.0 ; SA Period = 0.3 ]"+"<br>\n";
 
     step =3;
     //Doing for SA-1.0sec
     setSA_PeriodForSelectedIMRs(selectedAttenRels,1.0);
-    sa10_xyzdata = application.generateShakeMap(selectedAttenRels);
+    //if calculation are not to be done on the server
+    if(!calcOnServer)
+      sa10_xyzdata = (XYZ_DataSetAPI)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.SA_NAME);
+    else
+      //if calculation are to be done on the server
+      sa_10xyzDataString = (String)application.generateShakeMap(selectedAttenRels,selectedAttenRelsWt,AttenuationRelationship.SA_NAME);
     metadata += "IMT = SA [ SA Damping = 5.0 ; SA Period = 1.0 ]"+"<br>\n";
   }
 
@@ -249,8 +349,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * @param pgvSupported : Checks if the list of the AttenRels support PGV
    * @return
    */
-  private XYZ_DataSetAPI hazusCalcForPGV(ArrayList attenRelList, boolean pgvSupported){
-    step =4;
+  private XYZ_DataSetAPI hazusCalcForPGV(ArrayList attenRelList, ArrayList attenRelWtList,boolean pgvSupported){
     //if the PGV is supportd by the AttenuationRelationships
     XYZ_DataSetAPI pgvDataSet = null;
     int size = attenRelList.size();
@@ -258,7 +357,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
       for(int i=0;i<size;++i)
         ((AttenuationRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(AttenuationRelationship.PGV_NAME);
 
-      pgvDataSet = application.generateShakeMap(attenRelList);
+      pgvDataSet = (XYZ_DataSetAPI)application.generateShakeMap(attenRelList,attenRelWtList,AttenuationRelationship.PGV_NAME);
       //metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
     }
     else{ //if the List of the attenRels does not support IMT then use SA at 1sec for PGV
@@ -266,19 +365,16 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
         ((AttenuationRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(AttenuationRelationship.SA_NAME);
       this.setSA_PeriodForSelectedIMRs(attenRelList,1.0);
 
-      pgvDataSet = application.generateShakeMap(attenRelList);
+      pgvDataSet = (XYZ_DataSetAPI)application.generateShakeMap(attenRelList,attenRelWtList,AttenuationRelationship.SA_NAME);
 
       //if PGV is not supported by the attenuation then use the SA-1sec pd
       //and multiply the value by scaler 37.24*2.54
       ArrayList zVals = pgvDataSet.getZ_DataSet();
       size = zVals.size();
-      ArrayList newZVals = new ArrayList();
       for(int i=0;i<size;++i){
         double val = ((Double)zVals.get(i)).doubleValue()*37.24*2.54;
-        newZVals.add(new Double(val));
+        zVals.set(i,new Double(val));
       }
-      pgvDataSet = new ArbDiscretizedXYZ_DataSet(pgvDataSet.getX_DataSet(),
-          pgvDataSet.getY_DataSet(), newZVals);
     }
     return pgvDataSet;
   }
@@ -305,35 +401,51 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
 
   /**
    *
-   * @returns the XYZ data set for the SA-0.3sec
+   * @returns the XYZ data set for the SA-0.3sec if calculation are to be done local machine,
+   * else the String to the object file on the server.
    */
-  public XYZ_DataSetAPI getXYZ_DataForSA_03(){
-    return sa03_xyzdata;
+  public Object getXYZ_DataForSA_03(){
+    if(!calcOnServer)
+      return sa03_xyzdata;
+    else
+      return sa_03xyzDataString;
   }
 
 
   /**
    *
-   * @return the XYZ data set for the SA-1.0sec
+   * @return the XYZ data set for the SA-1.0sec if calculation are to be done local machine,
+   * else the String to the object file on the server.
    */
-  public XYZ_DataSetAPI getXYZ_DataForSA_10(){
-    return sa10_xyzdata;
+  public Object getXYZ_DataForSA_10(){
+    if(!calcOnServer)
+      return sa10_xyzdata;
+    else
+      return sa_10xyzDataString;
   }
 
   /**
    *
-   * @return the XYZ data set for the PGA
+   * @return the XYZ data set for the PGA if calculation are to be done local machine,
+   * else the String to the object file on the server.
    */
-  public XYZ_DataSetAPI getXYZ_DataForPGA(){
-    return pga_xyzdata;
+  public Object getXYZ_DataForPGA(){
+    if(!calcOnServer)
+      return pga_xyzdata;
+    else
+      return pga_xyzDataString;
   }
 
   /**
    *
-   * @return the XYZ data set for the PGV
+   * @return the XYZ data set for the PGV if calculation are to be done local machine,
+   * else the String to the object file on the server.
    */
-  public XYZ_DataSetAPI getXYZ_DataForPGV(){
-    return pgv_xyzdata;
+  public Object getXYZ_DataForPGV(){
+    if(!calcOnServer)
+      return pgv_xyzdata;
+    else
+      return pgv_xyzDataString;
   }
 
 
@@ -351,6 +463,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    */
   void generateHazusShapeFilesButton_actionPerformed(ActionEvent e) {
     calcProgress = new CalcProgressBar("Hazus Shape file data","Starting Calculation...");
+    //checks if the calculation are to be done on the server
+    calcOnServer = application.doCalculationOnServer();
     timer = new Timer(200, new ActionListener() {
       public void actionPerformed(ActionEvent evt) {
         if(step == 1)
@@ -383,7 +497,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     //keeps tracks if the user has pressed the button to generate the xyz dataset
     //for prodcing the shapefiles for Hazus.
     setGenerateShapeFilesForHazus(true);
-    generateHazusFiles(application.getSelectedAttenuationRelationships());
+    generateHazusFiles(application.getSelectedAttenuationRelationships(),
+                       application.getSelectedAttenuationRelationshipsWts());
     step = 0;
   }
 

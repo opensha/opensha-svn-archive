@@ -64,7 +64,7 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       String xyzFileName = (String)inputFromApplet.readObject();
 
       //Metadata content: Map Info
-      ArrayList metadataVector = (ArrayList)inputFromApplet.readObject();
+      String metadata = (String)inputFromApplet.readObject();
 
       //Name of the Metadata file
       String metadataFileName = (String)inputFromApplet.readObject();
@@ -91,10 +91,7 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       //creating the metadata (map Info) file in the new directory created for user
       fw = new FileWriter(metadataFile);
       bw = new BufferedWriter(fw);
-      size = metadataVector.size();
-
-      for(int i=0;i<size;++i)
-        bw.write(" "+(String)metadataVector.get(i)+"\n");
+      bw.write(" "+(String)metadata+"\n");
       bw.close();
 
       //creating the XYZ file from the XYZ file from the XYZ dataSet

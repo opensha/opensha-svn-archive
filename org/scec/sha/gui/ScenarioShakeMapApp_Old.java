@@ -595,7 +595,7 @@ public class ScenarioShakeMapApp_Old extends JApplet implements ParameterChangeL
         if(hazusControl !=null && hazusControl.isHazusShapeFilesButtonPressed())
             mapGuiBean.makeHazusShapeFilesAndMap(hazusControl.getXYZ_DataForSA_03(),hazusControl.getXYZ_DataForSA_10(),
                 hazusControl.getXYZ_DataForPGA(),hazusControl.getXYZ_DataForPGV(),
-                erfGuiBean.getRupture(),label,getMapParametersInfo());
+                erfGuiBean.getRupture(),getMapParametersInfo());
           else
             mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
       }catch(RuntimeException e){

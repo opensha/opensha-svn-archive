@@ -97,7 +97,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   /**
    * constuctor which builds up mapping between IMRs and their related sites
    */
-  public SitesInGriddedRegionGuiBean() {
+  public SitesInGriddedRegionGuiBean() throws ParameterException{
 
 
     //defaultVs30.setInfo(this.VS30_DEFAULT_INFO);
@@ -332,15 +332,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
      double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
      double minLongitude=((Double)minLon.getValue()).doubleValue();
      double maxLongitude=((Double)maxLon.getValue()).doubleValue();
-
-
-     if(maxLatitude <= minLatitude){
-       throw new ParameterException("Max Lat. must be greater than Min Lat");
-     }
-
-     if(maxLongitude <= minLongitude){
-       throw new ParameterException("Max Lon. must be greater than Min Lon");
-     }
+     checkLatLonParamValues();
      gridRectRegion= new SitesInGriddedRegion(minLatitude,
                                       maxLatitude,minLongitude,maxLongitude,
                                       ((Double)gridSpacing.getValue()).doubleValue());
@@ -354,7 +346,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
 
     updateGriddedSiteParams();
     if(((String)siteParam.getValue()).equals(SET_ALL_SITES))
-        //if the site params does not need to be set from the CVM
+      //if the site params does not need to be set from the CVM
       gridRectRegion.setSameSiteParams();
 
     //if the site Params needs to be set from the WILLS Site type and SCEC basin depth
@@ -475,5 +467,91 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
       gridRectRegion.setSiteParamsUsing_WILLS_VS30();
     calcProgress.dispose();
   }
+
+  /**
+   * This function makes sure that Lat and Lon params are within the
+   * range and min values are not greater than max values, ie. checks
+   * if the user has filled in the correct values.
+   */
+  private void checkLatLonParamValues() throws ParameterException{
+
+    double minLatitude= ((Double)minLat.getValue()).doubleValue();
+    double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
+    double minLongitude=((Double)minLon.getValue()).doubleValue();
+    double maxLongitude=((Double)maxLon.getValue()).doubleValue();
+
+    if(maxLatitude <= minLatitude){
+      throw new ParameterException("Max Lat. must be greater than Min Lat");
+    }
+
+    if(maxLongitude <= minLongitude){
+      throw new ParameterException("Max Lon. must be greater than Min Lon");
+    }
+
+  }
+
+
+
+  /**
+   * This function creates a Region object on the server and save it there. It then
+   * returns the path to the file where that gridded object is stored.
+   * @return
+   */
+  public String openConnectionToServer() throws ParameterException, RuntimeException{
+
+    //checks the values of the Lat and Lon to see if user has filled in the values correctly.
+    checkLatLonParamValues();
+
+    try{
+
+      if(D) System.out.println("starting to make connection with servlet");
+      URL griddedRegionCalcServlet = new
+                             URL("http://gravity.usc.edu/OpenSHA/servlet/GriddedRegionServlet");
+
+
+      URLConnection servletConnection = griddedRegionCalcServlet.openConnection();
+      if(D) System.out.println("connection established");
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+
+      //sends the parameterList in the SitesInGriddedRegionGuiBean to the server
+      outputToServlet.writeObject(parameterList);
+      //sends the arraylist of site Param List to the server
+      outputToServlet.writeObject(siteParams);
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "actual webaddress of all the gmt related files"
+     // from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      //absolute path of the file where we have stored the file for the region object
+      String regionFilePath =(String)inputToServlet.readObject();
+      //if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
+      inputToServlet.close();
+      return regionFilePath;
+    }catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException("Server is down , please try again later");
+    }
+
+  }
+
+
+
 
 }

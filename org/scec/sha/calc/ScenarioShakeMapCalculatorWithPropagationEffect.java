@@ -148,11 +148,11 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
    * @param isProbAtIML : if true the prob at the specified IML value (next param) will
    * be computed; if false the IML at the specified Prob value (next param) will be computed.
    * @param value : the IML or Prob to compute the map for.
-   * @returns the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
+   * @returns the String  : Absolute path to ArbDiscretized XYZ dataset file on the server
    */
-  public XYZ_DataSetAPI getScenarioShakeMapDataUsingServer(ArrayList selectedAttenRels, ArrayList attenRelWts,
-      SitesInGriddedRegion griddedRegionSites,EqkRupture rupture,
-      boolean isProbAtIML,double value) throws ParameterException {
+  public String getScenarioShakeMapDataUsingServer(ArrayList selectedAttenRels, ArrayList attenRelWts,
+      String griddedRegionSitesFile,EqkRupture rupture,
+      boolean isProbAtIML,double value, String selectedIMT) throws ParameterException {
 
     try{
 
@@ -185,8 +185,8 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
       //sending the Absolute weights of the selected AttenRel to the servlet
       outputToServlet.writeObject(attenRelWts);
 
-      //sending the gridded region object( containing the info. about the sites).
-      outputToServlet.writeObject(griddedRegionSites);
+      //sending the full path to the griddedregion file to the server
+      outputToServlet.writeObject(griddedRegionSitesFile);
 
       //sending the EqkRupture object ( rupture info).
       outputToServlet.writeObject(rupture);
@@ -199,6 +199,9 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
       //based on the selection of the IML@prob or Prob@IML
       outputToServlet.writeObject(new Double(value));
 
+      //sending the selected IMT to the server
+      outputToServlet.writeObject(selectedIMT);
+
       outputToServlet.flush();
       outputToServlet.close();
 
@@ -207,11 +210,11 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
       ObjectInputStream inputToServlet = new
           ObjectInputStream(servletConnection.getInputStream());
 
-      //XYZ data for the scenarioshake as computed using the servlet
-      XYZ_DataSetAPI xyzData =(XYZ_DataSetAPI)inputToServlet.readObject();
+      //Absolute path to the XYZ data for the scenarioshake as computed using the servlet
+      String xyzDataFile =(String)inputToServlet.readObject();
       //if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
       inputToServlet.close();
-      return xyzData;
+      return xyzDataFile;
     }catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");

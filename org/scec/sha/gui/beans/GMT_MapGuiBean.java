@@ -172,12 +172,10 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
   public void makeMap(XYZ_DataSetAPI xyzVals,String metadata){
 
     boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
-    //creating the Metadata file in the GMT_MapGenerator
-    gmtMap.createMapInfoFile(metadata);
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       try{
-        imgName =gmtMap.makeMapUsingServlet(xyzVals," ");
+        imgName =gmtMap.makeMapUsingServlet(xyzVals," ",metadata);
         metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
       }catch(RuntimeException e){
         e.printStackTrace();
@@ -187,7 +185,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     }
     else{
       try{
-        imgName = gmtMap.makeMapLocally(xyzVals," ");
+        imgName = gmtMap.makeMapLocally(xyzVals," ",metadata);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;

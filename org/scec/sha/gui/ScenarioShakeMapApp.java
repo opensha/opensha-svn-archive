@@ -74,6 +74,13 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
 
+  //the path to the file where gridded region is stored if calculation are to be
+ // done on the server
+  private String serverRegionFilePath;
+  //path to the file where the XYZ data file is stored
+  private String serverXYZDataSetFilePath;
+
+
   //reference to the  XYZ dataSet
   private XYZ_DataSetAPI xyzDataSet;
 
@@ -101,6 +108,10 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   //Metadata String
   private static String mapParametersInfo = null;
 
+
+  //boolean to check if the calculation have to be done on the server
+  private boolean calculationFromServer = true;
+
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
@@ -124,12 +135,14 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
   private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
   //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
+  private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
   //private PuenteHillsScenarioTestControlPanel puenteHillsTestControl;
   private PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
   private GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
+  private CalcOptionControl calcControl;
 
   // instances of the GUI Beans which will be shown in this applet
   private EqkRupSelectorGuiBean erfGuiBean;
@@ -469,11 +482,16 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
 
   /**
+   * Updates the Sites Values for each site in the region chosen by the user
    *
-   * @returns the Sites Values for each site in the region chosen by the user
    */
   private void getGriddedRegionSites() throws ParameterException,RuntimeException{
-    griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+    //if calculation have to be done on the local system
+    if(!calculationFromServer)
+      griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+    else //if calculation have to done on the server
+     serverRegionFilePath = sitesGuiBean.openConnectionToServer();
+
   }
 
   /**
@@ -488,35 +506,55 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       probAtIML = false;
   }
 
+
+  /**
+   * If the calculation have to be done on server then returns true else
+   * retun false
+   * @return
+   */
+  public boolean doCalculationOnServer(){
+    return calculationFromServer;
+  }
+
+
   /**
    * This method calculates the probablity or the IML for the selected Gridded Region
    * and stores the value in each vectors(lat-ArrayList, Lon-ArrayList and IML or Prob ArrayList)
    * The IML or prob vector contains value based on what the user has selected in the Map type
    * @param attenRel : Selected AttenuationRelationships
+   * @param imt : Selected IMT
    */
-  public XYZ_DataSetAPI generateShakeMap(ArrayList attenRel) throws ParameterException,RuntimeException{
+  public Object generateShakeMap(ArrayList attenRel, ArrayList attenRelWts, String imt) throws ParameterException,RuntimeException{
     try {
       double value=imlProbValue;
       //if the IMT selected is Log supported then take the log if Prob @ IML
       if(IMT_Info.isIMT_LogNormalDist(imrGuiBean.getSelectedIMT()) && probAtIML)
         value = Math.log(imlProbValue);
-      //does the calculation for the ScenarioShakeMap Calc and gives back a XYZ dataset
-      xyzDataSet = shakeMapCalc.getScenarioShakeMapDataUsingServer(attenRel,attenRelWts,griddedRegionSites,erfGuiBean.getRupture(),probAtIML,value);
-
-      //if the IMT is log supported then take the exponential of the Value if IML @ Prob
-      if(IMT_Info.isIMT_LogNormalDist(imrGuiBean.getSelectedIMT()) && !probAtIML){
-        ArrayList zVals = xyzDataSet.getZ_DataSet();
-        int size = zVals.size();
-        for(int i=0;i<size;++i){
-          double tempVal = Math.exp(((Double)(zVals.get(i))).doubleValue());
-          zVals.set(i,new Double(tempVal));
+      if(!calculationFromServer){
+        //does the calculation for the ScenarioShakeMap Calc and gives back a XYZ dataset
+        xyzDataSet = shakeMapCalc.getScenarioShakeMapData(attenRel,attenRelWts,
+            griddedRegionSites,erfGuiBean.getRupture(),probAtIML,value);
+        //if the IMT is log supported then take the exponential of the Value if IML @ Prob
+        if(IMT_Info.isIMT_LogNormalDist(imt) && !probAtIML){
+          ArrayList zVals = xyzDataSet.getZ_DataSet();
+          int size = zVals.size();
+          for(int i=0;i<size;++i){
+            double tempVal = Math.exp(((Double)(zVals.get(i))).doubleValue());
+            zVals.set(i,new Double(tempVal));
+          }
         }
+        return xyzDataSet;
+      }
+      else{ //if the calculation have to be done on the server
+        //calls the scenario shakemap calculator to generate the map data file on the server
+        serverXYZDataSetFilePath = shakeMapCalc.getScenarioShakeMapDataUsingServer(attenRel,attenRelWts,
+            serverRegionFilePath,erfGuiBean.getRupture(),probAtIML,value,imt);
+        return serverXYZDataSetFilePath;
       }
     }catch(ParameterException e){
       e.printStackTrace();
       throw new ParameterException(e.getMessage());
     }
-    return xyzDataSet;
   }
 
 
@@ -553,19 +591,26 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * space. So this method will always compute maps and its data in the linear space
    * as Hazus does not accepts the log values in the map data.
    */
-  public void makeMapForHazus(XYZ_DataSetAPI datasetForSA_03,XYZ_DataSetAPI datasetForSA_1,
-                              XYZ_DataSetAPI datasetForPGA,XYZ_DataSetAPI datasetForPGV){
+  public void makeMapForHazus(Object datasetForSA_03,Object datasetForSA_1,
+                              Object datasetForPGA,Object datasetForPGV){
     //sets the region coordinates for the GMT using the MapGuiBean
     setRegionForGMT();
 
-    String label = getMapLabel();
+
     //sets the some GMT param to specific value for computation for Hazus files.
     mapGuiBean.setGMT_ParamsForHazus();
     //gets the map parameters info.
     String mapInfo = getMapParametersInfo();
-    //creates the maps and information that goes into the Hazus.
-    mapGuiBean.makeHazusShapeFilesAndMap(datasetForSA_03,datasetForSA_1,
-        datasetForPGA,datasetForPGV,erfGuiBean.getRupture(),label,mapInfo);
+
+    if(!calculationFromServer) //if the calc are to be done on the local system
+      //creates the maps and information that goes into the Hazus.
+      mapGuiBean.makeHazusShapeFilesAndMap((XYZ_DataSetAPI)datasetForSA_03,(XYZ_DataSetAPI)datasetForSA_1,
+      (XYZ_DataSetAPI)datasetForPGA,(XYZ_DataSetAPI)datasetForPGV,erfGuiBean.getRupture(),mapInfo);
+    else //if the calc are to be done on server
+      //creates the maps and information that goes into the Hazus.
+      mapGuiBean.makeHazusShapeFilesAndMap((String)datasetForSA_03,(String)datasetForSA_1,
+      (String)datasetForPGA,(String)datasetForPGV,erfGuiBean.getRupture(),mapInfo);
+
     //sets the GMT parameters changed for Hazus files generation to their original value.
     mapGuiBean.setGMT_ParamsChangedForHazusToOriginalValue();
     //make sures that next time user wants to generate the shapefiles for hazus
@@ -579,11 +624,22 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * IML@Prob or Prob@IML and it value.
    * This function also gets the selected AttenuationRelationships in a ArrayList and their
    * corresponding relative wts.
+   * This function also gets the mode of map calculation ( on server or on local machine)
    */
   public void getGriddedSitesMapTypeAndSelectedAttenRels() throws RuntimeException{
     //gets the IML or Prob selected value
     getIMLorProb();
     try{
+
+      //gets the map data calc option
+      if(calcControl != null){
+        String mapCalcOption = calcControl.getMapCalculationOption();
+        //checks if the user wants to do the calc. on his local system or on the server.
+        if(mapCalcOption.equals(CalcOptionControl.USE_LOCAL))
+          calculationFromServer = false;
+        else
+          calculationFromServer = true;
+      }
       //get the site values for each site in the gridded region
       getGriddedRegionSites();
     }catch(ParameterException ee){
@@ -647,14 +703,16 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private void addButton(){
     timer.start();
     step = 1;
-    generateShakeMap(attenRel);
+    generateShakeMap(attenRel,attenRelWts,imrGuiBean.getSelectedIMT());
     //sets the region coordinates for the GMT using the MapGuiBean
     setRegionForGMT();
     ++step;
 
     String label = getMapLabel();
-    mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,mapParametersInfo);
-
+    if(!calculationFromServer) //if the calculation are to be done on the local system
+      mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,mapParametersInfo);
+    else //if calculation are to be done on the server
+      mapGuiBean.makeMap(serverXYZDataSetFilePath,erfGuiBean.getRupture(),label,mapParametersInfo);
     step =0;
   }
 
@@ -687,7 +745,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     this.controlComboBox.addItem(HAZUS_CONTROL);
     //this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
-
+    this.controlComboBox.addItem(MAP_CALC_CONTROL);
     //this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);
   }
 
@@ -706,7 +764,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       //initPuenteHillTestScenarioControl();
     else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL))
       initPuenteHillScenarioControl();
-
+    else if(selectedControl.equalsIgnoreCase(MAP_CALC_CONTROL))
+      initMapCalcMethodSelectionControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -752,6 +811,13 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
  }
 
 
+ private void initMapCalcMethodSelectionControl(){
+   if(calcControl ==  null)
+     calcControl = new CalcOptionControl(this);
+   calcControl.show();
+   calcControl.pack();
+ }
+
 
   /**
    * Initialize the Interesting regions control panel
@@ -775,6 +841,15 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   public ArrayList getSelectedAttenuationRelationships(){
     attenRel = imrGuiBean.getSelectedIMRs();
     return attenRel;
+  }
+
+  /**
+   *
+   * @returns the selected AttenuationRelationship wts
+   */
+  public ArrayList getSelectedAttenuationRelationshipsWts(){
+    attenRelWts = imrGuiBean.getSelectedIMR_Weights();
+    return attenRelWts;
   }
 
   /**

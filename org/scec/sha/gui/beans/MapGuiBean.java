@@ -4,6 +4,8 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.net.*;
+import java.io.*;
 
 import java.awt.event.*;
 
@@ -62,6 +64,34 @@ public class MapGuiBean extends GMT_MapGuiBean {
   }
 
 
+  /**
+   * this function generates and displays a GMT map for an XYZ dataset using
+   * the settings in the GMT_SettingsControlPanel.
+   *
+   * @param fileName: name of the XYZ file
+   */
+  public void makeMap(String xyzVals,EqkRupture eqkRupture,String imt,String metadata){
+
+    try{
+      // this creates a conection with the server to generate the map on the server
+      //after reading the xyz vals file from the server
+      imgName = openConnectionToServerToGenerateShakeMap(xyzVals,eqkRupture,imt,metadata);
+      //webaddr where all the GMT related file for this map resides on server
+      String webaddr = imgName.substring(0,imgName.lastIndexOf("/")+1);
+      metadata +="<br><p>Click:  "+"<a href=\""+webaddr+"\">"+webaddr+"</a>"+"  to download files.</p>";
+    }catch(RuntimeException e){
+      e.printStackTrace();
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+
+    //checks to see if the user wants to see the Map in a seperate window or not
+    if(this.showMapInSeperateWindow){
+      //adding the image to the Panel and returning that to the applet
+      ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,true);
+    }
+  }
+
 
 
   /**
@@ -78,7 +108,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       try{
-        imgName =((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapUsingServlet(xyzVals,eqkRupture,imt);
+        imgName =((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapUsingServlet(xyzVals,eqkRupture,imt,metadata);
         metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
       }catch(RuntimeException e){
         e.printStackTrace();
@@ -88,7 +118,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     }
     else{
       try{
-        imgName = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapLocally(xyzVals,eqkRupture,imt);
+        imgName = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapLocally(xyzVals,eqkRupture,imt,metadata);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;
@@ -111,18 +141,17 @@ public class MapGuiBean extends GMT_MapGuiBean {
    * @param fileName: name of the XYZ file
    */
   public void makeHazusShapeFilesAndMap(XYZ_DataSetAPI sa03_xyzVals,XYZ_DataSetAPI sa10_xyzVals,
-                      XYZ_DataSetAPI pga_xyzVals, XYZ_DataSetAPI pgv_pgvVals,
-                      EqkRupture eqkRupture,String imt,String metadata){
+                      XYZ_DataSetAPI pga_xyzVals, XYZ_DataSetAPI pgv_xyzVals,
+                      EqkRupture eqkRupture,String metadata){
     String[] imgNames = null;
 
     //boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
      // gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
-    //creating the Metadata file in the GMT_MapGenerator
-    gmtMap.createMapInfoFile(metadata);
+
     //if(gmtServerCheck){
     try{
       imgNames =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
-          pgv_pgvVals,eqkRupture);
+          pgv_xyzVals,eqkRupture,metadata);
       metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
     }catch(RuntimeException e){
       e.printStackTrace();
@@ -148,6 +177,41 @@ public class MapGuiBean extends GMT_MapGuiBean {
 
     //gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(gmtServerCheck));
   }
+
+
+  /**
+   * this function generates and displays a GMT map for XYZ dataset using
+   * the settings in the GMT_SettingsControlPanel.
+   *
+   * @param fileName: name of the XYZ file
+   */
+  public void makeHazusShapeFilesAndMap(String sa03_xyzVals,String sa10_xyzVals,
+                      String pga_xyzVals, String pgv_xyzVals,
+                      EqkRupture eqkRupture,String metadata){
+    String[] imgNames = null;
+    try{
+      imgNames = openConnectionToServerToGenerateShakeMapForHazus(sa03_xyzVals, sa10_xyzVals,
+          pga_xyzVals, pgv_xyzVals,eqkRupture,metadata);
+
+      //webaddr where all the GMT related file for this map resides on server
+      String webaddr = imgNames[0].substring(0,imgNames[0].lastIndexOf("/")+1);
+      /*imgNames =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
+          pgv_xyzVals,eqkRupture,metadata);*/
+      metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
+    }catch(RuntimeException e){
+      e.printStackTrace();
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+
+    //checks to see if the user wants to see the Map in a seperate window or not
+    if(this.showMapInSeperateWindow){
+      //adding the image to the Panel and returning that to the applet
+      ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,true);
+    }
+  }
+
+
 
 
   /**
@@ -205,6 +269,152 @@ public class MapGuiBean extends GMT_MapGuiBean {
       paramList.getParameter(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_NAME).setValue(mapColorScaleValue);
 
   }
+
+
+  /**
+   * Oening the connection to the Server to generate the maps
+   * @param xyzVals
+   * @param eqkRupture
+   * @param imt
+   * @param metadata
+   * @return
+   */
+  private String openConnectionToServerToGenerateShakeMap(String xyzVals,
+      EqkRupture eqkRupture,String imt,String metadata){
+    String webaddr=null;
+    try{
+      if(D) System.out.println("starting to make connection with servlet");
+      URL gmtMapServlet = new
+                          URL("http://gravity.usc.edu/OpenSHA/servlet/ScenarioShakeMapGeneratorServlet");
+
+
+      URLConnection servletConnection = gmtMapServlet.openConnection();
+      if(D) System.out.println("connection established");
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+      //sending the GMT_MapGenerattor ForShakeMaps object to the servlet
+      outputToServlet.writeObject(gmtMap);
+
+      //sending the file of the XYZ file to read the XYZ object from.
+      outputToServlet.writeObject(xyzVals);
+
+      //sending the rupture object to the servlet
+      outputToServlet.writeObject(eqkRupture);
+
+      //sending the selected IMT to the server.
+      outputToServlet.writeObject(imt);
+
+      //sending the metadata of the map to the server.
+      outputToServlet.writeObject(metadata);
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "actual webaddress of all the gmt related files"
+      // from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      webaddr=(String)inputToServlet.readObject();
+      if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
+      inputToServlet.close();
+
+    }catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException("Server is down , please try again later");
+    }
+    return webaddr;
+  }
+
+
+
+  /**
+   * Oening the connection to the Server to generate the maps for Hazus
+   * @param xyzVals
+   * @param eqkRupture
+   * @param imt
+   * @param metadata
+   * @return
+   */
+  private String[] openConnectionToServerToGenerateShakeMapForHazus(String sa_03xyzVals,
+      String sa_10xyzVals,String pga_xyzVals,String pgv_xyzVals,EqkRupture eqkRupture,String metadata){
+    String webaddr[]=null;
+    try{
+      if(D) System.out.println("starting to make connection with servlet");
+      URL gmtMapServlet = new
+                          URL("http://gravity.usc.edu/OpenSHA/servlet/ScenarioShakeMapForHazusGeneratorServlet");
+
+
+      URLConnection servletConnection = gmtMapServlet.openConnection();
+      if(D) System.out.println("connection established");
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+      //sending the GMT_MapGenerattor ForShakeMaps object to the servlet
+      outputToServlet.writeObject(gmtMap);
+
+      //sending the file of the XYZ filename for SA_03 to read the XYZ object from.
+      outputToServlet.writeObject(sa_03xyzVals);
+
+      //sending the file of the XYZ filename for SA_10 to read the XYZ object from.
+      outputToServlet.writeObject(sa_10xyzVals);
+
+      //sending the file of the XYZ filename for PGA to read the XYZ object from.
+      outputToServlet.writeObject(pga_xyzVals);
+
+      //sending the file of the XYZ filename for PGV to read the XYZ object from.
+      outputToServlet.writeObject(pgv_xyzVals);
+
+
+      //sending the rupture object to the servlet
+      outputToServlet.writeObject(eqkRupture);
+
+
+      //sending the metadata of the map to the server.
+      outputToServlet.writeObject(metadata);
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "actual webaddress of all the gmt related files"
+      // from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      webaddr=(String[])inputToServlet.readObject();
+      if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
+      inputToServlet.close();
+
+    }catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException("Server is down , please try again later");
+    }
+    return webaddr;
+  }
+
 
 
 

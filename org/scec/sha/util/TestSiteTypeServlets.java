@@ -59,7 +59,10 @@ public final class TestSiteTypeServlets {
    * @param args
    */
   public static void main(String[] args) {
-    TestSiteTypeServlets testSiteTypeServlets1 = new TestSiteTypeServlets();
+    //TestSiteTypeServlets testSiteTypeServlets1 = new TestSiteTypeServlets();
+    java.util.GregorianCalendar data = new java.util.GregorianCalendar();
+    data.set(1969,11,30);
+    System.out.println("Date: "+data.getTime().getTime());
   }
 
 
