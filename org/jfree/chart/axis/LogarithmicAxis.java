@@ -24,7 +24,7 @@
 * --------------------
 * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
 *
-* Original Author:  Michael Duffy / Eric Thomas;
+* Original Author:  Michael Duffy / Eric Thomas / Edward (Ned) Field and Nitin Gupta;
 * Contributor(s):   David Gilbert (for Object Refinery Limited);
 *                   David M. O'Donnell;
 *
@@ -62,6 +62,14 @@
 *               values is small; changed to use 'NumberFormat.getInstance()'
 *               to create 'numberFormatterObj' (ET);
 * 14-May-2003 : Merged HorizontalLogarithmicAxis and VerticalLogarithmicAxis (DG);
+* 15-Nov-2003 : Removed the Plotting of the Negative Axis and Zero. Also removed the
+*               ("10^n")-style labelling and added the ("10"Power"n" in the superscript form)-
+*               style labelling and it is the default style of labelling. Also functionality
+*               has been that minimum 2 major axis will always be included in the range.
+*               If one uses the ("10"Power"n" in the superscript form) labeling then
+*               user has the capabilty to label the minor axis ticks. A flag has been
+*               added to label the minor axis ticks. But if the user is using the
+*               "1e#" style labelling then he won't be able to label the minor axis.
 *
  */
 
@@ -199,7 +207,8 @@ public class LogarithmicAxis extends NumberAxis {
 
   /**
    * Sets the minorAxisTickLabelFlag to true for showing the tick labels for
-   * minor axis, else sets it false.
+   * minor axis, else sets it false. If "1e#" style of labelling is being used
+   * then this function will not show the minor axis tick labelling if flag set to true.
    * @param flag : sets the minorAxisTickLabel flag to true or false
    */
   public void setMinorAxisTickLabelFlag(boolean flag) {
@@ -768,7 +777,7 @@ public class LogarithmicAxis extends NumberAxis {
             if((y>y0 || (iEndCount-iBegCount>3)) && j!=0 && minorAxisTickLabelFlag)
               tickLabel="";
             else{
-              //removing the previous minor tickLabels if the major axis overlaps any tickLabels
+              //removing the previous minor axis tickLabels if the major axis overlaps any tickLabels
               if(j==0){
                 int size = getTicks().size();
                 --size;
@@ -776,6 +785,7 @@ public class LogarithmicAxis extends NumberAxis {
                   //only remove the previous ticklabel if that has been labelled.
                   Tick tempTick = ((Tick)getTicks().get(size));
                   if(!tempTick.getText().equals(""))
+                    //calling the function to remove the previous ticklLabel
                     removePreviousTick();
                   --size;
                   y0 =  tempTick.getY()-3;
@@ -794,9 +804,7 @@ public class LogarithmicAxis extends NumberAxis {
 
 
   /**
-   * removes the previous nine so that powers of 10 can be displayed
-   * It sees whether there is 9 at previous position which is overlapping
-   * If that is so, then set the text of previous text to be ""
+   * removes the previous tick label so that powers of 10 can be displayed
    */
 
   private void removePreviousTick() {
