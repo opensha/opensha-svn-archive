@@ -220,7 +220,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
         st.nextToken();
         String val =st.nextToken().trim();
         //System.out.println("Val: "+val);
-        if(!val.equalsIgnoreCase("NaN"))
+        if(!val.equalsIgnoreCase("NaN") && !val.equalsIgnoreCase("NA"))
           vals.add(new Double(val));
         else
           vals.add(new Double(Double.NaN));
