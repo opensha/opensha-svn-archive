@@ -15,7 +15,7 @@ import org.scec.param.*;
 public class GMT_MapGenerator {
 
   // PATH where the gmt commands and some others exist.
-  private static String GMT_PATH = "/sw/bin/";
+  public static String GMT_PATH = "/sw/bin/";
 
   // this is the path where general data (e.g., topography) are found:
   private static String SCEC_GMT_DATA_PATH = "/usr/scec/data/gmt/";
@@ -196,7 +196,7 @@ public class GMT_MapGenerator {
    * this function generates GMT map
    * It is a wrapper function around GMT tool
    */
-  public void makeMap(String grdFileName){
+  public String makeMap(String grdFileName){
 
     String grdInputDataFileName = grdFileName;
 
@@ -308,6 +308,7 @@ public class GMT_MapGenerator {
        ++i;
 
 
+
 //       command[2] = "/Applications/Preview.app/Contents/MacOS/Preview " + out_jpg + " &";
 //       RunScript.runScript(command);
 
@@ -315,6 +316,7 @@ public class GMT_MapGenerator {
       // report to the user whether the operation was successful or not
       e.printStackTrace();
     }
+     return out_jpg;
   }
 
   /**
