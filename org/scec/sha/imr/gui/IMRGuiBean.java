@@ -661,15 +661,12 @@ public class IMRGuiBean
 
         if( value.equalsIgnoreCase("none") ) {
             if(D) System.out.println("Value = " + value + ", need to set value param off.");
-            independentsEditor.setParameterInvisible( name, false );
+            independentsEditor.setParameterInvisible( ClassicIMR.SIGMA_TRUNC_LEVEL_NAME, false );
         }
         else{
             if(D) System.out.println("Value = " + value + ", need to set value param on.");
-            independentsEditor.setParameterInvisible( name, true );
+            independentsEditor.setParameterInvisible( ClassicIMR.SIGMA_TRUNC_LEVEL_NAME, true );
         }
-
-        independentsEditor.validate();
-        independentsEditor.repaint();
 
     }
 
