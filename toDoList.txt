@@ -1,16 +1,35 @@
    **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Change the faultParameterEditor as follows:
 
-	If StirlingGriddedFaultFactory model is chosen, add another adjustable parameter to the list:
+Solve Meta Data Problem:  Right now we can't show metadata for the SimplefaultParam and MagFreqDistParam because the info used to create the object and set the value is not stored inside the parameter (actually it is for the MagFreqDistParam, but maybe it shouldn't be).  Instead this info is in the associated Parameter editors.  The solution options are as follows:
 
-		DoubleParameter(name="Ave. Dip Direction", units="degrees", min=0, max=360 default=Math.NaN)
+	1) get the name/value info from Editors rather than the Parameters  The editor can decide what to give.
 
+	2) add a setString() method to the above parameters so that whatever creates the 
+	   object can create and arbitrary string to be returned by the toString method.
+	   The question here is having a standard way of parsing this information.
 
-	then set this value using the setAveDipDir(method) of the StirlingGriddedFaultFactory 
-	after setting everything else but before getting the surface.
+	3) Utilize the dependent parameter list of the DependentParameter object.  Then 
+	   the above types of parameters can can iterated through these in the toString 
+           method.  If we go with this option we'll have to decide how to handle IMTs in
+	   the IMT gui bean.  This option would force one to have a parameterList in order
+	   to add such information.
 
+   One issue is whether we should be using a toString() method since we are only accessing
+   name/value pairs.  Perhaps we should call this getNameValueString() or getMetaData().
+   I kinda like the latter.  Perhaps our gui beans could have a getMetaData() method as
+   well?
+
+Update AttenRelPlotter with new generic graphing components.
+
+HazardCurvApp - 
+
+	after using ERF list, all lines are black.
+
+	maintain state of the plot when peeled off (axis limits and log selections)
+
+	
 
 Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
 
@@ -26,6 +45,8 @@ AttenuationRelationshipApp
 
 GMT_MapGenerator:
 
+	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service
+	
 	Figure out a way to get the following dynamically (can only do this on UNIX?):
 
    		GMT_PATH
