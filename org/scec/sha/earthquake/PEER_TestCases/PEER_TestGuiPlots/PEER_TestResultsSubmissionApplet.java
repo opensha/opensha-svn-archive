@@ -526,13 +526,14 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
     //Frame added to show the user that data processing going on
     JFrame frame = new JFrame();
-    frame.setLocation(getAppletXAxisCenterCoor()-60,getAppletYAxisCenterCoor()-50);
     frame.setTitle("Information");
     JLabel label =new JLabel("Adding new file, Please be patient......");
     frame.getContentPane().setLayout(new GridBagLayout());
     frame.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 230,50));
+    frame.setLocation(getAppletXAxisCenterCoor()-60,getAppletYAxisCenterCoor()-50);
     frame.show();
+    label.paintImmediately(label.getBounds());
 
     //vector which contains all the X and Y values from the function  to be send to the
     //servlet.
@@ -620,12 +621,15 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     //Frame added to show the user that data processing going on
     JFrame frame = new JFrame();
     frame.setTitle("Information");
-    frame.setLocation(getAppletXAxisCenterCoor()-60,getAppletYAxisCenterCoor()-50);
+
     JLabel label =new JLabel("Deletion being performed, Please be patient......");
     frame.getContentPane().setLayout(new GridBagLayout());
     frame.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 230,50));
+    frame.setLocation(getAppletXAxisCenterCoor()-60,getAppletYAxisCenterCoor()-50);
     frame.show();
+    label.paintImmediately(label.getBounds());
+
 
     try{
       if(D)
