@@ -13,26 +13,10 @@ import org.scec.param.event.*;
 
 public class SimpleFaultRuptureERF_Client extends RemoteERF_Client {
 
-  // name of this ERF
-  //public static String  NAME = new String("Server Simple Fault Rupture ERF");
-
   public SimpleFaultRuptureERF_Client() throws java.rmi.RemoteException{
     String className = "org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureERF";
     getRemoteERF(className);
   }
 
-
-  /*
-  * Returns the name of the ERF
-  */
-  /*public String getName() {
-    try {
-      return NAME;
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-    return null;
-  }*/
 
 }

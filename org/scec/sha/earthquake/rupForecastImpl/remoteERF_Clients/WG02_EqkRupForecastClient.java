@@ -18,7 +18,6 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
 public class WG02_EqkRupForecastClient extends RemoteERF_Client {
 
-  //public final static String NAME = new String("Server WG02 Eqk Rup Forecast");
   public final static String className = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
   /**
    * Class default constructor
@@ -73,18 +72,4 @@ public class WG02_EqkRupForecastClient extends RemoteERF_Client {
       e.printStackTrace();
     }
   }
-
-
-  /*
-  * Returns the name of the ERF
-  */
-  /*public String getName() {
-    try {
-      return NAME;
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-    return null;
-  }*/
 }

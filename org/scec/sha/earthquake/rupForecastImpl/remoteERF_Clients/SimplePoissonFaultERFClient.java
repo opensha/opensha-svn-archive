@@ -14,27 +14,10 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
 public class SimplePoissonFaultERFClient extends RemoteERF_Client{
 
-  //name of the ERF
-  //public final static String  NAME = "Server Poisson Fault ERF";
-
   public SimplePoissonFaultERFClient() throws java.rmi.RemoteException{
     String className = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF";
     getRemoteERF(className);
   }
 
-
-
-  /*
-  * Returns the name of the ERF
-  */
-  /*public String getName() {
-    try {
-      return NAME;
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-    return null;
-  }*/
 
 }
