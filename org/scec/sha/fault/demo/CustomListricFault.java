@@ -27,17 +27,20 @@ public class CustomListricFault extends JFrame {
   private GriddedFaultApplet applet;
   private BorderLayout borderLayout1 = new BorderLayout();
   private JPanel jPanel1 = new JPanel();
-  private JLabel dipLabel = new JLabel();
   private JTextArea depthTextArea = new JTextArea();
   private JLabel depthLabel = new JLabel();
   private JButton cancelButton = new JButton();
-  private JTextArea traceTextArea = new JTextArea();
   private JLabel titleLabel = new JLabel();
-  private JTextArea dipTextArea = new JTextArea();
   private JLabel faultNameLabel = new JLabel();
   private JTextField faultNameText = new JTextField();
   private JButton addButton = new JButton();
   private JLabel traceLabel = new JLabel();
+  private JScrollPane jScrollPane1 = new JScrollPane();
+  private JTextArea dipTextArea = new JTextArea();
+  private JLabel dipLabel = new JLabel();
+  private JScrollPane jScrollPane2 = new JScrollPane();
+  private JScrollPane jScrollPane3 = new JScrollPane();
+  private JTextArea traceTextArea = new JTextArea();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 
@@ -62,11 +65,9 @@ public class CustomListricFault extends JFrame {
     this.getContentPane().setLayout(borderLayout1);
     this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     jPanel1.setLayout(gridBagLayout1);
-    dipLabel.setText("Dips (degrees):");
     depthTextArea.setBorder(border1);
     depthTextArea.setMaximumSize(new Dimension(2147483647, 85));
     depthTextArea.setLineWrap(true);
-    depthTextArea.setRows(5);
     depthTextArea.setWrapStyleWord(true);
     depthLabel.setText("Depths:");
     cancelButton.setText("Cancel");
@@ -84,34 +85,37 @@ public class CustomListricFault extends JFrame {
         addButton_actionPerformed(e);
       }
     });
-    traceLabel.setText("Fault Trace:");
-    traceTextArea.setLineWrap(true);
+    traceLabel.setText("Fault Trace (lat lon depth):");
     dipTextArea.setMaximumSize(new Dimension(2147483647, 85));
     dipTextArea.setLineWrap(true);
-    dipTextArea.setRows(5);
+    dipLabel.setText("Dips (degrees):");
+    traceTextArea.setLineWrap(true);
     this.getContentPane().add(jPanel1,  BorderLayout.CENTER);
-    jPanel1.add(dipLabel,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 6, 0, 33), 21, 4));
-    jPanel1.add(titleLabel,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 73, 0, 37), 34, 7));
-    jPanel1.add(dipTextArea,        new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 10), 0, 31));
+    jPanel1.add(titleLabel,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 73, 0, 34), 34, 7));
     jPanel1.add(faultNameLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 6, 0, 48), 29, 7));
-    jPanel1.add(faultNameText,  new GridBagConstraints(0, 1, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 103, 0, 0), 86, 2));
-    jPanel1.add(traceTextArea,  new GridBagConstraints(0, 5, 3, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 12), 0, 123));
-    jPanel1.add(traceLabel,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 6, 0, 25), 51, 2));
-    jPanel1.add(depthTextArea,       new GridBagConstraints(1, 3, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 0, 12), 0, 31));
-    jPanel1.add(depthLabel,  new GridBagConstraints(1, 2, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 13, 0, 83), 32, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 3, 0, 61), 29, 7));
+    jPanel1.add(jScrollPane1,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 3, 0, 0), 0, 85));
+    jPanel1.add(dipLabel,  new GridBagConstraints(0, 1, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(26, 3, 0, 55), 12, 12));
     jPanel1.add(addButton,  new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 60, 12, 0), 4, -3));
-    jPanel1.add(cancelButton,     new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(2, 1, 10, 54), 16, -2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 71, 10, 0), 4, -3));
+    jPanel1.add(cancelButton,  new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 18, 10, 54), 16, -2));
+    jPanel1.add(depthLabel,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 12, 0, 86), 19, 7));
+    jPanel1.add(jScrollPane2,  new GridBagConstraints(1, 3, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 0, 6), 0, 80));
+    jPanel1.add(faultNameText,  new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 97, 0, 0), 73, 2));
+    jPanel1.add(jScrollPane3,  new GridBagConstraints(0, 5, 2, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 3, 0, 6), 0, 149));
+    jPanel1.add(traceLabel,  new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 3, 0, 6), 151, 2));
+    jScrollPane3.getViewport().add(traceTextArea, null);
+    jScrollPane2.getViewport().add(depthTextArea, null);
+    jScrollPane1.getViewport().add(dipTextArea, null);
   }
 
 

@@ -57,7 +57,7 @@ public class CustomSimpleFault extends JFrame {
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
-    dipLabel.setText("Dips (degrees):");
+    dipLabel.setText("Dip (degrees):");
     upperSeismoLabel.setText("Upper Seismo Depth:");
     cancelButton.setText("Cancel");
     cancelButton.addActionListener(new java.awt.event.ActionListener() {
@@ -74,35 +74,35 @@ public class CustomSimpleFault extends JFrame {
         addButton_actionPerformed(e);
       }
     });
-    traceLabel.setText("Fault Trace:");
+    traceLabel.setText("Fault Trace (lat lon depth) :");
     lowerSeismoLabel.setText("Lower Seismo Depth:");
     this.getContentPane().add(jPanel1,  BorderLayout.CENTER);
     jPanel1.add(faultNameLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 10, 0, 25), 29, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 10, 0, 27), 29, 7));
     jPanel1.add(faultNameText,  new GridBagConstraints(2, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 10, 0, 9), 76, 0));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(9, 13, 0, 9), 78, 0));
     jPanel1.add(dipText,  new GridBagConstraints(2, 2, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 10, 0, 9), 76, 0));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(6, 13, 0, 9), 78, 0));
     jPanel1.add(upperSeismoText,  new GridBagConstraints(2, 3, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(6, 10, 0, 9), 76, 0));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(6, 13, 0, 9), 78, 0));
     jPanel1.add(lowerSeismoText,  new GridBagConstraints(2, 4, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 10, 0, 9), 76, 0));
-    jPanel1.add(dipLabel,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 10, 0, 10), 21, 4));
-    jPanel1.add(upperSeismoLabel,  new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 10, 0, 0), 18, 7));
-    jPanel1.add(lowerSeismoLabel,  new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 10, 0, 0), 19, 9));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 13, 6, 9), 78, 0));
     jPanel1.add(traceTextArea,  new GridBagConstraints(0, 6, 3, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 0, 9), 254, 154));
-    jPanel1.add(traceLabel,  new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 10, 0, 0), 51, 2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 0, 9), 254, 152));
+    jPanel1.add(traceLabel,  new GridBagConstraints(0, 5, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 10, 0, 9), 72, 2));
     jPanel1.add(cancelButton,  new GridBagConstraints(1, 7, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 17, 14, 9), 19, -2));
     jPanel1.add(titleLabel,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 27, 0, 9), 27, 7));
     jPanel1.add(addButton,  new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 45, 14, 0), 4, -3));
+    jPanel1.add(dipLabel,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 10, 0, 20), 21, 4));
+    jPanel1.add(upperSeismoLabel,  new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 10, 0, 0), 18, 7));
+    jPanel1.add(lowerSeismoLabel,  new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 10, 0, 0), 19, 9));
   }
 
   /**

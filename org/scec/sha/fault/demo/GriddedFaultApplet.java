@@ -603,7 +603,18 @@ public class GriddedFaultApplet
 
         // Add points data to text area, people can see
         plotter.setLightweight(false);
-        this.currentGriddedSurfaceName = faultComboBox.getSelectedItem().toString();
+
+        boolean listric = false; //whether listric fault is selected or not
+        if(((String)customFrankelComboBox.getSelectedItem()).equalsIgnoreCase(CUSTOM_LISTRIC_FAULT))
+          listric = true;
+
+        if(!this.isCustomFault) // if it is Frankel 1996 fault
+           this.currentGriddedSurfaceName = faultComboBox.getSelectedItem().toString();
+        else if (!listric) // for custom simple
+          this.currentGriddedSurfaceName = this.customSimpleFaultData.getFaultTrace().getName();
+        else // for custom listric
+          this.currentGriddedSurfaceName = this.customFaultTrace.getName();
+
         if ( frame != null )
             frame.setTitle( this.getAppletInfo() + ": " + currentGriddedSurfaceName );
 
@@ -1036,11 +1047,11 @@ public class GriddedFaultApplet
         }
 
         if ( titleLabel != null ) {
-            titleLabel.setText( this.currentGriddedSurfaceName );
+            titleLabel.setText( "" );
             titleLabel.validate();
             titleLabel.repaint();
         }
-
+        currentGriddedSurfaceName="";
 
         validate();
         repaint();
@@ -1528,15 +1539,15 @@ public class GriddedFaultApplet
         buttonPanel.add( plotColorCheckBox, new GridBagConstraints( 7, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 1 ), 0, 0 ) );
 
-        buttonPanel.add( faultComboBox, new GridBagConstraints( 1, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( faultComboBox, new GridBagConstraints( 1, 1, 1, 1, 0.0, 0.0
                       , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
-        buttonPanel.add( faultLabel, new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( faultLabel, new GridBagConstraints( 0, 1, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
         // add the combobox for selecting the Frankel / Custom Fault
-        buttonPanel.add (customFrankelComboBox, new GridBagConstraints( 1, 1, 1, 1, 0.0, 0.0
+        buttonPanel.add (customFrankelComboBox, new GridBagConstraints( 1, 0, 1, 1, 0.0, 0.0
                       , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
-        buttonPanel.add( customFrankelLabel, new GridBagConstraints( 0, 1, 1, 1, 0.0, 0.0
+        buttonPanel.add( customFrankelLabel, new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
 
@@ -1758,6 +1769,7 @@ public class GriddedFaultApplet
     this.customDips = dips;
     this.customDepths = depths;
     this.customFaultTrace = faultTrace;
+    this.isCustomFault = true;
     // draw the custom fault
     this.addPlot();
   }
@@ -1783,6 +1795,9 @@ public class GriddedFaultApplet
    * @param e
    */
   public void customFrankel_actionPerformed(ActionEvent e) {
+
+
+    clearPlot();
 
     // whether user has chosen Frankel / Custom Fault
     String selected = (String)customFrankelComboBox.getSelectedItem();
