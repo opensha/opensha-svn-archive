@@ -525,9 +525,8 @@ public class LogarithmicAxis extends NumberAxis {
           lower = (upper + lower - adjVal) / 2;
         }
       }
-      double range = upper - lower;
-      double upperMargin = getUpperMargin() *range;
-      setRange(new Range(lower, upper+upperMargin), false, false);
+
+      setRange(new Range(lower, upper), false, false);
 
       setupSmallLogFlag();       //setup flag based on bounds values
     }
@@ -675,11 +674,9 @@ public class LogarithmicAxis extends NumberAxis {
     String tickLabel;
     boolean zeroTickFlag = false;
     if(log10TickLabelsInPowerFlag && (iEndCount - iBegCount < 2)){
-      double range = upperBoundVal - lowerBoundVal;
-      double upperMargin = getUpperMargin() *range;
       if(iEndCount == iBegCount)
         ++iEndCount;
-      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount)+upperMargin);
+      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
     }
 
 
@@ -885,11 +882,9 @@ public class LogarithmicAxis extends NumberAxis {
     boolean zeroTickFlag = false;
 
     if(log10TickLabelsInPowerFlag && (iEndCount - iBegCount < 2)){
-      double range = upperBoundVal - lowerBoundVal;
-      double upperMargin = getUpperMargin() *range;
       if(iEndCount == iBegCount)
         ++iEndCount;
-      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount)+upperMargin);
+      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
     }
 
     for (int i = iBegCount; i <= iEndCount; i++) {
@@ -1124,7 +1119,7 @@ public class LogarithmicAxis extends NumberAxis {
           else {
             g2.drawString("10", tick.getX(), tick.getY());
             g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-1));
-            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+16,tick.getY()-6);
+            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+13,tick.getY()-4);
           }
         }
       }
