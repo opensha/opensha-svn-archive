@@ -509,6 +509,7 @@ public class GraphPanel extends JPanel {
         xAxis.setRange(application.getMinX(),application.getMaxX());
 
     }catch(Exception e){
+      //e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"X-Plot Error",JOptionPane.OK_OPTION);
       graphOn=false;
       xLog = false;
@@ -545,6 +546,7 @@ public class GraphPanel extends JPanel {
         yAxis.setRange(application.getMinY(),application.getMaxY());
 
     }catch(Exception e){
+      //e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"Y-Plot Error",JOptionPane.OK_OPTION);
       graphOn=false;
       yLog = false;

@@ -27,8 +27,7 @@ import org.scec.util.SystemPropertiesUtils;
  */
 
 public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
-  JComboBox imrComboBox = new JComboBox();
-  JButton setButton = new JButton();
+  JButton setAllIMRButton = new JButton();
 
   // options to be displayed in the combo box
   public static String SET_ALL_IMRS = "Set Site Params for all IMRs";
@@ -47,6 +46,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
   private IMR_GuiBean imrGuiBean;
   private Site_GuiBean siteGuiBean;
   private JTextPane siteInfoPane = new JTextPane();
+  private JButton setSelectedIMRButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
@@ -58,9 +58,6 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
   public SetSiteParamsFromWebServicesControlPanel(Component parent, IMR_GuiBean imrGuiBean,
                                            Site_GuiBean siteGuiBean) {
     try {
-      // fill the otions in the pick list
-      this.imrComboBox.addItem(SET_ALL_IMRS);
-      this.imrComboBox.addItem(SET_SELECTED_IMR);
       // show the window at center of the parent component
       this.setLocation(parent.getX()+parent.getWidth()/2,
                        parent.getY()+parent.getHeight()/2);
@@ -76,10 +73,10 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
 
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(gridBagLayout1);
-    setButton.setText("Set Site Params from Web Services");
-    setButton.addActionListener(new java.awt.event.ActionListener() {
+    setAllIMRButton.setText("Set Params For All IMRs");
+    setAllIMRButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        setButton_actionPerformed(e);
+        setAllIMRButton_actionPerformed(e);
       }
     });
 
@@ -91,25 +88,31 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
 
     siteInfoPane.setBackground(SystemColor.menu);
     siteInfoPane.setEnabled(false);
-    siteInfoPane.setPreferredSize(new Dimension(812, 64));
+    siteInfoPane.setPreferredSize(new Dimension(300, 64));
     siteInfoPane.setEditable(false);
     siteInfoPane.setText(info);
-    this.getContentPane().add(imrComboBox,   new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(11, 25, 0, 29), 4, 4));
-    this.getContentPane().add(setButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 25, 0, 29), 1, 4));
-    this.getContentPane().add(siteInfoPane,     new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(23, 31, 4, 29), -557, 4));
-
+    setSelectedIMRButton.setText("Set Params For Chosen IMR");
+    setSelectedIMRButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        setSelectedIMRButton_actionPerformed(e);
+      }
+    });
+    this.getContentPane().add(siteInfoPane,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(12, 31, 18, 4), 0, 0));
+    this.getContentPane().add(setAllIMRButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 72, 0, 94), 23, 4));
+    this.getContentPane().add(setSelectedIMRButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 72, 0, 94), 1, 4));
+    this.setTitle("Set Site Related Params" );
   }
 
 
   /**
    * This method is called when user presses the button to set the params from CVM
-   *
+   * for all IMR's
    * @param e
    */
-  void setButton_actionPerformed(ActionEvent e) {
+  void setAllIMRButton_actionPerformed(ActionEvent e) {
 
     // get latitude and longitude
    Double lonMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
@@ -131,22 +134,16 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
      return;
    }
 
-//   System.out.println("willsClass: "+willsClass+"  BasinDepth: "+basinDepth);
-   // now set the paramerts in the IMR
-   if(this.imrComboBox.getSelectedItem().equals(this.SET_SELECTED_IMR)) { // do for selected IMR
-       AttenuationRelationshipAPI imr =   this.imrGuiBean.getSelectedIMR_Instance();
-       setSiteParamsInIMR(imr, lonMin.doubleValue(), latMin.doubleValue(),
-                          willsClass, basinDepth);
-    } else { // do for all IMRS
-       ArrayList imrObjects = this.imrGuiBean.getSupportedIMRs();
-       int num = imrObjects.size();
-       for(int i=0; i<num; ++i)
-         setSiteParamsInIMR((AttenuationRelationshipAPI)imrObjects.get(i),
-                            lonMin.doubleValue(), latMin.doubleValue(),
-                            willsClass, basinDepth);
-    }
-    // reflect the new parameter value in GUI
-    this.siteGuiBean.getParameterListEditor().refreshParamEditor();
+   // do for all IMRS
+   ArrayList imrObjects = this.imrGuiBean.getSupportedIMRs();
+   int num = imrObjects.size();
+   for(int i=0; i<num; ++i)
+     setSiteParamsInIMR((AttenuationRelationshipAPI)imrObjects.get(i),
+                        lonMin.doubleValue(), latMin.doubleValue(),
+                        willsClass, basinDepth);
+
+   // reflect the new parameter value in GUI
+   this.siteGuiBean.getParameterListEditor().refreshParamEditor();
   }
 
 
@@ -173,5 +170,36 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
       }
     }
 
+  }
+
+  /**
+   * This method is called when user presses the button to set the params from CVM
+   * for choosen IMR's
+   * @param e
+   */
+  void setSelectedIMRButton_actionPerformed(ActionEvent e) {
+    // get latitude and longitude
+    Double lonMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
+    Double lonMax = new Double(lonMin.doubleValue());
+    Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
+    Double latMax = new Double(latMin.doubleValue());
+    String willsClass = "NA";
+    double basinDepth = Double.NaN;
+    try{
+      // get the vs 30 and basin depth from cvm
+      willsClass = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
+          latMin.doubleValue(),latMax.doubleValue(),0.5)).get(0);
+      basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
+          latMin.doubleValue(),latMax.doubleValue(),0.5)).get(0)).doubleValue();
+    }catch(Exception ee){
+      JOptionPane.showMessageDialog(this,"Server is down for maintenance, please try again later","Server Problem",JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    // do for selected IMR
+    AttenuationRelationshipAPI imr =   this.imrGuiBean.getSelectedIMR_Instance();
+    setSiteParamsInIMR(imr, lonMin.doubleValue(), latMin.doubleValue(),
+                              willsClass, basinDepth);
+    // reflect the new parameter value in GUI
+   this.siteGuiBean.getParameterListEditor().refreshParamEditor();
   }
 }

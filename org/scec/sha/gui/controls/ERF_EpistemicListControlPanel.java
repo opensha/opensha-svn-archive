@@ -107,16 +107,16 @@ public class ERF_EpistemicListControlPanel extends JFrame
         updateFractileButton_actionPerformed(e);
       }
     });
+    this.getContentPane().add(fractileComboBox,  new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(7, 11, 0, 20), 94, 0));
+    this.getContentPane().add(fractileScrollPane,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(14, 17, 0, 29), 214, 15));
+    this.getContentPane().add(updateFractileButton,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 35, 19, 45), 30, 8));
     this.getContentPane().add(allCurvesCheckBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 11, 0, 34), 0, 3));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 11, 0, 34), 28, 0));
     this.getContentPane().add(avgCheckBox,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 11, 0, 34), 125, 0));
-    this.getContentPane().add(fractileComboBox,  new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(9, 11, 0, 20), 67, 0));
-    this.getContentPane().add(fractileScrollPane,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(14, 17, 0, 29), 187, 296));
-    this.getContentPane().add(updateFractileButton,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 22, 19, 31), 30, 8));
     fractileScrollPane.getViewport().add(fractilesTextArea, null);
 
 
