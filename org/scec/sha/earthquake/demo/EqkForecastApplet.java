@@ -156,8 +156,8 @@ public class EqkForecastApplet extends JApplet
   /**
    * Longitude and Latitude paramerts to be added to the site params list
    */
-  private DoubleParameter longitude = new DoubleParameter(LONGITUDE);
-  private DoubleParameter latitude = new DoubleParameter(LATITUDE);
+  private DoubleParameter longitude = new DoubleParameter(LONGITUDE, new Double(-118), new Double(-114), new Double(-118));
+  private DoubleParameter latitude = new DoubleParameter(LATITUDE, new Double(32.0), new Double(36.0), new Double(34.0));
 
   /**
    * FunctionList declared
@@ -271,7 +271,7 @@ public class EqkForecastApplet extends JApplet
     });
     panel.setLayout(gridBagLayout2);
     jCheckBasin.setBounds(new Rectangle(638, 540, 219, 22));
-    jCheckBasin.setText("Set Basin Depth from CVM Servlet");
+    jCheckBasin.setText("Set Basin Depth from SCEC CVM");
     jCheckBasin.setForeground(new Color(80, 80, 133));
     jCheckBasin.setFont(new java.awt.Font("Dialog", 1, 11));
     jCheckBasin.setBackground(Color.white);
@@ -386,7 +386,7 @@ public class EqkForecastApplet extends JApplet
     jCheckCVM.setBackground(Color.white);
     jCheckCVM.setFont(new java.awt.Font("Dialog", 1, 11));
     jCheckCVM.setForeground(new Color(80, 80, 133));
-    jCheckCVM.setText("Set Vs30 from CVM Servlet");
+    jCheckCVM.setText("Set Vs30 from SCEC CVM");
     jCheckCVM.setBounds(new Rectangle(638, 520, 219, 22));
     this.getContentPane().add(jEqkForecastPanel, null);
     pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
@@ -682,9 +682,11 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     WarningParameterAPI param = e.getWarningParameter();
 
     // do not display messages for focus lost
-    if(!this.buttonClicked) {
-       param.setValueIgnoreWarning( e.getNewValue() );
-       return;
+    if(!this.buttonClicked &&
+       !param.getName().equalsIgnoreCase(LATITUDE) &&
+       !param.getName().equalsIgnoreCase(LONGITUDE)) {
+         param.setValueIgnoreWarning( e.getNewValue() );
+         return;
     }
 
     try{
@@ -1059,9 +1061,23 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
        }
       // get total sources
       int numSources = eqkRupForecast.getNumSources();
+
+      // create a frame for showing progress bar
+    /*  JFrame progressFrame = new JFrame();
+      JProgressBar progress = new JProgressBar(1, numSources);
+
+      // Overlay a string showing the percentage done
+      progress.setStringPainted(true);
+      progressFrame.setSize(200,80);
+      progressFrame.getContentPane().add(progress);
+      progressFrame.show(); */
+
       if(D) System.out.println("number of sources::" +numSources);
       for(int i=0;i < numSources ;i++) {
         if (D) System.out.println("source number:"+i);
+        // set the value for progress bar
+//        progress.setValue(i+1);
+
         // get source and get its distance from the site
         ProbEqkSource source = eqkRupForecast.getSource(i);
         double distance = source.getMinDistance(site);
@@ -1104,6 +1120,9 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
           if(jIMRNum[imr].isSelected()){
              hazFunction[imr].set(j,1-hazFunction[imr].getY(j));
           }
+
+         // close the frame showing progress bar
+  //       progressFrame.dispose();
         }
       }
     }
