@@ -58,7 +58,7 @@ public class Field_2000_AttenRel
     public final static String FLT_TYPE_DEFAULT = "Other/Unknown";
 
     protected WarningDoubleParameter basinDepthParam = null;
-    public final static String BASIN_DEPTH_NAME = "Basin-Depth-2.5";
+    public final static String BASIN_DEPTH_NAME = "Field-Basin-Depth";
     public final static String BASIN_DEPTH_UNITS = "km";
     public final static String BASIN_DEPTH_INFO =
       "Depth to 2.5 km/sec S-wave-velocity isosurface, from SCEC Phase III Report";

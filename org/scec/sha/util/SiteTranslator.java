@@ -257,15 +257,9 @@ public class SiteTranslator
     // Field_2000_AttenRel.BASIN_DEPTH_NAME
     else if (param.getName().equals(Field_2000_AttenRel.BASIN_DEPTH_NAME)) {
       // set basin depth in kms
-      /*if(Double.isNaN(basinDepth)) param.setValue(null);
-                 else  param.setValue(new Double(basinDepth/1000));
-                 return true;*/
-      if (!Double.isNaN(basinDepth)) {
-        param.setValue(new Double(basinDepth / 1000));
-        return true;
-      }
-      return false;
-
+      if(Double.isNaN(basinDepth)) param.setValue(null);
+      else  param.setValue(new Double(basinDepth/1000));
+      return true;
     }
 
     // ShakeMap_2003_AttenRel.WILLS_SITE_NAME
