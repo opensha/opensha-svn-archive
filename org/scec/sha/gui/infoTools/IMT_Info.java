@@ -23,13 +23,13 @@ public final class IMT_Info {
   public final static double MIN_SA = .0001;
   public final static double MAX_SA = 10;
   public final static double NUM_SA = 51;
-  public final static double DEFAULT_SA = 0.5;
+  public final static double DEFAULT_SA = 0.1;
 
   //Default values for the PGA
   public final static double MIN_PGA = .0001;
   public final static double MAX_PGA = 10;
   public final static double NUM_PGA = 51;
-  public final static double DEFAULT_PGA = 0.5;
+  public final static double DEFAULT_PGA = 0.1;
 
 
   //Default values for the PGV
