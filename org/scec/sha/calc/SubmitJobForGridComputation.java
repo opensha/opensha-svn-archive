@@ -35,7 +35,7 @@ public class SubmitJobForGridComputation {
   private static String REMOTE_EXECUTABLE_NAME = "CondorHazardMapCalculator.class";
 
   //Hazard Map Jar file using which executable will be executed
-  private static String HAZARD_MAP_JAR_FILE_NAME= "hazardmapcondor.jar";
+  private static String HAZARD_MAP_JAR_FILE_NAME= "opensha_hazardmapcondor.jar";
 
   // this executable will create a new directory at the machine
   private static String PRE_PROCESSOR_EXECUTABLE = "HazardMapPreProcessor.sh";
@@ -93,7 +93,7 @@ public class SubmitJobForGridComputation {
 
     // this will create  a new directory for each run on the remote machine
     String condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix, ""+remoteMachineSubdirName,
-                        outputDir, PRE_PROCESSOR_CONDOR_SUBMIT, remoteDir, PRE_PROCESSOR_EXECUTABLE);
+                        REMOTE_DIR, PRE_PROCESSOR_CONDOR_SUBMIT, remoteDir, PRE_PROCESSOR_EXECUTABLE);
     //frmap.write("Job "+this.PRE_PROCESSOR_JOB_NAME+" " +condorSubmit+"\n");
 
     //creating the directory using the condor_submit on the remote machine
@@ -222,7 +222,7 @@ public class SubmitJobForGridComputation {
         FileWriter frScript = new FileWriter(outputDir + SUBMIT_DAG_SHELL_SCRIPT_NAME);
         frScript.write("#!/bin/csh\n");
         frScript.write("cd " +remoteDir+" \n");
-        frScript.write("tar -xf "+SUBMIT_TAR_FILES);
+        frScript.write("tar -xf "+SUBMIT_TAR_FILES+"\n");
         frScript.write("condor_submit_dag " + this.DAG_FILE_NAME + "\n");
         frScript.close();
 
@@ -232,13 +232,14 @@ public class SubmitJobForGridComputation {
 
         frFTP.write("#!/bin/csh\n");
         frFTP.write("cd " + outputDir+ "\n");
-        frFTP.write("tar -cf *.sub "+DAG_FILE_NAME);
-        frFTP.write("globus-url-copy gsiftp://gravity.usc.edu" + outputDir +
+        frFTP.write("chmod +x " + SUBMIT_DAG_SHELL_SCRIPT_NAME+ "\n");
+        frFTP.write("tar -cf "+SUBMIT_TAR_FILES+" *.sub "+DAG_FILE_NAME+"\n");
+        frFTP.write("globus-url-copy file:" + outputDir +
                     SUBMIT_TAR_FILES +
-                    " file:" + remoteDir + SUBMIT_TAR_FILES + "\n");
-        frFTP.write("globus-url-copy gsiftp://gravity.usc.edu" + outputDir +
+                    " gsiftp://almaak.usc.edu" + remoteDir + SUBMIT_TAR_FILES + "\n");
+        frFTP.write("globus-url-copy file:" + outputDir +
                     SUBMIT_DAG_SHELL_SCRIPT_NAME +
-                    " file:" + remoteDir + SUBMIT_DAG_SHELL_SCRIPT_NAME + "\n");
+                    "  gsiftp://almaak.usc.edu" + remoteDir + SUBMIT_DAG_SHELL_SCRIPT_NAME + "\n");
         frFTP.close();
         }catch (Exception e) { e.printStackTrace(); }
     }
