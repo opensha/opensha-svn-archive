@@ -429,7 +429,9 @@ public class GriddedFaultApplet
         if ( src.equals( faultComboBox ) ){
             updateChoosenFault();
             rect.disable();
-        } else if(src.equals(this.frankel_StirlingComboBox)) {
+        } else if(src.equals(this.frankel_StirlingComboBox)
+                  && faultTracePlot!=GRIDDED_RUPTURE_PLOT_TYPE) {
+          // refresh on selection of fault model only if it is not grid rupture plot
            addPlot();
         } else  {
 
