@@ -79,20 +79,15 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc {
 
     public double getTotalMomentRate() {
       double sum=0.0;
-      for(int i=0;i<num;++i) {
-          double x=getX(i);
-          double rate=getIncrRate(x);
-          sum+=rate*Math.pow(10,1.5*x+9.05);
-      }
+      for(int i=0;i<num;++i)
+         sum+=momentRateDist.getY(i);
       return sum;
     }
 
     public double getTotalIncrRate() {
       double sum=0.0;
-      for(int i=0;i<num;++i) {
-          double rate=getY(i);
-          sum+=rate;
-      }
+      for(int i=0;i<num;++i)
+         sum+=cumRateDist.getY(i);
       return sum;
     }
 
@@ -107,13 +102,11 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc {
     }
 
     public EvenlyDiscretizedFunc getCumRateDist() {
-      setCumRateDist();
       return cumRateDist;
     }
 
     public EvenlyDiscretizedFunc getMomentRateDist() {
-       setMomentRateDist();
-       return momentRateDist;
+      return momentRateDist;
     }
 
     public void scaleToTotalMomentRate(double newTotMoRate) {
@@ -122,6 +115,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc {
         for(int i=0;i<num;++i) {
             double y=getIncrRate(i);
             y*=scaleRate;
+            points.set(i,new Double(y));
         }
 
     }
@@ -132,6 +126,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc {
         for(int i=0;i<num;++i) {
             double y=getCumRate(i);
             y*=scaleCumRate;
+            points.set(i,new Double(y));
         }
     }
 
@@ -141,24 +136,27 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc {
         for(int i=0;i<num;++i) {
             double y=getCumRate(i);
             y*=scaleCumRate;
+            points.set(i,new Double(y));
         }
    }
 
     public void scaleToIncrRate(double mag, double newRate) {
         double temp=getIncrRate(mag);
-        double scaleIncrRate=temp/newRate;
+        double scaleIncrRate=newRate/temp;
         for(int i=0;i<num;++i) {
             double y=getIncrRate(i);
             y*=scaleIncrRate;
+            points.set(i,new Double(y));
         }
     }
 
     public void scaleToIncrRate(int index, double newRate) {
         double temp=getIncrRate(index);
-        double scaleIncrRate=temp/newRate;
+        double scaleIncrRate=newRate/temp;
         for(int i=0;i<num;++i) {
             double y=getIncrRate(i);
             y*=scaleIncrRate;
+            points.set(i,new Double(y));
         }
     }
 }
