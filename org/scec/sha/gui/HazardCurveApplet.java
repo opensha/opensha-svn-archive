@@ -89,12 +89,14 @@ public class HazardCurveApplet extends JApplet
   private final static String SELECT_CONTROL = "Select Control";
   private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
   private final static String DISAGGREGATION_CONTROL = "Disaggregation";
+  private final static String EPISTEMIC_CONTROL = "ERF Epistemic Control";
   private final static String AXIS_CONTROL = "Axis Control";
 
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
   private DisaggregationControlPanel disaggregationControlPanel;
   private AxisLimitsControlPanel axisControlPanel;
+  private ERF_EpistemicListControlPanel epistemicControlPanel;
 
 
   // mesage needed in case of show data if plot is not available
@@ -1067,6 +1069,7 @@ public class HazardCurveApplet extends JApplet
     this.controlComboBox.addItem(SELECT_CONTROL);
     this.controlComboBox.addItem(PEER_TEST_CONTROL);
     this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
+    this.controlComboBox.addItem(EPISTEMIC_CONTROL);
     this.controlComboBox.addItem(AXIS_CONTROL);
   }
 
@@ -1080,6 +1083,8 @@ public class HazardCurveApplet extends JApplet
       initPEER_TestControl();
     if(selectedControl.equalsIgnoreCase(this.DISAGGREGATION_CONTROL))
       initDisaggregationControl();
+    if(selectedControl.equalsIgnoreCase(this.EPISTEMIC_CONTROL))
+      initEpistemicControl();
     if(selectedControl.equalsIgnoreCase(this.AXIS_CONTROL))
       initAxisControl();
    controlComboBox.setSelectedItem(this.SELECT_CONTROL);
@@ -1104,7 +1109,7 @@ public class HazardCurveApplet extends JApplet
 
 
   /**
-   * Initialize the PEER Test control.
+   * Initialize the Disaggregation control.
    * This function is called when user selects "Disaggregation"
    * from controls pick list
    */
@@ -1114,6 +1119,16 @@ public class HazardCurveApplet extends JApplet
     disaggregationControlPanel.show();
   }
 
+  /**
+    * Initialize the Epistemic list control.
+    * This function is called when user selects "ERF Epistemic Control"
+    * from controls pick list
+    */
+   private void initEpistemicControl() {
+     if(this.epistemicControlPanel==null)
+       epistemicControlPanel = new ERF_EpistemicListControlPanel(this);
+     epistemicControlPanel.show();
+  }
 
   /**
    * Initialize the PEER Test control.
