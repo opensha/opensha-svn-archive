@@ -30,7 +30,7 @@ import java.awt.event.*;
 
 
 public class SitesInGriddedRegionGuiBean extends JPanel implements
-    ParameterChangeListener, ParameterChangeFailListener, Serializable {
+     ParameterChangeFailListener, Serializable {
 
   // for debug purposes
   protected final static String C = "SiteParamList";
@@ -104,11 +104,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     parameterList.addParameter(minLat);
     parameterList.addParameter(maxLat);
     parameterList.addParameter(gridSpacing);
-    minLat.addParameterChangeListener(this);
-    minLon.addParameterChangeListener(this);
-    maxLat.addParameterChangeListener(this);
-    maxLon.addParameterChangeListener(this);
-    gridSpacing.addParameterChangeListener(this);
     minLat.addParameterChangeFailListener(this);
     minLon.addParameterChangeFailListener(this);
     maxLat.addParameterChangeFailListener(this);
@@ -271,12 +266,12 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   }
 
   /**
-   * this function when longitude or latitude are updated
+   * this function updates the GriddedRegion object after checking with the latest
+   * lat and lons and gridSpacing
    * So, we update the site object as well
    *
-   * @param e
    */
-  public void parameterChange(ParameterChangeEvent e) {
+  private void updateGriddedSiteParams() {
 
 
     Vector v= new Vector();
@@ -378,6 +373,8 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
    * @return the object for the SitesInGriddedRegion class
    */
   public SitesInGriddedRegion getGriddedRegionSite(){
+
+    createAndUpdateSites();
     //if the site Params needs to be set from the CVM
     if(this.siteParamCombo.getSelectedItem().toString().equalsIgnoreCase(this.SET_SITES_USING_CVM)){
       setSiteParamsFromCVM();
