@@ -282,9 +282,16 @@ public class GraphPanel extends JPanel {
           String name = totalProbFuncs.get(i).getName();
           String functionInfo = totalProbFuncs.get(i).getInfo();
           if(functionInfo !=null && !functionInfo.trim().equals("")){
-            ++count;
-            String legend = new String(count+")  "+name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
-                                       functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            String legend=null;
+            if(!functionInfo.startsWith("(")){ //if printing the legend for different individual curves
+              ++count;
+              legend = new String(count+")  "+name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
+                                  functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            }
+            else{ //if printing the legend info weighted functionlist with fractiles
+              legend = new String(SystemPropertiesUtils.getSystemLineSeparator()+
+                                  functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            }
             setLegend =new SimpleAttributeSet();
             StyleConstants.setFontSize(setLegend,12);
             StyleConstants.setForeground(setLegend,legendColor[j]);
@@ -439,18 +446,20 @@ public class GraphPanel extends JPanel {
         WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
         if(weightedList.areIndividualCurvesToPlot()){
          DiscretizedFuncList list= weightedList.getWeightedFunctionList();
-         list.get(0).setInfo(weightedList.getInfo()+"\n"+"\t"+list.getInfo());
+         list.get(0).setInfo(weightedList.getInfo()+"\n"+"(a)"+list.getInfo());
          numColorArray.add(new Integer(list.size()));
          totalProbFuncs.addAll(list);
         }
         if(weightedList.areFractilesToPlot()){
           DiscretizedFuncList list= weightedList.getFractileList();
-          list.get(0).setInfo(list.getInfo());
+          list.get(0).setInfo("(b)"+list.getInfo());
           totalProbFuncs.addAll(list);
           numColorArray.add(new Integer(list.size()));
         }
         if(weightedList.isMeanToPlot()){
           DiscretizedFuncAPI meanFunc = weightedList.getMean();
+          String info = meanFunc.getInfo();
+          meanFunc.setInfo("(c)"+info);
           totalProbFuncs.add(meanFunc);
           numColorArray.add(new Integer(1));
         }

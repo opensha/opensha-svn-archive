@@ -228,7 +228,7 @@ public class WeightedFuncList {
     setFractileCurveCalcuations();
     meanFunction = fractileCalc.getMeanCurve();
     isMeanFractileCalculated = true;
-    String meanInfo = "Mean fractile calculated \n";
+    String meanInfo = "Mean fractile \n";
     meanFunction.setInfo(meanInfo);
   }
 
