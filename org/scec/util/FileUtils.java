@@ -42,7 +42,7 @@ public class FileUtils {
         // Debugging
         String S = C + ": loadFile(): ";
         if( D ) System.out.println(S + "Starting");
-
+        if (D) System.out.println(S + fileName);
         // Allocate variables
         ArrayList list = new ArrayList();
         File f = new File(fileName);
@@ -94,7 +94,7 @@ public class FileUtils {
      * @throws IOException
      */
     public static ArrayList loadFile(URL url) throws Exception {
-
+      if(D) System.out.println("url="+url);
         URLConnection uc = url.openConnection();
         ArrayList list = new ArrayList();
         BufferedReader tis =
@@ -118,7 +118,13 @@ public class FileUtils {
      */
     public static ArrayList loadJarFile(String fileName)
        throws  FileNotFoundException, IOException {
-     return loadFile("/"+FileUtils.class.getResource(fileName));
+      try {
+        if(D) System.out.println("FileUtils:filename="+fileName);
+        return loadFile(FileUtils.class.getResource("/"+fileName));
+      }catch(Exception e) {
+        e.printStackTrace();
+        return null;
+      }
    }
 }
 
