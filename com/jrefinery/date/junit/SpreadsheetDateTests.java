@@ -1,11 +1,11 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -------------------------
  * SpreadsheetDateTests.java
  * -------------------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -32,53 +32,72 @@
  * Changes
  * -------
  * 15-Nov-2001 : Version 1 (DG);
+ * 24-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.date.junit;
 
-import junit.framework.*;
-import com.jrefinery.date.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import com.jrefinery.date.SerialDate;
+import com.jrefinery.date.SpreadsheetDate;
 
 /**
  * Tests for the SpreadsheetDate class.
+ *
+ * @author David Gilbert
  */
 public class SpreadsheetDateTests extends TestCase {
 
     /** Date representing 1 January 1900. */
-    protected SerialDate Jan_1_1900;
+    private SerialDate jan1Y1900;
 
     /** Date representing serial day number 2. */
-    protected SerialDate s2;
+    private SerialDate s2;
 
+    /**
+     * Returns a test suite for the JUnit test runner.
+     *
+     * @return the test suite.
+     */
     public static Test suite() {
         return new TestSuite(SpreadsheetDateTests.class);
     }
 
+    /**
+     * Creates a new test case.
+     *
+     * @param name  the name.
+     */
     public SpreadsheetDateTests(String name) {
         super(name);
     }
 
+    /**
+     * Setup.
+     */
     protected void setUp() {
-        Jan_1_1900 = new SpreadsheetDate(1, SerialDate.JANUARY, 1900);
+        jan1Y1900 = new SpreadsheetDate(1, SerialDate.JANUARY, 1900);
         s2 = new SpreadsheetDate(2);
     }
 
     /**
      * 1 January 1900 is a Thursday.
      */
-    public void test1Jan1900_getDayOfWeek() {
-        int dayOfWeek = Jan_1_1900.getDayOfWeek();
-        this.assertEquals(SerialDate.MONDAY, dayOfWeek);
+    public void test1Jan1900GetDayOfWeek() {
+        int dayOfWeek = jan1Y1900.getDayOfWeek();
+        assertEquals(SerialDate.MONDAY, dayOfWeek);
     }
 
     /**
      * 12 November 2001 is a Monday.
      */
-    public void test12Nov2001_getDayOfWeek() {
-        SerialDate nov_12_2001 = new SpreadsheetDate(12, SerialDate.NOVEMBER, 2001);
-        int dayOfWeek = nov_12_2001.getDayOfWeek();
-        this.assertEquals(SerialDate.MONDAY, dayOfWeek);
+    public void test12Nov2001GetDayOfWeek() {
+        SerialDate nov12Y2001 = new SpreadsheetDate(12, SerialDate.NOVEMBER, 2001);
+        int dayOfWeek = nov12Y2001.getDayOfWeek();
+        assertEquals(SerialDate.MONDAY, dayOfWeek);
     }
 
     /**
@@ -86,7 +105,7 @@ public class SpreadsheetDateTests extends TestCase {
      */
     public void testS2GetDayOfMonth() {
         int dayOfMonth = s2.getDayOfMonth();
-        this.assertEquals(1, dayOfMonth);
+        assertEquals(1, dayOfMonth);
     }
 
     /**
@@ -94,7 +113,7 @@ public class SpreadsheetDateTests extends TestCase {
      */
     public void testS2GetMonth() {
         int month = s2.getMonth();
-        this.assertEquals(SerialDate.JANUARY, month);
+        assertEquals(SerialDate.JANUARY, month);
     }
 
     /**
@@ -102,9 +121,12 @@ public class SpreadsheetDateTests extends TestCase {
      */
     public void testS2GetYYYY() {
         int year = s2.getYYYY();
-        this.assertEquals(1900, year);
+        assertEquals(1900, year);
     }
 
+    /**
+     * Day 37986 is 31 Dec 2003.
+     */
     public void test37986() {
         SpreadsheetDate d = new SpreadsheetDate(37986);
         assertEquals(31, d.getDayOfMonth());
@@ -112,6 +134,9 @@ public class SpreadsheetDateTests extends TestCase {
         assertEquals(2003, d.getYYYY());
     }
 
+    /**
+     * Day 37987 is 1 Jan 2004.
+     */
     public void test37987() {
         SpreadsheetDate d = new SpreadsheetDate(37987);
         assertEquals(1, d.getDayOfMonth());
@@ -119,6 +144,9 @@ public class SpreadsheetDateTests extends TestCase {
         assertEquals(2004, d.getYYYY());
     }
 
+    /**
+     * Day 38352 is 31 Dec 2004.
+     */
     public void test38352() {
         SpreadsheetDate d = new SpreadsheetDate(38352);
         assertEquals(31, d.getDayOfMonth());
@@ -126,6 +154,9 @@ public class SpreadsheetDateTests extends TestCase {
         assertEquals(2004, d.getYYYY());
     }
 
+    /**
+     * Day 38353 is 1 Jan 2005.
+     */
     public void test38353() {
         SpreadsheetDate d = new SpreadsheetDate(38353);
         assertEquals(1, d.getDayOfMonth());
@@ -166,31 +197,31 @@ public class SpreadsheetDateTests extends TestCase {
     /**
      * Create a date for 01-Jan-1900: the serial number should be 2.
      */
-    public void test01Jan1900_toSerial() {
-        int serial = Jan_1_1900.toSerial();
-        this.assertEquals(2, serial);
+    public void test01Jan1900ToSerial() {
+        int serial = jan1Y1900.toSerial();
+        assertEquals(2, serial);
     }
 
     /**
      * Create a date for 28-Feb-1900: the serial number should be 60.
      */
-    public void test28Feb1900_toSerial() {
+    public void test28Feb1900ToSerial() {
         SpreadsheetDate d = new SpreadsheetDate(28, SerialDate.FEBRUARY, 1900);
-        this.assertEquals(60, d.toSerial());
+        assertEquals(60, d.toSerial());
     }
 
     /**
      * Create a date for 01-Mar-1900: the serial number should be 61.
      */
-    public void test01Mar1900_toSerial() {
+    public void test01Mar1900ToSerial() {
         SpreadsheetDate d = new SpreadsheetDate(1, SerialDate.MARCH, 1900);
-        this.assertEquals(61, d.toSerial());
+        assertEquals(61, d.toSerial());
     }
 
     /**
      * Create a date for 31-Dec-1999: the serial number should be 36525.
      */
-    public void test31Dec1999_toSerial() {
+    public void test31Dec1999ToSerial() {
         SpreadsheetDate d = new SpreadsheetDate(31, SerialDate.DECEMBER, 1999);
         assertEquals(36525, d.toSerial());
     }
@@ -198,7 +229,7 @@ public class SpreadsheetDateTests extends TestCase {
     /**
      * Create a date for 1-Jan-2000: the serial number should be 36526.
      */
-    public void test01Jan2000_toSerial() {
+    public void test01Jan2000ToSerial() {
         SpreadsheetDate d = new SpreadsheetDate(1, SerialDate.JANUARY, 2000);
         assertEquals(36526, d.toSerial());
     }
@@ -206,7 +237,7 @@ public class SpreadsheetDateTests extends TestCase {
     /**
      * Create a date for 31-Jan-2000: the serial number should be 36556.
      */
-    public void test31Jan2000_toSerial() {
+    public void test31Jan2000ToSerial() {
         SpreadsheetDate d = new SpreadsheetDate(31, SerialDate.JANUARY, 2000);
         assertEquals(36556, d.toSerial());
     }
@@ -214,7 +245,7 @@ public class SpreadsheetDateTests extends TestCase {
     /**
      * Create a date for 01-Feb-2000: the serial number should be 36557.
      */
-    public void test01feb2000_toSerial() {
+    public void test01Feb2000ToSerial() {
         SpreadsheetDate d = new SpreadsheetDate(1, SerialDate.FEBRUARY, 2000);
         assertEquals(36557, d.toSerial());
     }
@@ -222,7 +253,7 @@ public class SpreadsheetDateTests extends TestCase {
     /**
      * Create a date for 28-Feb-2000: the serial number should be 36584.
      */
-    public void test28feb2000_toSerial() {
+    public void test28Feb2000ToSerial() {
         SpreadsheetDate d = new SpreadsheetDate(28, SerialDate.FEBRUARY, 2000);
         assertEquals(36584, d.toSerial());
     }
@@ -230,7 +261,7 @@ public class SpreadsheetDateTests extends TestCase {
     /**
      * Create a date for 29-Feb-2000: the serial number should be 36585.
      */
-    public void test29feb2000_toSerial() {
+    public void test29feb2000ToSerial() {
         SpreadsheetDate d = new SpreadsheetDate(29, SerialDate.FEBRUARY, 2000);
         assertEquals(36585, d.toSerial());
     }
@@ -238,7 +269,7 @@ public class SpreadsheetDateTests extends TestCase {
     /**
      * Create a date for 1-Mar-2000: the serial number should be 36586.
      */
-    public void test1mar2000_toSerial() {
+    public void test1mar2000ToSerial() {
         SpreadsheetDate d = new SpreadsheetDate(1, SerialDate.MARCH, 2000);
         assertEquals(36586, d.toSerial());
     }

@@ -1,11 +1,11 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * --------------------
  * SerialDateTests.java
  * --------------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -32,62 +32,93 @@
  * Changes
  * -------
  * 15-Nov-2001 : Version 1 (DG);
+ * 25-Jun-2002 : Removed unnecessary import (DG);
+ * 24-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.date.junit;
 
-import java.util.*;
-import junit.framework.*;
-import com.jrefinery.date.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import com.jrefinery.date.SerialDate;
 
+/**
+ * Some JUnit tests for the SerialDate class.
+ *
+ * @author David Gilbert
+ */
 public class SerialDateTests extends TestCase {
 
-    protected SerialDate Nov_9_2001;
+    /** Date representing November 9. */
+    private SerialDate nov9Y2001;
 
+    /**
+     * Creates a new test case.
+     *
+     * @param name  the name.
+     */
     public SerialDateTests(String name) {
         super(name);
     }
 
+    /**
+     * Returns a test suite for the JUnit test runner.
+     *
+     * @return the test suite.
+     */
     public static Test suite() {
         return new TestSuite(SerialDateTests.class);
     }
 
+    /**
+     * Test set up.
+     */
     protected void setUp() {
-        Nov_9_2001 = SerialDate.createInstance(9, SerialDate.NOVEMBER, 2001);
+        this.nov9Y2001 = SerialDate.createInstance(9, SerialDate.NOVEMBER, 2001);
+    }
+
+    /**
+     * 9 Nov 2001 plus two months should be 9 Jan 2002.
+     */
+    public void testAddMonthsTo9Nov2001() {
+        SerialDate jan9Y2002 = SerialDate.addMonths(2, this.nov9Y2001);
+        SerialDate answer = SerialDate.createInstance(9, 1, 2002);
+        assertEquals(answer, jan9Y2002);
     }
 
     /**
      * Monday preceding Friday 9 November 2001 should be 5 November.
      */
     public void testMondayPrecedingFriday9Nov2001() {
-        SerialDate mondayBefore = SerialDate.getPreviousDayOfWeek(SerialDate.MONDAY, Nov_9_2001);
-        this.assertEquals(5, mondayBefore.getDayOfMonth());
+        SerialDate mondayBefore = SerialDate.getPreviousDayOfWeek(SerialDate.MONDAY, nov9Y2001);
+        assertEquals(5, mondayBefore.getDayOfMonth());
     }
 
     /**
      * Monday following Friday 9 November 2001 should be 12 November.
      */
     public void testMondayFollowingFriday9Nov2001() {
-        SerialDate mondayAfter = SerialDate.getFollowingDayOfWeek(SerialDate.MONDAY, Nov_9_2001);
-        this.assertEquals(12, mondayAfter.getDayOfMonth());
+        SerialDate mondayAfter = SerialDate.getFollowingDayOfWeek(SerialDate.MONDAY, nov9Y2001);
+        assertEquals(12, mondayAfter.getDayOfMonth());
     }
 
     /**
      * Monday nearest Friday 9 November 2001 should be 12 November.
      */
     public void testMondayNearestFriday9Nov2001() {
-        SerialDate mondayNearest = SerialDate.getNearestDayOfWeek(SerialDate.MONDAY, Nov_9_2001);
-        this.assertEquals(12, mondayNearest.getDayOfMonth());
+        SerialDate mondayNearest = SerialDate.getNearestDayOfWeek(SerialDate.MONDAY, nov9Y2001);
+        assertEquals(12, mondayNearest.getDayOfMonth());
     }
 
     /**
      * The Monday nearest to 22nd January 1970 falls on the 19th.
      */
     public void testMondayNearest22Jan1970() {
-        SerialDate Jan_22_1970 = SerialDate.createInstance(22, SerialDate.JANUARY, 1970);
-        SerialDate mondayNearest = SerialDate.getNearestDayOfWeek(SerialDate.MONDAY, Jan_22_1970);
-        this.assertEquals(19, mondayNearest.getDayOfMonth());
+        SerialDate jan22Y1970 = SerialDate.createInstance(22, SerialDate.JANUARY, 1970);
+        SerialDate mondayNearest = SerialDate.getNearestDayOfWeek(SerialDate.MONDAY, jan22Y1970);
+        assertEquals(19, mondayNearest.getDayOfMonth());
     }
 
     /**
@@ -135,6 +166,9 @@ public class SerialDateTests extends TestCase {
 
     }
 
+    /**
+     * Tests the conversion of a month code to a string.
+     */
     public void testMonthCodeToStringCode() {
 
         String test = SerialDate.monthCodeToString(SerialDate.DECEMBER);
@@ -190,4 +224,5 @@ public class SerialDateTests extends TestCase {
     public void testLeapYearCount2000() {
         assertEquals(SerialDate.leapYearCount(2000), 25);
     }
+
 }
