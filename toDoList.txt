@@ -7,9 +7,13 @@ For OpenSHA:
 
 ProbEqkRupture -  add a clone() method and use this in getRuptureClone(int nRupture) method of ProbEqkSource (in fact, you can use the latter's method  to create the former).
 
+ProbEqkRupture - does this need a TimeSpan field (some of our sources do not have a timespan object, and so will not be capable of setting this)?
+
 Change Frankel96_EqkForecast to use PointPoissonEqkSource rather than PointGR_EqkSource (and remove the latter?).
 
+Move PEER_TESTCases dir into the rupForecastImpl directory, and the directory PEER_TestGuiPlots to:
 
+	org/scec/sha/PEER_TestsGroupResults
 
 TimeSpan:
 

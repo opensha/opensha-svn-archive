@@ -52,6 +52,7 @@ public class ProbEqkRupture extends EqkRupture{
      * @return
      */
   public TimeSpan getTimeSpan() { return timespan; }
+
   public void setTimeSpan(TimeSpan timespan) { this.timespan = timespan; }
 
   public double getProbability() { return probability; }
