@@ -493,9 +493,10 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
       } catch (Exception ex) {
         calcProgress.showProgress(false);
         timer.stop();
-        JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
-        this.repaint();
-        this.validate();
+        //JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
+        ex.printStackTrace();
+        /*this.repaint();
+        this.validate();*/
         return;
       }
       if(probAtIML)

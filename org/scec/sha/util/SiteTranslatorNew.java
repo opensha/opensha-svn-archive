@@ -98,7 +98,7 @@ public class SiteTranslatorNew implements java.io.Serializable{
    * @returns a boolean to tell if setting the value was successful (if false
    * it means the parameter value was not changed).
    */
-  public boolean setParameterValue(Parameter param, double vs30,double basinDepth ){
+  public boolean setParameterValue(ParameterAPI param, double vs30,double basinDepth ){
 
       // AS_1997_AttenRel.SITE_TYPE_NAME
       // (e.g., used by Abrahamson & Silva (1997) & Abrahamson (2000))

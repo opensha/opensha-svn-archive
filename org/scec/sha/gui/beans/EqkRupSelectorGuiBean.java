@@ -167,8 +167,18 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    Vector v = new  Vector();
    int ruptureValue = ((Integer)ruptureParam.getValue()).intValue();
 
+   //writing the ruptures info. for each selected source in the text Area below the rupture
+   String rupturesInfo = "Rupture info for \"";
+   rupturesInfo += ((String)sourceParam.getValue()).substring(((String)sourceParam.getValue()).indexOf("(")+1,((String)sourceParam.getValue()).indexOf(")")).trim();
+   rupturesInfo += "\":\n";
+   for(int i=0;i< numRuptures;++i)
+     rupturesInfo += "\n  rupture #"+i+": \n\n"+erf.getSource(sourceValue).getRupture(i).getInfo();
+   sourceRupInfoText.setText(rupturesInfo);
+   progress.showProgress(false);
+
+   //getting the selected rupture fro the source
    probEqkRupture = erf.getRupture(sourceValue,ruptureValue);
-   //System.out.println("Rupture info: "+probEqkRupture.toString());
+
    // The first row of all the rupture surfaces is the list of their hypocenter locations
    ListIterator hypoLocationsIt = probEqkRupture.getRuptureSurface().getColumnIterator(0);
    Location loc;
@@ -204,18 +214,11 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      double lon= Double.parseDouble(token.nextElement().toString().trim());
      double depth= Double.parseDouble(token.nextElement().toString().trim());
      loc= new Location(lat,lon,depth);
-     //System.out.println("Hypocenter Location:"+ loc.toString());
+
      probEqkRupture.setHypocenterLocation(loc);
    }
 
-   //writing the ruptures info. for each selected source in the text Area below the rupture
-   String rupturesInfo = "Rupture info for \"";
-   rupturesInfo += ((String)sourceParam.getValue()).substring(((String)sourceParam.getValue()).indexOf("(")+1,((String)sourceParam.getValue()).indexOf(")")).trim();
-   rupturesInfo += "\":\n";
-   for(int i=0;i< numRuptures;++i)
-     rupturesInfo += "\n  rupture #"+i+": \n\n"+erf.getSource(sourceValue).getRupture(i).getInfo();
-   sourceRupInfoText.setText(rupturesInfo);
-   progress.showProgress(false);
+
 
    // get the panel for increasing the font and border
    // this is hard coding for increasing the IMR font
@@ -290,7 +293,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      double lon= Double.parseDouble(token.nextElement().toString().trim());
      double depth= Double.parseDouble(token.nextElement().toString().trim());
      Location loc= new Location(lat,lon,depth);
-     System.out.println("Hypocenter Location:"+ loc.toString());
      probEqkRupture.setHypocenterLocation(loc);
    }
  }
@@ -428,7 +430,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    * @returns the ProbEqkRupture Object
    */
   public ProbEqkRupture getRupture(){
-  return probEqkRupture;
+    return probEqkRupture;
   }
 
   /**

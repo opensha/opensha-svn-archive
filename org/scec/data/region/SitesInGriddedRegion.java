@@ -31,11 +31,11 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   //Vs30 and basinDepth Vector
   Vector vs30,basinDepth;
 
-  //Default Vs30( in case of region in water)
-  private double default_Vs30;
+  //Iterator that contains the default Values for the Site parameters if CVM do not cover that site
+  private Iterator defaultSiteParams;
 
   //Instance of the site TransLator class
-  SiteTranslator siteTranslator = new SiteTranslator();
+  SiteTranslatorNew siteTranslator = new SiteTranslatorNew();
 
   /**
    *class constructor
@@ -59,13 +59,26 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   public Site getSite(int index){
      site.setLocation(getGridLocation(index));
      if(this.setSiteParamsFromCVM){
-       //sets the default VS30 for this site
-       siteTranslator.setDefault_VS30(default_Vs30);
-
-       siteTranslator.setSiteParams(site,((Double)vs30.get(index)).doubleValue(),
-                                    ((Double)basinDepth.get(index)).doubleValue());
-
+       //getting the Site Parameters Iterator
+       Iterator it = site.getParametersIterator();
+       while(it.hasNext()){
+         ParameterAPI tempParam = (ParameterAPI)it.next();
+         //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
+         boolean flag = siteTranslator.setParameterValue(tempParam,((Double)vs30.get(index)).doubleValue(),
+                                                         ((Double)basinDepth.get(index)).doubleValue());
+         //If the value was outside the bounds of CVM
+         //and site has no value from CVM then set its value to the default Site Params shown in the application.
+         if(!flag){
+           //iterating over the default site parameters to set the Site Param if
+           //no value has been obtained from the CVM for that site.
+           while(defaultSiteParams.hasNext()){
+             ParameterAPI param = (ParameterAPI)defaultSiteParams.next();
+             if(tempParam.getName().equals(param.getName()))
+               tempParam = param;
+           }
+         }
        }
+     }
      return site;
   }
 
@@ -133,10 +146,10 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
 
 
  /**
-  * sets the default vs30 if the site is in water
-  * @param vs30
+  * Sets the default Site Parameters in case CVM don't cover the regions
+  * @param defaultSiteParamsIt : Iterator for the Site Params and their Values
   */
- public void setDefaultVs30(double vs30){
-   default_Vs30= vs30;
+ public void setDefaultSiteParams(Iterator defaultSiteParamsIt){
+   defaultSiteParams = defaultSiteParamsIt;
  }
 }
