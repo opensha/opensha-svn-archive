@@ -694,9 +694,9 @@ public class Temp_HazardCurveApplication extends JApplet
         timer = new Timer(500, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
             try{
-              if(calc.getCurrRuptures()!=-1){
-                int currRupture = calc.getCurrRuptures();
-                int totRupture = calc.getTotRuptures();
+              int totRupture = calc.getTotRuptures();
+              int currRupture = calc.getCurrRuptures();
+              if(currRupture!=-1){
                 System.out.println("Current Rupture:"+currRupture+"   Total rupture: "+totRupture);
                 progressClass.updateProgress(currRupture, totRupture);
               }
