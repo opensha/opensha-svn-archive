@@ -54,8 +54,8 @@ public class HazardMapApplet extends JApplet
   public static String DATASET_CHECK_SERVLET_URL = "http://gravity.usc.edu/OpenSHA/servlet/DatasetIdAndMetadataCheckServlet";
 
   //variables that determine the width and height of the frame
-  private static final int W=550;
-  private static final int H=760;
+  private static final int W=600;
+  private static final int H=820;
 
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
@@ -114,18 +114,14 @@ public class HazardMapApplet extends JApplet
   private JPanel imtPanel = new JPanel();
   private BorderLayout borderLayout2 = new BorderLayout();
   private GridBagLayout gridBagLayout8 = new GridBagLayout();
-  private JButton addButton = new JButton();
   private JPanel gridRegionSitePanel = new JPanel();
   private GridLayout gridLayout1 = new GridLayout();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private JPanel imrSelectionPanel = new JPanel();
-  JComboBox controlComboBox = new JComboBox();
   GridBagLayout gridBagLayout6 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
 
-  JLabel emailLabel = new JLabel();
-  JTextField emailText = new JTextField();
   //holds the ArbitrarilyDiscretizedFunc
   private ArbitrarilyDiscretizedFunc function;
   //instance to get the default IMT X values for the hazard Curve
@@ -146,9 +142,17 @@ public class HazardMapApplet extends JApplet
   Timer timer;
   //instance of Progress Bar
   private CalcProgressBar calcProgress;
-  private JLabel datasetLabel = new JLabel();
-  private JTextField datasetIdText = new JTextField();
+  private JPanel dataPanel = new JPanel();
+  private JPanel imgPanel = new JPanel();
   private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+  private JButton addButton = new JButton();
+  private JComboBox controlComboBox = new JComboBox();
+  private GridBagLayout gridBagLayout7 = new GridBagLayout();
+  private BorderLayout borderLayout3 = new BorderLayout();
+  private JTextField datasetIdText = new JTextField();
+  private JLabel emailLabel = new JLabel();
+  private JLabel datasetLabel = new JLabel();
+  private JTextField emailText = new JTextField();
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
 
@@ -191,17 +195,23 @@ public class HazardMapApplet extends JApplet
   //Component initialization
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
-    this.setSize(new Dimension(564, 768));
+    this.setSize(new Dimension(564, 777));
     this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(border1);
     mainPanel.setLayout(gridBagLayout6);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    buttonPanel.setLayout(gridBagLayout4);
+    buttonPanel.setLayout(borderLayout3);
     eqkRupPanel.setLayout(gridBagLayout1);
     imr_IMTSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     timespanPanel.setLayout(gridBagLayout3);
     imrPanel.setLayout(borderLayout2);
     imtPanel.setLayout(gridBagLayout8);
+    buttonPanel.setMinimumSize(new Dimension(391, 50));
+    gridRegionSitePanel.setLayout(gridLayout1);
+    imrSelectionPanel.setLayout(gridBagLayout5);
+    //controlComboBox.setBackground(Color.white);
+    dataPanel.setLayout(gridBagLayout4);
+    imgPanel.setLayout(gridBagLayout7);
     addButton.setBorder(null);
     addButton.setText("Start Calc");
     addButton.addActionListener(new java.awt.event.ActionListener() {
@@ -209,40 +219,38 @@ public class HazardMapApplet extends JApplet
         addButton_actionPerformed(e);
       }
     });
-    buttonPanel.setMinimumSize(new Dimension(391, 50));
-    gridRegionSitePanel.setLayout(gridLayout1);
-    imrSelectionPanel.setLayout(gridBagLayout5);
-    //controlComboBox.setBackground(Color.white);
     controlComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         controlComboBox_actionPerformed(e);
       }
     });
     emailLabel.setText("Email:");
-    emailText.setText("");
     datasetLabel.setText("Dataset Id:");
+    emailText.setText("");
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 431));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
+    buttonPanel.add(dataPanel, BorderLayout.CENTER);
+    dataPanel.add(controlComboBox,  new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(18, 48, 0, 24), 37, 2));
+    dataPanel.add(addButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 51, 30, 24), 80, 12));
+    dataPanel.add(emailText,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(24, 19, 0, 0), 160, 7));
+    dataPanel.add(emailLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(18, 7, 0, 14), 43, 12));
+    dataPanel.add(datasetIdText,  new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(14, 19, 42, 0), 163, 7));
+    dataPanel.add(datasetLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 7, 42, 0), 28, 10));
+    buttonPanel.add(imgPanel, BorderLayout.SOUTH);
+    imgPanel.add(imgLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 235, 3, 246), 57, 28));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
     imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
     imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
-    buttonPanel.add(datasetIdText,  new GridBagConstraints(2, 1, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(11, 22, 0, 5), 165, 7));
-    buttonPanel.add(emailText,  new GridBagConstraints(2, 0, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 22, 0, 5), 165, 7));
-    buttonPanel.add(emailLabel,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 76, 0, 0), 25, 12));
-    buttonPanel.add(datasetLabel,  new GridBagConstraints(1, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 73, 0, 0), 28, 10));
-    buttonPanel.add(addButton,        new GridBagConstraints(3, 3, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 11, 0, 13), 80, 9));
-    buttonPanel.add(controlComboBox,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(8, 8, 0, 0), 52, 2));
-    buttonPanel.add(imgLabel,    new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 66, 31, 55), 18, 14));
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab( "Earthquake Rupture Forecast", eqkRupPanel );
