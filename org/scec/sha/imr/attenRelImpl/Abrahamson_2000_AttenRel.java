@@ -16,7 +16,7 @@ import org.scec.util.*;
 /**
  * <b>Title:</b> Abrahamson_2000_AttenRel<p>
  *
- * <b>Description:</b> This implements the classicIMR (attenuation relationship)
+ * <b>Description:</b> This implements the Attenuation Relationship
  * developed by Abrahamson (2000, <i>Proc. of 6th Int. Conf. on Seismic Zonation,
  * Palm Springs</i>, Earthq. Eng. Res. Inst.).  NOTE:  This is only for strike-slip
  * earthquakes (even though Somerville et al. (1007) handles all types), and is implemented

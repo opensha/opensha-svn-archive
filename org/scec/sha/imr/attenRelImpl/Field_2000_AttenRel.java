@@ -14,7 +14,7 @@ import org.scec.util.*;
 /**
  * <b>Title:</b> Field_2000_AttenRel<p>
  *
- * <b>Description:</b> This implements the classicIMR (attenuation relationship)
+ * <b>Description:</b> This implements the Attenuation Relationship
  * developed by Field (2000, Bulletin of the Seismological Society of America, vol
  * 90, num 6b, pp S209-S221) <p>
  *
@@ -48,7 +48,7 @@ public class Field_2000_AttenRel
 
     // debugging stuff:
     private final static String C = "Field_2000_AttenRel";
-    private final static boolean D = true;
+    private final static boolean D = false;
     public final static String NAME = "Field (2000)";
 
     // style of faulting options

@@ -14,7 +14,7 @@ import org.scec.util.*;
 /**
  * <b>Title:</b> CB_2003_AttenRel<p>
  *
- * <b>Description:</b> This implements the classicIMR (attenuation relationship)
+ * <b>Description:</b> This implements the  Attenuation Relationship
  * developed by Campbell & Bozorgnia (2003), Bull. Seism. Soc. Am., vol 93
  * , In press)<p>
  *

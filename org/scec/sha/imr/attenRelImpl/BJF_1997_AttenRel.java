@@ -14,7 +14,7 @@ import org.scec.util.*;
 /**
  * <b>Title:</b> BJF_1997_AttenRel<p>
  *
- * <b>Description:</b> This implements the classicIMR (attenuation relationship)
+ * <b>Description:</b> This implements the Attenuation Relationship
  * developed by Boore, Joyner & Fumal (1997, Seismological Research Letters, vol
  * 68, num 1, pp 128-153) <p>
  *

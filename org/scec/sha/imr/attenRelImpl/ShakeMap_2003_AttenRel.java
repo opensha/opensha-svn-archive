@@ -14,7 +14,7 @@ import org.scec.util.*;
 /**
  * <b>Title:</b> ShakeMap_2003_AttenRel<p>
  *
- * <b>Description:</b> This implements the attenuation relationship
+ * <b>Description:</b> This implements the Attenuation Relationship
  * developed by the ShakeMap group (2003).  There is no written documentation
  * of this relationship <p>
  *
