@@ -45,20 +45,12 @@ public class Set1_Area_Forecast extends EqkRupForecast
    */
   private double timeSpan;
   private TimeSpan time;
-  private double rake;
 
   // this is the GR distribution used for all sources
   private GutenbergRichterMagFreqDist dist_GR;
 
   // this is the source
   private PointGR_EqkSource pointGR_EqkSource;
-
-
-  /**
-   * Test cases final static string
-   */
-   private final static String TEST_CASE_TEN ="10";
-   private final static String TEST_CASE_ELEVEN ="11";
 
 
   /**
@@ -94,11 +86,19 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private final static double TIMESPAN_PARAM_MAX = 1e10;
 
    //Rake Variable
-  public final static String RAKE_PARAM_NAME = "Rake Angle";
+  public final static String RAKE_PARAM_NAME = "Ave Rake";
   public final static String RAKE_PARAM_UNITS = "degrees";
   private final static Double RAKE_PARAM_DEFAULT = new Double(0);
   private final static double RAKE_PARAM_MIN = -180;
   private final static double RAKE_PARAM_MAX = 180;
+
+  //Rake Variable
+  public final static String DIP_PARAM_NAME = "Ave Dip";
+  public final static String DIP_PARAM_UNITS = "degrees";
+  private final static Double DIP_PARAM_DEFAULT = new Double(90);
+  private final static double DIP_PARAM_MIN = 0;
+  private final static double DIP_PARAM_MAX = 90;
+
 
   // default grid spacing is 1km
   private Double DEFAULT_GRID_VAL = new Double(1);
@@ -129,7 +129,10 @@ public class Set1_Area_Forecast extends EqkRupForecast
   DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME, RAKE_PARAM_MIN,
                                                       RAKE_PARAM_MAX,RAKE_PARAM_UNITS,
                                                       RAKE_PARAM_DEFAULT);
-
+  // create the dip parameter
+  DoubleParameter dipParam = new DoubleParameter(DIP_PARAM_NAME, DIP_PARAM_MIN,
+                                                      DIP_PARAM_MAX,DIP_PARAM_UNITS,
+                                                      DIP_PARAM_DEFAULT);
   // create the supported MagDists
   Vector supportedMagDists=new Vector();
 
@@ -152,6 +155,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
     adjustableParams.addParameter(depthLowerParam);
     adjustableParams.addParameter(depthUpperParam);
     adjustableParams.addParameter(rakeParam);
+    adjustableParams.addParameter(dipParam);
     adjustableParams.addParameter(timespanParam);
 
     // create the supported Mag-Dist parameter
@@ -167,6 +171,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
     timespanParam.addParameterChangeListener(this);
     magDistParam.addParameterChangeListener(this);
     rakeParam.addParameterChangeListener(this);
+    dipParam.addParameterChangeListener(this);
 
   }
 
@@ -229,12 +234,13 @@ public class Set1_Area_Forecast extends EqkRupForecast
       cumRate /= numLocs;
       dist_GR.scaleToCumRate(0,cumRate);
 
-      rake = ((Double) rakeParam.getValue()).doubleValue();
+      double rake = ((Double) rakeParam.getValue()).doubleValue();
+      double dip = ((Double) dipParam.getValue()).doubleValue();
 
       setTimeSpan(((Double) timespanParam.getValue()).doubleValue());
 
       // Dip is hard wired at 90 degrees
-      pointGR_EqkSource = new PointGR_EqkSource(new Location(),dist_GR, rake, 90);
+      pointGR_EqkSource = new PointGR_EqkSource(new Location(),dist_GR, rake, dip);
 
       if (D) System.out.println(C+" updateForecast(): rake="+pointGR_EqkSource.getRupture(0).getAveRake() +
                           "; dip="+ pointGR_EqkSource.getRupture(0).getRuptureSurface().getAveDip());

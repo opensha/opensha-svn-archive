@@ -165,7 +165,8 @@ public abstract class IntensityMeasureRelationship
     /**
      *  Sets the intensityMeasure parameter, not as a  pointer to that passed in,
      *  but by finding the internally held one with the same name and then setting
-     *  its value to be equal to that passed in.
+     *  its value (and the value of any of its independent parameters) to be equal
+     * to that passed in.
      *
      * @param  intensityMeasure  The new intensityMeasure Parameter
      */
@@ -185,7 +186,8 @@ public abstract class IntensityMeasureRelationship
 
     /**
      *  This sets the intensityMeasure parameter as that which has the name
-     *  passed in; no value (level) is set.
+     *  passed in; no value (level) is set, nor are any of the IM's independent
+     *  parameters set.
      *
      * @param  intensityMeasure  The new intensityMeasure Parameter
      */

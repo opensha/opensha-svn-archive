@@ -282,7 +282,7 @@ public class CB_2003_AttenRel
           else // turn it off for normal, strike-slip, or vertically dipping faults
                 hangingWallParam.setValue(0.0);
 
-//          System.out.println("CB_2003 hanging wall value: " + hangingWallParam.getValue().toString());
+          if (D) System.out.println("CB_2003 hanging wall value: " + hangingWallParam.getValue().toString());
         }
 
     }
@@ -623,6 +623,7 @@ public class CB_2003_AttenRel
         warn.setNonEditable();
         distanceSeisParam.setWarningConstraint(warn);
         distanceSeisParam.setNonEditable();
+        distanceJBParam = new DistanceJBParameter();
 
 
         // create hanging wall parameter

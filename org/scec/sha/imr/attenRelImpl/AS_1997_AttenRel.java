@@ -236,6 +236,9 @@ public class AS_1997_AttenRel
         * not efficient if both the site and probEqkRupture
         * are set before getting the mean, stdDev, or ExceedProbability
         */
+
+        if (D) System.out.println("just set pQkRup, now setting PropEffectParams ...");
+
         setPropagationEffectParams();
     }
 
@@ -265,6 +268,8 @@ public class AS_1997_AttenRel
         // Why not just say "this.Site = site" ?? (Ned)
 
         super.setSite( site );
+
+        if (D) System.out.println("just set Site, now setting PropEffectParams ...");
 
         // Calculate the PropagationEffectParameters; this is
         // not efficient if both the site and probEqkRupture
@@ -300,11 +305,11 @@ public class AS_1997_AttenRel
             else
                 isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
 
-            if (D) System.out.println("HW result: " + isOnHangingWall() + ";  rake & dip: "+
+/*            if (D) System.out.println("HW result: " + isOnHangingWall() + ";  rake & dip: "+
                                       probEqkRupture.getAveRake() + "; " +
                                       probEqkRupture.getRuptureSurface().getAveDip());
-
-//System.out.println("AS_1997 hanging wall value: " + isOnHangingWallParam.getValue().toString());
+*/
+            if (D) System.out.println("AS_1997 hanging wall value: " + isOnHangingWallParam.getValue().toString());
 
 /* OLD IMPLEMENTATION:
 
