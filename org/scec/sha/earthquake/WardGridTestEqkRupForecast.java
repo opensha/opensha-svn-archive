@@ -107,9 +107,9 @@ public class WardGridTestEqkRupForecast implements EqkRupForecastAPI {
 
         // Loop over data parsing and building traces, then add to list
         ListIterator it = rawData.listIterator();
-
+        it.next();
         //reading the first line from the file
-        while( it.hasNext() ){
+       // while( it.hasNext() ){
           StringTokenizer st = new StringTokenizer(it.next().toString());
           while(st.hasMoreTokens()){
 
@@ -133,7 +133,7 @@ public class WardGridTestEqkRupForecast implements EqkRupForecastAPI {
               if (D) System.out.println("NonZeroData: "+lat+"  "+lon+"  "+cumRate+"  "+bValue+"  "+magLower+"  "+magUpper);
           }
 
-        }
+        //}
 
     // Done
     if( D ) System.out.println(S + "Ending");
@@ -294,6 +294,8 @@ public class WardGridTestEqkRupForecast implements EqkRupForecastAPI {
    public static void main(String args[]) {
 
       WardGridTestEqkRupForecast test = new WardGridTestEqkRupForecast();
+
+      //test.setTimeSpan();
 
 
    }

@@ -1010,7 +1010,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       // getye total sources
       int numSources = eqkRupForecast.getNumSources();
       for(int i=0;i < numSources ;i++) {
-
+        if (D) System.out.println("source number:"+i);
         // get source and get its distance from the site
         ProbEqkSource source = eqkRupForecast.getSource(i);
         double distance = source.getMinDistance(site);
@@ -1020,6 +1020,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
         int numRuptures = eqkRupForecast.getNumRuptures(i);
          for(int n=1; n <= numRuptures ;n++){
            // for each rupture, set in IMR and do computation
+           if (D) System.out.println("RuptureNumber:"+n);
            double qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
            for(int imr=0;imr<imrSize;imr++) {
               if (D) System.out.println("Source:"+i+",rupture="+n+",imr="+imr);
