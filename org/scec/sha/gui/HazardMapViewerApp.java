@@ -99,8 +99,9 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
   DecimalFormat d= new DecimalFormat("0.00##");
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
   GridBagLayout gridBagLayout5 = new GridBagLayout();
+  private JButton refreshButton = new JButton();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -137,23 +138,29 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
     imlProbPanel.setLayout(gridBagLayout4);
    jLabel1.setForeground(new Color(80, 80, 133));
    jLabel1.setText("Choose Data Set:");
-    dataSetCombo.setBackground(new Color(200, 200, 230));
     dataSetCombo.setForeground(new Color(80, 80, 133));
     dataSetCombo.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         dataSetCombo_actionPerformed(e);
       }
     });
+
     dataSetText.setBorder(border1);
     dataSetText.setLineWrap(true);
    jLabel2.setForeground(new Color(80, 80, 133));
    jLabel2.setText("Data Set Info:");
-    mapButton.setBackground(new Color(200, 200, 230));
     mapButton.setForeground(new Color(80, 80, 133));
     mapButton.setText("Show Map");
     mapButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         mapButton_actionPerformed(e);
+      }
+    });
+    refreshButton.setText("Refresh");
+    refreshButton.setForeground(new Color(80, 80, 133));
+    refreshButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        refreshButton_actionPerformed(e);
       }
     });
     mainSplitPane.add(gmtSplitPane, JSplitPane.BOTTOM);
@@ -172,14 +179,16 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
     siteSplitPane.add(imlProbPanel, JSplitPane.RIGHT);
     dataSetPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(24, 10, 0, 0), 22, 4));
-    dataSetPanel.add(dataSetCombo,   new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(24, 7, 0, 66), 12, 1));
-    dataSetPanel.add(dataSetText,   new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 0, 11), 0, 365));
+    dataSetPanel.add(dataSetCombo,  new GridBagConstraints(1, 0, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(24, 7, 0, 66), -12, 1));
+    dataSetPanel.add(dataSetText,  new GridBagConstraints(0, 2, 3, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 0, 11), 0, 112));
     dataSetPanel.add(jLabel2,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 16, 0, 170), 82, 1));
-    dataSetPanel.add(mapButton,   new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 98, 10, 116), 50, 11));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(25, 16, 0, 0), 74, 1));
+    dataSetPanel.add(mapButton,  new GridBagConstraints(0, 3, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 98, 10, 116), 29, 11));
+    dataSetPanel.add(refreshButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 11, 68), 19, 1));
     mainSplitPane.setDividerLocation(350);
     gmtSplitPane.setDividerLocation(150);
     siteSplitPane.setDividerLocation(300);
@@ -294,19 +303,11 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
     while(enum.hasMoreElements()) keys.add(enum.nextElement());
     Collections.sort(keys);
     Iterator it = keys.iterator();
+
+    dataSetCombo.removeAllItems();
     while(it.hasNext()) this.dataSetCombo.addItem(it.next());
   }
 
-  /**
-   * Whenever user chooses a data set in the combo box,
-   * this function is called
-   * It fills the data set infomation in text area and also the site info is filled
-   * @param e
-   */
-  void dataSetCombo_actionPerformed(ActionEvent e) {
-    addDataInfo();
-    fillLatLonAndGridSpacing();
-  }
 
   /**
  * It will read the sites.info file and fill the min and max Lat and Lon
@@ -509,6 +510,24 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
        e.printStackTrace();
      }
    }
+
+  void refreshButton_actionPerformed(ActionEvent e) {
+    loadDataSets();
+  }
+
+  /**
+   * Whenever user chooses a data set in the combo box,
+   * this function is called
+   * It fills the data set infomation in text area and also the site info is filled
+   * @param e
+   */
+
+  void dataSetCombo_actionPerformed(ActionEvent e) {
+    if(dataSetCombo.getItemCount()>0){
+      addDataInfo();
+      fillLatLonAndGridSpacing();
+    }
+  }
 
 }
 

@@ -82,14 +82,14 @@ public class HazardMapApplet extends JApplet
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
   private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
-  private final static String MAP_CALC_CONTROL = "Select Map Calculation option";
+ // private final static String MAP_CALC_CONTROL = "Select Map Calculation option";
 
 
   // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
   private X_ValuesInCurveControlPanel xValuesPanel;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
-  private HazardMapSubmissionMethods mapSubmissionMethods;
+  //private HazardMapSubmissionMethods mapSubmissionMethods;
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -199,7 +199,7 @@ public class HazardMapApplet extends JApplet
     buttonPanel.setMinimumSize(new Dimension(391, 50));
     gridRegionSitePanel.setLayout(gridLayout1);
     imrSelectionPanel.setLayout(gridBagLayout5);
-    controlComboBox.setBackground(Color.white);
+    //controlComboBox.setBackground(Color.white);
     controlComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         controlComboBox_actionPerformed(e);
@@ -276,6 +276,8 @@ public class HazardMapApplet extends JApplet
     catch(Exception e) {
     }
   }
+
+
 
 
   /**
@@ -439,7 +441,7 @@ public class HazardMapApplet extends JApplet
     controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
     controlComboBox.addItem(X_VALUES_CONTROL);
     controlComboBox.addItem(DISTANCE_CONTROL);
-    controlComboBox.addItem(MAP_CALC_CONTROL);
+    //controlComboBox.addItem(MAP_CALC_CONTROL);
   }
 
 
@@ -486,12 +488,12 @@ public class HazardMapApplet extends JApplet
     * Grid Based mode of generating the Hazard Map Calculation but this control
     * panel allows user to choose from other options too.
     */
-   private void initMapCalculationModeControl() {
-     if (mapSubmissionMethods == null)
-       mapSubmissionMethods = new HazardMapSubmissionMethods();
-     mapSubmissionMethods.pack();
-     mapSubmissionMethods.show();
-   }
+   //private void initMapCalculationModeControl() {
+     //if (mapSubmissionMethods == null)
+       //mapSubmissionMethods = new HazardMapSubmissionMethods();
+    // mapSubmissionMethods.pack();
+     //mapSubmissionMethods.show();
+   //}
 
    /**
     *
@@ -543,8 +545,8 @@ public class HazardMapApplet extends JApplet
       initX_ValuesControl();
     else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
       initDistanceControl();
-    else if(selectedControl.equalsIgnoreCase(this.MAP_CALC_CONTROL))
-      initMapCalculationModeControl();
+    //else if(selectedControl.equalsIgnoreCase(this.MAP_CALC_CONTROL))
+      //initMapCalculationModeControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -660,9 +662,9 @@ public class HazardMapApplet extends JApplet
      toServlet.writeObject(maxDistance);
 
      //sending to the server which option the user wants to get the HazardMap Calculation done.
-     String mapCalcOption;
-     if(mapSubmissionMethods == null ) mapCalcOption = new String(HazardMapSubmissionMethods.USE_GRID);
-     else mapCalcOption = mapSubmissionMethods.getMapCalculationOption();
+     String mapCalcOption = HazardMapSubmissionMethods.USE_GRID;
+     //if(mapSubmissionMethods == null ) mapCalcOption = new String(HazardMapSubmissionMethods.USE_GRID);
+     //else mapCalcOption = mapSubmissionMethods.getMapCalculationOption();
      toServlet.writeObject(mapCalcOption);
 
      //sending email address to the servlet
