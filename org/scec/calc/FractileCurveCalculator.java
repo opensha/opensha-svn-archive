@@ -59,8 +59,9 @@ public class FractileCurveCalculator {
    *   X values for in the curves are same
    *
    * @param functionList : List of curves for which fractile needs to be calculated
-   * @param relativeWts : weight assigned to each curves. It expects the ArrayList
-   *  to contain Double values
+   * @param relativeWts : Weight assigned to each curve, stored as a Double objects in this
+   * array list in the same order as in the functionList. Note that these values do not have to
+   * be normalized (they don't have to sum to 1.0) - this normalization is taken care of internally.
    */
   public void set(DiscretizedFuncList functionList,
                                  ArrayList relativeWts) {
@@ -77,13 +78,8 @@ public class FractileCurveCalculator {
     for(int i=1; i<numFunctions; ++i)
       if(functionList.get(i).getNum()!=numPoints) throw new RuntimeException(ERROR_POINTS);
 
-     /* Save the functionlist
-    It is deep cloned here. The reason is in case the original function list
-    is changed elsewhere this won't get messed up
-    */
-    this.funcList = functionList.deepClone();
-    relativeWeights = (ArrayList)relativeWts.clone();
-    // save the number of X values
+    this.funcList = functionList;
+    this.relativeWeights = relativeWts; // these do not need to be normalized
     this.num = numPoints;
 
     //ArrayList for saving empirical distributions
