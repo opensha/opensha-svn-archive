@@ -48,6 +48,8 @@ import org.scec.data.Site;
 import org.scec.sha.nga.*;
 import org.scec.sha.nga.calc.*;
 import org.scec.data.XYZ_DataSetAPI;
+import ch.randelshofer.quaqua.*;
+
 
 /**
  * <p>Title: ObservedVsPredictedApplet</p>
@@ -450,7 +452,7 @@ public class ObservedVsPredictedApplet extends JApplet
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle("Hazard Spectrum Applet");
+    frame.setTitle(C);
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
@@ -461,13 +463,16 @@ public class ObservedVsPredictedApplet extends JApplet
   }
 
   //static initializer for setting look & feel
-  static {
-    try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-    }
-    catch(Exception e) {
-    }
+   static {
+     String osName = System.getProperty("os.name");
+     try {
+       if(osName.startsWith("Mac OS"))
+         UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
+       else
+         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+     }
+     catch(Exception e) {
+     }
   }
 
 
