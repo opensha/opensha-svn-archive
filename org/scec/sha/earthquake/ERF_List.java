@@ -18,6 +18,20 @@ public abstract class ERF_List {
 
   // vector to hold the instances of Eqk Rup Forecasts
   private Vector erf_List = new Vector();
+  //vector to hold relative weight of each ERF
+  private Vector relativeWeight  = new Vector();
+
+
+
+  /**
+   * add a new Eqk Rup forecast to the list
+   * @param eqkRupForecast
+   */
+  protected void addERF(EqkRupForecastAPI eqkRupForecast, double relWeight) {
+    erf_List.add(eqkRupForecast);
+    this.relativeWeight.add(new Double(relWeight));
+  }
+
 
   /**
    * get the number of Eqk Rup Forecasts in this list
@@ -35,6 +49,16 @@ public abstract class ERF_List {
   public EqkRupForecastAPI getERF(int index) {
     return (EqkRupForecastAPI)erf_List.get(index);
   }
+
+  /**
+   * get the weight of the ERF at the specified index
+   * @param index : index of ERF
+   * @return : relative weight of ERF
+   */
+  public double getERF_RelativeWeight(int index) {
+    return ((Double)relativeWeight.get(index)).doubleValue();
+  }
+
 
   /**
    * get the name of this class
@@ -71,12 +95,6 @@ public abstract class ERF_List {
   public abstract void updateERF_List();
 
 
-  /**
-   * get the weight of the ERF at the specified index
-   * @param index : index of ERF
-   * @return : relative weight of ERF
-   */
-  public abstract int getERF_RelativeWeight(int index);
 
 }
 
