@@ -7,7 +7,9 @@ import org.scec.data.DataPoint2D;
 
 /**
  * <p>Title: GutenbergRichterMagFreqDist.java </p>
- * <p>Description: This is incremental Gutenberg-Richter distribution</p>
+ * <p>Description: This is a truncated incremental Gutenberg-Richter distribution.
+ * Note that magLower and magUpper must exactly equal one of the descrete x-axis
+ * values.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta & Vipin Gupta   Date: Aug 8, 2002
@@ -22,7 +24,6 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
 
   private double magLower ; // lowest magnitude that has non zero rate
   private double magUpper ; // highest magnitude that has non zero rate
-  private double aValue;    // the a value: NOT USED ANYWHERE PRESENTLY
   private double bValue;    // the b value
 
 
@@ -310,7 +311,7 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
    */
   public String getInfo() {
     return ("bValue="+bValue+";magLower="+magLower+";magUpper="+magUpper +
-        ";totMoRate="+this.getTotalMomentRate()+";totCumRate="+getCumRate(magLower));
+        ";totMoRate="+ (float) this.getTotalMomentRate()+";totCumRate="+ (float) getCumRate(magLower));
   }
 
 }

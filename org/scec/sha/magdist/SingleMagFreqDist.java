@@ -3,7 +3,8 @@ package org.scec.sha.magdist;
 import org.scec.calc.*;
 /**
  * <p>Title: SingleMagFreqDist</p>
- * <p>Description: This has only magnitude with the non-zero rate</p>
+ * <p>Description: This has only a single magnitude with a non-zero rate.
+ * Note that this magnitude must equal one of the descrete x-axis points.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author :Nitin Gupta Date:Aug,8,2002
@@ -128,8 +129,8 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   * @return the total information stored in the class in form of a string
   */
  public String getInfo() {
-   double moRate= this.rate * MomentMagCalc.getMoment(this.mag);
-   return "mag="+this.mag+";"+"rate="+rate+";"+"moRate="+moRate;
+   double totMoRate= this.rate * MomentMagCalc.getMoment(this.mag);
+   return "mag="+this.mag+";"+"rate="+(float)rate+";"+"totMoRate="+(float)totMoRate;
  }
 
 }

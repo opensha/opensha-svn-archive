@@ -16,9 +16,11 @@ import org.scec.sha.earthquake.*;
  *  Subclasses will implement specific types of IMRs.  For example, ClassicIMR
  *  implements what is traditionally called an "Attenuation Relationship".
  *  This abstract IMR class also contains seperate parameterList objects for the
- *  site, potential-earthquake, and propagation-effect related parameters that will
- *  be unique to each IMR, as well as methods for accessing these parameters.  This
- *  class also contains a list of supported intensity-measure parameters. <br>
+ *  site, potential-earthquake, and propagation-effect related parameters, as well
+ *  as a list of "other" parameters that don't fit into those three categories.
+ *  This class also contains a list of supported intensity-measure parameters (which
+ *  may have internal independent parameters). These five lists combined should
+ *  constitute a complete list of parameters for the IMR. <br>
  *  <b>Copyright:</b> Copyright (c) 2001<br>
  *  <b>Company:</b> <br>
  *
@@ -52,6 +54,9 @@ public abstract class IntensityMeasureRelationship
 
     /** ParameterList of all supported Intensity Measure parameters */
     protected ParameterList supportedIMParams = new ParameterList();
+
+    /** ParameterList of other parameters that don't fit into above categories */
+    protected ParameterList otherParams = new ParameterList();
 
     /** The current Site object (passing one in will set site-related parameters). */
     protected Site site;
@@ -268,6 +273,9 @@ public abstract class IntensityMeasureRelationship
             }
 
         }
+
+        try{ return otherParams.getParameter(name); }
+        catch(ParameterException e){}
 
         throw new ParameterException( C + ": getParameter(): Parameter doesn't exist named " + name );
     }

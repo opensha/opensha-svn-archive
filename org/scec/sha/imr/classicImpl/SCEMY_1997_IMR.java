@@ -594,6 +594,11 @@ public class SCEMY_1997_IMR
         stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_DEFAULT );
         stdDevTypeParam.setInfo( STD_DEV_TYPE_INFO );
         stdDevTypeParam.setNonEditable();
+
+        // add these to the list
+        otherParams.addParameter( componentParam );
+        otherParams.addParameter( stdDevTypeParam );
+
     }
 
 

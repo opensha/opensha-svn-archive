@@ -1023,14 +1023,10 @@ public class IMRGuiBean
 
         DependentParameterAPI imParam = null;
 
-        // Add im parameters independent parameters to list if IML at Exceed Prob. is not selected
-        if(!yAxisName.equals( Y_AXIS_V4 )) {
-          imParam = ( DependentParameterAPI ) imr.getParameter( imName );
-          ListIterator imIt = imParam.getIndependentParametersIterator();
-          setParamsInIteratorVisible( imIt );
-        }
-
-
+        // Add im parameters independent parameters to list
+        imParam = ( DependentParameterAPI ) imr.getParameter( imName );
+        ListIterator imIt = imParam.getIndependentParametersIterator();
+        setParamsInIteratorVisible( imIt );
 
         // Determine which y-axis function was choosen - then add it's required parameters
         if ( yAxisName.equals( Y_AXIS_V1 ) )
@@ -1065,8 +1061,6 @@ public class IMRGuiBean
             throw new ParameterException( S + "Invalid Y Axis choice" );
 
 
-
-
         // REbuild x-axis choice picklist from scratch
         // X-axis choices - picks only double and discrete doubles as possible values
         // Selected is first returned from ListIterator
@@ -1080,10 +1074,7 @@ public class IMRGuiBean
         xAxisConstraint = addToXAxisConstraint(
                 imr.getStdDevIndependentParamsIterator(), xAxisConstraint
                  );
-
-       // if IML at Exceed Prob is selectd, then do not show IML
-        if( !yAxisName.equals(Y_AXIS_V4))
-         xAxisConstraint = addToXAxisConstraint(
+        xAxisConstraint = addToXAxisConstraint(
                 imParam.getIndependentParametersIterator(), xAxisConstraint
                  );
 
@@ -1094,6 +1085,12 @@ public class IMRGuiBean
         // for the y axis
         if ( yAxisName.equals( Y_AXIS_V3 ) )
             xAxisConstraint.addString( imParam.getName() );
+
+        // Add exceed. prob parameter to x-axis choices if IML atExceedProb was choosen
+        // for the y axis (name hard coded for now; not sure how to get it in general)
+        if ( yAxisName.equals( Y_AXIS_V4 ) )
+            xAxisConstraint.addString( "Exceed. Prob." );
+
 
         // check that original x-axis choice is still viable
         if ( xAxisConstraint.isAllowed( xAxisName ) )

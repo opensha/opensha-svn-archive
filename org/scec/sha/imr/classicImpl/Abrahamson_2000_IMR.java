@@ -744,7 +744,6 @@ public class Abrahamson_2000_IMR
         // Put parameters in the supportedIMParams list:
         supportedIMParams.clear();
 
-        // logTransSAParam.setParameter( saParam );
         supportedIMParams.addParameter( saParam );
 
 //      This one not supported here
@@ -778,6 +777,10 @@ public class Abrahamson_2000_IMR
         stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_DEFAULT );
         stdDevTypeParam.setInfo( STD_DEV_TYPE_INFO );
         stdDevTypeParam.setNonEditable();
+
+        // add these to the list
+        otherParams.addParameter( componentParam );
+        otherParams.addParameter( stdDevTypeParam );
     }
 
 

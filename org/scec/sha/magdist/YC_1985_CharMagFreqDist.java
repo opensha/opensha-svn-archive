@@ -12,7 +12,9 @@ import org.scec.data.DataPoint2D;
  * The distribution is Gutenberg-Richter between magLower and magPrime, and
  * constant between (magUpper-deltaMagChar) and magUpper with a rate equal to
  * that of the Gutenberg-Richter part at (magPrime-deltaMagPrime).
- * See their figure 10 for a graphical explanation of these parameters. </p>
+ * See their figure 10 for a graphical explanation of these parameters.
+ * Note that magLower, magUpper, magPrime, magUpper-deltaMagChar, and
+ * magPrime-deltaMagPrime must all be exactly equal one of the descrete x-axis points. </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Edward H. Field   Date: Sept. 26, 2002
@@ -271,8 +273,8 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
   public String getInfo() {
     return (";magLower="+magLower+";magUpper="+magUpper+";deltaMagChar="+this.getDeltaMagChar()+
         ";magPrime="+this.getMagPrime()+";deltaMagPrime="+getDeltaMagPrime()+
-        "bValue="+bValue+";totMoRate="+this.getTotalMomentRate()+
-        ";totCumRate="+getCumRate(magLower));
+        "bValue="+bValue+";totMoRate="+(float)this.getTotalMomentRate()+
+        ";totCumRate="+(float)getCumRate(magLower));
 
   }
 

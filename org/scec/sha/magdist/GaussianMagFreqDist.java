@@ -11,6 +11,7 @@ import org.scec.exceptions.DataPoint2DException;
  * <p>Title:GaussianMagFreqDist </p>
  * <p>Description: This assumes a Gaussian distribution with a given mean and standard deviation, with
  * the option of being truncated at some number of standard deviations(one or two sided truncation).
+ * The mean can be any value (it doesn not have to exactly equal one of the descrete x-axis values)
  * Note: applying thge scaleTo*() or normalizeBy*() methods of the parent class will not result in
  * totMoRate being updated</p>
  * <p>Copyright: Copyright (c) 2002</p>
@@ -214,7 +215,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    */
   public String getInfo() {
 
-    return "mean="+this.mean+";stdDev="+this.stdDev+";totMoRate="+this.totMoRate+";truncType="+
+    return "mean="+this.mean+";stdDev="+this.stdDev+";totMoRate="+(float)this.totMoRate+";truncType="+
            this.truncType+";truncLevel="+this.truncLevel;
 
   }

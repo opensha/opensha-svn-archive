@@ -409,8 +409,8 @@ public abstract class ClassicIMR
     protected final static String EXCEED_PROB_NAME = "Exceed. Prob.";
     protected final static Double EXCEED_PROB_DEFAULT = new Double( 0.5 );
     protected final static String EXCEED_PROB_INFO = "Exceedance Probability";
-    protected final static Double EXCEED_PROB_MIN = new Double( 0 );
-    protected final static Double EXCEED_PROB_MAX = new Double( 1 );
+    protected final static Double EXCEED_PROB_MIN = new Double( 1.0e-4 );
+    protected final static Double EXCEED_PROB_MAX = new Double( 1.0 - 1e-4 );
 
 
 
@@ -439,7 +439,7 @@ public abstract class ClassicIMR
     /**
      *  List of all Parameters that the exceed. prob. calculation depends upon, except for
      *  the intensity-measure related parameters (type/level) and any independentdent parameters
-     *  they contain.
+     *  they contain.  Note that this and its iterator method could be applied in the parent class.
      */
     protected ParameterList exceedProbIndependentParams = new ParameterList();
 
@@ -830,6 +830,14 @@ public abstract class ClassicIMR
         exceedProbParam = new DoubleParameter( EXCEED_PROB_NAME, EXCEED_PROB_MIN, EXCEED_PROB_MAX, EXCEED_PROB_DEFAULT);
         exceedProbParam.setInfo( EXCEED_PROB_INFO );
         exceedProbParam.setNonEditable();
+
+        // Put parameters in the otherParams list:
+        otherParams.clear();
+
+        otherParams.addParameter( sigmaTruncTypeParam );
+        otherParams.addParameter( sigmaTruncLevelParam );
+        otherParams.addParameter( exceedProbParam );
+
 
     }
 
