@@ -599,10 +599,12 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 		y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getWidth());
 	    }
 	    else {
-              if(!superscript) x = (float)(xx-tickLabelBounds.getWidth()/2);
-              else x = (float)(xx-tickLabelBounds.getWidth()/2 - 2);
+              x = (float)(xx-tickLabelBounds.getWidth()/2);
               y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getHeight());
 	    }
+
+            if(currentTickValue==getRange().getUpperBound())
+              x=x-6;
 
             /**
             * Code added to prevent overlapping of the Tick Labels.
@@ -611,9 +613,9 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
                 tickLabel="";
              }
              else {
-               if(j==1)
-                 removePreviousNine(i);
-               x0=x+tickLabelBounds.getWidth()+2;
+               if(j==1 && x<x0 )
+                 removePreviousTick();
+               x0=x+tickLabelBounds.getWidth()+3;
              }
              // System.out.println("HorizontalLogarithmicAxis:refreshTicks:tickLabel:="+tickLabel);
              Tick tick = new Tick(new Double(currentTickValue), tickLabel, x, y);
@@ -640,18 +642,21 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
  /**
    * removes the prevois nine so that powers of 10 can be displayed
+   * It sees whether there is 9 at previous position which is overlapping
+   * If that is so, then set the text of previous text to be ""
    */
-  private void removePreviousNine(int power) {
-    Tick tick=null;
-    Iterator iterator = ticks.iterator();
-    while (iterator.hasNext()) {
-      tick = (Tick)iterator.next();
-      if(tick.getText().equalsIgnoreCase("9")) {
-        break;
-      }
+  private void removePreviousTick() {
+    int size = ticks.size();
+    if(size==0)
+       return;
+    for(int i=size-1;i>0;--i) {
+      Tick tick = (Tick)ticks.get(i);
+      if(tick.getText().trim().equalsIgnoreCase(""))
+        continue;
+      ticks.remove(i);
+      ticks.add(new Tick(new Double(tick.getNumericalValue()),"",tick.getX(),tick.getY()));
+      return;
     }
-    if(tick!=null)
-      ticks.remove(tick);
   }
 
 

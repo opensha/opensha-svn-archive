@@ -713,9 +713,9 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
              if((y>y0 || (upperBound-lowerBound>3)) && j!=1)
                 tickLabel="";
               else {
-                if(j==1)
-                  removePreviousNine(i);
-              y0=y-tickLabelBounds.getHeight()-0.25;
+                if(j==1 && y>y0 )
+                 removePreviousTick();
+                 y0=y-tickLabelBounds.getHeight()-0.25;
               }
              // System.out.println("VerticalLogarithmicAxis:currenttickValue->"+currentTickValue+";TickLabel->"+tickLabel);
               Tick tick = new Tick(new Double(currentTickValue), tickLabel, x, y);
@@ -725,21 +725,25 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
     }
 
-  /**
-   * removes the prevois nine so that powers of 10 can be displayed
-   */
-  private void removePreviousNine(int power) {
-    Tick tick=null;
-    Iterator iterator = ticks.iterator();
-    while (iterator.hasNext()) {
-      tick = (Tick)iterator.next();
-      if(tick.getText().equalsIgnoreCase("9")) {
-        break;
+    /**
+     * removes the prevois nine so that powers of 10 can be displayed
+     * It sees whether there is 9 at previous position which is overlapping
+     * If that is so, then set the text of previous text to be ""
+     */
+    private void removePreviousTick() {
+      int size = ticks.size();
+      if(size==0)
+         return;
+      for(int i=size-1;i>0;--i) {
+        Tick tick = (Tick)ticks.get(i);
+        if(tick.getText().trim().equalsIgnoreCase(""))
+          continue;
+        ticks.remove(i);
+        ticks.add(new Tick(new Double(tick.getNumericalValue()),"",tick.getX(),tick.getY()));
+        return;
       }
-    }
-    if(tick!=null)
-      ticks.remove(tick);
   }
+
 
 
   /**
