@@ -5,7 +5,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.util.ArrayList;
-
+import java.util.ListIterator;
 
 import org.scec.util.FileUtils;
 import org.scec.data.region.*;
@@ -39,7 +39,7 @@ public class HazardMapCalcServlet extends HttpServlet {
 
   //Process the HTTP Get request
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws
-      ServletException, IOException {
+  ServletException, IOException {
 
     try {
 
@@ -49,10 +49,10 @@ public class HazardMapCalcServlet extends HttpServlet {
 
       //get the sites for which this needs to be calculated
       SitesInGriddedRegion sites = (SitesInGriddedRegion) inputFromApplet.
-          readObject();
+                                   readObject();
       //get the selected IMR
       AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)
-          inputFromApplet.readObject();
+                                       inputFromApplet.readObject();
       //get the selected EqkRupForecast
       Object obj = inputFromApplet.readObject();
       if (D) System.out.println("obj class = "+obj.getClass());
@@ -62,27 +62,34 @@ public class HazardMapCalcServlet extends HttpServlet {
       // get the MAX_SOURCE distance
       double maxDistance =  ((Double) inputFromApplet.readObject()).doubleValue();
 
-      //get the mode of Hazard Map calculation(Using Grid or Thread)
-      String hazardMapCalcOption = (String)inputFromApplet.readObject();
-
       //get the email address from the applet
       String emailAddr = (String) inputFromApplet.readObject();
       //get the parameter values in String form needed to reproduce this
       String mapParametersInfo = (String) inputFromApplet.readObject();
 
-      // new directory that will be created
-      long newDirId = System.currentTimeMillis();
+      //getting the dataset id, in which we want to put all his hazardmap dataset results
+      String datasetId = (String)inputFromApplet.readObject();
+      //new directory for Hazard map dataset
+      String datasetDir = "";
+      //checking if datasetId gievn by is null
+      if(datasetId!=null && !datasetId.trim().equals(""))
+        datasetDir = datasetId.trim();
+
+      else{
+        datasetDir = System.currentTimeMillis()+"";
+      }
+      //creating the dataset directory.
+      File hazardMapDataset = new File(PARENT_DIR+datasetDir);
+      hazardMapDataset.mkdir();
 
       // report to the user whether the operation was successful or not
       // get an ouput stream from the applet
       ObjectOutputStream outputToApplet = new ObjectOutputStream(response.
           getOutputStream());
-      outputToApplet.writeObject(new String(""+newDirId));
+      outputToApplet.writeObject("Generated Dataset with name :"+ datasetDir);
       outputToApplet.close();
 
-      String newDir = this.PARENT_DIR+newDirId+"/";
-      new File(newDir).mkdir();
-
+      String newDir = PARENT_DIR+datasetDir+"/";
       // write X values to a file
       FileWriter fwX_Values = new FileWriter(newDir+this.X_VALUES_FILE_NAME);
       for (int i=0; i<xValuesList.size(); ++i)
@@ -119,14 +126,9 @@ public class HazardMapCalcServlet extends HttpServlet {
 
       // now run the calculation on grid
       SubmitJobForGridComputation computation = null;
-
-      if(hazardMapCalcOption.equals(HazardMapSubmissionMethods.USE_GRID))
-        computation =  new SubmitJobForGridComputation(IMR_FILE_NAME, ERF_FILE_NAME,
-            REGION_FILE_NAME, X_VALUES_FILE_NAME,maxDistance, newDir, newDirId, sites,
-            emailAddr);
-      else
-        computation =  new SubmitJobForMultiprocessorComputation(IMR_FILE_NAME, ERF_FILE_NAME,
-            REGION_FILE_NAME, X_VALUES_FILE_NAME,maxDistance, newDir, newDirId,emailAddr);
+      computation =  new SubmitJobForGridComputation(IMR_FILE_NAME, ERF_FILE_NAME,
+          REGION_FILE_NAME, X_VALUES_FILE_NAME,maxDistance, newDir, datasetDir, sites,
+          emailAddr);
     }
     catch (Exception e) {
       // report to the user whether the operation was successful or not
@@ -138,7 +140,7 @@ public class HazardMapCalcServlet extends HttpServlet {
 
   //Process the HTTP Post request
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws
-      ServletException, IOException {
+  ServletException, IOException {
     // call the doPost method
     doGet(request, response);
   }

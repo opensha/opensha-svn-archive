@@ -68,7 +68,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
                                      String xValuesFileName,
                                      double maxDistance,
                                      String outputDir,
-                                     long remoteMachineSubdirName,
+                                     String remoteMachineSubdirName,
                                      String emailAddr) {
     if (!outputDir.endsWith("/"))
       outputDir = outputDir + "/";
@@ -96,7 +96,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
 
       // this will create  a new directory for each run on the remote machine
       String condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
-                                               "" + remoteMachineSubdirName,
+                                               remoteMachineSubdirName,
                                                outputDir,outputDir+SUBMIT_FILES_DIR,
                                                PRE_PROCESSOR_CONDOR_SUBMIT,
                                                REMOTE_DIR,
@@ -277,6 +277,6 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
   public final static void main(String args[]){
     SubmitJobForMultiprocessorComputation submitJob =
         new SubmitJobForMultiprocessorComputation(args[0],args[1],args[2],args[3],
-        Double.parseDouble(args[4]),args[5],Long.parseLong(args[6]),args[7]);
+        Double.parseDouble(args[4]),args[5],args[6],args[7]);
   }
 }

@@ -33,9 +33,6 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
    private final static String AXIS_RANGE_NOT_ALLOWED =
       new String("First Choose Add Graph. Then choose Axis Scale option");
 
-  //images for the OpenSHA
-  private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
-  private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
 
   //stores the instance of the application using this ButtonControlPanel
   ButtonControlPanelAPI application;
@@ -112,24 +109,6 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     this.add(jCheckxlog, 4);
   }
 
-
-  void imgLabel_mousePressed(MouseEvent e) {
-
-  }
-
-
-  void imgLabel_mouseReleased(MouseEvent e) {
-
-  }
-
-
-  void imgLabel_mouseEntered(MouseEvent e) {
-
-  }
-
-  void imgLabel_mouseExited(MouseEvent e) {
-
-  }
 
 
   /**

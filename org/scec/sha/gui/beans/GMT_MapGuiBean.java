@@ -75,6 +75,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     initParamListAndEditor();
     try {
       jbInit();
+      getParameterEditor(gmtMap.GMT_WEBSERVICE_NAME).setVisible(false);
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -91,6 +92,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
      initParamListAndEditor();
      try {
        jbInit();
+       getParameterEditor(gmtMap.GMT_WEBSERVICE_NAME).setVisible(false);
      }
      catch(Exception e) {
        e.printStackTrace();
@@ -174,7 +176,8 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
    */
   public void makeMap(XYZ_DataSetAPI xyzVals,String metadata){
 
-    boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
+   // boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
+    boolean gmtServerCheck = true;
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       try{

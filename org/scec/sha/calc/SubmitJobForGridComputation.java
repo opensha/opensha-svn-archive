@@ -109,7 +109,7 @@ public class SubmitJobForGridComputation {
                                      String xValuesFileName,
                                      double maxDistance,
                                      String outputDir,
-                                     long remoteMachineSubdirName,
+                                     String remoteMachineSubdirName,
                                      SitesInGriddedRegion griddedSites,
                                      String emailAddr) {
     if (!outputDir.endsWith("/"))
@@ -137,7 +137,7 @@ public class SubmitJobForGridComputation {
 
       // this will create  a new directory for each run on the remote machine
       String condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
-                                               "" + remoteMachineSubdirName,
+                                               remoteMachineSubdirName,
                                                outputDir,outputDir+SUBMIT_FILES_DIR,
                                                PRE_PROCESSOR_CONDOR_SUBMIT,
                                                REMOTE_DIR,
@@ -410,7 +410,7 @@ public class SubmitJobForGridComputation {
   //create shell script to ftp hazard curve tar file from remote machine
   protected void ftpCurvesFromRemoteMachine(String outputDir, String remoteDir,
                                           int expectedNumOfFiles,
-                                          String emailAddr, long datasetId) {
+                                          String emailAddr, String datasetId) {
     try {
       // write the post script.
       //When all jobs are finished, grid ftp files from almaak to gravity

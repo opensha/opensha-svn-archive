@@ -27,7 +27,7 @@ import org.scec.exceptions.ParameterException;
 import org.scec.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.sha.calc.HazardCurveCalculator;
-
+import org.scec.util.ImageUtils;
 
 
 /**
@@ -51,6 +51,7 @@ public class HazardMapApplet extends JApplet
   // for debug purpose
   protected final static boolean D = false;
   public static String SERVLET_URL  = "http://gravity.usc.edu/OpenSHA/servlet/HazardMapCalcServlet";
+  public static String DATASET_CHECK_SERVLET_URL = "http://gravity.usc.edu/OpenSHA/servlet/DatasetIdAndMetadataCheckServlet";
 
   //variables that determine the width and height of the frame
   private static final int W=550;
@@ -82,7 +83,6 @@ public class HazardMapApplet extends JApplet
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
   private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
- // private final static String MAP_CALC_CONTROL = "Select Map Calculation option";
 
 
   // objects for control panels
@@ -130,7 +130,15 @@ public class HazardMapApplet extends JApplet
   private ArbitrarilyDiscretizedFunc function;
   //instance to get the default IMT X values for the hazard Curve
   private IMT_Info imtInfo = new IMT_Info();
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
+
+
+  //images for the OpenSHA
+  private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
+  private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
+
+  //static string for the OPENSHA website
+  private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
+
 
   //keeps track of the step in the application to update the user of the progress.
   private int step;
@@ -138,6 +146,10 @@ public class HazardMapApplet extends JApplet
   Timer timer;
   //instance of Progress Bar
   private CalcProgressBar calcProgress;
+  private JLabel datasetLabel = new JLabel();
+  private JTextField datasetIdText = new JTextField();
+  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
 
   //Get a parameter value
@@ -179,7 +191,7 @@ public class HazardMapApplet extends JApplet
   //Component initialization
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
-    this.setSize(new Dimension(564, 721));
+    this.setSize(new Dimension(564, 768));
     this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(border1);
     mainPanel.setLayout(gridBagLayout6);
@@ -190,6 +202,7 @@ public class HazardMapApplet extends JApplet
     timespanPanel.setLayout(gridBagLayout3);
     imrPanel.setLayout(borderLayout2);
     imtPanel.setLayout(gridBagLayout8);
+    addButton.setBorder(null);
     addButton.setText("Start Calc");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -207,28 +220,40 @@ public class HazardMapApplet extends JApplet
     });
     emailLabel.setText("Email:");
     emailText.setText("");
+    datasetLabel.setText("Dataset Id:");
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 431));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(addButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(25, 115, 18, 109), 26, 9));
-    buttonPanel.add(emailLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(23, 5, 27, 0), 11, 12));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
     imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
     imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
-    buttonPanel.add(emailText,  new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(23, 0, 32, 0), 134, 4));
-    buttonPanel.add(controlComboBox,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(17, 0, 0, 0), -1, 2));
+    buttonPanel.add(datasetIdText,  new GridBagConstraints(2, 1, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(11, 22, 0, 5), 165, 7));
+    buttonPanel.add(emailText,  new GridBagConstraints(2, 0, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 22, 0, 5), 165, 7));
+    buttonPanel.add(emailLabel,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 76, 0, 0), 25, 12));
+    buttonPanel.add(datasetLabel,  new GridBagConstraints(1, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 73, 0, 0), 28, 10));
+    buttonPanel.add(addButton,        new GridBagConstraints(3, 3, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 11, 0, 13), 80, 9));
+    buttonPanel.add(controlComboBox,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(8, 8, 0, 0), 52, 2));
+    buttonPanel.add(imgLabel,    new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 66, 31, 55), 18, 14));
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab( "Earthquake Rupture Forecast", eqkRupPanel );
     parameterTabbedPanel.addTab("Time Span", timespanPanel);
     mainSplitPane.setDividerLocation(580);
     imr_IMTSplit.setDividerLocation(300);
+    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        imgLabel_mouseClicked(e);
+      }
+    });
   }
   //Start the applet
   public void start() {
@@ -558,15 +583,22 @@ public class HazardMapApplet extends JApplet
  void addButton_actionPerformed(ActionEvent e) {
    calcProgress = new CalcProgressBar("HazardMap Application","Initializing Calculation ...");
    // check that user has entered a valid email address
-   if(this.emailText.getText().trim().equalsIgnoreCase("")) {
+   String email = emailText.getText();
+   if(email.trim().equalsIgnoreCase("")) {
      JOptionPane.showMessageDialog(this, "Please Enter email Address");
+     return;
+   }
+   if(email.indexOf("@") ==-1 || email.indexOf(".") ==-1) {
+     JOptionPane.showMessageDialog(this, "Please Enter valid email Address");
      return;
    }
      timer = new Timer(100, new ActionListener() {
        public void actionPerformed(ActionEvent evt) {
          if(step ==1)
+           calcProgress.setProgressMessage("Checking if calculation have been done earlier ...");
+         else if(step ==2)
            calcProgress.setProgressMessage("Setting ERF on server ...");
-         else if(step == 2)
+         else if(step == 3)
            calcProgress.setProgressMessage("Submitting Calculations , Please wait ...");
          else if(step ==0){
            addButton.setEnabled(true);
@@ -586,19 +618,30 @@ public class HazardMapApplet extends JApplet
  public void run(){
    timer.start();
    try{
-     // get the selected forecast model
-     EqkRupForecast eqkRupForecast = null;
-     // get the selected IMR
-     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      step =1;
-     //gets the instance of the selected ERF
-     String eqkRupForecastLocation =  erfGuiBean.saveSelectedERF();
-     // this function will get the selected IMT parameter and set it in IMT
-     imtGuiBean.setIMT();
-     SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-     step =2;
-     sendParametersToServlet(griddedRegionSites, imr, eqkRupForecastLocation);
-     step =0;
+     //this connects to the servlet on web server to check if dataset name already exists
+     //or computation have already been for these parameter settings.
+     Object obj= checkForHazardMapComputation();
+     if(obj instanceof String){
+       JOptionPane.showMessageDialog(this, (String)obj);
+       step =0;
+       return;
+     }
+     else if(obj instanceof Boolean){ // if it is the instance of boolean which return true always
+       //meaning it is safe to proceeed with the calculation and the name of the dataset that user
+       //has specified.
+       // get the selected IMR
+       AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+       step =2;
+       //gets the instance of the selected ERF
+       String eqkRupForecastLocation =  erfGuiBean.saveSelectedERF();
+       // this function will get the selected IMT parameter and set it in IMT
+       imtGuiBean.setIMT();
+       SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+       step =3;
+       sendParametersToServlet(griddedRegionSites, imr, eqkRupForecastLocation);
+       step =0;
+     }
    }catch(ParameterException ee){
      ee.printStackTrace();
      step =0;
@@ -611,11 +654,63 @@ public class HazardMapApplet extends JApplet
      JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.INFORMATION_MESSAGE);
      return;
    }
+
  }
 
+ /**
+  * this connects to the servlet on web server to check if dataset name already exists
+  * or computation have already been for these parameter settings.
+  * @return
+  */
+ private Object checkForHazardMapComputation(){
+
+   try{
+     if(D) System.out.println("starting to make connection with servlet");
+     URL hazardMapServlet = new URL(DATASET_CHECK_SERVLET_URL);
+
+
+     URLConnection servletConnection = hazardMapServlet.openConnection();
+     if(D) System.out.println("connection established");
+
+     // inform the connection that we will send output and accept input
+     servletConnection.setDoInput(true);
+     servletConnection.setDoOutput(true);
+
+     // Don't use a cached version of URL connection.
+     servletConnection.setUseCaches (false);
+     servletConnection.setDefaultUseCaches (false);
+     // Specify the content type that we will send binary data
+     servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+     ObjectOutputStream toServlet = new
+                                    ObjectOutputStream(servletConnection.getOutputStream());
+
+     //sending the parameters info. to the servlet
+     toServlet.writeObject(getParametersInfo());
+
+     //sending the dataset id to the servlet
+     toServlet.writeObject(datasetIdText.getText());
+
+
+     toServlet.flush();
+     toServlet.close();
+
+     // Receive the datasetnumber from the servlet after it has received all the data
+     ObjectInputStream fromServlet = new ObjectInputStream(servletConnection.getInputStream());
+     Object obj=fromServlet.readObject();
+     //if(D) System.out.println("Receiving the Input from the Servlet:"+success);
+     fromServlet.close();
+     return obj;
+
+   }catch (Exception e) {
+     System.out.println("Exception in connection with servlet:" +e);
+     e.printStackTrace();
+   }
+   return null;
+ }
 
  /**
-  * sets up the connection with the servlet on the server (scec.usc.edu)
+  * sets up the connection with the servlet on the server (gravity.usc.edu)
   */
  private void sendParametersToServlet(SitesInGriddedRegion regionSites,
                                        AttenuationRelationshipAPI imr,
@@ -661,24 +756,23 @@ public class HazardMapApplet extends JApplet
      else maxDistance = new Double(distanceControlPanel.getDistance());
      toServlet.writeObject(maxDistance);
 
-     //sending to the server which option the user wants to get the HazardMap Calculation done.
-     String mapCalcOption = HazardMapSubmissionMethods.USE_GRID;
-     //if(mapSubmissionMethods == null ) mapCalcOption = new String(HazardMapSubmissionMethods.USE_GRID);
-     //else mapCalcOption = mapSubmissionMethods.getMapCalculationOption();
-     toServlet.writeObject(mapCalcOption);
-
      //sending email address to the servlet
      toServlet.writeObject(emailText.getText());
      //sending the parameters info. to the servlet
      toServlet.writeObject(getParametersInfo());
+
+     //sending the dataset id to the servlet
+     toServlet.writeObject(datasetIdText.getText());
+
+
      toServlet.flush();
      toServlet.close();
 
      // Receive the datasetnumber from the servlet after it has received all the data
      ObjectInputStream fromServlet = new ObjectInputStream(servletConnection.getInputStream());
-     String dataSetNumber=fromServlet.readObject().toString();
-     JOptionPane.showMessageDialog(this, "Generated Dataset id is:"+dataSetNumber);
-     if(D) System.out.println("Receiving the Input from the Servlet:"+dataSetNumber);
+     String dataset=fromServlet.readObject().toString();
+     JOptionPane.showMessageDialog(this, dataset);
+     if(D) System.out.println("Receiving the Input from the Servlet:"+dataset);
      fromServlet.close();
 
    }catch (Exception e) {
@@ -719,6 +813,14 @@ public class HazardMapApplet extends JApplet
        timeSpanGuiBean.getParameterListMetadataString() + systemSpecificLineSeparator;
  }
 
+ void imgLabel_mouseClicked(MouseEvent e) {
+   try{
+     this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE), "new_peer_win");
+   }catch(java.net.MalformedURLException ee){
+     JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
+                                   "Error Connecting to Internet",JOptionPane.OK_OPTION);
 
+   }
+ }
 
 }

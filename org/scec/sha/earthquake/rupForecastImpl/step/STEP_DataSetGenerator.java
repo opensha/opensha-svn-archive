@@ -34,10 +34,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
   private final static String DELTA_RATES_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
 
-  // VS 30 value to be set in the IMR
-  private final Double VS_30= new Double(760);
-
-  //private final double MIN_LAT= 32.5;
+   //private final double MIN_LAT= 32.5;
   private final double MIN_LAT= 32;
   //private final double MAX_LAT= 36.6;
   private final double MAX_LAT= 42.2;
