@@ -310,7 +310,7 @@ public class SubmitJobForGridComputation {
                   " file:" + outputDir + OUTPUT_TAR_FILE_NAME + "\n");
       frFTP.write("tar xf " + OUTPUT_TAR_FILE_NAME + "\n");
       String fileName = outputDir + "ActualFilesLog.log";
-      frFTP.write("ls -l *_*.txt | wc- l > " + fileName + "\n");
+      frFTP.write("ls -l *_*.txt | wc -l > " + fileName + "\n");
       frFTP.write("java -classpath /opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/ERF.jar:$CLASSPATH org.scec.sha.gui.infoTools.HazardMapCalcPostProcessing " +
                   fileName + " " + expectedNumOfFiles + " " + emailAddr + "\n");
       frFTP.close();

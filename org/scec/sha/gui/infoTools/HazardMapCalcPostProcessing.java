@@ -35,7 +35,7 @@ public class HazardMapCalcPostProcessing {
     try {
       FileReader file = new FileReader(fileName);
       BufferedReader reader = new BufferedReader(file);
-      int actualFiles = Integer.parseInt(reader.readLine());
+      int actualFiles = Integer.parseInt(reader.readLine().trim());
       reader.close();
       file.close();
 
