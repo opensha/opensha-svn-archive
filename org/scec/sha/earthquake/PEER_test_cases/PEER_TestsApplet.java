@@ -33,7 +33,7 @@ import org.scec.param.event.*;
  * @version 1.0
  */
 
-public class PEER_TestApplet extends JApplet implements LogPlotAPI {
+public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
 
   /**
    * Name of the class
@@ -173,7 +173,7 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
   }
 
   //Construct the applet
-  public PEER_TestApplet() {
+  public PEER_TestsApplet() {
 
   data.setFunctions(this.totalProbFuncs);
   // for Y-log, convert 0 values in Y axis to this small value
@@ -402,7 +402,7 @@ public class PEER_TestApplet extends JApplet implements LogPlotAPI {
 
   //Main method
   public static void main(String[] args) {
-    PEER_TestApplet applet = new PEER_TestApplet();
+    PEER_TestsApplet applet = new PEER_TestsApplet();
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3

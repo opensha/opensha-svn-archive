@@ -116,7 +116,7 @@ public class PEER_TestsGuiBean implements
     // search path needed for making editors
     private String[] searchPaths;
 
-    private PEER_TestApplet applet= null;
+    private PEER_TestsApplet applet= null;
 
 
   /*
@@ -162,7 +162,7 @@ public class PEER_TestsGuiBean implements
   /**
    * constructor
    */
-  public PEER_TestsGuiBean(PEER_TestApplet applet) {
+  public PEER_TestsGuiBean(PEER_TestsApplet applet) {
 
     this.applet = applet;
 
