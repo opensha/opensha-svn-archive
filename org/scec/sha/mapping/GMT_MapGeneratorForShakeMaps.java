@@ -163,10 +163,10 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     // now run the GMT script file
     String[] command ={"sh","-c","sh "+GMT_SCRIPT_NAME};
     RunScript.runScript(command);
-    String imgAddr = this.JPG_FILE_NAME;
+    imgWebAddr = this.JPG_FILE_NAME;
     // set the filenames back to default
     setFileNames(null);
-    return imgAddr;
+    return imgWebAddr;
   }
 
 
@@ -220,17 +220,18 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
     //get the metadata lines
     Vector metaDataLines = getMapInfoLines();
+    String img;
     try{
       imgWebAddr = this.openServletConnection(sa03DataSet, sa10DataSet, pgaDataSet,
                                               pgvDataSet, gmtLines, metaDataLines);
+      img = imgWebAddr +this.JPG_FILE_NAME;
     }catch(RuntimeException e){
       throw new RuntimeException(e.getMessage());
     }
 
     // set the filenames back to default
     setFileNames(null);
-
-    return imgWebAddr;
+    return img;
   }
 
 
@@ -300,7 +301,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       outputToServlet.writeObject(PGV);
 
       //sending the xyz file name to the servlet
-      outputToServlet.writeObject(XYZ_FILE_NAME);
+      outputToServlet.writeObject(DEFAULT_XYZ_FILE_NAME);
 
       //sending the contents of the Metadata file to the server.
       outputToServlet.writeObject(metadataLines);
