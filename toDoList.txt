@@ -1,37 +1,47 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-ReDo PEER set2, case5 (including fractiles) and update the Excel spreadsheet.
+Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
+
+Change the following in the GeographicRegion class:
+
+    getLocationList()      --> getRegionOutline()
+    getLocationsIterator() --> getRegionOutlineIterator()
+    getLocation(int)       --> REMOVE
+    getNumLocation()       --> getNumRegionOutlineLocations()
 
 Put calTopoInten03.grd on usc.gravity.edu (Ned has this on his computer)
 
 Access site-type servlets from the SitesInGriddedRegion rather than the GuiBean (so servlets can be accessed without having to have a GUI).  Make sure this is graceful if internet connection fails.
 
+Subclass the GMT_MapGenerator as GMT_MapGeneratorForShakeMaps in the sha package, and change the makeMap* methods in this sublcalss like the follow:
+
+	makeMapLocally(XYZ_DataSetAPI xyzDataSet, EarthquakeRupture eqkRup, Location hypLoc)
+
+	(that is, add eqkRup and hypLoc input parameters)
+
+	change the ScenarioShakeMapApp to pass these new arguments 
+	(set hypLoc=null if not selected)
+
+	for now have this method simply call the same in the parent (Ned will take it from here)
+
+ 	have the MapGuiBean wrap this new class rather than the parent
+
 ScenarioShakeMapApp
-
-	change set sites from CVM list options:
-
-		"Apply same ..."
-		"Use the Wills et al. (2000) Map Web Service"
-		"Use both Wills Map and SCEC Basin Depth Web Service"
-
-		TEST THIS
-
-	after all the above are done, subclass the GMT_MapGenerator as GMT_MapGeneratorForShakeMaps 
-	in the sha package, and change the makeMap* methods in this sublcalss like the follow:
-
-		makeMapLocally(XYZ_DataSetAPI xyzDataSet, EarthquakeRupture eqkRup, Location hypLoc)
-
-		change the ScenarioShakeMapApp to pass these new arguments 
-		(hypLoc=null if not selected)
-
-		for now have this method simply call the same in the parent (Ned will take it from here)
-
- 		have the MapGuiBean wrap this new class rather than the parent
 
 	add option to make Hazus shape files to the GMT_MapGeneratorForShakeMaps class (add this to the script).  
 	
 	if possible, make image scalable with window size (although keep aspect ratio fixed)
+
+AttenuationRelationshipApp
+
+	Remove the label (and space) at the top where is says "Attenuation Relationship GUI"
+	(this is redundant with the application title bar)
+
+	Fix this plotting problem: Choose ShakeMap (2003), select "Std. Dev." for the Y axis, and 
+	then add plot (you can't see anything, presumably because the data only has one value).  This
+	is only a problem for linear plots, which means it my be JFreeChart's issue?
+
 
 GMT_MapGenerator:
 
@@ -41,13 +51,9 @@ GMT_MapGenerator:
     		GS_PATH
     		CONVERT_PATH
 
-Get Bruce's code running on Mac OS X - done, waiting to hear from Hope on whether it works.
-
 Finish making it so scenario shakemaps can be calculated in stand-alone mode.  Make getScenarioShakeMapData(*) method take an EarthquakeRupture (not a ProbEarthquakeRupture) rather than an ERF, source, and rupture index.  Also make sure that value is between 0 and 1 if isProbAtIML=false.  Have the above method return xyzData rather than taking it as an argument (it's not needed as input since the sitesInGriddedRegion has the lats and lons for the calc).
 
 We need to somehow metadata in the HazardCurveCalculator; also make the ability to "peel off" the plot/metadata window (Ned and Nitin will discuss this more later)?
-
-See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
 
 Finish PEER results plotter & data submission tool (when they give us the final files).
 
