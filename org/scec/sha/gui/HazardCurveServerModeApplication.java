@@ -819,7 +819,9 @@ public class HazardCurveServerModeApplication extends JApplet
     int newLoc = loc;
     graphPanel.removeChartAndMetadata();
     panel.removeAll();
-    if( clearFunctions)       functionList.clear();
+    if( clearFunctions)
+      functionList.clear();
+
     customAxis = false;
     chartSplit.setDividerLocation( newLoc );
   }

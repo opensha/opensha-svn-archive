@@ -478,9 +478,9 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
     int newLoc = loc;
     graphPanel.removeChartAndMetadata();
     panel.removeAll();
-    if( clearFunctions) {
+    if( clearFunctions)
       functionList.clear();
-    }
+
     customAxis = false;
     chartSplit.setDividerLocation( newLoc );
   }
