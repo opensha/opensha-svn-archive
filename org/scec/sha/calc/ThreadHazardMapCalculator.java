@@ -56,6 +56,7 @@ public class ThreadHazardMapCalculator {
        // index 0 - IMR File Name (shakemap_imr.dat)
        // index 3 - X-Values file name
        // index 4 - Max Source distance.
+       // index 5 - number of processors requested
        */
     try {
       // make a array for saving the X values
@@ -75,11 +76,11 @@ public class ThreadHazardMapCalculator {
     try{
 
       SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
-      //hazCurveCalc.setMaxSourceDistance(this.MAX_DISTANCE);
+      int numOfProcs = Integer.parseInt(args[5]);
       int numSites = griddedSites.getNumGridLocs();
       //dividing the number of sites on each processor based on the number of processor
       //requested from the server.
-      int sitesPerProcessor = (int)(numSites/SubmitJobForMultiprocessorComputation.NUM_OF_PROCESSORS_AVAILABLE+1);
+      int sitesPerProcessor = (int)(numSites/numOfProcs+1);
       for(int j=0;j<numSites;j+=sitesPerProcessor){
         int endIndex = j+sitesPerProcessor;
         if(endIndex >=numSites)
