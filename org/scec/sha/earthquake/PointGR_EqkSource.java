@@ -91,11 +91,10 @@ public class PointGR_EqkSource extends ProbEqkSource {
    * @return the object of the ProbEqkRupture class after setting the probability
    */
   public ProbEqkRupture getRupture(int nthRupture){
-
-    probEqkRupture.setMag(gR.getX(nthRupture-1));
-    double prob = 1 - Math.exp(-timeSpan*gR.getY(nthRupture-1));
-    probEqkRupture.setProbability(prob);
-    return probEqkRupture;
+     probEqkRupture.setMag(gR.getX(nthRupture));
+     double prob = 1 - Math.exp(-timeSpan*gR.getY(nthRupture));
+     probEqkRupture.setProbability(prob);
+     return probEqkRupture;
   }
 
 

@@ -195,19 +195,30 @@ public class Field_2000_IMR
         // This will throw a parameter exception if the Vs30Param doesn't exist
         // in the Site object
         ParameterAPI vs30 = site.getParameter( VS30_NAME );
-        ParameterAPI basinDepth = site.getParameter(BASIN_DEPTH_NAME);
+
+         ParameterAPI basinDepth = site.getParameter(BASIN_DEPTH_NAME);
 
         // This may throw a constraint exception
-        this.vs30Param.setValue( vs30.getValue() );
-        this.basinDepthParam.setValue( basinDepth.getValue() );
+         try{
+           this.vs30Param.setValue( vs30.getValue() );
+         } catch (WarningException e){
+           if(D) System.out.println(C+"Warning Exception:"+e);
+         }
 
-        // Now pass function up to super to set the site
-        super.setSite( site );
+         try{
+           this.basinDepthParam.setValue( basinDepth.getValue() );
+         } catch (WarningException e){
+           if(D) System.out.println(C+"Warning Exception:"+e);
+         }
 
-        // Calculate the PropagationEffectParameters; this is
-        // not efficient if both the site and probEqkRupture
-        // are set before getting the mean, stdDev, or ExceedProbability
-        setPropagationEffectParams();
+
+         // Now pass function up to super to set the site
+         super.setSite( site );
+
+         // Calculate the PropagationEffectParameters; this is
+         // not efficient if both the site and probEqkRupture
+         // are set before getting the mean, stdDev, or ExceedProbability
+         setPropagationEffectParams();
 
     }
 

@@ -260,6 +260,7 @@ public class Abrahamson_2000_IMR
         ParameterAPI siteType = site.getParameter( SITE_TYPE_NAME );
 
         // This may throw a constraint exception
+
         this.siteTypeParam.setValue( siteType.getValue() );
 
         // Now pass function up to super to set the site

@@ -91,9 +91,9 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   * @return the object for the ProbEqkRupture
   */
   public ProbEqkRupture getRupture(int nRupture){
-    if(nRupture!=1)
+    if(nRupture!=0)
       throw new RuntimeException(name+":getRupture():: Char type faults have only"+
-                            "1 rupture nRupture should be equal to 1");
+                            "1 rupture nRupture should be equal to 0");
     return probEqkRupture;
   }
 
@@ -107,7 +107,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   */
   public Vector getRuptureList(){
     Vector v= new Vector();
-    v.add(getRuptureClone(1));
+    v.add(getRuptureClone(0));
     return v;
   }
 

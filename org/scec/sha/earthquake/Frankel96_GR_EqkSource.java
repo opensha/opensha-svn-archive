@@ -80,7 +80,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
 
     // Determine number of ruptures
     int numMags = gR.getNum();
-    int totNumRups=0;
+    totNumRups=0;
     WC1994_MagLengthRelationship magLength = new WC1994_MagLengthRelationship();
     for(int i=0;i<num;++i){
       double rupLen = magLength.getMeanLength(gR.getX(i),rake);
@@ -107,7 +107,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
     double mag=0, rupLen=0;
     int numRups=0, tempNumRups=0;
 
-    if(nthRupture < 1 || nthRupture>getNumRuptures())
+    if(nthRupture < 0 || nthRupture>=getNumRuptures())
        throw new RuntimeException(C+":getRupture():: Invalid rupture index. This index does not exist");
 
     WC1994_MagLengthRelationship magLength = new WC1994_MagLengthRelationship();
@@ -116,7 +116,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
       rupLen = magLength.getMeanLength(gR.getX(i),rake);
       numRups = getNumRuptures(rupLen);
       tempNumRups += numRups;
-      if(nthRupture <= tempNumRups)
+      if(nthRupture < tempNumRups)
         break;
     }
     // set probability
@@ -127,7 +127,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
     // set rupture surface
     probEqkRupture.setRuptureSurface( surface.getNthSubsetSurface(rupLen,
                                       RUPTURE_WIDTH,RUPTURE_OFFSET,
-                                      nthRupture+numRups-tempNumRups-1));
+                                      nthRupture+numRups-tempNumRups));
 
     return probEqkRupture;
   }

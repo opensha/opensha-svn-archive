@@ -53,7 +53,7 @@ public class EvenlyGriddedSurface extends GriddedSurface {
     public GriddedSubsetSurface getNthSubsetSurface(int numSubSurfaceCols, int numSubSurfaceRows, int numSubSurfaceOffset, int n) {
 
         Iterator it = getSubsetSurfacesIterator(numSubSurfaceCols, numSubSurfaceRows, numSubSurfaceOffset);
-        int count = 1;
+        int count = 0;
 
         // while there are more subset surfaces
         while(it.hasNext()) {

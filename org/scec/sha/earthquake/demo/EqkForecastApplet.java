@@ -45,7 +45,7 @@ public class EqkForecastApplet extends JApplet
   private String C = "EqkForecastApplet";
   private boolean D = true ; // flag only used for debug purposes
 
-
+  private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
   /**
    *  Temp until figure out way to dynamically load classes during runtime
@@ -86,6 +86,7 @@ public class EqkForecastApplet extends JApplet
   protected final static String LATITUDE = "Latitude";
   protected final static int W = 915;
   protected final static int H = 725;
+  private final static String NO_PLOT_MSG = "No Plot Data Available";
 
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
   protected final double MAX_DISTANCE = 200;
@@ -108,6 +109,14 @@ public class EqkForecastApplet extends JApplet
   Color background = new Color(200,200,230);
   Color foreground = new Color(80,80,133);
 
+  protected ChartPanel chartPanel;
+  JTextArea pointsTextArea = new JTextArea();
+
+  /**
+   * adding scroll pane for showing data
+   */
+  JScrollPane dataScrollPane = new JScrollPane();
+
   /**
    *  Hashmap that maps picklist imr string names to the real fully qualified
    *  class names
@@ -129,7 +138,7 @@ public class EqkForecastApplet extends JApplet
   // array of checkboxes. One check box for each supported IMR
   private JCheckBox[] jIMRNum;
 
-
+  protected boolean graphOn = false;
   /**
    *  This is the paramater list editor. The site parameters will be made
    *  removed . This is done through this editor.
@@ -208,6 +217,7 @@ public class EqkForecastApplet extends JApplet
   GridBagLayout gridBagLayout2 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
   JCheckBox jCheckBasin = new JCheckBox();
+  private JButton jToggleButton = new JButton();
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -239,7 +249,8 @@ public class EqkForecastApplet extends JApplet
   //Component initialization
   private void jbInit() throws Exception {
     jBCalc.setBackground(new Color(200, 200, 230));
-    jBCalc.setBounds(new Rectangle(687, 626, 122, 33));
+    jBCalc.setBounds(new Rectangle(635, 630, 122, 33));
+    jBCalc.setFont(new java.awt.Font("Dialog", 1, 11));
     jBCalc.setForeground(new Color(80, 80, 133));
     jBCalc.setText("Add Graph");
     jBCalc.addActionListener(new java.awt.event.ActionListener() {
@@ -263,6 +274,21 @@ public class EqkForecastApplet extends JApplet
         jCheckBasin_actionPerformed(e);
       }
     });
+    jToggleButton.setBackground(new Color(200, 200, 230));
+    jToggleButton.setBounds(new Rectangle(763, 629, 103, 34));
+    jToggleButton.setFont(new java.awt.Font("Dialog", 1, 11));
+    jToggleButton.setForeground(new Color(80, 80, 133));
+    jToggleButton.setMaximumSize(new Dimension(83, 37));
+    jToggleButton.setMinimumSize(new Dimension(83, 37));
+    jToggleButton.setPreferredSize(new Dimension(83, 37));
+    jToggleButton.setText("Show Data");
+    jToggleButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        jToggleButton_actionPerformed(e);
+      }
+    });
+    dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
+    dataScrollPane.getViewport().add( pointsTextArea, null );
     jEqkForecastPanel.add(panel, null);
     jEqkForecastPanel.add(jIMR, null);
     jEqkForecastPanel.add(jIMRList, null);
@@ -270,13 +296,14 @@ public class EqkForecastApplet extends JApplet
     jEqkForecastPanel.add(jCheckCVM, null);
     jEqkForecastPanel.add(jIMTLabel, null);
     jEqkForecastPanel.add(jIMTComboBox, null);
-    jEqkForecastPanel.add(jBCalc, null);
     jEqkForecastPanel.add(jForecastLabel, null);
     jEqkForecastPanel.add(jTimeSpan, null);
     jEqkForecastPanel.add(jTimeField, null);
     jEqkForecastPanel.add(jYears, null);
     jEqkForecastPanel.add(jEqkForeType, null);
     jEqkForecastPanel.add(jCheckBasin, null);
+    jEqkForecastPanel.add(jBCalc, null);
+    jEqkForecastPanel.add(jToggleButton, null);
     border1 = BorderFactory.createEtchedBorder(new Color(200, 200, 230),new Color(80, 80, 133));
     border2 = BorderFactory.createEtchedBorder(new Color(200, 200, 230),new Color(80, 80, 133));
     border3 = BorderFactory.createLineBorder(new Color(80, 80, 133),1);
@@ -356,6 +383,9 @@ public class EqkForecastApplet extends JApplet
     jCheckCVM.setText("Set Vs30 from CVM Servlet");
     jCheckCVM.setBounds(new Rectangle(638, 520, 219, 22));
     this.getContentPane().add(jEqkForecastPanel, null);
+    pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
+    pointsTextArea.setText( NO_PLOT_MSG );
+    dataScrollPane.getViewport().add( pointsTextArea, null );
   }
 
 
@@ -894,7 +924,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     sitePanel.add(siteEditor,BorderLayout.CENTER);
     validate();
     repaint();
-    JOptionPane.showMessageDialog(this,"We have got the Vs30 from server located at USC");
+    JOptionPane.showMessageDialog(this,"We have got the Vs30 from SCEC CVM");
 
    }catch (NumberFormatException ex) {
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
@@ -1002,7 +1032,8 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
           try {
              ((ClassicIMRAPI)imrObject.get(i)).setSite(site);
           } catch (Exception ex) {
-                 if(D) System.out.println(C + ":Param warning caught");
+                 if(D) System.out.println(C + ":Param warning caught"+ex);
+                 ex.printStackTrace();
 
           }
          }
@@ -1021,7 +1052,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
         // for each source, get the number of ruptures
         int numRuptures = eqkRupForecast.getNumRuptures(i);
          if(D) System.out.println("number of ruptures::" +numRuptures);
-         for(int n=1; n <= numRuptures ;n++){
+         for(int n=0; n < numRuptures ;n++){
            // for each rupture, set in IMR and do computation
            if (D) System.out.println("RuptureNumber:"+n);
            double qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
@@ -1056,6 +1087,12 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       }
     }
 
+    // add the text area
+    int imrSize=this.imrNames.size();
+    for(int imr=0;imr<imrSize;++imr){
+      if(this.jIMRNum[imr].isSelected())
+        pointsTextArea.setText(hazFunction[imr].getInfo() + ": " + '\n' + totalProbFuncs.toString() );
+    }
     // draw the graph
     this.addGraphPanel();
   }
@@ -1183,7 +1220,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       // chart.setBackgroundImageAlpha(.3f);
 
       // Put into a panel
-      ChartPanel chartPanel = new ChartPanel(chart, true, true, true, true, false);
+      chartPanel = new ChartPanel(chart, true, true, true, true, false);
       //panel.setMouseZoomable(true);
 
       chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
@@ -1192,13 +1229,16 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       chartPanel.setHorizontalAxisTrace(false);
       chartPanel.setVerticalAxisTrace(false);
 
-      panel.removeAll();
-      panel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                              , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+      //panel.removeAll();
+      //panel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+        //                      , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
 
       if(D) System.out.println(this.totalProbFuncs.toString());
-      validate();
-      repaint();
+      //validate();
+      //repaint();
+      graphOn=false;
+      togglePlot();
 
    }
 
@@ -1268,7 +1308,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     sitePanel.add(siteEditor,BorderLayout.CENTER);
     validate();
     repaint();
-    JOptionPane.showMessageDialog(this,"We have got the Basin Depth from server located at USC");
+    JOptionPane.showMessageDialog(this,"We have got the Basin Depth from SCEC CVM");
 
    }catch (NumberFormatException ex) {
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
@@ -1276,5 +1316,76 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
      System.out.println("Exception in connection with servlet:" +exception);
    }
   }
+
+
+  /**
+   *  Description of the Method
+   */
+  protected void togglePlot() {
+
+      // Starting
+      String S = C + ": togglePlot(): ";
+      panel.removeAll();
+      if ( graphOn ) {
+
+          this.jToggleButton.setText( "Show Plot" );
+          graphOn = false;
+
+          panel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                  , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+      }
+      else {
+          graphOn = true;
+          // dataScrollPane.setVisible(false);
+          this.jToggleButton.setText( "Show Data" );
+                        // panel added here
+          if(chartPanel !=null)
+              panel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                      , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+          else
+              // innerPlotPanel.setBorder(oval);
+              panel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                      , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+
+      }
+
+
+      validate();
+      repaint();
+
+      if ( D ) System.out.println( S + "Ending" );
+
+    }
+
+    /**
+     *  write out data to file. Needs to be enhanced. No checking is done to
+     *  make sure it's not a dir, the file is writable if it exists, etc.
+     *
+     * @param  e  Description of the Parameter
+     */
+    void pointsTextArea_mouseClicked( MouseEvent e ) {
+
+        // Starting
+        String S = C + ": pointsTextArea_mouseClicked(): ";
+        if ( D )
+            System.out.println( S + "Starting" );
+
+        // right mouse button not clicked
+        if ( !( ( e.getModifiers() & InputEvent.BUTTON3_MASK ) != 0 ) )
+            return;
+
+        if ( pointsTextArea.getText().equals( NO_PLOT_MSG ) )
+            return;
+
+         if ( D )
+            System.out.println( S + "Ending" );
+
+    }
+
+  void jToggleButton_actionPerformed(ActionEvent e) {
+    togglePlot();
+  }
+
 
 }

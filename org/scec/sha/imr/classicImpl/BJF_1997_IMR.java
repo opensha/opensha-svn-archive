@@ -183,10 +183,15 @@ public class BJF_1997_IMR
 
         // This will throw a parameter exception if the Vs30Param doesn't exist
         // in the Site object
-        ParameterAPI vs30 = site.getParameter( VS30_NAME );
 
-        // This may throw a constraint exception
-        this.vs30Param.setValue( vs30.getValue() );
+        ParameterAPI vs30 = site.getParameter( VS30_NAME );
+       // This may throw a constraint exception
+        try{
+          this.vs30Param.setValue( vs30.getValue() );
+        } catch (WarningException e){
+          if(D) System.out.println(C+"Warning Exception:"+e);
+        }
+
 
         // Now pass function up to super to set the site
         super.setSite( site );

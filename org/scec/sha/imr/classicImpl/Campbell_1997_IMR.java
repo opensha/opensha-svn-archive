@@ -225,13 +225,18 @@ public class Campbell_1997_IMR
         ParameterAPI siteType = site.getParameter( SITE_TYPE_NAME );
 
         // This may throw a constraint exception
+
         this.siteTypeParam.setValue( siteType.getValue() );
 
         // likewise for basin depth parameter
         ParameterAPI basinDepth = site.getParameter( BASIN_DEPTH_NAME );
 
         // This may throw a constraint exception
-        this.basinDepthParam.setValue( basinDepth.getValue() );
+        try{
+          this.basinDepthParam.setValue( basinDepth.getValue() );
+        } catch (WarningException e){
+          if(D) System.out.println(C+"Warning Exception:"+e);
+        }
 
 
         // Now pass function up to super to set the site

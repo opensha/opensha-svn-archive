@@ -251,10 +251,11 @@ public class AS_1997_IMR
 
         // This will throw a parameter exception if the parameter doesn't exist
         // in the Site object
+
         ParameterAPI siteType = site.getParameter( SITE_TYPE_NAME );
 
         // This may throw a constraint exception
-        this.siteTypeParam.setValue( siteType.getValue() );
+         this.siteTypeParam.setValue( siteType.getValue() );
 
         // Now pass function up to super to set the site
         // Why not just say "this.Site = site" ?? (Ned)
