@@ -1560,7 +1560,7 @@ public class HazardCurveApplet extends JApplet
         imtGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"Forecast Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
-        /*erfGuiBean.getParameterList().toString()+systemSpecificLineSeparator+*/
+        erfGuiBean.getParameterList().toString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
         timeSpanGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator;
