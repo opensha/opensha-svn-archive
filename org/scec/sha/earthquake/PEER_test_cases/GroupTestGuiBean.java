@@ -69,6 +69,7 @@ public class GroupTestGuiBean implements
   private final static String TRUNCLEVEL_PARAM_NAME =  "Trunc-Level";
   private final static String IMT_PARAM_NAME =  "Select IMT";
   private final static String STD_DEV_TYPE_NAME = "Std Dev Type";
+  protected final static String SIGMA_TRUNC_TYPE_NONE = "None";
 
   private final static String MAG_DIST_PARAM_NAME = "Mag Dist";
 
@@ -339,6 +340,7 @@ public class GroupTestGuiBean implements
 
     //add the sigma param for IMR
     ParameterAPI sigmaParam = imr.getParameter(STD_DEV_TYPE_NAME);
+    sigmaParam.setValue(((StringParameter)sigmaParam).getAllowedStrings().get(0));
     imrParamList.addParameter(sigmaParam);
 
     imrEditor = new ParameterListEditor(imrParamList,searchPaths);
@@ -727,16 +729,28 @@ public class GroupTestGuiBean implements
         initDiscretizeValues(hazFunction);
         hazFunction.setInfo(selectedIMR);
 
-        // set the std dev
-        String stdDev = (String)imrParamList.getValue(this.STD_DEV_TYPE_NAME);
-        imr.getParameter(this.STD_DEV_TYPE_NAME).setValue(stdDev);
+
 
         // pass the site object to each IMR
         try {
           if(D) System.out.println("siteString:::"+site.toString());
           imr = (ClassicIMRAPI)imrObject.get(i);
+
+          // set the std dev
+          String stdDev = (String)imrParamList.getValue(this.STD_DEV_TYPE_NAME);
+          imr.getParameter(this.STD_DEV_TYPE_NAME).setValue(stdDev);
           imr.setIntensityMeasure(imt);
 
+          // set the Gaussian truncation type and level
+          String truncType = (String)imrParamList.getValue(this.TRUNCTYPE_PARAM_NAME);
+          imr.getParameter(this.TRUNCTYPE_PARAM_NAME).setValue(truncType);
+
+          // if trunc type is not none, set the level
+          if(!truncType.equalsIgnoreCase(SIGMA_TRUNC_TYPE_NONE)) {
+            // set the trunc level
+            Double truncLevel = (Double)imrParamList.getValue(this.TRUNCLEVEL_PARAM_NAME);
+            imr.getParameter(this.TRUNCLEVEL_PARAM_NAME).setValue(truncLevel);
+          }
           //set all the independent parameters related to this IMT
           ListIterator it = this.imtParamList.getParameterNamesIterator();
           while(it.hasNext()) {
