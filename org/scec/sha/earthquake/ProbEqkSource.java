@@ -25,7 +25,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
   /**
    * This is private variable which saves a earthquake rupture
    */
-  private ProbEqkRupture probEqkRupture;
+  protected ProbEqkRupture probEqkRupture;
 
 
 

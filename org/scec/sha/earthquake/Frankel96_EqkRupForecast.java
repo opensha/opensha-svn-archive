@@ -222,12 +222,12 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
           //FIX this is very very temp for the time being, has to ask Ned when he returns on Monday
           double prob = 1-Math.exp(-rate*10000);
 
-          // we have to FIX the value of gridspacing here
+          // value of gridspacing has been set to 1 km
           factory = new FrankelGriddedFaultFactory(faultTrace,
                                                    dip,
                                                    upperSeismoDepth,
                                                    lowerSeismoDepth,
-                                                   1);
+                                                   1.0);
 
           GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
