@@ -50,7 +50,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         ItemListener, LogPlotAPI, AxisLimitsControlPanelAPI {
 
     protected final static String C = "AttenuationRelationshipTesterApp";
-    private final static String version = "0.1.6";
+    private final static String version = "0.2.7";
     protected final static boolean D = false;
   /**
    * these four values save the custom axis scale specified by user
