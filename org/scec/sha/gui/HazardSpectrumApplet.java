@@ -77,7 +77,7 @@ public class HazardSpectrumApplet extends JApplet
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
-  public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.SimplePoissonFaultERF";
+  public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF";
   public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
@@ -170,7 +170,7 @@ public class HazardSpectrumApplet extends JApplet
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
   // height and width of the applet
-  private final static int W = 1000;
+  private final static int W = 1200;
   private final static int H = 750;
 
   /**
@@ -341,7 +341,7 @@ public class HazardSpectrumApplet extends JApplet
       }catch(RuntimeException e){
       JOptionPane.showMessageDialog(this,"Connection to ERF failed","Internet Connection Problem",
                                     JOptionPane.OK_OPTION);
-      System.exit(0);
+      return;
       }
     }
     catch(Exception e) {
@@ -360,7 +360,7 @@ public class HazardSpectrumApplet extends JApplet
     border7 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     //this.getContentPane().setBackground(Color.white);
-    this.setSize(new Dimension(1000, 670));
+    this.setSize(new Dimension(1100, 670));
     this.getContentPane().setLayout(borderLayout1);
 
 
@@ -498,8 +498,8 @@ public class HazardSpectrumApplet extends JApplet
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     topSplitPane.setDividerLocation(600);
     imrSplitPane.setDividerLocation(300);
-    erfSplitPane.setDividerLocation(180);
-    controlsSplit.setDividerLocation(180);
+    erfSplitPane.setDividerLocation(260);
+    controlsSplit.setDividerLocation(260);
     erfPanel.validate();
     erfPanel.repaint();
     chartSplit.setDividerLocation(600);
@@ -1431,16 +1431,17 @@ public class HazardSpectrumApplet extends JApplet
   private void initERF_GuiBean() {
      // create the ERF Gui Bean object
    Vector erf_Classes = new Vector();
-  erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
    erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
+   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
+   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+   erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
+
    try{
      if(erfGuiBean == null)
        erfGuiBean = new ERF_GuiBean(erf_Classes);
@@ -1462,15 +1463,16 @@ public class HazardSpectrumApplet extends JApplet
   private void initERFSelector_GuiBean() {
      // create the ERF Gui Bean object
    Vector erf_Classes = new Vector();
+   erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
+   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(WG02_FORECAST_CLASS_NAME);
+   erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(WG02_FORECAST_CLASS_NAME);
-   erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
+
    try{
      if(erfRupSelectorGuiBean == null)
        erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
