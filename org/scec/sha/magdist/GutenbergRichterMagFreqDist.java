@@ -323,4 +323,21 @@ public DiscretizedFuncAPI deepClone(){
     return f;
    }
 
+   /**
+    * this function is for setting the name
+    **/
+
+   public void setName(String name) {
+     throw new UnsupportedOperationException(C+"::setName not allowed for MagFreqDist.");
+
+   }
+
+   /**
+    * this function is for setting the info
+    **/
+   public void setInfo(String info) {
+     throw new UnsupportedOperationException(C+"::::setInfo not allowed for MagFreqDist.");
+
+   }
+
 }

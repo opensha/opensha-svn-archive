@@ -294,10 +294,13 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
 
    /**
     * this function is needed to prepare for the forecast
-    */
+    **/
+
    public void updateForecast() {
+     throw new UnsupportedOperationException(C+"::updateForecast() Not implemented.");
 
    }
+
 
    public static void main(String args[]) {
 

@@ -132,4 +132,21 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    return "mag="+this.mag+";"+"rate="+(float)rate+";"+"totMoRate="+(float)totMoRate;
  }
 
+ /**
+   * this function is for setting the name
+   **/
+
+  public void setName(String name) {
+    throw new UnsupportedOperationException(C+"::setName not allowed for MagFreqDist.");
+
+  }
+
+  /**
+   * this function is for setting the info
+   **/
+  public void setInfo(String info) {
+    throw new UnsupportedOperationException(C+"::::setInfo not allowed for MagFreqDist.");
+
+  }
+
 }

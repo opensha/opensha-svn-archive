@@ -474,6 +474,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
     **/
 
    public void updateForecast() {
+     throw new UnsupportedOperationException(C+"::updateForecast() Not implemented.");
 
    }
 
