@@ -92,7 +92,7 @@ public class HazardMapCalculator {
     hazCurveCalc.showProgressBar(false);
 
     if(this.showProgressBar) { // show the progress bar
-      progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+      progressClass = new CalcProgressBar("Hazard-Map Calc Status", "Beginning Calculation ");
       progressClass.displayProgressBar();
     }
 

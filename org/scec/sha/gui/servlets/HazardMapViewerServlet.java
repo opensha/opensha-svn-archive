@@ -6,14 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Hashtable;
 import java.util.Vector;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.FileReader;
-import java.io.BufferedReader;
+import java.io.*;
 import javax.servlet.ServletException;
-import java.io.File;
-import java.io.FileWriter;
 import java.util.StringTokenizer;
 import java.text.DecimalFormat;
 
@@ -75,6 +69,12 @@ public class HazardMapViewerServlet  extends HttpServlet {
                                                     isProbAt_IML, val, map);
         // jpg file name
         String jpgFileName  = map.makeMap(xyzFileName);
+
+        // make the html file
+        makeHTML_File(outputFilePrefix);
+        ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
+        outputToApplet.writeObject("http://scec.usc.edu:9999/"+outputFilePrefix+".html");
+        outputToApplet.close();
       }
 
     }catch(Exception e) {
@@ -305,5 +305,49 @@ public class HazardMapViewerServlet  extends HttpServlet {
   private double interpolateProb(double prob, double y1,double y2,double x1,double x2){
     return ((prob-y1)/(y2-y1))*(x2-x1)+x1;
    }
+
+   /**
+  * Creates a HTML page with the link to the file
+  *
+  * @param htmlFileName : name of HTML page
+  * @param linkFileName : name of file to be linked
+  */
+ public void makeHTML_File(String outputFilePrefix) {
+    BufferedWriter htmlWriter = null;
+    try{
+
+      FileOutputStream outputfile = new FileOutputStream("/export/home/scec-00/scecweb/jsdk2.1/webpages/"+outputFilePrefix+".html");
+      BufferedOutputStream buffout = new BufferedOutputStream(outputfile);
+      htmlWriter = new BufferedWriter(new OutputStreamWriter(buffout));
+      String htmlData=new String("<html><head><title>Download Page</title></head><body><p><br>");
+      htmlWriter.write(htmlData);
+      htmlWriter.newLine();
+
+      htmlWriter.write("Download the XYZ file from "
+                       +"<a href= ../"+outputFilePrefix+".xyz target=htmlfile> here</a>");
+      htmlWriter.write("<br>");
+      htmlWriter.write("Download the ps file from "
+                      +"<a href= ../"+outputFilePrefix+".ps target=htmlfile> here</a>");
+      htmlWriter.write("<br>");
+      htmlWriter.write("Download the jpg file from "
+                      +"<a href= ../"+outputFilePrefix+".jpg target=htmlfile> here</a>");
+      htmlWriter.write("<br>");
+
+      htmlWriter.write("Click to View the file<br>");
+      htmlWriter.write("To SAVE the file Right Click (or Shift+click) and Select Save Link As ");
+
+      htmlWriter.write("</body></html>");
+    } catch(Exception e){
+      System.out.println("IOException ocured while outputting file:"+e);
+    } finally {
+       if(htmlWriter!=null) {
+         try{
+           htmlWriter.close();
+         }catch(Exception x) {
+           System.out.println("Unable to close file:"+x);
+         }
+       }
+    }
+  }
 }
 

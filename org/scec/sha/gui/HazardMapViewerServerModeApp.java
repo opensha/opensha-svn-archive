@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.text.DecimalFormat;
+import java.util.Enumeration;
 import java.net.*;
 import java.io.*;
 
@@ -241,51 +242,53 @@ public class HazardMapViewerServerModeApp extends JApplet {
    * Load all the available data sets by checking the data sets directory
    */
   private void loadDataSets() {
-    try {
-      File dirs =new File(HazardMapCalculator.DATASETS_PATH);
-      File[] dirList=dirs.listFiles(); // get the list of all the data in the parent directory
-      if(dirList==null) {
-        JOptionPane.showMessageDialog(this,NO_DATA_EXISTS);
-        System.exit(0);
-      }
-      // for each data set, read the meta data and sites info
-      for(int i=0;i<dirList.length;++i){
-        if(dirList[i].isDirectory()){
-          // read the meta data file
-          String dataSetDescription= new String();
-          try {
-            FileReader dataReader = new FileReader(HazardMapCalculator.DATASETS_PATH+
-                dirList[i].getName()+"/metadata.dat");
-            this.dataSetCombo.addItem(dirList[i].getName());
-            BufferedReader in = new BufferedReader(dataReader);
-            dataSetDescription = "";
-            String str=in.readLine();
-            while(str!=null) {
-              dataSetDescription += str+"\n";
-              str=in.readLine();
-            }
-            in.close();
-          }catch(Exception ee) {
-            ee.printStackTrace();
-          }
-          metaDataHash.put(dirList[i].getName(),dataSetDescription);
+    try{
 
-          // read the sites file
-          FileReader dataReader =
-              new FileReader(HazardMapCalculator.DATASETS_PATH+dirList[i].getName()+
-              "/sites.dat");
-          BufferedReader in = new BufferedReader(dataReader);
-          // first line in the file contains the min lat, max lat, discretization interval
-          String latitude = in.readLine();
-          latHash.put(dirList[i].getName(),latitude);
-          // Second line in the file contains the min lon, max lon, discretization interval
-          String longitude = in.readLine();
-          lonHash.put(dirList[i].getName(),longitude);
-        }
-      }
-    }catch(Exception e) {
+      URL hazardMapViewerServlet = new
+                                   URL("http://scec.usc.edu:9999/examples/servlet/HazardMapViewerServlet");
+
+      URLConnection servletConnection = hazardMapViewerServlet.openConnection();
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+
+      //sending the X values vector in the condProbVector to the servlet
+      outputToServlet.writeObject("Get Data");
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "destroy" from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      metaDataHash=(Hashtable)inputToServlet.readObject();
+      lonHash=(Hashtable)inputToServlet.readObject();
+      latHash=(Hashtable)inputToServlet.readObject();
+
+      inputToServlet.close();
+
+    }catch (Exception e) {
+      System.out.println("Exception in connection with servlet:" +e);
       e.printStackTrace();
     }
+
+    // fill the combo box with available data sets
+    Vector dirVector= new Vector();
+    Enumeration enum=metaDataHash.keys();
+    while(enum.hasMoreElements()) this.dataSetCombo.addItem(enum.nextElement());
+
   }
 
   /**
@@ -467,17 +470,10 @@ public class HazardMapViewerServerModeApp extends JApplet {
     */
    void openConnection() {
 
-
-     //vector which contains all the X and Y values from the function  to be send to the
-     //servlet.
-     Vector condProbVector =new Vector();
-     Vector hazFuncVector = new Vector();
-
      try{
 
        URL hazardMapViewerServlet = new
                              URL("http://scec.usc.edu:9999/examples/servlet/HazardMapViewerServlet");
-
        URLConnection servletConnection = hazardMapViewerServlet.openConnection();
 
        // inform the connection that we will send output and accept input
@@ -492,9 +488,9 @@ public class HazardMapViewerServerModeApp extends JApplet {
 
        ObjectOutputStream outputToServlet = new
            ObjectOutputStream(servletConnection.getOutputStream());
-
+       outputToServlet.writeObject("Make Map");
        //sending the user which dataSet is selected
-       outputToServlet.writeObject(this.dataSetCombo.getSelectedItem());
+       outputToServlet.writeObject((String)this.dataSetCombo.getSelectedItem());
 
        //sending the GMT params object to the servlet
        outputToServlet.writeObject(mapGuiBean.getGMTObject());
@@ -517,20 +513,17 @@ public class HazardMapViewerServerModeApp extends JApplet {
        outputToServlet.close();
 
        // Receive the "destroy" from the servlet after it has received all the data
-       ObjectInputStream inputToServlet = new
-       ObjectInputStream(servletConnection.getInputStream());
+       ObjectInputStream inputToServlet = new ObjectInputStream(servletConnection.getInputStream());
 
       String connectionCloseString=inputToServlet.readObject().toString();
       inputToServlet.close();
+      this.getAppletContext().showDocument(new URL(connectionCloseString),"_blank");
 
      }catch (Exception e) {
        System.out.println("Exception in connection with servlet:" +e);
        e.printStackTrace();
      }
    }
-
-
-
 
 }
 
