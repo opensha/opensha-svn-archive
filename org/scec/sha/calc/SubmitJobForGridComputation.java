@@ -321,7 +321,7 @@ public class SubmitJobForGridComputation {
        fw.write("chmod +x "+PUT_SUBMIT_FILES_TO_REMOTE_MACHINE+"\n");
        fw.write("condor_submit_dag "+this.DAG_FILE_NAME+"\n");
        fw.close();
-      //RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+SUBMIT_DAG_SHELL_SCRIPT_NAME});
+       RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+SUBMIT_DAG_SHELL_SCRIPT_NAME});
     }
     catch (Exception e) {
       e.printStackTrace();
