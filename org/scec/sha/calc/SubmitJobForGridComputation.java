@@ -146,7 +146,7 @@ public class SubmitJobForGridComputation {
       fw.write("#!/bin/csh\n");
       fw.write("cd "+outputDir+"\n");
       fw.write("mv  "+"*.obj "+" "+objectFiles+"\n");
-      fw.write("cp "+"sites.txt "+dataFiles);
+      fw.write("cp "+"sites.txt "+dataFiles+"\n");
       fw.close();
       RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+moveObjFilesScriptName});
       RunScript.runScript(new String[]{"sh", "-c", "rm "+outputDir+moveObjFilesScriptName});
@@ -373,10 +373,11 @@ public class SubmitJobForGridComputation {
 
       frFTP.write("#!/bin/csh\n");
       frFTP.write("cd " +outputDir+SUBMIT_FILES_DIR+ "\n");
-      frFTP.write("tar -cf " + SUBMIT_TAR_FILES + " "+HAZARD_CURVES_SUBMIT+"*.sub "+ outputDir+OBJECTS_DIR+
-                  imrFileName+" "+outputDir+OBJECTS_DIR+erfFileName+" "+
-                  outputDir+OBJECTS_DIR+regionFileName+ " "+xValuesFileName+"\n");
-      frFTP.write("globus-url-copy file:" + outputDir+SUBMIT_FILES_DIR +
+      frFTP.write("tar -cf " + SUBMIT_TAR_FILES + " "+HAZARD_CURVES_SUBMIT+"*.sub ");
+      frFTP.write("mv "+SUBMIT_TAR_FILES+outputDir+OBJECTS_DIR);
+      frFTP.write("tar -uf " + imrFileName+" "+erfFileName+" "+
+                  regionFileName+ " "+xValuesFileName+"\n");
+      frFTP.write("globus-url-copy file:" + outputDir+OBJECTS_DIR +
                   SUBMIT_TAR_FILES +
                   " gsiftp://almaak.usc.edu" + remoteDir + SUBMIT_TAR_FILES +
                   "\n");
