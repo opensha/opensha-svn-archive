@@ -484,6 +484,8 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
      if(D)
        System.out.println("Receiving the Input from the Servlet:"+temp);
      inputToServlet.close();
+     JOptionPane.showMessageDialog(this,new String("File Added Successfully....."),
+                                   "Add Confirmation",JOptionPane.OK_OPTION);
     }catch (Exception e) {
       System.out.println("Exception in connection with servlet:" +e);
       e.printStackTrace();
@@ -540,6 +542,8 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
       if(D)
         System.out.println("Receiving the Input from the Servlet:"+temp);
       inputToServlet.close();
+      JOptionPane.showMessageDialog(this,new String("File Deleted Successfully....."),
+                                   "Delete Confirmation",JOptionPane.OK_OPTION);
     }catch (Exception e) {
       System.out.println("Exception in connection with servlet:" +e);
       e.printStackTrace();
