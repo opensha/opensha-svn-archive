@@ -103,8 +103,6 @@ public class MapGuiBean extends GMT_MapGuiBean {
   public void makeMap(XYZ_DataSetAPI xyzVals,EqkRupture eqkRupture,String imt,String metadata){
 
     boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
-    //creating the Metadata file in the GMT_MapGenerator
-    gmtMap.createMapInfoFile(metadata);
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       try{
