@@ -105,12 +105,22 @@ public class MapGuiBean extends GMT_MapGuiBean {
                       XYZ_DataSetAPI pga_xyzVals, XYZ_DataSetAPI pgv_pgvVals,
                       EqkRupture eqkRupture,String imt,String metadata){
     String[] imgNames = null;
+    //checking if hazus file generator param is selected, if not then make it selected and the deselect it again
     boolean hazusFileGeneratorCheck = ((Boolean)gmtMap.getAdjustableParamsList().
                                        getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).getValue()).booleanValue();
     if(!hazusFileGeneratorCheck)
       gmtMap.getAdjustableParamsList().getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).setValue(new Boolean(true));
+
+
+    //checking if log map generator param is selected, if yes then make it unselected and the select it again
+    boolean generateMapInLogSpace = ((Boolean)gmtMap.getAdjustableParamsList().
+                                       getParameter(GMT_MapGeneratorForShakeMaps.LOG_PLOT_NAME).getValue()).booleanValue();
+    if(generateMapInLogSpace)
+      gmtMap.getAdjustableParamsList().getParameter(GMT_MapGeneratorForShakeMaps.LOG_PLOT_NAME).setValue(new Boolean(false));
+
+
     //boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
-    //gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
+     // gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
     //creating the Metadata file in the GMT_MapGenerator
     gmtMap.createMapInfoFile(metadata);
     //if(gmtServerCheck){
@@ -141,6 +151,9 @@ public class MapGuiBean extends GMT_MapGuiBean {
     }
     if(!hazusFileGeneratorCheck)
       gmtMap.getAdjustableParamsList().getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).setValue(new Boolean(false));
+    if(generateMapInLogSpace)
+      gmtMap.getAdjustableParamsList().getParameter(GMT_MapGeneratorForShakeMaps.LOG_PLOT_NAME).setValue(new Boolean(true));
+
     //gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(gmtServerCheck));
   }
 
