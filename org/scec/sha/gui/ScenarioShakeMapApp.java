@@ -498,7 +498,7 @@ public class ScenarioShakeMapApp extends JApplet implements
          int size=lat.size();
          FileWriter fr = new FileWriter(this.fileNameTextField.getText().trim()+".txt");
          for(int i=0;i<size;++i)
-           fr.write(lon.get(i)+" "+lat.get(i)+" "+siteValue.get(i)+"\n");
+           fr.write(lat.get(i)+" "+lon.get(i)+" "+siteValue.get(i)+"\n");
          fr.close();
      }catch(IOException e){
        e.printStackTrace();
