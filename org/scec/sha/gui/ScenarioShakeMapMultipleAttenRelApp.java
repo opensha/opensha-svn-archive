@@ -608,7 +608,20 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     attenRelWts = imrGuiBean.getSelectedIMR_Weights();
 
     getGriddedSitesAndMapType();
-    addButton();
+    try{
+      addButton();
+    }catch(ParameterException ee){
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
+      calcProgress.showProgress(false);
+      calcProgress.dispose();
+      return;
+    }
+    catch(Exception ee){
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.INFORMATION_MESSAGE);
+      calcProgress.showProgress(false);
+      calcProgress.dispose();
+      return;
+    }
     //hazusControl = null;
   }
 
@@ -617,27 +630,15 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
    */
   public void addButton(){
     step = 1;
-    try{
-      if(step ==1)
-        calcProgress = new CalcProgressBar("ShakeMapApp","  Calculating ShakeMap Data ...");
+
+    if(step ==1)
+      calcProgress = new CalcProgressBar("ShakeMapApp","  Calculating ShakeMap Data ...");
       /*if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())*/
-        generateShakeMap();
-      //sets the region coordinates for the GMT using the MapGuiBean
-      setRegionForGMT();
-      ++step;
-    }catch(ParameterException e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
-      calcProgress.showProgress(false);
-      calcProgress.dispose();
-      return;
-    }
-    catch(Exception ee){
-      ee.printStackTrace();
-      JOptionPane.showMessageDialog(this,ee.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
-      calcProgress.showProgress(false);
-      calcProgress.dispose();
-      return;
-    }
+      generateShakeMap();
+    //sets the region coordinates for the GMT using the MapGuiBean
+    setRegionForGMT();
+    ++step;
+
     if(step==2) {
       calcProgress.setProgressMessage("  Generating the Map ...");
       String label;
@@ -646,24 +647,16 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
         label="Prob";
       else
         label=imtGuiBean.getSelectedIMT();
-      try{
-        /*if(hazusControl !=null && hazusControl.isHazusShapeFilesButtonPressed())
-            mapGuiBean.makeHazusShapeFilesAndMap(hazusControl.getXYZ_DataForSA_03(),hazusControl.getXYZ_DataForSA_10(),
-                hazusControl.getXYZ_DataForPGA(),hazusControl.getXYZ_DataForPGV(),
-                erfGuiBean.getRupture(),label,getMapParametersInfo());
-          else*/
 
-        mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
-
-      }catch(RuntimeException e){
-        e.printStackTrace();
-        calcProgress.showProgress(false);
-        calcProgress.dispose();
-        return;
-      }
-      calcProgress.dispose();
+      /*if(hazusControl !=null && hazusControl.isHazusShapeFilesButtonPressed())
+      mapGuiBean.makeHazusShapeFilesAndMap(hazusControl.getXYZ_DataForSA_03(),hazusControl.getXYZ_DataForSA_10(),
+      hazusControl.getXYZ_DataForPGA(),hazusControl.getXYZ_DataForPGV(),
+      erfGuiBean.getRupture(),label,getMapParametersInfo());
+      else*/
+      mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
     }
-  }
+    calcProgress.dispose();
+}
 
 
 
@@ -780,7 +773,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
         //this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
         "<br><br>Region Param List: <br>\n"+
         "----------------<br>\n"+
-        //sitesGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        sitesGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
         "<br><br>IMT Param List: <br>\n"+
         "---------------<br>\n"+
         imtMetadata+"\n"+

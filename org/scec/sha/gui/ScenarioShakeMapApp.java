@@ -581,7 +581,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       return;
     }
     catch(Exception ee){
-      ee.printStackTrace();
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
       calcProgress.showProgress(false);
       calcProgress.dispose();
