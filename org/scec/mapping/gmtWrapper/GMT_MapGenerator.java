@@ -85,7 +85,7 @@ public class GMT_MapGenerator {
   private final static String TOPO_RESOLUTION_06 = "06";
   private final static String TOPO_RESOLUTION_18 = "18";
   private final static String TOPO_RESOLUTION_30 = "30";
-  private final static String TOPO_RESOLUTION_NONE = "No Topo";
+  public final static String TOPO_RESOLUTION_NONE = "No Topo";
   StringParameter topoResolutionParam;
 
   // highways to plot parameter
@@ -95,7 +95,7 @@ public class GMT_MapGenerator {
   private final static String SHOW_HIWYS_ALL = "ca_hiwys.all.xy";
   private final static String SHOW_HIWYS_MAIN = "ca_hiwys.main.xy";
   private final static String SHOW_HIWYS_OTHER = "ca_hiwys.other.xy";
-  private final static String SHOW_HIWYS_NONE = "None";
+  public final static String SHOW_HIWYS_NONE = "None";
   StringParameter showHiwysParam;
 
 
@@ -323,4 +323,9 @@ public class GMT_MapGenerator {
   public ListIterator getAdjustableParamsList() {
     return adjustableParams.getParametersIterator();
   }
+
+  public ParameterList getParameterList (){
+    return this.adjustableParams;
+  }
+
 }
