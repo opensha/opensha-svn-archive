@@ -114,7 +114,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
   /**
    * for Y-log, 0 values will be converted to this small value
    */
-  private double Y_MIN_VAL = 1e-8;
+  private double Y_MIN_VAL = 1e-16;
 
   protected boolean graphOn = false;
   private GridBagLayout gridBagLayout11 = new GridBagLayout();

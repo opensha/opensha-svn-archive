@@ -84,18 +84,19 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   private Double SIGMA_PARAM_MAX = new Double(1);
   private Double DEFAULT_SIGMA_VAL = new Double(0.0);
 
-  private double UPPER_SEISMO_DEPTH = 0.0;
   private double LOWER_SEISMO_DEPTH = 12.0;
 
   // fault-1 name
   private String FAULT1_NAME = new String("Fault 1");
   private Location fault1_LOCATION1 = new Location(38.22480, -122, 0);
   private Location fault1_LOCATION2 = new Location(38.0, -122, 0);
+  private double UPPER_SEISMO_DEPTH1 = 0.0;
 
   //fault-2 name
   private String FAULT2_NAME = new String("Fault 2");
   private Location fault2_LOCATION1 = new Location(38.22480, -122, 1);
   private Location fault2_LOCATION2 = new Location(38.0, -122, 1);
+  private double UPPER_SEISMO_DEPTH2 = 1.0;
 
 
   // add the grid spacing field
@@ -208,11 +209,17 @@ public class Set1_Fault_Forecast extends EqkRupForecast
        double dipValue = ((Double)dipParam.getValue()).doubleValue();
        // first build the fault trace, then add
        // add the location to the trace
+
+       SimpleFaultData faultData;
        if(dipValue == 90){
          // fault1
          faultTrace = new FaultTrace(FAULT1_NAME);
          faultTrace.addLocation((Location)fault1_LOCATION1.clone());
          faultTrace.addLocation((Location)fault1_LOCATION2.clone());
+         //make the fault data
+         faultData= new SimpleFaultData(dipValue,
+              LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH1,faultTrace);
+         if(D) System.out.println(S+"faultdata:"+faultData);
        }
 
        else {
@@ -220,11 +227,12 @@ public class Set1_Fault_Forecast extends EqkRupForecast
          faultTrace = new FaultTrace(FAULT2_NAME);
          faultTrace.addLocation((Location)fault2_LOCATION1.clone());
          faultTrace.addLocation((Location)fault2_LOCATION2.clone());
+         //make the fault data
+         faultData= new SimpleFaultData(dipValue,
+              LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH2,faultTrace);
+         if(D) System.out.println(S+"faultdata:"+faultData);
        }
-       //make the fault data
-       SimpleFaultData faultData= new SimpleFaultData(dipValue,
-              LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH,faultTrace);
-       if(D) System.out.println(S+"faultdata:"+faultData);
+
 
        //  create a fault factory and make the surface
        FrankelGriddedFaultFactory factory =
