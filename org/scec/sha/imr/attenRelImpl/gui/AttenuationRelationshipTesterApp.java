@@ -48,6 +48,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 {
 
     protected final static String C = "AttenuationRelationshipTesterApp";
+    private final static String version = "0.0.0";
     protected final static boolean D = false;
 
     protected static int counter = 0;
@@ -308,7 +309,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
      * @return    The appletInfo value
      */
     public String getAppletInfo() {
-        return "IMR Tester Applet";
+        return "Attenuation Relationship Tester Applet";
     }
 
     /**
@@ -801,8 +802,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
         applet.start();
         applet.setFrame( frame );
 
-       // frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentIMRName() + ']' );
-
+        //frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentIMRName() + ']' );
+        frame.setTitle( applet.getAppletInfo() + " (Version:"+applet.version+")");
         frame.setSize( W, H );
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setLocation( ( d.width - frame.getSize().width ) / 2, ( d.height - frame.getSize().height ) / 2 );

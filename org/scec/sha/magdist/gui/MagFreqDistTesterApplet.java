@@ -41,6 +41,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
   protected final static String C = "MagFreqDistTesterApplet";
+   private final static String version = "0.0.0";
   protected final static boolean D = false;
 
 
@@ -483,7 +484,7 @@ public class MagFreqDistTesterApplet extends JApplet
          applet.start();
          applet.setFrame( frame );
 
-         frame.setTitle( applet.getAppletInfo());
+         frame.setTitle( applet.getAppletInfo() + " (Version:"+applet.version+")");
 
          frame.setSize( W, H );
          Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
