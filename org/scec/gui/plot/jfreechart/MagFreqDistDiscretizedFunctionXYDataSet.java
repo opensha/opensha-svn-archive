@@ -3,8 +3,10 @@ import org.scec.data.function.DiscretizedFuncAPI;
 import org.scec.data.function.DiscretizedFuncList;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Title: MagFreqDistDiscretizedFunction</p>
+ * <p>Description:  Wrapper for a DiscretizedFuncList. This class extends the
+ * DiscretizedFunctionXYDataSet to Zero data values in the function list to
+ * Double.MIN_VALUE when plotting the Y-log in case of the MagFreqDist classes</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta          Date: Aug,20,2002
