@@ -91,8 +91,7 @@ public class SiteCoefficientInfoWindow
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
   private BorderLayout borderLayout4 = new BorderLayout();
 
-  private double ss = 0.72, s1 = 0.72;
-
+  private double ss=0.75, s1=0.23;
   private StringParameter siteClassParam;
 
   private SiteCoefficientInfoWindow(Frame frame, boolean _boolean) {
@@ -300,64 +299,98 @@ public class SiteCoefficientInfoWindow
   }
 
   /**
-   *  Any time a control paramater or independent paramater is changed
-   *  by the user in a GUI this function is called, and a paramater change
-   *  event is passed in. This function then determines what to do with the
-   *  information ie. show some paramaters, set some as invisible,
-   *  basically control the paramater lists.
-   *
-   * @param  event
-   */
-  public void parameterChange(ParameterChangeEvent event) {
-    String name1 = event.getParameterName();
-    if (name1.equalsIgnoreCase(SiteClassParamName)) {
-      String value = (String) event.getNewValue();
-      setFa(value);
-    }
-  }
+  *  Any time a control paramater or independent paramater is changed
+  *  by the user in a GUI this function is called, and a paramater change
+  *  event is passed in. This function then determines what to do with the
+  *  information ie. show some paramaters, set some as invisible,
+  *  basically control the paramater lists.
+  *
+  * @param  event
+  */
+ public void parameterChange(ParameterChangeEvent event){
+   String name1 = event.getParameterName();
+   if(name1.equalsIgnoreCase(SiteClassParamName))  {
+     String value = (String)event.getNewValue();
+     try {
+       String faString = "" +
+           getFaFv(value, GlobalConstants.faData,
+                   GlobalConstants.faColumnNames);
+       this.faText.setText(faString);
+       String fvString = "" +
+           getFaFv(value, GlobalConstants.fvData,
+                   GlobalConstants.fvColumnNames);
+       this.fvText.setText(fvString);
+       fa  = Float.parseFloat(faText.getText());
+       fv  = Float.parseFloat(fvText.getText());
+     }catch(NumberFormatException e) {
+       JOptionPane.showMessageDialog(this, GlobalConstants.SITE_ERROR);
+       this.siteClassParam.setValue(event.getOldValue());
+     }
+   }
+ }
 
-  private void setFa(String siteClassVal) {
-    char siteClass = siteClassVal.charAt(siteClassVal.length() - 1);
-    int rowNumber;
 
-    //CALCULATE Fa
+ private double getFaFv(String siteClassVal, Object[][]data, String[] columnNames) {
+   char siteClass = siteClassVal.charAt(siteClassVal.length()-1);
+   int rowNumber;
 
-    // get the row number
-    rowNumber = -1;
-    for (int i = 0; i < GlobalConstants.faData.length; ++i) {
-      char val = ( (String) GlobalConstants.faData[i][0]).charAt(0);
-      if (val == siteClass) {
-        rowNumber = i;
+   //CALCULATE Fa
+
+   // get the row number
+   rowNumber = -1;
+   for(int i=0; i <data.length; ++i) {
+     char val = ( (String) data[i][0]).charAt(0);
+     if (val == siteClass) {
+       rowNumber = i;
+       break;
+     }
+   }
+
+   //get the column number
+   int columnNumber = -1;
+   for(int j=0; j<columnNames.length; ++j) {
+     String columnName = columnNames[j];
+     double colVal = getValueFromString(columnName);
+     if(Double.isNaN(colVal)) continue;
+     // found the columnNumber
+     if(this.ss<=colVal) {
+       columnNumber = j;
+       break;
+     }
+   }
+   if(columnNumber==-1)
+     return Double.parseDouble((String)data[rowNumber][GlobalConstants.faColumnNames.length-1]);
+   else if(columnNumber==1) return Double.parseDouble((String)data[rowNumber][columnNumber]);
+   else {
+     String y2String = (String)data[rowNumber][columnNumber];
+     String y1String = (String)data[rowNumber][columnNumber-1];
+     double y2 = Double.parseDouble(y2String);
+
+     double x2  = getValueFromString(columnNames[columnNumber]);
+     double y1 = Double.parseDouble(y1String);
+     double x1  = getValueFromString(columnNames[columnNumber-1]);
+     return linearInterpolation(x1,y1,x2,y2, ss);
+   }
+ }
+
+
+ private double getValueFromString(String columnName) {
+    int index=-1;
+    for(int k=0;k<columnName.length();++k)
+      if((columnName.charAt(k)>='0' && columnName.charAt(k)<='9') ||
+         columnName.charAt(k)=='.') {
+        index = k;
         break;
       }
-    }
+    if(index>=columnName.length() || index<0) return Double.NaN;
+    else return Double.parseDouble(columnName.substring(index));
 
-    //get the column number
-    int columnNumber = -1;
-    for (int j = 0; j < GlobalConstants.faColumnNames.length; ++j) {
-      String columnName = GlobalConstants.faColumnNames[j];
-      int index = -1;
-      // find the number in the column names
-      for (int k = 0; k < columnName.length(); ++k) {
-        if ( (columnName.charAt(k) >= '0' && columnName.charAt(k) <= '9') ||
-            columnName.charAt(k) == '.') {
-          index = k;
-          break;
-        }
-      }
-      if (index >= columnName.length() || index < 0) {
-        continue;
-      }
-      double colVal = Double.parseDouble(columnName.substring(index));
-      // found the columnNumber
-      if (this.ss <= colVal) {
-        columnNumber = j;
-        break;
-      }
-    }
-    System.out.println("Value=" +
-                       GlobalConstants.faData[rowNumber][columnNumber]);
-  }
+ }
+
+ private double linearInterpolation(double x1, double y1, double x2, double y2,
+                                    double x) {
+   return (y2-y1)/(x2-x1)*(x-x1)+x1;
+ }
 
   public float getFa() {
     return fa;
@@ -372,7 +405,7 @@ public class SiteCoefficientInfoWindow
   }
 
   public void discussionButton_actionPerformed(ActionEvent actionEvent) {
-
+    JOptionPane.showMessageDialog(this, GlobalConstants.SITE_DISCUSSION);
   }
 
   public void okButton_actionPerformed(ActionEvent actionEvent) {

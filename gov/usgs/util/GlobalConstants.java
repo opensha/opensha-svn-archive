@@ -97,6 +97,14 @@ public final class GlobalConstants {
         "see the difference by comparing the tables for the 1997 and 2000 editions\n " +
         "of the NEHRP Provisions.";
 
+    public final static String SITE_ERROR =
+        "Check the Site Class selection. A Site Class \n" +
+        "resulting in the 'Note a' message requires a site \n" +
+        "specific study.  To proceed, enter site factors in\n " +
+        "the text boxes for Fa and Fv based on a site specific\n " +
+        "study or select a different Site Class.";
+
+
 
     public static final int DIVIDING_FACTOR_HUNDRED = 100;
 
