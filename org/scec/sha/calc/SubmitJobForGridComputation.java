@@ -404,7 +404,7 @@ public class SubmitJobForGridComputation {
        fw.write("cd "+outputDir+SCRIPT_FILES_DIR+"\n");
        fw.write("chmod +x "+GET_CURVES_FROM_REMOTE_MACHINE+"\n");
        fw.write("chmod +x "+PUT_SUBMIT_FILES_TO_REMOTE_MACHINE+"\n");
-       fw.write("condor_submit_dag "+this.DAG_FILE_NAME+"\n");
+       fw.write("condor_submit_dag "+outputDir+SUBMIT_FILES_DIR+DAG_FILE_NAME+"\n");
        fw.close();
        RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+SUBMIT_FILES_DIR+SUBMIT_DAG_SHELL_SCRIPT_NAME});
     }
