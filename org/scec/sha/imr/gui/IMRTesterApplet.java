@@ -847,6 +847,14 @@ public class IMRTesterApplet
         if ( D ) System.out.println( S + "Starting: Last xy axis name = " + lastXYAxisName );
          // ImageIcon icon  = new ImageIcon(this.imagePath + File.separator + "z_splash.jpg");
         // Image image = icon.getImage();
+        if(this.jCheckxlog.isSelected())
+          xLog=true;
+        else
+          xLog=false;
+        if(this.jCheckylog.isSelected())
+          yLog=true;
+        else
+          yLog=false;
 
         String newXYAxisName = functions.getXYAxesName();
         boolean newPlot = ( !newXYAxisName.equals( lastXYAxisName ) );

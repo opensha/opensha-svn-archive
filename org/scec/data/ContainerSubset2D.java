@@ -118,7 +118,7 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
      * @param  startCol                            Staring col of this subset, put in Window2D
      * @exception  ArrayIndexOutOfBoundsException  Thown if any of the idices go beyond the range of the referencing container
      */
-    ublic ContainerSubset2D( int numRows, int numCols, int startRow, int startCol, Container2DAPI data )
+    public ContainerSubset2D( int numRows, int numCols, int startRow, int startCol, Container2DAPI data )
              throws ArrayIndexOutOfBoundsException {
 
         String S = C + ": Constructor2():";

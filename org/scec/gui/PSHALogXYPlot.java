@@ -57,9 +57,9 @@ public class PSHALogXYPlot
      */
     public PSHALogXYPlot(IMRTesterApplet imr,XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
         super(data, domainAxis, rangeAxis);
-        this.imrTesterApplet=imr;
         this.xlogplot=xlog;
         this.ylogplot=ylog;
+        this.imrTesterApplet=imr;
     }
 
     /**
@@ -337,7 +337,7 @@ public class PSHALogXYPlot
             this.rangeAxis.draw(g2, plotArea, dataArea);
         }
 
-        render(g2, dataArea, info, crosshairInfo);
+        super.render(g2, dataArea, info, crosshairInfo);
 
      }catch(java.lang.ArithmeticException ae){
        imrTesterApplet.invalidLogPlot();

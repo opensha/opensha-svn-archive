@@ -121,27 +121,16 @@ public class OverlaidGridXYPlot extends OverlaidXYPlot {
      crosshairInfo.setAnchorY(this.getRangeAxis().getAnchorValue());
 
 
-    Range rh = this.domainAxis.getRange();
-    Range rv=  this.rangeAxis.getRange();
-   // System.out.println("OverlaidGridXYPlot::draw::horizontalrange:"+rh.getLowerBound()+","+rh.getUpperBound());
-    //System.out.println("OverlaidGridXYPlot::draw::verticalrange:"+rv.getLowerBound()+","+rv.getUpperBound());
-    //double verticaldiff = (dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound());
-    //double upperh= ((dataArea.getMaxX()-dataArea.getMinX())+(verticaldiff*rh.getLowerBound()))/verticaldiff;
-    //if(upperh < rh.getUpperBound()) {
-      // double horizontaldiff=(dataArea.getMaxX()-dataArea.getMinX())/(rh.getUpperBound()-rh.getLowerBound());
-       //double upperv = ((dataArea.getMaxY()-dataArea.getMinY())+(horizontaldiff*rv.getLowerBound()))/horizontaldiff;
-       //rangeAxis.setRange(rv.getLowerBound(), upperv);
-       domainAxis.setRange(rh.getLowerBound(),Math.cos((rv.getLowerBound()+rv.getUpperBound())/2)*rh.getUpperBound());
-    //}
-    //else {
-     //  domainAxis.setRange(rh.getLowerBound(), upperh);
-     //  domainAxis.setRange(rh.getLowerBound(),Math.cos((rv.getLowerBound()+rv.getUpperBound())/2));
-   // }
-
-     // draw the plot background and axes...
-    //System.out.println("OverlaidGridXYPlot::draw::horizontalrange:"+domainAxis.getRange().getLowerBound()+","+domainAxis.getRange().getUpperBound());
-   // System.out.println("OverlaidGridXYPlot::draw::verticalrange:"+rangeAxis.getRange().getLowerBound()+","+rangeAxis.getRange().getUpperBound());
-
+     Range rh = this.domainAxis.getRange();
+     Range rv=  this.rangeAxis.getRange();
+     /*
+      Following code has been added to make the Longitude the cos function of the latitude
+      Converting to radians because java finds the cos of the radians.
+      What we are doing is scaling the horizontal longitude line based on the cos function of the latitude
+     */
+     double verticaldiff = ((dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound())) * Math.abs(Math.cos(Math.toRadians((rv.getLowerBound()+rv.getUpperBound())/2)));
+     double upperh= (dataArea.getMaxX()-dataArea.getMinX())/verticaldiff +rh.getLowerBound();
+     domainAxis.setRange(rh.getLowerBound(), upperh);
      drawOutlineAndBackground(g2, dataArea);
      if (this.domainAxis!=null) {
          this.domainAxis.draw(g2, plotArea, dataArea);
