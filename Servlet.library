@@ -5,5 +5,6 @@
   <class>
     <path>[../../jbuilder7/JBuilder.framework/jakarta-tomcat-4.0.3/common/lib/servlet.jar]</path>
   </class>
-  <required>Tomcat 3.3 Servlet</required>
+  <required>Tomcat 4.1 Servlet</required>
+  <lastmodsaved>1102107545645</lastmodsaved>
 </library>
