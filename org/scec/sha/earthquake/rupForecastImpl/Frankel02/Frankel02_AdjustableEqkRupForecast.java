@@ -122,6 +122,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   ArrayList faultFileNamesStrings = new ArrayList();
   StringParameter faultFileParam;
 
+  ArrayList tempList = new ArrayList();
 
   /**
    *
@@ -253,10 +254,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
     frankelBackgrSeisSources = new ArrayList();
 
-    String tempName = (String)faultFileParam.getValue();
-    makeGridSources(tempName,1.0,null,0.0);
+//    String tempName = (String)faultFileParam.getValue();
+//    makeGridSources(tempName,1.0,null,0.0);
 
-/*
+/**/
     makeGridSources("CAmapC_OpenSHA", 0.667, null, 0.0);
     makeGridSources("CAmapG_OpenSHA", 0.333, null, 0.0);
     makeGridSources("EXTmapC_OpenSHA", 0.5, null, 0.0);
@@ -271,7 +272,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     makeGridSources("shear2_OpenSHA", 1.0, null, 1.0);
     makeGridSources("shear3_OpenSHA", 1.0, null, 1.0);
     makeGridSources("shear4_OpenSHA", 1.0, null, 1.0);
-*/
+
 
   }
 
@@ -826,6 +827,28 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
   }
 
+
+  /**
+   *
+   */
+  private void makeGridSources2(String fileName1, double wt1, String fileName2, double wt2) {
+
+    // Debuggin stuff
+    String S = C + ": makeGridSources(): ";
+
+    // read the lines of the 1st input file into a list
+    ArrayList inputGridFileLines1=null;
+    try{ inputGridFileLines1 = FileUtils.loadFile(IN_FILE_PATH + fileName1 ); }
+    catch( FileNotFoundException e){ System.out.println(e.toString()); }
+    catch( IOException e){ System.out.println(e.toString());}
+    if( D ) System.out.println("fileName1 = " + IN_FILE_PATH + fileName1);
+
+    tempList.addAll(inputGridFileLines1);
+
+  }
+
+
+
   /**
    *
    */
@@ -948,9 +971,9 @@ System.out.println(fileName1);
 
       // now make the source
       if(iflt == 2)
-        src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,strike,duration,magCutOff,0.0);
+        src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,strike,duration,magCutOff);
       else
-        src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,duration,magCutOff,0.0);
+        src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,duration,magCutOff);
 
       // add the source
       frankelBackgrSeisSources.add(src);
