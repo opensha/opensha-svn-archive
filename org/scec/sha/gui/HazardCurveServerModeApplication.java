@@ -670,8 +670,19 @@ public class HazardCurveServerModeApplication extends JApplet
     }
 
 
+    /**
+     * Implementing the run method in the Runnable interface that creates a new thread
+     * to do Hazard Curve Calculation, this thread created is seperate from the
+     * timer thread, so that progress bar updation does not conflicts with Calculations.
+     */
     public void run() {
-      computeHazardCurve();
+      try{
+        computeHazardCurve();
+      }catch(Exception e){
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+        bugWindow.show();
+        bugWindow.pack();
+      }
 
     }
 
