@@ -70,6 +70,8 @@ public class HazardMapViewerServlet  extends HttpServlet {
         // create the XYZ data set
         XYZ_DataSetAPI xyzData = getXYZ_DataSet(selectedSet, isProbAt_IML, val, map);
         // jpg file name
+        map.setMetatdataFileName(HazardMapCalcServlet.PARENT_DIR+
+               optionSelected+"/"+HazardMapCalcServlet.METADATA_FILE_NAME);
         String jpgFileName  = map.makeMapUsingServlet(xyzData,"IML");
         ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
         outputToApplet.writeObject(jpgFileName);
