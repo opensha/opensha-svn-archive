@@ -1,40 +1,44 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-1) Try to solve problem with cutting and pasting on Mac OS X with Java 1.4.1.
+Finish STEP map making capability:
 
-2) Update the makeMapUsingServer() method of the GMT_MapGenerator:
+	Add use of vs30 in calculations.  Do this by creating a 
+	file of Vs30 for each grid point and storing it locally 
+	(do this only if it hasn't been done already, like how
+	we handle the background rates)
 
-	(we want this for applet based map making where local files can't be created)
-	(and also so all the web-service jar file contents don't have to be included)
+Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.
 
-	change name to makeMapUsingServlet()
+Generalize ERF servlets so that one object can be used for any arbitrary ERF (or ERF epistemic list).
 
-	make functionality consistent with web service
-
-3) Move all parameters and parameter editors anywhere in org.scec.sha.* into org.scec.sha.param.* so that there is only one additional search directory for parameter list editor (update all GUI beans accordingly).
-
-4) Change SimpleFaultParameterEditor from what it is now to a button that pops up what's shown now in a separate window (but still can be edited from outside like in the PEER test-case selector control panel).  Focus should not leave the popup window until a user is done (& closing the window is the same as punching the button at the bottom).  Make it so the ERF_GuiBean (or any other similar bean) does not need to know anything about this parameter (it's automatically created by the ParameterListEditor).
-
-5) Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.
-
-6) Generalize ERF servlets so that one object can be used for any arbitrary ERF (or ERF epistemic list).
-
-7) move the Fortran-Wrapped version of the WG02 ERF to the org.scec.sha.earthquake.rupForecastImpl.WG02 directory  (this way I can add adjustable parameters myself).  I understand that you might not want to do this until after you generalize the ERF Servlet implementation.  Let's call it:
+Move the Fortran-Wrapped version of the WG02 ERF to the org.scec.sha.earthquake.rupForecastImpl.WG02 directory  (this way I can add adjustable parameters myself).  I understand that you might not want to do this until after you generalize the ERF Servlet implementation.  Let's call it:
 
     WG02_FortranWrappedERF_EpistemicList.java
 
-8) Finish STEP map making capability according to feedback from Matt and Lucy.
+Incorporate the new JFreechart version in OpenSHA.
 
-9) Incorporate the new JFreechart version in OpenSHA.
+Try to solve problem with cutting and pasting on Mac OS X with Java 1.4.1.  Nitin sent email to a Java Mac email list.
+
+Fix GriddedFaultApplet - horz/vert scaling.
+
+Go through existing apps and list issues we'd like to improve.
 
 
 
 
 
-SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
+For Ned: RelativeLocation object is a bit of a mess in terms of documentation.  .  Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.  Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  Should we be using UTM coordinates?
 
-Develop HazardSpectrumApplet for Caltrans.  This is like the hazard curve calculator except:
+For Ned: Change SimpleFaultParameterEditor from what it is now to a button that pops up what's shown now in a separate window (but still can be edited from outside like in the PEER test-case selector control panel).  Focus should not leave the popup window until a user is done (& closing the window is the same as punching the button at the bottom).  Make it so the ERF_GuiBean (or any other similar bean) does not need to know anything about this parameter (it's automatically created by the ParameterListEditor).  Done - Ned will check it out when he uses it in the PEER test cases later.
+
+For Ned: (check this) Make apps that use internet connection graceful if it's not available (if not connected locally or if remote server is down).
+
+For Ned: SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
+
+For Ned: Create X_ValuesInCurveControlPanel for the hazard curve calculator (include a button to revert back to defaults); done - Ned needs to look at.
+
+For Ned: Develop HazardSpectrumApplet for Caltrans.  This is like the hazard curve calculator except:
 
 	X axis will be SA period.  We won't need the X_ValuesInCurveControlPanel here because 
 	the X-axis values will be exactly whatever the chosen IMR supports.
@@ -59,23 +63,12 @@ Develop HazardSpectrumApplet for Caltrans.  This is like the hazard curve calcul
 
 	Remove the "Dissagregation" control panel (this will need special treatment here).
 
-Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.
 
-Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings.
+**************** LONG TERM (LOWER PRIORITY): ****************
+-------------------------------------------------------------
+
 
 Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
-
-Make the setting values from CVM to be webservice rather than a servlet. Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. 
-
-Make apps that use internet connection graceful if it's not available (if not connected locally or if remote server is down).
-
-Fix GriddedFaultApplet - horz/vert scaling.
-
-Create X_ValuesInCurveControlPanel for the hazard curve calculator (include a button to revert back to defaults); done - Ned needs to look at.
-
-Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  Should we be using UTM coordinates?
-
-Go through existing apps and list issues we'd like to improve.
 
 Add the following adjustable parameters to the wg99/02 Fortran code:
 
@@ -94,8 +87,10 @@ Add the following adjustable parameters to the wg99/02 Fortran code:
 
     		addition of intermediate segment lats and lons for our output file
 
-**************** LONG TERM (LOWER PRIORITY): ****************
--------------------------------------------------------------
+Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings (has to do with the efficient search algorithm).  You can't choose a grid spacing smaller than that in the file.
+
+Make the setting values from CVM to be webservice rather than a servlet. Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. Do this only if wefigure out how to deal with the big jar files issue.
+
 
 Create SimpleFaultParameter and editor (so we can replace two PEER ERFs with one general ERF)
 
