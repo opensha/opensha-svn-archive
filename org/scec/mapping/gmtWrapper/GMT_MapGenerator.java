@@ -27,7 +27,7 @@ public class GMT_MapGenerator implements Serializable{
   protected final static String C = "GMT_MapGenerator";
 
   // for debug purpose
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
   // name of the file which contains all the GMT commands that we want to run on server
   protected String DEFAULT_GMT_SCRIPT_NAME = "map_GMT_Script.txt";

@@ -32,6 +32,7 @@ public class MagFreqDistParameter
      * the string for the distribution choice parameter
      */
     public final static String DISTRIBUTION_NAME="Choose Distribution";
+//    public final static String DISTRIBUTION_NAME="Distribution Type";
 
     /**
      * Name and Info strings of params needed by all distributions
@@ -76,7 +77,7 @@ public class MagFreqDistParameter
    public static final String RATE=new String("Rate");
    public static final String MAG=new String("Mag");
    public static final String MO_RATE=new String("Moment Rate");
-   public static final String SINGLE_PARAMS_TO_SET=new String("Single Dist. Params");
+   public static final String SINGLE_PARAMS_TO_SET=new String("Params To Set");
    public static final String RATE_AND_MAG =new String("Rate & Mag");
    public static final String MAG_AND_MO_RATE =new String("Mag & Moment Rate");
    public static final String RATE_AND_MO_RATE=new String("Rate & Moment Rate");
@@ -447,7 +448,7 @@ public class MagFreqDistParameter
 
 
     /**
-     * return the IncrementalMagFreqDist object based on parameters selected by the user
+     * return the IncrementalMagFreqDist object based on parameters given
      * @param parameterList
      * @return
      */
@@ -489,13 +490,8 @@ public class MagFreqDistParameter
               max.doubleValue(), num.intValue());
           String paramToSet = parameterList.getParameter(MagFreqDistParameter.
               SINGLE_PARAMS_TO_SET).getValue().toString();
-          String fix = parameterList.getParameter(MagFreqDistParameter.FIX).
-              getValue().toString();
-
           independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
               SINGLE_PARAMS_TO_SET));
-          independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
-              FIX));
 
           // if rate and mag are set
           if (paramToSet.equalsIgnoreCase(MagFreqDistParameter.RATE_AND_MAG)) {
@@ -551,6 +547,8 @@ public class MagFreqDistParameter
           }
           // if rate and moment rate are set
           else if (paramToSet.equalsIgnoreCase(MagFreqDistParameter.RATE_AND_MO_RATE)) {
+            String fix = parameterList.getParameter(MagFreqDistParameter.FIX).
+                         getValue().toString();
             Double rate = (Double) parameterList.getParameter(
                 MagFreqDistParameter.RATE).getValue();
             Double moRate = (Double) parameterList.getParameter(
@@ -560,6 +558,8 @@ public class MagFreqDistParameter
             else
               single.setRateAndMomentRate(rate.doubleValue(), moRate.doubleValue(), false);
 
+            independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+                FIX));
             independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
                 MO_RATE));
             independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
@@ -591,24 +591,14 @@ public class MagFreqDistParameter
               TRUNCATION_REQ));
 
           int truncType = 0;
-          if (truncTypeValue.equalsIgnoreCase(MagFreqDistParameter.
-                                              TRUNCATE_UPPER_ONLY))
+          if (truncTypeValue.equalsIgnoreCase(MagFreqDistParameter.TRUNCATE_UPPER_ONLY))
             truncType = 1;
-          else if (truncTypeValue.equalsIgnoreCase(MagFreqDistParameter.
-                                                   TRUNCATE_ON_BOTH_SIDES))
+          else if (truncTypeValue.equalsIgnoreCase(MagFreqDistParameter.TRUNCATE_ON_BOTH_SIDES))
             truncType = 2;
 
-          GaussianMagFreqDist gaussian = new GaussianMagFreqDist(min.doubleValue(),
-              max.doubleValue(), num.intValue());
-
-          String setAllParamsBut = parameterList.getParameter(
-              MagFreqDistParameter.SET_ALL_PARAMS_BUT).getValue().toString();
-
-          independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
-              SET_ALL_PARAMS_BUT));
-
+          Double truncLevel = new Double(Double.NaN);
           if (truncType != 0) {
-            Double truncLevel = (Double) parameterList.getParameter(
+            truncLevel = (Double) parameterList.getParameter(
                 MagFreqDistParameter.TRUNCATE_NUM_OF_STD_DEV).getValue();
             if (truncLevel.doubleValue() < 0)
               throw new java.lang.RuntimeException("Value of " +
@@ -618,7 +608,17 @@ public class MagFreqDistParameter
 
             independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
               TRUNCATE_NUM_OF_STD_DEV));
-            if (setAllParamsBut.equalsIgnoreCase(MagFreqDistParameter.
+          }
+          String setAllParamsBut = parameterList.getParameter(
+              MagFreqDistParameter.SET_ALL_PARAMS_BUT).getValue().toString();
+
+          independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
+              SET_ALL_PARAMS_BUT));
+
+          GaussianMagFreqDist gaussian = new GaussianMagFreqDist(min.doubleValue(),
+                                             max.doubleValue(), num.intValue());
+
+          if (setAllParamsBut.equalsIgnoreCase(MagFreqDistParameter.
                                                  TOT_CUM_RATE)) {
               Double totMoRate = (Double) parameterList.getParameter(
                   MagFreqDistParameter.TOT_MO_RATE).getValue();
@@ -627,8 +627,8 @@ public class MagFreqDistParameter
               gaussian.setAllButCumRate(mean.doubleValue(), stdDev.doubleValue(),
                                         totMoRate.doubleValue(),
                                         truncLevel.doubleValue(), truncType);
-            }
-            else {
+          }
+          else {
               Double totCumRate = (Double) parameterList.getParameter(
                   MagFreqDistParameter.TOT_CUM_RATE).getValue();
               independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
@@ -636,26 +636,6 @@ public class MagFreqDistParameter
               gaussian.setAllButTotMoRate(mean.doubleValue(), stdDev.doubleValue(),
                                           totCumRate.doubleValue(),
                                           truncLevel.doubleValue(), truncType);
-            }
-          }
-          else {
-            if (setAllParamsBut.equalsIgnoreCase(MagFreqDistParameter.
-                                                 TOT_CUM_RATE)) {
-              Double totMoRate = (Double) parameterList.getParameter(
-                  MagFreqDistParameter.TOT_MO_RATE).getValue();
-              independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
-              TOT_MO_RATE));
-              gaussian.setAllButCumRate(mean.doubleValue(), stdDev.doubleValue(),
-                                        totMoRate.doubleValue());
-            }
-            else {
-              Double totCumRate = (Double) parameterList.getParameter(
-                  MagFreqDistParameter.TOT_CUM_RATE).getValue();
-              independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
-              TOT_CUM_RATE));
-              gaussian.setAllButTotMoRate(mean.doubleValue(), stdDev.doubleValue(),
-                                          totCumRate.doubleValue());
-            }
           }
           magDist = (IncrementalMagFreqDist) gaussian;
         }

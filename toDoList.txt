@@ -25,6 +25,9 @@ Make a library to represent t-surfaces (or look on internet to see if someone el
 
 ===================================
 
+Use the get metadata methods in the MagFreqDist tester applet; then Ned needs to go through and make sure everything looks correct.
+
+
 Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the user what they are looking at in a plot; 2) save the state of a stand-alone app on the user's computer so they can relaunch later and begin where they left off; and 3) save enough information to the SRB (or equivalent) so we can tell at runtime whether a calculation has already been done, or so other's browsing the SRB will see what's available.
 
 We obviously want as much of a common solution to these three cases as possible. The goal seems to be achievable by simply saving the settings for all the parameters in the working environment (GUI or batch mode), and for each ParameterListEditor, or its GuiBean subclass, to be able to recreate the previous state when the metaData is fed back in.
