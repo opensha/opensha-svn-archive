@@ -53,9 +53,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   private static final double MIN_CVM_LON = -121.0;
   private static final double MAX_CVM_LON = -114.0;
 
-  //Progress Bar instance
-  private CalcProgressBar calcProgress;
-
 
   //Vs30 vector: the values that return from the CVM
   private Vector vs30Vector;
@@ -486,7 +483,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
       return ;
     }
 
-    calcProgress = new CalcProgressBar("Setting Gridded Region sites","Starting to get the siteParamters from the CVM");
+    CalcProgressBar calcProgress = new CalcProgressBar("Setting Gridded Region sites","Getting the site paramters from the CVM");
     getVS30FromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
     getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
     calcProgress.dispose();

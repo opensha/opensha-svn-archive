@@ -51,8 +51,6 @@ public class ScenarioShakeMapApp extends JApplet implements
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
 
-  //Progress Bar Initialization
-  CalcProgressBar calcProgress ;
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
@@ -432,7 +430,7 @@ public class ScenarioShakeMapApp extends JApplet implements
    */
   private void generateShakeMap(){
 
-    calcProgress = new CalcProgressBar("ShakeMapApp","Starting with ShakeMap Param Calculation");
+    CalcProgressBar calcProgress = new CalcProgressBar("ShakeMapApp","Starting with ShakeMap Param Calculation");
     boolean imlAtProb=false;
     boolean probAtIML=false;
     double imlProbValue=imlProbGuiBean.getIML_Prob();
