@@ -182,8 +182,8 @@ public class MapGuiBean extends JPanel implements
       //imgName = openConnection(xyzVals);
       imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       //imgName=openWebServiceConnection(fileName);
-      paramsInfo +="\n"+"You can download all the files from the following website:\n"+
-                   gmtMap.getGMTFilesWebAddress();
+      paramsInfo +="\n\t"+imgName+
+                   "\n\t"+imgName.substring(0,imgName.indexOf(".jpg"))+".ps"+"\n";
     }
     else{
       try{

@@ -31,7 +31,7 @@ public class GMT_MapGenerator implements Serializable{
   // name of the file which contains all the GMT commands that we want to run on server
   private String GMT_FILE_NAME = "gmtScript.txt";
 
-  private String XYZ_FILE_NAME ="xyz.txt";
+  private String XYZ_FILE_NAME ="map.txt";
 
   // PATH where the gmt commands and some others exist.
   public static String gmtPath = null;

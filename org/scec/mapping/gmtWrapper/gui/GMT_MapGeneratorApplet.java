@@ -193,7 +193,11 @@ public class GMT_MapGeneratorApplet extends Applet {
         ee.printStackTrace();
       }
     }
-    gmtGuiBean.makeMap(xyzData,"  ");
+    String metadata = "You can download the jpg or postscript files for:\n\t"+
+                      fileName+"\n\n"+
+                      "From (respectively):";
+
+    gmtGuiBean.makeMap(xyzData,metadata);
   }
 }
 
