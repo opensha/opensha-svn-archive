@@ -29,8 +29,8 @@ public class ERF_EpistemicListControlPanel extends JFrame
   private JComboBox fractileComboBox = new JComboBox();
 
   // static Strings to be shown in Fractile pick list
-  public final static String NO_PERCENTILE = "No Fractile";
-  public final static String CUSTOM_FRACTILE = "Custom Fractile";
+  public final static String NO_PERCENTILE = "No Fractiles";
+  public final static String CUSTOM_FRACTILE = "Plot Fractiles";
 
 
   // saving the instance of caller class
@@ -93,7 +93,7 @@ public class ERF_EpistemicListControlPanel extends JFrame
       }
     });
 
-    avgCheckBox.setText("Average");
+    avgCheckBox.setText("Plot Average");
     avgCheckBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         avgCheckBox_actionPerformed(e);

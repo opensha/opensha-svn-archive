@@ -1,7 +1,16 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+In the "Set Site Params from Web Services" control panel, change it to have two buttons.  One that says "Set Params For Chosen IMR", and one that says "Set Params For All IMRs".
+
+in the "ERF Epistemic Control" panel, please make the first two option align correctly.
+
+
+
+
 Add the  revised version of the test results for AttenuationRelationhships by Ken Campbell to the JUnit test.
+
+
 
 The the name of HazardMapApplet to HazardMapDataApplet, and in this app. allow the user to set the name of the directory (if name already used give an error message, if name is null use timestamp?, don't allow white space in name?).
 
