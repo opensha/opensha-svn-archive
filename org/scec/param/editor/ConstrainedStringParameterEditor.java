@@ -184,11 +184,12 @@ public class ConstrainedStringParameterEditor
                 valueEditor.setBackground(this.BACK_COLOR);
                 ((JComboBox) valueEditor).addItemListener(this);
                 valueEditor.addFocusListener( this );
-
+                widgetPanel.add(valueEditor, COMBO_WIDGET_GBC);
             }
             else{
                 valueEditor = makeConstantEditor( strs.get(0).toString() );
                 widgetPanel.setBackground(STRING_BACK_COLOR);
+                 widgetPanel.add(valueEditor, WIDGET_GBC);
             }
 
 
@@ -196,8 +197,6 @@ public class ConstrainedStringParameterEditor
               //      new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, 10, 2,
                 //               new Insets(1, 1, 0, 1), 0,
                   //             0));
-
-            widgetPanel.add(valueEditor, WIDGET_GBC);
 
         }
 

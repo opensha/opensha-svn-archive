@@ -91,12 +91,6 @@ public class ParameterEditor
     protected final static Border ETCHED = BorderFactory.createEtchedBorder();
 
     // Constraints for each specific panel
-    protected final static GridBagConstraints NAME_LABEL_GBC = new GridBagConstraints(
-            0, 0, 1, 1, 1.0, 0.0, 10, 2, new Insets( 1, 5, 0, 0 ), 0, 0 );
-
-    protected final static GridBagConstraints LABLE_PANEL_GBC = new GridBagConstraints(
-            0, 0, 1, 1, 0.0, 0.0, 10, 2, ZERO_INSETS, 0, 0 );
-
     protected final static GridBagConstraints OUTER_PANEL_GBC = new GridBagConstraints(
             0, 0, 1, 1, 1.0, 1.0, 10, 1, new Insets( 1, 0, 0, 0 ), 0, 0 );
 
@@ -104,7 +98,10 @@ public class ParameterEditor
             0, 1, 1, 1, 1.0, 0.0, 10, 2, ZERO_INSETS, 0, 0 );
 
     protected final static GridBagConstraints WIDGET_GBC = new GridBagConstraints(
-            0, 0, 1, 1, 1.0, 0.0, 10, 2, new Insets( 1, 3, 0, 1 ), 0, 0 );
+            0, 0, 1, 1, 1.0, 0.0, 10, 2, new Insets( 1, 5, 0, 1 ), 0, 0 );
+
+    protected final static GridBagConstraints COMBO_WIDGET_GBC = new GridBagConstraints(
+            0, 0, 1, 1, 1.0, 0.0, 10, 2, new Insets( 1, 0, 0, 1 ), 0, 0 );
 
     // Actually panels all other componets are placed in
     protected JPanel outerPanel = new JPanel();

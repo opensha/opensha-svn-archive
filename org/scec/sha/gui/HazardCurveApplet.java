@@ -326,20 +326,10 @@ public class HazardCurveApplet extends JApplet
     jPanel1.setBorder(border4);
     jPanel1.setMinimumSize(new Dimension(959, 600));
     jPanel1.setPreferredSize(new Dimension(959, 600));
-    //clearButton.setBorder(null);
-    //toggleButton.setBorder(null);
-    //addButton.setBorder(null);
 
     //loading the OpenSHA Logo
 
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    clearButton.setBackground(new Color(200, 200, 230));
-    clearButton.setFont(new java.awt.Font("Dialog", 1, 11));
-    clearButton.setForeground(new Color(80, 80, 133));
-    clearButton.setBorder(null);
-    clearButton.setMaximumSize(new Dimension(97, 31));
-    clearButton.setMinimumSize(new Dimension(97, 31));
-    clearButton.setPreferredSize(new Dimension(92, 33));
     clearButton.setText("Clear Plot");
     clearButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -353,22 +343,15 @@ public class HazardCurveApplet extends JApplet
         imgLabel_mouseClicked(e);
       }
     });
-    jCheckylog.setBackground(Color.white);
+    //jCheckylog.setBackground(Color.white);
     jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
-    jCheckylog.setForeground(new Color(80, 80, 133));
+    //jCheckylog.setForeground(new Color(80, 80, 133));
     jCheckylog.setText("Y Log");
     jCheckylog.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jCheckylog_actionPerformed(e);
       }
     });
-    toggleButton.setBackground(new Color(200, 200, 230));
-    toggleButton.setFont(new java.awt.Font("Dialog", 1, 11));
-    toggleButton.setForeground(new Color(80, 80, 133));
-    toggleButton.setBorder(null);
-    toggleButton.setMaximumSize(new Dimension(97, 31));
-    toggleButton.setMinimumSize(new Dimension(97, 31));
-    toggleButton.setPreferredSize(new Dimension(92, 33));
     toggleButton.setToolTipText("");
     toggleButton.setText("Show Data");
     toggleButton.addActionListener(new java.awt.event.ActionListener() {
@@ -376,38 +359,31 @@ public class HazardCurveApplet extends JApplet
         toggleButton_actionPerformed(e);
       }
     });
-    buttonPanel.setBackground(Color.white);
+    //buttonPanel.setBackground(Color.white);
     buttonPanel.setMinimumSize(new Dimension(568, 20));
     buttonPanel.setLayout(flowLayout1);
-    progressCheckBox.setBackground(Color.white);
+    //progressCheckBox.setBackground(Color.white);
     progressCheckBox.setFont(new java.awt.Font("Dialog", 1, 12));
-    progressCheckBox.setForeground(new Color(80, 80, 133));
+    //progressCheckBox.setForeground(new Color(80, 80, 133));
     progressCheckBox.setSelected(true);
     progressCheckBox.setText("Show Progress Bar");
-    addButton.setBackground(new Color(200, 200, 230));
-    addButton.setFont(new java.awt.Font("Dialog", 1, 11));
-    addButton.setForeground(new Color(80, 80, 133));
-    addButton.setBorder(null);
-    addButton.setMaximumSize(new Dimension(97, 31));
-    addButton.setMinimumSize(new Dimension(97, 31));
-    addButton.setPreferredSize(new Dimension(97, 31));
     addButton.setText("Add Graph");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);
       }
     });
-    jCheckxlog.setBackground(Color.white);
+   // jCheckxlog.setBackground(Color.white);
     jCheckxlog.setFont(new java.awt.Font("Dialog", 1, 11));
-    jCheckxlog.setForeground(new Color(80, 80, 133));
+    //jCheckxlog.setForeground(new Color(80, 80, 133));
     jCheckxlog.setText("X Log");
     jCheckxlog.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jCheckxlog_actionPerformed(e);
       }
     });
-    controlComboBox.setBackground(new Color(200, 200, 230));
-    controlComboBox.setForeground(new Color(80, 80, 133));
+    //controlComboBox.setBackground(new Color(200, 200, 230));
+    //controlComboBox.setForeground(new Color(80, 80, 133));
     controlComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         controlComboBox_actionPerformed(e);
