@@ -86,11 +86,11 @@ public class GeographicRegion implements java.io.Serializable{
    */
   private void createPoly() {
     //creates the integer array of size equal to the number of the locations in the list
-    int[] lat= new int[getNumLocations()];
-    int[] lon= new int[getNumLocations()];
+    int[] lat= new int[getNumRegionOutlineLocations()];
+    int[] lon= new int[getNumRegionOutlineLocations()];
     int index=0;
 
-    ListIterator lt=getLocationsIterator();
+    ListIterator lt=getRegionOutlineIterator();
     while(lt.hasNext()){
       //putting all the lat and lon in the integer array
       Location l=(Location)lt.next();
@@ -101,7 +101,7 @@ public class GeographicRegion implements java.io.Serializable{
     }
 
     // create the Java polygon.
-    poly = new Polygon(lat,lon,getNumLocations());
+    poly = new Polygon(lat,lon,getNumRegionOutlineLocations());
   }
 
 
@@ -141,7 +141,7 @@ public class GeographicRegion implements java.io.Serializable{
    *
    * @return the LocationList size
    */
-  public int getNumLocations(){
+  public int getNumRegionOutlineLocations(){
     return locList.size();
   }
 
@@ -149,7 +149,7 @@ public class GeographicRegion implements java.io.Serializable{
    *
    * @returns the ListIterator to the LocationList
    */
-  public ListIterator getLocationsIterator(){
+  public ListIterator getRegionOutlineIterator(){
     return locList.listIterator();
   }
 
@@ -158,25 +158,17 @@ public class GeographicRegion implements java.io.Serializable{
    *
    * @return the List of Locations (a polygon representing the outline of the region)
    */
-  public LocationList getLocationList(){
+  public LocationList getRegionOutline(){
     return locList;
   }
 
-  /**
-   *
-   * @param index
-   * @return the Location at that index
-   */
-  public Location getLocation(int index){
-    return locList.getLocationAt(index);
-  }
 
 
   /**
    * this method finds the minLat,maxLat,minLon and maxLon.
    */
   private void setMinMaxLatLon(){
-    ListIterator it=getLocationsIterator();
+    ListIterator it=getRegionOutlineIterator();
     Location l = (Location) it.next();
     minLat=l.getLatitude();
     minLon=l.getLongitude();

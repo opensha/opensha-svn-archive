@@ -8,7 +8,7 @@ import org.scec.data.*;
  * <b>Title:</b> GeographicRegionTests<p>
  *
  * <b>Description:</b> Class used by the JUnit testing harness to test the
- * GeographicalRegionTests. This class was used to test using JUnit. 
+ * GeographicalRegionTests. This class was used to test using JUnit.
  *
  * Note: Requires the JUnit classes to run<p>
  * Note: This class is not needed in production, only for testing.<p>
@@ -20,21 +20,21 @@ import org.scec.data.*;
  * @version    1.0
  */
 
-public class RectangularGeoRegionTests extends TestCase 
+public class RectangularGeoRegionTests extends TestCase
 {
-    public RectangularGeoRegionTests(String name) 
+    public RectangularGeoRegionTests(String name)
     {
         super( name );
     }
 
-    protected void setUp() 
+    protected void setUp()
     {
-        
+
     }
 
     protected void tearDown()
     {
-        
+
     }
 
    public void testRecGeoRegion()
@@ -43,10 +43,10 @@ public class RectangularGeoRegionTests extends TestCase
      double y = 34.0;
      double z = 120.0;
      double za = 122.0;
-     
+
      RectangularGeographicRegion geoReg = new RectangularGeographicRegion(x,y,z,za);
      int numLocs = 4; // Each corner in the grid is a location.
-     assertEquals("Unexpected Number of Locations",numLocs,geoReg.getNumLocations());
+     assertEquals("Unexpected Number of Locations",numLocs,geoReg.getNumRegionOutlineLocations());
 
      assertTrue("Unexpected Min Lat: ", x==geoReg.getMinLat());
      assertTrue("Unexpected Max Lat: ", y==geoReg.getMaxLat());

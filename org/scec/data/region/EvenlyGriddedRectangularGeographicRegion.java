@@ -155,7 +155,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     EvenlyGriddedRectangularGeographicRegion geoReg = new EvenlyGriddedRectangularGeographicRegion(33.,33.9,120.,121.9,.05);
 
-    System.out.println(C+": numLocations="+ geoReg.getNumLocations());
+    System.out.println(C+": numLocations="+ geoReg.getNumRegionOutlineLocations());
 
     System.out.println(C+": getMinLat ="+ geoReg.getMinLat());
     System.out.println(C+": getMaxLat ="+ geoReg.getMaxLat());

@@ -8,7 +8,7 @@ import org.scec.data.*;
  * <b>Title:</b> GeographicRegionTests<p>
  *
  * <b>Description:</b> Class used by the JUnit testing harness to test the
- * GeographicalRegionTests. This class was used to test using JUnit. 
+ * GeographicalRegionTests. This class was used to test using JUnit.
  *
  * Note: Requires the JUnit classes to run<p>
  * Note: This class is not needed in production, only for testing.<p>
@@ -20,26 +20,26 @@ import org.scec.data.*;
  * @version    1.0
  */
 
-public class GeographicRegionTests extends TestCase 
+public class GeographicRegionTests extends TestCase
 {
-    public GeographicRegionTests(String name) 
+    public GeographicRegionTests(String name)
     {
         super( name );
     }
 
-    protected void setUp() 
+    protected void setUp()
     {
-        
+
     }
 
     protected void tearDown()
     {
-        
+
     }
 
    public void testGeoRegion()
     {
-        
+
       Location tempLoc = new Location(33,120);
       LocationList tempLocList = new LocationList();
       tempLocList.addLocation(tempLoc);
@@ -51,9 +51,9 @@ public class GeographicRegionTests extends TestCase
       tempLocList.addLocation(tempLoc);
 
       GeographicRegion geoReg = new GeographicRegion(tempLocList);
-      
+
       int numLocs = 4;
-      assertEquals("locations in region unexpected", geoReg.getNumLocations(),numLocs);
+      assertEquals("locations in region unexpected", geoReg.getNumRegionOutlineLocations(),numLocs);
       assertTrue(geoReg.isLocationInside(new Location(33.5,121)));
       assertTrue(geoReg.isLocationInside(new Location(33.001,120.001)));
       assertTrue(geoReg.isLocationInside(new Location(33,120)));
