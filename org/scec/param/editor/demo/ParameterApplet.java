@@ -139,7 +139,7 @@ public class ParameterApplet
                 new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
         ParameterList list = makeParameterList( 5 );
-        ParameterListEditor editor = new ParameterListEditor( list, this, this );
+        ParameterListEditor editor = new ParameterListEditor( list );
 
         jPanel1.add( editor,
                 new GridBagConstraints( 1, 2, 1, 1, 1.0, 1.0, 10, 1,
@@ -187,6 +187,8 @@ public class ParameterApplet
                  = new DoubleDiscreteConstraint( val );
         DoubleDiscreteParameter param
                  = new DoubleDiscreteParameter( name, constraint, "sec.", new Double( 12.1 ) );
+        param.addParameterChangeFailListener(this);
+        param.addParameterChangeListener(this);
         return param;
     }
 
@@ -196,6 +198,9 @@ public class ParameterApplet
         String value = "1" + paramCount;
         paramCount++;
         IntegerParameter param = new IntegerParameter( name, new Integer( value ) );
+        param.addParameterChangeFailListener(this);
+        param.addParameterChangeListener(this);
+
         return param;
     }
 
@@ -206,6 +211,9 @@ public class ParameterApplet
         paramCount++;
         IntegerConstraint constraint = new IntegerConstraint( -180, 180 );
         IntegerParameter param = new IntegerParameter( name, constraint, "degrees", new Integer( value ) );
+        param.addParameterChangeFailListener(this);
+        param.addParameterChangeListener(this);
+
         return param;
     }
 
@@ -216,6 +224,9 @@ public class ParameterApplet
         paramCount++;
         DoubleConstraint constraint = new DoubleConstraint( 0.0, 20.0 );
         DoubleParameter param = new DoubleParameter( name, constraint, "acres", new Double( value ) );
+        param.addParameterChangeFailListener(this);
+        param.addParameterChangeListener(this);
+
         return param;
     }
 
@@ -226,6 +237,8 @@ public class ParameterApplet
         String value = "Value " + paramCount;
         paramCount++;
         StringParameter param = new StringParameter( name, value );
+        param.addParameterChangeListener(this);
+
         return param;
     }
 
@@ -236,6 +249,8 @@ public class ParameterApplet
         String value = "Value " + paramCount;
         paramCount++;
         StringParameter param = new StringParameter( name, constraint, null, "William" );
+        param.addParameterChangeListener(this);
+
         return param;
     }
 

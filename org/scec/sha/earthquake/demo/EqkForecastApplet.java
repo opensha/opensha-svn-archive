@@ -239,6 +239,8 @@ public class EqkForecastApplet extends JApplet
     totalData.setFunctions(totalProbFuncs);
     totalData.setConvertZeroToMin(true,Y_MIN_VAL);
     hazFunction = new ArbitrarilyDiscretizedFunc[imrNames.size()];
+    longitude.addParameterChangeFailListener(this);
+    latitude.addParameterChangeFailListener(this);
 
     // set Y axis label
     totalProbFuncs.setYAxisName(Y_AXIS_NAME);
@@ -478,7 +480,11 @@ public class EqkForecastApplet extends JApplet
      Parameter tempParam;
      while(listIt.hasNext()){
        tempParam = (Parameter)listIt.next();
-       siteMap[numOfIMT].add(tempParam.clone());
+       Parameter cloneParam = (Parameter)tempParam.clone();
+       cloneParam.addParameterChangeFailListener(this);
+
+       siteMap[numOfIMT].add(cloneParam);
+
        if(tempParam instanceof StringParameter) {
          StringParameter strConstraint = (StringParameter)tempParam;
          tempParam.setValue(strConstraint.getAllowedStrings().get(0));
@@ -854,6 +860,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
           int numSites = siteMap[i].size();
           for(int j=0; j < numSites; ++j) {
             paramTemp = (Parameter)siteMap[i].get(j);
+
             if(paramTemp instanceof StringParameter) {
               StringParameter strConstraint = (StringParameter)paramTemp;
               paramTemp.setValue(strConstraint.getAllowedStrings().get(0));
@@ -872,7 +879,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
     }
 
-  this.siteEditor = new ParameterListEditor(siteParamList, this, this);
+  this.siteEditor = new ParameterListEditor(siteParamList);
   siteEditor.setTitle(SITE_PARAMS);
   sitePanel.add(siteEditor,BorderLayout.CENTER);
   validate();
@@ -937,7 +944,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
     // refresh the panel with the value
     sitePanel.removeAll();
-    this.siteEditor = new ParameterListEditor(siteParamList, this, this);
+    this.siteEditor = new ParameterListEditor(siteParamList);
     siteEditor.setTitle(SITE_PARAMS);
     sitePanel.add(siteEditor,BorderLayout.CENTER);
     validate();
@@ -1341,7 +1348,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
     // refresh the panel with the value
     sitePanel.removeAll();
-    this.siteEditor = new ParameterListEditor(siteParamList, this, this);
+    this.siteEditor = new ParameterListEditor(siteParamList);
     siteEditor.setTitle(SITE_PARAMS);
     sitePanel.add(siteEditor,BorderLayout.CENTER);
     validate();

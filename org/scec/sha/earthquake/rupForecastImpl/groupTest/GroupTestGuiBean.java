@@ -254,12 +254,12 @@ public class GroupTestGuiBean implements
     StringParameter availableTests = new StringParameter(this.TEST_PARAM_NAME,
                                testCasesVector,(String)testCasesVector.get(0));
     controlsParamList.addParameter(availableTests);
-
+    availableTests.addParameterChangeListener(this);
     // add the select IMR
     StringParameter selectIMR = new StringParameter(IMR_PARAM_NAME,
                                imrNamesVector,(String)imrNamesVector.get(0));
     controlsParamList.addParameter(selectIMR);
-
+    selectIMR.addParameterChangeListener(this);
     //add the sigma parameter
     Vector sigmaVector =new Vector();
     sigmaVector.add(SIGMA_TOTAL);
@@ -267,7 +267,7 @@ public class GroupTestGuiBean implements
     StringParameter selectSigma= new StringParameter(this.SIGMA_PARAM_NAME,
                         sigmaVector,SIGMA_TOTAL);
     controlsParamList.addParameter(selectSigma);
-
+    selectSigma.addParameterChangeListener(this);
     //add the truncType parameter
     Vector truncVector= new Vector();
     truncVector.add(ZERO);
@@ -276,10 +276,13 @@ public class GroupTestGuiBean implements
 
     StringParameter selectTruncType= new StringParameter(this.TRUNCTYPE_PARAM_NAME,
                             truncVector, ZERO);
+    selectTruncType.addParameterChangeListener(this);
     controlsParamList.addParameter(selectTruncType);
 
     //add the TruncLevel Parameter
     DoubleParameter selectTruncLevel = new DoubleParameter(this.TRUNCLEVEL_PARAM_NAME);
+    selectTruncLevel.addParameterChangeListener(this);
+    selectTruncLevel.addParameterChangeFailListener(applet);
     controlsParamList.addParameter(selectTruncLevel);
 
     //add the source Parameter
@@ -289,19 +292,21 @@ public class GroupTestGuiBean implements
     faultVector.add(this.SOURCE_FAULT_AREA);
     StringParameter selectSource= new StringParameter(this.SOURCE_PARAM_NAME,
                                   faultVector, SOURCE_FAULT_ONE);
-
+    selectSource.addParameterChangeListener(this);
     controlsParamList.addParameter(selectSource);
 
     // add the TimeSpan Parameter
     DoubleParameter selectTimeSpan = new DoubleParameter(this.TIMESPAN_PARAM_NAME,new Double(1.0));
     controlsParamList.addParameter(selectTimeSpan);
+    selectTimeSpan.addParameterChangeFailListener(applet);
+    selectTimeSpan.addParameterChangeListener(this);
 
 
     String[] searchPaths = new String[2];
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
     // now make the editor based on the paramter list
-    controlsEditor = new ParameterListEditor( controlsParamList, this, applet );
+    controlsEditor = new ParameterListEditor( controlsParamList);
     controlsEditor.setTitle( "Graph Controls" );
 
 
@@ -342,7 +347,7 @@ public class GroupTestGuiBean implements
    }
 
   // now make the site editor based on the param list
-   siteEditor = new ParameterListEditor( siteParamList, this, applet );
+   siteEditor = new ParameterListEditor( siteParamList );
    siteEditor.setTitle( "Site Paramters" );
  }
 

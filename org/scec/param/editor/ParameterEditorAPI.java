@@ -85,51 +85,6 @@ public interface ParameterEditorAPI {
      */
     public void setParameter( ParameterAPI model );
 
-    /**
-     *  Adds a feature to the ParameterChangeListener attribute of the
-     *  ParameterEditorAPI object
-     *
-     * @param  listener  The feature to be added to the ParameterChangeListener
-     *      attribute
-     */
-    public void addParameterChangeListener( ParameterChangeListener listener );
-
-    /**
-     *  Description of the Method
-     *
-     * @param  listener  Description of the Parameter
-     */
-    public void removeParameterChangeListener( ParameterChangeListener listener );
-
-    /**
-     *  Adds a feature to the ParameterChangeFailListener attribute of the
-     *  ParameterEditorAPI object
-     *
-     * @param  listener  The feature to be added to the
-     *      ParameterChangeFailListener attribute
-     */
-    public void addParameterChangeFailListener( ParameterChangeFailListener listener );
-
-    /**
-     *  Description of the Method
-     *
-     * @param  listener  Description of the Parameter
-     */
-    public void removeParameterChangeFailListener( ParameterChangeFailListener listener );
-
-    /**
-     *  Description of the Method
-     *
-     * @param  event  Description of the Parameter
-     */
-    public void firePropertyChange( ParameterChangeEvent event );
-
-    /**
-     *  Description of the Method
-     *
-     * @param  event  Description of the Parameter
-     */
-    public void firePropertyChangeFailed( ParameterChangeFailEvent event );
 
     /**
      *  Sets the focusEnabled attribute of the ParameterEditorAPI object

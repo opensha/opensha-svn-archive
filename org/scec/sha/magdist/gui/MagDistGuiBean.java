@@ -242,21 +242,21 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
         // make the min, delta and num Parameter
 
-        DoubleParameter minParamter = new DoubleParameter(MIN,new Double(0));
-        DoubleParameter maxParamter = new DoubleParameter(MAX,new Double(10));
-        IntegerParameter numParamter = new IntegerParameter(NUM,new Integer(101));
+        DoubleParameter minParameter = new DoubleParameter(MIN,new Double(0));
+        DoubleParameter maxParameter = new DoubleParameter(MAX,new Double(10));
+        IntegerParameter numParameter = new IntegerParameter(NUM,new Integer(101));
 
 
 
         // Now make the parameters list
         // At this point all values have been set for the IM type, xaxis, and the yaxis
 
-         controlsParamList.addParameter( minParamter );
-         controlsParamList.addParameter( numParamter );
-         controlsParamList.addParameter( maxParamter );
+         controlsParamList.addParameter( minParameter );
+         controlsParamList.addParameter( numParameter );
+         controlsParamList.addParameter( maxParameter );
 
         // Now make the Editor for the list
-        controlsEditor = new ParameterListEditor( controlsParamList, this, this.listener );
+        controlsEditor = new ParameterListEditor( controlsParamList );
         controlsEditor.setTitle( "Graph Controls" );
 
         // All done
@@ -305,6 +305,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
            vStrings.add(RATE_AND_MORATE);
            StringParameter paramsToSet=new StringParameter(PARAMS_TO_SET,vStrings,RATE_AND_MAG);
            independentParams.addParameter(paramsToSet);
+           paramsToSet.addParameterChangeListener(this);
            independentParams.addParameter(rate);
            independentParams.addParameter(mag);
            independentParams.addParameter(moRate);
@@ -324,6 +325,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
            vStrings.add(TRUNCATE_FROM_RIGHT);
            vStrings.add(TRUNCATE_ON_BOTH_SIDES);
            StringParameter truncType=new StringParameter(TRUNCATION_REQ,vStrings,NONE);
+           truncType.addParameterChangeListener(this);
            DoubleParameter truncLevel = new DoubleParameter(TRUNCATE_NUM_OF_STD_DEV);
            independentParams.addParameter(mean);
            independentParams.addParameter(stdDev);
@@ -348,6 +350,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
            vStrings.add(MAG_UPPER);
            StringParameter setParamsBut=new StringParameter(SET_ALL_PARAMS_BUT,vStrings,TO_MORATE);
            independentParams.addParameter(setParamsBut);
+           setParamsBut.addParameterChangeListener(this);
            independentParams.addParameter(magLower);
            independentParams.addParameter(magUpper);
            independentParams.addParameter(bValue);
@@ -358,6 +361,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
            vStrings1.add(FIX_TO_MORATE);
            StringParameter fix = new StringParameter(FIX,vStrings1,FIX_TO_CUM_RATE);
            independentParams.addParameter(fix);
+           fix.addParameterChangeListener(this);
          }
 
 
@@ -389,7 +393,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
         searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
 
          // Build editor list
-        independentsEditor = new ParameterListEditor( independentParams, this, listener, searchPaths );
+        independentsEditor = new ParameterListEditor( independentParams, searchPaths );
         independentsEditor.setTitle( "Distribution Parameters" );
 
         // All done
@@ -818,7 +822,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
      return magDist;
   }
-  public String getMagDistName(){
+  public String getMagDistName() {
       return controlsParamList.getParameter(DISTRIBUTION_NAME).getValue().toString();
   }
   public double getMin(){
