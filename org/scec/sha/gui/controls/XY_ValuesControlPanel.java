@@ -110,8 +110,12 @@ public class XY_ValuesControlPanel
       }
       function.set(tempX_Val,tempY_Val);
     }
-
-    function.setInfo(metadataText.getText());
+    function.setName("Manual entered XY Dataset using XY_ValuesControlPanel");
+    String metadata = metadataText.getText();
+    if(metadata == null || metadata.equals(""))
+      function.setInfo(" ");
+    else
+      function.setInfo(metadata);
     return function;
   }
 }
