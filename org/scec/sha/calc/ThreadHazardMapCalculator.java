@@ -78,7 +78,7 @@ public void getHazardMapCurves(String[] args) {
     int numSites = griddedSites.getNumGridLocs();
     //dividing the number of sites on each processor based on the number of processor
     //requested from the server.
-    int sitesPerProcessor = numSites/SubmitJobForMultiprocessorComputation.NUM_OF_PROCESSORS_AVAILABLE+1;
+    int sitesPerProcessor = (int)(numSites/SubmitJobForMultiprocessorComputation.NUM_OF_PROCESSORS_AVAILABLE+1);
     for(int j=0;j<numSites;j+=sitesPerProcessor){
       int endIndex = j+sitesPerProcessor;
       if(endIndex >=numSites)
