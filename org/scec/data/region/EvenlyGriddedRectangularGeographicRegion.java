@@ -106,6 +106,23 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     return gridLocsList;
   }
 
+
+  /**
+   * Return the number of gridded Lats in the Rectangular region
+   * @return
+   */
+  public int getNumGridLats(){
+    return numLatGridPoints;
+  }
+
+  /**
+   * Return the number of gridded Lons in the Rectangular region
+   * @return
+   */
+  public int getNumGridLons(){
+    return numLonGridPoints;
+  }
+
   /**
    *
    * @param index (starts from zero)
