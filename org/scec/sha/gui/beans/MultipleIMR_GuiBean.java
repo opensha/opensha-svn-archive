@@ -110,6 +110,9 @@ public class MultipleIMR_GuiBean extends JPanel  implements
   void jbInit() throws Exception {
     this.setLayout(gridBagLayout1);
     imrPanel.setLayout(gridBagLayout2);
+    this.setMinimumSize(new Dimension(0, 0));
+    this.setPreferredSize(new Dimension(430, 539));
+    imrPanel.setMinimumSize(new Dimension(0, 0));
     this.add(jScrollPane1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 3, 5, 5), 377, 469));
     jScrollPane1.getViewport().add(imrPanel, null);
@@ -501,6 +504,29 @@ public class MultipleIMR_GuiBean extends JPanel  implements
          selectedIMRs.add(attenRelsSupported.get(i));
      return selectedIMRs;
    }
+
+
+   /**
+    *
+    * @returns the normalised weights for each selected attenuationRelationship
+    */
+   public ArrayList getSelectedIMR_Weights(){
+     ArrayList wtsList = new ArrayList();
+     double totalWts =0;
+     for(int i=0;i < numSupportedAttenRels;++i){
+       if(wtsParameterEditor[i].isVisible()){
+         double value = ((Double)wtsParameterEditor[i].getValue()).doubleValue();
+         totalWts +=value;
+         wtsList.add(new Double(value));
+       }
+    }
+    int size = wtsList.size();
+    for(int i=0;i<size;++i)
+      wtsList.set(i,new Double(((Double)wtsList.get(i)).doubleValue()/totalWts));
+
+    return wtsList;
+   }
+
 
   /**
    * Checks to see if the Intensity Measure is supported by the AttenuationRelationship.

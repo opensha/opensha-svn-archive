@@ -75,6 +75,8 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
 
   // stores the instances of the selected AttenuationRelationships
   private ArrayList attenRel;
+  //stores the instance of the selected AttenuationRelationships wts after normalization
+  private ArrayList attenRelWts;
 
   //Instance to the ShakeMap calculator to get the XYZ data for the selected scenario
   //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
@@ -199,11 +201,12 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   //Component initialization
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
-    this.setSize(new Dimension(564, 721));
+    this.setSize(new Dimension(564, 752));
     this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(border1);
     mainPanel.setLayout(gridBagLayout6);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    mainSplitPane.setLastDividerLocation(610);
     buttonPanel.setLayout(gridBagLayout4);
     eqkRupPanel.setLayout(gridBagLayout1);
     gmtPanel.setLayout(gridBagLayout9);
@@ -245,8 +248,8 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     parameterTabbedPanel.addTab("Time Span", timespanPanel);
     parameterTabbedPanel.addTab( "Exceedance Level/Probability", prob_IMLPanel);
     parameterTabbedPanel.addTab("Map Attributes", gmtPanel);
-    mainSplitPane.setDividerLocation(580);
-    imr_IMTSplit.setDividerLocation(300);
+    mainSplitPane.setDividerLocation(630);
+    imr_IMTSplit.setDividerLocation(350);
   }
   //Start the applet
   public void start() {
@@ -493,8 +496,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   public void setGriddedRegionSiteParams(){
     if(sitesGuiBean !=null){
       sitesGuiBean.replaceSiteParams(getSelectedAttenRelSiteParams());
-      sitesGuiBean.validate();
-      sitesGuiBean.repaint();
+      sitesGuiBean.refreshParamEditor();
     }
   }
 
@@ -537,8 +539,30 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
      ex.printStackTrace();
     }
     try{
-      xyzDataSet =shakeMapCalc.getScenarioShakeMapData(griddedRegionSites,(AttenuationRelationship)attenRel.get(0),erfGuiBean.getRupture(),
-                                        probAtIML,imlProbValue);
+      int size = attenRel.size();
+      Vector zVals;
+      Vector sumZVals = null;
+      //iterating overe all the selected attenautionRelationShips and getting the XYZ data for them
+      for(int i=0;i<size;++i){
+        xyzDataSet =shakeMapCalc.getScenarioShakeMapData(griddedRegionSites,(AttenuationRelationship)attenRel.get(i),erfGuiBean.getRupture(),
+        probAtIML,imlProbValue);
+        //getting the Z Value from the XYZ data set
+        zVals = xyzDataSet.getZ_DataSet();
+        int size1 = zVals.size();
+        //multiplying the zValue for the attenuation with the relative normalised wt for it
+        for(int j=0;j<size1;++j)
+          zVals.set(j,new Double(((Double)zVals.get(j)).doubleValue()*((Double)attenRelWts.get(i)).doubleValue()));
+        //adding the Z Values for all the Attenuation Relationships together.
+        if(sumZVals == null)
+          sumZVals =zVals;
+        else {
+          size1 = sumZVals.size();
+          for(int j=0;j<size1;++j)
+            sumZVals.set(j,new Double(((Double)sumZVals.get(j)).doubleValue() + ((Double)zVals.get(j)).doubleValue()));
+        }
+      }
+      //updating the Z Values for the XYZ data after averaging the values for all selected attenuations.
+      xyzDataSet.setXYZ_DataSet(xyzDataSet.getX_DataSet(),xyzDataSet.getY_DataSet(),sumZVals);
     }catch(ParameterException e){
       throw new ParameterException(e.getMessage());
     }
@@ -577,6 +601,12 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
    //sets the Gridded region Sites and the type of plot user wants to see
    //IML@Prob or Prob@IML and it value.
     /*if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())*/
+
+    //selected IMR's
+    attenRel= imrGuiBean.getSelectedIMRs();
+    //selected IMR's normalised wts
+    attenRelWts = imrGuiBean.getSelectedIMR_Weights();
+
     getGriddedSitesAndMapType();
     addButton();
     //hazusControl = null;
@@ -594,9 +624,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
         generateShakeMap();
       //sets the region coordinates for the GMT using the MapGuiBean
       setRegionForGMT();
-      System.out.println("Step: "+step);
       ++step;
-      System.out.println("After adding Step: "+step);
     }catch(ParameterException e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
       calcProgress.showProgress(false);
@@ -730,6 +758,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
    * @returns the selected Attenuationrelationship model
    */
   public ArrayList getSelectedAttenuationRelationship(){
+    attenRel = imrGuiBean.getSelectedIMRs();
     return attenRel;
   }
 
