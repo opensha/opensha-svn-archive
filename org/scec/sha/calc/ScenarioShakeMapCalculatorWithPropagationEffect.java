@@ -41,6 +41,7 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
 
 
   /**
+   * Does the ScenarioShakeMap data calculation on the user's local system.
    * This function computes a Scenario ShakeMap Data for the given Region, IMR, and ERF.
    * The computed  data in the form of X, Y and Z is place XYZ_DataSetAPI object.
    * @param selectedAttenRels : ArrayList for the selected AttenuationRelationships
@@ -134,6 +135,7 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
 
 
   /**
+   * Does the ScenarioShakeMap data calculation on the server.
    * This function computes a Scenario ShakeMap Data for the given Region, IMR, and ERF.
    * The computed  data in the form of X, Y and Z is place XYZ_DataSetAPI object.
    * The computation is performed by the server to save the processor memory.
