@@ -35,12 +35,17 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
   private static final String ABRAHAMSON_1997_RESULTS = RESULT_SET_PATH +"Abrahamson_Silva1997TestData.txt";
 
+  //Instance of the class that does the actual comparison for the AttenuationRelationship classes
+  AttenRelResultsChecker attenRelChecker;
 
   public Abrahamson_Silva_1997_test(final String name) {
     super(name);
   }
 
   protected void setUp() {
+    // create the instance of the AS_1997
+    as_1997 = new AS_1997_AttenRel(this);
+    attenRelChecker = new AttenRelResultsChecker(as_1997,ABRAHAMSON_1997_RESULTS, tolerence);
   }
 
   protected void tearDown() {
@@ -48,10 +53,7 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
 
 
   public void testAS1997_Creation() {
-    // create the instance of the AS_1997
-    as_1997 = new AS_1997_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(as_1997,
-                                                 ABRAHAMSON_1997_RESULTS, tolerence);
+
     boolean result =attenRelChecker.readResultFile();
     int testNumber;
     if(result == false){

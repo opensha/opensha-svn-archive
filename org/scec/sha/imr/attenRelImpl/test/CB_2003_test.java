@@ -35,12 +35,17 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
   private static final String CB_2003_RESULTS = RESULT_SET_PATH +"Cambell_Bozorgnia2003TestData.txt";
 
+  //Instance of the class that does the actual comparison for the AttenuationRelationship classes
+  AttenRelResultsChecker attenRelChecker;
 
   public CB_2003_test(final String name) {
     super(name);
   }
 
   protected void setUp() {
+    // create the instance of the AS_1997
+    cb_2003 = new CB_2003_AttenRel(this);
+    attenRelChecker = new AttenRelResultsChecker(cb_2003,CB_2003_RESULTS, tolerence);
   }
 
   protected void tearDown() {
@@ -48,9 +53,7 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
 
 
   public void testCB2003_Creation() {
-    // create the instance of the AS_1997
-    cb_2003 = new CB_2003_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(cb_2003,CB_2003_RESULTS, tolerence);
+
     boolean result =attenRelChecker.readResultFile();
     int testNumber;
     if(result == false){

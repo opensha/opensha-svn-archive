@@ -35,12 +35,23 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
   //Tolerence to check if the results fall within the range.
   private static double tolerence = .0001; //default value for the tolerence
 
+  /**String to see if the user wants to output all the parameter setting for the all the test set
+   * or wants to see only the failed test result values, with the default being only the failed tests
+   **/
+  private static String showParamsForTests = "fail";
+
+  //Instance of the class that does the actual comparison for the AttenuationRelationship classes
+  AttenRelResultsChecker attenRelChecker;
+
 
   public BJF_1997_test(final String name) {
     super(name);
   }
 
   protected void setUp() {
+    // create the instance of the BJF_1997
+    bjf_1997 = new BJF_1997_AttenRel(this);
+    attenRelChecker = new AttenRelResultsChecker(bjf_1997,this.BOORE_1997_RESULTS,this.tolerence);
   }
 
   protected void tearDown() {
@@ -48,15 +59,35 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
 
 
   public void testBJF1997_Creation() {
-    // create the instance of the AS_1997
-    bjf_1997 = new BJF_1997_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(bjf_1997,
-                                                this.BOORE_1997_RESULTS,this.tolerence);
+
     boolean result =attenRelChecker.readResultFile();
     int testNumber;
+    testNumber = attenRelChecker.getTestNumber();
+
+    /**
+     * If any test for the BJF failed
+     */
     if(result == false){
-      testNumber = attenRelChecker.getTestNumber();
-      this.assertTrue("BJF Test Failed for following test Set-"+testNumber,result);
+      if(this.showParamsForTests.equalsIgnoreCase("fail")){
+        Vector failedTestsVector = attenRelChecker.getFailedTestResultNumberList();
+        int size = failedTestsVector.size();
+        for(int i=0;i<size;++i){
+          int failedTestNumber = ((Integer)failedTestsVector.get(i)).intValue();
+          this.assertTrue("BJF Test Failed for test Set-"+failedTestNumber+
+          " with following set of params :\n"+(String)attenRelChecker.getControlParamsValueForAllTests().get(failedTestNumber -1)+
+          (String)attenRelChecker.getIndependentParamsValueForAllTests().get(failedTestNumber -1),result);
+        }
+      }
+      else{
+        Vector controlParams = attenRelChecker.getControlParamsValueForAllTests();
+        Vector independentParams = attenRelChecker.getIndependentParamsValueForAllTests();
+        int size = controlParams.size();
+        for(int i=0;i<size;++i){
+          this.assertTrue("BJF test Set-"+(i+1)+
+          " with following set of params :\n"+(String)controlParams.get(i)+
+          (String)independentParams.get(i),result);
+        }
+      }
     }
     else
       this.assertTrue("BJF Passed all the test",result);
@@ -75,8 +106,10 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
 
   public static void main (String[] args)
   {
-   if(args.length !=0)
+   if(args.length !=0){
       tolerence=(new Double(args[0].trim())).doubleValue();
+      showParamsForTests = args[1].trim();
+   }
    junit.swingui.TestRunner.run(BJF_1997_test.class);
   }
 

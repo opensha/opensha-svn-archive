@@ -36,11 +36,17 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
   private static final String ABRAHAMSON_2000_RESULTS = RESULT_SET_PATH +"Abrahamson2000TestData.txt";
 
 
+  //Instance of the class that does the actual comparison for the AttenuationRelationship classes
+  AttenRelResultsChecker attenRelChecker;
+
   public Abrahamson_2000_test(final String name) {
     super(name);
   }
 
   protected void setUp() {
+    // create the instance of the Abrahamson_2000
+    abrahamson_2000 = new Abrahamson_2000_AttenRel(this);
+    attenRelChecker = new AttenRelResultsChecker(abrahamson_2000,ABRAHAMSON_2000_RESULTS, tolerence);
   }
 
   protected void tearDown() {
@@ -48,10 +54,7 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
 
 
   public void testAbrahamson2000_Creation() {
-    // create the instance of the Abrahamson_2000
-    abrahamson_2000 = new Abrahamson_2000_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new
-        AttenRelResultsChecker(abrahamson_2000,ABRAHAMSON_2000_RESULTS, tolerence);
+
     boolean result =attenRelChecker.readResultFile();
     int testNumber;
     if(result == false){

@@ -62,6 +62,22 @@ public class AttenRelResultsChecker {
   //stores the test number which we testing from the AttenRel metadata file
   int testNumber=0;
 
+  //Vector to store the failed testCases
+  private Vector testCaseNumberVector = new Vector();
+
+  //Vector to store the ControlParams name and Value
+  private Vector controlParamVector = new Vector();
+
+  //Vector to store the IndependentParams name and Value
+  private Vector independentParamVector = new Vector();
+
+
+  //String to Stores the controls param with their values
+  private String xControlName;
+  private String yControlName;
+  private String intensityMeasureName;
+
+
   public AttenRelResultsChecker(AttenuationRelationshipAPI imr, String file, double tolerence) {
     this.imr = imr;
     this.resultFile = file;
@@ -106,6 +122,9 @@ public class AttenRelResultsChecker {
     //we will read the value from the file ****/
     //set the intensity measure for the AttenuationRelationship
     imr.setIntensityMeasure(this.SA_NAME);
+
+    //It is temporary as right now we set the intensity measure to be only "SA"
+    this.intensityMeasureName = this.SA_NAME;
 
     //set the tolernce value for that IMR
     this.tolerence = tolerence;
@@ -152,6 +171,9 @@ public class AttenRelResultsChecker {
           if(str.startsWith(this.X_AXIS_NAME)){
             String st = str.substring(str.indexOf("=")+1).trim();
             xAxisParam = imr.getParameter(st);
+
+            //name and value for the X-Control Parameter
+            xControlName = str;
           }
           //if the string read is the new set of the test case
           else if(str.startsWith("Set")){
@@ -170,6 +192,9 @@ public class AttenRelResultsChecker {
               yAxisValue = this.EXCEED_PROB;
             else if(st.equalsIgnoreCase(this.Y_AXIS_IML_AT_PROB))
               yAxisValue = this.IML_AT_EXCEED_PROB;
+
+            //name and value for the Y-Control Parameter
+            this.yControlName = str;
           }
           /*
           reading the target result for the AttenuationRelationship with the
@@ -200,8 +225,14 @@ public class AttenRelResultsChecker {
               System.out.println("OpenSHA value for the test:"+testNumber+"; is:"+function.getY(j));
             //compare the computed result using SHA with the target result for the defined set of parameters
             boolean result =compareResults(function, targetFunction);
+            //if the test was failure the add it to trhe test cases Vecotr that stores the values for  that failed
             if(result == false)
-              return result;
+              this.testCaseNumberVector.add(new Integer(this.getTestNumber()));
+
+            //adding the Control Param names and Value to Vector for all the test cases
+            this.controlParamVector.add(this.getControlParametersValueForTest());
+            //adding the Independent Param names and Value to Vector for all the test cases
+            this.independentParamVector.add(this.getIndependentParametersValueForTest());
           }
           //reading the parameter names and their value from the file
           else{
@@ -231,6 +262,10 @@ public class AttenRelResultsChecker {
     }catch(Exception e){
       e.printStackTrace();
     }
+    // test cases vector that contains the failed test number
+    //if the size of this vector is not zero then return false(to make sure that some test did failed)
+    if(this.testCaseNumberVector.size() >0)
+      return false;
     return true;
   }
 
@@ -478,4 +513,51 @@ public class AttenRelResultsChecker {
     return this.testNumber;
   }
 
+  /**
+   *
+   * @returns the name and value for the independent params setting for the test cases
+   */
+  private String getIndependentParametersValueForTest(){
+    String independentParamValue="";
+
+    ListIterator it  = list.getParametersIterator();
+    while(it.hasNext()){
+      ParameterAPI tempParam = (ParameterAPI)it.next();
+      independentParamValue +=tempParam.getName()+" = "+tempParam.getValue()+"\n";
+    }
+    return independentParamValue +"\n";
+  }
+
+  /**
+   *
+   * @returns the name and Value for the control params setting of the test cases IMR
+   */
+  private String getControlParametersValueForTest(){
+    return this.intensityMeasureName+";"+this.xControlName+";"+this.yControlName+"\n";
+  }
+
+  /**
+   *
+   * @returns the Vector that contains the Values for control param value for all the test cases
+   */
+
+  public Vector getControlParamsValueForAllTests(){
+    return this.controlParamVector;
+  }
+
+  /**
+   *
+   * @returns the Vector that contains the Values for independent param value for all the test cases
+   */
+  public Vector getIndependentParamsValueForAllTests(){
+    return this.independentParamVector;
+  }
+
+  /**
+   *
+   * @returns the Vector for the testCases number that failed
+   */
+  public Vector getFailedTestResultNumberList(){
+    return this.testCaseNumberVector;
+  }
 }

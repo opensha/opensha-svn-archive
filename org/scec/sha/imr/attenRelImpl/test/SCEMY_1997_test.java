@@ -34,12 +34,18 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
   private static final String SADIGH_1997_RESULTS = RESULT_SET_PATH +"Sadigh1997TestData.txt";
 
+  //Instance of the class that does the actual comparison for the AttenuationRelationship classes
+  AttenRelResultsChecker attenRelChecker;
+
 
   public SCEMY_1997_test(final String name) {
     super(name);
   }
 
   protected void setUp() {
+    // create the instance of the AS_1997
+    scemy_1997 = new SCEMY_1997_AttenRel(this);
+    attenRelChecker = new AttenRelResultsChecker(scemy_1997,SADIGH_1997_RESULTS,tolerence);
   }
 
   protected void tearDown() {
@@ -47,9 +53,7 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
 
 
   public void testSCEMY1997Creation() {
-    // create the instance of the AS_1997
-    scemy_1997 = new SCEMY_1997_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(scemy_1997,SADIGH_1997_RESULTS,tolerence);
+
     boolean result =attenRelChecker.readResultFile();
     int testNumber;
     if(result == false){
