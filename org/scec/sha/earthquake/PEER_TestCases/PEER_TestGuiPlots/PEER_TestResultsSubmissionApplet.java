@@ -51,6 +51,12 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   //Instance for the PEER Delete window class
   PEER_FileDeleteWindow peerDelete;
 
+  //Instance for the PEER Overwrite window class
+  PEER_FileOverwriteWindow peerOverwrite;
+
+  //flag to check if the file is to be overwritten
+  private boolean overwriteFlag=false;
+
   private boolean isStandalone = false;
   private Border border1;
   private Border border2;
@@ -376,6 +382,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
       //creating the new file name in which function data has to be stored.
       String fileName =new String(testComboBox.getSelectedItem().toString());
       boolean flag = true;
+      boolean fileFlag=true;
       fileName=fileName.concat("_");
       fileName=fileName.concat(fileNameText.getText());
       fileName=fileName.concat(".dat");
@@ -389,11 +396,31 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
       if(flag)
         function.setName(fileName.toString());
       else{
-        fileNameText.setText("");
+        int flag1=JOptionPane.showConfirmDialog(this,new String("Identifier already exists, Want to overwrite??"),
+                                      "Information message",JOptionPane.OK_CANCEL_OPTION);
+        int found=0;
+        if(flag1 ==JOptionPane.OK_OPTION)
+          found=1;
+        else {
+          fileFlag=false;
+          fileNameText.setText("");
+        }
+        //Overwrite window
+        if(found==1)  {
+          peerOverwrite = new PEER_FileOverwriteWindow(this,fileName);
+          peerOverwrite.setLocation(this.getAppletXAxisCenterCoor()-60,this.getAppletYAxisCenterCoor()-50);
+          peerOverwrite.pack();
+          peerOverwrite.show();
+          overwriteFlag=true;
+        }
         //throw new RuntimeException("Identifier Name already exists, Please enter new Identifier Name");
       }
-      flag = getYValues();
-      return flag;
+      if(fileFlag){
+        flag = getYValues();
+        return flag;
+      }
+      else
+        return false;
   }
 
 
@@ -504,7 +531,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
                                     "Input Error",JOptionPane.ERROR_MESSAGE);
     }
 
-    if(flag){
+    if(flag && !overwriteFlag){
       int confirm=JOptionPane.showConfirmDialog(this,new String("Want to continue with the file Submission??"),
           "Confirmation",JOptionPane.OK_CANCEL_OPTION,JOptionPane.INFORMATION_MESSAGE);
 
@@ -518,6 +545,29 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   }
 
   /**
+   * Frame added to show the user that data processing going on
+   * @param frame : Passed when we open connection with the server and it is doing
+   * some processing.
+   * @param msg : Message to be displayed in the frame
+   */
+
+  void showInformationFrame(JFrame frame,String msg){
+
+
+    frame.setTitle("Information");
+
+    JLabel label =new JLabel(msg);
+    frame.getContentPane().setLayout(new GridBagLayout());
+    frame.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 230,30));
+    frame.setLocation(getAppletXAxisCenterCoor()-60,getAppletYAxisCenterCoor()-50);
+    frame.show();
+    label.paintImmediately(label.getBounds());
+
+  }
+
+
+  /**
    * sets up the connection with the servlet on the server (scec.usc.edu)
    */
   void openConnection() {
@@ -525,15 +575,9 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
 
     //Frame added to show the user that data processing going on
+    String msg="                 Adding new file, Please be patient......";
     JFrame frame = new JFrame();
-    frame.setTitle("Information");
-    JLabel label =new JLabel("Adding new file, Please be patient......");
-    frame.getContentPane().setLayout(new GridBagLayout());
-    frame.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 230,50));
-    frame.setLocation(getAppletXAxisCenterCoor()-60,getAppletYAxisCenterCoor()-50);
-    frame.show();
-    label.paintImmediately(label.getBounds());
+    showInformationFrame(frame,msg);
 
     //vector which contains all the X and Y values from the function  to be send to the
     //servlet.
@@ -619,18 +663,9 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
 
     //Frame added to show the user that data processing going on
+    String msg ="                 Deletion being performed, Please be patient......";
     JFrame frame = new JFrame();
-    frame.setTitle("Information");
-
-    JLabel label =new JLabel("Deletion being performed, Please be patient......");
-    frame.getContentPane().setLayout(new GridBagLayout());
-    frame.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 230,50));
-    frame.setLocation(getAppletXAxisCenterCoor()-60,getAppletYAxisCenterCoor()-50);
-    frame.show();
-    label.paintImmediately(label.getBounds());
-
-
+    showInformationFrame(frame,msg);
     try{
       if(D)
         System.out.println("starting to make connection with servlet");
@@ -754,6 +789,89 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
       }
       return false;
     }
+
+
+    /**
+     * This method establishes the connection with the servlet and is activated
+     * if the existing data file has to be overwritten.
+     * @param fileName: Name of the file to be overwritten
+     */
+    void openOverwriteConnection(String fileName) {
+
+      overwriteFlag=false;
+      String msg="                 Overwriting file, Please be patient......";
+      //Frame added to show the user that data processing going on
+      JFrame frame = new JFrame();
+      showInformationFrame(frame,msg);
+      //vector which contains all the X and Y values from the function  to be send to the
+      //servlet.
+      Vector vt =new Vector();
+
+      int size = function.getNum();
+      for(int i=0;i<size;i++){
+        String temp= new String(function.getX(i) +" "+function.getY(i));
+        vt.add(temp);
+      }
+
+      try{
+        if(D)
+          System.out.println("starting to make connection with servlet");
+        URL PEER_TestServlet = new
+                               URL("http://scec.usc.edu:9999/examples/servlet/PEER_InputFilesServlet");
+
+        URLConnection servletConnection = PEER_TestServlet.openConnection();
+        if(D)
+          System.out.println("connection established");
+
+        // inform the connection that we will send output and accept input
+        servletConnection.setDoInput(true);
+        servletConnection.setDoOutput(true);
+
+        // Don't use a cached version of URL connection.
+        servletConnection.setUseCaches (false);
+        servletConnection.setDefaultUseCaches (false);
+        // Specify the content type that we will send binary data
+        servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+        ObjectOutputStream outputToServlet = new
+            ObjectOutputStream(servletConnection.getOutputStream());
+
+        if(D){
+          System.out.println("Function is:"+function.toString());
+          System.out.println("Function Name:"+function.getName());
+          System.out.println("Function Number:"+function.getNum());
+        }
+
+        //sending the "Overwrite" string to servlet to tell it to create a new data file
+        outputToServlet.writeObject(new String("Overwrite"));
+
+        // sending the name of the file to be overwritten
+        outputToServlet.writeObject(fileName);
+
+        //sending the vector of values to be input in the file, to the servlet
+        outputToServlet.writeObject(vt);
+        outputToServlet.flush();
+        outputToServlet.close();
+
+        // Receive the "destroy" from the servlet after it has received all the data
+        ObjectInputStream inputToServlet = new
+            ObjectInputStream(servletConnection.getInputStream());
+
+        String temp=inputToServlet.readObject().toString();
+
+        if(D)
+          System.out.println("Receiving the Input from the Servlet:"+temp);
+        inputToServlet.close();
+        //displaying the user the addition  has ended
+        JOptionPane.showMessageDialog(this,new String("File Overwritten Successfully....."),
+                                      "Overwritting Confirmation",JOptionPane.OK_OPTION);
+        frame.dispose();
+      }catch (Exception e) {
+        System.out.println("Exception in connection with servlet:" +e);
+        e.printStackTrace();
+      }
+    }
+
 
 
 

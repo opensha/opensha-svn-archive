@@ -83,7 +83,7 @@ public class DisaggregationCalculator {
    * @return
    */
   public void disaggregate(double iml, Site site,
-        AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
+        AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
 
     double totalRate, rate, mean, stdDev, condProb;
 

@@ -94,8 +94,8 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
   // height and width of the applet
-  protected final static int W = 950;
-  protected final static int H = 700;
+  protected final static int W = 970;
+  protected final static int H = 730;
 
   /**
    * FunctionList declared
@@ -104,7 +104,11 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
 
   DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
+  //Disaggregation Parameter
+  DoubleParameter disaggregationParam = new DoubleParameter("Disaggregation Prob",
+                                                             0,1,new Double(.01));
 
+  DoubleParameterEditor disaggregationEditor=new DoubleParameterEditor();
   // Create the x-axis and y-axis - either normal or log
   com.jrefinery.chart.NumberAxis xAxis = null;
   com.jrefinery.chart.NumberAxis yAxis = null;
@@ -139,6 +143,9 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
    * chart panel
    */
   ChartPanel chartPanel;
+
+  //flag to check for the disaggregation functionality
+  private boolean disaggregationFlag= false;
 
   // PEER Test Cases
   private String TITLE = new String("PEER Test Cases");
@@ -186,8 +193,6 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   private GridBagLayout gridBagLayout13 = new GridBagLayout();
   private JPanel sourcePanel = new JPanel();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
-  private GridBagLayout gridBagLayout10 = new GridBagLayout();
-  private BorderLayout borderLayout1 = new BorderLayout();
   private Border border6;
   private Border border7;
   private Border border8;
@@ -195,7 +200,11 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   private GridBagLayout gridBagLayout15 = new GridBagLayout();
   private JPanel imrPanel = new JPanel();
   private JLabel jLabel1 = new JLabel();
+  private JCheckBox disaggregationCheckbox = new JCheckBox();
+  private JLabel imgLabel = new JLabel();
+  private GridBagLayout gridBagLayout10 = new GridBagLayout();
   private GridBagLayout gridBagLayout12 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -217,12 +226,19 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
       jbInit();
       // make the GroupTestGuiBean
       String testSelected = testCasesCombo.getSelectedItem().toString();
+      testCasesCombo.setLightWeightPopupEnabled(false);
       peerTestGuiBean = new PEER_TestsGuiBean(this);
       peerTestGuiBean.setTestCaseAndSite(testSelected);
       this.updateChoosenIMR();
       this.updateChoosenTestCase();
       this.updateChoosenIMT();
       this.updateChoosenEqkSource();
+
+      //initialising the disaggregation parameter and adding to the button Panel
+      disaggregationEditor.setParameter(disaggregationParam);
+      buttonPanel.add(disaggregationEditor,  new GridBagConstraints(1, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(18, 7, 42, 110), 16, 0));
+      disaggregationEditor.setVisible(false);
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -240,7 +256,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     border7 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     this.getContentPane().setBackground(Color.white);
-    this.setSize(new Dimension(959, 644));
+    this.setSize(new Dimension(973, 742));
     this.getContentPane().setLayout(borderLayout1);
 
 
@@ -248,7 +264,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
     pointsTextArea.setText( NO_PLOT_MSG );
     dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
-    jPanel1.setLayout(gridBagLayout10);
+    jPanel1.setLayout(gridBagLayout12);
 
 
 
@@ -317,7 +333,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     buttonPanel.setMaximumSize(new Dimension(2147483647, 40));
     buttonPanel.setMinimumSize(new Dimension(726, 40));
     buttonPanel.setPreferredSize(new Dimension(726, 40));
-    buttonPanel.setLayout(gridBagLayout12);
+    buttonPanel.setLayout(gridBagLayout10);
     addButton.setBackground(new Color(200, 200, 230));
     addButton.setFont(new java.awt.Font("Dialog", 1, 11));
     addButton.setForeground(new Color(80, 80, 133));
@@ -370,10 +386,21 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     jLabel1.setFont(new java.awt.Font("Dialog", 1, 11));
     jLabel1.setForeground(new Color(80, 80, 133));
     jLabel1.setText("Select Test & Site:");
+    disaggregationCheckbox.setBackground(Color.white);
+    disaggregationCheckbox.setFont(new java.awt.Font("Dialog", 1, 12));
+    disaggregationCheckbox.setForeground(new Color(80, 80, 133));
+    disaggregationCheckbox.setText("Disaggregate");
+    disaggregationCheckbox.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        disaggregationCheckbox_actionPerformed(e);
+      }
+    });
+    imgLabel.setFont(new java.awt.Font("Dialog", 1, 15));
+    imgLabel.setText("Image");
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 9, 3, 0), 204, 251));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 9, 5, 3), 220, 359));
     topSplitPane.add(chartSplit, JSplitPane.TOP);
     chartSplit.add(panel, JSplitPane.LEFT);
     chartSplit.add(parameterSplitPane, JSplitPane.RIGHT);
@@ -384,24 +411,28 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     parameterSplitPane.add(sourcePanel, JSplitPane.RIGHT);
     controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(rangeComboBox,  new GridBagConstraints(8, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(17, 0, 12, 10), 0, 0));
-    buttonPanel.add(jCustomAxisLabel,  new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(18, 0, 12, 0), 8, 4));
     buttonPanel.add(jCheckylog,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 0, 12, 0), 10, 1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 0, 0), 10, 1));
     buttonPanel.add(jCheckxlog,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 0, 12, 0), 7, 2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 0, 0), 7, 2));
     buttonPanel.add(toggleButton,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 0, 12, 0), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 0, 0), 0, 0));
     buttonPanel.add(clearButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 0, 12, 0), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 0, 0), 0, 0));
     buttonPanel.add(addButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 0, 12, 0), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 0, 0), 0, 0));
     buttonPanel.add(testCasesCombo,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(11, 6, 12, 0), 27, 1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(8, 6, 0, 0), 48, 1));
     buttonPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 7, 12, 0), 1, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 7, 0, 0), 1, 7));
+    buttonPanel.add(jCustomAxisLabel,   new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(13, 0, 0, 0), 8, 4));
+    buttonPanel.add(rangeComboBox,    new GridBagConstraints(8, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(13, 0, 0, 14), 0, 0));
+    buttonPanel.add(disaggregationCheckbox,          new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(18, 2, 42, 0), 16, 0));
+    buttonPanel.add(imgLabel,  new GridBagConstraints(3, 1, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(41, 59, 4, 45), 140, 23));
     topSplitPane.setDividerLocation(575);
     chartSplit.setDividerLocation(575);
     rangeComboBox.addItem(new String(AUTO_SCALE));
@@ -876,6 +907,12 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
                                   totalProbFuncs.toString());
       addGraphPanel();
 
+      //displays the disaggregation string in the pop-up window
+      String disaggregationString= peerTestGuiBean.getDisaggregationString();
+      if(disaggregationString !=null)
+        JOptionPane.showMessageDialog(this,new String(disaggregationString),
+                                     "Disaggregation Result",JOptionPane.OK_OPTION);
+      disaggregationString=null;
     }
 
     /**
@@ -1036,5 +1073,28 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     String testSelected = testCasesCombo.getSelectedItem().toString();
     peerTestGuiBean.setTestCaseAndSite(testSelected);
   }
+
+  void disaggregationCheckbox_actionPerformed(ActionEvent e) {
+    if(disaggregationCheckbox.isSelected()){
+
+      disaggregationEditor.setVisible(true);
+      disaggregationFlag=true;
+    }
+    else{
+      disaggregationEditor.setVisible(false);
+      disaggregationFlag=false;
+    }
+  }
+
+ boolean getDisaggregationFlag(){
+  return disaggregationFlag;
+ }
+
+ /**
+  * @return the value of the disaggregation parameter
+  */
+ double getDisaggregationProbablity(){
+   return ((Double)(disaggregationParam.getValue())).doubleValue();
+ }
 
 }

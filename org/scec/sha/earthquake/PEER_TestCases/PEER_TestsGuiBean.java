@@ -28,6 +28,7 @@ import org.scec.sha.magdist.parameter.*;
 import org.scec.sha.magdist.gui.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.calc.HazardCurveCalculator;
+import org.scec.sha.calc.DisaggregationCalculator;
 
 
 public class PEER_TestsGuiBean implements
@@ -40,6 +41,10 @@ public class PEER_TestsGuiBean implements
   protected final static String C = "PEER_TestsGuiBean";
   protected final static boolean D = false;
   private String name  = "GroupTestGuiBean";
+
+
+  //Disaggregation String
+  private String disaggregationString= null;
 
 
   //innner class instance
@@ -443,6 +448,14 @@ public class PEER_TestsGuiBean implements
 
 
    /**
+    *
+    * @returns the disaggregation string to the applet
+    */
+   String getDisaggregationString(){
+     return disaggregationString;
+   }
+
+   /**
     * init erf_IndParamList. List of all available forecasts at this time
     */
     protected void init_erf_IndParamListAndEditor() {
@@ -807,6 +820,30 @@ public class PEER_TestsGuiBean implements
             "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
           //e.printStackTrace();
           return;
+   }
+
+   //inititialising the disaggregation String
+   disaggregationString=null;
+   //checking the disAggregation flag
+   if(applet.getDisaggregationFlag()){
+     DisaggregationCalculator disaggCalc = new DisaggregationCalculator();
+     double selectedProb= applet.getDisaggregationProbablity();
+     int num = hazFunction.getNum();
+
+     //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
+     if(selectedProb > hazFunction.getY(0) || selectedProb < hazFunction.getY(num-1))
+       JOptionPane.showMessageDialog(applet,
+                                     new String("Chosen Probability is not"+
+                                     " within the range of the min and max prob."+
+                                     " in the Hazard Curve"),
+                                     "Disaggregation Prob. selection error message",
+                                     JOptionPane.OK_OPTION);
+     else{
+       //gets the Disaggregation data
+       double iml= hazFunction.getFirstInterpolatedX(selectedProb);
+       disaggCalc.disaggregate(Math.log(iml),site,imr,eqkRupForecast);
+       disaggregationString=disaggCalc.getResultsString();
+     }
    }
     // add the function to the function list
     funcs.add(hazFunction);
