@@ -242,7 +242,6 @@ public class AttenRelResultsChecker {
   private boolean compareResults(DiscretizedFuncAPI function,
                                  ArrayList targetFunction){
     int num = function.getNum();
-    boolean flag = false;
     if(num != targetFunction.size())
       return false;
     else{
@@ -252,18 +251,15 @@ public class AttenRelResultsChecker {
         //comparing each value we obtained after doing the IMR calc with the target result
         //and making sure that values lies with the .1% range of the target values.
         double targetValue = ((Double)(targetFunction.get(i))).doubleValue();
-        //setting the tolerence level for the comparison of the values
-        double targetTolerence = targetValue*this.tolerence;
+
         //comparing if the values lies within the actual tolerence range of the target result
-        if((val <= (targetValue+targetTolerence)) && (val >= targetValue) ||
-           (val >= (targetValue-targetTolerence)) && (val <= targetValue)){
-          flag=true;
-        }
+        if(Math.abs(val-targetValue)<= this.tolerence)
+          continue;
         else
           return false;
       }
     }
-    return flag;
+    return true;
   }
 
   /**
