@@ -358,10 +358,13 @@ public class IMRGuiBean
         // else label = yAxisName + ' ' + imName;
 
         // SWR - Changed mean so that it returns the real mean, used to be the log of the mean
-        label = yAxisName + ' ' + imName;
+        // if IML at exceed Prob. is chosen, then only show IM
+        if(!yAxisName.equals( Y_AXIS_V4 )) label = yAxisName + ' ' + imName;
+        else  label = imName;
 
         // Determine if units should be added
-        if ( yAxisName.equals( Y_AXIS_V1 ) && !ClassUtils.isEmptyString( imUnits ) )
+        if ( (yAxisName.equals( Y_AXIS_V1 ) || yAxisName.equals( Y_AXIS_V4 ))
+             && !ClassUtils.isEmptyString( imUnits ) )
             label += " (" + imUnits + ')';
 
         // All done
@@ -443,15 +446,6 @@ public class IMRGuiBean
 
         setIgnoreWarnings(true);
         imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
-
-       // if IML at Exceed Prob. is selected, then set the IML
-        if(yAxisName.equalsIgnoreCase(this.Y_AXIS_V4)) {
-          if(D) System.out.println("Get IML at exceed prob selected at Y-axis");
-          double iml = imr.getIML_AtExceedProb();
-          imr.setIntensityMeasureLevel(new Double(iml));
-          //ParameterAPI periodParam = imr.getParameter("SA Period");
-          //periodParam.setValue(new Double(iml));
-        }
         setIgnoreWarnings(false);
 
 
@@ -709,6 +703,9 @@ public class IMRGuiBean
                 break;
             case STD_DEV:
                 result = imr.getStdDev();
+                break;
+            case IML_AT_EXCEED_PROB :
+                result = Math.exp(imr.getIML_AtExceedProb());
                 break;
         }
         return result;

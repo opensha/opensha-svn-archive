@@ -43,8 +43,8 @@ public class Fault1EqkRupForecast {
 
   // fault name
   private String FAULT_NAME = new String("Fault 1");
-  private Location LOCATION1 = new Location(38.0, -122, 0);
-  private Location LOCATION2 = new Location(38.22480, -122, 0);
+  private Location LOCATION1 = new Location(38.22480, -122, 0);
+  private Location LOCATION2 = new Location(38.0, -122, 0);
   private double UPPER_SEISMO_DEPTH = 0.0;
   private double LOWER_SEISMO_DEPTH = 25.0;
   private double GRID_SPACING = 1.0;
