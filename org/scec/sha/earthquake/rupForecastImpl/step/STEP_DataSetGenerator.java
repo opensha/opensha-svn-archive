@@ -49,10 +49,10 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private static final String METADATA_FILE_SUFFIX = "_metadata.dat";
   private static final String WILLS_SITE_CLASS_FILE_NAME = "wills_class.txt";
   private static final double IML_VALUE = Math.log(0.126);
-  private ArrayList latVals = new ArrayList();
-  private ArrayList lonVals = new ArrayList();
+  private ArrayList latVals;
+  private ArrayList lonVals;
   //list to store the Wills Site Class Value
-  private ArrayList willSiteClassVals = new ArrayList();
+  private ArrayList willSiteClassVals ;
   DecimalFormat format = new DecimalFormat("0.00##");
 
   public STEP_DataSetGenerator() {
@@ -64,6 +64,11 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       e.printStackTrace();
       System.out.println("No internet connection available");
     }
+
+    latVals = new ArrayList();
+    lonVals = new ArrayList();
+    //list to store the Wills Site Class Value
+    willSiteClassVals = new ArrayList();
 
     // make the imr
     ShakeMap_2003_AttenRel attenRel = new ShakeMap_2003_AttenRel(this);
@@ -96,7 +101,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     File vs30File = new File(this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
     //if already exists then just read the file and get the vs30 values
     if(vs30File.exists())
-      getValForLatLon(this.willSiteClassVals,this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
+      getWillsSiteClassValForLatLon(this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
     //if file does not already exists then create it.
     else{
       try{
@@ -220,7 +225,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
         st.nextToken();
         String val =st.nextToken().trim();
         //System.out.println("Val: "+val);
-        if(!val.equalsIgnoreCase("NaN") && !val.equalsIgnoreCase("NA"))
+        if(!val.equalsIgnoreCase("NaN"))
           vals.add(new Double(val));
         else
           vals.add(new Double(Double.NaN));
@@ -229,6 +234,30 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       e.printStackTrace();
     }
   }
+
+  /**
+   * returns wills site class in a list for the file( fileName)
+   * @param vals : ArrayList containing the values( z values)
+   * @param fileName : Name of the file from which we collect the values
+   */
+  private void getWillsSiteClassValForLatLon(String fileName){
+    try{
+      ArrayList fileLines = FileUtils.loadFile(fileName);
+      ListIterator it = fileLines.listIterator();
+      while(it.hasNext()){
+        StringTokenizer st = new StringTokenizer((String)it.next());
+        st.nextToken();
+        st.nextToken();
+        String val =st.nextToken().trim();
+        //System.out.println("Val: "+val);
+        willSiteClassVals.add(val);
+      }
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+  }
+
+
 
   /**
    * Creates the metadata file for the dataSet
