@@ -147,7 +147,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
                         "result in the comparison plot).\n"+
                         "NOTE: your identifier cannot have any spaces, dots(.)"+
                         " or a underscore (_) in it.\n\n"+
-                        "3) Paste your y-axis data in the right-hand box below "+
+                        "3) Paste your y-axis data in the right-hand box on the right "+
                         "according to the x-values shown in the left-hand box.\n\n"+
                         "4) Hit the submit button.";
 
@@ -275,10 +275,10 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(25, 18, 31, 0), 171, 4));
     dataPanel.add(jScrollPane2,  new GridBagConstraints(3, 2, 1, 3, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 38, 20, 0), 63, 325));
-    dataPanel.add(jLabel2,  new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 39, 0, 33), 17, 7));
-    dataPanel.add(xLabel,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 32, 0, 33), 20, 3));
+    dataPanel.add(jLabel2,      new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 39, 0, 0), 30, 7));
+    dataPanel.add(xLabel,       new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 32, 0, 0), 30, 3));
     dataPanel.add(jScrollPane1,  new GridBagConstraints(2, 2, 1, 3, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 32, 20, 0), 65, 325));
     mainPanel.add(deletePanel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
