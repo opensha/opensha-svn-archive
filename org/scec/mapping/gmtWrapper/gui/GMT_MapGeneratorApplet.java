@@ -51,7 +51,7 @@ public class GMT_MapGeneratorApplet extends Applet {
 
   private Border border2;
   private final static String URL_NAME = "Enter URL";
-  private StringParameter xyzFileName= new StringParameter(URL_NAME,"");
+  private StringParameter xyzFileName= new StringParameter(URL_NAME,"http://gravity.usc.edu/OpenSHA/step/backGround.txt");
   private StringParameterEditor xyzFileEditor;
   private JPanel parameterPanel = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
