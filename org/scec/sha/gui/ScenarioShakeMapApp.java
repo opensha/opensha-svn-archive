@@ -316,6 +316,7 @@ public class ScenarioShakeMapApp extends JApplet implements
      imrClasses.add(this.CB_CLASS_NAME);
      imrClasses.add(this.F_CLASS_NAME);
      imrClasses.add(this.A_CLASS_NAME);
+     imrClasses.add(this.SM_CLASS_NAME);
      imrGuiBean = new IMR_GuiBean(imrClasses);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
 
