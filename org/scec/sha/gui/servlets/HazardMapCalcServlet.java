@@ -52,8 +52,9 @@ public class HazardMapCalcServlet extends HttpServlet {
       AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)
           inputFromApplet.readObject();
       //get the selected EqkRupForecast
-      String  eqkRupForecastLocation =
-          (String) inputFromApplet.readObject();
+      Object obj = inputFromApplet.readObject();
+      if (D) System.out.println("obj class = "+obj.getClass());
+      String  eqkRupForecastLocation = (String) obj;
       // get the X values
       ArrayList xValuesList = (ArrayList) inputFromApplet.readObject();
       // get the MAX_SOURCE distance
