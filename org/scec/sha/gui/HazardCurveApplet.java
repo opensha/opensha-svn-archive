@@ -437,6 +437,7 @@ public class HazardCurveApplet extends JApplet
     progressCheckBox.setBackground(Color.white);
     progressCheckBox.setFont(new java.awt.Font("Dialog", 1, 12));
     progressCheckBox.setForeground(new Color(80, 80, 133));
+    progressCheckBox.setSelected(true);
     progressCheckBox.setText("Show Progress Bar");
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);

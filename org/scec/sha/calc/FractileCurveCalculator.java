@@ -120,12 +120,12 @@ public class FractileCurveCalculator {
       result.set(i,0.0);
 
     // add all functions (weighted) together
-    for(f=0;f<numFuncs;f++)
-      for(i=0;i<numPoints;i++) {
-        wt = ((Double)relativeWeights.get(f)).doubleValue();
+    for(f=0;f<numFuncs;f++) {
+       wt = ((Double)relativeWeights.get(f)).doubleValue();
+       totWt += wt;
+      for(i=0;i<numPoints;i++)
         result.set(i, result.getY(i) + wt*funcList.get(f).getY(i) );
-        totWt += wt;
-      }
+    }
 
     // now normalize by the total weight
       // initialize result to zero
@@ -147,7 +147,6 @@ public class FractileCurveCalculator {
     // function to save the result
     ArbitrarilyDiscretizedFunc result = new ArbitrarilyDiscretizedFunc();
     for(int i=0; i<num; ++i) {
-       System.out.println("2222  i="+i+"; dist="+((ArbDiscrEmpiricalDistFunc)empiricalDists.get(i)).toString());
       result.set(funcList.get(0).getX(i),
                  ((ArbDiscrEmpiricalDistFunc)empiricalDists.get(i)).getFractile(fraction));
     }
