@@ -1,4 +1,4 @@
-package org.scec.sha.magdist;
+package org.scec.sha.magdist.gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -14,6 +14,8 @@ import org.scec.param.editor.*;
 import org.scec.param.*;
 import org.scec.exceptions.*;
 import org.scec.param.event.*;
+import org.scec.sha.magdist.parameter.*;
+import org.scec.sha.magdist.*;
 
 
 /**
@@ -30,7 +32,9 @@ import org.scec.param.event.*;
  */
 
 public class MagFreqDistParameterEditor extends ParameterEditor
-    implements ParameterChangeListener, ActionListener {
+    implements ParameterChangeListener,
+    ParameterChangeFailListener,
+    ActionListener {
 
     /** Class name for debugging. */
     protected final static String C = "MagFreqDistParameterEditor";
@@ -212,7 +216,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
        searchPaths = new String[3];
        searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
        searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
-       searchPaths[2] = "org.scec.sha.magdist" ;
+       searchPaths[2] = "org.scec.sha.magdist.gui" ;
     }
 
     /**
@@ -264,22 +268,28 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         DoubleParameter maxParameter = new DoubleParameter(MAX,new Double(10));
         maxParameter.setInfo(MAX_INFO);
         IntegerParameter numParameter = new IntegerParameter(NUM, (int) 0, Integer.MAX_VALUE, new Integer(101));
+        numParameter.addParameterChangeFailListener(this);
         numParameter.setInfo(NUM_INFO);
 
          // Make the other common parameters (used by more than one distribution)
          DoubleParameter totMoRate=new DoubleParameter(TOT_MO_RATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS);
+         totMoRate.addParameterChangeFailListener(this);
          DoubleParameter magLower = new DoubleParameter(GR_MAG_LOWER);
          magLower.setInfo(GR_MAG_LOWER_INFO);
          DoubleParameter magUpper = new DoubleParameter(GR_MAG_UPPER);
          magUpper.setInfo(GR_MAG_UPPER_INFO);
          DoubleParameter bValue = new DoubleParameter(GR_BVALUE,0, Double.POSITIVE_INFINITY);
+         bValue.addParameterChangeFailListener(this);
          bValue.setInfo(BVALUE_INFO);
          DoubleParameter totCumRate = new DoubleParameter(TOT_CUM_RATE, 0, Double.POSITIVE_INFINITY, RATE_UNITS);
+         totCumRate.addParameterChangeFailListener(this);
 
 
          // add Parameters for single Mag freq dist
          DoubleParameter rate=new DoubleParameter(RATE, 0, Double.POSITIVE_INFINITY, RATE_UNITS);
+         rate.addParameterChangeFailListener(this);
          DoubleParameter moRate=new DoubleParameter(MO_RATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS);
+         moRate.addParameterChangeFailListener(this);
          DoubleParameter mag = new DoubleParameter(MAG);
          Vector vStrings=new Vector();
          vStrings.add(RATE_AND_MAG);
@@ -295,6 +305,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
           */
          DoubleParameter mean = new DoubleParameter(MEAN);
          DoubleParameter stdDev = new DoubleParameter(STD_DEV, 0, Double.POSITIVE_INFINITY);
+         stdDev.addParameterChangeFailListener(this);
          vStrings=new Vector();
          vStrings.add(TOT_CUM_RATE);
          vStrings.add(TOT_MO_RATE);
@@ -306,7 +317,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          StringParameter truncType=new StringParameter(TRUNCATION_REQ,vStrings,NONE);
          truncType.addParameterChangeListener(this);
          DoubleParameter truncLevel = new DoubleParameter(TRUNCATE_NUM_OF_STD_DEV, 0, Double.POSITIVE_INFINITY, new Double (2));
-
+         truncLevel.addParameterChangeFailListener(this);
           /**
            * Make parameters for Gutenberg-Richter distribution
            */
@@ -327,12 +338,15 @@ public class MagFreqDistParameterEditor extends ParameterEditor
           */
          DoubleParameter deltaMagChar = new DoubleParameter(YC_DELTA_MAG_CHAR, 0, Double.POSITIVE_INFINITY);
          deltaMagChar.setInfo(YC_DELTA_MAG_CHAR_INFO);
+         deltaMagChar.addParameterChangeFailListener(this);
          DoubleParameter magPrime = new DoubleParameter(YC_MAG_PRIME);
          magPrime.setInfo(YC_MAG_PRIME_INFO);
          DoubleParameter deltaMagPrime = new DoubleParameter(YC_DELTA_MAG_PRIME, 0, Double.POSITIVE_INFINITY);
          deltaMagPrime.setInfo(YC_DELTA_MAG_PRIME_INFO);
+         deltaMagPrime.addParameterChangeFailListener(this);
          DoubleParameter totCharRate = new DoubleParameter(YC_TOT_CHAR_RATE, 0, Double.POSITIVE_INFINITY);
          totCharRate.setInfo(YC_TOT_CHAR_RATE_INFO);
+         totCharRate.addParameterChangeFailListener(this);
          vStrings=new Vector();
          vStrings.add(YC_TOT_CHAR_RATE);
          vStrings.add(TOT_MO_RATE);
@@ -923,38 +937,77 @@ public class MagFreqDistParameterEditor extends ParameterEditor
   }
 
 
-
   /**
-   * returns the MagDistName
-   * @return
-   */
-  public String getMagDistName() {
-    return parameterList.getParameter(DISTRIBUTION_NAME).getValue().toString();
-  }
+      *  Shown when a Constraint error is thrown on a ParameterEditor
+      *
+      * @param  e  Description of the Parameter
+      */
+     public void parameterChangeFailed( ParameterChangeFailEvent e ) {
 
-  /**
-   * returns the Min of the magnitude for the distribution
-   * @return
-   */
-  public double getMin(){
-    return ((Double)parameterList.getParameter(MIN).getValue()).doubleValue();
-  }
+         String S = C + " : parameterChangeWarning(): ";
+         if(D) System.out.println(S + "Starting");
 
-  /**
-   * returns the Max of the magnitude for thr distribution
-   * @return
-   */
-  public double getMax(){
-    return ((Double)parameterList.getParameter(MAX).getValue()).doubleValue();
-  }
 
-  /**
-   * returns the Number of magnitudes for the Distribution
-   * @return
-   */
-  public int getNum(){
-    return ((Integer)parameterList.getParameter(NUM).getValue()).intValue();
-  }
+         StringBuffer b = new StringBuffer();
+
+         ParameterAPI param = ( ParameterAPI ) e.getSource();
+         ParameterConstraintAPI constraint = param.getConstraint();
+         String oldValueStr = e.getOldValue().toString();
+         String badValueStr = e.getBadValue().toString();
+         String name = param.getName();
+
+
+         b.append( "The value ");
+         b.append( badValueStr );
+         b.append( " is not permitted for '");
+         b.append( name );
+         b.append( "'.\n" );
+         b.append( "Resetting to ");
+         b.append( oldValueStr );
+         b.append( ". The constraints are: \n");
+         b.append( constraint.toString() );
+
+         JOptionPane.showMessageDialog(
+             this, b.toString(),
+             "Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
+             );
+
+         if(D) System.out.println(S + "Ending");
+
+   }
+
+
+     /**
+      * returns the MagDistName
+      * @return
+      */
+     public String getMagDistName() {
+       return parameterList.getParameter(DISTRIBUTION_NAME).getValue().toString();
+     }
+
+     /**
+      * returns the Min of the magnitude for the distribution
+      * @return
+      */
+     public double getMin(){
+       return ((Double)parameterList.getParameter(MIN).getValue()).doubleValue();
+     }
+
+     /**
+      * returns the Max of the magnitude for thr distribution
+      * @return
+      */
+     public double getMax(){
+       return ((Double)parameterList.getParameter(MAX).getValue()).doubleValue();
+     }
+
+     /**
+      * returns the Number of magnitudes for the Distribution
+      * @return
+      */
+     public int getNum(){
+       return ((Integer)parameterList.getParameter(NUM).getValue()).intValue();
+     }
 
   /**
    * returns the ParamterList for the MagfreqDistParameter

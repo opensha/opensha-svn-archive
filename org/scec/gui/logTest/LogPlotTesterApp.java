@@ -349,7 +349,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
        plot.setBackgroundAlpha( .8f );
 
 
-       plot.setXYItemRenderer( renderer );
+       plot.setRenderer( renderer );
 
 
        JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
@@ -359,7 +359,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
        panel = new ChartPanel(chart, true, true, true, true, false);
        panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
        panel.setMouseZoomable(true);
-       panel.setGenerateToolTips(true);
+       panel.setDisplayToolTips(true);
        panel.setHorizontalAxisTrace(false);
        panel.setVerticalAxisTrace(false);
 

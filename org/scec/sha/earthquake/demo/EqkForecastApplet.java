@@ -1244,7 +1244,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
 
 
-      plot.setXYItemRenderer( renderer );
+      plot.setRenderer( renderer );
 
 
       JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, true );
@@ -1260,7 +1260,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
       chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
       chartPanel.setMouseZoomable(true);
-      chartPanel.setGenerateToolTips(true);
+      chartPanel.setDisplayToolTips(true);
       chartPanel.setHorizontalAxisTrace(false);
       chartPanel.setVerticalAxisTrace(false);
 

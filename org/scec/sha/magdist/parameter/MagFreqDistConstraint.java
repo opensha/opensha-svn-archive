@@ -1,9 +1,9 @@
-package org.scec.sha.magdist;
+package org.scec.sha.magdist.parameter;
 
 import java.util.Vector;
 
 import org.scec.param.*;
-
+import org.scec.sha.magdist.IncrementalMagFreqDist;
 
 /**
  *  <b>Title:</b> MagFreqDistConstraint<p>

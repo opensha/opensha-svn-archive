@@ -961,7 +961,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         else plot.setBackgroundPaint( Color.black );
 
 
-        plot.setXYItemRenderer( renderer );
+        plot.setRenderer( renderer );
 
 
         JFreeChart chart = new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
@@ -1001,7 +1001,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         panel = new ChartPanel(chart, true, true, true, true, false);
         panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
         panel.setMouseZoomable(true);
-        panel.setGenerateToolTips(true);
+        panel.setDisplayToolTips(true);
         panel.setHorizontalAxisTrace(false);
         panel.setVerticalAxisTrace(false);
 

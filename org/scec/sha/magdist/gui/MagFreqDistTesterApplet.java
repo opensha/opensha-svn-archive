@@ -25,6 +25,8 @@ import org.scec.gui.plot.jfreechart.*;
 
 
 import org.scec.sha.magdist.*;
+import org.scec.sha.magdist.parameter.*;
+
 /**
  * <p>Title: MagFreqDistTesterApplet</p>
  * <p>Description: </p>
@@ -789,10 +791,17 @@ public class MagFreqDistTesterApplet extends JApplet
              toCumFunctions.remove(0);
              toMoFunctions.remove(0);
 
-             // add this distribution to summed distribution
-             summedMagFreqDist.addIncrementalMagFreqDist(function);
-             // this function will insert summed distribution at top of function list
-             insertSummedDistribution();
+             try {
+               // add this distribution to summed distribution
+               summedMagFreqDist.addIncrementalMagFreqDist(function);
+               // this function will insert summed distribution at top of function list
+               insertSummedDistribution();
+             }catch(Exception ex) {
+               JOptionPane.showMessageDialog(this,
+                                     "min, max, and num must be the same to sum the distributions."+
+                                     "\n Removing the summed distribution from the list"
+                                     );
+             }
           }
 
         // Add points data to text area, people can see
@@ -1007,21 +1016,21 @@ public class MagFreqDistTesterApplet extends JApplet
         // set panel properties for mag vs incremental rate chart
         incrPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
         incrPanel.setMouseZoomable(true);
-        incrPanel.setGenerateToolTips(true);
+        incrPanel.setDisplayToolTips(true);
         incrPanel.setHorizontalAxisTrace(false);
         incrPanel.setVerticalAxisTrace(false);
 
         // set panel properties for mag vs cumulative rate chart
         cumPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
         cumPanel.setMouseZoomable(true);
-        cumPanel.setGenerateToolTips(true);
+        cumPanel.setDisplayToolTips(true);
         cumPanel.setHorizontalAxisTrace(false);
         cumPanel.setVerticalAxisTrace(false);
 
        // set panel properties for mag vs moment rate chart
         moPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
         moPanel.setMouseZoomable(true);
-        moPanel.setGenerateToolTips(true);
+        moPanel.setDisplayToolTips(true);
         moPanel.setHorizontalAxisTrace(false);
         moPanel.setVerticalAxisTrace(false);
 
@@ -1315,8 +1324,17 @@ public class MagFreqDistTesterApplet extends JApplet
 
       // add all the existing distributions to the summed distribution
       int size = incrFunctions.size();
+
+      try {
       for(int i=0; i < size; ++i)
         summedMagFreqDist.addIncrementalMagFreqDist((IncrementalMagFreqDist)incrFunctions.get(i));
+      }catch(Exception ex) {
+         JOptionPane.showMessageDialog(this,
+                                       "min, max, and num must be the same to sum the distributions"
+                                       );
+         jCheckSumDist.setSelected(false);
+         return;
+      }
 
       // now we will do work so that we can put summed distribuiton to top of functionlist
       insertSummedDistribution();

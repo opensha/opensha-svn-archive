@@ -24,6 +24,7 @@ import org.scec.data.function.*;
 import org.scec.util.*;
 import org.scec.data.*;
 import org.scec.sha.magdist.*;
+import org.scec.sha.magdist.gui.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.calc.HazardCurveCalculator;
 
@@ -161,7 +162,7 @@ public class GroupTestGuiBean implements
     searchPaths = new String[3];
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
-    searchPaths[2] = "org.scec.sha.magdist" ;
+    searchPaths[2] = "org.scec.sha.magdist.gui" ;
 
 
     // Create all the available IMRs
