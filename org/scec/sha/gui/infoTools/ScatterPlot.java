@@ -142,7 +142,16 @@ public class ScatterPlot {
             seriesCollection.addSeries(AverageXY);
             plot.setSecondaryDataset(0, seriesCollection);
             plot.setSecondaryRenderer(0, renderer2);
-            rangeAxis.setRange(domainAxis.getRange());
+
+            double maxXRange = domainAxis.getRange().getUpperBound();
+            double maxYRange = rangeAxis.getRange().getUpperBound();
+
+            if(maxXRange > maxYRange)
+              rangeAxis.setRange(domainAxis.getRange());
+            else
+              domainAxis.setRange(rangeAxis.getRange());
+
+            //rangeAxis.setRange(domainAxis.getRange());
             // return a new chart containing the overlaid plot...
             return new JFreeChart("Scatter Plot - Correlation: " + getCorrelation(), JFreeChart.DEFAULT_TITLE_FONT, plot, false);
 
