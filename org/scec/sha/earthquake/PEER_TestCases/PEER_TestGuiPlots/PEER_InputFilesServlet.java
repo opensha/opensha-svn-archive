@@ -25,6 +25,7 @@ public class PEER_InputFilesServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
     try {
+       boolean  success = true;
        System.out.println("initialized to upload/delete file");
       // get an input stream from the applet
       ObjectInputStream inputFromApplet = new ObjectInputStream(request.getInputStream());
@@ -40,11 +41,15 @@ public class PEER_InputFilesServlet extends HttpServlet {
       // if file is to be deleted
       else if(functionDesired.equalsIgnoreCase("Delete"))
         deleteFile(fileName);
+      // if password checking functinality is desired
+      else if(functionDesired.equalsIgnoreCase("Password"))
+        success = checkPassword(fileName);
 
       // report to the user whether the operation was successful or not
       // get an ouput stream from the applet
       ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
-      outputToApplet.writeObject(new String("Success"));
+      if(success) outputToApplet.writeObject(new String("Success"));
+      else outputToApplet.writeObject(new String("Failure"));
       outputToApplet.close();
     } catch (Exception e) {
       // report to the user whether the operation was successful or not
@@ -60,13 +65,23 @@ public class PEER_InputFilesServlet extends HttpServlet {
   }
 
   /**
+   * checks the password entered by the user
+   * @param password : password to be verified
+   * @return
+   */
+  private boolean checkPassword(String password) {
+    if(password.equals("PEER"))
+      return true;
+    return false;
+  }
+
+  /**
    * to add the specified file to the jar file
    *
    * @param inputFromApplet  : Input stream from the applet
    * @param fileName : Name of the file to be added
    */
   private void addFile(ObjectInputStream inputFromApplet, String fileName) {
-
     try {
       // read the data
       Vector data  = (Vector) inputFromApplet.readObject();
@@ -87,6 +102,9 @@ public class PEER_InputFilesServlet extends HttpServlet {
       logFile.write(fileName+"\n");
       logFile.close();
 
+      // now update the data.version file to reflect the new data version
+      updateDataVersion();
+
       // add this file to the JAR also
       Process p=Runtime.getRuntime().exec("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles");
       p.waitFor();
@@ -103,6 +121,33 @@ public class PEER_InputFilesServlet extends HttpServlet {
       return;
     }
   }
+
+  /**
+   * This function updates the data version
+   * this is called whenever any file is added or removed
+   */
+  private void updateDataVersion() {
+    try{
+
+      // first read the current version number from the file
+      FileReader versionFile = new FileReader("GroupTestDataFiles/data.version");
+      LineNumberReader lin = new LineNumberReader(versionFile);
+      // get the current version number
+      int version = Integer.parseInt(lin.readLine());
+      lin.close();
+      versionFile.close();
+
+      // now update the version number in the file
+      FileWriter newVersionFile = new FileWriter("GroupTestDataFiles/data.version");
+      newVersionFile.write(""+(version+1)+"\n"); // write the new version
+      newVersionFile.write(""+new java.util.Date().toString()); // write the current updated time
+      newVersionFile.close();
+
+    }catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   /**
    * to delete the specified filename
    * @param fileName
@@ -116,25 +161,22 @@ public class PEER_InputFilesServlet extends HttpServlet {
      String str = lin.readLine();
      while(str!=null) {
        if(!str.equals(fileName)) fileNamesVector.add(str);
-       System.out.println("str="+str+",length(str)="+str.length()+
-                          "fileName="+fileName+",length(fileName)="+fileName.length()+
-                          "sizeofvector="+fileNamesVector.size());
        str = lin.readLine();
      }
      lin.close();
      logFile.close();
-     RunScript.runScript("rm GroupTestDataFiles/files.log");
 
 
      // remove this file from the GUI Plotter JAR also
      RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar");
-
      // rewrite the log file after removing the name of the removed file
      FileWriter newLogFile = new FileWriter("GroupTestDataFiles/files.log");
      int size = fileNamesVector.size();
      for(int i =0; i< size; ++i)
        newLogFile.write((String)fileNamesVector.get(i)+"\n");
      newLogFile.close();
+     // update the version in the version file
+     this.updateDataVersion();
 
      RunScript.runScript("rm  GroupTestDataFiles/"+fileName);
      RunScript.runScript("rm "+JAR_PATH+"PEER_TestResultsPlotterApp.jar");
@@ -160,6 +202,8 @@ public class PEER_InputFilesServlet extends HttpServlet {
      for(int i =0; i< size; ++i)
        newLogFile.write((String)fileNamesVector.get(i)+"\n");
      newLogFile.close();
+     // update the version in the version file
+     this.updateDataVersion();
 
      RunScript.runScript("rm GroupTestDataFiles/"+fileName);
      RunScript.runScript("rm "+JAR_PATH+"PEER_TestResultsSubmApp.jar");

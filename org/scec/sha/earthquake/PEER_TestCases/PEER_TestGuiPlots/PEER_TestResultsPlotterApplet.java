@@ -63,6 +63,10 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private boolean xLog =false;
   private boolean yLog =false;
 
+  // for the data version and data last updated things
+  // these will be read from a separate data.version file
+  private String dataVersion ;
+  private String dataLastUpdated;
 
   //variables that determine the window size
   protected final static int W = 850;
@@ -134,6 +138,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       "Downloading the latest version of this jar file  will get you"+
      " the latest results.";
   private final static String GUI_TITLE = "PEER PSHA-Test Results Plotter";
+  private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
 
 
 
@@ -172,7 +177,6 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
   // search path needed for making editors
   private String[] searchPaths;
-  private BorderLayout borderLayout2 = new BorderLayout();
   private JSplitPane avgSplitPane = new JSplitPane();
   private JPanel avgCasesPanel = new JPanel();
   private JScrollPane avgScrollPane = new JScrollPane();
@@ -189,9 +193,12 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private JLabel testPanelLabel = new JLabel();
   private JCheckBox averageCheck = new JCheckBox();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
-  private GridBagLayout gridBagLayout7 = new GridBagLayout();
   private JButton toggleButton = new JButton();
+  private JLabel guiLabel = new JLabel();
+  private JLabel dataVersionLabel = new JLabel();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private GridBagLayout gridBagLayout7 = new GridBagLayout();
 
   //Construct the applet
   public PEER_TestResultsPlotterApplet() {
@@ -205,6 +212,12 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   public void init() {
     try {
       jbInit();
+
+      // show the data version and time data was last updated
+      this.readDataVersion();
+      this.dataVersionLabel.setText("Data Version:"+this.dataVersion+
+                                    "   Last Updated:"+this.dataLastUpdated);
+
       //shows the selection for the different Test Cases files
       initTestParamList();
     }
@@ -219,21 +232,23 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     border3 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
     border4 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
     border5 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
-    this.setSize(new Dimension(749, 614));
-    this.getContentPane().setLayout(borderLayout2);
+    this.setSize(new Dimension(749, 622));
+    this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(BorderFactory.createEtchedBorder());
-    mainPanel.setLayout(gridBagLayout7);
+    mainPanel.setLayout(gridBagLayout3);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     mainSplitPane.setDividerSize(1);
-    buttonPanel.setLayout(gridBagLayout3);
+    buttonPanel.setLayout(gridBagLayout7);
     topPlotPanel.setLayout(gridBagLayout6);
     plotSplitPane.setMinimumSize(new Dimension(545, 0));
     plotSplitPane.setDividerSize(5);
     plotSplitPane.setLastDividerLocation(500);
     buttonPanel.setBorder(border1);
-    buttonPanel.setMinimumSize(new Dimension(739, 0));
-    buttonPanel.setPreferredSize(new Dimension(743, 75));
+    buttonPanel.setMinimumSize(new Dimension(739, 40));
+    buttonPanel.setPreferredSize(new Dimension(743, 40));
     topPlotPanel.setBorder(border3);
+    topPlotPanel.setMinimumSize(new Dimension(467, 500));
+    topPlotPanel.setPreferredSize(new Dimension(467, 500));
     // for showing the data on click of "show data" button
     pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
     pointsTextArea.setText( NO_PLOT_MSG );
@@ -249,6 +264,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
         yLogCheckBox_actionPerformed(e);
       }
     });
+    avgSplitPane.setPreferredSize(new Dimension(308, 480));
     avgSplitPane.setDividerSize(1);
     testCasesPanel.setLayout(gridBagLayout5);
     avgLabel.setForeground(Color.red);
@@ -282,6 +298,17 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
         toggleButton_actionPerformed(e);
       }
     });
+    guiLabel.setFont(new java.awt.Font("Dialog", 1, 12));
+    guiLabel.setForeground(new Color(80, 80, 133));
+    guiLabel.setToolTipText("");
+    guiLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    guiLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+    guiLabel.setText("PEER PSHA-TEST RESULTS PLOTTER");
+    dataVersionLabel.setForeground(new Color(80, 80, 133));
+    dataVersionLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    dataVersionLabel.setText("jLabel1");
+    testCasesPanel.setMinimumSize(new Dimension(115, 480));
+    testCasesPanel.setPreferredSize(new Dimension(121, 480));
     dataScrollPane.getViewport().add( pointsTextArea, null );
     xLogCheckBox.setText("XLog");
     yLogCheckBox.setText("YLog");
@@ -295,8 +322,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       }
     });
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
-    mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 10));
+    mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 1, 0), -48, 6));
     plotSplitPane.add(topPlotPanel, JSplitPane.LEFT);
 
     topPlotPanel.add(testCaseLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -313,20 +340,24 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     avgCasesPanel.add(avgLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    buttonPanel.add(xLogCheckBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 18, 13, 0), 21, 12));
     buttonPanel.add(yLogCheckBox,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 8, 13, 0), 14, 12));
-    buttonPanel.add(rangeComboBox,  new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(25, 0, 21, 0), -10, 2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(-1, 0, 7, 0), 14, -1));
     buttonPanel.add(rangeLabel,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(17, 9, 13, 0), 7, 20));
-    buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 18, 13, 0), 21, 9));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, 16, 7, 0), 22, 7));
+    buttonPanel.add(rangeComboBox,  new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(-1, 0, 7, 0), -2, 2));
     buttonPanel.add(toggleButton,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 23, 19, 66), 48, -3));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(-1, 16, 7, 92), 48, -3));
+    buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(-1, 10, 7, 0), 6, 0));
+    buttonPanel.add(xLogCheckBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(-1, 0, 7, 0), 21, -3));
+    mainPanel.add(guiLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 267, 0, 190), 37, 10));
+    mainPanel.add(dataVersionLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 139, 0, 171), 394, 3));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    mainSplitPane.setDividerLocation(520);
+    mainSplitPane.setDividerLocation(450);
     plotSplitPane.setDividerLocation(475);
     avgSplitPane.setDividerLocation(140);
     avgCasesPanel.setLayout(gridBagLayout1);
@@ -375,6 +406,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
     frame.setTitle(FRAME_TITLE);
+    //frame.setIconImage(ImageUtils.loadImage(FRAME_ICON_NAME));
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
@@ -691,6 +723,26 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
      }catch(Exception e) {
        e.printStackTrace();
      }
+
+   }
+
+   /**
+    * fills in the data version and data last updated
+    * This is stored in  the file data.version
+    */
+   private void readDataVersion() {
+     try{
+      // files.log contains all the files uploaded so far
+      InputStream input = PEER_TestResultsPlotterApplet.class.getResourceAsStream("/"+DIR+"data.version");
+      DataInputStream dataStream = new DataInputStream(input);
+      String line;
+      // first line of the file saves the version number
+      // second line saves the date aand time data was last updated
+      dataVersion = dataStream.readLine();
+      dataLastUpdated = dataStream.readLine();
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
 
    }
 
