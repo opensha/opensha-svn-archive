@@ -4,6 +4,8 @@
 For OpenSHA:
 ------------
 
+EqkRupForecast - move methods in subclasses to parent where possible (a lot are identical)
+
 GuiBeans - rename some of the titles (e.g., some say "Set ..." or "Choose ..." and some do not) 
 
 HazardCurveApplet:
@@ -36,6 +38,8 @@ ScenarioShakeMapApp
 
 	Add plotting of rupture surface as a dot at each point on the gridded surface
 
+	Use getInfo for each source to provide users with information
+
 
 AttenRelApp:
 
@@ -51,12 +55,9 @@ Fix titles of web pages
 
 Fix GriddedFaultApplet - horz/vert scaling.
 
-EqkRupForecast - move methods in subclasses to parent where possible (a lot are identical)
-
 Finish implementing WG99/02 ERF
 
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
-
 
 Submit our log-log implementation formally to JFreeChart.
 
@@ -74,8 +75,6 @@ For the SCEC-ITR CME:
 ---------------------
 
 Port stand-alone applications to server mode.
-
-Get site params from Vs30 and basin depth translator, and get Vs30 and basin depth for lat/lon.
 
 Get wg99/02 Fortran code compiling on our computers.
 
