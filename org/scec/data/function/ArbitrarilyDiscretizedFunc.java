@@ -321,6 +321,56 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
       return x;
     }
 
+
+    /**
+     * Given the input y value, finds the two sequential
+     * x values with the closest y values, then calculates an
+     * interpolated x value for this y value, fitted to the curve.
+     * The interpolated Y value returned is in the linear space but
+     * the interpolation is done in the log space.
+     * Since there may be multiple y values with the same value, this
+     * function just matches the first found starting at the x-min point
+     * along the x-axis.
+     * @param y : Y value in the linear space coressponding to which we are required to find the interpolated
+     * x value in the log space.
+     * @return x(this  is the interpolated x based on the given y value)
+     */
+    public double getFirstInterpolatedX_inLogXLogYDomain(double y){
+      // finds the size of the point array
+      int max=points.size();
+      double y1=Double.NaN;
+      double y2=Double.NaN;
+      int i;
+
+      boolean found = false; // this boolean hold whether the passed y value lies within range
+
+      //finds the Y values within which the the given y value lies
+      for(i=0;i<max-1;++i) {
+        y1=getY(i);
+        y2=getY(i+1);
+        if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
+          found = true;
+          break;
+        }
+      }
+
+      //if passed parameter(y value) is not within range then throw exception
+      if(!found) throw new InvalidRangeException("Y Value ("+y+") must be within the range: "+getY(0)+" and "+getY(max-1));
+
+      //finding the x values for the coressponding y values
+      double x1=Math.log(getX(i));
+      double x2=Math.log(getX(i+1));
+      y1= Math.log(y1);
+      y2= Math.log(y2);
+      y= Math.log(y);
+
+      //using the linear interpolation equation finding the value of x for given y
+      double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
+      return Math.exp(x);
+    }
+
+
+
     /**
      * Given the imput x value, finds the two sequential
      * x values with the closest x values, then calculates an
@@ -386,6 +436,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
       double y2=getY(x2);
       x1 = Math.log(x1);
       x2 = Math.log(x2);
+      x = Math.log(x);
       //using the linear interpolation equation finding the value of y for given x
       double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
       return Math.exp(y);

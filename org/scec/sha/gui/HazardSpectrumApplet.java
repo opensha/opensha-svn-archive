@@ -1371,7 +1371,7 @@ public class HazardSpectrumApplet extends JApplet
       * X value and imlProbVal is the Y value parameter which this function accepts
       */
       //returns the interpolated IML value for the given prob.
-      return tempFunc.getFirstInterpolatedX(imlProbVal);
+      return tempFunc.getFirstInterpolatedX_inLogXLogYDomain(imlProbVal);
 
     }
   }

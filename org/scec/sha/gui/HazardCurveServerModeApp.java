@@ -1043,7 +1043,7 @@ public class HazardCurveServerModeApp extends JApplet
                                      JOptionPane.OK_OPTION);
      else{
        //gets the Disaggregation data
-       double iml= hazFunction.getFirstInterpolatedX(disaggregationProb);
+       double iml= hazFunction.getFirstInterpolatedX_inLogXLogYDomain(disaggregationProb);
        disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)eqkRupForecast);
        disaggregationString=disaggCalc.getResultsString();
      }
