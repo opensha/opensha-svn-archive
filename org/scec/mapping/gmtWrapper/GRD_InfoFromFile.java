@@ -2,11 +2,12 @@ package org.scec.mapping.gmtWrapper;
 
 import java.io.*;
 import java.util.*;
-import org.scec.param.*;
+import org.scec.mapping.gmtWrapper.RunScript;
 
 /**
  * <p>Title: GRD_InfoFromFile </p>
- * <p>Description: This class generates Maps using the java wrapper around GMT</p>
+ * <p>Description: This class generates gets the info from a grd file (using GMT's
+ * grdinfo command</p>
  * @author: Ned Field, Nitin Gupta, & Vipin Gupta
  * @created:Dec 21,2002
  * @version 1.0
@@ -45,21 +46,21 @@ public class GRD_InfoFromFile {
   private String z_units = null;
 
   // here are the getter methods:
-  private double get_x_min() { return x_min; }
-  private double get_x_max() { return x_max; }
-  private double get_x_inc() { return x_inc; }
-  private String get_x_units() { return x_units; }
-  private int get_nx() { return nx; }
+  public double get_x_min() { return x_min; }
+  public double get_x_max() { return x_max; }
+  public double get_x_inc() { return x_inc; }
+  public String get_x_units() { return x_units; }
+  public int get_nx() { return nx; }
 
-  private double get_y_min() { return y_min; }
-  private double get_y_max() { return y_max; }
-  private double get_y_inc() { return y_inc; }
-  private String get_y_units() { return y_units; }
-  private int get_ny() { return ny; }
+  public double get_y_min() { return y_min; }
+  public double get_y_max() { return y_max; }
+  public double get_y_inc() { return y_inc; }
+  public String get_y_units() { return y_units; }
+  public int get_ny() { return ny; }
 
-  private double get_z_min() { return z_min; }
-  private double get_z_max() { return z_max; }
-  private String get_z_units() { return z_units; }
+  public double get_z_min() { return z_min; }
+  public double get_z_max() { return z_max; }
+  public String get_z_units() { return z_units; }
 
 
   /**

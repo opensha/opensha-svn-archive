@@ -58,6 +58,14 @@ public class GMT_MapGenerator {
   private final static String CPT_FILE_SHAKEMAP = "Shakemap.cpt";
   StringParameter cptFileParam;
 
+  // auto versus manual color scale setting
+  public final static String COLOR_SCALE_MODE_NAME = "Color Scale Limits";
+  public final static String COLOR_SCALE_MODE_INFO = "Set manually or from max/min of the data";
+  public final static String COLOR_SCALE_MODE_MANUALLY = "Manually";
+  public final static String COLOR_SCALE_MODE_FROMDATA = "From Data";
+  public final static String COLOR_SCALE_MODE_DEFAULT = "From Data";
+  StringParameter colorScaleModeParam;
+
   // for color scale limits
   public final static String COLOR_SCALE_MIN_PARAM_NAME = "Color-Scale Min";
   private final static Double COLOR_SCALE_MIN_PARAM_DEFAULT = new Double(-6);
@@ -73,12 +81,23 @@ public class GMT_MapGenerator {
   private final static String TOPO_RESOLUTION_PARAM_UNITS = "arc-sec";
   private final static String TOPO_RESOLUTION_PARAM_DEFAULT = "18";
   private final static String TOPO_RESOLUTION_PARAM_INFO = "Resolution of the shaded relief";
-  private final static String TOPO_RESOLUTION_03 = "3";
-  private final static String TOPO_RESOLUTION_06 = "6";
+  private final static String TOPO_RESOLUTION_03 = "03";
+  private final static String TOPO_RESOLUTION_06 = "06";
   private final static String TOPO_RESOLUTION_18 = "18";
   private final static String TOPO_RESOLUTION_30 = "30";
   private final static String TOPO_RESOLUTION_NONE = "No Topo";
   StringParameter topoResolutionParam;
+
+  // highways to plot parameter
+  public final static String SHOW_HIWYS_PARAM_NAME = "Highways in plot";
+  private final static String SHOW_HIWYS_PARAM_DEFAULT = "None";
+  private final static String SHOW_HIWYS_PARAM_INFO = "Select the highways you'd like to be shown";
+  private final static String SHOW_HIWYS_ALL = "ca_hiwys.all.xy";
+  private final static String SHOW_HIWYS_MAIN = "ca_hiwys.main.xy";
+  private final static String SHOW_HIWYS_OTHER = "ca_hiwys.other.xy";
+  private final static String SHOW_HIWYS_NONE = "None";
+  StringParameter showHiwysParam;
+
 
   protected ParameterList adjustableParams;
   public static int i = 0;
@@ -101,6 +120,12 @@ public class GMT_MapGenerator {
     cptFileConstraint.addString( CPT_FILE_SHAKEMAP );
     cptFileParam = new StringParameter( CPT_FILE_PARAM_NAME, cptFileConstraint, CPT_FILE_PARAM_DEFAULT );
     cptFileParam.setInfo( CPT_FILE_PARAM_INFO );
+
+    StringConstraint colorScaleModeConstraint = new StringConstraint();
+    colorScaleModeConstraint.addString( COLOR_SCALE_MODE_FROMDATA );
+    colorScaleModeConstraint.addString( COLOR_SCALE_MODE_MANUALLY );
+    colorScaleModeParam = new StringParameter( COLOR_SCALE_MODE_NAME, colorScaleModeConstraint, COLOR_SCALE_MODE_DEFAULT );
+    colorScaleModeParam.setInfo( COLOR_SCALE_MODE_INFO );
 
     StringConstraint inputFileConstraint = new StringConstraint();
     inputFileConstraint.addString( GRD_INPUT_FILE_PARAM_DEFAULT );
@@ -127,6 +152,16 @@ public class GMT_MapGenerator {
     topoResolutionParam = new StringParameter( TOPO_RESOLUTION_PARAM_NAME, topoResolutionConstraint,TOPO_RESOLUTION_PARAM_UNITS, TOPO_RESOLUTION_PARAM_DEFAULT );
     topoResolutionParam.setInfo( TOPO_RESOLUTION_PARAM_INFO );
 
+
+    StringConstraint showHiwysConstraint = new StringConstraint();
+    showHiwysConstraint.addString( SHOW_HIWYS_NONE );
+    showHiwysConstraint.addString( SHOW_HIWYS_ALL );
+    showHiwysConstraint.addString( SHOW_HIWYS_MAIN );
+    showHiwysConstraint.addString( SHOW_HIWYS_OTHER );
+    showHiwysParam = new StringParameter( SHOW_HIWYS_PARAM_NAME, showHiwysConstraint, SHOW_HIWYS_PARAM_DEFAULT );
+    showHiwysParam.setInfo( SHOW_HIWYS_PARAM_INFO );
+
+
     // create adjustable parameter list
     adjustableParams = new ParameterList();
     adjustableParams.addParameter(grdInputFileParam);
@@ -136,9 +171,11 @@ public class GMT_MapGenerator {
     adjustableParams.addParameter(minLonParam);
     adjustableParams.addParameter(maxLonParam);
     adjustableParams.addParameter(cptFileParam);
+    adjustableParams.addParameter(colorScaleModeParam);
     adjustableParams.addParameter(colorScaleMinParam);
     adjustableParams.addParameter(colorScaleMaxParam);
     adjustableParams.addParameter(topoResolutionParam);
+    adjustableParams.addParameter(showHiwysParam);
 
   }
 
@@ -171,12 +208,14 @@ public class GMT_MapGenerator {
 
     String cptFile = SCEC_GMT_DATA_PATH + (String) cptFileParam.getValue();
 
-    double colorScaleMin = ((Double) this.colorScaleMinParam.getValue()).doubleValue();
-    double colorScaleMax = ((Double) this.colorScaleMaxParam.getValue()).doubleValue();
+    String colorScaleMode = (String) colorScaleModeParam.getValue();
 
     // Set resolution according to the topoInten file chosen (options are 3, 6, 18, or 30):
     String resolution = (String) topoResolutionParam.getValue();
     String topoIntenFile = SCEC_GMT_DATA_PATH + "calTopoInten" + resolution+".grd";
+
+    // Set highways String
+    String showHiwys = (String) showHiwysParam.getValue();
 
     String out_ps = outputFilePrefix + ".ps";
     String out_jpg = outputFilePrefix +i+ ".jpg";
@@ -194,7 +233,20 @@ public class GMT_MapGenerator {
        String[] command ={"sh","-c",GMT_PATH + "grdcut " + grdInputDataFileName +" -GtempData.grd " + region};
        RunScript.runScript(command);
 
-       command[2]=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/0.5 -Z > temp.cpt";
+
+       double colorScaleMin, colorScaleMax;
+       if( colorScaleMode.equals(COLOR_SCALE_MODE_MANUALLY) ) {
+         colorScaleMin = ((Double) this.colorScaleMinParam.getValue()).doubleValue();
+         colorScaleMax = ((Double) this.colorScaleMaxParam.getValue()).doubleValue();
+       }
+       else {
+         GRD_InfoFromFile grdInfo = new GRD_InfoFromFile("tempData.grd");
+         colorScaleMin = grdInfo.get_z_min();
+         colorScaleMax = grdInfo.get_z_max();
+       }
+
+       float inc = (float) ((colorScaleMax-colorScaleMin)/20);
+       command[2]=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > temp.cpt";
        RunScript.runScript(command);
 
        command[2]=GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0";
@@ -215,6 +267,10 @@ public class GMT_MapGenerator {
          RunScript.runScript(command);
        }
 
+       if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
+         command[2]=GMT_PATH+"psxy  "+region+" -JM8i -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + out_ps;
+         RunScript.runScript(command);
+       }
        //# this will be added later
        //# psxy   ${region} -JM8i -O -K  -W5/0/0/0 -: -Ms ca_hiwys.main.asc >> $filename
 
