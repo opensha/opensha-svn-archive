@@ -583,28 +583,12 @@ private void intiAdjParams() {
        }
 
        parameterChangeFlag = false;
-
+/*
 String tempName;
 for(int i=0;i<allSources.size();i++) {
   tempName = ((ProbEqkSource) allSources.get(i)).getName();
   System.out.println("source "+ i +"is "+tempName);
 }
-
-/* TEMP STUFF
-       double totRate=0, totProb=1, prob;
-       int i,j, totRup;
-       int totSrc= allSources.size();
-       for(i=totSrc; i<totSrc; i++){
-         ProbEqkSource src = (ProbEqkSource) allSources.get(i);
-         totRup=src.getNumRuptures();
-         for(j=0; j<totRup; j++) {
-           prob = src.getRupture(j).getProbability();
-           totProb *= (1-prob);
-           totRate += -1*Math.log(1-prob)/50;
-         }
-       }
-       System.out.println("updateForecast: totRate="+totRate+"; totProb="+totProb);
-// END TEMP STUFF
 */
      }
 
