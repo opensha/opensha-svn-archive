@@ -432,9 +432,9 @@ public class HazardCurveApplet extends JApplet
     imrSplitPane.add(imrPanel, JSplitPane.TOP);
     imrSplitPane.add(imtPanel, JSplitPane.BOTTOM);
     controlsSplit.add(imrSplitPane, JSplitPane.LEFT);
-    paramsTabbedPane.add(controlsSplit, "IMR, IMT & Site");
+    paramsTabbedPane.add(controlsSplit, "IMR,  IMT,  &  Site");
     controlsSplit.add(sitePanel, JSplitPane.RIGHT);
-    paramsTabbedPane.add(erfSplitPane, "ERF & Time Span");
+    paramsTabbedPane.add(erfSplitPane, "ERF  &  Time Span");
     erfSplitPane.add(erfPanel, JSplitPane.LEFT);
     erfSplitPane.add(timeSpanPanel, JSplitPane.RIGHT);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
