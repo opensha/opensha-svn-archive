@@ -63,6 +63,7 @@ public class ScenarioShakeMapApp extends JApplet implements
   public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
   public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
+  public final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
 
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
@@ -75,6 +76,7 @@ public class ScenarioShakeMapApp extends JApplet implements
   public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
+  public final static String WG02_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
@@ -305,13 +307,14 @@ public class ScenarioShakeMapApp extends JApplet implements
     // create the IMR Gui Bean object
      // It accepts the vector of IMR class names
      Vector imrClasses = new Vector();
-     imrClasses.add(this.A_CLASS_NAME);
+//     imrClasses.add(this.SM_CLASS_NAME);
      imrClasses.add(this.AS_CLASS_NAME);
      imrClasses.add(this.BJF_CLASS_NAME);
      imrClasses.add(this.C_CLASS_NAME);
      imrClasses.add(this.SCEMY_CLASS_NAME);
      imrClasses.add(this.CB_CLASS_NAME);
      imrClasses.add(this.F_CLASS_NAME);
+     imrClasses.add(this.A_CLASS_NAME);
      imrGuiBean = new IMR_GuiBean(imrClasses);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
 
@@ -333,7 +336,8 @@ public class ScenarioShakeMapApp extends JApplet implements
    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-   erf_Classes.add(this.STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(WG02_FORECAST_CLASS_NAME);
    erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
 
    eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,

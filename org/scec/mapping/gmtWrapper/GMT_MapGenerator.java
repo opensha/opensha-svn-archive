@@ -64,6 +64,15 @@ public class GMT_MapGenerator implements Serializable{
   private final static String CPT_FILE_SHAKEMAP = "Shakemap.cpt";
   StringParameter cptFileParam;
 
+  public final static String COAST_PARAM_NAME = "Coast";
+  private final static String COAST_DRAW = "Draw Boundary";
+  private final static String COAST_FILL = "Draw & Fill";
+  private final static String COAST_NONE = "Draw Nothing";
+  private final static String COAST_DEFAULT = COAST_FILL;
+  private final static String COAST_PARAM_INFO = "Specifies how bodies of water are drawn";
+  StringParameter coastParam;
+
+
   // auto versus manual color scale setting
   public final static String COLOR_SCALE_MODE_NAME = "Color Scale Limits";
   public final static String COLOR_SCALE_MODE_INFO = "Set manually or from max/min of the data";
@@ -130,6 +139,13 @@ public class GMT_MapGenerator implements Serializable{
     cptFileParam = new StringParameter( CPT_FILE_PARAM_NAME, cptFileConstraint, CPT_FILE_PARAM_DEFAULT );
     cptFileParam.setInfo( CPT_FILE_PARAM_INFO );
 
+    StringConstraint coastConstraint = new StringConstraint();
+    coastConstraint.addString(COAST_FILL);
+    coastConstraint.addString(COAST_DRAW);
+    coastConstraint.addString(COAST_NONE);
+    coastParam = new StringParameter(COAST_PARAM_NAME,coastConstraint,COAST_DEFAULT );
+    coastParam.setInfo(COAST_PARAM_INFO);
+
     StringConstraint colorScaleModeConstraint = new StringConstraint();
     colorScaleModeConstraint.addString( COLOR_SCALE_MODE_FROMDATA );
     colorScaleModeConstraint.addString( COLOR_SCALE_MODE_MANUALLY );
@@ -179,6 +195,7 @@ public class GMT_MapGenerator implements Serializable{
     adjustableParams.addParameter(colorScaleMaxParam);
     adjustableParams.addParameter(topoResolutionParam);
     adjustableParams.addParameter(showHiwysParam);
+    adjustableParams.addParameter(coastParam);
 
   }
 
@@ -218,6 +235,7 @@ public class GMT_MapGenerator implements Serializable{
     String cptFile = SCEC_GMT_DATA_PATH + (String) cptFileParam.getValue();
 
     String colorScaleMode = (String) colorScaleModeParam.getValue();
+    String coast = (String) coastParam.getValue();
 
     // Set resolution according to the topoInten file chosen (options are 3, 6, 18, or 30):
     String resolution = (String) topoResolutionParam.getValue();
@@ -296,8 +314,14 @@ public class GMT_MapGenerator implements Serializable{
          RunScript.runScript(command);
        }
 
-//       command[2]=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + out_ps;
-//       RunScript.runScript(command);
+       if(coast.equals(COAST_FILL)) {
+         command[2]=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + out_ps;
+         RunScript.runScript(command);
+       }
+       else if(coast.equals(COAST_DRAW)) {
+         command[2]=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + out_ps;
+         RunScript.runScript(command);
+       }
 
        command[2]=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
        RunScript.runScript(command);

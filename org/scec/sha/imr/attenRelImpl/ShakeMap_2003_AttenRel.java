@@ -16,7 +16,7 @@ import org.scec.util.*;
  *
  * <b>Description:</b> This implements the attenuation relationship
  * developed by the ShakeMap group (2003).  There is no written documentation
- * on this relationship <p>
+ * of this relationship <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>
@@ -45,9 +45,9 @@ public class ShakeMap_2003_AttenRel
         NamedObjectAPI {
 
     // debugging stuff:
-    private final static String C = "BJF_1997_AttenRel";
+    private final static String C = "ShakeMap_2003_AttenRel";
     private final static boolean D = false;
-    public final static String NAME = "Boore, Joyner & Fumal (1997)";
+    public final static String NAME = "ShakeMap (2003)";
 
     // style of faulting options
     public final static String FLT_TYPE_UNKNOWN = "Unknown";
