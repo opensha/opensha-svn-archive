@@ -132,7 +132,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 public static void main( String[] args ) {
 
   ArbDiscrEmpiricalDistFunc func = new ArbDiscrEmpiricalDistFunc();
-  func.set(0.0,0);
+ /* func.set(0.0,0);
   func.set(1.0,0);
   func.set(1.0,1);
   func.set(2.0,1);
@@ -144,7 +144,25 @@ public static void main( String[] args ) {
   func.set(4.0,-1);
   func.set(5.0,5.0);
   func.set(5.0+1e-15,6.0);
-  func.set(5.0+1e-16,7.0);
+  func.set(5.0+1e-16,7.0);*/
+  func.set(0.0042254953,0.1);
+  func.set(0.008433135,0.3);
+  func.set(0.02094968,0.1);
+  func.set(0.002148321,.02);
+  func.set(0.0042920266,0.06);
+  func.set(0.010695551,.02);
+  func.set(0.002150044,.02);
+  func.set(0.0042954655,.06);
+  func.set(0.010704094,.02);
+  func.set(0.0021466056,.02);
+  func.set(0.0042886036,.06);
+  func.set(0.010687049,.02);
+  func.set(0.0021485311,.02);
+  func.set(0.004292446,.06);
+  func.set(0.010696594,.02);
+  func.set(0.0021486057,.02);
+  func.set(0.0042925947,.06);
+  func.set(0.0106969625,.02);
 
   System.out.println("func:");
   Iterator it = func.getPointsIterator();
@@ -168,6 +186,7 @@ public static void main( String[] args ) {
   System.out.println("0.75: " + cumFunc.getFirstInterpolatedX(0.75));
 
   System.out.println("\nFractiles from method:");
+  System.out.println("0.05: " + func.getFractile(0.05));
   System.out.println("0.25: " + func.getFractile(0.25));
   System.out.println("0.5: " + func.getFractile(0.5));
   System.out.println("0.75: " + func.getFractile(0.75));
