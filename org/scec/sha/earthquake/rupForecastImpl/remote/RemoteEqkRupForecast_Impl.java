@@ -43,7 +43,7 @@ public class RemoteEqkRupForecast_Impl
     */
    public RemoteEqkRupForecast_Impl(String className)
        throws java.rmi.RemoteException, IOException {
-     eqkRupForecast = (EqkRupForecast)org.scec.util.ClassUtils.createNoArgConstructorClassInstance(className);;
+     eqkRupForecast = (EqkRupForecast)org.scec.util.ClassUtils.createNoArgConstructorClassInstance(className);
    }
 
    /**
