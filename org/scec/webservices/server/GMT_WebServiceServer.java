@@ -46,7 +46,7 @@ public class GMT_WebServiceServer implements GMT_WebServiceAPI{
       boolean success =(new File(newDir)).mkdir();
 
       //writing the GMT file to the server
-      dh[0].writeTo(new FileOutputStream(fileName[0]));
+      dh[0].writeTo(new FileOutputStream(newDir+"/"+fileName[0]));
 
       //reading the gmtScript file that user sent as the attachment and create
       //a new gmt script inside the directory created for the user.
@@ -54,7 +54,7 @@ public class GMT_WebServiceServer implements GMT_WebServiceAPI{
       //at the top of the gmt script file I am adding the "cd ... " command so
       //that it should pick all the gmt related files from the directory cretade for the user.
       //reading the gmt script file sent by user as te attchment
-      FileReader fr = new FileReader(fileName[0]);
+      FileReader fr = new FileReader(newDir+"/"+fileName[0]);
       BufferedReader br = new BufferedReader(fr);
       String gmtScriptFile = newDir+"/"+this.GMT_SCRIPT_FILE;
       //creating a new gmt script for the user and writing it ot the directory created for the user
@@ -85,7 +85,7 @@ public class GMT_WebServiceServer implements GMT_WebServiceAPI{
       //name of the outputfiles
       outFile = fileName[1].substring(0,fileName[1].indexOf("."));
       // remove the temporary files created
-      command[2]="rm "+fileName[0];
+      command[2]="rm "+newDir+"/"+fileName[0];
       RunScript.runScript(command);
       command[2]="rm temp"+outFile+".grd";
       RunScript.runScript(command);
