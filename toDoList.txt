@@ -4,40 +4,52 @@
 For OpenSHA:
 ------------
 
+TimeSpan:
+
+	Look over what Ned did (OK?)
+
+	Add parameter change listener (e.g., so an ERF can know whether
+	its timespan object has been changed by an external object 
+	(e.g., GUI))
+
+	Create a TimeSpanGuiBean - should only need to use the 
+	getAdjustableParamsList() method.
+
+	Implement this in the HazardCurveApplet (GuiBean is a wrapper of the TimeSpan in the
+	chosen ERF).
+
+	Methods in EqkRupForecast (in abstract class):
+
+		setTimeSpan(tspan) takes the input time-span object, gets a startTimeCalendar 
+		from it, and passes this to its own timeSpan object (relevant fields will 
+		be set or ignored according to precision).  Also get/set the duration for
+		for the duration, being careful to specify the desired units.
+
+		getTimeSpan() - return the actual object (not a clone).
+
+	Create a "timeSpan" object in each ERF constructed as: 
+
+		TimeSpan timeSpan = new TimeSpan("Years",Years")
+
+	Remove double timeSpan field in all ERFs
+
+	Document limitations on duration conversions (assumes 365.25 days/yr which is rarely correct).
+
+
+
 EqkRupForecast.getAdjustableParamsList() - this actually returns an iterator, so shouldn't it be called getAdjustableParamsIterator()?
 
-Create FractileCurveCalculator
 
-	methods:	set(DiscretizedFuncList curves, Vector weights)
+Look over FractileCurveCalculator (Ned)
 
-				curves.size() = weights.size()
-
-				all curves in list have same num points
-
-				assume all curves have same x values
-
-			getFractile(double fraction)
-
-				0²fraction²1
-
-
-For the editors of IntegerParameter, DoubleParameter, and WarningDoubleParameter, make the text field un-editable if min = max.
-
-Create a WarningIntegerParameter & an associated editor (if needed).
-
-Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., pow(-num, non-integer) )
+Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) )
 
 HazardCurveApplet:
-
-	-fix format of disaggregation results window 
-
-	- check disaggregation (seems to be messed up)
 
 	-put parameter editors at the top in the ParameterListEditor 
 	 (rather than centered in the vertical direction)
 
-	-change "Select Control" to "Control Panels"
-
+	-epistemic list control panal; only redo hazard calculations if needed
 
 Evaluate:
 	
@@ -51,39 +63,35 @@ Evaluate:
 		First version can simply be a JComboBox hard-wired ruptures or use an ERF and 
 		selection of src and rup index
 
-ERF_EpistemicListControlPanel
-
-	add to control panels list only when an ERF_EpistemicList has been chosen 
-	(and pop it up automatically so the user knows he has to do something)
-
 Create the following control panels in the future:
 
 	X_ValuesInCurveControlPanel
 	setMinSourceSiteDistanceControlPanel
 
 
-CalcProgressBar - move initProgressFrame() method inside?
+Add progress bar when updating an ERF (inside ERF_GuiBean)
 
-Finish TimeSpan object.
+ProgressBars - enable turning on and off in both HazardMapCalculator add  HazardCurveCalculator; quantify the computation cost of using these (as will as if these are completely commented out).
 
-HazardMapCalculator - move iteration over sites inside, add progress bar for sites, and turn off progress bar in HazardCurveCalculator.
+Check Cross hairs in log-log plots (e.g., try it in the LogPlotTesterApp).
 
-Debug ERF_List objects in the HazardCurveApplet.
+Give JFreechart heads up on our submission, and ask the how we should do it
 
-Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g., try it in the LogPlotTesterApp).
-
-Mail JFreechart to include our log-log implementation into the official JFreeChart framework.
+Submit our log-log implementation formally to JFreeChart.
 
 Look at GriddedFaultApplet - plotting symbols (make all circles) and check that horz and vert scaling is correct.
 
-AttenRelApp - make "Set Axes" button (rather than JcomoBox)
+Check - AttenRelApp (made "Set Axes" button rather than JcomoBox)
 
-HazardCurveCalc - move initialization of hazFunction y-values to 1 inside the calculator (outside of applet), and move taking the log of it's x-axis values (for condProbFunc) outside the calculator (inside the applet with an if(IMT = SA or PGA or PGV) statement before).  Reconsider this entire calculation sequence.
+Check HazardCurveCalc - moved initialization of hazFunction y-values to 1 inside the calculator (outside of applet), and moved taking the log of it's x-axis values (for condProbFunc) outside the calculator (inside the applet with an if(IMT = SA or PGA or PGV) statement before).
+
+In applets, put an if statement (if IMT=PGA, SA, or PGV) before taking logs of X-axis values before sending to HazardCurveCalculator (else throw an exception to require hard coding other cases later).
+
+HazardCurveCalc - fix calculation sequence to be consistent with SRL paper.
 
 
 For the SCEC-ITR CME:
 ---------------------
-
 
 Think about porting our stand-alone applications to server mode.
 
