@@ -3,8 +3,24 @@ package org.scec.data.test;
 import junit.framework.*;
 import org.scec.data.*;
 
-// FIX - Needs more comments
 
+/**
+ * <p>Title: TestDataPoint2DTreeMap</p>
+ * <p>Description: JUnit tester class that verifies the
+ * DataPoint2DTreeMap class is functioning properly. </p>
+ *
+ * Note: Requires the JUnit classes to run<p>
+ * Note: This class is not needed in production, only for testing.<p>
+ *
+ * JUnit has gained many supporters, specifically used in ANT which is a java
+ * based tool that performs the same function as the make command in unix. ANT
+ * is developed under Apache.<p>
+ *
+ * Any function that begins with test will be executed by JUnit<p>
+ *
+ * @author Steven W. Rock
+ * @version 1.0
+ */
 public class TestDataPoint2DTreeMap extends TestCase {
 
     DataPoint2DTreeMap map = new DataPoint2DTreeMap();

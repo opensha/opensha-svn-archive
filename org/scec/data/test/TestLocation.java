@@ -3,12 +3,25 @@ package org.scec.data.test;
 import junit.framework.*;
 import org.scec.data.*;
 
-// FIX - Needs more comments
-
 /**
  * <b>Title:</b> TestLocation<p>
+ *
  * <b>Description:>/b> JUnit tester for the Location object. Tests every
- * piece of functionality, included expected fail conditions.<p>
+ * piece of functionality, included expected fail conditions. If any
+ * part of the test fails, the error code is indicated. Useful to ensure
+ * the accuracy and weither the class is functioning as expect. Any
+ * time in the future if the internal code is changed, this class will
+ * verify that the class still works as prescribed. This is called
+ * unit testing in software engineering. <p>
+ *
+ * Note: Requires the JUnit classes to run<p>
+ * Note: This class is not needed in production, only for testing.<p>
+ *
+ * JUnit has gained many supporters, specifically used in ANT which is a java
+ * based tool that performs the same function as the make command in unix. ANT
+ * is developed under Apache.<p>
+ *
+ * Any function that begins with test will be executed by JUnit<p>
  *
  * @author Steven W. Rock
  * @version 1.0

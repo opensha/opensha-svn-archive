@@ -220,7 +220,7 @@ public class DataPoint2D implements Comparable {
 
 
     /**
-     *  sets the y-value to the x-value and vise versa
+     *  sets the y-value to the x-value and vise versa. <p>
      */
     protected void invert() {
 
@@ -234,7 +234,7 @@ public class DataPoint2D implements Comparable {
 
     /**
      *  Returns a copy of this DataPoint2D. If you change the copy, this
-     *  original is unaltered
+     *  original is unaltered.
      *
      * @return    An exact copy of this object.
      */

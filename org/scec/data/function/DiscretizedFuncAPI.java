@@ -17,14 +17,21 @@ import org.scec.exceptions.*;
  * This functional framework is modeled after mathmatical functions
  * such as sin(x), etc. It assumes that there are no duplicate x values,
  * and that if two points have the same x value but different y values,
- * they are still considered equal. The framework also sorts the points along the
- * x axis, so the first point contains the mimimum x-value and the last
- * point contains the maximum value.<p>
+ * they are still considered the same point. The framework also sorts the
+ * points along the x axis, so the first point contains the mimimum
+ * x-value and the last point contains the maximum value.<p>
  *
  * Since this API represents the points in a list, alot of these API functions
- * are standard list access functions.<p>
+ * are standard list access functions such as (paraphrasing) get(), set(),
+ * delete(). numElements(), iterator(), etc.<p>
  *
- * DataPoint2D = (x,y)
+ * There are three fields along with getXXX() and setXXX() matching the field
+ * names. These javabean fields provide the basic information to describe
+ * a function. All functions have a name, information string, and a
+ * tolerance level that specifies how close two points have to be along
+ * the x axis to be considered equal.<p>
+ *
+ * DataPoint2D = (x,y)<p>
  *
  * @author Steven W. Rock
  * @see DataPoint2D
@@ -38,61 +45,19 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /* Basic Fields Getters/Setters */
     /* ******************************/
 
-    /**
-     * Sets the name of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+    /** Sets the name of this function. */
     public void setName( String name );
-    /**
-     * Returns the name of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+    /** Returns the name of this function. */
     public String getName();
 
-    /**
-     * Sets the info string of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+    /** Sets the info string of this function. */
     public void setInfo( String info );
-    /**
-     * Returns the info of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+    /** Returns the info of this function.  */
     public String getInfo();
 
-    /**
-     * Sets the tolerance of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+    /** Sets the tolerance of this function. */
     public void setTolerance(double newTolerance);
-    /**
-     * Returns the tolerance of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+    /** Returns the tolerance of this function.  */
     public double getTolerance();
 
 
@@ -100,7 +65,6 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /* ******************************/
     /* Metrics about list as whole  */
     /* ******************************/
-
 
     /** returns the number of points in this function list */
     public int getNum();
@@ -119,20 +83,20 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
 
 
 
-    /* ****************/
-    /* Point Getters  */
-    /* ****************/
+    /* ******************/
+    /* Point Accessors  */
+    /* ******************/
 
-    /** Returns the nth (x,y) point in the Function */
+    /** Returns the nth (x,y) point in the Function by index */
     public DataPoint2D get(int index);
 
-    /** returns the y value given an index */
+    /** Returns the x-value given an index */
     public double getX(int index);
 
-    /** returns the y value given an index */
+    /** Returns the y-value given an index */
     public double getY(int index);
 
-    /** returns the y value given an x value - within tolerance */
+    /** returns the y-value given an x-value - within tolerance */
     public double getY(double x);
 
     /**
@@ -141,12 +105,13 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      * interpolated x value for this y value, fitted to the curve. <p>
      *
      * Since there may be multiple y values with the same value, this
-     * function just matches the first found.
+     * function just matches the first found starting at the x-min point
+     * along the x-axis.
      */
     public double getFirstInterpolatedX(double y);
 
     /**
-     * Given the imput x value, finds the two sequential
+     * Given the input x value, finds the two sequential
      * x values with the closest x values, then calculates an
      * interpolated y value for this x value, fitted to the curve.
      */
@@ -161,14 +126,15 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /**
      * Since the x-axis is sorted and points stored in a list,
      * they can be accessed by index. This function returns the index
-     * of the specified x value if found, else returns -1.
+     * of the specified x value if found within tolerance, else returns -1.
      */
     public int getXIndex(double x);
 
     /**
      * Since the x-axis is sorted and points stored in a list,
      * they can be accessed by index. This function returns the index
-     * of the specified x value in the DataPoint2D if found, else returns -1.
+     * of the specified x value in the DataPoint2D if found withing tolerance,
+     * else returns -1.
      */
     public int getIndex(DataPoint2D point);
 
@@ -247,7 +213,6 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /**
      * Standard java function, usually used for debugging, prints out
      * the state of the list, such as number of points, the value of each point, etc.
-     * @return
      */
     public String toString();
 
@@ -255,8 +220,6 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      * Determines if two lists are equal. Typical implementation would verify
      * same number of points, and the all points are equal, using the DataPoint2D
      * equals() function.
-     * @param function
-     * @return
      */
     public boolean equals( DiscretizedFuncAPI function );
 
@@ -266,7 +229,6 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      * instance, but would maintain a reference to the original points. <p>
      *
      * Since this is a clone, you can modify it without changing the original.
-     * @return
      */
     public DiscretizedFuncAPI deepClone();
 

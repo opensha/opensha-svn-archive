@@ -6,7 +6,12 @@ import java.util.*;
 /**
  *  This class is the exact dulplicate of the java.util.TreeMap class except
  *  some of the internal elements have been changed from private to protected so
- *  that subclasses in this package has access to these internal fields<P>
+ *  that subclasses in this package has access to these internal fields.
+ *  This is critical in the implementation of the DataPoint2DTreeMap. This allows
+ *  a fully sorted collection of DataPoint2D along the X-axis ( independent
+ *  parameter ). <P>
+ *
+ * Java TreeMap Definition<br>
  *
  *  Red-Black tree based implementation of the <tt>SortedMap</tt> interface.
  *  This class guarantees that the map will be in ascending key order, sorted

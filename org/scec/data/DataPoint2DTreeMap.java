@@ -25,7 +25,7 @@ import org.scec.util.*;
  *  be a problem because currently the series is not modified after all the
  *  points are set. <P>
  *
- *  Description for TreeMap<P>
+ *  Java's offical Description for TreeMap<P>
  *
  *  Red-Black tree based implementation of the <tt>SortedMap</tt> interface.
  *  This class guarantees that the map will be in ascending key order, sorted

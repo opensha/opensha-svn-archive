@@ -10,6 +10,26 @@ import org.scec.exceptions.InvalidRangeException;
  *  uses a tolerance to specify that when two values are within tolerance of
  *  each other, they are equal<p>
  *
+ * This class sounds more complicated that it really is. The whole purpose
+ * is for calling the function compare(Object o1, Object o2). The x-coordinates
+ * are obtained from each, then this algorythmn determines if the x-values are
+ * equal:<p>
+ *
+ * Math.abs( x1 - x2 ) <= tolerance)<p>
+ *
+ * Note: In general comparators are created so that you can have more than one
+ * sorting for a class. Imagine that you have a Javabean with 4 fields, id, first name,
+ * last name, date created. Typical for a user record in a database. Now you can
+ * build the compareTo() function inside this Javabean, nut then you can only sort
+ * on 1 column. What if you present these javabeans in a GUI List, and you want to
+ * sort on any field by clicking on the header. You simply make 4 comparators,
+ * one for each field. Each header would use the particular comparator for the
+ * sorting function. Very nice design pattern. <p>
+ *
+ * Now let's sya you add another field. You simply make a new Comparator ( almost copy and paste).
+ * You don't have to change youre Javabean or your sorting function. Just pass in this
+ * new comparator. <p>
+ *
  * @author     Steven W. Rock
  * @created    February 20, 2002
  * @see        DataPoint2DComparatorAPI
@@ -29,7 +49,7 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI 
 
 
     /**
-     *  No-Argument constructor
+     *  No-Argument constructor. Does nothing but construct the class instance.
      *
      * @exception  InvalidRangeException
      */

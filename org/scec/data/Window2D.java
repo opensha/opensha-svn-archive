@@ -10,10 +10,11 @@ package org.scec.data;
  *  and y coordinates, i.e. rows and columns. So a two dimensional
  *  matrix will have a max number of rows and a max number of columns. This
  *  window will have a start row and start column, end row and end column which
- *  determines the number of rows and columns that you are peering into.This
- *  class is used by container Subset2D to provide the indices as a window into
- *  the Container2D matrix.<p>
+ *  determines the number of rows and columns that you are peering into. <p>
  *
+ *  This class is the data model ( javabean ) used by ContainerSubset2D to
+ *  provide the indices as a window into the main Container2D matrix
+ *  referenced within the ContainerSubset2D.<p>
  *
  * @author     Steven W. Rock
  * @created    February 25, 2002
@@ -28,18 +29,21 @@ public class Window2D {
     /** If true debugging statements are printed.  */
     protected final static boolean D = false;
 
+
     /** The first row of the window.  */
     protected int startRow = 0;
 
+    /** Returns the first row of the window.  */
     public int getStartRow(){ return startRow; }
+
+
+    /** The last row of the window. */
+    protected int endRow = 0;
+
 
     /** The first column of the window. */
     protected int startCol = 0;
 
-    /**
-     *  The last row of the window.
-     */
-    protected int endRow = 0;
     /**
      *  The last column of the window.
      */

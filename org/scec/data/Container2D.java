@@ -8,24 +8,30 @@ import org.scec.exceptions.NotResizableException;
 import org.scec.sha.surface.*;
 
 /**
- *  <b>Title:</b> Container2D<br>
- *  <b>Description:</b> Default implementation class for a 2D grid. This class actually
- *  determines the storage mechanism and access to the data. This implementation
- *  doesn't allow the internal data structure to resize. Can design a subclass to do
- *  this if needed in the future. <p>
+ *  <b>Title:</b> Container2D<p>
+ *
+ *  <b>Description:</b> Default Container2DAPI implementation class for a 2D grid.
+ *  This class actually determines the storage mechanism and access to the data.
+ *  This implementation doesn't allow the internal data structure to resize.
+ *  Can design a subclass to do this if needed in the future. <p>
  *
  *  The internal storage is a one dimensional
- *  array which is actually accessed by two coordinates x and y or row and
- *  column. The two dimensional indices are translated to a one dimensional index by:<p>
+ *  array which is actually accessed by two coordinates x and y, i.e. row and
+ *  column. The two dimensional indices are translated to a one dimensional
+ *  index by the mapping:<p>
  *
- *  index = (the number of columns per row * row) + column.
+ *  index = (the number of columns per row * row) + column. <p>
+ *
+ *  Note: This data array stored Objects so the actually data that you store
+ *  can be any Java class. This container is flexible to hold any type of data
+ *  at each "grid" point. <p>
  *
  * @author     Steven W. Rock
  * @created    February 25, 2002
  * @version    1.0
  */
 
-public class Container2D implements Container2DAPI, Serializable {
+public class Container2D implements Container2DAPI, Serializable, NamedObjectAPI {
 
     /** Class name used for debbuging */
     protected final static String C = "Container2D";
@@ -45,7 +51,11 @@ public class Container2D implements Container2DAPI, Serializable {
     /** The number of rows times the number of columns. */
     protected long size = 0L;
 
-
+    /**
+     * Name assigned to an instance of this container. Can be used
+     * to display in a GUI, or used as a key in a Java Hashtable.
+     */
+    protected String name;
 
     /**
      *  No Argument Constructor for the Container2D object. Set's
@@ -93,6 +103,10 @@ public class Container2D implements Container2DAPI, Serializable {
 
     }
 
+    /** Sets the name of this container */
+    public void setName(String name) { this.name = name; }
+    /** Gets the name of this container */
+    public String getName() { return name; }
 
     /**
      *  Places a Java object into one cell in this two dimensional matrix
@@ -119,9 +133,7 @@ public class Container2D implements Container2DAPI, Serializable {
      *
      * @return    Number of rows.
      */
-    public int getNumRows() {
-        return numRows;
-    }
+    public int getNumRows() { return numRows; }
 
 
     /**
@@ -129,9 +141,7 @@ public class Container2D implements Container2DAPI, Serializable {
      *
      * @return    Get number of columns.
      */
-    public int getNumCols() {
-        return numCols;
-    }
+    public int getNumCols() { return numCols; }
 
 
     /**
@@ -267,7 +277,8 @@ public class Container2D implements Container2DAPI, Serializable {
     /**
      *  Removes the object's reference stored in the grid cell.
      *  Doesn't delete the actual object, only removes the pointer
-     *  reference.
+     *  reference. This class losses any reference to the data object,
+     *  but that object may still be referenced in some other class.
      *
      * @param  row     The x coordinate of the cell.
      * @param  column  The y coordinate of the cell.
@@ -330,7 +341,7 @@ public class Container2D implements Container2DAPI, Serializable {
 
     /**
      *  Converts our internal data structure to the Java 2 dimensional array.
-     *
+     *  Helper translation function.
      * @return    2D Object array - Object[][]
      */
     public Object[][] toJava2D() {
@@ -782,7 +793,7 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
     final protected static char TAB = '\t';
-    protected String name;
+
     /** Prints out each location and fault information for debugging */
     public String toString(){
 
@@ -815,15 +826,13 @@ public class Container2D implements Container2DAPI, Serializable {
         b.append( "Number of non-null objects = " + counter + '\n' );
         return b.toString();
     }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getName() {
-        return name;
-    }
+
 
 }
 
+
+// SWR: Resizable functions that were removed. May want in the future
+// so I left them in here.
 
 /*
      *  used to initialize the number of rows

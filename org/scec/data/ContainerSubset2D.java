@@ -30,7 +30,7 @@ import java.util.*;
  * data. Because there is more than one step involved, and any one step
  * can potentially fail, I needed to provide a rollback mechanism to the
  * last know good state. This is the purpose of the oldWindow variable
- * and the commit and rollback functions. These will be explained below.<p>
+ * and the commit and rollback functions.<p>
  *
  * This class was designed with the purpose of examining rupture locals
  * in a fault gridded surface, but has been generalized to work with
@@ -78,7 +78,7 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
      */
     protected Window2D oldWindow = null;
 
-    /** Reference to real data container. */
+    /** Internal reference to real data container. */
     protected Container2DAPI data = null;
 
 
@@ -154,7 +154,8 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
         try {
             window.checkUpperBounds( S );
-        } catch ( ArrayIndexOutOfBoundsException e ) {
+        }
+        catch ( ArrayIndexOutOfBoundsException e ) {
             rollback();
             throw e;
         }
@@ -189,7 +190,9 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
     /**
      * Internal helper function that performs various validation
      * checks between the Window2D values and the referenced container
-     * domain and range values
+     * domain and range values. Validates that all the subset indeces are
+     * within the main Container2D space.
+     *
      * @throws ArrayIndexOutOfBoundsException   Thrown if any of the values are invalid, such as negative indices.
      */
     protected void validate() throws ArrayIndexOutOfBoundsException {
@@ -439,7 +442,14 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Start of a transaction - simply clones the Window2D into the old Window
+     *  Start of a transaction - simply clones the Window2D into the old Window.
+     *  This is needed because resizing the window is a multistep process, i.e.
+     *  more than onw function call required to shift in the x, then the y directions.
+     *  Any of these functions can throw errors. So if one fails, we have to
+     *  "undo" all the previous successful function calls. They all must succede
+     *  or the resizing is considered a failure and all operations must be
+     *  undone, resetting to the original state. That is the purpose of the
+     *  rollback() function.
      */
     protected void initTransaction() {
         oldWindow = ( Window2D ) window.clone();
@@ -448,7 +458,7 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
     /**
      *  Copies the oldWindow back into the Window2D, restoring the window
-     *  to it's repvious size.
+     *  to it's previous size.
      */
     protected void rollback() {
         window = oldWindow;
@@ -456,8 +466,9 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
     }
 
     /**
-     *  Completes a transaction. All actions completed successfully so the
-     *  old window is deleted and the changes kept in the primary Window2D.
+     *  Completes a transaction. All required actions completed successfully
+     *  so the old window variable is deleted and the changes kept in the
+     *  primary Window2D.
      */
     protected void commit() {
         oldWindow = null;
@@ -490,7 +501,7 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Returns the size of the window, numRows * numCols.
+     *  Returns the size of the subset window, numRows * numCols.
      *
      * @return    Description of the Return Value
      */
@@ -500,7 +511,8 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Returns true if a non-null java object resides at the specified cell.
+     *  Returns true if a non-null java object resides at the specified cell,
+     *  i.e. row and column index.
      *
      * @param  row     x-coord
      * @param  column  y-coord
@@ -526,7 +538,8 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Sublcass not allowed to modify data, i.e. read only
+     *  Sublcass not allowed to modify data, i.e. read only. Therefore this
+     *  function is not supported, but required by the API.
      */
     public void clear() {
         throw new java.lang.UnsupportedOperationException( "This function is not implemented in this subclass" );
@@ -534,7 +547,8 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Sublcass not allowed to modify data, i.e. read only
+     *  Sublcass not allowed to modify data, i.e. read only. Therefore this
+     *  function is not supported, but required by the API.
      *
      * @param  row                                          Description of the
      *      Parameter
@@ -567,7 +581,9 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Use Window2D to generate this
+     *  Use Window2D to generate this. Translates the internal data
+     *  structure of this 2D window into a Java2D array. This is
+     *  needed fo specific JFreeChart functionaliry.
      *
      * @return    Description of the Return Value
      */
@@ -986,7 +1002,7 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
     }
 
-
+    /** */
     final protected static char TAB = '\t';
     /** Prints out each location and fault information for debugging */
     public String toString(){
@@ -1031,7 +1047,8 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  The main program for the Container2D class
+     *  The main program for the Container2D class. Used to test and
+     *  demonstrate usage of this class.
      *
      * @param  args  The command line arguments
      */

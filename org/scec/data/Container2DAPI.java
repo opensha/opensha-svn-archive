@@ -8,7 +8,7 @@ import org.scec.util.*;
 /**
  *  <b>Title:</b> Container2DAPI<p>
  *
- *  <b>Description:</b> Main interface that all 2d data containers must
+ *  <b>Description:</b> Main interface that all 2D data containers must
  *  implement. These provide functions for iteration through the elements,
  *  replacing elements, etc. Each element is any object that extends Object. <p>
  *
@@ -24,7 +24,7 @@ import org.scec.util.*;
  *  due to confusion in designing this class.<p>
  *
  * @author     Steven W. Rock
- * @see Location
+ * @see        Location
  * @created    February 25, 2002
  * @version    1.0
  */

@@ -7,7 +7,7 @@ import org.scec.data.*;
  *  <b>Description:</b>
  *  This class is a distance calculator that deals with Location objects and
  *  a Direction object. From either two you can calculate the third. If you
- *  pass in 2 Location objects this class with return the Direction between
+ *  pass in 2 Location objects this class will return the Direction between
  *  the two. If you pass in a Location and a Direction it can calculate the
  *  second Location object. The functions are static therefore this class is never
  *  instantiated<p>
@@ -25,7 +25,7 @@ import org.scec.data.*;
  *  </UL>
  *  <p>
  *
- *  SWR: Note: Depth = - vertical distance
+ *  SWR: Note: Depth = - vertical distance<p>
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002
@@ -233,7 +233,7 @@ public final class RelativeLocation {
 
 
     /**
-     *  Helper method that returns the minimum of the two passed in values.
+     *  Internal helper method that returns the minimum of the two passed in values.
      *
      * @param  a  first value to compare
      * @param  b  second  value to compare
@@ -325,9 +325,6 @@ public final class RelativeLocation {
     /**
      * Helper method that calculates the angle between two locations
      * on the earth.<p>
-     *
-     * Note: SWR: I'm not quite sure of the difference between azimuth and
-     * back azimuth. Ned, you will have to fill in the details.
      *
      * @param lat1               latitude of first point
      * @param lon1               longitude of first point

@@ -5,7 +5,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 /**
- *  <b>Title:</b> OvalBorder<br>
+ *  <b>Title:</b> OvalBorder<p>
+ *
  *  <b>Description:</b> This class implements a Border that has rounded edges.
  *  Gives a GUI a sofgter feel, instead of typical rectangular components<p>
  *
@@ -14,8 +15,7 @@ import javax.swing.border.*;
  *  point in the future. For our app we use the double thick line so not a
  *  problem<P>
  *
- *  @ see Border
- *
+ * @ see Border
  * @author     Steven W. Rock
  * @created    February 20, 2002
  * @version    1.0

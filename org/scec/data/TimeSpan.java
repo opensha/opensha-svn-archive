@@ -3,36 +3,28 @@ package org.scec.data;
 import java.util.*;
 import org.scec.exceptions.InvalidRangeException;
 
-
 /**
  *  <b>Title:</b> TimeSpan<p>
  *
  *  <b>Description:</b> Represents a start time and a duration, from which you
- *  can calculate the end time of an event<br>
+ *  can calculate the end time of an event. This object has been created to
+ *  represent a duration of some event. <p>
  *
- * @author     Sid Hellman
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 20, 2002
  * @version    1.0
  */
 public class TimeSpan extends GregorianCalendar {
 
-    /**
-     *  The name of this class, used for debug statements
-     */
+    /** The name of this class, used for debug statements */
     protected final static String C = "TimeSpan";
-    /**
-     *  Static boolean whether to print out debugging statements
-     */
+    /** Static boolean whether to print out debugging statements */
     protected final static boolean D = false;
 
-    /**
-     *  Elapsed time of the event since it's start time, in seconds.
-     */
+    /** Elapsed time of the event since it's start time, in seconds. */
     protected double timeInterval;
 
-    /**
-     * End time of the event in milliseconds.
-     */
+    /** End time of the event in milliseconds. */
     protected long endTime;
 
     /**
@@ -47,10 +39,10 @@ public class TimeSpan extends GregorianCalendar {
 
 
     /**
-     *  create a TimeSpan with a time length (num seconds). Defaults to right
+     *  Create a TimeSpan with a duration (seconds). Defaults to right
      *  now as the start time.
      *
-     * @param  interval  Interval of the event
+     * @param  interval  duration  of the event
      */
     public TimeSpan( double interval ) {
         super();
@@ -60,7 +52,7 @@ public class TimeSpan extends GregorianCalendar {
 
 
     /**
-     *  create a TimeSpan with a date and a time length (num seconds).
+     *  Create a TimeSpan with a start date and a  duration (seconds).
      *
      * @param  cal       Start time
      * @param  interval  Interval of the event
@@ -85,7 +77,6 @@ public class TimeSpan extends GregorianCalendar {
 
     /**
      *  Sets the elapsed time of this event in seconds.
-     *
      * @param  timeInterval  The elapsed time of this event
      */
     public void setTimeInterval( double timeInterval ) {
@@ -95,7 +86,6 @@ public class TimeSpan extends GregorianCalendar {
 
     /**
      *  Sets the elapsed time of this event in seconds.
-     *
      * @param  timeInterval  The elapsed time of this event
      */
     public void setStartTime( GregorianCalendar cal ) {
@@ -113,7 +103,6 @@ public class TimeSpan extends GregorianCalendar {
 
     /**
      *  Sets the elapsed time of this event in seconds.
-     *
      * @param  timeInterval  The elapsed time of this event
      */
     public void setEndTime( GregorianCalendar cal ) throws InvalidRangeException{
@@ -134,9 +123,7 @@ public class TimeSpan extends GregorianCalendar {
      *
      * @return    timeInterval
      */
-    public double getTimeInterval() {
-        return timeInterval;
-    }
+    public double getTimeInterval() { return timeInterval; }
 
 
     /**
@@ -151,9 +138,8 @@ public class TimeSpan extends GregorianCalendar {
         return cal;
     }
 
-    public GregorianCalendar getStartTime(  ) {
-        return (GregorianCalendar)this;
-    }
+    /** Returns the start time of this event */
+    public GregorianCalendar getStartTime(  ) { return (GregorianCalendar)this; }
 
 }
 

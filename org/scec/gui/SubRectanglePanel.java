@@ -20,7 +20,7 @@ import org.scec.param.editor.*;
  * <b>Title:</b> SubRectanglePanel<p>
  *
  * <b>Description:</b> GUI Widget that allows you to specify a window
- * into a 2D matrix <p>
+ * into a 2D matrix, i.e. xmin, ymin, xmax, ymax values.<p>
  *
  * @author Steven W. Rock
  * @version 1.0

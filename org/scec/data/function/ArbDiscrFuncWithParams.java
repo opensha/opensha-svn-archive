@@ -6,6 +6,7 @@ import org.scec.param.*;
 
 /**
  * <b>Title:</b> ArbDiscrFuncWithParams<p>
+ *
  * <b>Description:</b> This class is a sublcass implementation
  * of a DiscretizedFunc that stores the data internaly as a
  * sorted TreeMap of DataPoint2D. This subclass distinguishes itself
@@ -21,6 +22,7 @@ import org.scec.param.*;
  * @see XYDiscretizedFunction2DAPI
  * @see DiscretizedFunction2DAPI
  * @see ParameterList
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

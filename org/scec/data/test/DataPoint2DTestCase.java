@@ -8,6 +8,7 @@ import org.scec.data.*;
 
 /**
  *  <b>Title:</b> DataPoint2DTestCase<p>
+ *
  *  <b>Description:</b> Class used by the JUnit testing harness to test the
  *  DataPoint2D. This class was used to test using JUnit. For some reason
  *  testEquals() fails in JUnit, but the main() test (hand coded testing) shows
@@ -17,7 +18,7 @@ import org.scec.data.*;
  *  based tool that performs the same function as the make command in unix. ANT
  *  is developed under Apache.<p>
  *
- *  Any function that begins with test will be executed by JUnit
+ *  Any function that begins with test will be executed by JUnit<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

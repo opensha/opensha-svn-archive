@@ -2,11 +2,11 @@ package org.scec.data;
 
 import org.scec.param.*;
 
-// FIX - Needs more comments
 
 /**
  *  <b>Title:</b> Direction<p>
- *  <b>Description:</b> Basic container class that represents a distance vector
+ *
+ *  <b>Description:</b> Basic JavaBean class that represents a distance vector
  *  between two Location objects<p>
  *
  * This class contains the fields:
@@ -18,7 +18,11 @@ import org.scec.param.*;
  * </ul>
  *
  * Thses fields uniquely describe the vector between any two points on or within
- * the surface of the earth.
+ * the surface of the earth.<p>
+ *
+ * This class is what is called a javabean class in Java. A Javabean class is really
+ * a data container with fields, and corresponding getXXX() and setXXX() functions
+ * matching the field names.<p>
  *
  * @author     Sid Hellman, Steven W. Rock
  * @created    February 26, 2002
