@@ -1,6 +1,7 @@
 package org.scec.sha.imr.attenRelImpl;
 
 import java.util.*;
+import java.awt.Polygon;
 
 import org.scec.data.*;
 import org.scec.exceptions.*;
@@ -9,6 +10,8 @@ import org.scec.param.event.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.imr.*;
 import org.scec.sha.propagation.*;
+import org.scec.sha.surface.*;
+import org.scec.calc.RelativeLocation;
 import org.scec.util.*;
 
 /**
@@ -278,11 +281,23 @@ public class AS_1997_AttenRel
     protected void setPropagationEffectParams(){
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
-          try{
-            distanceRupParam.setValue( probEqkRupture, site );
-          }catch (WarningException e){
-            if(D) System.out.println(C+"Warning Exception:"+e);
-          }
+            try{
+              distanceRupParam.setValue( probEqkRupture, site );
+            }catch (WarningException e){
+              if(D) System.out.println(C+"Warning Exception:"+e);
+            }
+
+        // here is the hanging wall term.  This should really be implemented as a
+        // formal propagation-effect parameter.
+
+            if(probEqkRupture.getRuptureSurface().getAveDip() < 70 && isOnHangingWall())
+                isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
+            else
+                isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
+
+            if (D) System.out.println("HW result: " + isOnHangingWallParam.getValue());
+
+/* OLD IMPLEMENTATION:
 
             /* The following is a bit of a hack. It assumes the fault grid spacing
                is less than 1 km, and that points off the bottem end of the fault
@@ -293,10 +308,11 @@ public class AS_1997_AttenRel
                when on the fault trace.  The 70-degree dip threshold was the solution
                recommended to Ned Field by Ken Cambell and Norm Abrahamson (see email
                to Ned on 9-26-02).
-            */
+
 
             if(probEqkRupture.getRuptureSurface().getAveDip() < 70) {
                 distanceJBParam.setValue( probEqkRupture, site );
+                if (D) System.out.println("DistJB = " + distanceJBParam.getValue());
                 if ( ( (Double)distanceJBParam.getValue() ).doubleValue() <= 1.0 )
                     isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
                 else
@@ -305,8 +321,70 @@ public class AS_1997_AttenRel
             else // turn it off for vertically dipping faults
                 isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
 
+            if (D) System.out.println("Old HW result: " + isOnHangingWallParam.getValue());
+
+            if (D) System.out.println("New HW result: " + isOnHangingWall());
+*/
         }
     }
+
+    /**
+     * This determines whether the rupture is on the hanging wall by creating a polygon
+     * that is extended in the down-dip direction, and then checking whether the site is
+     * inside.  This should really be implemented as a PropagationEffectParameter, but we
+     * don't yet have a boolearn parameter implemented.
+     * @return
+     */
+    protected boolean isOnHangingWall() {
+
+          // this is used to scale lats and lons to large numbers that can
+          // be converted to ints without losing info.
+          double toIntFactor = 1.0e7;     // makes results accurate to ~cm.
+
+          GriddedSurfaceAPI surface = this.probEqkRupture.getRuptureSurface();
+          int numCols = surface.getNumCols();
+
+          int[] xVals = new int[numCols+2];
+          int[] yVals = new int[numCols+2];
+
+          Location loc, loc2, loc3;
+          Direction dir;
+
+          for(int c=0; c < numCols; c++) {
+              loc = surface.getLocation(0,c);
+              xVals[c] = (int) (loc.getLongitude() * toIntFactor);
+              yVals[c] = (int) (loc.getLatitude() * toIntFactor);
+          }
+
+          // now get the locations projected way down dip
+          loc = surface.getLocation(0,numCols-1);
+          loc2 = surface.getLocation(surface.getNumRows()-1,numCols-1);
+          dir = RelativeLocation.getDirection(loc, loc2);
+          dir.setHorzDistance(100.0);    // anything that makes rup dist > 25 km
+          loc3 = RelativeLocation.getLocation(loc, dir);
+          xVals[numCols] = (int) (loc3.getLongitude() * toIntFactor);
+          yVals[numCols] = (int) (loc3.getLatitude() * toIntFactor);
+
+          loc = surface.getLocation(0,0);
+          loc2 = surface.getLocation(surface.getNumRows()-1,0);
+          dir = RelativeLocation.getDirection(loc, loc2);
+          dir.setHorzDistance(100.0);    // anything that makes rup dist > 25 km
+          loc3 = RelativeLocation.getLocation(loc, dir);
+          xVals[numCols+1] = (int) (loc3.getLongitude() * toIntFactor);
+          yVals[numCols+1] = (int) (loc3.getLatitude() * toIntFactor);
+
+          Polygon polygon = new Polygon(xVals,yVals,numCols+2);
+
+          Location siteLoc = this.site.getLocation();
+
+          int siteX = (int)(siteLoc.getLongitude()*toIntFactor);
+          int siteY = (int)(siteLoc.getLatitude()*toIntFactor);
+
+          return polygon.contains(siteX, siteY);
+
+    }
+
+
 
 
     /**

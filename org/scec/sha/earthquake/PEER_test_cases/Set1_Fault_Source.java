@@ -15,10 +15,13 @@ import org.scec.sha.surface.*;
 
 /**
  * <p>Title: Set1_Fault_Source </p>
- * <p>Description: Fault-1 earthquake source</p>
+ * <p>Description: This implements a basic fault source for arbitrary inputs.  Note that
+ * magnitudes below 5.0 are ignored in creating the ProbEqkRuptures.  This object is quite
+ * general.  The only customized feature is the Mag-length relationship specified for the
+ * test cases, and how to handle it's non-zero uncertaintiy.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author Nitin Gupta & Vipin Gupta
+ * @author Nitin & Vipin Gupta, and Ned Field
  * @date Oct 23, 2002
  * @version 1.0
  */
@@ -86,9 +89,9 @@ public class Set1_Fault_Source extends ProbEqkSource {
     // The magLenSigma=0 case:
     if(magLenSigma == 0.0) {
         for(int i=0;i<numMags;++i){
-            // make sure it has a non-zero rate
-            if(magDist.getY(i) > 0) {
-              mag = magDist.getX(i);
+            mag = magDist.getX(i);
+            // make sure it has a non-zero rate & the mag is >= 5.0
+            if(magDist.getY(i) > 0 && mag >= 5.0) {
               rupLen = Math.pow(10,mag/2-1.85);
               rupWidth= rupLen/2;
               numRup = surface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
@@ -119,9 +122,9 @@ public class Set1_Fault_Source extends ProbEqkSource {
     else {
         // the mean case
         for(int i=0;i<numMags;++i){
-            // make sure it has a non-zero rate
-            if(magDist.getY(i) > 0) {
-              mag = magDist.getX(i);
+            mag = magDist.getX(i);
+            // make sure it has a non-zero rate & the mag is >= 5.0
+            if(magDist.getY(i) > 0 && mag >= 5.0) {
               rupLen = Math.pow(10,mag/2-1.85);
               rupWidth= rupLen/2;
               numRup = surface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
@@ -143,9 +146,9 @@ public class Set1_Fault_Source extends ProbEqkSource {
         }
         // the mean-1.64sigma case
         for(int i=0;i<numMags;++i){
-            // make sure it has a non-zero rate
-            if(magDist.getY(i) > 0) {
-              mag = magDist.getX(i);
+            mag = magDist.getX(i);
+            // make sure it has a non-zero rate & the mag is >= 5.0
+            if(magDist.getY(i) > 0 && mag >= 5.0) {
               rupLen = Math.pow(10,mag/2-1.85-1.64*magLenSigma);
               rupWidth= rupLen/2;
               numRup = surface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
@@ -167,9 +170,9 @@ public class Set1_Fault_Source extends ProbEqkSource {
         }
         // the mean+1.64sigma case
         for(int i=0;i<numMags;++i){
-            // make sure it has a non-zero rate
-            if(magDist.getY(i) > 0) {
-              mag = magDist.getX(i);
+            mag = magDist.getX(i);
+            // make sure it has a non-zero rate & the mag is >= 5.0
+            if(magDist.getY(i) > 0 && mag >= 5.0) {
               rupLen = Math.pow(10,mag/2-1.85+1.64*magLenSigma);
               rupWidth= rupLen/2;
               numRup = surface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);

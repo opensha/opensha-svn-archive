@@ -1,9 +1,11 @@
 package org.scec.sha.magdist;
 
 import org.scec.data.function.*;
+import org.scec.calc.MomentMagCalc;
 import org.scec.data.DataPoint2D;
 import org.scec.exceptions.MagFreqDistException;
 import org.scec.exceptions.DataPoint2DException;
+
 
 /**
  * <p>Title:IncrementalMagFreqDist </p>
@@ -15,6 +17,9 @@ import org.scec.exceptions.DataPoint2DException;
 
 public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements IncrementalMagFreqDistAPI {
 
+    //for Debug purposes
+    private static String  C = new String("IncrementalMagFreqDist");
+    private boolean D = true;
 
 
 
@@ -97,7 +102,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      */
 
     public double getMomentRate(double mag) {
-      return getIncrRate(mag) *(Math.pow(10,1.5*mag+9.05));
+      return getIncrRate(mag) * MomentMagCalc.getMoment(mag);
     }
 
 
@@ -108,8 +113,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      */
 
     public double getMomentRate(int index) {
-      double mag = getX(index);
-      return getIncrRate(index) *(Math.pow(10,1.5*mag+9.05));
+      return getIncrRate(index) * MomentMagCalc.getMoment(getX(index));
     }
 
 
@@ -200,10 +204,14 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
 
     public void scaleToTotalMomentRate(double newTotMoRate) {
         double oldTotMoRate=getTotalMomentRate();
+        if(D) System.out.println(C + "old Mo. Rate = " + oldTotMoRate);
+        if(D) System.out.println(C + "target Mo. Rate = " + newTotMoRate);
         double scaleRate=newTotMoRate/oldTotMoRate;
         for(int i=0;i<num;++i) {
             super.set(i,scaleRate*getIncrRate(i));
         }
+        if(D) System.out.println(C + "actual Mo. Rate = " + getTotalMomentRate());
+
 
     }
 
