@@ -55,7 +55,8 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
       new Double(-90), new Double(90), new Double(33.0));
   private DoubleParameter maxLat = new DoubleParameter(MAX_LATITUDE,
       new Double(-90), new Double(90), new Double(36.0));
-  private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,new String("Degrees"));
+  private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,
+      new Double(.01),new Double(100.0),new String("Degrees"),new Double(.05));
 
 
   //Site Vector
@@ -75,18 +76,20 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
     parameterList  = new ParameterList();
     // add the longitude and latitude paramters
     parameterList.addParameter(minLon);
-    parameterList.addParameter(minLat);
     parameterList.addParameter(maxLon);
+    parameterList.addParameter(minLat);
     parameterList.addParameter(maxLat);
     parameterList.addParameter(gridSpacing);
     minLat.addParameterChangeListener(this);
     minLon.addParameterChangeListener(this);
     maxLat.addParameterChangeListener(this);
     maxLon.addParameterChangeListener(this);
+    gridSpacing.addParameterChangeListener(this);
     minLat.addParameterChangeFailListener(this);
     minLon.addParameterChangeFailListener(this);
     maxLat.addParameterChangeFailListener(this);
     maxLon.addParameterChangeFailListener(this);
+    gridSpacing.addParameterChangeFailListener(this);
 
     //create the siteVectorList.
     siteVector=createAndUpdateSites();
@@ -119,6 +122,13 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
      if(!((Site)siteVector.get(i)).containsParameter(tempParam))
        ((Site)siteVector.get(i)).addParameter(tempParam);
    }
+
+  /* int size =  siteVector.size();
+   Site site;
+   for(int i=0; i < size; ++i) {
+     site= (Site)siteVector.get(i);
+     System.out.println(site.toString());
+   }*/
   this.editorPanel.removeAll();
   this.addParameters();
  }
@@ -234,7 +244,25 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
    */
   public void parameterChange(ParameterChangeEvent e) {
 
-    siteVector=createAndUpdateSites();
+    //creates  a temp Vector with the updated locations
+    Vector temp=createAndUpdateSites();
+    //adding the siteParams to the temp Vector
+      //getting the site params for the first element of the siteVector
+     //becuase all the sites will be having the same site Parameter
+      ListIterator it1=((Site)siteVector.get(0)).getParametersIterator();
+      while(it1.hasNext()){
+        Parameter tempParam=(Parameter)it1.next();
+        if(!tempParam.getName().equalsIgnoreCase(MIN_LATITUDE) &&
+        !tempParam.getName().equalsIgnoreCase(MIN_LONGITUDE) &&
+        !tempParam.getName().equalsIgnoreCase(MAX_LATITUDE) &&
+        !tempParam.getName().equalsIgnoreCase(MAX_LONGITUDE) &&
+        !tempParam.getName().equalsIgnoreCase(GRID_SPACING))
+        for(int i=0;i<temp.size();++i)
+          ((Site)temp.get(i)).addParameter(tempParam);
+      }
+    //}
+    //setting the siteVector to reflect all the changes in the locations.
+    siteVector=temp;
   }
 
   /**
@@ -297,6 +325,5 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
 
     return newSiteVector;
   }
-
 
 }
