@@ -86,7 +86,7 @@ public class HazardCurveApplet extends JApplet
   private Site_GuiBean siteGuiBean;
 
   // Strings for control pick list
-  private final static String SELECT_CONTROL = "Select Control";
+  private final static String CONTROL_PANELS = "Control Panels";
   private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
   private final static String DISAGGREGATION_CONTROL = "Disaggregation";
   private final static String EPISTEMIC_CONTROL = "ERF Epistemic Control";
@@ -964,20 +964,21 @@ public class HazardCurveApplet extends JApplet
                                   EqkRupForecastAPI eqkRupForecast) {
    ERF_List erfList  = (ERF_List)eqkRupForecast;
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
-   ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+
    // clear the function list
    totalProbFuncs.clear();
    // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
 
-   // intialize the hazard function
-   initDiscretizeValues(hazFunction);
    // initialize the values in condProbfunc with log values as passed in hazFunction
    ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
-   initCondProbFunc(hazFunction, condProbFunc);
 
    // calculate hazard curve for each ERF within the list
    for(int i=0; i<numERFs; ++i) {
+     ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+     // intialize the hazard function
+     initDiscretizeValues(hazFunction);
+     initCondProbFunc(hazFunction, condProbFunc);
      try {
        // calculate the hazard curve
        calc.getHazardCurve(condProbFunc,hazFunction, site, imr, erfList.getERF(i));
@@ -1081,7 +1082,7 @@ public class HazardCurveApplet extends JApplet
    * Initialize the items to be added to the control list
    */
   private void initControlList() {
-    this.controlComboBox.addItem(SELECT_CONTROL);
+    this.controlComboBox.addItem(CONTROL_PANELS);
     this.controlComboBox.addItem(PEER_TEST_CONTROL);
     this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
     this.controlComboBox.addItem(EPISTEMIC_CONTROL);
@@ -1102,7 +1103,7 @@ public class HazardCurveApplet extends JApplet
       initEpistemicControl();
     if(selectedControl.equalsIgnoreCase(this.AXIS_CONTROL))
       initAxisControl();
-   controlComboBox.setSelectedItem(this.SELECT_CONTROL);
+   controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
   /**
