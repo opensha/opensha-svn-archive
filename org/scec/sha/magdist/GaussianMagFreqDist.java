@@ -334,7 +334,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
   private void computeRates()throws DataPoint2DException {
     for(int i=0;i<num;++i) {
       double mag=getX(i);
-      double rate=Math.exp(Math.pow((mag - this.mean),2)/(2*stdDev*stdDev));
+      double rate = Math.exp(-Math.pow((mag - this.mean),2)/(2*stdDev*stdDev));
       super.set(i,rate);
     }
 
@@ -352,6 +352,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
         super.set(i,0);
     }
 
+//    normalizeByTotalRate();
     this.scaleToTotalMomentRate(this.totMoRate);
   }
 }

@@ -101,13 +101,17 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   /**
    * sets the non-zero rate
    * For this rate the magnitude is calculated using the static function
-   * getMag of the class MomentMagCalc  and moRate
+   * getMag of the class MomentMagCalc  and moRate.  NOTE: this does not
+   * give the exact magnitude, but rather the closest magnitude given the
+   * discretization.
    * @param rate
    * @param moRate
    */
   public void setRateAndMomentRate(double rate,double moRate) {
-    this.mag=MomentMagCalc.getMag(moRate);
-    setMagAndRate(mag,rate);
+
+    this.mag = MomentMagCalc.getMag(moRate/rate);
+    int index = (int) Math.rint((mag - minX)/delta);
+    setMagAndRate(getX(index),rate);
   }
 
   /**

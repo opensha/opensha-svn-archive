@@ -40,14 +40,11 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
     protected boolean xLog = false;
 
     public boolean isYLog() { return yLog; }
-    public void setYLog(boolean yLog) { if( yLog != this.yLog ) { this.yLog = yLog; } }
+    public void setYLog(boolean yLog) { this.yLog = yLog; }
 
     public boolean isXLog() { return xLog; }
-    public void setXLog(boolean xLog) {
-        if( xLog != this.xLog ) { this.xLog = xLog; }
 
-
-    }
+    public void setXLog(boolean xLog) { this.xLog = xLog; }
 
 
     /**
@@ -129,7 +126,7 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
             DiscretizedFuncAPI f = functions.get( series );
             num = f.getNum();
 
-            if( DiscretizedFunctionXYDataSet.isAdjustedIndexIfZeros( f, xLog, yLog) ) num -= 1;
+            if( DiscretizedFunctionXYDataSet.isAdjustedIndexIfFirstXZero( f, xLog, yLog) ) num -= 1;
 
         }
         return num;
@@ -152,8 +149,8 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
             Object obj = functions.get( series );
             if( obj != null && obj instanceof DiscretizedFuncAPI){
 
-                // adjust for log axis with zero points if necessary
-                if( item == 0 ) item = getAdjustedIndexIfZeros(( DiscretizedFuncAPI ) obj, item, xLog, yLog);
+                if( DiscretizedFunctionXYDataSet.isAdjustedIndexIfFirstXZero(( DiscretizedFuncAPI ) obj, xLog, yLog) )
+                  ++item;
 
                 // get the value
                 double x = ( ( DiscretizedFuncAPI ) obj ).getX(item);
@@ -179,8 +176,8 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
             Object obj = functions.get( series );
             if( obj != null && obj instanceof DiscretizedFuncAPI){
 
-                // adjust for log axis with zero points if necessary
-                if( item == 0 ) item = getAdjustedIndexIfZeros(( DiscretizedFuncAPI ) obj, item, xLog, yLog);
+                if( DiscretizedFunctionXYDataSet.isAdjustedIndexIfFirstXZero(( DiscretizedFuncAPI ) obj, xLog, yLog) )
+                  ++item;
 
                 // get the value
                 double y = ( ( DiscretizedFuncAPI ) obj ).getY(item);
@@ -193,17 +190,8 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         return null;
     }
 
-    protected final static int getAdjustedIndexIfZeros(DiscretizedFuncAPI func, int index, boolean xLog, boolean yLog){
 
-        // only check first point
-        if( index > 0 ) return index;
-
-        if( isAdjustedIndexIfZeros(func, xLog, yLog) ) return ++index;
-        else return index;
-
-    }
-
-    protected final static boolean isAdjustedIndexIfZeros(DiscretizedFuncAPI func, boolean xLog, boolean yLog){
+    protected final static boolean isAdjustedIndexIfFirstXZero(DiscretizedFuncAPI func, boolean xLog, boolean yLog){
 
         // if xlog and first x value = 0 increment index, even if y first value not zero,
         // and vice versa fro yLog. This call used by both getXValue and getYValue

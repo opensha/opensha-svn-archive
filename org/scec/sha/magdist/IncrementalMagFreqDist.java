@@ -236,7 +236,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
         double temp=getCumRate(index);
         double scaleCumRate=rate/temp;
         for(int i=0;i<num;++i)
-            super.set(i,scaleCumRate*getCumRate(i));
+            super.set(i,scaleCumRate*getIncrRate(i));
    }
 
 
