@@ -63,11 +63,11 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   public final static String TEST_CASE_FIVE ="Case5";
   public final static String TEST_CASE_SIX ="Case6";
   public final static String TEST_CASE_SEVEN ="Case7";
-  public final static String TEST_CASE_EIGHT_ONE ="Case8-0sig";
-  public final static String TEST_CASE_EIGHT_TWO ="Case8-1sig";
-  public final static String TEST_CASE_EIGHT_THREE ="Case8-2sig";
+  public final static String TEST_CASE_EIGHT_ONE ="Case8-noTrunc";
+  public final static String TEST_CASE_EIGHT_TWO ="Case8-2sigTrunc";
+  public final static String TEST_CASE_EIGHT_THREE ="Case8-3sigTrunc";
   public final static String TEST_CASE_NINE_ONE ="Case9-Sa97";
-  public final static String TEST_CASE_NINE_TWO ="Case9-SA97";
+  public final static String TEST_CASE_NINE_TWO ="Case9-AS97";
   public final static String TEST_CASE_NINE_THREE ="Case9-Ca97";
   public final static String TEST_CASE_TEN ="Case10";
   public final static String TEST_CASE_ELEVEN ="Case11";
