@@ -533,7 +533,7 @@ public class HazardMapViewerApp extends JApplet {
 
                      //final iml value returned after interpolation
                      double finalIML=interpolateIML(val, prevIML,currentIML,prevProb,currentProb);
-                     String curveResult=lat+" "+lon+" "+finalIML+"\n";
+                     String curveResult=lon+" "+lat+" "+finalIML+"\n";
                      //appending the iml result to the final output file.
 
                      FileWriter fw= new FileWriter(finalFile,true);
@@ -547,7 +547,7 @@ public class HazardMapViewerApp extends JApplet {
                    //interpolating the iml value entered by the user to get the final iml for the
                    //corresponding prob.
                    double finalProb=interpolateProb(val, prevProb,currentProb,prevIML,currentIML);
-                   String curveResult=lat+" "+lon+" "+finalProb+"\n";
+                   String curveResult=lon+" "+lat+" "+finalProb+"\n";
                    finalFile=selectedSet+".xyz";
                    FileWriter fw= new FileWriter(finalFile,true);
                    fw.write(curveResult);

@@ -16,6 +16,7 @@ import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
 import org.scec.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.param.ParameterList;
+import org.scec.mapping.gmtWrapper.RunScript;
 
 /**
  * <p>Title: HazardMapViewerServlet</p>
@@ -72,6 +73,13 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
         // make the html file
         makeHTML_File(outputFilePrefix);
+        // now move the xyz file, ps file and jpg file to webpage directory
+        String command[] = {"sh","-c","mv "+xyzFileName+" webpages/hazardmapoutputfiles/"};
+        RunScript.runScript(command);
+        command[2] = "mv "+outputFilePrefix+".ps webpages/hazardmapoutputfiles/";
+        RunScript.runScript(command);
+        command[2] = "mv "+jpgFileName+" webpages/hazardmapoutputfiles/";
+        RunScript.runScript(command);
         ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
         outputToApplet.writeObject("http://scec.usc.edu:9999/"+outputFilePrefix+".html");
         outputToApplet.close();
@@ -137,6 +145,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
            // Second line in the file contains the min lon, max lon, discretization interval
            String longitude = in.readLine();
            lonHash.put(dirList[i].getName(),longitude);
+
          }catch(Exception e) {
            e.printStackTrace();
          }
@@ -243,7 +252,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
                     //final iml value returned after interpolation
                     double finalIML=interpolateIML(val, prevIML,currentIML,prevProb,currentProb);
-                    String curveResult=lat+" "+lon+" "+finalIML+"\n";
+                    String curveResult=lon+" "+lat+" "+finalIML+"\n";
                     //appending the iml result to the final output file.
 
                     FileWriter fw= new FileWriter(finalFile,true);
@@ -257,7 +266,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
                   //interpolating the iml value entered by the user to get the final iml for the
                   //corresponding prob.
                   double finalProb=interpolateProb(val, prevProb,currentProb,prevIML,currentIML);
-                  String curveResult=lat+" "+lon+" "+finalProb+"\n";
+                  String curveResult=lon+" "+lat+" "+finalProb+"\n";
                   finalFile=selectedSet+".xyz";
                   FileWriter fw= new FileWriter(finalFile,true);
                   fw.write(curveResult);
