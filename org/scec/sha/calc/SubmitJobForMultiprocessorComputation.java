@@ -200,10 +200,10 @@ public class SubmitJobForMultiprocessorComputation {
 
       // make the submit files to submit the jobs
       getSubmitFileNames(imrFileName, erfFileName,
-                                     regionFileName, xValuesFileName,
-                                     maxDistance,
-                                     submitFilesDir, remoteDir,
-                                     griddedSites);
+                         regionFileName, xValuesFileName,
+                         maxDistance,
+                         submitFilesDir, remoteDir, outputDir,
+                         griddedSites);
 
       // close the DAG files
       frmap.close();
@@ -271,17 +271,16 @@ public class SubmitJobForMultiprocessorComputation {
                                      String regionFileName,
                                      String xValuesFileName,
                                      double maxDistance,
-                                     String outputDir, String remoteDir,
+                                     String submitFilesDir, String remoteDir,
+                                     String outputDir,
                                      SitesInGriddedRegion griddedSites) {
 
 
     // some lines needed in the condor submit file
-    String fileDataPrefix = "universe = pbs\n" +
-       "globusscheduler=almaak.usc.edu/jobmanager-fork\n" +
-       "initialdir=" + remoteDir + "\n"+
-       "globusrsl =8"+"\n"+
-       "hostcount =1"+"\n"+
-       "jobType = mpi"+"\n"+"max_wall_time = 180\n";
+    String fileDataPrefix = "universe = universe\n" +
+       "globusscheduler=almaak.usc.edu/jobmanager-pbs\n" +
+       "initialdir=" + outputDir + "\n"+
+       "globusrsl = (count=8) (hostcount=1) (jobtype=mpi) (max_wall_time=180)"+"\n";
 
     String fileDataSuffix =
         "WhenToTransferOutput = ON_EXIT" + "\n" +
@@ -289,8 +288,9 @@ public class SubmitJobForMultiprocessorComputation {
         "queue" + "\n";
 
     String arguments = imrFileName+" "+regionFileName + " " + erfFileName;
-    String condorSubmitScript = createCondorScript(fileDataPrefix, fileDataSuffix, arguments,
-        remoteDir,outputDir,HAZARD_CURVES_SUBMIT,
+    String condorSubmitScript = createCondorScript(fileDataPrefix, fileDataSuffix,
+        arguments,
+        outputDir, submitFilesDir, HAZARD_CURVES_SUBMIT,
         remoteDir, REMOTE_EXECUTABLE_NAME);
   }
 
