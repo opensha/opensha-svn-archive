@@ -23,12 +23,11 @@ import org.scec.sha.gui.infoTools.CalcProgressBar;
  * <p>Description: It displays ERFs and parameters supported by them</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
-public class ERF_GuiBean extends ParameterListEditor implements
-    ParameterChangeFailListener, ParameterChangeListener {
+public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
   //this vector saves the names of all the supported Eqk Rup Forecasts
   protected Vector erfNamesVector=new Vector();
   //this vector holds the full class names of all the supported Eqk Rup Forecasts

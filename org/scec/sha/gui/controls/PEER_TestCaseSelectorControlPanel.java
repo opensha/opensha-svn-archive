@@ -86,7 +86,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private IMT_GuiBean imtGuiBean;
   private IMR_GuiBean imrGuiBean;
   private Site_GuiBean siteGuiBean;
-  private ERF_GuiBean erfGuiBean;
+  private ERF_GuiBeanAPI erfGuiBean;
   private TimeSpanGuiBean timeSpanGuiBean;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
 
@@ -102,7 +102,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   public PEER_TestCaseSelectorControlPanel(Component parent, IMR_GuiBean imrGuiBean,
                                Site_GuiBean siteGuiBean,
                                IMT_GuiBean imtGuiBean,
-                               ERF_GuiBean erfGuiBean,
+                               ERF_GuiBeanAPI erfGuiBean,
                                TimeSpanGuiBean timeSpanGuiBean,
                                SetMinSourceSiteDistanceControlPanel distanceControlPanel){
 

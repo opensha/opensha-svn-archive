@@ -32,8 +32,8 @@ import org.scec.data.TimeSpan;
  * @version 1.0
  */
 
-public class ERF_ServletModeGuiBean extends ParameterListEditor implements
-    ParameterChangeFailListener, ParameterChangeListener {
+public class ERF_ServletModeGuiBean extends ParameterListEditor
+    implements ERF_GuiBeanAPI {
   //this vector saves the names of all the supported Eqk Rup Forecasts
   protected Vector erfNamesVector=new Vector();
 
@@ -238,6 +238,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor implements
    * if so then gets its Editor and calls the method to update the magDistParams.
    */
   protected void updateMagDistParam() {
+    System.out.println("MagDist Param is not null");
     MagFreqDistParameterEditor magEditor=getMagDistEditor();
     if(magEditor!=null)  magEditor.setMagDistFromParams();
   }
@@ -337,7 +338,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor implements
 
 
       URLConnection servletConnection = peerFaultServlet.openConnection();
-      if(D) System.out.println("connection established");
+      System.out.println("connection established:"+servletConnection.toString());
 
       // inform the connection that we will send output and accept input
       servletConnection.setDoInput(true);
@@ -352,6 +353,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor implements
       ObjectOutputStream outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
 
+      System.out.println("Calling the function:"+function);
 
       //tells the servlet which function to call
       outputToServlet.writeObject(function);
@@ -376,6 +378,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor implements
           ObjectInputStream(servletConnection.getInputStream());
 
       outputFromServletFunction=inputToServlet.readObject();
+      System.out.println("Received the input from the servlet");
       inputToServlet.close();
 
     }catch(FileNotFoundException ee){

@@ -20,7 +20,7 @@ import org.scec.sha.magdist.IncrementalMagFreqDist;
 
 public class MagFreqDistParameter
     extends DependentParameter
-    implements DependentParameterAPI, ParameterAPI
+    implements DependentParameterAPI, ParameterAPI, java.io.Serializable
 {
 
     /** Class name for debugging. */
