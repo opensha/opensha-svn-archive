@@ -171,37 +171,6 @@ import org.scec.param.event.ParameterChangeEvent;
   }
 
 
-  /**
-   * Gets the number of ruptures for the source at index iSource
-   * @param iSource
-   */
-    public int getNumRuptures(int iSource){
-      return getSource(iSource).getNumRuptures();
-    }
-
-    /**
-     * Returns a clone of (rather than a reference to) the nth rupture of the
-     * ith source.
-     *
-     * @param source
-     * @param i
-     * @return
-     */
-    public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
-      return getSource(iSource).getRuptureClone(nRupture);
-    }
-
-    /**
-     * Get the nth rupture of the ith source.
-     *
-     * @param source
-     * @param i
-     * @return
-     */
-    public ProbEqkRupture getRupture(int iSource, int nRupture) {
-       return getSource(iSource).getRupture(nRupture);
-    }
-
     /**
      * Returns the  ith earthquake source
      *
@@ -220,22 +189,6 @@ import org.scec.param.event.ParameterChangeEvent;
     public int getNumSources(){
       return sources.size();
     }
-
-    /**
-     * Return a clone of (rather than a reference to) the ith earthquake source
-     *
-     * @param iSource : index of the source needed
-     *
-     * @return Returns the ProbEqkSource at index i
-     *
-     * FIX:FIX :: This function has not been implemented yet. Have to give it thought
-     *
-     */
-    public ProbEqkSource getSourceClone(int iSource) {
-      return null;
-    }
-
-
 
     /**
      * Return  iterator over all the earthquake sources

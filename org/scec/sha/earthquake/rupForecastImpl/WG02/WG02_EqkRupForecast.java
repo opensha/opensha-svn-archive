@@ -258,36 +258,6 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
 
 
-  /**
-   * Gets the number of ruptures for the source at index iSource
-   * @param iSource
-   */
-    public int getNumRuptures(int iSource){
-      return getSource(iSource).getNumRuptures();
-    }
-
-    /**
-     * Returns a clone of (rather than a reference to) the nth rupture of the
-     * ith source.
-     *
-     * @param source
-     * @param i
-     * @return
-     */
-    public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
-      return getSource(iSource).getRuptureClone(nRupture);
-    }
-
-    /**
-     * Get the nth rupture of the ith source.
-     *
-     * @param source
-     * @param i
-     * @return
-     */
-    public ProbEqkRupture getRupture(int iSource, int nRupture) {
-       return getSource(iSource).getRupture(nRupture);
-    }
 
     /**
      * Returns the  ith earthquake source
@@ -308,38 +278,12 @@ public class WG02_EqkRupForecast extends EqkRupForecast
       return allSources.size();
     }
 
-    /**
-     * Return a clone of (rather than a reference to) the ith earthquake source
-     *
-     * @param iSource : index of the source needed
-     *
-     * @return Returns the ProbEqkSource at index i
-     *
-     * FIX:FIX :: This function has not been implemented yet. Have to give it thought
-     *
-     */
-    public ProbEqkSource getSourceClone(int iSource) {
-      return null;
-
-    }
-
-    /**
-     * Return  iterator over all the earthquake sources
-     *
-     * @return Iterator over all earhtquake sources
-     */
-    public Iterator getSourcesIterator() {
-      Iterator i = getSourceList().iterator();
-      return i;
-    }
-
      /**
       * Get the list of all earthquake sources.
       *
       * @return Vector of Prob Earthquake sources
       */
      public Vector  getSourceList(){
-
        return null;
      }
 

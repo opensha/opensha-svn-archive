@@ -209,57 +209,6 @@ public class PEER_ListricFaultForecast extends EqkRupForecast
    }
 
 
-  /**
-   * Get number of ruptures for source at index iSource
-   * @param iSource index of source whose ruptures need to be found
-   */
-  public int getNumRuptures(int iSource) {
-
-    // we have only one source
-    if(iSource!=0)
-      throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
-
-    return source.getNumRuptures();
-  }
-
-
-  /**
-   * Get the ith rupture of the source. this method DOES NOT return reference
-   * to the object. So, when you call this method again, result from previous
-   * method call is valid. This behavior is in contrast with
-   * getRupture(int source, int i) method
-   *
-   * @param source
-   * @param i
-   * @return
-   */
-  public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
-    // we have only one source
-    if(iSource!=0)
-      throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
-
-    // get the source and return its rupture
-    return source.getRuptureClone(nRupture);
-  }
-
-
-  /**
-    * Get the ith rupture of the source. this method DOES NOT return reference
-    * to the object. So, when you call this method again, result from previous
-    * method call is valid. This behavior is in contrast with
-    * getRupture(int source, int i) method
-    *
-    * @param source
-    * @param i
-    * @return
-    */
-   public ProbEqkRupture getRupture(int iSource, int nRupture) {
-     // we have only one source
-     if(iSource!=0)
-       throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
-
-      return source.getRupture(nRupture);
-   }
 
    /**
     * Return the earhthquake source at index i. This methos returns the reference to
@@ -291,32 +240,6 @@ public class PEER_ListricFaultForecast extends EqkRupForecast
      return 1;
    }
 
-   /**
-    * Return the earthquake source at index i. This methos DOES NOT return the
-    * reference to the class variable. So, when you call this method again,
-    * result from previous method call is still valid. This behavior is in contrast
-    * with the behavior of method getSource(int i)
-    *
-    * @param iSource : index of the source needed
-    *
-    * @return Returns the ProbEqkSource at index i
-    *
-    * FIX:FIX :: This function has not been implemented yet. Have to give a thought on that
-    *
-    */
-   public ProbEqkSource getSourceClone(int iSource) {
-     return null;
-   }
-
-  /**
-    * Return  iterator over all the earthquake sources
-    *
-    * @return Iterator over all earhtquake sources
-    */
-   public Iterator getSourcesIterator() {
-     Iterator i = getSourceList().iterator();
-     return i;
-   }
 
     /**
      *  Clone is returned.

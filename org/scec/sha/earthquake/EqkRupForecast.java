@@ -103,13 +103,6 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
      this.parameterChangeFlag = true;
    }
 
-   /**
-    * Return  iterator over all the earthquake sources
-    *
-    * @return Iterator over all earhtquake sources
-    */
-  public abstract Iterator getSourcesIterator() ;
-
 
   /**
    * Get the number of earthquake sources
@@ -133,21 +126,6 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
   public abstract ProbEqkSource getSource(int iSource) ;
 
 
-
-  /**
-   * Return the earhthquake source at index i. This methos DOES NOT return the
-   *  reference to the class variable. So, when you call this method again,
-   * result from previous method call is still valid. This behavior is in contrast
-   * with the behavior of method getSource(int i)
-   *
-   * @param i : index of the source needed
-   *
-   * @return Returns the ProbEqkSource at index i
-   *
-   */
-  public abstract ProbEqkSource getSourceClone(int iSource) ;
-
-
   /**
    * Get the list of all earthquake sources. Clone is returned.
    * So, list can be save in Vector and this object subsequently destroyed
@@ -158,36 +136,68 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
 
 
   /**
-   * Get the ith rupture of this source. this method also returns reference
-   * to the object. So, when you call this method again, result from previous
-   * method call is no longer valid.
-   * This is secret, fast but dangerous method
+  * Get number of ruptures for source at index iSource
+  * This method iterates through the list of 3 vectors for charA , charB and grB
+  * to find the the element in the vector to which the source corresponds
+  * @param iSource index of source whose ruptures need to be found
+  */
+ public int getNumRuptures(int iSource){
+   return getSource(iSource).getNumRuptures();
+ }
+
+ /**
+  * Get the ith rupture of the source. this method DOES NOT return reference
+  * to the object. So, when you call this method again, result from previous
+  * method call is valid. This behavior is in contrast with
+  * getRupture(int source, int i) method
+  *
+  * @param source
+  * @param i
+  * @return
+  */
+ public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
+   return getSource(iSource).getRuptureClone(nRupture);
+ }
+
+ /**
+  * Get the ith rupture of the source. this method DOES NOT return reference
+  * to the object. So, when you call this method again, result from previous
+  * method call is valid. This behavior is in contrast with
+  * getRupture(int source, int i) method
+  *
+  * @param source
+  * @param i
+  * @return
+  */
+ public ProbEqkRupture getRupture(int iSource, int nRupture) {
+   return getSource(iSource).getRupture(nRupture);
+ }
+
+ /**
+  * Return  iterator over all the earthquake sources
+  *
+  * @return Iterator over all earhtquake sources
+  */
+ public Iterator getSourcesIterator() {
+   Iterator i = getSourceList().iterator();
+   return i;
+ }
+
+ /**
+   * Return the earthquake source at index i. This methos DOES NOT return the
+   * reference to the class variable. So, when you call this method again,
+   * result from previous method call is still valid. This behavior is in contrast
+   * with the behavior of method getSource(int i)
    *
-   * @param source
-   * @param i
-   * @return
-   */
-  public abstract ProbEqkRupture getRupture(int iSource, int nRupture);
-
-  /**
-   * Get the ith rupture of the source. this method DOES NOT return reference
-   * to the object. So, when you call this method again, result from previous
-   * method call is valid. This behavior is in contrast with
-   * getRupture(int source, int i) method
+   * @param iSource : index of the source needed
    *
-   * @param source
-   * @param i
-   * @return
-   */
-  public abstract ProbEqkRupture getRuptureClone(int iSource, int nRupture) ;
-
-
-  /**
-   * Get number of ruptures for source at index iSource
+   * @return Returns the ProbEqkSource at index i
    *
-   * @param iSource index of source whose ruptures need to be found
+   * FIX:FIX :: This function has not been implemented yet. Have to give a thought on that
+   *
    */
-  public abstract int getNumRuptures(int iSource);
-
+  public ProbEqkSource getSourceClone(int iSource) {
+    return null;
+   }
 
 }
