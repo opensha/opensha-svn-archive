@@ -707,8 +707,8 @@ public class HazardCurveApplet extends JApplet
             Vector testCasesOne = this.peerTestsControlPanel.getPEER_SetOneTestCasesNames();
             peerResultsFile = new FileWriter("PEER_TestCasesSetOneResultsFile.txt",true);
             int size = testCasesOne.size();
-//            for(int i=0;i< size; ++i){
-            for(int i=0;i< 20; ++i){
+            for(int i=0;i< size; ++i){
+              System.out.println("Working on # "+i+" of "+size);
               // first do PGA
               peerTestsControlPanel.setTestCaseAndSite((String)testCasesOne.get(i));
               addButton();
@@ -721,7 +721,7 @@ public class HazardCurveApplet extends JApplet
 
               // now do SA
               imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.SA_NAME);
-              imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
+              imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue("1.0");
               addButton();
               peerResultsFile.write("\n\n"+(String)testCasesOne.get(i)+"-- 1sec SA\n\n");
               for(int j=0; j<totalProbFuncs.get(0).getNum();++j)

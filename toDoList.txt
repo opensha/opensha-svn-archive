@@ -1,6 +1,9 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Axis control panel doesn't seem to work in HazardCurveApp (try setting custom).
+
+
 Lets chance syncToModel (and "synchToModel" as it is spelled in some places) method to something like refreshParamEditor (assuming this is used only to refresh editors).
 
 Make the WG02 ERF servlet so that more than one user can use it at any given time. 
