@@ -11,7 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.*;
-//import org.scec.sha.earthquake.rupForecastImpl.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.param.event.*;
@@ -524,7 +523,8 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
           else
             label=imtGuiBean.getSelectedIMT();
 
-          mapGuiBean.makeMap(xyzDataSet,label,getMapParametersInfo());
+          mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),erfGuiBean.getHypocenterLocation(),
+                             label,getMapParametersInfo());
           calcProgress.dispose();
           timer.stop();
         }

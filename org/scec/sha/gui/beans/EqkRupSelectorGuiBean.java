@@ -209,13 +209,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    else{
      listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(true);
      //getting the HypoCenterLocation Object and setting the Rupture HypocenterLocation
-     StringTokenizer token = new StringTokenizer(hypoCenterLocationParam.getValue().toString());
-     double lat= Double.parseDouble(token.nextElement().toString().trim());
-     double lon= Double.parseDouble(token.nextElement().toString().trim());
-     double depth= Double.parseDouble(token.nextElement().toString().trim());
-     loc= new Location(lat,lon,depth);
-
-     probEqkRupture.setHypocenterLocation(loc);
+     probEqkRupture.setHypocenterLocation(getHypocenterLocation());
    }
 
 
@@ -288,12 +282,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
     //if the Hypo Center location has been set
    if(name1.equals(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME)){
-     StringTokenizer token = new StringTokenizer(listEditor.getParameterList().getParameter(RUPTURE_HYPOLOCATIONS_PARAM_NAME).getValue().toString());
-     double lat= Double.parseDouble(token.nextElement().toString().trim());
-     double lon= Double.parseDouble(token.nextElement().toString().trim());
-     double depth= Double.parseDouble(token.nextElement().toString().trim());
-     Location loc= new Location(lat,lon,depth);
-     probEqkRupture.setHypocenterLocation(loc);
+     probEqkRupture.setHypocenterLocation(getHypocenterLocation());
    }
  }
 
@@ -501,5 +490,21 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   public int getRuptureIndex(){
     int ruptureIndex = ((Integer)listEditor.getParameterList().getParameter(this.RUPTURE_PARAM_NAME).getValue()).intValue();
     return ruptureIndex;
+  }
+
+  /**
+   *
+   * @returns the Hypocenter Location if selected else return null
+   */
+  public Location getHypocenterLocation(){
+    if(this.hypoCentreCheck.isSelected()){
+      StringTokenizer token = new StringTokenizer(listEditor.getParameterList().getParameter(RUPTURE_HYPOLOCATIONS_PARAM_NAME).getValue().toString());
+      double lat= Double.parseDouble(token.nextElement().toString().trim());
+      double lon= Double.parseDouble(token.nextElement().toString().trim());
+      double depth= Double.parseDouble(token.nextElement().toString().trim());
+      Location loc= new Location(lat,lon,depth);
+      return loc;
+    }
+    return null;
   }
 }

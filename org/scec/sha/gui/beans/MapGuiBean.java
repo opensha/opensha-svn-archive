@@ -8,7 +8,7 @@ import javax.swing.border.*;
 import java.awt.event.*;
 
 
-import org.scec.mapping.gmtWrapper.*;
+import org.scec.sha.mapping.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.ParameterChangeListener;
@@ -17,6 +17,7 @@ import org.scec.sha.gui.infoTools.ImageViewerWindow;
 import org.scec.util.FileUtils;
 import org.scec.webservices.client.*;
 import org.scec.data.*;
+import org.scec.sha.earthquake.EqkRupture;
 
 /**
  * <p>Title: GMT_MapGenerator</p>
@@ -44,7 +45,7 @@ public class MapGuiBean extends ParameterListEditor implements
   private final static String GMT_TITLE = new String("Set GMT Parameters");
 
   //instance of the GMT Control Panel to get the GMT parameters value.
-  private GMT_MapGenerator gmtMap= new GMT_MapGenerator();
+  private GMT_MapGeneratorForShakeMaps gmtMap= new GMT_MapGeneratorForShakeMaps();
 
 
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -71,8 +72,8 @@ public class MapGuiBean extends ParameterListEditor implements
     editorPanel.removeAll();
     addParameters();
     setTitle(GMT_TITLE);
-    parameterList.getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).addParameterChangeListener(this);
-    changeColorScaleModeValue(GMT_MapGenerator.COLOR_SCALE_MODE_DEFAULT);
+    parameterList.getParameter(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_NAME).addParameterChangeListener(this);
+    changeColorScaleModeValue(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_DEFAULT);
     try {
       jbInit();
     }
@@ -104,11 +105,11 @@ public class MapGuiBean extends ParameterListEditor implements
   public void setRegionParams(double minLat,double maxLat,double minLon,double maxLon,
                                double gridSpacing){
     if(D) System.out.println(C+" setGMTRegionParams: " +minLat+"  "+maxLat+"  "+minLon+"  "+maxLon);
-    getParameterList().getParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
-    getParameterList().getParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
-    getParameterList().getParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
-    getParameterList().getParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME).setValue(new Double(maxLon));
-    getParameterList().getParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME).setValue(new Double(gridSpacing));
+    getParameterList().getParameter(GMT_MapGeneratorForShakeMaps.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
+    getParameterList().getParameter(GMT_MapGeneratorForShakeMaps.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
+    getParameterList().getParameter(GMT_MapGeneratorForShakeMaps.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
+    getParameterList().getParameter(GMT_MapGeneratorForShakeMaps.MAX_LON_PARAM_NAME).setValue(new Double(maxLon));
+    getParameterList().getParameter(GMT_MapGeneratorForShakeMaps.GRID_SPACING_PARAM_NAME).setValue(new Double(gridSpacing));
   }
 
 
@@ -118,7 +119,7 @@ public class MapGuiBean extends ParameterListEditor implements
    */
   public void parameterChange(ParameterChangeEvent e) {
     String name = e.getParameterName();
-    if(name.equalsIgnoreCase(GMT_MapGenerator.COLOR_SCALE_MODE_NAME))
+    if(name.equalsIgnoreCase(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_NAME))
       changeColorScaleModeValue((String)e.getNewValue());
   }
 
@@ -128,12 +129,12 @@ public class MapGuiBean extends ParameterListEditor implements
    * @param val
    */
   private void changeColorScaleModeValue(String val) {
-    if(val.equalsIgnoreCase(GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA)) {
-      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(false);
-      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(false);
+    if(val.equalsIgnoreCase(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_FROMDATA)) {
+      getParameterEditor(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MAX_PARAM_NAME).setVisible(false);
+      getParameterEditor(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MIN_PARAM_NAME).setVisible(false);
     } else {
-      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(true);
-      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(true);
+      getParameterEditor(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MAX_PARAM_NAME).setVisible(true);
+      getParameterEditor(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MIN_PARAM_NAME).setVisible(true);
     }
   }
 
@@ -143,7 +144,8 @@ public class MapGuiBean extends ParameterListEditor implements
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeMap(XYZ_DataSetAPI xyzVals,String imt,String metadata){
+  public void makeMap(XYZ_DataSetAPI xyzVals,EqkRupture eqkRupture,
+                               Location hypLoc,String imt,String metadata){
 
     boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
     //creating the Metadata file in the GMT_MapGenerator
@@ -155,7 +157,7 @@ public class MapGuiBean extends ParameterListEditor implements
     }
     else{
       try{
-        imgName = gmtMap.makeMapLocally(xyzVals,imt);
+        imgName = gmtMap.makeMapLocally(xyzVals,eqkRupture,hypLoc,imt);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;

@@ -430,7 +430,7 @@ public class HazardMapViewerApp extends JApplet {
 
     // make the xyz file and pass the name of xyz file to mapguibean
     mapGuiBean.makeMap(this.readAndWriteFile(minLat, maxLat, minLon, maxLon,
-        gridSpacing, selectedSet, isProbAt_IML, val),"IMT",this.dataSetText.getText());
+        gridSpacing, selectedSet, isProbAt_IML, val),null,null,"IMT",this.dataSetText.getText());
 
   }
 
