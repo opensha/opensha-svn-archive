@@ -56,9 +56,6 @@ public class GMT_MapGenerator implements Serializable{
   private String out_jpg= new String();
 
 
-
-
-
   public final static String CPT_FILE_PARAM_NAME = "Color Scheme";
   private final static String CPT_FILE_PARAM_DEFAULT = "MaxSpectrum.cpt";
   private final static String CPT_FILE_PARAM_INFO = "Color scheme for the scale";

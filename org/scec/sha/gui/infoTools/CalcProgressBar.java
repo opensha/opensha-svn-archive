@@ -60,6 +60,12 @@ public class CalcProgressBar extends JProgressBar {
     label.paintImmediately(label.getBounds());
   }
 
+
+  public void setProgressMessage(String progressMsg){
+    this.labelMsg = progressMsg;
+    initProgressFrame();
+  }
+
   /**
    * remove the "Updating forecast Label" and display the progress bar
    */
