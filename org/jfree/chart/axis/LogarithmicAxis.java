@@ -312,7 +312,7 @@ public class LogarithmicAxis extends NumberAxis {
    * @return log<sub>10</sub>(val).
    */
   protected double switchedLog10(double val) {
-    return smallLogFlag ? Math.log(val) / LOG10_VALUE : adjustedLog10(val);
+    return smallLogFlag ? StrictMath.log(val) / LOG10_VALUE : adjustedLog10(val);
   }
 
   /**
@@ -336,7 +336,7 @@ public class LogarithmicAxis extends NumberAxis {
       val += (10.0 - val) / 10;    //increase so 0 translates to 0
     }
     //return value; negate if original value was negative:
-    return negFlag ? -(Math.log(val) / LOG10_VALUE) : (Math.log(val) / LOG10_VALUE);
+    return negFlag ? -(StrictMath.log(val) / LOG10_VALUE) : (StrictMath.log(val) / LOG10_VALUE);
   }
 
   /**

@@ -120,10 +120,11 @@ public class LogPlotTesterApp extends JApplet  {
   private ChartPanel panel;
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
-  private JCheckBox log10CaretCheck = new JCheckBox();
-  private JCheckBox log10PowerCheck = new JCheckBox();
-  private JCheckBox log10AsECheck = new JCheckBox();
+  private JRadioButton log10CaretCheck = new JRadioButton();
+  private JRadioButton log10PowerCheck = new JRadioButton();
+  private JRadioButton log10AsECheck = new JRadioButton();
   private JCheckBox minorAxisCheck = new JCheckBox();
+
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   //declaration for the class that lets the user to enter his own data
