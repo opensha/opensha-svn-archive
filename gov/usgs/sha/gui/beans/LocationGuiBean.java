@@ -42,6 +42,10 @@ public class LocationGuiBean
   TitledBorder locationBorder = new TitledBorder(border9, "Select Site Location");
 
 
+  private static final String DEFAULT_ZIP_CODE = "91104";
+  private static final double DEFAULT_LAT = 34.1670;
+  private static final double DEFAULT_LON = -118.27;
+
   private ParameterList parameterList;
   private ParameterListEditor editor;
   GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -90,9 +94,9 @@ public class LocationGuiBean
   public void createLocationGUI(double minLat, double maxLat, double minLon,
                                 double maxLon, boolean isZipCodeSupported) {
     DoubleParameter latParam = new DoubleParameter(LAT_PARAM_NAME, minLat,
-        maxLat, "Degrees");
+        maxLat, "Degrees",new Double (DEFAULT_LAT));
     DoubleParameter lonParam = new DoubleParameter(LON_PARAM_NAME, minLon,
-        maxLon, "Degrees");
+        maxLon, "Degrees",new Double(DEFAULT_LON));
 
     //add the zip code in the location mode selection only if it is supported.
     createLocationModeParam(isZipCodeSupported);
@@ -106,7 +110,7 @@ public class LocationGuiBean
 
     StringParameter zipParam = null;
     if (isZipCodeSupported) {
-      zipParam = new StringParameter(ZIP_CODE_PARAM_NAME,"");
+      zipParam = new StringParameter(ZIP_CODE_PARAM_NAME,DEFAULT_ZIP_CODE);
       zipParam.addParameterChangeListener(this);
       parameterList.addParameter(zipParam);
     }

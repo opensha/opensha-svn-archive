@@ -23,4 +23,15 @@ public interface AnalysisOptionsGuiBeanAPI {
      */
     public JPanel getGuiBean();
 
+    /**
+     * Clears the Data window
+     */
+    public void clearData();
+
+    /**
+     *
+     * @return String
+     */
+    public String getData();
+
 }

@@ -455,12 +455,18 @@ public class NEHRP_GuiBean
 
   private void ssButton_actionPerformed(ActionEvent actionEvent) {
     getDataForSA_Period();
-    application.setDataInWindow(dataGenerator.getDataInfo());
+    application.setDataInWindow(getData());
     siteCoeffButton.setEnabled(true);
     mapSpecButton.setEnabled(true);
   }
 
-
+  /**
+   *
+   * @return String
+   */
+  public String  getData(){
+    return dataGenerator.getDataInfo();
+  }
 
 
   private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
@@ -480,12 +486,12 @@ public class NEHRP_GuiBean
   private void smSDButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSMSsS1();
     dataGenerator.calculatedSDSsS1();
-    application.setDataInWindow(dataGenerator.getDataInfo());
+    application.setDataInWindow(getData());
   }
 
   private void mapSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateMapSpectrum();
-    application.setDataInWindow(dataGenerator.getDataInfo());
+    application.setDataInWindow(getData());
     if(!viewButton.isEnabled())
       viewButton.setEnabled(true);
     mapSpectrumCalculated = true;
@@ -493,7 +499,7 @@ public class NEHRP_GuiBean
 
   private void smSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSMSpectrum();
-    application.setDataInWindow(dataGenerator.getDataInfo());
+    application.setDataInWindow(getData());
     if(!viewButton.isEnabled())
       viewButton.setEnabled(true);
     smSpectrumCalculated = true;
@@ -501,7 +507,7 @@ public class NEHRP_GuiBean
 
   private void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSDSpectrum();
-    application.setDataInWindow(dataGenerator.getDataInfo());
+    application.setDataInWindow(getData());
     if(!viewButton.isEnabled())
       viewButton.setEnabled(true);
    sdSpectrumCalculated = true;

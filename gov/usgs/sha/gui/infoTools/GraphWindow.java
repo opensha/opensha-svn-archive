@@ -210,13 +210,18 @@ public class GraphWindow
     setJMenuBar(menuBar);
     closeButton.setIcon(closeFileImage);
     closeButton.setToolTipText("Close Window");
+    Dimension d=closeButton.getSize();
     jToolBar.add(closeButton);
     printButton.setIcon(printFileImage);
     printButton.setToolTipText("Print Graph");
+    printButton.setSize(d);
     jToolBar.add(printButton);
     saveButton.setIcon(saveFileImage);
     saveButton.setToolTipText("Save Graph as image");
+    saveButton.setSize(d);
     jToolBar.add(saveButton);
+    jToolBar.setFloatable(false);
+
     this.getContentPane().add(jToolBar, BorderLayout.NORTH);
     this.setSize(W,H);
     chartSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);

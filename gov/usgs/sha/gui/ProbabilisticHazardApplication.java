@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import gov.usgs.util.GlobalConstants;
+import gov.usgs.util.PrintData;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -41,11 +42,11 @@ public class ProbabilisticHazardApplication
 
   JPanel contentPane;
 
-  JMenuBar jMenuBar1 = new JMenuBar();
-  JMenu jMenuFile = new JMenu();
-  JMenuItem jMenuFileExit = new JMenuItem();
-  JMenuItem jMenuFilePrint = new JMenuItem();
-  JMenuItem jMenuFileSave = new JMenuItem();
+  JMenuBar applicationMenu = new JMenuBar();
+  JMenu fileMenu = new JMenu();
+  JMenuItem fileExitMenu = new JMenuItem();
+  JMenuItem filePrintMenu = new JMenuItem();
+  JMenuItem fileSaveMenu = new JMenuItem();
 
   // height and width of the applet
   private final static int W = 1100;
@@ -105,15 +106,28 @@ public class ProbabilisticHazardApplication
     contentPane.setLayout(borderLayout1);
     setSize(new Dimension(W, H));
     setTitle("Seismic Hazard Curves and Uniform Hazard Response Spectra");
-    jMenuFile.setText("File");
-    jMenuFileExit.setText("Exit");
-    jMenuFileSave.setText("Save");
-    jMenuFilePrint.setText("Print");
-    jMenuFileExit.addActionListener(new java.awt.event.ActionListener() {
+    fileMenu.setText("File");
+    fileExitMenu.setText("Exit");
+    fileSaveMenu.setText("Save");
+    filePrintMenu.setText("Print");
+    fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        jMenuFileExit_actionPerformed(e);
+        fileExitMenu_actionPerformed(e);
       }
     });
+    fileSaveMenu.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        fileSaveMenu_actionPerformed(e);
+      }
+    });
+
+    filePrintMenu.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        filePrintMenu_actionPerformed(e);
+      }
+    });
+
+
     jPanel1.setLayout(gridBagLayout1);
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     mainSplitPane.setForeground(Color.black);
@@ -152,10 +166,24 @@ public class ProbabilisticHazardApplication
         ExplainButton_actionPerformed(actionEvent);
       }
     });
-    jMenuBar1.add(jMenuFile);
-    jMenuFile.add(jMenuFileSave);
-    jMenuFile.add(jMenuFilePrint);
-    jMenuFile.add(jMenuFileExit);
+    clearDataButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        clearDataButton_actionPerformed(actionEvent);
+      }
+    });
+
+
+
+    viewMapsButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        viewMapsButton_actionPerformed(actionEvent);
+      }
+    });
+
+    applicationMenu.add(fileMenu);
+    fileMenu.add(fileSaveMenu);
+    fileMenu.add(filePrintMenu);
+    fileMenu.add(fileExitMenu);
     mainSplitPane.add(dataSplitPane, JSplitPane.RIGHT);
     mainSplitPane.add(parametersPanel, JSplitPane.LEFT);
     dataSplitPane.add(dataScrollPane, JSplitPane.TOP);
@@ -184,7 +212,7 @@ public class ProbabilisticHazardApplication
     jPanel1.add(mainSplitPane, new GridBagConstraints(0, 1, 3, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(10, 8, 5, 10), 777, 597));
-    setJMenuBar(jMenuBar1);
+    setJMenuBar(applicationMenu);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     this.setLocation((d.width - this.getSize().width) / 2, (d.height - this.getSize().height) / 2);
     mainSplitPane.setDividerLocation(550);
@@ -196,9 +224,46 @@ public class ProbabilisticHazardApplication
    *
    * @param actionEvent ActionEvent
    */
-  void jMenuFileExit_actionPerformed(ActionEvent actionEvent) {
-    System.exit(0);
+  void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
+
+    int option = JOptionPane.showConfirmDialog(this,"Do you really want to exit the application?\n"+
+        "You will loose any unsaved data","Closing Application",JOptionPane.OK_CANCEL_OPTION);
+    if(option == JOptionPane.OK_OPTION)
+      System.exit(0);
+    return;
   }
+
+
+  /**
+   * File | Save action performed.
+   *
+   * @param actionEvent ActionEvent
+   */
+  void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
+
+
+  }
+
+
+  /**
+   * File | Print action performed.
+   *
+   * @param actionEvent ActionEvent
+   */
+  void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
+    print();
+  }
+
+
+  private void print(){
+    PrintData print = new PrintData();
+    print.print(guiBeanAPI.getData());
+  }
+
+
+
+
+
 
   private void analysisOptionSelectionCombo_itemStateChanged(ItemEvent
       itemEvent) {
@@ -276,6 +341,27 @@ public class ProbabilisticHazardApplication
 
     frame.show();
   }
+
+
+
+  /**
+   *
+   * @param actionEvent ActionEvent
+   */
+  private void clearDataButton_actionPerformed(ActionEvent actionEvent) {
+    guiBeanAPI.clearData();
+  }
+
+
+
+  /**
+   *
+   * @param actionEvent ActionEvent
+   */
+  private void viewMapsButton_actionPerformed(ActionEvent actionEvent) {
+
+  }
+
 
   /**
    *
