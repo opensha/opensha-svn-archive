@@ -100,6 +100,7 @@ public class GMT_MapGenerator {
 
 
   protected ParameterList adjustableParams;
+
   public static int i = 0;
 
 
@@ -218,7 +219,7 @@ public class GMT_MapGenerator {
     String showHiwys = (String) showHiwysParam.getValue();
 
     String out_ps = outputFilePrefix + ".ps";
-    String out_jpg = outputFilePrefix +i+ ".jpg";
+    String out_jpg = outputFilePrefix + i + ".jpg";
 
     String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
 
@@ -285,10 +286,17 @@ public class GMT_MapGenerator {
 
        command[2]=GMT_PATH+"psbasemap -B1/1eWNs -JM8i "+region+" -Lfx1.25i/0.6i/33.0/100 -O >> " + out_ps;
        RunScript.runScript(command);
-
+/*
        command[2] =COMMAND_PATH+"cat "+ out_ps + " | "+GMT_PATH+"gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
        RunScript.runScript(command);
+*/
+       command[2] = GMT_PATH+"convert -rotate 90 "+ out_ps + " " + out_jpg;
+       RunScript.runScript(command);
+
+       // increment jpg file index
        ++i;
+
+
 //       command[2] = "/Applications/Preview.app/Contents/MacOS/Preview " + out_jpg + " &";
 //       RunScript.runScript(command);
 
