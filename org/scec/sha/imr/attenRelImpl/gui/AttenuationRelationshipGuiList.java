@@ -25,7 +25,7 @@ public class AttenuationRelationshipGuiList {
     protected final static boolean D = false;
 
     /** This is the hash map containing all the instanciated IMRGuiBeans. */
-    private HashMap imrGuis = new HashMap();
+    private HashMap attenRelGuis = new HashMap();
 
     /** This is the current selected IMR contained within an IMRGuiBean.  */
     private AttenuationRelationshipGuiBean currentGui = null;
@@ -45,24 +45,24 @@ public class AttenuationRelationshipGuiList {
      *  creates a new IMRGuiBean from the IMR name adds it to the list sets it
      *  as the current and returns it.
      *
-     * @param  imrName  This is the fully qualified package and class name of
+     * @param  imName  This is the fully qualified package and class name of
      *      the IMR to implement.
      * @param  applet   The main application that uses this list needed to
      *      create the IMRGuiBean.
      * @return          Description of the Return Value
      */
-    public AttenuationRelationshipGuiBean setImr( String imrName, AttenuationRelationshipApplet applet ) {
+    public AttenuationRelationshipGuiBean setImr( String imName, AttenuationRelationshipApplet applet ) {
 
-        if ( ( currentGui != null )  && ( currentGui.getName().equals( imrName ) ) )  return currentGui;
-        else if ( imrGuis.containsKey( imrName ) ) {
-            currentGui = ( AttenuationRelationshipGuiBean ) imrGuis.get( imrName );
+        if ( ( currentGui != null )  && ( currentGui.getName().equals( imName ) ) )  return currentGui;
+        else if ( attenRelGuis.containsKey( imName ) ) {
+            currentGui = ( AttenuationRelationshipGuiBean ) attenRelGuis.get( imName );
             return currentGui;
         }
         else {
 
-            String className = AttenuationRelationshipApplet.imrNames.get( imrName ).toString();
-            AttenuationRelationshipGuiBean bean = new AttenuationRelationshipGuiBean( className, imrName, applet );
-            imrGuis.put( imrName, bean );
+            String className = AttenuationRelationshipApplet.imNames.get( imName ).toString();
+            AttenuationRelationshipGuiBean bean = new AttenuationRelationshipGuiBean( className, imName, applet );
+            attenRelGuis.put( imName, bean );
             currentGui = bean;
             return currentGui;
 

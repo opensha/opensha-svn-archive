@@ -21,7 +21,7 @@ import org.scec.data.*;
  *  elements and controller elements for one particular AttenuationRelationship. This allows all the
  *  components to be packaged up in this one class and then for every AttenuationRelationship that
  *  is created there will be one instance of this bean. This allows these beans
- *  to be easily swapped in and out when you are examining different AttenuationRelationships in
+ *  to be easily swapped in and out when you are examining different AttenuationRelationship's in
  *  the main tester applet application.<p>
  *
  * @author     Steven W. Rock
@@ -78,10 +78,10 @@ public class AttenuationRelationshipGuiBean
     final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
     /**
-     *  The AttenuationRelationship that will perform the
+     *  The AttenuationRelationship is the IMR that will perform the exceedence probability
      *  calculations as needed by the Gui.
      */
-    protected AttenuationRelationshipAPI imr = null;
+    protected AttenuationRelationshipAPI attenRel = null;
 
     /**
      *  This is the paramater list editor that contains all the control
@@ -98,13 +98,13 @@ public class AttenuationRelationshipGuiBean
     protected ParameterListEditor independentsEditor = null;
 
     /**
-     *  Just a placeholder name for this Gui bean.
+     *  Just a placeholder name for this particular AttenuationRelationshipGUI Bean.
      */
     protected String name;
 
     /**
      *  Parameters that control the graphing gui, specifically the IM Types
-     *  picklist, the Y-Axis picklist, and the X-Axis picklist. Some of
+     *  picklist, the Y-Values picklist, and the X-Values picklist. Some of
      *  these are dynamically generated from particular independent parameters.
      */
     protected ParameterList controlsParamList = null;
@@ -123,21 +123,21 @@ public class AttenuationRelationshipGuiBean
     AttenuationRelationshipApplet applet = null;
 
     protected ArrayList translatedList = new ArrayList();
-    private boolean translateIMR = true;
+    private boolean translateAttenRel = true;
 
     /**
-     *  Constructor for the AttenuationRelationshipGuiBean object. This constructor is passed in an
-     *  Attenuation-Relationship class name, a name for the Gui bean, and the main applet. From this
-     *  info. the Attenuation-Relationship class is created at run time along with the paramater
+     *  Constructor for the AttenuationRelationshipGuiBean object. This constructor is passed in a
+     *  AttenRel class name, a name for the Gui bean, and the main applet. From this
+     *  info. the AttenRel class is created at run time along with the paramater
      *  change listener just by the name of the classes.Finally the paramater
      *  editors are created for the independent and control paramaters.
      *
-     * @param  className  Fully qualified package and class name of the Attenuation-Relationship
+     * @param  className  Fully qualified package and class name of the AttenRel
      *      class
      * @param  name       Placeholder name for this Gui bean so it could be
      *      referenced in a hash table or hash map.
      * @param  applet     The main applet application that will use these beans
-     *      to swap in and out different Attenuation-Relationships.
+     *      to swap in and out different AttenuationRelationship's.
      */
     public AttenuationRelationshipGuiBean( String className, String name, AttenuationRelationshipApplet applet ) {
 
@@ -147,13 +147,13 @@ public class AttenuationRelationshipGuiBean
         this.name = name;
         this.applet = applet;
 
-        // Create Attenuation-Relationship class dynamically from string name
+        // Create AttenRel class dynamically from string name
         if ( className == null || className.equals( "" ) )
-            throw new ParameterException( S + "AttenuationRelationship Class name cannot be empty or null" );
-        imr = ( AttenuationRelationshipAPI ) createIMRClassInstance( className,  (org.scec.param.event.ParameterChangeWarningListener)applet );
-        imr.setParamDefaults();
+            throw new ParameterException( S + "AttenRel Class name cannot be empty or null" );
+        attenRel = ( AttenuationRelationshipAPI ) createAttenRelClassInstance( className,  (org.scec.param.event.ParameterChangeWarningListener)applet );
+        attenRel.setParamDefaults();
 
-        // Create the control parameters for this Attenuation-Relationship
+        // Create the control parameters for this attenRel
         initControlsParamListAndEditor( applet );
 
         // Create independent parameters
@@ -173,25 +173,25 @@ public class AttenuationRelationshipGuiBean
      * class beforehand. For example, if you wanted to create a BJF_1997_AttenRel you can do
      * it the normal way:<P>
      *
-     * <code>BJF_1997_AttenRel imr = new BJF_1997_AttenRel()</code><p>
+     * <code>BJF_1997_AttenRel attenRel = new BJF_1997_AttenRel()</code><p>
      *
      * If your not sure the user wants this one or AS_1997_AttenRel you can use this function
      * instead to create the same class by:<P>
      *
-     * <code>BJF_1997_AttenRel imr =
+     * <code>BJF_1997_AttenRel attenRel =
      * (BJF_1997_AttenRel)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.attenRelImpl.BJF_1997_AttenRel");
      * </code><p>
      *
      */
-    public static Object createIMRClassInstance( String className, org.scec.param.event.ParameterChangeWarningListener listener){
-        String S = C + ": createIMRClassInstance(): ";
+    public static Object createAttenRelClassInstance( String className, org.scec.param.event.ParameterChangeWarningListener listener){
+        String S = C + ": createAttenRelClassInstance(): ";
         try {
 
             Class listenerClass = Class.forName( "org.scec.param.event.ParameterChangeWarningListener" );
             Object[] paramObjects = new Object[]{ listener };
             Class[] params = new Class[]{ listenerClass };
-            Class imrClass = Class.forName( className );
-            Constructor con = imrClass.getConstructor( params );
+            Class attenRelClass = Class.forName( className );
+            Constructor con = attenRelClass.getConstructor( params );
             Object obj = con.newInstance( paramObjects );
             return obj;
         } catch ( ClassCastException e ) {
@@ -271,12 +271,12 @@ public class AttenuationRelationshipGuiBean
     }
 
     /**
-     *  Gets the AttenuationRelationshipGuiBean attribute of the AttenuationRelationshipGuiBean object
+     *  Gets the attenRel attribute of the AttenuationRelationshipGuiBean object
      *
-     * @return    The imr value
+     * @return    The attenRel value
      */
-    public AttenuationRelationshipAPI getImr() {
-        return imr;
+    public AttenuationRelationshipAPI getAttenRel() {
+        return attenRel;
     }
 
     /**
@@ -324,14 +324,14 @@ public class AttenuationRelationshipGuiBean
                 throw new ParameterException( C + ": getGraphControlsParamValue(): Unsupported graph control type." );
         }
 
-        // Extracting choosen picklist value in GUI
+        // Extracting choosen IM picklist value in GUI
         return controlsParamList.getParameter( paramName ).getValue().toString();
     }
 
 
     /**
      *  Builds the Y-Axis Name, which may include units, and includes the IM
-     *  Type choosen. Solely used for labeling the graph
+     *  Type choosen, either "SA" or "PGM". Solely used for labeling the graph
      *
      * @return    The iMTYAxisLabel value
      */
@@ -348,9 +348,14 @@ public class AttenuationRelationshipGuiBean
         String imName = getGraphControlsParamValue( IM );
 
         // Get choosen intensity measure parameter to extract units
-        ParameterAPI imParam = this.imr.getParameter( imName );
+        ParameterAPI imParam = this.attenRel.getParameter( imName );
         String imUnits = imParam.getUnits();
 
+        // Determine whether to add log to lable - and add IM type choosen
+        // if ( !yAxisName.equals( Y_AXIS_V3 ) ) label = yAxisName + " ln-" + imName;
+        // else label = yAxisName + ' ' + imName;
+
+        // SWR - Changed mean so that it returns the real mean, used to be the log of the mean
         // if IML at exceed Prob. is chosen, then only show IM
         if(!yAxisName.equals( Y_AXIS_V4 )) label = yAxisName + ' ' + imName;
         else  label = imName;
@@ -368,7 +373,7 @@ public class AttenuationRelationshipGuiBean
 
 
     /**
-     *  Returns which X-Axis was choosen, appending the units if present in the
+     *  Returns which X-Axis were choosen, appending the units if present in the
      *  parameter. Used for Plot labeling of the x-axis.
      *
      * @return    The xAxisLabel value
@@ -379,7 +384,7 @@ public class AttenuationRelationshipGuiBean
         String xAxisName = getGraphControlsParamValue( X_AXIS );
 
         // get the parameter, units, add to label string
-        ParameterAPI param = imr.getParameter( xAxisName );
+        ParameterAPI param = attenRel.getParameter( xAxisName );
         String units = param.getUnits();
         if ( !ClassUtils.isEmptyString( units ) )
             xAxisName += " (" + units + ')';
@@ -389,8 +394,10 @@ public class AttenuationRelationshipGuiBean
 
     /**
      *  Builds a Plot title string of the form "y-axis label vs. x-axis label".
+     *  The x and y axis labels are obtained by calling getXAxisLabel() and
+     *  getIMYAxisLabel()
      *
-     * @return                          The XYAxisTitle value
+     * @return                          The xYAxisTitle value
      * @exception  ConstraintException  Description of the Exception
      */
     public String getGraphXYAxisTitle() throws ConstraintException {
@@ -400,7 +407,7 @@ public class AttenuationRelationshipGuiBean
 
     protected void setIgnoreWarnings(boolean ignoreWarning){
 
-        if( !translateIMR) return;
+        if( !translateAttenRel) return;
         ListIterator it = translatedList.listIterator();
         while(it.hasNext()){
             ((TranslatedWarningDoubleParameter)it.next()).setIgnoreWarning(ignoreWarning);
@@ -426,13 +433,19 @@ public class AttenuationRelationshipGuiBean
         if ( D )
             System.out.println( S + "Starting" );
 
+        // Determines from the IM Picklist in the GUI which IM parameter
+        // to set as current IM in the AttenRel. This allows the AttenRel to be able
+        // to calculate which coefficients to use to calculate the functions
+
+
        // Get choosen graph controls values
         String yAxisName = getGraphControlsParamValue( Y_AXIS );
         String xAxisName = getGraphControlsParamValue( X_AXIS );
 
         setIgnoreWarnings(true);
-        imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
+        attenRel.setIntensityMeasure( getGraphControlsParamValue( IM ) );
         setIgnoreWarnings(false);
+
 
 
         // Determine which Y=Axis choice to process
@@ -441,7 +454,7 @@ public class AttenuationRelationshipGuiBean
         if ( D ) System.out.println( S + "Type = " + type );
 
         // Get X-Axis parameter
-        ParameterAPI xAxisParam = imr.getParameter( xAxisName );
+        ParameterAPI xAxisParam = attenRel.getParameter( xAxisName );
 
         // Ensure X-Axis constraint Double or DoubleDiscrete Constraint
         if ( !ParamUtils.isDoubleOrDoubleDiscreteConstraint( xAxisParam ) )
@@ -454,16 +467,16 @@ public class AttenuationRelationshipGuiBean
         ParameterList clones = independentsEditor.getVisibleParametersCloned();
 
         /**
-         * @todo FIX - Legend IM translation done here.
-         * may be poor design, what if IM types change to another type in future.
+         * @todo FIX - Legend AttenRel translation done here.
+         * may be poor design, what if AttenRel types change to another type in future.
          * Translated parameters should deal directly with ParameterAPI, not specific subclass
          * types.
          */
-        if( translateIMR){
-            ParameterAPI imrParam = (ParameterAPI)imr.getIntensityMeasure().clone();
-            if( imrParam instanceof WarningDoubleParameter){
+        if( translateAttenRel){
+            ParameterAPI imParam = (ParameterAPI)attenRel.getIntensityMeasure().clone();
+            if( imParam instanceof WarningDoubleParameter){
 
-                WarningDoubleParameter warnParam = (WarningDoubleParameter)imrParam;
+                WarningDoubleParameter warnParam = (WarningDoubleParameter)imParam;
                 TranslatedWarningDoubleParameter transParam = new TranslatedWarningDoubleParameter(warnParam);
                 transParam.setTranslate(true);
 
@@ -478,7 +491,7 @@ public class AttenuationRelationshipGuiBean
 
         if ( function != null ) {
             ((ArbDiscrFuncWithParams)function).setParameterList( clones );
-            function.setName(imr.getName());
+            function.setName(attenRel.getName());
         }
         return function;
     }
@@ -498,12 +511,17 @@ public class AttenuationRelationshipGuiBean
       if ( D )
         System.out.println( S + "Starting" );
 
+      // Determines from the IM Picklist in the GUI which IM parameter
+      // to set as current IM in the AttenRel. This allows the AttenRel to be able
+      // to calculate which coefficients to use to calculate the functions
+
+
       // Get choosen graph controls values
       String yAxisName = getGraphControlsParamValue( Y_AXIS );
       String xAxisName = getGraphControlsParamValue( X_AXIS );
 
       setIgnoreWarnings(true);
-      imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
+      attenRel.setIntensityMeasure( getGraphControlsParamValue( IM ) );
       setIgnoreWarnings(false);
 
 
@@ -516,16 +534,16 @@ public class AttenuationRelationshipGuiBean
         ParameterList clones = independentsEditor.getVisibleParametersCloned();
 
         /**
-         * @todo FIX - Legend IM translation done here.
-         * may be poor design, what if IM types change to another type in future.
+         * @todo FIX - Legend AttenRel translation done here.
+         * may be poor design, what if AttenRel types change to another type in future.
          * Translated parameters should deal directly with ParameterAPI, not specific subclass
          * types.
          */
-        if( translateIMR){
-            ParameterAPI imrParam = (ParameterAPI)imr.getIntensityMeasure().clone();
-            if( imrParam instanceof WarningDoubleParameter){
+        if( translateAttenRel){
+            ParameterAPI imParam = (ParameterAPI)attenRel.getIntensityMeasure().clone();
+            if( imParam instanceof WarningDoubleParameter){
 
-                WarningDoubleParameter warnParam = (WarningDoubleParameter)imrParam;
+                WarningDoubleParameter warnParam = (WarningDoubleParameter)imParam;
                 TranslatedWarningDoubleParameter transParam = new TranslatedWarningDoubleParameter(warnParam);
                 transParam.setTranslate(true);
 
@@ -564,17 +582,17 @@ public class AttenuationRelationshipGuiBean
         ArbDiscrFuncWithParams function = new ArbDiscrFuncWithParams();
         String s = "";
 
-        // if the parameter is doubleDiscrete, iterate over possible discrete values
+        // constraint contains the only possible values, iterate over possible values to calc the mean
         if ( ParamUtils.isDoubleDiscreteConstraint( xAxisParam ) ) {
 
-            // Get the constraints to iterate over
+            // Get the period constraints to iterate over
             String paramName = xAxisParam.getName();
-            DoubleDiscreteParameter period = ( DoubleDiscreteParameter ) imr.getParameter( paramName );
+            DoubleDiscreteParameter period = ( DoubleDiscreteParameter ) attenRel.getParameter( paramName );
             DoubleDiscreteConstraint constraint = ( DoubleDiscreteConstraint ) period.getConstraint();
 
             Object oldVal = period.getValue();
 
-            // Loop over the constraint values
+            // Loop over all periods calculating the mean
             ListIterator it = constraint.listIterator();
             while ( it.hasNext() ) {
 
@@ -582,9 +600,12 @@ public class AttenuationRelationshipGuiBean
                 Double val = ( Double ) it.next();
                 period.setValue( val );
 
-                // set the intensity measure (is this really needed, or has it already been
-                // set via a pointer?)
-                imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
+                // This determines which are the current coefficients to use, i.e. if this
+                // x-axis choosen is Period, this function call will update the SA with this
+                // new period constraint value (SA and Period have same constraints. Then the SA
+                // will be passed into the AttenRel which will set the new coefficients because the SA period
+                // has been changed. Recall the coefficients are stored in a hash table "IM Name/Period" as the key
+                attenRel.setIntensityMeasure( getGraphControlsParamValue( IM ) );
 
                 DataPoint2D point = new DataPoint2D( val.doubleValue(), getCalculation( type ));
                 function.set( point );
@@ -593,28 +614,30 @@ public class AttenuationRelationshipGuiBean
 
             // return to original state
             period.setValue( oldVal );
-            imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
+            attenRel.setIntensityMeasure( getGraphControlsParamValue( IM ) );
 
         }
-
         // Constraint contains a min and a max
         else if( ParamUtils.isWarningParameterAPI( xAxisParam ) ){
 
+
+
             /**
-             * @todo FIX - Axis IM translation done here.
-             * may be poor design, what if IM types change to another type in future.
+             * @todo FIX - Axis AttenRel translation done here.
+             * may be poor design, what if AttenRel types change to another type in future.
              * Translated parameters should deal directly with ParameterAPI, not specific subclass
              * types. Something for phase II.
              */
-            if( translateIMR){
+            if( translateAttenRel){
 
-                ParameterAPI imrParam = (ParameterAPI)imr.getIntensityMeasure().clone();
+
+                ParameterAPI imParam = (ParameterAPI)attenRel.getIntensityMeasure().clone();
 
                 String xAxisName = xAxisParam.getName();
-                String imrName = imrParam.getName();
+                String imName = imParam.getName();
 
 
-                if(  xAxisName.equalsIgnoreCase(imrName) && xAxisParam instanceof WarningDoubleParameter){
+                if(  xAxisName.equalsIgnoreCase(imName) && xAxisParam instanceof WarningDoubleParameter){
 
                     WarningDoubleParameter warnParam = (WarningDoubleParameter)xAxisParam;
                     TranslatedWarningDoubleParameter transParam = new TranslatedWarningDoubleParameter(warnParam);
@@ -666,7 +689,7 @@ public class AttenuationRelationshipGuiBean
         MinMaxDelta minmaxdelta ){
 
         // Fetch the independent variable selected in the x-axis choice
-        ParameterAPI independentParam = imr.getParameter( xAxisParam.getName() );
+        ParameterAPI independentParam = attenRel.getParameter( xAxisParam.getName() );
         Object oldVal = independentParam.getValue();
 
         double val = minmaxdelta.min;
@@ -732,7 +755,7 @@ public class AttenuationRelationshipGuiBean
         MinMaxDelta minmaxdelta ){
 
         // Fetch the independent variable selected in the x-axis choice
-        ParameterAPI independentParam = imr.getParameter( xAxisParam.getName() );
+        ParameterAPI independentParam = attenRel.getParameter( xAxisParam.getName() );
         Object oldVal = independentParam.getValue();
 
         double val = minmaxdelta.min;
@@ -791,22 +814,22 @@ public class AttenuationRelationshipGuiBean
      *
      * @param  type  1 for mean, 2 for std. dev. and 3 for exceedence
      *      probability
-     * @return       The attenuation relationship calculation
+     * @return       The attenRel calculation
      */
     private double getCalculation( int type ) {
         double result =  0.0;
         switch ( type ) {
             case MEAN:
-                result = Math.exp( imr.getMean() );
+                result = Math.exp( attenRel.getMean() );
                 break;
             case EXCEED_PROB:
-                result = imr.getExceedProbability();
+                result = attenRel.getExceedProbability();
                 break;
             case STD_DEV:
-                result = imr.getStdDev();
+                result = attenRel.getStdDev();
                 break;
             case IML_AT_EXCEED_PROB :
-                result = Math.exp(imr.getIML_AtExceedProb());
+                result = Math.exp(attenRel.getIML_AtExceedProb());
                 break;
         }
         return result;
@@ -889,14 +912,14 @@ public class AttenuationRelationshipGuiBean
         String S = C + ": initControlsParamListAndEditor(): ";
         if ( D ) System.out.println( S + "Starting:" );
 
-        if ( imr == null )
-            throw new ParameterException( S + "AttenuationRelationship is null, unable to continue." );
+        if ( attenRel == null )
+            throw new ParameterException( S + "Imr is null, unable to continue." );
         if ( applet == null )
             throw new ParameterException( S + "Applet is null, unable to continue." );
 
         // Get required iterators to build constraints
-        ListIterator supportedIntensityMeasureIterator = imr.getSupportedIntensityMeasuresIterator();
-        ListIterator meanIndependentParamsIterator = imr.getMeanIndependentParamsIterator();
+        ListIterator supportedIntensityMeasureIterator = attenRel.getSupportedIntensityMeasuresIterator();
+        ListIterator meanIndependentParamsIterator = attenRel.getMeanIndependentParamsIterator();
 
         // Make a Y-Axis picklist Parameter. Y-Axis possible choices
         // Selected is the Y_AXIS_V1
@@ -977,19 +1000,19 @@ public class AttenuationRelationshipGuiBean
         controlsEditor = new ParameterListEditor( controlsParamList);
         controlsEditor.setTitle( "Graph Controls" );
 
-        // update the im choice in the attenuationRelationship
-        imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
+        // update the im choice in the attenRel
+        attenRel.setIntensityMeasure( getGraphControlsParamValue( IM ) );
 
         // All done
         if ( D )
-            System.out.println( S + "Ending: Created attenuation relationship parameter change listener " );
+            System.out.println( S + "Ending: Created attenRel parameter change listener " );
 
     }
 
 
     /**
-     *  This function gets the independent paramaters lists from the attenuation relationship
-     *  and then creates the list editor. These editors know what type of Gui
+     *  This function gets the independent paramaters lists from the AttenRel and
+     *  then creates the list editor. These editors know what type of Gui
      *  element to present in the list based on the data type of each paramater.
      *  There is a default location where it looks for these editor classes if
      *  it cannot be found there it will look in the special editors package
@@ -1004,13 +1027,13 @@ public class AttenuationRelationshipGuiBean
         // Starting
         String S = C + ": initIndependentParamEditor(): ";
         if ( D ) System.out.println( S + "Starting:" );
-        if ( imr == null ) throw new ParameterException( S + "AttenuationRelationship is null, unable to init independent parameters." );
+        if ( attenRel == null ) throw new ParameterException( S + "Imr is null, unable to init independent parameters." );
 
         // Initialize the parameter list
         independentParams = new ParameterList();
 
         // Add mean parameters
-        ListIterator it = imr.getMeanIndependentParamsIterator();
+        ListIterator it = attenRel.getMeanIndependentParamsIterator();
         while ( it.hasNext() ) {
             ParameterAPI param = ( ParameterAPI ) it.next();
             param.addParameterChangeListener(this);
@@ -1021,7 +1044,7 @@ public class AttenuationRelationshipGuiBean
         }
 
         // Add std parameters
-        it = imr.getStdDevIndependentParamsIterator();
+        it = attenRel.getStdDevIndependentParamsIterator();
         while ( it.hasNext() ) {
             ParameterAPI param = ( DependentParameterAPI ) it.next();
             param.addParameterChangeListener(this);
@@ -1032,7 +1055,7 @@ public class AttenuationRelationshipGuiBean
         }
 
         // Add additional exceedence probability parameters
-        it = imr.getExceedProbIndependentParamsIterator();
+        it = attenRel.getExceedProbIndependentParamsIterator();
         while ( it.hasNext() ) {
             ParameterAPI param = ( DependentParameterAPI ) it.next();
             param.addParameterChangeListener(this);
@@ -1043,7 +1066,7 @@ public class AttenuationRelationshipGuiBean
         }
 
         // Add IML at exceedence probability parameters
-        it = imr.getIML_AtExceedProbIndependentParamsIterator();
+        it = attenRel.getIML_AtExceedProbIndependentParamsIterator();
         while ( it.hasNext() ) {
             ParameterAPI param = ( DependentParameterAPI ) it.next();
             param.addParameterChangeListener(this);
@@ -1053,8 +1076,8 @@ public class AttenuationRelationshipGuiBean
 
         }
 
-        // Add IM parameters and their independent parameters
-        it = imr.getSupportedIntensityMeasuresIterator();
+        // Add im parameters and their independent parameters
+        it = attenRel.getSupportedIntensityMeasuresIterator();
         while ( it.hasNext() ) {
             DependentParameterAPI param = ( DependentParameterAPI ) it.next();
             param.addParameterChangeListener(this);
@@ -1063,7 +1086,7 @@ public class AttenuationRelationshipGuiBean
             if ( !( independentParams.containsParameter( param.getName() ) ) ){
 
                 /** @todo Log Translated Params goes here */
-                if( translateIMR && ( param instanceof WarningDoubleParameter) ){
+                if( translateAttenRel && ( param instanceof WarningDoubleParameter) ){
                     TranslatedWarningDoubleParameter transParam =
                         new TranslatedWarningDoubleParameter( (WarningDoubleParameter)param);
                     independentParams.addParameter( transParam );
@@ -1086,7 +1109,7 @@ public class AttenuationRelationshipGuiBean
 
         // Add supported IM parameters to independentparameter list,
         // used for setting iml in the im. Modifies exceedence calculation
-        // it = imr.getSupportedIntensityMeasureIterator();
+        // it = attenRel.getSupportedIntensityMeasureIterator();
         // while(it.hasNext() ){ list.addParameter( (ParameterAPI)it.next() ); }
 
         // Build package names search path
@@ -1100,7 +1123,7 @@ public class AttenuationRelationshipGuiBean
 
         // All done
         if ( D )
-            System.out.println( S + "Ending: Created attenuation relationship parameter change listener " );
+            System.out.println( S + "Ending: Created attenRel parameter change listener " );
 
     }
 
@@ -1114,7 +1137,7 @@ public class AttenuationRelationshipGuiBean
      */
     protected void synchRequiredVisibleParameters() throws ParameterException {
 
-        String S = C + ": synchRequiredVisibleParameters():";
+        String S = C + ": getGraphIMYAxisLabel():";
         if ( D )
             System.out.println( S + ":Starting:" );
 
@@ -1127,11 +1150,13 @@ public class AttenuationRelationshipGuiBean
         if ( D ) System.out.println( S + ":Y-Axis: " + yAxisName );
         if ( D ) System.out.println( S + ":IM Name: " + imName );
 
-        // Can't do anything if we don't have an attenuation relationship
-        if ( imr == null )
-            throw new ParameterException( S + "attenuationRelationship is null, unable to continue." );
+        // Can't do anything if we don't have an im relationship
+        if ( attenRel == null )
+            throw new ParameterException( S + "Imr is null, unable to continue." );
 
         // Turn off all parameters - start fresh, then make visible as required below
+        // SWR - Looks like a bug here in setParameterVisible() - don't want to fix right now, the boolean
+        // below should be true, not false.
         ListIterator it = this.independentParams.getParametersIterator();
         while ( it.hasNext() )
             independentsEditor.setParameterVisible( ( ( ParameterAPI ) it.next() ).getName(), false );
@@ -1139,20 +1164,20 @@ public class AttenuationRelationshipGuiBean
         DependentParameterAPI imParam = null;
 
         // Add im parameters independent parameters to list
-        imParam = ( DependentParameterAPI ) imr.getParameter( imName );
+        imParam = ( DependentParameterAPI ) attenRel.getParameter( imName );
         ListIterator imIt = imParam.getIndependentParametersIterator();
         setParamsInIteratorVisible( imIt );
 
         // Determine which y-axis function was choosen - then add it's required parameters
         if ( yAxisName.equals( Y_AXIS_V1 ) )
            //if mean is selected
-            setParamsInIteratorVisible( imr.getMeanIndependentParamsIterator() );
+            setParamsInIteratorVisible( attenRel.getMeanIndependentParamsIterator() );
         else if ( yAxisName.equals( Y_AXIS_V2 ) )
             // if std dev is selected
-            setParamsInIteratorVisible( imr.getStdDevIndependentParamsIterator() );
+            setParamsInIteratorVisible( attenRel.getStdDevIndependentParamsIterator() );
         else if ( yAxisName.equals( Y_AXIS_V3 ) ) {
            //if exceed Prob is selected
-            setParamsInIteratorVisible( imr.getExceedProbIndependentParamsIterator() );
+            setParamsInIteratorVisible( attenRel.getExceedProbIndependentParamsIterator() );
 
             // Hardcoded for special values
             ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
@@ -1163,7 +1188,7 @@ public class AttenuationRelationshipGuiBean
         }
         // if IML at Exceed Prob is selected
         else if ( yAxisName.equals( Y_AXIS_V4 ) ) {
-            setParamsInIteratorVisible( imr.getIML_AtExceedProbIndependentParamsIterator());
+            setParamsInIteratorVisible( attenRel.getIML_AtExceedProbIndependentParamsIterator());
             // Hardcoded for special values
             ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
             if( paramEditor != null ){
@@ -1183,11 +1208,11 @@ public class AttenuationRelationshipGuiBean
         StringConstraint xAxisConstraint = new StringConstraint();
 
         xAxisConstraint = addToXAxisConstraint(
-                imr.getMeanIndependentParamsIterator(), xAxisConstraint
+                attenRel.getMeanIndependentParamsIterator(), xAxisConstraint
                  );
 
         xAxisConstraint = addToXAxisConstraint(
-                imr.getStdDevIndependentParamsIterator(), xAxisConstraint
+                attenRel.getStdDevIndependentParamsIterator(), xAxisConstraint
                  );
         xAxisConstraint = addToXAxisConstraint(
                 imParam.getIndependentParametersIterator(), xAxisConstraint
@@ -1308,12 +1333,12 @@ public class AttenuationRelationshipGuiBean
 
     }
 
-    public void setTranslateIMR(boolean translateIMR) {
-        this.translateIMR = translateIMR;
+    public void setTranslateAttenRel(boolean translateAttenRel) {
+        this.translateAttenRel = translateAttenRel;
     }
 
-    public boolean isTranslateIMR() {
-        return translateIMR;
+    public boolean isTranslateAttenRel() {
+        return translateAttenRel;
     }
 
 
