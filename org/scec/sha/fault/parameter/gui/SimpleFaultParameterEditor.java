@@ -49,16 +49,11 @@ public class SimpleFaultParameterEditor extends ParameterEditor
   public static final String LON_PARAM_NAME = "Lon-";
   public static final String LAT_PARAM_NAME = "Lat-";
 
-
-
   //Default Values for the param
   public static final int DEFAULT_NUM_FAULT_TRACE =3;
   public static final int DEFAULT_DIPS =1;
   public static final int latlonCols = 2;
   public static final double DEFAULT_GRID_SPACING = 2.0;
-
-
-
 
   // title of Parameter List Editor
   public static final String SIMPLE_FAULT_EDITOR_TITLE = new String("Simple Fault Editor");
@@ -129,8 +124,6 @@ public class SimpleFaultParameterEditor extends ParameterEditor
    */
   ParameterList parameterListForDepths ;
 
-
-
   /**
    * ParameterListEditor for holding parameters
    */
@@ -165,6 +158,12 @@ public class SimpleFaultParameterEditor extends ParameterEditor
    * StringParameter for the Fault type
    */
   ConstrainedStringParameterEditor faultTypeEditor;
+
+  //vectors to store the previous values for the lats, lons,dips and depths
+  Vector prevLats = new Vector();
+  Vector prevLons = new Vector();
+  Vector prevDepths = new Vector();
+  Vector prevDips = new Vector();
 
   public SimpleFaultParameterEditor() {
     button.addActionListener(this);
@@ -295,7 +294,8 @@ public class SimpleFaultParameterEditor extends ParameterEditor
   /**
    * Sets the Lat and Lon for the faultTrace
    */
-  public void setLatLon(){
+  private void setLatLon(){
+    System.out.println("Set Lat Lon called");
     int numFltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
     DoubleParameter[] lat = new DoubleParameter[numFltTracePoints];
     DoubleParameter[] lon = new DoubleParameter[numFltTracePoints];
@@ -306,18 +306,25 @@ public class SimpleFaultParameterEditor extends ParameterEditor
 
     //creating the editor for the lons
     for(int i=0;i<numFltTracePoints;++i){
-      lat[i] = new DoubleParameter(this.LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees", new Double(37.00));
-        this.parameterListForLats.addParameter(lat[i]);
-        lat[i].addParameterChangeListener(this);
+      System.out.println("i: "+i +"; Lat size: "+prevLats.size());
+      //checks if any value exists in the vector for that lats parameter else just fill it up with a blank.
+      if(prevLats.size()<(i+1))
+        lat[i] = new DoubleParameter(LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees");
+      else
+        lat[i] = new DoubleParameter(LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees", (Double)prevLats.get(i));
+      this.parameterListForLats.addParameter(lat[i]);
+      lat[i].addParameterChangeListener(this);
     }
     editorForLats = new ParameterListEditor(parameterListForLats,searchPaths);
     editorForLats.setTitle(this.LAT_EDITOR_TITLE);
 
-
-
     //creating the editor for the Lons
     for(int i=0;i<numFltTracePoints;++i){
-      lon[i] = new DoubleParameter(this.LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees", new Double(-112.00));
+      //checks if any value exists in the vector for that lons parameter else just fill it up with a blank.
+      if(prevLons.size() < (i+1))
+        lon[i] = new DoubleParameter(this.LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees");
+      else
+        lon[i] = new DoubleParameter(this.LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees",(Double)prevLons.get(i));
       lon[i].addParameterChangeListener(this);
       this.parameterListForLons.addParameter(lon[i]);
     }
@@ -331,10 +338,35 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     editorForLons.repaint();
   }
 
+
+  /**
+   * Method to set the values of the Latitudes
+   * @param lats: Vector of Latitudes
+   */
+  public void setLatitudes(Vector lats){
+    int numFltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
+    for(int i=0;i<numFltTracePoints;++i)
+      this.parameterListForLats.getParameter(LAT_PARAM_NAME+(i+1)).setValue(lats.get(i));
+
+  }
+
+  /**
+   * Method to set the values of the Longitudes
+   * @param lons: Vector of Longitudes
+   */
+  public void setLongitudes(Vector lons){
+    int numFltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
+    for(int i=0;i<numFltTracePoints;++i)
+      this.parameterListForLons.getParameter(LON_PARAM_NAME+(i+1)).setValue(lons.get(i));
+
+  }
+
+
+
   /**
    *Sets the Dip
    */
-  public void setDips(){
+  private void setDips(){
     int numDips = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue();
 
     DoubleParameter[] dip = new DoubleParameter[numDips];
@@ -342,7 +374,11 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     //making the parameterList for the Dips
     this.parameterListForDips = new ParameterList();
     for(int i=0;i<numDips;++i){
-      dip[i] = new DoubleParameter(DIP_PARAM_NAME+(i+1),0.0,90.0,"Degrees",new Double(0.0));
+      //checks if any value exists in the vector for that dips parameter else just fill it up with a blank.
+      if(prevDips.size() < (i+1))
+        dip[i] = new DoubleParameter(DIP_PARAM_NAME+(i+1),0.0,90.0,"Degrees");
+      else
+        dip[i] = new DoubleParameter(DIP_PARAM_NAME+(i+1),0.0,90.0,"Degrees",(Double)prevDips.get(i));
       dip[i].addParameterChangeListener(this);
       this.parameterListForDips.addParameter(dip[i]);
     }
@@ -353,10 +389,23 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     editorForDips.repaint();
   }
 
+
+  /**
+   * Method to set the values of the Dips
+   * @param dips: Vector of dips
+   */
+  public void setDips(Vector dips){
+    int numDips = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue();
+    for(int i=0;i<numDips;++i)
+      this.parameterListForDips.getParameter(DIP_PARAM_NAME+(i+1)).setValue(dips.get(i));
+  }
+
+
+
   /**
    * Sets the Depths
    */
-  public void setDepths(){
+  private void setDepths(){
     int numDepths = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue()+1;
     DoubleParameter[] depth = new DoubleParameter[numDepths];
 
@@ -364,7 +413,11 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     this.parameterListForDepths = new ParameterList();
 
     for(int i=0;i<numDepths;++i){
-      depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms", new Double(0.0));
+      //checks if any value exists in the vector for that Depth parameter else just fill it up with a blank.
+      if(prevDepths.size() < (i+1))
+        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms");
+      else
+        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms",(Double)prevDepths.get(i));
       depth[i].addParameterChangeListener(this);
       this.parameterListForDepths.addParameter(depth[i]);
     }
@@ -374,6 +427,18 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     editorForDepths.revalidate();
     editorForDepths.repaint();
   }
+
+  /**
+   * Method to set the values of the Depths
+   * @param depths: Vector of depths
+   */
+  public void setDepths(Vector depths){
+    int numDepths = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue()+1;
+    for(int i=0;i<numDepths;++i)
+      this.parameterListForDepths.getParameter(DEPTH_PARAM_NAME+(i+1)).setValue(depths.get(i));
+  }
+
+
 
   /**
    * sets the Fault Name
@@ -404,7 +469,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
    * @param value
    */
   public void setNumDips(int value){
-    this.parameterList.getParameter(this.NUM_DIPS).setValue(new Integer(value));
+    this.numDipsEditor.getParameter().setValue(new Integer(value));
   }
 
 
@@ -458,12 +523,28 @@ public class SimpleFaultParameterEditor extends ParameterEditor
      * If the changed parameter is the number of the fault trace param
      */
     if(name1.equalsIgnoreCase(this.NUMBER_OF_FAULT_TRACE)){
+      prevLats.removeAllElements();
+      prevLons.removeAllElements();
       //System.out.println("Inside the Fault Trace param change");
+      ListIterator it = editorForLats.getParameterList().getParametersIterator();
+      //saving the previous lat values in the vector
+      while(it.hasNext()){
+        ParameterAPI param = (ParameterAPI)it.next();
+        if(param.getValue()!=null)
+          prevLats.add(param.getValue());
+      }
+      //saving the previous lon values in the vector
+      it = editorForLons.getParameterList().getParametersIterator();
+      while(it.hasNext()){
+        ParameterAPI param = (ParameterAPI)it.next();
+        if(param.getValue()!=null)
+          prevLons.add(param.getValue());
+      }
 
       //removing the lats and Lons editor from the Applet
       remove(editorForLats);
       remove(editorForLons);
-
+      System.out.println("Calling the set LAt lon from Parameter change");
       //if the user has changed the values for the Number of the fault trace
       this.setLatLon();
 
@@ -483,11 +564,29 @@ public class SimpleFaultParameterEditor extends ParameterEditor
      */
     if(name1.equalsIgnoreCase(this.NUM_DIPS)) {
       //System.out.println("Inside the Num dips param change");
+      prevDips.removeAllElements();
+      prevDepths.removeAllElements();
+      ListIterator it = editorForDips.getParameterList().getParametersIterator();
+      //saving the previous Dip values in the vector
+      while(it.hasNext()){
+        ParameterAPI param = (ParameterAPI)it.next();
+        if(param.getValue()!=null)
+          prevDips.add(param.getValue());
+      }
+
+      //saving the previous Depths values in the vector
+      it = editorForDepths.getParameterList().getParametersIterator();
+      while(it.hasNext()){
+        ParameterAPI param = (ParameterAPI)it.next();
+        if(param.getValue()!=null)
+          prevDepths.add(param.getValue());
+      }
+
       //removing the dips and depth editor from the applet
       remove(editorForDips);
       remove(editorForDepths);
-      this.setDips();
-      this.setDepths();
+      setDips();
+      setDepths();
 
       //Adding the dips and depth editor to the parameter editor
       add(this.editorForDips,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0

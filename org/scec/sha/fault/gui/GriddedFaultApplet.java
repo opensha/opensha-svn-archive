@@ -113,6 +113,9 @@ public class GriddedFaultApplet
     SimpleFaultParameterGUI customFault;
     SimpleFaultParameter faultParam;
 
+    //flag to check if we need to create a new instance of the SimpleFaultEditor
+    static boolean createSimpleFault = true;
+
     protected int currentControlsBar = A1;
     protected int currentMainBar = A2;
 
@@ -243,6 +246,13 @@ public class GriddedFaultApplet
      *  Construct the applet
      */
     public GriddedFaultApplet() { }
+
+
+    //gives the system look and feel to the Application
+    static {
+        try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }
+        catch ( Exception e ) {}
+    }
 
 
     /**
@@ -595,9 +605,9 @@ public class GriddedFaultApplet
         // Add points data to text area, people can see
         plotter.setLightweight(false);
 
-        boolean customFault = false; //whether listric fault is selected or not
+        boolean custom = false; //whether listric fault is selected or not
         if(((String)customFrankelComboBox.getSelectedItem()).equalsIgnoreCase(this.CUSTOM_FAULT))
-          customFault = true;
+          custom = true;
 
         if(!this.isCustomFault) // if it is Frankel 1996 fault
           this.currentGriddedSurfaceName = faultComboBox.getSelectedItem().toString();
@@ -1807,17 +1817,43 @@ public class GriddedFaultApplet
       this.faultLabel.setVisible(false);
       this.frankel_StirlingLabel.setVisible(false);
       this.allFaultsRadioButton.setVisible(false);
-      // custom simple fault
-      //creating an object for the Simple Fault Parameter
-      faultParam = new SimpleFaultParameter(this.SIMPLE_FAULT_PARAM_NAME);
-      //GUI for the simpleFaultParameter that contains the parameter settings
-      customFault = new SimpleFaultParameterGUI(faultParam);
-      customFault.getSimpleParameterFaultEditor().setFaultNameVisible(true);
+      //creates the SimpleFaultEditor only once
+      if(createSimpleFault){
+        // custom simple fault
+        //creating an object for the Simple Fault Parameter
+        faultParam = new SimpleFaultParameter(this.SIMPLE_FAULT_PARAM_NAME);
+        //GUI for the simpleFaultParameter that contains the parameter settings
+        customFault = new SimpleFaultParameterGUI(faultParam);
+        SimpleFaultParameterEditor customFaultEditor = customFault.getSimpleParameterFaultEditor();
+        customFaultEditor.setFaultNameVisible(true);
+        customFaultEditor.setGridSpacing(1.0);
+        customFaultEditor.setFaultName("Fault-1");
+        customFaultEditor.setNumFaultTracePoints(2);
+        Vector lats = new Vector();
+        lats.add(new Double(38.22480));
+        lats.add(new Double(38.00));
+        Vector lons = new Vector();
+        lons.add(new Double(-122.0));
+        lons.add(new Double(-122.0));
+        customFaultEditor.setNumDips(1);
+        Vector dips = new Vector();
+        dips.add(new Double(90));
+        Vector depths = new Vector();
+        depths.add(new Double(0));
+        depths.add(new Double(10));
+        System.out.println("Calling Set Lat Lon from Gridded Applet ");
+        customFaultEditor.setLatitudes(lats);
+        customFaultEditor.setLongitudes(lons);
+        customFaultEditor.setDepths(depths);
+        customFaultEditor.setDips(dips);
+        customFaultEditor.synchToModel();
+        createSimpleFault = false;
+      }
       customFault.show();
       customFault.pack();
       this.isCustomFault = true;
-      //this.currentGriddedSurfaceName="";
-    } else {
+    }
+    else {
       // put the Frankel 1996 Faults
       this.faultComboBox.setVisible(true);
       this.faultLabel.setVisible(true);
