@@ -137,17 +137,20 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    ParameterList parameterList = new ParameterList();
    parameterList.addParameter(chooseERF_Param);
 
-
    int numSources = erf.getNumSources();
-   IntegerParameter sourceParam = new IntegerParameter(SOURCE_PARAM_NAME,
-       0,numSources-1,new Integer(sourceIndex));
+   Vector sourcesVector = new Vector();
 
+   for(int i=0;i<numSources;++i)
+     sourcesVector.add(i+" ( "+erf.getSource(i).getName()+" )");
+
+   StringParameter sourceParam = new StringParameter(SOURCE_PARAM_NAME,sourcesVector,(String)sourcesVector.get(0));
 
    sourceParam.addParameterChangeListener(this);
    parameterList.addParameter(sourceParam);
 
    //add parameter for selecting the rupture for selected source index
-   int numRuptures = erf.getNumRuptures(((Integer)sourceParam.getValue()).intValue());
+   int sourceValue = Integer.parseInt((((String)sourceParam.getValue()).substring(0,((String)sourceParam.getValue()).indexOf("("))).trim());
+   int numRuptures = erf.getNumRuptures(sourceValue);
    IntegerParameter ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,
        0,numRuptures-1,new Integer(ruptureIndex));
    ruptureParam.addParameterChangeListener(this);
@@ -156,7 +159,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    //getting the surface of the rupture
    Vector v = new  Vector();
    int ruptureValue = ((Integer)ruptureParam.getValue()).intValue();
-   int sourceValue = ((Integer)sourceParam.getValue()).intValue();
+
    probEqkRupture = erf.getRupture(sourceValue,ruptureValue);
    // The first row of all the rupture surfaces is the list of their hypocenter locations
    ListIterator hypoLocationsIt = probEqkRupture.getRuptureSurface().getColumnIterator(0);

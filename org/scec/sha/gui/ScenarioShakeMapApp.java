@@ -163,7 +163,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
       }catch(RuntimeException e){
       JOptionPane.showMessageDialog(this,"Connection to ERF's failed","Internet Connection Problem",
                                     JOptionPane.OK_OPTION);
-      System.exit(0);
+      return;
       }
 
     this.initImlProb_GuiBean();
@@ -336,13 +336,13 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
      // create the ERF Gui Bean object
    Vector erf_Classes = new Vector();
 
+   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
+   erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
    try{
