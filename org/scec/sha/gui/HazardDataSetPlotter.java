@@ -430,8 +430,8 @@ public class HazardDataSetPlotter extends JApplet
       data.setYLog(yLog);
       //functions.setYAxisName( attenRel.getGraphIMYAxisLabel() );
       //functions.setXAxisName( attenRel.getGraphXAxisLabel() );
-      if( !functions.contains( function ) )
-        functions.add(function);
+      //if( !functions.contains( function ) )
+      functions.add(function);
       addGraphPanel();
       if ( D ) System.out.println( S + "Ending" );
 
