@@ -2,7 +2,7 @@
 -------------------------------------------------------------
 
 
-Send email to JFreeChart asking whether they would adopt our better looking labeling for log plots.  Also look for any other potential issues such as the treatment of negative values.
+For JFreeChart, make a stand-alone jar file for the LogPlotTesterApp with our old and their new version.  Nitin and Ned will evaluate this together.  In the meantime revert back to our old version.  Later. send email to JFreeChart asking whether they would adopt our better looking labeling for log plots.
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out.
 
