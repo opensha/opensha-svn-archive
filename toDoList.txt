@@ -7,25 +7,22 @@ Ned also needs to document WG02_EqkRupForecast (Java docs).
 
 AttenautionRelationshipApp:
 
-	Black Background checkbox doesn't work - remove if fix is non trivial
+	Add peel-off feature
 
-	X & Y axis labels are reversed
+	Change "Add Trace" to "Add Curve"
 
-	Show data does not have any data shown.
+	Custom data points:
 
-	One can't plot more than one curve
+		Change button name from "Add new data" to "Add Data Points"
 
-	If you plot a line for SA, then change to symbols (click Apply), and
-	then go to plot PGA, it will use a line with a size of 4 (rather than 1).
+		Change default color to black
 
-	Look for other bugs.
+		Make sure it throws a sensible exception and popup window if bogus data added
+		(e.g., if y-value missing or something line "1.0p" is entered)
 
-	Add a button that allows user to add custom data points (and an info-metadata
-	string to show in the legend).  The default plotting of these is set as symbols
-	(if possible). Keep that last set of entries in the popup window for convenience 
-	(e.g., for when plot was erased by switching from PGA to SA)
+		Ned will play around with it after these things done.
 
-Change app names as follows (on our web site too):
+Change app names as follows (on our web site):
 
 	HazardDataSetPlotter --> PlotCurveFromHazardDataSetApp
 	HazardMapApplet --> HazardDataSetCalcCondorApp
@@ -46,8 +43,6 @@ EarthquakeRuptureGuiBean:
 
 combine TimeSpanGuiBean with ERF_GuiBean & validate.  Make sure the timeSpan elements are distinguishable from the ERF adjustable parameters.
 
-Add ability to add custom, observed data points to the AttenuationRelationshipApp.  Ned will explain how when ready.
-
 Implement color schemes at (including option for the visually impaired):
 
 	http://geography.uoregon.edu/datagraphics/color_scales.htm
@@ -60,7 +55,7 @@ add site translation for SEA_1999_AttenRel
 
 Set up registration for HazMapDataGenerator - Phil has good ideas about this.
 
-Get JBuilder-2005.
+Install JBuilder-2005.
 
 Make sure that averages over probabilities are not log averages (Nitin will change ScenarioShakeMapCalculator & Ned will change USGS_Combined Atten. Rel. accordingly).
 
