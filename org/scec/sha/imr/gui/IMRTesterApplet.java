@@ -1249,10 +1249,12 @@ public class IMRTesterApplet
         /** @todo may have to be switched when different x/y axis choosen */
         if ( !functions.isFunctionAllowed( function ) ) {
             functions.clear();
+            data.prepForXLog();
         }
         if( !functions.contains( function ) ){
             if ( D ) System.out.println( S + "Adding new function" );
             functions.add(function);
+            data.prepForXLog();
         }
         else {
 

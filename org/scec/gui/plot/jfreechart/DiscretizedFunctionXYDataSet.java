@@ -43,7 +43,11 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
     public void setYLog(boolean yLog) { if( yLog != this.yLog ) { this.yLog = yLog; } }
 
     public boolean isXLog() { return xLog; }
-    public void setXLog(boolean xLog) { if( xLog != this.xLog ) { this.xLog = xLog; } }
+    public void setXLog(boolean xLog) {
+        if( xLog != this.xLog ) { this.xLog = xLog; }
+
+
+    }
 
 
     /**
@@ -56,7 +60,7 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
      */
     protected Vector listeners = new Vector();
 
-
+    protected LinkedList xLogs = new LinkedList();
 
 
     /**
@@ -124,6 +128,9 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         if ( series < functions.size() ) {
             DiscretizedFuncAPI f = functions.get( series );
             num = f.getNum();
+
+            if( this.xLog && ((Boolean)xLogs.get(series)).booleanValue() ) num -= 1;
+
         }
         return num;
     }
@@ -144,6 +151,8 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         if ( series < functions.size() ) {
             Object obj = functions.get( series );
             if( obj != null && obj instanceof DiscretizedFuncAPI){
+
+                if( this.xLog && ((Boolean)xLogs.get(series)).booleanValue() ) item += 1;
 
                 Double x = ( ( DiscretizedFuncAPI ) obj ).getX(item);
                 if( x != null ) {
@@ -169,6 +178,8 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         if ( series < functions.size() ) {
             Object obj = functions.get( series );
             if( obj != null && obj instanceof DiscretizedFuncAPI){
+
+                if( this.xLog && ((Boolean)xLogs.get(series)).booleanValue() ) item += 1;
 
                 Double y = ( ( DiscretizedFuncAPI ) obj ).getY(item);
                 if( y != null ) {
@@ -259,7 +270,32 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         }
     }
 
+    public void prepForXLog(){
+        xLogs.clear();
+
+        ListIterator it = functions.listIterator();
+        int counter = 0;
+        while( it.hasNext() ){
+
+            boolean isZero = false;
+
+            DiscretizedFuncAPI f = (DiscretizedFuncAPI)it.next();
+            Double firstX = f.getX(0);
+            if( firstX == null ) isZero = false;
+            else if( firstX.doubleValue() == 0 ) isZero = true;
+
+            Boolean isZeroB = new Boolean( isZero );
+            xLogs.add(isZeroB);
+            counter++;
+
+        }
+
+    }
+
     public DiscretizedFuncList getFunctions() { return functions; }
-    public void setFunctions(DiscretizedFuncList functions) { this.functions = functions; }
+    public void setFunctions(DiscretizedFuncList functions) {
+        this.functions = functions;
+        prepForXLog();
+    }
 
 }
