@@ -2,6 +2,7 @@ package org.scec.sha.gui.infoTools;
 
 import java.io.*;
 import sun.net.smtp.SmtpClient;
+import org.scec.util.MailUtil;
 
 /**
  * <p>Title: HazardMapCalcPostProcessing.java </p>
@@ -40,29 +41,15 @@ public class HazardMapCalcPostProcessing {
       int actualFiles = Integer.parseInt(reader.readLine().trim());
       reader.close();
       file.close();
-
-      // Create a new instance of SmtpClient. Here we assume that
-      // the local host machine is the SMTP server
-      SmtpClient smtp = new SmtpClient(HOST);
-      // Sets the originating e-mail address
-      smtp.from(FROM);
-      // Sets the recipients' e-mail address
-      smtp.to(emailAddr);
-      // Create an output stream to the connection
-      PrintStream msg = smtp.startMessage();
-      msg.println("To: " + emailAddr); // so mailers will display the recipient's e-mail address
-      msg.println("From: " + FROM); // so that mailers will display the sender's e-mail address
-      msg.println("Subject: Grid Job Status \n");
-      msg.println("THIS IS A AUTOMATED GENERATED EMAIL. PLEASE DO NOT REPLY BACK TO THIS ADDRESS.\n\n\n"+
+      String mailSubject = "Grid Job Status";
+      String mailMessage = "THIS IS A AUTOMATED GENERATED EMAIL. PLEASE DO NOT REPLY BACK TO THIS ADDRESS.\n\n\n"+
                   "Grid Computation complete\n"+
                   "Expected Num of Files="+expectedNumOfFiles+"\n"+
                   "Files Generated="+actualFiles+"\n"+
                   "Dataset Id="+datasetId+"\n"+
                   "Simulation Start Time="+startTime+"\n"+
-                  "Simulation End Time="+java.util.Calendar.getInstance().getTime().toString().replaceAll(" ","_"));
-
-      // Close the connection to the SMTP server and send the message out to the recipient
-      smtp.closeServer();
+                  "Simulation End Time="+java.util.Calendar.getInstance().getTime().toString().replaceAll(" ","_");
+      MailUtil.sendMail(HOST, FROM, emailAddr, mailSubject, mailMessage);
     }
     catch (Exception e) {
       e.printStackTrace();
