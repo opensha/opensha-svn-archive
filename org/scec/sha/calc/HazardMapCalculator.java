@@ -71,11 +71,7 @@ public class HazardMapCalculator {
    * @return
    */
   public void getHazardMapCurves(DiscretizedFuncAPI hazFunction,
-/** @merge workspace: Changes in the Workspace */
                                  SitesInGriddedRegion sites, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
-/** @merge repository: Changes from the Repository
-                             Iterator it, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
-*/
 
     Site site;
     HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
