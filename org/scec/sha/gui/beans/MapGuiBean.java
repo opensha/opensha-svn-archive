@@ -148,11 +148,8 @@ public class MapGuiBean extends JPanel implements
     String imgName=null;
     if(this.gmtServerCheck.isSelected()){
       //imgName = openConnection(xyzVals);
-      gmtMap.makeMapUsingWebServer(xyzVals);
-      String[] fileName = new String[2];
-      fileName[0] = gmtMap.getGMT_FileName();
-      fileName[1] = gmtMap.getXYZ_FileName();
-      imgName=openWebServiceConnection(fileName);
+      imgName=gmtMap.makeMapUsingWebServer(xyzVals);
+      //imgName=openWebServiceConnection(fileName);
     }
     else{
       try{
@@ -249,32 +246,6 @@ public class MapGuiBean extends JPanel implements
     return imgURL;
   }
 
-
-
- //For the webservices Implementation
- private String openWebServiceConnection(String[] fileName){
-   int size=fileName.length;
-   String imgWebAddr=null;
-   FileDataSource[] fs = new FileDataSource[size+2];
-   DataHandler dh[] = new DataHandler[size+2];
-   System.out.println("File-0: "+fileName[0]);
-   fs[0] =new FileDataSource(fileName[0]);
-   dh[0] = new DataHandler(fs[0]);
-
-   System.out.println("File-1: "+fileName[1]);
-   fs[1] =new FileDataSource(fileName[1]);
-   dh[1] = new DataHandler(fs[1]);
-
-   GMT_WebService_Impl client = new GMT_WebService_Impl();
-   GMT_WebServiceAPI gmt = client.getGMT_WebServiceAPIPort();
-   try{
-     imgWebAddr = gmt.runGMT_Script(fileName,dh);
-     System.out.println("imgWebAddr: "+imgWebAddr);
-   }catch(Exception e){
-     e.printStackTrace();
-   }
-   return imgWebAddr;
- }
 
   /**
    *

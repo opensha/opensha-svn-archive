@@ -2,9 +2,11 @@ package org.scec.mapping.gmtWrapper;
 
 import java.io.*;
 import java.util.*;
+import javax.activation.*;
+
 import org.scec.param.*;
 import org.scec.data.XYZ_DataSetAPI;
-
+import org.scec.webservices.client.*;
 
 /**
  * <p>Title: GMT_MapGenerator</p>
@@ -25,11 +27,10 @@ public class GMT_MapGenerator implements Serializable{
   protected final static boolean D = true;
 
   // name of the file which contains all the GMT commands that we want to run on server
-  private final static String GMT_FILE_NAME = "gmt.txt";
+  private final static String GMT_FILE_NAME = "gmtScript.txt";
 
   private static final String XYZ_FILE_NAME ="xyz.txt";
 
-  private String xyzFileName =null;
   // PATH where the gmt commands and some others exist.
   public static String gmtPath = null;
 
@@ -124,6 +125,7 @@ public class GMT_MapGenerator implements Serializable{
   //image counter
   private static int imageCounter=0;
 
+  private String gmtFileName;
 
   protected ParameterList adjustableParams;
 
@@ -224,14 +226,12 @@ public class GMT_MapGenerator implements Serializable{
     FileWriter fw =null;
     BufferedWriter br=null;
 
-    //appends the time in milli seconds to the xyzFileName
-    xyzFileName = XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf(".txt"))+System.currentTimeMillis()+".txt";
     //creating the XYZ file from the XYZ dataSet
     try{
       //file follows the convention lat, lon and Z value
       if(xyzDataSet.checkXYZ_NumVals()){
         int size = xVals.size();
-        fw = new FileWriter(this.xyzFileName);
+        fw = new FileWriter(this.XYZ_FILE_NAME);
         br = new BufferedWriter(fw);
         for(int i=0;i<size;++i)
           br.write(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
@@ -245,9 +245,10 @@ public class GMT_MapGenerator implements Serializable{
 
     //writing the GMT script into the GMT Script file
     try {
-      fw = new FileWriter(this.GMT_FILE_NAME);
+      gmtFileName=GMT_FILE_NAME.substring(0,GMT_FILE_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+      fw = new FileWriter(gmtFileName);
       br = new BufferedWriter(fw);
-      String fileName=xyzFileName.substring(0,xyzFileName.indexOf("."));
+      String fileName=this.XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
       String out_ps = fileName + ".ps";
       out_jpg = fileName+"-"+imageCounter+ ".jpg";
 
@@ -264,22 +265,10 @@ public class GMT_MapGenerator implements Serializable{
     }
 
     //running the GMT script from the file
-    try{
-      String[] command ={"sh","-c"," "};
-      FileReader fr = new FileReader(this.GMT_FILE_NAME);
-      BufferedReader bf = new BufferedReader(fr);
-      command[2]=bf.readLine();
-      while(command[2] !=null){
-        RunScript.runScript(command);
-        command[2] = bf.readLine();
-      }
-    }catch(FileNotFoundException ee){
-      ee.printStackTrace();
-    }catch(IOException e){
-      e.printStackTrace();
-    }
-        ++imageCounter;
-        return out_jpg;
+    String[] command ={"sh","-c","sh "+gmtFileName};
+    RunScript.runScript(command);
+    ++imageCounter;
+    return out_jpg;
   }
 
   /**
@@ -295,14 +284,13 @@ public class GMT_MapGenerator implements Serializable{
     Vector xVals = xyzDataSet.getX_DataSet();
     Vector yVals = xyzDataSet.getY_DataSet();
     Vector zVals = xyzDataSet.getZ_DataSet();
-    //appends the time in milli seconds to the xyzFileName
-    xyzFileName = XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf(".txt"))+System.currentTimeMillis()+".txt";
+
     //creating the XYZ file from the XYZ dataSet
     try{
       //file follows the convention lon,lat and Z value
       if(xyzDataSet.checkXYZ_NumVals()){
         int size = yVals.size();
-        fw = new FileWriter(this.xyzFileName);
+        fw = new FileWriter(this.XYZ_FILE_NAME);
         br = new BufferedWriter(fw);
         for(int i=0;i<size;++i)
           br.write(yVals.get(i)+" "+xVals.get(i)+" "+zVals.get(i)+"\n");
@@ -316,9 +304,10 @@ public class GMT_MapGenerator implements Serializable{
 
     //writing the GMT commands to the file
     try{
-      fw = new FileWriter(this.GMT_FILE_NAME);
+      gmtFileName = GMT_FILE_NAME.substring(0,GMT_FILE_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+      fw = new FileWriter(gmtFileName);
       br = new BufferedWriter(fw);
-      String fileName=xyzFileName.substring(0,xyzFileName.indexOf("."));
+      String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
       String out_ps = fileName + ".ps";
       out_jpg = fileName+"-"+imageCounter+ ".jpg";
 
@@ -331,32 +320,21 @@ public class GMT_MapGenerator implements Serializable{
       // report to the user whether the operation was successful or not
       e.printStackTrace();
     }
+
     //running the GMT script from the file
-    try{
-      String[] command ={"sh","-c"," "};
-      FileReader fr = new FileReader(this.GMT_FILE_NAME);
-      BufferedReader bf = new BufferedReader(fr);
-      command[2]=bf.readLine();
-      while(command[2] !=null){
-        RunScript.runScript(command);
-        command[2] = bf.readLine();
-      }
-    }catch(FileNotFoundException ee){
-      ee.printStackTrace();
-    }catch(IOException e){
-      e.printStackTrace();
-    }
-        ++imageCounter;
-        return out_jpg;
+    String[] command ={"sh","-c","sh "+gmtFileName};
+    RunScript.runScript(command);
+    ++imageCounter;
+    return out_jpg;
   }
 
 
   /**
-   * this function generates GMT map using the GMT from the SCEC server
+   * this function generates GMT map using the GMT from the gravity server
    * It is a wrapper function around GMT tool
    * It acccepts the xyz dataset
    */
-  public void makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet){
+  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet){
 
     String GMT_PATH="/opt/install/gmt/bin/";
     FileWriter fw = null;
@@ -364,14 +342,13 @@ public class GMT_MapGenerator implements Serializable{
     Vector xVals = xyzDataSet.getX_DataSet();
     Vector yVals = xyzDataSet.getY_DataSet();
     Vector zVals = xyzDataSet.getZ_DataSet();
-    //appends the time in milli seconds to the xyzFileName for the webservice only
-    xyzFileName = XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf(".txt"))+System.currentTimeMillis()+".txt";
+
     //creating the XYZ file from the XYZ dataSet
     try{
       //file follows the convention lat, lon and Z value
       if(xyzDataSet.checkXYZ_NumVals()){
         int size = xVals.size();
-        fw = new FileWriter(xyzFileName);
+        fw = new FileWriter(XYZ_FILE_NAME);
         br = new BufferedWriter(fw);
         for(int i=0;i<size;++i)
           br.write(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
@@ -385,9 +362,10 @@ public class GMT_MapGenerator implements Serializable{
 
     //writing the GMT commands to the file
     try{
-      fw = new FileWriter(this.GMT_FILE_NAME);
+      gmtFileName = GMT_FILE_NAME.substring(0,GMT_FILE_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+      fw = new FileWriter(gmtFileName);
       br = new BufferedWriter(fw);
-      String fileName=xyzFileName.substring(0,xyzFileName.indexOf("."));
+      String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
       String out_ps = fileName + ".ps";
       out_jpg = fileName + ".jpg";
 
@@ -400,9 +378,15 @@ public class GMT_MapGenerator implements Serializable{
       // report to the user whether the operation was successful or not
       e.printStackTrace();
     }
+    //putting files in String array which are to be sent to the server as the attachment
+    String[] fileNames = new String[2];
+    //getting the GMT script file name
+    fileNames[0] = getGMT_FileName();
+    //getting the XYZ file Name
+    fileNames[1] = getXYZ_FileName();
+    String webAddr = this.openWebServiceConnection(fileNames);
+    return webAddr+out_jpg;
   }
-
-
 
   /**
    * This function serves as a common interface for the running GMT on standalone or
@@ -425,7 +409,7 @@ public class GMT_MapGenerator implements Serializable{
     String gmtCommandLine =null;
     if(D) System.out.println(C+" region = "+region);
     //all the files of the GMT will be created by this fileName
-    String fileName=xyzFileName.substring(0,xyzFileName.indexOf("."));
+    String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
 
     String grdFileName  = fileName+".grd";
     String out_ps = fileName + ".ps";
@@ -450,7 +434,7 @@ public class GMT_MapGenerator implements Serializable{
     String yOff = "-Y" + yOffset + "i";
 
     //command to be executed during the runtime.
-    gmtCommandLine =GMT_PATH+"xyz2grd "+ xyzFileName+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
+    gmtCommandLine =GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
     //RunScript.runScript(command);
     br.write(gmtCommandLine+"\n");
 
@@ -562,7 +546,7 @@ public class GMT_MapGenerator implements Serializable{
    * @returns the name of the GMT script file
    */
   public String getGMT_FileName(){
-    return this.GMT_FILE_NAME;
+    return this.gmtFileName;
   }
 
   /**
@@ -570,6 +554,32 @@ public class GMT_MapGenerator implements Serializable{
    * @returns the name of the XYZ file
    */
   public String getXYZ_FileName(){
-    return this.xyzFileName;
+    return this.XYZ_FILE_NAME;
+  }
+
+  //For the webservices Implementation
+  private String openWebServiceConnection(String[] fileName){
+    int size=fileName.length;
+    String imgWebAddr=null;
+    FileDataSource[] fs = new FileDataSource[size+2];
+    DataHandler dh[] = new DataHandler[size+2];
+    System.out.println("File-0: "+fileName[0]);
+    fs[0] =new FileDataSource(fileName[0]);
+    dh[0] = new DataHandler(fs[0]);
+
+    System.out.println("File-1: "+fileName[1]);
+    fs[1] =new FileDataSource(fileName[1]);
+    dh[1] = new DataHandler(fs[1]);
+
+    GMT_WebService_Impl client = new GMT_WebService_Impl();
+    GMT_WebServiceAPI gmt = client.getGMT_WebServiceAPIPort();
+    try{
+      imgWebAddr = gmt.runGMT_Script(fileName,dh);
+      System.out.println("imgWebAddr: "+imgWebAddr);
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+    return imgWebAddr;
   }
 }
+
