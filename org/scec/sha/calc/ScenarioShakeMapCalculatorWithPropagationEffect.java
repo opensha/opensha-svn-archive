@@ -35,8 +35,13 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
   //gets the current site being processed
   private int currentSiteBeingProcessed;
 
+  //the propagation effect object
+  PropagationEffect propagationEffect;
+
+
 
   public ScenarioShakeMapCalculatorWithPropagationEffect() {
+    propagationEffect = new PropagationEffect();
   }
 
 
@@ -61,8 +66,6 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
 
     //instance of the XYZ dataSet.
     XYZ_DataSetAPI xyzDataSet =null;
-    //creating the propagation effect object
-    PropagationEffect propagationEffect = new PropagationEffect();
 
     //setting the rupture inside the propagationeffect.
     propagationEffect.setEqkRupture(rupture);
@@ -340,5 +343,7 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
      return true;
    return false;
   }
+
+
 
 }
