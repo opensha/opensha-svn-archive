@@ -68,7 +68,6 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
   public final static String SET_SITE_USING_WILLS_SITE_TYPE = "Use the Wills et al. (2000) Map Web Service";
   public final static String SET_SITES_USING_SCEC_CVM = "Use both Wills Map and SCEC Basin Depth Web Service";
-  public final static String SET_SITE_USING_HIGH_RESOLUTION_WILLS_CLASS_TYPE= "Use High Resultion Wills et al. (2000) Map Web Service";
 
   /**
    * Longitude and Latitude paramerts to be added to the site params list
@@ -111,7 +110,6 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
     siteOptions.add(SET_ALL_SITES);
     siteOptions.add(SET_SITE_USING_WILLS_SITE_TYPE);
     siteOptions.add(SET_SITES_USING_SCEC_CVM);
-    siteOptions.add(SET_SITE_USING_HIGH_RESOLUTION_WILLS_CLASS_TYPE);
     siteParam = new StringParameter(SITE_PARAM_NAME,siteOptions,(String)siteOptions.get(0));
     siteParam.addParameterChangeListener(this);
 
@@ -388,8 +386,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
     Iterator it = parameterList.getParametersIterator();
     //if the user decides to fill the values from the CVM
     if(((String)siteParam.getValue()).equals(SET_SITES_USING_SCEC_CVM)||
-       ((String)siteParam.getValue()).equals(SET_SITE_USING_WILLS_SITE_TYPE) ||
-       ((String)siteParam.getValue()).equals(SET_SITE_USING_HIGH_RESOLUTION_WILLS_CLASS_TYPE)){
+       ((String)siteParam.getValue()).equals(SET_SITE_USING_WILLS_SITE_TYPE)){
       //editorPanel.getParameterEditor(this.VS30_DEFAULT).setVisible(true);
       while(it.hasNext()){
         //adds the default site Parameters becuase each site will have different site types and default value
@@ -472,9 +469,6 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
     else if(((String)siteParam.getValue()).equals(SET_SITE_USING_WILLS_SITE_TYPE))
       //if we are setting each site using the Wills site type. basin depth is taken as default.
       gridRectRegion.setSiteParamsUsing_WILLS_VS30();
-    else if(((String)siteParam.getValue()).equals(SET_SITE_USING_HIGH_RESOLUTION_WILLS_CLASS_TYPE))
-      //if we are setting each site using the High Resolution Wills site type. basin depth is taken as default.
-      gridRectRegion.setSiteParamsUsing_HighResolutionWILLS_VS30();
     calcProgress.dispose();
   }
 

@@ -22,7 +22,7 @@ public class SCEC_BasinDepthServlet  extends HttpServlet {
 
 
   //Basin depth file
-  private final String BASIN_DEPTH_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/fine_depth_25.xy";
+  private final String BASIN_DEPTH_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/basindepth_OpenSHA.txt";
 
 
   /**
@@ -87,7 +87,7 @@ public class SCEC_BasinDepthServlet  extends HttpServlet {
   private void getBasinDepth(Vector locationVector,ObjectOutputStream output) {
 
     //gridSpacing for the basin depth file and adding a small amount ot it
-    double gridSpacingForBasinDepthInFile = .0044+.0001;
+    double gridSpacingForBasinDepthInFile = .01001;
     try {
 
       //open the File Input Stream to read the file
@@ -117,9 +117,9 @@ public class SCEC_BasinDepthServlet  extends HttpServlet {
 
           // parse this line from the file
           //reading the Lons from the file
-          double valLon = Double.parseDouble(st.nextToken());
-          //reading the Lat from the file
           double valLat = Double.parseDouble(st.nextToken());
+          //reading the Lat from the file
+          double valLon = Double.parseDouble(st.nextToken());
 
           if((valLat -lat) > gridSpacingForBasinDepthInFile/2)
             // if this lat does not exist in file. Lat is always increasing in the file and the location vector

@@ -17,8 +17,9 @@ public class GenerateBasinDepth {
   public GenerateBasinDepth(){
     boolean flag = false;
     try{
-      FileWriter fw = new FileWriter("/Users/nitingupta/cvmfiles/basindepth_OpenSHA.txt");
-      FileReader fr = new FileReader("/Users/nitingupta/cvmfiles/OpenSHA.txt");
+      FileWriter fw = new FileWriter("/Users/nitingupta/test_cvmfiles/basindepth_OpenSHA_temp.txt");
+      BufferedWriter bw = new BufferedWriter(fw);
+      FileReader fr = new FileReader("/Users/nitingupta/cvmfiles/OpenSHA8.txt");
       BufferedReader  br = new BufferedReader(fr);
       String line = br.readLine();
       StringTokenizer st = new StringTokenizer(line);
@@ -29,11 +30,11 @@ public class GenerateBasinDepth {
       double velocity1 = Double.parseDouble(st.nextToken());
       while(line!=null){
         if(depth1 == 0 && velocity1 >2500){
-          fw.write(lat1+" "+lon1+" "+"NA"+"\n");
+          bw.write(lat1+" "+lon1+" "+"0"+"\n");
           flag = true;
         }
         else if(velocity1 == 2500){
-          fw.write(lat1+" "+lon1+" "+depth1+"\n");
+          bw.write(lat1+" "+lon1+" "+depth1+"\n");
           flag = true;
         }
         else{
@@ -47,7 +48,7 @@ public class GenerateBasinDepth {
           if(velocity1<2500 && velocity2>2500){
             //does interpolation of the depth1 and depth2
             double depth = ((2500 - velocity1)*(depth2 -depth1)/(velocity2-velocity1))+depth1;
-            fw.write(lat2+" "+lon2+" "+depth+"\n");
+            bw.write(lat2+" "+lon2+" "+depth+"\n");
             flag= true;
           }
           else{
@@ -65,6 +66,14 @@ public class GenerateBasinDepth {
           double lon3 = Double.parseDouble(st.nextToken());
           while(lat3==lat1 && lon3==lon1){
             line = br.readLine();
+            if(line ==null){
+              bw.flush();
+              bw.close();
+              fw.close();
+              br.close();
+              fr.close();
+              System.exit(101);
+            }
             st = new StringTokenizer(line);
             lat3 = Double.parseDouble(st.nextToken());
             lon3 = Double.parseDouble(st.nextToken());
@@ -76,8 +85,14 @@ public class GenerateBasinDepth {
           velocity1 = Double.parseDouble(st.nextToken());
         }
       }
+      System.out.println("closing all files");
+      bw.flush();
+      bw.close();
       fw.close();
+      br.close();
+      fr.close();
     }catch(Exception e){
+      e.printStackTrace();
     }
   }
 

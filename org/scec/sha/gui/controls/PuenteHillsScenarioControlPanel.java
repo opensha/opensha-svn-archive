@@ -128,7 +128,7 @@ public class PuenteHillsScenarioControlPanel {
     regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LONGITUDE).setValue(new Double(-119.05));
     regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LONGITUDE).setValue(new Double(-116.85));
     regionGuiBean.getParameterList().getParameter(regionGuiBean.GRID_SPACING).setValue(new Double(.016667));
-    regionGuiBean.getParameterList().getParameter(regionGuiBean.SITE_PARAM_NAME).setValue(regionGuiBean.SET_SITE_USING_HIGH_RESOLUTION_WILLS_CLASS_TYPE);
+    regionGuiBean.getParameterList().getParameter(regionGuiBean.SITE_PARAM_NAME).setValue(regionGuiBean.SET_SITE_USING_WILLS_SITE_TYPE);
 
     // Set the imt as PGA
     imtGuiBean.getParameterList().getParameter(imtGuiBean.IMT_PARAM_NAME).setValue(ShakeMap_2003_AttenRel.PGA_NAME);

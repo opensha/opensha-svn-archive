@@ -87,7 +87,7 @@ public class WillsSiteClassServlet  extends HttpServlet {
   private void getVs30(Vector locationVector,ObjectOutputStream output) {
 
     //gridSpacing for the VS30 file and adding a small value to it.
-    double gridSpacingForVs30InFile = .017;
+    double gridSpacingForVs30InFile = .0166;
     try {
 
       //open the File Input Stream to read the file
