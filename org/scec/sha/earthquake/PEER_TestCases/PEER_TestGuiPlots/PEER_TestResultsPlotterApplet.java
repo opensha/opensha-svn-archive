@@ -256,8 +256,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     plotSplitPane.setDividerSize(5);
     plotSplitPane.setLastDividerLocation(500);
     buttonPanel.setBorder(border1);
-    buttonPanel.setMinimumSize(new Dimension(739, 40));
-    buttonPanel.setPreferredSize(new Dimension(743, 40));
+    buttonPanel.setMinimumSize(new Dimension(739, 60));
+    buttonPanel.setPreferredSize(new Dimension(743, 60));
     topPlotPanel.setBorder(border3);
     topPlotPanel.setMinimumSize(new Dimension(467, 500));
     topPlotPanel.setPreferredSize(new Dimension(467, 500));
@@ -353,26 +353,26 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     avgCasesPanel.add(avgLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    buttonPanel.add(yLogCheckBox,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 0, 0, 0), 15, 3));
-    buttonPanel.add(rangeLabel,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 16, 0, 0), 8, 7));
-    buttonPanel.add(rangeComboBox,     new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(15, 0, 0, 0), 33, -1));
-    buttonPanel.add(toggleButton,   new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 16, 41, 92), 30, 7));
-    buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 10, 0, 0), 1, 4));
-    buttonPanel.add(xLogCheckBox,   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 0, 0, 0), 22, 1));
-    buttonPanel.add(powerLabel,  new GridBagConstraints(3, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 45, 13, 17), 210, 34));
+    buttonPanel.add(yLogCheckBox,    new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 15, 3));
+    buttonPanel.add(rangeLabel,    new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 16, 0, 0), 8, 7));
+    buttonPanel.add(rangeComboBox,       new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 33, 0));
+    buttonPanel.add(toggleButton,    new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 16, 41, 92), 30, 7));
+    buttonPanel.add(averageCheck,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 10, 0, 0), 1, 4));
+    buttonPanel.add(xLogCheckBox,    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 22, 1));
+    buttonPanel.add(powerLabel,    new GridBagConstraints(3, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(4, 45, 3, 17), 210, 34));
     mainPanel.add(guiLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 267, 0, 190), 37, 10));
     mainPanel.add(dataVersionLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 139, 0, 171), 394, 3));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    mainSplitPane.setDividerLocation(450);
+    mainSplitPane.setDividerLocation(435);
     plotSplitPane.setDividerLocation(475);
     avgSplitPane.setDividerLocation(140);
     avgCasesPanel.setLayout(gridBagLayout1);

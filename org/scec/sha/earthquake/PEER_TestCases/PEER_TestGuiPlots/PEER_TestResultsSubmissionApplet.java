@@ -101,9 +101,9 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
   private JLabel imgLabel = new JLabel();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
+  GridBagLayout gridBagLayout1 = new GridBagLayout();
+  GridBagLayout gridBagLayout4 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -233,6 +233,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     deleteFileButton.setMaximumSize(new Dimension(71, 45));
     deleteFileButton.setMinimumSize(new Dimension(71, 45));
     deleteFileButton.setPreferredSize(new Dimension(71, 45));
+    deleteFileButton.setHorizontalTextPosition(SwingConstants.CENTER);
     deleteFileButton.setText("Delete ");
     deleteFileButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -246,13 +247,13 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     jLabel8.setText("Select Test Case:");
 
     //loading the OpenSHA Logo
+    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         imgLabel_mouseClicked(e);
       }
     });
-    imgLabel.setText("mmmmmmmmmmm");
-    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+    imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
     dataPanel.add(dataSubmLabel,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 32, 0, 23), 106, 16));
     dataPanel.add(messageTextArea,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
@@ -278,21 +279,21 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     dataPanel.add(jScrollPane1,  new GridBagConstraints(2, 2, 1, 3, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 32, 20, 0), 86, 316));
     mainPanel.add(deletePanel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 1, 0), -170, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 1, 0), 110, -2));
     jScrollPane1.getViewport().add(xTextArea, null);
     jScrollPane2.getViewport().add(yTextArea, null);
     mainPanel.add(dataPanel,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), 0, -5));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), -72, -2));
     deletePanel.add(jLabel6,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 236, 0, 0), 158, 16));
-    deletePanel.add(jLabel7,  new GridBagConstraints(1, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 0, 9, 182), 57, 6));
-    deletePanel.add(deleteFileButton,  new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(31, 251, 2, 0), 0, 0));
-    deletePanel.add(imgLabel,  new GridBagConstraints(2, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(28, 0, 16, 11), 73, 17));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 233, 0, 0), 158, 16));
+    deletePanel.add(jLabel7,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 0, 8, 32), 33, 6));
+    deletePanel.add(deleteFileButton,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 220, 1, 0), 10, 0));
+    deletePanel.add(imgLabel,   new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 8, 1, 1), 210, 17));
     mainPanel.add(titlePanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), 0, -1));
     titlePanel.add(jLabel5,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(3, 41, 1, 132), 83, 16));
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
