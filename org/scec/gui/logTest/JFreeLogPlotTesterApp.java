@@ -19,7 +19,7 @@ import org.scec.gui.*;
 
 /**
 
- * <p>Title: LogPlotTesterApp</p>
+ * <p>Title: JFreeLogPlotTesterApp</p>
  * <p>Description: This Applet checks for the log-plots</p>
  *
  * @author: Nitin Gupta & Vipin Gupta
@@ -27,10 +27,10 @@ import org.scec.gui.*;
  * @version 1.0
  */
 
-public class LogPlotTesterApp extends JApplet  {
+public class JFreeLogPlotTesterApp extends JApplet  {
 
   // for debug purposes
-  protected final static String C = "LogPlotTesterApp";
+  protected final static String C = "JFreeLogPlotTesterApp";
   protected final static boolean D = false;
 
   //auto scales the graph
@@ -124,9 +124,9 @@ public class LogPlotTesterApp extends JApplet  {
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
   private JRadioButton log10CaretCheck = new JRadioButton();
-  private JRadioButton log10PowerCheck = new JRadioButton();
+
   private JRadioButton log10AsECheck = new JRadioButton();
-  private JCheckBox minorAxisCheck = new JCheckBox();
+
   private ButtonGroup group = new ButtonGroup();
 
   //declaration for the class that lets the user to enter his own data
@@ -142,7 +142,7 @@ public class LogPlotTesterApp extends JApplet  {
   }
 
   //Construct the applet
-  public LogPlotTesterApp() {
+  public JFreeLogPlotTesterApp() {
 
     logRanges.add(TEST_0);
     logRanges.add(CUSTOM_SCALE);
@@ -199,8 +199,6 @@ public class LogPlotTesterApp extends JApplet  {
     while ( it.hasNext() )
       rangeCombo.addItem(it.next());
     rangeCombo.setSelectedItem((String)rangeCombo.getItemAt(0));
-
-
   }
 
 
@@ -281,25 +279,14 @@ public class LogPlotTesterApp extends JApplet  {
         log10CaretCheck_actionPerformed(e);
       }
     });
-    log10PowerCheck.setText("Set tick as power of 10");
-    log10PowerCheck.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        log10PowerCheck_actionPerformed(e);
-      }
-    });
+
     log10AsECheck.setText("Set tick as (1e#)");
     log10AsECheck.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         log10AsECheck_actionPerformed(e);
       }
     });
-    minorAxisCheck.setSelected(true);
-    minorAxisCheck.setText("Label Minor Axis Tick");
-    minorAxisCheck.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        minorAxisCheck_actionPerformed(e);
-      }
-    });
+
     dataSetCombo.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         dataSetCombo_actionPerformed(e);
@@ -343,12 +330,10 @@ public class LogPlotTesterApp extends JApplet  {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(109, 8, 63, 0), 17, 6));
     jPanel2.add(log10CaretCheck,  new GridBagConstraints(0, 7, 4, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 12, 0, 24), 65, 8));
-    jPanel2.add(log10PowerCheck,  new GridBagConstraints(0, 8, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 12, 0, 24), 28, 8));
+
     jPanel2.add(log10AsECheck,  new GridBagConstraints(0, 9, 4, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(21, 12, 0, 24), 72, 8));
-    jPanel2.add(minorAxisCheck,  new GridBagConstraints(0, 10, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 12, 0, 24), 67, 8));
+
     jPanel2.add(dataSetCombo,  new GridBagConstraints(2, 6, 2, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(12, 0, 0, 10), -13, 3));
     jPanel2.add(jLabel6,  new GridBagConstraints(0, 6, 2, 1, 0.0, 0.0
@@ -362,8 +347,7 @@ public class LogPlotTesterApp extends JApplet  {
 
     group.add(log10AsECheck);
     group.add(log10CaretCheck);
-    group.add(log10PowerCheck);
-    group.setSelected(log10PowerCheck.getModel(),true);
+    group.setSelected(log10CaretCheck.getModel(),true);
   }
   //Get Applet information
   public String getAppletInfo() {
@@ -375,7 +359,7 @@ public class LogPlotTesterApp extends JApplet  {
   }
   //Main method
   public static void main(String[] args) {
-    LogPlotTesterApp applet = new LogPlotTesterApp();
+    JFreeLogPlotTesterApp applet = new JFreeLogPlotTesterApp();
     applet.isStandalone = true;
     Frame frame;
     frame = new Frame() {
@@ -456,9 +440,14 @@ public class LogPlotTesterApp extends JApplet  {
     if(this.axisCombo.getSelectedItem().equals(LOG)){
       if(this.log10AsECheck.isSelected()) setLog10AsEFlag();
       else if(this.log10CaretCheck.isSelected()) setLog10AsCaretFlag();
-      else if(this.log10PowerCheck.isSelected()) setLog10AsPowerFlag();
-      setMinorAxisFlag();
     }
+
+
+
+    int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
+
+    StandardXYItemRenderer renderer = new StandardXYItemRenderer(type, new StandardXYToolTipGenerator() );
+
 
     xAxis.setAutoRangeIncludesZero( false );
     //xAxis.setStandardTickUnits(units);
@@ -468,50 +457,40 @@ public class LogPlotTesterApp extends JApplet  {
     //yAxis.setStandardTickUnits(units);
     yAxis.setTickMarksVisible(false);
 
-
-    int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
-
-    StandardXYItemRenderer renderer = new StandardXYItemRenderer(type, new StandardXYToolTipGenerator() );
-
-    try{
-      //If the first test case is not chosen then plot the graph acording to the default x and y axis values
-      if(!autoScale){
-        xAxis.setRange(minXValue,maxXValue);
-        yAxis.setRange(minYValue,maxYValue);
-      }
-
-
-      // build the plot
-      org.jfree.chart.plot.XYPlot plot =null;
-
-      plot = new org.jfree.chart.plot.XYPlot(functions, xAxis, yAxis,renderer);
-      plot.setBackgroundAlpha( .8f );
-      plot.setRenderer( renderer );
-      plot.setDomainCrosshairLockedOnData(false);
-      plot.setDomainCrosshairVisible(false);
-      plot.setRangeCrosshairLockedOnData(false);
-      plot.setRangeCrosshairVisible(false);
-      plot.setInsets(new Insets(0, 0, 0, 15));
-
-      JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
-      chart.setBackgroundPaint( lightBlue );
-      panel = new ChartPanel(chart, true, true, true, true, true);
-
-      panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-      panel.setMouseZoomable(true);
-      panel.setDisplayToolTips(true);
-      panel.setHorizontalAxisTrace(false);
-      panel.setVerticalAxisTrace(false);
-      innerPlotPanel.removeAll();
-      // panel added here
-      innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
-          );
-
-    }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Log Plot",JOptionPane.OK_OPTION);
-      return;
+    //If the first test case is not chosen then plot the graph acording to the default x and y axis values
+    if(!autoScale){
+      xAxis.setRange(minXValue,maxXValue);
+      yAxis.setRange(minYValue,maxYValue);
     }
+
+
+    // build the plot
+    org.jfree.chart.plot.XYPlot plot =null;
+
+    plot = new org.jfree.chart.plot.XYPlot(functions, xAxis, yAxis,renderer);
+    plot.setBackgroundAlpha( .8f );
+    plot.setRenderer( renderer );
+    plot.setDomainCrosshairLockedOnData(false);
+    plot.setDomainCrosshairVisible(false);
+    plot.setRangeCrosshairLockedOnData(false);
+    plot.setRangeCrosshairVisible(false);
+    plot.setInsets(new Insets(0, 0, 0, 15));
+
+    JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
+    chart.setBackgroundPaint( lightBlue );
+    panel = new ChartPanel(chart, true, true, true, true, true);
+
+    panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+    panel.setMouseZoomable(true);
+    panel.setDisplayToolTips(true);
+    panel.setHorizontalAxisTrace(false);
+    panel.setVerticalAxisTrace(false);
+    innerPlotPanel.removeAll();
+    // panel added here
+    innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
+        );
+
 
     //setting the range to reflect in the range Text fields.
     if(dataSetCombo.getItemCount()>0){
@@ -535,8 +514,8 @@ public class LogPlotTesterApp extends JApplet  {
    * @param xMax : maximum value for X-axis
    */
   public void setXRange(double xMin,double xMax) {
-     minXText.setText(""+xMin);
-     maxXText.setText(""+xMax);
+    minXText.setText(""+xMin);
+    maxXText.setText(""+xMax);
   }
 
   /**
@@ -545,8 +524,8 @@ public class LogPlotTesterApp extends JApplet  {
    * @param yMax : maximum value for Y-axis
    */
   public void setYRange(double yMin,double yMax) {
-     minYText.setText(""+yMin);
-     maxYText.setText(""+yMax);
+    minYText.setText(""+yMin);
+    maxYText.setText(""+yMax);
   }
 
   void clearButton_actionPerformed(ActionEvent e) {
@@ -819,26 +798,14 @@ public class LogPlotTesterApp extends JApplet  {
 
   private void setLog10AsCaretFlag(){
     if(log10CaretCheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(true);
-      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(true);
-      ((LogarithmicAxis)xAxis).setLog10TickLabelsFlag();
-      ((LogarithmicAxis)yAxis).setLog10TickLabelsFlag();
+      //((JFreeLogarithmicAxis)xAxis).setAllowNegativesFlag(true);
+      //((JFreeLogarithmicAxis)yAxis).setAllowNegativesFlag(true);
+      ((JFreeLogarithmicAxis)xAxis).setLog10TickLabelsFlag(true);
+      ((JFreeLogarithmicAxis)yAxis).setLog10TickLabelsFlag(true);
     }
   }
 
-  void log10PowerCheck_actionPerformed(ActionEvent e) {
-    setLog10AsPowerFlag();
-    this.addGraphPanel();
-  }
 
-  private void setLog10AsPowerFlag(){
-    if(log10PowerCheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(false);
-      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(false);
-      ((LogarithmicAxis)xAxis).setLog10TickLabelsInPowerFlag();
-      ((LogarithmicAxis)yAxis).setLog10TickLabelsInPowerFlag();
-    }
-  }
 
   void log10AsECheck_actionPerformed(ActionEvent e) {
     setLog10AsEFlag();
@@ -847,47 +814,31 @@ public class LogPlotTesterApp extends JApplet  {
 
   private void setLog10AsEFlag(){
     if(log10AsECheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(true);
-      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(true);
-      ((LogarithmicAxis)xAxis).setExpTickLabelsFlag();
-      ((LogarithmicAxis)yAxis).setExpTickLabelsFlag();
+      //((JFreeLogarithmicAxis)xAxis).setAllowNegativesFlag(true);
+      //((JFreeLogarithmicAxis)yAxis).setAllowNegativesFlag(true);
+      ((JFreeLogarithmicAxis)xAxis).setLog10TickLabelsFlag(false);
+      ((JFreeLogarithmicAxis)yAxis).setLog10TickLabelsFlag(false);
+      ((JFreeLogarithmicAxis)xAxis).setExpTickLabelsFlag(true);
+      ((JFreeLogarithmicAxis)yAxis).setExpTickLabelsFlag(true);
     }
   }
 
-  void minorAxisCheck_actionPerformed(ActionEvent e) {
-    setMinorAxisFlag();
-    this.addGraphPanel();
-  }
 
-  private void setMinorAxisFlag(){
-    if(minorAxisCheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setMinorAxisTickLabelFlag(true);
-      ((LogarithmicAxis)yAxis).setMinorAxisTickLabelFlag(true);
-    }
-    else{
-      ((LogarithmicAxis)xAxis).setMinorAxisTickLabelFlag(false);
-      ((LogarithmicAxis)yAxis).setMinorAxisTickLabelFlag(false);
-    }
-  }
+
 
   private void setAxis(){
     String axisOption = (String)axisCombo.getSelectedItem();
     if(axisOption.equals(LOG)){
-      xAxis = new LogarithmicAxis("X-Axis");
-      yAxis = new LogarithmicAxis("Y-Axis");
+      xAxis = new JFreeLogarithmicAxis("X-Axis");
+      yAxis = new JFreeLogarithmicAxis("Y-Axis");
       log10AsECheck.setVisible(true);
       log10CaretCheck.setVisible(true);
-      log10PowerCheck.setVisible(true);
-      minorAxisCheck.setVisible(true);
-
     }
     else {
       xAxis = new NumberAxis("X-Axis");
       yAxis = new NumberAxis("Y-Axis");
       log10AsECheck.setVisible(false);
       log10CaretCheck.setVisible(false);
-      log10PowerCheck.setVisible(false);
-      minorAxisCheck.setVisible(false);
     }
   }
 
