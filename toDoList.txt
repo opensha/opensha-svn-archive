@@ -1,11 +1,8 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Create the SiteClass Test to test if our applications are getting the correct values for the Wills site Class and Basin Depth from the servlets.
 
 dd site translation for SEA_1999_AttenRel
-
-Create the Puente Hill Scenario control in the ScenarioShakeMapApp that supports both the single and multiple AttenuatinRelationship selection.
 
 Change HazardCurveServerModeApp to do the calculations on the server.
 
