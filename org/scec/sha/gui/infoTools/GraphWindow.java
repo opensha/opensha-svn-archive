@@ -37,7 +37,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   private boolean customAxis = false;
 
 
-  private static int windowNumber =0;
+  private static int windowNumber =1;
 
   private static final String TITLE = "Plot Window - ";
 
