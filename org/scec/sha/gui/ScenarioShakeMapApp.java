@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.*;
@@ -151,9 +152,16 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     this.initIMRGuiBean();
     this.initGriddedRegionGuiBean();
     this.initIMTGuiBean();
-    this.initERFSelector_GuiBean();
+    try{
+        this.initERFSelector_GuiBean();
+        initTimeSpanGuiBean();
+      }catch(RuntimeException e){
+      JOptionPane.showMessageDialog(this,"Connection to ERF servlets failed","Internet Connection Problem",
+                                    JOptionPane.OK_OPTION);
+      System.exit(0);
+      }
+
     this.initImlProb_GuiBean();
-    this.initTimeSpanGuiBean();
     this.initMapGuiBean();
   }
   //Component initialization
@@ -329,10 +337,13 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   //   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
-   erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
-
+   try{
+     erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
+   }catch(InvocationTargetException e){
+     throw new RuntimeException("Connection to ERF servlets failed");
+   }
    eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
    erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);

@@ -9,6 +9,7 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.net.*;
 import java.io.*;
+import java.lang.reflect.*;
 
 
 
@@ -535,7 +536,7 @@ public class HazardMapApplet extends JApplet implements
   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
   try{
     erfGuiBean = new ERF_GuiBean(erf_Classes);
-  }catch(Exception e){
+  }catch(InvocationTargetException e){
     throw new RuntimeException("Connection to ERF servlets failed");
   }
   erfPanel.setLayout(gridBagLayout5);

@@ -2,7 +2,7 @@ package org.scec.sha.earthquake.rupForecastImpl.step;
 
 import javax.swing.JOptionPane;
 import java.util.Calendar;
-import java.lang.reflect.*;
+
 
 import org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast;
 import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;

@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
 import java.text.DecimalFormat;
+import java.awt.event.*;
+import java.lang.reflect.*;
 
 import org.scec.param.ParameterAPI;
 import org.scec.param.StringParameter;
@@ -19,7 +21,6 @@ import org.scec.data.Location;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
-import java.awt.event.*;
 
 
 
@@ -90,7 +91,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   * Constructor : It accepts the classNames of the ERFs to be shown in the editor
   * @param erfClassNames
   */
- public EqkRupSelectorGuiBean(Vector erfClassNames) {
+ public EqkRupSelectorGuiBean(Vector erfClassNames) throws InvocationTargetException{
 
    // create the instance of ERFs
    erfGuiBean= new ERF_GuiBean(erfClassNames);

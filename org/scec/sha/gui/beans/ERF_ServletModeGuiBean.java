@@ -240,7 +240,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
       try{
         eqkRupForecast=(ForecastAPI)this.openWG02_ERFConnection(this.getERF_ListAPI);
       }catch(Exception e){
-        System.out.println("*************servlet faulire*********");
+        System.out.println("*************servlet failure*********");
         throw new RuntimeException("Connection to WG-02 ERF servlet failed");
       }
     }

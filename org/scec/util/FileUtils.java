@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.lang.reflect.*;
+
 
 /**
  * <b>Title:</b>FileUtils<p>

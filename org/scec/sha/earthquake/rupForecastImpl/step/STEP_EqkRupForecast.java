@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.net.URL;
-import java.lang.reflect.*;
+
 
 import org.scec.param.*;
 import org.scec.util.*;

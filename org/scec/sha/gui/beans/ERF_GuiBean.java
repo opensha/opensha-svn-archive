@@ -52,7 +52,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    * Constructor : It accepts the classNames of the ERFs to be shown in the editor
    * @param erfClassNames
    */
-  public ERF_GuiBean(Vector erfClassNames) {
+  public ERF_GuiBean(Vector erfClassNames) throws InvocationTargetException{
     // create the instance of ERFs
     init_erf_IndParamListAndEditor(erfClassNames);
     // forecast 1  is selected initially
@@ -66,7 +66,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     * class beforehand.
     *
     */
-   private Object createERFClassInstance( String className){
+   private Object createERFClassInstance( String className) throws InvocationTargetException{
      String S = C + ": createERFClassInstance(): ";
      try {
        Object[] paramObjects = new Object[]{};
@@ -84,10 +84,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      } catch ( NoSuchMethodException e ) {
        System.out.println(S + e.toString());
        throw new RuntimeException( S + e.toString() );
-     } catch ( InvocationTargetException e ) {
-       System.out.println(S + e.toString());
-       e.printStackTrace();
-       throw new RuntimeException( S + e.toString() );
      } catch ( IllegalAccessException e ) {
        System.out.println(S + e.toString());
        throw new RuntimeException( S + e.toString() );
@@ -99,9 +95,9 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    }
 
    /**
-   * init erf_IndParamList. List of all available forecasts at this time
-   */
-   protected void init_erf_IndParamListAndEditor(Vector erfClassNames) {
+    * init erf_IndParamList. List of all available forecasts at this time
+    */
+   protected void init_erf_IndParamListAndEditor(Vector erfClassNames) throws InvocationTargetException{
 
      EqkRupForecastAPI erf;
      this.parameterList = new ParameterList();
