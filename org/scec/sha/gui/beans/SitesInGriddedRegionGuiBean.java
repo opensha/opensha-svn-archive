@@ -257,7 +257,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
    * So, we update the site object as well
    *
    */
-  private void updateGriddedSiteParams() {
+  private void updateGriddedSiteParams() throws ParameterException{
 
     ArrayList v= new ArrayList();
     createAndUpdateSites();
@@ -350,7 +350,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
    *
    * @return the object for the SitesInGriddedRegion class
    */
-  public SitesInGriddedRegion getGriddedRegionSite() throws RuntimeException{
+  public SitesInGriddedRegion getGriddedRegionSite() throws ParameterException,RuntimeException{
 
     updateGriddedSiteParams();
     if(((String)siteParam.getValue()).equals(SET_ALL_SITES))

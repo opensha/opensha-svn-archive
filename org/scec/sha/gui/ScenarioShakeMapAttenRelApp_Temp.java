@@ -445,40 +445,6 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
       hazusControl.setGenerateShapeFilesForHazus(false);
   }
 
-  /**
-   *
-   * @returns the site parameters iterator for the selected AttenuationRelationships
-   * It also avoids the duplicity of the site params if AttenuationRelationships
-   * share them.
-   */
-  private Iterator getSelectedAttenRelSiteParams(){
-    // get the selected IMR
-    attenRel = imrGuiBean.getSelectedIMRs();
-
-    //ArrayList to store the siteParams for all selected AttenRel
-    ArrayList siteParams = new ArrayList();
-    //getting all the selected AttenRels and iterating over their site params
-    //adding them as clones to the vector but avoiding the duplicity.
-    //There can be a scenario when the AttenRels have same site type, so we
-    //don't want to duplicate the site params but do want to set their values in both
-    //the selected attenRels.
-    for(int i=0;i<attenRel.size();++i){
-      AttenuationRelationshipAPI attenRelApp = (AttenuationRelationshipAPI)attenRel.get(i);
-      ListIterator it = attenRelApp.getSiteParamsIterator();
-      while(it.hasNext()){
-        ParameterAPI tempParam = (ParameterAPI)it.next();
-        boolean flag = true;
-        //iterating over all the added siteParams to check if we have added that
-        //site param before.
-        for(int j=0;j<siteParams.size();++j)
-          if(tempParam.getName().equals(((ParameterAPI)siteParams.get(j)).getName()))
-            flag= false;
-        if(flag)
-          siteParams.add(tempParam.clone());
-      }
-    }
-    return siteParams.iterator();
-  }
 
 
   /**
@@ -487,7 +453,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
    */
   public void setGriddedRegionSiteParams(){
     if(sitesGuiBean !=null){
-      sitesGuiBean.replaceSiteParams(getSelectedAttenRelSiteParams());
+      sitesGuiBean.replaceSiteParams(imrGuiBean.getSelectedAttenRelSiteParams());
       sitesGuiBean.refreshParamEditor();
     }
   }
@@ -496,15 +462,8 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
    *
    * @returns the Sites Values for each site in the region chosen by the user
    */
-  private void getGriddedRegionSites(){
-    try {
-      griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-    }catch(ParameterException e) {
-      throw  new ParameterException(e.getMessage());
-    }
-    catch(Exception e){
-      throw new RuntimeException(e.getMessage());
-    }
+  private void getGriddedRegionSites() throws ParameterException,RuntimeException{
+    griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
   }
 
   /**
@@ -579,12 +538,22 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
    * This function also gets the selected AttenuationRelationships in a ArrayList and their
    * corresponding relative wts.
    */
-  public void getGriddedSitesMapTypeAndSelectedAttenRels(){
+  public void getGriddedSitesMapTypeAndSelectedAttenRels() throws RuntimeException{
     //gets the IML or Prob selected value
     getIMLorProb();
-    //get the site values for each site in the gridded region
-    getGriddedRegionSites();
-
+    try{
+      //get the site values for each site in the gridded region
+      getGriddedRegionSites();
+    }catch(ParameterException ee){
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.ERROR_MESSAGE);
+      step =0;
+      throw new RuntimeException(ee.getMessage());
+    }
+    catch(RuntimeException e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
+      step =0;
+      throw new RuntimeException(e.getMessage());
+    }
     //selected IMRs Wts
     attenRelWts = imrGuiBean.getSelectedIMR_Weights();
     //selected IMR's
@@ -601,7 +570,12 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
    //sets the Gridded region Sites and the type of plot user wants to see
    //IML@Prob or Prob@IML and it value.
     if(hazusControl == null || !hazusControl.isGenerateShapeFilesForHazus()){
-      getGriddedSitesMapTypeAndSelectedAttenRels();
+      try{
+        getGriddedSitesMapTypeAndSelectedAttenRels();
+      }catch(RuntimeException ee){
+        addButton.setEnabled(true);
+        return;
+      }
       // this function will get the selected IMT parameter and set it in IMT
       imrGuiBean.setIMT();
     }

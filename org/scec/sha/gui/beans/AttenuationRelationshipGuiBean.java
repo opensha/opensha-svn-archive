@@ -663,7 +663,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
     * this method will return the name of selected IMR
     * @return : Selected IMR name
     */
-   public String getSelectedIMR_Name() {
+   private String getSelectedIMR_Name() {
      return singleAttenRelParamList.getValue(IMR_PARAM_NAME).toString();
    }
 
@@ -671,7 +671,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
     * This method will return the instance of selected IMR
     * @return : Selected IMR instance
     */
-   public AttenuationRelationshipAPI getSelectedIMR_Instance() {
+   private AttenuationRelationshipAPI getSelectedIMR_Instance() {
      AttenuationRelationshipAPI imr = null;
      String selectedIMR = getSelectedIMR_Name();
      int size = attenRelsSupportedForIM.size();
@@ -770,8 +770,11 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
      //non-identical params for each AttenRel.
      //We might have to think of the situation if event occurs to the identical
      //params for AttenRel's, them I will have to iterate over all the selected AttenRel.
-     if(indexOfAttenRel !=0)
+     if(indexOfAttenRel !=0 && !singleAttenRelSelected) //if multiple attenRel selected
        imr = (AttenuationRelationshipAPI)attenRelsSupported.get(indexOfAttenRel);
+     else if(singleAttenRelSelected) //if single attenRel selected
+       imr = getSelectedIMR_Instance();
+
      ListIterator it = imr.getSiteParamsIterator();
      boolean found = false;
      // see whether this parameter exists in site param list for this IMR
@@ -1002,6 +1005,50 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
    return null;
 
  }
+
+
+
+ /**
+  *
+  * @returns the site parameters iterator for the selected AttenuationRelationships
+  * It also avoids the duplicity of the site params if AttenuationRelationships
+  * share them.
+  */
+ public Iterator getSelectedAttenRelSiteParams(){
+   // get the selected IMR
+   ArrayList attenRel = getSelectedIMRs();
+
+   //ArrayList to store the siteParams for all selected AttenRel
+   ArrayList siteParams = new ArrayList();
+   //getting all the selected AttenRels and iterating over their site params
+   //adding them as clones to the vector but avoiding the duplicity.
+   //There can be a scenario when the AttenRels have same site type, so we
+   //don't want to duplicate the site params but do want to set their values in both
+   //the selected attenRels.
+   for(int i=0;i<attenRel.size();++i){
+     AttenuationRelationshipAPI attenRelApp = (AttenuationRelationshipAPI)attenRel.get(i);
+     ListIterator it = attenRelApp.getSiteParamsIterator();
+     while(it.hasNext()){
+       ParameterAPI tempParam = (ParameterAPI)it.next();
+       boolean flag = true;
+       //iterating over all the added siteParams to check if we have added that
+       //site param before.
+       for(int j=0;j<siteParams.size();++j)
+         if(tempParam.getName().equals(((ParameterAPI)siteParams.get(j)).getName()))
+           flag= false;
+       if(flag){
+         ParameterAPI param = (ParameterAPI)tempParam.clone();
+         param.addParameterChangeFailListener(this);
+         siteParams.add(param);
+       }
+     }
+   }
+   return siteParams.iterator();
+ }
+
+
+
+
 
 
 
@@ -1245,7 +1292,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
   void toggleButton_actionPerformed(ActionEvent e) {
     singleAttenRelSelected = !singleAttenRelSelected;
     toggleBetweenSingleAndMultipleAttenRel();
-    application.setGriddedRegionSiteParams();
+    //application.setGriddedRegionSiteParams();
     validate();
     repaint();
   }
