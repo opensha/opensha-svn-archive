@@ -177,13 +177,8 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   /**
    * update the sources based on the user paramters, only when user has changed any parameter
    */
-/** @merge workspace: Changes in the Workspace */
    public void updateForecast(){
      String S = C + "updateForecast::";
-/** @merge repository: Changes from the Repository
-   public void updateForecast(){
-     String S = C + "updateGUI::";
-*/
 
      if(parameterChangeFlag) {
 

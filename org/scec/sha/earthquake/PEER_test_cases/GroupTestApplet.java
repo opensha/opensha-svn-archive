@@ -131,6 +131,7 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
   private JPanel sourcePanel = new JPanel();
   private Border border2;
   private BorderLayout borderLayout1 = new BorderLayout();
+  private GridBagLayout gridBagLayout10 = new GridBagLayout();
 
 
   //Get a parameter value
@@ -171,7 +172,7 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
     pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
     pointsTextArea.setText( NO_PLOT_MSG );
     dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
-    jPanel1.setLayout(null);
+    jPanel1.setLayout(gridBagLayout10);
     controlsSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     toggleButton.setMaximumSize(new Dimension(83, 39));
@@ -190,7 +191,6 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
     });
     panel.setLayout(gridBagLayout9);
     buttonPanel.setBorder(border1);
-    buttonPanel.setBounds(new Rectangle(11, 491, 934, 49));
     buttonPanel.setLayout(gridBagLayout12);
     testSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     addButton.setText("Add Graph");
@@ -217,8 +217,12 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
     imrPanel.setLayout(gridBagLayout15);
     sourcePanel.setLayout(gridBagLayout5);
     sourcePanel.setBorder(border2);
-    sourcePanel.setBounds(new Rectangle(751, 2, 194, 481));
-    chartSplit.setBounds(new Rectangle(11, 2, 740, 481));
+    sourcePanel.setMaximumSize(new Dimension(2147483647, 300));
+    sourcePanel.setMinimumSize(new Dimension(2, 300));
+    sourcePanel.setPreferredSize(new Dimension(2, 300));
+    chartSplit.setMaximumSize(new Dimension(2147483647, 300));
+    chartSplit.setMinimumSize(new Dimension(44, 300));
+    chartSplit.setPreferredSize(new Dimension(44, 300));
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.add(jPanel1, BorderLayout.CENTER);
     buttonPanel.add(toggleButton,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
@@ -231,9 +235,12 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
     buttonPanel.add(jCheckylog, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 337), 22, 2));
-    jPanel1.add(sourcePanel, null);
-    jPanel1.add(buttonPanel, null);
-    jPanel1.add(chartSplit, null);
+    jPanel1.add(sourcePanel,  new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 0, 0, 14), 192, 181));
+    jPanel1.add(buttonPanel,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(8, 11, 18, 14), 53, 5));
+    jPanel1.add(chartSplit,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 11, 0, 0), 696, 181));
     chartSplit.add(panel, JSplitPane.TOP);
     chartSplit.add(controlsSplit, JSplitPane.BOTTOM);
     testSplitPane.add(testCasesPanel, JSplitPane.TOP);
