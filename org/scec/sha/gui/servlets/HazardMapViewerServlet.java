@@ -242,14 +242,14 @@ public class HazardMapViewerServlet  extends HttpServlet {
           if(firstIndex != lastIndex){
 
             //getting the lat and Lon values from file names
-            String latVal = fileName.substring(0,index).trim();
-            String lonVal = fileName.substring(index+1,lastIndex).trim();
+            Double latVal = new Double(fileName.substring(0,index).trim());
+            Double lonVal = new Double(fileName.substring(index+1,lastIndex).trim());
             //Adding the Latitude from the file name to the list if not already there
             if(!latList.contains(latVal))
-              latList.add(new Double(latVal));
+              latList.add(latVal);
             //Adding the longitude from the file name to the list if not already there
             if(!lonList.contains(lonVal))
-              lonList.add(new Double(lonVal));
+              lonList.add(lonVal);
           }
         }
       }
@@ -319,6 +319,11 @@ public class HazardMapViewerServlet  extends HttpServlet {
       }
     }
 
+    System.out.println("Indexes:"+minLatIndex+" "+maxLatIndex+" "+minLonIndex+" "+maxLonIndex);
+
+    //Decimal format that establishes format of doubl vaule( to read the hazard
+    //data files) which are at least upto 2 decimal places
+    DecimalFormat d = new DecimalFormat("0.00##");
 
     //iterating over all the Lat and Lon Value to read the files for the IML or Prob
     //values depending on user choice (IML@Prob or Prob@IML).
@@ -327,8 +332,8 @@ public class HazardMapViewerServlet  extends HttpServlet {
       ArrayList fileLines;
       for(int j=minLonIndex;j<=maxLonIndex;++j) {
         //getting Lat and Lons
-        String lat = ((Double)latList.get(k)).toString();
-        String lon = ((Double)lonList.get(j)).toString();
+        String lat = d.format(((Double)latList.get(k)).doubleValue());
+        String lon = d.format(((Double)lonList.get(j)).doubleValue());
 
         try {
           //reading the hazard Curve to find interpolate the iml or Prob value

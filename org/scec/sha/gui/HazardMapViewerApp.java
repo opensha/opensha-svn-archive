@@ -75,8 +75,8 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
   private static final String TITLE = "Hazard Map Viewer";
 
   // width and height
-  private static final int W = 800;
-  private static final int H = 800;
+  private static final int W = 950;
+  private static final int H = 750;
 
   // gui beans used here
   private IMLorProbSelectorGuiBean imlProbGuiBean;
