@@ -74,7 +74,10 @@ public class EvenlyGriddedSurface extends GriddedSurface {
         numSubSurfaceRows = numRows;
       }
 
+      //getting the row number in which that subsetSurface is present
       int row = n/nSubSurfaceAlong * numSubSurfaceOffset;
+
+      //getting the column from which that subsetSurface starts
       int col = n%nSubSurfaceAlong * numSubSurfaceOffset;
 
        return (new GriddedSubsetSurface((int)numSubSurfaceRows,(int)numSubSurfaceCols,row,col,this));
@@ -120,7 +123,7 @@ public class EvenlyGriddedSurface extends GriddedSurface {
           numSubSurfaceCols = numCols;
         }
 
-        // nnmber of subSurfaces along fault width
+        // number of subSurfaces along fault width
         int nSubSurfaceDown =  (int)Math.floor((numRows-numSubSurfaceRows)/numSubSurfaceOffset +1);
 
         // one subSurface along width
@@ -129,19 +132,15 @@ public class EvenlyGriddedSurface extends GriddedSurface {
           numSubSurfaceRows = numRows;
         }
 
+        //getting the total number of subsetSurfaces
+        int totalSubSetSurface = nSubSurfaceAlong * nSubSurfaceDown;
+        //emptying the vector
+        v.removeAllElements();
 
-        // save the subSurfaces in a vector
-        int col = 0;
-        int row =0;
-        v.clear();
-        for(int j=0; j < nSubSurfaceDown; ++j, row=row+numSubSurfaceOffset) {
-          col = 0;
-          for(int i=0;i < nSubSurfaceAlong ; ++i, col=col+numSubSurfaceOffset) {
-             GriddedSubsetSurface subsetSurfaces =
-                  new GriddedSubsetSurface((int)numSubSurfaceRows,(int)numSubSurfaceCols,row,col,this);
-             v.add(subsetSurfaces);
-          }
-       }
+        //adding each subset surface to the Vector
+        for(int i=0;i<totalSubSetSurface;++i)
+          v.add(getNthSubsetSurface(numSubSurfaceCols,numSubSurfaceRows,numSubSurfaceOffset,i));
+
        return v.iterator();
    }
 
