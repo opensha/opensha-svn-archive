@@ -192,21 +192,11 @@ public class ShakeMap_2003_AttenRel
     protected void setPropagationEffectParams(){
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
-/* orig stull commented out for test
           try{
             distanceJBParam.setValue( probEqkRupture, site );
           }catch (WarningException e){
             if(D) System.out.println(C+"Warning Exception:"+e);
           }
-*/
-          // this only works for point surfaces
-          double lat1 = site.getLocation().getLatitude();
-          double lon1 = site.getLocation().getLongitude();
-          double lat2 = ((Location)probEqkRupture.getRuptureSurface().get(0,0)).getLatitude();
-          double lon2 = ((Location)probEqkRupture.getRuptureSurface().get(0,0)).getLongitude();
-          double d1 = (lat1-lat2)*111;
-          double d2 = (lon1-lon2)*111*Math.cos(((lat1+lat2)/(2))*(Math.PI/180));
-          distanceJBParam.setValueIgnoreWarning( new Double(Math.sqrt(d1*d1+d2*d2)));
         }
     }
 

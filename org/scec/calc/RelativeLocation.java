@@ -456,6 +456,9 @@ public final class RelativeLocation {
 
     public static void main( String argv[] ) {
 
+      System.out.println("Accurate HorzDist="+RelativeLocation.getHorzDistance( 33, -118, 35, -117.5 ));
+      System.out.println("Approx HorzDist="+RelativeLocation.getApproxHorzDistance( 33, -118, 35, -117.5 ));
+
       System.out.println("Starting with accurate horz dist calcs");
       for(int i=0; i<10000000; i++)
         RelativeLocation.getHorzDistance( 33, -118, 35, -117.5 );
@@ -464,6 +467,7 @@ public final class RelativeLocation {
       for(int i=0; i<10000000; i++)
         RelativeLocation.getApproxHorzDistance( 33, -118, 35, -117.5 );
         System.out.println("Done with approx horz dist calcs");
+
 
         /*String S = C + ": main(): ";
 
