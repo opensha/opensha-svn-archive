@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.text.*;
 
 
 import com.jrefinery.chart.*;
@@ -41,6 +42,15 @@ public class MagFreqDistTesterApplet extends JApplet
   protected final static String C = "MagFreqDistTesterApplet";
   protected final static boolean D = true;
 
+
+  /**
+   * these four values save the custom axis scale specified by user
+   */
+  protected float minXValue;
+  protected float maxXValue;
+  protected float minYValue;
+  protected float maxYValue;
+  protected boolean customAxis = false;
 
   protected String legend=null;
   protected final static int W = 850;
@@ -97,7 +107,7 @@ public class MagFreqDistTesterApplet extends JApplet
  // private JComboBox magDistComboBox = new JComboBox();
   private JPanel mainPanel = new JPanel();
   private GridBagLayout GBL = new GridBagLayout();
-  private JComboBox incrComboBox = new JComboBox();
+  private JComboBox rangeComboBox = new JComboBox();
   private JCheckBox plotColorCheckBox = new JCheckBox();
   private JButton clearButton = new JButton();
   private JLabel jIncrAxisScale = new JLabel();
@@ -108,10 +118,6 @@ public class MagFreqDistTesterApplet extends JApplet
   private JButton addButton = new JButton();
   private JPanel outerPanel = new JPanel();
   private JSplitPane mainSplitPane = new JSplitPane();
-  private JLabel jCumAxisScale = new JLabel();
-  private JComboBox cumComboBox = new JComboBox();
-  private JLabel jMoRate = new JLabel();
-  private JComboBox moRateComboBox = new JComboBox();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 
@@ -124,7 +130,11 @@ public class MagFreqDistTesterApplet extends JApplet
   private ChartPanel incrPanel;
   private ChartPanel cumPanel;
   private ChartPanel moPanel;
+
+  private JTextPane legendPane= new JTextPane();
+  private JScrollPane legendScrollPane=new JScrollPane();
   private JPanel legendPanel =new JPanel();
+  private SimpleAttributeSet setLegend;
   private JScrollPane dataScrollPane = new JScrollPane();
   private JTextArea pointsTextArea = new JTextArea();
   private JPanel sheetPanel = new JPanel();
@@ -239,11 +249,11 @@ public class MagFreqDistTesterApplet extends JApplet
     magDistComboBox.setFont(new java.awt.Font("Dialog", 1, 12));
     magDistComboBox.setForeground(new Color(80, 80, 133));*/
     this.getContentPane().setLayout(GBL);
-    incrComboBox.setBackground(new Color(200, 200, 230));
-    incrComboBox.setForeground(new Color(80, 80, 133));
-    incrComboBox.setMaximumSize(new Dimension(105, 19));
-    incrComboBox.setMinimumSize(new Dimension(105, 19));
-    incrComboBox.setPreferredSize(new Dimension(105, 19));
+    rangeComboBox.setBackground(new Color(200, 200, 230));
+    rangeComboBox.setForeground(new Color(80, 80, 133));
+    rangeComboBox.setMaximumSize(new Dimension(105, 19));
+    rangeComboBox.setMinimumSize(new Dimension(105, 19));
+    rangeComboBox.setPreferredSize(new Dimension(105, 19));
     /*incrComboBox.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           incrComboBox_actionPerformed(e);
@@ -313,13 +323,6 @@ public class MagFreqDistTesterApplet extends JApplet
     mainSplitPane.setDividerSize(5);
     mainSplitPane.setOneTouchExpandable(false);
 
-    jCumAxisScale.setFont(new java.awt.Font("Dialog", 1, 12));
-    jCumAxisScale.setForeground(new Color(80, 80, 133));
-    jCumAxisScale.setToolTipText("");
-    jCumAxisScale.setText("Set Cum Axis Scale:");
-    jMoRate.setFont(new java.awt.Font("Dialog", 1, 12));
-    jMoRate.setForeground(new Color(80, 80, 133));
-    jMoRate.setText("Set Moment Axis Scale:");
     parametersPanel.setLayout(GBL);
     outerControlPanel.setLayout(GBL);
     parametersSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -329,6 +332,8 @@ public class MagFreqDistTesterApplet extends JApplet
     controlPanel.setLayout(GBL);
     controlPanel.setBorder(BorderFactory.createEtchedBorder(1));
     dataScrollPane.setBorder(BorderFactory.createEtchedBorder());
+    legendScrollPane.setBorder(BorderFactory.createEtchedBorder());
+    legendPane.setBorder(BorderFactory.createEtchedBorder());
     pointsTextArea.setBorder(BorderFactory.createEtchedBorder());
     pointsTextArea.setText(NO_PLOT_MSG);
     titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -338,16 +343,6 @@ public class MagFreqDistTesterApplet extends JApplet
     titlePanel.setBorder( bottomBorder );
     innerPlotPanel.setLayout(GBL);
     innerPlotPanel.setBorder(null);
-    cumComboBox.setBackground(new Color(200, 200, 230));
-    cumComboBox.setForeground(new Color(80, 80, 133));
-    cumComboBox.setMaximumSize(new Dimension(105, 19));
-    cumComboBox.setMinimumSize(new Dimension(105, 19));
-    cumComboBox.setPreferredSize(new Dimension(105, 19));
-    moRateComboBox.setBackground(new Color(200, 200, 230));
-    moRateComboBox.setForeground(new Color(80, 80, 133));
-    moRateComboBox.setMaximumSize(new Dimension(105, 19));
-    moRateComboBox.setMinimumSize(new Dimension(105, 19));
-    moRateComboBox.setPreferredSize(new Dimension(105, 19));
     this.getContentPane().setBackground(Color.white);
     outerPanel.setBackground(Color.white);
     mainPanel.setBackground(Color.white);
@@ -369,23 +364,15 @@ public class MagFreqDistTesterApplet extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
   /*  buttonPanel.add(magDistLabel,                                  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));*/
-    buttonPanel.add(cumComboBox,        new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
-    buttonPanel.add(jCumAxisScale,         new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 9, 0, 0), 0, 0));
     buttonPanel.add(addButton,                     new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 12, 0));
     buttonPanel.add(jIncrAxisScale,     new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    buttonPanel.add(moRateComboBox,  new GridBagConstraints(6, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 4, 0, 4), 0, 0));
     buttonPanel.add(jCheckylog,   new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
-    buttonPanel.add(jMoRate,  new GridBagConstraints(4, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
    /* buttonPanel.add(magDistComboBox,         new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), -5, 0));*/
-    buttonPanel.add(incrComboBox,       new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+    buttonPanel.add(rangeComboBox,       new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
 
@@ -414,6 +401,7 @@ public class MagFreqDistTesterApplet extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
     dataScrollPane.getViewport().add(pointsTextArea, null);
+    legendScrollPane.getViewport().add(this.legendPane,null);
 
     sheetPanel.setLayout(GBL);
 
@@ -523,12 +511,10 @@ public class MagFreqDistTesterApplet extends JApplet
         // starting
         String S = C + ": initMagDistGui(): ";
 
-        incrComboBox.addItem(new String("Auto Scale"));
-        incrComboBox.addItem(new String("Custom Scale"));
-        cumComboBox.addItem(new String("Auto Scale"));
-        cumComboBox.addItem(new String("Custom Scale"));
-        moRateComboBox.addItem(new String("Auto Scale"));
-        moRateComboBox.addItem(new String("Custom Scale"));
+        rangeComboBox.addItem(new String("Custom Scale"));
+        rangeComboBox.addItem(new String("IncrRate Auto Scale"));
+        rangeComboBox.addItem(new String("CumRate Auto Scale"));
+        rangeComboBox.addItem(new String("MoRate Auto Scale"));
   }
 
 
@@ -581,8 +567,8 @@ public class MagFreqDistTesterApplet extends JApplet
                     cumPanel.getChart().getPlot().setBackgroundPaint(Color.black);
                 if( moPanel != null )
                     moPanel.getChart().getPlot().setBackgroundPaint(Color.black);
-                if(legendPanel !=null)
-                   legendPanel.setBackground(Color.black);
+                if(legendPane !=null)
+                   legendPane.setBackground(Color.black);
 
             }
             else{
@@ -593,8 +579,8 @@ public class MagFreqDistTesterApplet extends JApplet
                     cumPanel.getChart().getPlot().setBackgroundPaint(Color.white);
                 if( moPanel != null )
                     moPanel.getChart().getPlot().setBackgroundPaint(Color.white);
-                if(legendPanel !=null)
-                    legendPanel.setBackground(Color.black);
+                if(legendPane !=null)
+                    legendPane.setBackground(Color.white);
             }
         }
 
@@ -1001,6 +987,16 @@ public class MagFreqDistTesterApplet extends JApplet
         LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
         //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
+        /* to set the range of the axis on the input from the user if the range combo box is selected*/
+        if(this.customAxis) {
+          incrXAxis.setRange(this.minXValue,this.maxXValue);
+          cumXAxis.setRange(this.minXValue,this.maxXValue);
+          cumXAxis.setRange(this.minXValue,this.maxXValue);
+          incrYAxis.setRange(this.minYValue,this.maxYValue);
+          cumYAxis.setRange(this.minYValue,this.maxYValue);
+          moYAxis.setRange(this.minYValue,this.maxYValue);
+        }
+
 
         // build the plot
         org.scec.gui.PSHALogXYPlot incrPlot = new org.scec.gui.PSHALogXYPlot(this,incrData, incrXAxis, incrYAxis, false, yLog);
@@ -1016,11 +1012,13 @@ public class MagFreqDistTesterApplet extends JApplet
           incrPlot.setBackgroundPaint( Color.white );
           cumPlot.setBackgroundPaint( Color.white );
           moPlot.setBackgroundPaint( Color.white );
+          legendPane.setBackground(Color.white);
         }
         else {
           incrPlot.setBackgroundPaint( Color.black );
           cumPlot.setBackgroundPaint( Color.black );
           moPlot.setBackgroundPaint( Color.black );
+          legendPane.setBackground(Color.black);
         }
 
 
@@ -1036,34 +1034,46 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
         int numOfColors = incrPlot.getSeriesCount();
-        paint =new Paint[numOfColors];
+        Color[] legendColor=new Color[numOfColors];
         for(int i=0;i<numOfColors;++i)
-           paint[i]=incrPlot.getSeriesOutlinePaint(i);
+           legendColor[i]=(Color)incrPlot.getSeriesOutlinePaint(i);
+
+
+
+
         // Graphics
         incrChart.setBackgroundPaint( lightBlue );
         cumChart.setBackgroundPaint( lightBlue );
         moChart.setBackgroundPaint( lightBlue );
 
-        // chart.setBackgroundImage(image);
-        // chart.setBackgroundImageAlpha(.3f);
+
 
         // Put into a panel
         incrPanel = new ChartPanel(incrChart, true, true, true, true, false);
         cumPanel = new ChartPanel(cumChart, true, true, true, true, false);
         moPanel = new ChartPanel(moChart, true, true, true, true, false);
 
-        int xLabel=10;
-        int yLabel=10;
-        legendPanel.setLayout(null);
-        legendPanel.removeAll();
+       // int xLabel=10;
+       // int yLabel=10;
+       // legendPanel.setLayout(null);
+        legendPane.removeAll();
+        setLegend =new SimpleAttributeSet();
+        setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
+                               Boolean.TRUE);
+        Document doc = legendPane.getStyledDocument();
         for(int i=0;i<numOfColors;++i){
-            //g.setPaint(paint[i]);
-            JLabel label = new JLabel(this.incrFunctions.get(i).getName()+"::"+this.incrFunctions.get(i).getInfo()+";"+
-                        this.toCumFunctions.get(i).getInfo()+";"+this.toMoFunctions.get(i).getInfo());
-            label.setFont(new java.awt.Font("Dialog", 1, 8));
-            legendPanel.add(label);
-            label.setBounds(xLabel,yLabel,400,20);
-            yLabel +=30;
+            legend = new String(i+1+"."+this.incrFunctions.get(i).getName()+"::"+this.incrFunctions.get(i).getInfo()+";"+
+                        this.toCumFunctions.get(i).getInfo()+";"+this.toMoFunctions.get(i).getInfo()+"\n\n");
+            setLegend =new SimpleAttributeSet();
+            StyleConstants.setFontSize(setLegend,12);
+            StyleConstants.setForeground(setLegend,legendColor[i]);
+            try {
+              doc.insertString(doc.getLength(),legend,setLegend);
+            } catch (BadLocationException e) {
+                return;
+            }
+
+
         }
         //panel.setMouseZoomable(true);
 
@@ -1187,11 +1197,11 @@ public class MagFreqDistTesterApplet extends JApplet
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                 // panel for mag vs moment-rate graph
-                //innerPlotPanel.add( moPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
-                  //     , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+                innerPlotPanel.add( moPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                   //panel for the legend
-                  innerPlotPanel.add( legendPanel, new GridBagConstraints( 1,1, 1, 1, 1.0, 1.0
+                  innerPlotPanel.add(legendScrollPane, new GridBagConstraints( 1,1, 1, 1, 1.0, 1.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
 
@@ -1244,5 +1254,51 @@ public class MagFreqDistTesterApplet extends JApplet
      */
   void toggleButton_actionPerformed(ActionEvent e) {
       togglePlot();
+  }
+
+ /**
+  * whenever selection is made in the combo box
+  * @param e
+  */
+  void rangeComboBox_actionPerformed(ActionEvent e) {
+
+    String str=(String)rangeComboBox.getSelectedItem();
+    if(str.equalsIgnoreCase("IncrRate Auto Scale") || str.equalsIgnoreCase("CumRate Auto Scale")
+       || str.equalsIgnoreCase("MoRate Auto Scale")){
+      customAxis=false;
+      addGraphPanel();
+    }
+    if(str.equalsIgnoreCase("custom Scale"))  {
+       int xCenter=getAppletXAxisCenterCoor();
+       int yCenter=getAppletYAxisCenterCoor();
+       MagFreqDistAxisScale axisScale=new MagFreqDistAxisScale(this);
+       axisScale.setBounds(xCenter-60,yCenter-50,375,148);
+       axisScale.pack();
+       axisScale.show();
+    }
+  }
+
+  /**
+   * sets the range for X-axis
+   * @param xMin : minimum value for X-axis
+   * @param xMax : maximum value for X-axis
+   */
+  public void setXRange(float xMin,float xMax) {
+     minXValue=xMin;
+     maxXValue=xMax;
+     this.customAxis=true;
+
+  }
+
+  /**
+   * sets the range for Y-axis
+   * @param yMin : minimum value for Y-axis
+   * @param yMax : maximum value for Y-axis
+   */
+  public void setYRange(float yMin,float yMax) {
+     minYValue=yMin;
+     maxYValue=yMax;
+     this.customAxis=true;
+     addGraphPanel();
   }
 }

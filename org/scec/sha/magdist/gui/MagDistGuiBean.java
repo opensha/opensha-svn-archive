@@ -353,7 +353,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
          // Build editor list
         independentsEditor = new ParameterListEditor( independentParams, this, applet, searchPaths );
-        independentsEditor.setTitle( "Independent Variables" );
+        independentsEditor.setTitle( "Distribution Parameters" );
 
         // All done
         if ( D )

@@ -221,7 +221,7 @@ public class NumericPlainDocument extends PlainDocument
                     char lastChar = targetString.charAt(originalLength - 1);
                     int decimalIndex = targetString.indexOf(decimalSeparator);
 
-                    if ((!format.isGroupingUsed()
+                   /* if ((!format.isGroupingUsed()
                         || lastChar != groupingSeparator
                         || decimalIndex != -1)
                         && (format.isParseIntegerOnly() != false
@@ -230,7 +230,7 @@ public class NumericPlainDocument extends PlainDocument
                     {
                         if (errorListener != null) errorListener.insertFailed(this, offset, str, a);
                         return;
-                    }
+                    }*/
                 }
             }
 
