@@ -279,9 +279,9 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     */
    public EqkRupForecastAPI getSelectedERF_Instance() throws InvocationTargetException{
      // update the mag dist param
-     if(this.getMagDistEditor()!=null)
-       this.updateMagDistParam();
-
+     updateMagDistParam();
+     //update the fault Parameter
+     updateFaultParam();
      return eqkRupForecast;
    }
 
@@ -349,6 +349,15 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      MagFreqDistParameterEditor magEditor=getMagDistEditor();
      if(magEditor!=null)  magEditor.setMagDistFromParams();
    }
+
+   /**checks if the Fault Parameter Editor exists inside it ,
+    * if so then gets its Editor and calls the method to update the faultParams.
+    */
+   protected void updateFaultParam() {
+     SimpleFaultParameterEditor faultEditor = getSimpleFaultParamEditor();
+     if(faultEditor!=null)  faultEditor.getParameterEditorPanel().setEvenlyGriddedSurfaceFromParams();
+   }
+
 
 
    /**

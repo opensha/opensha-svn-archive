@@ -286,7 +286,6 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
       faultCornerLocations.add(faultSurface.get(nRows-1,(int)(nCols/2)));
       faultCornerLocations.add(faultSurface.get(nRows-1,nCols-1));
 
-
     }
 
     /**

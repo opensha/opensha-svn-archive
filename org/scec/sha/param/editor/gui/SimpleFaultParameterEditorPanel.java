@@ -46,7 +46,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   boolean showFaultName = false;
 
   //boolean for the Evenly Gridded Param
-  boolean evenlyGriddedParamChange = false;
+  boolean evenlyGriddedParamChange = true;
 
 
 
@@ -528,8 +528,10 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   public void setEvenlyGriddedSurfaceFromParams()throws RuntimeException{
 
     //checks if any parameter has been only then updates the Griddedsurface
-    if(evenlyGriddedParamChange)
+    if(evenlyGriddedParamChange){
       surfaceParam.setEvenlyGriddedSurfaceFromParams();
+      evenlyGriddedParamChange = false;
+    }
   }
 
 

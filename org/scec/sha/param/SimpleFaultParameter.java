@@ -324,11 +324,16 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
     ParameterList parameterListForLats = new ParameterList();
     ParameterList parameterListForLons = new ParameterList();
 
+    //getting the size  of the list which stores the actual double value of the parameter.
+    int size = prevLats.size();
     //creating the editor for the lons
     for(int i=0;i<numFltTracePoints;++i){
       //checks if any value exists in the vector for that lats parameter else just fill it up with a blank.
-      if(prevLats.size()<(i+1))
+      if(size<(i+1) && size>0)
         lat[i] = new DoubleParameter(LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees");
+      else if(size ==0)
+        lat[i] = new DoubleParameter(LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees",
+                                     new Double(38.2248 - i/2.0));
       else
         lat[i] = new DoubleParameter(LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees", (Double)prevLats.get(i));
       parameterListForLats.addParameter(lat[i]);
@@ -336,11 +341,15 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
     }
     parameterListParameterForLats = new ParameterListParameter(LAT_TITLE,parameterListForLats);
 
+    size = prevLons.size();
     //creating the editor for the Lons
     for(int i=0;i<numFltTracePoints;++i){
       //checks if any value exists in the vector for that lons parameter else just fill it up with a blank.
-      if(prevLons.size() < (i+1))
-        lon[i] = new DoubleParameter(this.LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees");
+      if(size < (i+1) && size >0)
+        lon[i] = new DoubleParameter(LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees");
+      else if(size ==0)
+        lon[i] = new DoubleParameter(LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees",
+        new Double(-122.0 - i/2.0));
       else
         lon[i] = new DoubleParameter(this.LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees",(Double)prevLons.get(i));
 
@@ -361,7 +370,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
 
 
   /**
-   * Creates Latitude and Longitude parameters based on the number of the Dips.
+   * Creates Dips parameters based on the number of the Dips.
    * If the user has already specified the values for these parameters once ,it saves
    * those values for future reference. So that when the number of dips changes
    * user does not always have to fill in all the values.
@@ -373,10 +382,14 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
 
     //making the parameterList for the Dips
     ParameterList parameterListForDips = new ParameterList();
+    int size = prevDips.size();
     for(int i=0;i<numDips;++i){
       //checks if any value exists in the vector for that dips parameter else just fill it up with a blank.
-      if(prevDips.size() < (i+1))
+      if(size < (i+1) && size >0)
         dip[i] = new DoubleParameter(DIP_PARAM_NAME+(i+1),0.0,90.0,"Degrees");
+      else if(size ==0)
+        dip[i] = new DoubleParameter(DIP_PARAM_NAME+(i+1),0.0,90.0,"Degrees",
+                                     new Double(90-(i+30)));
       else
         dip[i] = new DoubleParameter(DIP_PARAM_NAME+(i+1),0.0,90.0,"Degrees",(Double)prevDips.get(i));
       parameterListForDips.addParameter(dip[i]);
@@ -406,10 +419,14 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
     //making the parameterList for the Dips
     ParameterList parameterListForDepths = new ParameterList();
 
+    int size = prevDepths.size();
     for(int i=0;i<numDepths;++i){
       //checks if any value exists in the vector for that Depth parameter else just fill it up with a blank.
-      if(prevDepths.size() < (i+1))
+      if(size < (i+1) && size >0)
         depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms");
+      else if( size ==0)
+        depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms",
+                                     new Double(0+(i+6)));
       else
         depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms",(Double)prevDepths.get(i));
       parameterListForDepths.addParameter(depth[i]);
