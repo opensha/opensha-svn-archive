@@ -80,7 +80,6 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
          //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
          boolean flag = siteTranslator.setParameterValue(tempParam,(String)vs30.get(index),
                                                          ((Double)basinDepth.get(index)).doubleValue());
-         System.out.println((String)vs30.get(index)+"     "+((Double)basinDepth.get(index)).doubleValue());
          //If the value was outside the bounds of CVM
          //and site has no value from CVM then set its value to the default Site Params shown in the application.
          if(!flag){
@@ -157,7 +156,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    setSiteParamsUsingVs30AndBasinDepth = false;
    setSameSiteParams = false;
    try{
-     getVS30FromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+     getWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
    }catch(Exception e){
      throw new RuntimeException(e.getMessage());
    }
@@ -170,6 +169,26 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
 
 
  /**
+  * This function is called if the site Params need to be set using high resolution WILLS site type.
+  * As Wills Site type provide no value for the Basin depth so we set it to Double.Nan
+  */
+ public void setSiteParamsUsing_HighResolutionWILLS_VS30(){
+   setSiteParamsUsing_WILLS_VS30 = true;
+   setSiteParamsUsingVs30AndBasinDepth = false;
+   setSameSiteParams = false;
+   try{
+     getHighResolutionWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+   }catch(Exception e){
+     throw new RuntimeException(e.getMessage());
+   }
+   int size = getNumGridLocs();
+   basinDepth = new Vector();
+   for(int i=0;i<size;++i)
+     basinDepth.add(new Double(Double.NaN));
+
+ }
+
+ /**
   * This function is called if the site Params need to be set using WILLS site type
   * and basin depth from the SCEC basin depth values.
   */
@@ -178,7 +197,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    setSiteParamsUsingVs30AndBasinDepth = true;
    setSameSiteParams = false;
    try{
-     getVS30FromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+     getWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
      getBasinDepthFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
    }catch(Exception e){
      throw new RuntimeException(e.getMessage());
@@ -205,9 +224,9 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
  }
 
  /**
-  * Gets the VS30 from the CVM servlet
+  * Gets the Wills et al. Site Type (2000) Map Web Service from the CVM servlet
   */
- private void getVS30FromCVM(double lonMin,double lonMax,double latMin,double latMax,
+ private void getWillsSiteTypeFromCVM(double lonMin,double lonMax,double latMin,double latMax,
                              double gridSpacing) {
 
    // if we want to the paramter from the servlet
@@ -215,6 +234,53 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
 
      // make connection with servlet
      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/WillsSiteClassServlet");
+     URLConnection servletConnection = cvmServlet.openConnection();
+
+     servletConnection.setDoOutput(true);
+
+     // Don't use a cached version of URL connection.
+     servletConnection.setUseCaches (false);
+     servletConnection.setDefaultUseCaches (false);
+
+     // Specify the content type that we will send binary data
+     servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
+
+     // send the student object to the servlet using serialization
+     ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
+
+
+     outputToServlet.writeObject(new Double(lonMin));
+     outputToServlet.writeObject(new Double(lonMax));
+     outputToServlet.writeObject(new Double(latMin));
+     outputToServlet.writeObject(new Double(latMax));
+     outputToServlet.writeObject(new Double(gridSpacing));
+
+     outputToServlet.flush();
+     outputToServlet.close();
+
+     // now read the connection again to get the vs30 as sent by the servlet
+     ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
+     //vectors of lat and lon for the Vs30
+     vs30=(Vector)ois.readObject();
+     ois.close();
+   }catch (Exception exception) {
+     System.out.println("Exception in connection with servlet:" +exception);
+   }
+ }
+
+
+
+ /**
+  * Gets the High Resolution Wills et al. Site Type (2000) Map Web Service from the CVM servlet
+  */
+ private void getHighResolutionWillsSiteTypeFromCVM(double lonMin,double lonMax,double latMin,double latMax,
+                             double gridSpacing) {
+
+   // if we want to the paramter from the servlet
+   try{
+
+     // make connection with servlet
+     URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/TempHighResolutionWillsSiteClassServlet");
      URLConnection servletConnection = cvmServlet.openConnection();
 
      servletConnection.setDoOutput(true);
