@@ -109,7 +109,12 @@ public class XY_ValuesControlPanel
     String str = xyDatasetText.getText();
     StringTokenizer st = new StringTokenizer(str,"\n");
     while(st.hasMoreTokens()){
+
       StringTokenizer st1 = new StringTokenizer(st.nextToken());
+      int numVals = st1.countTokens();
+      if(numVals !=2)
+        throw new RuntimeException("Each line should have just one X and "+
+                                   "one Y value, which are space seperated");
       double tempX_Val=0;
       double tempY_Val=0;
       try{

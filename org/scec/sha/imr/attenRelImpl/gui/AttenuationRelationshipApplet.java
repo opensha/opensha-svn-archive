@@ -48,7 +48,7 @@ public class AttenuationRelationshipApplet extends JApplet
         XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    private final static String version = "0.8.14";
+    private final static String version = "0.8.15";
     protected final static boolean D = false;
   /**
    * these four values save the custom axis scale specified by user
@@ -75,6 +75,8 @@ public class AttenuationRelationshipApplet extends JApplet
    //instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
    private GraphWindow graphWindow;
 
+   //graph Title
+   private String plotTitle = "" ;
 
     //images for the OpenSHA
     private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
@@ -739,7 +741,7 @@ public class AttenuationRelationshipApplet extends JApplet
      */
     private void addGraphPanel() {
 
-      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,null,buttonControlPanel);
+      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,plotTitle,buttonControlPanel);
       togglePlot();
       if( isWhite ) graphPanel.setPlotBackgroundColor(Color.white );
       else graphPanel.setPlotBackgroundColor( Color.black );
@@ -1327,7 +1329,7 @@ public class AttenuationRelationshipApplet extends JApplet
    * @returns plot Title
    */
   public String getPlotLabel(){
-    return "";
+    return plotTitle;
   }
 
 
@@ -1352,7 +1354,7 @@ public class AttenuationRelationshipApplet extends JApplet
    * sets plot Title
    */
    public void setPlotLabel(String plotTitle){
-     String TITLE = plotTitle;
+     this.plotTitle = plotTitle;
    }
 
    /**
