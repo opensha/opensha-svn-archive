@@ -239,9 +239,23 @@ public class CB_2003_AttenRel
 
     }
 
+
     /**
-     * This sets the two propagation-effect parameters based on the current
-     * site and probEqkRupture.
+        * get the name of this IMR
+        *
+        * @returns the name of this IMR
+        */
+    public String getName() {
+         return NAME;
+    }
+
+    /**
+     * This sets the two propagation-effect parameters (distanceSeisParam and
+     * hangingWallParam) based on the current site and probEqkRupture.  The
+     * hanging wall term is nonzero only if the dip is less than 70 degrees
+     * AND the fault is of type reverse or thrust.  Point sources are give a
+     * zero value regardless of the dip and fault type.  These specifications
+     * were conveyed to Ned Field by Ken Campbell in a series of emails.
      */
     protected void setPropagationEffectParams(){
 
@@ -252,16 +266,11 @@ public class CB_2003_AttenRel
             if(D) System.out.println(C+"Warning Exception:"+e);
           }
 
-          /* There is a problem that this term will apply to vertical strike-slip faults
-             when on the fault trace.  The 70-degree dip threshold was the solution
-             recommended by Ken Cambell via email to Ned Field on 9-26-02.  He confirmed
-             this with Norm Abrahamson (it applies to his relationships as well).
-          */
+          int numPts = probEqkRupture.getRuptureSurface().getNumCols();
           double dip = probEqkRupture.getRuptureSurface().getAveDip();
           String fltType = (String) fltTypeParam.getValue();
 
-          // Is the dip constraint really needed (I sent an email to him)????
-          if(dip < 70.0 && (fltType != FLT_TYPE_OTHER)) {
+          if(dip < 70.0 && (fltType != FLT_TYPE_OTHER) && numPts > 1) {
                 double jbDist = ( (Double) distanceJBParam.getValue( probEqkRupture, site ) ).doubleValue();
                 if ( jbDist < 1.0 )
                     hangingWallParam.setValue(1.0);
@@ -272,6 +281,8 @@ public class CB_2003_AttenRel
           }
           else // turn it off for normal, strike-slip, or vertically dipping faults
                 hangingWallParam.setValue(0.0);
+
+//          System.out.println("CB_2003 hanging wall value: " + hangingWallParam.getValue().toString());
         }
 
     }

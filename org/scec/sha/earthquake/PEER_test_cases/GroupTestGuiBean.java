@@ -59,6 +59,7 @@ public class GroupTestGuiBean implements
    public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
    public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
    public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
+   public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
 
     // IMR GUI Editor & Parameter names
     private final static String IMR_PARAM_NAME = "IMR";
@@ -364,6 +365,7 @@ public class GroupTestGuiBean implements
       imrClasses.add( SCEMY_CLASS_NAME );
       imrClasses.add( F_CLASS_NAME );
       imrClasses.add( A_CLASS_NAME );
+      imrClasses.add( CB_CLASS_NAME );
       Iterator it= imrClasses.iterator();
       while(it.hasNext()){
         // make the IMR objects as needed to get the site params later

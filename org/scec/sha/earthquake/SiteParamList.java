@@ -75,6 +75,7 @@ public class SiteParamList extends ParameterList
   protected final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
   protected final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
   protected final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
+  protected final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
 
 
   // add the IMR class names to a vector
@@ -100,6 +101,7 @@ public class SiteParamList extends ParameterList
     classNames.add(C_CLASS_NAME);
     classNames.add(SCEMY_CLASS_NAME);
     classNames.add(F_CLASS_NAME);
+    classNames.add(CB_CLASS_NAME);
 
     // listen for latitude and longitude so that site object can be updated
     this.latitude.addParameterChangeListener(this);

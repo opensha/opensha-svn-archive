@@ -273,10 +273,14 @@ public class AS_1997_AttenRel
 
     }
 
-
     /**
-     * This calculates the distanceRupParam and isOnHangingWallParam values based
-     * on the current site and probEqkRupture. <P>
+     * This sets the two propagation-effect parameters (distanceRupParam and
+     * isOnHangingWallParam) based on the current site and probEqkRupture.  The
+     * hanging-wall term is rake independent (i.e., it can apply to strike-slip or
+     * normal faults as well as reverse and thrust).  However, it is turned off if
+     * the dip is greater than 70 degrees.  It is also turned off for point sources
+     * regardless of the dip.  These specifications were determined from a series of
+     * discussions between Ned Field, Norm Abrahamson, and Ken Campbell.
      */
     protected void setPropagationEffectParams(){
 
@@ -289,8 +293,9 @@ public class AS_1997_AttenRel
 
         // here is the hanging wall term.  This should really be implemented as a
         // formal propagation-effect parameter.
+            int numPts = probEqkRupture.getRuptureSurface().getNumCols();
 
-            if(probEqkRupture.getRuptureSurface().getAveDip() < 70 && isOnHangingWall())
+            if(probEqkRupture.getRuptureSurface().getAveDip() < 70 && isOnHangingWall() && numPts > 1)
                 isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
             else
                 isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
@@ -298,6 +303,8 @@ public class AS_1997_AttenRel
             if (D) System.out.println("HW result: " + isOnHangingWall() + ";  rake & dip: "+
                                       probEqkRupture.getAveRake() + "; " +
                                       probEqkRupture.getRuptureSurface().getAveDip());
+
+//System.out.println("AS_1997 hanging wall value: " + isOnHangingWallParam.getValue().toString());
 
 /* OLD IMPLEMENTATION:
 
@@ -1105,6 +1112,8 @@ System.out.println( a13 );
     public String getName() {
          return NAME;
     }
+
+
     /**
      *  <b>Title:</b> AS_1997_AttenRelCoefficients<br>
      *  <b>Description:</b> This class encapsulates all the
