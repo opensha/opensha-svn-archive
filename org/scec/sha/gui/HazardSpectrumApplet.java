@@ -100,7 +100,7 @@ public class HazardSpectrumApplet extends JApplet
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
-  private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
+  //private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
   //private final static String DISAGGREGATION_CONTROL = "Disaggregation";
   private final static String EPISTEMIC_CONTROL = "ERF Epistemic Control";
   private final static String AXIS_CONTROL = "Axis Control";
@@ -1547,7 +1547,7 @@ public class HazardSpectrumApplet extends JApplet
    */
   private void initControlList() {
     this.controlComboBox.addItem(CONTROL_PANELS);
-    this.controlComboBox.addItem(PEER_TEST_CONTROL);
+    //this.controlComboBox.addItem(PEER_TEST_CONTROL);
     //this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
     this.controlComboBox.addItem(AXIS_CONTROL);
     this.controlComboBox.addItem(DISTANCE_CONTROL);
