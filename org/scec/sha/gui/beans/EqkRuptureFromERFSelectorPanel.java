@@ -311,10 +311,10 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
              "Please wait while ERF is being updated ...");
        else if (step == 3)
          progress.setProgressMessage(
-             "Please wait while sources are being updated");
+             "Please wait while sources are being updated ...");
        else if (step == 4)
          progress.setProgressMessage(
-             "Please wait while ruptures are being updated");
+             "Please wait while ruptures are being updated ...");
 
        progress.validate();
        progress.repaint();
