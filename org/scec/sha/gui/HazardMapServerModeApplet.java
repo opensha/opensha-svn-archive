@@ -72,7 +72,7 @@ public class HazardMapServerModeApplet extends JApplet implements
   public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_ListricFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_MultiSourceForecast";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
-  public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
+  public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecastWebEnabled";
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -545,7 +545,7 @@ public class HazardMapServerModeApplet extends JApplet implements
     // create the ERF Gui Bean object
   Vector erf_Classes = new Vector();
   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-  //erf_Classes.add(this.STEP_FORECAST_CLASS_NAME);
+  erf_Classes.add(this.STEP_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
