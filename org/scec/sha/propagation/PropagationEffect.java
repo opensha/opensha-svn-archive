@@ -5,8 +5,6 @@ import org.scec.exceptions.*;
 import org.scec.param.*;
 import org.scec.sha.earthquake.*;
 
-// FIX *** FIX *** SWR: Many functions not implemented. Is this class still needed???
-
 /**
  * <b>Title:</b> PropagationEffect<p>
  *
@@ -48,6 +46,8 @@ import org.scec.sha.earthquake.*;
  * <br>     Abrahamson_2000_Theta 	(angle between strike and
  * <br>                               epicentral azimuth; a directivity parameter)
  * <p>
+ *
+ * FIX *** FIX *** SWR: Many functions not implemented. Is this class still needed???
  *
  * @author Steven W. Rock
  * @version 1.0

@@ -127,7 +127,7 @@ public class ParameterEditor
     /** The internal parameter that this Editor is editing */
     protected ParameterAPI model;
 
-    /*
+    /**
      * Flag whether to catch errors when constraint error thrown. Resets
      * value to last value before setting with new value.
      */

@@ -27,7 +27,7 @@ public class IntegerParameterEditor extends ParameterEditor
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    // No-Arg constructor calls parent constructtor
+    /** No-Arg constructor calls parent constructor */
     public IntegerParameterEditor() { super(); }
 
     /**
