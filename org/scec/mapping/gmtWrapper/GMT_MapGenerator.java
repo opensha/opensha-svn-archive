@@ -223,6 +223,18 @@ public class GMT_MapGenerator {
 
     String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
 
+    // plot size parameter
+    double plotWdth = 6.5;
+    String projWdth = "-JM"+plotWdth+"i";
+    double plotHght = ((maxLat-minLat)/(maxLon-minLon))*plotWdth/Math.cos(Math.PI*(maxLat+minLat)/(2*180));
+
+    int imageWdthPix = (int) (8.5*72);
+
+    int imageHghtPix = (int) (( plotHght + 2.25 )*72);
+
+    System.out.println("plot height = " + plotHght + " imageHightPix = "+ imageHghtPix);
+
+
     try {
 
        //command to be executed during the runtime.
@@ -250,11 +262,11 @@ public class GMT_MapGenerator {
        command[2]=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > temp.cpt";
        RunScript.runScript(command);
 
-       command[2]=GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0";
+       command[2]=GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait";
        RunScript.runScript(command);
 
        if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-         command[2]=GMT_PATH+"grdimage tempData.grd -X1.5i -Y2i -JM8i -Ctemp.cpt -K -E70 "+ region + " > " + out_ps;
+         command[2]=GMT_PATH+"grdimage tempData.grd -X0.75i -Y2i " + projWdth + " -Ctemp.cpt -K -E70 "+ region + " > " + out_ps;
          RunScript.runScript(command);
        }
        else {
@@ -264,33 +276,31 @@ public class GMT_MapGenerator {
          command[2]=GMT_PATH+"grdcut " + topoIntenFile + " -GtempInten.grd "+region;
          RunScript.runScript(command);
 
-         command[2]=GMT_PATH+"grdimage tempHiResData.grd -X1.5i -Y2i -JM8i -ItempInten.grd -Ctemp.cpt -K -E70 "+ region + " > " + out_ps;
+         command[2]=GMT_PATH+"grdimage tempHiResData.grd -X0.75i -Y2i " + projWdth + " -ItempInten.grd -Ctemp.cpt -K -E70 "+ region + " > " + out_ps;
          RunScript.runScript(command);
        }
 
        if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
-         command[2]=GMT_PATH+"psxy  "+region+" -JM8i -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + out_ps;
+         command[2]=GMT_PATH+"psxy  "+region+" " + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + out_ps;
          RunScript.runScript(command);
        }
-       //# this will be added later
-       //# psxy   ${region} -JM8i -O -K  -W5/0/0/0 -: -Ms ca_hiwys.main.asc >> $filename
 
-       command[2]=GMT_PATH+"pscoast  "+region+" -JM8i -K -O -W1/17/73/71 -P -S17/73/71 -Di >> " + out_ps;
+       command[2]=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Di >> " + out_ps;
        RunScript.runScript(command);
 
        command[2]=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
        RunScript.runScript(command);
 
-       command[2]=GMT_PATH+"psscale -B1:Log_Prob: -D4i/-0.5i/8i/0.3ih -Ctemp.cpt -K -O -N70 >> " + out_ps;
+       command[2]=GMT_PATH+"psscale -B1:Log_Prob: -D3.5i/-0.5i/6i/0.3ih -Ctemp.cpt -K -O -N70 >> " + out_ps;
        RunScript.runScript(command);
 
-       command[2]=GMT_PATH+"psbasemap -B1/1eWNs -JM8i "+region+" -Lfx1.25i/0.6i/33.0/100 -O >> " + out_ps;
+       command[2]=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/100 -O >> " + out_ps;
        RunScript.runScript(command);
 /*
        command[2] =COMMAND_PATH+"cat "+ out_ps + " | "+GMT_PATH+"gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
        RunScript.runScript(command);
 */
-       command[2] = GMT_PATH+"convert -rotate 90 "+ out_ps + " " + out_jpg;
+       command[2] = GMT_PATH+"convert "+ out_ps + " " + out_jpg;
        RunScript.runScript(command);
 
        // increment jpg file index
