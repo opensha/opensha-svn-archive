@@ -1275,7 +1275,7 @@ public class GroupTestGuiBean implements
     }catch (RuntimeException e) {
       JOptionPane.showMessageDialog(applet, e.getMessage(),
         "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-      e.printStackTrace();
+      //e.printStackTrace();
       return;
    }
     // intialize the condProbFunction for each IMR
