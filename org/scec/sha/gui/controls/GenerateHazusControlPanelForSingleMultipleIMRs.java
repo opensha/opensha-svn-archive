@@ -326,7 +326,20 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
     generateHazusFiles(application.getSelectedAttenuationRelationships());
     //keeps tracks if the user has pressed the button to generate the xyz dataset
     //for prodcing the shapefiles for Hazus.
-    generatingXYZDataForShapeFiles = true;
+    setGenerateShapeFilesForHazus(true);
+  }
+
+  /**
+   * Function accepts true if user wants to generate the hazus shapefiles. On setting
+   * to false it does not generate the hazus shape files. User has to explicitly
+   * set to false if he does not want to generate the shapefiles for hazus once he
+   * has pressed button to generate the shape files for hazus which sets this
+   * generateHazusShapeFiles to true. This function has to be explicitly have to be
+   * called with false in order not to generate the shape files.
+   * @param generateHazusShapeFiles
+   */
+  public void setGenerateShapeFilesForHazus(boolean generateHazusShapeFiles){
+    generatingXYZDataForShapeFiles = generateHazusShapeFiles;
   }
 
   /**
@@ -339,10 +352,11 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
 
   /**
    *
-   * @returns if the user has pressed the button to generate the xyz dataset
-   * for prodcing the shapefiles for Hazus
+   * @returns if the generate shape files for Hazus being done.
+   * If returns then files for hazus will be generated else if returns
+   * false then files are not being generated.
    */
-  public boolean isHazusShapeFilesButtonPressed(){
+  public boolean isGenerateShapeFilesForHazus(){
     return generatingXYZDataForShapeFiles;
   }
 

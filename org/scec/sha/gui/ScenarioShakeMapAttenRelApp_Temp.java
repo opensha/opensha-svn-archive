@@ -582,7 +582,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
   void addButton_actionPerformed(ActionEvent e) {
    //sets the Gridded region Sites and the type of plot user wants to see
    //IML@Prob or Prob@IML and it value.
-    if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed()){
+    if(hazusControl == null || !hazusControl.isGenerateShapeFilesForHazus()){
       getGriddedSitesMapTypeAndSelectedAttenRels();
       // this function will get the selected IMT parameter and set it in IMT
       imrGuiBean.setIMT();
@@ -603,7 +603,10 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
       calcProgress.dispose();
       return;
     }
-    hazusControl = null;
+    //make sures that next time user wants to generate the shapefiles for hazus
+    //he would have to pull up the control panel again and punch the button.
+    if(hazusControl !=null)
+      hazusControl.setGenerateShapeFilesForHazus(false);
   }
 
   /**
@@ -611,10 +614,9 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
    */
   public void addButton(){
     step = 1;
-
     if(step ==1)
       calcProgress = new CalcProgressBar("ShakeMapApp","  Calculating ShakeMap Data ...");
-    if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())
+    if(hazusControl == null || !hazusControl.isGenerateShapeFilesForHazus())
       generateShakeMap(attenRel);
     //sets the region coordinates for the GMT using the MapGuiBean
     setRegionForGMT();
@@ -629,7 +631,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
       else
         label=imrGuiBean.getSelectedIMT();
 
-      if(hazusControl !=null && hazusControl.isHazusShapeFilesButtonPressed())
+      if(hazusControl !=null && hazusControl.isGenerateShapeFilesForHazus())
         mapGuiBean.makeHazusShapeFilesAndMap(hazusControl.getXYZ_DataForSA_03(),hazusControl.getXYZ_DataForSA_10(),
             hazusControl.getXYZ_DataForPGA(),hazusControl.getXYZ_DataForPGV(),
             erfGuiBean.getRupture(),label,getMapParametersInfo());
@@ -708,6 +710,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
   private void initHazusScenarioControl(){
     if(hazusControl == null)
       hazusControl = new GenerateHazusControlPanelForSingleMultipleIMRs(this,this);
+
     hazusControl.show();
     hazusControl.pack();
  }
@@ -748,7 +751,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
            "---------------<br>\n"+
         this.imrGuiBean.getParameterListMetadataString()+"\n";
     //if the Hazus Control for Sceario is selected the get the metadata for IMT from there
-    if(hazusControl !=null && hazusControl.isHazusShapeFilesButtonPressed())
+    if(hazusControl !=null && hazusControl.isGenerateShapeFilesForHazus())
       imrMetadata = hazusControl.getIMT_Metadata()+imrMetadata;
 
     return imrMetadata+
