@@ -236,5 +236,13 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      */
     public DiscretizedFuncAPI deepClone();
 
+    /**
+     * This function interpolates the Y values in the log space between x and y values.
+     * The Y value returned is in the linear space but the interpolation is done in the log space.
+     * @param x : X value in the linear space corresponding to which we are required to find the interpolated
+     * y value in log space.
+     */
+    public double getInterpolatedY_inLogXLogYDomain(double x);
+
 
 }

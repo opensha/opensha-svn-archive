@@ -355,6 +355,43 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
        return y;
     }
 
+    /**
+     * This function interpolates the y-axis value corresponding to the given value of x.
+     * the interpolation of the Y value is done in the log space for x and y values.
+     * The Y value returned is in the linear space but the interpolation is done in the log space.
+     * @param x : X value in the linear space corresponding to which we are required to find the interpolated
+     * y value in log space.
+     * @return y(this  is the interpolated y in linear space based on the given x value)
+     */
+    public double getInterpolatedY_inLogXLogYDomain(double x){
+      // finds the size of the point array
+      int max=points.size();
+      double x1=Double.NaN;
+      double x2=Double.NaN;
+      //if passed parameter(x value) is not within range then throw exception
+      if(x>getX(max-1) || x<getX(0))
+        throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1));
+      //if x value is equal to the maximum value of all given X's then return the corresponding Y value
+      if(x==getX(max-1))
+        return getY(x);
+      //finds the X values within which the the given x value lies
+      for(int i=0;i<max-1;++i) {
+        x1=getX(i);
+        x2=getX(i+1);
+        if(x>=x1 && x<=x2)
+          break;
+      }
+      //finding the y values for the coressponding x values
+      double y1=getY(x1);
+      double y2=getY(x2);
+      x1 = Math.log(x1);
+      x2 = Math.log(x2);
+      //using the linear interpolation equation finding the value of y for given x
+      double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
+      return Math.exp(y);
+    }
+
+
 
     /**
      * This function returns a new copy of this list, including copies
