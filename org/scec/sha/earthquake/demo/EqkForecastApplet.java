@@ -1007,17 +1007,20 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
           }
          }
        }
-      // getye total sources
+      // get total sources
       int numSources = eqkRupForecast.getNumSources();
+      if(D) System.out.println("number of sources::" +numSources);
       for(int i=0;i < numSources ;i++) {
         if (D) System.out.println("source number:"+i);
         // get source and get its distance from the site
         ProbEqkSource source = eqkRupForecast.getSource(i);
         double distance = source.getMinDistance(site);
+        if(D) System.out.println("Distance::"+distance);
         if(distance > MAX_DISTANCE)
            continue;
         // for each source, get the number of ruptures
         int numRuptures = eqkRupForecast.getNumRuptures(i);
+         if(D) System.out.println("number of ruptures::" +numRuptures);
          for(int n=1; n <= numRuptures ;n++){
            // for each rupture, set in IMR and do computation
            if (D) System.out.println("RuptureNumber:"+n);

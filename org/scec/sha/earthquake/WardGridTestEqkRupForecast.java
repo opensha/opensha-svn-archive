@@ -109,7 +109,7 @@ public class WardGridTestEqkRupForecast implements EqkRupForecastAPI {
         ListIterator it = rawData.listIterator();
         it.next();
         //reading the first line from the file
-       // while( it.hasNext() ){
+        while( it.hasNext() ){
           StringTokenizer st = new StringTokenizer(it.next().toString());
           while(st.hasMoreTokens()){
 
@@ -117,7 +117,7 @@ public class WardGridTestEqkRupForecast implements EqkRupForecastAPI {
             lon = Double.parseDouble(st.nextToken());
             st.nextToken(); // skip moment rate since it's redundant
             cumRate = Double.parseDouble(st.nextToken());
-            bValue = -Double.parseDouble(st.nextToken());  // note sign change
+            bValue =   0.0-(Double.parseDouble(st.nextToken()));  // note sign change
             magLower = Double.parseDouble(st.nextToken());
             magUpper = Double.parseDouble(st.nextToken());
 
@@ -133,7 +133,7 @@ public class WardGridTestEqkRupForecast implements EqkRupForecastAPI {
               if (D) System.out.println("NonZeroData: "+lat+"  "+lon+"  "+cumRate+"  "+bValue+"  "+magLower+"  "+magUpper);
           }
 
-        //}
+        }
 
     // Done
     if( D ) System.out.println(S + "Ending");
