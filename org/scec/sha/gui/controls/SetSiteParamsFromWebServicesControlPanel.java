@@ -158,6 +158,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
    */
   private void setSiteParamsInIMR(AttenuationRelationshipAPI imr, double lon,
                              double lat, String willsClass, double basinDepth) {
+
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
     while(it.hasNext()) {
       ParameterAPI tempParam = (ParameterAPI)it.next();
