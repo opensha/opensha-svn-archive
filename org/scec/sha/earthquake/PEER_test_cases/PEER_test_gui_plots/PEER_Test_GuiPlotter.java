@@ -28,7 +28,7 @@ import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.data.*;
-import org.scec.sha.calc.*;
+import org.scec.calc.*;
 
 
 /**

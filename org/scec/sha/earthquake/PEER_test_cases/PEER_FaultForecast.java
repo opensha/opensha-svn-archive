@@ -28,14 +28,14 @@ import org.scec.param.event.*;
  * @version 1.0
  */
 
-public class Set1_Fault_Forecast extends EqkRupForecast
+public class PEER_FaultForecast extends EqkRupForecast
     implements ParameterChangeListener {
 
   /**
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("Test Set1 Fault");
+  private static String  C = new String("PEER Fault Forecast");
   private boolean D = false;
 
   /**
@@ -45,7 +45,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   private TimeSpan time;
 
   // save the source. Fault1 has only 1 source
-  private Set1_Fault_Source source;
+  private PEER_FaultSource source;
 
 
   //Parameter Names
@@ -136,7 +136,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
    *
    * No argument constructor
    */
-  public Set1_Fault_Forecast() {
+  public PEER_FaultForecast() {
 
     /* Now make the source in Fault 1 */
     adjustableParams.addParameter(gridParam);
@@ -244,7 +244,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
        if(D) System.out.println(S+"MagLenthSIgma:"+lengthSigmaParam.getValue());
 
        // Now make the source
-       source = new  Set1_Fault_Source((IncrementalMagFreqDist)magDistParam.getValue(),
+       source = new  PEER_FaultSource((IncrementalMagFreqDist)magDistParam.getValue(),
                                         ((Double)rakeParam.getValue()).doubleValue() ,
                                         ((Double)offsetParam.getValue()).doubleValue(),
                                         (EvenlyGriddedSurface)surface,

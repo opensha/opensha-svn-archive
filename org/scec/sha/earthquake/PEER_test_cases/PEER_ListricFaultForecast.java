@@ -28,14 +28,14 @@ import org.scec.param.event.*;
  * @version 1.0
  */
 
-public class Set2_ListricFault_Forecast extends EqkRupForecast
+public class PEER_ListricFaultForecast extends EqkRupForecast
     implements ParameterChangeListener {
 
   /**
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("Set2 Listric Fault");
+  private static String  C = new String("PEER Listric Fault Forecast");
   private boolean D = false;
 
   /**
@@ -45,7 +45,7 @@ public class Set2_ListricFault_Forecast extends EqkRupForecast
   private TimeSpan time;
 
   // save the source. Fault1 has only 1 source
-  private Set1_Fault_Source source;
+  private PEER_FaultSource source;
 
 
   //Parameter Names
@@ -130,7 +130,7 @@ public class Set2_ListricFault_Forecast extends EqkRupForecast
    *
    * No argument constructor
    */
-  public Set2_ListricFault_Forecast() {
+  public PEER_ListricFaultForecast() {
 
     /* Now make the source in Fault 1 */
     adjustableParams.addParameter(gridParam);
@@ -220,7 +220,7 @@ public class Set2_ListricFault_Forecast extends EqkRupForecast
 
 
        // Now make the source
-       source = new  Set1_Fault_Source((IncrementalMagFreqDist)magDistParam.getValue(),
+       source = new  PEER_FaultSource((IncrementalMagFreqDist)magDistParam.getValue(),
                                         ((Double)rakeParam.getValue()).doubleValue() ,
                                         ((Double)offsetParam.getValue()).doubleValue(),
                                         (EvenlyGriddedSurface)surface,

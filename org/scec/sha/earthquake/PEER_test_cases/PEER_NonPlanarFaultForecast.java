@@ -28,14 +28,14 @@ import org.scec.param.event.*;
  * @version 1.0
  */
 
-public class Set2_NonPlanarFault_Forecast extends EqkRupForecast
+public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     implements ParameterChangeListener {
 
   /**
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("Set2, Non-Planar Fault");
+  private static String  C = new String("PEER Non-Planar Fault Forecast");
   private boolean D = false;
 
   /**
@@ -45,7 +45,7 @@ public class Set2_NonPlanarFault_Forecast extends EqkRupForecast
   private TimeSpan time;
 
   // the prob eqk source (only one)
-  private Set1_Fault_Source source;
+  private PEER_FaultSource source;
 
   // grid spacing parameter stuff
   public final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
@@ -153,7 +153,7 @@ public class Set2_NonPlanarFault_Forecast extends EqkRupForecast
    *
    * No argument constructor
    */
-  public Set2_NonPlanarFault_Forecast() {
+  public PEER_NonPlanarFaultForecast() {
 
     // make the segModelParam
     segModelNamesStrings.add(SEGMENTATION_NONE);
@@ -272,7 +272,7 @@ public class Set2_NonPlanarFault_Forecast extends EqkRupForecast
        grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
 
        // Now make the source
-       source = new  Set1_Fault_Source(grMagFreqDist, RAKE ,
+       source = new  PEER_FaultSource(grMagFreqDist, RAKE ,
                                         ((Double)offsetParam.getValue()).doubleValue(),
                                         (EvenlyGriddedSurface)surface,
                                         ((Double)timeSpanParam.getValue()).doubleValue(),

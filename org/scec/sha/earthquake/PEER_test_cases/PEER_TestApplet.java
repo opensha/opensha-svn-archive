@@ -33,12 +33,12 @@ import org.scec.param.event.*;
  * @version 1.0
  */
 
-public class GroupTestApplet extends JApplet implements LogPlotAPI {
+public class PEER_TestApplet extends JApplet implements LogPlotAPI {
 
   /**
    * Name of the class
    */
-  protected final static String C = "GroupTestApplet";
+  protected final static String C = "PEER_TestApplet";
   // for debug purpose
   protected final static boolean D = false;
 
@@ -86,7 +86,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
 
 
   // make the GroupTestGUIBean instance
-  GroupTestGuiBean groupTestBean;
+  PEER_TestsGuiBean peerTestGuiBean;
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
@@ -170,7 +170,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
   }
 
   //Construct the applet
-  public GroupTestApplet() {
+  public PEER_TestApplet() {
 
   data.setFunctions(this.totalProbFuncs);
   // for Y-log, convert 0 values in Y axis to this small value
@@ -182,7 +182,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
 
       jbInit();
       // make the GroupTestGuiBean
-      groupTestBean = new GroupTestGuiBean(this);
+      peerTestGuiBean = new PEER_TestsGuiBean(this);
       this.updateChoosenIMR();
       this.updateChoosenTestCase();
       this.updateChoosenIMT();
@@ -393,7 +393,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
 
   //Main method
   public static void main(String[] args) {
-    GroupTestApplet applet = new GroupTestApplet();
+    PEER_TestApplet applet = new PEER_TestApplet();
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
@@ -423,10 +423,10 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
    *  update the GUI with the test case choosen
    */
   public void updateChoosenTestCase() {
-    if(this.groupTestBean==null)
+    if(this.peerTestGuiBean==null)
       return;
     testCasesPanel.removeAll();
-    testCasesPanel.add(groupTestBean.getTestCasesEditor(),
+    testCasesPanel.add(peerTestGuiBean.getTestCasesEditor(),
                        new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                        GridBagConstraints.CENTER,
                        GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -441,11 +441,11 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
    *  update the GUI with the IMT choosen
    */
   public void updateChoosenIMT() {
-    if(this.groupTestBean==null)
+    if(this.peerTestGuiBean==null)
       return;
     imtPanel.removeAll();
     imtPanel.setLayout(gridBagLayout8);
-    imtPanel.add(groupTestBean.getIMTEditor(),
+    imtPanel.add(peerTestGuiBean.getIMTEditor(),
                  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                  GridBagConstraints.CENTER,
                  GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -459,17 +459,17 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
    */
   public void updateChoosenIMR() {
     // update the IMR and site panel
-    if(this.groupTestBean==null)
+    if(this.peerTestGuiBean==null)
       return;
     imrPanel.removeAll();
     sitePanel.removeAll();
     // update the imr editor
-    imrPanel.add(groupTestBean.getImrEditor(),
+    imrPanel.add(peerTestGuiBean.getImrEditor(),
                  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                  GridBagConstraints.CENTER,
                  GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
     // update the site editor
-    sitePanel.add(groupTestBean.getSiteEditor(),
+    sitePanel.add(peerTestGuiBean.getSiteEditor(),
                  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                  GridBagConstraints.CENTER,
                  GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -485,11 +485,11 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
    */
   public void updateChoosenEqkSource() {
     // update the EqkSource panel
-    if(this.groupTestBean==null)
+    if(this.peerTestGuiBean==null)
       return;
     this.sourcePanel.removeAll();
     sourcePanel.setLayout(gridBagLayout5);
-    sourcePanel.add(groupTestBean.get_erf_Editor(),
+    sourcePanel.add(peerTestGuiBean.get_erf_Editor(),
                     new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                     GridBagConstraints.CENTER,
                     GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -647,7 +647,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
       // clear the function list
       //this.totalProbFuncs.clear();
 
-      groupTestBean.getChoosenFunction(totalProbFuncs);
+      peerTestGuiBean.getChoosenFunction(totalProbFuncs);
 
 
 

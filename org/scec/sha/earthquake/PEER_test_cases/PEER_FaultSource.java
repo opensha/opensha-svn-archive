@@ -26,10 +26,10 @@ import org.scec.sha.surface.*;
  * @version 1.0
  */
 
-public class Set1_Fault_Source extends ProbEqkSource {
+public class PEER_FaultSource extends ProbEqkSource {
 
   //for Debug purposes
-  private static String  C = new String("Set1_Fault_Source");
+  private static String  C = new String("PEER Fault Source");
   private boolean D = false;
 
   private double rake;
@@ -50,7 +50,7 @@ public class Set1_Fault_Source extends ProbEqkSource {
    * @param offsetSpacing
    * @param faultSurface := Fault Surface
    */
-  public Set1_Fault_Source(IncrementalMagFreqDist magDist,double rake,
+  public PEER_FaultSource(IncrementalMagFreqDist magDist,double rake,
                            double offsetSpacing,
                            EvenlyGriddedSurface faultSurface, double timeSpan,
                            double magLenSigma) {

@@ -29,20 +29,20 @@ import org.scec.sha.earthquake.*;
 import org.scec.sha.calc.HazardCurveCalculator;
 
 
-public class GroupTestGuiBean implements
+public class PEER_TestsGuiBean implements
                          NamedObjectAPI,
                          ParameterChangeListener,
                          ParameterChangeWarningListener,
                          ParameterChangeFailListener {
 
 
-  protected final static String C = "GroupTestGuiBean";
+  protected final static String C = "PEER_TestsGuiBean";
   protected final static boolean D = false;
   private String name  = "GroupTestGuiBean";
 
 
   //innner class instance
-  GroupTestDefaultParameterClass groupTestParameterClass;
+  PEER_TestDefaultParameterClass peerTestParameterClass;
 
   /**
    *  Search path for finding editors in non-default packages.
@@ -115,7 +115,7 @@ public class GroupTestGuiBean implements
     // search path needed for making editors
     private String[] searchPaths;
 
-    private GroupTestApplet applet= null;
+    private PEER_TestApplet applet= null;
 
 
   /*
@@ -161,7 +161,7 @@ public class GroupTestGuiBean implements
   /**
    * constructor
    */
-  public GroupTestGuiBean(GroupTestApplet applet) {
+  public PEER_TestsGuiBean(PEER_TestApplet applet) {
 
     this.applet = applet;
 
@@ -193,13 +193,13 @@ public class GroupTestGuiBean implements
     // ******************************************
 
     // this class handles all the hard coding stuff needed for test cases
-    groupTestParameterClass =new GroupTestDefaultParameterClass(this);
+    peerTestParameterClass =new PEER_TestDefaultParameterClass(this);
 
     //MAKE changes in this function for any change in test cases
     initTestCasesParamListAndEditor();
 
     //set the site based on the selected test case
-    groupTestParameterClass.setParams(testCasesParamList.getParameter(SITE_NUMBER_PARAM).getValue().toString());
+    peerTestParameterClass.setParams(testCasesParamList.getParameter(SITE_NUMBER_PARAM).getValue().toString());
   }
 
 
@@ -690,14 +690,14 @@ public class GroupTestGuiBean implements
       // set the default values if the test cases are chosen
       if(name1.equals(this.TEST_PARAM_NAME)) {
         String value = event.getNewValue().toString();
-        groupTestParameterClass.setSiteNumberParams(value);
+        peerTestParameterClass.setSiteNumberParams(value);
         applet.updateChoosenTestCase();
       }
 
       // update the params when a site is selected
       if(name1.equals(this.SITE_NUMBER_PARAM)) {
         String value = event.getNewValue().toString();
-        groupTestParameterClass.setParams(value);
+        peerTestParameterClass.setParams(value);
       }
   }
 
@@ -1059,7 +1059,7 @@ public class GroupTestGuiBean implements
    * @author : Nitin Gupta and Vipin Gupta
    * @version 1.0
    */
-  class GroupTestDefaultParameterClass {
+  class PEER_TestDefaultParameterClass {
 
 
     protected final static String C = "GroupTestDefaultParameterClass";
@@ -1071,17 +1071,17 @@ public class GroupTestGuiBean implements
     private final static String FAULT_AREA = "Fault Area";
 
 
-    private Set1_Fault_Forecast set1_Fault_ERF;
-    private  Set1_Area_Forecast set1_Area_ERF;
+    private  PEER_FaultForecast peer_Fault_ERF;
+    private  PEER_AreaForecast peer_Area_ERF;
 
-    protected GroupTestGuiBean groupTestGuiBean;
+    protected PEER_TestsGuiBean peerTestGuiBean;
 
-    public GroupTestDefaultParameterClass(GroupTestGuiBean groupTestGuiBean){
-      this.groupTestGuiBean = groupTestGuiBean;
+    public PEER_TestDefaultParameterClass(PEER_TestsGuiBean peerTestGuiBean){
+      this.peerTestGuiBean = peerTestGuiBean;
 
       // hard coded values for setting in the test cases
-      set1_Fault_ERF = (Set1_Fault_Forecast)erfObject.get(0);
-      set1_Area_ERF =  (Set1_Area_Forecast)erfObject.get(1);
+      peer_Fault_ERF = (PEER_FaultForecast)erfObject.get(0);
+      peer_Area_ERF =  (PEER_AreaForecast)erfObject.get(1);
 
     }
     /**
@@ -1097,9 +1097,9 @@ public class GroupTestGuiBean implements
 
       if(!value.equalsIgnoreCase(TEST_CASE_TEN) && !value.equalsIgnoreCase(TEST_CASE_ELEVEN))
           // it is fault test case
-        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(set1_Fault_ERF.getName());
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_Fault_ERF.getName());
       else // if it area case
-        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(set1_Area_ERF.getName());
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_Area_ERF.getName());
 
 
       // set the mag dist params based on test case
@@ -1258,8 +1258,8 @@ public class GroupTestGuiBean implements
          * This fills the default values for the forecast paramters based
          * on the selected test case 10
          */
-        erf_IndParamList.getParameter(set1_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
-        erf_IndParamList.getParameter(set1_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
         selectedFault = new String(FAULT_AREA);
       }
 
@@ -1276,8 +1276,8 @@ public class GroupTestGuiBean implements
          * on the selected test case 11
          */
 
-        erf_IndParamList.getParameter(set1_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
-        erf_IndParamList.getParameter(set1_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
+        erf_IndParamList.getParameter(peer_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
         selectedFault = new String(FAULT_AREA);
       }
 
@@ -1331,7 +1331,7 @@ public class GroupTestGuiBean implements
       } else { // for area sites
 
         // it is area test case
-        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.set1_Area_ERF.getName());
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.peer_Area_ERF.getName());
 
         siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
         // for area site 1
@@ -1390,7 +1390,7 @@ public class GroupTestGuiBean implements
 
        StringParameter availableSites = new StringParameter(SITE_NUMBER_PARAM,
                                   siteNumber,(String)siteNumber.get(0));
-       availableSites.addParameterChangeListener(groupTestGuiBean);
+       availableSites.addParameterChangeListener(peerTestGuiBean);
        testCasesParamList.addParameter(availableSites);
 
        // now make the editor based on the paramter list
@@ -1570,19 +1570,19 @@ public class GroupTestGuiBean implements
       public void setForecastParams(String faultType, String testCaseVal){
 
         // add sigma for maglength(0-1)
-        erf_IndParamList.getParameter(set1_Fault_ERF.SIGMA_PARAM_NAME).setValue(set1_Fault_ERF.DEFAULT_SIGMA_VAL);
+        erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(peer_Fault_ERF.DEFAULT_SIGMA_VAL);
         // magLengthSigma parameter is changed if the test case chosen is 3
         if(testCaseVal.equalsIgnoreCase(TEST_CASE_THREE))
-          erf_IndParamList.getParameter(set1_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
+          erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
         // set the parameters for fault1
         if(faultType.equals(FAULT_ONE)) {
-          erf_IndParamList.getParameter(set1_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
-          erf_IndParamList.getParameter(set1_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
+          erf_IndParamList.getParameter(peer_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
+          erf_IndParamList.getParameter(peer_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
         }
         // set the parameters for fault 2
         if(faultType.equals(FAULT_TWO)) {
-          erf_IndParamList.getParameter(set1_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(60.0));
-          erf_IndParamList.getParameter(set1_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
+          erf_IndParamList.getParameter(peer_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(60.0));
+          erf_IndParamList.getParameter(peer_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
         }
       }
   }
