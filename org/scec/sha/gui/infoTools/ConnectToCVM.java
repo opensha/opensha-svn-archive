@@ -7,6 +7,8 @@ import java.net.*;
 import java.io.Serializable;
 import java.io.*;
 
+import org.scec.sha.gui.servlets.siteEffect.*;
+
 /**
  * <p>Title: ConnectToCVM</p>
  * <p>Description: This class connects to the CVM servlets to get the values for the
@@ -17,12 +19,53 @@ import java.io.*;
 
 public final class ConnectToCVM {
 
+
+  /**
+   * Gets the Wills et al. Site Type (2000) Map for each gridded site from the file on the local computer
+   * @param lonMin
+   * @param lonMax
+   * @param latMin
+   * @param latMax
+   * @param gridSpacing
+   * @param fileName : Name of the Wills Site Class file to be read from the local computer
+   * @return
+   * @throws Exception
+   */
+  public static ArrayList getWillsSiteType(double minLon,double maxLon,double minLat,double maxLat,
+                              double gridSpacing, String fileName) {
+
+    //creating the objct for the Wills Site Class
+    WillsSiteClass willsSiteClass = new  WillsSiteClass(minLon, maxLon, minLat, maxLat, gridSpacing,fileName);
+    return willsSiteClass.getWillsSiteClass();
+  }
+
+  /**
+   * Gets the Basin Depth Values for each gridded site from the file on the local computer
+   * @param lonMin
+   * @param lonMax
+   * @param latMin
+   * @param latMax
+   * @param gridSpacing
+   * @param fileName : Name of the Basin Depth file to be read from the local computer
+   * @return
+   * @throws Exception
+   */
+  public static ArrayList getBasinDepth(double minLon,double maxLon,double minLat,double maxLat,
+                              double gridSpacing, String fileName) {
+
+    //creating the object for the Basin Depth Class
+    BasinDepthClass basinDepthClass = new  BasinDepthClass(minLon, maxLon, minLat, maxLat, gridSpacing,fileName);
+    return basinDepthClass.getBasinDepth();
+  }
+
+
+
   /**
    * Gets the Wills et al. Site Type (2000) Map Web Service from the CVM servlet
    */
-  public static Vector getWillsSiteTypeFromCVM (double lonMin,double lonMax,double latMin,double latMax,
+  public static ArrayList getWillsSiteTypeFromCVM (double lonMin,double lonMax,double latMin,double latMax,
                               double gridSpacing) throws Exception{
-    Vector vs30 = null;
+    ArrayList vs30 = null;
     // if we want to the paramter from the servlet
 
 
@@ -55,7 +98,7 @@ public final class ConnectToCVM {
     // now read the connection again to get the vs30 as sent by the servlet
     ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
     //Vector of Wills Site Class Values translated from the Vs30 Values.
-    vs30=(Vector)ois.readObject();
+    vs30=(ArrayList)ois.readObject();
     ois.close();
 
     return vs30;
@@ -66,9 +109,9 @@ public final class ConnectToCVM {
   /**
    * Gets the Basin Depth from the CVM servlet
    */
-  public static Vector getBasinDepthFromCVM(double lonMin,double lonMax,double latMin,double latMax,
+  public static ArrayList getBasinDepthFromCVM(double lonMin,double lonMax,double latMin,double latMax,
                                     double gridSpacing) throws Exception{
-    Vector basinDepth = null;
+    ArrayList basinDepth = null;
     // if we want to the paramter from the servlet
 
     // make connection with servlet
@@ -100,7 +143,7 @@ public final class ConnectToCVM {
     ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
 
     //vectors of Basin Depth for each gridded site
-    basinDepth=(Vector)ois.readObject();
+    basinDepth=(ArrayList)ois.readObject();
     ois.close();
 
 

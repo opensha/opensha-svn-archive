@@ -10,6 +10,7 @@ import org.jfree.chart.axis.*;
 import org.jfree.chart.renderer.*;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.data.*;
+import org.jfree.chart.plot.*;
 
 import org.scec.data.function.*;
 import org.scec.gui.plot.jfreechart.*;
@@ -52,6 +53,9 @@ public class GraphPanel extends JPanel {
 
   //graph chart panel
   private ChartPanel chartPanel;
+
+
+  private XYPlot plot;
 
   // Create the x-axis and y-axis - either normal or log
   //xaxis1 and yAxis1 replica of the x-Axis and y-Axis object, in case error occurs
@@ -199,8 +203,7 @@ public class GraphPanel extends JPanel {
 
 
     // build the plot
-    org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data,
-        xAxis, yAxis, renderer);
+    plot = new XYPlot(data,xAxis, yAxis, renderer);
 
     //setting the plot properties
     plot.setDomainCrosshairLockedOnData(false);
@@ -272,6 +275,16 @@ public class GraphPanel extends JPanel {
       return ;
   }
 
+
+  /**
+   * Sets the metadata in the Data window
+   * @param metadata
+   */
+  public void setMetadata(String metadata){
+   pointsTextArea.setText(metadata);
+  }
+
+
   /**
    * Clears the plot and the Metadata Window
    */
@@ -282,6 +295,7 @@ public class GraphPanel extends JPanel {
     pointsTextArea.setText(this.NO_PLOT_MSG);
   }
 
+
   /**
    *  Toggle between showing the graph and showing the actual data
    */
@@ -291,7 +305,7 @@ public class GraphPanel extends JPanel {
     //showing the data window
     if ( graphOn ) {
 
-      buttonControlPanel.getToggleButton().setText( "Show Plot" );
+      buttonControlPanel.setToggleButtonText( "Show Plot" );
       graphOn = false;
 
       chartPane.add(dataScrollPane,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -301,7 +315,7 @@ public class GraphPanel extends JPanel {
       //showing the Plot window, if not null
       graphOn = true;
 
-      buttonControlPanel.getToggleButton().setText( "Show Data" );
+      buttonControlPanel.setToggleButtonText("Show Data");
       // panel added here
       if(chartPanel !=null) {
         chartPane.add(chartPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -315,6 +329,14 @@ public class GraphPanel extends JPanel {
     return ;
   }
 
+  /**
+   * sets the backgound for the plot
+   * @param color
+   */
+  public void setPlotBackgroundColor(Color color){
+   if(plot !=null)
+     plot.setBackgroundPaint(color);
+  }
   /**
    *
    * @returns the Range for the X-Axis

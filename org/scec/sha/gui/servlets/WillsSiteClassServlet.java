@@ -7,7 +7,7 @@ import java.util.*;
 
 import org.scec.data.region.*;
 import org.scec.data.Location;
-
+import org.scec.sha.gui.servlets.siteEffect.WillsSiteClass;
 /**
  * <p>Title: WillsSiteClassServlet  </p>
  * <p>Description: This Servlet finds the VS30 and Basin Depth for the given
@@ -21,7 +21,7 @@ public class WillsSiteClassServlet  extends HttpServlet {
 
 
   //File from which we get the Vs30
-  private final String VS_30_INPUT_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/usgs_cgs_geology_60s_mod.txt";
+  private final String WILLS_SITE_CLASS_INPUT_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/usgs_cgs_geology_60s_mod.txt";
 
 
   /**
@@ -31,128 +31,30 @@ public class WillsSiteClassServlet  extends HttpServlet {
    * @param response
    * @throws IOException
    * @throws ServletException
+   * @return the ArrayList for the Wills Site Class Values for each site in the gridded region.
    */
   public void doGet(HttpServletRequest request,  HttpServletResponse response)
                                   throws IOException, ServletException {
     //Vectors for computing the lat and lons for the given gridded region
     Vector locationVector= new Vector();
     try {
-      // get an input stream from the applet
+      // get all the input stream from the applet
       ObjectInputStream inputFromApplication = new ObjectInputStream(request.getInputStream());
+      //gets the input for the minLat, maxLat, minLon, maxLon, gridSpacing  from the Application.
       double minLon = ((Double)inputFromApplication.readObject()).doubleValue();
       double maxLon = ((Double)inputFromApplication.readObject()).doubleValue();
       double minLat = ((Double)inputFromApplication.readObject()).doubleValue();
       double maxLat = ((Double)inputFromApplication.readObject()).doubleValue();
       double gridSpacing = ((Double)inputFromApplication.readObject()).doubleValue();
+      //close of the input from the application
       inputFromApplication.close();
-      //System.out.println(""+minLon+","+maxLon+","+minLat+","+maxLat+","+gridSpacing);
-      prepareSitesInput(locationVector,minLon, maxLon, minLat, maxLat, gridSpacing);
-      getVs30(locationVector,new ObjectOutputStream(response.getOutputStream()));
-
-    }catch(Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-
-  /**
-   * Prepare the input of the all the location in the gridded region and provide that input
-   * to compute the Vs30 ro BasinDepth
-   * @param locationVector : stores the locations
-   * @param minLon
-   * @param maxLon
-   * @param minLat
-   * @param maxLat
-   * @param gridSpacing
-   * @return
-   */
-  private void prepareSitesInput(Vector locationVector,double minLon, double maxLon, double minLat,
-                                      double maxLat, double gridSpacing) {
-
-    EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
-    //System.out.println("Number of Grid Locations:"+region.getNumGridLocs());
-    ListIterator it= region.getGridLocationsIterator();
-    while(it.hasNext())
-      locationVector.add(it.next());
-  }
-
-
-
-  /**
-   * Gets the Will's classified Site Type
-   * @param locationVector: Stores all the gridded locations
-   * @param output : returns the vector of the VS30 in form of the Will's classified
-   * site type.
-   */
-  private void getVs30(Vector locationVector,ObjectOutputStream output) {
-
-    //gridSpacing for the VS30 file and adding a small value to it.
-    double gridSpacingForVs30InFile = .0166;
-    try {
-
-      //open the File Input Stream to read the file
-      FileReader input = new FileReader(this.VS_30_INPUT_FILENAME);
-      BufferedReader iBuf= new BufferedReader(input);
-      String str;
-      // parsing the file line by line
-      //reading the first line from the file
-      str=iBuf.readLine();
-
-      int size= locationVector.size();
-
-      Vector vs30= new Vector();
-
-      //initialising the vs30 vector with the Double.NaN values
-      for(int i=0;i<size;++i)
-        vs30.add("NA");
-
-      double prevLat=Double.NaN;
-      for(int i=0;i<size;++i){
-        double lat = ((Location)locationVector.get(i)).getLatitude();
-        double lon = ((Location)locationVector.get(i)).getLongitude();
-        boolean latFlag= false;
-
-        //parse each line from the file one by one
-        while(str!=null) {
-          StringTokenizer st = new StringTokenizer(str);
-
-          //reading the Lat from the file
-          double valLat = Double.parseDouble(st.nextToken());
-
-          //reading the Lons from the file
-          double valLon = Double.parseDouble(st.nextToken());
-
-          if((valLat -lat) > gridSpacingForVs30InFile/2)
-            // if this lat does not exist in file. Lat is always increasing in the file and the location vector
-            break;
-
-          // add Vs30 for new location
-          if(Math.abs(lat-valLat) <= (gridSpacingForVs30InFile/2))
-            //System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
-            latFlag=true;
-
-          //iterating over lon's for each lat
-          if(((Math.abs(lon-valLon)) <= gridSpacingForVs30InFile/2) && latFlag){
-            //if we found the desired lon in the file,
-            //we get the value of the VS30 for the nearest point
-            //returns the site type based on the Will's classification for Site type.
-            vs30.set(i,st.nextToken());
-            break;
-
-          }
-
-           //this condition checks if the lat exists but lon does not exist
-          if((valLon-lon) > (gridSpacingForVs30InFile/2 ) && latFlag)
-            // if this location does not exist in this file
-            break;
-
-          // read next line
-          str=iBuf.readLine();
-        }
-      }
-      output.writeObject(vs30);
+      //creating the objct for the Wills Site Class
+      WillsSiteClass willsSiteClass = new  WillsSiteClass(minLon, maxLon, minLat, maxLat, gridSpacing,WILLS_SITE_CLASS_INPUT_FILENAME);
+      //sending the output in the form of the arrayList back to the calling application.
+      ObjectOutputStream output = new ObjectOutputStream(response.getOutputStream());
+      output.writeObject(willsSiteClass.getWillsSiteClass());
       output.close();
-    }catch (Exception e) {
+    }catch(Exception e) {
       e.printStackTrace();
     }
   }

@@ -7,6 +7,7 @@ import java.util.*;
 
 import org.scec.data.region.*;
 import org.scec.data.Location;
+import org.scec.sha.gui.servlets.siteEffect.BasinDepthClass;
 
 /**
  * <p>Title: SCEC_BasinDepthServlet  </p>
@@ -38,124 +39,26 @@ public class SCEC_BasinDepthServlet  extends HttpServlet {
     //Vectors for computing the lat and lons for the given gridded region
     Vector locationVector= new Vector();
     try {
-      // get an input stream from the applet
+      // get all the input stream from the applet
       ObjectInputStream inputFromApplication = new ObjectInputStream(request.getInputStream());
-      // read the minlon, maxlon, minlat, maxlat, gridspacing
+      //gets the input for the minLat, maxLat, minLon, maxLon, gridSpacing  from the Application.
       double minLon = ((Double)inputFromApplication.readObject()).doubleValue();
       double maxLon = ((Double)inputFromApplication.readObject()).doubleValue();
       double minLat = ((Double)inputFromApplication.readObject()).doubleValue();
       double maxLat = ((Double)inputFromApplication.readObject()).doubleValue();
       double gridSpacing = ((Double)inputFromApplication.readObject()).doubleValue();
+      //close of the input from the application
       inputFromApplication.close();
-      prepareSitesInput(locationVector,minLon, maxLon, minLat, maxLat, gridSpacing);
-
-      getBasinDepth(locationVector,new ObjectOutputStream(response.getOutputStream()));
+      //creating the object for the Basin Depth Class
+      BasinDepthClass basinDepthClass = new  BasinDepthClass(minLon, maxLon, minLat, maxLat, gridSpacing,BASIN_DEPTH_FILENAME);
+      //sending the output in the form of the arrayList back to the calling application.
+      ObjectOutputStream output = new ObjectOutputStream(response.getOutputStream());
+      output.writeObject(basinDepthClass.getBasinDepth());
+      output.close();
     }catch(Exception e) {
       e.printStackTrace();
     }
   }
-
-
-  /**
-   * Prepare the input of the all the location in the gridded region and provide that input
-   * to compute BasinDepth
-   * @param locationVector : stores the locations
-   * @param minLon
-   * @param maxLon
-   * @param minLat
-   * @param maxLat
-   * @param gridSpacing
-   * @return
-   */
-  private void prepareSitesInput(Vector locationVector,double minLon, double maxLon, double minLat,
-                                      double maxLat, double gridSpacing) {
-
-    EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
-    //System.out.println("Number of Grid Locations:"+region.getNumGridLocs());
-    ListIterator it= region.getGridLocationsIterator();
-    while(it.hasNext())
-      locationVector.add(it.next());
-    System.out.println("Location size:"+locationVector.size());
-  }
-
-
-  /**
-   *calculate the Basin Depth
-   * @param locationVector: Stores all the gridded locations
-   * @param output : returns the vector of the basin depth values for the gridded region
-   */
-  private void getBasinDepth(Vector locationVector,ObjectOutputStream output) {
-
-    //gridSpacing for the basin depth file and adding a small amount ot it
-    double gridSpacingForBasinDepthInFile = .01001;
-    try {
-
-      //open the File Input Stream to read the file
-      FileReader input = new FileReader(this.BASIN_DEPTH_FILENAME);
-      BufferedReader iBuf= new BufferedReader(input);
-      String str;
-      // parsing the file line by line
-      //reading the first line from the file
-      str=iBuf.readLine();
-
-      int size= locationVector.size();
-
-      Vector bd= new Vector();
-
-      //initialising the bd vector with the Double.NaN values
-      for(int i=0;i<size;++i)
-        bd.add(new Double(Double.NaN));
-
-      double prevLat=Double.NaN;
-      for(int i=0;i<size;++i){
-        double lat = ((Location)locationVector.get(i)).getLatitude();
-        double lon = ((Location)locationVector.get(i)).getLongitude();
-        boolean latFlag= false;
-
-        while(str!=null) {
-          StringTokenizer st = new StringTokenizer(str);
-
-          // parse this line from the file
-          //reading the Lons from the file
-          double valLat = Double.parseDouble(st.nextToken());
-          //reading the Lat from the file
-          double valLon = Double.parseDouble(st.nextToken());
-
-          if((valLat -lat) > gridSpacingForBasinDepthInFile/2)
-            // if this lat does not exist in file. Lat is always increasing in the file and the location vector
-            break;
-
-          // add basinDepth for new location
-          if(Math.abs(lat-valLat) <= (gridSpacingForBasinDepthInFile/2))
-            //System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
-            latFlag=true;
-
-          //iterating over lon's for each lat
-          if(((Math.abs(lon-valLon)) <= gridSpacingForBasinDepthInFile/2) && latFlag){
-            //if we found the desired lon in the file ,
-            //we get the value of the basinDepth for the nearest point
-            //returns the actual value for the basinDepth
-            bd.set(i,new Double(st.nextToken()));
-            break;
-
-          }
-
-           //this condition checks if the lat exists but lon does not exist
-          if((valLon-lon) > (gridSpacingForBasinDepthInFile/2 ) && latFlag)
-            // if this location does not exist in this file
-            break;
-
-          // read next line
-          str=iBuf.readLine();
-        }
-      }
-      output.writeObject(bd);
-      output.close();
-    }catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
 
   /**
    * This method just calls the doPost method

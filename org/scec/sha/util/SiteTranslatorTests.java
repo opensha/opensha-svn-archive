@@ -57,8 +57,8 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
   public SiteTranslatorTests(){
     griddedRegion.setSiteParamsUsing_WILLS_VS30_AndBasinDepth();
     createIMRs_Object();
-    Vector basinDepth = griddedRegion.getBasinDepthVector();
-    Vector vs30 = griddedRegion.getWillsClassVector();
+    ArrayList basinDepth = griddedRegion.getBasinDepthVector();
+    ArrayList vs30 = griddedRegion.getWillsClassVector();
     String siteInfo = null;
     LocationList list= griddedRegion.getGridLocationsList();
     try{

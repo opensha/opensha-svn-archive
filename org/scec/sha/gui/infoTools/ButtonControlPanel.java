@@ -108,8 +108,14 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 
   }
 
-  public JButton getToggleButton(){
-    return toggleButton;
+
+  /**
+   *
+   * @param text: Sets the text for the Toggle Button to either
+   * "Show Plot" or "Show Data"
+   */
+  public  void setToggleButtonText(String text){
+    toggleButton.setText(text);
   }
 
 

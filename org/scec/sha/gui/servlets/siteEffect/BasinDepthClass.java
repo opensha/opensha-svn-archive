@@ -1,0 +1,143 @@
+package org.scec.sha.gui.servlets.siteEffect;
+
+import java.util.*;
+import java.io.*;
+
+import org.scec.data.region.*;
+import org.scec.data.*;
+
+/**
+ * <p>Title: BasinDepthClass</p>
+ * <p>Description:This class creates a gridded region from the given lat, lons
+ * and gridSpacing. Then for each site in the gridded region gets the  Basindepth
+ * values for each site in the region</p>
+ * @author : Nitin Gupta
+ * @created Feb 4,2004
+ * @version 1.0
+ */
+
+public final class BasinDepthClass {
+
+
+  //ArrayList for computing the lat and lons for the given gridded region
+  ArrayList locations = new ArrayList();
+  String basinDepthFile;
+
+  /**
+   * Class constructor
+   * @param minLon
+   * @param maxLon
+   * @param minLat
+   * @param maxLat
+   * @param gridSpacing
+   * @param fileName : Name of the Basin Depth file
+   */
+  public BasinDepthClass(double minLon, double maxLon, double minLat,
+                                      double maxLat, double gridSpacing,String fileName){
+
+    prepareSitesInput(minLon,maxLon,minLat,maxLat,gridSpacing);
+    basinDepthFile = fileName;
+  }
+
+  /**
+   * Prepare the input of the all the location in the gridded region and provide that input
+   * to compute the Basin Depth values for each region.
+   * @param minLon
+   * @param maxLon
+   * @param minLat
+   * @param maxLat
+   * @param gridSpacing
+   * @return
+   */
+  private void prepareSitesInput(double minLon, double maxLon, double minLat,
+                                      double maxLat, double gridSpacing) {
+
+    EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+
+    ListIterator it= region.getGridLocationsIterator();
+    while(it.hasNext())
+      locations.add(it.next());
+  }
+
+
+
+  /**
+   *
+   * @returns the ArrayList of the Basin Depth values for each site in the
+   * gridded region.
+   */
+  public ArrayList getBasinDepth() {
+
+    //gridSpacing for the basin depth file and adding a small amount ot it
+    double gridSpacingForBasinDepthInFile = .01001;
+    try {
+
+      //open the File Input Stream to read the file
+      FileReader input = new FileReader(basinDepthFile);
+      BufferedReader iBuf= new BufferedReader(input);
+      String str;
+      // parsing the file line by line
+      //reading the first line from the file
+      str=iBuf.readLine();
+
+      int size= locations.size();
+
+      ArrayList bd= new ArrayList();
+
+      //initialising the bd vector with the Double.NaN values
+      for(int i=0;i<size;++i)
+        bd.add(new Double(Double.NaN));
+
+      double prevLat=Double.NaN;
+      for(int i=0;i<size;++i){
+        double lat = ((Location)locations.get(i)).getLatitude();
+        double lon = ((Location)locations.get(i)).getLongitude();
+        boolean latFlag= false;
+
+        while(str!=null) {
+          StringTokenizer st = new StringTokenizer(str);
+
+          // parse this line from the file
+          //reading the Lons from the file
+          double valLat = Double.parseDouble(st.nextToken());
+          //reading the Lat from the file
+          double valLon = Double.parseDouble(st.nextToken());
+
+          if((valLat -lat) > gridSpacingForBasinDepthInFile/2)
+            // if this lat does not exist in file. Lat is always increasing in the file and the location vector
+            break;
+
+          // add basinDepth for new location
+          if(Math.abs(lat-valLat) <= (gridSpacingForBasinDepthInFile/2))
+            //System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
+            latFlag=true;
+
+          //iterating over lon's for each lat
+          if(((Math.abs(lon-valLon)) <= gridSpacingForBasinDepthInFile/2) && latFlag){
+            //if we found the desired lon in the file ,
+            //we get the value of the basinDepth for the nearest point
+            //returns the actual value for the basinDepth
+            bd.set(i,new Double(st.nextToken()));
+            break;
+
+          }
+
+           //this condition checks if the lat exists but lon does not exist
+          if((valLon-lon) > (gridSpacingForBasinDepthInFile/2 ) && latFlag)
+            // if this location does not exist in this file
+            break;
+
+          // read next line
+          str=iBuf.readLine();
+        }
+      }
+      //returns the ArrayList containg the Basin Depth values for each gridded site
+      return bd;
+    }catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+
+}
