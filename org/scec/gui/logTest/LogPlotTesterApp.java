@@ -399,6 +399,10 @@ public class LogPlotTesterApp extends JApplet  {
    * @param  e  The feature to be added to the Button_mouseClicked attribute
    */
   void addButton_actionPerformed(ActionEvent e){
+    if(xAxis instanceof LogarithmicAxis)
+      System.out.println("xAxis is Log");
+    else if(xAxis instanceof NumberAxis)
+      System.out.println("xAxis is Linear");
      addButton();
   }
 

@@ -10,6 +10,7 @@ import java.util.*;
 
 
 import org.scec.sha.gui.beans.GMT_MapGuiBean;
+import org.scec.sha.gui.beans.GMT_MapGuiBeanAPI;
 import org.scec.param.StringParameter;
 import org.scec.param.editor.StringParameterEditor;
 import org.scec.util.*;
@@ -24,7 +25,7 @@ import org.scec.data.*;
  * @version 1.0
  */
 
-public class GMT_MapGeneratorApplet extends Applet {
+public class GMT_MapGeneratorApplet extends Applet implements GMT_MapGuiBeanAPI{
 
 
   private static final String C="GMT_MapGeneratorApplet";
@@ -82,7 +83,7 @@ public class GMT_MapGeneratorApplet extends Applet {
       parameterPanel.add(xyzFileEditor,new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER,
                     GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-      gmtGuiBean =new GMT_MapGuiBean();
+      gmtGuiBean =new GMT_MapGuiBean(this);
       //panel to display the GMT adjustable parameters
       parameterPanel.add(gmtGuiBean,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0,
                     GridBagConstraints.CENTER,

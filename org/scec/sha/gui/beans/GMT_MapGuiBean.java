@@ -56,17 +56,20 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
   //name of the image file( or else full URL to image file if using the webservice)
   protected String imgName=null;
 
+  private GMT_MapGuiBeanAPI application;
 
+
+  //class default constructor
+  public GMT_MapGuiBean(){};
 
   /**
    * Class constructor accepts the GMT parameters list
-   * @param gmtMap
+   * @param api : Instance of the application using this Gui Bean.
    */
-  public GMT_MapGuiBean() {
+  public GMT_MapGuiBean(GMT_MapGuiBeanAPI api) {
+    application = api;
     //initialise the param list and editor for the GMT Map Params and Editors
     initParamListAndEditor();
-    parameterList.getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).addParameterChangeListener(this);
-    changeColorScaleModeValue(GMT_MapGenerator.COLOR_SCALE_MODE_DEFAULT);
     try {
       jbInit();
     }
@@ -75,6 +78,21 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     }
   }
 
+
+  /**
+   * This function provides the flexibiltiy of creating the parameterList and editor
+   * from application.
+   */
+  public void createParamListAndEditor(){
+    //initialise the param list and editor for the GMT Map Params and Editors
+     initParamListAndEditor();
+     try {
+       jbInit();
+     }
+     catch(Exception e) {
+       e.printStackTrace();
+    }
+  }
 
   protected void initParamListAndEditor(){
     //get the adjustableParam List from the GMT_MapGenerator
@@ -85,6 +103,8 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     editorPanel.removeAll();
     addParameters();
     setTitle(GMT_TITLE);
+    parameterList.getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).addParameterChangeListener(this);
+    changeColorScaleModeValue(GMT_MapGenerator.COLOR_SCALE_MODE_DEFAULT);
   }
 
   /**

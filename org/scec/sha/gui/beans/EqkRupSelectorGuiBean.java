@@ -1,12 +1,6 @@
 package org.scec.sha.gui.beans;
 
 
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
@@ -38,6 +32,7 @@ import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
+import java.awt.*;
 
 
 /**
@@ -309,8 +304,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
         erfAdjParamButton_actionPerformed(e);
       }
     });
-    erfAdjParamButton.setForeground(new Color(80,80,133));
-    erfAdjParamButton.setBackground(new Color(200,200,230));
+    erfAdjParamButton.setBackground(SystemColor.control);
     this.setLayout(gridBagLayout1);
     sourceRupInfoText.setLineWrap(true);
     sourceRupInfoText.setForeground(Color.blue);

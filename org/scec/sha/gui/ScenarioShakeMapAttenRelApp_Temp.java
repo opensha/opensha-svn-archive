@@ -219,7 +219,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
     buttonPanel.setMinimumSize(new Dimension(391, 50));
     gridRegionSitePanel.setLayout(gridLayout1);
     imrPanel.setLayout(gridBagLayout5);
-    controlComboBox.setBackground(Color.white);
+    controlComboBox.setBackground(SystemColor.control);
     controlComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         controlComboBox_actionPerformed(e);

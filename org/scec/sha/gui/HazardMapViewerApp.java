@@ -28,6 +28,7 @@ import org.scec.param.DoubleParameter;
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.scec.sha.gui.beans.GMT_MapGuiBean;
+import org.scec.sha.gui.beans.GMT_MapGuiBeanAPI;
 import org.scec.sha.gui.infoTools.ImageViewerWindow;
 import ch.randelshofer.quaqua.QuaquaManager;
 
@@ -41,7 +42,7 @@ import ch.randelshofer.quaqua.QuaquaManager;
  * @version 1.0
  */
 
-public class HazardMapViewerApp extends JApplet {
+public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
   public static String SERVLET_URL  = "http://gravity.usc.edu/OpenSHA/servlet/HazardMapViewerServlet";
   private boolean isStandalone = false;
   JSplitPane mainSplitPane = new JSplitPane();
@@ -416,7 +417,7 @@ public class HazardMapViewerApp extends JApplet {
    * initialize the map gui bean
    */
   private void initMapGuiBean() {
-    mapGuiBean = new GMT_MapGuiBean();
+    mapGuiBean = new GMT_MapGuiBean(this);
     // show this gui bean the JPanel
     this.gmtPanel.add(this.mapGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
