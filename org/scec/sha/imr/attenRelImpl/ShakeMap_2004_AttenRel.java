@@ -546,10 +546,13 @@ public class ShakeMap_2004_AttenRel
       Iterator it = intensityMeasureLevels.getPointsIterator();
       while ( it.hasNext() ) {
         DataPoint2D point = ( DataPoint2D ) it.next();
-        im.setValue(new Double(point.getX()));
+       try{
+          im.setValue(new Double(point.getX()));
+        } catch (WarningException e){
+          if(D) System.out.println(C+"Warning Exception:"+e);
+        }
         point.setY(getExceedProbability());
       }
-
       return intensityMeasureLevels;
     }
 
