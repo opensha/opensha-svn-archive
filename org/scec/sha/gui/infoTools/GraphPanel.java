@@ -35,12 +35,7 @@ public class GraphPanel extends JPanel {
   private final static String NO_PLOT_MSG = "No Plot Data Available";
 
 
-  /*setting the colors for the different plots so that legends
-  *can be shown with the same color
-  */
 
-  Color [] defaultColor = {Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
-    Color.cyan,Color.pink,Color.yellow,Color.lightGray,Color.gray,Color.darkGray};
   Color[] legendColor = null;
   Paint[] legendPaint = null;
 
@@ -99,8 +94,6 @@ public class GraphPanel extends JPanel {
     catch(Exception ex) {
       ex.printStackTrace();
     }
-    //sets the default series color range for the curves
-    setDefaultSeriesColor();
   }
   void jbInit() throws Exception {
     this.setLayout(borderLayout1);
@@ -124,161 +117,28 @@ public class GraphPanel extends JPanel {
   }
 
 
-  public void drawGraphPanel(DiscretizedFuncList totalProbFuncs,DiscretizedFunctionXYDataSet  data,
+  /**
+   * Draws the graph panel
+   */
+  public void drawGraphPanel(DiscretizedFunctionXYDataSet  data,
                              boolean xLog,boolean yLog,boolean customAxis, String title,
                              ButtonControlPanel buttonControlPanel ) {
 
     // Starting
     String S = "drawGraphPanel(): ";
-
-    String newXYAxisName = totalProbFuncs.getXYAxesName();
-
-    // create a default chart based on some sample data...
-
-    // Determine which IM to add to the axis labeling
-    String xAxisLabel = totalProbFuncs.getXAxisName();
-    String yAxisLabel = totalProbFuncs.getYAxisName();
-
-    //flags to check if the exception was thrown on selection of the x-log or y-log.
-    boolean logErrorFlag = false;
-
-
-    //create the standard ticks so that smaller values too can plotted on the chart
-    TickUnits units = MyTickUnits.createStandardTickUnits();
-
-    try{
-
-      /// check if x log is selected or not
-      if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
-      else xAxis = new NumberAxis( xAxisLabel );
-
-      if (!xLog)
-        xAxis.setAutoRangeIncludesZero(true);
-      else
-        xAxis.setAutoRangeIncludesZero( false );
-      xAxis.setStandardTickUnits(units);
-      xAxis.setTickMarksVisible(false);
-      //added to have the minimum range within the Upper and Lower Bound of the Axis
-      //xAxis.setAutoRangeMinimumSize(.1);
-
-      /* to set the range of the axis on the input from the user if the range combo box is selected*/
-      if(customAxis)
-        xAxis.setRange(application.getMinX(),application.getMaxX());
-
-    }catch(Exception e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"X-Plot Error",JOptionPane.OK_OPTION);
-      graphOn=false;
-      xLog = false;
-      buttonControlPanel.setXLog(xLog);
-      xAxis = xAxis1;
-      logErrorFlag = true;
-    }
-
-    try{
-      /// check if y log is selected or not
-      if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
-      else yAxis = new NumberAxis( yAxisLabel );
-
-      if (!yLog)
-        yAxis.setAutoRangeIncludesZero(true);
-      else
-        yAxis.setAutoRangeIncludesZero( false );
-
-      yAxis.setStandardTickUnits(units);
-      yAxis.setTickMarksVisible(false);
-      //added to have the minimum range within the Upper and Lower Bound of the Axis
-      //yAxis.setAutoRangeMinimumSize(.1);
-
-      /* to set the range of the axis on the input from the user if the range combo box is selected*/
-      if(customAxis)
-        yAxis.setRange(application.getMinY(),application.getMaxY());
-
-    }catch(Exception e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Y-Plot Error",JOptionPane.OK_OPTION);
-      graphOn=false;
-      yLog = true;
-      buttonControlPanel.setYLog(yLog);
-      yAxis = yAxis1;
-      logErrorFlag = false;
-    }
-    int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
-
-
-    org.jfree.chart.renderer.StandardXYItemRenderer renderer
-        = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
-
-
-    // build the plot
-    plot = new XYPlot(data,xAxis, yAxis, renderer);
-
-    //setting the plot properties
-    plot.setDomainCrosshairLockedOnData(false);
-    plot.setDomainCrosshairVisible(false);
-    plot.setRangeCrosshairLockedOnData(false);
-    plot.setRangeCrosshairVisible(false);
-    plot.setInsets(new Insets(10, 0, 0, 20));
-
-    int numSeries = legendPaint.length;
-    for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
-
-    plot.setRenderer( renderer );
-    plot.setBackgroundAlpha( .8f );
-
-    JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
-
-    chart.setBackgroundPaint( lightBlue );
-
-    // Put into a panel
-    chartPanel = new ChartPanel(chart, true, true, true, true, false);
-
-    chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-    chartPanel.setMouseZoomable(true);
-    chartPanel.setDisplayToolTips(true);
-    chartPanel.setHorizontalAxisTrace(false);
-    chartPanel.setVerticalAxisTrace(false);
-
-    // set the font of legend
-    int numOfColors = plot.getSeriesCount();
+    DiscretizedFuncList totalProbFuncs = data.getFunctions();
 
     /**
-     * Adding the metadata text to the Window below the Chart
+     * adding the functions to the array list
      */
-    metadataText.removeAll();
-    metadataText.setEditable(false);
-    setLegend =new SimpleAttributeSet();
-    setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
-                           Boolean.TRUE);
-    Document doc = metadataText.getStyledDocument();
-    try {
+    int listSize = totalProbFuncs.size();
+    ArrayList functionList = new ArrayList();
+    for(int i=0 ; i<listSize ; ++i){
+      functionList.add(totalProbFuncs.get(i));
+    }
 
-      /**
-       * formatting the metadata to be added , according to the colors of the
-       * Curves. So now curves and metadata will be displayed in the same color.
-       */
-      doc.remove(0,doc.getLength());
-      for(int i=0,j=0;i<numOfColors;++i,++j){
-          if(j==legendColor.length)
-            j=0;
-          String name = totalProbFuncs.get(i).getName();
-          String legend = new String(i+1+")  "+name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
-                                     totalProbFuncs.get(i).getInfo()+SystemPropertiesUtils.getSystemLineSeparator());
-          setLegend =new SimpleAttributeSet();
-          StyleConstants.setFontSize(setLegend,12);
-          StyleConstants.setForeground(setLegend,legendColor[j]);
-          doc.insertString(doc.getLength(),legend,setLegend);
-        }
-      } catch (BadLocationException e) {
-        return;
-      }
-      graphOn=false;
-
-      //Check to see if there is no log Error and only  xLog or yLog are selected
-      if(!logErrorFlag && !xLog)
-        xAxis1 = xAxis;
-      if(!logErrorFlag && !yLog)
-        yAxis1 = yAxis;
-      pointsTextArea.setText(totalProbFuncs.toString());
-      return ;
+    drawGraphPanel(functionList,data,xLog,yLog,customAxis,title,buttonControlPanel);
+    return ;
   }
 
 
@@ -291,6 +151,7 @@ public class GraphPanel extends JPanel {
 
     //getting the functionlist
     DiscretizedFuncList totalProbFuncs= data.getFunctions();
+    //if(legendColor == null)
     createColorSchemeAndFunctionList(funcList,totalProbFuncs);
 
     String newXYAxisName = totalProbFuncs.getXYAxesName();
@@ -446,7 +307,7 @@ public class GraphPanel extends JPanel {
       if(!logErrorFlag && !yLog)
         yAxis1 = yAxis;
       pointsTextArea.setText(totalProbFuncs.toString());
-      return ;
+       return ;
   }
 
 
@@ -527,6 +388,7 @@ public class GraphPanel extends JPanel {
     return yAxis.getRange();
   }
 
+
   /**
    * Sets the paint color of the curves from outside
    * @param color : Array of Color Object
@@ -543,13 +405,6 @@ public class GraphPanel extends JPanel {
     }
   }
 
-  /**
-   * Sets the default color scheme for the cureves drawn
-   */
-  public void setDefaultSeriesColor(){
-    legendPaint = defaultColor;
-    legendColor = defaultColor;
-  }
 
   /**
    *

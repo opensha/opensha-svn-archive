@@ -188,6 +188,7 @@ public class HazardCurveApplet extends JApplet
   private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
+
   //holds the ArbitrarilyDiscretizedFunc
   private ArbitrarilyDiscretizedFunc function;
 
@@ -616,10 +617,8 @@ public class HazardCurveApplet extends JApplet
         //}
         graphPanel.setSeriesColor(color);
       }
-      else //sets the default series color for the curves
-        graphPanel.setDefaultSeriesColor();
 
-      graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
+      graphPanel.drawGraphPanel(data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
       togglePlot();
       //this.isIndividualCurves = false;
    }

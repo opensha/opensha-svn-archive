@@ -713,7 +713,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
         if( isWhite ) graphPanel.setPlotBackgroundColor(Color.white );
         else graphPanel.setPlotBackgroundColor( Color.black );
-        graphPanel.drawGraphPanel(functions,data,xLog,yLog,customAxis,null,buttonControlPanel);
+        graphPanel.drawGraphPanel(data,xLog,yLog,customAxis,null,buttonControlPanel);
         togglePlot();
     }
 

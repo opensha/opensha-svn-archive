@@ -381,9 +381,8 @@ public class HazardDataSetPlotter extends JApplet
 
       // Starting
       String S = C + ": addGraphPanel(): ";
-      graphPanel.drawGraphPanel(functions,data,xLog,yLog,customAxis,null,buttonControlPanel);
+      graphPanel.drawGraphPanel(data,xLog,yLog,customAxis,null,buttonControlPanel);
       togglePlot();
-      graphPanel.setDefaultSeriesColor();
    }
 
 

@@ -46,8 +46,6 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 
   private int currRuptures = -1;
   private int totRuptures=0;
-  private int numForecasts=0;
-
 
   /**
    * creates the HazardCurveCalculator object
@@ -219,7 +217,6 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     else
       for(i=0;i<numPoints;++i)
         hazFunction.set(i,0.0);
-    --numForecasts;
     if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
     return hazFunction;
 // double tempVal = -1.0*Math.log(1.0-hazFunction.getY(1));

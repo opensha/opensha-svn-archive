@@ -694,8 +694,12 @@ public class Temp_HazardCurveApplication extends JApplet
         timer = new Timer(500, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
             try{
-              if(calc.getCurrRuptures()!=-1)
-                progressClass.updateProgress(calc.getCurrRuptures(), calc.getTotRuptures());
+              if(calc.getCurrRuptures()!=-1){
+                int currRupture = calc.getCurrRuptures();
+                int totRupture = calc.getTotRuptures();
+                System.out.println("Current Rupture:"+currRupture+"   Total rupture: "+totRupture);
+                progressClass.updateProgress(currRupture, totRupture);
+              }
               if (isHazardCalcDone) {
                 // Toolkit.getDefaultToolkit().beep();
                 timer.stop();
@@ -867,8 +871,9 @@ public class Temp_HazardCurveApplication extends JApplet
         Difference is that erfGuiBean.getSelectedERF_Instance() does not update
         the forecast while erfGuiBean.getSelectedERF updates the
         */
+        EqkRupForecastAPI erfAPI = null;
         try{
-          EqkRupForecastAPI erfAPI = erfGuiBean.getSelectedERF_Instance();
+          erfAPI = erfGuiBean.getSelectedERF_Instance();
           this.timeSpanGuiBean.setTimeSpan(erfAPI.getTimeSpan());
         }catch(Exception ee){
           ee.printStackTrace();
@@ -931,20 +936,18 @@ public class Temp_HazardCurveApplication extends JApplet
       if(D) System.out.println(C + ":Param warning caught"+ex);
       ex.printStackTrace();
     }
-
-
     // check whether this forecast is a Forecast List
     // if this is forecast list , handle it differently
     boolean isEqkForecastList = false;
     if(forecast instanceof ERF_List)  {
-      if(prevSelectedERF_List == null)
+      //if add on top get the name of ERF List forecast
+      if(addData)
         prevSelectedERF_List = forecast.getName();
-      else{
-        if(!prevSelectedERF_List.equals(forecast.getName()) && !addData){
-          JOptionPane.showMessageDialog(this,"Cannot add to existing without selecting ERF Epistemic list",
-                                        "Input Error",JOptionPane.INFORMATION_MESSAGE);
-          return;
-        }
+
+      if(!prevSelectedERF_List.equals(forecast.getName()) && !addData){
+        JOptionPane.showMessageDialog(this,"Cannot add to existing without selecting same ERF Epistemic list",
+                                      "Input Error",JOptionPane.INFORMATION_MESSAGE);
+        return;
       }
       this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
       handleForecastList(site, imr, forecast);
@@ -1090,10 +1093,15 @@ public class Temp_HazardCurveApplication extends JApplet
       }
       hazardFuncList.add(hazFunction);
     }
-    //System.out.println("ERF List size:"+erfList.getRelativeWeightsList().size());
     weightedFuncList.addList(erfList.getRelativeWeightsList(),hazardFuncList);
-    //System.out.println("ERF Relative List size:"+weightedFuncList.getRelativeWtList().size());
-    weightedFuncList.setInfo(getParametersInfo());
+    //setting the information inside the weighted function list if adding on top of exisintg data
+    if(addData)
+      weightedFuncList.setInfo(getParametersInfo());
+    else //setting the information inside the weighted function list if adding the data to the existing data
+      weightedFuncList.setInfo(getParametersInfo()+"\n"+"Previous List Info:\n"+
+                               "--------------------\n"+weightedFuncList.getInfo());
+
+
 
 
    //individual curves are to be plotted

@@ -49,7 +49,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
   private ArrayList allSources;
 
  // This is an array holding the relevant lines of the input file
-  private List inputFileStrings = null;
+  private ArrayList inputFileStrings = null;
 
   double rupOffset, gridSpacing, deltaMag;
   String backSeisValue;
@@ -68,8 +68,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
     timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
-    String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/singleIterationWithModes.OpenSHA.30yr.txt";
-
+    //String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/singleIterationWithModes.OpenSHA.30yr.txt";
+    String INPUT_FILE_NAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/singleIterationWithModes.OpenSHA.30yr.txt";
     ArrayList inputFileLines=null;
 
     // read the lines of the input files into a list
@@ -77,7 +77,11 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
-    inputFileStrings = inputFileLines.subList(2,inputFileLines.size());
+    inputFileStrings = new ArrayList();
+    int lastLine = inputFileLines.size();
+    for(int i=2;i<lastLine;++i)
+      inputFileStrings.add(inputFileLines.get(i));
+
     if (D) System.out.println(C+" firstLineOfStrings ="+inputFileStrings.get(0));
     if (D) System.out.println(C+" LastLineOfStrings ="+inputFileStrings.get(inputFileStrings.size()-1));
 
