@@ -1852,11 +1852,11 @@ public class HazardCurveServerModeApplication extends JApplet
    * @param e
    */
   void cancelCalcButton_actionPerformed(ActionEvent e) {
-    //close the progress bar for the ERF GuiBean that displays "Updating Forecast".
-    erfGuiBean.closeProgressBar();
     //stopping the Hazard Curve calculation thread
     calcThread.stop();
     calcThread = null;
+    //close the progress bar for the ERF GuiBean that displays "Updating Forecast".
+    erfGuiBean.closeProgressBar();
     //stoping the timer thread that updates the progress bar
     if(timer !=null && progressClass !=null){
       timer.stop();
