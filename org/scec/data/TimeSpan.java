@@ -60,10 +60,14 @@ import org.scec.param.event.*;
  * setDuration(String units, double duration) and getDuration(String units, double duration)
  * methods, but note that the internal "chosen" units will not have changed.
  * The constraints on the units can be set using the setDurationConstraint()
- * method.<p>
+ * method.  NOTE: in converting between duration units it is assumed there are 365.25 days
+ * per year (correct only for durations in years that are an integer when divided by four).
+ * This limitation can be fixed, but will require some thought.<p>
  *
  * Finally, one can get an end-time calendar object that corresponds to the start time
- * plus the duration (getEndTimeCalendar()).<p>
+ * plus the duration (getEndTimeCalendar()).  Note, that because this invoves a duration
+ * unit conversion, it is assumed that there are 365.25 days per year (see discussion
+ * above).<p>
  *
  * TO DO LATER:<p>
  * Make the Duration units adjustable after construction.  This could be done by
@@ -529,7 +533,8 @@ public class TimeSpan implements ParameterChangeListener {
     /**
      * This converts the input duration in it's present units into the desired units.
      * Duration-unit options are "Years", "Days","Hours", "Minutes", "Seconds", or
-     * "Milliseconds".
+     * "Milliseconds".  This assumes that there are 365.25 days per year (correct only
+     * when the duration in years is an integer when divided by 4).
      * @param duration - the duration after units conversion
      * @param presentUnits - units of the input
      * @param desiredUnits - units of the output
