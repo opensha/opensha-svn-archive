@@ -191,7 +191,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
   private JLabel imgLabel = new JLabel();
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
 
-  //Get a parameter value
+  //Get command-line parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
         (getParameter(key) != null ? getParameter(key) : def);
@@ -227,10 +227,9 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
       buttonPanel.add(peerTestsParamSetter,     new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 5, 5, 3), 19, 7));
 
-      this.updateChoosenIMR();
-      this.updateChoosenTestCase();
-      this.updateChoosenIMT();
-      this.updateChoosenEqkSource();
+      this.updateChosenIMR();
+      this.updateChosenIMT();
+      this.updateChosenERF();
 
       //initialising the disaggregation parameter and adding to the button Panel
       disaggregationEditor.setParameter(disaggregationParam);
@@ -497,20 +496,11 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
   }
 
 
-  /**
-   *  update the GUI with the test case choosen
-   */
-  public void updateChoosenTestCase() {
-    if(this.hazardCurveGuiBean==null)
-      return;
-  }
-
-
 
   /**
    *  update the GUI with the IMT choosen
    */
-  public void updateChoosenIMT() {
+  public void updateChosenIMT() {
     if(this.hazardCurveGuiBean==null)
       return;
     imtPanel.removeAll();
@@ -527,7 +517,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
    *  update the GUI with the IMR choosen
    *  refresh the sites params as well
    */
-  public void updateChoosenIMR() {
+  public void updateChosenIMR() {
     // update the IMR and site panel
     if(this.hazardCurveGuiBean==null)
       return;
@@ -553,7 +543,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
   /**
    *  update the GUI with the choosen Eqk source
    */
-  public void updateChoosenEqkSource() {
+  public void updateChosenERF() {
     // update the EqkSource panel
     if(this.hazardCurveGuiBean==null)
       return;
@@ -660,7 +650,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
 
 
    /**
-    *  Description of the Method
+    *  Toggle between showing the graph and showing the actual data
     */
    protected void togglePlot() {
 
@@ -717,7 +707,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
       // clear the function list
       //this.totalProbFuncs.clear();
 
-      hazardCurveGuiBean.getChoosenFunction(totalProbFuncs);
+      hazardCurveGuiBean.computeHazardCurve(totalProbFuncs);
 
       // set the log values
       data.setXLog(xLog);
@@ -797,7 +787,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
    * gets the Applets Y-axis center coordinates
    * @return
    */
-  private int getAppletYAxisCenterCoor() {
+      private int getAppletYAxisCenterCoor() {
     return (this.getY() + this.getHeight())/2;
   }
 

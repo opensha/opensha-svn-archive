@@ -4,15 +4,67 @@
 For OpenSHA:
 ------------
 
-Add the Se2-Case5 Mean, 5%Fractile, and 95%Fractile cases to PEER results plotter and data-submission tool.
+Split the HazardCurveGuiBean into the following GuiBeans (so they can be used by our ShakeMap and HazardMap Applets):
 
-PEER_TestsApplet - everyone get to know this very well and meet later to discuss it.
+	IMR_GuiBean
+	IMT_GuiBean
+	Site_GuiBean
+	ERF_GuiBean
 
-PEER_TestResultsPlotterApplet - hand fix any missing data that comes after a zero.
+	
+	MapGuiBean  (Nitin does this)
+
+		takes a given XYZ file and uses settings in GMT_SettingsControlPanel to 
+		construct and display a map
+
+    For the ShakeMap and HazardMap Applets we'll also need the following GuiBeans
+
+	GriddedRegionSitesGuiBean	(bounds on region, grid spacing, and elements for setting site params)
+
+		For 1st version, just list the site parameter for the chosen IMR, 
+		and apply the one value to all sites
+ 
+       IMLorProbSelectorGuiBean         (IML@Prom or Prob@IML to plot gui bean)
+
+		select "IML at Prob" of "Prob at IML"
+			if "IML at Prob" chosen
+				provide DaoubleParameterEditor to set Prob
+			else
+				provide DaoubleParameterEditor to set IML
+
+     For the ShakeMap Applet we'll also need the following GuiBean
+	
+	EqkRupSelectorGuiBean
+
+		First version can simply be a JComboBox hard-wired ruptures or use an ERF and 
+		selection of src and rup index
+
+Create the following control panels for our Applets (these will be put in a JComboBox in the App; chosing one will either show the panel in the App or present a new window):
+
+	AxisLimitsControlPanel
+	DisaggregationControlPanel
+	PEER_TestCaseSelectorControlPanel
+	GMT_SettingsControlPanel
+
+    In the future we'll add:
+
+	ERF_EpistemicListControlPanel
+	X_ValuesInCurveControlPanel
+	setMinSourceSiteDistanceControlPanel
+
+Move progress bar in HazardCurveCalculator (and Disagg calculator) to a separate and general class; put in 
+
+	sha/gui/infoTools/calcProgressBar.java
+
+PEER_TestResultsPlotterApplet - get participants to check their curves - Ned will do.
 
 Add getApplicableRegion and isLocWithinApplicableRegion methods to EqkRupForecastAPI.
 
+Move Frankel input files to where the forecast class is.
+
 Create ERF_List and its subclasses ERF_EpistemicList and ERF_AleatoryList, and then the PEER_LogicTreeERF_List
+
+Create and object that will compute fractiles from a list of hazard curves - Ned will provide a detailed description.
 
 Find out status of getting out log-log implementation into the official JFreeChart framework.
 
@@ -20,31 +72,33 @@ Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g.
 
 PEER_TestResultsPlotterApplet - make password protection more secure (if needed)?
 
-PEER_TestResultPlotterApplet -Following files need to be added in our PEER plotter applet. These files are
-result of todays checking of files for finding whether last value is 0 or not
-before the missing values. 
-
-	SET 1 files
-		1. Harmsen : Case 2,4,5,7,8(2sigtrunc)
-		2. Rowshandel : 7
-
-	SET 2 files
-		1. Toro - Case 5
-		2. Mendez - Case 5
-		3. Harmsen - Case 5
-		4. Rowshandel - Case 5
-		5. Tan - Case 5
-
 
 For the SCEC-ITR CME:
 ---------------------
 
-Reorganize output files for hazard map database.
 
-Calculate the number of grid points in the region shown in Ned's ground
-motion amplification map with a grid spacing of 0.05 degrees.
 
-Define and implement a GeographicalRegion object (the most general being one represented with an arbitrary polygon, but we'll want a basic rectangular (& circular?) region as well).  This should have methods for determining wether an arbitrary Location object is within the Region.  This will be used by ERFs to define their region of applicability.  They will also be used to define a region for making a map.  We will also want to define methods (or subclasses) for creating a DiscretizedGeographicalRegion (again, for maps or for creating EarthquakeSource objects).  We need to think about these definitions together.
+(0.0) Refine Hazard curve data storage so that each dataset resides in its own directory. Deliverable: Run MapGenerationApplet, and produce GMT map from datasets organized in their own directories.
+
+(0.1) Update MappGenerationApplet so that it dynamically determines what dataset directories exists, and it can produce a map from any dataset as soon as one is created. It's ok to make the user re-load the page to see a new dataset. Deliverable: Run MapGeneratorApplet, show the available datasets. Create a new dataset/directory using other apps. Show the MapGeneratorApplet (without modification) can map the new dataset.
+
+(1) Calculate the number of grid points in a map using the Dimensions of the Earthquake Ground-Motion Application in SC. map with 0.05 grid spacing. Deliverable: Email with dimensions, grid spacing, and total grip points.
+
+(2) Create a dummy dataset directory (of hazard curves) with the step (1) number of datapoints. Use a real hazard curve file (for realistic numbers) and duplicate it, changing the file name as needed. Deliverable: Dataset in a datadirectory that the mapGeneratorApplet can process.  NOTE: probably easier to butcher existing code to create a real dataset.
+
+(3) Create 8 PSHA Hazard Maps from the dummy dataset. We have 3 color schemes, create a IMT-lo and Prob-lo map for each color scheme. For one of the color schemes, create a IMT-high and Prob-high version of the maps. Deliverable: 8 PSHA maps showing our 3 color schemes, the ability to select IMT or Prob, and the effect of changing different Prob or IMT levels.
+
+(4) Create Applet to Configure a HazardMap Dataset. This is derivative of the Hazard curve data Applet. The user should specify Lat/Long Boundaries, Spacing, IMT, ERF, IMR, and one site type. Deliverable: Applet that constructs the DataSetDescription.
+
+(5) Implement solver to createDataSet. Deliverable: Set of datafiles created by solver that matches dataset specified by user. Dataset is visible to MapGeneratorApplet.
+
+Think  about meta data structure for haz map calcs.
+
+EvenlyGriddedRectangularGeographicRegion - only create the list if they ask for the a list or an iterator
+
+EvenlyGriddedGeographicRegion - finish
+
+Add comments to classes in scec/data/region
 
 Build ScenarioShakeMapApplet (with HazardMapApplet in mind).  Then do this on server side.
 

@@ -528,14 +528,6 @@ public class HazardCurveGuiBean implements
   }
 
 
-  /**
-   *  Gets the testCasesEditor attribute of the GroupTestGuiBean object
-   *
-   * @return    The testCasesEditor value
-   */
-  public ParameterListEditor getTestCasesEditor() {
-        return testCasesEditor;
- }
 
   /**
    *  Gets the imtEditor attribute of the GroupTestGuiBean object
@@ -599,7 +591,7 @@ public class HazardCurveGuiBean implements
       // if IMT selection then update
       if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
         updateIMT((String)event.getNewValue());
-        applet.updateChoosenIMT();
+        applet.updateChosenIMT();
       }
 
       // if IMR selection changed, update the site parameter list
@@ -607,8 +599,8 @@ public class HazardCurveGuiBean implements
           init_imrParamListAndEditor();
           updateSiteParamListAndEditor();
           init_imtParamListAndEditor();
-          applet.updateChoosenIMR();
-          applet.updateChoosenIMT();
+          applet.updateChosenIMR();
+          applet.updateChosenIMT();
       }
 
       // if Truncation type changes
@@ -621,7 +613,7 @@ public class HazardCurveGuiBean implements
       if( name1.equals(this.ERF_PARAM_NAME) ){
         String value = event.getNewValue().toString();
         setParamsInForecast(value);
-        applet.updateChoosenEqkSource();
+        applet.updateChosenERF();
       }
 
 
@@ -724,7 +716,7 @@ public class HazardCurveGuiBean implements
    * Gets the probabilities functiion based on selected parameters
    * this function is called when add Graph is clicked
    */
-  public void getChoosenFunction(DiscretizedFuncList funcs) {
+  public void computeHazardCurve(DiscretizedFuncList funcs) {
     EqkRupForecastAPI eqkRupForecast = null;
 
     // get the selected forecast model
