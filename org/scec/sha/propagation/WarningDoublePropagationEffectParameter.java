@@ -131,7 +131,7 @@ public abstract class WarningDoublePropagationEffectParameter
     /**
      *  Returns the maximum allowed value of the constraint
      *  object. If the constraint is not set returns null.
-     */`
+     */
     public Double getWarningMax() {
         if ( warningConstraint != null ) return warningConstraint.getMax();
         else return null;

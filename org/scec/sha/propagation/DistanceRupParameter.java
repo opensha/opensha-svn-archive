@@ -9,7 +9,7 @@ import org.scec.sha.calc.*;
 import org.scec.calc.RelativeLocation;
 
 
-//**
+/**
  * <b>Title:</b> DistanceRupParameter<p>
  *
  * <b>Description:</b> Special subclass of PropagationEffectParameter.
