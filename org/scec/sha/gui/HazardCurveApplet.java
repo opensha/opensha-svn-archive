@@ -7,7 +7,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.util.Vector;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.net.*;
 import java.lang.reflect.InvocationTargetException;
 import java.io.*;
@@ -1561,7 +1560,7 @@ public class HazardCurveApplet extends JApplet
         imtGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"Forecast Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
-        erfGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
+        /*erfGuiBean.getParameterList().toString()+systemSpecificLineSeparator+*/
         systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
         timeSpanGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator;

@@ -97,7 +97,7 @@ public class PuenteHillsFaultERF extends EqkRupForecast
     StirlingGriddedFaultFactory faultFactory = new StirlingGriddedFaultFactory(faultTrace,27.0,5.0,17.0,1.0);
 
     // make it dip exactly north
-    double aveDipDir = 5.0;
+    double aveDipDir = 0.0;
     faultFactory.setAveDipDir(aveDipDir);
     double rake = 90;
 

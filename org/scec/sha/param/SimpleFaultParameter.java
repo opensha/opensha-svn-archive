@@ -228,6 +228,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
     parameterList.addParameter(gridSpacing);
     parameterList.addParameter(numFltTrace);
     dipDirectionParam.setInfo(DIP_DIRECTION_INFO);
+    dipDirectionParam.getConstraint().setNullAllowed(true);
     //create the String parameter if the dip is one
     Vector fltType = new Vector();
     fltType.add(this.FRANKEL);

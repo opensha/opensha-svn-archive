@@ -13,6 +13,9 @@ import org.scec.sha.param.editor.MagFreqDistParameterEditor;
 import org.scec.sha.param.*;
 import org.scec.sha.magdist.SingleMagFreqDist;
 import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.scec.data.Location;
+import org.scec.data.Direction;
+import org.scec.calc.RelativeLocation;
 
 /**
  * <p>Title: PuenteHillsScenarioControlPanel</p>
@@ -23,6 +26,10 @@ import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
  */
 
 public class PuenteHillsScenarioControlPanel {
+
+  //for debugging
+  protected final static boolean D = true;
+
 
   private EqkRupSelectorGuiBean erfGuiBean;
   private IMR_GuiBean imrGuiBean;
@@ -88,12 +95,59 @@ public class PuenteHillsScenarioControlPanel {
     //  33.9381	-118.133	3 km
     //  34.0200	-118.308	3 km
 
-    // this increment will move the points down to 5 km depth (assuming due north dip)
-    double latIncr= (5.0-3.0)/(Math.tan(27*Math.PI/180)*111.0);
+    Location loc1 = new Location(33.8995,-117.868,3.0);
+    Location loc2 = new Location(33.9122,-118.029,3.0);
+    Location loc3 = new Location(33.9381,-118.133,3.0);
+    Location loc4 = new Location(34.0200,-118.308,3.0);
+
+    double dip = 27;
+    double aveDipDir = 10.0;
+    double vDist = 3.0-5.0;
+    double hDist = (5.0-3.0)/Math.tan(27*Math.PI/180);
+    Direction dir = new Direction(vDist,hDist,aveDipDir,0.0);
+
+    Location newLoc1 = RelativeLocation.getLocation(loc1,dir);
+    Location newLoc2 = RelativeLocation.getLocation(loc2,dir);
+    Location newLoc3 = RelativeLocation.getLocation(loc3,dir);
+    Location newLoc4 = RelativeLocation.getLocation(loc4,dir);
 
     //getting the instance for the SimpleFaultParameterEditorPanel from the GuiBean to adjust the fault Params
     SimpleFaultParameterEditorPanel faultPanel= erfParamGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
     //creating the Lat vector for the SimpleFaultParameter
+
+    Vector lats = new Vector();
+    lats.add(new Double(newLoc1.getLatitude()));
+    lats.add(new Double(newLoc2.getLatitude()));
+    lats.add(new Double(newLoc3.getLatitude()));
+    lats.add(new Double(newLoc4.getLatitude()));
+
+    //creating the Lon vector for the SimpleFaultParameter
+    Vector lons = new Vector();
+    lons.add(new Double(newLoc1.getLongitude()));
+    lons.add(new Double(newLoc2.getLongitude()));
+    lons.add(new Double(newLoc3.getLongitude()));
+    lons.add(new Double(newLoc4.getLongitude()));
+
+
+    if (D) {
+      System.out.println("Orig Trace:");
+      System.out.println(loc1);
+      System.out.println(loc2);
+      System.out.println(loc3);
+      System.out.println(loc4);
+    }
+    if (D) {
+      System.out.println("New Trace:");
+      System.out.println(newLoc1);
+      System.out.println(newLoc2);
+      System.out.println(newLoc3);
+      System.out.println(newLoc4);
+    }
+
+/*
+    // this increment will move the points down to 5 km depth (assuming due north dip)
+    double latIncr= (5.0-3.0)/(Math.tan(27*Math.PI/180)*111.0);
+
     Vector lats = new Vector();
     lats.add(new Double(33.8995+latIncr));
     lats.add(new Double(33.9122+latIncr));
@@ -106,10 +160,10 @@ public class PuenteHillsScenarioControlPanel {
     lons.add(new Double(-118.029));
     lons.add(new Double(-118.133));
     lons.add(new Double(-118.308));
-
+*/
     //creating the dip vector for the SimpleFaultParameter
     Vector dips = new Vector();
-    dips.add(new Double(27));
+    dips.add(new Double(dip));
 
     //creating the depth vector for the SimpleFaultParameter
     Vector depths = new Vector();
@@ -117,7 +171,10 @@ public class PuenteHillsScenarioControlPanel {
     depths.add(new Double(17));
 
     //setting the FaultParameterEditor with the default values for Puente Hills Scenario
-    faultPanel.setAll(((SimpleFaultParameter)faultPanel.getParameter()).DEFAULT_GRID_SPACING,lats,lons,dips,depths,((SimpleFaultParameter)faultPanel.getParameter()).FRANKEL);
+    faultPanel.setAll(((SimpleFaultParameter)faultPanel.getParameter()).DEFAULT_GRID_SPACING,lats,
+                      lons,dips,depths,((SimpleFaultParameter)faultPanel.getParameter()).STIRLING);
+    // set the average dip direction
+    faultPanel.setDipDirection(aveDipDir);
     faultPanel.refreshParamEditor();
     //updaing the faultParameter to update the faultSurface
     faultPanel.setEvenlyGriddedSurfaceFromParams();
