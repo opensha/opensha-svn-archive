@@ -136,7 +136,7 @@ public abstract class RemoteERF_Client extends EqkRupForecast implements Paramet
   public String getName() {
     // TODO Auto-generated method stub
     try {
-      return erfServer.getName();
+      return null;
     }
     catch (Exception e) {
       e.printStackTrace();

@@ -124,7 +124,7 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String RMI_STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
   public final static String RMI_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimplePoissonFaultERFClient";
   //public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureERF";
-  //public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
+  public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
   public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient";
 
 
@@ -1200,6 +1200,7 @@ public class Temp_HazardCurveApplication extends JApplet
    erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
    erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){

@@ -13,8 +13,27 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
  */
 
 public class STEP_EqkRupForecastClient extends RemoteERF_Client{
+
+
+  // name of this ERF
+  public static String  NAME = new String("Server STEP ERF");
+
   public STEP_EqkRupForecastClient() {
     String className = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
     getRemoteERF(className);
+  }
+
+
+  /*
+  * Returns the name of the ERF
+  */
+  public String getName() {
+    try {
+      return NAME;
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 }
