@@ -154,6 +154,7 @@ public class IMRTesterApplet extends JApplet
     protected final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.classicImpl.SCEMY_1997_IMR";
     protected final static String F_CLASS_NAME = "org.scec.sha.imr.classicImpl.Field_2000_IMR";
     protected final static String A_CLASS_NAME = "org.scec.sha.imr.classicImpl.Abrahamson_2000_IMR";
+    protected final static String CB_CLASS_NAME = "org.scec.sha.imr.classicImpl.CB_2003_IMR";
 
     /**
      *  Temp until figure out way to dynamically load classes during runtime
@@ -164,6 +165,7 @@ public class IMRTesterApplet extends JApplet
     protected final static String SCEMY_NAME = "Sadigh et al. (1997)";
     protected final static String F_NAME = "Field (2000)";
     protected final static String A_NAME = "Abrahamson (2000)";
+    protected final static String CB_NAME = "Campbell & Bozorgnia (2003)";
 
 
     /**
@@ -188,6 +190,7 @@ public class IMRTesterApplet extends JApplet
         imrNames.put( SCEMY_NAME, SCEMY_CLASS_NAME );
         imrNames.put( F_NAME, F_CLASS_NAME );
         imrNames.put( A_NAME, A_CLASS_NAME );
+        imrNames.put( CB_NAME, CB_CLASS_NAME );
 
         try { UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() ); }
         catch ( Exception e ) {}

@@ -374,8 +374,10 @@ public class CB_2003_IMR
         double mag, dist, hw;
         String fltType, siteType;
 
+        // Note: since coeffs already set, so too is the component
+
         // default is alluvium
-        double S_vfs=0, S_sr=0, S_fr=0; // default is "Firm Soil""
+        double S_vfs=0, S_sr=0, S_fr=0; // this makes default "Firm Soil""
         double F_rv, F_th;
         double f1, f2, g, f3, f4, f5, f_HW_m, f_HW_r;
 
@@ -425,7 +427,7 @@ public class CB_2003_IMR
         }
 
 
-        f1 = coeff.c2*mag + coeff.c3*Math.pow(8.5-mag,2);
+        f1 = coeff.c2*mag + coeff.c3*(8.5-mag)*(8.5-mag);
 
         g = coeff.c5 + coeff.c6*(S_vfs+S_sr) + coeff.c7*S_fr;
         double temp = Math.exp(coeff.c8*mag + coeff.c9*(8.5-mag)*(8.5-mag));
@@ -445,7 +447,7 @@ public class CB_2003_IMR
         f5 = hw*(S_vfs+S_sr+S_fr)*f_HW_m*f_HW_r;
 
         // Make BC Boundary correction if needed
-        if ( siteType.equals( SITE_TYPE_NEHRP_BC )) f1 += coeff.bv*Math.log(620/760);
+        if ( siteType.equals( SITE_TYPE_NEHRP_BC )) f1 += coeff.bv*Math.log(620.0/760.0);
 
         return coeff.c1 + f1 + coeff.c4*0.5*Math.log(f2) + f3 + f4 + f5;
 
@@ -478,18 +480,10 @@ public class CB_2003_IMR
         else {  // PGA dependent
 
             // Set PGA coefficients depending on component:
-            if ( componentParam.equals( COMPONENT_AVE_HORZ ) ) {
-                if( horzCoefficients.containsKey( PGA_NAME ) )
-                    coeff = ( CB_2003_IMRCoefficients ) horzCoefficients.get( PGA_NAME );
-                else
-                    throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + PGA_NAME );
-            }
-            else { // vertical component
-                if( vertCoefficients.containsKey( PGA_NAME ) )
-                    coeff = ( CB_2003_IMRCoefficients ) vertCoefficients.get( PGA_NAME );
-                else
-                    throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + PGA_NAME );
-            }
+            if ( componentParam.equals( COMPONENT_AVE_HORZ ) )
+                coeff = ( CB_2003_IMRCoefficients ) horzCoefficients.get( PGA_NAME );
+            else  // vertical component
+                coeff = ( CB_2003_IMRCoefficients ) vertCoefficients.get( PGA_NAME );
 
             double pga = Math.exp(calcMean());
             updateCoefficients();
@@ -497,7 +491,6 @@ public class CB_2003_IMR
             else if (pga > 0.07 && pga < 0.25)  return coeff.c17-0.132*Math.log(pga);
             else                                return coeff.c17+0.183;
         }
-
     }
 
 
