@@ -1,6 +1,10 @@
 package org.scec.sha.magdist;
 
 import org.scec.exceptions.*;
+import org.scec.data.DataPoint2D;
+
+
+
 /**
  * <p>Title: GuttenbergRichterMagFreqDist.java </p>
  * <p>Description: This is incremental Guttenberg-Richter distribution</p>
@@ -9,6 +13,7 @@ import org.scec.exceptions.*;
  * @author Vipin Gupta   Date: Aug 8, 2002
  * @version 1.0
  */
+
 
 public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
 
@@ -218,6 +223,37 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     for(i=indexUp+1;i<num;++i) // set all rates above magUpper tp 0
        set(i,0.0);
   }
+
+
+
+
+  /**
+     * this function will throw an exception if the given x-value is not
+     * within tolerance of one of the x-values in the function
+     */
+    public void set(DataPoint2D point) throws DataPoint2DException {
+        super.set(point);
+    }
+
+
+
+    /**
+     * this function will throw an exception if the given x-value is not
+     * within tolerance of one of the x-values in the function
+     */
+    public void set(double x, double y) throws DataPoint2DException {
+       super.set(x,y);
+    }
+
+
+
+    /**
+     * this function will throw an exception if the index is not
+     * within the range of 0 to num -1
+     */
+    public void set(int index, double y) throws DataPoint2DException {
+        super.set(index,y);
+    }
 
 
 

@@ -2,8 +2,10 @@ package org.scec.sha.magdist;
 
 import java.util.Vector;
 
+import org.scec.data.DataPoint2D;
 import org.scec.data.function.DiscretizedFuncList;
 import org.scec.exceptions.DiscretizedFunction2DException;
+import org.scec.exceptions.DataPoint2DException;
 
 
 
@@ -118,7 +120,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public void addIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
-                                        throws DiscretizedFunction2DException {
+               throws DiscretizedFunction2DException,DataPoint2DException {
 
      /* check whether mun,num and delta of new distribution matches
         the min, num and delta in  the constructor */
@@ -146,7 +148,8 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     * @param magFreqDist
     */
 
-   public void removeIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist) {
+   public void removeIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
+                          throws DiscretizedFunction2DException,DataPoint2DException {
 
      if(saveMagFreqDists) {    // check if this distribution exists
        int index = savedMagFreqDists.indexOf(magFreqDist);
@@ -174,13 +177,37 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
 
 
+   /**
+     * this function will throw an exception if the given x-value is not
+     * within tolerance of one of the x-values in the function
+     */
+    public void set(DataPoint2D point) throws DataPoint2DException {
+        super.set(point);
+    }
+
+    /**
+     * this function will throw an exception if the given x-value is not
+     * within tolerance of one of the x-values in the function
+     */
+    public void set(double x, double y) throws DataPoint2DException {
+       super.set(x,y);
+    }
+
+    /**
+     * this function will throw an exception if the index is not
+     * within the range of 0 to num -1
+     */
+    public void set(int index, double y) throws DataPoint2DException {
+        super.set(index,y);
+    }
+
 
    /**
     *
     * @return : returns the vector of Strings of Info about each added distribution
     */
 
-  public Vector getAllInfo() throws DiscretizedFunction2DException {
+  public Vector getAllInfo() {
 
     if(saveMagFreqDists) {
       // construct the info vector on fly from saved distributions
