@@ -385,17 +385,16 @@ public class ParameterList {
        StringBuffer b = new StringBuffer();
        boolean first = true;
 
-       TreeMap map = new TreeMap();
+       Vector v=new Vector();
+
        int vectorSize = params.size();
        for(int i = 0; i<vectorSize;++i) {
            ParameterAPI param = (ParameterAPI)params.get(i);
-           map.put(param.getName(), param);
+           v.add(param.getName());
        }
 
-
-       Iterator it = map.keySet().iterator();
+       Iterator it = v.iterator();
        while(it.hasNext()){
-
 
            String key = (String)it.next();
            if(D) System.out.println(S + "Next Parameter Key = " + key);

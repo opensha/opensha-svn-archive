@@ -268,12 +268,6 @@ public class PEER_TestsParamSetter extends JComboBox
     for(int i=0;i<size;++i)
       this.addItem(v.get(i));
 
-    //adding the combo box to the ActionListener class, so that each event is handled
-    //by the actionPerformed method
-    addActionListener(this);
-
-    //getting the selecetd test and site
-    testSelected=this.getSelectedItem().toString();
 
     //instance of the hazardCurveGuiBean
     this.hazardCurveGuiBean = hazardCurveGuiBean;
@@ -284,6 +278,16 @@ public class PEER_TestsParamSetter extends JComboBox
     peer_NonPlanar_ERF =(PEER_NonPlanarFaultForecast)hazardCurveGuiBean.getErfVector().get(2);
     peer_Listric_ERF =(PEER_ListricFaultForecast)hazardCurveGuiBean.getErfVector().get(3);
     peer_MultiSource_ERF = (PEER_MultiSourceForecast)hazardCurveGuiBean.getErfVector().get(4);
+
+
+    //adding the combo box to the ActionListener class, so that each event is handled
+    //by the actionPerformed method
+    addActionListener(this);
+
+    //getting the selecetd test and site
+    testSelected=this.getSelectedItem().toString();
+    //setting the default selection index to first test case
+    this.setSelectedIndex(0);
   }
 
 

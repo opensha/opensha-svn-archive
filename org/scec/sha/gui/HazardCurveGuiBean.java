@@ -163,11 +163,6 @@ public class HazardCurveGuiBean implements
     // Create site parameters
     updateSiteParamListAndEditor( );
 
-    // Stuff hard coded for PEER test cases below
-    // ******************************************
-
-    //set the site based on the selected test case
-    //hazardCurveParameterClass.setParams();
   }
 
 

@@ -28,6 +28,24 @@ Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g.
 
 PEER_TestResultsPlotterApplet - make password protection more secure (if needed)?
 
+PEER_TestResultPlotterApplet -Following files need to be added in our PEER plotter applet. These files are
+result of todays checking of files for finding whether last value is 0 or not
+before the missing values. 
+
+SET 1 files
+-----------
+1. Harmsen : Case 2,4,5,7,8(2sigtrunc)
+2. Rowshandel : 7
+
+SET 2 files
+-----------
+1. Toro - Case 5
+2. Mendez - Case 5
+3. Harmsen - Case 5
+4. Rowshandel - Case 5
+5. Tan - Case 5
+
+
 For the SCEC-ITR CME:
 ---------------------
 
