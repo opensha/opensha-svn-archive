@@ -22,4 +22,9 @@ public interface AxisLimitsControlPanelAPI {
    */
   public void setAxisRange(double xMin,double xMax, double yMin, double yMax);
 
+  /**
+   * This function sets auto range for axis
+   */
+  public void setAutoRange();
+
 }

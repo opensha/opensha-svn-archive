@@ -1612,10 +1612,18 @@ public class AttenuationRelationshipTesterApp extends JApplet
        double maxX=rX.getUpperBound();
        double minY=rY.getLowerBound();
        double maxY=rY.getUpperBound();
-       AxisLimitsControlPanel axisScale=new AxisLimitsControlPanel(
-           this, this, minX,maxX,minY,maxY);
-       axisScale.pack();
-       axisScale.show();
+       AxisLimitsControlPanel axisLimits;
+       if(this.customAxis) { // select the custom scale in the control window
+         axisLimits=new AxisLimitsControlPanel(this, this,
+             AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
+
+       }
+       else { // select the auto scale in the control window
+         axisLimits=new AxisLimitsControlPanel(this, this,
+             AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
+       }
+       axisLimits.pack();
+       axisLimits.show();
     }
   }
 
@@ -1635,6 +1643,15 @@ public class AttenuationRelationshipTesterApp extends JApplet
      addGraphPanel();
 
   }
+
+  /**
+   * set the auto range for the axis. This function is called
+   * from the AxisLimitControlPanel
+   */
+ public void setAutoRange() {
+   this.customAxis=false;
+   addGraphPanel();
+ }
 
   /**
    * This function handles the Zero values in the X and Y data set when exception is thrown,

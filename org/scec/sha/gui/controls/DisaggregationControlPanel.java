@@ -28,7 +28,6 @@ public class DisaggregationControlPanel extends JFrame
   private JLabel jLabel1 = new JLabel();
   private JButton okButton = new JButton();
   private JButton cancelButton = new JButton();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   //Disaggregation Parameter
   private DoubleParameter disaggregationParam =
@@ -37,13 +36,19 @@ public class DisaggregationControlPanel extends JFrame
 
   // applet which called this control panel
   DisaggregationControlPanelAPI parent;
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
-  public DisaggregationControlPanel(DisaggregationControlPanelAPI parent) {
+  public DisaggregationControlPanel(DisaggregationControlPanelAPI parent,
+                                    Component parentComponent) {
     try {
+      jbInit();
       this.parent= parent;
       disaggregationParam.addParameterChangeFailListener(this);
       disaggregationEditor.setParameter(disaggregationParam);
-      jbInit();
+      // show the window at center of the parent component
+      this.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
+                     parentComponent.getY()+parentComponent.getHeight()/2);
+
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -82,23 +87,22 @@ public class DisaggregationControlPanel extends JFrame
       }
     });
 
+    this.getContentPane().add(this.disaggregationEditor,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+           ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 23, 0, 0), 30, 0));
     this.getContentPane().add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 14, 0, 14), 0, 6));
-    this.getContentPane().add(diaggregateCheckBox,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 14, 0, 39), 31, 0));
-    this.getContentPane().add(this.disaggregationEditor,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-           ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 14, 0, 39), 31, 0));
-    this.getContentPane().add(cancelButton,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(75, 0, 9, 14), 25, 9));
-    this.getContentPane().add(okButton,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(75, 96, 9, 0), 51, 9));
-
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 60, 0, 35), 0, 6));
+    this.getContentPane().add(diaggregateCheckBox,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 9, 0, 0), 0, 0));
+    this.getContentPane().add(okButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 106, 13, 0), 51, 9));
+    this.getContentPane().add(cancelButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 46, 13, 35), 25, 9));
+    disaggregationEditor.setVisible(false);
   }
 
 
   /**
    *  Shown when a Constraint error is thrown on Disaggregation ParameterEditor
-   *
    * @param  e  Description of the Parameter
    */
   public void parameterChangeFailed( ParameterChangeFailEvent e ) {
@@ -129,9 +133,9 @@ public class DisaggregationControlPanel extends JFrame
 
   }
 
+
   /**
    * Only show disaggregration prob parameter when disaggregration is selected
-   *
    * @param e
    */
   void diaggregateCheckBox_actionPerformed(ActionEvent e) {
@@ -139,6 +143,7 @@ public class DisaggregationControlPanel extends JFrame
       disaggregationEditor.setVisible(true);
     else disaggregationEditor.setVisible(false);
   }
+
 
   /**
    * this function is called when Ok button is selected
@@ -152,6 +157,7 @@ public class DisaggregationControlPanel extends JFrame
       parent.setDisaggregationProb(((Double)this.disaggregationParam.getValue()).doubleValue());
     this.dispose();
   }
+
 
   /**
    * this function is called when Cancel button is selected

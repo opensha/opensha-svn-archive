@@ -42,7 +42,8 @@ import org.scec.data.Site;
  */
 
 public class HazardCurveApplet extends JApplet
-    implements LogPlotAPI, ParameterChangeListener, AxisLimitsControlPanelAPI {
+    implements LogPlotAPI, ParameterChangeListener, AxisLimitsControlPanelAPI,
+    DisaggregationControlPanelAPI {
 
   /**
    * Name of the class
@@ -78,6 +79,16 @@ public class HazardCurveApplet extends JApplet
   private IMT_GuiBean imtGuiBean;
   private Site_GuiBean siteGuiBean;
 
+  // Strings for control pick list
+  private final static String PEER_TEST_CONTROL = "Select Test and Site";
+  private final static String DISAGGREGATION_CONTROL = "Disaggregation";
+  private final static String AXIS_CONTROL = "Axis Control";
+
+  // objects for control panels
+  private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
+  private DisaggregationControlPanel disaggregationControlPanel;
+  private AxisLimitsControlPanel axisControlPanel;
+
 
   // mesage needed in case of show data if plot is not available
   private final static String NO_PLOT_MSG = "No Plot Data Available";
@@ -103,14 +114,9 @@ public class HazardCurveApplet extends JApplet
    * FunctionList declared
    */
   private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
-
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
-  //Disaggregation Parameter
-  private DoubleParameter disaggregationParam = new DoubleParameter("Disaggregation Prob",
-                                                             0,1,new Double(.01));
 
-  private DoubleParameterEditor disaggregationEditor=new DoubleParameterEditor();
   // Create the x-axis and y-axis - either normal or log
   private com.jrefinery.chart.axis.NumberAxis xAxis = null;
   private com.jrefinery.chart.axis.NumberAxis yAxis = null;
@@ -146,6 +152,7 @@ public class HazardCurveApplet extends JApplet
 
   //flag to check for the disaggregation functionality
   private boolean disaggregationFlag= false;
+  private double disaggregationProb;
   private String disaggregationString;
 
   // PEER Test Cases
@@ -199,11 +206,6 @@ public class HazardCurveApplet extends JApplet
   private GridBagLayout gridBagLayout15 = new GridBagLayout();
   private JPanel imrPanel = new JPanel();
   private JLabel jLabel1 = new JLabel();
-  private JCheckBox disaggregationCheckbox = new JCheckBox();
-  private GridBagLayout gridBagLayout12 = new GridBagLayout();
-  private BorderLayout borderLayout1 = new BorderLayout();
-
-  private PEER_TestsParamSetter peerTestsParamSetter;
 
 
   //images for the OpenSHA
@@ -213,10 +215,11 @@ public class HazardCurveApplet extends JApplet
   //static string for the OPENSHA website
   private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
-  private JComboBox rangeComboBox = new JComboBox();
-  private JLabel jCustomAxisLabel = new JLabel();
   private JLabel imgLabel = new JLabel();
+  private JComboBox controlComboBox = new JComboBox();
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
+  private GridBagLayout gridBagLayout12 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -234,82 +237,18 @@ public class HazardCurveApplet extends JApplet
   public void init() {
     try {
 
+      // initialize the control pick list
+      initControlList();
+
+      // initialize the GUI components
       jbInit();
 
-      // create the IMR Gui Bean object
-      // It accepts the vector of IMR class names
-      Vector imrClasses = new Vector();
-      imrClasses.add(this.A_CLASS_NAME);
-      imrClasses.add(this.AS_CLASS_NAME);
-      imrClasses.add(this.BJF_CLASS_NAME);
-      imrClasses.add(this.C_CLASS_NAME);
-      imrClasses.add(this.SCEMY_CLASS_NAME);
-      imrClasses.add(this.CB_CLASS_NAME);
-      imrClasses.add(this.F_CLASS_NAME);
-      imrGuiBean = new IMR_GuiBean(imrClasses);
-      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
-      // show this gui bean the JPanel
-      imrPanel.add(this.imrGuiBean,
-                new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+      // initialize the various GUI beans
+      initIMR_GuiBean();
+      initIMT_GuiBean();
+      initSiteGuiBean();
+      initERF_GuiBean();
 
-      // get the selected IMR
-      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-
-      // create the IMT Gui Bean object
-      imtGuiBean = new IMT_GuiBean(imr);
-      imtPanel.setLayout(gridBagLayout8);
-      imtPanel.add(imtGuiBean,
-                new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-
-      // create the Site Gui Bean object
-      siteGuiBean = new Site_GuiBean();
-      siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
-      // show the sitebean in JPanel
-      sitePanel.add(this.siteGuiBean,
-              new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-              GridBagConstraints.CENTER,
-                GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-
-      // create the ERF Gui Bean object
-      Vector erf_Classes = new Vector();
-      erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
-      erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-      erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-      erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
-      erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-      erfGuiBean = new ERF_GuiBean(erf_Classes);
-      erfPanel.setLayout(gridBagLayout5);
-      erfPanel.add(erfGuiBean,
-                   new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                   GridBagConstraints.CENTER,
-                    GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-
-      //creating the instance of the PEER_TestParamSetter class which is extended from the
-      //JComboBox, so it is like a control panel for creating the JComboBox containing the
-      //name of different sets and the test cases
-      //peerTestsParamSetter takes the instance of the hazardCurveGuiBean as its instance
-      peerTestsParamSetter= new PEER_TestsParamSetter(imrGuiBean, siteGuiBean,
-          imtGuiBean, erfGuiBean);
-      peerTestsParamSetter.setLightWeightPopupEnabled(false);
-      peerTestsParamSetter.setBackground(new Color(200, 200, 230));
-      peerTestsParamSetter.setForeground(new Color(80, 80, 133));
-      peerTestsParamSetter.setBorder(null);
-      buttonPanel.add(peerTestsParamSetter, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 5, 5, 3), 19, 7));
-
-
-      //initialising the disaggregation parameter and adding to the button Panel
-      disaggregationEditor.setParameter(disaggregationParam);
-      buttonPanel.add(disaggregationEditor, new GridBagConstraints(3, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 3, 5, 4), 16, 0));
-      disaggregationEditor.setVisible(false);
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -442,31 +381,9 @@ public class HazardCurveApplet extends JApplet
     imrPanel.setBackground(Color.white);
     jLabel1.setFont(new java.awt.Font("Dialog", 1, 11));
     jLabel1.setForeground(new Color(80, 80, 133));
-    jLabel1.setText("Select Test & Site:");
-    disaggregationCheckbox.setBackground(Color.white);
-    disaggregationCheckbox.setFont(new java.awt.Font("Dialog", 1, 12));
-    disaggregationCheckbox.setForeground(new Color(80, 80, 133));
-    disaggregationCheckbox.setText("Disaggregate");
-    disaggregationCheckbox.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        disaggregationCheckbox_actionPerformed(e);
-      }
-    });
+    jLabel1.setToolTipText("");
+    jLabel1.setText("Select Control Panel:");
     //loading the OpenSHA Logo
-    rangeComboBox.setBackground(new Color(200, 200, 230));
-    rangeComboBox.setForeground(new Color(80, 80, 133));
-    rangeComboBox.setMaximumSize(new Dimension(115, 19));
-    rangeComboBox.setMinimumSize(new Dimension(115, 19));
-    rangeComboBox.setPreferredSize(new Dimension(115, 19));
-    rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        rangeComboBox_actionPerformed(e);
-      }
-    });
-    rangeComboBox.setBackground(new Color(200, 200, 230));
-    jCustomAxisLabel.setFont(new java.awt.Font("Dialog", 1, 11));
-    jCustomAxisLabel.setForeground(new Color(80, 80, 133));
-    jCustomAxisLabel.setText("Set Axis:");
     imgLabel.setText("");
     imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -474,10 +391,17 @@ public class HazardCurveApplet extends JApplet
         imgLabel_mouseClicked(e);
       }
     });
+    controlComboBox.setBackground(new Color(200, 200, 230));
+    controlComboBox.setForeground(new Color(80, 80, 133));
+    controlComboBox.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        controlComboBox_actionPerformed(e);
+      }
+    });
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    jPanel1.add(topSplitPane,       new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 9, 0, 3), 220, 359));
+    jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(-1, 9, 2, 3), 231, 306));
     topSplitPane.add(chartSplit, JSplitPane.TOP);
     chartSplit.add(panel, JSplitPane.LEFT);
     chartSplit.add(parameterSplitPane, JSplitPane.RIGHT);
@@ -488,26 +412,22 @@ public class HazardCurveApplet extends JApplet
     parameterSplitPane.add(erfPanel, JSplitPane.RIGHT);
     controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(jCheckylog,     new GridBagConstraints(6, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 20, 65, 91), 1, 7));
-    buttonPanel.add(jCheckxlog,         new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 65, 3), 1, 7));
-    buttonPanel.add(toggleButton,      new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 4, 5, 3), 0, 0));
     buttonPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, 2, 0, 0), 1, 7));
-    buttonPanel.add(addButton,        new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 6, 2, 11), 0, 0));
-    buttonPanel.add(clearButton,    new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 3, 5, 3), 0, 0));
-    buttonPanel.add(jCustomAxisLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(17, 2, 5, 39), 17, 7));
-    buttonPanel.add(rangeComboBox,       new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(7, 5, 5, 3), 0, 11));
-    buttonPanel.add(disaggregationCheckbox,                      new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 3, 5, 4), 16, 26));
-    jPanel1.add(imgLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 0, 0, 0), 0, 0));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 6, 50, 171), 25, 7));
+    buttonPanel.add(controlComboBox,   new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 156, 56, 0), 48, 2));
+    buttonPanel.add(addButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 40, 50, 0), 0, 0));
+    buttonPanel.add(clearButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 15, 50, 0), 0, 0));
+    buttonPanel.add(toggleButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 13, 50, 0), 0, 0));
+    buttonPanel.add(jCheckxlog,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 16, 50, 0), 1, 7));
+    buttonPanel.add(jCheckylog,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 19, 50, 95), 1, 3));
+    jPanel1.add(imgLabel,  new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, -1, 0, 0), 0, 0));
     topSplitPane.setDividerLocation(560);
     chartSplit.setDividerLocation(575);
     parameterSplitPane.setDividerLocation(175);
@@ -517,8 +437,6 @@ public class HazardCurveApplet extends JApplet
     erfPanel.repaint();
 
 
-    rangeComboBox.addItem(new String(AUTO_SCALE));
-    rangeComboBox.addItem(new String(CUSTOM_SCALE));
   }
   //Start the applet
   public void start() {
@@ -834,32 +752,6 @@ public class HazardCurveApplet extends JApplet
   }
 
   /**
-   * whenever selection is made in the combo box
-   * @param e
-   */
-  void rangeComboBox_actionPerformed(ActionEvent e) {
-
-    String str=(String)rangeComboBox.getSelectedItem();
-    if(str.equalsIgnoreCase(AUTO_SCALE)){
-      customAxis=false;
-      addGraphPanel();
-    }
-    if(str.equalsIgnoreCase(CUSTOM_SCALE))  {
-       Range rX = xAxis.getRange();
-       Range rY= yAxis.getRange();
-       double minX=rX.getLowerBound();
-       double maxX=rX.getUpperBound();
-       double minY=rY.getLowerBound();
-       double maxY=rY.getUpperBound();
-
-       AxisLimitsControlPanel axisLimits=new AxisLimitsControlPanel(this,
-           this, minX,maxX,minY,maxY);
-       axisLimits.pack();
-       axisLimits.show();
-    }
-  }
-
-  /**
    * sets the range for X and Y axis
    * @param xMin : minimum value for X-axis
    * @param xMax : maximum value for X-axis
@@ -878,29 +770,29 @@ public class HazardCurveApplet extends JApplet
   }
 
   /**
-   * this function whenever disaggregate checkbox is clicked
-   * @param e
+   * set the auto range for the axis. This function is called
+   * from the AxisLimitControlPanel
    */
-
-  void disaggregationCheckbox_actionPerformed(ActionEvent e) {
-    if(disaggregationCheckbox.isSelected()){
-
-      disaggregationEditor.setVisible(true);
-      disaggregationFlag=true;
-    }
-    else{
-      disaggregationEditor.setVisible(false);
-      disaggregationFlag=false;
-    }
-  }
-
+ public void setAutoRange() {
+   this.customAxis=false;
+   addGraphPanel();
+ }
 
   /**
-   * @return the value of the disaggregation parameter
-   */
-  private double getDisaggregationProbablity(){
-    return ((Double)(disaggregationParam.getValue())).doubleValue();
-  }
+    * This function to specify whether disaggregation is selected or not
+    * @param isSelected : True if disaggregation is selected , else false
+    */
+   public void setDisaggregationSelected(boolean isSelected) {
+     disaggregationFlag = isSelected;
+   }
+
+   /**
+    * This function is needed to set the prob. enetered by the user
+    * @param prob : disaggregation prob. selected by the user
+    */
+   public void setDisaggregationProb(double prob) {
+     this.disaggregationProb = prob;
+   }
 
 
   void imgLabel_mouseClicked(MouseEvent e) {
@@ -1017,11 +909,10 @@ public class HazardCurveApplet extends JApplet
    //checking the disAggregation flag
    if(this.disaggregationFlag){
      DisaggregationCalculator disaggCalc = new DisaggregationCalculator();
-     double selectedProb= getDisaggregationProbablity();
      int num = hazFunction.getNum();
 
      //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
-    if(selectedProb > hazFunction.getY(0) || selectedProb < hazFunction.getY(num-1))
+    if(this.disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
       JOptionPane.showMessageDialog(this,
                                     new String("Chosen Probability is not"+
                                     " within the range of the min and max prob."+
@@ -1030,7 +921,7 @@ public class HazardCurveApplet extends JApplet
                                     JOptionPane.OK_OPTION);
     else{
       //gets the Disaggregation data
-      double iml= hazFunction.getFirstInterpolatedX(selectedProb);
+      double iml= hazFunction.getFirstInterpolatedX(disaggregationProb);
       disaggCalc.disaggregate(Math.log(iml),site,imr,eqkRupForecast);
       disaggregationString=disaggCalc.getResultsString();
     }
@@ -1053,6 +944,155 @@ public class HazardCurveApplet extends JApplet
         "Site Param List: "+siteGuiBean.getParameterList().toString()+"\n"+
         "IMT Param List: "+imtGuiBean.getParameterList().toString()+"\n"+
         "Forecast Param List: "+erfGuiBean.getParameterList().toString();
+  }
+
+  /**
+   * Initialize the IMR Gui Bean
+   */
+  private void initIMR_GuiBean() {
+    // create the IMR Gui Bean object
+     // It accepts the vector of IMR class names
+     Vector imrClasses = new Vector();
+     imrClasses.add(this.A_CLASS_NAME);
+     imrClasses.add(this.AS_CLASS_NAME);
+     imrClasses.add(this.BJF_CLASS_NAME);
+     imrClasses.add(this.C_CLASS_NAME);
+     imrClasses.add(this.SCEMY_CLASS_NAME);
+     imrClasses.add(this.CB_CLASS_NAME);
+     imrClasses.add(this.F_CLASS_NAME);
+     imrGuiBean = new IMR_GuiBean(imrClasses);
+     imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
+     // show this gui bean the JPanel
+     imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+  }
+
+  /**
+   * Initialize the IMT Gui Bean
+   */
+  private void initIMT_GuiBean() {
+
+     // get the selected IMR
+     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     // create the IMT Gui Bean object
+     imtGuiBean = new IMT_GuiBean(imr);
+     imtPanel.setLayout(gridBagLayout8);
+     imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+               GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+  }
+
+  /**
+   * Initialize the site gui bean
+   */
+  private void initSiteGuiBean() {
+
+     // get the selected IMR
+     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     // create the Site Gui Bean object
+     siteGuiBean = new Site_GuiBean();
+     siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+     // show the sitebean in JPanel
+     sitePanel.add(this.siteGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+             GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+  }
+
+  /**
+   * Initialize the ERF Gui Bean
+   */
+  private void initERF_GuiBean() {
+     // create the ERF Gui Bean object
+   Vector erf_Classes = new Vector();
+   erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
+   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
+   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+   erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
+   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+   erfGuiBean = new ERF_GuiBean(erf_Classes);
+   erfPanel.setLayout(gridBagLayout5);
+   erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+  }
+
+  /**
+   * Initialize the items to be added to the control list
+   */
+  private void initControlList() {
+    this.controlComboBox.addItem(PEER_TEST_CONTROL);
+    this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
+    this.controlComboBox.addItem(AXIS_CONTROL);
+  }
+
+  /**
+   * This function is called when controls pick list is chosen
+   * @param e
+   */
+  void controlComboBox_actionPerformed(ActionEvent e) {
+    String selectedControl = controlComboBox.getSelectedItem().toString();
+    if(selectedControl.equalsIgnoreCase(this.PEER_TEST_CONTROL))
+      initPEER_TestControl();
+    if(selectedControl.equalsIgnoreCase(this.DISAGGREGATION_CONTROL))
+      initDisaggregationControl();
+    if(selectedControl.equalsIgnoreCase(this.AXIS_CONTROL))
+      initAxisControl();
+  }
+
+  /**
+   * Initialize the PEER Test control.
+   * This function is called when user selects "Select Test and site"
+   * from controls pick list
+   */
+  private void initPEER_TestControl() {
+    //creating the instance of the PEER_TestParamSetter class which is extended from the
+    //JComboBox, so it is like a control panel for creating the JComboBox containing the
+    //name of different sets and the test cases
+    //peerTestsParamSetter takes the instance of the hazardCurveGuiBean as its instance
+    if(peerTestsControlPanel==null)
+      peerTestsControlPanel=new PEER_TestCaseSelectorControlPanel(this,
+          imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean);
+    peerTestsControlPanel.pack();
+    peerTestsControlPanel.show();
+  }
+
+
+  /**
+   * Initialize the PEER Test control.
+   * This function is called when user selects "Disaggregation"
+   * from controls pick list
+   */
+  private void initDisaggregationControl() {
+    if(this.disaggregationControlPanel==null)
+      disaggregationControlPanel = new DisaggregationControlPanel(this, this);
+    disaggregationControlPanel.pack();
+    disaggregationControlPanel.show();
+  }
+
+
+  /**
+   * Initialize the PEER Test control.
+   * This function is called when user selects "Axis Control"
+   * from controls pick list
+   */
+  private void initAxisControl() {
+    Range rX = xAxis.getRange();
+    Range rY= yAxis.getRange();
+    double minX=rX.getLowerBound();
+    double maxX=rX.getUpperBound();
+    double minY=rY.getLowerBound();
+    double maxY=rY.getUpperBound();
+    AxisLimitsControlPanel axisLimits;
+    if(this.customAxis) { // select the custom scale in the control window
+      axisLimits=new AxisLimitsControlPanel(this, this,
+          AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
+
+    }
+    else { // select the auto scale in the control window
+      axisLimits=new AxisLimitsControlPanel(this, this,
+          AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
+    }
+    axisLimits.pack();
+    axisLimits.show();
   }
 
 }

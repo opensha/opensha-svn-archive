@@ -861,10 +861,18 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       double minY=rY.getLowerBound();
       double maxY=rY.getUpperBound();
 
-      AxisLimitsControlPanel axisControlPanel=new AxisLimitsControlPanel(
-          this,this,minX,maxX,minY,maxY);
-      axisControlPanel.pack();
-      axisControlPanel.show();
+      AxisLimitsControlPanel axisLimits;
+      if(this.customAxis) { // select the custom scale in the control window
+        axisLimits=new AxisLimitsControlPanel(this, this,
+            AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
+
+      }
+      else { // select the auto scale in the control window
+        axisLimits=new AxisLimitsControlPanel(this, this,
+            AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
+      }
+      axisLimits.pack();
+      axisLimits.show();
     }
   }
 
@@ -882,6 +890,15 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
      maxYValue=yMax;
      this.customAxis=true;
      addGraphPanel();
+  }
+
+  /**
+   * set the auto range for the axis. This function is called
+   * from the AxisLimitControlPanel
+   */
+  public void setAutoRange() {
+    this.customAxis=false;
+    addGraphPanel();
   }
 
 
