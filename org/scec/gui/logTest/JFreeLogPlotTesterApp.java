@@ -798,8 +798,8 @@ public class JFreeLogPlotTesterApp extends JApplet  {
 
   private void setLog10AsCaretFlag(){
     if(log10CaretCheck.isSelected()){
-      //((JFreeLogarithmicAxis)xAxis).setAllowNegativesFlag(true);
-      //((JFreeLogarithmicAxis)yAxis).setAllowNegativesFlag(true);
+      ((JFreeLogarithmicAxis)xAxis).setAllowNegativesFlag(true);
+      ((JFreeLogarithmicAxis)yAxis).setAllowNegativesFlag(true);
       ((JFreeLogarithmicAxis)xAxis).setLog10TickLabelsFlag(true);
       ((JFreeLogarithmicAxis)yAxis).setLog10TickLabelsFlag(true);
     }
@@ -814,8 +814,8 @@ public class JFreeLogPlotTesterApp extends JApplet  {
 
   private void setLog10AsEFlag(){
     if(log10AsECheck.isSelected()){
-      //((JFreeLogarithmicAxis)xAxis).setAllowNegativesFlag(true);
-      //((JFreeLogarithmicAxis)yAxis).setAllowNegativesFlag(true);
+      ((JFreeLogarithmicAxis)xAxis).setAllowNegativesFlag(true);
+      ((JFreeLogarithmicAxis)yAxis).setAllowNegativesFlag(true);
       ((JFreeLogarithmicAxis)xAxis).setLog10TickLabelsFlag(false);
       ((JFreeLogarithmicAxis)yAxis).setLog10TickLabelsFlag(false);
       ((JFreeLogarithmicAxis)xAxis).setExpTickLabelsFlag(true);
