@@ -33,15 +33,21 @@ public class WG02_CharEqkSource extends ProbEqkSource {
   private String name = "WG02_CharEqkSource";
 
   boolean D = true;
+  private String C = name;
 
 
   /**
    * Constructor for this class
    *
-   * @param rake : ave rake of the surface
-   * @param mag  : Magnitude of the earthquake
-   * @param rate : Rate (events/yr) at this mag
-   * @param surface : Fault Surface
+   * @param prob: probability of event
+   * @param meanMag: Mean magnitude for the Gaussian Mag. Freq. Dist.
+   * @param magSigma: Standared deviation for the Gaussian Mag. Freq. Dist.
+   * @param nSigmaTrunc: Number of sigmas where trunction occurs on the Gaussian Dist.
+   * @param rupSurface: The rupture surface
+   * @param rupArea: The rupture area (may be smaller than surface due to aseismic slip)
+   * @param rupOffset: The offset length for sub-ruptures ("floating" ruptures)
+   * @param rupName: The name to use for the rupture
+   * @param rake: The rake for the event
    */
   public WG02_CharEqkSource(double prob, double meanMag, double magSigma,
                             double nSigmaTrunc, EvenlyGriddedSurface rupSurface,
@@ -49,20 +55,33 @@ public class WG02_CharEqkSource extends ProbEqkSource {
                             double rake) {
 
       this.prob = prob;
+      this.rupSurface = rupSurface;
+      this.rupOffset = rupOffset;
       probEqkRupture = new ProbEqkRupture();
       probEqkRupture.setAveRake(rake);
-      probEqkRupture.setRuptureSurface(rupSurface);
+
+      if(D) System.out.println("prob="+prob+"; meanMag="+meanMag+"; =magSigma"+magSigma+
+                               "; nSigmaTrunc="+nSigmaTrunc+"; rupArea="+rupArea+
+                               "; rupOffset="+rupOffset+"; ruptureName="+ruptureName+
+                               "; rake="+rake);
 
       // compute upper and lower mag, rounding to the nearest 0.1 mag
       double tempMag = 10.0*(meanMag+nSigmaTrunc*magSigma);
       double maxMag = (double) Math.round((float)tempMag)/10;
       tempMag=10*(meanMag-nSigmaTrunc*magSigma);
       double minMag = (double) Math.round((float)tempMag) / 10;
-      int numMag = Math.round((float)(maxMag-minMag)) + 1;
+      numMag = Math.round((float)(10*(maxMag-minMag))) + 1;
 
       // make the gaussian mag freq dist & normalize to unit area
       gaussMagDist = new GaussianMagFreqDist(minMag,maxMag,numMag,meanMag,magSigma,1.0,nSigmaTrunc,2);
       gaussMagDist.scaleToCumRate(0,1.0);
+
+      if(D) System.out.println(gaussMagDist.toString());
+      if(D) {
+        System.out.println(C+"mag  relative-prob:");
+        for (int i=0;i<gaussMagDist.getNum();i++)
+          System.out.println((float)gaussMagDist.getX(i)+"  "+(float)gaussMagDist.getY(i));
+      }
 
       // compute rupture width and length given the rupArea (rupArea is less than the
       // area of the fault surface (rupSurface) if the aseismic scaling factor (r) was
@@ -77,10 +96,23 @@ public class WG02_CharEqkSource extends ProbEqkSource {
         rupLength = rupArea/ddw;
       }
 
-      // the total number of ruptures is the number of mags times the number of subsurfaces
+      // get the number of rupture surfaces
       numRupSurfaces = rupSurface.getNumSubsetSurfaces(rupLength,rupWidth,rupOffset);
-      numMag = gaussMagDist.getNum();
-      if (D) System.out.println("numMag="+numMag+"; numRupSurfaces="+numRupSurfaces);
+
+      if (D) System.out.println(C+ "numMag, numRupSurfaces:"+numMag+"  "+numRupSurfaces);
+
+      if(D) {
+        ProbEqkRupture rup;
+        double totProb=0;
+        System.out.println(C+" ruptures: 0-"+(getNumRuptures()-1));
+        for (int i=0;i<getNumRuptures();i++) {
+          rup = this.getRupture(i);
+          System.out.println(i+"  mag="+(float)rup.getMag()+"; prob="+(float)rup.getProbability());
+          totProb += rup.getProbability();
+        }
+        System.out.println("  totProb="+(float)totProb);
+      }
+
   }
 
 
@@ -98,8 +130,20 @@ public class WG02_CharEqkSource extends ProbEqkSource {
   public ProbEqkRupture getRupture(int nRupture){
     int iMag = nRupture/numRupSurfaces;
     int iRupSurf = nRupture - iMag*numRupSurfaces;
-    if (D) System.out.println("iMag="+iMag+"; iRupSurf="+iRupSurf);
-    return null;
+
+    // set the magnitude
+    probEqkRupture.setMag(gaussMagDist.getX(iMag));
+
+    // set the probability (total prob divided by prob of mag and the num rupture surfaces)
+    double p=prob*gaussMagDist.getIncrRate(iMag)/numRupSurfaces;
+    probEqkRupture.setProbability(p);
+
+//    if (D) System.out.println("n="+nRupture+"; iMag="+iMag+"; iRupSurf="+iRupSurf);
+
+    // now set the rupture surface as the the ith subset surface
+    probEqkRupture.setRuptureSurface(rupSurface.getNthSubsetSurface(rupLength,rupWidth,rupOffset,iRupSurf));
+
+    return probEqkRupture;
   }
 
 
@@ -149,10 +193,6 @@ public class WG02_CharEqkSource extends ProbEqkSource {
     */
    public String getName() {
      return name;
-  }
-
-  public static void main( String[] args ) {
-    //WG02_CharEqkSource test = new WG02_CharEqkSource(2.516929E-02,  7.18546,  0.120000,  2.00000
   }
 
 }
