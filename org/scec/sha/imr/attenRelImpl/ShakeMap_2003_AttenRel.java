@@ -206,7 +206,7 @@ public class ShakeMap_2003_AttenRel
           double lon2 = ((Location)probEqkRupture.getRuptureSurface().get(0,0)).getLongitude();
           double d1 = (lat1-lat2)*111;
           double d2 = (lon1-lon2)*111*Math.cos(((lat1+lat2)/(2))*(Math.PI/180));
-          distanceJBParam.setValue( new Double(Math.sqrt(d1*d1+d2*d2)));
+          distanceJBParam.setValueIgnoreWarning( new Double(Math.sqrt(d1*d1+d2*d2)));
         }
     }
 
