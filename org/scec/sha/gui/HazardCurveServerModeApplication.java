@@ -985,7 +985,7 @@ public class HazardCurveServerModeApplication extends JApplet
       //get the selected ERF instance
       forecast = erfGuiBean.getSelectedERF();
     }catch(Exception e){
-      e.printStackTrace();
+      //e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
       setButtonsEnable(true);
       return;
@@ -1044,7 +1044,7 @@ public class HazardCurveServerModeApplication extends JApplet
     // calculate the hazard curve
     try{
       if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-    }catch(RemoteException e){
+    }catch(Exception e){
       setButtonsEnable(true);
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
       bugWindow.show();
@@ -1061,7 +1061,7 @@ public class HazardCurveServerModeApplication extends JApplet
       //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
       try{
         hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
-      }catch(RemoteException e){
+      }catch(Exception e){
         setButtonsEnable(true);
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
         bugWindow.show();
@@ -1097,7 +1097,7 @@ public class HazardCurveServerModeApplication extends JApplet
       }
       try{
         if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
-      }catch(RemoteException e){
+      }catch(Exception e){
         setButtonsEnable(true);
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
         bugWindow.show();
@@ -1120,7 +1120,7 @@ public class HazardCurveServerModeApplication extends JApplet
         try{
           disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)forecast);
           disaggregationString=disaggCalc.getResultsString();
-        }catch(RemoteException e){
+        }catch(Exception e){
           setButtonsEnable(true);
           ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
           bugWindow.show();
@@ -1166,7 +1166,7 @@ public class HazardCurveServerModeApplication extends JApplet
     try{
       // calculate the hazard curve
       if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-    }catch(RemoteException e){
+    }catch(Exception e){
       setButtonsEnable(true);
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
       bugWindow.show();
@@ -1187,7 +1187,7 @@ public class HazardCurveServerModeApplication extends JApplet
           // calculate the hazard curve
           hazFunction=(ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
           //System.out.println("Num points:" +hazFunction.toString());
-        }catch(RemoteException e){
+        }catch(Exception e){
           setButtonsEnable(true);
           ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
           bugWindow.show();
@@ -1316,8 +1316,8 @@ public class HazardCurveServerModeApplication extends JApplet
      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
      bugWindow.show();
      bugWindow.pack();
-     e.printStackTrace();
-     throw new RuntimeException("Connection to ERF's failed");
+     //e.printStackTrace();
+     //throw new RuntimeException("Connection to ERF's failed");
    }
    erfPanel.setLayout(gridBagLayout5);
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
