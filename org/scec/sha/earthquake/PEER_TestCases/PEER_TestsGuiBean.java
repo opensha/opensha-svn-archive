@@ -692,11 +692,11 @@ public class PEER_TestsGuiBean implements
 
     if( value.equalsIgnoreCase("none") ) {
       if(D) System.out.println("Value = " + value + ", need to set value param off.");
-      imrEditor.setParameterInvisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
+      imrEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
     }
     else{
       if(D) System.out.println("Value = " + value + ", need to set value param on.");
-      imrEditor.setParameterInvisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
+      imrEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
     }
 
   }
@@ -713,10 +713,10 @@ public class PEER_TestsGuiBean implements
 
     //making all the IMT parameters invisible
     while(it.hasNext())
-      imtEditor.setParameterInvisible(((ParameterAPI)it.next()).getName(),false);
+      imtEditor.setParameterVisible(((ParameterAPI)it.next()).getName(),false);
 
     //making the choose IMT parameter visible
-    imtEditor.setParameterInvisible(IMT_PARAM_NAME,true);
+    imtEditor.setParameterVisible(IMT_PARAM_NAME,true);
 
     it=imtParam.iterator();
     //for the selected IMT making its independent parameters visible
@@ -725,7 +725,7 @@ public class PEER_TestsGuiBean implements
       if(param.getName().equalsIgnoreCase(imtName)){
         Iterator it1=param.getIndependentParametersIterator();
         while(it1.hasNext())
-          imtEditor.setParameterInvisible(((ParameterAPI)it1.next()).getName(),true);
+          imtEditor.setParameterVisible(((ParameterAPI)it1.next()).getName(),true);
       }
     }
   }

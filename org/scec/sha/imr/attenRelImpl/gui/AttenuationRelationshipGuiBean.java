@@ -235,7 +235,7 @@ public class AttenuationRelationshipGuiBean
 
         while ( it.hasNext() ) {
             String name = ( ( ParameterAPI ) it.next() ).getName();
-            independentsEditor.setParameterInvisible( name, true );
+            independentsEditor.setParameterVisible( name, true );
         }
 
     }
@@ -820,11 +820,11 @@ public class AttenuationRelationshipGuiBean
 
         if( value.equalsIgnoreCase("none") ) {
             if(D) System.out.println("Value = " + value + ", need to set value param off.");
-            independentsEditor.setParameterInvisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
+            independentsEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
         }
         else{
             if(D) System.out.println("Value = " + value + ", need to set value param on.");
-            independentsEditor.setParameterInvisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
+            independentsEditor.setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
         }
 
     }
@@ -1087,11 +1087,11 @@ public class AttenuationRelationshipGuiBean
             throw new ParameterException( S + "Imr is null, unable to continue." );
 
         // Turn off all parameters - start fresh, then make visible as required below
-        // SWR - Looks like a bug here in setParameterInvisible() - don't want to fix right now, the boolean
+        // SWR - Looks like a bug here in setParameterVisible() - don't want to fix right now, the boolean
         // below should be true, not false.
         ListIterator it = this.independentParams.getParametersIterator();
         while ( it.hasNext() )
-            independentsEditor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false );
+            independentsEditor.setParameterVisible( ( ( ParameterAPI ) it.next() ).getName(), false );
 
         DependentParameterAPI imParam = null;
 
@@ -1191,10 +1191,10 @@ public class AttenuationRelationshipGuiBean
         // step because the im parameter is also an x-axis choice to iterate
         // over intensity measure level
         if ( yAxisName.equals( Y_AXIS_V3 ) )
-            independentsEditor.setParameterInvisible( imName, true );
+            independentsEditor.setParameterVisible( imName, true );
 
         // Make the choosen x-axis invisible in the independent parameter list
-        independentsEditor.setParameterInvisible( val, false );
+        independentsEditor.setParameterVisible( val, false );
 
         // refresh the GUI
         controlsEditor.validate();

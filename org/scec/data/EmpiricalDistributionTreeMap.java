@@ -85,25 +85,6 @@ public class EmpiricalDistributionTreeMap extends org.scec.data.DataPoint2DTreeM
 
         Object value = this.PRESENT;
 
-        // Calculate min and max values
-        if ( !first ) {
-
-            double y = key.getY();
-            double min = minY;
-            double max = maxY;
-
-            if ( y < min ) {
-                minY = key.getY();
-            } else if ( y > max ) {
-                maxY = key.getY();
-            }
-        }
-        else {
-            minY = key.getY();
-            maxY = minY;
-            first = false;
-        }
-
         Entry t = root;
 
         if ( t == null ) {

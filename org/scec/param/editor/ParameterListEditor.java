@@ -119,19 +119,19 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
     /**
      *  Hides or shows one of the ParameterEditors in the ParameterList. setting
-     *  the boolean parameter to true hides the panel, setting it to false shows
+     *  the boolean parameter to true shows the panel, setting it to false hides
      *  the panel. Note, all editors are accesable by parameter name. <p>
      *
      * @param  parameterName  The parameter editor to toggle on or off.
-     * @param  invisible      The boolean flag. If true editor is visible.
+     * @param  visible      The boolean flag. If true editor is visible.
      */
-    public void setParameterInvisible( String parameterName, boolean invisible ) {
+    public void setParameterVisible( String parameterName, boolean visible ) {
 
         parameterName = this.parameterList.getParameterName( parameterName );
         if ( parameterEditors.containsKey( parameterName ) ) {
 
             ParameterEditor editor = ( ParameterEditor ) parameterEditors.get( parameterName );
-            editor.setVisible( invisible );
+            editor.setVisible( visible );
         }
 
     }

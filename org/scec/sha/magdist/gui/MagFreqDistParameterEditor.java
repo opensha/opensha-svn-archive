@@ -455,13 +455,13 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         // Turn off all parameters - start fresh, then make visible as required below
         ListIterator it = parameterList.getParametersIterator();
         while ( it.hasNext() )
-          editor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false);
+          editor.setParameterVisible( ( ( ParameterAPI ) it.next() ).getName(), false);
 
         // make the min, max, num and select dist to be visible
-        editor.setParameterInvisible(this.MIN,true);
-        editor.setParameterInvisible(this.MAX,true);
-        editor.setParameterInvisible(this.NUM,true);
-        editor.setParameterInvisible(this.DISTRIBUTION_NAME,true);
+        editor.setParameterVisible(this.MIN,true);
+        editor.setParameterVisible(this.MAX,true);
+        editor.setParameterVisible(this.NUM,true);
+        editor.setParameterVisible(this.DISTRIBUTION_NAME,true);
 
         /**
          * if Single Mag Freq dist is selected
@@ -550,28 +550,28 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      */
     private void setSingleDistParamsVisible() {
 
-      editor.setParameterInvisible(SINGLE_PARAMS_TO_SET, true);
+      editor.setParameterVisible(SINGLE_PARAMS_TO_SET, true);
       String paramToSet=parameterList.getParameter(SINGLE_PARAMS_TO_SET).getValue().toString();
       // if Rate and Mag is selected
       if(paramToSet.equalsIgnoreCase(RATE_AND_MAG)) {
-        editor.setParameterInvisible(RATE, true);
-        editor.setParameterInvisible(MAG, true);
-        editor.setParameterInvisible(MO_RATE, false);
-        editor.setParameterInvisible(FIX,false);
+        editor.setParameterVisible(RATE, true);
+        editor.setParameterVisible(MAG, true);
+        editor.setParameterVisible(MO_RATE, false);
+        editor.setParameterVisible(FIX,false);
       }
       // if Mag and Mo Rate is selected
       if(paramToSet.equalsIgnoreCase(MAG_AND_MO_RATE)) {
-        editor.setParameterInvisible(RATE, false);
-        editor.setParameterInvisible(MAG, true);
-        editor.setParameterInvisible(MO_RATE, true);
-        editor.setParameterInvisible(FIX,false);
+        editor.setParameterVisible(RATE, false);
+        editor.setParameterVisible(MAG, true);
+        editor.setParameterVisible(MO_RATE, true);
+        editor.setParameterVisible(FIX,false);
       }
       // if Rate and Mo Rate is selected
       if(paramToSet.equalsIgnoreCase(RATE_AND_MO_RATE)) {
-        editor.setParameterInvisible(RATE, true);
-        editor.setParameterInvisible(MAG, false);
-        editor.setParameterInvisible(MO_RATE, true);
-        editor.setParameterInvisible(FIX,true);
+        editor.setParameterVisible(RATE, true);
+        editor.setParameterVisible(MAG, false);
+        editor.setParameterVisible(MO_RATE, true);
+        editor.setParameterVisible(FIX,true);
       }
   }
 
@@ -580,10 +580,10 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      */
     private void setGaussianDistParamsVisible() {
       // set all the parameters visible
-      editor.setParameterInvisible(MEAN, true);
-      editor.setParameterInvisible(STD_DEV, true);
-      editor.setParameterInvisible(TRUNCATION_REQ, true);
-      editor.setParameterInvisible(SET_ALL_PARAMS_BUT, true);
+      editor.setParameterVisible(MEAN, true);
+      editor.setParameterVisible(STD_DEV, true);
+      editor.setParameterVisible(TRUNCATION_REQ, true);
+      editor.setParameterVisible(SET_ALL_PARAMS_BUT, true);
 
       // now make the params visible/invisible based on params desired to be set by user
       StringParameter param = (StringParameter)parameterList.getParameter(SET_ALL_PARAMS_BUT);
@@ -591,21 +591,21 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
       // set all paramerts except total Mo rate
       if(paramToSet.equalsIgnoreCase(TOT_MO_RATE)) {
-        editor.setParameterInvisible(TOT_CUM_RATE,true);
-        editor.setParameterInvisible(TOT_MO_RATE,false);
+        editor.setParameterVisible(TOT_CUM_RATE,true);
+        editor.setParameterVisible(TOT_MO_RATE,false);
       }
       else {
-        editor.setParameterInvisible(TOT_CUM_RATE,false);
-        editor.setParameterInvisible(TOT_MO_RATE,true);
+        editor.setParameterVisible(TOT_CUM_RATE,false);
+        editor.setParameterVisible(TOT_MO_RATE,true);
       }
 
       String truncReq=parameterList.getParameter(TRUNCATION_REQ).getValue().toString();
 
       // make the truncation level visible only if truncation req is NOT NONE
       if(truncReq.equalsIgnoreCase(NONE))
-      editor.setParameterInvisible(TRUNCATE_NUM_OF_STD_DEV,false);
+      editor.setParameterVisible(TRUNCATE_NUM_OF_STD_DEV,false);
       else
-        editor.setParameterInvisible(TRUNCATE_NUM_OF_STD_DEV,true);
+        editor.setParameterVisible(TRUNCATE_NUM_OF_STD_DEV,true);
 
     }
 
@@ -614,9 +614,9 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      */
     private void setGR_DistParamsVisible() {
 
-      editor.setParameterInvisible(SET_ALL_PARAMS_BUT, true);
-      editor.setParameterInvisible(GR_MAG_LOWER, true);
-      editor.setParameterInvisible(GR_BVALUE, true);
+      editor.setParameterVisible(SET_ALL_PARAMS_BUT, true);
+      editor.setParameterVisible(GR_MAG_LOWER, true);
+      editor.setParameterVisible(GR_BVALUE, true);
 
       // now make the params visible/invisible based on params desired to be set by user
       StringParameter param = (StringParameter)parameterList.getParameter(SET_ALL_PARAMS_BUT);
@@ -624,26 +624,26 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
       // set all paramerts except total Mo rate
       if(paramToSet.equalsIgnoreCase(TOT_MO_RATE)) {
-        editor.setParameterInvisible(TOT_CUM_RATE,true);
-        editor.setParameterInvisible(GR_MAG_UPPER,true);
-        editor.setParameterInvisible(TOT_MO_RATE,false);
-        editor.setParameterInvisible(FIX,false);
+        editor.setParameterVisible(TOT_CUM_RATE,true);
+        editor.setParameterVisible(GR_MAG_UPPER,true);
+        editor.setParameterVisible(TOT_MO_RATE,false);
+        editor.setParameterVisible(FIX,false);
       }
 
       // set all parameters except cumulative rate
       if(paramToSet.equalsIgnoreCase(TOT_CUM_RATE)) {
-        editor.setParameterInvisible(GR_MAG_UPPER,true);
-        editor.setParameterInvisible(TOT_MO_RATE,true);
-        editor. setParameterInvisible(TOT_CUM_RATE,false);
-        editor.setParameterInvisible(FIX,false);
+        editor.setParameterVisible(GR_MAG_UPPER,true);
+        editor.setParameterVisible(TOT_MO_RATE,true);
+        editor. setParameterVisible(TOT_CUM_RATE,false);
+        editor.setParameterVisible(FIX,false);
       }
 
       // set all parameters except mag upper
       if(paramToSet.equalsIgnoreCase(GR_MAG_UPPER)) {
-        editor.setParameterInvisible(TOT_CUM_RATE,true);
-        editor.setParameterInvisible(TOT_MO_RATE,true);
-        editor.setParameterInvisible(FIX,true);
-        editor.setParameterInvisible(GR_MAG_UPPER,false);
+        editor.setParameterVisible(TOT_CUM_RATE,true);
+        editor.setParameterVisible(TOT_MO_RATE,true);
+        editor.setParameterVisible(FIX,true);
+        editor.setParameterVisible(GR_MAG_UPPER,false);
       }
     }
 
@@ -651,13 +651,13 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      * make the parameters related to Youngs and Coppersmith Mag dist visible
      */
     private void setYC_DistParamsVisible() {
-      editor.setParameterInvisible(GR_MAG_LOWER, true);
-      editor.setParameterInvisible(GR_MAG_UPPER, true);
-      editor.setParameterInvisible(YC_DELTA_MAG_CHAR, true);
-      editor.setParameterInvisible(YC_MAG_PRIME, true);
-      editor.setParameterInvisible(YC_DELTA_MAG_PRIME, true);
-      editor.setParameterInvisible(GR_BVALUE, true);
-      editor.setParameterInvisible(SET_ALL_PARAMS_BUT, true);
+      editor.setParameterVisible(GR_MAG_LOWER, true);
+      editor.setParameterVisible(GR_MAG_UPPER, true);
+      editor.setParameterVisible(YC_DELTA_MAG_CHAR, true);
+      editor.setParameterVisible(YC_MAG_PRIME, true);
+      editor.setParameterVisible(YC_DELTA_MAG_PRIME, true);
+      editor.setParameterVisible(GR_BVALUE, true);
+      editor.setParameterVisible(SET_ALL_PARAMS_BUT, true);
 
 
       // now make the params visible/invisible based on params desired to be set by user
@@ -666,12 +666,12 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
       // set all paramerts except total Mo rate
       if(paramToSet.equalsIgnoreCase(TOT_MO_RATE)) {
-        editor.setParameterInvisible(YC_TOT_CHAR_RATE,true);
-        editor.setParameterInvisible(TOT_MO_RATE,false);
+        editor.setParameterVisible(YC_TOT_CHAR_RATE,true);
+        editor.setParameterVisible(TOT_MO_RATE,false);
       }
       else {
-        editor.setParameterInvisible(YC_TOT_CHAR_RATE,false);
-        editor.setParameterInvisible(TOT_MO_RATE,true);
+        editor.setParameterVisible(YC_TOT_CHAR_RATE,false);
+        editor.setParameterVisible(TOT_MO_RATE,true);
       }
 
     }
@@ -752,7 +752,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
         while ( it.hasNext() ) {
             String name = ( ( ParameterAPI ) it.next() ).getName();
-            editor.setParameterInvisible( name, true );
+            editor.setParameterVisible( name, true );
         }
 
     }

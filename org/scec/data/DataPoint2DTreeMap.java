@@ -98,14 +98,6 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
     protected final static Object PRESENT = new Object();
 
     /**
-     *  The minimum Y-Value in this data series
-     */
-    protected double minY=Double.NaN;
-    /**
-     *  The maximum Y-Value in this data series
-     */
-    protected double maxY=Double.NaN;
-    /**
      *  Flag to indicate if any DataPoints have been added yet
      */
     protected boolean first = true;
@@ -278,15 +270,39 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
      *
      * @return    The minY value
      */
-    public double getMinY() { return minY; }
-
-
+    public double getMinY() {
+      double minY = Double.NaN;
+      Set set = this.keySet();
+      java.util.Iterator it = set.iterator();
+      // set the first value as max initially
+      if(it.hasNext())  minY = (( DataPoint2D ) it.next()).getY();
+      DataPoint2D point2 = null;
+      // now compare the Y values with other points
+      while( it.hasNext() ){
+        point2 = ( DataPoint2D ) it.next();
+        if(point2.getY() < minY) minY =  point2.getY();
+      }
+      return minY;
+    }
     /**
      *  Returns the largest Y-Value in this series
      *
      * @return    The maxY value
      */
-    public double getMaxY() { return maxY; }
+    public double getMaxY() {
+      double maxY = Double.NaN;
+      Set set = this.keySet();
+      java.util.Iterator it = set.iterator();
+      // set the first value as max initially
+      if(it.hasNext())  maxY = (( DataPoint2D ) it.next()).getY();
+      DataPoint2D point2 = null;
+      // now compare the Y values with other points
+      while( it.hasNext() ){
+        point2 = ( DataPoint2D ) it.next();
+        if(point2.getY() > maxY) maxY =  point2.getY();
+      }
+      return maxY;
+    }
 
 
     /**
@@ -350,25 +366,6 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
     public Object put( DataPoint2D key ) {
 
         Object value = this.PRESENT;
-
-        // Calculate min and max values
-        if ( !first ) {
-
-            double y = key.getY();
-            double min = minY;
-            double max = maxY;
-
-            if ( y < min ) {
-                minY = key.getY();
-            } else if ( y > max ) {
-                maxY = key.getY();
-            }
-        }
-        else {
-            minY = key.getY();
-            maxY = minY;
-            first = false;
-        }
 
         Entry t = root;
 
