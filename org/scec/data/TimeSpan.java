@@ -293,7 +293,7 @@ public class TimeSpan {
       if(getStartTimePrecInt() >= 4)
         startHourParam.setValue(new Integer(startHour));
       else
-        startHourParam.setValue(START_HOUR_DEFAULT);
+        throw new RuntimeException("any string");
     }
 
     /**

@@ -4,6 +4,13 @@
 For OpenSHA:
 ------------
 
+For the editors of IntegerParameter, DoubleParameter, and WarningDoubleParameter, make the text field un-editable if min = max.
+
+Create a WarningIntegerParameter & an associated editor (if needed).
+
+Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., pow(-num, non-integer) )
+
+
 HazardCurveApplet:
 
 	-fix format of disaggregation results window 
