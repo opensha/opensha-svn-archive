@@ -27,7 +27,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
 
   //for Debug purposes
   private static String  C = new String("Frankel96_GR_EqkSource");
-  private boolean D =false;
+  private boolean D =true;
 
   private GuttenbergRichterMagFreqDist gR;
   private double rake;
@@ -43,10 +43,10 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
    * and also for constructing the rupture
    *
    * @param rake  : Average rake of the surface
-   * @param aValue : a  Value of GR distribution (events/yr at mag=0 increment)
    * @param bValue : b Value in the GR distribution
    * @param magLower : magLower as in GR distribution
    * @param magUpper : magUpper as in GR distribution
+   * @param moRate : moment rate  of GR distribution (N-m/yr)
    * @param delta  : delta as in GR distribution
    * @param surface : Fault Surface
    */
@@ -54,8 +54,8 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
                                 double bValue,
                                 double magLower,
                                 double magUpper,
+                                double moRate,
                                 double delta,
-                                double rate,
                                 EvenlyGriddedSurface surface) {
 
     this.rake=rake;
@@ -70,16 +70,13 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
     probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setAveRake(rake);
 
-    //making a single distribution
-    SingleMagFreqDist s = new SingleMagFreqDist(magLower,magUpper,num);
-    s.setMagAndRate(magUpper,rate);
-    double totMoRate=s.getTotalMomentRate();
-
     //Setting the GuttenbergDistribution
     gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,num);
-    gR.setAllButTotCumRate(magLower,magUpper,totMoRate,bValue );
+    gR.setAllButTotCumRate(magLower,magUpper,moRate,bValue );
+
+    // This was used for reading his orig file
     //double rate = Math.pow(10,aVal - bValue*magLower);
-    gR.scaleToIncrRate(magLower,rate);
+    //gR.scaleToIncrRate(magLower,rate);
 
     // Determine number of ruptures
     int numMags = gR.getNum();
@@ -89,7 +86,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
       double rupLen = magLength.getMeanLength(gR.getX(i),rake);
       totNumRups += getNumRuptures(rupLen);
     }
-
+    if( D ) System.out.println("Frankel96_GR_EqkSource:Frankel96_GR_EqkSource:totNumRups::"+totNumRups);
     if( D ) System.out.println("Frankel96_GR_EqkSource:Frankel96_GR_EqkSource:momentRate::"+gR.getTotalMomentRate());
   }
 

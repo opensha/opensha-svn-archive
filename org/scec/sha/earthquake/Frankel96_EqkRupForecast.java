@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
-
+import org.scec.calc.MomentMagCalc;
 import org.scec.util.*;
 import org.scec.sha.fault.FaultTrace;
 import org.scec.data.Location;
@@ -99,7 +99,7 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
   private  void readFrankel96_File(int faultType) throws FaultException{
 
     // Debug
-    String S = C + ": readFrankel96_Char: ";
+    String S = C + ": readFrankel96: ";
     if( D ) System.out.println(S + "Starting");
     String fileName="";
     GriddedFaultFactory factory;
@@ -236,8 +236,9 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
           GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
           if(faultType == TYPE_B_CHAR_GR_FLT && mag>6.5){
+            double moRate = rate*MomentMagCalc.getMoment(mag);
             Frankel96_GR_EqkSource frankel96_GRF = new Frankel96_GR_EqkSource(rake,bValue,magLower,
-                                                   magUpper,deltaMag,rate,(EvenlyGriddedSurface)surface);
+                                                   magUpper,moRate,deltaMag,(EvenlyGriddedSurface)surface);
             this.FrankelB_GR_EqkSources.add(frankel96_GRF);
           }
 
