@@ -448,7 +448,7 @@ public class HazardMapServerModeApplet extends JApplet implements
    *
    * @returns the String containing the values selected for different parameters
    */
-  public String getCurveParametersInfo(){
+  public String getMapParametersInfo(){
     return "IMR Param List: " +this.imrGuiBean.getParameterList().toString()+"\n"+
         "Site Param List: "+griddedRegionGuiBean.getParameterList().toString()+"\n"+
         "IMT Param List: "+imtGuiBean.getParameterList().toString()+"\n"+
@@ -628,6 +628,9 @@ public class HazardMapServerModeApplet extends JApplet implements
      outputToServlet.writeObject(imr);
      //sending the EQK forecast object to the servlet
      outputToServlet.writeObject(eqkRupForecast);
+
+     //sending the Map parameters info. to the servlet
+     outputToServlet.writeObject(getMapParametersInfo());
      outputToServlet.flush();
      outputToServlet.close();
 
