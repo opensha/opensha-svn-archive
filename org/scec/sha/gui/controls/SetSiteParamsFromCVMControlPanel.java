@@ -12,7 +12,7 @@ import java.net.URLConnection;
 import org.scec.sha.gui.beans.IMR_GuiBean;
 import org.scec.sha.gui.beans.Site_GuiBean;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
-import org.scec.sha.util.SiteTranslatorNew;
+import org.scec.sha.util.SiteTranslator;
 import org.scec.data.Site;
 import org.scec.data.Location;
 import org.scec.param.ParameterAPI;
@@ -40,7 +40,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
   private static final double MAX_CVM_LON = -114.0;
 
   // site translator
-  SiteTranslatorNew siteTranslator = new SiteTranslatorNew();
+  SiteTranslator siteTranslator = new SiteTranslator();
 
   // save the imr gui bean  and  site gui bean
   private IMR_GuiBean imrGuiBean;
@@ -118,7 +118,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
    }*/
 
    // get the vs 30 and basin depth from cvm
-   double vs30 = getVS30FromCVM(lonMin,lonMax,latMin,latMax);
+   String vs30 = getVS30FromCVM(lonMin,lonMax,latMin,latMax);
    double basinDepth = getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax);
 
    // now set the paramerts in the IMR
@@ -148,7 +148,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
    * @param basinDepth
    */
   private void setSiteParamsInIMR(AttenuationRelationshipAPI imr, double lon,
-                             double lat, double vs30, double basinDepth) {
+                             double lat, String vs30, double basinDepth) {
     // make the site object
     Site site = new Site(new Location(lat, lon));
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
@@ -165,13 +165,13 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
   /**
    * Gets the VS30 from the CVM servlet
    */
-  private double getVS30FromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax) {
+  private String getVS30FromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax) {
 
     // if we want to the paramter from the servlet
     try{
 
       // make connection with servlet
-      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/Vs30BasinDepthCalcServlet");
+      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/WillsSiteClassServlet");
       URLConnection servletConnection = cvmServlet.openConnection();
 
       servletConnection.setDoOutput(true);
@@ -186,7 +186,6 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       // send the student object to the servlet using serialization
       ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
 
-      outputToServlet.writeObject("Vs30");
       outputToServlet.writeObject(lonMin);
       outputToServlet.writeObject(lonMax);
       outputToServlet.writeObject(latMin);
@@ -201,7 +200,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
       // vector for vs30
       Vector vs30Vector=(Vector)ois.readObject();
-      double vs30 = ((Double)vs30Vector.get(0)).doubleValue();
+      String vs30 = (String)vs30Vector.get(0);
       ois.close();
 
       System.out.println("Vs30 is:"+vs30);
@@ -211,7 +210,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
     }catch (Exception exception) {
       System.out.println("Exception in connection with servlet:" +exception);
     }
-    return -1;
+    return null;
   }
 
   /**
@@ -223,7 +222,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
     try{
 
       // make connection with servlet
-      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/Vs30BasinDepthCalcServlet");
+      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/SCEC_BasinDepthServlet");
       URLConnection servletConnection = cvmServlet.openConnection();
 
       servletConnection.setDoOutput(true);
@@ -238,7 +237,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       // send the student object to the servlet using serialization
       ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
       Double gridSpacing = new Double(0.5);
-      outputToServlet.writeObject("BasinDepth");
+
       outputToServlet.writeObject(lonMin);
       outputToServlet.writeObject(lonMax);
       outputToServlet.writeObject(latMin);
