@@ -80,6 +80,9 @@ public class NEHRP_GuiBean
 
   private DataGeneratorAPI_NEHRP dataGenerator = new DataGenerator_NEHRP();
 
+  //site coeffiecient window instance
+  SiteCoefficientInfoWindow siteCoefficientWindow;
+
   //instance of the application using this GUI bean
   private ProbabilisticHazardApplicationAPI application;
 
@@ -463,7 +466,10 @@ public class NEHRP_GuiBean
 
 
   private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-    SiteCoefficientInfoWindow dialog = new SiteCoefficientInfoWindow();
+    if(siteCoefficientWindow == null)
+      siteCoefficientWindow = new SiteCoefficientInfoWindow();
+    siteCoefficientWindow.pack();
+    siteCoefficientWindow.show();
   }
 
   private void smSDButton_actionPerformed(ActionEvent actionEvent) {
