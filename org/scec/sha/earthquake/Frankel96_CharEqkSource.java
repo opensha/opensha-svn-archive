@@ -44,6 +44,8 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
                                 double rate,
                                 EvenlyGriddedSurface surface) {
 
+      this.rate = rate;
+
       probEqkRupture = new ProbEqkRupture();
       this.rate  = rate;
       probEqkRupture.setAveRake(rake);
