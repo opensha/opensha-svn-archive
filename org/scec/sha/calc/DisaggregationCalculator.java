@@ -75,7 +75,6 @@ public class DisaggregationCalculator {
   /**
    * this function performs the disaggregation
    *
-   * @param HazCurve: the curve to disaggregate (already computed)
    * @param iml: the intensity measure level to disaggregate
    * @param site: site parameter
    * @param imr: selected IMR object
