@@ -43,7 +43,7 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
 
   //for Debug purposes
   private static String  C = new String("Frankel96_EqkRupForecast");
-  private boolean D =false;
+  private boolean D = true;
   private double GRID_SPACING = 1.0;
 
   /**
@@ -426,7 +426,10 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
 
     /**
      * This method helps in finding the object stored in the vector for char and gr
-     * faultsthat corresponds to that parameter source
+     * faultsthat corresponds to that parameter source.
+     *
+     * first source starts from 0
+     *
      * @param iSource
      * @return the object of the char or gr type vector list depending to which list
      * the source corresponds
@@ -435,23 +438,25 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
       int charASize = FrankelA_CharEqkSources.size();
       int charBSize = FrankelB_CharEqkSources.size();
       int grBSize = FrankelB_GR_EqkSources.size();
-
-      if(iSource<=charASize){
-        int i=1;
-        while(i!=iSource) ++i;
+      int i =0;
+      if(iSource < charASize){
+        while(i != iSource)
+           ++i;
         Frankel96_CharEqkSource frankel96_CharEqkSource = (Frankel96_CharEqkSource)FrankelA_CharEqkSources.get(i) ;
         return frankel96_CharEqkSource;
       }
-      else if(iSource <= (charASize + charBSize)){
-        int i=1;
-        while(i!=iSource) ++i;
-        Frankel96_CharEqkSource frankel96_CharEqkSource = (Frankel96_CharEqkSource)FrankelB_CharEqkSources.get(i) ;
+      else if(iSource < (charASize + charBSize)){
+        i= charASize ;
+        while(i!=iSource)
+           ++i;
+        Frankel96_CharEqkSource frankel96_CharEqkSource = (Frankel96_CharEqkSource)FrankelB_CharEqkSources.get(i-charASize);
         return frankel96_CharEqkSource;
       }
       else if(iSource <= (charASize + charBSize + grBSize)){
-        int i=1;
-        while(i!=iSource) ++i;
-        Frankel96_GR_EqkSource frankel96_GR_EqkSource = (Frankel96_GR_EqkSource)FrankelB_GR_EqkSources.get(i) ;
+        i=charASize + charBSize;
+        while(i!=iSource)
+          ++i;
+        Frankel96_GR_EqkSource frankel96_GR_EqkSource = (Frankel96_GR_EqkSource)FrankelB_GR_EqkSources.get(i - charASize - charBSize) ;
         return frankel96_GR_EqkSource;
       }
 

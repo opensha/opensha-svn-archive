@@ -25,6 +25,7 @@ import org.scec.data.Site;
 import org.scec.data.Location;
 import org.scec.data.function.*;
 import org.scec.gui.plot.jfreechart.*;
+import org.scec.exceptions.ParameterException;
 
 /**
  * <p>Title: EqkForecastApplet</p>
@@ -556,6 +557,14 @@ public class EqkForecastApplet extends JApplet
          String badValueStr = e.getBadValue().toString();
          String name = param.getName();
 
+         try{
+          // only show messages for site parameters
+          if(this.siteParamList.getParameter(name)==null)
+            return;
+          } catch(ParameterException paramException) {
+          // we do not need to do anything in case this paramter is not in site paramters list
+          return;
+         }
 
          b.append( "The value ");
          b.append( badValueStr );
@@ -600,6 +609,10 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
         String name = param.getName();
 
+        // only show messages for site parameters
+        if(this.siteParamList.getParameter(name)==null)
+          return;
+
         b.append( "You have exceeded the recommended range\n");
         b.append( name );
         b.append( ": (" );
@@ -610,6 +623,12 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
         b.append( ")\n" );
         b.append( "Click Yes to accept the new value: " );
         b.append( e.getNewValue().toString() );
+    }
+
+    catch(ParameterException paramException) {
+       // we do not need to do anything in case this paramter is not in site paramters list
+       param.setValueIgnoreWarning( e.getNewValue() );
+       return;
     }
     catch( Exception ee){
 
@@ -650,8 +669,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     }
 
     if(D) System.out.println(S + "Ending");
-
-    }
+ }
 
 
 /**
@@ -809,8 +827,14 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
    }
   }
 
+  /**
+   * this function is called when addGraph button is clicked
+   * @param e
+   */
+
   void jBCalc_actionPerformed(ActionEvent e) {
 
+    // check whther all values are filled in
     if(jTimeField.getText()=="")
       JOptionPane.showMessageDialog(this,new String("Must enter the time field")
                                     ,"Incomplete Data Entered",JOptionPane.ERROR_MESSAGE);
@@ -818,55 +842,92 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       JOptionPane.showMessageDialog(this,new String("Must enter a valid numerical value in the TimeSpan")
                                     ,"Wrong Data Entered",JOptionPane.ERROR_MESSAGE);
     else{
+      // intialize the hazFunction for each IMR
        int imrSize=imrNames.size();
        ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
-       for(int i=0; i<imrSize; ++i) {
-         hazFunction[i] = new ArbitrarilyDiscretizedFunc();
-         initDiscretizeValues(hazFunction[i]);
+
+       // set the time span for the forecats model
+      eqkRupForecast.setTimeSpan(Double.parseDouble(jTimeField.getText()));
+       // clear the function list
+      this.totalProbFuncs.clear();
+
+      // get the longitude and latitude values
+      double longVal=((Double)siteParamList.getParameter(LONGITUDE).getValue()).doubleValue();
+      double latVal = ((Double)siteParamList.getParameter(LATITUDE).getValue()).doubleValue();
+
+      // get the selected IMT, if it is SA, get the period as well
+      String imt = (String)jIMTComboBox.getSelectedItem();
+      double period = 0;
+      if((imt.substring(0,2)).equalsIgnoreCase(SA)) {
+          StringTokenizer st = new StringTokenizer(imt);
+          st.nextToken();
+          period = Double.parseDouble(st.nextToken());
+          imt = new String(SA);
        }
 
-      eqkRupForecast.setTimeSpan(Double.parseDouble(jTimeField.getText()));
-      double totProb=1;
-      this.totalProbFuncs.clear();
+       // make a site object to pass to each IMr
+      Site site = new Site(new Location(latVal,longVal));
+      site.addParameterList(this.siteParamList);
+
+      // do for each IMR
       for(int i=0;i<imrSize;++i) {
-        if(jIMRNum[i].isSelected()){
+
+        if(jIMRNum[i].isSelected()){ // if this IMR is selected
+
+          // make new Arbitrarily Discr Function for each IMT
+          hazFunction[i] = new ArbitrarilyDiscretizedFunc();
+          initDiscretizeValues(hazFunction[i]);
+          hazFunction[i].setInfo(jIMRNum[i].getText());
+          // add the function of each IMR to the function list
           totalProbFuncs.add(hazFunction[i]);
-          String imt = (String)jIMTComboBox.getSelectedItem();
-          if(!(imt.substring(0,2)).equalsIgnoreCase(SA)) {
+
+          // get the selected IMT
+
+          if(!imt.equalsIgnoreCase(SA)) {
+            // if it is not SA
             ((ClassicIMRAPI)imrObject.get(i)).setIntensityMeasure(imt);
           }
           else{
+              //if it is SA, set SA and period as well
               ((ClassicIMRAPI)imrObject.get(i)).setIntensityMeasure(SA);
-              ParameterAPI period = ((ClassicIMRAPI)imrObject.get(i)).getParameter("Period");
-              StringTokenizer st = new StringTokenizer(imt);
-              st.nextToken();
-              period.setValue(new Double(Double.parseDouble(st.nextToken())));
-          }
-
-          double longVal=((Double)siteParamList.getParameter(LONGITUDE).getValue()).doubleValue();
-          double latVal = ((Double)siteParamList.getParameter(LATITUDE).getValue()).doubleValue();
-          Site site = new Site(new Location(latVal,longVal));
-          site.addParameterList(this.siteParamList);
+              ParameterAPI periodParam = ((ClassicIMRAPI)imrObject.get(i)).getParameter("Period");
+              periodParam.setValue(new Double(period));
+           }
+          // pass the site object to each IMR
           ((ClassicIMRAPI)imrObject.get(i)).setSite(site);
-        }
-      }
+         }
+       }
+      // getye total sources
       int numSources = eqkRupForecast.getNumSources();
       for(int i=0;i < numSources ;i++) {
+        // for each source, get the number of ruptures
         int numRuptures = eqkRupForecast.getNumRuptures(i);
          for(int n=1; n <= numRuptures ;n++){
+           // for each rupture, set in IMR and do computation
            double qkProb = ((ProbEqkRupture)eqkRupForecast.getRupture(i,n)).getProbability();
            for(int imr=0;imr<imrSize;imr++){
-              initLogDiscretizeValues(condProbFunc);
+              if (D) System.out.println("Source:"+i+",rupture="+n+",imr="+imr);
               if(jIMRNum[imr].isSelected()){
-                ((ClassicIMRAPI)imrObject.get(imr)).setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(i,n));
+                // initialize the values in condProbfunc
+                initLogDiscretizeValues(condProbFunc);
+                try {
+                  ((ClassicIMRAPI)imrObject.get(imr)).setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(i,n));
+                } catch (Exception ex) {
+                    if(D) System.out.println(C + ":Param warning caught");
+                }
                 condProbFunc=(ArbitrarilyDiscretizedFunc)((ClassicIMRAPI)imrObject.get(imr)).getExceedProbabilities(condProbFunc);
                 for(int k=0;k<condProbFunc.getNum();k++){
-                  hazFunction[imr].set(k,hazFunction[imr].getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
+                    hazFunction[imr].set(k,hazFunction[imr].getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
+                    if (D) System.out.println("k="+k+",hazfunction[k] for imr="+hazFunction[imr].getY(k));
+                    if (D) System.out.println("qkProb="+qkProb+",condProbFunc(k)="+condProbFunc.getY(k));
+
                 }
               }
            }
         }
       }
+
+      // now set the final values in hazFunction
       for(int imr=0;imr<imrSize;++imr){
         for(int j=0;j<condProbFunc.getNum();++j){
           if(jIMRNum[imr].isSelected()){
@@ -875,6 +936,9 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
         }
       }
     }
+
+    // draw the graph
+    this.addGraphPanel();
   }
 
 
@@ -1010,10 +1074,10 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       chartPanel.setVerticalAxisTrace(false);
 
       panel.removeAll();
-      panel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+      panel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                               , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-
+      if(D) System.out.println(this.totalProbFuncs.toString());
       validate();
       repaint();
 
