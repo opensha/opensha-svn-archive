@@ -160,8 +160,8 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    try{
      vs30 = ConnectToCVM.getWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
    }catch(Exception e){
-     vs30 = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
-         getGridSpacing(),WILLS_SITE_CLASS_FILE);
+     /*vs30 = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
+         getGridSpacing(),WILLS_SITE_CLASS_FILE);*/
      //throw new RuntimeException(e.getMessage());
    }
    int size = getNumGridLocs();
@@ -184,11 +184,11 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
      vs30 = ConnectToCVM.getWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
      basinDepth = ConnectToCVM.getBasinDepthFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
    }catch(Exception e){
-     vs30 = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
+     /*vs30 = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
          getGridSpacing(),WILLS_SITE_CLASS_FILE);
      basinDepth = ConnectToCVM.getBasinDepth(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
-         getGridSpacing(),BASIN_DEPTH_FILE);
-     //throw new RuntimeException(e.getMessage());
+         getGridSpacing(),BASIN_DEPTH_FILE);*/
+     throw new RuntimeException(e.getMessage());
    }
  }
 
