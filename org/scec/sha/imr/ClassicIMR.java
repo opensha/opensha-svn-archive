@@ -380,7 +380,7 @@ public abstract class ClassicIMR
      * probability distribution truncation.
      */
     protected StringParameter sigmaTruncTypeParam = null;
-    public final static String SIGMA_TRUNC_TYPE_NAME = "Gaussian Distribution Truncation";
+    public final static String SIGMA_TRUNC_TYPE_NAME = "Gaussian Truncation";
     protected final static String SIGMA_TRUNC_TYPE_INFO = "Type of distribution truncation to apply when computing exceedance probabilities";
     protected final static String SIGMA_TRUNC_TYPE_NONE = "None";
     protected final static String SIGMA_TRUNC_TYPE_1SIDED = "1 Sided";

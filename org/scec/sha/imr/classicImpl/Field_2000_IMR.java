@@ -61,7 +61,7 @@ public class Field_2000_IMR
     private final static String FLT_TYPE_DEFAULT = "Other/Unknown";
 
     protected WarningDoubleParameter basinDepthParam = null;
-    protected final static String BASIN_DEPTH_NAME = "Basin Depth (Phase III)";
+    protected final static String BASIN_DEPTH_NAME = "Basin-Depth-2.5";
     protected final static String BASIN_DEPTH_UNITS = "km";
     protected final static String BASIN_DEPTH_INFO =
       "Depth to 2.5 km/sec S-wave-velocity isosurface, from SCEC Phase III Report";

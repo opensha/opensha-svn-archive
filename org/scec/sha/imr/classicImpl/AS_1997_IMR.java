@@ -290,12 +290,12 @@ public class AS_1997_IMR
                is probably close enough (it's also what Frankel's code does).
 
                There is a problem that this term will apply to vertical strike-slip faults
-               when on the fault trace.  The 80-degree dip threshold was the solution
-               recommended by Ken Cambell over the phone today, he will confirm this with
-               Norm next week (Ned, 9-20-02).
+               when on the fault trace.  The 70-degree dip threshold was the solution
+               recommended to Ned Field by Ken Cambell and Norm Abrahamson (see email
+               to Ned on 9-26-02).
             */
 
-            if(probEqkRupture.getRuptureSurface().getAveDip() < 80) {
+            if(probEqkRupture.getRuptureSurface().getAveDip() < 70) {
                 distanceJBParam.setValue( probEqkRupture, site );
                 if ( ( (Double)distanceJBParam.getValue() ).doubleValue() <= 1.0 )
                     isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
@@ -889,26 +889,26 @@ System.out.println( a13 );
         coeff3 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "2.00" ) ).doubleValue() ,
             2.00, 2.50, -1.224, -0.7200, 0.260, -0.008, 0.240, 0.040, -0.220, -0.0240, 0.69, 0.050 );
         // SA/1.50
-         coeff4 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "1.50" ) ).doubleValue() ,
+        coeff4 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "1.50" ) ).doubleValue() ,
             1.50, 2.50, -0.966, -0.7285, 0.260, 0.058, 0.240, 0.025, -0.220, -0.0180, 0.69, 0.050 );
         // SA/1.00
-         coeff5 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "1.00" ) ).doubleValue() ,
+        coeff5 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "1.00" ) ).doubleValue() ,
             1.00, 2.50, -0.602, -0.7404, 0.260, 0.150, 0.240, 0.004, -0.220, -0.0115, 0.69, 0.050 );
         // SA/0.85
         coeff6 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.85" ) ).doubleValue() ,
             0.85, 2.50, -0.469, -0.7451, 0.309, 0.150, 0.273, -0.004, -0.220, -0.0097, 0.69, 0.050 );
         // SA/0.75
-         coeff7 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.75" ) ).doubleValue() ,
+        coeff7 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.75" ) ).doubleValue() ,
             0.75, 2.50, -0.334, -0.7488, 0.384, 0.150, 0.299, -0.010, -0.220, -0.0083, 0.69, 0.050 );
         // SA/0.60
         coeff8 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.60" ) ).doubleValue() ,
             0.60, 2.85, -0.087, -0.7896, 0.416, 0.150, 0.345, -0.022, -0.220, -0.0068, 0.69, 0.050 );
         // SA/0.50
-         coeff9 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.50" ) ).doubleValue() ,
+        coeff9 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.50" ) ).doubleValue() ,
             0.50, 3.26, 0.145, -0.8291, 0.471, 0.150, 0.383, -0.031, -0.220, -0.0060, 0.69, 0.050 );
         // SA/0.46
 
-         coeff10 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.46" ) ).doubleValue() ,
+        coeff10 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.46" ) ).doubleValue() ,
             0.46, 3.45, 0.271, -0.8472, 0.497, 0.150, 0.400, -0.035, -0.220, -0.0056, 0.69, 0.050 );
         // SA/0.40
 

@@ -70,10 +70,10 @@ public class Campbell_1997_IMR
      private final static String SITE_TYPE_NAME = "Campbell Site Type";
      // no units
      private final static String SITE_TYPE_INFO = "Geological conditions as the site";
-     private final static String SITE_TYPE_ALLUVIUM =  "Alluvium/Firm-Soil";
-     private final static String SITE_TYPE_SOFT_ROCK =  "Soft Rock";
-     private final static String SITE_TYPE_HARD_ROCK =  "Hard Rock";
-     private final static String SITE_TYPE_DEFAULT =  "Alluvium/Firm-Soil";
+     private final static String SITE_TYPE_FIRM_SOIL =  "Firm-Soil";
+     private final static String SITE_TYPE_SOFT_ROCK =  "Soft-Rock";
+     private final static String SITE_TYPE_HARD_ROCK =  "Hard-Rock";
+     private final static String SITE_TYPE_DEFAULT =  "Firm-Soil";
 
     // warning constraints:
     protected final static Double MAG_WARN_MIN = new Double(5);
@@ -91,7 +91,7 @@ public class Campbell_1997_IMR
      * basement, 5 km/sec P-wave velicity, or 3 km/sec S-wave velocity.
      */
     protected WarningDoubleParameter basinDepthParam = null;
-    protected final static String BASIN_DEPTH_NAME = "Campbell Basin Depth";
+    protected final static String BASIN_DEPTH_NAME = "Campbell-Basin-Depth";
     protected final static String BASIN_DEPTH_UNITS = "km";
     protected final static String BASIN_DEPTH_INFO =
       "Depth to Cretaceous, crystalline basement, or 3 km/sec S-wave velocity";
@@ -613,7 +613,7 @@ public class Campbell_1997_IMR
     protected void initSiteParams( ) {
 
         StringConstraint siteConstraint = new StringConstraint();
-        siteConstraint.addString( SITE_TYPE_ALLUVIUM );
+        siteConstraint.addString( SITE_TYPE_FIRM_SOIL );
         siteConstraint.addString( SITE_TYPE_SOFT_ROCK );
         siteConstraint.addString( SITE_TYPE_HARD_ROCK );
         siteConstraint.setNonEditable();

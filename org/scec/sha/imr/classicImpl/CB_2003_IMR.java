@@ -75,14 +75,14 @@ public class CB_2003_IMR
      private final static String SITE_TYPE_NAME = "Campbell-2003 Site Type";
      // no units
      private final static String SITE_TYPE_INFO = "Geological conditions as the site";
-     private final static String SITE_TYPE_FIRM_SOIL =  "Firm Soil";
-     private final static String SITE_TYPE_VERY_FIRM_SOIL =  "Very Firm Soil";
-     private final static String SITE_TYPE_SOFT_ROCK =  "Soft Rock";
-     private final static String SITE_TYPE_FIRM_ROCK =  "Firm Rock";
-     private final static String SITE_TYPE_SOIL =  "Generic Soil";
-     private final static String SITE_TYPE_ROCK =  "Generic Rock";
-     private final static String SITE_TYPE_NEHRP_BC =  "BC Boundary";
-     private final static String SITE_TYPE_DEFAULT =  "Firm Soil";
+     private final static String SITE_TYPE_FIRM_SOIL =  "Firm-Soil";
+     private final static String SITE_TYPE_VERY_FIRM_SOIL =  "Very-Firm-Soil";
+     private final static String SITE_TYPE_SOFT_ROCK =  "Soft-Rock";
+     private final static String SITE_TYPE_FIRM_ROCK =  "Firm-Rock";
+     private final static String SITE_TYPE_SOIL =  "Generic-Soil";
+     private final static String SITE_TYPE_ROCK =  "Generic-Rock";
+     private final static String SITE_TYPE_NEHRP_BC =  "BC-Boundary";
+     private final static String SITE_TYPE_DEFAULT =  "Firm-Soil";
 
     // warning constraints:
     protected final static Double MAG_WARN_MIN = new Double(5);
@@ -270,12 +270,12 @@ public class CB_2003_IMR
           }
 
           /* There is a problem that this term will apply to vertical strike-slip faults
-             when on the fault trace.  The 80-degree dip threshold was the solution
-             recommended by Ken Cambell over the phone today, he will confirm this with
-             Norm next week (Ned, 9-20-02).
+             when on the fault trace.  The 70-degree dip threshold was the solution
+             recommended by Ken Cambell via email to Ned Field on 9-26-02.  He confirmed
+             this with Norm Abrahamson (it applies to his relationships as well).
           */
 
-            if(probEqkRupture.getRuptureSurface().getAveDip() < 80) {
+            if(probEqkRupture.getRuptureSurface().getAveDip() < 70.0) {
                 double jbDist = ( (Double) distanceJBParam.getValue( probEqkRupture, site ) ).doubleValue();
                 if ( jbDist < 1.0 )
                     hangingWallParam.setValue(1.0);
