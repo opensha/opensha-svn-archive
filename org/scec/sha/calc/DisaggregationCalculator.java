@@ -142,7 +142,7 @@ public class DisaggregationCalculator {
         for(int k=0; k<NUM_E; k++)
           pmf[i][j][k]=0;
 
-    updateProgress(currRuptures, totRuptures);
+    progress.updateProgress(currRuptures, totRuptures);
 
     for(int i=0;i < numSources ;i++) {
 
@@ -161,7 +161,7 @@ public class DisaggregationCalculator {
       for(int n=0; n < numRuptures ; n++,++currRuptures) {
 
           //check the progress
-          updateProgress(currRuptures, totRuptures);
+          progress.updateProgress(currRuptures, totRuptures);
 
           // get the rupture
           ProbEqkRupture rupture = source.getRupture(n);
@@ -339,49 +339,5 @@ public class DisaggregationCalculator {
       else return Double.NaN;
   }
 
-  /**
-   * update the calculation progress
-   * @param num:    the current number
-   * @param totNum: the total number
-   */
-   private void updateProgress(int num, int totNum) {
-
-        int val=0;
-        boolean update = false;
-
-        // update the progress bar
-        if(num == (int) (totNum*0.9)) { // 90% complete
-              val = 90;
-              update = true;
-        }
-        else if(num == (int) (totNum*0.8)) { // 80% complete
-              val = 80;
-              update = true;        }
-        else if(num == (int) (totNum*0.7)) { // 70% complete
-              val = 70;
-              update = true;        }
-        else if(num == (int) (totNum*0.6)) { // 60% complete
-              val = 60;
-              update = true;        }
-        else if(num == (int) (totNum*0.5)) { // 50% complete
-              val = 50;
-              update = true;        }
-        else if(num == (int) (totNum*0.4)) { // 40% complete
-              val = 40;
-              update = true;        }
-        else if(num == (int) (totNum*0.3)) { // 30% complete
-              val = 30;
-              update = true;        }
-        else if(num == (int) (totNum*0.2)) { // 20% complete
-              val = 20;
-              update = true;        }
-        else if(num == (int) (totNum*0.1)) { // 10% complete
-              val = 10;
-              update = true;        }
-
-        if(update == true)
-            progress.setString(Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
-
-   }
 
 }

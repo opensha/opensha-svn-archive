@@ -77,19 +77,23 @@ public class HazardMapCalculator {
     boolean success = (new File("tempData")).mkdir();
     while(it.hasNext()){
       site=(Site)it.next();
-      System.out.println("Site Params:"+site.toString());
+      int numPoints=hazFunction.getNum();
+      for(int i=0;i<numPoints;i++)
+        hazFunction.set(i,1.0);
       hazCurveCalc.getHazardCurve(hazFunction,site,imr,eqkRupForecast);
       String lat = decimalFormat.format(site.getLocation().getLatitude());
       String lon = decimalFormat.format(site.getLocation().getLongitude());
 
       try{
-
-        int numPoints=hazFunction.getNum();
         if(success){
-        FileWriter fr = new FileWriter("tempData/"+lat+"_"+lon+".txt");
-        for(int i=0;i<numPoints;++i)
-          fr.write(hazFunction.getX(i)+" "+hazFunction.getY(i)+"\n");
-        fr.close();
+          FileWriter fr = new FileWriter("tempData/"+lat+"_"+lon+".txt");
+          for(int i=0;i<numPoints;++i) {
+            //System.out.println(hazFunction.getY(i));
+            //System.out.println(hazFunction.getX(i)+" "+new Double(hazFunction.getY(i))+"\n");
+            fr.write(hazFunction.getX(i)+" "+hazFunction.getY(i)+"\n");
+          }
+
+          fr.close();
         }
       }catch(IOException e){
         e.printStackTrace();

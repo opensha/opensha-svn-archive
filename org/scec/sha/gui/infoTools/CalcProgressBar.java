@@ -86,6 +86,52 @@ public class CalcProgressBar extends JProgressBar {
     this.paintImmediately(rect);
   }
 
+
+  /**
+   * update the calculation progress
+   * @param num:    the current number
+   * @param totNum: the total number
+   */
+  public void updateProgress(int num, int totNum) {
+
+    int val=0;
+    boolean update = false;
+
+    // find if we're at a point to update
+    if(num == (int) (totNum*0.9)) { // 90% complete
+      val = 90;
+      update = true;
+    } else if(num == (int) (totNum*0.8)) { // 80% complete
+      val = 80;
+      update = true;
+    } else if(num == (int) (totNum*0.7)) { // 70% complete
+      val = 70;
+      update = true;
+    } else if(num == (int) (totNum*0.6)) { // 60% complete
+      val = 60;
+      update = true;
+    } else if(num == (int) (totNum*0.5)) { // 50% complete
+      val = 50;
+      update = true;
+    } else if(num == (int) (totNum*0.4)) { // 40% complete
+      val = 40;
+      update = true;
+    } else if(num == (int) (totNum*0.3)) { // 30% complete
+      val = 30;
+      update = true;
+    } else if(num == (int) (totNum*0.2)) { // 20% complete
+      val = 20;
+      update = true;
+    } else if(num == (int) (totNum*0.1)) { // 10% complete
+      val = 10;
+      update = true;
+    }
+    // update the progress bar
+    if(update == true)
+      updateProgressBar(val,Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
+  }
+
+
   /**
    * dispose the frame
    */

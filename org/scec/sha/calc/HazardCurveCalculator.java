@@ -93,7 +93,7 @@ public class HazardCurveCalculator {
     // rupture number presently being processed
     int currRuptures = 0;
 
-    updateProgress(currRuptures, totRuptures);
+    progressClass.updateProgress(currRuptures, totRuptures);
 
     // this makes sure a source is actually used
     boolean sourceUsed = false;
@@ -109,7 +109,7 @@ public class HazardCurveCalculator {
       // if source is greater than the MAX_DISTANCE, ignore the source
       if(distance > MAX_DISTANCE) {
         currRuptures += source.getNumRuptures();
-        updateProgress(currRuptures, totRuptures);
+        progressClass.updateProgress(currRuptures, totRuptures);
         continue;
       }
 
@@ -121,7 +121,7 @@ public class HazardCurveCalculator {
       for(int n=0; n < numRuptures ; n++,++currRuptures) {
 
         //check the progress
-        updateProgress(currRuptures, totRuptures);
+        progressClass.updateProgress(currRuptures, totRuptures);
 
         // for each rupture, set in IMR and do computation
         double qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
@@ -134,7 +134,10 @@ public class HazardCurveCalculator {
           System.out.println("Parameter change warning caught");
         }
         // get the exceed probabillties for this IMR
-        condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
+        //if(n==1877)
+        // condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
+        //else
+          condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
 
         // calculate the hazard function
         int numPoints = condProbFunc.getNum();
@@ -161,50 +164,6 @@ public class HazardCurveCalculator {
 
 
 
-  /**
-   * update the calculation progress
-   * @param num:    the current number
-   * @param totNum: the total number
-   */
-  private void updateProgress(int num, int totNum) {
-
-    int val=0;
-    boolean update = false;
-
-    // find if we're at a point to update
-    if(num == (int) (totNum*0.9)) { // 90% complete
-      val = 90;
-      update = true;
-    } else if(num == (int) (totNum*0.8)) { // 80% complete
-      val = 80;
-      update = true;
-    } else if(num == (int) (totNum*0.7)) { // 70% complete
-      val = 70;
-     update = true;
-    } else if(num == (int) (totNum*0.6)) { // 60% complete
-      val = 60;
-      update = true;
-    } else if(num == (int) (totNum*0.5)) { // 50% complete
-      val = 50;
-      update = true;
-    } else if(num == (int) (totNum*0.4)) { // 40% complete
-      val = 40;
-      update = true;
-    } else if(num == (int) (totNum*0.3)) { // 30% complete
-      val = 30;
-      update = true;
-    } else if(num == (int) (totNum*0.2)) { // 20% complete
-      val = 20;
-      update = true;
-    } else if(num == (int) (totNum*0.1)) { // 10% complete
-      val = 10;
-      update = true;
-    }
-
-    // update the progress bar
-    if(update == true)
-      progressClass.updateProgressBar(val,Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
-  }
 
 
 
