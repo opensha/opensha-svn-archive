@@ -30,9 +30,6 @@ import com.jrefinery.chart.VerticalNumberAxis;
 
 public class SHAVerticalNumberAxis extends VerticalNumberAxis {
 
-    /** A flag indicating whether or not the axis label is drawn vertically. */
-    protected boolean verticalLabel;
-
     /**
      * Constructs a vertical number axis, using default values where necessary.
      */
@@ -53,22 +50,7 @@ public class SHAVerticalNumberAxis extends VerticalNumberAxis {
 
     }
 
-
-
-    /**
-     * Configures the axis to work with the specified plot.  If the axis has auto-scaling, then sets
-     * the maximum and minimum values.
-     */
-  /*  public void configure() {
-
-        if (isAutoRange()) {
-            autoAdjustRange();
-        }
-
-    }*/
-
-
-    /**
+   /**
      * Sets the axis minimum and maximum values so that all the data is visible.
      * <P>
      * You can control the range calculation in several ways.  First, you can define upper and

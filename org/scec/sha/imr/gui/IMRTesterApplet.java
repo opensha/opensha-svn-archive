@@ -870,7 +870,7 @@ public class IMRTesterApplet extends JApplet
         if (xLog)
             xAxis = new com.jrefinery.chart.HorizontalLogarithmicAxis( xAxisLabel );
         else
-            xAxis = new com.jrefinery.chart.HorizontalNumberAxis( xAxisLabel );
+            xAxis = new SHAHorizontalNumberAxis( xAxisLabel );
 
         xAxis.setAutoRangeIncludesZero( false );
         xAxis.setCrosshairLockedOnData( false );

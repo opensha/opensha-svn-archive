@@ -952,19 +952,19 @@ static {
         com.jrefinery.chart.NumberAxis moXAxis = null;
 
         // create X- axis for mag vs incremental rate
-        incrXAxis = new com.jrefinery.chart.HorizontalNumberAxis( incrXAxisLabel );
+        incrXAxis = new SHAHorizontalNumberAxis( incrXAxisLabel );
         incrXAxis.setAutoRangeIncludesZero( false );
         incrXAxis.setCrosshairLockedOnData( false );
         incrXAxis.setCrosshairVisible(false);
 
         // create X- axis for mag vs cum rate
-        cumXAxis = new com.jrefinery.chart.HorizontalNumberAxis( cumXAxisLabel );
+        cumXAxis = new SHAHorizontalNumberAxis( cumXAxisLabel );
         cumXAxis.setAutoRangeIncludesZero( false );
         cumXAxis.setCrosshairLockedOnData( false );
         cumXAxis.setCrosshairVisible(false);
 
         // create x- axis for mag vs moment rate
-        moXAxis = new com.jrefinery.chart.HorizontalNumberAxis( moXAxisLabel );
+        moXAxis = new SHAHorizontalNumberAxis( moXAxisLabel );
         moXAxis.setAutoRangeIncludesZero( false );
         moXAxis.setCrosshairLockedOnData( false );
         moXAxis.setCrosshairVisible(false);

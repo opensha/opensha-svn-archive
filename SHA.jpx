@@ -90,9 +90,4 @@
   <property category="team" name="ignorePath.7" value="doc"/>
   <property category="team" name="ignorePath.8" value="edu"/>
   <property category="team" name="ignorePath.9" value="org/.DS_Store"/>
-  <node name="ISI" type="Archive">
-    <property category="archiving" name="libraryStates.1" value="3:JUnit"/>
-    <property category="archiving" name="targetCompressed" value="1"/>
-    <property category="archiving" name="targetPath" value="SHA.jar"/>
-  </node>
 </project>
