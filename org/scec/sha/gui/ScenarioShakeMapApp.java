@@ -156,7 +156,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
         this.initERFSelector_GuiBean();
         initTimeSpanGuiBean();
       }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,"Connection to ERF servlets failed","Internet Connection Problem",
+      JOptionPane.showMessageDialog(this,"Connection to ERF's failed","Internet Connection Problem",
                                     JOptionPane.OK_OPTION);
       System.exit(0);
       }

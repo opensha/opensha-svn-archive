@@ -320,7 +320,7 @@ public class HazardCurveApplet extends JApplet
         initERF_GuiBean();
         initTimeSpanGuiBean();
       }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,"Connection to ERF servlets failed","Internet Connection Problem",
+      JOptionPane.showMessageDialog(this,"Connection to ERF's failed","Internet Connection Problem",
                                     JOptionPane.OK_OPTION);
       System.exit(0);
       }
@@ -1236,7 +1236,7 @@ public class HazardCurveApplet extends JApplet
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
-     throw new RuntimeException("Connection to ERF servlets failed");
+     throw new RuntimeException("Connection to ERF's failed");
    }
    erfPanel.setLayout(gridBagLayout5);
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,

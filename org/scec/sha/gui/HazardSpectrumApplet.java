@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.util.Vector;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.net.*;
 import java.lang.reflect.InvocationTargetException;
 
@@ -70,7 +71,7 @@ public class HazardSpectrumApplet extends JApplet
   public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
   public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
-  public final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
+  //public final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
   public final static String WC_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.WC94_DisplMagRel";
 
   /**
@@ -110,13 +111,19 @@ public class HazardSpectrumApplet extends JApplet
 
 
   //Strings for choosing ERFGuiBean or ERF_RupSelectorGUIBean
-  private final static String PROB_OR_DETER_SELECTION =  "Select Probabilistic or Deterministic";
   private final static String PROBABILISTIC = "Probabilistic";
   private final static String DETERMINISTIC = "Deterministic";
 
   //Static String to tell the IMT as the SA becuase it is the only supported IMT for this Application
   private static String SA_NAME = "SA";
+  private static String SA_PERIOD = "SA Period";
 
+
+  //Vector that stores the SA Period values for the IMR
+  private Vector saPeriodVector ;
+
+  //flag to check whether calculation for the Deterministic Model completed
+  private boolean deterministicCalcDone=false;
 
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
@@ -318,10 +325,10 @@ public class HazardSpectrumApplet extends JApplet
       initSiteGuiBean();
       initImlProb_GuiBean();
       try{
-        initERF_GuiBean();
+        this.initERFSelector_GuiBean();
         initTimeSpanGuiBean();
       }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,"Connection to ERF servlets failed","Internet Connection Problem",
+      JOptionPane.showMessageDialog(this,"Connection to ERF failed","Internet Connection Problem",
                                     JOptionPane.OK_OPTION);
       System.exit(0);
       }
@@ -610,13 +617,13 @@ public class HazardSpectrumApplet extends JApplet
 
       /* to set the range of the axis on the input from the user if the range combo box is selected*/
       if(this.customAxis) {
-          xAxis.setRange(this.minXValue,this.maxXValue);
-          yAxis.setRange(this.minYValue,this.maxYValue);
-        }
+        xAxis.setRange(this.minXValue,this.maxXValue);
+        yAxis.setRange(this.minYValue,this.maxYValue);
+      }
 
       // build the plot
       org.jfree.chart.plot.LogXYPlot plot = new org.jfree.chart.plot.LogXYPlot(this,data,
-                                       xAxis, yAxis, xLog, yLog);
+          xAxis, yAxis, xLog, yLog);
 
       plot.setDomainCrosshairLockedOnData(false);
       plot.setDomainCrosshairVisible(false);
@@ -730,7 +737,7 @@ public class HazardSpectrumApplet extends JApplet
               drawGraph();
               //isIndividualCurves = false;
             }
-            if (calc.done()) {
+            if (calc.done() || deterministicCalcDone) {
               // Toolkit.getDefaultToolkit().beep();
               timer.stop();
               progressClass.dispose();
@@ -740,7 +747,7 @@ public class HazardSpectrumApplet extends JApplet
         });
 
         // timer for disaggregation progress bar
-        disaggTimer = new Timer(500, new ActionListener() {
+        /*disaggTimer = new Timer(500, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
             if(disaggCalc.getCurrRuptures()!=-1)
               disaggProgressClass.updateProgress(disaggCalc.getCurrRuptures(), disaggCalc.getTotRuptures());
@@ -750,7 +757,7 @@ public class HazardSpectrumApplet extends JApplet
               disaggProgressClass.dispose();
             }
           }
-        });
+        });*/
 
         Thread t = new Thread(this);
         t.start();
@@ -940,6 +947,8 @@ public class HazardSpectrumApplet extends JApplet
       AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
       //set the intensity measure for the IMR
       imr.setIntensityMeasure(this.SA_NAME);
+      //gets the SA Period Values for the IMR
+      this.getSA_PeriodForIMR(imr);
       siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
       siteGuiBean.validate();
       siteGuiBean.repaint();
@@ -975,102 +984,183 @@ public class HazardSpectrumApplet extends JApplet
    * this function is called when add Graph is clicked
    */
   private void computeHazardCurve() {
-    this.isEqkList = false;
 
-    // whwther to show progress bar in case of update forecast
-    erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
-    // get the selected forecast model
-    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
-    if(this.progressCheckBox.isSelected())  {
-        progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
-        progressClass.displayProgressBar();
-        timer.start();
-    }
+    //flag to initialise if Deterministic Model Calc have been completed
+    deterministicCalcDone=false;
 
     // get the selected IMR
-    AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    AttenuationRelationship imr = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
 
     // make a site object to pass to IMR
     Site site = siteGuiBean.getSite();
 
+    // intialize the hazard function
+    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
 
-    // check whether this forecast is a Forecast List
-    // if this is forecast list , handle it differently
-    boolean isEqkForecastList = false;
-    if(eqkRupForecast instanceof ERF_List)  {
-      handleForecastList(site, imr, eqkRupForecast);
-      return;
+    //If the user has chosen the Probabilistic
+    if(((String)probDeterSelection.getSelectedItem()).equalsIgnoreCase(this.PROBABILISTIC)){
+      this.isEqkList = false;
+      // whwther to show progress bar in case of update forecast
+      erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
+      // get the selected forecast model
+      EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
+      if(this.progressCheckBox.isSelected())  {
+        progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+        progressClass.displayProgressBar();
+        timer.start();
+      }
+
+      // check whether this forecast is a Forecast List
+      // if this is forecast list , handle it differently
+      boolean isEqkForecastList = false;
+      if(eqkRupForecast instanceof ERF_List)  {
+        handleForecastList(site, imr, eqkRupForecast);
+        return;
+      }
+      calc.setNumForecasts(1);
+      // this is not a eqk list
+      this.isEqkList = false;
+      // calculate the hazard curve
+      //HazardCurveCalculator calc = new HazardCurveCalculator();
+      // do not show progress bar if not desired by user
+      //calc.showProgressBar(this.progressCheckBox.isSelected());
+      if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+      // initialize the values in condProbfunc with log values as passed in hazFunction
+      initX_Values(hazFunction);
+      try {
+        // calculate the hazard curve
+        calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
+        hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+        hazFunction = toggleHazFuncLogValues(hazFunction);
+      }catch (RuntimeException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(),
+                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+        e.printStackTrace();
+        return;
+      }
+
+
+     /* disaggregationString=null;
+      //checking the disAggregation flag
+      if(this.disaggregationFlag) {
+        disaggCalc = new DisaggregationCalculator();
+        if(this.progressCheckBox.isSelected())  {
+          disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status", "Beginning Disaggregation ");
+          disaggProgressClass.displayProgressBar();
+          disaggTimer.start();
+        }
+
+        if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
+        int num = hazFunction.getNum();
+        double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
+        //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
+        if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
+          JOptionPane.showMessageDialog(this,
+                                        new String("Chosen Probability is not"+
+                                        " within the range of the min and max prob."+
+                                        " in the Hazard Curve"),
+                                        "Disaggregation Prob. selection error message",
+                                        JOptionPane.OK_OPTION);
+        else{
+          //gets the Disaggregation data
+          double iml= hazFunction.getFirstInterpolatedX(disaggregationProb);
+          disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)eqkRupForecast);
+          disaggregationString=disaggCalc.getResultsString();
+        }
+      }
+      //displays the disaggregation string in the pop-up window
+      if(disaggregationString !=null) {
+        HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
+        disaggregation.pack();
+        disaggregation.show();
+
+      }
+      disaggregationString=null;*/
     }
-    calc.setNumForecasts(1);
-    // this is not a eqk list
-   this.isEqkList = false;
-    // calculate the hazard curve
-   //HazardCurveCalculator calc = new HazardCurveCalculator();
-   // do not show progress bar if not desired by user
-   //calc.showProgressBar(this.progressCheckBox.isSelected());
-   if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-   // initialize the values in condProbfunc with log values as passed in hazFunction
-   // intialize the hazard function
-   ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-   initX_Values(hazFunction);
-   try {
-     // calculate the hazard curve
-     calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
-     hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
-     hazFunction = toggleHazFuncLogValues(hazFunction);
-   }catch (RuntimeException e) {
-     JOptionPane.showMessageDialog(this, e.getMessage(),
-                                   "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-     e.printStackTrace();
-     return;
-   }
+    else{ //If the Deterministic has been chosen by the user
 
-   // add the function to the function list
-   totalProbFuncs.add(hazFunction);
-   // set the X-axis label
-   //only supported IMT for this Application
-   String imt = this.SA_NAME;
-   totalProbFuncs.setXAxisName(imt + " ("+imr.getParameter(imt).getUnits()+")");
-   totalProbFuncs.setYAxisName("Probability of Exceedance");
+      boolean imlAtProb=false, probAtIML=false;
+      imr.setSite(site);
+      try{
+        imr.setProbEqkRupture(this.erfRupSelectorGuiBean.getRupture());
+      }catch (Exception ex) {
+        timer.stop();
+        JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
+        this.repaint();
+        this.validate();
+        return;
+      }
+      //what selection does the user have made, IML@Prob or Prob@IML
+      String imlOrProb=imlProbGuiBean.getSelectedOption();
+      //gets the IML or Prob value filled in by the user
+      double imlProbValue=imlProbGuiBean.getIML_Prob();
 
-   disaggregationString=null;
-   //checking the disAggregation flag
-   if(this.disaggregationFlag) {
-     disaggCalc = new DisaggregationCalculator();
-     if(this.progressCheckBox.isSelected())  {
-       disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status", "Beginning Disaggregation ");
-       disaggProgressClass.displayProgressBar();
-       disaggTimer.start();
+      if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
+        imlAtProb=true;
+      else probAtIML=true;
+      //gets the Sa Period Vector size
+      int size = this.saPeriodVector.size();
+
+      if(this.progressCheckBox.isSelected())  {
+        progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+        progressClass.displayProgressBar();
+        timer.start();
+      }
+
+      //if the user has selectde the Prob@IML
+      if(probAtIML)
+        //iterating over all the SA Periods for the IMR's
+        for(int i=0;i< size;++i){
+          double saPeriodVal = ((Double)this.saPeriodVector.get(i)).doubleValue();
+          imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(i));
+          double imlLogVal = Math.log(imlProbValue);
+          //double val = 0.4343*Math.log(imr.getExceedProbability(imlLogVal));
+          double val = imr.getExceedProbability(imlLogVal);
+          //adding values to the hazard function
+          hazFunction.set(saPeriodVal,val);
+        }
+      else  //if the user has selected IML@prob
+        //iterating over all the SA Periods for the IMR
+        for(int i=0;i<size;++i){
+          double saPeriodVal = ((Double)(saPeriodVector.get(i))).doubleValue();
+          imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(i));
+          imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(imlProbValue));
+          //double val = 0.4343*imr.getIML_AtExceedProb();
+          //adding values to the Hazard Function
+          double val = Math.exp(imr.getIML_AtExceedProb());
+          hazFunction.set(saPeriodVal,val);
+        }
+        deterministicCalcDone = true;
     }
 
-     if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
-     int num = hazFunction.getNum();
-     double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
-     //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
-     if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
-       JOptionPane.showMessageDialog(this,
-                                     new String("Chosen Probability is not"+
-                                     " within the range of the min and max prob."+
-                                     " in the Hazard Curve"),
-                                     "Disaggregation Prob. selection error message",
-                                     JOptionPane.OK_OPTION);
-     else{
-       //gets the Disaggregation data
-       double iml= hazFunction.getFirstInterpolatedX(disaggregationProb);
-       disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)eqkRupForecast);
-       disaggregationString=disaggCalc.getResultsString();
-     }
-   }
-   //displays the disaggregation string in the pop-up window
-   if(disaggregationString !=null) {
-     HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
-     disaggregation.pack();
-     disaggregation.show();
-
-   }
-   disaggregationString=null;
+    // add the function to the function list
+    totalProbFuncs.add(hazFunction);
+    // set the X-axis label
+    //only supported IMT for this Application
+    String imt = this.SA_NAME;
+    totalProbFuncs.setXAxisName(imt + " ("+imr.getParameter(imt).getUnits()+")");
+    totalProbFuncs.setYAxisName("Probability of Exceedance");
   }
 
+
+  /**
+   * Gets the SA Period Values for the IMR
+   * @param imr
+   */
+  private void getSA_PeriodForIMR(AttenuationRelationshipAPI imr){
+    ListIterator it =imr.getSupportedIntensityMeasuresIterator();
+    while(it.hasNext()){
+      DependentParameterAPI  tempParam = (DependentParameterAPI)it.next();
+      if(tempParam.getName().equalsIgnoreCase(this.SA_NAME)){
+        ListIterator it1 = tempParam.getIndependentParametersIterator();
+        while(it1.hasNext()){
+          ParameterAPI independentParam = (ParameterAPI)it1.next();
+          if(independentParam.getName().equalsIgnoreCase(this.SA_PERIOD))
+            saPeriodVector = ((DoubleDiscreteParameter)independentParam).getAllowedDoubles();
+        }
+      }
+    }
+  }
 
   /**
    * Handle the Eqk Forecast List.
@@ -1185,7 +1275,7 @@ public class HazardSpectrumApplet extends JApplet
      imrClasses.add(this.CB_CLASS_NAME);
      imrClasses.add(this.F_CLASS_NAME);
      imrClasses.add(this.A_CLASS_NAME);
-     imrClasses.add(this.SM_CLASS_NAME);
+     //imrClasses.add(this.SM_CLASS_NAME);
      imrClasses.add(this.WC_CLASS_NAME);
      imrGuiBean = new IMR_GuiBean(imrClasses);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
@@ -1194,7 +1284,8 @@ public class HazardSpectrumApplet extends JApplet
          GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
      //sets the Intensity measure for the IMR
      imrGuiBean.getSelectedIMR_Instance().setIntensityMeasure(this.SA_NAME);
-
+     //initialise the SA Peroid values for the IMR
+     this.getSA_PeriodForIMR(imrGuiBean.getSelectedIMR_Instance());
   }
 
   /**
@@ -1241,13 +1332,13 @@ public class HazardSpectrumApplet extends JApplet
    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
    try{
-     erfGuiBean = new ERF_GuiBean(erf_Classes);
+     if(erfGuiBean == null)
+       erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
-     throw new RuntimeException("Connection to ERF servlets failed");
+     throw new RuntimeException("Connection to ERF's  failed");
    }
    erfPanel.setLayout(gridBagLayout5);
    erfPanel.removeAll();
-   erfRupSelectorGuiBean = null;
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
    erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getParameter().addParameterChangeListener(this);
@@ -1272,13 +1363,14 @@ public class HazardSpectrumApplet extends JApplet
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
    try{
-     erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
+     if(erfRupSelectorGuiBean == null)
+       erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
    }catch(InvocationTargetException e){
-     throw new RuntimeException("Connection to ERF servlets failed");
+     throw new RuntimeException("Connection to ERF's failed");
    }
 
    erfPanel.removeAll();
-   erfGuiBean = null;
+   //erfGuiBean = null;
    erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
    erfRupSelectorGuiBean.getParameter(erfRupSelectorGuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);
@@ -1329,7 +1421,6 @@ public class HazardSpectrumApplet extends JApplet
    * Initialise the item to be added to the Prob and Deter Selection
    */
   private void initProbOrDeterList(){
-    this.probDeterSelection.addItem(PROB_OR_DETER_SELECTION);
     this.probDeterSelection.addItem(DETERMINISTIC);
     this.probDeterSelection.addItem(PROBABILISTIC);
   }
@@ -1368,11 +1459,24 @@ public class HazardSpectrumApplet extends JApplet
    */
   void probDeterSelection_actionPerformed(ActionEvent e) {
     String selectedControl = this.probDeterSelection.getSelectedItem().toString();
-    if(selectedControl.equalsIgnoreCase(this.PROBABILISTIC))
-      this.initERF_GuiBean();
-    else if(selectedControl.equalsIgnoreCase(this.DETERMINISTIC))
-      this.initERFSelector_GuiBean();
-    this.probDeterSelection.setSelectedItem(this.PROB_OR_DETER_SELECTION);
+    if(selectedControl.equalsIgnoreCase(this.PROBABILISTIC)){
+     try{
+       this.initERF_GuiBean();
+     }catch(RuntimeException ee){
+      JOptionPane.showMessageDialog(this,"Connection to ERF failed","Internet Connection Problem",
+                                    JOptionPane.OK_OPTION);
+      System.exit(0);
+      }
+    }
+    else if(selectedControl.equalsIgnoreCase(this.DETERMINISTIC)){
+     try{
+       this.initERFSelector_GuiBean();
+     }catch(RuntimeException ee){
+      JOptionPane.showMessageDialog(this,"Connection to ERF failed","Internet Connection Problem",
+                                    JOptionPane.OK_OPTION);
+      System.exit(0);
+      }
+    }
   }
 
 
