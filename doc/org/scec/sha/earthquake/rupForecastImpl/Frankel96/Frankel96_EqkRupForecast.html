@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><!--JBuilder QuickDoc-->
+<HEAD>
+<TITLE>Class org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast</TITLE><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+</HEAD>
+<BODY>
+
+<H2>
+<FONT SIZE="-1">org.scec.sha.earthquake.rupForecastImpl.Frankel96</FONT>
+<BR>Class Frankel96_EqkRupForecast</H2>
+<DL>
+<DT>public class <B>Frankel96_EqkRupForecast</B><DT>extends EqkRupForecast<DT>implements ParameterChangeListener
+</DL>
+<DL><DD><p>Title: Frankel96_EqkRupForecast</p> <p>Description:Frankel 1996 Earthquake Rupture Forecast. This class reads a single file for the fault sources, and another file for the background seismicity, and then creates the USGS/CGS 1996 California ERF. This does not yet include any C zones. </p> <p>Copyright: Copyright (c) 2002</p> <p>Company: </p><DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Version:</B><DD>1.0</DD>
+<DT><B>Author:</B><DD>: Nitin Gupta, Vipin Gupta, and Edward Field</DD>
+</DL>
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Field Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>ERR</H3>
+<PRE>
+protected static final FaultException <B>ERR</B></PRE>
+<DL><DD>used for error checking<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>INPUT_FAULT_FILE_NAME</H3>
+<PRE>
+private static final String <B>INPUT_FAULT_FILE_NAME</B></PRE>
+<DL><DD>Static variable for input file names<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>FrankelA_CharEqkSources</H3>
+<PRE>
+private ArrayList <B>FrankelA_CharEqkSources</B></PRE>
+<DL><DD>Vectors for holding the various sources, separated by type<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Constructor Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>Frankel96_EqkRupForecast</H3>
+<PRE>
+public <B>Frankel96_EqkRupForecast</B>()</PRE>
+<DL><DD>No argument constructor<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Method Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>makeFaultSources</H3>
+<PRE>
+private void <B>makeFaultSources</B>()</PRE>
+<DL><DD>Read the Fault file and make the sources<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Throws:</B><DD><CODE>FaultException</CODE> - </DD>
+</DL>
+<HR>
+
+<H3>makeBackSeisSources</H3>
+<PRE>
+private void <B>makeBackSeisSources</B>()</PRE>
+<DL><DD>Read the Background Seismicity file and make the sources<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>getSource</H3>
+<PRE>
+public ProbEqkSource <B>getSource</B>(int&nbsp;iSource)</PRE>
+<DL><DD>Returns the ith earthquake source<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>iSource</CODE> - : index of the source needed</DD>
+</DL>
+<HR>
+
+<H3>getNumSources</H3>
+<PRE>
+public int <B>getNumSources</B>()</PRE>
+<DL><DD>Get the number of earthquake sources<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>integer</DD>
+</DL>
+<HR>
+
+<H3>getSourceList</H3>
+<PRE>
+public ArrayList <B>getSourceList</B>()</PRE>
+<DL><DD>Get the list of all earthquake sources.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>ArrayList of Prob Earthquake sources</DD>
+</DL>
+<HR>
+
+<H3>getName</H3>
+<PRE>
+public String <B>getName</B>()</PRE>
+<DL><DD>Return the name for this class<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>: return the name for this class</DD>
+</DL>
+<HR>
+
+<H3>updateForecast</H3>
+<PRE>
+public void <B>updateForecast</B>()</PRE>
+<DL><DD>update the forecast<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>parameterChange</H3>
+<PRE>
+public void <B>parameterChange</B>(ParameterChangeEvent&nbsp;event)</PRE>
+<DL><DD>This is the main function of this interface. Any time a control paramater or independent paramater is changed by the user in a GUI this function is called, and a paramater change event is passed in. This sets the flag to indicate that the sources need to be updated<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>event</CODE> - </DD>
+</DL>
+<HR>
+
+</BODY>
+</HTML>
