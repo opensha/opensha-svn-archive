@@ -21,7 +21,7 @@ public class WillsSiteClassServlet  extends HttpServlet {
 
 
   //File from which we get the Vs30
-  private final String VS_30_INPUT_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/wills_siteTypeFile.xy";
+  private final String VS_30_INPUT_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/usgs_cgs_geology_60s_mod.txt";
 
 
   /**
@@ -87,7 +87,7 @@ public class WillsSiteClassServlet  extends HttpServlet {
   private void getVs30(Vector locationVector,ObjectOutputStream output) {
 
     //gridSpacing for the VS30 file and adding a small value to it.
-    double gridSpacingForVs30InFile = .03334 +.001;
+    double gridSpacingForVs30InFile = .017;
     try {
 
       //open the File Input Stream to read the file
@@ -111,14 +111,16 @@ public class WillsSiteClassServlet  extends HttpServlet {
         double lat = ((Location)locationVector.get(i)).getLatitude();
         double lon = ((Location)locationVector.get(i)).getLongitude();
         boolean latFlag= false;
+
+        //parse each line from the file one by one
         while(str!=null) {
           StringTokenizer st = new StringTokenizer(str);
 
-          // parse this line from the file
-          //reading the Lons from the file
-          double valLon = Double.parseDouble(st.nextToken());
           //reading the Lat from the file
           double valLat = Double.parseDouble(st.nextToken());
+
+          //reading the Lons from the file
+          double valLon = Double.parseDouble(st.nextToken());
 
           if((valLat -lat) > gridSpacingForVs30InFile/2)
             // if this lat does not exist in file. Lat is always increasing in the file and the location vector
