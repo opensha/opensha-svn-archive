@@ -1108,4 +1108,11 @@ public class HazardCurveGuiBean implements
   public ParameterList getERF_IndParamList(){
     return erf_IndParamList;
   }
+
+  public String getCurveParametersInfo(){
+    return "IMR Param List: " +imrParamList.toString()+"\n"+
+        "Site Param List: "+siteParamEditor.getParameterList().toString()+"\n"+
+        "IMT Param List: "+imtParamList.toString()+"\n"+
+        "Forecast Param List: "+erf_IndParamList.toString();
+  }
 }

@@ -912,8 +912,6 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
 
       hazardCurveGuiBean.getChoosenFunction(totalProbFuncs);
 
-
-
       // set the log values
       data.setXLog(xLog);
       data.setYLog(yLog);
@@ -922,8 +920,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
       String xAxisTitle =  totalProbFuncs.getXAxisName();
       String yAxisTitle =  totalProbFuncs.getYAxisName();
 
-      this.pointsTextArea.setText("X Axis:"+ xAxisTitle + "\n" +
-                                  "Y Axis:" + yAxisTitle +"\n" +
+      this.pointsTextArea.setText(hazardCurveGuiBean.getCurveParametersInfo()+"\n"+
                                   totalProbFuncs.toString());
       addGraphPanel();
 
