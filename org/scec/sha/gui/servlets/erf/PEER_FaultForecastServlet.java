@@ -183,22 +183,22 @@ public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebSer
     */
     public ParameterList getAdjustableParams() {
       if(this.adjustableParams == null){
-        adjustableParams= new ParameterList();
-        // add the adjustable parameters to the list
-        adjustableParams.addParameter(gridParam);
-        adjustableParams.addParameter(offsetParam);
-        adjustableParams.addParameter(lengthSigmaParam);
-        adjustableParams.addParameter(dipParam);
-        adjustableParams.addParameter(rakeParam);
+	adjustableParams= new ParameterList();
+	// add the adjustable parameters to the list
+	adjustableParams.addParameter(gridParam);
+	adjustableParams.addParameter(offsetParam);
+	adjustableParams.addParameter(lengthSigmaParam);
+	adjustableParams.addParameter(dipParam);
+	adjustableParams.addParameter(rakeParam);
 
-        // add the supported Mag-Freq Dist classes & make the associated parameter
-        supportedMagDists.add(GaussianMagFreqDist.NAME);
-        supportedMagDists.add(SingleMagFreqDist.NAME);
-        supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
-        supportedMagDists.add(YC_1985_CharMagFreqDist.NAME);
-        magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
-        //add the magdist parameter
-        adjustableParams.addParameter(this.magDistParam);
+	// add the supported Mag-Freq Dist classes & make the associated parameter
+	supportedMagDists.add(GaussianMagFreqDist.NAME);
+	supportedMagDists.add(SingleMagFreqDist.NAME);
+	supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
+	supportedMagDists.add(YC_1985_CharMagFreqDist.NAME);
+	magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
+	//add the magdist parameter
+	adjustableParams.addParameter(this.magDistParam);
       }
       return adjustableParams;
    }
@@ -213,6 +213,7 @@ public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebSer
    public boolean isLocWithinApplicableRegion(Location loc) {
      return true;
    }
+
 
    /**
     *
@@ -271,6 +272,7 @@ public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebSer
 
      return peerFaultObject;
    }
+
 
  /**
   * return the time span object

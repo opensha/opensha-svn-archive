@@ -134,7 +134,7 @@ public class Frankel96_AdjustableEqkRupForecast extends EqkRupForecast
     timeSpan.addParameterChangeListener(this);
 
     // create and add adj params to list
-    intiAdjParams();
+    initAdjParams();
 
 
     // add the change listener to parameters so that forecast can be updated
@@ -164,7 +164,7 @@ public class Frankel96_AdjustableEqkRupForecast extends EqkRupForecast
   }
 
 // make the adjustable parameters & the list
-private void intiAdjParams() {
+private void initAdjParams() {
 
   faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
   faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
@@ -479,8 +479,7 @@ private void intiAdjParams() {
      * @return : return the name for this class
      */
    public String getName(){
-     ERF_NAME = NAME;
-     return ERF_NAME;
+     return NAME;
    }
 
 

@@ -34,7 +34,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
   // if it is true it means that forecast needs to be updated
   protected boolean parameterChangeFlag = true;
 
-  public static String ERF_NAME;
+
   /**
    * get the adjustable parameters for this forecast
    *

@@ -350,8 +350,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
    * @return : return the name for this class
    */
    public String getName(){
-     ERF_NAME = NAME;
-     return ERF_NAME;
+     return NAME;
    }
 
 }

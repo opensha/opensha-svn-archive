@@ -41,7 +41,7 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
   /**
    * Static variable for input file name
    */
-  private final static String INPUT_FILE_NAME = "WG02_WRAPPER_INPUT.DAT";
+  private final static String INPUT_FILE_NAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/WG02_WRAPPER_INPUT.DAT";
 
   // vector to hold the line numbers where each iteration starts
   private Vector iterationLineNumbers;

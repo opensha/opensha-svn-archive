@@ -29,7 +29,7 @@ import org.scec.sha.fault.parameter.*;
 
 /**
  * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Description: Gridded Fault Applet</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed

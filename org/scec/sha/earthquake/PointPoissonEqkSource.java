@@ -9,7 +9,7 @@ import java.util.Vector;
 import java.util.Iterator;
 
 /**
- * <p>Title: PointEqkSource </p>
+ * <p>Title: PointPoissonEqkSource </p>
  * <p>Description: This takes a Location, an IncrementalMagFreqDist (of Poissonian
  * rates), a duration, an aveRake, an aveDip, and creates a ProbEqkRupture for each
  * magnitude with a non-zero rate.  It is assumed that the duration units are the same
@@ -20,7 +20,7 @@ import java.util.Iterator;
  * @version 1.0
  */
 
-public class PointPoissonEqkSource extends ProbEqkSource {
+public class PointPoissonEqkSource extends ProbEqkSource implements java.io.Serializable{
 
 
   //for Debug purposes
@@ -34,7 +34,10 @@ public class PointPoissonEqkSource extends ProbEqkSource {
   private double duration;
 
   // to hold the non-zero mags and rates
-  ArbitrarilyDiscretizedFunc magsAndRates;
+  //ArbitrarilyDiscretizedFunc magsAndRates;
+  //vector of Mag and Rates. I am using it over the ArbitrarilyDiscretisedFunc becuase
+  //that class cannot be serialsed as it uses the tree map. So I am using the vector of Mag and Rate
+  Vector mags, rates;
 
   /**
    * Constructor specifying the location object, the IncrementalMagFreqDist
@@ -56,9 +59,9 @@ public class PointPoissonEqkSource extends ProbEqkSource {
     probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setPointSurface(location, aveDip);
     probEqkRupture.setAveRake(aveRake);
-    if( D ) System.out.println("PointEqkSource Constructor: totNumRups="+magsAndRates.getNum()+
+    /*if( D ) System.out.println("PointEqkSource Constructor: totNumRups="+magsAndRates.getNum()+
                                "; aveDip="+probEqkRupture.getRuptureSurface().getAveDip()+
-                               "; aveRake="+ probEqkRupture.getAveRake());
+                               "; aveRake="+ probEqkRupture.getAveRake());*/
   }
 
 
@@ -71,19 +74,28 @@ public class PointPoissonEqkSource extends ProbEqkSource {
     this.magFreqDist=magFreqDist;
 
     // make list of non-zero rates and mags
-    magsAndRates = new ArbitrarilyDiscretizedFunc();
-    for (int i=0; i<magFreqDist.getNum(); ++i)
-        if(magFreqDist.getY(i) > 0)
-            magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
+    //magsAndRates = new ArbitrarilyDiscretizedFunc();
+    mags = new Vector();
+    rates = new Vector();
+    for (int i=0; i<magFreqDist.getNum(); ++i){
+        if(magFreqDist.getY(i) > 0){
+            //magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
+          mags.add(new Double(magFreqDist.getX(i)));
+          rates.add(new Double(magFreqDist.getY(i)));
+        }
+    }
 
-    if (D) System.out.println(C+" numNonZeroMagDistPoints="+magsAndRates.getNum());
+   // if (D) System.out.println(C+" numNonZeroMagDistPoints="+magsAndRates.getNum());
   }
 
 
   /**
    * @return the number of rutures (equals number of mags with non-zero rates)
    */
-  public int getNumRuptures() { return magsAndRates.getNum(); }
+  public int getNumRuptures() {
+    //return magsAndRates.getNum();
+    return mags.size();
+  }
 
 
   /**
@@ -91,15 +103,16 @@ public class PointPoissonEqkSource extends ProbEqkSource {
    */
   public ProbEqkRupture getRupture(int nthRupture){
 
-     // set the magnitude
-     probEqkRupture.setMag(magsAndRates.getX(nthRupture));
+    // set the magnitude
+    //probEqkRupture.setMag(magsAndRates.getX(nthRupture));
+    probEqkRupture.setMag(((Double)mags.get(nthRupture)).doubleValue());
 
-     // compute and set the probability
-     double prob = 1 - Math.exp(-duration*magsAndRates.getY(nthRupture));
-     probEqkRupture.setProbability(prob);
+    // compute and set the probability
+    double prob = 1 - Math.exp(-duration*((Double)rates.get(nthRupture)).doubleValue());
+    probEqkRupture.setProbability(prob);
 
-     // return the ProbEqkRupture
-     return probEqkRupture;
+    // return the ProbEqkRupture
+    return probEqkRupture;
   }
 
 

@@ -22,7 +22,7 @@ import org.scec.sha.earthquake.rupForecastImpl.WG02.*;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.sha.gui.servlets.erf.*;
 import org.scec.data.TimeSpan;
-
+import org.scec.sha.earthquake.rupForecastImpl.Frankel96.*;
 
 
 /**
@@ -65,18 +65,14 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
 
 
 
+
+
+
   /**
    * default constructor
-   */
-  public ERF_ServletModeGuiBean() {
-  }
-
-
-  /**
-   * Constructor : It accepts the classNames of the ERFs to be shown in the editor
    * @param erfClassNames
    */
-  public ERF_ServletModeGuiBean(Vector erfClassNames) throws RuntimeException{
+  public ERF_ServletModeGuiBean() throws RuntimeException{
 
     //gets the supported ERF List and initialise the selction of the ERF for the user
     try{
@@ -228,15 +224,24 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     //Based on the selected ERF model it connects to the servlet for that ERF
     //and gets it ERF Object.
     //if the selected forecast is PEER_Fault Forecast
-    if(selectedForecast.equalsIgnoreCase(PEER_FaultForecast.ERF_NAME)){
+    if(selectedForecast.equalsIgnoreCase(PEER_FaultForecast.NAME)){
       try{
       eqkRupForecast=(ForecastAPI)this.openPEERFaultConnection(this.getERF_API);
       }catch(Exception e){
         throw new RuntimeException("Connection to PEER Fault ERF servlet failed");
       }
     }
+    //if the selected ERF is the USGS/CGS frankel ERF
+    else if(selectedForecast.equalsIgnoreCase(Frankel96_AdjustableEqkRupForecast.NAME)){
+      try{
+      eqkRupForecast=(ForecastAPI)this.openUSGS_CGS_1996FaultConnection(this.getERF_API);
+      }catch(Exception e){
+        throw new RuntimeException("Connection to USGS/CGS(1996) ERF servlet failed");
+      }
+    }
+
     //if the selected forecast is WG02_List Forecast
-    else if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.ERF_NAME)){
+    else if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME)){
       try{
         eqkRupForecast=(ForecastAPI)this.openWG02_ERFConnection(this.getERF_ListAPI);
       }catch(Exception e){
@@ -385,22 +390,32 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     timespanListForAllERF.put(wg02ForecastName,wg02TimeSpan);
     parameterChangeFlagsForAllERF.put(wg02ForecastName,new Boolean(true));
 
+    //open the connection with the USGS/CGS(1996) Forecast model
+    String frankelForecastName =(String)openUSGS_CGS_1996FaultConnection(getName);
+    ParameterList frankelParamList =(ParameterList)openUSGS_CGS_1996FaultConnection(getAdjParams);
+    TimeSpan frankelTimeSpan =(TimeSpan)openUSGS_CGS_1996FaultConnection(getTimeSpan);
+    frankelTimeSpan.addParameterChangeListener(this);
+    paramListForAllERF.put(frankelForecastName,frankelParamList);
+    timespanListForAllERF.put(frankelForecastName,frankelTimeSpan);
+    parameterChangeFlagsForAllERF.put(frankelForecastName,new Boolean(true));
+
     // gets the Names of all the ERF from the Hashtable and adds them to the vector
     //this list of ERF names act as the selection list for user to choose the ERF of his desire.
     this.erfNamesVector.add(peerForecastName);
     this.erfNamesVector.add(wg02ForecastName);
+    this.erfNamesVector.add(frankelForecastName);
   }
 
 
   /**
-   * sets up the connection with the PEER Fault Forecast Servlet on the server (gravity.usc.edu)
+   * sets up the connection with the USGS/CGS(1996) Fault Forecast Servlet on the server (gravity.usc.edu)
    */
-  private  Object openPEERFaultConnection(String function) throws Exception{
+  private  Object openUSGS_CGS_1996FaultConnection(String function) throws Exception{
 
     Object outputFromServletFunction=null;
 
     URL peerFaultServlet = new
-                           URL("http://gravity.usc.edu/OpenSHA/servlet/PEER_FaultForecastServlet");
+                           URL("http://gravity.usc.edu/OpenSHA/servlet/USGS_CGS_1996_ForecastServlet");
 
 
     URLConnection servletConnection = peerFaultServlet.openConnection();
@@ -432,6 +447,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     if(function.equalsIgnoreCase(this.getERF_API)){
       //gives the Adjustable Params  object to the Servelet
       outputToServlet.writeObject(this.getAdjParamList());
+      System.out.println(this.getAdjParamList().toString());
       //gives the timeSpan object to the servlet
       outputToServlet.writeObject(this.getTimeSpan());
     }
@@ -505,6 +521,65 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
 
     return outputFromServletFunction;
   }
+
+  /**
+   * sets up the connection with the PEER Fault Forecast Servlet on the server (gravity.usc.edu)
+   */
+  private  Object openPEERFaultConnection(String function) throws Exception{
+
+    Object outputFromServletFunction=null;
+
+    URL peerFaultServlet = new
+                           URL("http://gravity.usc.edu/OpenSHA/servlet/PEER_FaultForecastServlet");
+
+
+    URLConnection servletConnection = peerFaultServlet.openConnection();
+    System.out.println("connection established:"+servletConnection.toString());
+
+    // inform the connection that we will send output and accept input
+    servletConnection.setDoInput(true);
+    servletConnection.setDoOutput(true);
+
+    // Don't use a cached version of URL connection.
+    servletConnection.setUseCaches (false);
+    servletConnection.setDefaultUseCaches (false);
+    // Specify the content type that we will send binary data
+    servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+    ObjectOutputStream outputToServlet = new
+        ObjectOutputStream(servletConnection.getOutputStream());
+
+    System.out.println("Calling the function:"+function);
+
+    //tells the servlet which function to call
+    outputToServlet.writeObject(function);
+
+    /**
+     * if the function to be called is getERF_API
+     * then we need to passs the TimeSpan and Adjustable ParamList to the
+     * servlet.
+     */
+    if(function.equalsIgnoreCase(this.getERF_API)){
+      //gives the Adjustable Params  object to the Servelet
+      outputToServlet.writeObject(this.getAdjParamList());
+      //gives the timeSpan object to the servlet
+      outputToServlet.writeObject(this.getTimeSpan());
+    }
+
+    outputToServlet.flush();
+    outputToServlet.close();
+
+    // Receive the "object" from the servlet after it has received all the data
+    ObjectInputStream inputToServlet = new
+                                       ObjectInputStream(servletConnection.getInputStream());
+
+    outputFromServletFunction=inputToServlet.readObject();
+    System.out.println("Received the input from the servlet");
+    inputToServlet.close();
+    return outputFromServletFunction;
+  }
+
+
 
   /**
    *

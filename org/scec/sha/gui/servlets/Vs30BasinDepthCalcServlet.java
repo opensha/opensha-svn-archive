@@ -23,8 +23,8 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
   public static String BASIN_DEPTH = "BasinDepth";
 
   //File from which we get the Vs30
-  private final String VS_30_INPUT_FILENAME = "vs30_120s_class.xy";
-  private final String BASIN_DEPTH_FILENAME = "fine_depth_25.xy";
+  private final static String VS_30_INPUT_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/vs30_120s_class.xy";
+  private final static String BASIN_DEPTH_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/fine_depth_25.xy";
 
 
   /**
@@ -144,38 +144,38 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           double valLat = Double.parseDouble(st.nextToken());
           double valLatNext = Double.parseDouble(stNext.nextToken());
 
-          if(lat<valLat)
-            // if this lat does not exist in file. Lat is always increasing in the file and the location vector
-            break;
+	  if(lat<valLat)
+	    // if this lat does not exist in file. Lat is always increasing in the file and the location vector
+	    break;
 
 
-          // add Vs30 for new location
+	  // add Vs30 for new location
           if(lat>=valLat && lat<=valLatNext)
             //System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
             latFlag=true;
 
-          //iterating over lon's for each lat
+	  //iterating over lon's for each lat
           if(lon>=val && lon<=valNext && latFlag){
             //if we found the desired lon in the file ,
             //we interpolate the value of the VS30
             double vs30_Curr =Double.parseDouble(st.nextToken());
             double vs30_Next = Double.parseDouble(stNext.nextToken());
 
-            //System.out.println("lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
+	    //System.out.println("lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
             //System.out.print(";vs30_Curr:"+vs30_Curr+";vs30_Next:"+vs30_Next);
             //returns the actual value for the vs30
             vs30.set(i,new Double(this.interpolateVs30OrBasinDepth(lon,val,valNext,vs30_Curr,vs30_Next)));
             break;
 
-          }
+	  }
 
-           //this condition checks if the lat exists but lon does not exist
-          if(lon<valNext && latFlag){
-            // if this location does not exist in this file
-            //System.out.println("111111:lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
-            //System.out.println("***Inside the break for the Lon***");
-            break;
-          }
+	   //this condition checks if the lat exists but lon does not exist
+	  if(lon<valNext && latFlag){
+	    // if this location does not exist in this file
+	    //System.out.println("111111:lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
+	    //System.out.println("***Inside the break for the Lon***");
+	    break;
+	  }
 
           // read next line
           str=strNext;
@@ -187,8 +187,8 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
 
       System.out.println("size of vs30 vector:"+vs30.size());
       for(int i=0;i<vs30.size();++i){
-               System.out.println("Location:"+((Location)locationVector.get(i)).getLatitude()+";"+((Location)locationVector.get(i)).getLongitude()+"Vs30("+i+"):"+vs30.get(i));
-        }
+       	System.out.println("Location:"+((Location)locationVector.get(i)).getLatitude()+";"+((Location)locationVector.get(i)).getLongitude()+"Vs30("+i+"):"+vs30.get(i));
+	}
       output.writeObject(vs30);
       output.close();
     }catch (Exception e) {
@@ -249,7 +249,7 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           double valLat = Double.parseDouble(st.nextToken());
           double valLatNext = Double.parseDouble(stNext.nextToken());
 
-           if(lat<valLat) break; // if this lat does not exist in file. Lat is always increasing in the file and the location vector
+	   if(lat<valLat) break; // if this lat does not exist in file. Lat is always increasing in the file and the location vector
 
           // add basinDepth for new location
           //iterating over lon's for each lat
@@ -263,20 +263,20 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
             //we interpolate the value of the basin depth
             double bd_Curr =Double.parseDouble(st.nextToken());
             double bd_Next = Double.parseDouble(stNext.nextToken());
-            // System.out.println("lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
+	    // System.out.println("lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
             //System.out.print(";bd_Curr:"+bd_Curr+";bd_Next:"+bd_Next);
             //returns the actual value for the basinDepth
             basinDepth.set(i,new Double(this.interpolateVs30OrBasinDepth(lon,val,valNext,bd_Curr,bd_Next)));
             break;
           }
 
-          //this condition checks if the lat exists but lon does not exist
-          if(lon<valNext && latFlag){
-            // if this location does not exist in this file
-            //System.out.println("111111:lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
-            //System.out.println("***Inside the break for the Lon***");
-            break;
-          }
+	  //this condition checks if the lat exists but lon does not exist
+	  if(lon<valNext && latFlag){
+	    // if this location does not exist in this file
+	    //System.out.println("111111:lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
+	    //System.out.println("***Inside the break for the Lon***");
+	    break;
+	  }
 
           // read next line
           str=strNext;
@@ -288,8 +288,8 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
 
       //System.out.println("size of basinDepth vector:"+basinDepth.size());
       /*for(int i=0;i<basinDepth.size();++i){
-        System.out.println("Location:"+((Location)locationVector.get(i)).getLatitude()+";"+((Location)locationVector.get(i)).getLongitude()+"Vs30("+i+"):"+basinDepth.get(i));
-        }*/
+	System.out.println("Location:"+((Location)locationVector.get(i)).getLatitude()+";"+((Location)locationVector.get(i)).getLongitude()+"Vs30("+i+"):"+basinDepth.get(i));
+	}*/
       output.writeObject(basinDepth);
       output.close();
     }catch (Exception e) {
@@ -325,3 +325,13 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
     doGet(request,response);
   }
 }
+
+
+
+
+
+
+
+
+
+

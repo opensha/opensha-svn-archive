@@ -15,6 +15,7 @@ Update the makeMapUsingServer() method of the GMT_MapGenerator:
 
 	make functionality consistent with web service
 
+Incorporate the new JFreechart version in the OpenSHA.
 Make the setting values from CVM to be webservice rather than being the servlet. 
 	Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. 
 
