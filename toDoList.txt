@@ -3,6 +3,30 @@
 
 Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label).
 
+
+Ned needs to think about the following:
+
+	Subduction Interface
+	Subduction IntraSlab
+	Shallow Crustal in Active Tectonic Regions
+	Shallow Crustal in Stable Tectonic Regions
+
+Make the object: 	DefaultHazardCurveForIMTs
+
+	methods:
+			ArbDiscrFunc getHazardCurve(IMT_NameString)
+			ArbDiscrFunc getHazardCurve(IMT_Param)
+
+	This will create a hazard curve with num discrete x-axis values between a min & max
+
+	These should be evenly discretized in log-space 
+	(although the x values will be in linear space).
+
+	min, max, and num values:
+
+		PGA & SA	min=0.0001 max=10 & num=51
+		PGV		min=0.01 max=1000 & num=51
+
 JFreeChart - 
 
 	Clean up the class and document changes in the code (the way they do).  
