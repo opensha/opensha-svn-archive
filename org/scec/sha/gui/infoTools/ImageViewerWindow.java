@@ -17,7 +17,7 @@ import org.scec.util.BrowserLauncher;
 
 public class ImageViewerWindow extends JFrame implements HyperlinkListener{
   private final static int W=650;
-  private final static int H=800;
+  private final static int H=730;
 
   private JSplitPane mapSplitPane = new JSplitPane();
   private JScrollPane mapScrollPane = new JScrollPane();

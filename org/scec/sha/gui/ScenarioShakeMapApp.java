@@ -529,7 +529,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
           try{
             mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),erfGuiBean.getHypocenterLocation(),
                                label,getMapParametersInfo());
-          }catch(Exception e){
+          }catch(RuntimeException e){
             calcProgress.showProgress(false);
             calcProgress.dispose();
             timer.stop();

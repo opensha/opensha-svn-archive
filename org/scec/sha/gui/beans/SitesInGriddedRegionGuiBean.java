@@ -362,7 +362,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
       try{
         setSiteParamsFromCVM();
       }catch(Exception e){
-        throw new RuntimeException("Server is down for maintenance, please try again later");
+        throw new RuntimeException("Server is down , please try again later");
       }
       Vector defaultSiteParams = new Vector();
       for(int i=0;i<siteParams.size();++i){
