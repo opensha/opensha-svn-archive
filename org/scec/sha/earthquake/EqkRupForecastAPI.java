@@ -33,6 +33,11 @@ public interface EqkRupForecastAPI extends NamedObjectAPI{
      */
      public void updateForecast();
 
+     /**
+      * Update and save the serialized forecast into the file
+      */
+     public String updateAndSaveForecast();
+
     /**
      * Return the name for this class
      *

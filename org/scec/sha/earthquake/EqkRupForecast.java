@@ -79,7 +79,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI, ERF_API,
    public void setTimeSpan(TimeSpan time) {
      // set the start time
      if(!time.getStartTimePrecision().equalsIgnoreCase(TimeSpan.NONE))
-       this.timeSpan.setStartTime( time.getStartTimeCalendar());	
+       this.timeSpan.setStartTime( time.getStartTimeCalendar());
      //set the duration as well
      this.timeSpan.setDuration(time.getDuration(), time.getDurationUnits());
    }
@@ -216,5 +216,14 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI, ERF_API,
     */
    public void setParameterChangeFlag(boolean flag){
      this.parameterChangeFlag = flag;
+   }
+
+
+   /**
+    * Update the forecast and save it in serialized mode into a file
+    * @return
+    */
+   public String updateAndSaveForecast() {
+     throw new UnsupportedOperationException("updateAndSaveForecast() not supported");
    }
 }

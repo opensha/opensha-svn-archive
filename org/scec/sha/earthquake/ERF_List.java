@@ -176,5 +176,14 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
    this.parameterChangeFlag = flag;
  }
 
+ /**
+   * Update the forecast and save it in serialized mode into a file
+   * @return
+   */
+  public String updateAndSaveForecast() {
+    throw new UnsupportedOperationException("updateAndSaveForecast() not supported");
+  }
+
+
 }
 

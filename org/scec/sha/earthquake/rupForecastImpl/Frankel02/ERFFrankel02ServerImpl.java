@@ -32,13 +32,13 @@ public class ERFFrankel02ServerImpl
 	implements ERFFrankel02Server {
 
    Frankel02_AdjustableEqkRupForecast forecast = null;
-   
+
    public ERFFrankel02ServerImpl() throws IOException {
 	 forecast = new Frankel02_AdjustableEqkRupForecast();
 	 System.out.println("On ERFServer: " + forecast.getTimeSpan());
    }
 
-	
+
 	/* (non-Javadoc)
 	 * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#updateForecast()
 	 */
@@ -46,12 +46,26 @@ public class ERFFrankel02ServerImpl
 		Iterator it = list.getParametersIterator();
 		while(it.hasNext()) {
 		  ParameterAPI param = (ParameterAPI) it.next();
-		  forecast.getParameter(param.getName()).setValue(param.getValue());	
+		  forecast.getParameter(param.getName()).setValue(param.getValue());
 		}
 		forecast.setTimeSpan(timeSpan);
 		forecast.updateForecast();
 		// TODO Auto-generated method stub
 	}
+
+        /* (non-Javadoc)
+         * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#updateForecast()
+         */
+        public String updateAndSaveForecast(ParameterList list, TimeSpan timeSpan) throws RemoteException {
+               this.updateForecast(list, timeSpan);
+               String urlPrefix = "http://gravity.usc.edu/";
+               String parentDir = "/opt/install/jakarta-tomcat-4.1.24/webapps/";
+               String subDir = "OpenSHA/HazardMapDatasets/savedERFs/";
+               String fileName = System.currentTimeMillis()+".javaobject";
+               org.scec.util.FileUtils.saveObjectInFile(parentDir+subDir+fileName, forecast);
+               return urlPrefix+subDir+fileName;
+        }
+
 
 	/* (non-Javadoc)
 	 * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getName()

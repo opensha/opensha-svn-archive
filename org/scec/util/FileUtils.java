@@ -126,6 +126,40 @@ public class FileUtils {
         return null;
       }
    }
+
+   /**
+    * save the serialized object into the specified file
+    * @param fileName
+    * @param obj
+    */
+   public static void saveObjectInFile(String fileName, Object obj) {
+     try {
+       // write  object to the file
+       FileOutputStream fileOut = new FileOutputStream(fileName);
+       ObjectOutputStream objectStream = new ObjectOutputStream(fileOut);
+       objectStream.writeObject(obj);
+       objectStream.close();
+       fileOut.close();
+     }catch(Exception e ) { e.printStackTrace(); }
+   }
+
+   /**
+    * return a object read from the URL
+    * @param url
+    * @return
+    */
+   public static Object loadObjectFromURL(String url) {
+     try {
+       URL forecastURL = new URL(url);
+       URLConnection uc = forecastURL.openConnection();
+       ObjectInputStream tis = new ObjectInputStream( (InputStream) uc.
+           getContent());
+       Object obj = tis.readObject();
+       tis.close();
+       return obj;
+     }catch(Exception e) { e.printStackTrace(); }
+     return null;
+   }
 }
 
 

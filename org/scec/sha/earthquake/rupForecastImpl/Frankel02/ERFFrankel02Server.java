@@ -37,6 +37,14 @@ public interface ERFFrankel02Server extends Remote {
 	 */
 	 public void updateForecast(ParameterList list, TimeSpan timeSpan) throws RemoteException ;
 
+         /**
+          * update the forecast and save it in a file
+          * @param list
+          * @param timeSpan
+          * @throws RemoteException
+          */
+         public String updateAndSaveForecast(ParameterList list, TimeSpan timeSpan) throws RemoteException ;
+
 	/**
 	 * Return the name for this class
 	 *
@@ -85,11 +93,11 @@ public interface ERFFrankel02Server extends Remote {
 	  * @return
 	  */
 	 public ParameterList getAdjustableParameterList() throws RemoteException;
-	
+
 	/**
 	  *
 	  * @returns the total number os sources
-	  */	
+	  */
 	public int getNumSources() throws RemoteException;
 
 	/**

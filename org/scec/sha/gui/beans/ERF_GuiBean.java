@@ -307,6 +307,26 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    }
 
    /**
+    * Save the selected forecast into a file
+    *
+    * @return
+    * @throws InvocationTargetException
+    */
+   public String saveSelectedERF() throws InvocationTargetException {
+     getSelectedERF_Instance();
+     CalcProgressBar progress= null;
+     if(this.showProgressBar) {
+       // also show the progress bar while the forecast is being updated
+       progress = new CalcProgressBar("Forecast","Updating Forecast");
+       //progress.displayProgressBar();
+     }
+     // update the forecast
+     String location = eqkRupForecast.updateAndSaveForecast();
+     if (this.showProgressBar) progress.dispose();
+     return location;
+   }
+
+   /**
     * It sees whether selected ERF is a Epistemic list.
     * @return : true if selected ERF is a epistemic list, else false
     */

@@ -89,6 +89,7 @@ public class HazardMapApplet extends JApplet
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   public final static String WG02_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
   public final static String PUENTE_HILLS_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PuenteHillsERF.PuenteHillsFaultERF";
+  public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Client";
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
@@ -330,7 +331,7 @@ public class HazardMapApplet extends JApplet
      // create the ERF Gui Bean object
    ArrayList erf_Classes = new ArrayList();
 
-   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
+   /*erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
@@ -341,7 +342,8 @@ public class HazardMapApplet extends JApplet
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
-   erf_Classes.add(PUENTE_HILLS_FORECAST_CLASS_NAME);
+   erf_Classes.add(PUENTE_HILLS_FORECAST_CLASS_NAME);*/
+   erf_Classes.add(this.RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
@@ -493,11 +495,11 @@ public class HazardMapApplet extends JApplet
    AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
    try {
      //gets the instance of the selected ERF
-     eqkRupForecast = (EqkRupForecast) erfGuiBean.getSelectedERF();
+     String eqkRupForecastLocation =  erfGuiBean.saveSelectedERF();
      // this function will get the selected IMT parameter and set it in IMT
      imtGuiBean.setIMT();
      SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-     sendParametersToServlet(griddedRegionSites, imr, eqkRupForecast);
+     sendParametersToServlet(griddedRegionSites, imr, eqkRupForecastLocation);
    }
    catch (Exception ex) {
      if (D) System.out.println(C + ":Param warning caught" + ex);
@@ -511,7 +513,7 @@ public class HazardMapApplet extends JApplet
   */
  private void sendParametersToServlet(SitesInGriddedRegion regionSites,
                                        AttenuationRelationshipAPI imr,
-                                       EqkRupForecast eqkRupForecast) {
+                                       String eqkRupForecastLocation) {
 
 
    try{
@@ -540,7 +542,7 @@ public class HazardMapApplet extends JApplet
      //sending the IMR object to the servlet
      toServlet.writeObject(imr);
      //sending the EQK forecast object to the servlet
-     toServlet.writeObject(eqkRupForecast);
+     toServlet.writeObject(eqkRupForecastLocation);
 
      //sending the parameters info. to the servlet
      toServlet.writeObject(getParametersInfo());

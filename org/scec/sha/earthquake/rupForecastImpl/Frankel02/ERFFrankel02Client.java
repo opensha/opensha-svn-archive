@@ -27,28 +27,39 @@ import org.scec.sha.earthquake.ProbEqkSource;
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
 public class ERFFrankel02Client extends EqkRupForecast implements ParameterChangeListener {
-  
-    private ERFFrankel02Server erfServer = null;
-   
-    String remoteName = "ERFFrankel02";
-	public ERFFrankel02Client() throws Exception
-    {
-	  String dnsString = "rmi://localhost:1099/" + remoteName;
-	  System.out.println("Constructor of ERFClient");
-			  try {
-				  erfServer = (ERFFrankel02Server)Naming.lookup(dnsString);
-			  } catch (NotBoundException n) {
-				System.out.println("Constructor of ERFClient Not Bound");
-				  throw new Exception(n.getMessage());
-			  } catch (MalformedURLException m) {
-				System.out.println("Constructor of ERFClient Malformed");
-				  throw new Exception(m.getMessage());
-			  } catch (RemoteException r) {
-				System.out.println("Constructor of ERFClient remoteExeption");
-				  throw new Exception(r.getMessage());
-			  }
-	
-	}
+
+  private ERFFrankel02Server erfServer = null;
+
+  String remoteName = "ERFFrankel02Server";
+  public ERFFrankel02Client() throws Exception {
+    String dnsString = "rmi://gravity.usc.edu:1099/" + remoteName;
+    System.out.println("Constructor of ERFClient");
+    try {
+      //System.setSecurityManager(new java.rmi.RMISecurityManager());
+      erfServer = (ERFFrankel02Server) Naming.lookup(dnsString);
+      System.out.println("erfserver:"+erfServer);
+      String str[] = Naming.list(dnsString);
+      for(int i=0; i<str.length; ++i) System.out.println("string:"+str[i]);
+      System.out.println("ERFSErver lookup successful");
+    }
+    catch (NotBoundException n) {
+      System.out.println("Constructor of ERFClient Not Bound");
+      throw new Exception(n.getMessage());
+    }
+    catch (MalformedURLException m) {
+      System.out.println("Constructor of ERFClient Malformed");
+      throw new Exception(m.getMessage());
+    }
+    catch (java.rmi.UnmarshalException u) {
+      System.out.println("Constructor of ERFClient unmarshalExeption");
+      throw new Exception(u.getMessage());
+    }
+    catch (RemoteException r) {
+      System.out.println("Constructor of ERFClient remoteExeption");
+      throw new Exception(r.getMessage());
+    }
+
+  }
 
 	/* (non-Javadoc)
 	 * @see org.scec.sha.earthquake.ERF_API#getNumSources()
@@ -57,7 +68,7 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
 		try {
 		  return erfServer.getNumSources();
 		}catch(Exception e) { e.printStackTrace();}
-		return -1;	
+		return -1;
 	}
 
 	/* (non-Javadoc)
@@ -68,7 +79,7 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
 		try {
 		return erfServer.getSource(iSource);
 		}catch(Exception e) { e.printStackTrace();}
-		return null;	
+		return null;
 	}
 
 	/* (non-Javadoc)
@@ -86,7 +97,7 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
 	 */
 	public void parameterChange(ParameterChangeEvent event) {
 		// TODO Auto-generated method stub
-	
+
 	}
 
 	/* (non-Javadoc)
@@ -99,6 +110,18 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
 			}catch(Exception e) { e.printStackTrace();}
 	}
 
+        /* (non-Javadoc)
+         * @see org.scec.sha.earthquake.EqkRupForecastAPI#updateForecast()
+         */
+        public String updateAndSaveForecast() {
+                // TODO Auto-generated method stub
+                try {
+                         return erfServer.updateAndSaveForecast(this.adjustableParams, this.timeSpan);
+                        }catch(Exception e) { e.printStackTrace();}
+                        return null;
+        }
+
+
 	/* (non-Javadoc)
 	 * @see org.scec.data.NamedObjectAPI#getName()
 	 */
@@ -109,7 +132,7 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
 		}catch(Exception e) { e.printStackTrace();}
 		return null;
 	}
-	
+
 	/**
 	  * return the time span object
 	  *
@@ -117,12 +140,12 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
 	   */
 	public TimeSpan getTimeSpan() {
 		try {
-		this.timeSpan = erfServer.getTimeSpan();		
+		this.timeSpan = erfServer.getTimeSpan();
 		return timeSpan;
 		}catch(Exception e) { e.printStackTrace();}
 		return null;
 	}
-	
+
 	/* (non-Javadoc)
 		 * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getAdjustableParamsIterator()
 		 */
@@ -133,7 +156,7 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
 		}catch(Exception e) { e.printStackTrace();}
 				return null;
 		}
-		
+
 	/* (non-Javadoc)
 		 * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getAdjustableParameterList()
 		 */
