@@ -318,9 +318,14 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
     Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
     panel.setBorder(border1);
 
+    //adding the single AttenRel Gui to the  Panel
+    imrPanel.removeAll();
+    imrPanel.add(singleAttenRelParamListEditor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
     // set the trunc level based on trunc type
     String value = (String)singleAttenRelParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
     toggleSigmaLevelBasedOnTypeValue(value);
+
   }
 
 
@@ -497,6 +502,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
      else if(name1.equals(AttenuationRelationship.PERIOD_NAME)){
        //update the AttenRels List supported by the choosen IM
        getAttenRelsSupportedForSelectedIM();
+       singleAttenRelParamList = null;
        selectIMRsForChoosenIMT();
      }
      // if IMR parameter changes, then get the Gaussian truncation, etc from this selected IMR
@@ -1044,9 +1050,6 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
          }
        }
      }
-
-     //based on the selected IM update the list of the supported AttenuationRelationships
-     initSingleAttenRelParamListAndEditor();
      //add the changed gui components based the single or multiple selection
      toggleBetweenSingleAndMultipleAttenRel();
    }
@@ -1157,8 +1160,6 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
    else{ //if multiple attenuation relationships panel was selected the toggle to single attenrel.
      toggleButton.setText(MULTIPLE_ATTEN_REL);
      initSingleAttenRelParamListAndEditor();
-     imrPanel.add(singleAttenRelParamListEditor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
    }
 
  }
