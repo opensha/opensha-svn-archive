@@ -101,13 +101,13 @@ public class HazardSpectrumApplet extends JApplet
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
-  private final static String DISAGGREGATION_CONTROL = "Disaggregation";
+  //private final static String DISAGGREGATION_CONTROL = "Disaggregation";
   private final static String EPISTEMIC_CONTROL = "ERF Epistemic Control";
   private final static String AXIS_CONTROL = "Axis Control";
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
   private final static String CVM_CONTROL = "Set Site Params from CVM";
-  private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
+  //private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
 
 
   //Strings for choosing ERFGuiBean or ERF_RupSelectorGUIBean
@@ -121,9 +121,16 @@ public class HazardSpectrumApplet extends JApplet
 
   //Vector that stores the SA Period values for the IMR
   private Vector saPeriodVector ;
+  //Total number of the SA Period Values
+  private int numSA_PeriodVals;
+  //Total number of the values for which we have ran the Hazard Curve
+  private int numSA_PeriodValDone;
 
   //flag to check whether calculation for the Deterministic Model completed
   private boolean deterministicCalcDone=false;
+  //flag to check whether Hazrda Curve Calc are done
+  private boolean hazCalcDone = false;
+
 
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
@@ -290,9 +297,9 @@ public class HazardSpectrumApplet extends JApplet
   HazardCurveCalculator calc;
   DisaggregationCalculator disaggCalc;
   CalcProgressBar progressClass;
-  CalcProgressBar disaggProgressClass;
+  //CalcProgressBar disaggProgressClass;
   Timer timer;
-  Timer disaggTimer;
+  //Timer disaggTimer;
   JComboBox probDeterSelection = new JComboBox();
   FlowLayout flowLayout1 = new FlowLayout();
 
@@ -731,14 +738,14 @@ public class HazardSpectrumApplet extends JApplet
 
         timer = new Timer(500, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
-            if(calc.getCurrRuptures()!=-1)
-              progressClass.updateProgress(calc.getCurrRuptures(), calc.getTotRuptures());
+            if(calc.getCurrRuptures()!=-1){
+              progressClass.updateProgress(numSA_PeriodValDone,numSA_PeriodVals);
+            }
             if(isIndividualCurves) {
               drawGraph();
               //isIndividualCurves = false;
             }
-            if (calc.done() || deterministicCalcDone) {
-              // Toolkit.getDefaultToolkit().beep();
+            if (hazCalcDone) {
               timer.stop();
               progressClass.dispose();
               drawGraph();
@@ -988,6 +995,9 @@ public class HazardSpectrumApplet extends JApplet
     //flag to initialise if Deterministic Model Calc have been completed
     deterministicCalcDone=false;
 
+    //flag to check whether Hazard Curve Calc are done
+    hazCalcDone = false;
+
     // get the selected IMR
     AttenuationRelationship imr = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
 
@@ -1006,8 +1016,7 @@ public class HazardSpectrumApplet extends JApplet
     if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
       imlAtProb=true;
     else probAtIML=true;
-    //gets the Sa Period Vector size
-    int size = this.saPeriodVector.size();
+
 
     //If the user has chosen the Probabilistic
     if(((String)probDeterSelection.getSelectedItem()).equalsIgnoreCase(this.PROBABILISTIC)){
@@ -1039,11 +1048,13 @@ public class HazardSpectrumApplet extends JApplet
       initX_Values(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
       try {
         //iterating over all the SA Periods for the IMR's
-        for(int i=0;i< size;++i){
+        for(int i=0;i< numSA_PeriodVals;++i){
           double saPeriodVal = ((Double)this.saPeriodVector.get(i)).doubleValue();
           imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(i));
           // calculate the hazard curve for each SA Period
           calc.getHazardCurve(tempHazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
+          //number of SA Periods for which we have ran the Hazard Curve
+          this.numSA_PeriodValDone =i;
           hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
           double val = toggleHazFuncLogValues(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
           hazFunction.set(saPeriodVal,val);
@@ -1114,7 +1125,7 @@ public class HazardSpectrumApplet extends JApplet
       //if the user has selectde the Prob@IML
       if(probAtIML)
         //iterating over all the SA Periods for the IMR's
-        for(int i=0;i< size;++i){
+        for(int i=0;i< this.numSA_PeriodVals;++i){
           double saPeriodVal = ((Double)this.saPeriodVector.get(i)).doubleValue();
           imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(i));
           double imlLogVal = Math.log(imlProbValue);
@@ -1122,10 +1133,12 @@ public class HazardSpectrumApplet extends JApplet
           double val = imr.getExceedProbability(imlLogVal);
           //adding values to the hazard function
           hazFunction.set(saPeriodVal,val);
+          //number of SA Periods for which we have ran the Hazard Curve
+          this.numSA_PeriodValDone =i;
         }
       else  //if the user has selected IML@prob
         //iterating over all the SA Periods for the IMR
-        for(int i=0;i<size;++i){
+        for(int i=0;i<this.numSA_PeriodVals;++i){
           double saPeriodVal = ((Double)(saPeriodVector.get(i))).doubleValue();
           imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(i));
           imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(imlProbValue));
@@ -1133,12 +1146,16 @@ public class HazardSpectrumApplet extends JApplet
           //adding values to the Hazard Function
           double val = Math.exp(imr.getIML_AtExceedProb());
           hazFunction.set(saPeriodVal,val);
+          //number of SA Periods for which we have ran the Hazard Curve
+          this.numSA_PeriodValDone =i;
         }
-        deterministicCalcDone = true;
+        this.deterministicCalcDone = true;
     }
 
     // add the function to the function list
     totalProbFuncs.add(hazFunction);
+    //checks whether the Hazard Curve Calculation are complete
+    hazCalcDone = true;
     // set the X-axis label
     //only supported IMT for this Application
     String imt = this.SA_NAME;
@@ -1159,8 +1176,10 @@ public class HazardSpectrumApplet extends JApplet
         ListIterator it1 = tempParam.getIndependentParametersIterator();
         while(it1.hasNext()){
           ParameterAPI independentParam = (ParameterAPI)it1.next();
-          if(independentParam.getName().equalsIgnoreCase(this.SA_PERIOD))
+          if(independentParam.getName().equalsIgnoreCase(this.SA_PERIOD)){
             saPeriodVector = ((DoubleDiscreteParameter)independentParam).getAllowedDoubles();
+            numSA_PeriodVals = saPeriodVector.size();
+          }
         }
       }
     }
@@ -1181,8 +1200,10 @@ public class HazardSpectrumApplet extends JApplet
                                   boolean probAtIML) {
 
    ERF_List erfList  = (ERF_List)eqkRupForecast;
-   //gets the Sa Period Vector size
-   int size = this.saPeriodVector.size();
+
+   //flag to check whether the Hazard Calc are done
+   this.hazCalcDone = false;
+
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
    calc.setNumForecasts(numERFs);
    // clear the function list
@@ -1204,11 +1225,13 @@ public class HazardSpectrumApplet extends JApplet
      initX_Values(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
      try {
        //iterating over all the SA Periods for the IMR's
-       for(int j=0;j< size;++j){
+       for(int j=0;j< this.numSA_PeriodVals;++j){
          double saPeriodVal = ((Double)this.saPeriodVector.get(j)).doubleValue();
          imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(j));
           // calculate the hazard curve for each SA Period
          calc.getHazardCurve(tempHazFunction, site, imr, erfList.getERF(i));
+         //number of SA Periods for which we have ran the Hazard Curve
+          this.numSA_PeriodValDone =j;
          hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
          double val= toggleHazFuncLogValues(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
          hazFunction.set(saPeriodVal,val);
@@ -1253,6 +1276,7 @@ public class HazardSpectrumApplet extends JApplet
    }
    // calculate average
    if(this.avgSelected) totalProbFuncs.add(fractileCalc.getMeanCurve());
+   this.hazCalcDone = true;
    // set the X-axis label
    totalProbFuncs.setXAxisName(this.SA_NAME);
    totalProbFuncs.setYAxisName("Probability of Exceedance");
@@ -1484,7 +1508,6 @@ public class HazardSpectrumApplet extends JApplet
     this.controlComboBox.addItem(DISTANCE_CONTROL);
     this.controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(CVM_CONTROL);
-    this.controlComboBox.addItem(X_VALUES_CONTROL);
   }
 
   /**

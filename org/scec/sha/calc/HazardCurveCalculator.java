@@ -14,7 +14,7 @@ import org.scec.data.function.*;
 import org.scec.data.Site;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.gui.infoTools.*;
+
 import org.scec.sha.gui.servlets.erf.ERF_API;
 /**
  * <p>Title: HazardCurveCalculator </p>
