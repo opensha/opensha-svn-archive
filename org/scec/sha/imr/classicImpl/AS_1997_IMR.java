@@ -873,95 +873,113 @@ System.out.println( a13 );
         vertCoeffs.clear();
 
         // PGA
-        AS_1997_IMRCoefficients coeff = new AS_1997_IMRCoefficients(PGA_NAME,
+        coeff = new AS_1997_IMRCoefficients(PGA_NAME,
             0, 6.00, 1.642, -1.2520, 0.390, -0.050, 0.630, -0.140, -0.220, -0.0000, 0.76, 0.085 );
 
         // SA/5.00
-        AS_1997_IMRCoefficients coeff0 = new AS_1997_IMRCoefficients( SA_NAME + '/' +( new Double( "5.00" ) ).doubleValue() ,
+        coeff0 = new AS_1997_IMRCoefficients( SA_NAME + '/' +( new Double( "5.00" ) ).doubleValue() ,
             5.00, 2.50, -2.053, -0.7200, 0.260, -0.100, 0.240, 0.040, -0.220, -0.0670, 0.78, 0.050 );
         // SA/4.00
-        AS_1997_IMRCoefficients coeff1 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "4.00" ) ).doubleValue() ,
+        coeff1 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "4.00" ) ).doubleValue() ,
             4.00, 2.50, -1.857, -0.7200, 0.260, -0.100, 0.240, 0.040, -0.220, -0.0565, 0.75, 0.050 );
         // SA/3.00
-        AS_1997_IMRCoefficients coeff2 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "3.00" ) ).doubleValue() ,
+        coeff2 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "3.00" ) ).doubleValue() ,
             3.00, 2.50, -1.581, -0.7200, 0.260, -0.100, 0.240, 0.040, -0.220, -0.0431, 0.72, 0.050 );
         // SA/2.00
-        AS_1997_IMRCoefficients coeff3 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "2.00" ) ).doubleValue() ,
+        coeff3 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "2.00" ) ).doubleValue() ,
             2.00, 2.50, -1.224, -0.7200, 0.260, -0.008, 0.240, 0.040, -0.220, -0.0240, 0.69, 0.050 );
         // SA/1.50
-        AS_1997_IMRCoefficients coeff4 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "1.50" ) ).doubleValue() ,
+         coeff4 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "1.50" ) ).doubleValue() ,
             1.50, 2.50, -0.966, -0.7285, 0.260, 0.058, 0.240, 0.025, -0.220, -0.0180, 0.69, 0.050 );
         // SA/1.00
-        AS_1997_IMRCoefficients coeff5 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "1.00" ) ).doubleValue() ,
+         coeff5 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "1.00" ) ).doubleValue() ,
             1.00, 2.50, -0.602, -0.7404, 0.260, 0.150, 0.240, 0.004, -0.220, -0.0115, 0.69, 0.050 );
         // SA/0.85
-        AS_1997_IMRCoefficients coeff6 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.85" ) ).doubleValue() ,
+        coeff6 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.85" ) ).doubleValue() ,
             0.85, 2.50, -0.469, -0.7451, 0.309, 0.150, 0.273, -0.004, -0.220, -0.0097, 0.69, 0.050 );
         // SA/0.75
-        AS_1997_IMRCoefficients coeff7 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.75" ) ).doubleValue() ,
+         coeff7 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.75" ) ).doubleValue() ,
             0.75, 2.50, -0.334, -0.7488, 0.384, 0.150, 0.299, -0.010, -0.220, -0.0083, 0.69, 0.050 );
         // SA/0.60
-        AS_1997_IMRCoefficients coeff8 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.60" ) ).doubleValue() ,
+        coeff8 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.60" ) ).doubleValue() ,
             0.60, 2.85, -0.087, -0.7896, 0.416, 0.150, 0.345, -0.022, -0.220, -0.0068, 0.69, 0.050 );
         // SA/0.50
-        AS_1997_IMRCoefficients coeff9 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.50" ) ).doubleValue() ,
+         coeff9 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.50" ) ).doubleValue() ,
             0.50, 3.26, 0.145, -0.8291, 0.471, 0.150, 0.383, -0.031, -0.220, -0.0060, 0.69, 0.050 );
         // SA/0.46
-        AS_1997_IMRCoefficients coeff10 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.46" ) ).doubleValue() ,
+
+         coeff10 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.46" ) ).doubleValue() ,
             0.46, 3.45, 0.271, -0.8472, 0.497, 0.150, 0.400, -0.035, -0.220, -0.0056, 0.69, 0.050 );
         // SA/0.40
-        AS_1997_IMRCoefficients coeff11 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.40" ) ).doubleValue() ,
+
+        coeff11 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.40" ) ).doubleValue() ,
             0.40, 3.77, 0.478, -0.9776, 0.539, 0.150, 0.428, -0.043, -0.220, -0.0050, 0.69, 0.050 );
         // SA/0.36
-        AS_1997_IMRCoefficients coeff12 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.36" ) ).doubleValue() ,
+
+        coeff12 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.36" ) ).doubleValue() ,
             0.36, 4.01, 0.617, -0.9004, 0.571, 0.150, 0.450, -0.048, -0.220, -0.0047, 0.69, 0.050 );
         // SA/0.30
-        AS_1997_IMRCoefficients coeff13 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.30" ) ).doubleValue() ,
+
+        coeff13 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.30" ) ).doubleValue() ,
             0.30, 4.42, 0.878, -0.9400, 0.580, 0.150, 0.488, -0.057, -0.220, -0.0042, 0.69, 0.050 );
         // SA/0.24
-        AS_1997_IMRCoefficients coeff14 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.24" ) ).doubleValue() ,
+
+        coeff14 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.24" ) ).doubleValue() ,
             0.24, 4.93, 1.312, -1.0274, 0.580, 0.109, 0.533, -0.069, -0.220, -0.0035, 0.69, 0.050 );
         // SA/0.20
-        AS_1997_IMRCoefficients coeff15 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.20" ) ).doubleValue() ,
+
+        coeff15 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.20" ) ).doubleValue() ,
             0.20, 5.35, 1.648, -1.0987, 0.580, 0.076, 0.571, -0.078, -0.220, -0.0030, 0.69, 0.050 );
         // SA/0.17
-        AS_1997_IMRCoefficients coeff16 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.17" ) ).doubleValue() ,
+
+        coeff16 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.17" ) ).doubleValue() ,
             0.17, 5.72, 1.960, -1.1623, 0.580, 0.047, 0.604, -0.087, -0.220, -0.0025, 0.70, 0.056 );
         // SA/0.15
-        AS_1997_IMRCoefficients coeff17 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.15" ) ).doubleValue() ,
+
+        coeff17 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.15" ) ).doubleValue() ,
             0.15, 6.00, 2.170, -1.2113, 0.580, 0.024, 0.630, -0.093, -0.220, -0.0022, 0.72, 0.063 );
         // SA/0.12
-        AS_1997_IMRCoefficients coeff18 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.12" ) ).doubleValue() ,
+
+        coeff18 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.12" ) ).doubleValue() ,
             0.12, 6.00, 2.480, -1.2986, 0.580, -0.017, 0.630, -0.104, -0.220, -0.0015, 0.74, 0.075 );
         // SA/0.10
-        AS_1997_IMRCoefficients coeff19 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.10" ) ).doubleValue() ,
+
+        coeff19 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.10" ) ).doubleValue() ,
             0.10, 6.00, 2.700, -1.3700, 0.580, -0.050, 0.630, -0.114, -0.220, -0.0010, 0.76, 0.085 );
         // SA/0.09
-        AS_1997_IMRCoefficients coeff20 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.09" ) ).doubleValue() ,
+
+        coeff20 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.09" ) ).doubleValue() ,
             0.09, 6.00, 2.730, -1.3700, 0.567, -0.050, 0.630, -0.119, -0.220, -0.0009, 0.76, 0.085 );
         // SA/0.075
-        AS_1997_IMRCoefficients coeff21 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.075" ) ).doubleValue() ,
+
+        coeff21 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.075" ) ).doubleValue() ,
             0.075, 6.00, 2.750, -1.3700, 0.545, -0.050, 0.630, -0.129, -0.220, -0.0007, 0.76, 0.085 );
         // SA/0.06
-        AS_1997_IMRCoefficients coeff22 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.06" ) ).doubleValue() ,
+
+        coeff22 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.06" ) ).doubleValue() ,
             0.06, 6.00, 2.710, -1.3700, 0.518, -0.050, 0.630, -0.140, -0.220, -0.0004, 0.76, 0.085 );
         // SA/0.05
-        AS_1997_IMRCoefficients coeff23 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.05" ) ).doubleValue() ,
+
+        coeff23 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.05" ) ).doubleValue() ,
             0.05, 6.00, 2.620, -1.3700, 0.496, -0.050, 0.630, -0.140, -0.220, -0.0002, 0.76, 0.085 );
         // SA/0.04
-        AS_1997_IMRCoefficients coeff24 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.04" ) ).doubleValue() ,
+
+        coeff24 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.04" ) ).doubleValue() ,
             0.04, 6.00, 2.420, -1.3700, 0.469, -0.050, 0.630, -0.140, -0.220, -0.0000, 0.76, 0.085 );
         // SA/0.03
-        AS_1997_IMRCoefficients coeff25 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.03" ) ).doubleValue() ,
+
+        coeff25 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.03" ) ).doubleValue() ,
             0.03, 6.00, 2.100, -1.3168, 0.432, -0.050, 0.630, -0.140, -0.220, -0.0000, 0.76, 0.085 );
         // SA/0.02
-        AS_1997_IMRCoefficients coeff26 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.02" ) ).doubleValue() ,
+
+        coeff26 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.02" ) ).doubleValue() ,
             0.02, 6.00, 1.642, -1.2520, 0.390, -0.050, 0.630, -0.140, -0.220, -0.0000, 0.76, 0.085 );
         // SA/0.01
-        AS_1997_IMRCoefficients coeff27 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.01" ) ).doubleValue() ,
+
+        coeff27 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.01" ) ).doubleValue() ,
             0.01, 6.00, 1.642, -1.2520, 0.390, -0.050, 0.630, -0.140, -0.220, -0.0000, 0.76, 0.085 );
         // SA/0.0 -- same as 0.01
-        AS_1997_IMRCoefficients coeff28 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.0" ) ).doubleValue() ,
+        coeff28 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.0" ) ).doubleValue() ,
             0.00, 6.00, 1.642, -1.2520, 0.390, -0.050, 0.630, -0.140, -0.220, -0.0000, 0.76, 0.085 );
 
         vertCoeffs.put( coeff.getName(), coeff );
