@@ -6,6 +6,7 @@ import java.lang.Integer;
 import java.awt.Polygon;
 
 import org.scec.data.*;
+import org.scec.calc.RelativeLocation;
 
 /**
  * <p>Title: GeographicRegion </p>
@@ -187,5 +188,25 @@ public class GeographicRegion implements java.io.Serializable{
     }
 
     if(D) System.out.println(C +": minLat="+minLat+"; maxLat="+maxLat+"; minLon="+minLon+"; maxLon="+maxLon);
+  }
+
+
+  /**
+   * This computes the minimum horizonatal distance (km) from the location to polygon, or line, defined
+   * by the region.  Zero is returned if the given location is inside the polygon.
+   * @param loc
+   * @return
+   */
+  public double getMinHorzDistToRegion(Location loc) {
+    if (isLocationInside(loc))
+      return 0.0;
+    else {
+      double min = locList.getMinHorzDistToLine(loc);
+      // now check the segiment defined by the last and first points
+      double temp = RelativeLocation.getApproxDistToLine(loc,locList.getLocationAt(locList.size()-1),
+                                                         locList.getLocationAt(0));
+      if (temp < min) return temp;
+      else return min;
+    }
   }
 }

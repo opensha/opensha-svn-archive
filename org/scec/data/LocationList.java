@@ -2,6 +2,7 @@ package org.scec.data;
 
 import java.util.*;
 import org.scec.exceptions.*;
+import org.scec.calc.RelativeLocation;
 
 /**
  *  <b>Title:</b> LocationList<p>
@@ -139,6 +140,38 @@ public class LocationList implements java.io.Serializable{
             b.append(TAB + location.toString());
         }
         return b.toString();
+    }
+
+    /**
+     * This computes the distance (in km) between the given loc and the closest point in the LocationList
+     * @param loc
+     * @return
+     */
+    public double getMinHorzDistToLocations(Location loc) {
+      double min = Double.MAX_VALUE, temp;
+      Iterator it = this.listIterator();
+      while(it.hasNext()) {
+        temp = RelativeLocation.getHorzDistance(loc,(Location) it.next());
+        if (temp < min) min = temp;
+      }
+      return min;
+    }
+
+    /**
+     * This computes the shortest horizontal distance (in km) from the given loc
+     * to any point on the line defined by connecting the points in this location list.
+     * @param loc
+     * @return
+     */
+    public double getMinHorzDistToLine(Location loc) {
+      double min = Double.MAX_VALUE, temp;
+      Location pt1, pt2;
+      // loop over each line segment
+      for(int i = 1; i < size(); i++) {
+        temp = RelativeLocation.getApproxDistToLine(loc,getLocationAt(i-1),getLocationAt(i));
+        if (temp < min) min = temp;
+      }
+      return min;
     }
 
 }

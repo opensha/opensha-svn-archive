@@ -198,18 +198,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
    * @return minimum distance
    */
    public  double getMinDistance(Site site) {
-
-     if( ((GeographicRegion) region).isLocationInside(site.getLocation()) )
-        return 0.0;
-     else {
-       double minDist = Double.MAX_VALUE, tempDist;
-       Iterator it = ((GeographicRegion) region).getRegionOutlineIterator();
-       while(it.hasNext()) {
-         tempDist = RelativeLocation.getApproxHorzDistance(site.getLocation(), (Location) it.next());
-         if (tempDist < minDist) minDist = tempDist;
-       }
-       return minDist;
-     }
+     return ((GeographicRegion) region).getMinHorzDistToRegion(site.getLocation());
   }
 
  /**

@@ -477,6 +477,106 @@ public final class RelativeLocation {
 
     public static void main( String argv[] ) {
 
+      System.out.println("test1:");
+      Location loc = new Location(34.5,-121,0);
+      Location pt1 = new Location(34,-122,0);
+      Location pt2 = new Location(35,-122,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+      System.out.println("test2:");
+      loc = new Location(35.00001,-121,0);
+      pt1 = new Location(34,-122,0);
+      pt2 = new Location(35,-122,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+      System.out.println("test3:");
+      loc = new Location(33.9999,-121,0);
+      pt1 = new Location(34,-122,0);
+      pt2 = new Location(35,-122,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+      System.out.println("test4:");
+      loc = new Location(34,-121.5,0);
+      pt1 = new Location(33,-122,0);
+      pt2 = new Location(33,-121,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+      System.out.println("test5:");
+      loc = new Location(34,-122.00001,0);
+      pt1 = new Location(33,-122,0);
+      pt2 = new Location(33,-121,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+      System.out.println("test6:");
+      loc = new Location(34,-120.9999,0);
+      pt1 = new Location(33,-122,0);
+      pt2 = new Location(33,-121,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+      System.out.println("test7:");
+      loc = new Location(33.5,-122,0);
+      pt1 = new Location(33,-122,0);
+      pt2 = new Location(34,-121,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+      System.out.println("test8:");
+      loc = new Location(33.00001,-121,0);
+      pt1 = new Location(33,-122,0);
+      pt2 = new Location(34,-121,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+      System.out.println("test9:");
+      loc = new Location(32.9999,-121,0);
+      pt1 = new Location(33,-122,0);
+      pt2 = new Location(34,-121,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+      System.out.println("test10:");
+      loc = new Location(33.9999,-122,0);
+      pt1 = new Location(33,-122,0);
+      pt2 = new Location(34,-121,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+      System.out.println("test11:");
+      loc = new Location(34.00001,-122,0);
+      pt1 = new Location(33,-122,0);
+      pt2 = new Location(34,-121,0);
+      System.out.println(getApproxDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+
+/*
       System.out.println("Los Angeles Sement Length: = "+
                          (float)RelativeLocation.getHorzDistance( 34.019965922, 118.308353340, 33.971013662, 118.122170045 ));
       System.out.println("Santa Fe Springs Sement Length: = "+
@@ -618,10 +718,44 @@ public final class RelativeLocation {
         return R * c;
     }
 
+    /**
+     * This is an alternate version where the line is evenly discretized at 0.1 km spacing
+     * and the least distance is found
+     * @param loc
+     * @param lineLoc1
+     * @param lineLoc2
+     * @return
+     */
+    public static double getApproxDistToLine_2(Location loc, Location lineLoc1, Location lineLoc2) {
+      Direction dir = RelativeLocation.getDirection(lineLoc1,lineLoc2);
+      LocationList locList = new LocationList();
+      int nDist = (int)(dir.getHorzDistance()/0.1);
+      for(int i = 0; i <= nDist; i++) {
+        dir.setHorzDistance((double)i * 0.1);
+        locList.addLocation(RelativeLocation.getLocation(lineLoc1,dir));
+      }
+      return locList.getMinHorzDistToLocations(loc);
+
+/*
+      Direction dir = RelativeLocation.getDirection(lineLoc1,lineLoc2);
+      Location tempLoc;
+      double minDist = Double.MAX_VALUE, tempDist;
+      int nDist = (int)(dir.getHorzDistance()/0.1);
+      for(int i = 0; i <= nDist; i++) {
+        dir.setHorzDistance((double)i * 0.1);
+        tempLoc = RelativeLocation.getLocation(lineLoc1,dir);
+        tempDist = RelativeLocation.getApproxHorzDistance(loc,tempLoc);
+        if (tempDist < minDist) minDist = tempDist;
+      }
+      return minDist;
+*/
+    }
+
 
     /**
      * This computes the closest distance to any point on a line segment defined by two locations.
-     * This will not work if points the step by 360 degrees across the zero longitude.
+     * This will not work if points the step by 360 degrees across the zero longitude.  This converts
+     * all points to a cartesian coordinate system and then computes the distance analytically.
      * @param loc
      * @param lineLoc1 - 1st point defining the line
      * @param lineLoc2 - 2nd point defining the line
@@ -631,34 +765,54 @@ public final class RelativeLocation {
 
       // get the horizontal compression from the latitudes
       double horzCorr = Math.cos( Math.PI*(0.5*loc.getLatitude() + 0.25*lineLoc1.getLatitude()+0.25*lineLoc2.getLatitude())/180.0);
-
+//System.out.println(horzCorr);
       // get line-point corrdinates (in km) w/ loc transformed to the origin
       double x1 = 111.111*horzCorr*(lineLoc1.getLongitude()-loc.getLongitude());
       double x2 = 111.111*horzCorr*(lineLoc2.getLongitude()-loc.getLongitude());
       double y1 = 111.111*(lineLoc1.getLatitude()-loc.getLatitude());
       double y2 = 111.111*(lineLoc2.getLatitude()-loc.getLatitude());
 
-      double slope = (y2-y1)/(x2-x1);
-      double intercept = y2 - slope*x2;
+      if( x1 != x2) {
+        double slope = (y2-y1)/(x2-x1);
+        double intercept = y2 - slope*x2;
+        double xTarget = -slope*intercept/(1 + slope*slope);
+        double yTarget =  slope*xTarget + intercept;
 
-      double xTarget = -slope*intercept/(1 + slope*slope);
-      double yTarget = slope*xTarget+ intercept;
+        // make sure the target point is in between the two endpoints
+        boolean within = false;
+        if(x2 > x1) {
+          if( xTarget <= x2 && xTarget >= x1) within = true;
+        }
+        else {
+          if( xTarget <= x1 && xTarget >= x2) within = true;
+        }
 
-      // make sure the target point is in between the two endpoints
-      boolean within = false;
-      if(x2 > x1) {
-        if( xTarget <= x2 && xTarget >= x1) within = true;
+        if (within)
+          return Math.sqrt(xTarget*xTarget+yTarget*yTarget);
+        else {
+          double d1 = Math.sqrt(x1*x1+y1*y1);
+          double d2 = Math.sqrt(x2*x2+y2*y2);
+          return Math.min(d1,d2);
+        }
       }
-      else {
-        if( xTarget <= x1 && xTarget >= x2) within = true;
-      }
 
-      if (within)
-        return Math.sqrt(xTarget*xTarget+yTarget*yTarget);
-      else {
-        double d1 = Math.sqrt(x1*x1+y2*y2);
-        double d2 = Math.sqrt(x2*x2+y2*y2);
-        return Math.min(d1,d2);
+      else {  // the x1 = x2 case
+        if(y2 > y1) {
+          if (y2 <= 0.0)
+            return Math.sqrt(x2*x2+y2*y2);
+          else if (y1 >=0 )
+            return Math.sqrt(x1*x1+y1*y1);
+          else
+            return Math.abs(x1);
+        }
+        else { // (y1 > y2)
+          if (y1 <= 0.0)
+           return Math.sqrt(x1*x1+y1*y1);
+         else if (y2 >=0 )
+           return Math.sqrt(x2*x2+y2*y2);
+         else
+           return Math.abs(x1);
+        }
       }
     }
 }
