@@ -46,6 +46,9 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
   private static String  C = new String("Frankel96_EqkRupForecast");
   private boolean D = false;
 
+  // name of this ERF
+  private static String name = new String("USGS/CGS 1996 California ERF");
+
   private double GRID_SPACING = 1.0;
   private double B_VALUE =0.9;
   private double MAG_LOWER = 6.5;
@@ -542,7 +545,7 @@ private void intiAdjParams() {
      * @return : return the name for this class
      */
    public String getName(){
-     return C;
+     return name;
    }
 
 

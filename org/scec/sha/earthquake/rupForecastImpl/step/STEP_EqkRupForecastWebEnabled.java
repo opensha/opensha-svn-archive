@@ -37,6 +37,9 @@ import org.scec.param.event.ParameterChangeEvent;
   private static String  C = new String("STEP_EqkRupForecastWebEnabled");
   private boolean D = false;
 
+  // name of this ERF
+  private static String  name = new String("STEP ERF");
+
   // Input file name
 
   // ArrayList of input file lines
@@ -259,7 +262,7 @@ import org.scec.param.event.ParameterChangeEvent;
      * @return : return the name for this class
      */
    public String getName(){
-     return C;
+     return name;
    }
 
 

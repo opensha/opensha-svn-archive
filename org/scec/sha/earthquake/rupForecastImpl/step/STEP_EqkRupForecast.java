@@ -38,6 +38,9 @@ import org.scec.param.event.ParameterChangeEvent;
   private static String  C = new String("STEP_EqkRupForecast");
   private boolean D = false;
 
+  // name of this ERF
+  private static String  name = new String("STEP ERF");
+
   // Input file name
   //private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/SoCalDeltaRates.txt";
   private final static String INPUT_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
@@ -263,7 +266,7 @@ import org.scec.param.event.ParameterChangeEvent;
      * @return : return the name for this class
      */
    public String getName(){
-     return C;
+     return name;
    }
 
 
