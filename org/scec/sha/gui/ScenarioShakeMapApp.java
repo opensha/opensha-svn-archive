@@ -6,13 +6,17 @@ import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
+import java.io.*;
 
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.rupForecastImpl.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
+import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.param.event.*;
 import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.Site;
+import org.scec.sha.earthquake.ProbEqkRupture;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -149,6 +153,11 @@ public class ScenarioShakeMapApp extends JApplet implements
     imtPanel.setLayout(gridBagLayout8);
     prob_IMLPanel.setLayout(gridBagLayout2);
     addButton.setText("Add Map");
+    addButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        addButton_actionPerformed(e);
+      }
+    });
     buttonPanel.setMinimumSize(new Dimension(391, 50));
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -378,19 +387,69 @@ public class ScenarioShakeMapApp extends JApplet implements
   private void generateShakeMap(){
     boolean imlAtProb=false;
     boolean probAtIML=false;
+    double imlProbValue=imlProbGuiBean.getIML_Prob();
+    Site site;
     SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
     int numSites = griddedRegionSites.getNumGridLocs();
-    String imlOrProb=imlProbGuiBean.getParameterList().getParameter(imlProbGuiBean.MAP_TYPE).getValue().toString();
+    String imlOrProb=imlProbGuiBean.getSelectedOption();
     if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
       imlAtProb=true;
     else
       probAtIML=true;
 
-    for(int i=0;i<numSites;++i){
-      if(imlAtProb){
+    // get the selected forecast model
+    EqkRupForecast eqkRupForecast = (EqkRupForecast)erfGuiBean.getSelectedERF();
 
-      }
+    // get the selected IMR
+    AttenuationRelationship imr = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
+    try {
+     // this function will get the selected IMT parameter and set it in IMT
+     imtGuiBean.setIMR_Param();
+   } catch (Exception ex) {
+     if(D) System.out.println(C + ":Param warning caught"+ex);
+     ex.printStackTrace();
     }
 
+    Vector siteLat= new Vector();
+    Vector siteLon= new Vector();
+    Vector siteValue = new Vector();
+    for(int i=0;i<numSites;++i){
+      site = griddedRegionSites.getSite(i);
+      siteLat.add(new Double(site.getLocation().getLatitude()));
+      siteLon.add(new Double(site.getLocation().getLongitude()));
+      imr.setSite(site);
+      // set the PQkRup in the IMR
+      try {
+        int source = Integer.parseInt((String)erfGuiBean.getParameterList().getParameter(erfGuiBean.SOURCE_PARAM_NAME).getValue());
+        int rupture = Integer.parseInt((String)erfGuiBean.getParameterList().getParameter(erfGuiBean.RUPTURE_PARAM_NAME).getValue());
+        imr.setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(source,rupture));
+      } catch (Exception ex) {
+        System.out.println("Parameter change warning caught");
+      }
+      if(probAtIML)
+        siteValue.add(new Double(imr.getExceedProbability(imlProbValue)));
+      else{
+        imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(imlProbValue));
+        siteValue.add(new Double(imr.getIML_AtExceedProb()));
+      }
+    }
+    makeFile(siteLat,siteLon,siteValue);
+    mapGuiBean.makeMap("temp.txt");
+  }
+
+  private void makeFile(Vector lat,Vector lon,Vector siteValue){
+    try{
+         int size=lat.size();
+         FileWriter fr = new FileWriter("temp.txt");
+         for(int i=0;i<size;++i)
+           fr.write(lat.get(i)+" "+lon.get(i)+" "+siteValue.get(i)+"\n");
+         fr.close();
+     }catch(IOException e){
+       e.printStackTrace();
+      }
+  }
+
+  void addButton_actionPerformed(ActionEvent e) {
+    this.generateShakeMap();
   }
 }

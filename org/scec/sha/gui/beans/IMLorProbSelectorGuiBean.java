@@ -23,8 +23,8 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
   //definition of the class final static variables
   public final static String IML_AT_PROB="IML@Prob";
   public final static String PROB_AT_IML="Prob@IML";
-  private final static String PROBABILITY="Probability";
-  private final static String MAP_TYPE = "Map Type";
+  public final static String PROBABILITY="Probability";
+  public final static String MAP_TYPE = "Map Type";
   private final static String IML="IML";
   private final static String MAP_INFO="Set Map Params";
   private final static Double MIN_PROB=new Double(0);
