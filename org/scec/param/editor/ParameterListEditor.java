@@ -251,8 +251,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
             ParameterEditorFactory.setSearchPaths( this.searchPaths );
 
         parameterEditors.clear();
-        editorPanel.setLayout(GBL);
-        //editorPanel.setLayout(new VerticalFlowLayout());
+        editorPanel.setLayout(new VerticalFlowLayout());
         while ( it.hasNext() ) {
 
             Object obj1 = it.next();
@@ -265,9 +264,9 @@ public class ParameterListEditor extends LabeledBoxPanel {
             ParameterEditor panel = ParameterEditorFactory.getEditor( param );
 
             parameterEditors.put( param.getName(), panel );
-            //editorPanel.add(panel);
-            editorPanel.add( panel, new GridBagConstraints( 0, counter, 1, 1, 1.0, 0.0
-                    , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+            editorPanel.add(panel);
+            //editorPanel.add( panel, new GridBagConstraints( 0, counter, 1, 1, 1.0, 1.0
+              //      , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
             counter++;
             //}
         }

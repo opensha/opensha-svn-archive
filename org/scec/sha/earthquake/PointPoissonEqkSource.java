@@ -34,8 +34,7 @@ public class PointPoissonEqkSource extends ProbEqkSource {
   private double duration;
 
   // to hold the non-zero mags and rates
-  //ArbitrarilyDiscretizedFunc magsAndRates;
-  private Vector mags, rates;
+  ArbitrarilyDiscretizedFunc magsAndRates;
 
   /**
    * Constructor specifying the location object, the IncrementalMagFreqDist
@@ -57,7 +56,7 @@ public class PointPoissonEqkSource extends ProbEqkSource {
     probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setPointSurface(location, aveDip);
     probEqkRupture.setAveRake(aveRake);
-    if( D ) System.out.println("PointEqkSource Constructor: totNumRups="+mags.size()+
+    if( D ) System.out.println("PointEqkSource Constructor: totNumRups="+magsAndRates.getNum()+
                                "; aveDip="+probEqkRupture.getRuptureSurface().getAveDip()+
                                "; aveRake="+ probEqkRupture.getAveRake());
   }
@@ -72,21 +71,19 @@ public class PointPoissonEqkSource extends ProbEqkSource {
     this.magFreqDist=magFreqDist;
 
     // make list of non-zero rates and mags
-    mags = new Vector();
-    rates = new Vector();
+    magsAndRates = new ArbitrarilyDiscretizedFunc();
     for (int i=0; i<magFreqDist.getNum(); ++i)
-        if(magFreqDist.getY(i) > 0) {
-            mags.add(new Double(magFreqDist.getX(i)));
-            rates.add(new Double(magFreqDist.getY(i)));
-        }
-    if (D) System.out.println(C+" numNonZeroMagDistPoints="+mags.size());
+        if(magFreqDist.getY(i) > 0)
+            magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
+
+    if (D) System.out.println(C+" numNonZeroMagDistPoints="+magsAndRates.getNum());
   }
 
 
   /**
    * @return the number of rutures (equals number of mags with non-zero rates)
    */
-  public int getNumRuptures() { return mags.size(); }
+  public int getNumRuptures() { return magsAndRates.getNum(); }
 
 
   /**
@@ -95,10 +92,10 @@ public class PointPoissonEqkSource extends ProbEqkSource {
   public ProbEqkRupture getRupture(int nthRupture){
 
      // set the magnitude
-     probEqkRupture.setMag(((Double)mags.get(nthRupture)).doubleValue());
+     probEqkRupture.setMag(magsAndRates.getX(nthRupture));
 
      // compute and set the probability
-     double prob = 1 - Math.exp(-duration*((Double)rates.get(nthRupture)).doubleValue());
+     double prob = 1 - Math.exp(-duration*magsAndRates.getY(nthRupture));
      probEqkRupture.setProbability(prob);
 
      // return the ProbEqkRupture
@@ -142,19 +139,6 @@ public class PointPoissonEqkSource extends ProbEqkSource {
     return location;
   }
 
-
- /**
-  * Returns the Vector consisting of all ruptures for this source
-  * all the objects are cloned. so this vector can be saved by the user
-  *
-  * @return Vector consisting of
-  */
-  public Vector getRuptureList(){
-    Vector v= new Vector();
-    for(int i=0;i<getNumRuptures();++i)
-      v.add(this.getRuptureClone(i));
-    return v;
-  }
 
      /**
    * This returns the shortest horizontal dist to the point source.

@@ -470,6 +470,7 @@ private void intiAdjParams() {
       * @return Vector of Prob Earthquake sources
       */
      public Vector  getSourceList(){
+
        return allSources;
      }
 

@@ -23,7 +23,7 @@ public class GMT_MapGenerator implements Serializable{
   protected final static boolean D = true;
 
   // PATH where the gmt commands and some others exist.
-  public static String GMT_PATH = "/usr/scec/share/graphics/GMT3.3.6/bin/";
+  public static String GMT_PATH = "/sw/bin/";
 
   // this is the path where general data (e.g., topography) are found:
   private static String SCEC_GMT_DATA_PATH = "/usr/scec/data/gmt/";
@@ -331,10 +331,12 @@ public class GMT_MapGenerator implements Serializable{
 
        command[2]=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/100 -O >> " + out_ps;
        RunScript.runScript(command);
-
-       // command[2] = GMT_PATH+"convert -crop "+ imageWdthPix + "x" + imageHghtPix + " " + out_ps + " " + out_jpg;
-       //command[2] = GMT_PATH+"convert " + out_ps + " " + out_jpg;
-       command[2] = "cat "+ out_ps + " | "+"gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
+/*
+       command[2] =COMMAND_PATH+"cat "+ out_ps + " | "+GMT_PATH+"gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
+       RunScript.runScript(command);
+*/
+//       command[2] = GMT_PATH+"convert -crop "+ imageWdthPix + "x" + imageHghtPix + " " + out_ps + " " + out_jpg;
+       command[2] = GMT_PATH+"convert " + out_ps + " " + out_jpg;
        RunScript.runScript(command);
 
 //       command[2] = "/Applications/Preview.app/Contents/MacOS/Preview " + out_jpg + " &";
