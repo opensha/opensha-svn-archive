@@ -83,6 +83,8 @@ import org.scec.util.ImageUtils;
 import org.scec.util.SystemPropertiesUtils;
 import org.scec.util.FileUtils;
 import org.scec.sha.gui.controls.CalcOptionControl;
+import org.scec.sha.calc.remoteHazardCalc.RemoteHazardCurveClient;
+import org.scec.sha.calc.HazardCurveCalculatorAPI;
 
 import ch.randelshofer.quaqua.QuaquaManager;
 
@@ -121,11 +123,11 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
-  public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
+  //public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-  public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
+  //public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
   public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF";
   public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureERF";
@@ -302,7 +304,9 @@ public class Temp_HazardCurveApplication extends JApplet
   JPanel imrPanel = new JPanel();
   GridBagLayout gridBagLayout10 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
-  HazardCurveCalculator calc;
+
+  //instances of various calculators
+  HazardCurveCalculatorAPI calc;
   DisaggregationCalculator disaggCalc;
   CalcProgressBar progressClass;
   CalcProgressBar disaggProgressClass;
@@ -711,8 +715,8 @@ public class Temp_HazardCurveApplication extends JApplet
       // so that warning messages for site parameters are not shown when Add graph is clicked
       imrGuiBean.showWarningMessages(false);
       try{
-        calc = new HazardCurveCalculator();
-      }catch(RemoteException e){
+        calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
+      }catch(Exception e){
         e.printStackTrace();
       }
 
@@ -1008,7 +1012,7 @@ public class Temp_HazardCurveApplication extends JApplet
         // calculate the hazard curve
         //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
         try{
-          calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)forecast);
+          hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)forecast);
         }catch(RemoteException e){
           e.printStackTrace();
         }
@@ -1207,11 +1211,11 @@ public class Temp_HazardCurveApplication extends JApplet
    erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
+   //erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
+   //erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
    erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);

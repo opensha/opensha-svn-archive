@@ -6,8 +6,8 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.ListIterator;
-
-
+import org.scec.sha.calc.HazardCurveCalculatorAPI;
+import org.scec.sha.calc.HazardCurveCalculator;
 
 /**
  * <p>Title: RemoteHazardCurveClient</p>
@@ -20,18 +20,34 @@ import java.util.ListIterator;
 public class RemoteHazardCurveClient {
 
   /**
-   * Get the reference to the remote
+   * Get the reference to the remote Hazard Curve Factory
    */
-  protected RemoteHazardCurveFactoryAPI getRemoteHazardCurveCalc() {
+  public HazardCurveCalculatorAPI getRemoteHazardCurveCalc() {
     try {
-      RemoteHazardCurveFactoryAPI remoteHazardCurveFactory= (RemoteHazardCurveFactoryAPI) Naming.lookup(RegisterRemoteHazardCurveFactory.registrationName);
-      return remoteHazardCurveFactory;
+      RemoteHazardCurveFactoryAPI remoteHazardCurveFactory= (RemoteHazardCurveFactoryAPI)
+          Naming.lookup(RegisterRemoteHazardCurveFactory.registrationName);
+      return remoteHazardCurveFactory.getRemoteHazardCurveCalculator();
     }
     catch (NotBoundException n) {
-      n.printStackTrace();
+      try{
+        return new HazardCurveCalculator();
+      }catch(RemoteException e){
+        e.printStackTrace();
+      }
     }
     catch (MalformedURLException m) {
-      m.printStackTrace();
+      try{
+        return new HazardCurveCalculator();
+      }catch(RemoteException e){
+        e.printStackTrace();
+      }
+    }
+    catch(java.rmi.UnknownHostException r){
+      try{
+        return new HazardCurveCalculator();
+      }catch(RemoteException e){
+        e.printStackTrace();
+      }
     }
     catch (java.rmi.UnmarshalException u) {
       u.printStackTrace();

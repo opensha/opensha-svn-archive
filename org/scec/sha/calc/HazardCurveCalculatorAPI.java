@@ -47,7 +47,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
    * @param eqkRupForecast: selected Earthquake rup forecast
    * @return
    */
-  public void getHazardCurve(DiscretizedFuncAPI hazFunction,
+  public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, ERF_API eqkRupForecast)
       throws java.rmi.RemoteException ;
 

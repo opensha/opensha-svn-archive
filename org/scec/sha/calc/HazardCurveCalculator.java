@@ -87,7 +87,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
    * @param eqkRupForecast: selected Earthquake rup forecast
    * @return
    */
-  public void getHazardCurve(DiscretizedFuncAPI hazFunction,
+  public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, ERF_API eqkRupForecast)
   throws java.rmi.RemoteException{
 
@@ -212,6 +212,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
         hazFunction.set(i,0.0);
     --numForecasts;
     if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
+    return hazFunction;
 // double tempVal = -1.0*Math.log(1.0-hazFunction.getY(1));
 // System.out.println(tempVal);
   }
