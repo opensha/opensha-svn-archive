@@ -45,9 +45,9 @@ public class HazardMapCalculator {
   private CalcProgressBar progressClass ;
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   // directory where all the hazard map data sets will be saved
-  private static final String DATASETS_PATH = "HazardMapDataSets";
+  public static final String DATASETS_PATH = "HazardMapDataSets";
   // flag to indicate whether this IMT requires X values to be in log
- boolean xLogFlag = true;
+  boolean xLogFlag = true;
 
 
   /**
