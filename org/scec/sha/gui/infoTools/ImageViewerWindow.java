@@ -43,6 +43,7 @@ public class ImageViewerWindow extends JFrame {
     mapSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     mapText.setText(mapInfo);
     mapText.setEditable(false);
+    mapText.setSelectedTextColor(new Color(80, 80, 133));
     mapText.setSelectionColor(Color.blue);
 
     //adding the image to the label
