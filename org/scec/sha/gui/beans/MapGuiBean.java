@@ -73,7 +73,7 @@ public class MapGuiBean extends ParameterListEditor {
     parameterList.getParameter(gmtMap.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
     parameterList.getParameter(gmtMap.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
     parameterList.getParameter(gmtMap.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
-    parameterList.getParameter(gmtMap.MAX_LON_PARAM_NAME).setValue(new Double(maxLat));
+    parameterList.getParameter(gmtMap.MAX_LON_PARAM_NAME).setValue(new Double(maxLon));
     parameterList.getParameter(gmtMap.GRID_SPACING_PARAM_NAME).setValue(new Double(gridSpacing));
   }
 
