@@ -12,6 +12,8 @@ import org.scec.param.editor.ConstrainedStringParameterEditor;
 import org.scec.param.editor.ConstrainedDoubleParameterEditor;
 import org.scec.param.DoubleConstraint;
 import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.scec.param.event.ParameterChangeListener;
+import org.scec.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: PlotColorAndLineTypeSelectorControlPanel</p>
@@ -43,7 +45,7 @@ import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
  */
 
 public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
-    ActionListener{
+    ActionListener,ParameterChangeListener{
   private JPanel jPanel1 = new JPanel();
   private JLabel jLabel1 = new JLabel();
   private JScrollPane colorAndLineTypeSelectorPanel = new JScrollPane();
@@ -112,6 +114,9 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   private JButton doneButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
+  //last updated width vals for Labels
+  private int tickLabelWidth ;
+  private int axisLabelWidth;
 
   public PlotColorAndLineTypeSelectorControlPanel(PlotColorAndLineTypeSelectorControlPanelAPI api,
       ArrayList curveCharacterstics) {
@@ -125,9 +130,39 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
 
     Component parent = (Component)api;
     // show the window at center of the parent component
-     this.setLocation(parent.getX()+parent.getWidth()/2,
-                      parent.getY());
-    setPlotColorAndLineType(curveCharacterstics);
+     this.setLocation(parent.getX()+parent.getWidth()/3,
+                      parent.getY()+parent.getHeight()/2);
+
+     //creating the parameters to change the size of Labels
+     //creating list of supported font sizes
+     ArrayList supportedFontSizes = new ArrayList();
+
+     supportedFontSizes.add("8");
+     supportedFontSizes.add("10");
+     supportedFontSizes.add("12");
+     supportedFontSizes.add("14");
+     supportedFontSizes.add("16");
+     supportedFontSizes.add("18");
+     supportedFontSizes.add("20");
+     supportedFontSizes.add("22");
+     supportedFontSizes.add("24");
+
+     //creating the font size parameters
+     tickFontSizeParam = new StringParameter(tickFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(1));
+     axisLabelsFontSizeParam = new StringParameter(axislabelsFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(2));
+     tickFontSizeParam.addParameterChangeListener(this);
+     axisLabelsFontSizeParam.addParameterChangeListener(this);
+     tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
+     axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
+     //creating editors for these font size parameters
+     try{
+       tickFontSizeParamEditor = new ConstrainedStringParameterEditor(tickFontSizeParam);
+       axisLabelsFontSizeParamEditor = new ConstrainedStringParameterEditor(axisLabelsFontSizeParam);
+     }catch(Exception e){
+       e.printStackTrace();
+     }
+
+     setPlotColorAndLineType(curveCharacterstics);
   }
 
   private void jbInit() throws Exception {
@@ -201,33 +236,6 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     }
 
 
-
-    //creating list of supported font sizes
-    ArrayList supportedFontSizes = new ArrayList();
-
-    supportedFontSizes.add("8");
-    supportedFontSizes.add("10");
-    supportedFontSizes.add("12");
-    supportedFontSizes.add("14");
-    supportedFontSizes.add("16");
-    supportedFontSizes.add("18");
-    supportedFontSizes.add("20");
-    supportedFontSizes.add("22");
-    supportedFontSizes.add("24");
-
-    //creating the font size parameters
-    tickFontSizeParam = new StringParameter(tickFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(1));
-    axisLabelsFontSizeParam = new StringParameter(axislabelsFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(2));
-
-    //creating editors for these font size parameters
-    try{
-      tickFontSizeParamEditor = new ConstrainedStringParameterEditor(tickFontSizeParam);
-      axisLabelsFontSizeParamEditor = new ConstrainedStringParameterEditor(axisLabelsFontSizeParam);
-    }catch(Exception e){
-      e.printStackTrace();
-    }
-
-
     datasetSelector = new JLabel[numCurves];
     colorChooserButton = new  JButton[numCurves];
     lineTypeSelector = new JComboBox[numCurves];
@@ -294,7 +302,24 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       ,GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
   }
 
-
+  /**
+   * If parameter is changed then Parameter change event is called on this class
+   * @param event
+   */
+  public void parameterChange(ParameterChangeEvent event){
+    //updating the size of the labels
+    String paramName = event.getParameterName();
+    if(paramName.equals(this.tickFontSizeParamName)){
+      tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
+      tickFontSizeParamEditor.setValue(new String(""+tickLabelWidth));
+      tickFontSizeParamEditor.refreshParamEditor();
+    }
+    else if(paramName.equals(this.axislabelsFontSizeParamName)){
+      axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
+      axisLabelsFontSizeParamEditor.setValue(new String(""+axisLabelWidth));
+      axisLabelsFontSizeParamEditor.refreshParamEditor();
+    }
+  }
 
   /**
    * This is a common function if any action is performed on the color chooser button

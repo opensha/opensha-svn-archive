@@ -43,8 +43,12 @@ public interface GraphWindowAPI {
   //gets X Axis Label
   public String getYAxisName();
 
-  //get the color scheme for the Plots
-  public Color[] getSeriesColor();
+  /**
+   *
+   * @returns the list PlotCurveCharacterstics that contain the info about
+   * plotting the curve like plot line color , its width and line type.
+   */
+  public ArrayList getCurvePlottingCharacterstic();
 
   /**
    *

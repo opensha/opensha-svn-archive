@@ -907,47 +907,23 @@ public class GraphPanel extends JPanel {
 
 
   /**
-   * Sets the paint color of the curves from outside
-   * @param color : Array of Color Object
-   */
-  public void setSeriesColor(Color[] color){
-    int size = color.length;
-    legendPaint = new Paint[size];
-    legendColor = new Color[size];
-
-    for(int i=0;i<size;++i){
-      legendPaint[i] = color[i];
-      if(color[i] !=null)
-        legendColor[i] = new Color(color[i].getRGB());
-    }
-  }
-
-
-  /**
    *
-   * @returns the series color being used for the current graph schemes
-   */
-  public Color[] getSeriesColor(){
-    return legendColor;
-  }
-
-  /**
-   *
-   * @returns the Array of PlotCurveCharacterstics[] that contain the info about
+   * @returns the list PlotCurveCharacterstics that contain the info about
    * plotting the curve like plot line color , its width and line type.
    */
-  public ArrayList getCurvePlottingCharactersticInfo(){
+  public ArrayList getCurvePlottingCharacterstic(){
     return curvePlottingCharacterstics;
   }
 
-  /**
-   * Sets the default color scheme for the cureves drawn
-   */
-  public void setDefaultSeriesColor(){
-    legendPaint = defaultColor;
-    legendColor = defaultColor;
-  }
 
+  /**
+   * This sets the plotting prefences for the curves. It takes in the
+   * list of PlotCurveCharacterstics and apply it to each curve in the list.
+   * @param plotPrefsList: List of PlotCurveCharacterstics for all curves
+   */
+  public void setCurvePlottingCharacterstic(ArrayList plotPrefsList){
+    curvePlottingCharacterstics = plotPrefsList;
+  }
 
 
   /**

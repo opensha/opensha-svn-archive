@@ -1214,7 +1214,7 @@ public class AttenuationRelationshipApplet extends JApplet
    * curve in list.
    */
   public ArrayList getPlottingFeatures(){
-    return graphPanel.getCurvePlottingCharactersticInfo();
+    return graphPanel.getCurvePlottingCharacterstic();
   }
 
 

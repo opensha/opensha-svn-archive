@@ -75,12 +75,23 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   public GraphWindow(GraphWindowAPI api) {
     application = api;
     graphPanel = new GraphPanel(this);
-    graphPanel.setSeriesColor(api.getSeriesColor());
 
+    //creating the plotting pref array list from the application
+    //becuase it needs to be similar to what application has.
+    ArrayList plotCharacterstics = new ArrayList();
+    ArrayList applicationPlottingPrefList = api.getCurvePlottingCharacterstic();
+    int size = applicationPlottingPrefList.size();
+    for(int i=0;i<size;++i){
+      PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)applicationPlottingPrefList.get(i);
+      plotCharacterstics.add(new PlotCurveCharacterstics(curvePlotPref.getCurveName(),curvePlotPref.getCurveType(),
+          curvePlotPref.getCurveColor(),curvePlotPref.getCurveWidth(),curvePlotPref.getNumContinuousCurvesWithSameCharacterstics()));
+    }
+    graphPanel.setCurvePlottingCharacterstic(plotCharacterstics);
     //adding the list of Functions to the Peel-Off window
     functionList = new ArrayList();
     ArrayList applicationCurveList = api.getCurveFunctionList();
-    int size = applicationCurveList.size();
+
+    size = applicationCurveList.size();
     for(int i=0;i<size;++i)
       functionList.add(applicationCurveList.get(i));
 
@@ -255,6 +266,6 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
    * curve in list.
    */
   public ArrayList getPlottingFeatures(){
-    return graphPanel.getCurvePlottingCharactersticInfo();
+    return graphPanel.getCurvePlottingCharacterstic();
   }
 }
