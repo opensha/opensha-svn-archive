@@ -19,9 +19,6 @@ import java.util.*;
 
 public class PEER_InputFilesServlet extends HttpServlet {
 
-
-
-
   //Process the HTTP Get request
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -41,13 +38,17 @@ public class PEER_InputFilesServlet extends HttpServlet {
 
       FileWriter file = new FileWriter("GroupTestDataFiles/"+fileName);
       BufferedWriter oBuf= new BufferedWriter(file);
-
       // now read all the points from function and put into file
       int num = data.size();
       System.out.println("num of points:"+num);
       for(int i=0;i<num;++i)
         oBuf.write(data.get(i)+"\n");
       oBuf.close();
+
+      // now update the files.log file to reflect the newly added file
+      FileWriter logFile = new FileWriter("GroupTestDataFiles/files.log",true);
+      logFile.write(fileName+"\n");
+      logFile.close();
 
       // add this file to the JAR also
        Process p=Runtime.getRuntime().exec("jar uf /export/home/scec-00/scecweb/jsdk2.1/webpages/PEER.jar GroupTestDataFiles");

@@ -8,10 +8,11 @@ import java.applet.*;
 import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 import java.lang.reflect.*;
 import java.io.*;
+
+
 
 import com.jrefinery.chart.*;
 import com.jrefinery.chart.tooltips.*;
@@ -61,8 +62,6 @@ public class PEER_TestGuiPlotter extends JApplet implements
   private boolean xLog =false;
   private boolean yLog =false;
 
-  //Average flag declaration
-  private boolean isAverage = true;
 
   //variables that determine the window size
   protected final static int W = 850;
@@ -196,7 +195,6 @@ public class PEER_TestGuiPlotter extends JApplet implements
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     // for Y-log, convert 0 values in Y axis to this small value
     data.setConvertZeroToMin(true,Y_MIN_VAL);
-    data.setFunctions(functions);
   }
 
   //Initialize the applet
@@ -378,30 +376,6 @@ public class PEER_TestGuiPlotter extends JApplet implements
   }
 
 
-  /**
-   * Reads the selected test case file. returns the function conatining x,y values
-   * as contained in the file
-   * @param fileName
-   */
-  private ArbitrarilyDiscretizedFunc readFile(String fileName){
-    ArbitrarilyDiscretizedFunc function= new ArbitrarilyDiscretizedFunc();
-    try{
-    Iterator it = FileUtils.loadInCharFile(fileName).iterator();
-    while(it.hasNext()){
-      StringTokenizer st= new StringTokenizer(it.next().toString());
-      while(st.hasMoreTokens())
-        function.set(Double.parseDouble(st.nextToken()),Double.parseDouble(st.nextToken()));
-        function.setName(fileName);
-        function.setInfo(fileName);
-    }
-
-    }catch(IOException e) {
-      e.printStackTrace();
-    }
-     return function;
-  }
-
-
  /**removes all the components from the parameter paenl, and adds them in fresh
   * Based on the selected Test Case checkboxes are added to the panel
   **/
@@ -413,6 +387,8 @@ public class PEER_TestGuiPlotter extends JApplet implements
     String testSet= this.testCaseCombo.getSelectedItem().toString();
     testCasesPanel.removeAll();
     avgCasesPanel.removeAll();
+    // clear the function list
+    functions.clear();
     testCasesPanel.add(testPanelLabel,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(5, 3, 0, 0), 12, 3));
     avgCasesPanel.add(avgLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -429,6 +405,12 @@ public class PEER_TestGuiPlotter extends JApplet implements
       if(tempStr.equalsIgnoreCase(testSet)){
         int i= tempName.indexOf(".");
         String testSubmitterName = tempName.substring(index+1,i);
+
+        // tempName is the filename to be added
+        // add this file to the function list
+        DiscretizedFuncAPI func = loadFile(tempName);
+        func.setName(testSubmitterName);
+        functions.add(func);
 
         //adding the checkBoxes for the selceted test case
         JCheckBox testFilesCheck= new JCheckBox(testSubmitterName);
@@ -459,7 +441,6 @@ public class PEER_TestGuiPlotter extends JApplet implements
       checkBox = (JCheckBox)avgCheckBoxVector.get(j);
       checkBox.setForeground(AVERAGE_COLOR);
     }
-
     addGraphPanel();
 
   }
@@ -473,7 +454,10 @@ public class PEER_TestGuiPlotter extends JApplet implements
       // Starting
       String S = C + ": addGraphPanel(): ";
       int k;
+      // functions needed to calculate the average
       DiscretizedFuncList avgFunctions = new DiscretizedFuncList();
+      //functions for plotting
+      DiscretizedFuncList plotFunctions = new DiscretizedFuncList();
       // clearing all the plots before adding them to the functionList
       clearPlot(true);
 
@@ -501,27 +485,20 @@ public class PEER_TestGuiPlotter extends JApplet implements
         if(checkBox.isSelected() || avgCheckBox.isSelected()) {
           legendPaint[k++]=checkBox.getForeground();
           String checkText =checkBox.getText();
-          Iterator it= testFiles.iterator();
+          Iterator it= functions.iterator();
 
           //getting the correct filename to read the data from
-          while(it.hasNext())
-          {
-          String fileName=testSelected +"_"+checkText;
-          String fname=(String)it.next();
-          String tempString = fname.substring(0,fname.indexOf("."));
-          if(fileName.equalsIgnoreCase(tempString)) {
-            ArbitrarilyDiscretizedFunc func = readFile(DIR+fname);
-            if(checkBox.isSelected())  functions.add(func);
+          while(it.hasNext()) {
+          DiscretizedFuncAPI func=(DiscretizedFuncAPI)it.next();
+          if(checkText.equalsIgnoreCase(func.getName())) {
+            if(checkBox.isSelected())  plotFunctions.add(func);
             //see if the Average Check Box is selected, only then add to the functions to calc. average
-            if(isAverage)
             if(avgCheckBox.isSelected())  avgFunctions.add(func);
           }
           }
         }
       }
 
-      //adding the color in the legendPaint for the Average checkBox
-      //legendPaint[size]=averageCheck.getForeground();
 
 
       //see if the average checkBox is selected to calculate the average for all plotted prob's
@@ -529,7 +506,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
         DiscretizedFunc avgFunc = FunctionListCalc.getMean(avgFunctions);
         avgFunc.setInfo("Average");
         avgFunc.setName("Average");
-        functions.add(avgFunc);
+        plotFunctions.add(avgFunc);
         legendPaint[k++] = AVERAGE_COLOR;
       }
 
@@ -563,7 +540,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
           xAxis.setRange(this.minXValue,this.maxXValue);
           yAxis.setRange(this.minYValue,this.maxYValue);
         }
-
+      data.setFunctions(plotFunctions);
       // build the plot
       org.scec.gui.PSHALogXYPlot plot
           = new org.scec.gui.PSHALogXYPlot(this,data,
@@ -623,40 +600,73 @@ public class PEER_TestGuiPlotter extends JApplet implements
 
    }
 
+   /**
+    * This function loads the specified file from the jar file
+    *
+    * @param fileName : filename to be loaded
+    * @return
+    */
+   private DiscretizedFuncAPI loadFile(String fileName) {
+
+     ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+     try{
+       // files.log contains all the files uploaded so far
+       InputStream input = PEER_TestGuiPlotter.class.getResourceAsStream("/"+DIR+fileName);
+       DataInputStream dataStream = new DataInputStream(input);
+       String line;
+       // read the file line by line
+       while((line=dataStream.readLine())!=null) {
+         StringTokenizer st= new StringTokenizer(line);
+         // put the x,y values in the function
+         while(st.hasMoreTokens())
+           func.set(Double.parseDouble(st.nextToken()),Double.parseDouble(st.nextToken()));
+         func.setInfo(fileName);
+       }
+     }catch(Exception e) {
+       e.printStackTrace();
+     }
+     // return the function
+     return func;
+   }
+
 
    /**
     * This function looks for all the test cases files within the directory
     * and stores their name in Vector
     */
-  private  void searchTestFiles(){
+   private  void searchTestFiles(){
 
-    File thedir = new File(DIR);
-    int i;
-    boolean flag;
-    String[] files = thedir.list();
-    int numFiles=0;
-    for(int f=0;f<files.length;f++) {
-      int index=0;
-      if(files[f].endsWith(FILE_EXTENSION)) testFiles.add(files[f]);
-      else continue;
-      // find whether this test already exists in the test combo box options
-      index=files[f].indexOf("_");
-      String testCases = files[f].substring(0,index);
-      int count = testCaseCombo.getItemCount();
-      flag = false;
-      for(i=0; i<count; ++i)
-         if(testCaseCombo.getItemAt(i).toString().equalsIgnoreCase(testCases)) {
-            flag = true;
-            break;
+     try{
+       // files.log contains all the files uploaded so far
+       InputStream input = PEER_TestGuiPlotter.class.getResourceAsStream("/"+DIR+"files.log");
+       DataInputStream dataStream = new DataInputStream(input);
+       String line;
+       while((line=dataStream.readLine())!=null) {
+         if(line.endsWith(FILE_EXTENSION)) testFiles.add(line);
+         else continue;
+         int index=line.indexOf("_");
+         String testCases = line.substring(0,index);
+         int count = testCaseCombo.getItemCount();
+         boolean flag = false;
+         // check whether this set has already been added to combo box
+         for(int i=0; i<count; ++i) {
+           if(testCaseCombo.getItemAt(i).toString().equalsIgnoreCase(testCases)) {
+             flag = true;
+             break;
+           }
          }
-      if(!flag) testCaseCombo.addItem(testCases);
-    }
-  }
+         if(!flag) testCaseCombo.addItem(testCases);
+       }
+     }catch(Exception e) {
+       e.printStackTrace();
+     }
 
-  /**
-  * whenever selection is made in the combo box
-  * @param e
-  */
+   }
+
+   /**
+    * whenever selection is made in the combo box
+    * @param e
+   */
   void rangeComboBox_actionPerformed(ActionEvent e) {
 
     String str=(String)rangeComboBox.getSelectedItem();
@@ -665,17 +675,17 @@ public class PEER_TestGuiPlotter extends JApplet implements
       addGraphPanel();
     }
     if(str.equalsIgnoreCase(CUSTOM_SCALE))  {
-       Range rX = xAxis.getRange();
-       Range rY= yAxis.getRange();
-       double minX=rX.getLowerBound();
-       double maxX=rX.getUpperBound();
-       double minY=rY.getLowerBound();
-       double maxY=rY.getUpperBound();
+      Range rX = xAxis.getRange();
+      Range rY= yAxis.getRange();
+      double minX=rX.getLowerBound();
+      double maxX=rX.getUpperBound();
+      double minY=rY.getLowerBound();
+      double maxY=rY.getUpperBound();
 
 
-       int xCenter=getAppletXAxisCenterCoor();
-       int yCenter=getAppletYAxisCenterCoor();
-       AxisScale axisScale=new AxisScale(this,minX,maxX,minY,maxY);
+      int xCenter=getAppletXAxisCenterCoor();
+      int yCenter=getAppletYAxisCenterCoor();
+      AxisScale axisScale=new AxisScale(this,minX,maxX,minY,maxY);
        axisScale.setBounds(xCenter-60,yCenter-50,375,148);
        axisScale.pack();
        axisScale.show();
@@ -807,13 +817,8 @@ public class PEER_TestGuiPlotter extends JApplet implements
      if(this.averageCheck.isSelected()){
        avgSplitPane.add(avgScrollPane, JSplitPane.RIGHT);
        avgSplitPane.setDividerLocation(140);
-       isAverage = true;
      }
-     else
-     {
-       this.avgSplitPane.setRightComponent(null);
-       isAverage= false;
-     }
+     else  this.avgSplitPane.setRightComponent(null);
     addGraphPanel();
   }
 
