@@ -29,7 +29,7 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
 
   Abrahamson_2000_AttenRel abrahamson_2000 = null;
   //Tolerence to check if the results fall within the range.
-  private static double tolerence = .0001; //default value for the tolerence
+  private static double tolerence = .01; //default value for the tolerence
 
   /**String to see if the user wants to output all the parameter setting for the all the test set
    * or wants to see only the failed test result values, with the default being only the failed tests

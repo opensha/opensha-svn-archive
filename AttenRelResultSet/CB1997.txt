@@ -1811,7 +1811,7 @@ SetParameter("SA Period") = 3.00
 GetValue("Median") = 0.007875
 
 SetParameter("SA Period") = 4.00
-GetValue("Median") = 0.005277
+GetValue("Median") = 0.005276
 
 SetIntensityMeasure(SA)
 SetParameter("Magnitude") = 7.0

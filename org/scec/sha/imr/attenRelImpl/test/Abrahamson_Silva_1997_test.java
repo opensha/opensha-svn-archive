@@ -30,7 +30,7 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
   AS_1997_AttenRel as_1997 = null;
 
   //Tolerence to check if the results fall within the range.
-  private static double tolerence = .0001; //default value for the tolerence
+  private static double tolerence = .01; //default value for the tolerence
 
   /**String to see if the user wants to output all the parameter setting for the all the test set
    * or wants to see only the failed test result values, with the default being only the failed tests

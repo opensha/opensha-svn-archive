@@ -49,7 +49,7 @@ public class AttenRelResultsChecker {
   private String failedParamsSetting =null;
 
   //checks if the resulted values lies within the this tolerence range
-  private double tolerence = .0001; //default value for the tolerence
+  private double tolerence = .01; //default value for the tolerence
 
   private final static String parameterSetString = "SetParameter";
   private final static String getParamValString = "GetValue";
@@ -197,7 +197,7 @@ public class AttenRelResultsChecker {
             //we only need to get the parameters whose names have been given in the
             //file, result of the params will be set with the default values
             ParameterAPI tempParam = list.getParameter(paramName);
-            System.out.println("TestCaseNumber: "+this.testCaseNumber);
+
             //setting the value of the param based on which type it is: StringParameter,
             //DoubleParameter,IntegerParameter or WarningDoublePropagationEffectParameter(special parameter for propagation)
             if(tempParam instanceof StringParameter)
@@ -233,10 +233,10 @@ public class AttenRelResultsChecker {
             //getting the value of the Y_Axis Param as specified in the file from the test cases
             //which will be compared to the SHA value for the Y_Axis Param
             double yAxisParamVal =new Double(str.substring(str.indexOf("=")+1).trim()).doubleValue();
-
+            decimalFormat.setMaximumFractionDigits(6);
             failedParamsSetting += "GetValue For Param: "+"\""+yControlName+"\": "+"\n";
             double yAxisParamValFromSHA =this.getCalculation(yAxisValue);
-            yAxisParamValFromSHA = new Double(decimalFormat.format(yAxisParamValFromSHA)).doubleValue();
+            yAxisParamValFromSHA = Double.parseDouble(decimalFormat.format(yAxisParamValFromSHA));
             failedParamsSetting += "\tOpenSHA value for: "+"\""+yControlName+"\" = "+yAxisParamValFromSHA;
             failedParamsSetting += ",\tbut it should be : "+ yAxisParamVal+"\n";
 
@@ -277,9 +277,13 @@ public class AttenRelResultsChecker {
   private boolean compareResults(double valFromSHA,
                                  double targetVal){
     //comparing each value we obtained after doing the IMR calc with the target result
-    //and making sure that values lies with the .1% range of the target values.
+    //and making sure that values lies with the .01% range of the target values.
     //comparing if the values lies within the actual tolerence range of the target result
-    if(Math.abs(valFromSHA-targetVal)<= this.tolerence)
+    double result = 0;
+    if(targetVal!=0)
+      result =(StrictMath.abs(valFromSHA-targetVal)/targetVal)*100;
+
+    if(result < this.tolerence)
       return true;
     else
       return false;
