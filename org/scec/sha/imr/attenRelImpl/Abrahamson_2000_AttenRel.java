@@ -132,7 +132,7 @@ public class Abrahamson_2000_AttenRel
      * fault along strike that ruptures toward the site.
      */
     protected  DoubleParameter xDirParam = null;
-    protected final static String X_NAME = "X";
+    public final static String X_NAME = "X";
     protected final static String X_UNITS = null;
     protected final static Double X_MIN = new Double(0);
     protected final static Double X_MAX = new Double(1);

@@ -33,11 +33,11 @@ public class DistanceRupParameter
 
 
     /** Hardcoded name */
-    private final static String NAME = "DistanceRup";
+    public final static String NAME = "DistanceRup";
     /** Hardcoded units string */
-    private final static String UNITS = "km";
+    public final static String UNITS = "km";
     /** Hardcoded info string */
-    private final static String INFO = "Rupture Distance (closest distance to fault surface)";
+    public final static String INFO = "Rupture Distance (closest distance to fault surface)";
     /** Hardcoded min allowed value */
     private final static Double MIN = new Double(0.0);
     /** Hardcoded max allowed value */
