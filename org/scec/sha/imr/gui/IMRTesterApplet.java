@@ -13,17 +13,18 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import org.scec.gui.OvalBorder;
-import org.scec.gui.SidesBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+
+import org.scec.gui.*;
 
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
-import org.scec.param.event.ParameterChangeFailEvent;
-import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.data.function.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import org.scec.gui.plot.jfreechart.*;
+
 
 /**
  *  <b>Title:</b> IMRTesterApplet<br>
@@ -54,7 +55,7 @@ public class IMRTesterApplet
         ItemListener {
 
     protected final static String C = "IMRTesterApplet";
-    protected final static boolean D = true;
+    protected final static boolean D = false;
 
     private static int counter = 0;
 
@@ -229,7 +230,6 @@ public class IMRTesterApplet
 
     protected String lastXYAxisName = "";
 
-    ListOfArbDiscrFuncWithParams functions = new ListOfArbDiscrFuncWithParams();
     JComboBox imrComboBox = new JComboBox();
     JLabel imrLabel = new JLabel();
     protected javax.swing.JFrame frame;
@@ -240,11 +240,13 @@ public class IMRTesterApplet
 
     boolean isWhite = true;
 
+    DiscretizedFuncList functions = new DiscretizedFuncList();
+    DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
     /**
      *  Construct the applet
      */
-    public IMRTesterApplet() { }
+    public IMRTesterApplet() { data.setFunctions(functions); }
 
 
     /**
@@ -850,11 +852,8 @@ public class IMRTesterApplet
 
         //boolean loglog = false;
         com.jrefinery.chart.NumberAxis yAxis = null;
-        if (yLog)
-            yAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(yAxisLabel);
-
-        else
-            yAxis = new com.jrefinery.chart.VerticalNumberAxis( yAxisLabel );
+        if (yLog) yAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(yAxisLabel);
+        else yAxis = new com.jrefinery.chart.VerticalNumberAxis( yAxisLabel );
 
         yAxis.setAutoRangeIncludesZero( false );
         yAxis.setCrosshairLockedOnData( false );
@@ -867,8 +866,8 @@ public class IMRTesterApplet
 
 
         int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
-        if ( functions.getNumberDataPoints() < MIN_NUMBER_POINTS )
-            type = com.jrefinery.chart.StandardXYItemRenderer.SHAPES_AND_LINES;
+        //if ( functions. < MIN_NUMBER_POINTS )
+            //type = com.jrefinery.chart.StandardXYItemRenderer.SHAPES_AND_LINES;
 
         LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
         //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
@@ -876,7 +875,7 @@ public class IMRTesterApplet
 
 
         // build the plot
-        org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(functions, xAxis, yAxis, xLog, yLog);
+        org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(data, xAxis, yAxis, xLog, yLog);
         plot.setBackgroundAlpha( .8f );
 
         if( isWhite ) plot.setBackgroundPaint( Color.white );
@@ -1225,19 +1224,39 @@ public class IMRTesterApplet
         if ( D ) System.out.println( S + "Starting" );
         if ( D ) System.out.println( S + "Controls = " + this.imr.controlsEditor.getParameterList().toString() );
 
-        ArbDiscrFuncWithParamsAPI function = imr.getChoosenFunction();
-        function.setXLog(xLog);
-        function.setYLog(yLog);
+        DiscretizedFuncAPI function = imr.getChoosenFunction();
 
-        if ( !functions.functionFitsProfile( function ) )
+        data.setXLog(xLog);
+        data.setYLog(yLog);
+
+        String xOld = functions.getXAxisName();
+        String yOld = functions.getYAxisName();
+
+        String xNew = imr.getGraphXAxisLabel();
+        String yNew = imr.getGraphIMYAxisLabel();
+
+        boolean newGraph = false;
+        if( !xOld.equals(xNew) ) newGraph = true;
+        if( !yOld.equals(yNew) ) newGraph = true;
+
+        if( newGraph ){
             functions.clear();
-        if ( !functions.containsArbDiscrFunction2DWithParams( function ) )
-            functions.addArbDiscrFunction2DWithParams( function );
+            functions.setYAxisName( imr.getGraphIMYAxisLabel() );
+            functions.setXAxisName( imr.getGraphXAxisLabel() );
+        }
+
+
+        /** @todo may have to be switched when different x/y axis choosen */
+        if ( !functions.isFunctionAllowed( function ) ) {
+            functions.clear();
+        }
+        if( !functions.contains( function ) ){
+            if ( D ) System.out.println( S + "Adding new function" );
+            functions.add(function);
+        }
         else {
 
             if(D) System.out.println(S + "Showing Dialog");
-
-
             if( !this.inParameterChangeWarning ){
 
                 JOptionPane.showMessageDialog(
@@ -1360,8 +1379,8 @@ public class IMRTesterApplet
             if( jCheckxlog.isSelected() ) xLog = true;
             else xLog = false;
 
-            if( functions != null) {
-                functions.setXLog(xLog);
+            if( functions != null && data != null) {
+                data.setXLog(xLog);
                 String funcStr = functions.toString();
                 pointsTextArea.setText( currentIMRName + ": " + title + '\n' + funcStr );
                 addGraphPanel();
@@ -1379,8 +1398,8 @@ public class IMRTesterApplet
             else yLog = false;
 
 
-            if( functions != null) {
-                functions.setYLog(yLog);
+            if( functions != null && data != null) {
+                data.setYLog(yLog);
                 pointsTextArea.setText( currentIMRName + ": " + title + '\n' + functions.toString() );
                 addGraphPanel();
             }

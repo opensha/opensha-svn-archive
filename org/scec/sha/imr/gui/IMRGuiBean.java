@@ -303,7 +303,7 @@ public class IMRGuiBean
      * @return                      The string value of the desired picklist.
      * @throws  ParameterException  Thrown if an invalid type, must be 1-3.
      */
-    private String getGraphControlsParamValue( int type ) throws ParameterException {
+    protected String getGraphControlsParamValue( int type ) throws ParameterException {
 
         String paramName = null;
         switch ( type ) {
@@ -408,7 +408,7 @@ public class IMRGuiBean
      * @return                          The choosenFunction value
      * @exception  ConstraintException  Description of the Exception
      */
-    public ArbDiscrFuncWithParamsAPI getChoosenFunction()
+    public DiscretizedFuncAPI getChoosenFunction()
              throws ConstraintException {
 
         // Starting
@@ -440,7 +440,7 @@ public class IMRGuiBean
             throw new ConstraintException( S + "X-Axis must contain double or double discrete constraint." );
 
         // Get the Discretized Function - calculation done here
-        ArbDiscrFuncWithParamsAPI function = getFunctionForXAxis( xAxisParam, type );
+        DiscretizedFuncAPI function = getFunctionForXAxis( xAxisParam, type );
 
         // Clone the parameter list used to calculate this Discretized Function
         ParameterList clones = independentsEditor.getVisibleParametersCloned();
@@ -453,9 +453,7 @@ public class IMRGuiBean
         // Function given parameter list to identify other functions that could be
         // plotted on same axis, and to prevent plotting the exact same function again
         if ( function != null ) {
-            function.setYAxisName( getGraphIMYAxisLabel() );
-            function.setXAxisName( this.getGraphXAxisLabel() );
-            function.setParameterList( clones );
+            ((ArbDiscrFuncWithParams)function).setParameterList( clones );
         }
         return function;
     }
@@ -475,7 +473,7 @@ public class IMRGuiBean
      * @return                          The meansForXAxis value
      * @exception  ConstraintException  Description of the Exception
      */
-    private ArbDiscrFuncWithParamsAPI getFunctionForXAxis( ParameterAPI xAxisParam, int type )
+    private DiscretizedFuncAPI getFunctionForXAxis( ParameterAPI xAxisParam, int type )
              throws ConstraintException {
 
         // Starting

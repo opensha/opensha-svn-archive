@@ -317,6 +317,33 @@ public class ParameterList {
     }
 
     /**
+     * Returns true if all the parameters have the same names.
+     * One use will be to determine if two DisctetizedFunctions
+     * are the same, i.e. set up with the same independent parameters
+     */
+    public boolean equalNames(ParameterList list){
+
+        // Not same size, can't be equal
+        if( this.size() != list.size() ) return false;
+
+        // Check each individual Parameter
+        ListIterator it = this.getParametersIterator();
+        while(it.hasNext()){
+
+            // This list's parameter
+            ParameterAPI param1 = (ParameterAPI)it.next();
+
+            // List may not contain parameter with this list's parameter name
+            if ( !list.containsParameter(param1.getName()) ) return false;
+
+        }
+
+        // Passed all tests - return true
+        return true;
+
+    }
+
+    /**
      * Returns a copy of this list, therefore any changes to the copy
      * cannot affect this original list.
      */

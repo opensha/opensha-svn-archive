@@ -73,7 +73,7 @@ public class TreeMap extends AbstractMap
      *
      * @serial
      */
-    private Comparator comparator = null;
+    protected Comparator comparator = null;
 
     /**
      *  Description of the Field
@@ -83,12 +83,12 @@ public class TreeMap extends AbstractMap
     /**
      *  The number of entries in the tree
      */
-    private transient int size = 0;
+    protected transient int size = 0;
 
     /**
      *  The number of structural modifications to the tree.
      */
-    private transient int modCount = 0;
+    protected transient int modCount = 0;
 
     // Views
 
@@ -97,43 +97,43 @@ public class TreeMap extends AbstractMap
      *  view the first time this view is requested. The views are stateless, so
      *  there's no reason to create more than one of each.
      */
-    private transient Set keySet = null;
+    protected transient Set keySet = null;
     /**
      *  Description of the Field
      */
-    private transient Set entrySet = null;
+    protected transient Set entrySet = null;
     /**
      *  Description of the Field
      */
-    private transient Collection values = null;
+    protected transient Collection values = null;
 
     // Types of Iterators
     /**
      *  Description of the Field
      */
-    private final static int KEYS = 0;
+    protected final static int KEYS = 0;
     /**
      *  Description of the Field
      */
-    private final static int VALUES = 1;
+    protected final static int VALUES = 1;
     /**
      *  Description of the Field
      */
-    private final static int ENTRIES = 2;
+    protected final static int ENTRIES = 2;
 
     /**
      *  Description of the Field
      */
-    private final static boolean RED = false;
+    protected final static boolean RED = false;
     /**
      *  Description of the Field
      */
-    private final static boolean BLACK = true;
+    protected final static boolean BLACK = true;
 
     /**
      *  Description of the Field
      */
-    private final static long serialVersionUID = 919286545866124006L;
+    protected final static long serialVersionUID = 919286545866124006L;
 
 
     /**
@@ -213,7 +213,7 @@ public class TreeMap extends AbstractMap
      * @param  p  The new color value
      * @param  c  The new color value
      */
-    private static void setColor( Entry p, boolean c ) {
+    protected static void setColor( Entry p, boolean c ) {
         if ( p != null ) {
             p.color = c;
         }
@@ -259,7 +259,7 @@ public class TreeMap extends AbstractMap
      *      natural order, or its comparator does not tolerate * <tt>null</tt>
      *      keys.
      */
-    private Entry getEntry( Object key ) {
+    protected Entry getEntry( Object key ) {
         Entry p = root;
         while ( p != null ) {
             int cmp = compare( key, p.key );
@@ -284,7 +284,7 @@ public class TreeMap extends AbstractMap
      * @param  key  Description of the Parameter
      * @return      The ceilEntry value
      */
-    private Entry getCeilEntry( Object key ) {
+    protected Entry getCeilEntry( Object key ) {
         Entry p = root;
         if ( p == null ) {
             return null;
@@ -325,7 +325,7 @@ public class TreeMap extends AbstractMap
      * @param  key  Description of the Parameter
      * @return      The precedingEntry value
      */
-    private Entry getPrecedingEntry( Object key ) {
+    protected Entry getPrecedingEntry( Object key ) {
         Entry p = root;
         if ( p == null ) {
             return null;
@@ -359,7 +359,7 @@ public class TreeMap extends AbstractMap
     /**
      *  Description of the Method
      */
-    private void incrementSize() {
+    protected void incrementSize() {
         modCount++;
         size++;
     }
@@ -368,7 +368,7 @@ public class TreeMap extends AbstractMap
     /**
      *  Description of the Method
      */
-    private void decrementSize() {
+    protected void decrementSize() {
         modCount++;
         size--;
     }
@@ -430,7 +430,7 @@ public class TreeMap extends AbstractMap
      * @param  n  Description of the Parameter
      * @return    Description of the Return Value
      */
-    private boolean valueSearchNull( Entry n ) {
+    protected boolean valueSearchNull( Entry n ) {
         if ( n.value == null ) {
             return true;
         }
@@ -448,7 +448,7 @@ public class TreeMap extends AbstractMap
      * @param  value  Description of the Parameter
      * @return        Description of the Return Value
      */
-    private boolean valueSearchNonNull( Entry n, Object value ) {
+    protected boolean valueSearchNonNull( Entry n, Object value ) {
         // Check this node for the value
         if ( value.equals( n.value ) ) {
             return true;
@@ -533,7 +533,7 @@ public class TreeMap extends AbstractMap
      * @param  e  Description of the Parameter
      * @return    Description of the Return Value
      */
-    private static Object key( Entry e ) {
+    protected static Object key( Entry e ) {
         if ( e == null ) {
             throw new NoSuchElementException();
         }
@@ -570,23 +570,25 @@ public class TreeMap extends AbstractMap
         }
 
         while ( true ) {
+
             int cmp = compare( key, t.key );
-            if ( cmp == 0 ) {
-                return t.setValue( value );
-            } else if ( cmp < 0 ) {
-                if ( t.left != null ) {
-                    t = t.left;
-                } else {
+
+            if ( cmp == 0 ) return t.setValue( value );
+            else if ( cmp < 0 ) {
+
+                if ( t.left != null ) t = t.left;
+                else {
                     incrementSize();
                     t.left = new Entry( key, value, t );
                     fixAfterInsertion( t.left );
                     return null;
                 }
-            } else {
+            }
+            else {
+
                 // cmp > 0
-                if ( t.right != null ) {
-                    t = t.right;
-                } else {
+                if ( t.right != null ) { t = t.right; }
+                else {
                     incrementSize();
                     t.right = new Entry( key, value, t );
                     fixAfterInsertion( t.right );
@@ -968,7 +970,7 @@ public class TreeMap extends AbstractMap
      * @param  k2  Description of the Parameter
      * @return     Description of the Return Value
      */
-    private int compare( Object k1, Object k2 ) {
+    protected int compare( Object k1, Object k2 ) {
         return ( comparator == null ? ( ( Comparable ) k1 ).compareTo( k2 )
                  : comparator.compare( k1, k2 ) );
     }
@@ -982,7 +984,7 @@ public class TreeMap extends AbstractMap
      * @param  o2  Description of the Parameter
      * @return     Description of the Return Value
      */
-    private static boolean valEquals( Object o1, Object o2 ) {
+    protected static boolean valEquals( Object o1, Object o2 ) {
         return ( o1 == null ? o2 == null : o1.equals( o2 ) );
     }
 
@@ -993,7 +995,7 @@ public class TreeMap extends AbstractMap
      *
      * @return    Description of the Return Value
      */
-    private Entry firstEntry() {
+    protected Entry firstEntry() {
         Entry p = root;
         if ( p != null ) {
             while ( p.left != null ) {
@@ -1010,7 +1012,7 @@ public class TreeMap extends AbstractMap
      *
      * @return    Description of the Return Value
      */
-    private Entry lastEntry() {
+    protected Entry lastEntry() {
         Entry p = root;
         if ( p != null ) {
             while ( p.right != null ) {
@@ -1027,7 +1029,7 @@ public class TreeMap extends AbstractMap
      * @param  t  Description of the Parameter
      * @return    Description of the Return Value
      */
-    private Entry successor( Entry t ) {
+    protected Entry successor( Entry t ) {
         if ( t == null ) {
             return null;
         } else if ( t.right != null ) {
@@ -1059,7 +1061,7 @@ public class TreeMap extends AbstractMap
      * @return    Description of the Return Value
      */
 
-    private static boolean colorOf( Entry p ) {
+    protected static boolean colorOf( Entry p ) {
         return ( p == null ? BLACK : p.color );
     }
 
@@ -1070,7 +1072,7 @@ public class TreeMap extends AbstractMap
      * @param  p  Description of the Parameter
      * @return    Description of the Return Value
      */
-    private static Entry parentOf( Entry p ) {
+    protected static Entry parentOf( Entry p ) {
         return ( p == null ? null : p.parent );
     }
 
@@ -1081,7 +1083,7 @@ public class TreeMap extends AbstractMap
      * @param  p  Description of the Parameter
      * @return    Description of the Return Value
      */
-    private static Entry leftOf( Entry p ) {
+    protected static Entry leftOf( Entry p ) {
         return ( p == null ) ? null : p.left;
     }
 
@@ -1092,7 +1094,7 @@ public class TreeMap extends AbstractMap
      * @param  p  Description of the Parameter
      * @return    Description of the Return Value
      */
-    private static Entry rightOf( Entry p ) {
+    protected static Entry rightOf( Entry p ) {
         return ( p == null ) ? null : p.right;
     }
 
@@ -1102,7 +1104,7 @@ public class TreeMap extends AbstractMap
      *
      * @param  p  Description of the Parameter
      */
-    private void rotateLeft( Entry p ) {
+    protected void rotateLeft( Entry p ) {
         Entry r = p.right;
         p.right = r.left;
         if ( r.left != null ) {
@@ -1126,7 +1128,7 @@ public class TreeMap extends AbstractMap
      *
      * @param  p  Description of the Parameter
      */
-    private void rotateRight( Entry p ) {
+    protected void rotateRight( Entry p ) {
         Entry l = p.left;
         p.left = l.right;
         if ( l.right != null ) {
@@ -1150,7 +1152,7 @@ public class TreeMap extends AbstractMap
      *
      * @param  x  Description of the Parameter
      */
-    private void fixAfterInsertion( Entry x ) {
+    protected void fixAfterInsertion( Entry x ) {
         x.color = RED;
 
         while ( x != null && x != root && x.parent.color == RED ) {
@@ -1201,7 +1203,7 @@ public class TreeMap extends AbstractMap
      *
      * @param  p  Description of the Parameter
      */
-    private void deleteEntry( Entry p ) {
+    protected void deleteEntry( Entry p ) {
         decrementSize();
 
         // If strictly internal, first swap position with successor.
@@ -1257,7 +1259,7 @@ public class TreeMap extends AbstractMap
      *
      * @param  x  Description of the Parameter
      */
-    private void fixAfterDeletion( Entry x ) {
+    protected void fixAfterDeletion( Entry x ) {
         while ( x != root && colorOf( x ) == BLACK ) {
             if ( x == leftOf( parentOf( x ) ) ) {
                 Entry sib = rightOf( parentOf( x ) );
@@ -1327,7 +1329,7 @@ public class TreeMap extends AbstractMap
      * @param  x  Description of the Parameter
      * @param  y  Description of the Parameter
      */
-    private void swapPosition( Entry x, Entry y ) {
+    protected void swapPosition( Entry x, Entry y ) {
         // Save initial values.
         Entry px = x.parent;
         // Save initial values.
@@ -1428,7 +1430,7 @@ public class TreeMap extends AbstractMap
      *      determined by the TreeMap's Comparator, or by the keys' natural
      *      ordering if the TreeMap has no Comparator).
      */
-    private void writeObject( java.io.ObjectOutputStream s )
+    protected void writeObject( java.io.ObjectOutputStream s )
              throws java.io.IOException {
         // Write out the Comparator and any hidden stuff
         s.defaultWriteObject();
@@ -1454,7 +1456,7 @@ public class TreeMap extends AbstractMap
      * @exception  java.io.IOException     Description of the Exception
      * @exception  ClassNotFoundException  Description of the Exception
      */
-    private void readObject( final java.io.ObjectInputStream s )
+    protected void readObject( final java.io.ObjectInputStream s )
              throws java.io.IOException, ClassNotFoundException {
         // Read in the Comparator and any hidden stuff
         s.defaultReadObject();
@@ -1523,7 +1525,7 @@ public class TreeMap extends AbstractMap
      * @throws  ClassNotFoundException  propagated from readObject. This cannot
      *      occur if str is null.
      */
-    private void buildFromSorted( int size, java.util.Iterator it,
+    protected void buildFromSorted( int size, java.util.Iterator it,
             java.io.ObjectInputStream str,
             Object defaultVal )
              throws java.io.IOException, ClassNotFoundException {
@@ -1555,7 +1557,7 @@ public class TreeMap extends AbstractMap
      * @exception  java.io.IOException     Description of the Exception
      * @exception  ClassNotFoundException  Description of the Exception
      */
-    private static Entry buildFromSorted( int level, int lo, int hi,
+    protected static Entry buildFromSorted( int level, int lo, int hi,
             int redLevel,
             java.util.Iterator it,
             java.io.ObjectInputStream str,
@@ -1638,7 +1640,7 @@ public class TreeMap extends AbstractMap
      * @param  sz  Description of the Parameter
      * @return     Description of the Return Value
      */
-    private static int computeRedLevel( int sz ) {
+    protected static int computeRedLevel( int sz ) {
         int level = 0;
         for ( int m = sz - 1; m >= 0; m = m / 2 - 1 ) {
             level++;
@@ -1653,27 +1655,27 @@ public class TreeMap extends AbstractMap
      * @author     srock
      * @created    February 20, 2002
      */
-    private class SubMap extends AbstractMap
+    protected class SubMap extends AbstractMap
              implements SortedMap, java.io.Serializable {
         /**
          *  Description of the Field
          */
-        private final static long serialVersionUID = -6520786458950516097L;
+        protected final static long serialVersionUID = -6520786458950516097L;
 
         /**
          *  fromKey is significant only if fromStart is false. Similarly, toKey
          *  is significant only if toStart is false.
          */
-        private boolean fromStart = false, toEnd = false;
+        protected boolean fromStart = false, toEnd = false;
         /**
          *  Description of the Field
          */
-        private Object fromKey, toKey;
+        protected Object fromKey, toKey;
 
         /**
          *  Description of the Field
          */
-        private transient Set entrySet = new EntrySetView();
+        protected transient Set entrySet = new EntrySetView();
 
 
         /**
@@ -1877,7 +1879,7 @@ public class TreeMap extends AbstractMap
          * @param  key  Description of the Parameter
          * @return      Description of the Return Value
          */
-        private boolean inRange( Object key ) {
+        protected boolean inRange( Object key ) {
             return ( fromStart || compare( key, fromKey ) >= 0 ) &&
                     ( toEnd || compare( key, toKey ) < 0 );
         }
@@ -1890,7 +1892,7 @@ public class TreeMap extends AbstractMap
          * @param  key  Description of the Parameter
          * @return      Description of the Return Value
          */
-        private boolean inRange2( Object key ) {
+        protected boolean inRange2( Object key ) {
             return ( fromStart || compare( key, fromKey ) >= 0 ) &&
                     ( toEnd || compare( key, toKey ) <= 0 );
         }
@@ -1902,11 +1904,11 @@ public class TreeMap extends AbstractMap
          * @author     srock
          * @created    February 20, 2002
          */
-        private class EntrySetView extends AbstractSet {
+        protected class EntrySetView extends AbstractSet {
             /**
              *  Description of the Field
              */
-            private transient int size = -1, sizeModCount;
+            protected transient int size = -1, sizeModCount;
 
 
             /**
@@ -2003,27 +2005,27 @@ public class TreeMap extends AbstractMap
      * @author     srock
      * @created    February 20, 2002
      */
-    private class Iterator implements java.util.Iterator {
+    protected class Iterator implements java.util.Iterator {
         /**
          *  Description of the Field
          */
-        private int type;
+        protected int type;
         /**
          *  Description of the Field
          */
-        private int expectedModCount = TreeMap.this.modCount;
+        protected int expectedModCount = TreeMap.this.modCount;
         /**
          *  Description of the Field
          */
-        private Entry lastReturned = null;
+        protected Entry lastReturned = null;
         /**
          *  Description of the Field
          */
-        private Entry next;
+        protected Entry next;
         /**
          *  Description of the Field
          */
-        private Entry firstExcluded = null;
+        protected Entry firstExcluded = null;
 
 
         /**

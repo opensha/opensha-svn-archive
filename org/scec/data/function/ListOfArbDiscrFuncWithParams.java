@@ -136,7 +136,7 @@ public class ListOfArbDiscrFuncWithParams extends DiscretizedFunctionXYDataSet{
      * Returns a copy of this list, therefore any changes to the copy
      * cannot affect this original list.
      */
-    public Object clone(){
+    protected Object clone(){
 
         ListOfArbDiscrFuncWithParams list1 = new ListOfArbDiscrFuncWithParams();
 

@@ -5,29 +5,23 @@ import org.scec.data.*;
 import org.scec.param.*;
 
 /**
- * Title:
+ * Title: EvenlyDiscrFuncWithParams
  * Description:
  * Copyright:    Copyright (c) 2001
  * Company:
- * @see DiscretizedFunction2D
- * @see XYDiscretizedFunction2DAPI
- * @see DiscretizedFunction2DAPI
+ * @see EvenlyDiscretizedFunc
+ * @see FuncWithParamsAPI
+ * @see DiscretizedFunc
+ * @see DiscretizedFuncAPI
  * @see ParameterList
- * @author
+ * @author Steven W. Rock
  * @version 1.0
  */
 
-public class ArbDiscrFuncWithParams
-    extends ArbitrarilyDiscretizedFunc
+public class EvenlyDiscrFuncWithParams
+    extends EvenlyDiscretizedFunc
     implements FuncWithParamsAPI
 {
-
-
-    // *******************
-    /** @todo  Variables */
-    // *******************
-
-
 
     /**
      * This parameter list is the set of parameters that went into
@@ -44,43 +38,15 @@ public class ArbDiscrFuncWithParams
     /** @todo  Constructors */
     // **********************
 
-    /**
-     * The passed in comparator must be an implementor of DataPoint2DComparatorAPI.
-     * These comparators know they are dealing with a DataPoint2D and usually
-     * only compare the x-values for sorting. Special comparators may wish to
-     * sort on both the x and y values, i.e. the data points are geographical
-     * locations.
-     */
-    public ArbDiscrFuncWithParams(Comparator comparator) { super(comparator); }
 
-    /**
-     * The passed in comparator must be an implementor of DataPoint2DComparatorAPI.
-     * These comparators know they are dealing with a DataPoint2D and usually
-     * only compare the x-values for sorting. Special comparators may wish to
-     * sort on both the x and y values, i.e. the data points are geographical
-     * locations.
-     */
-    public ArbDiscrFuncWithParams(DataPoint2DComparatorAPI comparator) { super(comparator); }
-
-    /**
-     *  Easiest one to use, uses the default DataPoint2DToleranceComparator comparator.
-     */
-    public ArbDiscrFuncWithParams(Double tolerance) { super(tolerance); }
-
-
-    /**
-     *  basic No-Arg constructor
-     */
-    public ArbDiscrFuncWithParams() { super(); }
-
-    /**
-     * Sets all values for this special type of DiscretizedFunction
-     */
-    public ArbDiscrFuncWithParams( ParameterList list ) {
-        super();
-        this.list = list;
+    public EvenlyDiscrFuncWithParams(Double min, int num, Double delta) {
+        super(min, num, delta);
     }
 
+    public EvenlyDiscrFuncWithParams(Double min, int num, Double delta, ParameterList list) {
+        super(min, num, delta);
+        this.list = list;
+    }
 
 
 
@@ -88,8 +54,6 @@ public class ArbDiscrFuncWithParams
     // **********************************
     /** @todo  Data Accessors / Setters */
     // **********************************
-
-    public String getInfo(){ return list.toString(); }
 
     /**
      * This parameter list is the set of parameters that went into
@@ -105,6 +69,8 @@ public class ArbDiscrFuncWithParams
 
     /** Returns name/value pairs, separated with commas, as one string, usefule for legends, etc. */
     public String getParametersString(){ return list.toString(); }
+
+    public String getInfo(){ return list.toString(); }
 
     /** Returns true if two DefaultXYDiscretizedFunction2D have the same independent parameters */
     public boolean equalParameterNamesAndValues(FuncWithParamsAPI function){
@@ -125,18 +91,28 @@ public class ArbDiscrFuncWithParams
     /** Returns a copy of this and all points in this DiscretizedFunction */
     public DiscretizedFuncAPI deepClone(){
 
-        ArbDiscrFuncWithParams function = new ArbDiscrFuncWithParams();
-        function.setTolerance( this.getTolerance() );
-        function.setParameterList( (ParameterList)this.getParameterList().clone() );
+        EvenlyDiscrFuncWithParams f = new EvenlyDiscrFuncWithParams(
+            new Double( minX.doubleValue() ), num, new Double(delta.doubleValue() )
+        );
 
-        Iterator it = this.getPointsIterator();
-        if( it != null ) {
-            while(it.hasNext()) {
-                function.set( (DataPoint2D)((DataPoint2D)it.next()).clone() );
-            }
+        f.info = info;
+        f.maxY = new Double( maxY.doubleValue() );
+        f.minY = new Double( minY.doubleValue() );
+        f.minX = new Double( minX.doubleValue() );
+        f.name = name;
+        f.tolerance = tolerance;
+
+        f.setParameterList( (ParameterList)getParameterList().clone() );
+
+        ListIterator it = getYValuesIterator();
+        int counter = 0;
+        while( it.hasNext() ){
+            Object obj = it.next();
+            if( obj != null ) f.set(counter++, (Double)obj );
+            else f.set(counter++, null );
         }
 
-        return function;
+        return f;
 
     }
 
@@ -146,8 +122,8 @@ public class ArbDiscrFuncWithParams
      * by the DiscretizedFunction2DAPIList to determine if it should add a new function
      * to the list.
      */
-    public boolean equalParameters(FuncWithParamsAPI function){
-        String S = C + ": equalParameters():";
+    public boolean equals(FuncWithParamsAPI function){
+        String S = C + ": equals():";
         return function.getParameterList().equals( this.list );
     }
 

@@ -140,11 +140,8 @@ public class DataPoint2D implements Comparable {
      */
     public boolean equals( DataPoint2D point ) {
         Double xx = point.getX();
-        if ( x.equals( xx ) ) {
-            return true;
-        } else {
-            return false;
-        }
+        if ( x.equals( xx ) ) return true;
+        else  return false;
     }
 
 
@@ -162,11 +159,9 @@ public class DataPoint2D implements Comparable {
         double x = this.x.doubleValue();
         double xx = point.getX().doubleValue();
 
-        if ( Math.abs( x - xx ) <= tolerance.doubleValue() ) {
-            return true;
-        } else {
-            return false;
-        }
+        if ( Math.abs( x - xx ) <= tolerance.doubleValue() ) return true;
+        else return false;
+
     }
 
 
@@ -179,11 +174,8 @@ public class DataPoint2D implements Comparable {
      *      values
      */
     public boolean equals( Double x, Double y ) {
-        if ( ( this.x == x ) && ( this.y == y ) ) {
-            return true;
-        } else {
-            return false;
-        }
+        if ( ( this.x == x ) && ( this.y == y ) ) return true;
+        else return false;
     }
 
 
@@ -194,11 +186,8 @@ public class DataPoint2D implements Comparable {
      * @return    true if this x-value equals the passed in x value
      */
     public boolean equals( Double x ) {
-        if ( this.x == x ) {
-            return true;
-        } else {
-            return false;
-        }
+        if ( this.x == x ) return true;
+        else return false;
     }
 
 

@@ -111,7 +111,7 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
     /**
      *  The comparator used for sorting the dataPoints2D
      */
-    public DataPoint2DComparatorAPI comparator;
+    public DataPoint2DComparatorAPI comparator = new DataPoint2DToleranceComparator();
 
 
     /**
@@ -188,7 +188,7 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
 
         DataPoint2DTreeMap map = new DataPoint2DTreeMap( comparator );
         Set set = this.keySet();
-        Iterator it = set.iterator();
+        java.util.Iterator it = set.iterator();
         while ( it.hasNext() ) {
             DataPoint2D d2 = ( DataPoint2D ) it.next();
             map.put( d2 );
@@ -213,7 +213,7 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
         }
 
         Set set = this.keySet();
-        Iterator it = set.iterator();
+        java.util.Iterator it = set.iterator();
         DataPoint2D point = null;
 
         int counter = 0;
@@ -224,15 +224,58 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
         return point;
     }
 
+    /**
+     *  Finds the first point with the spcified x value within tolerance of the
+     *  comparator. Returns null if none found
+     *
+     * @param  index  Description of the Parameter
+     * @return        Description of the Return Value
+     */
+    public DataPoint2D get( Double x ) {
+
+        Set set = this.keySet();
+        java.util.Iterator it = set.iterator();
+        DataPoint2D point = null;
+        DataPoint2D findPoint = new DataPoint2D(x, new Double(0.0) );
+
+        while( it.hasNext() ){
+
+            point = ( DataPoint2D ) it.next();
+            if( comparator.compare(point, findPoint) == 0 )
+                return point;
+
+        }
+
+        return null;
+    }
+
+    /** returns the Y value given an x value - within tolerancea, returns null if not found */
+    public int getIndex(DataPoint2D point){
+
+        Set set = this.keySet();
+        java.util.Iterator it = set.iterator();
+
+        DataPoint2D point2 = null;
+        int counter = 0;
+        while( it.hasNext() ){
+
+            point2 = ( DataPoint2D ) it.next();
+            if( comparator.compare(point, point2) == 0 )
+                return counter;
+
+            counter++;
+        }
+
+        return -1;
+
+    }
 
     /**
      *  Returns the smallest Y-Value in this series
      *
      * @return    The minY value
      */
-    public Double getMinY() {
-        return minY;
-    }
+    public Double getMinY() { return minY; }
 
 
     /**
@@ -240,9 +283,7 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
      *
      * @return    The maxY value
      */
-    public Double getMaxY() {
-        return maxY;
-    }
+    public Double getMaxY() { return maxY; }
 
 
     /**
@@ -251,9 +292,7 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
      *
      * @return    The tolerance value
      */
-    public Double getTolerance() {
-        return comparator.getTolerance();
-    }
+    public Double getTolerance() { return comparator.getTolerance(); }
 
 
     /**
@@ -306,9 +345,12 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
      *      keys.
      */
     public Object put( DataPoint2D key ) {
+
         Object value = this.PRESENT;
 
+        // Calculate min and max values
         if ( !first ) {
+
             double y = key.getY().doubleValue();
             double min = minY.doubleValue();
             double max = maxY.doubleValue();
@@ -318,13 +360,54 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
             } else if ( y > max ) {
                 maxY = key.getY();
             }
-        } else {
+        }
+        else {
             minY = key.getY();
             maxY = minY;
             first = false;
         }
 
-        return super.put( key, value );
+        Entry t = root;
+
+        if ( t == null ) {
+            incrementSize();
+            root = new Entry( key, value, null );
+            return null;
+        }
+
+        while ( true ) {
+
+            int cmp = compare( key, t.key );
+
+            if ( cmp == 0 ) {
+
+                t.key = key;
+                return t.setValue( value );
+
+            }
+            else if ( cmp < 0 ) {
+
+                if ( t.left != null ) t = t.left;
+                else {
+                    incrementSize();
+                    t.left = new Entry( key, value, t );
+                    fixAfterInsertion( t.left );
+                    return null;
+                }
+            }
+            else {
+
+                // cmp > 0
+                if ( t.right != null ) { t = t.right; }
+                else {
+                    incrementSize();
+                    t.right = new Entry( key, value, t );
+                    fixAfterInsertion( t.right );
+                    return null;
+                }
+            }
+        }
+
     }
 
 

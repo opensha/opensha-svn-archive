@@ -19,7 +19,6 @@ import org.scec.gui.plot.jfreechart.*;
  * <p>Description: Collection of static utilities used in conjunction with
  * strike, dip and rake angles of faults.</p>
  * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
  * @author Steven W. Rock
  * @version 1.0
  */
@@ -92,14 +91,18 @@ public final class FaultUtils {
 
 
 
-    /**
+    /*
+     7/17/2002: SWR: Not needed anymore since made FaultTraceXYDataSet. FaultTrace
+     can be passed right to JFreeChart. No longer need conversion to ArbDiscrFunction2DWithParams.
+
+
      * Converts a GriddedSurface into a ArbDiscrFunction2DWithParams so that it
      * can be plotted in a JFreeChart plotter. <P>
      * Note: SWR - May need to redo this framework so that no conversion is
      * needed. Hold off for now until this becomes a problem.
      * @param surface
      * @return
-     */
+     * /
     public static ArbDiscrFuncWithParams getFaultTraceFunction2DWithParams(FaultTrace faultTrace){
 
         StringParameter level = new StringParameter("Trace");
@@ -127,16 +130,21 @@ public final class FaultUtils {
         }
         return function;
     }
+    */
 
 
-    /**
+    /*
+     7/17/2002: SWR: Not needed anymore since made GriddedSurfaceXYDataSet. GriddedSurfaces
+     can be passed right to JFreeChart. No longer need conversion to ArbDiscrFunction2DWithParams.
+
+     *
      * Converts a GriddedSurface into a ArbDiscrFunction2DWithParams so that it
      * can be plotted in a JFreeChart plotter. <P>
      * Note: SWR - May need to redo this framework so that no conversion is
      * needed. Hold off for now until this becomes a problem.
      * @param surface
      * @return
-     */
+     * /
     public static ListOfArbDiscrFuncWithParams getGriddedSurfaceFunctions2DWithParams(GriddedSurfaceAPI surface, String faultName){
 
         String S = C + ": getGriddedSurfaceFunctions2DWithParams(): ";
@@ -203,7 +211,7 @@ public final class FaultUtils {
         if( D ) System.out.println(S + "Ending");
         return list;
     }
-
+    */
 
 
 

@@ -3,59 +3,60 @@ package org.scec.gui.plot.jfreechart;
 import java.util.*;
 
 import com.jrefinery.data.*;
-import org.scec.data.function.*;
-import org.scec.util.*;
 import org.scec.data.*;
+import org.scec.data.function.DiscretizedFuncAPI;
+import org.scec.data.function.DiscretizedFuncList;
 
-import java.util.*;
-
-import org.scec.exceptions.ConstraintException;
-import org.scec.exceptions.DiscretizedFunction2DException;
-import org.scec.data.DataPoint2D;
-import org.scec.gui.plot.jfreechart.*;
 
 /**
- *  <b>Title:</b> Function2DList<br>
- *  <b>Description:</b> List container for 2D Functions. Subclasses deal with
- *  particular types of 2D Functions. <p>
- *  Implements XYDataSet so that it can be passed into the JRefinery Graphing
- *  Package <p>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  <b>Title:</b> DiscretizedFunctionXYDataSet<br>
+ *  <b>Description:</b> Wrapper for a DiscretizedFuncList. Implements
+ *  XYDataSet so that it can be passed into the JRefinery Graphing Package <p>
  *
+ *  Modified 7/21/2002 SWR: I  mede this list more generic to handle any type
+ *  of DiscretizedFunc that implements DiscretizedFuncAPI. Previously it only
+ *  handled ArbDiscrFunctWithParams.<p>
+ *
+ *  Modified 7/21/2002 SWR: (Still need to do) Made this list handle log-log
+ *  plots by hiding zero values in x and y axis when choosen. If not
+ *  JFreeeChart will throw an arithmatic exception.<p>
+ *
+ *  <b>Copyright:</b> Copyright (c) 2001<br>
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002
  * @see        XYDataSet
- * @version    1.0
+ * @see        DiscretizedFuncList
+ * @version    1.2
  */
 
-public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
+public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
 
-    /**
-     *  Description of the Field
-     */
+
     protected final static String C = "DiscretizedFunctionXYDataSet";
-    /**
-     *  Description of the Field
-     */
     protected final static boolean D = false;
+
+    protected boolean yLog = false;
+    protected boolean xLog = false;
+
+    public boolean isYLog() { return yLog; }
+    public void setYLog(boolean yLog) { if( yLog != this.yLog ) { this.yLog = yLog; } }
+
+    public boolean isXLog() { return xLog; }
+    public void setXLog(boolean xLog) { if( xLog != this.xLog ) { this.xLog = xLog; } }
+
 
     /**
      *  Internal list of 2D Functions - indexed by name
      */
-    protected Vector functions = new Vector();
+    protected DiscretizedFuncList functions = null;
 
     /**
      *  list of listeners for data changes
      */
     protected Vector listeners = new Vector();
 
-    /**
-     *  Name of this Function2DList. Used for display purposes and identifying
-     *  unique Lists.
-     */
-    protected String name;
+
 
 
     /**
@@ -69,19 +70,22 @@ public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedOb
      *
      * @param  newName  The new name value
      */
-    public void setName( String newName ) {
-        name = newName;
-    }
+    public void setName( String name ) { functions.setName( name ); }
+
+    /**
+     *  Gets the name attribute of the Function2DList object
+     *
+     * @return    The name value
+     */
+    public String getName() { return functions.getName(); }
 
 
     /**
      *  returns an iterator of all DiscretizedFunction2Ds in the list
      *
-     * @return    The discretizedFunction2DsIterator value
+     * @return    The lsitIterator value
      */
-    public ListIterator getDiscretizedFunction2DsIterator() {
-        return functions.listIterator();
-    }
+    public ListIterator listIterator() { return functions.listIterator(); }
 
 
 
@@ -90,18 +94,22 @@ public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedOb
      *
      * @return    The number of series in the dataset.
      */
-    public int getSeriesCount() {
-        return this.size();
-    }
+    public int getSeriesCount() { return functions.size(); }
+
 
 
     /**
-     *  Returns the name of a series.
-     *
-     * @param  series  The series (zero-based index).
-     * @return         The seriesName value
+     * Returns the name of a series.
+     * @param series The series (zero-based index).
      */
-    public abstract String getSeriesName( int series );
+    public String getSeriesName(int series)
+    {
+        if( series < functions.size() ){
+            String str = ( (DiscretizedFuncAPI)this.functions.get(series) ).getInfo();
+            return str;
+        }
+        else return "";
+    }
 
 
 
@@ -112,12 +120,12 @@ public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedOb
      * @return         The number of items within a series.
      */
     public int getItemCount( int series ) {
-
+        int num = -1;
         if ( series < functions.size() ) {
-            return ( ( DiscretizedFuncAPI ) this.functions.get( series ) ).getNum();
-        } else {
-            return -1;
+            DiscretizedFuncAPI f = functions.get( series );
+            num = f.getNum();
         }
+        return num;
     }
 
 
@@ -135,9 +143,14 @@ public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedOb
 
         if ( series < functions.size() ) {
             Object obj = functions.get( series );
-            DataPoint2D point = ( ( DiscretizedFuncAPI ) obj ).get( item );
-            if ( D )  System.out.println( C + ": getXValue(): X = " + point.getX().toString() );
-            return ( Number ) point.getX();
+            if( obj != null && obj instanceof DiscretizedFuncAPI){
+
+                Double x = ( ( DiscretizedFuncAPI ) obj ).getX(item);
+                if( x != null ) {
+                    if ( D )  System.out.println( C + ": getXValue(): X = " + x.toString() );
+                    return ( Number ) x;
+                }
+            }
         }
         return null;
 
@@ -154,22 +167,20 @@ public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedOb
     public Number getYValue( int series, int item ) {
 
         if ( series < functions.size() ) {
-            DataPoint2D point = ( ( DiscretizedFuncAPI ) this.functions.get( series ) ).get( item );
-            if ( D ) System.out.println( C + ": getYValue(): Y = " + point.getY().toString() );
-            return ( Number ) point.getY();
+            Object obj = functions.get( series );
+            if( obj != null && obj instanceof DiscretizedFuncAPI){
+
+                Double y = ( ( DiscretizedFuncAPI ) obj ).getY(item);
+                if( y != null ) {
+                    if ( D )  System.out.println( C + ": getYValue(): Y = " + y.toString() );
+                    return ( Number ) y;
+                }
+            }
         }
         return null;
     }
 
 
-    /**
-     *  Gets the name attribute of the Function2DList object
-     *
-     * @return    The name value
-     */
-    public String getName() {
-        return name;
-    }
 
 
     /*
@@ -184,9 +195,7 @@ public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedOb
      *  removes all DiscretizedFunction2Ds from the list, making it empty, ready
      *  for new DiscretizedFunction2Ds
      */
-    public void clear() {
-        functions.clear();
-    }
+    public void clear() { functions.clear(); }
 
 
     /**
@@ -194,9 +203,7 @@ public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedOb
      *
      * @return    Description of the Return Value
      */
-    public int size() {
-        return functions.size();
-    }
+    public int size() { return functions.size(); }
 
 
     /**
@@ -205,7 +212,12 @@ public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedOb
      * @param  list  Description of the Parameter
      * @return       Description of the Return Value
      */
-    public abstract boolean equals( DiscretizedFunctionXYDataSet list );
+    public boolean equals( DiscretizedFunctionXYDataSet list ){
+
+        if( list.getFunctions().equals( this.functions ) ) return true;
+        else return false;
+
+    }
 
 
     /**
@@ -214,7 +226,14 @@ public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedOb
      *
      * @return    Description of the Return Value
      */
-    public abstract Object clone();
+    public DiscretizedFunctionXYDataSet deepClone(){
+
+        DiscretizedFunctionXYDataSet set = new DiscretizedFunctionXYDataSet();
+        DiscretizedFuncList list = functions.deepClone();
+        set.setFunctions(list);
+        return set;
+
+    }
 
 
     /**
@@ -239,5 +258,8 @@ public abstract class DiscretizedFunctionXYDataSet implements XYDataset, NamedOb
             listeners.remove( listener );
         }
     }
+
+    public DiscretizedFuncList getFunctions() { return functions; }
+    public void setFunctions(DiscretizedFuncList functions) { this.functions = functions; }
 
 }
