@@ -261,7 +261,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     makeFaultSources("creepflt", 1.0,null,0);
 
 // not sure if the rest are needed
-/*
+/* */
     makeFaultSources("ext-norm-65", 1.0,null,0);
     makeFaultSources("ext-norm-char", 0.5,null,0);
     makeFaultSources("ext-norm-gr", 0.5,null,0);
@@ -269,7 +269,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     makeFaultSources("wa_or-char", 0.5,null,0);
     makeFaultSources("wa_or-gr", 0.5,null,0);
 
-*/
+
   }
 
   /**
@@ -309,7 +309,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
     String  magFreqDistType = "", faultingStyle, sourceName="";
     double dlen, dmove;                 // fault discretization and floater offset, respectively
-    int numBranches, numMags;                    // num branches for mag epistemic uncertainty
+    int numBranches, numMags, numMags2;                    // num branches for mag epistemic uncertainty
     Vector branchDmags = new Vector();  // delta mags for epistemic uncertainty
     Vector branchWts = new Vector();    // wts for epistemic uncertainty
     double aleStdDev, aleWidth;         // aleatory mag uncertainties
@@ -318,12 +318,15 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     SummedMagFreqDist totalMagFreqDist;
     double   lowerSeismoDepth, upperSeismoDepth;
     double lat, lon, rake=Double.NaN;
-    double mag=0;  // used for magChar and magUpper (latter for the GR distributions)
+    double mag=0, mag2=0;  // used for magChar and magUpper (latter for the GR distributions)
     double aVal=0, bVal=0, magLower, deltaMag, moRate;
-    double charRate=0, dip=0, downDipWidth=0, depthToTop=0;
+    double aVal2=0, bVal2=0, magLower2=0,deltaMag2=0, moRate2=0;
+
+    double charRate=0,charRate2, dip=0, downDipWidth=0, depthToTop=0;
+    double minMag, maxMag, minMag2=0, maxMag2=0;
 
     double test;
-    boolean itest;
+    boolean itest; // true means
 
     // get adjustable parameters values
     String faultModel = (String) faultModelParam.getValue();
@@ -388,7 +391,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
         st.nextToken(); // skip first two
         st.nextToken();
         while(st.hasMoreElements()) sourceName2 += st.nextElement()+" ";
-        System.out.println("source1: "+sourceName+"\nsource2: "+sourceName2);
+//        System.out.println("source1: "+sourceName+"\nsource2: "+sourceName2);
       }
 
       // get the next line from the file
@@ -399,25 +402,84 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
           mag=Double.parseDouble(st.nextToken());
           charRate=Double.parseDouble(st.nextToken());
+          moRate = charRate*MomentMagCalc.getMoment(mag);
+          minMag = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+          maxMag = mag + ((Double)branchDmags.get(branchDmags.size()-1)).doubleValue() + aleWidth*0.05;
+
           // if the file is "ca-wg99-dist-char" add the magnitude to the name to make source names unique
           if(fileName1.equals("ca-wg99-dist-char")) sourceName += " M="+mag;
+
+          // add "Char" to the source name
           sourceName += " Char";
 
-          // get itest
-          // I DON'T UNDERSTAND THE LAST TERM IN THE NEXT LINE!
-          test = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
-          if(test < 5.8)
-            itest = true;
-          else
-            itest = false;
-          if (aleStdDev == 0.0) itest = true;
+          // get the same from the second file if necessary
+          if(fileName2 != null) {
+            // get the same line from the second file
+            st = new StringTokenizer((String) inputFaultFileLines2.get(it.nextIndex()-1));
+            mag2=Double.parseDouble(st.nextToken());
+            charRate2=Double.parseDouble(st.nextToken());
+            moRate2 = charRate2*MomentMagCalc.getMoment(mag2);
+            minMag2 = mag2 + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+            maxMag2 = mag2 + ((Double)branchDmags.get(branchDmags.size()-1)).doubleValue() + aleWidth*0.05;
+          }
 
-          moRate = charRate*MomentMagCalc.getMoment(mag);
-
-          //  make the magFreqDist
-          totalMagFreqDist = new SummedMagFreqDist(5,8,0.1);
-
-          // make mag-freq dist (w/ both eleatory and epistemic)
+          // make the Char magFreqDist (depending on whether uncertainties should be considered)
+          double mLow, mHigh;
+          if(minMag < 5.8 || aleStdDev == 0.0) {   // the no-uncertainty case:
+            if(fileName2 == null){
+              SingleMagFreqDist tempDist = new SingleMagFreqDist(mag,1,0.1,mag,moRate*wt1);
+              totalMagFreqDist = new SummedMagFreqDist(mag,1,0.1, false, false);
+              totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
+            }
+            else {
+              if(mag > mag2) {
+                mLow = mag2;
+                mHigh = mag;
+              }
+              else {
+                mLow =mag;
+                mHigh = mag2;
+              }
+              int numMag = Math.round((float) ((mHigh-mLow)/0.05+1));
+              totalMagFreqDist = new SummedMagFreqDist(mLow,mHigh,numMag, false, false);
+              SingleMagFreqDist tempDist = new SingleMagFreqDist(mLow,mHigh,numMag);
+              tempDist.setMagAndMomentRate(mag,moRate*wt1);
+              totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
+              tempDist.setMagAndMomentRate(mag2,moRate2*wt2);
+              totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
+            }
+          }
+          else { // Apply both aleatory and epistemic uncertainties
+            //find the lower and upper magnitudes
+            if(mag < mag2) {
+              mLow = minMag;
+              mHigh = maxMag2;
+            }
+            else {
+              mLow = minMag2;
+              mHigh = maxMag;
+            }
+            int numMag = Math.round((float)((maxMag-minMag)/0.05 + 1));
+            totalMagFreqDist = new SummedMagFreqDist(minMag,maxMag,numMag, false, false);
+            // loop over epistemic uncertianties
+            GaussianMagFreqDist tempDist = new GaussianMagFreqDist(minMag,maxMag,numMag);
+            double magEp, wtEp;
+            for(int i=0;i<branchDmags.size();i++) {
+              magEp = mag + ((Double)branchDmags.get(i)).doubleValue();
+              wtEp = ((Double)branchWts.get(i)).doubleValue();
+              tempDist.setAllButCumRate(magEp,aleStdDev,moRate*wtEp*wt1,aleWidth*0.05/aleStdDev,2);
+              totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
+            }
+            // now add those from the second file if necessary
+            if(fileName2 != null){
+              for(int i=0;i<branchDmags.size();i++) {
+                magEp = mag2 + ((Double)branchDmags.get(i)).doubleValue();
+                wtEp = ((Double)branchWts.get(i)).doubleValue();
+                tempDist.setAllButCumRate(magEp,aleStdDev,moRate2*wtEp*wt2,aleWidth*0.05/aleStdDev,2);
+                totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
+              }
+            }
+          }
       }
       else { // It's a GR distribution
 
@@ -426,38 +488,112 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           magLower=Double.parseDouble(st.nextToken());
           mag=Double.parseDouble(st.nextToken());
           deltaMag=Double.parseDouble(st.nextToken());
-          // Set name according to the number of mags
-          if( mag == magLower )
-            sourceName += " fl-Char";
-          else
-            sourceName += " GR";
-
           // mover lower and upper mags to be bin centered
           if(mag != magLower){
             magLower += deltaMag/2.0;
             mag -= deltaMag/2.0;
           }
           numMags = Math.round( (float)((mag-magLower)/deltaMag + 1.0) );
-
-          // set itest
-          itest = false;
-          test = mag + ((Double)branchDmags.get(0)).doubleValue();
-          if( test < 6.5 && numMags > 1 )  itest = true;
-          test = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
-          if (numMags == 1 && test < 5.8) itest = true;
-          if (aleStdDev == 0.0) itest = true;
-
           //calculate moment rate (the exact same way Frankel does it)
           moRate = getMomentRate(magLower, numMags,deltaMag,aVal,bVal);
 
-          // make mag-freq-dist (w/ both aleatory and epistemic)
+          // get the same from the second file if necessary
+          if(fileName2 != null) {
+            // get the same line from the second file
+            st = new StringTokenizer((String) inputFaultFileLines2.get(it.nextIndex()-1));
+            aVal2=Double.parseDouble(st.nextToken());
+            bVal2=Double.parseDouble(st.nextToken());
+            magLower2=Double.parseDouble(st.nextToken());
+            mag2=Double.parseDouble(st.nextToken());
+            deltaMag2=Double.parseDouble(st.nextToken());
+            // mover lower and upper mags to be bin centered
+            if(mag2 != magLower2){
+              magLower2 += deltaMag2/2.0;
+              mag2 -= deltaMag2/2.0;
+            }
+            numMags2 = Math.round( (float)((mag-magLower)/deltaMag + 1.0) );
+            //calculate moment rate (the exact same way Frankel does it)
+            moRate2 = getMomentRate(magLower2, numMags2,deltaMag2,aVal2,bVal2);
+          }
 
+          // Set name suffix
+          if( mag == magLower )
+            sourceName += " fl-Char";
+          else {
+            sourceName += " GR";
+          }
+
+          if(numMags == 1) {
+            test = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+            if(test >= 5.8 && aleStdDev != 0.0) {
+              // Gaussian dist - both aleatory and epistemic uncertainty
+
+              // check that the other file won't fall out of this case
+              if (fileName2 != null) {
+                double test2 = mag2 + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+                if (test2 < 5.8) {
+                  System.out.println("PROBLEM: test="+test+"; test2="+test2+" ---"+sourceName);
+                }
+              }
+            }
+            else {
+              // single mag dist; no uncertainty
+            }
+          }
+          else {
+            test = mag + ((Double)branchDmags.get(0)).doubleValue();
+            if(test >= 6.5 && aleStdDev != 0.0) {
+              // GR dist with epistemic uncertainty
+
+              // check that the other file won't fall out of this case
+              if (fileName2 != null) {
+                double test2 = mag2 + ((Double)branchDmags.get(0)).doubleValue();
+                if (test2 < 6.5) {
+                  System.out.println("PROBLEM: test="+test+"; test2="+test2+" ---"+sourceName);
+                }
+              }
+
+            }
+            else {
+              // GR dist with no epistemic uncertainty
+            }
+          }
+/*
+if (fileName2 != null) {
+  test = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+  double test2 = mag2 + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+  if(numMags == 1) {
+    if(test < 6.5 || test2 < 6.5)
+      System.out.println("test1="+test+"; test2="+test2+ "  --- "+sourceName);
+  }
+}
+*/
+
+/*
+          // set itest
+          itest = false;
+
+          test = mag + ((Double)branchDmags.get(0)).doubleValue();
+          if( test < 6.5 && numMags > 1 )  itest = true;
+
+          test = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+          if (numMags == 1 && test < 5.8) itest = true;
+
+          // over ride if aleatory uncertainty is zero (not sure why they do this)
+          if (aleStdDev == 0.0) itest = true;
+
+
+
+          // make mag-freq-dist (w/ both aleatory and epistemic)
+*/
       }
 
       if(D) System.out.println("    "+sourceName);
 
+      // KEEP THIS?
       allSourceNames.add(sourceName);
 
+      // NOW GET THE FAULT SURFACE
       // next line has dip, ...
       st=new StringTokenizer(it.next().toString());
       dip=Double.parseDouble(st.nextToken());
@@ -472,7 +608,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
       FaultTrace faultTrace= new FaultTrace(sourceName);
 
-      //based on the num of the data lines reading the lat and long points for rthe faults
+      //based on the num of the data lines reading the lat and long points for the faults
       for(int i=0;i<numOfDataLines;++i) {
         if( !it.hasNext() ) throw ERR;
         st =new StringTokenizer(it.next().toString().trim());
@@ -482,7 +618,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
         faultTrace.addLocation( (Location)loc.clone());
       }
 
-      // reverse data ordering if dip negative, make positive and reverse trace order
+      // reverse data ordering if dip negative (and make the dip positive)
       if( dip < 0 ) {
         faultTrace.reverse();
         dip *= -1;
