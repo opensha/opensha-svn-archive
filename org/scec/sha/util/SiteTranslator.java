@@ -105,7 +105,7 @@ public class SiteTranslator implements java.io.Serializable{
           tempParam.setValue(CB_2003_AttenRel.SITE_TYPE_FIRM_SOIL);
         if(vs30>300 && vs30<=400)
           tempParam.setValue(CB_2003_AttenRel.SITE_TYPE_VERY_FIRM_SOIL);
-        if(vs30 >400 && vs30 >=500)
+        if(vs30 >400 && vs30 <=500)
           tempParam.setValue(CB_2003_AttenRel.SITE_TYPE_SOFT_ROCK);
         if(vs30 >500)
           tempParam.setValue(CB_2003_AttenRel.SITE_TYPE_FIRM_ROCK);
