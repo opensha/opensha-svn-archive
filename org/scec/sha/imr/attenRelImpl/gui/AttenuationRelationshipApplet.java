@@ -761,9 +761,11 @@ public class AttenuationRelationshipApplet extends JApplet
        int newLoc = loc;
        graphPanel.removeChartAndMetadata();
        innerPlotPanel.removeAll();
-       if( clearFunctions)
+       if( clearFunctions){
          functionList.clear();
-
+         //clearing the plotting preferences
+         getPlottingFeatures().clear();
+       }
        customAxis = false;
        mainSplitPane.setDividerLocation( newLoc );
   }
@@ -925,6 +927,7 @@ public class AttenuationRelationshipApplet extends JApplet
         //if the user just wants to see the result for the single value.
         if(XLabel.equals(attenRel.X_AXIS_SINGLE_VAL)){
           functionList.clear();
+          getPlottingFeatures().clear();
           //making the GUI components disable if the user wants just one single value
           clearButton.setEnabled(false);
           buttonControlPanel.setEnabled(false);
@@ -1021,6 +1024,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
           if( newGraph ){
             functionList.clear();
+            getPlottingFeatures().clear();
             xAxisName = attenRel.getGraphXAxisLabel();
             yAxisName =attenRel.getGraphIMYAxisLabel() ;
           }
