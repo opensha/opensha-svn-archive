@@ -231,7 +231,7 @@ public final class GaussianDistCalc {
 
     /**
      *  This compares the rusults of getCDF between +/- 7.5 SRVs with those
-     *  computed using Excel.  The difference is 0.3 % at SRV=-4, and grows to
+     *  computed using Excel (the NORSDIST function).  The difference is 0.3 % at SRV=-4, and grows to
      *  364 % (a factor of 3.64) at SRV=-7.5.  The difference is negligible for
      *  all positive CRVs (up to at least 7.5).  Norm Abrahamson says this is good
      *  enough for seismic hazard calculations.
