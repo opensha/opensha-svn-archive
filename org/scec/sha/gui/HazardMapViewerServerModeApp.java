@@ -389,7 +389,7 @@ public class HazardMapViewerServerModeApp extends JApplet {
        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 
    // also set it in map gui bean
-   this.mapGuiBean.setGMTRegionParams(minLat, maxLat, minLon, maxLon, intervalLat);
+   this.mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon, intervalLat);
 
   }
 
@@ -423,7 +423,7 @@ public class HazardMapViewerServerModeApp extends JApplet {
     // show this gui bean the JPanel
     this.gmtPanel.add(this.mapGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    mapGuiBean.showGMTParams(false);
+    mapGuiBean.showRegionParams(false);
   }
 
   /**
@@ -439,7 +439,7 @@ public class HazardMapViewerServerModeApp extends JApplet {
     double gridSpacing = ((Double)sitesParamList.getParameter(this.GRIDSPACING_PARAM_NAME).getValue()).doubleValue();
     String selectedSet = this.dataSetCombo.getSelectedItem().toString();
     // set the lat and lon limits in mao gui bean
-    mapGuiBean.setGMTRegionParams(minLat, maxLat, minLon, maxLon, gridSpacing);
+    mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon, gridSpacing);
     //establishes the connection with the servlet
     openConnection();
   }
@@ -473,7 +473,7 @@ public class HazardMapViewerServerModeApp extends JApplet {
        outputToServlet.writeObject((String)this.dataSetCombo.getSelectedItem());
 
        //sending the GMT params object to the servlet
-       outputToServlet.writeObject(mapGuiBean.getGMTObject());
+       //outputToServlet.writeObject(mapGuiBean.getGMTObject());
 
        //sending the IML or Prob Selection to the servlet
        outputToServlet.writeObject(imlProbGuiBean.getSelectedOption());

@@ -369,7 +369,7 @@ public class HazardMapViewerApp extends JApplet {
        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 
    // also set it in map gui bean
-   this.mapGuiBean.setGMTRegionParams(minLat, maxLat, minLon, maxLon, intervalLat);
+   this.mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon, intervalLat);
 
   }
 
@@ -403,7 +403,7 @@ public class HazardMapViewerApp extends JApplet {
     // show this gui bean the JPanel
     this.gmtPanel.add(this.mapGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    mapGuiBean.showGMTParams(false);
+    mapGuiBean.showRegionParams(false);
   }
 
   /**
@@ -419,7 +419,7 @@ public class HazardMapViewerApp extends JApplet {
     double gridSpacing = ((Double)sitesParamList.getParameter(this.GRIDSPACING_PARAM_NAME).getValue()).doubleValue();
     String selectedSet = this.dataSetCombo.getSelectedItem().toString();
     // set the lat and lon limits in mao gui bean
-    mapGuiBean.setGMTRegionParams(minLat, maxLat, minLon, maxLon, gridSpacing);
+    mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon, gridSpacing);
     // whethert IML@prob is selected or vics versa
     boolean isProbAt_IML = true;
     if(imlProbGuiBean.getSelectedOption().equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))

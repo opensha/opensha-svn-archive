@@ -394,7 +394,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    */
   private void initMapGuiBean(){
     mapGuiBean = new MapGuiBean();
-    mapGuiBean.showGMTParams(false);
+    mapGuiBean.showRegionParams(false);
     gmtPanel.add(mapGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
     double minLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
@@ -402,7 +402,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     double minLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
     double maxLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
     double gridSpacing=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
-    mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
+    mapGuiBean.setRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
   }
 
   /**
@@ -508,7 +508,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     double minLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
     double maxLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
     double gridSpacing=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
-    mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
+    mapGuiBean.setRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
   }
 
 

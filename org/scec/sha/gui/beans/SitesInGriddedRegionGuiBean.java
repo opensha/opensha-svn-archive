@@ -376,19 +376,6 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   }
 
 
-
-
-
-  /**
-   * This function is called if the user decides to fills the site params after seleceting
-   * from the Combo Box
-   * @param e
-   */
-  void siteParamCombo_actionPerformed(ActionEvent e) {
-    setSiteParamsVisible();
-  }
-
-
   /**
    * Make the site params visible depending on the choice user has made to
    * set the site Params
@@ -411,14 +398,14 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
            !tempParam.getName().equalsIgnoreCase(this.MIN_LONGITUDE) &&
            !tempParam.getName().equalsIgnoreCase(this.GRID_SPACING) &&
            !tempParam.getName().equalsIgnoreCase(this.SITE_PARAM_NAME)){
-          //&& !tempParam.getName().equalsIgnoreCase(this.VS30_DEFAULT))
-          //editorPanel.getParameterEditor(tempParam.getName()).setVisible(false);
+
           //removing the existing site Params from the List and adding the
           //new Site Param with site as being defaults
           parameterList.removeParameter(tempParam.getName());
           //creating the new Site Param, with "Default " added to its name, with existing site Params
           ParameterAPI newParam = (ParameterAPI)tempParam.clone();
-          newParam.setName(this.DEFAULT+newParam.getName());
+          if(!newParam.getName().startsWith(this.DEFAULT))
+            newParam.setName(this.DEFAULT+newParam.getName());
           //making the new parameter to uneditable same as the earlier site Param, so that
           //only its value can be changed and not it properties
           newParam.setNonEditable();
@@ -429,7 +416,6 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
             parameterList.addParameter(newParam);
         }
       }
-
     }
     //if the user decides to go in with filling all the sites with the same site parameter,
     //then make that site parameter visible to te user
