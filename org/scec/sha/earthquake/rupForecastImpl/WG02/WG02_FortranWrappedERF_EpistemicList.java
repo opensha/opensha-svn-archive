@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake.rupForecastImpl.WG02;
+ package org.scec.sha.earthquake.rupForecastImpl.WG02;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -238,7 +238,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
            double bpt = ((Double)paramList.getParameter(this.BPT).getValue()).doubleValue();
            double bpt_step = ((Double)paramList.getParameter(this.BPT_STEP).getValue()).doubleValue();
            double empirical = ((Double)paramList.getParameter(this.EMPIRICAL).getValue()).doubleValue();
-           String probModelWts = pois+" "+bpt+" "+bpt_step+" "+empirical;
+           String probModelWts = empirical+" "+pois+" "+bpt_step+" "+bpt;
            if(D) System.out.println("Prob Model Wts :  "+probModelWts);
            if(numberOfProbModels ==5){
              double time_pred = ((Double)paramList.getParameter(this.TIME_PRED).getValue()).doubleValue();
