@@ -556,6 +556,8 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         // see whther there exists any major axis in data
         double lower = range.getLowerBound();
         double upper = range.getUpperBound();
+        if(lower==0.0 || upper==0.0)
+               throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
         for( i=lowest;;++i) {
           double val1=Math.pow(10,i);
           double val2=Math.pow(10,i+1);

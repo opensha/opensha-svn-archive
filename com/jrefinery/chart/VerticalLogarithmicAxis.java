@@ -609,6 +609,8 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
         // see whther there exists any major axis in data
         double lower = range.getLowerBound();
         double upper = range.getUpperBound();
+        if(lower==0.0 || upper==0.0)
+               throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for Y-Log Plot");
         for(int i=lowest;;++i) {
           double val1=Math.pow(10,i);
           double val2=Math.pow(10,i+1);
@@ -616,7 +618,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             break;
           if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
             // no major axis exixts in dat so you have to add the major axis
-            this.setRange(val1,upper);
+            this.setRange(val1,val2);
             break;
           }
           if(lower < val2 && upper > val2) // we have found 1 major axis
