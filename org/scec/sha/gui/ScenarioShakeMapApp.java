@@ -40,8 +40,7 @@ import org.scec.exceptions.ParameterException;
  * @version 1.0
  */
 
-public class ScenarioShakeMapApp extends JApplet implements Runnable,
-                                         ParameterChangeListener{
+public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListener{
 
 
   /**
@@ -141,8 +140,6 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   private CalcProgressBar calcProgress;
   private int step;
 
-  //thread  to show status Progress Bar
-  private javax.swing.Timer timer;
 
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   //Get a parameter value
@@ -517,60 +514,40 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   private void addButton(){
     calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
     step = 0;
-    timer = new javax.swing.Timer(100, new ActionListener() {
-      public void actionPerformed(ActionEvent evt) {
-        if(step==2) {
-          String label;
-          String imlOrProb=imlProbGuiBean.getSelectedOption();
-          if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
-            label="Prob";
-          else
-            label=imtGuiBean.getSelectedIMT();
-          try{
-            mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),erfGuiBean.getHypocenterLocation(),
-                               label,getMapParametersInfo());
-          }catch(RuntimeException e){
-            calcProgress.showProgress(false);
-            calcProgress.dispose();
-            timer.stop();
-            return;
-          }
-          calcProgress.dispose();
-          timer.stop();
-        }
-      }
-    });
-
-    timer.start();
     try{
-      Thread t = new Thread(this);
-      t.run();
+      generateShakeMap();
     }catch(ParameterException e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
       calcProgress.showProgress(false);
       calcProgress.dispose();
-      timer.stop();
       return;
     }
     catch(Exception ee){
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
       calcProgress.showProgress(false);
       calcProgress.dispose();
-      timer.stop();
       return;
+    }
+    if(step==2) {
+      String label;
+      String imlOrProb=imlProbGuiBean.getSelectedOption();
+      if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
+        label="Prob";
+      else
+        label=imtGuiBean.getSelectedIMT();
+      try{
+        mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),erfGuiBean.getHypocenterLocation(),
+                           label,getMapParametersInfo());
+      }catch(RuntimeException e){
+        calcProgress.showProgress(false);
+        calcProgress.dispose();
+        return;
+      }
+      calcProgress.dispose();
     }
   }
 
-  public void run(){
-    try{
-      this.generateShakeMap();
-    }catch(ParameterException e){
-      throw new ParameterException(e.getMessage());
-    }
-    catch(RuntimeException ee){
-      throw new RuntimeException(ee.getMessage());
-    }
-  }
+
 
   /**
    * Initialize the items to be added to the control list
