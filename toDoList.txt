@@ -7,6 +7,14 @@ add site translation for SEA_1999_AttenRel
 
 Make sure that averages over probabilities are not log averages (Nitin will change ScenarioShakeMapCalculator & Ned will change USGS_Combined Atten. Rel. accordingly).
 
+In the case of our HazardCurve Calculator applications, if ERF List is choosen and we select 1 or more realizations and average is selected, then it throws an exception. --Nitin knows about this problems and will look into it.
+
+Nitin has to add the some more functionality to the Remote_ERFClients ( some functions needs to be added). Once that is done and have tested the application to a good extent then swap it with the HazardCurverServerModeApp .
+
+Prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.
+
+Work on the data file provided by NGA to get the Observed EqkRuptures from them and create the HazardCurve for these ruptures.   
+
 HazardCurveApps:
 
 	1) 1 version where everything is on the user's computer.
