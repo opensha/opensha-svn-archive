@@ -70,10 +70,10 @@ public class SiteTranslator implements java.io.Serializable{
 
 
   /**
-   *
    * @param s : site Object
    * @param vs30
    * @param basinDepth
+   *
    * @returns the boolean which is required in the case of the HazardCurveApp
    * to tell the user that site is in the water.
    */

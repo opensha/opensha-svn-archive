@@ -1,6 +1,5 @@
 package org.scec.sha.calc;
 
-
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
 import java.awt.Rectangle;
