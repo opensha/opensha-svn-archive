@@ -299,14 +299,14 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
        int i;
 
        //if passed parameter(y value) is not within range then throw exception
-       if(y>getY(max-1) || y<getY(0))
+       if(y<getY(max-1) || y>getY(0))
           throw new InvalidRangeException("Y Value ("+y+") must be within the range: "+getY(0)+" and "+getY(max-1));
 
       //finds the Y values within which the the given y value lies
        for(i=0;i<max-1;++i) {
          y1=getY(i);
          y2=getY(i+1);
-        if(y>=y1 && y<=y2)
+        if(y<=y1 && y>=y2)
            break;
        }
 
