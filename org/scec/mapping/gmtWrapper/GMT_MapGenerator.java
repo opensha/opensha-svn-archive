@@ -411,8 +411,8 @@ public class GMT_MapGenerator implements Serializable{
 
     // adjust the max lat and lon to be an exact increment (needed for xyz2grd)
 
-    double maxLat = Math.rint(((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
-    double maxLon = Math.rint(((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
+    double maxLat = Math.rint(((maxTempLat-minLat)/gridSpacing)+1)*gridSpacing +minLat;
+    double maxLon = Math.rint(((maxTempLon-minLon)/gridSpacing)+1)*gridSpacing +minLon;
 
     this.gmtPath= GMT_PATH;
     String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
@@ -505,7 +505,7 @@ public class GMT_MapGenerator implements Serializable{
       br.write(gmtCommandLine+"\n");
     }
 
-    gmtCommandLine=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+    gmtCommandLine=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 5 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
     //RunScript.runScript(command);
     br.write(gmtCommandLine+"\n");
 
