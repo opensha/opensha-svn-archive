@@ -117,7 +117,8 @@ public class SubmitJobForGridComputation {
 
       //creates the shell script to gridftp the condor submit files(in tar format)
       //to almaak.usc.edu
-      ftpSubmitFilesToRemoteMachine(outputDir, remoteDir);
+      ftpSubmitFilesToRemoteMachine(outputDir, remoteDir, imrFileName, erfFileName,
+                                     regionFileName);
       frmap.write("Script Post "+PRE_PROCESSOR_JOB_NAME+" "+
                   PUT_SUBMIT_FILES_TO_REMOTE_MACHINE+"\n");
 
@@ -199,7 +200,7 @@ public class SubmitJobForGridComputation {
     // some lines needed in the condor submit file
     String fileDataPrefix = "universe = java\n" +
        "globusscheduler=almaak.usc.edu/jobmanager-fork\n" +
-       "initialdir=" + outputDir + "\n";
+       "initialdir=" + remoteDir + "\n";
     String fileDataSuffix = "jar_files = " + this.HAZARD_MAP_JAR_FILE_NAME + "\n" +
         "transfer_executable=false" + "\n" +
         "should_transfer_files=YES" + "\n" +
@@ -207,6 +208,7 @@ public class SubmitJobForGridComputation {
         "transfer_input_files=" + HAZARD_MAP_JAR_FILE_NAME+","+
         REMOTE_EXECUTABLE_NAME+","+ regionFileName + "," + erfFileName + "," +
         imrFileName + "\n" +
+        "notification=error\n"+
         "queue" + "\n";
     LinkedList list = new LinkedList();
 
@@ -264,7 +266,9 @@ public class SubmitJobForGridComputation {
    * @param outputDir
    */
   private void ftpSubmitFilesToRemoteMachine(String outputDir,
-      String remoteDir) {
+                                             String remoteDir, String imrFileName,
+                                             String erfFileName,
+                                             String regionFileName) {
     try {
 
       //When all jobs are finished, grid ftp files from almaak to gravity
@@ -273,7 +277,8 @@ public class SubmitJobForGridComputation {
 
       frFTP.write("#!/bin/csh\n");
       frFTP.write("cd " + outputDir + "\n");
-      frFTP.write("tar -cf " + SUBMIT_TAR_FILES + " *.sub " + "\n");
+      frFTP.write("tar -cf " + SUBMIT_TAR_FILES + " "+HAZARD_CURVES_SUBMIT+"*.sub "+imrFileName+" "+
+                  erfFileName+" "+regionFileName+ "\n");
       frFTP.write("globus-url-copy file:" + outputDir +
                   SUBMIT_TAR_FILES +
                   " gsiftp://almaak.usc.edu" + remoteDir + SUBMIT_TAR_FILES +
@@ -312,6 +317,8 @@ public class SubmitJobForGridComputation {
        FileWriter fw = new FileWriter(outputDir+this.SUBMIT_DAG_SHELL_SCRIPT_NAME);
        fw.write("#!/bin/csh\n");
        fw.write("cd "+outputDir+"\n");
+       fw.write("chmod +x "+GET_CURVES_FROM_REMOTE_MACHINE+"\n");
+       fw.write("chmod +x "+PUT_SUBMIT_FILES_TO_REMOTE_MACHINE+"\n");
        fw.write("condor_submit_dag "+this.DAG_FILE_NAME+"\n");
        fw.close();
       //RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+SUBMIT_DAG_SHELL_SCRIPT_NAME});
