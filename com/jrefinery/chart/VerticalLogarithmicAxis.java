@@ -381,10 +381,22 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             double lower = r.getLowerBound();
             double upper = r.getUpperBound();
 
+            // make the upper a little higher so that it does not overlap with  axis lines
+            boolean found = false;
+            double val;
+            for(int i = lowest;!found;++i) {
+              val = Math.pow(10,i);
+              for(int j=1;j<10;++j)
+                 if((j*val)>upper){
+                   upper = j*val;
+                   found = true;
+                   break;
+                 }
+            }
+
+            // set the range
             this.range = new Range(lower, upper);
         }
-
-
     }
 
 
