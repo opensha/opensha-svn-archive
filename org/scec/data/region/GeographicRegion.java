@@ -196,35 +196,4 @@ public class GeographicRegion implements java.io.Serializable{
 
     if(D) System.out.println(C +": minLat="+minLat+"; maxLat="+maxLat+"; minLon="+minLon+"; maxLon="+maxLon);
   }
-
-
-
-    public static void main(String[] args) {
-      Location tempLoc = new Location(33,120);
-      LocationList tempLocList = new LocationList();
-      tempLocList.addLocation(tempLoc);
-      tempLoc = new Location(33,122);
-      tempLocList.addLocation(tempLoc);
-      tempLoc = new Location(34,122);
-      tempLocList.addLocation(tempLoc);
-      tempLoc = new Location(34,120);
-      tempLocList.addLocation(tempLoc);
-
-      GeographicRegion geoReg = new GeographicRegion(tempLocList);
-
-      System.out.println(C+": numLocations="+ geoReg.getNumLocations());
-
-      System.out.println(C+": isLocationInside (should be true)="+ geoReg.isLocationInside(new Location(33.5,121)));
-      System.out.println(C+": isLocationInside (should be true)="+ geoReg.isLocationInside(new Location(33.001,120.001)));
-      System.out.println(C+": isLocationInside (should be true)="+ geoReg.isLocationInside(new Location(33,120)));
-      System.out.println(C+": isLocationInside (should be false)="+ geoReg.isLocationInside(new Location(33,122)));
-      System.out.println(C+": isLocationInside (should be false)="+ geoReg.isLocationInside(new Location(34,122)));
-      System.out.println(C+": isLocationInside (should be false)="+ geoReg.isLocationInside(new Location(34,120)));
-      System.out.println(C+": isLocationInside (should be true)="+ geoReg.isLocationInside(new Location(33,121)));
-      System.out.println(C+": isLocationInside (should be true)="+ geoReg.isLocationInside(new Location(33.5,120)));
-    }
-
-
-
-
 }
