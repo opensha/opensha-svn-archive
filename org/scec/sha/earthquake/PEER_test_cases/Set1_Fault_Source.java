@@ -26,7 +26,7 @@ public class Set1_Fault_Source extends ProbEqkSource {
 
   //for Debug purposes
   private static String  C = new String("Set1_Fault_Source");
-  private boolean D = false;
+  private boolean D = true;
 
   private double rake;
   private double timeSpan;
@@ -54,13 +54,16 @@ public class Set1_Fault_Source extends ProbEqkSource {
     probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setAveRake(rake);
 
-    int numMags = magDist.getNum();
+    int numMags = magDist.getNum();  // Note that some of these may have zero rates!
     totNumRups=0;
 
     for(int i=0;i<numMags;++i){
-      double rupLen = Math.pow(10,magDist.getX(i)/2-1.85);
-      double rupWidth= rupLen/2;
-      totNumRups += getNumRuptures(rupLen,rupWidth);
+      if(magDist.getY(i) > 0) {
+        double rupLen = Math.pow(10,magDist.getX(i)/2-1.85);
+        double rupWidth= rupLen/2;
+        if( D ) System.out.println("Set1_Fault_Source:Set1_Fault_Source:mag="+magDist.getX(i)+"; rupLen="+rupLen+"; rupWidth="+rupWidth);
+        totNumRups += getNumRuptures(rupLen,rupWidth);
+      }
     }
     if( D ) System.out.println("Set1_Fault_Source:Set1_Fault_Source:totNumRups::"+totNumRups);
 
@@ -79,7 +82,7 @@ public class Set1_Fault_Source extends ProbEqkSource {
    * @return the object of the ProbEqkRupture class after setting the probability
    */
   public ProbEqkRupture getRupture(int nthRupture){
-    int numMags = magDist.getNum();
+    int numMags = magDist.getNum();  // some of these may have zero rates
     double mag=0, rupLen=0,rupWidth=0;
     int numRups=0, tempNumRups=0;
 
@@ -88,13 +91,15 @@ public class Set1_Fault_Source extends ProbEqkSource {
 
     // this finds the magnitude:
     for(int i=0;i<numMags;++i){
-      mag=magDist.getX(i);
-      rupLen = Math.pow(10,mag/2-1.85);
-      rupWidth = rupLen/2;
-      numRups = getNumRuptures(rupLen,rupWidth);
-      tempNumRups += numRups;
-      if(nthRupture < tempNumRups)
-        break;
+      if(magDist.getY(i) > 0) {
+        mag=magDist.getX(i);
+        rupLen = Math.pow(10,mag/2-1.85);
+        rupWidth = rupLen/2;
+        numRups = getNumRuptures(rupLen,rupWidth);
+        tempNumRups += numRups;
+        if(nthRupture < tempNumRups)
+          break;
+      }
     }
 
     probEqkRupture.setMag(mag);

@@ -208,7 +208,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
       double numLocs = locationList.size();
 
       /* getting the Gutenberg magnitude distribution and scaling its cumRate to the original cumRate
-       * divided by the number of the locations
+       * divided by the number of the locations (note that this is a clone of what's in the magDistParam)
        */
       GutenbergRichterMagFreqDist gR = (GutenbergRichterMagFreqDist) ((GutenbergRichterMagFreqDist)magDistParam.getValue()).deepClone();
 

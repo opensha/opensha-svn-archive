@@ -34,8 +34,11 @@ public class PointGR_EqkSource extends ProbEqkSource {
   public PointGR_EqkSource(Location loc, GutenbergRichterMagFreqDist gr,double rake){
     this.location =location;
     this.gR=gr;
-    // Determine number of ruptures
-    totNumRups = gR.getNum();
+
+    // Determine number of ruptures (don't count mags with zero rate)
+    totNumRups = 0;
+    for (int i=0; i<gR.getNum(); ++i)
+        if(gr.getY(i) > 0) totNumRups += 1;
 
     // make the prob qk rupture
     probEqkRupture = new ProbEqkRupture();
@@ -77,7 +80,7 @@ public class PointGR_EqkSource extends ProbEqkSource {
     gR = new GutenbergRichterMagFreqDist(magLower,magUpper,num);
     gR.setAllButTotMoRate(magLower,magUpper,cumRate,bValue );
 
-    // Determine number of ruptures
+    // Determine number of ruptures (no zero rates here)
     totNumRups = gR.getNum();
 
     // make the prob qk rupture
@@ -104,8 +107,11 @@ public class PointGR_EqkSource extends ProbEqkSource {
    * @return the object of the ProbEqkRupture class after setting the probability
    */
   public ProbEqkRupture getRupture(int nthRupture){
-     probEqkRupture.setMag(gR.getX(nthRupture));
-     double prob = 1 - Math.exp(-timeSpan*gR.getY(nthRupture));
+    // find index of fist non-zero rate
+     int index = gR.getXIndex(gR.getMagLower());
+
+     probEqkRupture.setMag(gR.getX(index+nthRupture));
+     double prob = 1 - Math.exp(-timeSpan*gR.getY(index+nthRupture));
      probEqkRupture.setProbability(prob);
      return probEqkRupture;
   }

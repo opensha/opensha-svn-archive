@@ -68,7 +68,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   private Double SIGMA_PARAM_MAX = new Double(1);
   private Double DEFAULT_SIGMA_VAL = new Double(0.5);
   private double UPPER_SEISMO_DEPTH = 0.0;
-  private double LOWER_SEISMO_DEPTH = 25.0;
+  private double LOWER_SEISMO_DEPTH = 12.0;
 
   // fault-1 name
   private String FAULT1_NAME = new String("Fault 1");

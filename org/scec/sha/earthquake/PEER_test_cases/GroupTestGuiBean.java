@@ -35,7 +35,7 @@ public class GroupTestGuiBean implements
 
 
   protected final static String C = "GroupTestGuiBean";
-  protected final static boolean D = true;
+  protected final static boolean D = false;
   private String name  = "GroupTestGuiBean";
 
   //object for the fault
