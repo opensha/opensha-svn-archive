@@ -51,14 +51,13 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   private Set1_Fault_Source source;
 
 
-  //Param Name
+  //Parameter Names
   private final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
   private final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
   private final static String OFFSET_PARAM_NAME =  "Offset";
   private final static String MAG_DIST_PARAM_NAME = "Fault Mag Dist";
   private final static String RAKE_PARAM_NAME ="Rake";
   private final static String TIMESPAN_PARAM_NAME ="Fault TimeSpan";
-  // dip name
   private final static String DIP_PARAM_NAME = "Dip";
 
   // default grid spacing is 1km
@@ -84,6 +83,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   private Double SIGMA_PARAM_MIN = new Double(0);
   private Double SIGMA_PARAM_MAX = new Double(1);
   private Double DEFAULT_SIGMA_VAL = new Double(0.0);
+
   private double UPPER_SEISMO_DEPTH = 0.0;
   private double LOWER_SEISMO_DEPTH = 12.0;
 
@@ -106,18 +106,16 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM_MIN,
                                                OFFSET_PARAM_MAX,OFFSET_PARAM_UNITS,DEFAULT_OFFSET_VAL);
 
-
-
   // add sigma for maglength(0-1)
   DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
                          SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
-  DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME);
 
+  // add rake param
+  DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME);
 
   //add the dip parameter
   DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
                                                TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
-
 
   //add the dip parameter
   DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME);
@@ -167,7 +165,6 @@ public class Set1_Fault_Forecast extends EqkRupForecast
     dipParam.addParameterChangeListener(this);
     rakeParam.addParameterChangeListener(this);
     magDistParam.addParameterChangeListener(this);
-    //updateGUI();
   }
 
 
@@ -228,18 +225,26 @@ public class Set1_Fault_Forecast extends EqkRupForecast
        SimpleFaultData faultData= new SimpleFaultData(dipValue,
               LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH,faultTrace);
        if(D) System.out.println(S+"faultdata:"+faultData);
+
+       //  create a fault factory and make the surface
        FrankelGriddedFaultFactory factory =
            new FrankelGriddedFaultFactory(faultData,
                                          ((Double)gridParam.getValue()).doubleValue());
-       // get the gridded surface
+
        GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
        if(D) System.out.println(S+"Columns in surface:"+surface.getNumCols());
        if(D) System.out.println(S+"Rows in surface:"+surface.getNumRows());
 
-       source = new  Set1_Fault_Source((IncrementalMagFreqDist)magDistParam.getValue(),((Double)rakeParam.getValue()).doubleValue() ,
-                                       ((Double)offsetParam.getValue()).doubleValue(),(EvenlyGriddedSurface)surface,
-                                       ((Double)timeSpanParam.getValue()).doubleValue());
+       if(D) System.out.println(S+"MagLenthSIgma:"+lengthSigmaParam.getValue());
+
+       // Now make the source
+       source = new  Set1_Fault_Source((IncrementalMagFreqDist)magDistParam.getValue(),
+                                        ((Double)rakeParam.getValue()).doubleValue() ,
+                                        ((Double)offsetParam.getValue()).doubleValue(),
+                                        (EvenlyGriddedSurface)surface,
+                                        ((Double)timeSpanParam.getValue()).doubleValue(),
+                                        ((Double)lengthSigmaParam.getValue()).doubleValue() );
      }
      parameterChangeFlag = false;
    }
