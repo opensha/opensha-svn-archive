@@ -53,7 +53,10 @@ import org.scec.sha.imr.AttenuationRelationship;
  *
  * Campbell_1997_AttenRel.BASIN_DEPTH_NAME (Campbell (1997))<p>
  * <UL>
- * <LI> Campbell-Basin-Depth = Basin-Depth-2.5
+ * <LI> Campbell-Basin-Depth = NaN      if E
+ * <LI> Campbell-Basin-Depth = 0.0      if B ot BC
+ * <LI> Campbell-Basin-Depth = 1.0      if C
+ * <LI> Campbell-Basin-Depth = 5.0      if CD, D, or DE
  * </UL>
  *
  * Field_2000_AttenRel.BASIN_DEPTH_NAME (Field (2000))<p>
@@ -185,10 +188,23 @@ public class SiteTranslator implements java.io.Serializable{
       }
 
       // Campbell_1997_AttenRel.BASIN_DEPTH_NAME
+      // (these are as Ken Campbell requested)
       else if(param.getName().equals(Campbell_1997_AttenRel.BASIN_DEPTH_NAME)){
-          if(Double.isNaN(basinDepth)) param.setValue(null);
-          else  param.setValue(new Double(basinDepth/1000));  // converted to km
+        if(wc.equals(WILLS_DE) || wc.equals(WILLS_D) || wc.equals(WILLS_CD)) {
+          param.setValue(new Double(5.0));
           return true;
+        }
+        else if(wc.equals(WILLS_C)) {
+          param.setValue(new Double(1.0));
+          return true;
+        }
+          else if(wc.equals(WILLS_BC) || wc.equals(WILLS_B)) {
+            param.setValue(new Double(0.0));
+            return true;
+        }
+        else {
+          return false;
+        }
       }
 
       // Campbell_1997_AttenRel.SITE_TYPE_NAME
