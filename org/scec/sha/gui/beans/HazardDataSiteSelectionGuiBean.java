@@ -208,6 +208,9 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
      }
    }
 
+   public String getMetadataForSelectedDataSet(){
+     return (String)metaDataHash.get(selectedDataSet);
+   }
 
    public ArbitrarilyDiscretizedFunc getChoosenFunction(){
      ArrayList dataValues = openConnection();

@@ -108,22 +108,23 @@ public class HazardDataSetPlotterCalcServlet  extends HttpServlet {
      boolean lonFlag = false;
      double latForFile =0;
      double lonForFile =0;
+     double matchingGridSpacing = gridSpacing/2 + .001;
      for(double lat = minLat; lat<=maxLat; lat=Double.parseDouble(d.format(lat+gridSpacing))){
        for(double lon = minLon; lon<=maxLon; lon=Double.parseDouble(d.format(lon+gridSpacing))) {
-         // add Vs30 for new location
-         if(Math.abs(selectedLat-lat) <= (gridSpacing/2)){
+         if(Math.abs(selectedLat-lat) <= (matchingGridSpacing)){
            latFlag=true;
            latForFile =lat;
          }
          //iterating over lon's for each lat
-         if(((Math.abs(selectedLon - lon)) <= gridSpacing/2) && latFlag){
+         if(((Math.abs(selectedLon - lon)) <= matchingGridSpacing) && latFlag){
            lonForFile = lon;
            break;
          }
        }
      }
      try{
-       ArrayList listfiles = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+latForFile+"_"+lonForFile+".txt");
+       System.out.println("Selected Lat and Lon:"+latForFile+" , "+lonForFile);
+       ArrayList listfiles = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+d.format(latForFile)+"_"+d.format(lonForFile)+".txt");
        return listfiles;
      }catch(Exception e){
        System.out.println("Error reading the lat lon file");
