@@ -104,24 +104,24 @@ public class MapGuiBean extends GMT_MapGuiBean {
   public void makeHazusShapeFilesAndMap(XYZ_DataSetAPI sa03_xyzVals,XYZ_DataSetAPI sa10_xyzVals,
                       XYZ_DataSetAPI pga_xyzVals, XYZ_DataSetAPI pgv_pgvVals,
                       EqkRupture eqkRupture,String imt,String metadata){
-
+    String[] imgNames = null;
     boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
     //creating the Metadata file in the GMT_MapGenerator
     gmtMap.createMapInfoFile(metadata);
     if(gmtServerCheck){
-      try{
-        imgName =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
-                                                     pgv_pgvVals,eqkRupture);
-        metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
-      }catch(RuntimeException e){
-        e.printStackTrace();
-       JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
-       return;
-      }
+    try{
+      imgNames =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
+          pgv_pgvVals,eqkRupture);
+      metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
+    }catch(RuntimeException e){
+      e.printStackTrace();
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
     }
     else{
       try{
-        imgName = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetLocally(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
+        imgNames = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetLocally(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
                                                      pgv_pgvVals,eqkRupture);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
@@ -132,7 +132,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     //checks to see if the user wants to see the Map in a seperate window or not
     if(this.showMapInSeperateWindow){
       //adding the image to the Panel and returning that to the applet
-      ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
+      ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,gmtServerCheck);
     }
   }
 
