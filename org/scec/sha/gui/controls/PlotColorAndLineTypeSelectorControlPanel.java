@@ -353,12 +353,12 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     String paramName = event.getParameterName();
     if(paramName.equals(this.tickFontSizeParamName)){
       tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
-      tickFontSizeParam.setValue(new String(""+tickLabelWidth));
+      //tickFontSizeParam.setValue(""+tickLabelWidth);
 
     }
     else if(paramName.equals(this.axislabelsFontSizeParamName)){
       axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
-      axisLabelsFontSizeParam.setValue(new String(""+axisLabelWidth));
+      //axisLabelsFontSizeParam.setValue(""+axisLabelWidth);
     }
     else if(paramName.equals(this.xAxisLabelParamName))
       xAxisLabel = (String)this.xAxisLabelParam.getValue();
