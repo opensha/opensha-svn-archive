@@ -53,8 +53,8 @@ public class DahleEtAl_1995_AttenRel
     public final static String COMPONENT_DEFAULT = COMPONENT_UNKNOWN_HORZ;
 
     // warning constraint fields:
-    protected final static Double MAG_WARN_MIN = new Double(5.5);
-    protected final static Double MAG_WARN_MAX = new Double(7.5);
+    protected final static Double MAG_WARN_MIN = new Double(5.);
+    protected final static Double MAG_WARN_MAX = new Double(8.);
 
 
     // Standard Deviation type options
@@ -69,7 +69,7 @@ public class DahleEtAl_1995_AttenRel
     private DistanceRupParameter distanceRupParam = null;
     private final static Double DISTANCE_RUP_DEFAULT = new Double( 0 );
     protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
-    protected final static Double DISTANCE_RUP_WARN_MAX = new Double(80.0);
+    protected final static Double DISTANCE_RUP_WARN_MAX = new Double(400.0);
 
     /**
      * Site Type Parameter ("Rock" versus "Soil")
@@ -259,6 +259,13 @@ public class DahleEtAl_1995_AttenRel
         if ( coeff.period != 0.0 )
             mean /= (6.28318 /coeff.period);
         */
+
+        // convert units
+        String tempName = coeff.name;
+        if(tempName.equals("PGA") || tempName.equals("SA/0.0"))
+          mean -= Math.log(9.8);
+        else
+          mean += Math.log((6.28318/coeff.period)/9.8);
 
         // return the result
         return mean;
