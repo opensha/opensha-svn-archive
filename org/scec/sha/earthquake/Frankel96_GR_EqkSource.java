@@ -1,13 +1,16 @@
 package org.scec.sha.earthquake;
 
+import java.util.Vector;
+import java.util.Iterator;
+
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.sha.magdist.GuttenbergRichterMagFreqDist;
+import org.scec.sha.magdist.SingleMagFreqDist;
 import org.scec.sha.calc.WC1994_MagLengthRelationship;
 import org.scec.data.*;
 import org.scec.calc.RelativeLocation;
 
-import java.util.Vector;
-import java.util.Iterator;
+
 
 /**
  * <p>Title: Frankel96_GR_EqkSource </p>
@@ -48,11 +51,11 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
    * @param surface : Fault Surface
    */
   public Frankel96_GR_EqkSource(double rake,
-                                double aValue,
                                 double bValue,
                                 double magLower,
                                 double magUpper,
                                 double delta,
+                                double rate,
                                 EvenlyGriddedSurface surface) {
 
     this.rake=rake;
@@ -67,10 +70,15 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
     probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setAveRake(rake);
 
+    //making a single distribution
+    SingleMagFreqDist s = new SingleMagFreqDist(magLower,magUpper,num);
+    s.setMagAndRate(magUpper,rate);
+    double totMoRate=s.getTotalMomentRate();
+
     //Setting the GuttenbergDistribution
     gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,num);
-    gR.setAllButTotMoRate(magLower,magUpper,1,bValue );
-    double rate = Math.pow(10,aValue - bValue*magLower);
+    gR.setAllButTotCumRate(magLower,magUpper,totMoRate,bValue );
+    //double rate = Math.pow(10,aVal - bValue*magLower);
     gR.scaleToIncrRate(magLower,rate);
 
     // Determine number of ruptures

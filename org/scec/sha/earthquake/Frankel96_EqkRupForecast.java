@@ -44,7 +44,11 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
   //for Debug purposes
   private static String  C = new String("Frankel96_EqkRupForecast");
   private boolean D = true;
+
   private double GRID_SPACING = 1.0;
+  private double B_VALUE =0.9;
+  private double MAG_LOWER = 6.5;
+  private double DELTA_MAG = 0.1;
 
   /**
    * used for error checking
@@ -58,11 +62,10 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
    * and name of the file to be read
    */
   private final static int TYPE_A_CHAR_FLT = 0;
-  private final static int TYPE_B_CHAR_FLT = 1;
-  private final static int TYPE_B_GR_FLT = 2;
+  private final static int TYPE_B_CHAR_GR_FLT = 1;
+
   private final static String FILE_A_CHAR_EQK="Frankel96_CALA.char";
-  private final static String FILE_B_CHAR_EQK="Frankel96_CALB.char";
-  private final static String FILE_B_GR_EQK="Frankel96_CALB.gr";
+  private final static String FILE_B_CHAR_GR_EQK="CALB.both";
 
   /**
    * definition of the vectors for storing the data corresponding to the file type
@@ -83,9 +86,8 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
    * No argument constructor
    */
   public Frankel96_EqkRupForecast() {
-    readFrankel96_Char(0);
-    readFrankel96_Char(1);
-    readFrankel96_Char(2);
+    readFrankel96_File(0);
+    readFrankel96_File(1);
   }
 
   /**
@@ -94,7 +96,7 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
    * @param faultType : It can be TYPE_A_CHAR_FLT or TYPE_B_CHAR_FLT or TYPE_B_GR_FLT
    * @throws FaultException
    */
-  private  void readFrankel96_Char(int faultType) throws FaultException{
+  private  void readFrankel96_File(int faultType) throws FaultException{
 
     // Debug
     String S = C + ": readFrankel96_Char: ";
@@ -111,16 +113,14 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
     double lat, lon;
     int rake=0;
     double mag=0,rate=0,dip=0,downDipWidth=0,depthToTop=0;
-    double aValue=0,bValue=0,magLower=0,magUpper=0,deltaMag=0;
+    double bValue=0,magLower=0,magUpper=0,deltaMag=0;
 
     // Load in from file the data
     if(faultType == TYPE_A_CHAR_FLT)
       fileName = new String (FILE_A_CHAR_EQK);
-    else if(faultType == TYPE_B_CHAR_FLT)
-      fileName = new String(FILE_B_CHAR_EQK);
-    else if(faultType == TYPE_B_GR_FLT)
+    else if(faultType == TYPE_B_CHAR_GR_FLT)
+      fileName = new String(FILE_B_CHAR_GR_EQK);
 
-      fileName = new String(FILE_B_GR_EQK);
 
     if( D ) System.out.println(S + "Loading file = " + fileName );
     try{ rawFaultTraceData = FileUtils.loadInCharFile( fileName ); }
@@ -163,31 +163,25 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
           st = new StringTokenizer(it.next().toString());
 
           // if we are reading the characteristic file
-          if(faultType==TYPE_A_CHAR_FLT || faultType==TYPE_B_CHAR_FLT) {
+          if(faultType==TYPE_A_CHAR_FLT || faultType==TYPE_B_CHAR_GR_FLT) {
             while(st.hasMoreTokens()){
             //reading the mag
              mag=Double.parseDouble(st.nextToken());
              //reading the rate
              rate=Double.parseDouble(st.nextToken());
-            }
-          }
-          // if we are reading the GuttenbergRichter file
-          else if(faultType==TYPE_B_GR_FLT) {
-            while(st.hasMoreTokens()){
-            //reading the a-value
-             aValue=Double.parseDouble(st.nextToken());
-             //reading the b-value
-             bValue=Double.parseDouble(st.nextToken());
-             //reading the MagLower
-             magLower=Double.parseDouble(st.nextToken());
-             //reading the MagUpper
-             magUpper=Double.parseDouble(st.nextToken());
-             //reading the DeltaMag
-             deltaMag=Double.parseDouble(st.nextToken());
+             if(faultType==TYPE_B_CHAR_GR_FLT && (mag>6.5)) {
+               //reading the b-value
+               bValue=B_VALUE;
+               //reading the MagLower
+               magLower=MAG_LOWER;
+               //reading the MagUpper
+               magUpper=mag;
+               //reading the DeltaMag
+               deltaMag=DELTA_MAG;
 
+             }
             }
-          }
-
+           }
 
           //reading the third line from  the file
           st=new StringTokenizer(it.next().toString());
@@ -241,19 +235,19 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
 
           GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
-          if(faultType == TYPE_B_GR_FLT){
-            Frankel96_GR_EqkSource frankel96_GRF = new Frankel96_GR_EqkSource(rake,aValue,bValue,magLower,
-                                                   magUpper,deltaMag,(EvenlyGriddedSurface)surface);
+          if(faultType == TYPE_B_CHAR_GR_FLT && mag>6.5){
+            Frankel96_GR_EqkSource frankel96_GRF = new Frankel96_GR_EqkSource(rake,bValue,magLower,
+                                                   magUpper,deltaMag,rate,(EvenlyGriddedSurface)surface);
             this.FrankelB_GR_EqkSources.add(frankel96_GRF);
           }
 
-          if( faultType==TYPE_A_CHAR_FLT || faultType==TYPE_B_CHAR_FLT) {
+          if( faultType==TYPE_A_CHAR_FLT || (faultType==TYPE_B_CHAR_GR_FLT && mag<=6.5)) {
             Frankel96_CharEqkSource frankel96_CharF = new  Frankel96_CharEqkSource(rake,mag,rate,
                                                       (EvenlyGriddedSurface)surface);
 
             if(faultType ==  TYPE_A_CHAR_FLT)
               this.FrankelA_CharEqkSources.add(frankel96_CharF);
-            if(faultType ==  TYPE_B_CHAR_FLT)
+            if(faultType ==  TYPE_B_CHAR_GR_FLT  && mag<=6.5)
               this.FrankelB_CharEqkSources.add(frankel96_CharF);
           }
 

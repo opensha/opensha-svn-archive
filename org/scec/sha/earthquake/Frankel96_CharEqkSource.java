@@ -28,7 +28,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
    */
   private String name = new String("Frankel96_CharEqkSource");
 
-
+  boolean D = true;
 
 
   /**
@@ -62,6 +62,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   public void setTimeSpan(double yrs) {
     // set the probability according to the specifed timespan
      probEqkRupture.setProbability(1-Math.exp(-yrs*rate));
+     if(D) System.out.println("probability="+probEqkRupture.getProbability());
   }
 
 
