@@ -45,9 +45,12 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private static final String STEP_ADDON_FILE_SUFFIX = "_addon.txt";
   private static final String STEP_COMBINED_FILE_SUFFIX = "_both.txt";
   private static final String METADATA_FILE_SUFFIX = "_metadata.dat";
+  private static final String VS30_FILE_NAME = "vs30.txt";
   private static final double IML_VALUE = Math.log(0.126);
   private Vector latVals = new Vector();
   private Vector lonVals = new Vector();
+  //vector to store the vs30 values
+  private Vector vs30Vals = new Vector();
   DecimalFormat format = new DecimalFormat("0.00##");
 
   public STEP_DataSetGenerator() {
@@ -87,6 +90,17 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       boolean success = (new File(STEP_DIR)).mkdir();
     }
 
+    //generating the file for the VS30 Values if it already not exists
+    File vs30File = new File(this.STEP_DIR+this.VS30_FILE_NAME);
+    //if already exists then just read the file and get the vs30 values
+    if(vs30File.exists())
+      getValForLatLon(this.vs30Vals,this.STEP_DIR+this.VS30_FILE_NAME);
+    //if file does not already exists then create it.
+    else{
+      vs30Vals = getVS30FromCVM(new Double(MIN_LON),new Double(MAX_LON),new Double(MIN_LAT),
+                                new Double(MAX_LAT),new Double(GRID_SPACING));
+      this.createFile(vs30Vals,this.STEP_DIR+this.VS30_FILE_NAME);
+    }
     //MetaData String
     String metadata = "IMR Info: \n"+
                       "\t"+"Name: "+imr.getName()+"\n"+
@@ -112,20 +126,8 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     File backSiesFile = new File(this.STEP_DIR+this.STEP_BACKGROUND_FILE);
     Vector backSiesProbVals = new Vector();
     //if the file for the backGround already exists then just pick up the values for the Prob from the file
-    if(backSiesFile.exists()){
-      try{
-        ArrayList fileLines=FileUtils.loadFile(this.STEP_DIR+this.STEP_BACKGROUND_FILE);
-        ListIterator it =fileLines.listIterator();
-        while(it.hasNext()){
-          StringTokenizer st = new StringTokenizer((String)it.next());
-          st.nextToken();
-          st.nextToken();
-          backSiesProbVals.add(new Double(st.nextToken().trim()));
-        }
-      }catch(Exception  e){
-        e.printStackTrace();
-      }
-    }
+    if(backSiesFile.exists())
+      getValForLatLon(backSiesProbVals,this.STEP_DIR+this.STEP_BACKGROUND_FILE);
     //if the backGround file does not already exist then create it
     else{
       backSiesProbVals = getProbVals(imr,region,(EqkRupForecast)forecast);
@@ -146,10 +148,15 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     //getting the name of the STEP data(XYZ )file from the first line on the STEP website which basically tells the time of updation
     String stepDirName = this.getStepDirName();
     //creating the dataFile for the STEP Addon Probabilities
-    Vector stepAddonProbVals = getProbVals(imr,region,(EqkRupForecast)forecast);
+    Vector stepAddonProbVals = new Vector();
 
     File addonFile = new File(this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
-    if(!addonFile.exists()){
+    //if addon file already exists
+    if(addonFile.exists())
+      getValForLatLon(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
+    //if the file does not exists then create it.
+    else{
+      stepAddonProbVals = getProbVals(imr,region,(EqkRupForecast)forecast);
       createFile(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
       //creating the metadata file for the STEP addon probabilities
       String stepFile = this.STEP_ADDON_FILE_SUFFIX.substring(0,STEP_ADDON_FILE_SUFFIX.indexOf("."));
@@ -170,7 +177,6 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       String stepBothFile = this.STEP_COMBINED_FILE_SUFFIX.substring(0,STEP_COMBINED_FILE_SUFFIX.indexOf("."));
       createMetaDataFile(dataInfo,this.STEP_DIR+stepDirName+stepBothFile+this.METADATA_FILE_SUFFIX);
     }
-
  }
 
 
@@ -192,6 +198,31 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     }
   }
 
+
+  /**
+   * returns the prob or VS30 vals in a vector(vals) for the file( fileName)
+   * @param vals : Vector containing the values( z values)
+   * @param fileName : Name of the file from which we collect the values
+   */
+  private void getValForLatLon(Vector vals,String fileName){
+    try{
+      ArrayList fileLines = FileUtils.loadFile(fileName);
+      ListIterator it = fileLines.listIterator();
+      while(it.hasNext()){
+        StringTokenizer st = new StringTokenizer((String)it.next());
+        st.nextToken();
+        st.nextToken();
+        String val =st.nextToken().trim();
+        System.out.println("Val: "+val);
+        if(!val.equalsIgnoreCase("NaN"))
+          vals.add(new Double(val));
+        else
+          vals.add(new Double(Double.NaN));
+      }
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+  }
 
   /**
    * Creates the metadata file for the dataSet
@@ -239,7 +270,13 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       double hazVal =1;
       double condProb =0;
       imr.setSite(region.getSite(j));
-
+      //adding the VS30 value for each site
+      double vs30 = ((Double)vs30Vals.get(j)).doubleValue();
+      //only add the vs30 value if it not a Double.NaN otherwise the default value which is 760m/s .
+      if(!(Double.isNaN(vs30))){
+        System.out.println("vs30: "+vs30);
+        imr.getSite().getParameter(imr.VS30_NAME).setValue(vs30Vals.get(j));
+      }
       // loop over sources
       for(i=0;i < numSources ;i++) {
 
@@ -324,6 +361,56 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     }
     return null;
   }
+
+
+  /**
+   * Gets the VS30 from the CVM servlet
+   */
+  private Vector getVS30FromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax,
+                              Double gridSpacing) {
+
+    // if we want to the paramter from the servlet
+    try{
+
+      // make connection with servlet
+      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/Vs30BasinDepthCalcServlet");
+      URLConnection servletConnection = cvmServlet.openConnection();
+
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
+
+      // send the student object to the servlet using serialization
+      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
+
+      outputToServlet.writeObject("Vs30");
+      outputToServlet.writeObject(lonMin);
+      outputToServlet.writeObject(lonMax);
+      outputToServlet.writeObject(latMin);
+      outputToServlet.writeObject(latMax);
+      outputToServlet.writeObject(gridSpacing);
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // now read the connection again to get the vs30 as sent by the servlet
+      ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
+      //vectors of lat and lon for the Vs30
+      Vector vs30Vector=(Vector)ois.readObject();
+      ois.close();
+      return vs30Vector;
+    }catch (Exception exception) {
+      System.out.println("Exception in connection with servlet:" +exception);
+    }
+    return null;
+  }
+
+
 
   /**
    *  Function that must be implemented by all Listeners for
