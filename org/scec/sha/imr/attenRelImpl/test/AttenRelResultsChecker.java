@@ -283,6 +283,7 @@ public class AttenRelResultsChecker {
     if(targetVal!=0)
       result =(StrictMath.abs(valFromSHA-targetVal)/targetVal)*100;
 
+    //System.out.println("Result: "+ result);
     if(result < this.tolerence)
       return true;
     else

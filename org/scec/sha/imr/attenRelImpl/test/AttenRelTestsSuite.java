@@ -30,6 +30,7 @@ public class AttenRelTestsSuite extends TestCase {
   public static Test suite()
   {
     TestSuite suite = new TestSuite();
+    suite.addTest(new TestSuite(Shakemap_2003_test.class));
     suite.addTest(new TestSuite(Abrahamson_2000_test.class));
     suite.addTest(new TestSuite(Abrahamson_Silva_1997_test.class));
     suite.addTest(new TestSuite(BJF_1997_test.class));
