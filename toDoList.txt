@@ -3,27 +3,6 @@
 
 Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
 
-Access site-type servlets from the SitesInGriddedRegion rather than the GuiBean (so servlets can be accessed without having to have a GUI).  Make sure this is graceful if internet connection fails.
-
-Subclass the GMT_MapGenerator as GMT_MapGeneratorForShakeMaps in the sha package, and change the makeMap* methods in this sublcalss like the follow:
-
-	makeMapLocally(XYZ_DataSetAPI xyzDataSet, EarthquakeRupture eqkRup, Location hypLoc)
-
-	(that is, add eqkRup and hypLoc input parameters)
-
-	change the ScenarioShakeMapApp to pass these new arguments 
-	(set hypLoc=null if not selected)
-
-	for now have this method simply call the same in the parent (Ned will take it from here)
-
- 	have the MapGuiBean wrap this new class rather than the parent
-
-ScenarioShakeMapApp
-
-	add option to make Hazus shape files to the GMT_MapGeneratorForShakeMaps class (add this to the script).  
-	
-	if possible, make image scalable with window size (although keep aspect ratio fixed)
-
 AttenuationRelationshipApp
 
 	Remove the label (and space) at the top where is says "Attenuation Relationship GUI"
@@ -42,7 +21,7 @@ GMT_MapGenerator:
     		GS_PATH
     		CONVERT_PATH
 
-Finish making it so scenario shakemaps can be calculated in stand-alone mode.  Make getScenarioShakeMapData(*) method take an EarthquakeRupture (not a ProbEarthquakeRupture) rather than an ERF, source, and rupture index.  Also make sure that value is between 0 and 1 if isProbAtIML=false.  Have the above method return xyzData rather than taking it as an argument (it's not needed as input since the sitesInGriddedRegion has the lats and lons for the calc).
+Look into how to save an application in its current state (and to an abitrary file name) so that a user can double click later to come back.
 
 We need to somehow metadata in the HazardCurveCalculator; also make the ability to "peel off" the plot/metadata window (Ned and Nitin will discuss this more later)?
 
@@ -51,8 +30,6 @@ Finish PEER results plotter & data submission tool (when they give us the final 
 Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x). Ned needs to double check these.
 
 Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.
-
-Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings?  Ned & Nitin need to discuss this.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
@@ -71,11 +48,9 @@ Ned needs to think about the following:
 
 Implement 2002 National Hazard maps model - Ned will work on.
 
-Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out.
+Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D
 
 Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.  ned should look at.  Nitin says there are still important discrepancies.
-
-Generalize ERF servlets so that one object can be used for any arbitrary ERF (or ERF epistemic list).  Ned will check this out.
 
 Finish STEP map making capability according to feedback from Matt and Lucy (and solve the Vs30 on water issue).
 
@@ -84,9 +59,6 @@ SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned 
 Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.
 
 Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
-
-Make the setting values from CVM to be webservice rather than a servlet. Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. 
-
 
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
