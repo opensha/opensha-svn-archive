@@ -72,7 +72,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
         // jpg file name
         String jpgFileName  = map.makeMapUsingServlet(xyzData);
 
-        String xyzFileName  = map.getXYZ_FileName();
+        String xyzFileName  = "";//map.getXYZ_FileName();
         // make the html file
         makeHTML_File(outputFilePrefix, jpgFileName);
         // now move the xyz file, ps file and jpg file to webpage directory
