@@ -160,6 +160,25 @@ public class FileUtils {
      }catch(Exception e) { e.printStackTrace(); }
      return null;
    }
+
+
+   /**
+    * @param fileName File from where object needs to be read
+    * @return Object object read from the file
+    */
+   public static Object loadObject(String fileName)
+   {
+     if(D) System.out.println("fileName="+fileName);
+     try {
+       FileInputStream fin = new FileInputStream(fileName);
+       ObjectInputStream tis = new ObjectInputStream( fin);
+       Object obj =  tis.readObject();
+       tis.close();
+       return obj;
+       }catch(Exception e) { e.printStackTrace(); }
+       return null;
+   }
+
 }
 
 

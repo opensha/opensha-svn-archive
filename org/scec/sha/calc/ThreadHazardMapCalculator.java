@@ -10,7 +10,7 @@ import org.scec.data.Site;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import java.text.DecimalFormat;
 import org.scec.data.function.DiscretizedFuncAPI;
-
+import org.scec.util.FileUtils;
 /**
  *
  * <p>Title: ThreadHazardMapCalculator.java </p>
@@ -69,12 +69,14 @@ public class ThreadHazardMapCalculator
 public void getHazardMapCurves(String[] args) {
   try{
 
-    SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)this.loadObject(args[1]);
+    SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
     hazCurveCalc.setMaxSourceDistance(this.MAX_DISTANCE);
     int numSites = griddedSites.getNumGridLocs();
     for(int j=0;j<numSites;j +=100){
-      Thread t = new Thread(new HazardCurvesGenerator(args,j,
-      j+100));
+      int endIndex = j+100;
+      if(endIndex >=numSites)
+        endIndex = numSites;
+      Thread t = new Thread(new HazardCurvesGenerator(args,j,endIndex));
       t.start();
     }
   }catch(Exception e){
@@ -83,22 +85,7 @@ public void getHazardMapCurves(String[] args) {
 }
 
 
- /**
-  * @param fileName File from where object needs to be read
-  * @return Object object read from the file
-  */
- private static Object loadObject(String fileName)
- {
-   if(D) System.out.println("fileName="+fileName);
-   try {
-     FileInputStream fin = new FileInputStream(fileName);
-     ObjectInputStream tis = new ObjectInputStream( fin);
-     Object obj =  tis.readObject();
-     tis.close();
-     return obj;
-   }catch(Exception e) { e.printStackTrace(); }
-   return null;
- }
+
 
  /**
   * set x values in log space for Hazard Function to be passed to IMR
@@ -150,9 +137,9 @@ public void getHazardMapCurves(String[] args) {
    private int endIndex;
    HazardCurvesGenerator(String[] args,int startIndex, int endIndex){
      // load the objects from the file
-     regionObj = (SitesInGriddedRegion)loadObject(args[1]);
-     erfObj = (EqkRupForecast)loadObject(args[2]);
-     imrObj = (AttenuationRelationshipAPI)loadObject(args[0]);
+     regionObj = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
+     erfObj = (EqkRupForecast)FileUtils.loadObject(args[2]);
+     imrObj = (AttenuationRelationshipAPI)FileUtils.loadObject(args[0]);
 
      this.startIndex = startIndex;
      this.endIndex = endIndex;
