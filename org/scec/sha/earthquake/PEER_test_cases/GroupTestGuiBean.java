@@ -592,9 +592,9 @@ public class GroupTestGuiBean implements
 
       // if IMR selection changed, update the site parameter list
       if ( name1.equalsIgnoreCase(this.IMR_PARAM_NAME)) {
-          initImrParamListAndEditor();
+          init_imrParamListAndEditor();
           updateSiteParamListAndEditor();
-          initImtParamListAndEditor();
+          init_imtParamListAndEditor();
           applet.updateChoosenIMR();
           applet.updateChoosenIMT();
       }
