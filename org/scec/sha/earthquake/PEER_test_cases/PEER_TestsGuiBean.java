@@ -91,8 +91,8 @@ public class PEER_TestsGuiBean implements
      */
     public final static String PEER_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.PEER_FaultForecast";
     public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.PEER_AreaForecast";
-    public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.PEER_ListricFaultForecast";
-    public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.PEER_NonPlanarFaultForecast";
+    public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.PEER_NonPlanarFaultForecast";
+    public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.PEER_ListricFaultForecast";
     public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.PEER_MultiSourceForecast";
 
     //this vector saves the names of all the supported Eqk Rup Forecasts
@@ -130,11 +130,11 @@ public class PEER_TestsGuiBean implements
   private ParameterListEditor testCasesEditor = null;
 
 
-  //This string is sent by the applet and lets the GUIBean know which test case
+  //This string is sent by the applet and lets the GUIBean know which test case set
   //and site has been selecetd by the user.
   private String selectedTest;
   private String selectedSite;
-
+  private String selectedSet;
 
   /**
    * constructor
@@ -179,17 +179,17 @@ public class PEER_TestsGuiBean implements
 
 
   /**
-   * This method extracts the selected Site and the selected TestCase
-   * @param testAndSite: Contains both the site and the Selected Test Case
+   * This method extracts the selected Site and the selected TestCase set
+   * @param testAndSite: Contains both the site and the Selected Test Cases Set
    */
   public void setTestCaseAndSite(String testAndSite){
     int firstIndex=testAndSite.indexOf("-");
     int lastIndex = testAndSite.lastIndexOf("-");
+    selectedSet = testAndSite.substring(0,firstIndex);
     selectedTest = testAndSite.substring(firstIndex+1,lastIndex);
     selectedSite = testAndSite.substring(lastIndex+1);
     peerTestParameterClass.setParams();
   }
-
 
 
   /**
@@ -462,6 +462,8 @@ public class PEER_TestsGuiBean implements
       while(it.hasNext()){
         // make the ERF objects to get their adjustable parameters
         erf = (EqkRupForecastAPI ) createERFClassInstance((String)it.next());
+        if(D)
+          System.out.println("Iterator Class:"+erf.getName());
         erfObject.add(erf);
         erfNamesVector.add(erf.getName());
       }
@@ -639,7 +641,7 @@ public class PEER_TestsGuiBean implements
     EqkRupForecastAPI erf = null;
     for(int i=0; i<size; ++i) {
       erfName = (String)erfNamesVector.get(i);
-      if(selectedForecast.equalsIgnoreCase(erfName)) { // we found seledcted forecast in the lsit
+      if(selectedForecast.equalsIgnoreCase(erfName)) { // we found selected forecast in the lsit
         erf = (EqkRupForecastAPI)this.erfObject.get(i);
         break;
       }
@@ -655,15 +657,13 @@ public class PEER_TestsGuiBean implements
     erf_Editor.setTitle( this.ERF_EDITOR_TITLE );
 
 
-    //gets the lists of all the parameters that exists in the ERF parameter Editor
-    //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+    //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
     //calls the method to make the update MagDist button invisible
-    ListIterator lit = erf_IndParamList.getParametersIterator();
-    while(lit.hasNext()){
-      ParameterAPI param=(ParameterAPI)lit.next();
-      if(param instanceof MagFreqDistParameter)
-        ((MagFreqDistParameterEditor)erf_Editor.getParameterEditor(param.getName())).setUpdateButtonVisible(false);
-    }
+
+    MagFreqDistParameterEditor magDistEditor=isAvailableMagDist();
+    if(magDistEditor !=null)
+      magDistEditor.setUpdateButtonVisible(false);
+
   }
 
 
@@ -724,15 +724,14 @@ public class PEER_TestsGuiBean implements
     String selectedForecast = (String)this.erf_IndParamList.getValue(this.ERF_PARAM_NAME);
 
 
-    //gets the lists of all the parameters that exists in the ERF parameter Editor
+
     //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
     //calls the method to update the magDistParams.
-    ListIterator lit = erf_IndParamList.getParametersIterator();
-    while(lit.hasNext()){
-      ParameterAPI param=(ParameterAPI)lit.next();
-      if(param instanceof MagFreqDistParameter)
-        ((MagFreqDistParameterEditor)erf_Editor.getParameterEditor(param.getName())).setMagDistFromParams();
-    }
+    MagFreqDistParameterEditor magEditor=isAvailableMagDist();
+
+    if(magEditor!=null)
+      magEditor.setMagDistFromParams();
+
 
     // check which forecast has been selected by the user
     int size = this.erfNamesVector.size();
@@ -818,6 +817,24 @@ public class PEER_TestsGuiBean implements
   }
 
 
+  /**
+   * gets the lists of all the parameters that exists in the ERF parameter Editor
+   * then checks if the magFreqDistParameter exists inside it , if so then returns the MagEditor
+   * else return null.
+   * @returns MagFreDistParameterEditor
+   */
+  public MagFreqDistParameterEditor isAvailableMagDist(){
+
+    ListIterator lit = erf_IndParamList.getParametersIterator();
+    while(lit.hasNext()){
+      ParameterAPI param=(ParameterAPI)lit.next();
+      if(param instanceof MagFreqDistParameter){
+        MagFreqDistParameterEditor magDistEditor=((MagFreqDistParameterEditor)erf_Editor.getParameterEditor(param.getName()));
+        return magDistEditor;
+      }
+    }
+    return null;
+  }
 
   /**
    *  Shown when a Constraint error is thrown on a ParameterEditor
@@ -879,8 +896,6 @@ public class PEER_TestsGuiBean implements
 
     String S = C + " : parameterChangeWarning(): ";
     if(D) System.out.println(S + "Starting");
-
-
 
 
     // only display messages if paramters are set at back
@@ -1008,21 +1023,32 @@ public class PEER_TestsGuiBean implements
     private final static String FAULT_ONE = "Fault 1";
     private final static String FAULT_TWO = "Fault 2";
     private final static String FAULT_AREA = "Fault Area";
+    private final static String FAULT_NON_PLANAR = "Fault Non Planar";
+    private final static String FAULT_LISTRIC = "Fault Listic";
+    private final static String FAULT_MULTI_SOURCE = "Fault Multi Source";
 
 
     private  PEER_FaultForecast peer_Fault_ERF;
     private  PEER_AreaForecast peer_Area_ERF;
+    private  PEER_NonPlanarFaultForecast peer_NonPlanar_ERF;
+    private  PEER_ListricFaultForecast peer_Listric_ERF;
+    private  PEER_MultiSourceForecast peer_MultiSource_ERF;
+
 
     protected PEER_TestsGuiBean peerTestGuiBean;
 
     public PEER_TestDefaultParameterClass(PEER_TestsGuiBean peerTestGuiBean){
-      this.peerTestGuiBean = peerTestGuiBean;
 
+      this.peerTestGuiBean = peerTestGuiBean;
       // hard coded values for setting in the test cases
       peer_Fault_ERF = (PEER_FaultForecast)erfObject.get(0);
       peer_Area_ERF =  (PEER_AreaForecast)erfObject.get(1);
-
+      peer_NonPlanar_ERF =(PEER_NonPlanarFaultForecast)erfObject.get(2);
+      peer_Listric_ERF =(PEER_ListricFaultForecast)erfObject.get(3);
+      peer_MultiSource_ERF = (PEER_MultiSourceForecast)erfObject.get(4);
     }
+
+
     /**
      * This function sets the site Paramters and the IMR parameters based on the
      * selected test case and selected site number for that test case
@@ -1033,19 +1059,45 @@ public class PEER_TestsGuiBean implements
       String S = C + ":setParams()";
       if(D) System.out.println(S+"::entering");
 
+      //Gets the siteParamList
+      ParameterList siteParams = siteParamEditor.getParameterList();
+
+      //if set-1 PEER test case is selected
+      if(selectedSet.equalsIgnoreCase(applet.PEER_TESTS_SET_ONE))
+        set_Set1Params(siteParams);
+
+      //if set-2 PEER test case is selected
+      else if(selectedSet.equalsIgnoreCase(applet.PEER_TESTS_SET_TWO))
+        set_Set2Params(siteParams);
+
+      // refresh the editor according to parameter values
+      imrEditor.synchToModel();
+      imtEditor.synchToModel();
+      siteParamEditor.synchToModel();
+      erf_Editor.synchToModel();
+    }
+
+
+    /**
+     * sets the parameter values for the selected test cases in Set-1
+     * @param siteParams
+     */
+    private void set_Set1Params(ParameterList siteParams){
+
+      String selectedFault= new String(FAULT_ONE);
       if(!selectedTest.equalsIgnoreCase(applet.TEST_CASE_TEN) && !selectedTest.equalsIgnoreCase(applet.TEST_CASE_ELEVEN))
-          // it is fault test case
+        // it is fault test case
         erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_Fault_ERF.getName());
       else // if it area case
         erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_Area_ERF.getName());
 
 
       // set the mag dist params based on test case
-      setMagDistParams(selectedTest);
-
-
-      String selectedFault= new String(FAULT_ONE);
-      ParameterList siteParams = siteParamEditor.getParameterList();
+      //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+      //calls the method to set magDistParams.
+      MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
+      if(magDistEditor !=null)
+        setMagDistParams(magDistEditor);
 
       //if selected test case is number 1
       if(selectedTest.equals(applet.TEST_CASE_ONE)){
@@ -1056,7 +1108,6 @@ public class PEER_TestsGuiBean implements
         siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
-
 
       //if selected test case is number 2
       if(selectedTest.equals(applet.TEST_CASE_TWO)){
@@ -1298,32 +1349,273 @@ public class PEER_TestsGuiBean implements
         if(selectedSite.equals(applet.SITE_FOUR))
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(36.874));
       }
-
-      // refresh the editor according to parameter values
-      imrEditor.synchToModel();
-      imtEditor.synchToModel();
-      siteParamEditor.synchToModel();
-      erf_Editor.synchToModel();
     }
 
 
+
+    /**
+     * sets the parameter values for the selected test cases in Set-2
+     * @param siteParams
+     */
+    private void set_Set2Params(ParameterList siteParams){
+
+      //if test case -1
+      if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_ONE)){
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_NonPlanar_ERF.getName());
+
+        // set the mag dist params based on test case
+        //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+        //calls the method to set magDistParams.
+        MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
+        if(magDistEditor !=null)
+          setMagDistParams(magDistEditor);
+
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
+        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        // add sigma for maglength(0-1)
+        erf_IndParamList.getParameter(peer_NonPlanar_ERF.SIGMA_PARAM_NAME).setValue(peer_NonPlanar_ERF.DEFAULT_SIGMA_VAL);
+        // set the common parameters like timespan, grid spacing
+        erf_IndParamList.getParameter(peer_NonPlanar_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_NonPlanar_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_NonPlanar_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_NonPlanar_ERF.GR_MAG_UPPER).setValue(new Double(7.2));
+        erf_IndParamList.getParameter(peer_NonPlanar_ERF.SLIP_RATE_NAME).setValue(new Double(2.0));
+        erf_IndParamList.getParameter(peer_NonPlanar_ERF.SEGMENTATION_NAME).setValue(peer_NonPlanar_ERF.SEGMENTATION_NONE);
+
+        if(selectedSite.equalsIgnoreCase(applet.SITE_ONE)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-121.875));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.1));
+        }
+        else if(selectedSite.equalsIgnoreCase(applet.SITE_TWO)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.2));
+        }
+        else if(selectedSite.equalsIgnoreCase(applet.SITE_THREE)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.0));
+        }
+      }
+
+      //if test case -2
+      if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_TWO)){
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.peer_MultiSource_ERF.getName());
+
+        // set the mag dist params based on test case
+        //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+        //calls the method to set magDistParams.
+        MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
+        if(magDistEditor !=null)
+          setMagDistParams(magDistEditor);
+
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
+        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        erf_IndParamList.getParameter(peer_MultiSource_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(12.0));
+        erf_IndParamList.getParameter(peer_MultiSource_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(0.0));
+        erf_IndParamList.getParameter(peer_MultiSource_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_MultiSource_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_MultiSource_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+
+        if(selectedSite.equalsIgnoreCase(applet.SITE_ONE)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.625));
+        }
+        else if(selectedSite.equalsIgnoreCase(applet.SITE_TWO)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.125));
+        }
+        else if(selectedSite.equalsIgnoreCase(applet.SITE_THREE)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(36.875));
+        }
+
+      }
+
+      //if test case -3
+      if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_THREE)){
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.peer_Fault_ERF.getName());
+
+        // set the mag dist params based on test case
+        //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+        //calls the method to set magDistParams.
+        MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
+        if(magDistEditor !=null)
+          setMagDistParams(magDistEditor);
+
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
+        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        erf_IndParamList.getParameter(peer_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1000.0));
+        if(selectedSite.equalsIgnoreCase(applet.SITE_ONE)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.875));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.125));
+        }
+        else if(selectedSite.equalsIgnoreCase(applet.SITE_TWO)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.210));
+        }
+        else if(selectedSite.equalsIgnoreCase(applet.SITE_THREE)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.0));
+        }
+      }
+
+      //if test case -4
+      if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_FOUR)){
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.peer_Fault_ERF.getName());
+
+        // set the mag dist params based on test case
+        //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+        //calls the method to set magDistParams.
+        MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
+        if(magDistEditor !=null)
+          setMagDistParams(magDistEditor);
+
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
+        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        erf_IndParamList.getParameter(peer_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.0));
+        erf_IndParamList.getParameter(peer_Fault_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1000.0));
+        if(selectedSite.equalsIgnoreCase(applet.SITE_ONE)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.875));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.125));
+        }
+        else if(selectedSite.equalsIgnoreCase(applet.SITE_TWO)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.210));
+        }
+        else if(selectedSite.equalsIgnoreCase(applet.SITE_THREE)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.0));
+        }
+      }
+
+      //if test case -6
+      if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_SIX)){
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.peer_Listric_ERF.getName());
+
+        // set the mag dist params based on test case
+        //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+        //calls the method to set magDistParams.
+        MagFreqDistParameterEditor magDistEditor =isAvailableMagDist();
+        if(magDistEditor !=null)
+          setMagDistParams(magDistEditor);
+
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
+        imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+        siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+
+        erf_IndParamList.getParameter(peer_Listric_ERF.GRID_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Listric_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+        erf_IndParamList.getParameter(peer_Listric_ERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
+        erf_IndParamList.getParameter(peer_Listric_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.0));
+        erf_IndParamList.getParameter(peer_Listric_ERF.TIMESPAN_PARAM_NAME).setValue(new Double(1.0));
+
+        if(selectedSite.equalsIgnoreCase(applet.SITE_ONE)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.875));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.125));
+        }
+        else if(selectedSite.equalsIgnoreCase(applet.SITE_TWO)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.210));
+        }
+        else if(selectedSite.equalsIgnoreCase(applet.SITE_THREE)){
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.0));
+        }
+      }
+   }
+
+
      /**
-       * set the mag dist params according to test case
-       *
-       * @param testCase
-       */
-     public void setMagDistParams(String testCase) {
-
-
-        MagFreqDistParameterEditor magEditor;
-
-        magEditor= (MagFreqDistParameterEditor)erf_Editor.getParameterEditor("Mag Dist");
+      * set the mag dist params according to test case
+      *
+      * @param testCase
+      */
+     public void setMagDistParams(MagFreqDistParameterEditor magEditor) {
 
         magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.0));
         magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(10.0));
         magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(101));
+
+        if(selectedSet.equalsIgnoreCase(applet.PEER_TESTS_SET_ONE))
+          setMagDistParams_Set1(magEditor);
+
+        else if(selectedSet.equalsIgnoreCase(applet.PEER_TESTS_SET_TWO))
+          setMagDistParams_Set2(magEditor);
+
+        magEditor.setMagDistFromParams();
+      }
+
+
+      /**
+       * Sets the default magdist values for the set-2
+       * @param magEditor
+       */
+      private void setMagDistParams_Set2(MagFreqDistParameterEditor magEditor){
+         // mag dist parameters for test case 3
+        if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_THREE)){
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
+          magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_CHAR).setValue(new Double(.1));
+          magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.YC_MAG_PRIME).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
+          }
+          // mag dist parameters for test case 4
+        if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_FOUR)){
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(5.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(16));//becuase delta is incrementing in steps of .1
+          magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
+          magEditor.getParameter(MagFreqDistParameterEditor.STD_DEV).setValue(new Double(0.25));
+          magEditor.getParameter(MagFreqDistParameterEditor.MEAN).setValue(new Double(6.2));
+          magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATION_REQ).setValue(MagFreqDistParameterEditor.TRUNCATE_UPPER_ONLY);
+          magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.2));
+        }
+
+         // mag dist parameters for test case 6
+        if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_SIX)){
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_CUM_RATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
+          magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
+        }
+      }
+
+
+      /**
+       * Sets the default magdist values for the set-1
+       * @param magEditor
+       */
+      private void setMagDistParams_Set1(MagFreqDistParameterEditor magEditor){
         // mag dist parameters for test case 1
-        if(testCase.equalsIgnoreCase(applet.TEST_CASE_ONE)) {
+        if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_ONE)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.5));
@@ -1331,7 +1623,7 @@ public class PEER_TestsGuiBean implements
         }
 
         // mag dist parameters  for test case 2
-        if(testCase.equalsIgnoreCase(applet.TEST_CASE_TWO)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_TWO)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1340,7 +1632,7 @@ public class PEER_TestsGuiBean implements
         }
 
         // mag dist parameters  for test case 3
-        if(testCase.equalsIgnoreCase(applet.TEST_CASE_THREE)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_THREE)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1349,7 +1641,7 @@ public class PEER_TestsGuiBean implements
         }
 
         // mag dist parameters for test case 4
-        if(testCase.equalsIgnoreCase(applet.TEST_CASE_FOUR)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_FOUR)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1358,7 +1650,7 @@ public class PEER_TestsGuiBean implements
         }
 
         // mag dist parameters for test case 5
-        if(testCase.equalsIgnoreCase(applet.TEST_CASE_FIVE)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_FIVE)) {
           magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(1001));
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_CUM_RATE);
@@ -1370,7 +1662,7 @@ public class PEER_TestsGuiBean implements
 
 
         // mag dist parameters for test case 6
-        if(testCase.equalsIgnoreCase(applet.TEST_CASE_SIX)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_SIX)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
           magEditor.getParameter(MagFreqDistParameterEditor.STD_DEV).setValue(new Double(0.25));
@@ -1379,7 +1671,7 @@ public class PEER_TestsGuiBean implements
           magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.2));
         }
         // mag dist parameters for test case 7
-        if(testCase.equalsIgnoreCase(applet.TEST_CASE_SEVEN)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_SEVEN)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
           magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_CHAR).setValue(new Double(0.5));
@@ -1391,7 +1683,7 @@ public class PEER_TestsGuiBean implements
         }
 
         //mag dist parameters for the test case 8_1
-        if(testCase.equalsIgnoreCase(applet.TEST_CASE_EIGHT_ONE)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_EIGHT_ONE)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1400,34 +1692,34 @@ public class PEER_TestsGuiBean implements
         }
 
         //mag dist parameters for the test case 8_2
-       if(testCase.equalsIgnoreCase(applet.TEST_CASE_EIGHT_TWO)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_EIGHT_TWO)) {
 
-         magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-         magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-         magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
         }
 
         //mag dist parameters for the test case 8_3
-       if(testCase.equalsIgnoreCase(applet.TEST_CASE_EIGHT_THREE)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_EIGHT_THREE)) {
 
-         magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-         magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-         magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
         }
 
         //mag dist parameters for the test case 9_1
-       if(testCase.equalsIgnoreCase(applet.TEST_CASE_NINE_ONE)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_NINE_ONE)) {
 
-         magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-         magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-         magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
         }
 
         //mag dist parameters for the test case 9_2
-       if(testCase.equalsIgnoreCase(applet.TEST_CASE_NINE_TWO)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_NINE_TWO)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1436,26 +1728,16 @@ public class PEER_TestsGuiBean implements
         }
 
         //mag dist parameters for the test case 9_1
-       if(testCase.equalsIgnoreCase(applet.TEST_CASE_NINE_THREE)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_NINE_THREE)) {
 
-         magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
-         magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-         magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
         }
 
         // mag dist parameters for test case 10
-       if(testCase.equalsIgnoreCase(applet.TEST_CASE_TEN)) {
-         magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-         magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
-         magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
-         magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
-         magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-         magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(.0395));
-        }
-
-        // mag dist parameters for test case 11
-       if(testCase.equalsIgnoreCase(applet.TEST_CASE_ELEVEN)) {
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_TEN)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
@@ -1463,8 +1745,18 @@ public class PEER_TestsGuiBean implements
           magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
           magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(.0395));
         }
-        magEditor.setMagDistFromParams();
+
+        // mag dist parameters for test case 11
+        else if(selectedTest.equalsIgnoreCase(applet.TEST_CASE_ELEVEN)) {
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
+          magEditor.getParameter(MagFreqDistParameterEditor.TOT_CUM_RATE).setValue(new Double(.0395));
+        }
       }
+
 
       /**
        * Fault-1 or Fault-2 source
