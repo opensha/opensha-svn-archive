@@ -6,6 +6,7 @@ import java.util.*;
 import org.scec.param.editor.*;
 import org.scec.param.*;
 import org.scec.param.event.*;
+import org.scec.sha.gui.infoTools.IMT_Info;
 
 /**
  * <p>Title: IMLorProbSelectorGuiBean</p>
@@ -32,11 +33,11 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
   private final static Double DEFAULT_PROB= new Double(.5);
   private final static Double DEFAULT_IML = new Double(.1);
 
-  private StringParameter imlProb;
+  private StringParameter imlProbParam;
 
   //double parameters for inutting the values for the iml or prob.
-  private DoubleParameter prob = new DoubleParameter(PROBABILITY,MIN_PROB,MAX_PROB,DEFAULT_PROB);
-  private DoubleParameter iml = new DoubleParameter(IML,DEFAULT_IML);
+  private DoubleParameter probParam = new DoubleParameter(PROBABILITY,MIN_PROB,MAX_PROB,DEFAULT_PROB);
+  private DoubleParameter imlParam = new DoubleParameter(IML,0,Double.MAX_VALUE,DEFAULT_IML);
 
   /**
    * class constructor
@@ -49,15 +50,15 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
 
     imlProbVector.add(IML_AT_PROB);
     imlProbVector.add(PROB_AT_IML);
-    imlProb = new StringParameter(MAP_TYPE,imlProbVector,imlProbVector.get(0).toString());
-    imlProb.addParameterChangeListener(this);
+    imlProbParam = new StringParameter(MAP_TYPE,imlProbVector,imlProbVector.get(0).toString());
+    imlProbParam.addParameterChangeListener(this);
     parameterList= new ParameterList();
-    parameterList.addParameter(imlProb);
-    parameterList.addParameter(prob);
-    parameterList.addParameter(iml);
+    parameterList.addParameter(imlProbParam);
+    parameterList.addParameter(probParam);
+    parameterList.addParameter(imlParam);
     addParameters();
     this.setTitle(MAP_INFO);
-    setParams(imlProb.getValue().toString());
+    setParams(imlProbParam.getValue().toString());
   }
 
   /**
@@ -90,14 +91,29 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
   }
 
   /**
+   * Sets the constraint and Default value of the IML Param based on the
+   * selected IMT.
+   * @param imt
+   */
+  public void setIMLConstraintBasedOnSelectedIMT(String imt){
+    double minVal = IMT_Info.getMinIMT_Val(imt);
+    double maxVal = IMT_Info.getMaxIMT_Val(imt);
+    double defaultVal = IMT_Info.getDefaultIMT_VAL(imt);
+    DoubleConstraint constraint = new DoubleConstraint(minVal,maxVal);
+    imlParam.setConstraint(constraint);
+    imlParam.setValue(new Double(defaultVal));
+    refreshParamEditor();
+  }
+
+  /**
    *
    * @return the double value for the iml or prob, depending on the MapType
    * selected by the user.
    */
  public double getIML_Prob(){
    if(parameterList.getParameter(MAP_TYPE).getValue().toString().equalsIgnoreCase(IML_AT_PROB))
-     return ((Double)prob.getValue()).doubleValue();
-   else return ((Double)iml.getValue()).doubleValue();
+     return ((Double)probParam.getValue()).doubleValue();
+   else return ((Double)imlParam.getValue()).doubleValue();
  }
 
  /**
@@ -105,6 +121,6 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
   * @return
   */
  public String getSelectedOption() {
-   return this.imlProb.getValue().toString();
+   return imlProbParam.getValue().toString();
  }
 }

@@ -319,7 +319,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
     // create the IMT Gui Bean object
     imtGuiBean = new IMT_GuiBean(attenRel);
-
+    imtGuiBean.getParameterEditor(imtGuiBean.IMT_PARAM_NAME).getParameter().addParameterChangeListener(this);
     imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
   }
@@ -375,6 +375,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     imlProbGuiBean = new IMLorProbSelectorGuiBean();
     prob_IMLPanel.add(imlProbGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    imlProbGuiBean.setIMLConstraintBasedOnSelectedIMT(imtGuiBean.getSelectedIMT());
   }
 
   /**
@@ -431,6 +432,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
       attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
       imtGuiBean.setIMR(attenRel);
+      imtGuiBean.getParameterEditor(imtGuiBean.IMT_PARAM_NAME).getParameter().addParameterChangeListener(this);
       imtGuiBean.validate();
       imtGuiBean.repaint();
       sitesGuiBean.replaceSiteParams(attenRel.getSiteParamsIterator());
@@ -445,6 +447,11 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
        the forecast while erfGuiBean.getSelectedERF updates the ERF
        */
       this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
+
+    if(name1.equalsIgnoreCase(imtGuiBean.IMT_PARAM_NAME)){
+      System.out.println("Changing IMT");
+      imlProbGuiBean.setIMLConstraintBasedOnSelectedIMT(imtGuiBean.getSelectedIMT());
+    }
 
 
   }
@@ -472,6 +479,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     String imlOrProb=imlProbGuiBean.getSelectedOption();
     if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
       probAtIML=true;
+    else
+      probAtIML= false;
   }
 
   /**

@@ -20,39 +20,48 @@ public final class IMT_Info {
   private String S = "IMT_Info()";
 
   //Default values for the SA and PGA
-  private final static double MIN_SA_PGA = .0001;
-  private final static double MAX_SA_PGA = 10;
-  private final static double NUM_SA_PGA = 51;
-  private final static double DEFAULT_SA_PGA = 0.5;
+  public final static double MIN_SA = .0001;
+  public final static double MAX_SA = 10;
+  public final static double NUM_SA = 51;
+  public final static double DEFAULT_SA = 0.5;
+
+  //Default values for the PGA
+  public final static double MIN_PGA = .0001;
+  public final static double MAX_PGA = 10;
+  public final static double NUM_PGA = 51;
+  public final static double DEFAULT_PGA = 0.5;
+
 
   //Default values for the PGV
-  private final static double MIN_PGV = .01;
-  private final static double MAX_PGV = 1000;
-  private final static double NUM_PGV = 51;
-  private final static double DEFAULT_PGV = 50;
+  public final static double MIN_PGV = .01;
+  public final static double MAX_PGV = 1000;
+  public final static double NUM_PGV = 51;
+  public final static double DEFAULT_PGV = 50;
 
   // default values for WC94_DisplMagRel FAULT_DISPL_NAME
-  private final static double MIN_FAULT_DISPL = .001;
-  private final static double MAX_FAULT_DISPL = 100;
-  private final static double NUM_FAULT_DISPL = 51;
-  private final static double DEFAULT_FAULT_DISPL = 1.0;
+  public final static double MIN_FAULT_DISPL = .001;
+  public final static double MAX_FAULT_DISPL = 100;
+  public final static double NUM_FAULT_DISPL = 51;
+  public final static double DEFAULT_FAULT_DISPL = 1.0;
 
 
   //default values for the ShakeMapAttenRel MMI
-  private final static double MIN_MMI = 1;
-  private final static double MAX_MMI = 10;
-  private final static double NUM_MMI = 51;
-  private final static double DEFAULT_MMI = 7.0;
+  public final static double MIN_MMI = 1;
+  public final static double MAX_MMI = 10;
+  public final static double NUM_MMI = 51;
+  public final static double DEFAULT_MMI = 7.0;
 
-  private double discretization_pga_sa;
-  private double discretization_pgv;
-  private double discretization_fault_displ;
-  private double discretization_mmi;
+  public double discretization_pga;
+  public double discretization_sa;
+  public double discretization_pgv;
+  public double discretization_fault_displ;
+  public double discretization_mmi;
 
   private DecimalFormat format = new DecimalFormat("0.00000##");
 
   public IMT_Info() {
-    discretization_pga_sa = (Math.log(MAX_SA_PGA) - Math.log(MIN_SA_PGA))/(NUM_SA_PGA-1);
+    discretization_pga = (Math.log(MAX_PGA) - Math.log(MIN_PGA))/(NUM_PGA-1);
+    discretization_sa = (Math.log(MAX_SA) - Math.log(MIN_SA))/(NUM_SA-1);
     discretization_pgv = (Math.log(MAX_PGV) - Math.log(MIN_PGV))/(NUM_PGV-1);
     discretization_fault_displ = (Math.log(MAX_FAULT_DISPL) - Math.log(MIN_FAULT_DISPL))/(NUM_FAULT_DISPL-1);
     discretization_mmi = (Math.log(MAX_MMI) - Math.log(MIN_MMI))/(NUM_MMI-1);
@@ -78,9 +87,16 @@ public final class IMT_Info {
    */
   public ArbitrarilyDiscretizedFunc getDefaultHazardCurve(String imtName){
     ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
-    if(imtName.equals(AttenuationRelationship.SA_NAME) || imtName.equals(AttenuationRelationship.PGA_NAME)){
-      for(int i=0; i < NUM_SA_PGA ;++i){
-        double xVal =Double.parseDouble(format.format(Math.exp(Math.log(MIN_SA_PGA)+i*discretization_pga_sa)));
+    if(imtName.equals(AttenuationRelationship.SA_NAME)){
+      for(int i=0; i < NUM_SA ;++i){
+        double xVal =Double.parseDouble(format.format(Math.exp(Math.log(MIN_SA)+i*discretization_sa)));
+        function.set(xVal,1.0);
+      }
+      return function;
+    }
+    else if(imtName.equals(AttenuationRelationship.PGA_NAME)){
+      for(int i=0; i < NUM_PGA ;++i){
+        double xVal =Double.parseDouble(format.format(Math.exp(Math.log(MIN_PGA)+i*discretization_pga)));
         function.set(xVal,1.0);
       }
       return function;
@@ -109,126 +125,8 @@ public final class IMT_Info {
     return null;
   }
 
-  /**
-   *
-   * @returns the minimum X Value for SA
-   */
-  public static double getSA_Min(){
-    return MIN_SA_PGA;
-  }
-
-  /**
-   *
-   * @returns the maximum X Value for SA
-   */
-  public static double getSA_Max(){
-    return MAX_SA_PGA;
-  }
-
-  /**
-   *
-   * @returns the total number of default X Values for SA
-   */
-  public static double getSA_Num(){
-    return NUM_SA_PGA;
-  }
-
-  /**
-   *
-   * @returns the minimum X Value for PGA
-   */
-  public static double getPGA_Min(){
-    return MIN_SA_PGA;
-  }
-
-  /**
-   *
-   * @returns the maximum X Value for PGA
-   */
-  public static double getPGA_Max(){
-    return MAX_SA_PGA;
-  }
-
-  /**
-   *
-   * @returns the total number of default X Values for PGA
-   */
-  public static double getPGA_Num(){
-    return NUM_SA_PGA;
-  }
-
-  /**
-   *
-   * @returns the minimum X Value for PGV
-   */
-  public static double getPGV_Min(){
-    return MIN_PGV;
-  }
-
-  /**
-   *
-   * @returns the maximum X Value for PGV
-   */
-  public static double getPGV_Max(){
-    return MAX_PGV;
-  }
-
-  /**
-   *
-   * @returns the total number of default X Values for PGV
-   */
-  public static double getPGV_Num(){
-    return NUM_PGV;
-  }
-
-  /**
-   *
-   * @returns the minimum X Value for WC94_DisplMagRel Fault Displ
-   */
-  public static double getFaultDispl_Min(){
-    return MIN_FAULT_DISPL;
-  }
-
-  /**
-   *
-   * @returns the maximum X Value for WC94_DisplMagRel Fault Displ
-   */
-  public static double getFaultDispl_Max(){
-    return MAX_FAULT_DISPL;
-  }
-
-  /**
-   *
-   * @returns the total number of default X Values for WC94_DisplMagRel Fault Displ
-   */
-  public static double getFaultDispl_Num(){
-    return NUM_FAULT_DISPL;
-  }
 
 
-  /**
-   *
-   * @returns the minimum X Value for MMI
-   */
-  public static double getMMI_Min(){
-    return MIN_MMI;
-  }
-
-  /**
-   *
-   * @returns the maximum X Value for MMI
-   */
-  public static double getMMI_Max(){
-    return MAX_MMI;
-  }
-
-  /**
-   *
-   * @returns the total number of default X Values for MMI
-   */
-  public static double getMMI_Num(){
-    return NUM_MMI;
-  }
 
 
   /**
@@ -238,15 +136,15 @@ public final class IMT_Info {
    */
   public static double getMinIMT_Val(String imt){
     if(imt.equals(AttenuationRelationship.SA_NAME))
-      return getSA_Min();
+      return MIN_SA;
     else if(imt.equals(AttenuationRelationship.PGA_NAME))
-      return getPGA_Min();
+      return MIN_PGA;
     else if(imt.equals(AttenuationRelationship.PGV_NAME))
-      return getPGV_Min();
+      return MIN_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
-      return getFaultDispl_Min();
+      return MIN_FAULT_DISPL;
     else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
-      return getMMI_Min();
+      return MIN_MMI;
     return 0;
   }
 
@@ -257,15 +155,15 @@ public final class IMT_Info {
    */
   public static double getMaxIMT_Val(String imt){
     if(imt.equals(AttenuationRelationship.SA_NAME))
-      return getSA_Max();
+      return MAX_SA;
     else if(imt.equals(AttenuationRelationship.PGA_NAME))
-      return getPGA_Max();
+      return MAX_PGA;
     else if(imt.equals(AttenuationRelationship.PGV_NAME))
-      return getPGV_Max();
+      return MAX_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
-      return getFaultDispl_Max();
+      return MAX_FAULT_DISPL;
     else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
-      return getMMI_Max();
+      return MAX_MMI;
     return 0;
   }
 
@@ -276,17 +174,37 @@ public final class IMT_Info {
    */
   public static double getNumIMT_Val(String imt){
     if(imt.equals(AttenuationRelationship.SA_NAME))
-      return getSA_Num();
+      return NUM_SA;
     else if(imt.equals(AttenuationRelationship.PGA_NAME))
-      return getPGA_Num();
+      return NUM_PGA;
     else if(imt.equals(AttenuationRelationship.PGV_NAME))
-      return getPGV_Num();
+      return NUM_PGV;
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
-      return getFaultDispl_Num();
+      return NUM_FAULT_DISPL;
     else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
-      return getMMI_Num();
+      return NUM_MMI;
     return 0;
   }
+
+  /**
+   * Returns the default values for the selectd IMT
+   * @param imt: Selected IMT
+   * @return
+   */
+  public static double getDefaultIMT_VAL(String imt){
+    if(imt.equals(AttenuationRelationship.SA_NAME))
+      return DEFAULT_SA;
+    else if(imt.equals(AttenuationRelationship.PGA_NAME))
+      return DEFAULT_PGA;
+    else if(imt.equals(AttenuationRelationship.PGV_NAME))
+      return DEFAULT_PGV;
+    else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
+      return DEFAULT_FAULT_DISPL;
+    else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
+      return DEFAULT_MMI;
+    return 0;
+  }
+
 
   /**
    *
@@ -320,7 +238,7 @@ public final class IMT_Info {
     IMT_Info hazardCurve = new IMT_Info();
     ArbitrarilyDiscretizedFunc func = hazardCurve.getDefaultHazardCurve("SA");
     System.out.println("For SA and PGA: ");
-    System.out.println("Dis: "+hazardCurve.discretization_pga_sa);
+    System.out.println("Dis: "+hazardCurve.discretization_pga);
     System.out.println(func.toString());
     func = hazardCurve.getDefaultHazardCurve("PGV");
     System.out.println("For PGV: ");
