@@ -172,13 +172,13 @@ public class GriddedSurface
 
 
     /** FIX *** Needs to be implemented */
-    public double computeAveStrike() { return 0; }
+    public double computeAveStrike() { return Double.NaN; }
 
     /** FIX *** Needs to be implemented */
-    public double computeAveDip() { return 0; }
+    public double computeAveDip() { return Double.NaN; }
 
     /** FIX *** Needs to be implemented */
-    public double computeSurfaceArea() { return 0; }
+    public double computeSurfaceArea() { return Double.NaN; }
 
 
     final static char TAB = '\t';

@@ -40,7 +40,7 @@ public class WC1994_MagAreaRelationship extends MagAreaRelationship {
      * @return median magnitude
      */
     public double getMedianMag(double area){
-     if (Double.isNaN(rake))
+      if (Double.isNaN(rake))
         // apply the "All" case
         return  4.07 + 0.98*Math.log(area)*lnToLog;
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))

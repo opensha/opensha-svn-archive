@@ -35,7 +35,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   /** Class name for debugging. */
   protected final static String C = "SimpleFaultParameterEditorPanel";
   /** If true print out debug statements. */
-  protected final static boolean D = false;
+  protected final static boolean D = true;
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
 
@@ -682,6 +682,9 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
       }
       this.fltTrace = fltTrace;
 
+      if(D)
+        System.out.println("Fault-trace length (km) = "+fltTrace.getTraceLength());
+
       //getting the gridSpacing
       double gridSpacing = ((Double)this.parameterList.getParameter(this.GRID_SPACING).getValue()).doubleValue();
 
@@ -689,7 +692,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
        * Checking for the number of Dips.
        * If the number of dip is equal to 1 then give the option to the user
        * to make the FaultType (Frankel or Stirling) parameter visible to the
-       * user. Else no choice is gievn to the user and make the object of the
+       * user. Else no choice is given to the user and make the object of the
        * SimpleListricGriddedFaultFactory.
        */
       if(numDips ==1){

@@ -61,7 +61,7 @@ import org.scec.sha.imr.AttenuationRelationship;
 
 public class SiteTranslator implements java.io.Serializable{
 
-
+  private final static boolean D = false;
 
   private double default_VS30;
 
@@ -89,7 +89,7 @@ public class SiteTranslator implements java.io.Serializable{
   public boolean setSiteParams(Site s, double vs30,double basinDepth ){
     boolean isDefaultVs30Set = false;
 
-    //System.out.println("Site: "+s.getLocation().toString()+"; vs30: "+vs30+"; basinDepth: "+basinDepth);
+    if(D) System.out.println("Site: "+s.getLocation().toString()+"; vs30: "+vs30+"; basinDepth: "+basinDepth);
     if(vs30 <=180 || Double.isNaN(vs30)){
       isDefaultVs30Set= true;
       vs30=this.default_VS30;
@@ -126,7 +126,7 @@ public class SiteTranslator implements java.io.Serializable{
           tempParam.setValue(new Double(0));
         else {
           // set basin depth in kms
-          System.out.println("BasinDEpth:"+basinDepth);
+          if (D) System.out.println("BasinDEpth:"+basinDepth);
           if(Double.isNaN(basinDepth)) tempParam.setValue(null);
           else  tempParam.setValue(new Double(basinDepth/1000));
         }

@@ -48,7 +48,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   public final static String VS30_DEFAULT =  "VS(30) Default";
   public final static String VS30_DEFAULT_INFO =  "VS(30) Value in Water (for site in Ocean)";
 
-  // min and max limits of lat and lin for which CVM can work
+  // min and max limits of lat and lon for which CVM can work
   private static final double MIN_CVM_LAT = 32.0;
   private static final double MAX_CVM_LAT = 36.0;
   private static final double MIN_CVM_LON = -121.0;
