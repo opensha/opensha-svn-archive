@@ -27,6 +27,7 @@ import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.data.Site;
+import org.scec.sha.gui.infoTools.CalcProgressBar;
 
 /**
  * <p>Title: HazardMapServerModeApplet</p>
@@ -45,6 +46,10 @@ public class HazardMapServerModeApplet extends JApplet implements
   protected final static String C = "HazardMapServerModeApplet";
   // for debug purpose
   protected final static boolean D = false;
+
+
+  //instance of the ProgressBar
+  CalcProgressBar calcProgress;
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
@@ -418,6 +423,9 @@ public class HazardMapServerModeApplet extends JApplet implements
     // calculate the hazard curve
    HazardMapCalculator calc = new HazardMapCalculator();
 
+   //showing the progressBar
+   calcProgress = new CalcProgressBar("HazardMap Calculation","Starting with Map Calculation");
+
    // initialize the values in condProbfunc with log values as passed in hazFunction
    ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
    initCondProbFunc(hazFunction, condProbFunc);
@@ -433,8 +441,9 @@ public class HazardMapServerModeApplet extends JApplet implements
      e.printStackTrace();
      return;
    }
-
-
+   calcProgress.setProgressMessage("Map Calculation being done at the server,might"+
+                                    " take few hours depending on the chosen forecast ");
+   calcProgress.dispose();
   }
 
 
