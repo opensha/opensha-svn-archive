@@ -256,6 +256,47 @@ public class Abrahamson_2000_AttenRel
 
 
     /**
+     * This sets the site and probEqkRupture from the propEffect object passed in
+     * @param propEffect
+     */
+    public void setPropagationEffect(PropagationEffect propEffect) {
+
+      this.site = propEffect.getSite();
+      this.probEqkRupture = propEffect.getProbEqkRupture();
+
+      if( site == null || probEqkRupture == null)
+        throw new RuntimeException ("Site or ProbEqkRupture is null");
+
+      // set the locat site-type param
+      this.siteTypeParam.setValue(site.getParameter( SITE_TYPE_NAME ).getValue());
+
+      Double magOld = (Double)magParam.getValue( );
+      try {
+          // constraints get checked
+          magParam.setValue( probEqkRupture.getMag() );
+      } catch (WarningException e){
+          if(D) System.out.println(C+"Warning Exception:"+e);
+      }
+        // If fail, rollback to all old values
+      try{
+          setFaultTypeFromRake( probEqkRupture.getAveRake() );
+      }
+      catch( ConstraintException e ){
+          magParam.setValue( (Double)magOld );
+        throw e;
+      }
+
+      // set the distance param
+      propEffect.setParamValue(distanceRupParam);
+
+      // there is no hanging wall param here
+
+      // set the directivity parameters
+      setDirectivityParams();
+    }
+
+
+    /**
      * This calculates the distanceRupParam and isOnHangingWallParam values based
      * on the current site and probEqkRupture. NOT YET IMPLEMENTED <P>
      */
@@ -270,6 +311,16 @@ public class Abrahamson_2000_AttenRel
           }
 
           // now set the directivity parameters
+          setDirectivityParams();
+        }
+    }
+
+
+    /**
+     * This computes the directivity parameters
+     */
+     protected void setDirectivityParams() {
+
           GriddedSurfaceAPI surface = probEqkRupture.getRuptureSurface();
           Location siteLoc = site.getLocation();
           Location hypLoc = probEqkRupture.getHypocenterLocation();
@@ -322,11 +373,9 @@ public class Abrahamson_2000_AttenRel
           }
           else angleDiff = 90;  // set as anything since s = 0
 
-//        // now set the theta parameter
+          // now set the theta parameter
           thetaDirParam.setValue(angleDiff);
 
-
-        }
     }
 
 

@@ -218,10 +218,7 @@ public class Campbell_1997_AttenRel
         }
 
 
-        // Now pass function up to super to set the site
-        // Why not just say "this.Site = site" ?? (Ned)
-
-        super.setSite( site );
+        this.site = site;
 
         // Calculate the PropagationEffectParameters; this is
         // not efficient if both the site and probEqkRupture
@@ -229,6 +226,47 @@ public class Campbell_1997_AttenRel
         setPropagationEffectParams();
 
     }
+
+
+    /**
+     * This sets the site and probEqkRupture from the propEffect object passed in
+     * @param propEffect
+     */
+    public void setPropagationEffect(PropagationEffect propEffect) {
+
+      this.site = propEffect.getSite();
+      this.probEqkRupture = propEffect.getProbEqkRupture();
+
+      if( site == null || probEqkRupture == null)
+        throw new RuntimeException ("Site or ProbEqkRupture is null");
+
+      // set the site-type params
+      siteTypeParam.setValue(site.getParameter( SITE_TYPE_NAME ).getValue());
+      basinDepthParam.setValueIgnoreWarning( site.getParameter( BASIN_DEPTH_NAME ).getValue() );
+
+      Double magOld = (Double)magParam.getValue( );
+
+      try {
+        // constraints get checked
+        magParam.setValue( probEqkRupture.getMag() );
+      } catch (WarningException e){
+        if(D) System.out.println(C+"Warning Exception:"+e);
+      }
+
+      // If fail, rollback to all old values
+      try{
+        setFaultTypeFromRake( probEqkRupture.getAveRake() );
+      }
+      catch( ConstraintException e ){
+        magParam.setValue( magOld );
+        throw e;
+      }
+
+      // set the distance param
+      propEffect.setParamValue(distanceSeisParam);
+
+    }
+
 
     /**
      * This sets the DistanceSeis propagation effect parameter based on the current

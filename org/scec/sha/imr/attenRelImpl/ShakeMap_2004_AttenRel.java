@@ -210,6 +210,29 @@ public class ShakeMap_2004_AttenRel
 
    }
 
+   /**
+    * This sets the site and probEqkRupture from the propEffect object passed in
+    * @param propEffect
+    */
+   public void setPropagationEffect(PropagationEffect propEffect) {
+
+     this.site = propEffect.getSite();
+     this.probEqkRupture = propEffect.getProbEqkRupture();
+
+     this.propEffect.setProbEqkRupture(probEqkRupture);
+
+     vs30Param.setValueIgnoreWarning( site.getParameter( VS30_NAME ).getValue() );
+
+     // set the location of the BC bounday site object
+     site_BC.setLocation(site.getLocation());
+     this.propEffect.setSite(site_BC);
+
+     as_1997_attenRel.setPropagationEffect(propEffect);
+     bjf_1997_attenRel.setPropagationEffect(propEffect);
+     scemy_1997_attenRel.setPropagationEffect(propEffect);
+     cb_2003_attenRel.setPropagationEffect(propEffect);
+   }
+
 
    /**
     *  This sets the probEqkRupture.

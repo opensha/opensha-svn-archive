@@ -285,11 +285,8 @@ public class AS_1997_AttenRel
         throw e;
       }
 
-//System.out.println("got here --2");
-
       // set the distance param
       propEffect.setParamValue(distanceRupParam);
-//System.out.println("got here --3");
       // now the hanging wall param
       int numPts = probEqkRupture.getRuptureSurface().getNumCols();
       if(probEqkRupture.getRuptureSurface().getAveDip() <= 70 && isOnHangingWall() && numPts > 1)
