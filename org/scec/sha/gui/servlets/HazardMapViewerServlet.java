@@ -218,12 +218,12 @@ public class HazardMapViewerServlet  extends HttpServlet {
           }
 
           if (isProbAt_IML)
-            //final iml value returned after interpolation
-            interpolatedVal = func.getInterpolatedY(val);
+            //final iml value returned after interpolation in log space
+            interpolatedVal = func.getInterpolatedY_inLogXLogYDomain(val);
             // for  IML_AT_PROB
-          else //interpolating the iml value entered by the user to get the final iml for the
+          else //interpolating the iml value in log space entered by the user to get the final iml for the
             //corresponding prob.
-            interpolatedVal = func.getFirstInterpolatedX(val);
+            interpolatedVal = func.getFirstInterpolatedX_inLogXLogYDomain(val);
 
         }catch(Exception e) { } // catch invalid range exception etc.
         xVals.add(new Double(lat));
