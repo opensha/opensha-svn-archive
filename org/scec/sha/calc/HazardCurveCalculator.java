@@ -180,11 +180,12 @@ public class HazardCurveCalculator extends UnicastRemoteObject
       // loop over these ruptures
       for(int n=0; n < numRuptures ; n++,++currRuptures) {
 
+        EqkRupture rupture = source.getRupture(n);
         // get the rupture probability
-        qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
+        qkProb = ((ProbEqkRupture)rupture).getProbability();
 
-        // set the PQkRup in the IMR
-        imr.setEqkRupture(source.getRupture(n));
+        // set the EqkRup in the IMR
+        imr.setEqkRupture(rupture);
 
         // get the conditional probability of exceedance from the IMR
         condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
