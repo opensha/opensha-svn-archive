@@ -51,7 +51,7 @@ import org.scec.data.Site;
 
 public class HazardSpectrumApplet extends JApplet
     implements Runnable, ParameterChangeListener, AxisLimitsControlPanelAPI,
-    DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI {
+    DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI,X_ValuesInCurveControlPanelAPI {
 
   /**
    * Name of the class
@@ -106,7 +106,7 @@ public class HazardSpectrumApplet extends JApplet
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
   private final static String CVM_CONTROL = "Set Site Params from CVM";
-  //private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
+  private final static String X_VALUES_CONTROL = "Set X values for Hazard Spectrum Calc.";
 
 
   //Strings for choosing ERFGuiBean or ERF_RupSelectorGUIBean
@@ -179,10 +179,11 @@ public class HazardSpectrumApplet extends JApplet
   private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
-  // make a array for saving the X values
-  private  double [] xValuesSA = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
+  //holds the ArbitrarilyDiscretizedFunc
+  private ArbitrarilyDiscretizedFunc function;
 
+  //instance to get the default IMT X values for the hazard Curve
+  private IMT_Info imtInfo = new IMT_Info();
 
   // Create the x-axis and y-axis - either normal or log
   private org.jfree.chart.axis.NumberAxis xAxis = null;
@@ -207,6 +208,9 @@ public class HazardSpectrumApplet extends JApplet
   private  double minYValue;
   private double maxYValue;
   private boolean customAxis = false;
+
+  //flags to check which X Values the user wants to work with: default or custom
+  boolean useCustomX_Values = false;
 
 
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
@@ -1313,9 +1317,15 @@ public class HazardSpectrumApplet extends JApplet
 
     if(probAtIML) //prob@iml
       arb.set(Math.log(imlProbVal),1);
-    else //iml@Prob then we have to interpolate over a range of X-Values
-      for(int i=0; i<this.xValuesSA.length; ++i)
-        arb.set(Math.log(xValuesSA[i]),1 );
+    else{ //iml@Prob then we have to interpolate over a range of X-Values
+      if(!useCustomX_Values)
+        function = imtInfo.getDefaultHazardCurve(SA_NAME);
+
+      if (imtInfo.isIMT_LogNormalDist(SA_NAME)) {
+        for(int i=0;i<function.getNum();++i)
+          arb.set(Math.log(function.getX(i)),1);
+      }
+    }
   }
 
   /**
@@ -1337,7 +1347,7 @@ public class HazardSpectrumApplet extends JApplet
     else{ //if iml at prob is selected just return the interpolated IML value.
       ArbitrarilyDiscretizedFunc tempFunc = new ArbitrarilyDiscretizedFunc();
       for(int i=0; i<numPoints; ++i)
-        tempFunc.set(this.xValuesSA[i],hazFunc.getY(i));
+        tempFunc.set(function.getX(i),hazFunc.getY(i));
 
       /*we are calling the function (getFirst InterpolatedX ) becuase x values for the PEER
       * are the X values and the function we get from the Hazard Curve Calc are the
@@ -1529,6 +1539,7 @@ public class HazardSpectrumApplet extends JApplet
     this.controlComboBox.addItem(DISTANCE_CONTROL);
     this.controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(CVM_CONTROL);
+    this.controlComboBox.addItem(X_VALUES_CONTROL);
   }
 
   /**
@@ -1562,8 +1573,8 @@ public class HazardSpectrumApplet extends JApplet
       initSitesOfInterestControl();
     else if(selectedControl.equalsIgnoreCase(this.CVM_CONTROL))
       initCVMControl();
-    /*else if(selectedControl.equalsIgnoreCase(this.X_VALUES_CONTROL))
-      initX_ValuesControl();*/
+    else if(selectedControl.equalsIgnoreCase(this.X_VALUES_CONTROL))
+      initX_ValuesControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -1671,16 +1682,6 @@ public class HazardSpectrumApplet extends JApplet
     cvmControlPanel.show();
   }
 
-  /**
-   * initialize the X values for the Hazard Curve control Panel
-   * It will enable the user to set the X values
-   */
-  /*private void initX_ValuesControl(){
-    if(xValuesPanel == null)
-      xValuesPanel = new X_ValuesInCurveControlPanel(this);
-    xValuesPanel.pack();
-    xValuesPanel.show();
-  }*/
 
   /**
    * Initialize the PEER Test control.
@@ -1717,6 +1718,21 @@ public class HazardSpectrumApplet extends JApplet
     axisControlPanel.show();
   }
 
+  /**
+   * initialize the X values for the Hazard Curve control Panel
+   * It will enable the user to set the X values
+   */
+  private void initX_ValuesControl(){
+    if(xValuesPanel == null)
+      xValuesPanel = new X_ValuesInCurveControlPanel(this,this);
+    if(!useCustomX_Values)
+      xValuesPanel.useDefaultX_Values();
+    else
+      xValuesPanel.setX_Values(function);
+    xValuesPanel.pack();
+    xValuesPanel.show();
+  }
+
 
   /**
    * This function sets whether all curves are to drawn or only fractiles are to drawn
@@ -1748,6 +1764,30 @@ public class HazardSpectrumApplet extends JApplet
     this.avgSelected = isAvgSelected;
   }
 
+  /**
+   * This forces use of default X-axis values (according to the selected IMT)
+   */
+  public void setX_ValuesForHazardCurve(){
+    useCustomX_Values = false;
+  }
+
+  /**
+   * Sets the hazard curve x-axis values (if user wants custom values x-axis values).
+   * Note that what's passed in is not cloned (the y-axis values will get modified).
+   * @param func
+   */
+  public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func){
+    useCustomX_Values = true;
+    function =func;
+  }
+
+  /**
+   *
+   * @returns the selected IMT
+   */
+  public String getSelectedIMT(){
+    return SA_NAME;
+  }
 
   void imgLabel_mousePressed(MouseEvent e) {
 
