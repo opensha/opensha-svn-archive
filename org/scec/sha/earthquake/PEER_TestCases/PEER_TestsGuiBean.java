@@ -115,9 +115,6 @@ public class PEER_TestsGuiBean implements
     private final static String ERF_EDITOR_TITLE =  "Select Forecast";
     private ParameterList erf_IndParamList = new ParameterList();
 
-    // hash map to mantain mapping between IMT and all IMLs supported by it
-    private HashMap imt_IML_map = new HashMap();
-
     // search path needed for making editors
     private String[] searchPaths;
 
@@ -159,7 +156,7 @@ public class PEER_TestsGuiBean implements
     // to add more IMRs, change this function
     init_imrParamListAndEditor( );
 
-    //initialize the IMT and IMLs
+    //initialize the IMTs
     init_imtParamListAndEditor();
 
     //init erf_IndParamList. List of all available ERFs at this time
@@ -393,24 +390,31 @@ public class PEER_TestsGuiBean implements
          continue;
        Iterator it1 = imr.getSupportedIntensityMeasuresIterator();
 
-       //loop over each IMT and find IML
+       //loop over each IMT and get their independent parameters
         while ( it1.hasNext() ) {
           DependentParameterAPI param = ( DependentParameterAPI ) it1.next();
           StringParameter param1=new StringParameter(param.getName());
-          Vector imlParamsVector=new Vector();
 
           // add all the independent parameters related to this IMT
+          // NOTE: this will only work for DoubleDiscrete independent parameters; it's not general!
+          // this also converts these DoubleDiscreteParameters to StringParameters
           ListIterator it2 = param.getIndependentParametersIterator();
           if(D) System.out.println("IMT is:"+param.getName());
           while ( it2.hasNext() ) {
-            Vector iml = new Vector();
+            Vector indParamOptions = new Vector();
             ParameterAPI param2 = (ParameterAPI ) it2.next();
             DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
             ListIterator it3 = values.listIterator();
             while(it3.hasNext())   // add all the periods relating to the SA
-              iml.add(it3.next().toString());
+              indParamOptions.add(it3.next().toString());
             StringParameter independentParam = new StringParameter(param2.getName(),
-                                               iml, (String)iml.get(0));
+                                                   indParamOptions, (String)indParamOptions.get(0));
+
+            // added by Ned so the default period is 1.0 sec (this is a hack).
+            if( ((String) independentParam.getName()).equals("SA Period") ) {
+                independentParam.setValue(new String("1.0"));
+            }
+
             param1.addIndependentParameter(independentParam);
           }
           imtParam.add(param1);
@@ -441,8 +445,8 @@ public class PEER_TestsGuiBean implements
      // now make the editor based on the paramter list
      imtEditor = new ParameterListEditor( imtParamList, searchPaths);
      imtEditor.setTitle( "Select IMT" );
-     // add all the IMLs to the current initialized IMT
-     updateIML((String)imt.get(0));
+     // update the current IMT
+     updateIMT((String)imt.get(0));
 
    }
 
@@ -602,9 +606,9 @@ public class PEER_TestsGuiBean implements
 
       String name1 = event.getParameterName();
 
-      // if IMT selection then update the IML
+      // if IMT selection then update
       if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
-        updateIML((String)event.getNewValue());
+        updateIMT((String)event.getNewValue());
         applet.updateChoosenIMT();
       }
 
@@ -700,11 +704,11 @@ public class PEER_TestsGuiBean implements
   /**
    * This function updates the IMTeditor with the independent parameters for the selected
    * IMT, by making only those visible to the user.
-   * @param imlName : It is the name of the selected IMT, based on which we make
+   * @param imtName : It is the name of the selected IMT, based on which we make
    * its independentParameters visible.
    */
 
-  private void updateIML(String imlName) {
+  private void updateIMT(String imtName) {
     Iterator it= imtParamList.getParametersIterator();
 
     //making all the IMT parameters invisible
@@ -718,7 +722,7 @@ public class PEER_TestsGuiBean implements
     //for the selected IMT making its independent parameters visible
     while(it.hasNext()){
       DependentParameterAPI param=(DependentParameterAPI)it.next();
-      if(param.getName().equalsIgnoreCase(imlName)){
+      if(param.getName().equalsIgnoreCase(imtName)){
         Iterator it1=param.getIndependentParametersIterator();
         while(it1.hasNext())
           imtEditor.setParameterInvisible(((ParameterAPI)it1.next()).getName(),true);
