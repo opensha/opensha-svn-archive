@@ -436,8 +436,6 @@ public class HazardMapViewerServerModeApp extends JApplet {
     mapGuiBean.setGMTRegionParams(minLat, maxLat, minLon, maxLon, gridSpacing);
     //establishes the connection with the servlet
     openConnection();
-    //makes the HTML page that allows one to select the .jpg
-    //makeHTMLPage();
   }
 
    /**
