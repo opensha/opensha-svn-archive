@@ -14,6 +14,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.text.DecimalFormat;
+import java.net.*;
+import java.io.*;
 
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.param.ParameterList;
@@ -416,135 +418,11 @@ public class HazardMapViewerServerModeApp extends JApplet {
     String selectedSet = this.dataSetCombo.getSelectedItem().toString();
     // set the lat and lon limits in mao gui bean
     mapGuiBean.setGMTRegionParams(minLat, maxLat, minLon, maxLon, gridSpacing);
-    // whethert IML@prob is selected or vics versa
-    boolean isProbAt_IML = true;
-    if(imlProbGuiBean.getSelectedOption().equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
-      isProbAt_IML = false;
-    double val = this.imlProbGuiBean.getIML_Prob();
-    // make the xyz file and pass the name of xyz file to mapguibean
-    mapGuiBean.makeMap(this.readAndWriteFile(minLat, maxLat, minLon, maxLon,
-        gridSpacing, selectedSet, isProbAt_IML, val));
-
+    //establishes the connection with the servlet
+    openConnection();
+    //makes the HTML page that allows one to select the .jpg
+    //makeHTMLPage();
   }
-
-  /**
-   * This method reads the file and generates the final outputfile
-   * for the range of the lat and lon selected by the user . The final output is
-   * generated based on the selcetion made by the user either for the iml@prob or
-   * prob@iml. The data is appended to the end of the until all the list of the
-   * files have been searched for thr input iml or prob value. The final output
-   * file is given as the input to generate the grd file.
-   * @param minLat
-   * @param maxLat
-   * @param minLon
-   * @param maxLon
-   */
-   private String readAndWriteFile(double minLat,double maxLat,double minLon,
-                                 double maxLon,double gridSpacing,
-                                 String selectedSet, boolean isProbAt_IML, double val){
-     String finalFile = null;;
-     try {
-       finalFile=selectedSet+".xyz";
-       FileWriter fw1= new FileWriter(finalFile);
-       fw1.close();
-     }catch(Exception e) {
-       e.printStackTrace();
-     }
-     //searching the directory for the list of the files.
-     File dir = new File(HazardMapCalculator.DATASETS_PATH+selectedSet+"/");
-     String[] fileList=dir.list();
-     //formatting of the text double Decimal numbers for 2 places of decimal.
-     DecimalFormat d= new DecimalFormat("0.00##");
-     for(int i=0;i<fileList.length;++i){
-       if(fileList[i].endsWith("txt")){
-         String lat=fileList[i].substring(0,fileList[i].indexOf("_"));
-         String lon=fileList[i].substring(fileList[i].indexOf("_")+1,fileList[i].indexOf(".txt"));
-         double mLat = Double.parseDouble(lat);
-         double mLon = Double.parseDouble(lon);
-         double diffLat=Double.parseDouble(d.format(mLat-minLat));
-         double diffLon=Double.parseDouble(d.format(mLon-minLon));
-
-         //looking if the file we are reading has lat and lon multiple of gridSpacing
-         //in Math.IEEEremainder method Zero is same as pow(10,-16)
-         if(Math.abs(Math.IEEEremainder(diffLat,gridSpacing)) <.0001
-            && Math.abs(Math.IEEEremainder(diffLon,gridSpacing)) < .0001){
-
-           if(mLat>= minLat && mLat<=maxLat && mLon>=minLon && mLon<=maxLon){
-             try{
-               boolean readFlag=true;
-
-               //reading the desired file line by line.
-               FileReader fr= new FileReader(HazardMapCalculator.DATASETS_PATH+selectedSet+
-                   "/"+fileList[i]);
-               BufferedReader bf= new BufferedReader(fr);
-               String dataLine=bf.readLine();
-               StringTokenizer st;
-               double prevIML=0 ;
-               double prevProb=0;
-               //reading the first of the file
-               if(dataLine!=null){
-                 st=new StringTokenizer(dataLine);
-                 prevIML = Double.parseDouble(st.nextToken());
-                 prevProb= Double.parseDouble(st.nextToken());
-               }
-               while(readFlag){
-                 dataLine=bf.readLine();
-                 //if the file has been read fully break out of the loop.
-                 if(dataLine ==null || dataLine=="" || dataLine.trim().length()==0){
-                   readFlag=false;
-                   break;
-                 }
-                 st=new StringTokenizer(dataLine);
-                 //using the currentIML and currentProb we interpolate the iml or prob
-                 //value entered by the user.
-                 double currentIML = Double.parseDouble(st.nextToken());
-                 double currentProb= Double.parseDouble(st.nextToken());
-                 if(isProbAt_IML){
-                   //taking into account the both types of curves, interpolating the value
-                   //interpolating the prob value for the iml value entered by the user.
-                   if((val>=prevIML && val<=currentIML) ||
-                      (val<=prevIML && val>=currentIML)){
-
-                     //final iml value returned after interpolation
-                     double finalIML=interpolateIML(val, prevIML,currentIML,prevProb,currentProb);
-                     String curveResult=lat+" "+lon+" "+finalIML+"\n";
-                     //appending the iml result to the final output file.
-
-                     FileWriter fw= new FileWriter(finalFile,true);
-                     fw.write(curveResult);
-                     fw.close();
-                     break;
-                   }
-                 }
-                 else if((val>=prevProb && val<=currentProb) ||
-                         (val<=prevProb && val>=currentProb)){
-                   //interpolating the iml value entered by the user to get the final iml for the
-                   //corresponding prob.
-                   double finalProb=interpolateProb(val, prevProb,currentProb,prevIML,currentIML);
-                   String curveResult=lat+" "+lon+" "+finalProb+"\n";
-                   finalFile=selectedSet+".xyz";
-                   FileWriter fw= new FileWriter(finalFile,true);
-                   fw.write(curveResult);
-                   fw.close();
-                   break;
-                 }
-                 prevIML=currentIML;
-                 prevProb=currentProb;
-               }
-               fr.close();
-               bf.close();
-             }catch(IOException e){
-               System.out.println("File Not Found :"+e);
-             }
-
-           }
-
-         }
-       }
-     }
-     return finalFile;
-   }
-
 
    /**
     * interpolating the prob values to get the final prob for the corresponding iml
@@ -569,6 +447,68 @@ public class HazardMapViewerServerModeApp extends JApplet {
    private double interpolateProb(double prob, double y1,double y2,double x1,double x2){
      return ((prob-y1)/(y2-y1))*(x2-x1)+x1;
    }
+
+   /**
+    * sets up the connection with the servlet on the server (scec.usc.edu)
+    */
+   void openConnection() {
+
+
+     //vector which contains all the X and Y values from the function  to be send to the
+     //servlet.
+     Vector condProbVector =new Vector();
+     Vector hazFuncVector = new Vector();
+
+     try{
+
+       URL hazardMapViewerServlet = new
+                             URL("http://scec.usc.edu:9999/examples/servlet/HazardMapViewerServlet");
+
+       URLConnection servletConnection = hazardMapViewerServlet.openConnection();
+
+       // inform the connection that we will send output and accept input
+       servletConnection.setDoInput(true);
+       servletConnection.setDoOutput(true);
+
+       // Don't use a cached version of URL connection.
+       servletConnection.setUseCaches (false);
+       servletConnection.setDefaultUseCaches (false);
+       // Specify the content type that we will send binary data
+       servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+       ObjectOutputStream outputToServlet = new
+           ObjectOutputStream(servletConnection.getOutputStream());
+
+       //sending the user which dataSet is selected
+       outputToServlet.writeObject(this.dataSetCombo.getSelectedItem());
+
+       //sending the GMT params object to the servlet
+       outputToServlet.writeObject(mapGuiBean.getGMTObject());
+
+       //sending the IML or Prob Selection to the servlet
+       outputToServlet.writeObject(imlProbGuiBean.getSelectedOption());
+
+       //sending the IML or Prob Selected value
+       outputToServlet.writeObject(new Double(imlProbGuiBean.getIML_Prob()));
+
+
+       outputToServlet.flush();
+       outputToServlet.close();
+
+       // Receive the "destroy" from the servlet after it has received all the data
+       ObjectInputStream inputToServlet = new
+       ObjectInputStream(servletConnection.getInputStream());
+
+      String connectionCloseString=inputToServlet.readObject().toString();
+      inputToServlet.close();
+
+     }catch (Exception e) {
+       System.out.println("Exception in connection with servlet:" +e);
+       e.printStackTrace();
+     }
+   }
+
+
 
 
 }

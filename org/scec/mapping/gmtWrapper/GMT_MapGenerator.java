@@ -12,7 +12,7 @@ import org.scec.param.*;
  * @version 1.0
  */
 
-public class GMT_MapGenerator {
+public class GMT_MapGenerator implements Serializable{
 
   // PATH where the gmt commands and some others exist.
   public static String GMT_PATH = "/sw/bin/";
@@ -44,12 +44,12 @@ public class GMT_MapGenerator {
   DoubleParameter maxLonParam;
   DoubleParameter gridSpacingParam;
 
+  //output Image file Name
+  private String out_jpg= new String();
 
 
-  public final static String OUTPUT_FILE_PREFIX_PARAM_NAME = "Output file prefix";
-  private final static String OUTPUT_FILE_PREFIX_PARAM_DEFAULT = "test";
-  private final static String OUTPUT_FILE_PREFIX_PARAM_INFO = "Name of prefix for output files (.ps and .jpg will be added)";
-  private StringParameter outputFilePrefixParam;
+
+
 
   public final static String CPT_FILE_PARAM_NAME = "Color Scheme";
   private final static String CPT_FILE_PARAM_DEFAULT = "MaxSpectrum.cpt";
@@ -102,9 +102,6 @@ public class GMT_MapGenerator {
 
   protected ParameterList adjustableParams;
 
-  public static int i = 0;
-
-
   public GMT_MapGenerator() {
 
     minLatParam = new DoubleParameter(MIN_LAT_PARAM_NAME,-90,90,LAT_LON_PARAM_UNITS,MIN_LAT_PARAM_DEFAULT);
@@ -134,9 +131,6 @@ public class GMT_MapGenerator {
 
 
     StringConstraint outputFilePrefixConstraint = new StringConstraint();
-    outputFilePrefixConstraint.addString( OUTPUT_FILE_PREFIX_PARAM_DEFAULT );
-    outputFilePrefixParam = new StringParameter( OUTPUT_FILE_PREFIX_PARAM_NAME, outputFilePrefixConstraint, OUTPUT_FILE_PREFIX_PARAM_DEFAULT );
-    outputFilePrefixParam.setInfo( OUTPUT_FILE_PREFIX_PARAM_INFO );
 
     colorScaleMinParam = new DoubleParameter(COLOR_SCALE_MIN_PARAM_NAME, COLOR_SCALE_MIN_PARAM_DEFAULT);
     colorScaleMinParam.setInfo(COLOR_SCALE_MIN_PARAM_INFO);
@@ -165,7 +159,7 @@ public class GMT_MapGenerator {
 
     // create adjustable parameter list
     adjustableParams = new ParameterList();
-    adjustableParams.addParameter(outputFilePrefixParam);
+
     adjustableParams.addParameter(minLatParam);
     adjustableParams.addParameter(maxLatParam);
     adjustableParams.addParameter(minLonParam);
@@ -206,16 +200,10 @@ public class GMT_MapGenerator {
     double maxLon = ((Double) maxLonParam.getValue()).doubleValue();
     double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
     String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
+    //all the files of the GMT will be created by this fileName
+    String fileName=xyzFileName.substring(0,xyzFileName.indexOf("."));
 
-    String grdFileName  = "data.grd";
-    //command to be executed during the runtime.
-    String[] command ={"sh","-c",GMT_PATH+"xyz2grd "+ xyzFileName+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -:"};
-    RunScript.runScript(command);
-
-    String grdInputDataFileName = grdFileName;
-
-    String outputFilePrefix = (String) outputFilePrefixParam.getValue();
-
+    String grdFileName  = fileName+".grd";
 
     String cptFile = SCEC_GMT_DATA_PATH + (String) cptFileParam.getValue();
 
@@ -228,8 +216,8 @@ public class GMT_MapGenerator {
     // Set highways String
     String showHiwys = (String) showHiwysParam.getValue();
 
-    String out_ps = outputFilePrefix + ".ps";
-    String out_jpg = outputFilePrefix + i + ".jpg";
+    String out_ps = fileName + ".ps";
+    out_jpg = fileName + ".jpg";
 
 
     // plot size parameter
@@ -252,7 +240,11 @@ public class GMT_MapGenerator {
 
 //     xyz2grd LatLonAmpData.txt -GtestData.grd -I0.05 -R-121/-115/32.5/35.5 -D/degree/degree/amp/=/=/= -V -:
 
-       command[2] = GMT_PATH + "grdcut " + grdInputDataFileName +" -GtempData.grd " + region;
+      //command to be executed during the runtime.
+      String[] command ={"sh","-c",GMT_PATH+"xyz2grd "+ xyzFileName+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -:"};
+      RunScript.runScript(command);
+
+       command[2] = GMT_PATH + "grdcut " + grdFileName +" -Gtemp"+grdFileName +" " + region;
        RunScript.runScript(command);
 
 
@@ -262,30 +254,30 @@ public class GMT_MapGenerator {
          colorScaleMax = ((Double) this.colorScaleMaxParam.getValue()).doubleValue();
        }
        else {
-         GRD_InfoFromFile grdInfo = new GRD_InfoFromFile("tempData.grd");
+         GRD_InfoFromFile grdInfo = new GRD_InfoFromFile("temp"+grdFileName);
          colorScaleMin = grdInfo.get_z_min();
          colorScaleMax = grdInfo.get_z_max();
        }
 
        float inc = (float) ((colorScaleMax-colorScaleMin)/20);
-       command[2]=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > temp.cpt";
+       command[2]=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
        RunScript.runScript(command);
 
        command[2]=GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait";
        RunScript.runScript(command);
 
        if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-         command[2]=GMT_PATH+"grdimage tempData.grd -X0.75i " + yOff + " " + projWdth + " -Ctemp.cpt -K -E70 "+ region + " > " + out_ps;
+         command[2]=GMT_PATH+"grdimage temp"+grdFileName+" -X0.75i " + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
          RunScript.runScript(command);
        }
        else {
-         command[2]=GMT_PATH+"grdsample tempData.grd -GtempHiResData.grd -I" + resolution + "c -Q";
+         command[2]=GMT_PATH+"grdsample temp"+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q";
          RunScript.runScript(command);
 
-         command[2]=GMT_PATH+"grdcut " + topoIntenFile + " -GtempInten.grd "+region;
+         command[2]=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
          RunScript.runScript(command);
 
-         command[2]=GMT_PATH+"grdimage tempHiResData.grd -X0.75i " + yOff + " " + projWdth + " -ItempInten.grd -Ctemp.cpt -K -E70 "+ region + " > " + out_ps;
+         command[2]=GMT_PATH+"grdimage "+fileName+"HiResData.grd -X0.75i " + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
          RunScript.runScript(command);
        }
 
@@ -313,11 +305,6 @@ public class GMT_MapGenerator {
        command[2] = GMT_PATH+"convert " + out_ps + " " + out_jpg;
        RunScript.runScript(command);
 
-       // increment jpg file index
-       ++i;
-
-
-
 //       command[2] = "/Applications/Preview.app/Contents/MacOS/Preview " + out_jpg + " &";
 //       RunScript.runScript(command);
 
@@ -335,4 +322,20 @@ public class GMT_MapGenerator {
     return adjustableParams.getParametersIterator();
   }
 
+
+  /**
+   *
+   * @returns the GMT Params List
+   */
+  public ParameterList getGMTParameterList(){
+    return adjustableParams;
+  }
+
+  /**
+   *
+   * @returns the image file name
+   */
+  public String getImageFileName(){
+    return this.out_jpg;
+  }
 }

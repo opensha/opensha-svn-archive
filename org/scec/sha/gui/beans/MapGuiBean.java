@@ -130,4 +130,12 @@ public class MapGuiBean extends ParameterListEditor implements
     frame.show();
 
   }
+
+  /**
+   *
+   * @returns the GMT_MapGenerator GMT object
+   */
+  public GMT_MapGenerator getGMTObject(){
+    return gmtMap;
+  }
 }
