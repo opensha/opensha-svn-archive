@@ -12,6 +12,7 @@ import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.scec.param.event.ParameterChangeWarningListener;
 import org.scec.param.event.ParameterChangeWarningEvent;
 import org.scec.param.WarningParameterAPI;
+import org.scec.param.WarningDoubleParameter;
 import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.sha.earthquake.*;
@@ -274,7 +275,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       double vs30 = ((Double)vs30Vals.get(j)).doubleValue();
       //only add the vs30 value if it not a Double.NaN otherwise the default value which is 760m/s .
       if(!(Double.isNaN(vs30)))
-        imr.getSite().getParameter(imr.VS30_NAME).setValue(vs30Vals.get(j));
+        ((WarningDoubleParameter)imr.getSite().getParameter(imr.VS30_NAME)).setValueIgnoreWarning(vs30Vals.get(j));
       // loop over sources
       for(i=0;i < numSources ;i++) {
 
