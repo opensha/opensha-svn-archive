@@ -8,18 +8,17 @@ import java.util.LinkedList;
 import java.util.Iterator;
 
 /**
- * <p>Title: SubmitJobForGridComputation</p>
+ * <p>Title: SubmitJobComputationUsingThreads</p>
  * <p>Description: This class will accept the filenames of the IMR, ERF,
- * GRIDDEDREGION  and it will create condor submit files and DAG needed for
- * grid computation </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ * GRIDDED-REGION  and it will create condor submit files and DAG needed for
+ * thread computation to do the computation on the single multiprocessor machine
+ * with shared memory.</p>
  * @author Nitin Gupta and Vipin Gupta
  * @date Mar 15, 2004
  * @version 1.0
  */
 
-public class SubmitJobForGridComputation {
+public class SubmitJobComputationUsingThreads {
 
   private final static boolean D = false;
   // parent directory on almaak.usc.edu where computations will take place
@@ -31,10 +30,10 @@ public class SubmitJobForGridComputation {
   //tar file which contain all the submit files and Dag.
   private final static String SUBMIT_TAR_FILES = "submitfiles.tar";
   private final DecimalFormat decimalFormat = new DecimalFormat("0.00##");
-  private final static int SUGGESTED_NUM_SITES_IN_WORK_UNIT = 100;
+
 
   //private static String REMOTE_EXECUTABLE_NAME = "HazardMapCalculator.pl";
-  private final static String REMOTE_EXECUTABLE_NAME = "GridHazardMapCalculator.class";
+  private final static String REMOTE_EXECUTABLE_NAME = "ThreadHazardMapCalculator.class";
   // name of the perl executable which will accept a submit file to submit to condor
   private final static String PERL_EXECUTABLE = "OpenSHA_HazardMapCalculator.pl";
 
@@ -82,7 +81,7 @@ public class SubmitJobForGridComputation {
    * @param remoteMachineSubdir subdirectory on remote machine where computations will take
    * place. So, compuatations will take place in directory /home/rcf-71/vgupta/pool/remoteMachineSubdirName
    */
-  public SubmitJobForGridComputation(String imrFileName, String erfFileName,
+  public SubmitJobComputationUsingThreads(String imrFileName, String erfFileName,
                                      String regionFileName, String outputDir,
                                      long remoteMachineSubdirName,
                                      SitesInGriddedRegion griddedSites) {
@@ -147,24 +146,21 @@ public class SubmitJobForGridComputation {
 
 
       // make the submit files to submit the jobs
-      LinkedList list  = getSubmitFileNames(imrFileName, erfFileName,
+      String subFileName  = getSubmitFileNames(imrFileName, erfFileName,
                                      regionFileName, outputDir, remoteDir,
                                      griddedSites);
-      Iterator it = list.iterator();
-      int i=0;
-      while(it.hasNext()) {
-        condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
-                                          "" + (String) it.next(),
-                                          outputDir,
-                                          PERL_CONDOR_SUBMIT + "_" + i,
-                                          remoteDir, PERL_EXECUTABLE);
-        String jobName = PERL_JOB_NAME + i;
-        frmap.write("Job " + jobName + " " + condorSubmit + "\n");
-        frmap.write("PARENT " + jobName + " CHILD " + this.FINISH_JOB_NAME +
-                    "\n");
-        frmap.write("PARENT " + UNTAR_CONDOR_SUBMIT_JOB_NAME + " CHILD " +
-                    jobName + "\n");
-      }
+
+      condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
+                                        "" + subFileName,
+                                        outputDir,
+                                        PERL_CONDOR_SUBMIT ,
+                                        remoteDir, PERL_EXECUTABLE);
+
+      frmap.write("Job " + PERL_JOB_NAME + " " + condorSubmit + "\n");
+      frmap.write("PARENT " + PERL_JOB_NAME + " CHILD " + this.FINISH_JOB_NAME +
+                  "\n");
+      frmap.write("PARENT " + UNTAR_CONDOR_SUBMIT_JOB_NAME + " CHILD " +
+                  PERL_JOB_NAME + "\n");
 
       // close the DAG files
       frmap.close();
@@ -179,7 +175,8 @@ public class SubmitJobForGridComputation {
 
 
   /**
-   * Generate the submit files which will be ftped to almmak and submitted from there
+   * Generate the submit file which will be ftped to almmak and submitted from there.
+   * It contains the
    * @param imrFileName
    * @param erfFileName
    * @param regionFileName
@@ -188,7 +185,7 @@ public class SubmitJobForGridComputation {
    * @param griddedSites
    * @return
    */
-  private LinkedList getSubmitFileNames(String imrFileName, String erfFileName,
+  private String getSubmitFileNames(String imrFileName, String erfFileName,
                                      String regionFileName, String outputDir,
                                      String remoteDir,
                                      SitesInGriddedRegion griddedSites) {
@@ -210,24 +207,16 @@ public class SubmitJobForGridComputation {
         imrFileName + "\n" +
         "notification=error\n"+
         "queue" + "\n";
-    LinkedList list = new LinkedList();
 
-    // snd start index and end index to each computer
-    for (int site = 0; site < numSites; site += this.SUGGESTED_NUM_SITES_IN_WORK_UNIT) {
-      startSite = site;
-      endSite = site + SUGGESTED_NUM_SITES_IN_WORK_UNIT;
+
 
       String arguments = REMOTE_EXECUTABLE_NAME.substring(0,REMOTE_EXECUTABLE_NAME.indexOf('.')) +
-          " " + startSite+" "+endSite + " " + regionFileName
-          + " " + erfFileName + " " + imrFileName;
-      String fileNamePrefix = HAZARD_CURVES_SUBMIT + site;
+          " " + regionFileName+ " " + erfFileName + " " + imrFileName;
+      String fileNamePrefix = HAZARD_CURVES_SUBMIT+"_threads" ;
       String condorSubmitScript = createCondorScript(fileDataPrefix, fileDataSuffix, arguments,
                              outputDir, fileNamePrefix + "_" + startSite,
                              remoteDir, REMOTE_EXECUTABLE_NAME);
-      list.add(condorSubmitScript);
-    }
-
-    return list;
+      return condorSubmitScript;
   }
 
   /**
