@@ -297,7 +297,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
    * @param i
    * @return
    */
-  public EqkRupture getRuptureClone(int iSource, int nRupture) {
+  public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
     return getSource(iSource).getRuptureClone(nRupture);
   }
 
@@ -311,7 +311,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
    * @param i
    * @return
    */
-  public EqkRupture getRupture(int iSource, int nRupture) {
+  public ProbEqkRupture getRupture(int iSource, int nRupture) {
     return getSource(iSource).getRupture(nRupture);
   }
 

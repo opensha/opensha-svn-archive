@@ -232,7 +232,7 @@ public class PEER_ListricFaultForecast extends EqkRupForecast
    * @param i
    * @return
    */
-  public EqkRupture getRuptureClone(int iSource, int nRupture) {
+  public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
     // we have only one source
     if(iSource!=0)
       throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
@@ -252,7 +252,7 @@ public class PEER_ListricFaultForecast extends EqkRupForecast
     * @param i
     * @return
     */
-   public EqkRupture getRupture(int iSource, int nRupture) {
+   public ProbEqkRupture getRupture(int iSource, int nRupture) {
      // we have only one source
      if(iSource!=0)
        throw new RuntimeException("Only 1 source available, iSource should be equal to 0");

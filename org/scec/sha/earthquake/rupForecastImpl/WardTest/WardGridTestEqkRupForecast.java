@@ -159,7 +159,7 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
      * @param i
      * @return
      */
-    public EqkRupture getRuptureClone(int iSource, int nRupture) {
+    public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
       return getSource(iSource).getRuptureClone(nRupture);
     }
 
@@ -173,7 +173,7 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
      * @param i
      * @return
      */
-    public EqkRupture getRupture(int iSource, int nRupture) {
+    public ProbEqkRupture getRupture(int iSource, int nRupture) {
        return getSource(iSource).getRupture(nRupture);
     }
 
