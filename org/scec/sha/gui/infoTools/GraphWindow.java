@@ -43,18 +43,18 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   private double minXValue, maxXValue, minYValue,maxYValue;
 
   //instance for the ButtonControlPanel
-  ButtonControlPanel buttonControlPanel;
+  private ButtonControlPanel buttonControlPanel;
 
   //instance of the application implementing the Graph Window class
-  GraphWindowAPI application ;
+  private GraphWindowAPI application ;
 
   //instance of the GraphPanel class
-  GraphPanel graphPanel;
+  private GraphPanel graphPanel;
 
   /**
    * List of ArbitrarilyDiscretized functions and Weighted funstions
    */
-  private ArrayList functionList = new ArrayList();
+  private ArrayList functionList ;
 
 
   //X and Y Axis  when plotting tha Curves Name
@@ -75,6 +75,14 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     application = api;
     graphPanel = new GraphPanel(this);
     graphPanel.setSeriesColor(api.getSeriesColor());
+
+    //adding the list of Functions to the Peel-Off window
+    functionList = new ArrayList();
+    ArrayList applicationCurveList = api.getCurveFunctionList();
+    int size = applicationCurveList.size();
+    for(int i=0;i<size;++i)
+      functionList.add(applicationCurveList.get(i));
+
     xAxisName = api.getXAxisName();
     yAxisName  = api.getYAxisName();
     try {

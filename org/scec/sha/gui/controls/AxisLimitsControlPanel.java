@@ -173,7 +173,7 @@ public class AxisLimitsControlPanel extends JDialog {
 
 
   /**
-   * This function also calls the setYRange and setXRange functions of the IMRTesterApplet class
+   * This function also calls the setYRange and setXRange functions of application
    * which sets the range of the axis based on the user input
    *
    * @param e= this event occur when the Ok button is clicked on the custom axis popup window
