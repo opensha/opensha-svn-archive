@@ -54,9 +54,11 @@ public class SHAHorizontalNumberAxis extends HorizontalNumberAxis {
             double upper = r.getUpperBound();
             double lower = r.getLowerBound();
             double range = upper-lower;
+           // if upper and lower bound are same
             if(lower==upper) {
-              lower=Math.floor(lower);
-              upper=Math.ceil(upper);
+               double diff = lower/2;
+               lower= lower - diff;
+               upper= upper + diff;
             }
             this.range=new Range(lower, upper);
         }

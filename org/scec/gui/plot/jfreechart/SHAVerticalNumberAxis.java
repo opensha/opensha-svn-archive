@@ -72,9 +72,12 @@ public class SHAVerticalNumberAxis extends VerticalNumberAxis {
 
             double lower = r.getLowerBound();
             double upper = r.getUpperBound();
+
+            // if upper and  lower bound are same
             if(lower==upper) {
-            lower=Math.floor(lower);
-            upper=Math.ceil(upper);
+              double diff = lower/2;
+              lower= lower - diff;
+              upper= upper + diff;
             }
             this.range = new Range(lower, upper);
         }

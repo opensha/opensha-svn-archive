@@ -26,6 +26,8 @@ import org.scec.data.Location;
 import org.scec.data.function.*;
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.exceptions.ParameterException;
+import org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
+import org.scec.sha.earthquake.rupForecastImpl.WardTest.WardGridTestEqkRupForecast;
 
 /**
  * <p>Title: EqkForecastApplet</p>
@@ -270,7 +272,7 @@ public class EqkForecastApplet extends JApplet
       }
     });
     panel.setLayout(gridBagLayout2);
-    jCheckBasin.setBounds(new Rectangle(638, 540, 219, 22));
+    jCheckBasin.setBounds(new Rectangle(638, 540, 233, 22));
     jCheckBasin.setText("Set Basin Depth from SCEC CVM");
     jCheckBasin.setForeground(new Color(80, 80, 133));
     jCheckBasin.setFont(new java.awt.Font("Dialog", 1, 11));
@@ -387,7 +389,7 @@ public class EqkForecastApplet extends JApplet
     jCheckCVM.setFont(new java.awt.Font("Dialog", 1, 11));
     jCheckCVM.setForeground(new Color(80, 80, 133));
     jCheckCVM.setText("Set Vs30 from SCEC CVM");
-    jCheckCVM.setBounds(new Rectangle(638, 520, 219, 22));
+    jCheckCVM.setBounds(new Rectangle(638, 520, 215, 22));
     this.getContentPane().add(jEqkForecastPanel, null);
     pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
     pointsTextArea.setText( NO_PLOT_MSG );
@@ -1062,10 +1064,9 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       // get total sources
       int numSources = eqkRupForecast.getNumSources();
 
-      // create a frame for showing progress bar
-    /*  JFrame progressFrame = new JFrame();
-      JProgressBar progress = new JProgressBar(1, numSources);
-
+/*      // create a frame for showing progress bar
+     JFrame progressFrame = new JFrame();
+     JProgressBar progress = new JProgressBar(1, numSources);
       // Overlay a string showing the percentage done
       progress.setStringPainted(true);
       progressFrame.setSize(200,80);
@@ -1076,8 +1077,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       for(int i=0;i < numSources ;i++) {
         if (D) System.out.println("source number:"+i);
         // set the value for progress bar
-//        progress.setValue(i+1);
-
+        //progress.setValue(i+1);
         // get source and get its distance from the site
         ProbEqkSource source = eqkRupForecast.getSource(i);
         double distance = source.getMinDistance(site);
@@ -1121,8 +1121,6 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
              hazFunction[imr].set(j,1-hazFunction[imr].getY(j));
           }
 
-         // close the frame showing progress bar
-  //       progressFrame.dispose();
         }
       }
     }
@@ -1423,9 +1421,13 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
     }
 
-  void jToggleButton_actionPerformed(ActionEvent e) {
-    togglePlot();
-  }
-
+    /**
+     * This function is called when Show Data button is clicked
+     *
+     * @param e
+     */
+    void jToggleButton_actionPerformed(ActionEvent e) {
+      togglePlot();
+    }
 
 }
