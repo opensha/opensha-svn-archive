@@ -101,7 +101,7 @@ public class WeightedFuncList {
    */
   private void setInfoForWeightedFunctionList(){
     String funcListInfo = functionList.size()+
-                          " functions with relative weights: \n";
+                          " functions with relative weights: ";
     for(int i=0;i<relativeWts.size();++i)
       funcListInfo +=(Double)relativeWts.get(i)+", ";
 
@@ -226,7 +226,7 @@ public class WeightedFuncList {
     setFractileCurveCalcuations();
     meanFunction = fractileCalc.getMeanCurve();
     isMeanFractileCalculated = true;
-    String meanInfo = "Mean fractile \n";
+    String meanInfo = "Mean\n";
     meanFunction.setInfo(meanInfo);
   }
 
@@ -352,7 +352,7 @@ public class WeightedFuncList {
    */
   private void setFractilesInfo(){
     //creating and setting the info for the fractileList
-    String fractileInfo = "Fractiles Calculated: \n";
+    String fractileInfo = "Fractiles: ";
     for(int i=0;i<fractionList.size();++i)
       fractileInfo +=(Double)fractionList.get(i)+", ";
 
