@@ -193,7 +193,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
  static {
 
-    try { UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() ); }
+    try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() ); }
     catch ( Exception e ) {}
 }
 
@@ -254,7 +254,7 @@ public class MagFreqDistTesterApplet extends JApplet
     clearButton.setBackground(new Color(200, 200, 230));
     clearButton.setFont(BUTTON_FONT);
     clearButton.setForeground(new Color(80, 80, 133));
-    clearButton.setBorder(null);
+    //clearButton.setBorder(null);
     clearButton.setFocusPainted(false);
     clearButton.setText("Clear Plot");
     clearButton.addActionListener(new java.awt.event.ActionListener() {
@@ -276,7 +276,7 @@ public class MagFreqDistTesterApplet extends JApplet
     toggleButton.setBackground(new Color(200, 200, 230));
     toggleButton.setFont(BUTTON_FONT);
     toggleButton.setForeground(new Color(80, 80, 133));
-    toggleButton.setBorder(null);
+    //toggleButton.setBorder(null);
     toggleButton.setFocusPainted(false);
     toggleButton.setText("Show Data");
     toggleButton.addActionListener(new java.awt.event.ActionListener() {
@@ -290,7 +290,7 @@ public class MagFreqDistTesterApplet extends JApplet
     addButton.setBackground(new Color(200, 200, 230));
     addButton.setFont(BUTTON_FONT);
     addButton.setForeground(new Color(80, 80, 133));
-    addButton.setBorder(null);
+    //addButton.setBorder(null);
     addButton.setFocusPainted(false);
     addButton.setText("Add Dist");
     addButton.addActionListener(new java.awt.event.ActionListener() {
@@ -340,16 +340,16 @@ public class MagFreqDistTesterApplet extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(9, 9, 9, 9), 109, 399));
     outerPanel.add(mainPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ));
-    buttonPanel.add(toggleButton,                 new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 8, 0, 0), 0, 0));
-    buttonPanel.add(clearButton,              new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    buttonPanel.add(toggleButton,                       new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 8, 0, 1), 11, 5));
+    buttonPanel.add(clearButton,                 new GridBagConstraints(4, 0, 1, 3, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 8, 7));
     buttonPanel.add(plotColorCheckBox,                          new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(4, 0, 0, 0), 0, 0));
   /*  buttonPanel.add(magDistLabel,                                  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));*/
-    buttonPanel.add(addButton,                      new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 12, 0));
+    buttonPanel.add(addButton,                       new GridBagConstraints(3, 0, 1, 4, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 5), 12, 7));
     buttonPanel.add(jCheckylog,    new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
    /* buttonPanel.add(magDistComboBox,         new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
