@@ -73,28 +73,28 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private static final double MAX_DISTANCE =100;
 
   //Param Name
-  private final static String GRID_PARAM_NAME =  "Area Grid Spacing";
-  private final static String GRID_PARAM_UNITS =  "km";
+  public final static String GRID_PARAM_NAME =  "Area Grid Spacing";
+  public final static String GRID_PARAM_UNITS =  "km";
   private final static double GRID_PARAM_MIN = 0.001;
   private final static double GRID_PARAM_MAX = 100;
-  private final static String DEPTH_LOWER_PARAM_NAME =  "Lower Seis Depth";
-  private final static String DEPTH_UPPER_PARAM_NAME =  "Upper Seis Depth";
-  private final static String DEPTH_PARAM_UNITS = "km";
+  public final static String DEPTH_LOWER_PARAM_NAME =  "Lower Seis Depth";
+  public final static String DEPTH_UPPER_PARAM_NAME =  "Upper Seis Depth";
+  public final static String DEPTH_PARAM_UNITS = "km";
   private final static double DEPTH_PARAM_MIN = 0;
   private final static double DEPTH_PARAM_MAX = 30;
   private final static Double DEPTH_PARAM_DEFAULT = new Double(5);
-  private final static String MAG_DIST_PARAM_NAME = "Area Mag Dist";
+  public final static String MAG_DIST_PARAM_NAME = "Area Mag Dist";
 
   //timespan Variable
-  private final static String TIMESPAN_PARAM_NAME = "Area Timespan";
-  private final static String TIMESPAN_PARAM_UNITS = "yrs";
+  public final static String TIMESPAN_PARAM_NAME = "Area Timespan";
+  public final static String TIMESPAN_PARAM_UNITS = "yrs";
   private final static Double TIMESPAN_PARAM_DEFAULT = new Double(1);
   private final static double TIMESPAN_PARAM_MIN = 1e-10;
   private final static double TIMESPAN_PARAM_MAX = 1e10;
 
    //Rake Variable
-  private final static String RAKE_PARAM_NAME = "Rake Angle";
-  private final static String RAKE_PARAM_UNITS = "degrees";
+  public final static String RAKE_PARAM_NAME = "Rake Angle";
+  public final static String RAKE_PARAM_UNITS = "degrees";
   private final static Double RAKE_PARAM_DEFAULT = new Double(0);
   private final static double RAKE_PARAM_MIN = -180;
   private final static double RAKE_PARAM_MAX = 180;
@@ -373,19 +373,5 @@ System.out.println("done making location list; numLocs="+numLocs);
     return C;
   }
 
-  /**
-   * This functions fills the default values for the forecast paramters based
-   * on the selected test case which is passed as the argument to the function
-   * @param value
-   */
-  public void setForecastParams(String value){
-    if(value.equals(this.TEST_CASE_TEN)) {
-      adjustableParams.getParameter(this.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
-      adjustableParams.getParameter(this.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
-    }
-    if(value.equals(this.TEST_CASE_ELEVEN)) {
-      adjustableParams.getParameter(this.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
-      adjustableParams.getParameter(this.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
-    }
-  }
+
 }

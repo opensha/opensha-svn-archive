@@ -35,11 +35,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
    */
   //for Debug purposes
   private static String  C = new String("FaultCaseTest1_Fault");
-  private boolean D = true;
-
-
-  //test case 3 static string
-  private final static String TEST_CASE_THREE ="3";
+  private boolean D = false;
 
   /**
    * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
@@ -52,37 +48,37 @@ public class Set1_Fault_Forecast extends EqkRupForecast
 
 
   //Parameter Names
-  private final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
-  private final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
-  private final static String OFFSET_PARAM_NAME =  "Offset";
-  private final static String MAG_DIST_PARAM_NAME = "Fault Mag Dist";
-  private final static String RAKE_PARAM_NAME ="Rake";
-  private final static String TIMESPAN_PARAM_NAME ="Fault TimeSpan";
-  private final static String DIP_PARAM_NAME = "Dip";
+  public final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
+  public final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
+  public final static String OFFSET_PARAM_NAME =  "Offset";
+  public final static String MAG_DIST_PARAM_NAME = "Fault Mag Dist";
+  public final static String RAKE_PARAM_NAME ="Rake";
+  public final static String TIMESPAN_PARAM_NAME ="Fault TimeSpan";
+  public final static String DIP_PARAM_NAME = "Dip";
 
   // default grid spacing is 1km
   private Double DEFAULT_GRID_VAL = new Double(1);
-  private final static String GRID_PARAM_UNITS = "kms";
+  public final static String GRID_PARAM_UNITS = "kms";
   private final static double GRID_PARAM_MIN = .001;
   private final static double GRID_PARAM_MAX = 1000;
 
 
   //default rupture offset is 1km
   private Double DEFAULT_OFFSET_VAL = new Double(1);
-  private final static String OFFSET_PARAM_UNITS = "kms";
+  public final static String OFFSET_PARAM_UNITS = "kms";
   private final static double OFFSET_PARAM_MIN = .01;
   private final static double OFFSET_PARAM_MAX = 10000;
 
   //default timeSpan is 1 year
   private Double DEFAULT_TIMESPAN_VAL= new Double(1);
-  private final static String TIMESPAN_PARAM_UNITS = "yrs";
+  public final static String TIMESPAN_PARAM_UNITS = "yrs";
   private final static double TIMESPAN_PARAM_MIN = 1e-10;
   private final static double TIMESPAN_PARAM_MAX = 1e10;
 
   // values for Mag length sigma
   private Double SIGMA_PARAM_MIN = new Double(0);
   private Double SIGMA_PARAM_MAX = new Double(1);
-  private Double DEFAULT_SIGMA_VAL = new Double(0.0);
+  public Double DEFAULT_SIGMA_VAL = new Double(0.0);
 
   private double LOWER_SEISMO_DEPTH = 12.0;
 
@@ -404,32 +400,4 @@ public class Set1_Fault_Forecast extends EqkRupForecast
      return C;
    }
 
-
-   /**
-    * This functions fills the default values for the forecast paramters based
-    * on the selected fault which is passed as the argument to the function.
-    * Based on the selected test case we are modifying the value of the magLengthSigma
-    * @param faultType : tells whether the fault1 or fault2
-    * @param testCaseVal: tells which test case is selected
-    */
-
-   public void setForecastParams(String faultType, String testCaseVal){
-
-     // add sigma for maglength(0-1)
-     adjustableParams.getParameter(SIGMA_PARAM_NAME).setValue(DEFAULT_SIGMA_VAL);
-
-     // magLengthSigma parameter is changed if the test case chosen is 3
-     if(testCaseVal.equalsIgnoreCase(TEST_CASE_THREE))
-         adjustableParams.getParameter(this.SIGMA_PARAM_NAME).setValue(new Double(0.2));
-     // set the parameters for fault1
-     if(faultType.equals(this.FAULT1_NAME)) {
-       this.adjustableParams.getParameter(this.DIP_PARAM_NAME).setValue(new Double(90.0));
-       this.adjustableParams.getParameter(this.RAKE_PARAM_NAME).setValue(new Double(0.0));
-     }
-     // set the parameters for fault 2
-     if(faultType.equals(this.FAULT2_NAME)) {
-       this.adjustableParams.getParameter(this.DIP_PARAM_NAME).setValue(new Double(60.0));
-       this.adjustableParams.getParameter(this.RAKE_PARAM_NAME).setValue(new Double(90.0));
-     }
-   }
 }

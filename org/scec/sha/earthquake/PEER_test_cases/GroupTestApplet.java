@@ -40,7 +40,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
    */
   protected final static String C = "GroupTestApplet";
   // for debug purpose
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
   // mesage needed in case of show data if plot is not available
   final static String NO_PLOT_MSG = "No Plot Data Available";
