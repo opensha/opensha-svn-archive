@@ -46,6 +46,8 @@ Add Frankel96_ERF to hazard curve applet.
 
 Define TimeSpan object.
 
+Frankel96_ERF - make it update only if an adjustable parameter has changed.  Add background seismicity.
+
 Add getApplicableRegion and isLocWithinApplicableRegion methods to EqkRupForecastAPI.
 
 Update GriddedFaultApplet with new Frankel file; remove un-need Frankel input files.

@@ -34,7 +34,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
   private double timeSpan;
   //these are the static static defined varibles to be used to find the number of ruptures.
   private final static double RUPTURE_WIDTH =100.0;
-  private final static double RUPTURE_OFFSET =10.0;
+  private double rupOffset;
   private int totNumRups;
   private EvenlyGriddedSurface surface;
 
@@ -56,12 +56,14 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
                                 double magUpper,
                                 double moRate,
                                 double delta,
+                                double rupOffset,
                                 EvenlyGriddedSurface surface,
                                 String faultName) {
 
     this.name = "Frankel96_GR_EqkSource for "+faultName+" (magUpper="+magUpper+"; moRate="+moRate+")";
     this.rake=rake;
     this.surface=surface;
+    this.rupOffset = rupOffset;
     // see here that we have rounded num to nearest integer value
 
     int num = (int)Math.rint((magUpper - magLower)/delta + 1);
@@ -131,7 +133,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
 
     // set rupture surface
     probEqkRupture.setRuptureSurface( surface.getNthSubsetSurface(rupLen,
-                                      RUPTURE_WIDTH,RUPTURE_OFFSET,
+                                      RUPTURE_WIDTH,rupOffset,
                                       nthRupture+numRups-tempNumRups));
 
     return probEqkRupture;
@@ -181,7 +183,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
    * @return the total number of ruptures associated with the given mag
    */
   private int getNumRuptures(double rupLen){
-    return surface.getNumSubsetSurfaces(rupLen,RUPTURE_WIDTH,RUPTURE_OFFSET);
+    return surface.getNumSubsetSurfaces(rupLen,RUPTURE_WIDTH,rupOffset);
  }
 
 

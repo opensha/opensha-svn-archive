@@ -301,8 +301,8 @@ public class GriddedFaultApplet
     public void init() {
 
         ArrayList files = new ArrayList();
-        files.add("Frankel96_CALA.char");
-        files.add("Frankel96_CALB.char");
+        files.add("org/scec/sha/earthquake/rupForecastImpl/Frankel96/Frankel96_CALA.char");
+        files.add("org/scec/sha/earthquake/rupForecastImpl/Frankel96/Frankel96_CALB.char");
         simpleFaultDataList = Frankel96_SimpleFaultDataFileReader.getSimpleFaultDataList(files);
 
         oval.setBottomColor( darkBlue );

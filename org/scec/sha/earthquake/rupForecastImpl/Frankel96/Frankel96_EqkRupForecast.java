@@ -14,7 +14,7 @@ import org.scec.util.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.fault.FaultTrace;
 import org.scec.data.Location;
-import org.scec.sha.fault.FrankelGriddedFaultFactory;
+import org.scec.sha.fault.*;
 import org.scec.sha.fault.GriddedFaultFactory;
 import org.scec.sha.surface.GriddedSurfaceAPI;
 import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
@@ -64,11 +64,11 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
   private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/Frankel96/Frankel96_CAL_all.txt";
 
   /**
-   * Vectors for holding the various forecast types
+   * Vectors for holding the various sources, separated by type
    */
-  private Vector FrankelA_CharEqkSources = new Vector();
-  private Vector FrankelB_CharEqkSources = new Vector();
-  private Vector FrankelB_GR_EqkSources = new Vector();
+  private Vector FrankelA_CharEqkSources;
+  private Vector FrankelB_CharEqkSources;
+  private Vector FrankelB_GR_EqkSources;
 
   // This is an array holding each line of the input file
   private ArrayList inputFileLines = null;
@@ -91,9 +91,33 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
     public final static String TIMESPAN_PARAM_UNITS = "yrs";
     private final static double TIMESPAN_PARAM_MIN = 1e-10;
     private final static double TIMESPAN_PARAM_MAX = 1e10;
-    //create the timeSpan parameter
-    DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
-                                             TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
+    DoubleParameter timeSpanParam;
+
+    // fault-model parameter stuff
+    public final static String FAULT_MODEL_NAME = new String ("Fault Model");
+    public final static String FAULT_MODEL_FRANKEL = new String ("Frankel's");
+    public final static String FAULT_MODEL_STIRLING = new String ("Stirling's");
+    // make the fault-model parameter
+    Vector faultModelNamesStrings = new Vector();
+    StringParameter faultModelParam;
+
+    // For fraction of moment rate on GR parameter
+    private final static String FRAC_GR_PARAM_NAME ="GR Fraction on B Faults";
+    private Double DEFAULT_FRAC_GR_VAL= new Double(0.5);
+    private final static String FRAC_GR_PARAM_UNITS = null;
+    private final static String FRAC_GR_PARAM_INFO = "Fraction of moment-rate put into GR dist on class-B faults";
+    private final static double FRAC_GR_PARAM_MIN = 0;
+    private final static double FRAC_GR_PARAM_MAX = 1;
+    DoubleParameter fracGR_Param;
+
+    // For rupture offset lenth along fault parameter
+    private final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
+    private Double DEFAULT_RUP_OFFSET_VAL= new Double(10);
+    private final static String RUP_OFFSET_PARAM_UNITS = "km";
+    private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
+    private final static double RUP_OFFSET_PARAM_MIN = 1;
+    private final static double RUP_OFFSET_PARAM_MAX = 100;
+    DoubleParameter rupOffset_Param;
 
 
   /**
@@ -101,6 +125,32 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
    * No argument constructor
    */
   public Frankel96_EqkRupForecast() {
+
+    // make the adjustable parameters
+    faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
+    faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
+    faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,(String)faultModelNamesStrings.get(0));
+
+    timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
+                                             TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
+
+    fracGR_Param = new DoubleParameter(FRAC_GR_PARAM_NAME,FRAC_GR_PARAM_MIN,
+                                         FRAC_GR_PARAM_MAX,FRAC_GR_PARAM_UNITS,DEFAULT_FRAC_GR_VAL);
+    fracGR_Param.setInfo(FRAC_GR_PARAM_INFO);
+
+    rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
+                                     RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
+    rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
+
+
+    // add adjustable parameters to the list
+    adjustableParams.addParameter(timeSpanParam);
+    adjustableParams.addParameter(faultModelParam);
+    adjustableParams.addParameter(fracGR_Param);
+    adjustableParams.addParameter(rupOffset_Param);
+
+
+
     // read the lines of the input file into a list
     try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
@@ -110,11 +160,6 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
     if( inputFileLines == null) throw new
            FaultException(C + "No data loaded from file. File may be empty or doesn't exist.");
 
-    // add adjustable parameters to the list
-    adjustableParams.addParameter(timeSpanParam);
-
-    // make the sources
-    makeSources();
   }
 
   /**
@@ -123,6 +168,10 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
    * @throws FaultException
    */
   private  void makeSources() throws FaultException{
+
+    FrankelA_CharEqkSources = new Vector();
+    FrankelB_CharEqkSources = new Vector();
+    FrankelB_GR_EqkSources = new Vector();
 
     // Debug
     String S = C + ": makeSoureces(): ";
@@ -134,6 +183,12 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
     double lat, lon, rake=0;
     double mag=0;  // used for magChar and magUpper (latter for the GR distributions)
     double charRate=0, dip=0, downDipWidth=0, depthToTop=0;
+
+    // get adjustable parameters values
+    double fracGR = ((Double) fracGR_Param.getValue()).doubleValue();
+    String faultModel = (String) faultModelParam.getValue();
+    double rupOffset = ((Double) rupOffset_Param.getValue()).doubleValue();
+    timeSpan = ((Double) timeSpanParam.getValue()).doubleValue();
 
     // Loop over lines of input file and create each source in the process
     ListIterator it = inputFileLines.listIterator();
@@ -214,38 +269,48 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
           if( D ) System.out.println(C+":faultTrace::"+faultTrace.toString());
 
-          // Make the fault surface
-          factory = new FrankelGriddedFaultFactory(faultTrace,
-                                                   dip,
-                                                   upperSeismoDepth,
-                                                   lowerSeismoDepth,
-                                                   GRID_SPACING);
-
+          if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
+            factory = new FrankelGriddedFaultFactory( faultTrace, dip, upperSeismoDepth,
+                                                   lowerSeismoDepth, GRID_SPACING);
+          }
+          else {
+            factory = new StirlingGriddedFaultFactory( faultTrace, dip, upperSeismoDepth,
+                                                   lowerSeismoDepth, GRID_SPACING);
+          }
           GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
           // Now make the source(s)
           if(faultClass.equalsIgnoreCase(FAULT_CLASS_B) && mag>6.5){
-            // divide the rate in half for the GR and Char parts, respectively
-            double rate = 0.5*charRate;
-            double moRate = rate*MomentMagCalc.getMoment(mag);
+            // divide the rate according the faction assigned to GR dist
+            double rate = (1.0-fracGR)*charRate;
+            double moRate = fracGR*charRate*MomentMagCalc.getMoment(mag);
+
             // make the GR source
-            Frankel96_GR_EqkSource frankel96_GR_src = new Frankel96_GR_EqkSource(rake,B_VALUE,MAG_LOWER,
-                                                   mag,moRate,DELTA_MAG,(EvenlyGriddedSurface)surface, faultName);
-            FrankelB_GR_EqkSources.add(frankel96_GR_src);
+            if(moRate>0.0) {
+              Frankel96_GR_EqkSource frankel96_GR_src = new Frankel96_GR_EqkSource(rake,B_VALUE,MAG_LOWER,
+                                                   mag,moRate,DELTA_MAG,rupOffset,(EvenlyGriddedSurface)surface, faultName);
+              frankel96_GR_src.setTimeSpan(timeSpan);
+              FrankelB_GR_EqkSources.add(frankel96_GR_src);
+            }
             // now make the Char source
-            Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,rate,
+            if(rate>0.0) {
+              Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,rate,
                                                       (EvenlyGriddedSurface)surface, faultName);
-            FrankelB_CharEqkSources.add(frankel96_Char_src);
+              frankel96_Char_src.setTimeSpan(timeSpan);
+              FrankelB_CharEqkSources.add(frankel96_Char_src);
+            }
           }
           else if (faultClass.equalsIgnoreCase(FAULT_CLASS_B)) {    // if class B and mag<=6.5, it's all characteristic
             Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,charRate,
                                                       (EvenlyGriddedSurface)surface, faultName);
+            frankel96_Char_src.setTimeSpan(timeSpan);
             FrankelB_CharEqkSources.add(frankel96_Char_src);
 
           }
           else if (faultClass.equalsIgnoreCase(FAULT_CLASS_A)) {   // class A fault
             Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,charRate,
                                                       (EvenlyGriddedSurface)surface, faultName);
+            frankel96_Char_src.setTimeSpan(timeSpan);
             FrankelA_CharEqkSources.add(frankel96_Char_src);
           }
           else {
@@ -422,14 +487,8 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
     **/
 
    public void updateForecast() {
-     // set the timeSpan
-     timeSpan = ((Double) timeSpanParam.getValue()).doubleValue();
-     for(int i=0;i<numA_Char_srcs; i++)
-       ((Frankel96_CharEqkSource)FrankelA_CharEqkSources.get(i)).setTimeSpan(timeSpan);
-     for(int i=0;i<numB_Char_srcs; i++)
-       ((Frankel96_CharEqkSource)FrankelB_CharEqkSources.get(i)).setTimeSpan(timeSpan);
-     for(int i=0;i<numB_GR_srcs; i++)
-       ((Frankel96_GR_EqkSource)FrankelB_GR_EqkSources.get(i)).setTimeSpan(timeSpan);
+     // make the sources
+     makeSources();
    }
 
 
@@ -437,6 +496,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
    public static void main(String[] args) {
 
      Frankel96_EqkRupForecast frankCast = new Frankel96_EqkRupForecast();
+     frankCast.updateForecast();
      System.out.println("num sources="+frankCast.getNumSources());
      for(int i=0; i<frankCast.getNumSources(); i++)
        System.out.println(frankCast.getSource(i).getName());
