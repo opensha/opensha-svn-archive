@@ -20,10 +20,11 @@ import org.scec.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelat
  * <LI>magnitude - the magnitude of the point source.
  * <LI>probability - the probability for the souce.
  * <LI>maxRupOffset - The increment by which ruptures are slid (floated) along a given strike
- * <LI>deltaStrike - discretization of strike for the spinnin of the ruptures
+ * <LI>deltaStrike - discretization of strike for the spinning of the ruptures
  * </UL><p>
  * The source not Poissonain, and note that the timeSpan does not influence the ERF at all
- * (because the probability is set by the adjustable parameter).  The upper and lower seismogenic
+ * (because the probability is set by the adjustable parameter).  The timeSpan is returned by
+ * this object is therefore null.  The upper and lower seismogenic
  * depths are hard coded at 0 and 1, respectively (because existing distance measures don't depend
  * on the depth extend for vertical strike-slip faults).  Rupture lengths are computed using the
  * Wells and Coppersmith Length(Mag) relationship (hard coded).
@@ -110,9 +111,10 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
    */
   public Point2MultVertSS_FaultERF() {
 
+    timeSpan = null;
     // create the timespan object with start time and duration in years
-    timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
-    timeSpan.addParameterChangeListener(this);
+    //timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
+    //timeSpan.addParameterChangeListener(this);
 
     // create src lat, lon, & depth param
     srcLatParam = new DoubleParameter(SRC_LAT_PARAM_NAME,SRC_LAT_PARAM_MIN,

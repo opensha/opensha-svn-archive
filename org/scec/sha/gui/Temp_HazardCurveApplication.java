@@ -124,7 +124,7 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
   public final static String RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient";
   public final static String RMI_WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient";
-  public final static String RMI_SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimpleFaultRuptureERF_Client";
+  public final static String RMI_SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimplePoissonFaultRuptureERF_Client";
 
 
 

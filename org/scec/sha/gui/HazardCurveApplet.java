@@ -118,7 +118,7 @@ public class HazardCurveApplet extends JApplet
   public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
   public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF";
-  public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureERF";
+  public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultRuptureERF";
   public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
   public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Frankel02.RemoteFrankel02ERF_Client";
   public final static String POINT_POISSON_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.PointPoissonERF";
