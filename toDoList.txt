@@ -3,6 +3,8 @@
 
 Add the  revised version of the test results for AttenuationRelationhships by Ken Campbell to the JUnit test.
 
+Change has to be made in the ScenarioShakeMapCalculator so that we don't take the log before averaging the values for the Multiple Attenuation Relationships.
+
 add site translation for SEA_1999_AttenRel
 
 Change HazardCurveServerModeApp to do the calculations on the server.
