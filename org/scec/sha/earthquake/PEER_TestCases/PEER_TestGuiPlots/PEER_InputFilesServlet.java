@@ -110,8 +110,8 @@ public class PEER_InputFilesServlet extends HttpServlet {
 
       // add this file to the JAR also
       RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/"+fileName);
-      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/files.log");
-      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/data.version");
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/files.log");
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/data.version");
       System.out.println("::PEER_TestResultsSubmApp.jar updated");
 
       //Runtime.getRuntime().exec("rm GroupTestDataFiles/"+fileName);
@@ -150,8 +150,8 @@ public class PEER_InputFilesServlet extends HttpServlet {
 
       // add this file to the JAR also
       RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/"+fileName);
-      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/files.log");
-      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/data.version");
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/files.log");
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/data.version");
 
       System.out.println("::PEER_TestResultsSubmApp.jar updated");
 
