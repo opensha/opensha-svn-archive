@@ -252,8 +252,10 @@ public class AttenRelResultsChecker {
               tempParam.setValue(new Double(st));
             if(tempParam instanceof IntegerParameter)
               tempParam.setValue(new Integer(st));
-            if(tempParam instanceof WarningDoublePropagationEffectParameter)
+            if(tempParam instanceof WarningDoublePropagationEffectParameter) {
+              ((WarningDoublePropagationEffectParameter)tempParam).setIgnoreWarning(true);
               tempParam.setValue(new Double(st));
+            }
           }
           //reads the next line in the file
           str = br.readLine();

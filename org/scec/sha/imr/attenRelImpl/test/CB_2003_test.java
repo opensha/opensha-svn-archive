@@ -94,9 +94,7 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){
-    WarningParameterAPI param = e.getWarningParameter();
-    param.setValueIgnoreWarning( e.getNewValue() );
-    return;
+
   }
 
 

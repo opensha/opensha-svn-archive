@@ -169,7 +169,7 @@ public abstract class WarningDoublePropagationEffectParameter
             if(D) System.out.println(S + "Setting allowed and recommended null value: ");
             this.value = null;
         }
-        else if ( !isRecommended( value ) ) {
+        else if ( !ignoreWarning && !isRecommended( value ) ) {
 
             if(D) System.out.println(S + "Firing Warning Event");
 
