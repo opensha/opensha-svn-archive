@@ -968,7 +968,7 @@ public class AttenuationRelationshipGuiBean
           xAxisConstraint.addString(X_AXIS_SINGLE_VAL);
 
         StringParameter xaxis = new StringParameter( X_AXIS_NAME, xAxisConstraint, val );
-        xaxis.addParameterChangeListener(this);
+        //xaxis.addParameterChangeListener(this);
         // Now make the parameters list
         // At this point all values have been set for the IM type, xaxis, and the yaxis
         controlsParamList = new ParameterList();
@@ -1246,7 +1246,7 @@ public class AttenuationRelationshipGuiBean
         //if the user has selected the choice to plot the single value
         //adding all the X-Axis Paramaters inside the independent Param list
         //if the user has chosen the the Individual Value on X-Axis.
-        if(xAxisName.equals(this.X_AXIS_SINGLE_VAL)){
+        /*if(xAxisName.equals(this.X_AXIS_SINGLE_VAL)){
           String paramName = null;
           Vector v = param2.getAllowedStrings();
           int size =v.size();
@@ -1255,7 +1255,7 @@ public class AttenuationRelationshipGuiBean
             if(!paramName.equals(this.X_AXIS_SINGLE_VAL))
               independentsEditor.setParameterVisible(paramName,true);
           }
-        }
+        }*/
 
         // Make the choosen x-axis invisible in the independent parameter list
         independentsEditor.setParameterVisible( val, false );

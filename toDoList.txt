@@ -138,5 +138,5 @@ AttenRelApp:
 	(rather than hitting return in the parameter editor) you need to hit add trace again
 	if you accept the value.  Nitin and Vipin say this is a problem with Java (focus at
 	time of exception throwing is lost).
-
+JFreechart problem: If the the upperBound and lowerBound of the axis are the same then JFreechart only adds a small increment to axis range, so because of this in our AttenuationRelaitonshipApp when we choose the BJF attenRel and on Y-Axis choose the Std. Dev. we get same values for all X-values. In other words, our lowerBound and upperBound are the same. JFrechart does provide a method to handle and specify minimum range between the Upperbound and LowerBound of the axis but we can't just add a number to specify the range.
 
