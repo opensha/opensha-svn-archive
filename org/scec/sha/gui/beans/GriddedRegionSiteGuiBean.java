@@ -42,7 +42,7 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
   public final static String GRID_SPACING =  "Grid Spacing";
 
   // title for site paramter panel
-  protected final static String SITE_PARAMS = "Set Region Params";
+  protected final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
 
   /**
    * Longitude and Latitude paramerts to be added to the site params list
@@ -88,20 +88,10 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
     maxLat.addParameterChangeFailListener(this);
     maxLon.addParameterChangeFailListener(this);
 
-
-    gridRectRegion= new EvenlyGriddedRectangularGeographicRegion(((Double)minLat.getValue()).doubleValue(),
-                                      ((Double)maxLat.getValue()).doubleValue(),
-                                      ((Double)minLon.getValue()).doubleValue(),
-                                      ((Double)maxLon.getValue()).doubleValue(),
-                                      ((Double)gridSpacing.getValue()).doubleValue());
-
-    //GridLocations Iterator
-    ListIterator gridLocIt=gridRectRegion.getGridLocationsIterator();
-    while(gridLocIt.hasNext())
-      siteVector.add(new Site((Location)gridLocIt.next()));
-
+    //create the siteVectorList.
+    siteVector=createAndUpdateSites();
     addParameters();
-    setTitle(SITE_PARAMS);
+    setTitle(GRIDDED_SITE_PARAMS);
 
   }
 
@@ -168,17 +158,8 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
  public void replaceSiteParams(Iterator it) {
 
    // make the new site object
-   gridRectRegion= new EvenlyGriddedRectangularGeographicRegion(((Double)minLat.getValue()).doubleValue(),
-                                       ((Double)maxLat.getValue()).doubleValue(),
-                                       ((Double)minLon.getValue()).doubleValue(),
-                                       ((Double)maxLon.getValue()).doubleValue(),
-                                      ((Double)gridSpacing.getValue()).doubleValue());
-   ListIterator lIt=gridRectRegion.getGridLocationsIterator();
-   Vector newSiteVector=new Vector();
-   while(lIt.hasNext())
-     newSiteVector.add(new Site((Location)lIt.next()));
    //getting the new gridded region
-   siteVector=newSiteVector;
+   siteVector=createAndUpdateSites();
    // first remove all the parameters except latitude and longitude
    Iterator siteIt = parameterList.getParameterNamesIterator();
    while(siteIt.hasNext()) { // remove all the parameters except latitdue and longitude
@@ -252,18 +233,8 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
    * @param e
    */
   public void parameterChange(ParameterChangeEvent e) {
-    gridRectRegion= new EvenlyGriddedRectangularGeographicRegion(((Double)minLat.getValue()).doubleValue(),
-                                      ((Double)maxLat.getValue()).doubleValue(),
-                                      ((Double)minLon.getValue()).doubleValue(),
-                                      ((Double)maxLon.getValue()).doubleValue(),
-                                      ((Double)gridSpacing.getValue()).doubleValue());
 
-    //GridLocations Iterator
-    ListIterator gridLocIt=gridRectRegion.getGridLocationsIterator();
-    Vector newSiteVector = new Vector();
-    while(gridLocIt.hasNext())
-      newSiteVector.add(new Site((Location)gridLocIt.next()));
-    siteVector=newSiteVector;
+    siteVector=createAndUpdateSites();
   }
 
   /**
@@ -305,5 +276,27 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
     if(D) System.out.println(S + "Ending");
 
    }
+
+
+   /**
+    * This method returns the Vector of the gridded region sites
+    * @return
+    */
+   private Vector createAndUpdateSites(){
+     gridRectRegion= new EvenlyGriddedRectangularGeographicRegion(((Double)minLat.getValue()).doubleValue(),
+                                      ((Double)maxLat.getValue()).doubleValue(),
+                                      ((Double)minLon.getValue()).doubleValue(),
+                                      ((Double)maxLon.getValue()).doubleValue(),
+                                      ((Double)gridSpacing.getValue()).doubleValue());
+
+    //GridLocations Iterator
+    ListIterator gridLocIt=gridRectRegion.getGridLocationsIterator();
+    Vector newSiteVector = new Vector();
+    while(gridLocIt.hasNext())
+      newSiteVector.add(new Site((Location)gridLocIt.next()));
+
+    return newSiteVector;
+  }
+
 
 }
