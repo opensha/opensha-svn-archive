@@ -10,6 +10,7 @@ import java.util.Iterator;
 
 import org.scec.param.*;
 import org.scec.calc.MomentMagCalc;
+import org.scec.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 import org.scec.util.*;
 import org.scec.data.Location;
 import org.scec.sha.fault.*;
@@ -129,8 +130,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   private ArrayList FrankelBackgrSeisSources;
   private ArrayList allSources;
 
-  // This is an array holding each line of the input file
-  private ArrayList inputBackSeisFileLines = null;
+  private WC1994_MagLengthRelationship magLenRel = new WC1994_MagLengthRelationship();
 
   // fault-model parameter stuff
   public final static String FAULT_MODEL_NAME = new String ("Fault Model");
@@ -187,20 +187,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     rupOffset_Param.addParameterChangeListener(this);
     backSeisParam.addParameterChangeListener(this);
 
-
-/*
-    try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
-    catch( FileNotFoundException e){ System.out.println(e.toString()); }
-    catch( IOException e){ System.out.println(e.toString());}
-
-    // Exit if no data found in list
-    if( inputFaultFileLines == null) throw new
-           FaultException(C + "No data loaded from "+INPUT_FAULT_FILE_NAME+". File may be empty or doesn't exist.");
-
-    // Exit if no data found in list
-    if( inputBackSeisFileLines == null) throw new
-           FaultException(C + "No data loaded from "+INPUT_BACK_SEIS_FILE_NAME+". File may be empty or doesn't exist.");
-*/
   }
 
 // make the adjustable parameters & the list
@@ -275,6 +261,13 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 */
   }
 
+  /**
+   * This makes the sources for the input files of hazgridX.f (and wts):
+   */
+  private void makeAllGridSources() {
+
+    makeGridSources("junk",1.0,null,0.0);
+  }
 
 
   /**
@@ -827,54 +820,71 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
   }
 
-
   /**
-  * Read the Background Seismicity file and make the sources
-  *
-  */
-  private  void makeBackSeisSources() {
+   *
+   */
+  private void makeGridSources(String fileName1, double wt1, String fileName2, double wt2) {
 
-    // Debug
-    String S = C + ": makeBackSeisSources(): ";
-    if( D ) System.out.println(S + "Starting");
+    // Debuggin stuff
+    String S = C + ": makeGridSources(): ";
 
-    FrankelBackgrSeisSources = new ArrayList();
+    double bVal, magMin, magMax, deltaMag, magRef, strike, siteMaxMag;
+    int iflt, maxmat;
 
-    double lat, lon, rate, rateAtMag5;
+    // read the lines of the 1st input file into a list
+    ArrayList inputGridFileLines1=null;
+    try{ inputGridFileLines1 = FileUtils.loadFile(IN_FILE_PATH + fileName1 ); }
+    catch( FileNotFoundException e){ System.out.println(e.toString()); }
+    catch( IOException e){ System.out.println(e.toString());}
+    if( D ) System.out.println("fileName1 = " + IN_FILE_PATH + fileName1);
 
-    double aveRake=0.0;
-    double aveDip=90;
-    double tempMoRate = 1.0;
-    double bValue = 0.9;
-    double magUpper=7.0;
-    double magDelta=0.2;
-    double magLower1=0.0;
-    int    numMag1=36;
-    double magLower2=5.0;
-    int    numMag2=11;
+    // read second file's lines if necessary
+    ArrayList inputGridFileLines2=null;
+    if(fileName2 != null) {
+      try{ inputGridFileLines2 = FileUtils.loadFile(IN_FILE_PATH + fileName2 ); }
+      catch( FileNotFoundException e){ System.out.println(e.toString()); }
+      catch( IOException e){ System.out.println(e.toString());}
+      if( D ) System.out.println("fileName2 = " + IN_FILE_PATH + fileName2);
+    }
 
-    // GR dist between mag 0 and 7, delta=0.2
-    GutenbergRichterMagFreqDist grDist1 = new GutenbergRichterMagFreqDist(magLower1,numMag1,magDelta,
-                                                                          tempMoRate,bValue);
+    // get the duration
+    double duration = timeSpan.getDuration();
 
-    // GR dist between mag 5 and 7, delta=0.2
-    GutenbergRichterMagFreqDist grDist2;
+    // get an iterator for the input file lines
+    ListIterator it = inputGridFileLines1.listIterator();
 
-    PointPoissonEqkSource pointPoissonSource;
-
-    // set timespan
-    double timeDuration = timeSpan.getDuration();
-
-    // Get iterator over input-file lines
-    ListIterator it = inputBackSeisFileLines.listIterator();
-
-    // skip first five header lines
+    // get first line (default GR dist stuff)
     StringTokenizer st = new StringTokenizer(it.next().toString());
-    st = new StringTokenizer(it.next().toString());
-    st = new StringTokenizer(it.next().toString());
-    st = new StringTokenizer(it.next().toString());
-    st = new StringTokenizer(it.next().toString());
+    bVal = Double.parseDouble(st.nextToken());
+    magMin = Double.parseDouble(st.nextToken());
+    magMax = Double.parseDouble(st.nextToken());
+    deltaMag = Double.parseDouble(st.nextToken());
+    magRef = Double.parseDouble(st.nextToken());  // this is ignored in Frankel's code
 
+    if(magMin != magMax) magMin += deltaMag/2.0;
+
+    // get the 2nd line
+    st = new StringTokenizer(it.next().toString());
+    iflt = Integer.parseInt(st.nextToken());    // source type:
+                                                // 0 for point source;
+                                                // 1 for finite source with random strike
+                                                // 2 for finite source with fixed strike
+                                                // others not (yet?) supported
+
+    st.nextToken(); // skip this one (site specific b-value never used)
+
+    maxmat = Integer.parseInt(st.nextToken()); // indicates whether there are site-specific max mags
+
+    // get fixed strike from next line if necessary
+    if(iflt == 2) {
+      st = new StringTokenizer(it.next().toString());
+      strike = Double.parseDouble(st.nextToken());
+    }
+
+    double lat,lon,aVal, moRate;
+    Location loc;
+    Point2Vert_SS_FaultPoisSource src;
+    GutenbergRichterMagFreqDist grDist1, grDist2;
     while( it.hasNext() ){
 
       // get next line
@@ -882,29 +892,34 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
       lon =  Double.parseDouble(st.nextToken());
       lat =  Double.parseDouble(st.nextToken());
-      rate = Double.parseDouble(st.nextToken());
+      aVal = Double.parseDouble(st.nextToken());
+      loc = new Location(lat,lon);
+      if(maxmat == 1)
+        siteMaxMag = Double.parseDouble(st.nextToken());
+      else
+        siteMaxMag = magMax;
 
-      if (rate > 0.0) {  // ignore locations with a zero rate
+      // Note - In Frankel's code there are some checks (and actions) if siteMaxMag < 0.0
+      // I'm ignoring these because this is never the case for the CA input files
 
-        // scale all so the incremental rate at mag=0 index equals rate
-        grDist1.scaleToIncrRate((int) 0,rate);
+      // move the max mag down to be bin centered
+      siteMaxMag -= deltaMag/2.0;
 
-        // now get the rate at the mag=5 index
-        rateAtMag5 = grDist1.getIncrRate((int) 25);
+      int numMag = Math.round((float) ((siteMaxMag-magMin)/deltaMag));
 
-        // now scale all in the dist we want by rateAtMag5 (index 0 here)
-        grDist2 = new GutenbergRichterMagFreqDist(magLower2,numMag2,magDelta,tempMoRate,bValue);
-        grDist2.scaleToIncrRate((int) (0),rateAtMag5);
+      moRate = getMomentRate(magMin, numMag, deltaMag, aVal, bVal);
 
-        // now make the source
-        pointPoissonSource = new PointPoissonEqkSource(new Location(lat,lon),
-            grDist2, timeDuration, aveRake,aveDip);
+      grDist1 = new GutenbergRichterMagFreqDist(magMin,numMag,deltaMag,moRate,bVal);
 
-        // add the source
-        FrankelBackgrSeisSources.add(pointPoissonSource);
-      }
+      // now make the source
+      src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,duration,6.0,0);
+
+      // add the source
+      FrankelBackgrSeisSources.add(src);
+
     }
   }
+
 
 
     /**
@@ -966,7 +981,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
        allSources = new ArrayList();
 
        if (backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE)) {
-         makeBackSeisSources();
+         makeAllFaultSources();
+         makeAllGridSources();
          // now create the allSources list:
          allSources.addAll(charFaultSources);
          allSources.addAll(grFaultSources);
@@ -980,7 +996,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
          allSources.addAll(grFaultSources);
        }
        else {// only background sources
-        makeBackSeisSources();
+        makeAllGridSources();
         // now create the allSources list:
         allSources.addAll(FrankelBackgrSeisSources);
        }

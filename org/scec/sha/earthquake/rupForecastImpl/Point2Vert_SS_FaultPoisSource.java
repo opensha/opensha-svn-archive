@@ -181,6 +181,9 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       if(mag <= magCutOff) {
         rupSurfaces.add(ptSurface);
       }
+      /* it might save memory to used GriddedSubsetSurfaces for all but the largest
+         surface below; however, this would presumably be slower as there would be
+         more pointers involved */
       else {
         halfLength = magLengthRelationship.getMedianLength(mag)/2.0;
         loc1 = RelativeLocation.getLocation(loc,new Direction(0.0,halfLength,strike,Double.NaN));
@@ -301,9 +304,5 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       loc2 = rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1);
 //      System.out.println("\t"+(float)rup.getMag()+"\t"+loc1+"\t"+loc2);
     }
-
-
   }
-
-
 }
