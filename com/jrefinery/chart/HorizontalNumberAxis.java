@@ -369,14 +369,6 @@ public class HorizontalNumberAxis extends NumberAxis implements HorizontalAxis {
         double size = this.tickUnit.getSize();
         int count = this.calculateVisibleTickCount();
         double lowestTickValue = this.calculateLowestVisibleTickValue();
-        if(count ==1){
-
-            if (plot instanceof HorizontalValuePlot){
-               HorizontalValuePlot hvp = (HorizontalValuePlot)plot;
-               Range r = hvp.getHorizontalDataRange();
-               lowestTickValue=r.getLowerBound();
-           }
-        }
         for (int i=0; i<count; i++) {
             double currentTickValue = lowestTickValue+(i*size);
             double xx = this.translateValueToJava2D(currentTickValue, plotArea);
