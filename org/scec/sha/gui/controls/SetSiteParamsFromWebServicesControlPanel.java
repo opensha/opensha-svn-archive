@@ -144,6 +144,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
 
    // reflect the new parameter value in GUI
    this.siteGuiBean.getParameterListEditor().refreshParamEditor();
+   this.dispose();
   }
 
 
@@ -201,5 +202,6 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
                               willsClass, basinDepth);
     // reflect the new parameter value in GUI
    this.siteGuiBean.getParameterListEditor().refreshParamEditor();
+   this.dispose();
   }
 }

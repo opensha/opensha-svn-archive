@@ -51,7 +51,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 
   //boolean to check if axis range is auto or custom
   private boolean customAxis = false;
-  private JButton colorLineTypeButton = new JButton();
+  private JButton plotPrefsButton = new JButton();
   private FlowLayout flowLayout1 = new FlowLayout();
 
   public ButtonControlPanel(ButtonControlPanelAPI api) {
@@ -99,13 +99,13 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     toggleButton.setPreferredSize(new Dimension(106, 26));
     toggleButton.setToolTipText("");*/
 
-    colorLineTypeButton.setText("Plot Prefs");
-    colorLineTypeButton.addActionListener(new java.awt.event.ActionListener() {
+    plotPrefsButton.setText("Plot Prefs");
+    plotPrefsButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        colorLineTypeButton_actionPerformed(e);
+        plotPrefsButton_actionPerformed(e);
       }
     });
-    this.add(colorLineTypeButton, 0);
+    this.add(plotPrefsButton, 0);
     this.add(toggleButton, 1);
     this.add(setAxisButton, 2);
     this.add(jCheckylog, 3);
@@ -252,13 +252,14 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     jCheckylog.setEnabled(flag);
     setAxisButton.setEnabled(flag);
     toggleButton.setEnabled(flag);
+    plotPrefsButton.setEnabled(flag);
   }
 
   /**
    * If button to set the plot Prefernces is "clicked" by user.
    * @param e
    */
-  void colorLineTypeButton_actionPerformed(ActionEvent e) {
+  void plotPrefsButton_actionPerformed(ActionEvent e) {
     ArrayList plotFeatures = application.getPlottingFeatures();
     if(plotControl == null)
       plotControl = new PlotColorAndLineTypeSelectorControlPanel(this,plotFeatures);
@@ -299,7 +300,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
    * @param flag
    */
   public void setPlotPreferencesButtonVisible(boolean flag){
-    colorLineTypeButton.setVisible(false);
+    plotPrefsButton.setVisible(false);
   }
 
 }

@@ -685,6 +685,7 @@ public class HazardCurveServerModeApplication extends JApplet
      * this function is called to draw the graph
      */
     private void addButton() {
+      setButtonsEnable(false);
       // do not show warning messages in IMR gui bean. this is needed
       // so that warning messages for site parameters are not shown when Add graph is clicked
       imrGuiBean.showWarningMessages(false);
@@ -697,6 +698,7 @@ public class HazardCurveServerModeApplication extends JApplet
       try{
         createCalcInstance();
       }catch(Exception e){
+        setButtonsEnable(true);
         e.printStackTrace();
       }
 
@@ -722,6 +724,7 @@ public class HazardCurveServerModeApplication extends JApplet
                 drawGraph();
               }
             }catch(RemoteException e){
+              setButtonsEnable(true);
               e.printStackTrace();
             }
           }
@@ -740,6 +743,7 @@ public class HazardCurveServerModeApplication extends JApplet
                 disaggProgressClass.dispose();
               }
             }catch(RemoteException e){
+              setButtonsEnable(true);
               e.printStackTrace();
             }
           }
@@ -759,7 +763,6 @@ public class HazardCurveServerModeApplication extends JApplet
         this.computeHazardCurve();
         this.drawGraph();
       }
-
     }
 
     /**
@@ -769,6 +772,7 @@ public class HazardCurveServerModeApplication extends JApplet
       // you can show warning messages now
      imrGuiBean.showWarningMessages(true);
      addGraphPanel();
+     setButtonsEnable(true);
     }
 
     /**
@@ -849,6 +853,7 @@ public class HazardCurveServerModeApplication extends JApplet
     }catch(java.net.MalformedURLException ee){
       JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
                                     "Error Connecting to Internet",JOptionPane.OK_OPTION);
+
     }
   }
 
@@ -895,6 +900,7 @@ public class HazardCurveServerModeApplication extends JApplet
           erfAPI = erfGuiBean.getSelectedERF_Instance();
           this.timeSpanGuiBean.setTimeSpan(erfAPI.getTimeSpan());
         }catch(Exception ee){
+          setButtonsEnable(true);
           ee.printStackTrace();
         }
 
@@ -909,6 +915,7 @@ public class HazardCurveServerModeApplication extends JApplet
           JOptionPane.showMessageDialog(this,"Cannot add to existing without selecting ERF Epistemic list",
                                         "Input Error",JOptionPane.INFORMATION_MESSAGE);
           plotOptionControl.setSelectedOption(PlottingOptionControl.PLOT_ON_TOP);
+          setButtonsEnable(true);
         }
         this.timeSpanGuiBean.validate();
         this.timeSpanGuiBean.repaint();
@@ -916,16 +923,35 @@ public class HazardCurveServerModeApplication extends JApplet
   }
 
 
+
+  /**
+   * Function to make the buttons enable or disable in the application.
+   * It is used in application to disable the button in the buttons panel
+   * if some computation is already going on.
+   * @param b
+   */
+  private void setButtonsEnable(boolean b){
+    addButton.setEnabled(b);
+    clearButton.setEnabled(b);
+    peelOffButton.setEnabled(b);
+    buttonControlPanel.setEnabled(b);
+    progressCheckBox.setEnabled(b);
+  }
+
+
+
+
   /**
    * Gets the probabilities functiion based on selected parameters
    * this function is called when add Graph is clicked
    */
   private void computeHazardCurve() {
+
     //starting the calculation
     isHazardCalcDone= false;
 
     ERF_API forecast = null;
-    // whwther to show progress bar in case of update forecast
+    // whether to show progress bar in case of update forecast
     erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
     // get the selected forecast model
     try{
@@ -934,6 +960,7 @@ public class HazardCurveServerModeApplication extends JApplet
     }catch(Exception e){
       e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
+      setButtonsEnable(true);
       return;
     }
     if(this.progressCheckBox.isSelected())  {
@@ -982,87 +1009,91 @@ public class HazardCurveServerModeApplication extends JApplet
 
 
 
-      // this is not a eqk list
-      this.isEqkList = false;
-      // calculate the hazard curve
-      try{
-        if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-      }catch(RemoteException e){
-        e.printStackTrace();
-      }
-      // initialize the values in condProbfunc with log values as passed in hazFunction
-      // intialize the hazard function
-      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-      initX_Values(hazFunction);
-      //System.out.println("22222222HazFunction: "+hazFunction.toString());
-      try {
-        // calculate the hazard curve
-        //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
-        try{
-          hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
-        }catch(RemoteException e){
-          e.printStackTrace();
-        }
-        //hazFunction = sendParametersToServlet(site,imr,eqkRupForecastLocation,hazFunction);
-        hazFunction = toggleHazFuncLogValues(hazFunction);
-        hazFunction.setInfo(getParametersInfo());
-      }catch (RuntimeException e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(),
-                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-        e.printStackTrace();
-        return;
-      }
-
-
-   // add the function to the function list
-      functionList.add(hazFunction);
-   // set the X-axis label
-   String imt = imtGuiBean.getSelectedIMT();
-   xAxisName = imt + " ("+imr.getParameter(imt).getUnits()+")";
-   yAxisName = "Probability of Exceedance";
-
-   isHazardCalcDone = true;
-   disaggregationString=null;
-   //checking the disAggregation flag
-   if(this.disaggregationFlag) {
-     if(this.progressCheckBox.isSelected())  {
-       disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status", "Beginning Disaggregation ");
-       disaggProgressClass.displayProgressBar();
-       disaggTimer.start();
-    }
+    // this is not a eqk list
+    this.isEqkList = false;
+    // calculate the hazard curve
     try{
-      if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
+      if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
     }catch(RemoteException e){
+      setButtonsEnable(true);
       e.printStackTrace();
     }
-     int num = hazFunction.getNum();
-     double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
-     //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
-     if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
-       JOptionPane.showMessageDialog(this,
-                                     new String("Chosen Probability is not"+
-                                     " within the range of the min and max prob."+
-                                     " in the Hazard Curve"),
-                                     "Disaggregation Prob. selection error message",
-                                     JOptionPane.OK_OPTION);
-     else{
-       //gets the Disaggregation data
-       double iml= hazFunction.getFirstInterpolatedX_inLogXLogYDomain(disaggregationProb);
-       try{
-         disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)forecast);
-         disaggregationString=disaggCalc.getResultsString();
-       }catch(RemoteException e){
-         e.printStackTrace();
-       }
-     }
-   }
-   //displays the disaggregation string in the pop-up window
-   if(disaggregationString !=null) {
-     HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
-     disaggregation.pack();
-     disaggregation.show();
-   }
-   disaggregationString=null;
+    // initialize the values in condProbfunc with log values as passed in hazFunction
+    // intialize the hazard function
+    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+    initX_Values(hazFunction);
+    //System.out.println("22222222HazFunction: "+hazFunction.toString());
+    try {
+      // calculate the hazard curve
+      //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
+      try{
+        hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
+      }catch(RemoteException e){
+        setButtonsEnable(true);
+        e.printStackTrace();
+      }
+      hazFunction = toggleHazFuncLogValues(hazFunction);
+      hazFunction.setInfo(getParametersInfo());
+    }catch (RuntimeException e) {
+      JOptionPane.showMessageDialog(this, e.getMessage(),
+                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+      //e.printStackTrace();
+      setButtonsEnable(true);
+      return;
+    }
+
+
+    // add the function to the function list
+    functionList.add(hazFunction);
+    // set the X-axis label
+    String imt = imtGuiBean.getSelectedIMT();
+    xAxisName = imt + " ("+imr.getParameter(imt).getUnits()+")";
+    yAxisName = "Probability of Exceedance";
+
+    isHazardCalcDone = true;
+    disaggregationString=null;
+    //checking the disAggregation flag
+    if(this.disaggregationFlag) {
+      if(this.progressCheckBox.isSelected())  {
+        disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status", "Beginning Disaggregation ");
+        disaggProgressClass.displayProgressBar();
+        disaggTimer.start();
+      }
+      try{
+        if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
+      }catch(RemoteException e){
+        setButtonsEnable(true);
+        e.printStackTrace();
+      }
+      int num = hazFunction.getNum();
+      double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
+      //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
+      if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
+        JOptionPane.showMessageDialog(this,
+                                      new String("Chosen Probability is not"+
+                                      " within the range of the min and max prob."+
+                                      " in the Hazard Curve"),
+                                      "Disaggregation Prob. selection error message",
+                                      JOptionPane.OK_OPTION);
+      else{
+        //gets the Disaggregation data
+        double iml= hazFunction.getFirstInterpolatedX_inLogXLogYDomain(disaggregationProb);
+        try{
+          disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)forecast);
+          disaggregationString=disaggCalc.getResultsString();
+        }catch(RemoteException e){
+          setButtonsEnable(true);
+          e.printStackTrace();
+        }
+      }
+    }
+    //displays the disaggregation string in the pop-up window
+    if(disaggregationString !=null) {
+      HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
+      disaggregation.pack();
+      disaggregation.show();
+    }
+    disaggregationString=null;
   }
 
 
@@ -1094,6 +1125,7 @@ public class HazardCurveServerModeApplication extends JApplet
       // calculate the hazard curve
       if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
     }catch(RemoteException e){
+      setButtonsEnable(true);
       e.printStackTrace();
     }
 
@@ -1111,13 +1143,15 @@ public class HazardCurveServerModeApplication extends JApplet
           hazFunction=(ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
           //System.out.println("Num points:" +hazFunction.toString());
         }catch(RemoteException e){
+          setButtonsEnable(true);
           e.printStackTrace();
         }
         hazFunction = toggleHazFuncLogValues(hazFunction);
       }catch (RuntimeException e) {
         JOptionPane.showMessageDialog(this, e.getMessage(),
                                       "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-        e.printStackTrace();
+        setButtonsEnable(true);
+        //e.printStackTrace();
         return;
       }
       hazardFuncList.add(hazFunction);
@@ -1678,73 +1712,6 @@ public class HazardCurveServerModeApplication extends JApplet
         timeSpanGuiBean.getParameterListMetadataString()+systemSpecificLineSeparator;
   }
 
-  /**
-   * sets up the connection with the servlet on the server (scec.usc.edu)
-   */
-  private ArbitrarilyDiscretizedFunc sendParametersToServlet(Site site,
-                                       AttenuationRelationshipAPI imr,
-                                       String eqkRupForecastLocation,ArbitrarilyDiscretizedFunc hazFunction) {
-
-    try{
-      if(D) System.out.println("starting to make connection with servlet");
-      URL hazardCurveCalcServlet = new URL(SERVLET_URL);
-
-
-      URLConnection servletConnection = hazardCurveCalcServlet.openConnection();
-      if(D) System.out.println("connection established");
-
-      // inform the connection that we will send output and accept input
-      servletConnection.setDoInput(true);
-      servletConnection.setDoOutput(true);
-
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
-
-      ObjectOutputStream toServlet = new
-          ObjectOutputStream(servletConnection.getOutputStream());
-
-      if(!useCustomX_Values)
-        function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
-
-      //sending the object of the gridded region sites to the servlet
-      toServlet.writeObject(site);
-      //sending the IMR object to the servlet
-      toServlet.writeObject(imr);
-      //sending the EQK forecast object to the servlet
-      toServlet.writeObject(eqkRupForecastLocation);
-      //Sending the serialized Arbitrary Discretized Func to the server
-      //ArrayList list = new ArrayList();
-      //for(int i = 0; i<function.getNum(); ++i) list.add(new String(""+function.getX(i)));
-      toServlet.writeObject(hazFunction);
-      // send the MAX DISTANCE
-      Double maxDistance;
-      if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
-      else maxDistance = new Double(distanceControlPanel.getDistance());
-      toServlet.writeObject(maxDistance);
-
-      toServlet.flush();
-      toServlet.close();
-
-      // Receive the datasetnumber from the servlet after it has received all the data
-      ObjectInputStream fromServlet = new ObjectInputStream(servletConnection.getInputStream());
-
-      //returns the ArbitrarilyDiscretizedFunc. from the servlet.
-      ArbitrarilyDiscretizedFunc func=(ArbitrarilyDiscretizedFunc)fromServlet.readObject();
-      fromServlet.close();
-      return func;
-
-    }catch (Exception e) {
-      System.out.println("Exception in connection with servlet:" +e);
-      e.printStackTrace();
-    }
-    return null;
- }
-
-
-
 
  /**
   *
@@ -1753,7 +1720,6 @@ public class HazardCurveServerModeApplication extends JApplet
   public ArrayList getCurveFunctionList(){
     return functionList;
   }
-
 
 
 
