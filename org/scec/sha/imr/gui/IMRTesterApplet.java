@@ -7,6 +7,7 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.text.*;
 
 import com.jrefinery.chart.*;
 import com.jrefinery.chart.tooltips.*;
@@ -205,6 +206,10 @@ public class IMRTesterApplet extends JApplet
      *  Used to determine if shoudl switch to new IMR, and for display purposes
      */
     public String currentIMRName = "";
+
+    //setting the legend string
+    protected String legend=null;
+
     private final static String AUTO_SCALE = "Auto Scale";
     private final static String CUSTOM_SCALE = "Custom Scale";
     final static Dimension COMBO_DIM = new Dimension( 180, 20 );
@@ -240,6 +245,23 @@ public class IMRTesterApplet extends JApplet
     private boolean xLog = false;
     JComboBox rangeComboBox = new JComboBox();
     int titleSize = 0;
+
+    //variables for the legend Panel, for our customise legend
+    private JTextPane legendPane= new JTextPane();
+    private JScrollPane legendScrollPane=new JScrollPane();
+    private JPanel legendPanel =new JPanel();
+    private SimpleAttributeSet setLegend;
+
+    /*setting the colors for the different plots so that legends
+     *can be shown with the same color
+     */
+
+    Color[] legendColor={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
+                       Color.cyan,Color.pink,Color.yellow,Color.darkGray};
+    Paint[] legendPaint={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
+                       Color.cyan,Color.pink,Color.yellow,Color.darkGray};
+
+
 
     protected ChartPanel panel;
     protected boolean graphOn = false;
@@ -701,6 +723,11 @@ public class IMRTesterApplet extends JApplet
         mainSplitPane.setDividerLocation(580 );
         mainSplitPane.setOneTouchExpandable( false );
 
+        //setting the  properties of the legend scrollPane
+        legendScrollPane.setBorder(BorderFactory.createEtchedBorder());
+        legendPane.setBorder(BorderFactory.createEtchedBorder());
+        legendScrollPane.getViewport().add(this.legendPane,null);
+
         // Big function here, sets all the IMR stuff and puts in sheetsPanel and
         // inputsPanel
         updateChoosenIMR();
@@ -927,12 +954,36 @@ public class IMRTesterApplet extends JApplet
         plot.setXYItemRenderer( renderer );
 
 
-        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, true );
+        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
         chart.setBackgroundPaint( lightBlue );
 
         // set the font of legend
-        StandardLegend legend = (StandardLegend)chart.getLegend();
-        legend.setItemFont(LEGEND_FONT);
+        int numOfColors = plot.getSeriesCount();
+        legendPane.removeAll();
+        legendPane.setEditable(false);
+        setLegend =new SimpleAttributeSet();
+        setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
+                               Boolean.TRUE);
+        Document doc = legendPane.getStyledDocument();
+        try {
+
+          doc.remove(0,doc.getLength());
+          for(int i=0,j=0;i<numOfColors;++i,++j){
+            if(j==legendColor.length)
+              j=0;
+            legend = new String(i+1+"."+this.functions.get(i).getName()+"::"+this.functions.get(i).getInfo()+"\n\n");
+            setLegend =new SimpleAttributeSet();
+            StyleConstants.setFontSize(setLegend,12);
+            StyleConstants.setForeground(setLegend,legendColor[j]);
+
+              doc.insertString(doc.getLength(),legend,setLegend);
+         }
+       } catch (BadLocationException e) {
+                return;
+        }
+
+        /*StandardLegend legend = (StandardLegend)chart.getLegend();
+        legend.setItemFont(LEGEND_FONT);*/
 
         // Put into a panel
         panel = new ChartPanel(chart, true, true, true, true, false);
@@ -1040,6 +1091,7 @@ public class IMRTesterApplet extends JApplet
             // innerPlotPanel.setBorder(oval);
             innerPlotPanel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                     , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+
         }
         else {
             if ( D )
@@ -1061,6 +1113,11 @@ public class IMRTesterApplet extends JApplet
                 innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
+                //panel for the legend
+                  innerPlotPanel.add(legendScrollPane, new GridBagConstraints( 0,1, 1, 1, 1.0, 1.0
+                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+
 
             }
             else {
@@ -1076,6 +1133,8 @@ public class IMRTesterApplet extends JApplet
                 // innerPlotPanel.setBorder(oval);
                 innerPlotPanel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+
+
             }
 
         }
