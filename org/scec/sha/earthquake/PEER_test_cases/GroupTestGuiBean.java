@@ -90,7 +90,7 @@ public class GroupTestGuiBean implements
      */
     public final static String SET1_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set1_Fault_Forecast";
     public final static String SET1_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set1_Area_Forecast";
-//    public final static String SET2_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set2_NonPlanarFault_Forecast";
+    public final static String SET2_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set2_NonPlanarFault_Forecast";
 
     //this vector saves the names of all the supported Eqk Rup Forecasts
     private Vector erfNamesVector=new Vector();
@@ -522,8 +522,9 @@ public class GroupTestGuiBean implements
       erfClasses = new Vector();
       erfClasses.add( SET1_FAULT_FORECAST_CLASS_NAME );
       erfClasses.add( SET1_AREA_FORECAST_CLASS_NAME );
-//      erfClasses.add(SET2_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+      erfClasses.add(SET2_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
       Iterator it= erfClasses.iterator();
+
       while(it.hasNext()){
         // make the ERF objects to get their adjustable parameters
         erf = (EqkRupForecastAPI ) createERFClassInstance((String)it.next());
@@ -538,22 +539,12 @@ public class GroupTestGuiBean implements
       erf_IndParamList.addParameter(selectSource);
 
 
-      //getting the value of the parameters for the Eqk Rup forecast
-      it=erfObject.iterator();
-      while(it.hasNext()){
-        erf = (EqkRupForecastAPI )it.next();
-        // add all the adjustable parameters
-        Iterator it1 =  erf.getAdjustableParamsList();
-        while(it1.hasNext())
-          erf_IndParamList.addParameter((ParameterAPI)it1.next());
-      }
-
       // now make the editor based on the paramter list
       erf_Editor = new ParameterListEditor( erf_IndParamList, searchPaths);
       erf_Editor.setTitle( this.ERF_EDITOR_TITLE );
 
       // forecast 1  is selected initially
-      setParamsInSourceVisible((String)erfNamesVector.get(0));
+      setParamsInForecast((String)erfNamesVector.get(0));
    }
 
 
@@ -685,7 +676,7 @@ public class GroupTestGuiBean implements
       // if source selected by the user  changes
       if( name1.equals(this.ERF_PARAM_NAME) ){
         String value = event.getNewValue().toString();
-        setParamsInSourceVisible(value);
+        setParamsInForecast(value);
         applet.updateChoosenEqkSource();
       }
 
@@ -705,21 +696,20 @@ public class GroupTestGuiBean implements
 
 
   /**
-   * this function is called to make the paramters visible and invisible
-   * based on the forecast selected by the user
+   * this function is called to add the paramters based on the forecast
+   *  selected by the user
    * @param forecast
    */
-  private void setParamsInSourceVisible(String selectedForecast) {
+  private void setParamsInForecast(String selectedForecast) {
 
-    // Turn off all parameters - start fresh, then make visible as required below
-    ListIterator it = this.erf_IndParamList.getParametersIterator();
-    while ( it.hasNext() )
-      erf_Editor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false );
+    ParameterAPI chooseERF_Param = this.erf_IndParamList.getParameter(this.ERF_PARAM_NAME);
+    erf_IndParamList = new ParameterList();
+    erf_IndParamList.addParameter(chooseERF_Param);
 
-    //make the forecast parameter visible
-    erf_Editor.setParameterInvisible(this.ERF_PARAM_NAME,true);
+    // remove all the existing parameters in the editor
+    erf_Editor.removeAll();
 
-    // if fault1 or fault2 is selected
+    // get the selected forecast
     int size = this.erfNamesVector.size();
     String erfName;
     EqkRupForecastAPI erf = null;
@@ -731,14 +721,14 @@ public class GroupTestGuiBean implements
       }
     }
 
-    it = erf.getAdjustableParamsList();
+    Iterator it = erf.getAdjustableParamsList();
 
    // make the parameters visible based on selected forecast
-    while(it.hasNext()) {
-      String paramName=((ParameterAPI)it.next()).getName();
-      erf_Editor.setParameterInvisible(paramName, true);
-    }
+    while(it.hasNext()) erf_IndParamList.addParameter((ParameterAPI)it.next());
 
+    // now make the editor based on the paramter list
+    erf_Editor = new ParameterListEditor( erf_IndParamList, searchPaths);
+    erf_Editor.setTitle( this.ERF_EDITOR_TITLE );
   }
 
 
