@@ -166,6 +166,10 @@ public class HazardCurveGuiBean implements
 
     // make the site gui bean
     siteParamEditor = new SiteParamListEditor();
+    // add fail listener for Latitude and Longitude parameters
+    siteParamEditor.getParameterEditor(SiteParamListEditor.LATITUDE).getParameter().addParameterChangeFailListener(this);
+    siteParamEditor.getParameterEditor(SiteParamListEditor.LONGITUDE).getParameter().addParameterChangeFailListener(this);
+
 
     // Create site parameters
     updateSiteParamListAndEditor( );
@@ -311,11 +315,17 @@ public class HazardCurveGuiBean implements
         AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI ) createIMRClassInstance((String)it.next(),this);
         imrObject.add(imr);
         imrNamesVector.add(imr.getName());
+        Iterator it1 = imr.getSiteParamsIterator();
+        // add change fail listener to the site parameters for this IMR
+        while(it1.hasNext()) {
+          ParameterAPI param = (ParameterAPI)it1.next();
+          param.addParameterChangeFailListener(this);
+        }
       }
 
       // make the IMR selection paramter
       StringParameter selectIMR = new StringParameter(IMR_PARAM_NAME,
-                               imrNamesVector,(String)imrNamesVector.get(0));
+          imrNamesVector,(String)imrNamesVector.get(0));
       // listen to IMR paramter to change site params when it changes
       selectIMR.addParameterChangeListener(this);
       imrParamList.addParameter(selectIMR);
@@ -485,6 +495,13 @@ public class HazardCurveGuiBean implements
           System.out.println("Iterator Class:"+erf.getName());
         erfObject.add(erf);
         erfNamesVector.add(erf.getName());
+        Iterator it1 = erf.getAdjustableParamsList();
+
+        // add the listener for the paramters in the forecast
+        while(it1.hasNext()) {
+          ParameterAPI param = (ParameterAPI)it1.next();
+          param.addParameterChangeFailListener(this);
+        }
       }
 
       // make the forecast selection parameter
