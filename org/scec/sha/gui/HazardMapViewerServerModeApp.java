@@ -14,7 +14,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.text.DecimalFormat;
+import java.util.Iterator;
 import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.net.*;
 import java.io.*;
 
@@ -285,10 +288,12 @@ public class HazardMapViewerServerModeApp extends JApplet {
     }
 
     // fill the combo box with available data sets
-    Vector dirVector= new Vector();
     Enumeration enum=metaDataHash.keys();
-    while(enum.hasMoreElements()) this.dataSetCombo.addItem(enum.nextElement());
-
+    ArrayList keys = new ArrayList();
+    while(enum.hasMoreElements()) keys.add(enum.nextElement());
+    Collections.sort(keys);
+    Iterator it = keys.iterator();
+    while(it.hasNext()) this.dataSetCombo.addItem(it.next());
   }
 
   /**

@@ -72,7 +72,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
         String jpgFileName  = map.makeMap(xyzFileName);
 
         // make the html file
-        makeHTML_File(outputFilePrefix);
+        makeHTML_File(outputFilePrefix, jpgFileName);
         // now move the xyz file, ps file and jpg file to webpage directory
         String command[] = {"sh","-c","mv "+xyzFileName+" webpages/hazardmapoutputfiles/"};
         RunScript.runScript(command);
@@ -333,7 +333,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
   * @param htmlFileName : name of HTML page
   * @param linkFileName : name of file to be linked
   */
- public void makeHTML_File(String outputFilePrefix) {
+ public void makeHTML_File(String outputFilePrefix, String jpgFileName) {
     BufferedWriter htmlWriter = null;
     try{
 
@@ -351,7 +351,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
                       +"<a href= "+outputFilePrefix+".ps target=htmlfile> here</a>");
       htmlWriter.write("<br>");
       htmlWriter.write("Download the jpg file from "
-                      +"<a href= "+outputFilePrefix+".jpg target=htmlfile> here</a>");
+                      +"<a href= "+jpgFileName+" target=htmlfile> here</a>");
       htmlWriter.write("<br>");
 
       htmlWriter.write("Click to View the file<br>");
