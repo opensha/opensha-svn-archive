@@ -299,7 +299,7 @@ public class HazardDataSetPlotter extends JApplet
 
     //object for the ButtonControl Panel
     buttonControlPanel = new ButtonControlPanel(this);
-    buttonControlPanel.setPlotPrefercesButtonVisible(false);
+    buttonControlPanel.setPlotPreferencesButtonVisible(false);
     buttonPanel.add(addButton, 0);
     buttonPanel.add(clearButton, 1);
     buttonPanel.add(peelOffButton, 2);

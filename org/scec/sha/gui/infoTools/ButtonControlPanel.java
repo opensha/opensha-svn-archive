@@ -298,7 +298,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
    * and curve plotting preferences.
    * @param flag
    */
-  public void setPlotPrefercesButtonVisible(boolean flag){
+  public void setPlotPreferencesButtonVisible(boolean flag){
     colorLineTypeButton.setVisible(false);
   }
 

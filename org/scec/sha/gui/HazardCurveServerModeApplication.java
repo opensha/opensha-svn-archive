@@ -510,7 +510,7 @@ public class HazardCurveServerModeApplication extends JApplet
     buttonPanel.add(progressCheckBox, 4);
     buttonPanel.add(buttonControlPanel,5);
     buttonPanel.add(imgLabel, 6);
-    buttonControlPanel.setPlotPrefercesButtonVisible(false);
+    buttonControlPanel.setPlotPreferencesButtonVisible(false);
 
 
     topSplitPane.add(chartSplit, JSplitPane.TOP);

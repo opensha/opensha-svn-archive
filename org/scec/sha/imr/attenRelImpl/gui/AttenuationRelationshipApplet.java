@@ -560,7 +560,7 @@ public class AttenuationRelationshipApplet extends JApplet
         buttonPanel.add(clearButton, 1);
         buttonPanel.add(buttonControlPanel,2);
         buttonPanel.add(plotColorCheckBox, 3);
-        buttonControlPanel.setPlotPrefercesButtonVisible(false);
+        buttonControlPanel.setPlotPreferencesButtonVisible(false);
         outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
         outerPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
