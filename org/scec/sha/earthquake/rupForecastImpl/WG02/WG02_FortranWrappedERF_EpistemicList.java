@@ -44,7 +44,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
   //for Debug purposes
   private static final String  C = new String("WG02 ERF List");
-  private boolean D = false;
+  private boolean D = true;
 
   public static final String  NAME = new String("WG02 Fortran Wrapped ERF List");
 
@@ -144,6 +144,8 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
     //runs te fortran code and updates the parameters and timespan
     runFortranCode();
+    if(D)
+      System.out.println("After running the fortran code and generating the adjustable Params");
   }
 
 
@@ -232,16 +234,25 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
            int realizationValue = (new Integer(st.nextToken())).intValue();
            //setting the numRealization value to what is given in the input file
            adjustableParams.getParameter(NUM_REALIZATIONS_PARAM_NAME).setValue(new Integer(realizationValue));
-           System.out.println("RealizationValue: "+realizationValue+";;numRealization: "+numRealization);
+           if(D)System.out.println("RealizationValue: "+realizationValue+";;numRealization: "+numRealization);
            lineFromInputFile = (numRealization+1) +"  "+realizationString;
+           fileLines.add(lineFromInputFile);
+           lineFromInputFile =br.readLine();
          }
          if(lineFromInputFile.startsWith(this.NUM_FAULTS)){
+           if(D)
+             System.out.println("Number of Faults Line: "+lineFromInputFile);
            fileLines.add(lineFromInputFile);
-           String NumOfFaults = br.readLine();
-           StringTokenizer st= new StringTokenizer(NumOfFaults);
+           lineFromInputFile = br.readLine();
+           if(D)System.out.println("Number of Faults line: "+lineFromInputFile);
+           StringTokenizer st= new StringTokenizer(lineFromInputFile);
            numFaults = Integer.parseInt(st.nextToken());
+           fileLines.add(lineFromInputFile);
+           lineFromInputFile =br.readLine();
          }
          if(lineFromInputFile.startsWith(this.FAULT_READ+(faultsRead+1))){
+           if(D)
+             System.out.println("Reading Fault: "+lineFromInputFile);
            fileLines.add(lineFromInputFile);
            ++faultsRead;
            //reading the fault Name
@@ -249,9 +260,12 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
            fileLines.add(faultName);
            //reading the file further below till num of prob models for that fault
            lineFromInputFile =br.readLine();
-           while(!lineFromInputFile.startsWith(this.PROB_NUM_STRING))
+           while(!lineFromInputFile.startsWith(this.PROB_NUM_STRING)){
+             lineFromInputFile=br.readLine();
              fileLines.add(lineFromInputFile);
-
+           }
+           if(D)
+             System.out.println("After while to iterate till the Prob String");
            lineFromInputFile =br.readLine();
            fileLines.add(lineFromInputFile);
            StringTokenizer st = new StringTokenizer(lineFromInputFile);
@@ -267,11 +281,15 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
            double bpt_step = ((Double)paramList.getParameter(this.BPT_STEP).getValue()).doubleValue();
            double empirical = ((Double)paramList.getParameter(this.EMPIRICAL).getValue()).doubleValue();
            String probModelWts = pois+" "+bpt+" "+bpt_step+" "+empirical;
+           if(D)
+             System.out.println("Prob Model Wts :  "+probModelWts);
            if(numberOfProbModels ==5){
              double time_pred = ((Double)paramList.getParameter(this.TIME_PRED).getValue()).doubleValue();
              probModelWts += " "+time_pred;
            }
            probModelWts +=this.PROB_WTS_STRING;
+           if(D)
+             System.out.println("Putting the wts line in the fortran code:  "+probModelWts);
            fileLines.add(probModelWts);
            lineFromInputFile =br.readLine();
          }
@@ -282,7 +300,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
        //generates the new input file and run the WG-02 fortran code only if
        //number of realizations have changed.
-       System.out.println("Creating the input files");
+       if(D)System.out.println("Creating the input files");
        //overwriting the WG-02 input file with the changes in the file
        FileWriter fw = new FileWriter(WG02_CODE_PATH+WG02_INPUT_FILE);
        BufferedWriter bw = new BufferedWriter(fw);
@@ -356,6 +374,8 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
     adjustableParams.addParameter(grTailParam);
     adjustableParams.addParameter(numRealizationsParam);
     createParamsFromFortranCode();
+    if(D)
+      System.out.print("After putting all the params in the Param List");
   }
 
   /**
@@ -364,7 +384,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
    *
    */
   private void createParamsFromFortranCode(){
-    System.out.print("Inside the create fiunction to get the params for the fortran code");
+    if(D)System.out.print("Inside the create fiunction to get the params for the fortran code");
     try{
       FileReader fr = new FileReader(WG02_CODE_PATH+WG02_INPUT_FILE);
       BufferedReader  br = new BufferedReader(fr);
@@ -388,7 +408,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
           ++faultsRead;
           //reading the fault Name
           String faultName =br.readLine();
-          System.out.println("Fault Name:"+faultName);
+          if(D)System.out.println("Fault Name:"+faultName);
           //reading the file further below till num of prob models for that fault
           while(!br.readLine().startsWith(this.PROB_NUM_STRING));
           StringTokenizer st = new StringTokenizer(br.readLine());
