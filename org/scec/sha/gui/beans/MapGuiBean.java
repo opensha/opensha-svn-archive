@@ -31,7 +31,7 @@ public class MapGuiBean extends ParameterListEditor implements
   protected final static String C = "MapGuiBean";
 
   // for debug purpose
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
 
   private final static String GMT_TITLE = new String("Set GMT Parameters");

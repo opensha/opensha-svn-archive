@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 import org.scec.data.*;
 import org.scec.param.*;
+import org.scec.sha.util.*;
 
 /**
  * <p>Title: SitesInGriddedRegion</p>
@@ -24,6 +25,14 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
                                           implements Serializable{
 
   Site site = new Site();
+
+  //flag to check if the site Params needs to be set from the CVM.
+  private boolean setSiteParamsFromCVM= false;
+  //Vs30 and basinDepth Vector
+  Vector vs30,basinDepth;
+
+  //Instance of the site TransLator class
+  SiteTranslator siteTranslator = new SiteTranslator();
 
   /**
    *class constructor
@@ -46,6 +55,9 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    */
   public Site getSite(int index){
      site.setLocation(getGridLocation(index));
+     if(this.setSiteParamsFromCVM)
+       siteTranslator.setSiteParams(site,((Double)vs30.get(index)).doubleValue(),
+                                    ((Double)basinDepth.get(index)).doubleValue());
      return site;
   }
 
@@ -96,5 +108,18 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
      sitesVector.add(newSite);
    }
    return sitesVector.iterator();
+ }
+
+
+ /**
+  * This function is called if the site Params need to be set from the CVM
+  * @param cvmFlag
+  * @param vs30
+  * @param basinDepth
+  */
+ public void setSiteParamsFromCVM(boolean cvmFlag,Vector vs30,Vector basinDepth){
+   this.setSiteParamsFromCVM=cvmFlag;
+   this.basinDepth = basinDepth;
+   this.vs30 = vs30;
  }
 }
