@@ -112,6 +112,19 @@ public class FileUtils {
       }
      return null;
     }
+
+
+    /**
+     * load from Jar file
+     * @param fileName : File name to be read from Jar file
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static ArrayList loadJarFile(String fileName)
+       throws  FileNotFoundException, IOException {
+     return loadFile("/"+FileUtils.class.getResource(fileName));
+   }
 }
 
 
