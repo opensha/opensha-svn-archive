@@ -10,11 +10,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.*;
 
-import org.jfree.chart.*;
-import org.jfree.chart.axis.*;
-import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
-import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
@@ -24,6 +20,7 @@ import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.util.*;
 import org.scec.sha.gui.controls.*;
+import org.scec.sha.gui.infoTools.*;
 
 
 /**
@@ -47,7 +44,7 @@ import org.scec.sha.gui.controls.*;
 public class AttenuationRelationshipApplet extends JApplet
     implements ParameterChangeFailListener,
         ParameterChangeWarningListener,
-        ItemListener, AxisLimitsControlPanelAPI {
+        ItemListener, AxisLimitsControlPanelAPI,GraphPanelAPI,ButtonControlPanelAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
     private final static String version = "0.5.11";
@@ -68,11 +65,12 @@ public class AttenuationRelationshipApplet extends JApplet
 
 
 
-    // Create the x-axis and y-axis - either normal or log
-    org.jfree.chart.axis.NumberAxis xAxis = null;
-    org.jfree.chart.axis.NumberAxis yAxis = null;
+    //instance for the ButtonControlPanel
+   ButtonControlPanel buttonControlPanel;
 
-    protected Object lock = new Object();
+   //instance of the GraphPanel (window that shows all the plots)
+   GraphPanel graphPanel;
+
 
     //images for the OpenSHA
     private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
@@ -199,9 +197,9 @@ public class AttenuationRelationshipApplet extends JApplet
     final static Dimension COMBO_DIM = new Dimension( 170, 30 );
     final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
     final static String NO_PLOT_MSG = "No Plot Data Available";
-    final static GridBagLayout GBL = new GridBagLayout();
     Color darkBlue = new Color( 80, 80, 133 );
     Color lightBlue = new Color( 200, 200, 230 );
+    final static GridBagLayout GBL = new GridBagLayout();
     Color background = Color.white;
     SidesBorder topBorder = new SidesBorder( darkBlue, background, background, background );
     SidesBorder bottomBorder = new SidesBorder( background, darkBlue, background, background );
@@ -216,40 +214,21 @@ public class AttenuationRelationshipApplet extends JApplet
     JPanel controlPanel = new JPanel();
     JButton clearButton = new JButton();
     JButton addButton = new JButton();
-    JButton axisScaleButton = new JButton();
     JPanel parametersPanel = new JPanel();
     JPanel buttonPanel = new JPanel();
     JPanel inputPanel = new JPanel();
     JPanel sheetPanel = new JPanel();
     JSplitPane parametersSplitPane = new JSplitPane();
     JSplitPane mainSplitPane = new JSplitPane();
-    JSplitPane legendSplitPane =new JSplitPane();
+
     JScrollPane dataScrollPane = new JScrollPane();
     JTextPane pointsTextArea = new JTextPane();
-    JButton toggleButton = new JButton();
     private boolean yLog = false;
     private boolean xLog = false;
     int titleSize = 0;
 
-    //variables for the legend Panel, for our customise legend
-    private JTextPane legendPane= new JTextPane();
-    private JScrollPane legendScrollPane=new JScrollPane();
-    private SimpleAttributeSet setLegend;
 
 
-    /*setting the colors for the different plots so that legends
-     *can be shown with the same color
-     */
-
-    Color[] legendColor={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
-                       Color.cyan,Color.pink,Color.yellow,Color.gray};
-    Paint[] legendPaint={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
-                       Color.cyan,Color.pink,Color.yellow,Color.gray};
-
-
-
-    protected ChartPanel panel;
-    protected boolean graphOn = false;
 
     protected String lastXYAxisName = "";
 
@@ -257,8 +236,6 @@ public class AttenuationRelationshipApplet extends JApplet
     JLabel attenRelLabel = new JLabel();
     protected javax.swing.JFrame frame;
 
-    JCheckBox jCheckxlog = new JCheckBox();
-    JCheckBox jCheckylog = new JCheckBox();
     JCheckBox plotColorCheckBox = new JCheckBox();
 
     boolean isWhite = true;
@@ -276,6 +253,7 @@ public class AttenuationRelationshipApplet extends JApplet
     private JLabel imgLabel = new JLabel();
     private JLabel jLabel1 = new JLabel();
     private Border border1;
+    private FlowLayout flowLayout1 = new FlowLayout();
 
     /**
      *  Construct the applet
@@ -443,16 +421,14 @@ public class AttenuationRelationshipApplet extends JApplet
         String S = C + ": jbInit(): ";
 
 
-    border1 = BorderFactory.createLineBorder(new Color(80, 80, 133),2);
-    this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
-        //this.getContentPane().setBackground( background );
+        border1 = BorderFactory.createLineBorder(new Color(80, 80, 133),2);
+        this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
         this.setSize(new Dimension(900, 690) );
-        this.getContentPane().setLayout( GBL );
+        this.getContentPane().setLayout( GBL);
 
         //outerPanel.setBackground( background );
         outerPanel.setLayout( GBL );
 
-        //mainPanel.setBackground( background );
         mainPanel.setBorder(border1 );
         // mainPanel.setBorder(BorderFactory.createLineBorder( darkBlue ) );
         mainPanel.setLayout( GBL );
@@ -461,30 +437,24 @@ public class AttenuationRelationshipApplet extends JApplet
         titlePanel.setBorder( bottomBorder );
         titlePanel.setMinimumSize(new Dimension(40, 40));
         titlePanel.setPreferredSize(new Dimension(40, 40));
-        titlePanel.setLayout( GBL );
+        titlePanel.setLayout( GBL);
+        //creating the Object the GraphPaenl class
+        graphPanel = new GraphPanel(this);
+
+
 
         imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
           public void mouseClicked(MouseEvent e) {
             imgLabel_mouseClicked(e);
           }
         });
-        //titleLabel.setHorizontalAlignment( SwingConstants.CENTER );
-        //titleLabel.setText(this.getAppletInfo());
-        //titleLabel.setFont( new java.awt.Font( "Dialog", 1, 16 ) );
-
-        //plotPanel.setBackground( background );
-        // plotPanel.setBorder(oval);
-        plotPanel.setLayout( GBL );
-
-        //innerPlotPanel.setBackground( background );
-        innerPlotPanel.setLayout( GBL );
+        plotPanel.setLayout(GBL);
+        innerPlotPanel.setLayout(GBL);
         innerPlotPanel.setBorder( null );
-
-        controlPanel.setLayout( GBL );
+        controlPanel.setLayout(GBL);
         //controlPanel.setBackground( background );
         controlPanel.setBorder(BorderFactory.createEtchedBorder(1));
-
-        outerControlPanel.setLayout( GBL );
+        outerControlPanel.setLayout(GBL);
         //outerControlPanel.setBackground( background );
 
         clearButton.setText( "Clear Plot" );
@@ -505,37 +475,20 @@ public class AttenuationRelationshipApplet extends JApplet
           }
         });
 
-        axisScaleButton.setText( "Set Axis Scale" );
-        axisScaleButton.addActionListener(new java.awt.event.ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            axisScaleButton_actionPerformed(e);
-          }
-        });
 
-        toggleButton.setText( "Show Data" );
 
-        toggleButton.addActionListener(
-            new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e){
-                    toggleButton_actionPerformed(e);
-                }
-            }
-        );
 
         //toggleButton.setVisible(false);
         buttonPanel.setBorder( topBorder );
-        buttonPanel.setLayout( GBL );
+        buttonPanel.setLayout(flowLayout1 );
 
-        parametersPanel.setLayout( GBL );
         //parametersPanel.setBackground( background );
         //parametersPanel.setBorder(BorderFactory.createEtchedBorder());
 
         //inputPanel.setBorder(oval);
-        inputPanel.setLayout( GBL );
         //inputPanel.setBackground( background );
 
         //sheetPanel.setBorder(BorderFactory.createEtchedBorder());
-        sheetPanel.setLayout( GBL );
         //sheetPanel.setBackground( background );
 
         //parametersSplitPane.setBorder(oval);
@@ -546,11 +499,6 @@ public class AttenuationRelationshipApplet extends JApplet
         mainSplitPane.setOrientation( JSplitPane.HORIZONTAL_SPLIT );
         mainSplitPane.setBorder( null );
         mainSplitPane.setDividerSize( 5 );
-
-
-        legendSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-        legendSplitPane.setBorder(null);
-        legendSplitPane.setDividerSize(5);
 
         pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
         pointsTextArea.setText( NO_PLOT_MSG );
@@ -573,18 +521,15 @@ public class AttenuationRelationshipApplet extends JApplet
         attenRelComboBox.addItemListener( this );
         //attenRelComboBox.setMinimumSize( COMBO_DIM );
 
-        jCheckxlog.setText("X-Log");
-        jCheckxlog.addItemListener( this );
-
-        jCheckylog.setText("Y-Log");
-        jCheckylog.addItemListener( this );
-
-
         plotColorCheckBox.setText("Black Background");
 
         plotColorCheckBox.addItemListener( this );
 
-        legendPane.setEditable(false);
+        //setting the layout for the Parameters panels
+        parametersPanel.setLayout( GBL );
+        controlPanel.setLayout( GBL );
+        sheetPanel.setLayout( GBL );
+        inputPanel.setLayout( GBL );
 
         //loading the OpenSHA Logo
         imgLabel.setText("");
@@ -602,7 +547,7 @@ public class AttenuationRelationshipApplet extends JApplet
             , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
 
 
-        titlePanel.add( this.attenRelComboBox, new GridBagConstraints( 1, 0 , 1, 1, 18.0, 0.0
+        titlePanel.add( this.attenRelComboBox, new GridBagConstraints( 1, 0 , 1, 1, 1.0, 0.0
             , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
 
 
@@ -629,36 +574,18 @@ public class AttenuationRelationshipApplet extends JApplet
         plotPanel.add( innerPlotPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ) );
 
-        //innerPlotPanel.add(legendSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-        //           , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
         dataScrollPane.getViewport().add( pointsTextArea, null );
 
+        //object for the ButtonControl Panel
+        buttonControlPanel = new ButtonControlPanel(this);
+        buttonPanel.add(addButton, null);
+        buttonPanel.add( clearButton, null );
+        buttonPanel.add(addButton, 0);
+        buttonPanel.add(clearButton, 1);
+        buttonPanel.add(buttonControlPanel,2);
+        buttonPanel.add(plotColorCheckBox, 3);
 
-        buttonPanel.add( clearButton,              new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 0, 0) );
-
-        buttonPanel.add( toggleButton,              new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 0, 0) );
-
-        //buttonPanel.add( attenRelComboBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-        //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );
-
-        //buttonPanel.add( attenRelLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0) );
-
-        buttonPanel.add(jCheckylog,                new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 0), 0, 0));
-
-        buttonPanel.add(jCheckxlog,         new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 0), 0, 0));
-
-        buttonPanel.add(plotColorCheckBox,           new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 3), 0, 0));
-        buttonPanel.add(axisScaleButton,     new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 0, 1), 0, 0));
-        buttonPanel.add(addButton,                new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 0, 0));
         outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
         outerPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -678,17 +605,6 @@ public class AttenuationRelationshipApplet extends JApplet
         //mainSplitPane.setDividerLocation( 430 );
         mainSplitPane.setDividerLocation(600 );
         mainSplitPane.setOneTouchExpandable( false );
-
-        legendSplitPane.setBottomComponent(legendScrollPane);
-        legendSplitPane.setTopComponent( panel);
-        legendSplitPane.setDividerLocation(420);
-        legendSplitPane.setOneTouchExpandable( false );
-
-
-        //setting the  properties of the legend scrollPane
-        legendScrollPane.setBorder(BorderFactory.createEtchedBorder());
-        legendPane.setBorder(BorderFactory.createEtchedBorder());
-        legendScrollPane.getViewport().add(this.legendPane,null);
 
         // Big function here, sets all the AttenuationRelationship stuff and puts in sheetsPanel and
         // inputsPanel
@@ -833,124 +749,12 @@ public class AttenuationRelationshipApplet extends JApplet
      */
     private void addGraphPanel() {
 
-        // Starting
-        String S = C + ": addGraphPanel(): ";
-        if ( D ) System.out.println( S + "Starting: Last xy axis name = " + lastXYAxisName );
-         // ImageIcon icon  = new ImageIcon(this.imagePath + File.separator + "z_splash.jpg");
-        // Image image = icon.getImage();
 
-        xLog=this.jCheckxlog.isSelected();
-        yLog=this.jCheckylog.isSelected();
-        String newXYAxisName = functions.getXYAxesName();
-
-        boolean newPlot = ( !newXYAxisName.equals( lastXYAxisName ) );
-        if ( newPlot ) lastXYAxisName = newXYAxisName;
-        if ( D ) System.out.println( S + "New Plot? " + newPlot );
-
-        // create a default chart based on some sample data...
-
-        // Determine which IM to add to the axis labeling
-        String xAxisLabel = functions.getXAxisName();
-        String yAxisLabel = attenRel.getGraphIMYAxisLabel();
-        String title = this.getCurrentAttenuationRelationshipName();
-
-        //create the standard ticks so that smaller values too can plotted on the chart
-        TickUnits units = MyTickUnits.createStandardTickUnits();
-        try{
-
-        if (xLog) xAxis = new org.jfree.chart.axis.LogarithmicAxis( xAxisLabel );
-        else xAxis = new NumberAxis( xAxisLabel );
-
-        if (!xLog)
-          xAxis.setAutoRangeIncludesZero(true);
-        else
-          xAxis.setAutoRangeIncludesZero( false );
-
-        xAxis.setStandardTickUnits(units);
-        xAxis.setTickMarksVisible(false);
-
-
-
-        if (yLog) yAxis = new org.jfree.chart.axis.LogarithmicAxis(yAxisLabel);
-        else yAxis = new NumberAxis( yAxisLabel );
-
-        if (!yLog)
-          yAxis.setAutoRangeIncludesZero(true);
-        else
-          yAxis.setAutoRangeIncludesZero( false );
-
-
-        yAxis.setStandardTickUnits(units);
-        yAxis.setTickMarksVisible(false);
-
-        int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
-
-
-        org.jfree.chart.renderer.StandardXYItemRenderer renderer
-            = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
-
-        /* to set the range of the axis on the input from the user if the range combo box is selected*/
-        if(this.customAxis) {
-          xAxis.setRange(this.minXValue,this.maxXValue);
-          yAxis.setRange(this.minYValue,this.maxYValue);
-        }
-
-        // build the plot
-        org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data, xAxis, yAxis, renderer);
-        int numSeries = legendPaint.length;
-        for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
-        plot.setBackgroundAlpha( .8f );
-        if( isWhite ) plot.setBackgroundPaint( Color.white );
-        else plot.setBackgroundPaint( Color.black );
-
-        plot.setRenderer( renderer );
-        plot.setInsets(new Insets(0, 0, 0, 20));
-        JFreeChart chart = new JFreeChart(" ",new Font("Arial",Font.PLAIN,7),plot,false);
-        chart.setBackgroundPaint( lightBlue );
-
-        // set the font of legend
-        int numOfColors = plot.getSeriesCount();
-
-        legendPane.removeAll();
-        legendPane.setEditable(false);
-        setLegend =new SimpleAttributeSet();
-        setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
-                               Boolean.TRUE);
-        Document doc = legendPane.getStyledDocument();
-        try {
-
-          doc.remove(0,doc.getLength());
-          for(int i=0,j=0;i<numOfColors;++i,++j){
-            if(j==legendColor.length)
-              j=0;
-
-            legend = new String(i+1+") "+attenRelsSelected.get(i)+":\n"+this.functions.get(i).getInfo()+"\n");
-            setLegend =new SimpleAttributeSet();
-            StyleConstants.setFontSize(setLegend,12);
-            StyleConstants.setForeground(setLegend,legendColor[j]);
-            doc.insertString(doc.getLength(),legend,setLegend);
-          }
-        } catch (BadLocationException e) {
-          return;
-        }
-
-        // Put into a panel
-        panel = new ChartPanel(chart, true, true, true, true, false);
-        panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-        panel.setMouseZoomable(true);
-        panel.setDisplayToolTips(true);
-        panel.setHorizontalAxisTrace(false);
-        panel.setVerticalAxisTrace(false);
-        }catch(Exception e){
-          JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
-          return;
-        }
-
-        if ( D ) System.out.println( S + "Toggling plot on" );
-        graphOn = false;
+        if( isWhite ) graphPanel.setPlotBackgroundColor(Color.white );
+        else graphPanel.setPlotBackgroundColor( Color.black );
+        graphPanel.drawGraphPanel(functions,data,xLog,yLog,customAxis,null,buttonControlPanel);
         togglePlot();
-        if ( D ) System.out.println( S + "Done" );
-     }
+    }
 
 
 
@@ -961,182 +765,34 @@ public class AttenuationRelationshipApplet extends JApplet
     }
 
     /**
-     *  Clears the plot screen of all traces
-     */
-    private void clearPlot(boolean clearFunctions) {
+      *  Clears the plot screen of all traces
+      */
+     private void clearPlot(boolean clearFunctions) {
 
-        if ( D )
-            System.out.println( "Clearing plot area" );
+       if ( D )
+         System.out.println( "Clearing plot area" );
 
-        int loc = mainSplitPane.getDividerLocation();
-        int newLoc = loc;
-        titleSize = titlePanel.getHeight() + 6;
-
-        innerPlotPanel.removeAll();
-        panel = null;
-
-        pointsTextArea.setText( NO_PLOT_MSG );
-        if( clearFunctions)
-          {
-          functions.clear();
-          functions.setXAxisName( "");
-          functions.setYAxisName( "");
-          attenRelsSelected.clear();
-          }
-
-        if ( !titlePanel.isVisible() ) {
-            titlePanel.setVisible( true );
-            //newLoc = loc - titleSize;
-        }
-
-        validate();
-        repaint();
-
-        mainSplitPane.setDividerLocation( newLoc );
-    }
+       int loc = this.mainSplitPane.getDividerLocation();
+       int newLoc = loc;
+       graphPanel.removeChartAndMetadata();
+       innerPlotPanel.removeAll();
+       if( clearFunctions) {
+         this.functions.clear();
+       }
+       customAxis = false;
+       mainSplitPane.setDividerLocation( newLoc );
+  }
 
 
-
-    /**
-     *  Description of the Method
-     */
-    private void togglePlot() {
-
-        // Starting
-        String S = C + ": togglePlot(): ";
-
-        innerPlotPanel.removeAll();
-
-        int loc = mainSplitPane.getDividerLocation();
-        int legendLoc=legendSplitPane.getDividerLocation();
-        titleSize = titlePanel.getHeight() + 6;
-
-        int newLoc = loc;
-        if ( graphOn ) {
-            if ( D )
-                System.out.println( S + "Showing Data" );
-            toggleButton.setText( "Show Plot" );
-            graphOn = false;
-
-            if ( !titlePanel.isVisible() ) {
-                titlePanel.setVisible( true );
-                // newLoc = loc - titleSize;
-            }
-
-            // dataScrollPane.setVisible(true);
-            // innerPlotPanel.setBorder(oval);
-            innerPlotPanel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                    , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
-
-        }
-        else {
-            if ( D )
-                System.out.println( S + "About to show Plot" );
-            graphOn = true;
-            // dataScrollPane.setVisible(false);
-            toggleButton.setText( "Show Data" );
-            if ( panel != null ) {
-                if ( D )
-                    System.out.println( S + "Showing Plot" );
-
-
-                if ( titlePanel.isVisible() ) {
-                    titlePanel.setVisible( true);
-                    //newLoc = loc + titleSize;
-                }
-
-
-                innerPlotPanel.add(legendSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                   , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
-                // panel added here
-                innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
-                 );
-
-                innerPlotPanel.add( legendScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-               , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
-                 );
-
-               legendSplitPane.setBottomComponent(legendScrollPane);
-               legendSplitPane.setTopComponent( panel);
-               legendSplitPane.setDividerLocation(legendLoc);
-                /*innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 10.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-
-                //panel for the legend
-                  innerPlotPanel.add(legendScrollPane, new GridBagConstraints( 0,1, 1, 1, 1.0, 1.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-                */
-
-            }
-            else {
-                if ( D )
-                    System.out.println( S + "No Plot - So Showing Data" );
-
-
-                if ( !titlePanel.isVisible() ) {
-                    titlePanel.setVisible( true );
-                    // newLoc = loc - titleSize;
-                }
-
-                // innerPlotPanel.setBorder(oval);
-                innerPlotPanel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
-
-
-            }
-
-        }
-
-        if ( D ) System.out.println( S + "Calling validate and repaint" );
-        mainSplitPane.setDividerLocation( newLoc );
-        validate();
-        repaint();
-
-        if ( D ) System.out.println( S + "Loc = " + loc + '\t' + "New Loc = " + newLoc );
-        if ( D ) System.out.println( S + "Ending" );
-
-    }
-
-    /**
-     *  write out data to file. Needs to be enhanced. No checking is done to
-     *  make sure it's not a dir, the file is writable if it exists, etc.
-     *
-     * @param  e  Description of the Parameter
-     */
-    private void pointsTextArea_mouseClicked( MouseEvent e ) {
-
-        // Starting
-        String S = C + ": pointsTextArea_mouseClicked(): ";
-        if ( D )
-            System.out.println( S + "Starting" );
-
-        // right mouse button not clicked
-        if ( !( ( e.getModifiers() & InputEvent.BUTTON3_MASK ) != 0 ) )
-            return;
-
-        if ( pointsTextArea.getText().equals( NO_PLOT_MSG ) )
-            return;
-
-        File f = getFileFromUser();
-
-        if ( D )
-            System.out.println( S + "Saving file " + f.getName() );
-
-        try {
-            FileWriter fout = new FileWriter( f );
-            fout.write( pointsTextArea.getText() );
-            fout.flush();
-            fout.close();
-        }
-        catch ( IOException ee ) {
-            System.out.println( S + ee.toString() );
-        }
-
-        if ( D )
-            System.out.println( S + "Ending" );
-
-    }
+    //checks if the user has plot the data window or plot window
+    public void togglePlot(){
+      innerPlotPanel.removeAll();
+      graphPanel.togglePlot(buttonControlPanel);
+      innerPlotPanel.add(graphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+      innerPlotPanel.validate();
+      innerPlotPanel.repaint();
+   }
 
 
     /**
@@ -1287,34 +943,29 @@ public class AttenuationRelationshipApplet extends JApplet
           functions.clear();
           pointsTextArea.setText(" ");
           //making the GUI components disable if the user wants just one single value
-          this.clearButton.setEnabled(false);
-          this.toggleButton.setEnabled(false);
-          this.jCheckxlog.setEnabled(false);
-          this.jCheckylog.setEnabled(false);
-          this.plotColorCheckBox.setEnabled(false);
-          this.axisScaleButton.setEnabled(false);
+          clearButton.setEnabled(false);
+          buttonControlPanel.setEnabled(false);
+          plotColorCheckBox.setEnabled(false);
           double yVal = attenRel.getChosenValue();
           String info = "";
           info = "AttenuationRelationship Name: " + attenRel.getAttenRel().getName()+"\n\n";
           info += "Intensity Measure Type: "+(String)attenRel.getSelectedIMParam().getValue()+"\n\n";
           info += "Info: "+attenRel.getIndependentsEditor().getVisibleParametersCloned().toString()+"\n\n";
           info += YLabel+" = "+yVal;
-          pointsTextArea.setText(info);
           //making the panel for the JFreechart null, so that it only shows the indivdual value
-          panel =null;
-          this.togglePlot();
+          graphPanel.removeChartAndMetadata();
+          graphPanel.setMetadata(info);
+          togglePlot();
           return;
         }
 
         //if the user want to plot the curve
         else{
           //enabling all the GUI components if the user wants to see the plot
-          this.clearButton.setEnabled(true);
-          this.toggleButton.setEnabled(true);
-          this.jCheckxlog.setEnabled(true);
-          this.jCheckylog.setEnabled(true);
-          this.plotColorCheckBox.setEnabled(true);
-          this.axisScaleButton.setEnabled(true);
+          clearButton.setEnabled(true);
+          buttonControlPanel.setEnabled(true);
+          plotColorCheckBox.setEnabled(true);
+
           if( D && functions != null ){
             ListIterator it = functions.listIterator();
             while( it.hasNext() ){
@@ -1482,60 +1133,19 @@ public class AttenuationRelationshipApplet extends JApplet
         if ( D ) System.out.println( S + "Starting" );
 
         if ( e.getSource().equals( attenRelComboBox ) ){
-           // this.customAxis =false;
-            updateChoosenAttenuationRelationship();
-         }
-
-         else if( e.getSource().equals( jCheckxlog ) ){
-
-            String title = attenRel.getGraphXYAxisTitle();
-
-            clearPlot( false );
-            inParameterChangeWarning = false;
-
-            if( jCheckxlog.isSelected() ) xLog = true;
-            else xLog = false;
-
-            if( functions != null && data != null) {
-                data.setXLog(xLog);
-                String funcStr = functions.toString();
-                pointsTextArea.setText( attenRel.getGraphXYAxisTitle() + '\n' + funcStr );
-                addGraphPanel();
-
-            }
-
+          // this.customAxis =false;
+          updateChoosenAttenuationRelationship();
         }
-        else if( e.getSource().equals( jCheckylog ) ){
-
-            String title = attenRel.getGraphXYAxisTitle();
-
-            clearPlot( false );
-            inParameterChangeWarning = false;
-
-            if( jCheckylog.isSelected() ) yLog = true;
-            else yLog = false;
-
-
-            if( functions != null && data != null) {
-                data.setYLog(yLog);
-                pointsTextArea.setText( attenRel.getGraphXYAxisTitle() + '\n' + functions.toString() );
-                addGraphPanel();
-            }
-        }
-
         else if( e.getSource().equals( plotColorCheckBox ) ){
 
-            if( isWhite ) {
-                isWhite = false;
-                if( panel != null )
-                    panel.getChart().getPlot().setBackgroundPaint(Color.black);
-
-            }
-            else{
-                isWhite = true;
-                if( panel != null )
-                    panel.getChart().getPlot().setBackgroundPaint(Color.white);
-            }
+          if( isWhite ) {
+            isWhite = true;
+            graphPanel.setPlotBackgroundColor(Color.white);
+          }
+          else{
+            isWhite = false;
+            graphPanel.setPlotBackgroundColor(Color.black);
+          }
         }
 
         // Ending
@@ -1544,41 +1154,76 @@ public class AttenuationRelationshipApplet extends JApplet
     }
 
 
-
- /**
-  * whenever selection is made in the combo box
-  * @param e
-  */
-  private void axisScaleButton_actionPerformed(ActionEvent e) {
-    if(xAxis==null || yAxis==null) {
-      JOptionPane.showMessageDialog(this,AXIS_RANGE_NOT_ALLOWED);
-      return;
+    /**
+     * tells the application if the xLog is selected
+     * @param xLog : boolean
+     */
+    public void setX_Log(boolean xLog){
+      this.xLog = xLog;
+      data.setXLog(xLog);
+      addGraphPanel();
     }
 
-    Range rX = xAxis.getRange();
-    Range rY= yAxis.getRange();
-    double minX=rX.getLowerBound();
-    double maxX=rX.getUpperBound();
-    double minY=rY.getLowerBound();
-    double maxY=rY.getUpperBound();
-    if(this.customAxis) { // select the custom scale in the control window
-      if(axisLimits == null)
-        axisLimits=new AxisLimitsControlPanel(this, this,
-            AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
-      else  axisLimits.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
-                                       minX,maxX,minY,maxY);
+    /**
+     * tells the application if the yLog is selected
+     * @param yLog : boolean
+     */
+    public void setY_Log(boolean yLog){
+      this.yLog = yLog;
+      data.setYLog(yLog);
+      addGraphPanel();
+    }
 
+
+
+    /**
+     *
+     * @returns the Range for the X-Axis
+     */
+    public Range getX_AxisRange(){
+      return graphPanel.getX_AxisRange();
     }
-    else { // select the auto scale in the control window
-      if(axisLimits == null)
-        axisLimits=new AxisLimitsControlPanel(this, this,
-            AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
-      else  axisLimits.setParams(AxisLimitsControlPanel.AUTO_SCALE,
-                                       minX,maxX,minY,maxY);
+
+    /**
+     *
+     * @returns the Range for the Y-Axis
+     */
+    public Range getY_AxisRange(){
+      return graphPanel.getY_AxisRange();
     }
-    axisLimits.pack();
-    axisLimits.show();
+
+    /**
+     *
+     * @returns the Min X-Axis Range Value, if custom Axis is choosen
+     */
+    public double getMinX(){
+      return minXValue;
+    }
+
+    /**
+     *
+     * @returns the Max X-Axis Range Value, if custom axis is choosen
+     */
+    public double getMaxX(){
+      return maxXValue;
+    }
+
+    /**
+     *
+     * @returns the Min Y-Axis Range Value, if custom axis is choosen
+     */
+    public double getMinY(){
+      return minYValue;
+    }
+
+    /**
+     *
+     * @returns the Max Y-Axis Range Value, if custom axis is choosen
+     */
+    public double getMaxY(){
+      return maxYValue;
   }
+
 
   /**
    * sets the range for X and Y axis

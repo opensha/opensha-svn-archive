@@ -210,7 +210,7 @@ public class GraphPanel extends JPanel {
     plot.setDomainCrosshairVisible(false);
     plot.setRangeCrosshairLockedOnData(false);
     plot.setRangeCrosshairVisible(false);
-    plot.setInsets(new Insets(0, 0, 0, 20));
+    plot.setInsets(new Insets(10, 0, 0, 20));
 
     int numSeries = legendPaint.length;
     for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
