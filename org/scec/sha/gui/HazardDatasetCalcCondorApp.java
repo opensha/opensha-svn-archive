@@ -32,7 +32,7 @@ import org.scec.sha.gui.infoTools.ExceptionWindow;
 
 
 /**
- * <p>Title: HazardDatasetCalcCondorApp</p>
+ * <p>Title: HazardDataSetCalcCondorApp</p>
  * <p>Description: This application allows the user to calculate the hazard map
  * dataset using the condor pool at USC. Once the dataset is computed an email
  * will be sent to the user that computation have been completed.
@@ -47,7 +47,7 @@ import org.scec.sha.gui.infoTools.ExceptionWindow;
  * @version 1.0
  */
 
-public class HazardDatasetCalcCondorApp extends JApplet
+public class HazardDataSetCalcCondorApp extends JApplet
     implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, Runnable {
 
 
@@ -165,7 +165,7 @@ public class HazardDatasetCalcCondorApp extends JApplet
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
   //Construct the applet
-  public HazardDatasetCalcCondorApp() {
+  public HazardDataSetCalcCondorApp() {
   }
   //Initialize the applet
   public void init() {
@@ -271,7 +271,7 @@ public class HazardDatasetCalcCondorApp extends JApplet
 
   //Main method
   public static void main(String[] args) {
-    HazardDatasetCalcCondorApp application = new HazardDatasetCalcCondorApp();
+    HazardDataSetCalcCondorApp application = new HazardDataSetCalcCondorApp();
     application.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3

@@ -45,7 +45,7 @@ import org.scec.sha.gui.infoTools.ExceptionWindow;
  * @version 1.0
  */
 
-public class PlotMapFromHazardDatasetApp extends JApplet implements GMT_MapGuiBeanAPI{
+public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBeanAPI{
   public static String SERVLET_URL  = "http://gravity.usc.edu/OpenSHA/servlet/HazardMapViewerServlet";
   private boolean isStandalone = false;
   Border border1;
@@ -116,7 +116,7 @@ public class PlotMapFromHazardDatasetApp extends JApplet implements GMT_MapGuiBe
   }
 
   //Construct the applet
-  public PlotMapFromHazardDatasetApp() {
+  public PlotMapFromHazardDataSetApp() {
   }
 
   //Initialize the applet
@@ -227,7 +227,7 @@ public class PlotMapFromHazardDatasetApp extends JApplet implements GMT_MapGuiBe
   }
   //Main method
   public static void main(String[] args) {
-    PlotMapFromHazardDatasetApp application = new PlotMapFromHazardDatasetApp();
+    PlotMapFromHazardDataSetApp application = new PlotMapFromHazardDataSetApp();
     application.isStandalone = true;
     Frame frame;
     frame = new Frame() {
