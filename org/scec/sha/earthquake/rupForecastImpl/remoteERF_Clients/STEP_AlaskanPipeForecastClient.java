@@ -14,7 +14,7 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 
 public class STEP_AlaskanPipeForecastClient extends RemoteERF_Client{
   public STEP_AlaskanPipeForecastClient() {
-    String className = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecastClient";
+    String className = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
     getRemoteERF(className);
   }
 }
