@@ -66,9 +66,9 @@ Create ERF_List and its subclasses ERF_EpistemicList and ERF_AleatoryList, and t
 
 Create and object that will compute fractiles from a list of hazard curves - Ned will provide a detailed description.
 
-Find out status of getting out log-log implementation into the official JFreeChart framework.
-
 Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g., try it in the LogPlotTesterApp).
+
+Mail JFreechart to include our log-log implementation into the official JFreeChart framework.
 
 PEER_TestResultsPlotterApplet - make password protection more secure (if needed)?
 
