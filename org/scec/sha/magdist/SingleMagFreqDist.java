@@ -51,7 +51,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param moRate
    */
 
-  public SingleMagFreqDist(double min,double delta,int num,double mag,double moRate) {
+  public SingleMagFreqDist(double min,int num,double delta, double mag,double moRate) {
     super(min,num,delta);
     this.mag=mag;
     this.rate=moRate;
