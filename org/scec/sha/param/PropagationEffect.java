@@ -97,20 +97,9 @@ public class PropagationEffect extends ParameterList {
 
     /** Returns the common Site fo all internal parametes */
     public Site getSite() { return site; }
-	/**
-     *  Sets the common Site fo all internal parameters.
-     *  FIX *** Should update all parameters in the list.
-     */
-    public void setSite(Site site) { this.site = site; }
 
-	/** Returns the common ProbEqkRupture fo all internal parametes */
+    /** Returns the common ProbEqkRupture fo all internal parametes */
     public ProbEqkRupture getProbEqkRupture() { return probEqkRupture; }
-	/**
-     *  Sets the ProbEqkRupture Site fo all internal parameters.
-     *  FIX *** Should update all parameters in the list.
-     */
-    public void setProbEqkRupture(ProbEqkRupture pe) { probEqkRupture = pe; }
-
 
 
     /**
