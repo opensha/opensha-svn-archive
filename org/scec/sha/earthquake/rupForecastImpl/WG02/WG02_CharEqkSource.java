@@ -54,6 +54,11 @@ public class WG02_CharEqkSource extends ProbEqkSource {
                             double rupArea, double rupOffset, String ruptureName,
                             double rake) {
 
+    // set as a non-poissonian source
+    isPoissonian = false;
+
+
+
       this.prob = prob;
       this.rupSurface = rupSurface;
       this.rupOffset = rupOffset;
@@ -128,17 +133,17 @@ public class WG02_CharEqkSource extends ProbEqkSource {
   * @return the object for the ProbEqkRupture
   */
   public ProbEqkRupture getRupture(int nRupture){
+
+    // set the mag and rupture surface indices
     int iMag = nRupture/numRupSurfaces;
     int iRupSurf = nRupture - iMag*numRupSurfaces;
 
     // set the magnitude
     probEqkRupture.setMag(gaussMagDist.getX(iMag));
 
-    // set the probability (total prob divided by prob of mag and the num rupture surfaces)
+    // set the probability (total prob * relative mag prob / num rupture subsurfaces)
     double p=prob*gaussMagDist.getIncrRate(iMag)/numRupSurfaces;
     probEqkRupture.setProbability(p);
-
-//    if (D) System.out.println("n="+nRupture+"; iMag="+iMag+"; iRupSurf="+iRupSurf);
 
     // now set the rupture surface as the the ith subset surface
     probEqkRupture.setRuptureSurface(rupSurface.getNthSubsetSurface(rupLength,rupWidth,rupOffset,iRupSurf));
@@ -146,19 +151,6 @@ public class WG02_CharEqkSource extends ProbEqkSource {
     return probEqkRupture;
   }
 
-
- /**
-  * Returns the Vector consisting of all ruptures for this source
-  * all the objects are cloned. so this vector can be saved by the user
-  * It will only be cloning the first value becuase char type fault contain only
-  * 1 probEqkSource object.
-  * @return Vector consisting of
-  */
-  public Vector getRuptureList(){
-    Vector v= new Vector();
-    v.add(getRuptureClone(0));
-    return v;
-  }
 
   /**
    * This returns the shortest dist to either end of the fault trace, or to the

@@ -140,19 +140,6 @@ public class PointPoissonEqkSource extends ProbEqkSource {
   }
 
 
- /**
-  * Returns the Vector consisting of all ruptures for this source
-  * all the objects are cloned. so this vector can be saved by the user
-  *
-  * @return Vector consisting of
-  */
-  public Vector getRuptureList(){
-    Vector v= new Vector();
-    for(int i=0;i<getNumRuptures();++i)
-      v.add(this.getRuptureClone(i));
-    return v;
-  }
-
      /**
    * This returns the shortest horizontal dist to the point source.
    * @param site

@@ -216,20 +216,6 @@ public class PEER_FaultSource extends ProbEqkSource {
   public ProbEqkRupture getRupture(int nthRupture){ return (ProbEqkRupture) ruptureList.get(nthRupture); }
 
 
- /**
-  * Returns the Vector consisting of all ruptures for this source
-  * all the objects are cloned. so this vector can be saved by the user
-  *
-  * @return Vector consisting of
-  */
-  public Vector getRuptureList(){
-    Vector v= new Vector();
-    for(int i=0;i<totNumRups;++i)
-      v.add(this.getRuptureClone(i));
-    return v;
-  }
-
-
 
    /**
    * This returns the shortest dist to either end of the fault trace, or to the

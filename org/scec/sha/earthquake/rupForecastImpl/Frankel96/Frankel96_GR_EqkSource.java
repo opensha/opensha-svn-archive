@@ -151,21 +151,6 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
 
 
 
-
- /**
-  * Returns the Vector consisting of all ruptures for this source
-  * all the objects are cloned. so this vector can be saved by the user
-  *
-  * @return Vector consisting of
-  */
-  public Vector getRuptureList(){
-    Vector v= new Vector();
-    for(int i=0;i<totNumRups;++i)
-      v.add(this.getRuptureClone(i));
-    return v;
-  }
-
-
   /**
    * @param mag
    * @return the total number of ruptures associated with the given mag

@@ -34,7 +34,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * calculation sequence in the HazardCurveCalculator.  Note that the default value
    * is true, so non-Poissonian sources will need to overide this value.
    */
-  protected boolean isThisPoissonian=true;
+  protected boolean isPoissonian = true;
 
 
   /**
@@ -42,7 +42,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * calculation sequence in the HazardCurveCalculator
    */
   public boolean isSourcePoissonian() {
-    return isThisPoissonian;
+    return isPoissonian;
   }
 
   /**
@@ -89,8 +89,6 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * Subsequent calls to this function will not affect the result got previously.
    * This is in contrast with the getRupture(int i) function
    *
-   * THIS SHOULD SIMPLY USE THE clone() METHOD OF ProbEqkRuptur.
-   *
    * @param nRupture
    * @return the clone of the probEqkRupture
    */
@@ -104,9 +102,14 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * Returns the Vector consisting of all ruptures for this source
    * all the objects are cloned. so this vector can be saved by the user
    *
-   * @return Vector consisting of
+   * @return Vector consisting of the rupture clones
    */
-  public abstract Vector getRuptureList();
+  public Vector getRuptureList() {
+    Vector v= new Vector();
+    for(int i=0; i<getNumRuptures();i++)
+      v.add(getRuptureClone(i));
+    return v;
+  }
 
   /**
    * get the name of this class

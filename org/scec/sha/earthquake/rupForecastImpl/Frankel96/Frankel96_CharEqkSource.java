@@ -88,19 +88,6 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   }
 
 
- /**
-  * Returns the Vector consisting of all ruptures for this source
-  * all the objects are cloned. so this vector can be saved by the user
-  * It will only be cloning the first value becuase char type fault contain only
-  * 1 probEqkSource object.
-  * @return Vector consisting of
-  */
-  public Vector getRuptureList(){
-    Vector v= new Vector();
-    v.add(getRuptureClone(0));
-    return v;
-  }
-
   /**
    * This returns the shortest dist to either end of the fault trace, or to the
    * mid point of the fault trace.
