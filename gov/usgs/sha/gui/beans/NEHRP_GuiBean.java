@@ -459,17 +459,17 @@ public class NEHRP_GuiBean
 
 
   private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-   /* if(siteCoefficientWindow == null)
+    if(siteCoefficientWindow == null)
       siteCoefficientWindow = new SiteCoefficientInfoWindow();
+    siteCoefficientWindow.pack();
+    siteCoefficientWindow.show();
 
-    siteCoefficientWindow.show();*/
+    dataGenerator.setFa(siteCoefficientWindow.getFa());
+    dataGenerator.setFv(siteCoefficientWindow.getFv());
+    dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
 
-    //dataGenerator.setFa(siteCoefficientWindow.getFa());
-    //dataGenerator.setFv(siteCoefficientWindow.getFv());
-    //dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
-
-    dataGenerator.setFa(1);
-    dataGenerator.setFv(1);
+    //dataGenerator.setFa(1);
+    //dataGenerator.setFv(1);
     dataGenerator.setSiteClass(GlobalConstants.SITE_CLASS_B);
 
     setButtonsEnabled(true);
