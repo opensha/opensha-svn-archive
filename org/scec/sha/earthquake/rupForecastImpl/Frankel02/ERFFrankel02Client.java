@@ -61,112 +61,139 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
 
   }
 
-	/* (non-Javadoc)
-	 * @see org.scec.sha.earthquake.ERF_API#getNumSources()
-	 */
-	public int getNumSources() {
-		try {
-		  return erfServer.getNumSources();
-		}catch(Exception e) { e.printStackTrace();}
-		return -1;
-	}
+  /* (non-Javadoc)
+   * @see org.scec.sha.earthquake.ERF_API#getNumSources()
+   */
+  public int getNumSources() {
+    try {
+      return erfServer.getNumSources();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return -1;
+  }
 
-	/* (non-Javadoc)
-	 * @see org.scec.sha.earthquake.ERF_API#getSource(int)
-	 */
-	public ProbEqkSource getSource(int iSource) {
-		// TODO Auto-generated method stub
-		try {
-		return erfServer.getSource(iSource);
-		}catch(Exception e) { e.printStackTrace();}
-		return null;
-	}
+  /* (non-Javadoc)
+   * @see org.scec.sha.earthquake.ERF_API#getSource(int)
+   */
+  public ProbEqkSource getSource(int iSource) {
+    // TODO Auto-generated method stub
+    try {
+      return erfServer.getSource(iSource);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
-	/* (non-Javadoc)
-	 * @see org.scec.sha.earthquake.ERF_API#getSourceList()
-	 */
-	public ArrayList getSourceList() {
-		try {
-		return erfServer.getSourceList();
-		}catch(Exception e) { e.printStackTrace();}
-		return null;
-	}
+  /* (non-Javadoc)
+   * @see org.scec.sha.earthquake.ERF_API#getSourceList()
+   */
+  public ArrayList getSourceList() {
+    try {
+      return erfServer.getSourceList();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
-	/* (non-Javadoc)
-	 * @see org.scec.param.event.ParameterChangeListener#parameterChange(org.scec.param.event.ParameterChangeEvent)
-	 */
-	public void parameterChange(ParameterChangeEvent event) {
-		// TODO Auto-generated method stub
+  /* (non-Javadoc)
+   * @see org.scec.param.event.ParameterChangeListener#parameterChange(org.scec.param.event.ParameterChangeEvent)
+   */
+  public void parameterChange(ParameterChangeEvent event) {
+    // TODO Auto-generated method stub
 
-	}
+  }
 
-	/* (non-Javadoc)
-	 * @see org.scec.sha.earthquake.EqkRupForecastAPI#updateForecast()
-	 */
-	public void updateForecast() {
-		// TODO Auto-generated method stub
-		try {
-			 erfServer.updateForecast(this.adjustableParams, this.timeSpan);
-			}catch(Exception e) { e.printStackTrace();}
-	}
+  /* (non-Javadoc)
+   * @see org.scec.sha.earthquake.EqkRupForecastAPI#updateForecast()
+   */
+  public void updateForecast() {
+    // TODO Auto-generated method stub
+    try {
+      erfServer.updateForecast(adjustableParams, timeSpan);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-        /* (non-Javadoc)
-         * @see org.scec.sha.earthquake.EqkRupForecastAPI#updateForecast()
-         */
-        public String updateAndSaveForecast() {
-                // TODO Auto-generated method stub
-                try {
-                         return erfServer.updateAndSaveForecast(this.adjustableParams, this.timeSpan);
-                        }catch(Exception e) { e.printStackTrace();}
-                        return null;
-        }
+  /* (non-Javadoc)
+   * @see org.scec.sha.earthquake.EqkRupForecastAPI#updateForecast()
+   */
+  public String updateAndSaveForecast() {
+    // TODO Auto-generated method stub
+    try {
+      return erfServer.updateAndSaveForecast(adjustableParams,
+                                             timeSpan);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
+  /* (non-Javadoc)
+   * @see org.scec.data.NamedObjectAPI#getName()
+   */
+  public String getName() {
+    // TODO Auto-generated method stub
+    try {
+      return erfServer.getName();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
-	/* (non-Javadoc)
-	 * @see org.scec.data.NamedObjectAPI#getName()
-	 */
-	public String getName() {
-		// TODO Auto-generated method stub
-		try {
-		return erfServer.getName();
-		}catch(Exception e) { e.printStackTrace();}
-		return null;
-	}
+  /**
+   * return the time span object
+   *
+       * @return : time span object is returned which contains start time and duration
+   */
+  public TimeSpan getTimeSpan() {
+    try {
+      this.timeSpan = erfServer.getTimeSpan();
+      return timeSpan;
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
-	/**
-	  * return the time span object
-	  *
-	   * @return : time span object is returned which contains start time and duration
-	   */
-	public TimeSpan getTimeSpan() {
-		try {
-		this.timeSpan = erfServer.getTimeSpan();
-		return timeSpan;
-		}catch(Exception e) { e.printStackTrace();}
-		return null;
-	}
+  /* (non-Javadoc)
+   * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getAdjustableParamsIterator()
+   */
+  public ListIterator getAdjustableParamsIterator() {
+    try {
+      // TODO Auto-generated method stub
+      return getAdjustableParameterList().getParametersIterator();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
-	/* (non-Javadoc)
-		 * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getAdjustableParamsIterator()
-		 */
-		public ListIterator getAdjustableParamsIterator()  {
-			try {
-			// TODO Auto-generated method stub
-			return getAdjustableParameterList().getParametersIterator();
-		}catch(Exception e) { e.printStackTrace();}
-				return null;
-		}
-
-	/* (non-Javadoc)
-		 * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getAdjustableParameterList()
-		 */
-		public ParameterList getAdjustableParameterList()  {
-			// TODO Auto-generated method stub
-			try {
-			this.adjustableParams = erfServer.getAdjustableParameterList();
-			return adjustableParams;
-		}catch(Exception e) { e.printStackTrace();}
-				return null;
-		}
+  /* (non-Javadoc)
+   * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getAdjustableParameterList()
+   */
+  public ParameterList getAdjustableParameterList() {
+    // TODO Auto-generated method stub
+    try {
+      this.adjustableParams = erfServer.getAdjustableParameterList();
+      return adjustableParams;
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
 }

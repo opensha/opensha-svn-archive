@@ -88,9 +88,15 @@ public class HazardMapCalcServlet extends HttpServlet {
       FileUtils.saveObjectInFile(newDir+this.IMR_FILE_NAME, imr);
 
       if(D) System.out.println("ERF URL="+eqkRupForecastLocation);
-      EqkRupForecast eqkRupForecast = (EqkRupForecast)FileUtils.loadObjectFromURL(eqkRupForecastLocation);
-      FileUtils.saveObjectInFile(newDir+this.ERF_FILE_NAME, eqkRupForecast);
-      //org.scec.util.RunScript.runScript(new String[]{"/bin/sh", "-c", "/usr/bin/wget -O "+newDir+this.ERF_FILE_NAME+" "+eqkRupForecastLocation});
+      //EqkRupForecast eqkRupForecast = (EqkRupForecast)FileUtils.loadObjectFromURL(eqkRupForecastLocation);
+      //FileUtils.saveObjectInFile(newDir+this.ERF_FILE_NAME, eqkRupForecast);
+      String getERF_FileName = "getERF.sh";
+      FileWriter fw = new FileWriter(newDir+getERF_FileName);
+      fw.write("#!/bin/csh\n");
+      fw.write("cd "+newDir+"\n");
+      fw.write("cp  "+eqkRupForecastLocation+" "+newDir+this.ERF_FILE_NAME+"\n");
+      fw.close();
+      org.scec.util.RunScript.runScript(new String[]{"sh", "-c", "sh "+newDir+getERF_FileName});
       if(D) System.out.println("after wget");
 
       // now run the calculation on grid
