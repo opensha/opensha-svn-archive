@@ -74,6 +74,10 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   //ListEditor
   private ParameterListEditor listEditor;
 
+  //see if we have to show all the Adjustable Params for the ERF in a seperate window
+  //when user selects different ERF.
+  private boolean showAllAdjustableParamForERF= true;
+
 
 
   //Instance of the JDialog to show all the adjuatble params for the forecast model
@@ -111,7 +115,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   *  selected by the user
   * @param forecast
   */
- protected void setParamsInForecast(int sourceIndex,int ruptureIndex) {
+ public void setParamsInForecast(int sourceIndex,int ruptureIndex) {
 
 
    // get the selected forecast
@@ -226,12 +230,14 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
    // if ERF selected by the user  changes
    if( name1.equals(erfGuiBean.ERF_PARAM_NAME) ){
-     // if this forecast has not been selected yet, pop up the adjustable params window
-     if(!this.alreadySeenERFs.contains(event.getNewValue()))  {
-       getAllERFAdjustableParams();
-       alreadySeenERFs.add(event.getNewValue());
+     if(showAllAdjustableParamForERF){
+       // if this forecast has not been selected yet, pop up the adjustable params window
+       if(!this.alreadySeenERFs.contains(event.getNewValue()))  {
+         getAllERFAdjustableParams();
+         alreadySeenERFs.add(event.getNewValue());
+       }
+       setParamsInForecast(0,0);
      }
-     setParamsInForecast(0,0);
    }
 
    // if source selected by the user  changes
@@ -291,6 +297,24 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     getAllERFAdjustableParams();
   }
 
+  /**
+   * see if we have to show all the Adjustable Params for the ERF in a seperate window
+   * when user selects different ERF.
+   * @param flag: Based on the boolean flag the ERF adjuatable Param List is shown
+   * if user changes the selcetd ERF.
+   */
+  public void showAllParamsForForecast(boolean flag){
+    showAllAdjustableParamForERF = flag;
+  }
+
+  /**
+   *
+   * @returns the instance of the ERF_GuiBean that holds all the Adjustable Params
+   * for the selecetd ERF.
+   */
+  public ERF_GuiBean getERF_ParamEditor(){
+    return this.erfGuiBean;
+  }
 
   /**
    * This method gets the ERF adjustable Params for the selected ERF model

@@ -19,6 +19,7 @@ import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.data.Site;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.gui.controls.RegionsOfInterestControlPanel;
+import org.scec.sha.gui.controls.PuenteHillsScenarioControlPanel;
 import org.scec.sha.gui.infoTools.*;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.data.XYZ_DataSetAPI;
@@ -87,9 +88,11 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
+  private final static String PUENTE_HILLS_SCENARIO_CONTROL = "Set Params for Puente Hills Scenario";
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
+  private PuenteHillsScenarioControlPanel puenteHillControl;
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -549,6 +552,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   private void initControlList() {
     this.controlComboBox.addItem(CONTROL_PANELS);
     this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
+    this.controlComboBox.addItem(PUENTE_HILLS_SCENARIO_CONTROL);
   }
 
   /**
@@ -560,6 +564,8 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     String selectedControl = controlComboBox.getSelectedItem().toString();
     if(selectedControl.equalsIgnoreCase(this.REGIONS_OF_INTEREST_CONTROL))
       initRegionsOfInterestControl();
+    else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_SCENARIO_CONTROL))
+      initPuenteHillScenarioControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -572,6 +578,20 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
       regionsOfInterest = new RegionsOfInterestControlPanel(this, this.sitesGuiBean);
     regionsOfInterest.pack();
     regionsOfInterest.show();
+  }
+
+  /**
+   * Initialize the Interesting regions control panel
+   * It will provide a pick list of interesting regions
+   */
+  private void initPuenteHillScenarioControl() {
+    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to the Params to Puente Hills Scenario?",
+                                    "Puete Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
+    if(selectedOption == JOptionPane.OK_OPTION){
+      if(this.puenteHillControl==null)
+        puenteHillControl = new PuenteHillsScenarioControlPanel(this.erfGuiBean, this.imrGuiBean,this.sitesGuiBean);
+      puenteHillControl.setParamsForPuenteHillsScenario();
+    }
   }
 
   /**
