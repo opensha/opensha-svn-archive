@@ -8,9 +8,7 @@ import javax.swing.border.*;
 import java.lang.reflect.*;
 import java.io.*;
 import java.net.*;
-import java.util.ListIterator;
-import java.util.Vector;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.lang.RuntimeException;
 
 import org.scec.data.function.*;
@@ -348,34 +346,69 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
    * and stores their name in Vector
    */
   private  void searchTestFiles(){
-
+    // ArrayList is needed for the sorted list
+    ArrayList testCaseList1 = new ArrayList(); // this list saves test case from 1 to 9
+    ArrayList testCaseList2 = new ArrayList(); // this list saves test case 10 and 11
     try{
       // files.log contains all the files uploaded so far
-      InputStream input = PEER_TestResultsSubmissionApplet.class.getResourceAsStream("/"+DIR+"files.log");
+      InputStream input = PEER_TestResultsPlotterApplet.class.getResourceAsStream("/"+DIR+"files.log");
       DataInputStream dataStream = new DataInputStream(input);
       String line;
       while((line=dataStream.readLine())!=null) {
         if(line.endsWith(FILE_EXTENSION)) testFiles.add(line);
         else continue;
+
+        // this is needed to add a spce between test case and site
         int index=line.indexOf("_");
         String testCases = line.substring(0,index);
-        int count = testComboBox.getItemCount();
+
+        boolean isTenOrEleven = false;
         boolean flag = false;
-        // check whether this set has already been added to combo box
-        for(int i=0; i<count; ++i) {
-          if(testComboBox.getItemAt(i).toString().equalsIgnoreCase(testCases)) {
-            flag = true;
-            break;
+        // check wther this is test case 10 or 11
+        if((testCases.indexOf("10")>-1) || (testCases.indexOf("11")>-1))
+          isTenOrEleven = true;
+        // check in list 1
+        if(!isTenOrEleven) { // if this is case from 1 through 9
+          Iterator it = testCaseList1.iterator();
+          while(it.hasNext()) {
+            // check whether this set has already been added to list
+            if(((String)it.next()).equalsIgnoreCase(testCases)) {
+              flag = true;
+              break;
+            }
           }
+          if(!flag) testCaseList1.add(testCases);
         }
-        if(!flag) testComboBox.addItem(testCases);
+
+
+        // check in list 2 whether the case exists
+       if(isTenOrEleven) { // if this is case 10 or 11
+         Iterator it = testCaseList2.iterator();
+         while(it.hasNext()) {
+           // check whether this set has already been added to list
+           if(((String)it.next()).equalsIgnoreCase(testCases)) {
+             flag = true;
+             break;
+           }
+         }
+         if(!flag) testCaseList2.add(testCases);
+        }
+
       }
+      Collections.sort(testCaseList1);
+      Collections.sort(testCaseList2);
+
+      // add to the combo box
+      Iterator it =  testCaseList1.iterator();
+      while(it.hasNext()) testComboBox.addItem(it.next());
+      it =  testCaseList2.iterator();
+      while(it.hasNext()) testComboBox.addItem(it.next());
+
     }catch(Exception e) {
       e.printStackTrace();
     }
 
-  }
-
+   }
 
   /**
    * this method shows the X Values in the TextArea

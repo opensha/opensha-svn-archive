@@ -3,6 +3,9 @@ package org.scec.sha.earthquake.PEER_TestCases.PEER_TestGuiPlots;
 import java.awt.*;
 import javax.swing.*;
 import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Collections;
 import java.awt.event.*;
 
 /**
@@ -136,7 +139,10 @@ public class PEER_FileDeleteWindow extends JFrame {
   void updateFileNames(Vector dataFiles){
     testComboBox.removeAllItems();
     identifierComboBox.removeAllItems();
-
+    // arraylist are needed below for sorting purposes
+    ArrayList testList1= new ArrayList(); // for test cases 1-9
+    ArrayList testList2= new ArrayList(); // for test cases 10 and 11
+    ArrayList idList= new ArrayList(); // for identifier list
     int size=dataFiles.size();
     for(int i=0;i<size;++i){
         String testFileName=dataFiles.get(i).toString();
@@ -144,30 +150,69 @@ public class PEER_FileDeleteWindow extends JFrame {
         int indexofDot = testFileName.indexOf(".");
         String testCases = testFileName.substring(0,index);
         String identifier = testFileName.substring(index+1,indexofDot);
-        int count = testComboBox.getItemCount();
-        boolean flag = false;
-        // check whether test case has already been added to combo box
-        for(int j=0; j<count; ++j) {
-          if(testComboBox.getItemAt(j).toString().equalsIgnoreCase(testCases)) {
-            flag = true;
-            break;
-          }
-        }
-        if(!flag) testComboBox.addItem(testCases);
 
-        count =identifierComboBox.getItemCount();
+        boolean isTenOrEleven = false; //whether it is test case 10 or 11
+
+
+        Iterator it;
+        boolean flag = false;
+
+
+        // check wther this is test case 10 or 11
+        if((testCases.indexOf("10")>-1) || (testCases.indexOf("11")>-1))
+          isTenOrEleven = true;
+
+        // check in list 1
+        if(!isTenOrEleven) { // if this is case from 1 through 9
+          it = testList1.iterator();
+          while(it.hasNext()) {
+            // check whether this set has already been added to list
+            if(((String)it.next()).equalsIgnoreCase(testCases)) {
+              flag = true;
+              break;
+            }
+          }
+          if(!flag) testList1.add(testCases);
+         } else  {// check in list 2 whether the case exists
+           // if this is case 10 or 11
+           it = testList2.iterator();
+           while(it.hasNext()) {
+             // check whether this set has already been added to list
+             if(((String)it.next()).equalsIgnoreCase(testCases)) {
+               flag = true;
+               break;
+             }
+           }
+           if(!flag) testList2.add(testCases);
+         }
+
+        // check whether identifier has already been added to the list
+        it = idList.iterator();
         flag=false;
-        // check whether identifier has already been added to combo box
-        for(int j=0; j<count; ++j) {
-          if(identifierComboBox.getItemAt(j).toString().equals(identifier)) {
+        while(it.hasNext()) {
+          if(((String)it.next()).equals(identifier)) {
             flag = true;
             break;
           }
         }
-        if(!flag) identifierComboBox.addItem(identifier);
+        if(!flag) idList.add(identifier); // add identifier to list if it has not been added yet
     }
-    testComboBox.setSelectedIndex(0);
-    identifierComboBox.setSelectedIndex(0);
+
+
+    // now sort the lists and add it to combo boxes
+    Collections.sort(testList1);
+    Collections.sort(testList2);
+    Collections.sort(idList);
+
+    // add cases 1-9 and then 10 and 11
+    Iterator it = testList1.iterator();
+    while(it.hasNext())  testComboBox.addItem(it.next()); // add test cases 1-9
+    it = testList2.iterator();
+    while(it.hasNext())  testComboBox.addItem(it.next()); // add test cases 10-11
+
+    // add to identifier box
+    it = idList.iterator();
+    while(it.hasNext()) identifierComboBox.addItem(it.next());
   }
 
   /**
