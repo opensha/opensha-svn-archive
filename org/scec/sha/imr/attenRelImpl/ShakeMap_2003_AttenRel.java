@@ -1,4 +1,4 @@
-package org.scec.sha.imr.attenRelImpl;
+ package org.scec.sha.imr.attenRelImpl;
 
 import java.util.*;
 
@@ -1061,7 +1061,8 @@ while(it.hasNext()) {
         // Note that the coefficients in "the APPENDIX" that David Wald sent to me (Ned) on 8/27/07
         // assume that all logs in their equation are base-10 (in spite of their using "ln" for
         // two of the terms).  Thus, thier B1, B2, and Sigma values need to be multiplied by 2.3025.
-        // Also, since thier units are gals their B1 needs to have ln(980) subtracted from it.
+        // Also, since their units are gals their B1 needs to have ln(980) subtracted from it
+        // (except for PGV).
         // PGA
         BJF_1997_AttenRelCoefficients coeffSM0 = new BJF_1997_AttenRelCoefficients(PGA_NAME,
             -1, 2.408, 2.408, 2.408, 1.3171, 0.000, -1.757, -0.473, 760, 6.0,
@@ -1078,19 +1079,23 @@ while(it.hasNext()) {
         // SA/0.30
         BJF_1997_AttenRelCoefficients coeffSM2 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.30" ) ).doubleValue() ,
             0.30, 0.835318, 0.835318, 0.835318, 1.71773, 0.000, -1.827, -0.608, 760, 6.0,
-            1.00*0.660, 1.00*0.328, 1.00*0.737, 1.00*0.3948, 1.00*0.8361 );
+            (0.842/0.836)*0.660, (0.842/0.836)*0.328, (0.842/0.836)*0.737, (0.842/0.836)*0.3948,
+            (0.842/0.836)*0.8361 );
         // SA/1.00
         BJF_1997_AttenRelCoefficients coeffSM3 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.00" ) ).doubleValue() ,
             1.00, -1.82877, -1.82877, -1.82877, 2.20818, 0.000, -1.211, -0.974, 760, 6.0,
-            1.17*0.660, 1.17*0.328, 1.17*0.737, 1.17*0.3948, 1.17*0.8361 );
+            (0.988/0.836)*0.660, (0.988/0.836)*0.328, (0.988/0.836)*0.737, (0.988/0.836)*0.3948,
+            (0.988/0.836)*0.8361 );
         // SA/3.00 - actually these are BJF's 2-second values
         BJF_1997_AttenRelCoefficients coeffSM4 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "3.00" ) ).doubleValue() ,
             3.00, -4.63102, -4.63102, -4.63102, 2.09305, 0.000, -0.848, -0.890, 760, 6.0,
-            1.28*0.660, 1.28*0.328, 1.28*0.737, 1.28*0.3948, 1.28*0.8361 );
+            (1.082/0.836)*0.660, (1.082/0.836)*0.328, (1.082/0.836)*0.737, (1.082/0.836)*0.3948,
+            (1.082/0.836)*0.8361 );
         // PGV - They actually give PGV coeffs so no scaling of 1-sec SA is needed.
         BJF_1997_AttenRelCoefficients coeffSM5 = new BJF_1997_AttenRelCoefficients( PGV_NAME,
-            -1, -1.76891, -1.76891, -1.76891, 1.70391, 0.000, -1.386, -0.668, 760, 6.0,
-            0.89*0.660, 0.89*0.328, 0.89*0.737, 0.89*0.3948, 0.89*0.8361 );
+            -1, 5.1185, 5.1185, 5.1185, 1.70391, 0.000, -1.386, -0.668, 760, 6.0,
+            (0.753/0.836)*0.660, (0.753/0.836)*0.328, (0.753/0.836)*0.737, (0.753/0.836)*0.3948,
+            (0.753/0.836)*0.8361 );
 
         // add these to the list
         coefficientsSM.put( coeffSM0.getName(), coeffSM0 );

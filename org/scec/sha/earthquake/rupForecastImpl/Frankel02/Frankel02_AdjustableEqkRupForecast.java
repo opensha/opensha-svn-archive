@@ -233,7 +233,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     charFaultSources = new Vector();
     grFaultSources = new Vector();
 
-    makeFaultSources("test1",1.0,null,0);
+    makeFaultSources("test2",1.0,null,0);
 
 /*
     makeFaultSources("ca-a-other-fixed-char", 1.0,null,0);
