@@ -174,7 +174,10 @@ public class HazardDatasetCalcCondorApp extends JApplet
       jbInit();
     }
     catch(Exception e) {
-      e.printStackTrace();
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
+
     }
     try{
       initIMRGuiBean();
@@ -360,7 +363,10 @@ public class HazardDatasetCalcCondorApp extends JApplet
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
-     throw new RuntimeException("Connection to ERF servlets failed");
+     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+     bugWindow.show();
+     bugWindow.pack();
+     //throw new RuntimeException("Connection to ERF servlets failed");
    }
    eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -664,8 +670,10 @@ public class HazardDatasetCalcCondorApp extends JApplet
      return obj;
 
    }catch (Exception e) {
-     System.out.println("Exception in connection with servlet:" +e);
-     e.printStackTrace();
+     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+     bugWindow.show();
+     bugWindow.pack();
+
    }
    return null;
  }
@@ -733,8 +741,9 @@ public class HazardDatasetCalcCondorApp extends JApplet
      fromServlet.close();
 
    }catch (Exception e) {
-     System.out.println("Exception in connection with servlet:" +e);
-     e.printStackTrace();
+     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+     bugWindow.show();
+     bugWindow.pack();
    }
  }
 
