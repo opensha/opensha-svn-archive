@@ -128,7 +128,7 @@ public class SubmitJobForGridComputation {
                                         outputDir, UNTAR_CONDOR_SUBMIT,
                                         remoteDir, UNTAR_CONDOR_SUBMIT_EXECUTABLE);
       frmap.write("Job " + this.UNTAR_CONDOR_SUBMIT_JOB_NAME + " " + condorSubmit + "\n");
-      frmap.write("PARENT "+PRE_PROCESSOR_JOB_NAME+" CHILD "+condorSubmit+"\n");
+      frmap.write("PARENT "+PRE_PROCESSOR_JOB_NAME+" CHILD "+UNTAR_CONDOR_SUBMIT_JOB_NAME+"\n");
 
 
       // a post processor which will tar all the files on remote machine after
