@@ -4,8 +4,6 @@
 For OpenSHA:
 ------------
 
-All downloadable apps at our website need to be updated.
-
 The labels for Set1-Case8-??? are incorrect in PEER_TestsApplet, PEER_TestResultsPlotterApplet, and PEER_TestResultsSubmissionApplet.  Please change "0sig", "1sig", and "2sig" to "noTrunc", "2sigTrunc", and "3sigTrunc", respectively.  This needs to be done for all three applications.  Ned tried to make this change himself in PEER_TestsApplet, but couldn't get it to work.
 
 PEER_TestsApplet - the label "Case9-SA97" should actually be "Case9-AS97" (it's correct in the other two apps).
@@ -35,6 +33,8 @@ Is the setParameterInvisible() method correct (looks like it might make paramete
 DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
 
 Find out status of getting out log-log implementation into the official JFreeChart framework.
+
+All downloadable apps at our website need to be updated.
 
 We need to define something like a WeightedERF_List in order to implement Set2-Case5 (the logic trees problem).  This will require making the GUI app know how to deal with this in addition to a normal ERF (shouldn't be a big deal).  Ned has already made some of the tools needed to pull this off.  This is a general capability that we will be implementing for other ERF models very soon.
 
