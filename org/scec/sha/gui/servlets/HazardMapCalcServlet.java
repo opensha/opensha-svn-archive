@@ -63,6 +63,7 @@ public class HazardMapCalcServlet extends HttpServlet {
       File mainDir = new File(PARENT_DIR);
       int newDirId = mainDir.list().length + 1;
       String newDir = this.PARENT_DIR+newDirId+"/";
+      new File(newDir).mkdir();
       String regionFileName = newDir+this.REGION_FILE_NAME;
       String imrFileName = newDir+this.IMR_FILE_NAME;
       String erfFileName = newDir+this.ERF_FILE_NAME;

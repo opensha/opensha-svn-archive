@@ -12,7 +12,7 @@ import org.scec.util.RunScript;
  * grid computation </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author Ned Field, Nitin Gupta, Vipin Gupta
+ * @author Nitin Gupta and Vipin Gupta
  * @date Mar 15, 2004
  * @version 1.0
  */
@@ -56,7 +56,7 @@ public class SubmitJobForGridComputation {
 
   private static String DAG_FILE_NAME  = "pathway1.dag";
   private static String LOG_FILE_NAME  = "pathway1.log";
-  private static String SUBMIT_DAG_SHELL_SCRIPT_NAME = "submitdag.sh";
+  private static String FTP_FILES_TO_REMOTE_MACHINE = "submitdag.sh";
   private static String GET_CURVES_FROM_REMOTE_MACHINE = "getCurves.sh";
   private static String PUT_SUBMIT_FILES_TO_REMOTE_MACHINE = "putSubmitFiles.sh";
 
@@ -97,12 +97,12 @@ public class SubmitJobForGridComputation {
     //frmap.write("Job "+this.PRE_PROCESSOR_JOB_NAME+" " +condorSubmit+"\n");
 
     //creating the directory using the condor_submit on the remote machine
-    FileWriter fr = new FileWriter("makeDir.sh");
+    FileWriter fr = new FileWriter(outputDir+"makeDir.sh");
     fr.write("#!/bin/csh\n");
     fr.write("cd " + outputDir+ "\n");
     fr.write("condor_submit "+ condorSubmit);
     fr.close();
-    RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+"makeDir.sh"});
+    //RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+"makeDir.sh"});
 
     // a post processor which will tar all the files on remote machine after
     // all hazard map calculations are done
@@ -129,12 +129,12 @@ public class SubmitJobForGridComputation {
     //Name of the main executable file to be executed for the Hazard Maps Calulation.
     String executable =  "executable = "+remoteDir+REMOTE_EXECUTABLE_NAME+"\n";
     //
-    fileDataSuffix = "jar_files = " +this.HAZARD_MAP_JAR_FILE_NAME+
-                     "transfer_executable=false"+
-                     "should_transfer_files=YES"+
-                     "WhenToTransferOutput = ON_EXIT"+
-                     "transfer_input_files="+regionFileName+","+erfFileName+","+imrFileName+
-                     "queue";
+    fileDataSuffix = "jar_files = " +this.HAZARD_MAP_JAR_FILE_NAME+"\n"+
+                     "transfer_executable=false"+"\n"+
+                     "should_transfer_files=YES"+"\n"+
+                     "WhenToTransferOutput = ON_EXIT"+"\n"+
+                     "transfer_input_files="+regionFileName+","+erfFileName+","+imrFileName+"\n"+
+                     "queue"+"\n";
 
     for (int site = 0; site < numSites; site += numSitesInWorkUnit) {
       startSite = site;
@@ -158,20 +158,25 @@ public class SubmitJobForGridComputation {
      }
         // close the DAG files
         frmap.close();
+
+        //creates the shell script to grid ftp the tar containing the "submit files" and dag
+        //it also grid FTP the script to run the Dag.
+        ftpSubmitFilesAndDagToRemoteMachine(outputDir,remoteDir);
+
         // submit the DAG for execution
         submitDag(outputDir,remoteDir);
 
         //running the dag on the remote from the local machine using the condor_submit
         condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix, null,
-                        outputDir, DAG_CONDOR_SUBMIT, remoteDir, SUBMIT_DAG_SHELL_SCRIPT_NAME);
+                        outputDir, DAG_CONDOR_SUBMIT, remoteDir, FTP_FILES_TO_REMOTE_MACHINE);
 
         //creating the directory using the condor_submit on the remote machine
-        fr = new FileWriter("rundag.sh");
+        fr = new FileWriter(outputDir+"rundag.sh");
         fr.write("#!/bin/csh\n");
         fr.write("cd " + outputDir+ "\n");
         fr.write("condor_submit "+ condorSubmit);
         fr.close();
-        RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+"rundag.sh"});
+        //RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+"rundag.sh"});
 
       }
       catch (Exception ex) { ex.printStackTrace(); }
@@ -215,11 +220,11 @@ public class SubmitJobForGridComputation {
      * @param remoteDir
      * @param outputDir
      */
-    private void ftpSubmitFilesAndDagToRemoteMachine(String remoteDir,String outputDir){
+    private void ftpSubmitFilesAndDagToRemoteMachine(String outputDir,String remoteDir){
       try{
 
         //Shell script to untar the submit files and execute the dag on the remote machine
-        FileWriter frScript = new FileWriter(outputDir + SUBMIT_DAG_SHELL_SCRIPT_NAME);
+        FileWriter frScript = new FileWriter(outputDir + FTP_FILES_TO_REMOTE_MACHINE);
         frScript.write("#!/bin/csh\n");
         frScript.write("cd " +remoteDir+" \n");
         frScript.write("tar -xf "+SUBMIT_TAR_FILES+"\n");
@@ -232,14 +237,14 @@ public class SubmitJobForGridComputation {
 
         frFTP.write("#!/bin/csh\n");
         frFTP.write("cd " + outputDir+ "\n");
-        frFTP.write("chmod +x " + SUBMIT_DAG_SHELL_SCRIPT_NAME+ "\n");
+        frFTP.write("chmod +x " + FTP_FILES_TO_REMOTE_MACHINE+ "\n");
         frFTP.write("tar -cf "+SUBMIT_TAR_FILES+" *.sub "+DAG_FILE_NAME+"\n");
         frFTP.write("globus-url-copy file:" + outputDir +
                     SUBMIT_TAR_FILES +
                     " gsiftp://almaak.usc.edu" + remoteDir + SUBMIT_TAR_FILES + "\n");
         frFTP.write("globus-url-copy file:" + outputDir +
-                    SUBMIT_DAG_SHELL_SCRIPT_NAME +
-                    "  gsiftp://almaak.usc.edu" + remoteDir + SUBMIT_DAG_SHELL_SCRIPT_NAME + "\n");
+                    FTP_FILES_TO_REMOTE_MACHINE +
+                    "  gsiftp://almaak.usc.edu" + remoteDir + FTP_FILES_TO_REMOTE_MACHINE + "\n");
         frFTP.close();
         }catch (Exception e) { e.printStackTrace(); }
     }
@@ -269,18 +274,7 @@ public class SubmitJobForGridComputation {
    private void submitDag(String outputDir, String remoteDir) {
      try {
        ftpCurvesFromRemoteMachine(outputDir, remoteDir);
-       RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+SUBMIT_DAG_SHELL_SCRIPT_NAME});
-
-
-
-       /*FileWriter condorShell = new FileWriter(outputDir +
-                                               this.SUBMIT_DAG_SHELL_SCRIPT_NAME);
-       condorShell.write("cd " + outputDir + "\n");
-       condorShell.write("chmod +x " + this.GET_CURVES_FROM_REMOTE_MACHINE +
-                         "\n");
-       condorShell.write("condor_submit_dag " + this.DAG_FILE_NAME + "\n");
-       condorShell.close();*/
-
+       //RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+SUBMIT_DAG_SHELL_SCRIPT_NAME});
      }catch(Exception e) { e.printStackTrace();}
    }
 
