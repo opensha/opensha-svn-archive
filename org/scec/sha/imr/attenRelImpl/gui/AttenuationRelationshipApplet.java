@@ -274,8 +274,8 @@ public class AttenuationRelationshipApplet extends JApplet
      */
     private double Y_MIN_VAL = 1e-8;
     private JLabel imgLabel = new JLabel();
-  private JLabel jLabel1 = new JLabel();
-  private Border border1;
+    private JLabel jLabel1 = new JLabel();
+    private Border border1;
 
     /**
      *  Construct the applet
@@ -861,7 +861,11 @@ public class AttenuationRelationshipApplet extends JApplet
         if (xLog) xAxis = new org.jfree.chart.axis.LogarithmicAxis( xAxisLabel );
         else xAxis = new NumberAxis( xAxisLabel );
 
-        xAxis.setAutoRangeIncludesZero( false );
+        if (!xLog)
+          xAxis.setAutoRangeIncludesZero(true);
+        else
+          xAxis.setAutoRangeIncludesZero( false );
+
         xAxis.setStandardTickUnits(units);
         xAxis.setTickMarksVisible(false);
 
@@ -870,8 +874,13 @@ public class AttenuationRelationshipApplet extends JApplet
         if (yLog) yAxis = new org.jfree.chart.axis.LogarithmicAxis(yAxisLabel);
         else yAxis = new NumberAxis( yAxisLabel );
 
+        if (!yLog)
+          yAxis.setAutoRangeIncludesZero(true);
 
-        yAxis.setAutoRangeIncludesZero( false );
+        else
+          yAxis.setAutoRangeIncludesZero( false );
+
+
         yAxis.setStandardTickUnits(units);
         yAxis.setTickMarksVisible(false);
 
