@@ -11,6 +11,8 @@ import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.rupForecastImpl.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
+import org.scec.param.event.*;
+import org.scec.data.region.SitesInGriddedRegion;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -22,7 +24,17 @@ import org.scec.sha.earthquake.EqkRupForecastAPI;
  * @version 1.0
  */
 
-public class ScenarioShakeMapApp extends JApplet {
+public class ScenarioShakeMapApp extends JApplet implements
+                                         ParameterChangeListener{
+
+
+  /**
+   * Name of the class
+   */
+  protected final static String C = "ScenarioShakeMapApp";
+  // for debug purpose
+  protected final static boolean D = false;
+
 
 
   //variables that determine the width and height of the frame
@@ -302,7 +314,8 @@ public class ScenarioShakeMapApp extends JApplet {
    */
   private void initMapGuiBean(){
     mapGuiBean = new MapGuiBean();
-    gmtPanel.add(mapGuiBean.showGMTParams(true), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+    mapGuiBean.showGMTParams(false);
+    gmtPanel.add(mapGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
     double minLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
     double maxLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
@@ -312,6 +325,72 @@ public class ScenarioShakeMapApp extends JApplet {
     mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
   }
 
+  /**
+   *  Any time a control paramater or independent paramater is changed
+   *  by the user in a GUI this function is called, and a paramater change
+   *  event is passed in. This function then determines what to do with the
+   *  information ie. show some paramaters, set some as invisible,
+   *  basically control the paramater lists.
+   *
+   * @param  event
+   */
+  public void parameterChange(ParameterChangeEvent event){
 
+    String S = C + ": parameterChange(): ";
 
+    String name1 = event.getParameterName();
+
+    // if IMR selection changed, update the site parameter list and supported IMT
+    if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
+      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+      imtGuiBean.setIMR(imr);
+      imtGuiBean.validate();
+      imtGuiBean.repaint();
+      sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+      sitesGuiBean.validate();
+      sitesGuiBean.repaint();
+    }
+    if(name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME))
+       /* get the selected ERF
+       NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
+       erfGuiBean.getSelectedERF.
+       Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
+       the forecast while erfGuiBean.getSelectedERF updates the
+       */
+      this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
+
+   if(name1.equalsIgnoreCase(sitesGuiBean.MIN_LATITUDE)||
+      name1.equalsIgnoreCase(sitesGuiBean.MAX_LATITUDE)||
+      name1.equalsIgnoreCase(sitesGuiBean.MIN_LONGITUDE)||
+      name1.equalsIgnoreCase(sitesGuiBean.MAX_LONGITUDE)||
+      name1.equalsIgnoreCase(sitesGuiBean.GRID_SPACING)){
+
+     //updates the GMT region parameters if the sites region parameters are updated
+     double minLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
+     double maxLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
+     double minLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
+     double maxLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
+     double gridSpacing=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
+     mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
+   }
+  }
+
+  private void generateShakeMap(){
+    boolean imlAtProb=false;
+    boolean probAtIML=false;
+    SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+    int numSites = griddedRegionSites.getNumGridLocs();
+    String imlOrProb=imlProbGuiBean.getParameterList().getParameter(imlProbGuiBean.MAP_TYPE).getValue().toString();
+    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
+      imlAtProb=true;
+    else
+      probAtIML=true;
+
+    for(int i=0;i<numSites;++i){
+      if(imlAtProb){
+
+      }
+    }
+
+  }
 }
