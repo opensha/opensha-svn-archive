@@ -678,20 +678,22 @@ public class GroupTestGuiBean implements
     // check which forecast has been selected by the user
     if(selectedForecast.equalsIgnoreCase(this.SOURCE_FAULT_ONE)) {
       //if fault forecast is selected
+      faultcase1.updateForecast();
       eqkRupForecast = this.faultcase1;
     } else if(selectedForecast.equalsIgnoreCase(this.SOURCE_FAULT_AREA)) {
       // if Area forecast is selected
+      faultcase2_area.updateForecast();
       eqkRupForecast = this.faultcase2_area;
     }
 
     // catch the constraint exceptions thrown by the forecasts
-    try {
+   /* try {
       eqkRupForecast.updateForecast();
     }catch (RuntimeException e) {
       JOptionPane.showMessageDialog(applet, e.getMessage(),
         "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
       return;
-    }
+    }*/
     // intialize the condProbFunction for each IMR
     ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
     ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -728,6 +730,7 @@ public class GroupTestGuiBean implements
         // set the std dev
         String stdDev = (String)imrParamList.getValue(this.STD_DEV_TYPE_NAME);
         imr.getParameter(this.STD_DEV_TYPE_NAME).setValue(stdDev);
+
         // pass the site object to each IMR
         try {
           if(D) System.out.println("siteString:::"+site.toString());
