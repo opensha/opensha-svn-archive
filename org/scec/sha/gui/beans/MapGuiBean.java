@@ -152,7 +152,7 @@ public class MapGuiBean extends ParameterListEditor implements
     gmtMap.createMapInfoFile(metadata);
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
-      imgName =gmtMap.makeMapUsingServlet(xyzVals,imt);
+      imgName =gmtMap.makeMapUsingServlet(xyzVals,eqkRupture,imt);
       metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
     }
     else{
