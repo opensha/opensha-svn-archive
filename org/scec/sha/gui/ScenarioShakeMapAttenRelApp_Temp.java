@@ -173,6 +173,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
       jbInit();
     }
     catch(Exception e) {
+      step =0;
       e.printStackTrace();
     }
     try{
@@ -180,6 +181,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
       initIMRGuiBean();
     }catch(RuntimeException e){
       e.printStackTrace();
+      step =0;
       JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
       return;
     }
@@ -189,6 +191,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
         initTimeSpanGuiBean();
       }catch(RuntimeException e){
         //e.printStackTrace();
+        step =0;
         JOptionPane.showMessageDialog(this,"Could not create ERF Object","Error occur in ERF",
                                       JOptionPane.OK_OPTION);
         return;
@@ -426,20 +429,14 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
       addButton();
     }catch(ParameterException ee){
       ee.printStackTrace();
+      step =0;
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
-      if(calcProgress !=null){
-        calcProgress.showProgress(false);
-        calcProgress.dispose();
-      }
       return;
     }
     catch(Exception ee){
       ee.printStackTrace();
+      step =0;
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.INFORMATION_MESSAGE);
-      if(calcProgress !=null){
-        calcProgress.showProgress(false);
-        calcProgress.dispose();
-      }
       return;
     }
     //make sures that next time user wants to generate the shapefiles for hazus
