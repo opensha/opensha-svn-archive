@@ -225,11 +225,7 @@ public class DoubleDiscreteParameter
                 "This parameter only accepts DoubleDiscreteConstraints, unable to set the constraint."
             );
         }
-        else {
-          Object value = this.getValue();
-          super.setConstraint( constraint );
-          this.setValue(value);
-        }
+        else  super.setConstraint( constraint );
 
         //if( (constraint != null) && (constraint.getName() == null) )
             //constraint.setName( name );

@@ -362,6 +362,17 @@ public abstract class Parameter
         //setting the new constraint for the parameter
         this.constraint = constraint;
 
+        //getting the existing value for the Parameter
+        Object value = getValue();
+
+        /**
+         * Check to see if the existing value of the parameter is within the
+         * new constraint of the parameter, if so then leave the value of the parameter
+         * as it is currently else if the value is outside the constraint then
+         * give the parameter a temporaray null value, which can be changed later by the user.
+         */
+        if(!constraint.isAllowed(value)){
+
         /*allowing the constraint to have null values.This has to be done becuase
         if the previous value for the parameter is not within the constraints then it will
         throw the exception: "Value not allowed". so we have have allow "null" in the parameters.*/
@@ -372,6 +383,8 @@ public abstract class Parameter
         /*null is just a new temp value of the parameter, which can be changed by setting
           a value in the parameter that is compatible with the parameter constraints.*/
         this.setValue(null);
+        constraint.setNullAllowed(false);
+        }
     }
 
     /** Returns a description of this Parameter, typically used for tooltips. */
