@@ -143,16 +143,15 @@ public class ScenarioShakeMapCalculator {
         sumZVals =zVals;
       else {
         size1 = sumZVals.size();
-        if(!isProbAtIML){ //if IML@Prob
-          for(int j=0;j<size1;++j)
-            sumZVals.set(j,new Double(((Double)sumZVals.get(j)).doubleValue() + ((Double)zVals.get(j)).doubleValue()));
-        }
-        else{ //if Prob@IML
-          for(int j=0;j<size1;++j){
-            double tempVal = Math.exp(((Double)sumZVals.get(j)).doubleValue());
-            sumZVals.set(j,new Double(tempVal+ ((Double)zVals.get(j)).doubleValue()));
-          }
-        }
+        for(int j=0;j<size1;++j)
+          sumZVals.set(j,new Double(((Double)sumZVals.get(j)).doubleValue() + ((Double)zVals.get(j)).doubleValue()));
+      }
+    }
+    if(isProbAtIML){ //if Prob @IML then do Math.exp for the Prob's
+      int size1 = sumZVals.size();
+      for (int j = 0; j < size1; ++j){
+        double tempVal = Math.exp(((Double)sumZVals.get(j)).doubleValue());
+        sumZVals.set(j,new Double(tempVal));
       }
     }
     //updating the Z Values for the XYZ data after averaging the values for all selected attenuations.
