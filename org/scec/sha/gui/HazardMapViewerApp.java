@@ -414,6 +414,8 @@ public class HazardMapViewerApp extends JApplet {
     double maxLon = Double.parseDouble((String)sitesParamList.getParameter(this.MAX_LON_PARAM_NAME).getValue());
     double gridSpacing = ((Double)sitesParamList.getParameter(this.GRIDSPACING_PARAM_NAME).getValue()).doubleValue();
     String selectedSet = this.dataSetCombo.getSelectedItem().toString();
+    // set the lat and lon limits in mao gui bean
+    mapGuiBean.setGMTRegionParams(minLat, maxLat, minLon, maxLon, gridSpacing);
     // whethert IML@prob is selected or vics versa
     boolean isProbAt_IML = true;
     if(imlProbGuiBean.getSelectedOption().equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
@@ -557,8 +559,7 @@ public class HazardMapViewerApp extends JApplet {
    }
 
    /**
-    * interpolating the iml values to get the
-  final iml for the corresponding prob
+    * interpolating the iml values to get the final iml for the corresponding prob
     * @param x1=iml1
     * @param x2=iml2
     * @param y1=prob1
