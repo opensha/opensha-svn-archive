@@ -400,7 +400,7 @@ public class SubmitJobForGridComputation {
                                         this.GET_CURVES_FROM_REMOTE_MACHINE);
       frFTP.write("#!/bin/csh\n");
       frFTP.write("cd " + outputDir + "\n");
-      frFTP.write("globus-url-copy gsiftp://almaak.usc.edu" + remoteDir +
+      frFTP.write("globus-url-copy gsiftp://almaak.usc.edu" + remoteDir +DATA_DIR+
                   OUTPUT_TAR_FILE_NAME +
                   " file:" + outputDir + OUTPUT_TAR_FILE_NAME + "\n");
       frFTP.write("tar xf " + OUTPUT_TAR_FILE_NAME + "\n");

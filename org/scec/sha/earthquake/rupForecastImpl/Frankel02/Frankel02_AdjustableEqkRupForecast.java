@@ -71,8 +71,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
    * Static variables for input files
    */
 
+  //private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
   private final static String IN_FILE_PATH = "org/scec/sha/earthquake/rupForecastImpl/Frankel02/InputFiles/";
-
   ArrayList faultFiles, faultFileWts, areaGridFiles, areaGridFileWts;
 
   /**
@@ -103,7 +103,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   StringParameter backSeisParam;
 
   // fault-model parameter stuff
-  public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As:");
+  public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As");
   public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
   public final static String BACK_SEIS_RUP_FINITE = new String ("Finite Sources");
   // make the fault-model parameter

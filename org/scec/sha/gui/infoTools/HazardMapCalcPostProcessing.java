@@ -53,7 +53,7 @@ public class HazardMapCalcPostProcessing {
       msg.println("To: " + emailAddr); // so mailers will display the recipient's e-mail address
       msg.println("From: " + FROM); // so that mailers will display the sender's e-mail address
       msg.println("Subject: Grid Job Status \n");
-      msg.println("THIS IS A AUTOMATED GNERATED EMAIL. DO NOT REPLY\n"+
+      msg.println("THIS IS A AUTOMATED GENERATED EMAIL. PLEASE DO NOT REPLY BACK TO THIS ADDRESS.\n\n\n"+
                   "Grid Computation complete\n"+
                   "Expected Num of Files="+expectedNumOfFiles+"\n"+
                   "Files Generated="+actualFiles+"\n"+
