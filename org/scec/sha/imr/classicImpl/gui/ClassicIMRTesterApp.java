@@ -753,7 +753,7 @@ public class ClassicIMRTesterApp extends JApplet
 
         legendSplitPane.setBottomComponent(legendScrollPane);
         legendSplitPane.setTopComponent( panel);
-        legendSplitPane.setDividerLocation(80);
+        legendSplitPane.setDividerLocation(450);
         legendSplitPane.setOneTouchExpandable( false );
 
 
@@ -1077,9 +1077,6 @@ public class ClassicIMRTesterApp extends JApplet
             //newLoc = loc - titleSize;
         }
 
-
-
-
         validate();
         repaint();
 
@@ -1107,6 +1104,7 @@ public class ClassicIMRTesterApp extends JApplet
         innerPlotPanel.removeAll();
 
         int loc = mainSplitPane.getDividerLocation();
+        int legendLoc=legendSplitPane.getDividerLocation();
         titleSize = titlePanel.getHeight() + 6;
 
         int newLoc = loc;
@@ -1157,7 +1155,7 @@ public class ClassicIMRTesterApp extends JApplet
 
                legendSplitPane.setBottomComponent(legendScrollPane);
                legendSplitPane.setTopComponent( panel);
-               legendSplitPane.setDividerLocation(450);
+               legendSplitPane.setDividerLocation(legendLoc);
                 /*innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 10.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
