@@ -171,7 +171,7 @@ public class PSHAGridXYPlot
         }
         else {
           // adjust the vertical scale according to horizontal scale
-          double upperv=(dataArea.getMaxY()-dataArea.getMinY())*Math.abs(Math.cos(cosineY))/horizontaldiff + rv.getLowerBound();
+          //double upperv=(dataArea.getMaxY()-dataArea.getMinY())*Math.abs(Math.cos(cosineY))/horizontaldiff + rv.getLowerBound();
           //rangeAxis.setRange(rv.getLowerBound(),upperv);
           vert.setTickUnit(new NumberTickUnit(1/0.72*horz.getTickUnit().getSize(), new DecimalFormat("0.000")));
         }
