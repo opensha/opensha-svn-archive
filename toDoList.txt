@@ -89,15 +89,6 @@ Investigate what proper longitude limits are with respect to RelativeLocation, 0
 
 Go through existing apps and list issues we'd like to improve.
 
-getIML_AtExceedProb()
-
-	we currently have a max and min on the exceedProbParam of 1.0-1.0e-4 and 1.0e-4, respectively, 
-	which are appropriate limits of given the specified tolerance of 1e-5 in the 
-	GaussianDistCalc.getStandRandVar() method.  Alternatively, we could make the max and min 1 and 0,
-	respectively, and compute an appropriate tolerance dynamically (e.g., ~1% of chosen prob).
-	Ned will think about this
-
-
 wg99/02 Fortran code:
 
 	(PRESENTLY ON HOLD UNTIL WG02 GETS THEIR CODE RUNNING ON ALL UNIX PLATFORMS)
@@ -159,8 +150,6 @@ ScenarioShakeMapApp
 
 	Add plotting of rupture surface as a dot at each point on the gridded surface?
 	Use getInfo for each source to provide users with information.
-
-Fix titles of web pages (Ned's problem)
 
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
 
