@@ -38,6 +38,9 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   private static String  C = new String("PEER Non-Planar Fault");
   private boolean D = false;
 
+  //name for this classs
+  public final static String  NAME = C;
+
   /**
    * timespan field in yrs for now (but have to ultimately make it a TimeSpan class variable
    */

@@ -31,6 +31,8 @@ public class PEER_FaultSource extends ProbEqkSource {
   //for Debug purposes
   private static String  C = new String("PEER Fault Source");
   private boolean D = false;
+  //name for this classs
+  public final static String  NAME = C;
 
   private double rake;
   private double timeSpan;

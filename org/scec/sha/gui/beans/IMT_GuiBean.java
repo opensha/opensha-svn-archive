@@ -35,6 +35,9 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
    * @param imr
    */
  public IMT_GuiBean(AttenuationRelationshipAPI imr) {
+   // search path needed for making editors
+   searchPaths = new String[1];
+   searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
    setIMR(imr);
  }
 
@@ -110,7 +113,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
         parameterList.addParameter((ParameterAPI)it1.next());
     }
 
-
+    this.editorPanel.removeAll();
     // now make the editor based on the paramter list
     addParameters();
     setTitle( this.IMT_EDITOR_TITLE );
@@ -169,10 +172,30 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
      // if IMT selection then update
      if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
        updateIMT((String)event.getNewValue());
-      // applet.updateChosenIMT();
      }
 
  }
 
+ /**
+  * It will retunr the IMT selected by the user
+  * @return : IMT selected by the user
+  */
+ public String getSelectedIMT() {
+   return this.parameterList.getValue(this.IMT_PARAM_NAME).toString();
+ }
+
+ /**
+  * set the IMT parameter in IMR
+  */
+ public void setIMR_Param() {
+   String selectedImt = this.parameterList.getValue(this.IMT_PARAM_NAME).toString();
+   //set all the  parameters related to this IMT
+   Iterator it= imtParam.iterator();
+   while(it.hasNext()){
+     DependentParameterAPI param=(DependentParameterAPI)it.next();
+     if(param.getName().equalsIgnoreCase(selectedImt))
+       imr.setIntensityMeasure(param);
+   }
+ }
 
 }

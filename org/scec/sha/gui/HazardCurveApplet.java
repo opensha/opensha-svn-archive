@@ -6,6 +6,7 @@ import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.Vector;
+import java.util.Iterator;
 import java.net.*;
 
 
@@ -25,7 +26,12 @@ import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.util.*;
 import org.scec.sha.gui.controls.*;
-
+import org.scec.sha.gui.beans.*;
+import org.scec.sha.imr.AttenuationRelationshipAPI;
+import org.scec.sha.earthquake.EqkRupForecastAPI;
+import org.scec.sha.calc.HazardCurveCalculator;
+import org.scec.sha.calc.DisaggregationCalculator;
+import org.scec.data.Site;
 
 /**
  * <p>Title: HazardCurveApplet</p>
@@ -35,7 +41,9 @@ import org.scec.sha.gui.controls.*;
  * @version 1.0
  */
 
-public class HazardCurveApplet extends JApplet implements LogPlotAPI {
+public class HazardCurveApplet extends JApplet
+    implements LogPlotAPI,
+    ParameterChangeListener {
 
   /**
    * Name of the class
@@ -44,6 +52,34 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
   // for debug purpose
   protected final static boolean D = false;
 
+  /**
+   *  The object class names for all the supported attenuation ralations (IMRs)
+   *  Temp until figure out way to dynamically load classes during runtime
+   */
+  public final static String BJF_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.BJF_1997_AttenRel";
+  public final static String AS_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.AS_1997_AttenRel";
+  public final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
+  public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
+  public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
+  public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
+  public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
+
+  /**
+   *  The object class names for all the supported Eqk Rup Forecasts
+   */
+  public final static String PEER_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_FaultForecast";
+  public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_AreaForecast";
+  public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_NonPlanarFaultForecast";
+  public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_ListricFaultForecast";
+  public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_MultiSourceForecast";
+
+  // instances of the GUI Beans which will be shown in this applet
+  ERF_GuiBean erfGuiBean;
+  IMR_GuiBean imrGuiBean;
+  IMT_GuiBean imtGuiBean;
+  Site_GuiBean siteGuiBean;
+
+
   // mesage needed in case of show data if plot is not available
   final static String NO_PLOT_MSG = "No Plot Data Available";
 
@@ -51,9 +87,6 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
 
   private boolean isStandalone = false;
   private Border border1;
-
-
-
 
 
   //log flags declaration
@@ -116,6 +149,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
 
   //flag to check for the disaggregation functionality
   private boolean disaggregationFlag= false;
+  private String disaggregationString;
 
   // PEER Test Cases
   private String TITLE = new String("PEER Test Cases");
@@ -163,7 +197,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
   private JPanel imtPanel = new JPanel();
   private JSplitPane controlsSplit = new JSplitPane();
   private GridBagLayout gridBagLayout13 = new GridBagLayout();
-  private JPanel sourcePanel = new JPanel();
+  private JPanel erfPanel = new JPanel();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private Border border6;
   private Border border7;
@@ -215,21 +249,74 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
       // make the GroupTestGuiBean
       hazardCurveGuiBean = new HazardCurveGuiBean(this);
 
+      // create the IMR Gui Bean object
+      // It accepts the vector of IMR class names
+      Vector imrClasses = new Vector();
+      imrClasses.add(this.A_CLASS_NAME);
+      imrClasses.add(this.AS_CLASS_NAME);
+      imrClasses.add(this.BJF_CLASS_NAME);
+      imrClasses.add(this.C_CLASS_NAME);
+      imrClasses.add(this.SCEMY_CLASS_NAME);
+      imrClasses.add(this.CB_CLASS_NAME);
+      imrClasses.add(this.F_CLASS_NAME);
+      imrGuiBean = new IMR_GuiBean(imrClasses);
+      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
+      // show this gui bean the JPanel
+      imrPanel.add(this.imrGuiBean,
+                new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                GridBagConstraints.CENTER,
+                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+      // get the selected IMR
+      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+
+      // create the IMT Gui Bean object
+      imtGuiBean = new IMT_GuiBean(imr);
+      imtPanel.setLayout(gridBagLayout8);
+      imtPanel.add(imtGuiBean,
+                new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                GridBagConstraints.CENTER,
+                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+
+      // create the Site Gui Bean object
+      siteGuiBean = new Site_GuiBean();
+      siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+      // show the sitebean in JPanel
+      sitePanel.add(this.siteGuiBean,
+              new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+              GridBagConstraints.CENTER,
+                GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+
+      // create the ERF Gui Bean object
+      Vector erf_Classes = new Vector();
+      erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
+      erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
+      erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+      erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
+      erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+      erfGuiBean = new ERF_GuiBean(erf_Classes);
+      erfPanel.setLayout(gridBagLayout5);
+      erfPanel.add(erfGuiBean,
+                   new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                   GridBagConstraints.CENTER,
+                    GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+
       //creating the instance of the PEER_TestParamSetter class which is extended from the
       //JComboBox, so it is like a control panel for creating the JComboBox containing the
       //name of different sets and the test cases
       //peerTestsParamSetter takes the instance of the hazardCurveGuiBean as its instance
-      peerTestsParamSetter= new PEER_TestsParamSetter(hazardCurveGuiBean);
+      peerTestsParamSetter= new PEER_TestsParamSetter(imrGuiBean, siteGuiBean,
+          imtGuiBean, erfGuiBean);
       peerTestsParamSetter.setLightWeightPopupEnabled(false);
       peerTestsParamSetter.setBackground(new Color(200, 200, 230));
       peerTestsParamSetter.setForeground(new Color(80, 80, 133));
       peerTestsParamSetter.setBorder(null);
-      buttonPanel.add(peerTestsParamSetter,     new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+      buttonPanel.add(peerTestsParamSetter, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 5, 5, 3), 19, 7));
 
-      this.updateChosenIMR();
-      this.updateChosenIMT();
-      this.updateChosenERF();
 
       //initialising the disaggregation parameter and adding to the button Panel
       disaggregationEditor.setParameter(disaggregationParam);
@@ -356,13 +443,13 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
     controlsSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     controlsSplit.setDividerSize(5);
     parameterSplitPane.setLeftComponent(controlsSplit);
-    parameterSplitPane.setRightComponent(sourcePanel);
-    sourcePanel.setLayout(gridBagLayout5);
-    sourcePanel.setBackground(Color.white);
-    sourcePanel.setBorder(border2);
-    sourcePanel.setMaximumSize(new Dimension(2147483647, 10000));
-    sourcePanel.setMinimumSize(new Dimension(2, 300));
-    sourcePanel.setPreferredSize(new Dimension(2, 300));
+    parameterSplitPane.setRightComponent(erfPanel);
+    erfPanel.setLayout(gridBagLayout5);
+    erfPanel.setBackground(Color.white);
+    erfPanel.setBorder(border2);
+    erfPanel.setMaximumSize(new Dimension(2147483647, 10000));
+    erfPanel.setMinimumSize(new Dimension(2, 300));
+    erfPanel.setPreferredSize(new Dimension(2, 300));
 
     imrPanel.setLayout(gridBagLayout15);
     imrPanel.setBackground(Color.white);
@@ -411,7 +498,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
     siteSplitPane.add(sitePanel, JSplitPane.TOP);
     siteSplitPane.add(imtPanel, JSplitPane.BOTTOM);
     controlsSplit.add(imrPanel, JSplitPane.TOP);
-    parameterSplitPane.add(sourcePanel, JSplitPane.RIGHT);
+    parameterSplitPane.add(erfPanel, JSplitPane.RIGHT);
     controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     buttonPanel.add(jCheckylog,     new GridBagConstraints(6, 0, 1, 2, 0.0, 0.0
@@ -439,8 +526,8 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
     parameterSplitPane.setDividerLocation(175);
     siteSplitPane.setDividerLocation(175);
     controlsSplit.setDividerLocation(175);
-    sourcePanel.validate();
-    sourcePanel.repaint();
+    erfPanel.validate();
+    erfPanel.repaint();
 
 
     rangeComboBox.addItem(new String(AUTO_SCALE));
@@ -488,73 +575,11 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
   //static initializer for setting look & feel
   static {
     try {
-      //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
       //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
     }
     catch(Exception e) {
     }
-  }
-
-
-
-  /**
-   *  update the GUI with the IMT choosen
-   */
-  public void updateChosenIMT() {
-    if(this.hazardCurveGuiBean==null)
-      return;
-    imtPanel.removeAll();
-    imtPanel.setLayout(gridBagLayout8);
-    imtPanel.add(hazardCurveGuiBean.getIMTEditor(),
-                 new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                 GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    imtPanel.validate();
-    imtPanel.repaint();
-  }
-
-  /**
-   *  update the GUI with the IMR choosen
-   *  refresh the sites params as well
-   */
-  public void updateChosenIMR() {
-    // update the IMR and site panel
-    if(this.hazardCurveGuiBean==null)
-      return;
-    imrPanel.removeAll();
-    sitePanel.removeAll();
-    // update the imr editor
-    imrPanel.add(hazardCurveGuiBean.getImrEditor(),
-                 new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                 GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    // update the site editor
-    sitePanel.add(hazardCurveGuiBean.getSiteEditor(),
-                 new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                 GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-    imrPanel.validate();
-    imrPanel.repaint();
-    sitePanel.validate();
-    sitePanel.repaint();
-  }
-
-  /**
-   *  update the GUI with the choosen Eqk source
-   */
-  public void updateChosenERF() {
-    // update the EqkSource panel
-    if(this.hazardCurveGuiBean==null)
-      return;
-    this.sourcePanel.removeAll();
-    sourcePanel.setLayout(gridBagLayout5);
-    sourcePanel.add(hazardCurveGuiBean.get_erf_Editor(),
-                    new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                    GridBagConstraints.CENTER,
-                    GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    sourcePanel.validate();
-    sourcePanel.repaint();
   }
 
 
@@ -709,7 +734,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
       // clear the function list
       //this.totalProbFuncs.clear();
 
-      hazardCurveGuiBean.computeHazardCurve(totalProbFuncs);
+      computeHazardCurve();
 
       // set the log values
       data.setXLog(xLog);
@@ -723,7 +748,6 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
       addGraphPanel();
 
       //displays the disaggregation string in the pop-up window
-      String disaggregationString= hazardCurveGuiBean.getDisaggregationString();
       if(disaggregationString !=null) {
 
         HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(disaggregationString);
@@ -917,4 +941,148 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
      }
   }
 
+
+  /**
+   *  Any time a control paramater or independent paramater is changed
+   *  by the user in a GUI this function is called, and a paramater change
+   *  event is passed in. This function then determines what to do with the
+   *  information ie. show some paramaters, set some as invisible,
+   *  basically control the paramater lists.
+   *
+   * @param  event
+   */
+  public void parameterChange( ParameterChangeEvent event ) {
+
+      String S = C + ": parameterChange(): ";
+      if ( D )  System.out.println( "\n" + S + "starting: " );
+
+      String name1 = event.getParameterName();
+
+      // if IMR selection changed, update the site parameter list and supported IMT
+      if ( name1.equalsIgnoreCase(imrGuiBean.IMR_PARAM_NAME)) {
+        AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+        imtGuiBean.setIMR(imr);
+        imtGuiBean.validate();
+        imtGuiBean.repaint();
+        siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+        siteGuiBean.validate();
+        siteGuiBean.repaint();
+      }
+  }
+
+  /**
+   * Initialize the X values and the prob as 1
+   *
+   * @param arb
+   */
+  private void initDiscretizeValues(ArbitrarilyDiscretizedFunc arb){
+    arb.set(.001,1);
+    arb.set(.01,1);
+    arb.set(.05,1);
+    arb.set(.15,1);
+    arb.set(.1,1);
+    arb.set(.2,1);
+    arb.set(.25,1);
+    arb.set(.3,1);
+    arb.set(.4,1);
+    arb.set(.5,1);
+    arb.set(.6,1);
+    arb.set(.7,1);
+    arb.set(.8,1);
+    arb.set(.9,1);
+    arb.set(1.0,1);
+    arb.set(1.1,1);
+    arb.set(1.2,1);
+    arb.set(1.3,1);
+    arb.set(1.4,1);
+    arb.set(1.5,1);
+  }
+
+  /**
+  * Gets the probabilities functiion based on selected parameters
+  * this function is called when add Graph is clicked
+  */
+ public void computeHazardCurve() {
+
+   // intialize the hazard function
+   ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+   initDiscretizeValues(hazFunction);
+   hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+
+   // get the selected forecast model
+   EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
+
+   // get the selected IMR
+   AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+
+   // make a site object to pass to IMR
+   Site site = siteGuiBean.getSite();
+
+   try {
+     // this function will get the selected IMT parameter and set it in IMT
+     imtGuiBean.setIMR_Param();
+   } catch (Exception ex) {
+     if(D) System.out.println(C + ":Param warning caught"+ex);
+     ex.printStackTrace();
+   }
+
+   // calculate the hazard curve
+   HazardCurveCalculator calc = new HazardCurveCalculator();
+   try {
+     //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+     //calls the method to update the magDistParams.
+     erfGuiBean.updateMagDistParam();
+      // calculate the hazard curve
+     calc.getHazardCurve(hazFunction, site, imr, eqkRupForecast);
+   }catch (RuntimeException e) {
+     JOptionPane.showMessageDialog(this, e.getMessage(),
+           "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+     e.printStackTrace();
+     return;
+   }
+
+  //inititialising the disaggregation String
+  disaggregationString=null;
+  //checking the disAggregation flag
+  if(getDisaggregationFlag()){
+    DisaggregationCalculator disaggCalc = new DisaggregationCalculator();
+    double selectedProb= getDisaggregationProbablity();
+    int num = hazFunction.getNum();
+
+    //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
+    if(selectedProb > hazFunction.getY(0) || selectedProb < hazFunction.getY(num-1))
+      JOptionPane.showMessageDialog(this,
+                                    new String("Chosen Probability is not"+
+                                    " within the range of the min and max prob."+
+                                    " in the Hazard Curve"),
+                                    "Disaggregation Prob. selection error message",
+                                    JOptionPane.OK_OPTION);
+    else{
+      //gets the Disaggregation data
+      double iml= hazFunction.getFirstInterpolatedX(selectedProb);
+      disaggCalc.disaggregate(Math.log(iml),site,imr,eqkRupForecast);
+      disaggregationString=disaggCalc.getResultsString();
+    }
+  }
+   // add the function to the function list
+   totalProbFuncs.add(hazFunction);
+
+   // set the X-axis label
+   totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
+   totalProbFuncs.setYAxisName("Probability of Exceedance");
+  }
+
+
+  /**
+   *
+   * @returns the String containing the values selected for different parameters
+   */
+  public String getCurveParametersInfo(){
+    return "IMR Param List: " +this.imrGuiBean.getParameterList().toString()+"\n"+
+        "Site Param List: "+siteGuiBean.getParameterList().toString()+"\n"+
+        "IMT Param List: "+imtGuiBean.getParameterList().toString()+"\n"+
+        "Forecast Param List: "+erfGuiBean.getParameterList().toString();
+  }
+
 }
+

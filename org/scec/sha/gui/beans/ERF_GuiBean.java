@@ -44,6 +44,10 @@ public class ERF_GuiBean extends ParameterListEditor implements
     this.parameterList = new ParameterList();
     // save the classs names of ERFs to be shown
     this.erfClasses = erfClassNames;
+    // search path needed for making editors
+    searchPaths = new String[2];
+    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+    searchPaths[1] = "org.scec.sha.magdist.gui" ;
     // create the instance of ERFs
     init_erf_IndParamListAndEditor();
   }
@@ -172,7 +176,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
     * else return null.
     * @returns MagFreDistParameterEditor
     */
-   private MagFreqDistParameterEditor getMagDistEditor(){
+   public MagFreqDistParameterEditor getMagDistEditor(){
 
      ListIterator lit = parameterList.getParametersIterator();
      while(lit.hasNext()){
@@ -183,6 +187,46 @@ public class ERF_GuiBean extends ParameterListEditor implements
        }
      }
      return null;
+   }
+
+
+   /**
+    * returns the name of selected ERF
+    * @return
+    */
+   public String getSelectedERF_Name() {
+     return (String)parameterList.getValue(this.ERF_PARAM_NAME);
+   }
+
+   /**
+    * get the selected ERF instance
+    * @return
+    */
+   public EqkRupForecastAPI getSelectedERF_Instance() {
+     EqkRupForecastAPI eqkRupForecast = null;
+     // get the selected forecast model
+     String selectedForecast = getSelectedERF_Name();
+
+     // check which forecast has been selected by the user
+     int size = this.erfNamesVector.size();
+     String erfName;
+     for(int i=0; i<size; ++i) {
+       erfName = (String)erfNamesVector.get(i);
+       if(selectedForecast.equalsIgnoreCase(erfName)) { // we found selected forecast in the list
+         eqkRupForecast = (EqkRupForecastAPI)this.erfObject.get(i);
+         break;
+       }
+     }
+     return eqkRupForecast;
+   }
+
+
+   /**checks if the magFreqDistParameter exists inside it ,
+    * if so then gets its Editor and calls the method to update the magDistParams.
+    */
+   public void updateMagDistParam() {
+     MagFreqDistParameterEditor magEditor=getMagDistEditor();
+     if(magEditor!=null)  magEditor.setMagDistFromParams();
    }
 
 
@@ -248,6 +292,8 @@ public class ERF_GuiBean extends ParameterListEditor implements
      if( name1.equals(this.ERF_PARAM_NAME) ){
        String value = event.getNewValue().toString();
        setParamsInForecast(value);
+       this.validate();
+       this.repaint();
        //       applet.updateChosenERF();
      }
    }

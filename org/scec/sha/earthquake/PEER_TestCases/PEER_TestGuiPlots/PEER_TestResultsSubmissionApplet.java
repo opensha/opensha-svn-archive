@@ -135,9 +135,6 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   private JLabel directionsLabel = new JLabel();
   private JLabel imgLabel = new JLabel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  GridBagLayout gridBagLayout2 = new GridBagLayout();
-  GridBagLayout gridBagLayout4 = new GridBagLayout();
-  BorderLayout borderLayout1 = new BorderLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -175,18 +172,22 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     border8 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     border9 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     this.setSize(new Dimension(704, 597));
-    this.getContentPane().setLayout(borderLayout1);
+    this.getContentPane().setLayout(null);
 
 
-    mainPanel.setLayout(gridBagLayout4);
+    mainPanel.setLayout(null);
     mainPanel.setBackground(Color.white);
     mainPanel.setBorder(border7);
+    mainPanel.setBounds(new Rectangle(0, 0, 704, 597));
     titlePanel.setBackground(Color.white);
+    titlePanel.setBounds(new Rectangle(-2, 0, 704, 38));
     titlePanel.setLayout(gridBagLayout3);
     dataPanel.setBackground(Color.white);
     dataPanel.setBorder(BorderFactory.createEtchedBorder());
-    dataPanel.setLayout(gridBagLayout2);
+    dataPanel.setBounds(new Rectangle(-2, 38, 704, 439));
+    dataPanel.setLayout(null);
     submitButton.setBackground(new Color(200, 200, 230));
+    submitButton.setBounds(new Rectangle(598, 382, 83, 45));
     submitButton.setFont(new java.awt.Font("Dialog", 1, 12));
     submitButton.setForeground(new Color(80, 80, 133));
     submitButton.setText("Submit");
@@ -198,22 +199,27 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     fileNameText.setBackground(new Color(200, 200, 230));
     fileNameText.setFont(new java.awt.Font("Dialog", 1, 11));
     fileNameText.setForeground(new Color(80, 80, 133));
+    fileNameText.setBounds(new Rectangle(176, 381, 180, 25));
     testComboBox.setBackground(new Color(200, 200, 230));
     testComboBox.setFont(new java.awt.Font("Dialog", 1, 12));
     testComboBox.setForeground(new Color(80, 80, 133));
+    testComboBox.setBounds(new Rectangle(175, 332, 181, 22));
     dataSubmLabel.setFont(new java.awt.Font("Dialog", 1, 16));
     dataSubmLabel.setForeground(new Color(80, 80, 133));
     dataSubmLabel.setToolTipText("");
     dataSubmLabel.setHorizontalAlignment(SwingConstants.CENTER);
     dataSubmLabel.setHorizontalTextPosition(SwingConstants.CENTER);
     dataSubmLabel.setText("Data Submission");
+    dataSubmLabel.setBounds(new Rectangle(33, 8, 251, 37));
     jLabel4.setFont(new java.awt.Font("Dialog", 1, 12));
     jLabel4.setForeground(new Color(80, 80, 133));
     jLabel4.setText("Instructions:");
     jLabel4.setVerticalAlignment(SwingConstants.TOP);
+    jLabel4.setBounds(new Rectangle(18, 47, 140, 20));
     jLabel3.setFont(new java.awt.Font("Dialog", 1, 12));
     jLabel3.setForeground(new Color(80, 80, 133));
     jLabel3.setText("Enter Your Identifier:");
+    jLabel3.setBounds(new Rectangle(18, 377, 165, 29));
     messageTextArea.setBackground(new Color(200, 200, 230));
     messageTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
     messageTextArea.setForeground(new Color(80, 80, 133));
@@ -223,6 +229,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     messageTextArea.setEditable(false);
     messageTextArea.setLineWrap(true);
     messageTextArea.setWrapStyleWord(true);
+    messageTextArea.setBounds(new Rectangle(18, 69, 338, 234));
     messageTextArea.setText(MSG_INSTRUCTIONS);
     messageTextArea.setEditable(false);
     jLabel1.setFont(new java.awt.Font("Dialog", 1, 12));
@@ -235,14 +242,17 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     xLabel.setFont(new java.awt.Font("Dialog", 1, 12));
     xLabel.setForeground(new Color(80, 80, 133));
     xLabel.setText("X:");
+    xLabel.setBounds(new Rectangle(388, 47, 44, 20));
     xTextArea.setBackground(new Color(200, 200, 230));
     xTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
     xTextArea.setForeground(new Color(80, 80, 133));
     jLabel2.setFont(new java.awt.Font("Dialog", 1, 12));
     jLabel2.setForeground(new Color(80, 80, 133));
     jLabel2.setText("Y:");
+    jLabel2.setBounds(new Rectangle(482, 43, 44, 24));
     deletePanel.setBackground(Color.white);
     deletePanel.setBorder(border9);
+    deletePanel.setBounds(new Rectangle(-2, 477, 704, 87));
     deletePanel.setLayout(gridBagLayout1);
     jLabel5.setFont(new java.awt.Font("Dialog", 1, 16));
     jLabel5.setForeground(new Color(80, 80, 133));
@@ -272,48 +282,38 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     jLabel8.setFont(new java.awt.Font("Dialog", 1, 12));
     jLabel8.setForeground(new Color(80, 80, 133));
     jLabel8.setText("Select Test Case:");
+    jLabel8.setBounds(new Rectangle(18, 325, 168, 30));
 
     //loading the OpenSHA Logo
     directionsLabel.setForeground(new Color(80, 80, 133));
     directionsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
     directionsLabel.setText("Click button and follow directions ");
     imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+    imgLabel.setBounds(new Rectangle(196, 564, 238, 29));
     imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         imgLabel_mouseClicked(e);
       }
     });
     imgLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    dataPanel.add(dataSubmLabel,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 31, 0, 71), 106, 16));
-    dataPanel.add(messageTextArea,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 16, 0, 0), 0, 0));
-    dataPanel.add(jLabel4,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 16, 0, 0), 55, 3));
-    dataPanel.add(testComboBox,  new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(29, 17, 0, 0), 50, -1));
-    dataPanel.add(jLabel8,  new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 16, 0, 169), 50, 13));
-    dataPanel.add(jLabel3,  new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 16, 31, 172), 25, 12));
-    dataPanel.add(fileNameText,  new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(26, 18, 31, 0), 175, 4));
-    dataPanel.add(jScrollPane2,  new GridBagConstraints(3, 2, 1, 3, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 11, 20, 0), 113, 327));
-    dataPanel.add(jLabel2,  new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 39, 0, 43), 30, 7));
-    dataPanel.add(xLabel,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 32, 0, 22), 30, 3));
-    dataPanel.add(jScrollPane1,  new GridBagConstraints(2, 2, 1, 3, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 32, 20, 0), 64, 327));
-    dataPanel.add(submitButton,  new GridBagConstraints(4, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 0, 10, 40), 12, 8));
-    mainPanel.add(deletePanel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), -81, 0));
-    jScrollPane1.getViewport().add(xTextArea, null);
+    jScrollPane2.setBounds(new Rectangle(482, 69, 115, 348));
+    jScrollPane1.setBounds(new Rectangle(381, 69, 82, 348));
+    dataPanel.add(dataSubmLabel, null);
+    dataPanel.add(messageTextArea, null);
+    dataPanel.add(jLabel4, null);
+    dataPanel.add(testComboBox, null);
+    dataPanel.add(jLabel8, null);
+    dataPanel.add(jLabel3, null);
+    dataPanel.add(fileNameText, null);
+    dataPanel.add(xLabel, null);
+    dataPanel.add(jScrollPane1, null);
+    dataPanel.add(submitButton, null);
+    dataPanel.add(jScrollPane2, null);
+    dataPanel.add(jLabel2, null);
     jScrollPane2.getViewport().add(yTextArea, null);
-    mainPanel.add(dataPanel,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), 0, -1));
+    mainPanel.add(deletePanel, null);
+    jScrollPane1.getViewport().add(xTextArea, null);
+    mainPanel.add(dataPanel, null);
     deletePanel.add(directionsLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 39, 3, 0), 67, 13));
     deletePanel.add(deleteFileButton,   new GridBagConstraints(1, 1, 2, 1, 0.0, 0.0
@@ -322,13 +322,11 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, 229, 0, 0), 27, 16));
     deletePanel.add(jLabel7,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 0, 7, 185), 21, 6));
-    mainPanel.add(titlePanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(-2, -4, 0, 0), 0, -2));
+    mainPanel.add(titlePanel, null);
     titlePanel.add(jLabel5,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(3, 41, 1, 132), 83, 16));
-    mainPanel.add(imgLabel,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 194, 2, 268), 238, 29));
-    this.getContentPane().add(mainPanel, BorderLayout.CENTER);
+    mainPanel.add(imgLabel, null);
+    this.getContentPane().add(mainPanel, null);
   }
   //Start the applet
   public void start() {

@@ -2,6 +2,7 @@ package org.scec.sha.gui.beans;
 
 import java.util.*;
 import java.lang.reflect.*;
+import javax.swing.JOptionPane;
 
 
 import org.scec.param.*;
@@ -24,7 +25,8 @@ import org.scec.data.Location;
 
 
 
-public class Site_GuiBean extends ParameterListEditor implements ParameterChangeListener{
+public class Site_GuiBean extends ParameterListEditor implements
+    ParameterChangeListener, ParameterChangeFailListener {
 
 // for debug purposes
  protected final static String C = "SiteParamList";
@@ -65,6 +67,8 @@ public class Site_GuiBean extends ParameterListEditor implements ParameterChange
     parameterList.addParameter(latitude);
     latitude.addParameterChangeListener(this);
     longitude.addParameterChangeListener(this);
+    latitude.addParameterChangeFailListener(this);
+    longitude.addParameterChangeFailListener(this);
 
     // maake the new site object
     site= new Site(new Location(((Double)latitude.getValue()).doubleValue(),
@@ -195,5 +199,45 @@ public class Site_GuiBean extends ParameterListEditor implements ParameterChange
     site.setLocation(new Location(((Double)latitude.getValue()).doubleValue(),
                                   ((Double)longitude.getValue()).doubleValue()));
   }
+
+  /**
+   * Shown when a Constraint error is thrown on a ParameterEditor
+   *
+   * @param  e  Description of the Parameter
+   */
+  public void parameterChangeFailed( ParameterChangeFailEvent e ) {
+
+    String S = C + " : parameterChangeWarning(): ";
+    if(D) System.out.println(S + "Starting");
+
+
+    StringBuffer b = new StringBuffer();
+
+    ParameterAPI param = ( ParameterAPI ) e.getSource();
+
+
+    ParameterConstraintAPI constraint = param.getConstraint();
+    String oldValueStr = e.getOldValue().toString();
+    String badValueStr = e.getBadValue().toString();
+    String name = param.getName();
+
+    b.append( "The value ");
+    b.append( badValueStr );
+    b.append( " is not permitted for '");
+    b.append( name );
+    b.append( "'.\n" );
+    b.append( "Resetting to ");
+    b.append( oldValueStr );
+    b.append( ". The constraints are: \n");
+    b.append( constraint.toString() );
+
+    JOptionPane.showMessageDialog(
+        this, b.toString(),
+        "Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
+        );
+
+    if(D) System.out.println(S + "Ending");
+
+   }
 
 }

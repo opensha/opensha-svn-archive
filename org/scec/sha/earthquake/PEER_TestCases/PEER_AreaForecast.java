@@ -37,6 +37,9 @@ public class PEER_AreaForecast extends EqkRupForecast
   private static String  C = new String("PEER Area");
   private boolean D = false;
 
+  //name for this classs
+  public final static String  NAME = C;
+
   /**
    * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
    */
@@ -377,13 +380,12 @@ public class PEER_AreaForecast extends EqkRupForecast
   }
 
 
-
   /**
    * Return the name for this class
    *
    * @return : return the name for this class
    */
-  public String getName(){
+  public String getName() {
     return C;
   }
 

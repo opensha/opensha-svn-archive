@@ -592,7 +592,7 @@ public class HazardCurveGuiBean implements
       // if IMT selection then update
       if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
         updateIMT((String)event.getNewValue());
-        applet.updateChosenIMT();
+        //applet.updateChosenIMT();
       }
 
       // if IMR selection changed, update the site parameter list
@@ -600,8 +600,8 @@ public class HazardCurveGuiBean implements
           init_imrParamListAndEditor();
           updateSiteParamListAndEditor();
           init_imtParamListAndEditor();
-          applet.updateChosenIMR();
-          applet.updateChosenIMT();
+         // applet.updateChosenIMR();
+          //applet.updateChosenIMT();
       }
 
       // if Truncation type changes
@@ -614,7 +614,7 @@ public class HazardCurveGuiBean implements
       if( name1.equals(this.ERF_PARAM_NAME) ){
         String value = event.getNewValue().toString();
         setParamsInForecast(value);
-        applet.updateChosenERF();
+        //applet.updateChosenERF();
       }
 
 
