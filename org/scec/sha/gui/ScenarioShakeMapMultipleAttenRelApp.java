@@ -504,14 +504,9 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
    */
   public XYZ_DataSetAPI generateShakeMap() throws ParameterException,RuntimeException{
     try {
-     // this function will get the selected IMT parameter and set it in IMT
-     imrGuiBean.setIMT();
-   }catch (Exception ex) {
-     if(D) System.out.println(C + ":Param warning caught"+ex);
-     ex.printStackTrace();
-    }
-    try{
-        xyzDataSet = shakeMapCalc.getScenarioShakeMapData(attenRel,attenRelWts,griddedRegionSites,erfGuiBean.getRupture(),probAtIML,imlProbValue);
+      // this function will get the selected IMT parameter and set it in IMT
+      imrGuiBean.setIMT();
+      xyzDataSet = shakeMapCalc.getScenarioShakeMapData(attenRel,attenRelWts,griddedRegionSites,erfGuiBean.getRupture(),probAtIML,imlProbValue);
     }catch(ParameterException e){
       throw new ParameterException(e.getMessage());
     }

@@ -331,13 +331,19 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
      if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
        updateIMT((String)event.getNewValue());
        selectIMRsForChoosenIMT();
+       validate();
+       repaint();
      }
      // if Truncation type changes
-     if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){
+     else if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){
        // special case hardcoded. Not the best way to do it, but need framework to handle it.
        String value = event.getNewValue().toString();
        toggleSigmaLevelBasedOnTypeValue(value, lastAttenRelButtonIndex);
      }
+     else if(name1.equals(AttenuationRelationship.PERIOD_NAME)){
+       selectIMRsForChoosenIMT();
+     }
+
    }
 
 
@@ -393,7 +399,7 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
                indParamOptions, (String)indParamOptions.get(0));
 
            // added by Ned so the default period is 1.0 sec (this is a hack).
-           if( ((String) independentParam.getName()).equals("SA Period") )
+           if( ((String) independentParam.getName()).equals(AttenuationRelationship.PERIOD_NAME) )
              independentParam.setValue(new String("1.0"));
 
            /**
@@ -429,8 +435,11 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
 
      while(it.hasNext()){
        Iterator it1=((DependentParameterAPI)it.next()).getIndependentParametersIterator();
-       while(it1.hasNext())
-         imtParamList.addParameter((ParameterAPI)it1.next());
+       while(it1.hasNext()){
+         ParameterAPI tempParam = (ParameterAPI)it1.next();
+         imtParamList.addParameter(tempParam);
+         tempParam.addParameterChangeListener(this);
+       }
      }
 
      // now make the editor based on the paramter list
@@ -733,6 +742,7 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
            imtEditorParamListEditor.setParameterVisible(((ParameterAPI)it1.next()).getName(),true);
        }
      }
+
   }
 
    /**
@@ -764,20 +774,30 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
    */
   public void selectIMRsForChoosenIMT(){
     ParameterAPI param = getSelectedIntensityMeasure();
-    //Iterating over all the supported AttenRels ot check if they support the selected IMT
-    for(int i=0;i < numSupportedAttenRels;++i){
-      AttenuationRelationship attenRel = (AttenuationRelationship)attenRelsSupported.get(i);
-      if(!attenRel.isIntensityMeasureSupported(param)){
-        attenRelCheckBox[i].setSelected(false);
-        attenRelCheckBox[i].setEnabled(false);
-      }
-      else{
+    //Iterating over all the supported AttenRels to check if they support the selected IMT
+    String paramName = param.getName();
+    //currently as all the attenuationRelationship models support SA at 1sec so we can say
+    //all of them support PGV as well.
+    if(paramName.equals(AttenuationRelationship.PGV_NAME)){
+      for(int i=0;i < numSupportedAttenRels;++i){
         attenRelCheckBox[i].setSelected(true);
         attenRelCheckBox[i].setEnabled(true);
       }
     }
+    else{
+      for(int i=0;i < numSupportedAttenRels;++i){
+        AttenuationRelationship attenRel = (AttenuationRelationship)attenRelsSupported.get(i);
+        if(!attenRel.isIntensityMeasureSupported(param)){
+          attenRelCheckBox[i].setSelected(false);
+          attenRelCheckBox[i].setEnabled(false);
+        }
+        else{
+          attenRelCheckBox[i].setSelected(true);
+          attenRelCheckBox[i].setEnabled(true);
+        }
+      }
+    }
   }
-
 
   /**
    *
