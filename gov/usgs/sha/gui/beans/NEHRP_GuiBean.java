@@ -392,7 +392,13 @@ public class NEHRP_GuiBean
 
 
   private void getDataForSA_Period(){
+    String locationMode = locGuiBean.getLocationMode();
+    if(locationMode.equals(locGuiBean.LAT_LON)){
 
+    }
+    else if(locationMode.equals(locGuiBean.ZIP_CODE)){
+
+    }
   }
 
   private void ssButton_actionPerformed(ActionEvent actionEvent) {
