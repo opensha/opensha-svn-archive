@@ -82,7 +82,8 @@ public class HazardMapCalcServlet extends HttpServlet {
 
      // now run the calculation
      HazardMapCalculator calc = new HazardMapCalculator();
-     calc.getHazardMapCurves(hazFunc, sites, imr,
+     boolean flag = true;
+     calc.getHazardMapCurves(flag, hazFunc, sites, imr,
                              eqkRupForecast, mapParametersInfo );
 
    } catch (Exception e) {

@@ -46,12 +46,12 @@ public class ScenarioShakeMapApp extends Applet {
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
-  public final static String PEER_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.PEER_TestsGroupResults.PEER_FaultForecast";
-  public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.PEER_TestsGroupResults.PEER_AreaForecast";
-  public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.PEER_TestsGroupResults.PEER_NonPlanarFaultForecast";
-  public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.PEER_TestsGroupResults.PEER_ListricFaultForecast";
-  public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.PEER_TestsGroupResults.PEER_MultiSourceForecast";
-  public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.PEER_TestsGroupResults.PEER_LogicTreeERF_List";
+  public final static String PEER_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultForecast";
+  public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
+  public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
+  public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_ListricFaultForecast";
+  public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
+  public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
 
 
