@@ -103,15 +103,20 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
    Double lonMax = new Double(lonMin.doubleValue());
    Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
    Double latMax = new Double(latMin.doubleValue());
-
-
+   String vs30 = "NA";
+   double basinDepth = Double.NaN;
+   try{
    // get the vs 30 and basin depth from cvm
-   String vs30 = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
+   vs30 = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
                                                       latMin.doubleValue(),latMax.doubleValue(),
                                                       0.5)).get(0);
-   double basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
-                                                      latMin.doubleValue(),latMax.doubleValue(),
-                                                      0.5)).get(0)).doubleValue();
+   basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
+                                                           latMin.doubleValue(),latMax.doubleValue(),
+                                                           0.5)).get(0)).doubleValue();
+   }catch(Exception ee){
+     JOptionPane.showMessageDialog(this,"Server is down for maintenance, please try again later","Server Problem",JOptionPane.INFORMATION_MESSAGE);
+     return;
+   }
 
    System.out.println("Vs30: "+vs30+"  BasinDepth: "+basinDepth);
    // now set the paramerts in the IMR

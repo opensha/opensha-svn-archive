@@ -139,8 +139,6 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
 
   //thread  to show status Progress Bar
   private javax.swing.Timer timer;
-  //thread to execute the ShakeMap Calulation
-  private Thread t;
 
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   //Get a parameter value
@@ -549,13 +547,12 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     });
 
     timer.start();
-    t = new Thread(this);
+    Thread t = new Thread(this);
     t.run();
   }
 
   public void run() {
     this.generateShakeMap();
-    t.destroy();
   }
 
   /**
