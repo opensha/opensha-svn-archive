@@ -50,7 +50,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         ItemListener, LogPlotAPI, AxisLimitsControlPanelAPI {
 
     protected final static String C = "AttenuationRelationshipTesterApp";
-    private final static String version = "0.0.4";
+    private final static String version = "0.0.5";
     protected final static boolean D = false;
   /**
    * these four values save the custom axis scale specified by user
@@ -132,7 +132,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
     protected final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
     protected final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
-    protected final static String DAHLE_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel";
+    //protected final static String DAHLE_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel";
 
     /**
      *  Temp until figure out way to dynamically load classes during runtime
@@ -145,7 +145,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected final static String A_NAME = "Abrahamson (2000)";
     protected final static String CB_NAME = "Campbell & Bozorgnia (2003)";
     protected final static String SM_NAME = "ShakeMap (2003)";
-    protected final static String DAHLE_NAME = "Dahle et al. (1995)";
+    //protected final static String DAHLE_NAME = "Dahle et al. (1995)";
 
 
     /**
@@ -172,7 +172,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         imrNames.put( A_NAME, A_CLASS_NAME );
         imrNames.put( CB_NAME, CB_CLASS_NAME );
         imrNames.put( SM_NAME, SM_CLASS_NAME );
-        imrNames.put( DAHLE_NAME, DAHLE_CLASS_NAME );
+        //imrNames.put( DAHLE_NAME, DAHLE_CLASS_NAME );
 
         try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }
         catch ( Exception e ) {}
