@@ -1371,7 +1371,7 @@ public class IMRTesterApplet extends JApplet
         }
 
         DiscretizedFuncAPI function = imr.getChoosenFunction();
-        function.setInfo(currentIMRName+" "+function.getInfo());
+
 
 
         if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
