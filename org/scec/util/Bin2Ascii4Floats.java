@@ -32,7 +32,7 @@ public class Bin2Ascii4Floats {
           fw.write(dis.readFloat()+"\n");
       }catch(IOException e){
         //e.printStackTrace();
-        System.out.println(args[0]);
+        //System.out.println(args[0]);
       }
       finally{
         try{
