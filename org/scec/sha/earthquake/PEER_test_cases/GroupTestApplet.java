@@ -119,44 +119,46 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
   protected boolean graphOn = false;
   private GridBagLayout gridBagLayout11 = new GridBagLayout();
   private JPanel jPanel1 = new JPanel();
-  private JSplitPane controlsSplit = new JSplitPane();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout12 = new GridBagLayout();
-  private JSplitPane siteSplitPane = new JSplitPane();
-  private JButton toggleButton = new JButton();
-  private JPanel sitePanel = new JPanel();
-  private JPanel testCasesPanel = new JPanel();
-  private JButton clearButton = new JButton();
-  private JPanel panel = new JPanel();
-  private JPanel buttonPanel = new JPanel();
-  private JSplitPane testSplitPane = new JSplitPane();
-  private JButton addButton = new JButton();
-  private JPanel imrPanel = new JPanel();
-  private JSplitPane chartSplit = new JSplitPane();
-  private JCheckBox jCheckxlog = new JCheckBox();
-  private JPanel imtPanel = new JPanel();
-  private GridBagLayout gridBagLayout9 = new GridBagLayout();
-  private JCheckBox jCheckylog = new JCheckBox();
-  private GridBagLayout gridBagLayout8 = new GridBagLayout();
-  private GridBagLayout gridBagLayout13 = new GridBagLayout();
-  private GridBagLayout gridBagLayout14 = new GridBagLayout();
-  private GridBagLayout gridBagLayout15 = new GridBagLayout();
-  private GridBagLayout gridBagLayout5 = new GridBagLayout();
-  private JPanel sourcePanel = new JPanel();
   private Border border2;
-  private GridBagLayout gridBagLayout10 = new GridBagLayout();
-  private JLabel jCustomAxisLabel = new JLabel();
-  private JComboBox rangeComboBox = new JComboBox();
   private final static String AUTO_SCALE = "Auto Scale";
   private final static String CUSTOM_SCALE = "Custom Scale";
   private final static Dimension COMBO_DIM = new Dimension( 180, 30 );
   private final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
-  private BorderLayout borderLayout1 = new BorderLayout();
   private Border border3;
   private Border border4;
   private GridBagLayout gridBagLayout16 = new GridBagLayout();
   private Border border5;
+  private JSplitPane topSplitPane = new JSplitPane();
+  private JSplitPane chartSplit = new JSplitPane();
+  private JComboBox rangeComboBox = new JComboBox();
+  private JButton clearButton = new JButton();
+  private JLabel jCustomAxisLabel = new JLabel();
+  private JButton toggleButton = new JButton();
+  private JCheckBox jCheckylog = new JCheckBox();
+  private JPanel buttonPanel = new JPanel();
+  private JButton addButton = new JButton();
+  private JCheckBox jCheckxlog = new JCheckBox();
+  private GridBagLayout gridBagLayout12 = new GridBagLayout();
+  private JPanel panel = new JPanel();
+  private GridBagLayout gridBagLayout9 = new GridBagLayout();
+  private JSplitPane parameterSplitPane = new JSplitPane();
+  private JSplitPane siteSplitPane = new JSplitPane();
+  private GridBagLayout gridBagLayout8 = new GridBagLayout();
+  private JSplitPane testSplitPane = new JSplitPane();
+  private JPanel testCasesPanel = new JPanel();
+  private JPanel sitePanel = new JPanel();
+  private JPanel imtPanel = new JPanel();
+  private JSplitPane controlsSplit = new JSplitPane();
+  private GridBagLayout gridBagLayout15 = new GridBagLayout();
+  private GridBagLayout gridBagLayout14 = new GridBagLayout();
+  private GridBagLayout gridBagLayout13 = new GridBagLayout();
+  private JPanel imrPanel = new JPanel();
+  private JPanel sourcePanel = new JPanel();
+  private GridBagLayout gridBagLayout5 = new GridBagLayout();
+  private GridBagLayout gridBagLayout10 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
 
 
 
@@ -199,7 +201,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
     border4 = BorderFactory.createLineBorder(SystemColor.controlText,1);
     border5 = BorderFactory.createLineBorder(SystemColor.controlText,1);
     this.getContentPane().setBackground(Color.white);
-    this.setSize(new Dimension(959, 648));
+    this.setSize(new Dimension(959, 644));
     this.getContentPane().setLayout(borderLayout1);
 
 
@@ -208,10 +210,44 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
     pointsTextArea.setText( NO_PLOT_MSG );
     dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
     jPanel1.setLayout(gridBagLayout10);
-    controlsSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    controlsSplit.setDividerSize(5);
-    siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    siteSplitPane.setDividerSize(5);
+
+
+
+    jPanel1.setBackground(Color.white);
+    jPanel1.setBorder(border4);
+    jPanel1.setMinimumSize(new Dimension(959, 600));
+    jPanel1.setPreferredSize(new Dimension(959, 600));
+    topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    topSplitPane.setBottomComponent(buttonPanel);
+    topSplitPane.setDividerSize(5);
+    topSplitPane.setTopComponent(chartSplit);
+    rangeComboBox.setBackground(new Color(200, 200, 230));
+    rangeComboBox.setForeground(new Color(80, 80, 133));
+    rangeComboBox.setMaximumSize(new Dimension(115, 19));
+    rangeComboBox.setMinimumSize(new Dimension(115, 19));
+    rangeComboBox.setPreferredSize(new Dimension(115, 19));
+    rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        rangeComboBox_actionPerformed(e);
+      }
+    });
+    rangeComboBox.setBackground(new Color(200, 200, 230));
+    clearButton.setBackground(new Color(200, 200, 230));
+    clearButton.setFont(new java.awt.Font("Dialog", 1, 11));
+    clearButton.setForeground(new Color(80, 80, 133));
+    clearButton.setBorder(border3);
+    clearButton.setMaximumSize(new Dimension(80, 21));
+    clearButton.setMinimumSize(new Dimension(80, 21));
+    clearButton.setPreferredSize(new Dimension(80, 21));
+    clearButton.setText("Clear Plot");
+    clearButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        clearButton_actionPerformed(e);
+      }
+    });
+    jCustomAxisLabel.setFont(new java.awt.Font("Dialog", 1, 11));
+    jCustomAxisLabel.setForeground(new Color(80, 80, 133));
+    jCustomAxisLabel.setText("Custom Axis Label");
     toggleButton.setBackground(new Color(200, 200, 230));
     toggleButton.setFont(new java.awt.Font("Dialog", 1, 11));
     toggleButton.setForeground(new Color(80, 80, 133));
@@ -226,28 +262,21 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
         toggleButton_actionPerformed(e);
       }
     });
-    clearButton.setBackground(new Color(200, 200, 230));
-    clearButton.setFont(new java.awt.Font("Dialog", 1, 11));
-    clearButton.setForeground(new Color(80, 80, 133));
-    clearButton.setBorder(border3);
-    clearButton.setMaximumSize(new Dimension(80, 21));
-    clearButton.setMinimumSize(new Dimension(80, 21));
-    clearButton.setPreferredSize(new Dimension(80, 21));
-    clearButton.setText("Clear Plot");
-    clearButton.addActionListener(new java.awt.event.ActionListener() {
+    jCheckylog.setBackground(Color.white);
+    jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
+    jCheckylog.setForeground(new Color(80, 80, 133));
+    jCheckylog.setText("Y Log");
+    jCheckylog.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        clearButton_actionPerformed(e);
+        jCheckylog_actionPerformed(e);
       }
     });
-    panel.setLayout(gridBagLayout9);
     buttonPanel.setBackground(Color.white);
     buttonPanel.setBorder(border1);
     buttonPanel.setMaximumSize(new Dimension(2147483647, 40));
     buttonPanel.setMinimumSize(new Dimension(726, 40));
     buttonPanel.setPreferredSize(new Dimension(726, 40));
     buttonPanel.setLayout(gridBagLayout12);
-    testSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    testSplitPane.setDividerSize(5);
     addButton.setBackground(new Color(200, 200, 230));
     addButton.setFont(new java.awt.Font("Dialog", 1, 11));
     addButton.setForeground(new Color(80, 80, 133));
@@ -270,94 +299,73 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
         jCheckxlog_actionPerformed(e);
       }
     });
-    imtPanel.setLayout(gridBagLayout8);
-    jCheckylog.setBackground(Color.white);
-    jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
-    jCheckylog.setForeground(new Color(80, 80, 133));
-    jCheckylog.setText("Y Log");
-    jCheckylog.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jCheckylog_actionPerformed(e);
-      }
-    });
-
-    rangeComboBox.addItem(new String(AUTO_SCALE));
-    rangeComboBox.addItem(new String(CUSTOM_SCALE));
-    rangeComboBox.setBackground(new Color(200, 200, 230));
-    rangeComboBox.setForeground(new Color(80, 80, 133));
-    rangeComboBox.setMaximumSize(new Dimension(115, 19));
-    rangeComboBox.setMinimumSize(new Dimension(115, 19));
-    rangeComboBox.setPreferredSize(new Dimension(115, 19));
-    rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        rangeComboBox_actionPerformed(e);
-      }
-    });
-
-
-    sitePanel.setLayout(gridBagLayout13);
+    panel.setLayout(gridBagLayout9);
+    panel.setBackground(Color.white);
+    panel.setBorder(border5);
+    chartSplit.setLeftComponent(panel);
+    chartSplit.setRightComponent(parameterSplitPane);
+    siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    siteSplitPane.setDividerSize(5);
+    testSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    testSplitPane.setDividerSize(5);
     testCasesPanel.setLayout(gridBagLayout14);
+    testCasesPanel.setBackground(Color.white);
+    sitePanel.setLayout(gridBagLayout13);
+    sitePanel.setBackground(Color.white);
+    imtPanel.setLayout(gridBagLayout8);
+    imtPanel.setBackground(Color.white);
+    controlsSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    controlsSplit.setDividerSize(5);
     imrPanel.setLayout(gridBagLayout15);
+    imrPanel.setBackground(Color.white);
+    parameterSplitPane.setLeftComponent(controlsSplit);
+    parameterSplitPane.setRightComponent(sourcePanel);
     sourcePanel.setLayout(gridBagLayout5);
     sourcePanel.setBackground(Color.white);
     sourcePanel.setBorder(border2);
     sourcePanel.setMaximumSize(new Dimension(2147483647, 10000));
     sourcePanel.setMinimumSize(new Dimension(2, 300));
     sourcePanel.setPreferredSize(new Dimension(2, 300));
-    chartSplit.setMaximumSize(new Dimension(2147483647, 10000));
-    chartSplit.setMinimumSize(new Dimension(44, 300));
-    chartSplit.setPreferredSize(new Dimension(44, 300));
-    chartSplit.setDividerSize(5);
-    jCustomAxisLabel.setFont(new java.awt.Font("Dialog", 1, 11));
-    jCustomAxisLabel.setForeground(new Color(80, 80, 133));
-    jCustomAxisLabel.setText("Custom Axis Label");
-    rangeComboBox.setBackground(new Color(200, 200, 230));
-    imtPanel.setBackground(Color.white);
-    sitePanel.setBackground(Color.white);
-    imrPanel.setBackground(Color.white);
-    testCasesPanel.setBackground(Color.white);
-    panel.setBackground(Color.white);
-    panel.setBorder(border5);
-    jPanel1.setBackground(Color.white);
-    jPanel1.setBorder(border4);
-    jPanel1.setMinimumSize(new Dimension(959, 600));
-    jPanel1.setPreferredSize(new Dimension(959, 600));
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    buttonPanel.add(toggleButton,       new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 3), 2, -2));
-    buttonPanel.add(clearButton,     new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
-    buttonPanel.add(jCheckxlog,     new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
-    buttonPanel.add(jCheckylog,     new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 0), 22, 2));
-    jPanel1.add(sourcePanel,       new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 0, 0, 14), 192, 210));
-    jPanel1.add(buttonPanel,           new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(5, 11, 5, 14), 53, 5));
-    jPanel1.add(chartSplit,        new GridBagConstraints(0, 0, 1, -1000, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 11, 0, 0), 696, 300));
-    chartSplit.add(panel, JSplitPane.TOP);
-    chartSplit.add(controlsSplit, JSplitPane.BOTTOM);
-    testSplitPane.add(testCasesPanel, JSplitPane.TOP);
-    testSplitPane.add(imrPanel, JSplitPane.BOTTOM);
-    controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
-    controlsSplit.add(testSplitPane, JSplitPane.TOP);
+    jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 9, 3, 0), 204, 251));
+    topSplitPane.add(chartSplit, JSplitPane.TOP);
+    chartSplit.add(panel, JSplitPane.LEFT);
+    chartSplit.add(parameterSplitPane, JSplitPane.RIGHT);
+    parameterSplitPane.add(controlsSplit, JSplitPane.LEFT);
     siteSplitPane.add(sitePanel, JSplitPane.TOP);
     siteSplitPane.add(imtPanel, JSplitPane.BOTTOM);
-    controlsSplit.setDividerLocation(350);
-    siteSplitPane.setDividerLocation(125);
-    chartSplit.setDividerLocation(500);
-    buttonPanel.add(jCustomAxisLabel,                  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 11), 0, 0));
-    buttonPanel.add(rangeComboBox,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-    buttonPanel.add(addButton,       new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+    parameterSplitPane.add(sourcePanel, JSplitPane.RIGHT);
+    controlsSplit.add(testSplitPane, JSplitPane.TOP);
+    controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
+    testSplitPane.add(testCasesPanel, JSplitPane.TOP);
+    testSplitPane.add(imrPanel, JSplitPane.BOTTOM);
+    topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
+    buttonPanel.add(toggleButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 3), 2, -2));
+    buttonPanel.add(clearButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
+    buttonPanel.add(jCheckxlog, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
+    buttonPanel.add(jCheckylog, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 0), 22, 2));
+    buttonPanel.add(jCustomAxisLabel, new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 11), 0, 0));
+    buttonPanel.add(rangeComboBox, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    buttonPanel.add(addButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
+    topSplitPane.setDividerLocation(575);
+    chartSplit.setDividerLocation(575);
+    rangeComboBox.addItem(new String(AUTO_SCALE));
+    rangeComboBox.addItem(new String(CUSTOM_SCALE));
+    parameterSplitPane.setDividerLocation(175);
+    siteSplitPane.setDividerLocation(125);
+    testSplitPane.setDividerLocation(150);
+    controlsSplit.setDividerLocation(350);
     sourcePanel.validate();
     sourcePanel.repaint();
-    testSplitPane.setDividerLocation(150);
 
   }
   //Start the applet
@@ -397,7 +405,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
   //static initializer for setting look & feel
   static {
     try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
       //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
     }
     catch(Exception e) {
