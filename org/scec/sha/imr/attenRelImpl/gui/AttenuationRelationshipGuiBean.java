@@ -15,7 +15,7 @@ import org.scec.util.*;
 import org.scec.data.*;
 
 /**
- *  <b>Title:</b> IMRGuiBean<p>
+ *  <b>Title:</b> AttenuationRelationshipGuiBean<p>
  *
  *  <b>Description:</b> This class is a java bean container for all the Gui
  *  elements and controller elements for one particular IMR. This allows all the
@@ -69,7 +69,7 @@ public class AttenuationRelationshipGuiBean
      *  Number of points to calculate between x-axis min and x-axis max, i.e.
      *  the constraint range of the choosen x-axis independent variable
      */
-    public final static int NUM = 100;
+    public final static int NUM = 101;
 
     /**
      *  Search path for finding editors in non-default packages.
@@ -616,12 +616,14 @@ public class AttenuationRelationshipGuiBean
         return function;
     }
 
+
+/*  Old version commented out because Ned made a simpler/better verion
+
     private ArbDiscrFuncWithParams buildFunction(
         ParameterAPI xAxisParam,
         int type,
         ArbDiscrFuncWithParams function,
-        MinMaxDelta minmaxdelta
-    ){
+        MinMaxDelta minmaxdelta ){
 
         // Fetch the independent variable selected in the x-axis choice
         ParameterAPI independentParam = imr.getParameter( xAxisParam.getName() );
@@ -678,7 +680,70 @@ public class AttenuationRelationshipGuiBean
 
         return function;
     }
+*/
 
+
+
+
+    private ArbDiscrFuncWithParams buildFunction(
+        ParameterAPI xAxisParam,
+        int type,
+        ArbDiscrFuncWithParams function,
+        MinMaxDelta minmaxdelta ){
+
+        // Fetch the independent variable selected in the x-axis choice
+        ParameterAPI independentParam = imr.getParameter( xAxisParam.getName() );
+        Object oldVal = independentParam.getValue();
+
+        double val = minmaxdelta.min;
+        int index=0;
+
+        if( independentParam instanceof WarningDoubleParameter &&
+            xAxisParam instanceof TranslatedWarningDoubleParameter){
+
+            ((TranslatedWarningDoubleParameter)xAxisParam).setParameter(
+               (WarningDoubleParameter)independentParam
+            );
+
+
+            while ( index < NUM ) {
+
+                // if it's just beyond the max (due to numerical imprececion) make it the max
+                if(val > minmaxdelta.max) val = minmaxdelta.max;
+                xAxisParam.setValue( new Double( val ) );
+                DataPoint2D point = new DataPoint2D( val , getCalculation( type ) );
+                function.set( point );
+                val += minmaxdelta.delta;
+                index++;
+            }
+
+        }
+        else{
+
+            while ( index < NUM ) {
+
+                // if it's just beyond the max (due to numerical imprececion) make it the max
+                if(val > minmaxdelta.max) val = minmaxdelta.max;
+                independentParam.setValue( new Double( val ) );
+                DataPoint2D point = new DataPoint2D( val , getCalculation( type ) );
+                function.set( point );
+                val += minmaxdelta.delta;
+                index++;
+            }
+
+
+        }
+
+
+
+        if( ParamUtils.isWarningParameterAPI( independentParam ) ){
+            ( (WarningParameterAPI) independentParam ).setValueIgnoreWarning(oldVal);
+        }
+        else independentParam.setValue( oldVal );
+
+
+        return function;
+    }
 
     /**
      *  Returns the intensity measure relationship calculation for either mean,

@@ -71,13 +71,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
 
     /**
-     *  Number of data points to generate for x-axis, used in iterating over
-     *  constraints of x-axis
-     */
-    protected final static int NUM = 30;
-
-
-    /**
      *  Currently selected IMR and related information needed for the gui to
      *  work
      */
@@ -983,7 +976,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
             if(j==legendColor.length)
               j=0;
 
-            legend = new String(i+1+"::"+imrsSelected.get(i)+";"+this.functions.get(i).getInfo()+"\n");
+            legend = new String(i+1+") "+imrsSelected.get(i)+":\n"+this.functions.get(i).getInfo()+"\n");
             setLegend =new SimpleAttributeSet();
             StyleConstants.setFontSize(setLegend,12);
             StyleConstants.setForeground(setLegend,legendColor[j]);
