@@ -8,7 +8,8 @@ import javax.swing.border.*;
 import org.scec.mapping.gmtWrapper.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
-
+import org.scec.param.event.ParameterChangeListener;
+import org.scec.param.event.ParameterChangeEvent;
 /**
  * <p>Title: GMT_MapGenerator</p>
  * <p>Description: This class generates and displays a GMT map for an XYZ dataset using
@@ -20,7 +21,8 @@ import org.scec.param.editor.*;
  * @version 1.0
  */
 
-public class MapGuiBean extends ParameterListEditor {
+public class MapGuiBean extends ParameterListEditor implements
+    ParameterChangeListener {
 
 
   private final static String GMT_TITLE = new String("Set GMT Parameters");
@@ -46,6 +48,8 @@ public class MapGuiBean extends ParameterListEditor {
       parameterList.addParameter((ParameterAPI)it.next());
     addParameters();
     this.setTitle(GMT_TITLE);
+    parameterList.getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).addParameterChangeListener(this);
+    changeColorScaleModeValue(GMT_MapGenerator.COLOR_SCALE_MODE_DEFAULT);
   }
 
   /**
@@ -70,14 +74,38 @@ public class MapGuiBean extends ParameterListEditor {
    */
   public void setGMTRegionParams(double minLat,double maxLat,double minLon,double maxLon,
                                double gridSpacing){
-    parameterList.getParameter(gmtMap.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
-    parameterList.getParameter(gmtMap.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
-    parameterList.getParameter(gmtMap.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
-    parameterList.getParameter(gmtMap.MAX_LON_PARAM_NAME).setValue(new Double(maxLon));
-    parameterList.getParameter(gmtMap.GRID_SPACING_PARAM_NAME).setValue(new Double(gridSpacing));
+    parameterList.getParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
+    parameterList.getParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
+    parameterList.getParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
+    parameterList.getParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME).setValue(new Double(maxLon));
+    parameterList.getParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME).setValue(new Double(gridSpacing));
   }
 
 
+  /**
+   * this function listens for parameter change
+   * @param e
+   */
+  public void parameterChange(ParameterChangeEvent e) {
+    String name = e.getParameterName();
+    if(name.equalsIgnoreCase(GMT_MapGenerator.COLOR_SCALE_MODE_NAME))
+      changeColorScaleModeValue((String)e.getNewValue());
+  }
+
+  /**
+   * If user chooses Manula or "From Data" color mode, then min and max color limits
+   * have to be set Visible and invisible respectively
+   * @param val
+   */
+  private void changeColorScaleModeValue(String val) {
+    if(val.equalsIgnoreCase(GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA)) {
+      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(false);
+      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(false);
+    } else {
+      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(true);
+      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(true);
+    }
+  }
 
   /**
    * this function generates and displays a GMT map for an XYZ dataset using
@@ -87,25 +115,7 @@ public class MapGuiBean extends ParameterListEditor {
    */
   public void makeMap(String fileName){
 
-    double minLat = ((Double) parameterList.getParameter(gmtMap.MIN_LAT_PARAM_NAME).getValue()).doubleValue();
-    double maxLat = ((Double) parameterList.getParameter(gmtMap.MAX_LAT_PARAM_NAME).getValue()).doubleValue();
-    double minLon = ((Double) parameterList.getParameter(gmtMap.MIN_LON_PARAM_NAME).getValue()).doubleValue();
-    double maxLon = ((Double) parameterList.getParameter(gmtMap.MAX_LON_PARAM_NAME).getValue()).doubleValue();
-    double gridSpacing= ((Double) parameterList.getParameter(gmtMap.GRID_SPACING_PARAM_NAME).getValue()).doubleValue();
-    String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
-    String imgName = null;
-    try {
-
-      //command to be executed during the runtime.
-       String[] command ={"sh","-c",gmtMap.GMT_PATH+"xyz2grd "+ fileName+" -Gdata.grd -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/= -V -:"};
-       RunScript.runScript(command);
-       imgName = gmtMap.makeMap("data.grd");
-
-    } catch (Exception e) {
-      // report to the user whether the operation was successful or not
-      e.printStackTrace();
-    }
-
+    String imgName = gmtMap.makeMap(fileName);
     //adding the image to the Panel and returning that to the applet
     gmtMapLabel.setBorder(border);
     gmtMapLabel.setMaximumSize(new Dimension(0, 800));
@@ -115,7 +125,7 @@ public class MapGuiBean extends ParameterListEditor {
     JFrame frame = new JFrame(imgName);
     frame.getContentPane().setLayout(new GridBagLayout());
     frame.getContentPane().add(gmtMapLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 557, 200));
+        ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 557, 200));
     frame.pack();
     frame.show();
 

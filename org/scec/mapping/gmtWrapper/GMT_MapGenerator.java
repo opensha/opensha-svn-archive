@@ -195,17 +195,27 @@ public class GMT_MapGenerator {
   /**
    * this function generates GMT map
    * It is a wrapper function around GMT tool
+   * It acccepts the name of xyz file
    */
-  public String makeMap(String grdFileName){
+  public String makeMap(String xyzFileName){
 
-    String grdInputDataFileName = grdFileName;
-
-    String outputFilePrefix = (String) outputFilePrefixParam.getValue();
 
     double minLat = ((Double) minLatParam.getValue()).doubleValue();
     double maxLat = ((Double) maxLatParam.getValue()).doubleValue();
     double minLon = ((Double) minLonParam.getValue()).doubleValue();
     double maxLon = ((Double) maxLonParam.getValue()).doubleValue();
+    double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
+    String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
+
+    String grdFileName  = "data.grd";
+    //command to be executed during the runtime.
+    String[] command ={"sh","-c",GMT_PATH+"xyz2grd "+ xyzFileName+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -:"};
+    RunScript.runScript(command);
+
+    String grdInputDataFileName = grdFileName;
+
+    String outputFilePrefix = (String) outputFilePrefixParam.getValue();
+
 
     String cptFile = SCEC_GMT_DATA_PATH + (String) cptFileParam.getValue();
 
@@ -221,7 +231,6 @@ public class GMT_MapGenerator {
     String out_ps = outputFilePrefix + ".ps";
     String out_jpg = outputFilePrefix + i + ".jpg";
 
-    String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
 
     // plot size parameter
     double plotWdth = 6.5;
@@ -243,7 +252,7 @@ public class GMT_MapGenerator {
 
 //     xyz2grd LatLonAmpData.txt -GtestData.grd -I0.05 -R-121/-115/32.5/35.5 -D/degree/degree/amp/=/=/= -V -:
 
-       String[] command ={"sh","-c",GMT_PATH + "grdcut " + grdInputDataFileName +" -GtempData.grd " + region};
+       command[2] = GMT_PATH + "grdcut " + grdInputDataFileName +" -GtempData.grd " + region;
        RunScript.runScript(command);
 
 
