@@ -1,11 +1,11 @@
-/* ==========================================
- * JFreeChart : a free chart library for Java
- * ==========================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ---------------
  * Annotation.java
  * ---------------
- * (C) Copyright 2002, by Simba Management Limited.
+ * (C) Copyright 2002, 2003 by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -32,6 +32,8 @@
  * Changes:
  * --------
  * 28-Aug-2002 : Version 1 (DG);
+ * 07-Nov-2002 : Fixed errors reported by Checkstyle (DG);
+ * 13-Jan-2003 : Reviewed Javadocs (DG);
  *
  */
 
@@ -40,6 +42,11 @@ package com.jrefinery.chart.annotations;
 /**
  * Base interface for plot annotations.  A plot annotation is an item of text (or, in the future,
  * an arrow or some other shape) that you can place at arbitrary positions on a chart.
+ * <p>
+ * This interface contains no methods, it simply serves as the root interface for a hierarchy of
+ * related interfaces.
+ * 
+ * @author David Gilbert
  */
 public interface Annotation {
 
