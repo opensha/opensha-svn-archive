@@ -12,10 +12,15 @@ import org.scec.gui.plot.jfreechart.*;
  * <b>Description:</b> List container for Discretized Functions.
  * This class stores Discretized func API ( and any subclass )
  * internally in an array list and provides standard list access
- * functions such as those that would be found in a vector. <p>
+ * functions such as (paraphrasing) get(), set(), delete(), iterator(),
+ * size(), etc. <p>
+ *
+ * Currently any type of DiscretizedFunctionAPI is allowed in the list.
+ * Subclasses can overide isFunctionAllowed() to provide added constraints
+ * on what can belong in this list. <p>
  *
  * Note: Since this class behaves like an ArrayList, functions in the
- * list may be accessed by index, or by iterator.
+ * list may be accessed by index, or by iterator.<p>
  *
  * @author Steven W. Rock
  * @version 1.0
@@ -35,9 +40,7 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     protected final static boolean D = false;
 
 
-    /**
-     * List of DiscretizedFuncAPI. This is the internal data storage for the functions.
-     */
+    /** List of DiscretizedFuncAPI. This is the internal data storage for the functions. */
     ArrayList functions = new ArrayList();
 
     /** Every function list has a information string that can be used in displays, etc. */
@@ -93,7 +96,10 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     /** Sets the yAxisName of this list */
     public void setYAxisName(String name){ this.yAxisName = name; }
 
-    /** Combo Name of the X and Y axis, used for determining if tow DiscretizedFunction2DAPI */
+    /**
+     * Combo Name of the X and Y axis, used for determining if
+     * two DiscretizedFunction2DAPIs represent the same thing.
+     */
     public String getXYAxesName(){ return xAxisName + ',' + yAxisName; }
 
 
@@ -221,8 +227,8 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     }
 
     /**
-     * checks if the DiscretizedFuncAPI exists in the list. Loops through
-     * each function in the list and calls function.equals( function2 )
+     * Verifies that the passed in list is a subset of this list. Loops through
+     * each function in the passes in list and calls contains( function2 )
      * against the passed in function to determine if this function exists.
      */
     public boolean containsAll(DiscretizedFuncList list){
@@ -236,8 +242,10 @@ public class DiscretizedFuncList implements NamedObjectAPI{
 
 
     /**
-     * Adds the DiscretizedFuncAPI if it doesn't exist based on the equals() method, else throws exception.
-     * THis function first checks if the passed in function is allowed.
+     * Adds the DiscretizedFuncAPI if it doesn't exist based on the equals() method,
+     * else throws exception. This function first checks if the passed in function
+     * is allowed. In this class specification all functions are allowed.
+     * Subclasses may further restrict this.
      */
     public void add(DiscretizedFuncAPI function) throws DiscretizedFuncException{
 
@@ -250,7 +258,7 @@ public class DiscretizedFuncList implements NamedObjectAPI{
 
     /**
      * Adds all DiscretizedFuncAPI of the DiscretizedFuncList to this one, if the
-     * named DiscretizedFuncAPI is not already in the list
+     * named DiscretizedFuncAPI is not already in the list.
      */
     public void addAll(DiscretizedFuncList list) throws DiscretizedFuncException{
 
@@ -268,8 +276,8 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     /**
      * Returns the DiscretizedFuncAPI at the specified index. If index is larger than the number
      * of functions, null is returned.
-     * @param index
-     * @return DiscretizedFuncAPI function
+     * @param index into the list.
+     * @return DiscretizedFuncAPI function of interest.
      */
     public DiscretizedFuncAPI get(int index){
         DiscretizedFuncAPI f = null;
@@ -352,6 +360,10 @@ public class DiscretizedFuncList implements NamedObjectAPI{
      * in the IMRTesterApplet.<p>
      *
      * Note: SWR: Still needs work to reformat the data better.
+     * Currently output is x, y for each function seperatly. A better
+     * output format would be in spreadsheet format, since all
+     * functions in the IMRTesterApplet share the same x values.
+     * Currently not implemented.<p>
      */
     public String toString(){
 
@@ -475,7 +487,7 @@ public class DiscretizedFuncList implements NamedObjectAPI{
 
 }
 
-
+    // Not needed any more but a subclass may want this functionality in the future.
     // private boolean allowedDifferentAxisNames = false;
     // private boolean allowedIdenticalFunctions = false;
 

@@ -16,7 +16,7 @@ import org.scec.param.ParameterList;
  * exceedence probability.<p>
  *
  * This interface was developed to be used by DiscretizedFuncAPI subclasses.
- * Of course any class that constains a ParameterList can implement this.
+ * Of course any class that constains a ParameterList can implement this.<p>
  *
  * @author Steven W. Rock
  * @see ParameterList

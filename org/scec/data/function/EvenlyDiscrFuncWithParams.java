@@ -4,16 +4,23 @@ import java.util.*;
 import org.scec.data.*;
 import org.scec.param.*;
 
-// FIX - Needs more comments
-
 /**
  * <b>Title:</b> EvenlyDiscrFuncWithParams<p>
- * <b>Description:</b> <p>
+ * <b>Description:</b> Subclass of the EvenlyDiscretizedFunc that
+ * also includes a ParameterList of paramters associated with the
+ * function. Not much different but provides methods for dealing with
+ * the parameter list and overides such methods as toString(),
+ * equals(), etc. These extra methods are put in an interface
+ * FuncWithParamsAPI. Therefore this class implements that
+ * interface as well as the DiscretizedFuncAPI.<p>
+ *
+ * In the case of the IMRTesterApplet the parameters represent the
+ * input argument values that went into calculating the IMR.<p>
  *
  * @see EvenlyDiscretizedFunc
  * @see FuncWithParamsAPI
  * @see DiscretizedFunc
- * @see DiscretizedFuncAPI
+ * @see DiscretizedFuncAPIFunc
  * @see ParameterList
  *
  * @author Steven W. Rock
@@ -74,14 +81,18 @@ public class EvenlyDiscrFuncWithParams
 
     public String getInfo(){ return list.toString(); }
 
-    /** Returns true if two DefaultXYDiscretizedFunction2D have the same independent parameters */
+    /**
+     * Returns true if two DefaultXYDiscretizedFunction2D
+     * have the same independent parameters; name and value.
+     */
     public boolean equalParameterNamesAndValues(FuncWithParamsAPI function){
         if( function.getParametersString().equals( getParametersString() ) ) return true;
         else return false;
     }
 
-    /** Returns true if the second function has the same named parameters in
-     *  it's list, values may be different
+    /**
+     * Returns true if the second function has the same named
+     * parameters in it's list, values may be different.
      */
     public boolean equalParameterNames(FuncWithParamsAPI function){
         return function.getParameterList().equalNames( this.getParameterList() );
@@ -90,7 +101,10 @@ public class EvenlyDiscrFuncWithParams
 
 
 
-    /** Returns a copy of this and all points in this DiscretizedFunction */
+    /**
+     * Returns a copy of this and all points in this DiscretizedFunction.
+     * Also clones each paramete in the parameter list.
+     */
     public DiscretizedFuncAPI deepClone(){
 
         EvenlyDiscrFuncWithParams f = new EvenlyDiscrFuncWithParams(

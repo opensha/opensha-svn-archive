@@ -33,6 +33,10 @@ import org.scec.exceptions.*;
  *
  * DataPoint2D = (x,y)<p>
  *
+ * Note: This interface defines a tolerance so that you can say two x-values
+ * are the same within this tolerance limit. THERE IS NO TOLERANCE FOR THE
+ * Y-AXIS VALUES. This may be useful to add in the future.<p>
+ *
  * @author Steven W. Rock
  * @see DataPoint2D
  * @version 1.0

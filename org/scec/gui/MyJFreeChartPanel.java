@@ -14,11 +14,18 @@ import com.jrefinery.chart.event.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.chart.ui.*;
 
-// FIX - Needs more comments
 
 /**
  * <b>Title:</b> MyJFreeChartPanel<p>
- * <b>Description: </b> <p>
+ * <b>Description:</b> Subclass of JFreeChart's ChartPanel class.
+ * That class was subclasses here to track mouse movements and
+ * display a popup menu. These are not available by default in ChartPanel.
+ * This class also handles mouse zooming. <p>
+ *
+ * This is not a primary class of the SCEC framework so a full description
+ * will not be provided here. More more information please consult the
+ * JFreeChart framework. Only experienced programmers would need to modify
+ * this class. <p>
  *
  * @author Steven W. Rock
  * @version 1.0

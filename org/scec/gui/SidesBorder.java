@@ -15,6 +15,10 @@ import javax.swing.border.*;
  *  border to the same color as the background panel, users only see the bottom
  *  border.<p>
  *
+ *  This class's data is basically 4 colors, and 4 booleans that indicate
+ * weither to draw a particular side or not, along with the corresponding
+ * getXXX() and setXXX() javabean functions. <p>
+ *
  * @author     Steven W. Rock
  * @created    February 20, 2002
  * @version    1.0
@@ -22,303 +26,130 @@ import javax.swing.border.*;
 
 public class SidesBorder implements Border {
 
-    /**
-     *  Top side of the border color
-     */
+    /** Top side of the border color */
     Color topColor = new Color( 120, 160, 100 );
-    /**
-     *  Bottom side of the border color
-     */
+    /** Bottom side of the border color */
     Color bottomColor = Color.yellow;
-    /**
-     *  Right side of the border color
-     */
+    /** Left side of the border color */
     Color leftColor = Color.red;
-    /**
-     *  Left side of the border color
-     */
+    /** Right side of the border color */
     Color rightColor = Color.blue;
 
-    /**
-     *  Description of the Field
-     */
+    /** determines the height of the corner arcs on the border */
     private int height = 0;
-    /**
-     *  Description of the Field
-     */
+    /** determines the width of the corner arcs on the border */
     private int width = 0;
 
-    /**
-     *  Boolean whether to draw the left of the border
-     */
+    /** Boolean whether to draw the left side of the border */
     private boolean drawLeft = true;
-    /**
-     *  Boolean whether to draw the right of the border
-     */
+    /** Boolean whether to draw the right side of the border */
     private boolean drawRight = true;
-    /**
-     *  Boolean whether to draw the top of the border
-     */
+    /** Boolean whether to draw the top of the border  */
     private boolean drawTop = true;
-    /**
-     *  Boolean whether to draw the bottom of the border
-     */
+    /** Boolean whether to draw the bottom of the border */
     private boolean drawBottom = true;
 
 
-    /**
-     *  No-Arg constructor - all sides drawn, all sides different color
-     */
+    /** No-Arg constructor - all sides drawn, all sides different color */
     public SidesBorder() { }
 
 
     /**
-     *  Constructor for the SidesBorder object
+     *  Constructor that let's you set each side's color. By setting all
+     * sides the same, this border acts just like a LineBorder.
      *
      * @param  topColor     Color for the top side of the border
      * @param  bottomColor  Color for the bottom side of the border
      * @param  leftColor    Color for the left side of the border
      * @param  rightColor   Color for the right side of the border
      */
-    public SidesBorder(
-            Color topColor,
-            Color bottomColor,
-            Color leftColor,
-            Color rightColor
-             ) {
-
-        this.topColor = topColor;
-        this.bottomColor = bottomColor;
-        this.leftColor = leftColor;
-        this.rightColor = rightColor;
+    public SidesBorder( Color topColor, Color bottomColor,
+                        Color leftColor, Color rightColor
+    ) {
+        this.topColor = topColor; this.bottomColor = bottomColor;
+        this.leftColor = leftColor; this.rightColor = rightColor;
     }
 
 
-    /**
-     *  Sets the left Color attribute of the SidesBorder object
-     *
-     * @param  a  The new leftColor value
-     */
-    public void setLeftColor( Color a ) {
-        leftColor = a;
-    }
+    /** Sets the color for the left side of the border. */
+    public void setLeftColor( Color a ) { leftColor = a; }
+    /** Gets the color for the left side of the border. */
+    public Color getLeftColor() { return leftColor; }
+
+    /** Sets the color for the right side of the border. */
+    public void setRighttColor( Color a ) { rightColor = a; }
+    /** Gets the color for the right side of the border. */
+    public Color getRightColor() { return rightColor; }
+
+    /** Sets the color for the top side of the border. */
+    public void setTopColor( Color a ) { topColor = a; }
+    /** Gets the color for the top side of the border. */
+    public Color getTopColor() { return topColor; }
+
+    /** Sets the color for the bottom side of the border. */
+    public void setBottomColor( Color a ) { bottomColor = a; }
+    /** Gets the color for the bottom side of the border. */
+    public java.awt.Color getBottomColor() {  return bottomColor; }
 
 
-    /**
-     *  Sets the right Color attribute of the SidesBorder object
-     *
-     * @param  a  The new rightColor value
-     */
-    public void setRightColor( Color a ) {
-        rightColor = a;
-    }
+    /** Gets the width of the corner arcs on the border */
+    public int getWidth() { return width; }
+    /** Sets the width of the corner arcs on the border */
+    public void setWidth( int a ) { width = a; }
+
+    /** Gets the height of the corner arcs on the border */
+    public int getHeight() { return height; }
+    /** Sets the height of the corner arcs on the border */
+    public void setHeight( int a ) { height = a; }
 
 
-    /**
-     *  Sets the top Color attribute of the SidesBorder object
-     *
-     * @param  a  The new topColor value
-     */
-    public void setTopColor( Color a ) {
-        topColor = a;
-    }
+    /** Flag true or false whether to draw the left side of the border */
+    public void setDrawLeft( boolean a ) { drawLeft = a; }
+    /** Returns true if the left border will be drawn or false otherwise. */
+    public boolean isDrawLeft() { return drawLeft; }
+
+    /** Flag true or false whether to draw the right side of the border */
+    public void setDrawRight( boolean a ) { drawRight = a; }
+    /** Returns true if the right border will be drawn or false otherwise. */
+    public boolean isDrawRight() { return drawRight; }
+
+    /** Flag true or false whether to draw the top side of the border */
+    public void setDrawTop( boolean a ) { drawTop = a; }
+    /** Returns true if the top border will be drawn or false otherwise. */
+    public boolean isDrawTop() { return drawTop; }
+
+    /** Flag true or false whether to draw the bottom side of the border */
+    public void setDrawBottom( boolean a ) { drawBottom = a; }
+    /** Returns true if the bottom border will be drawn or false otherwise. */
+    public boolean isDrawBottom() { return drawBottom; }
 
 
-    /**
-     *  Sets the bottom Color attribute of the SidesBorder object
-     *
-     * @param  a  The new bottomColor value
-     */
-    public void setBottomColor( Color a ) {
-        bottomColor = a;
-    }
-
-
-    /**
-     *  Sets the width attribute
-     *
-     * @param  a  The new width value
-     */
-    public void setWidth( int a ) {
-        width = a;
-    }
-
-
-    /**
-     *  Sets the height attribute
-     *
-     * @param  a  The new height value
-     */
-    public void setHeight( int a ) {
-        height = a;
-    }
-
-
-    /**
-     *  Sets the drawLeft attribute which determines if the left border is drawn
-     *
-     * @param  a  The new drawLeft value
-     */
-    public void setDrawLeft( boolean a ) {
-        drawLeft = a;
-    }
-
-
-    /**
-     *  Sets the drawRight attribute which determines if the right border is
-     *  drawn
-     *
-     * @param  a  The new drawRight value
-     */
-    public void setDrawRight( boolean a ) {
-        drawRight = a;
-    }
-
-
-    /**
-     *  Sets the drawTop attribute which determines iif the top border is drawn
-     *
-     * @param  a  The new drawTop value
-     */
-    public void setDrawTop( boolean a ) {
-        drawTop = a;
-    }
-
-
-    /**
-     *  Sets the drawBottom attribute of the SidesBorder object
-     *
-     * @param  a  The new drawBottom value
-     */
-    public void setDrawBottom( boolean a ) {
-        drawBottom = a;
-    }
-
-
-
-    /**
-     *  Gets the borderInsets attribute of the SidesBorder object
-     *
-     * @param  c
-     * @return    The borderInsets value
-     */
+    /** BorderAPI - Gets the borderInsets attribute of the SidesBorder object */
     public Insets getBorderInsets( Component c ) {
         return new Insets( height, width, height, width );
     }
 
+    /** BorderAPI - Returns true if the border is opaque */
+    public boolean isBorderOpaque() {  return true; }
+
+
+
+
+
+
+
+
 
     /**
-     *  Returns true if the border is opaque
+     *  Here is where all the work is done to draw the border. This is
+     * all Java2D graphics drawing techniques. This is automatically
+     * called everytime the component is redrawn to the screen.<p>
      *
-     * @return    The borderOpaque value
-     */
-    public boolean isBorderOpaque() {
-        return true;
-    }
-
-
-    /**
-     *  Gets the leftColor attribute of the SidesBorder object
-     *
-     * @return    The leftColor value
-     */
-    public Color getLeftColor() {
-        return leftColor;
-    }
-
-
-    /**
-     *  Gets the rightColor attribute of the SidesBorder object
-     *
-     * @return    The rightColor value
-     */
-    public Color getRightColor() {
-        return rightColor;
-    }
-
-
-    /**
-     *  Gets the topColor attribute of the SidesBorder object
-     *
-     * @return    The topColor value
-     */
-    public Color getTopColor() {
-        return topColor;
-    }
-
-
-    /**
-     *  Gets the bottomColor attribute of the SidesBorder object
-     *
-     * @return    The bottomColor value
-     */
-    public java.awt.Color getBottomColor() {
-        return bottomColor;
-    }
-
-
-    /**
-     *  Gets the width attribute of the SidesBorder object
-     *
-     * @return    The width value
-     */
-    public int getWidth() {
-        return width;
-    }
-
-
-    /**
-     *  Gets the height attribute of the SidesBorder object
-     *
-     * @return    The height value
-     */
-    public int getHeight() {
-        return height;
-    }
-
-
-    /**
-     *  Returns if the left border will be drawn or not
-     *
-     * @return    true if the left border is being drawn
-     */
-    public boolean isDrawLeft() {
-        return drawLeft;
-    }
-
-
-    /**
-     *  Returns if the right border will be drawn or not
-     *
-     * @return    true if the right border is being drawn
-     */
-    public boolean isDrawRight() {
-        return drawRight;
-    }
-
-
-    /**
-     *  Returns if the top border will be drawn or not
-     *
-     * @return    true if the top border is being drawn
-     */
-    public boolean isDrawTop() {
-        return drawTop;
-    }
-
-
-    /**
-     *  Returns if the bottom border will be drawn or not
-     *
-     * @return    true if the bottom border is being drawn
-     */
-    public boolean isDrawBottom() {
-        return drawBottom;
-    }
-
-
-    /**
-     *  Description of the Method
+     * This draw function is broken up into 4 sections, one for each side.
+     * If the boolean drawSide for that particular side is false, that
+     * section is skipped. Left and right sides draw a line, while the
+     * top and bottom draw a line and the corner arcs to give the side
+     * a rounded appearance.<p>
      *
      * @param  c  The component that the border is painted to
      * @param  g  Graphics being drawn to
@@ -367,11 +198,7 @@ public class SidesBorder implements Border {
 
 
 
-    /**
-     *  Tester function to see the border in action
-     *
-     * @param  args  The command line arguments
-     */
+    /** Tester function to see the border in action. Shows usage for this class. */
     public static void main( String[] args ) {
         JFrame frame = new JFrame( "Custom Border: SideBorder" );
         JLabel label = new JLabel( "SideBorder" );
@@ -384,11 +211,7 @@ public class SidesBorder implements Border {
     }
 
 
-    /**
-     *  Prints out state of the border variables
-     *
-     * @return    variable values
-     */
+    /** Prints out state of the border variable */
     public String toString() {
 
         StringBuffer b = new StringBuffer( "SidesBorder:\n" );

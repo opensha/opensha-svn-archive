@@ -12,13 +12,20 @@ import java.util.*;
 import java.math.BigDecimal;
 import javax.swing.*;
 
-// FIX - Needs more comments
-
 /**
- *  <b>Title:</b> <p>
- *  <b>Description:</b>  <p>
+ *  <b>Title:</b> PSHAXYPlot<p>
+ *  <b>Description:</b>  Subclass of the JFreeChart XYPlot. The sole
+ * purpose this class was required was so that mouse clicks could be tracked
+ * showing the x and y values at the click point. <p>
  *
- * @author  Steven W. Rock
+ * This plot class was then extended to store log information.<p>
+ *
+ * This is not a primary class of the SCEC framework so a full description
+ * will not be provided here. More more information please consult the
+ * JFreeChart framework. Only experienced programmers would need to modify
+ * this class. <p>
+ *
+ * @author  Steven W. Rock, Gupta Brothers.
  * @created    February 22, 2002
  * @version    1.0
  */

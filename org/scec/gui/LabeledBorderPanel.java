@@ -12,7 +12,13 @@ import javax.swing.border.*;
  *
  * <p>Description:</b> A JPanel GUI widget that contains a TitledBorder,
  * and a JScrollPane that let's you add any internal Java Compoenent inside it.
- * Useful for creating Parameter Editors.<p>
+ * Useful for creating Parameter Editors. All Parameter Editors subclass
+ * this class. This is a generic component so it was useful
+ * to pull this common functionality out of the ParameterEditors
+ * and make that a subclass. <p>
+ *
+ * The main usage is to add a component to the editor panel using one
+ * of the add() functions listed below.<p>
  *
  * @author Steven W. Rock
  * @version 1.0

@@ -14,13 +14,22 @@ import org.scec.param.event.*;
 
 import org.scec.param.editor.*;
 
-// FIX - Needs more comments
-
 /**
  * <b>Title:</b> SubRectanglePanel<p>
  *
- * <b>Description:</b> GUI Widget that allows you to specify a window
- * into a 2D matrix, i.e. xmin, ymin, xmax, ymax values.<p>
+ * <b>Description:</b> Custom GUI Widget that allows you to specify a window
+ * into a 2D matrix, i.e. xmin, ymin, xmax, ymax values. This GUI is comprised
+ * of 4 text fields and labels corresponding to the 4 indexes for a "window"
+ * subset of a matrix. You are also able to set to read only or editable
+ * viewing.<p>
+ *
+ * This widget is currently used by the FaultTesterApplet to let the user
+ * redefine the GriddedSubset region into the main GriddedSurface. <p>
+ *
+ * The widget is initiallized by setting the xmin, xmax, ymin, ymax in
+ * the constructor. Once set, the window range cannot go beyond these values.
+ * For example, let's say the constructor is (0, 10, 0, 20). Then in th GUI
+ * the user can set xmin >=0, xMax <=10, yMin >=0, and yMax <=20. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
@@ -31,15 +40,16 @@ public class SubRectanglePanel extends JPanel{
     int xStart, xEnd, yStart, yEnd;
     int xMin, xMax, yMin, yMax;
 
-    GridBagLayout GBL = new GridBagLayout();
-    Insets zero = new Insets(0,0,0,0);
+    final static GridBagLayout GBL = new GridBagLayout();
+    final static Insets zero = new Insets(0,0,0,0);
     final static Dimension DIM = new Dimension(60, 18);
     final static Font FONT = new java.awt.Font("Dialog", 1, 11);
+
     JPanel yMaxPanel = new JPanel();
     JPanel yMinPanel = new JPanel();
     JPanel xMaxPanel = new JPanel();
     JPanel xMinPanel = new JPanel();
-
+    JPanel controlPanel = new JPanel();
 
     JLabel xMinLabel = new JLabel();
     JTextField xMinTextField = new IntegerTextField();
@@ -52,19 +62,27 @@ public class SubRectanglePanel extends JPanel{
 
     JLabel yMaxLabel = new JLabel();
     JTextField yMaxTextField = new IntegerTextField();
-    JPanel controlPanel = new JPanel();
+
    // JButton jButton1 = new JButton();
-    GridBagLayout gridBagLayout1 = new GridBagLayout();
     JLabel xLabel = new JLabel();
     JLabel yLabel = new JLabel();
 
 
+    /** Returns the value of the XMin field */
     public int getXMin(){ return (new Integer(xMinTextField.getText())).intValue();}
+    /** Returns the value of the XMax field */
     public int getXMax(){return (new Integer(xMaxTextField.getText())).intValue();}
+    /** Returns the value of the YMin field */
     public int getYMin(){return (new Integer(yMinTextField.getText())).intValue();}
+    /** Returns the value of the YMax field */
     public int getYMax(){return (new Integer(yMaxTextField.getText())).intValue();}
 
-
+    /**
+     * Resets the GUI to the full range the x and y values can be. In the
+     * case of it's use for a GriddedSubsetSurface, these x,y max and mins
+     * would be set to the full size of the GriddedSurface the
+     * GriddedSubsetSurface points to.
+     */
     public void setFullRange(int xMin, int xMax, int yMin, int yMax){
 
         this.xMin = xMin;
@@ -87,13 +105,17 @@ public class SubRectanglePanel extends JPanel{
         yLabel.setText("Y Range (" + yStart + "-" + yEnd + ')');
 
     }
-    public SubRectanglePanel(int xMin, int xMax, int yMin, int yMax) {
 
-    try { jbInit(); }
+    /**
+     * Constructor that sets the GUI to the full range the x and y
+     * values can be. In the case of it's use for a GriddedSubsetSurface,
+     * these x,y max and mins would be set to the full size of the
+     * GriddedSurface the GriddedSubsetSurface points to.
+     */
+    public SubRectanglePanel(int xMin, int xMax, int yMin, int yMax) {
+        try { jbInit(); }
         catch(Exception e) { e.printStackTrace(); }
         setFullRange(xMin, xMax, yMin, yMax);
-
-
     }
 
     private void jbInit() throws Exception {
@@ -163,7 +185,7 @@ public class SubRectanglePanel extends JPanel{
 
         controlPanel.setBackground(Color.white);
         controlPanel.setBorder(BorderFactory.createEtchedBorder());
-        controlPanel.setLayout(gridBagLayout1);
+        controlPanel.setLayout(GBL);
 
         /*jButton1.setBackground(Color.white);
         jButton1.setFont(FONT);
@@ -248,10 +270,18 @@ public class SubRectanglePanel extends JPanel{
 
     }*/
 
-    public boolean isEnabled(){
-        return enabled;
-    }
+
+    /**
+     * flag that indicates the current state of the
+     * text fields, editable or view only.
+     */
     protected boolean enabled = false;
+
+    /** Returns if the fields are currently editable or not */
+    public boolean isEnabled(){ return enabled; }
+
+
+    /** Sets all text fields editable */
     public void enable(){
 
         enabled = true;
@@ -262,6 +292,8 @@ public class SubRectanglePanel extends JPanel{
         yMinTextField.enable();
 
     }
+
+    /** Sets all text fields unditable */
     public void disable(){
         enabled = false;
 

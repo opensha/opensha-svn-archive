@@ -4,11 +4,16 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 
-// FIX - Needs more comments
-
 /**
- * <b>Title:</b> <p>
- * <b>Description:</b> <p>
+ * <b>Title:</b> LabeledBoxPanel<p>
+ * <b>Description:</b> GUI Widget that contains a Header panel with
+ * a title lable and an editor panel withing a scroll pane. Is the
+ * base class for the ParameterListEditor. This is a generic
+ * component so it was useful to pull this functionality out of
+ * the ParameterListEditor and make that a subclass. <p>
+ *
+ * The main use is to add any component to the editor panel, and
+ * the results will be scrollable. See the add() functions below.<p>
  *
  * @author Steven W. Rock
  * @version 1.0

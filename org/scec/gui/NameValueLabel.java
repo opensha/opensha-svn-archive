@@ -8,13 +8,22 @@ import org.scec.param.editor.*;
 
 /**
  * <b>Title:</b> NameValueLabel<p>
- * <b>Description: </b> <p>
+ * <b>Description:</b> A JPanel that contains two
+ * labels, one plain and one bold. This is used to display
+ * a key, value pair. For example:<br>
+ *
+ * Employee: Frank Herbert<p>
+ *
+ * This JPanel provides a display for fields in a class. Soley
+ * for display purposes. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
  */
 
 public class NameValueLabel extends JPanel{
+
+
     GridBagLayout gridBagLayout1 = new GridBagLayout();
     JLabel nameLabel = new JLabel();
     JLabel valueLabel = new JLabel();

@@ -9,18 +9,22 @@ import org.scec.data.NamedObjectAPI;
  *
  * <b>Description:</b> Abstract implementation of the DiscretizedFuncAPI. Performs standard
  * simple or default functions so that subclasses don't have to keep reimplementing the
- * same function bodies. This function implements:<p>
+ * same function bodies.<p>
  *
  * A Discretized Function is a collection of x and y values grouped together as
  * the points that describe a function. A discretized form of a function is the
  * only ways computers can represent functions. Instead of having y=x^2, you
  * would have a sample of possible x and y values. <p>
  *
+ * The basic functions this abstract class implements are:<br>
  * <ul>
  * <li>get, set Name()
  * <li>get, set, Info()
  * <li>get, set, Tolerance()
+ * <li>equals() - returns true if all three fields have the same values.
  * </ul>
+ *
+ * See the interface documentaion for further explanation of this framework<p>
  *
  * @author Steven W. Rock
  * @version 1.0
@@ -55,61 +59,24 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI, NamedObject
      */
     protected String name = "";
 
-    /**
-     * Returns the name of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+
+    /** Returns the name of this function. */
      public String getName(){ return name; }
-    /**
-     * Sets the name of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+    /** Sets the name of this function. */
     public void setName(String name){ this.name = name; }
 
-    /**
-     * Returns the info of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+
+    /** Returns the info of this function. */
     public String getInfo(){ return info; }
-    /**
-     * Sets the info string of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+    /** Sets the info string of this function. */
      public void setInfo(String info){ this.info = info; }
 
-    /**
-     * Returns the tolerance of this function.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
-     */
+
+    /**Returns the tolerance of this function. */
     public double getTolerance() { return tolerance; }
     /**
      * Sets the tolerance of this function. Throws an InvalidRangeException
      * if the tolerance is less than zero, an illegal value.
-     *
-     * These field getters and setters provide the basic information to describe
-     * a function. All functions have a name, information string,
-     * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
      */
      public void setTolerance(double newTolerance) throws InvalidRangeException {
         if( newTolerance < 0 )
@@ -124,8 +91,6 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI, NamedObject
      */
     public boolean equals(DiscretizedFuncAPI function){
         if( !getName().equals(function.getName() )  ) return false;
-
-
 
         if( D ) {
             String S = C + ": equals(): ";

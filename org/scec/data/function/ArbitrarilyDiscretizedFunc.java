@@ -20,10 +20,7 @@ import org.scec.data.*;
  * Consecutive points can be spread out or bunched up in no predicatable
  * order. <p>
  *
- * SWR: Note - not all funtionality has been implemented yet, such as all
- * iterators except getPointsIterator().<p>
- *
- * @author Steven W. Rock
+ * @author Steven W. Rock, Gupta Brothers
  * @version 1.0
  */
 
@@ -48,7 +45,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
      * Java's Treemap had internal objects hidden as private, I exposed them
      * to subclasses by making them protected in org.scec.data.TreeMap. This
      * was neccessary for index access to the points in the TreeMap. Seems like a poor
-     * oversight on the part of Java.
+     * oversight on the part of Java.<p>
      */
     protected DataPoint2DTreeMap points = null;
 

@@ -5,15 +5,19 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 /**
- *  <b>Title:</b> OvalBorder<p>
+ * <b>Title:</b> OvalBorder<p>
  *
- *  <b>Description:</b> This class implements a Border that has rounded edges.
- *  Gives a GUI a sofgter feel, instead of typical rectangular components<p>
+ * <b>Description:</b> This class implements a Border that has rounded edges.
+ * Gives a GUI a softer feel, instead of typical rectangular borders
+ * around components. This class allows you to set different colors for
+ * the top and left border from the bottom and right border. It draws
+ * a line of 2 pixel width, and lets you set how "large" or more
+ * pronounched to make the rounded edges.<p>
  *
- *  <b>Note: <.b>This class has a few problems with aliasing for single
- *  thickness lines with small rounded corners. May need to be fixed at some
- *  point in the future. For our app we use the double thick line so not a
- *  problem<P>
+ * <b>Note:</b> This class has a few problems with aliasing for single
+ * thickness lines with small rounded corners. In other words, the corners
+ * look jagged. May need to be fixed at some point in the future. For our
+ * app we use the 2 pixel thick line so this jaggedness is not a problem<P>
  *
  * @ see Border
  * @author     Steven W. Rock
@@ -34,13 +38,10 @@ public class OvalBorder implements Border {
      */
     protected int height = 6;
 
-    /**
-     *  The color of the border in the top and left sides, defaults to white
-     */
+    /** The color of the border in the top and left sides, defaults to white  */
     protected Color topColor = Color.white;
-    /**
-     *  The color of the border in the bottom and right sides, defaults to gray
-     */
+
+    /** The color of the border in the bottom and right sides, defaults to gray*/
     protected Color bottomColor = Color.gray;
 
     /**
@@ -50,20 +51,14 @@ public class OvalBorder implements Border {
     protected boolean thickLine = true;
 
 
-    /**
-     *  No-Arg constructor sets width and height = 6 for the rounded corners
-     */
-    public OvalBorder() {
-        width = 6;
-        height = 6;
-    }
-
+    /** No-Arg constructor sets width and height = 6 for the rounded corners */
+    public OvalBorder() { width = 6; height = 6; }
 
     /**
-     *  Constructor where you can set the rounded corners width and height
+     * Constructor where you can set the rounded corners width and height.
      *
-     * @param  w  Description of the Parameter
-     * @param  h  Description of the Parameter
+     * @param  w  width of rounded corners
+     * @param  h  height of rounded corners
      */
     public OvalBorder( int w, int h ) {
         width = w;
@@ -73,12 +68,12 @@ public class OvalBorder implements Border {
 
     /**
      *  Constructor where you can set the rounded corners width and height, and
-     *  the colors of the top-left and bottom-right halves
+     *  the colors of the top-left and bottom-right halves.
      *
-     * @param  w            Description of the Parameter
-     * @param  h            Description of the Parameter
-     * @param  topColor     Description of the Parameter
-     * @param  bottomColor  Description of the Parameter
+     * @param  w            width of rounded corners
+     * @param  h            height of rounded corners
+     * @param  topColor     Color to draw the left and top sides
+     * @param  bottomColor  Color to draw the right and bottom sides
      */
     public OvalBorder( int w, int h, Color topColor, Color bottomColor ) {
         width = w;
@@ -88,141 +83,56 @@ public class OvalBorder implements Border {
     }
 
 
-    /**
-     *  Sets the topColor attribute of the OvalBorder object
-     *
-     * @param  newTopColor  The new topColor value
-     */
-    public void setTopColor( java.awt.Color newTopColor ) {
-        topColor = newTopColor;
-    }
+    /** Gets the topColor used to drawn the left and top sides. */
+    public java.awt.Color getTopColor() { return topColor; }
+    /** Sets the topColor used to drawn the left and top sides. */
+    public void setTopColor( java.awt.Color newTopColor ) { topColor = newTopColor; }
 
+    /** gets the bottomColor used to drawn the right and bottom sides. */
+    public java.awt.Color getBottomColor() { return bottomColor; }
+    /** Sets the bottomColor used to drawn the right and bottom sides. */
+    public void setBottomColor( java.awt.Color newBottomColor ) { bottomColor = newBottomColor; }
 
-    /**
-     *  Sets the bottomColor attribute of the OvalBorder object
-     *
-     * @param  newBottomColor  The new bottomColor value
-     */
-    public void setBottomColor( java.awt.Color newBottomColor ) {
-        bottomColor = newBottomColor;
-    }
+    /** Gets the width of rounded corners. */
+    public int getWidth() { return width; }
+    /** Sets the width of rounded corners. */
+    public void setWidth( int newWidth ) { width = newWidth; }
 
+    /** Gets the height of rounded corners. */
+    public int getHeight() { return height; }
+    /** Sets the height of rounded corners. */
+    public void setHeight( int newHeight ) { height = newHeight; }
 
-    /**
-     *  Sets the width attribute of the OvalBorder object
-     *
-     * @param  newWidth  The new width value
-     */
-    public void setWidth( int newWidth ) {
-        width = newWidth;
-    }
-
+    /** If true a thick line is drawn for the borders, else a thin line is drawn. */
+    public boolean isThickLine() { return thickLine; }
+    /** If true a thick line is drawn for the borders, else a thin line is drawn. */
+    public void setThickLine( boolean newThickLine ) { thickLine = newThickLine; }
 
     /**
-     *  Sets the height attribute of the OvalBorder object
-     *
-     * @param  newHeight  The new height value
-     */
-    public void setHeight( int newHeight ) {
-        height = newHeight;
-    }
-
-
-    /**
-     *  Sets the thickLine attribute of the OvalBorder object
-     *
-     * @param  newThickLine  The new thickLine value
-     */
-    public void setThickLine( boolean newThickLine ) {
-        thickLine = newThickLine;
-    }
-
-
-    /**
-     *  Gets the borderInsets attribute of the OvalBorder object
-     *
-     * @param  c  Description of the Parameter
-     * @return    The borderInsets value
+     *  BorderAPI - Gets the borderInsets attribute of the OvalBorder object
      */
     public Insets getBorderInsets( Component c ) {
         return new Insets( height, width, height, width );
     }
 
-
-    /**
-     *  Gets the borderOpaque attribute of the OvalBorder object
-     *
-     * @return    The borderOpaque value
-     */
-    public boolean isBorderOpaque() {
-        return true;
-    }
+    /** Returns true if the border is drawn opaque. */
+    public boolean isBorderOpaque() { return true; }
 
 
     /**
-     *  Gets the topColor attribute of the OvalBorder object
+     * Here is where all the work is done to draw the border. This is
+     * all Java2D graphics drawing techniques. This is automatically
+     * called everytime the component is redrawn to the screen.<p>
      *
-     * @return    The topColor value
+     * @param  c  Component to draw border around, such as a JPanel
+     * @param  g  The graphics "screen" to draw to.
+     * @param  x  Upper left corner of component, x-coordinate
+     * @param  y  Upper left corner of component, y-coordinate
+     * @param  w  Width of the component
+     * @param  h  Height of the component
      */
-    public java.awt.Color getTopColor() {
-        return topColor;
-    }
+    public void paintBorder( Component c, Graphics g, int x, int y, int w, int h ) {
 
-
-    /**
-     *  Gets the bottomColor attribute of the OvalBorder object
-     *
-     * @return    The bottomColor value
-     */
-    public java.awt.Color getBottomColor() {
-        return bottomColor;
-    }
-
-
-    /**
-     *  Gets the width attribute of the OvalBorder object
-     *
-     * @return    The width value
-     */
-    public int getWidth() {
-        return width;
-    }
-
-
-    /**
-     *  Gets the height attribute of the OvalBorder object
-     *
-     * @return    The height value
-     */
-    public int getHeight() {
-        return height;
-    }
-
-
-    /**
-     *  Gets the thickLine attribute of the OvalBorder object
-     *
-     * @return    The thickLine value
-     */
-    public boolean isThickLine() {
-        return thickLine;
-    }
-
-
-    /**
-     *  Description of the Method
-     *
-     * @param  c  Description of the Parameter
-     * @param  g  Description of the Parameter
-     * @param  x  Description of the Parameter
-     * @param  y  Description of the Parameter
-     * @param  w  Description of the Parameter
-     * @param  h  Description of the Parameter
-     */
-    public void paintBorder(
-            Component c,
-            Graphics g,
-            int x, int y, int w, int h ) {
         w--;
         h--;
         g.setColor( topColor );
@@ -289,11 +199,7 @@ public class OvalBorder implements Border {
     }
 
 
-    /**
-     *  Tester function that makes a frame and draws a OvalBorder on it
-     *
-     * @param  args  The command line arguments
-     */
+    /** Tester function that makes a frame and draws a OvalBorder on it. */
     public static void main( String[] args ) {
         JFrame frame = new JFrame( "Custom Border: OvalBorder" );
         JLabel label = new JLabel( "OvalBorder" );

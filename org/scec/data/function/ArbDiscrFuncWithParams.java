@@ -7,16 +7,17 @@ import org.scec.param.*;
 /**
  * <b>Title:</b> ArbDiscrFuncWithParams<p>
  *
- * <b>Description:</b> This class is a sublcass implementation
- * of a DiscretizedFunc that stores the data internaly as a
- * sorted TreeMap of DataPoint2D. This subclass distinguishes itself
- * by the fact that it assumes no spacing interval along the x-axis.
- * Consecutive points can be spread out or bunched up in no predicatable
- * order. <p>
+ * <b>Description:</b> Subclass of the ArbitrarlyDiscretizedFunc that
+ * also includes a ParameterList of paramters associated with the
+ * function. Not much different that parent class but provides methods
+ * for dealing with the parameter list and overides such methods as
+ * toString(), equals(), etc. These extra methods are put in an interface
+ * FuncWithParamsAPI. Therefore this class implements that
+ * interface as well as the DiscretizedFuncAPI.<p>
  *
  * This function implements FuncWithParamsAPI so it maintains a
  * ParameterList internally. These parameters are the values of
- * the input variables that went into calculating this function.
+ * the input variables that went into calculating this function.<p>
  *
  * @see DiscretizedFunction2D
  * @see XYDiscretizedFunction2DAPI
@@ -26,7 +27,6 @@ import org.scec.param.*;
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class ArbDiscrFuncWithParams
     extends ArbitrarilyDiscretizedFunc
     implements FuncWithParamsAPI
