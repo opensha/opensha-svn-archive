@@ -25,7 +25,7 @@ import org.scec.exceptions.*;
  * @version    1.0
  */
 
-public class LocationList {
+public class LocationList implements java.io.Serializable{
 
     /** Class name used for debugging purposes */
     protected final static String C = "LocationList";

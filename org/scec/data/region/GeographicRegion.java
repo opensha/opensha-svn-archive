@@ -18,7 +18,7 @@ import org.scec.data.*;
  * @version 1.0
  */
 
-public class GeographicRegion {
+public class GeographicRegion implements java.io.Serializable{
 
   protected LocationList locList;
 
