@@ -26,8 +26,11 @@ public class SubmitJobForGridComputation {
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   private static int SUGGESTED_NUM_SITES_IN_WORK_UNIT = 100;
 
-  private static String REMOTE_EXECUTABLE_NAME = "HazardMapCalculator.pl";
+  //private static String REMOTE_EXECUTABLE_NAME = "HazardMapCalculator.pl";
+  private static String REMOTE_EXECUTABLE_NAME = "CondorHazardMapCalculator.class";
 
+  //Hazard Map Jar file using which executable will be executed
+  private static String HAZARD_MAP_JAR_FILE_NAME= "hazardmapcondor.jar";
 
   // this executable will create a new directory at the machine
   private static String PRE_PROCESSOR_EXECUTABLE = "HazardMapPreProcessor.sh";
@@ -67,7 +70,7 @@ public class SubmitJobForGridComputation {
 
     // some standard lines that will be written to all the condor submit files
     String remoteDir = REMOTE_DIR+remoteMachineSubdirName+"/";
-    String executable =  "executable = "+remoteDir+REMOTE_EXECUTABLE_NAME+"\n";
+
     String fileDataPrefix = "universe = globus\n" +
         "globusscheduler=almaak.usc.edu/jobmanager-fork\n" +
         "initialdir=" + outputDir + "\n";
@@ -84,6 +87,8 @@ public class SubmitJobForGridComputation {
     String condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix, ""+remoteMachineSubdirName,
                         outputDir, PRE_PROCESSOR_CONDOR_SUBMIT, remoteDir, PRE_PROCESSOR_EXECUTABLE);
     frmap.write("Job "+this.PRE_PROCESSOR_JOB_NAME+" " +condorSubmit+"\n");
+
+
 
     // a post processor which will tar all the files on remote machine after
     // all hazard map calculations are done
@@ -106,6 +111,17 @@ public class SubmitJobForGridComputation {
     int index = 1;
     int endSite = 0;
     int startSite = 0;
+
+    //Name of the main executable file to be executed for the Hazard Maps Calulation.
+    String executable =  "executable = "+remoteDir+REMOTE_EXECUTABLE_NAME+"\n";
+    //
+    fileDataSuffix = "jar_files = " +this.HAZARD_MAP_JAR_FILE_NAME+
+                     "transfer_executable=false"+
+                     "should_transfer_files=YES"+
+                     "WhenToTransferOutput = ON_EXIT"+
+                     "transfer_input_files="+regionFileName+","+erfFileName+","+imrFileName+
+                     "queue";
+
     for (int site = 0; site < numSites; site += numSitesInWorkUnit) {
       startSite = site;
       if ( (numSitesInWorkUnit < numLons) &&( (numLons * index - site) < numSitesInWorkUnit)) {
@@ -116,12 +132,13 @@ public class SubmitJobForGridComputation {
 
       String arguments = startSite + " " + endSite + " " + regionFileName
           + " " + erfFileName + " " + imrFileName;
-      //String condorSubmit =
-        //      createCondorScript(fileDataPrefix, fileDataSuffix, arguments,
-          //             outputDir, fileNamePrefix + "_" + startSite, remoteDir, PRE_PROCESSOR_EXECUTABLE);
-          // write to DAG file
+      String fileNamePrefix = "HazardCurve"+site;
+      String condorSubmitScript =
+              createCondorScript(fileDataPrefix, fileDataSuffix, arguments,
+                       outputDir, fileNamePrefix + "_" + startSite, remoteDir, executable);
+          //write to DAG file
           String jobName = "CurveX"+startSite;
-          frmap.write("Job " + jobName + " " + condorSubmit+"\n");
+          frmap.write("Job " + jobName + " " + condorSubmitScript+"\n");
           frmap.write("PARENT "+jobName+" CHILD "+this.FINISH_JOB_NAME+"\n");
           frmap.write("PARENT "+this.PRE_PROCESSOR_JOB_NAME+" CHILD "+jobName+"\n");
      }
