@@ -90,6 +90,7 @@ public class HazardSpectrumApplication extends JApplet
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
   private final static String CVM_CONTROL = "Set Site Params from CVM";
   private final static String X_VALUES_CONTROL = "Set X values for Hazard Spectrum Calc.";
+  private final static String PLOTTING_OPTION = "Set new dataset plotting option";
 
 
   //Strings for choosing ERFGuiBean or ERF_RupSelectorGUIBean
@@ -122,12 +123,13 @@ public class HazardSpectrumApplication extends JApplet
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
   private DisaggregationControlPanel disaggregationControlPanel;
-  private AxisLimitsControlPanel axisControlPanel;
   private ERF_EpistemicListControlPanel epistemicControlPanel;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
   private SitesOfInterestControlPanel sitesOfInterest;
   private SetSiteParamsFromWebServicesControlPanel cvmControlPanel;
   private X_ValuesInCurveControlPanel xValuesPanel;
+  private RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
+  private PlottingOptionControl plotOptionControl;
 
   // message string to be dispalayed if user chooses Axis Scale
    // without first clicking on "Add Graph"
@@ -197,11 +199,19 @@ public class HazardSpectrumApplication extends JApplet
   private boolean isEqkList = false; // whther we are plottin the Eqk List
   private boolean isIndividualCurves = false; //to keep account that we are first drawing the individual curve for erf in the list
   private boolean isAllCurves = true; // whether to plot all curves
-  // whether user wants to plot No fractile, or 5, 50 and 95 fractile or custom fractile
-  private String fractileOption = ERF_EpistemicListControlPanel.NO_PERCENTILE;
+
+  // whether user wants to plot custom fractile
+  private String fractileOption ;
+
   // whether avg is selected by the user
   private boolean avgSelected = false;
-  private FractileCurveCalculator fractileCalc;
+
+  //Variables required to update progress bar if ERF List is selected
+  //total number of ERF's in list
+  private int numERFsInEpistemicList =0;
+  //index number of ERF for which Hazard Curve is being calculated
+  private int currentERFInEpistemicListForHazardCurve =0;
+
 
   /**
    * these four values save the custom axis scale specified by user
@@ -873,7 +883,7 @@ public class HazardSpectrumApplication extends JApplet
       // if this is forecast list , handle it differently
       boolean isEqkForecastList = false;
       if(eqkRupForecast instanceof ERF_List)  {
-        //handleForecastList(site, imr, eqkRupForecast,imlProbValue,imlAtProb,probAtIML);
+        handleForecastList(site, imr, eqkRupForecast,imlProbValue,imlAtProb,probAtIML);
         this.hazCalcDone = true;
         return;
       }
@@ -912,44 +922,6 @@ public class HazardSpectrumApplication extends JApplet
                                       "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
         return;
       }
-
-
-     /* disaggregationString=null;
-      //checking the disAggregation flag
-      if(this.disaggregationFlag) {
-        disaggCalc = new DisaggregationCalculator();
-        if(this.progressCheckBox.isSelected())  {
-          disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status", "Beginning Disaggregation ");
-          disaggProgressClass.displayProgressBar();
-          disaggTimer.start();
-        }
-
-        if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
-        int num = hazFunction.getNum();
-        double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
-        //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
-        if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
-          JOptionPane.showMessageDialog(this,
-                                        new String("Chosen Probability is not"+
-                                        " within the range of the min and max prob."+
-                                        " in the Hazard Curve"),
-                                        "Disaggregation Prob. selection error message",
-                                        JOptionPane.OK_OPTION);
-        else{
-          //gets the Disaggregation data
-          double iml= hazFunction.getFirstInterpolatedX(disaggregationProb);
-          disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)eqkRupForecast);
-          disaggregationString=disaggCalc.getResultsString();
-        }
-      }
-      //displays the disaggregation string in the pop-up window
-      if(disaggregationString !=null) {
-        HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
-        disaggregation.pack();
-        disaggregation.show();
-
-      }
-      disaggregationString=null;*/
     }
     else{ //If the Deterministic has been chosen by the user
       imr.setSite(site);
@@ -1040,7 +1012,7 @@ public class HazardSpectrumApplication extends JApplet
    */
   private void handleForecastList(Site site,
                                   AttenuationRelationshipAPI imr,
-                                  EqkRupForecastAPI eqkRupForecast,
+                                  ERF_API eqkRupForecast,
                                   double imlProbValue,boolean imlAtProb,
                                   boolean probAtIML) {
 
@@ -1111,10 +1083,10 @@ public class HazardSpectrumApplication extends JApplet
    if(!this.fractileOption.equalsIgnoreCase
       (ERF_EpistemicListControlPanel.NO_PERCENTILE) || this.avgSelected) {
      // set the function list and weights in the calculator
-     if (fractileCalc==null)
+     /*if (fractileCalc==null)
        fractileCalc = new FractileCurveCalculator(totalProbFuncs,
            erfList.getRelativeWeightsList());
-     else  fractileCalc.set(totalProbFuncs, erfList.getRelativeWeightsList());
+     else  fractileCalc.set(totalProbFuncs, erfList.getRelativeWeightsList());*/
    }
 
    if(!isAllCurves) totalProbFuncs.clear(); //if all curves are not needed to be drawn
@@ -1131,7 +1103,7 @@ public class HazardSpectrumApplication extends JApplet
      totalProbFuncs.add(fractileCalc.getFractile(fractile/100));
    }*/
    // calculate average
-   if(this.avgSelected) totalProbFuncs.add(fractileCalc.getMeanCurve());
+   //if(this.avgSelected) totalProbFuncs.add(fractileCalc.getMeanCurve());
    // set the X-axis label
    totalProbFuncs.setXAxisName(X_AXIS_LABEL);
 

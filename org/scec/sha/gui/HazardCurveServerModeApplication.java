@@ -180,7 +180,7 @@ public class HazardCurveServerModeApplication extends JApplet
   private final static String CVM_CONTROL = "Set Site Params from Web Services";
   private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
   private final static String RUN_ALL_PEER_TESTS = "Run all PEER Test Cases";
-  private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
+  //private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
   private final static String PLOTTING_OPTION = "Set new dataset plotting option";
 
 
@@ -1311,7 +1311,7 @@ public class HazardCurveServerModeApplication extends JApplet
     this.controlComboBox.addItem(CVM_CONTROL);
     this.controlComboBox.addItem(X_VALUES_CONTROL);
     this.controlComboBox.addItem(RUN_ALL_PEER_TESTS);
-    this.controlComboBox.addItem(MAP_CALC_CONTROL);
+    //this.controlComboBox.addItem(MAP_CALC_CONTROL);
     this.controlComboBox.addItem(PLOTTING_OPTION);
   }
 
