@@ -19,6 +19,7 @@ import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.sha.imr.*;
+import org.scec.sha.imr.classicImpl.*;
 import org.scec.data.function.*;
 import org.scec.util.*;
 import org.scec.data.*;
@@ -38,6 +39,11 @@ public class GroupTestGuiBean implements
   protected final static boolean D = false;
   private String name  = "GroupTestGuiBean";
 
+
+  //innner class instance
+  GroupTestDefaultParameterClass groupTestParameterClass =new GroupTestDefaultParameterClass(this);
+
+
   //object for the fault
   Set1_Fault_Forecast faultcase1=new Set1_Fault_Forecast();
 
@@ -48,61 +54,16 @@ public class GroupTestGuiBean implements
    *  Search path for finding editors in non-default packages.
    */
   final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
-  private final static String SA_DAMPING = "SA Damping";
-
-
-  /**
-   * ClassicIMRAPI class names
-   */
-
-   private final static String SCEMY_NAME = "Sadigh et al (1997)";
-   private final static String BJF_NAME = "Boore,Joyner, & Fumal (1997)";
-   private final static String AS_NAME = "Abrahamson & Silva (1997)";
-   private final static String A_NAME = "Abrahamson (2000)";
-   private final static String F_NAME = "Field (2000)";
-   private final static String C_NAME = "Campbell (1997) w/ erratum (2000) changes";
-
-
-
-
 
    /**
     *  Temp until figure out way to dynamically load classes during runtime
     */
-   protected final static String BJF_CLASS_NAME = "org.scec.sha.imr.classicImpl.BJF_1997_IMR";
-   protected final static String AS_CLASS_NAME = "org.scec.sha.imr.classicImpl.AS_1997_IMR";
-   protected final static String C_CLASS_NAME = "org.scec.sha.imr.classicImpl.Campbell_1997_IMR";
-   protected final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.classicImpl.SCEMY_1997_IMR";
-   protected final static String F_CLASS_NAME = "org.scec.sha.imr.classicImpl.Field_2000_IMR";
-   protected final static String A_CLASS_NAME = "org.scec.sha.imr.classicImpl.Abrahamson_2000_IMR";
-
-
-   /**
-    * Sadigh et al Site Type
-    */
-   private final static String SADIGH_SITE_TYPE_NAME = "Sadigh Site Type";
-   private final static String SADIGH_SITE_TYPE_ROCK =  "Rock";
-   private final static String SADIGH_SITE_TYPE_SOIL =  "Deep-Soil";
-   private final static String SADIGH_SITE_TYPE_DEFAULT =  "Deep-Soil";
-
-   /**
-    * Abrahamson & Silva (1997) Site type
-    */
-   private final static String AS_SITE_TYPE_NAME = "AS Site Type";
-   private final static String AS_SITE_TYPE_ROCK =  "Rock/Shallow-Soil";
-   private final static String AS_SITE_TYPE_SOIL =  "Deep-Soil";
-   private final static String AS_SITE_TYPE_DEFAULT =  "Deep-Soil";
-
-
-   /**
-    * Campbell 1997 Site type
-    */
-   private final static String C_SITE_TYPE_NAME = "Campbell Site Type";
-   private final static String C_SITE_TYPE_FIRM_SOIL =  "Firm-Soil";
-   private final static String C_SITE_TYPE_SOFT_ROCK =  "Soft-Rock";
-   private final static String C_SITE_TYPE_HARD_ROCK =  "Hard-Rock";
-   private final static String C_SITE_TYPE_DEFAULT =  "Firm-Soil";
-   private final static String BASIN_DEPTH_NAME = "Campbell-Basin-Depth";
+   public  final static String BJF_CLASS_NAME = "org.scec.sha.imr.classicImpl.BJF_1997_IMR";
+   public final static String AS_CLASS_NAME = "org.scec.sha.imr.classicImpl.AS_1997_IMR";
+   public final static String C_CLASS_NAME = "org.scec.sha.imr.classicImpl.Campbell_1997_IMR";
+   public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.classicImpl.SCEMY_1997_IMR";
+   public final static String F_CLASS_NAME = "org.scec.sha.imr.classicImpl.Field_2000_IMR";
+   public final static String A_CLASS_NAME = "org.scec.sha.imr.classicImpl.Abrahamson_2000_IMR";
 
 
    /**
@@ -112,37 +73,7 @@ public class GroupTestGuiBean implements
   private final static String SITE_NUMBER_PARAM = "Site Number";
   private final static String IMR_PARAM_NAME = "IMR NAMES";
   private final static String IMT_PARAM_NAME =  "Select IMT";
-  private final static String STD_DEV_TYPE_NAME = "Std Dev Type";
 
-  /**
-   * Static String for the IMT_PARAM_NAME
-   */
-    protected final static String PGA_NAME = "PGA";
-
-
-  /**
-   * Static String for the SIGMA_TRUNC_TYPE_PARAM
-   */
-  protected final static String SIGMA_TRUNC_TYPE_NONE = "None";
-  protected final static String SIGMA_TRUNC_TYPE_1SIDED = "1 Sided";
-  protected final static String SIGMA_TRUNC_TYPE_2SIDED = "2 Sided";
-
-  /**
-   * Static Strings for the SIGMA_TRUNC_LEVEL_PARAM
-   */
-  protected final static Double SIGMA_TRUNC_LEVEL_DEFAULT = new Double(2.0);
-  protected final static Double SIGMA_TRUNC_LEVEL_MIN = new Double(Double.MIN_VALUE);
-  protected final static Double SIGMA_TRUNC_LEVEL_MAX = new Double(Double.MAX_VALUE);
-
-
-  /**
-   * static String for the STD_DEV_TYPE_PARAM
-   */
-  protected final static String STD_DEV_TYPE_TOTAL = "Total";
-  protected final static String STD_DEV_TYPE_INTER = "Inter-Event";
-  protected final static String STD_DEV_TYPE_INTRA = "Intra-Event";
-  protected final static String STD_DEV_TYPE_NONE = "None (zero)";
-  protected final static String CAMPBELL_DEV_TYPE_TOTAL = "Total (Mag Dependent)";
 
   /**
    * Test cases final static string
@@ -293,7 +224,7 @@ public class GroupTestGuiBean implements
     updateSiteParamListAndEditor( );
 
     //set the site based on the selected test case
-    setParams(testCasesParamList.getParameter(SITE_NUMBER_PARAM).getValue().toString());
+    groupTestParameterClass.setParams(testCasesParamList.getParameter(SITE_NUMBER_PARAM).getValue().toString());
   }
 
 
@@ -478,7 +409,7 @@ public class GroupTestGuiBean implements
     imrParamList.addParameter(levelParam);
 
     //add the sigma param for IMR
-    ParameterAPI sigmaParam = imr.getParameter(STD_DEV_TYPE_NAME);
+    ParameterAPI sigmaParam = imr.getParameter(ClassicIMR.STD_DEV_TYPE_NAME);
     sigmaParam.setValue(((StringParameter)sigmaParam).getAllowedStrings().get(0));
     imrParamList.addParameter(sigmaParam);
 
@@ -530,7 +461,7 @@ public class GroupTestGuiBean implements
           iml = new Vector();
           DependentParameterAPI param2 = ( DependentParameterAPI ) it2.next();
           // fon not add SA damping in IMT
-          if(param2.getName().equalsIgnoreCase(SA_DAMPING))
+          if(param2.getName().equalsIgnoreCase(ClassicIMR.DAMPING_NAME))
             continue;
           DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
           ListIterator it3 = values.listIterator();
@@ -726,477 +657,16 @@ public class GroupTestGuiBean implements
       // set the default values if the test cases are chosen
       if(name1.equals(this.TEST_PARAM_NAME)) {
         String value = event.getNewValue().toString();
-        setSiteNumberParams(value);
+        groupTestParameterClass.setSiteNumberParams(value);
         applet.updateChoosenTestCase();
       }
 
       // update the params when a site is selected
       if(name1.equals(this.SITE_NUMBER_PARAM)) {
         String value = event.getNewValue().toString();
-        setParams(value);
+        groupTestParameterClass.setParams(value);
       }
   }
-
-  /**
-   * set the mag dist params according to test case
-   *
-   * @param testCase
-   */
-  private void setMagDistParams(String testCase) {
-
-
-    MagFreqDistParameterEditor magEditor;
-
-   // get the paramter based on whether fault or area is selected as forecast
-    if(!testCase.equalsIgnoreCase(this.TEST_CASE_TEN) && ! testCase.equalsIgnoreCase(this.TEST_CASE_ELEVEN))
-      magEditor= (MagFreqDistParameterEditor)this.eqkSourceEditor.getParameterEditor("Fault Mag Dist");
-    else
-      magEditor= (MagFreqDistParameterEditor)this.eqkSourceEditor.getParameterEditor("Area Mag Dist");
-
-
-    magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.0));
-    magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(10.0));
-    magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(101));
-    // mag dist parameters for test case 1
-    if(testCase.equalsIgnoreCase(TEST_CASE_ONE)) {
-      magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-      magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
-      magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.5));
-      magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
-    }
-
-    // mag dist parameters  for test case 2
-    if(testCase.equalsIgnoreCase(TEST_CASE_TWO)) {
-
-      magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-      magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
-      magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-      magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
-    }
-
-    // mag dist parameters  for test case 3
-    if(testCase.equalsIgnoreCase(TEST_CASE_THREE)) {
-
-      magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-      magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
-      magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-      magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
-    }
-
-    // mag dist parameters for test case 4
-    if(testCase.equalsIgnoreCase(TEST_CASE_FOUR)) {
-
-      magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-      magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
-      magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-      magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
-    }
-
-    // mag dist parameters for test case 5
-    if(testCase.equalsIgnoreCase(TEST_CASE_FIVE)) {
-      magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(1001));
-      magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-      magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TO_CUM_RATE);
-      magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
-      magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
-      magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-      magEditor.getParameter(MagFreqDistParameterEditor.GR_TO_MORATE).setValue(new Double(1.8e16));
-    }
-
-
-    // mag dist parameters for test case 6
-    if(testCase.equalsIgnoreCase(TEST_CASE_SIX)) {
-      magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
-      magEditor.getParameter(MagFreqDistParameterEditor.GAUSSIAN_TO_MORATE).setValue(new Double(1.8e16));
-      magEditor.getParameter(MagFreqDistParameterEditor.STD_DEV).setValue(new Double(0.25));
-      magEditor.getParameter(MagFreqDistParameterEditor.MEAN).setValue(new Double(6.2));
-      magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATION_REQ).setValue(MagFreqDistParameterEditor.TRUNCATE_FROM_RIGHT);
-      magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.2));
-    }
-    // mag dist parameters for test case 7
-    if(testCase.equalsIgnoreCase(TEST_CASE_SEVEN)) {
-      magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
-      magEditor.getParameter(MagFreqDistParameterEditor.YC_BVALUE).setValue(new Double(0.9));
-      magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_CHAR).setValue(new Double(0.5));
-      magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
-      magEditor.getParameter(MagFreqDistParameterEditor.YC_MAG_LOWER).setValue(new Double(5.0));
-      magEditor.getParameter(MagFreqDistParameterEditor.YC_MAG_PRIME).setValue(new Double(6.0));
-      magEditor.getParameter(MagFreqDistParameterEditor.YC_MAG_UPPER).setValue(new Double(6.5));
-      magEditor.getParameter(MagFreqDistParameterEditor.YC_TO_MORATE).setValue(new Double(1.8e16));
-    }
-
-    //mag dist parameters for the test case 8_1
-    if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_ONE)) {
-
-      magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-      magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
-      magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-      magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
-    }
-
-    //mag dist parameters for the test case 8_2
-   if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_TWO)) {
-
-     magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-     magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
-     magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-     magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
-    }
-
-    //mag dist parameters for the test case 8_3
-   if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_THREE)) {
-
-     magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-     magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
-     magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-     magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
-    }
-
-    //mag dist parameters for the test case 9_1
-   if(testCase.equalsIgnoreCase(TEST_CASE_NINE_ONE)) {
-
-     magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-     magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
-     magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-     magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
-    }
-
-    //mag dist parameters for the test case 9_2
-   if(testCase.equalsIgnoreCase(TEST_CASE_NINE_TWO)) {
-
-      magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-      magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
-      magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-      magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
-    }
-
-    //mag dist parameters for the test case 9_1
-   if(testCase.equalsIgnoreCase(TEST_CASE_NINE_THREE)) {
-
-     magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-     magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
-     magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
-     magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
-    }
-
-
-    // mag dist parameters for test case 10
-   if(testCase.equalsIgnoreCase(TEST_CASE_TEN)) {
-     magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-     magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.GR_TO_MORATE);
-     magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
-     magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
-     magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-     magEditor.getParameter(MagFreqDistParameterEditor.TO_CUM_RATE).setValue(new Double(.0395));
-    }
-
-    // mag dist parameters for test case 11
-   if(testCase.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
-      magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
-      magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.GR_TO_MORATE);
-      magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
-      magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
-      magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
-      magEditor.getParameter(MagFreqDistParameterEditor.TO_CUM_RATE).setValue(new Double(.0395));
-    }
-    magEditor.getChoosenFunction();
-  }
-
-
-  /**
-   * This function sets the site Paramters and the IMR parameters based on the
-   * selected test case and selected site number for that test case
-   * @param siteNumber
-   */
-
-  private void setParams(String siteNumber) {
-    String S = C + ":setParams()";
-    if(D) System.out.println(S+"::entering");
-    String value = (String)this.testCasesParamList.getParameter(this.TEST_PARAM_NAME).getValue();
-
-    // set the mag dist params based on test case
-    setMagDistParams(value);
-
-    String selectedFault= new String(FAULT_ONE);
-
-    //if selected test case is number 1
-    if(value.equals(TEST_CASE_ONE)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_NONE);
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_NONE);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_ONE);
-    }
-
-
-    //if selected test case is number 2
-    if(value.equals(TEST_CASE_TWO)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_NONE);
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_NONE);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_ONE);
-    }
-
-    //if selected test case is number 3
-    if(value.equals(TEST_CASE_THREE)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_NONE);
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_NONE);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_ONE);
-    }
-
-    //if selected test case is number 4
-    if(value.equals(TEST_CASE_FOUR)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_NONE);
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_NONE);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_TWO);
-    }
-
-    //if selected test case is number 5
-    if(value.equals(TEST_CASE_FIVE)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_NONE);
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_NONE);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_ONE);
-    }
-
-    //if selected test case is number 6
-    if(value.equals(TEST_CASE_SIX)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_NONE);
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_NONE);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_ONE);
-    }
-
-    //if selected test case is number 7
-    if(value.equals(TEST_CASE_SEVEN)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_NONE);
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_NONE);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_ONE);
-    }
-
-    //if the selected test case is number 8_1
-    if(value.equals(TEST_CASE_EIGHT_ONE)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(this.SIGMA_TRUNC_TYPE_NONE);
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_TOTAL);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_ONE);
-    }
-
-    //if the selected test case is number 8_2
-    if(value.equals(TEST_CASE_EIGHT_TWO)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_1SIDED);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(2.0));
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_TOTAL);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_TWO);
-    }
-
-    //if the selected test case is number 8_3
-    if(value.equals(TEST_CASE_EIGHT_THREE)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_2SIDED);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_TOTAL);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_ONE);
-    }
-
-    //if the selected test case is number 9_1
-    if(value.equals(TEST_CASE_NINE_ONE)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_1SIDED);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_TOTAL);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_TWO);
-    }
-
-   //if the selected test case is number 9_2
-    if(value.equals(TEST_CASE_NINE_TWO)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(AS_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_1SIDED);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_TOTAL);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.AS_SITE_TYPE_NAME).setValue(AS_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_TWO);
-    }
-
-    //if the selected test case is number 9_3
-    if(value.equals(TEST_CASE_NINE_THREE)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(C_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_1SIDED);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(CAMPBELL_DEV_TYPE_TOTAL);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.C_SITE_TYPE_NAME).setValue(C_SITE_TYPE_SOFT_ROCK);
-      siteBean.getSiteParamList().getParameter(this.BASIN_DEPTH_NAME).setValue(new Double(2.0));
-      selectedFault = new String(FAULT_TWO);
-    }
-
-    //if the selected test case is number 10
-    if(value.equals(TEST_CASE_TEN)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(this.SIGMA_TRUNC_TYPE_NONE);
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(this.STD_DEV_TYPE_NONE);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_AREA);
-    }
-
-    //if the selected test case is number 11
-    if(value.equals(TEST_CASE_ELEVEN)){
-      imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_NAME);
-      imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(this.SIGMA_TRUNC_TYPE_NONE);
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(this.STD_DEV_TYPE_NONE);
-      imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
-      siteBean.getSiteParamList().getParameter(this.SADIGH_SITE_TYPE_NAME).setValue(this.SADIGH_SITE_TYPE_ROCK);
-      selectedFault = new String(FAULT_AREA);
-    }
-
-    // set the latitude and longitude and selected forecast is area or fault
-    //if selected site number is not 10 or 11 i.e for fault sites
-    if(!value.equalsIgnoreCase(this.TEST_CASE_TEN) && !value.equalsIgnoreCase(this.TEST_CASE_ELEVEN)) {
-
-      // it is fault test case
-      eqkSourceParamList.getParameter(SOURCE_PARAM_NAME).setValue(SOURCE_FAULT_ONE);
-      this.faultcase1.setForecastParams(selectedFault,value);
-
-      // for fault site 1
-      if(siteNumber.equals(SITE_ONE)) {
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(38.113));
-        siteBean.getSiteParamList().getParameter(this.siteBean.LONGITUDE).setValue(new Double(-122.0));
-      }
-      // for fault site 2
-      if(siteNumber.equals(SITE_TWO)) {
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(38.113));
-        siteBean.getSiteParamList().getParameter(this.siteBean.LONGITUDE).setValue(new Double(-122.114));
-
-      }
-      // for fault site 3
-      if(siteNumber.equals(SITE_THREE)) {
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(38.111));
-        siteBean.getSiteParamList().getParameter(this.siteBean.LONGITUDE).setValue(new Double(-122.570));
-
-      }
-      // for fault site 4
-      if(siteNumber.equals(SITE_FOUR)) {
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(38.000));
-        siteBean.getSiteParamList().getParameter(this.siteBean.LONGITUDE).setValue(new Double(-122.0));
-
-      }
-      // for fault site 5
-      if(siteNumber.equals(SITE_FIVE)) {
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(37.910));
-        siteBean.getSiteParamList().getParameter(this.siteBean.LONGITUDE).setValue(new Double(-122.0));
-
-      }
-      // for fault site 6
-      if(siteNumber.equals(SITE_SIX)) {
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(38.225));
-        siteBean.getSiteParamList().getParameter(this.siteBean.LONGITUDE).setValue(new Double(-122.0));
-
-      }
-      // for fault site 7
-      if(siteNumber.equals(SITE_SEVEN)) {
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(38.113));
-        siteBean.getSiteParamList().getParameter(this.siteBean.LONGITUDE).setValue(new Double(-121.886));
-      }
-    } else { // for area sites
-
-      // it is area test case
-      eqkSourceParamList.getParameter(SOURCE_PARAM_NAME).setValue(this.SOURCE_FAULT_AREA);
-      faultcase2_area.setForecastParams(value);
-
-      siteBean.getSiteParamList().getParameter(this.siteBean.LONGITUDE).setValue(new Double(-122.0));
-      // for area site 1
-      if(siteNumber.equals(SITE_ONE))
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(38.0));
-
-      // for area site 2
-      if(siteNumber.equals(SITE_TWO))
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(37.550));
-
-      // for area site 3
-      if(siteNumber.equals(SITE_THREE))
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(37.099));
-
-     // for area site 4
-      if(siteNumber.equals(SITE_FOUR))
-        siteBean.getSiteParamList().getParameter(this.siteBean.LATITUDE).setValue(new Double(36.874));
-    }
-
-    // refresh the editor according to parameter values
-    imrEditor.synchToModel();
-    imtEditor.synchToModel();
-    siteEditor.synchToModel();
-    eqkSourceEditor.synchToModel();
-  }
-
-   /**
-    * This function generates the combo box for the sites supported by the test case
-    * It helps the user in selection for the site number for the particular test case
-    * @param testCase
-    */
-   private void setSiteNumberParams(String testCase) {
-
-     Vector siteNumber =new Vector();
-
-     if(testCase.equals(TEST_CASE_TEN) || testCase.equals(TEST_CASE_ELEVEN)) {
-       siteNumber.add(SITE_ONE);
-       siteNumber.add(SITE_TWO);
-       siteNumber.add(SITE_THREE);
-       siteNumber.add(SITE_FOUR);
-     }
-    else {
-       siteNumber.add(SITE_ONE);
-       siteNumber.add(SITE_TWO);
-       siteNumber.add(SITE_THREE);
-       siteNumber.add(SITE_FOUR);
-       siteNumber.add(SITE_FIVE);
-       siteNumber.add(SITE_SIX);
-       siteNumber.add(SITE_SEVEN);
-    }
-
-    // add the available parameters
-     if(testCasesParamList.containsParameter(SITE_NUMBER_PARAM)){
-       testCasesParamList.removeParameter(SITE_NUMBER_PARAM);
-     }
-
-     StringParameter availableSites = new StringParameter(this.SITE_NUMBER_PARAM,
-                                siteNumber,(String)siteNumber.get(0));
-     availableSites.addParameterChangeListener(this);
-     testCasesParamList.addParameter(availableSites);
-
-     // now make the editor based on the paramter list
-     testCasesEditor = new ParameterListEditor( testCasesParamList, searchPaths);
-     testCasesEditor.setTitle( "Test Cases" );
-     availableSites.setValue(siteNumber.get(0));
-   }
-
-
 
 
   /**
@@ -1550,4 +1020,527 @@ public class GroupTestGuiBean implements
     arb.set(1.5,1);
   }
 
+
+  /**
+   *
+   * <p>Title: GroupTestDefaultParameterClass</p>
+   * <p>Description: this class is the inner class that sets the default parameters
+   * for the selected test peer case </p>
+   * <p>Copyright: Copyright (c) 2002</p>
+   * <p>Company: </p>
+   * @author : Nitin Gupta and Vipin Gupta
+   * @version 1.0
+   */
+  class GroupTestDefaultParameterClass {
+
+
+    protected final static String C = "GroupTestDefaultParameterClass";
+    protected final static boolean D = false;
+
+    protected GroupTestGuiBean groupTestGuiBean;
+
+    public GroupTestDefaultParameterClass(GroupTestGuiBean groupTestGuiBean){
+      this.groupTestGuiBean = groupTestGuiBean;
+    }
+    /**
+     * This function sets the site Paramters and the IMR parameters based on the
+     * selected test case and selected site number for that test case
+     * @param siteNumber
+     */
+
+    public void setParams(String siteNumber) {
+      String S = C + ":setParams()";
+      if(D) System.out.println(S+"::entering");
+      String value = (String)testCasesParamList.getParameter(TEST_PARAM_NAME).getValue();
+
+      // set the mag dist params based on test case
+      setMagDistParams(value);
+
+      String selectedFault= new String(FAULT_ONE);
+
+      //if selected test case is number 1
+      if(value.equals(TEST_CASE_ONE)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_ONE);
+      }
+
+
+      //if selected test case is number 2
+      if(value.equals(TEST_CASE_TWO)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_ONE);
+      }
+
+      //if selected test case is number 3
+      if(value.equals(TEST_CASE_THREE)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_ONE);
+      }
+
+      //if selected test case is number 4
+      if(value.equals(TEST_CASE_FOUR)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_TWO);
+      }
+
+      //if selected test case is number 5
+      if(value.equals(TEST_CASE_FIVE)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_ONE);
+      }
+
+      //if selected test case is number 6
+      if(value.equals(TEST_CASE_SIX)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_ONE);
+      }
+
+      //if selected test case is number 7
+      if(value.equals(TEST_CASE_SEVEN)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_ONE);
+      }
+
+      //if the selected test case is number 8_1
+      if(value.equals(TEST_CASE_EIGHT_ONE)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_TOTAL);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_ONE);
+      }
+
+      //if the selected test case is number 8_2
+      if(value.equals(TEST_CASE_EIGHT_TWO)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_1SIDED);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(2.0));
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_TOTAL);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_TWO);
+      }
+
+      //if the selected test case is number 8_3
+      if(value.equals(TEST_CASE_EIGHT_THREE)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_2SIDED);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_TOTAL);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_ONE);
+      }
+
+      //if the selected test case is number 9_1
+      if(value.equals(TEST_CASE_NINE_ONE)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_1SIDED);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_TOTAL);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_TWO);
+      }
+
+      //if the selected test case is number 9_2
+      if(value.equals(TEST_CASE_NINE_TWO)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(AS_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_1SIDED);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_TOTAL);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(AS_1997_IMR.SITE_TYPE_NAME).setValue(AS_1997_IMR.SITE_TYPE_ROCK);
+        selectedFault = new String(FAULT_TWO);
+      }
+
+      //if the selected test case is number 9_3
+      if(value.equals(TEST_CASE_NINE_THREE)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(Campbell_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_1SIDED);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(Campbell_1997_IMR.STD_DEV_TYPE_MAG_DEP);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(Campbell_1997_IMR.SITE_TYPE_NAME).setValue(Campbell_1997_IMR.SITE_TYPE_SOFT_ROCK);
+        siteBean.getSiteParamList().getParameter(Campbell_1997_IMR.BASIN_DEPTH_NAME).setValue(new Double(2.0));
+        selectedFault = new String(FAULT_TWO);
+      }
+
+      //if the selected test case is number 10
+      if(value.equals(TEST_CASE_TEN)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+
+        /**
+         * This fills the default values for the forecast paramters based
+         * on the selected test case 10
+         */
+
+        eqkSourceParamList.getParameter(groupTestGuiBean.faultcase2_area.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
+        eqkSourceParamList.getParameter(groupTestGuiBean.faultcase2_area.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        selectedFault = new String(FAULT_AREA);
+      }
+
+      //if the selected test case is number 11
+      if(value.equals(TEST_CASE_ELEVEN)){
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(ClassicIMR.SIGMA_TRUNC_TYPE_NONE);
+        imrParamList.getParameter(ClassicIMR.STD_DEV_TYPE_NAME).setValue(ClassicIMR.STD_DEV_TYPE_NONE);
+        imtParamList.getParameter(IMT_PARAM_NAME).setValue(ClassicIMR.PGA_NAME);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+
+        /**
+         * This fills the default values for the forecast paramters based
+         * on the selected test case 11
+         */
+
+        eqkSourceParamList.getParameter(groupTestGuiBean.faultcase2_area.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
+        eqkSourceParamList.getParameter(groupTestGuiBean.faultcase2_area.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        selectedFault = new String(FAULT_AREA);
+      }
+
+      // set the latitude and longitude and selected forecast is area or fault
+      //if selected site number is not 10 or 11 i.e for fault sites
+      if(!value.equalsIgnoreCase(TEST_CASE_TEN) && !value.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
+
+        // it is fault test case
+        eqkSourceParamList.getParameter(SOURCE_PARAM_NAME).setValue(SOURCE_FAULT_ONE);
+        setForecastParams(selectedFault,value);
+
+        // for fault site 1
+        if(siteNumber.equals(SITE_ONE)) {
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.113));
+          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
+        }
+        // for fault site 2
+        if(siteNumber.equals(SITE_TWO)) {
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.113));
+          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.114));
+
+        }
+        // for fault site 3
+        if(siteNumber.equals(SITE_THREE)) {
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.111));
+          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.570));
+
+        }
+        // for fault site 4
+        if(siteNumber.equals(SITE_FOUR)) {
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.000));
+          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
+
+        }
+        // for fault site 5
+        if(siteNumber.equals(SITE_FIVE)) {
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(37.910));
+          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
+
+        }
+        // for fault site 6
+        if(siteNumber.equals(SITE_SIX)) {
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.225));
+          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
+
+        }
+        // for fault site 7
+        if(siteNumber.equals(SITE_SEVEN)) {
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.113));
+          siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-121.886));
+        }
+      } else { // for area sites
+
+        // it is area test case
+        eqkSourceParamList.getParameter(SOURCE_PARAM_NAME).setValue(SOURCE_FAULT_AREA);
+
+        siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
+        // for area site 1
+        if(siteNumber.equals(SITE_ONE))
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(38.0));
+
+        // for area site 2
+        if(siteNumber.equals(SITE_TWO))
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(37.550));
+
+        // for area site 3
+        if(siteNumber.equals(SITE_THREE))
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(37.099));
+
+        // for area site 4
+        if(siteNumber.equals(SITE_FOUR))
+          siteBean.getSiteParamList().getParameter(siteBean.LATITUDE).setValue(new Double(36.874));
+      }
+
+      // refresh the editor according to parameter values
+      imrEditor.synchToModel();
+      imtEditor.synchToModel();
+      siteEditor.synchToModel();
+      eqkSourceEditor.synchToModel();
+    }
+
+     /**
+      * This function generates the combo box for the sites supported by the test case
+      * It helps the user in selection for the site number for the particular test case
+      * @param testCase
+      */
+     public void setSiteNumberParams(String testCase) {
+
+       Vector siteNumber =new Vector();
+
+       if(testCase.equals(TEST_CASE_TEN) || testCase.equals(TEST_CASE_ELEVEN)) {
+         siteNumber.add(SITE_ONE);
+         siteNumber.add(SITE_TWO);
+         siteNumber.add(SITE_THREE);
+         siteNumber.add(SITE_FOUR);
+       }
+      else {
+         siteNumber.add(SITE_ONE);
+         siteNumber.add(SITE_TWO);
+         siteNumber.add(SITE_THREE);
+         siteNumber.add(SITE_FOUR);
+         siteNumber.add(SITE_FIVE);
+         siteNumber.add(SITE_SIX);
+         siteNumber.add(SITE_SEVEN);
+      }
+
+      // add the available parameters
+       if(testCasesParamList.containsParameter(SITE_NUMBER_PARAM)){
+         testCasesParamList.removeParameter(SITE_NUMBER_PARAM);
+       }
+
+       StringParameter availableSites = new StringParameter(SITE_NUMBER_PARAM,
+                                  siteNumber,(String)siteNumber.get(0));
+       availableSites.addParameterChangeListener(groupTestGuiBean);
+       testCasesParamList.addParameter(availableSites);
+
+       // now make the editor based on the paramter list
+       testCasesEditor = new ParameterListEditor( testCasesParamList, searchPaths);
+       testCasesEditor.setTitle( "Test Cases" );
+       availableSites.setValue(siteNumber.get(0));
+     }
+
+     /**
+       * set the mag dist params according to test case
+       *
+       * @param testCase
+       */
+     public void setMagDistParams(String testCase) {
+
+
+        MagFreqDistParameterEditor magEditor;
+
+       // get the paramter based on whether fault or area is selected as forecast
+        if(!testCase.equalsIgnoreCase(TEST_CASE_TEN) && ! testCase.equalsIgnoreCase(TEST_CASE_ELEVEN))
+          magEditor= (MagFreqDistParameterEditor)eqkSourceEditor.getParameterEditor("Fault Mag Dist");
+        else
+          magEditor= (MagFreqDistParameterEditor)eqkSourceEditor.getParameterEditor("Area Mag Dist");
+
+
+        magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.0));
+        magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(10.0));
+        magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(101));
+        // mag dist parameters for test case 1
+        if(testCase.equalsIgnoreCase(TEST_CASE_ONE)) {
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+        }
+
+        // mag dist parameters  for test case 2
+        if(testCase.equalsIgnoreCase(TEST_CASE_TWO)) {
+
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+        }
+
+        // mag dist parameters  for test case 3
+        if(testCase.equalsIgnoreCase(TEST_CASE_THREE)) {
+
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+        }
+
+        // mag dist parameters for test case 4
+        if(testCase.equalsIgnoreCase(TEST_CASE_FOUR)) {
+
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
+        }
+
+        // mag dist parameters for test case 5
+        if(testCase.equalsIgnoreCase(TEST_CASE_FIVE)) {
+          magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(1001));
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TO_CUM_RATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_TO_MORATE).setValue(new Double(1.8e16));
+        }
+
+
+        // mag dist parameters for test case 6
+        if(testCase.equalsIgnoreCase(TEST_CASE_SIX)) {
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.GAUSSIAN_TO_MORATE).setValue(new Double(1.8e16));
+          magEditor.getParameter(MagFreqDistParameterEditor.STD_DEV).setValue(new Double(0.25));
+          magEditor.getParameter(MagFreqDistParameterEditor.MEAN).setValue(new Double(6.2));
+          magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATION_REQ).setValue(MagFreqDistParameterEditor.TRUNCATE_FROM_RIGHT);
+          magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.2));
+        }
+        // mag dist parameters for test case 7
+        if(testCase.equalsIgnoreCase(TEST_CASE_SEVEN)) {
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.YC_BVALUE).setValue(new Double(0.9));
+          magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_CHAR).setValue(new Double(0.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.YC_MAG_LOWER).setValue(new Double(5.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.YC_MAG_PRIME).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.YC_MAG_UPPER).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.YC_TO_MORATE).setValue(new Double(1.8e16));
+        }
+
+        //mag dist parameters for the test case 8_1
+        if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_ONE)) {
+
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+        }
+
+        //mag dist parameters for the test case 8_2
+       if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_TWO)) {
+
+         magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+         magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+         magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+         magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+        }
+
+        //mag dist parameters for the test case 8_3
+       if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_THREE)) {
+
+         magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+         magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+         magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+         magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
+        }
+
+        //mag dist parameters for the test case 9_1
+       if(testCase.equalsIgnoreCase(TEST_CASE_NINE_ONE)) {
+
+         magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+         magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+         magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+         magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
+        }
+
+        //mag dist parameters for the test case 9_2
+       if(testCase.equalsIgnoreCase(TEST_CASE_NINE_TWO)) {
+
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
+        }
+
+        //mag dist parameters for the test case 9_1
+       if(testCase.equalsIgnoreCase(TEST_CASE_NINE_THREE)) {
+
+         magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
+         magEditor.getParameter(MagFreqDistParameterEditor.PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+         magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
+         magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
+        }
+
+        // mag dist parameters for test case 10
+       if(testCase.equalsIgnoreCase(TEST_CASE_TEN)) {
+         magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+         magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.GR_TO_MORATE);
+         magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
+         magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
+         magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
+         magEditor.getParameter(MagFreqDistParameterEditor.TO_CUM_RATE).setValue(new Double(.0395));
+        }
+
+        // mag dist parameters for test case 11
+       if(testCase.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
+          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
+          magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.GR_TO_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.5));
+          magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
+          magEditor.getParameter(MagFreqDistParameterEditor.TO_CUM_RATE).setValue(new Double(.0395));
+        }
+        magEditor.getChoosenFunction();
+      }
+
+      /**
+       * Fault-1 or Fault-2 source
+       * This functions fills the default values for the forecast paramters based
+       * on the selected fault which is passed as the argument to the function.
+       * Based on the selected test case we are modifying the value of the magLengthSigma
+       * @param faultType : tells whether the fault1 or fault2
+       * @param testCaseVal: tells which test case is selected
+       */
+
+      public void setForecastParams(String faultType, String testCaseVal){
+
+        // add sigma for maglength(0-1)
+        eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.SIGMA_PARAM_NAME).setValue(faultcase1.DEFAULT_SIGMA_VAL);
+
+        // magLengthSigma parameter is changed if the test case chosen is 3
+        if(testCaseVal.equalsIgnoreCase(TEST_CASE_THREE))
+          eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.SIGMA_PARAM_NAME).setValue(new Double(0.2));
+        // set the parameters for fault1
+        if(faultType.equals(FAULT_ONE)) {
+          eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.DIP_PARAM_NAME).setValue(new Double(90.0));
+          eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.RAKE_PARAM_NAME).setValue(new Double(0.0));
+        }
+        // set the parameters for fault 2
+        if(faultType.equals(FAULT_TWO)) {
+          eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.DIP_PARAM_NAME).setValue(new Double(60.0));
+          eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.RAKE_PARAM_NAME).setValue(new Double(90.0));
+        }
+      }
+  }
 }
