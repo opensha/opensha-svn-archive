@@ -126,8 +126,11 @@ public class HazardMapCalculator {
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
     newDir=  new String(dirName);
-    //creating a new directory that stores all the HazardCurves for that region
-    boolean success = (new File(newDir)).mkdir();
+    File f = new File(dirName);
+    if(!f.isDirectory()){
+      //creating a new directory that stores all the HazardCurves for that region
+      boolean success = (new File(newDir)).mkdir();
+    }
     calculate(imtLogFlag, xValues, griddedSites, imr, eqkRupForecast, mapParametersInfo);
   }
 

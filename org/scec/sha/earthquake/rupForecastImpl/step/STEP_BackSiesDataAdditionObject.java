@@ -164,8 +164,11 @@ public class STEP_BackSiesDataAdditionObject {
     String maxLon = st.nextToken();
     String gridSpacingLon = st.nextToken();
 
+    File resultFile = new File(resultedDir);
+    if(!resultFile.isDirectory()){
     //creating a new directory that stores all the HazardCurves for that region
-    boolean success = (new File(resultedDir)).mkdir();
+      boolean success = (new File(resultedDir)).mkdir();
+    }
 
     //getting the instance for the step addon and back ground directories
     File stepFileDir = new File(stepDir);
@@ -179,6 +182,8 @@ public class STEP_BackSiesDataAdditionObject {
       for(int i=0;i<stepFiles.length;++i){
         //getting one file at time
         String stepFileName = stepFiles[i].getName();
+        if(!stepFileName.endsWith(".txt"))
+          continue;
         try{
           //reading the step file
           FileReader frStep = new FileReader(stepDir+"/"+stepFileName);

@@ -33,13 +33,13 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   // VS 30 value to be set in the IMR
   private final Double VS_30= new Double(760);
 
-
-  private final double MIN_LAT= 34.5;
+  private final double MIN_LAT= 35.5;
   private final double MAX_LAT= 36.5;
   private final double MIN_LON = -121.5 ;
-  private final double MAX_LON= -118.5;
-  private final double GRID_SPACING= .1;
-  private static final String BACKGROUND_STEP_DIR ="backGround";
+  private final double MAX_LON= -120.5;
+  private final double GRID_SPACING= .5;
+  private static final String BACKGROUND_STEP_DIR ="backGround/";
+  private static final String STEP_DIR = "step/";
 
 
   public STEP_DataSetGenerator() {
@@ -65,24 +65,42 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     // make the calculator
     HazardMapCalculator calc = new HazardMapCalculator();
     calc.showProgressBar(false);
-    File backFile = new File(BACKGROUND_STEP_DIR);
+    File file = new File(this.STEP_DIR);
+    if(!file.isDirectory()){
+      boolean success = (new File(STEP_DIR)).mkdir();
+    }
+    File backFile = new File(STEP_DIR+BACKGROUND_STEP_DIR);
     if(!backFile.isDirectory()){
       forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_BACKGROUND);
       forecast.updateForecast();
-      calc.getHazardMapCurves(BACKGROUND_STEP_DIR,
+      calc.getHazardMapCurves(STEP_DIR+BACKGROUND_STEP_DIR,
                               true, xValues, region, imr, forecast, BACKGROUND_STEP_DIR +
                               forecast.toString() + imr.toString());
     }
     forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_ADD_ON);
     forecast.updateForecast();
-    String stepAddonDirName = this.getStepDirName()+"_Addon";
+    String stepAddonDirName = STEP_DIR+this.getStepDirName()+"_Addon";
     calc.getHazardMapCurves(stepAddonDirName,
                             true, xValues, region, imr, forecast, stepAddonDirName +
                             forecast.toString() + imr.toString() );
 
     STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
-    String stepBothDirName = this.getStepDirName()+"_Both";
-    addStepData.addDataSet(this.BACKGROUND_STEP_DIR,stepAddonDirName,stepBothDirName);
+    String stepBothDirName = STEP_DIR+this.getStepDirName()+"_Both";
+    addStepData.addDataSet(STEP_DIR+this.BACKGROUND_STEP_DIR,stepAddonDirName,stepBothDirName);
+    try{
+      FileWriter fr = new FileWriter(stepBothDirName+"/metadata.dat");
+      String metaData = " Added Data Set";
+      fr.write(metaData);
+      fr.close();
+      fr=new FileWriter(stepBothDirName+"/sites.dat");
+      fr.write(region.getMinLat()+" "+region.getMaxLat()+" "+
+               region.getGridSpacing()+"\n"+region.getMinLon()+" "+
+               region.getMaxLon()+" "+ region.getGridSpacing()+"\n");
+      fr.close();
+    }catch(IOException ee){
+      ee.printStackTrace();
+    }
+
   }
 
 
