@@ -1,11 +1,11 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ------------
  * JCommon.java
  * ------------
- * (C) Copyright 2002, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -54,6 +54,8 @@ import com.jrefinery.ui.about.Licences;
 
 /**
  * This class contains static information about the JCommon class library.
+ *
+ * @author David Gilbert
  */
 public class JCommon {
 
@@ -76,9 +78,14 @@ public class JCommon {
 /**
  * Information about the JCommon project.  One instance of this class is
  * assigned to JCommon.INFO.
+ *
+ * @author David Gilbert
  */
 class JCommonInfo extends ProjectInfo {
 
+    /**
+     * Creates a new instance.
+     */
     public JCommonInfo() {
 
         // get a locale-specific resource bundle...
