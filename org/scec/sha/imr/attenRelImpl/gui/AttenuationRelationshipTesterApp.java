@@ -112,7 +112,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected final static int A1 = 360;
     protected final static int A2 = 430;
     protected final static Font BUTTON_FONT = new java.awt.Font( "Dialog", 1, 11 );
-    protected final static Font LEGEND_FONT = new java.awt.Font( "Arial", Font.PLAIN, 7 );
+    protected final static Font TITLE_FONT = new java.awt.Font( "Dialog", Font.BOLD, 12 );
 
     /**
      *  Min number of data points where if you have less in a Discretized
@@ -192,7 +192,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
     private final static String AUTO_SCALE = "Auto Scale";
     private final static String CUSTOM_SCALE = "Custom Scale";
-    final static Dimension COMBO_DIM = new Dimension( 180, 30 );
+    final static Dimension COMBO_DIM = new Dimension( 170, 30 );
     final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
     final static String NO_PLOT_MSG = "No Plot Data Available";
     final static GridBagLayout GBL = new GridBagLayout();
@@ -270,6 +270,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
      */
     private double Y_MIN_VAL = 1e-8;
     private JLabel imgLabel = new JLabel();
+  private JLabel jLabel1 = new JLabel();
 
     /**
      *  Construct the applet
@@ -439,7 +440,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
         this.getContentPane().setBackground( background );
-        this.setSize(new Dimension(900, 660) );
+        this.setSize(new Dimension(900, 690) );
         this.getContentPane().setLayout( GBL );
 
         outerPanel.setBackground( background );
@@ -601,12 +602,12 @@ public class AttenuationRelationshipTesterApp extends JApplet
         //titleLabel.setForeground( darkBlue );
 
         imrLabel.setForeground( darkBlue );
-        imrLabel.setFont(new java.awt.Font( "Dialog", Font.BOLD, 14 ));
-        imrLabel.setText( "Choose IMR: " );
+        imrLabel.setFont(new java.awt.Font( "Dialog", Font.BOLD, 13 ));
+        imrLabel.setText( "Choose Model:    " );
 
         imrComboBox.setBackground( lightBlue );
         imrComboBox.setForeground( darkBlue );
-        imrComboBox.setFont( new java.awt.Font( "Dialog", Font.BOLD, 17 ) );
+        imrComboBox.setFont( new java.awt.Font( "Dialog", Font.BOLD, 16 ) );
         imrComboBox.setBorder( null );
         imrComboBox.setPreferredSize( COMBO_DIM );
 
@@ -647,17 +648,20 @@ public class AttenuationRelationshipTesterApp extends JApplet
         });
     jAxisScale.setFont(new java.awt.Font("Dialog", 1, 11));
     jAxisScale.setForeground(new Color(80, 80, 133));
-    jAxisScale.setText("Set Axis Scale: ");
+    jAxisScale.setText("Set Axis: ");
     legendPane.setEditable(false);
 
     //loading the OpenSHA Logo
     imgLabel.setText("");
     imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+    jLabel1.setFont(new java.awt.Font("Dialog", 0, 18));
+    jLabel1.setForeground(new Color(80, 80, 133));
+    jLabel1.setText("Attenuation Relationship GUI");
     this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
-    outerPanel.add( mainPanel,      new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 0, 5), 0, 0) );
+    outerPanel.add( mainPanel,         new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 0, 5), 0, 0) );
 
     titlePanel.add( this.imrLabel, new GridBagConstraints( 0, 0 , 1, 1, 1.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
@@ -718,12 +722,14 @@ public class AttenuationRelationshipTesterApp extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 3), 0, 0));
     buttonPanel.add(rangeComboBox,    new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
-    buttonPanel.add(jAxisScale,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(3, 0, 0, 0), 0, 0));
+    buttonPanel.add(jAxisScale,   new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(3, 4, 0, 0), 0, 0));
     buttonPanel.add(addButton,               new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13));
-    outerPanel.add(imgLabel,        new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+    outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
+    outerPanel.add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
 
 
         parametersSplitPane.setBottomComponent( sheetPanel );
@@ -974,7 +980,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         plot.setRenderer( renderer );
 
 
-        JFreeChart chart = new JFreeChart(" ",this.LEGEND_FONT,plot,false);
+        JFreeChart chart = new JFreeChart(" ",new Font("Arial",Font.PLAIN,7),plot,false);
         chart.setBackgroundPaint( lightBlue );
 
         // set the font of legend
