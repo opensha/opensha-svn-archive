@@ -620,18 +620,28 @@ public abstract class AttenuationRelationship
 
         double exceedProb = ( ( Double ) ( ( ParameterAPI ) exceedProbParam ).getValue() ).doubleValue();
         double stRndVar;
+        String sigTrType = (String) sigmaTruncTypeParam.getValue();
 
-        // compute the iml from exceed probability based on truncation type
-        if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_NONE ) )
-            stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 0, 0, 1e-6);
-        else {
-            double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
-            if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) )
-                stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 1, numSig, 1e-6);
-            else
-                stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 2, numSig, 1e-6);
+
+        // compute the iml from exceed probability based on truncation type:
+
+        // check for the simplest, most common case (median from symmectric truncation)
+
+        if( !sigTrType.equals( SIGMA_TRUNC_TYPE_1SIDED ) && exceedProb == 0.5 ) {
+          return getMean();
         }
-        return getMean() + stRndVar*getStdDev();
+        else {
+          if ( sigTrType.equals( SIGMA_TRUNC_TYPE_NONE ) )
+            stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 0, 0, 1e-6);
+          else {
+            double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
+            if ( sigTrType.equals( SIGMA_TRUNC_TYPE_1SIDED ) )
+              stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 1, numSig, 1e-6);
+            else
+              stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 2, numSig, 1e-6);
+          }
+          return getMean() + stRndVar*getStdDev();
+        }
     }
 
 
