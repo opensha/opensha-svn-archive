@@ -51,6 +51,7 @@ public class ExcelToData {
       int numSites = 7;
       if(testCase.equalsIgnoreCase(TEST_CASE10) || testCase.equalsIgnoreCase(TEST_CASE11))
         numSites = 4;
+      if(inputFileName.indexOf("Set2")>-1) numSites = 3; // there are 3 sites in set2
 
       // now open the files and write to them.
       int numFiles= numSites*2;
