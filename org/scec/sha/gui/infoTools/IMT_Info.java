@@ -23,21 +23,26 @@ public final class IMT_Info {
   private final static double MIN_SA_PGA = .0001;
   private final static double MAX_SA_PGA = 10;
   private final static double NUM_SA_PGA = 51;
+  private final static double DEFAULT_SA_PGA = 0.5;
 
   //Default values for the PGV
   private final static double MIN_PGV = .01;
   private final static double MAX_PGV = 1000;
   private final static double NUM_PGV = 51;
+  private final static double DEFAULT_PGV = 50;
 
   // default values for WC94_DisplMagRel FAULT_DISPL_NAME
   private final static double MIN_FAULT_DISPL = .001;
   private final static double MAX_FAULT_DISPL = 100;
   private final static double NUM_FAULT_DISPL = 51;
+  private final static double DEFAULT_FAULT_DISPL = 1.0;
+
 
   //default values for the ShakeMapAttenRel MMI
   private final static double MIN_MMI = 1;
   private final static double MAX_MMI = 10;
   private final static double NUM_MMI = 51;
+  private final static double DEFAULT_MMI = 7.0;
 
   private double discretization_pga_sa;
   private double discretization_pgv;
