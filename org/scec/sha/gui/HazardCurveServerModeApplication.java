@@ -526,18 +526,6 @@ public class HazardCurveServerModeApplication extends JApplet
 
   }
 
-  //Start the applet
-  public void start() {
-  }
-
-  //Stop the applet
-  public void stop() {
-  }
-
-  //Destroy the applet
-  public void destroy() {
-  }
-
   //Get Applet information
   public String getAppletInfo() {
     return "Hazard Curves Applet";
@@ -742,7 +730,7 @@ public class HazardCurveServerModeApplication extends JApplet
                 drawGraph();
               }
             }catch(Exception e){
-              e.printStackTrace();
+              //e.printStackTrace();
               timer.stop();
               setButtonsEnable(true);
               ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.toString());
@@ -1854,14 +1842,22 @@ public class HazardCurveServerModeApplication extends JApplet
     return graphPanel.getCurvePlottingCharacterstic();
   }
 
+  /**
+   * This function stops the hazard curve calculation if started, so that user does not
+   * have to wait for the calculation to finish.
+   * @param e
+   */
   void cancelCalcButton_actionPerformed(ActionEvent e) {
+    //stopping the Hazard Curve calculation thread
     calcThread.stop();
     calcThread = null;
+    //stoping the timer thread that updates the progress bar
     if(timer !=null && progressClass !=null){
       timer.stop();
       timer = null;
       progressClass.dispose();
     }
+    //stopping the Hazard Curve calculations on server
     if(calc !=null){
       try{
         calc.stopCalc();
@@ -1873,6 +1869,7 @@ public class HazardCurveServerModeApplication extends JApplet
       }
     }
     this.isHazardCalcDone = false;
+    //making the buttons to be visible
     setButtonsEnable(true);
     cancelCalcButton.setVisible(false);
   }
