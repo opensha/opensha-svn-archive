@@ -69,12 +69,12 @@ public class WeightedFuncList {
 
     //if the size of both list are same then add them to their corresponding lists.
     for(int i=0;i<size;++i){
-      relativeWts.add(relWts.get(i));
       DiscretizedFuncAPI function = funcList.get(i);
       if(isFuncAllowed(function))
         functionList.add(function);
       else
         throw new RuntimeException("Function not allowed");
+      relativeWts.add(relWts.get(i));
     }
     //if person has already calculated the fractiles and then adding more functions to the
     //existing list then we need to calculate the fractiles again and remove the existing
@@ -152,8 +152,7 @@ public class WeightedFuncList {
     int listSize= functionList.size();
     if(listSize !=0){
       int numPoints = ((DiscretizedFuncAPI)functionList.get(0)).getNum();
-      for(int i=1; i<listSize; ++i)
-        if(function.getNum()!=numPoints)
+      if(function.getNum()!=numPoints)
           return false;
     }
     return true;
