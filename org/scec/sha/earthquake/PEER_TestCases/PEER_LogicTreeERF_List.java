@@ -84,6 +84,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList {
     forecast.segModelParam.setValue(segmentation);
     forecast.slipRateParam.setValue(slipRate);
     forecast.magUpperParam.setValue(magUpper);
+    forecast.updateForecast();
     return forecast;
   }
 
@@ -93,8 +94,12 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList {
     throw new java.lang.UnsupportedOperationException("Method getAdjustableParamsList() not yet implemented.");
   }
 
+  /**
+   * This does nothing because there are no adjustable params so it's more efficient to update
+   * each forecast at creation (in createERF() method).
+   */
   public void updateERF_List() {
-    /**@todo Implement this org.scec.sha.earthquake.ERF_List abstract method*/
+
   }
 
   public boolean isLocWithinApplicableRegion(Location loc) {

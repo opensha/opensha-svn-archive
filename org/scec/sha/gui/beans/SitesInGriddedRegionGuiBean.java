@@ -26,7 +26,7 @@ import org.scec.data.region.*;
 
 
 
-public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
+public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
     ParameterChangeListener, ParameterChangeFailListener {
 
   // for debug purposes
@@ -68,7 +68,7 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
   /**
    * constuctor which builds up mapping between IMRs and their related sites
    */
-  public GriddedRegionSiteGuiBean() {
+  public SitesInGriddedRegionGuiBean() {
     // Build package names search path
     searchPaths = new String[1];
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();

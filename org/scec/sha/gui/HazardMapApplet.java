@@ -77,7 +77,7 @@ public class HazardMapApplet extends JApplet implements
   ERF_GuiBean erfGuiBean;
   IMR_GuiBean imrGuiBean;
   IMT_GuiBean imtGuiBean;
-  GriddedRegionSiteGuiBean sitesGuiBean;
+  SitesInGriddedRegionGuiBean griddedRegionGuiBean;
 
 
   // mesage needed in case of show data if plot is not available
@@ -251,10 +251,10 @@ public class HazardMapApplet extends JApplet implements
 
 
       // create the Site Gui Bean object
-      sitesGuiBean = new GriddedRegionSiteGuiBean();
-      sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+      griddedRegionGuiBean = new SitesInGriddedRegionGuiBean();
+      griddedRegionGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
       // show the sitebean in JPanel
-      sitePanel.add(this.sitesGuiBean,
+      sitePanel.add(this.griddedRegionGuiBean,
               new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
               GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -512,9 +512,9 @@ public class HazardMapApplet extends JApplet implements
         imtGuiBean.setIMR(imr);
         imtGuiBean.validate();
         imtGuiBean.repaint();
-        sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
-        sitesGuiBean.validate();
-        sitesGuiBean.repaint();
+        griddedRegionGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+        griddedRegionGuiBean.validate();
+        griddedRegionGuiBean.repaint();
       }
   }
 
@@ -579,7 +579,7 @@ public class HazardMapApplet extends JApplet implements
      //calls the method to update the magDistParams.
      erfGuiBean.updateMagDistParam();
      // make a site object to pass to IMR
-    Iterator it = sitesGuiBean.getSites();
+    Iterator it = griddedRegionGuiBean.getSites();
      // calculate the hazard curve for each site
      //creating the directory that stores all the HazardCurves for that region
 
@@ -607,7 +607,7 @@ public class HazardMapApplet extends JApplet implements
    */
   public String getCurveParametersInfo(){
     return "IMR Param List: " +this.imrGuiBean.getParameterList().toString()+"\n"+
-        "Site Param List: "+sitesGuiBean.getParameterList().toString()+"\n"+
+        "Site Param List: "+griddedRegionGuiBean.getParameterList().toString()+"\n"+
         "IMT Param List: "+imtGuiBean.getParameterList().toString()+"\n"+
         "Forecast Param List: "+erfGuiBean.getParameterList().toString();
   }
