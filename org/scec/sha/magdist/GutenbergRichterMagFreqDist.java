@@ -152,7 +152,7 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     * totMoRate exactly else it matches totCumRate exactly
     */
    public void setAllButMagUpper(double magLower, double totMoRate, double totCumRate,
-                                 double bValue, boolean relaxCumRate)
+                                 double bValue, boolean relaxTotMoRate)
                                  throws MagFreqDistException,DiscretizedFuncException,
                                  DataPoint2DException {
 
@@ -160,7 +160,7 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
      if(D) System.out.println("totMoRate = " + totMoRate);
      if(D) System.out.println("totCumRate = " + totCumRate);
      if(D) System.out.println("bValue = " + bValue);
-     if(D) System.out.println("relaxCumRate = " + relaxCumRate);
+     if(D) System.out.println("relaxCumRate = " + relaxTotMoRate);
 
      // create variables for analytical moment integration
      double b = bValue;
@@ -204,10 +204,10 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
 
      if(D) System.out.println("chosen magUpper=" + magUpper);
 
-    if(relaxCumRate)
-       setAllButTotCumRate(magLower, magUpper, totMoRate, bValue);
-    else
+    if(relaxTotMoRate)
        setAllButTotMoRate(magLower, magUpper, totCumRate, bValue);
+    else
+       setAllButTotCumRate(magLower, magUpper, totMoRate, bValue);
   }
 
 
@@ -337,7 +337,7 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
    * @return : returns the String which is needed for Legend in graph
    */
   public String getInfo() throws DataPoint2DException{
-    return ("bValue="+bValue+"; magLower="+magLower+"; magUpper="+magUpper +
+    return ("bValue="+bValue+"; magLower="+magLower+"; magUpper="+(float)magUpper +
         "; totMoRate="+ (float) this.getTotalMomentRate()+"; totCumRate="+ (float) getCumRate(magLower));
   }
 

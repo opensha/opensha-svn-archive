@@ -3,6 +3,7 @@ package org.scec.sha.fault;
 import java.util.*;
 import org.scec.util.*;
 import org.scec.data.*;
+import org.scec.calc.RelativeLocation;
 
 // Fix - Needs more comments
 
@@ -33,9 +34,27 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
     }
 
     public void setName( String faultName ) { this.faultName = faultName; }
+
     public String getName() { return faultName; }
 
     public int getNumLocations() { return size(); }
+
+    /**
+     * This returns the total fault-trace length in km
+     * @return
+     */
+    public double getTraceLength() {
+      double totLength = 0;
+      ListIterator it = this.listIterator();
+      Location lastLoc = (Location)it.next();
+      Location loc = null;
+      while( it.hasNext() ){
+        loc = (Location)it.next();
+        totLength += RelativeLocation.getHorzDistance(lastLoc, loc);
+        lastLoc = loc;
+      }
+      return totLength;
+    }
 
 
     private final static String TAB = "  ";

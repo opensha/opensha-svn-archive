@@ -9,7 +9,7 @@ import org.scec.data.TimeSpan;
 import org.scec.data.Location;
 import org.scec.data.LocationList;
 import org.scec.data.Direction;
-import org.scec.calc.RelativeLocation;
+import org.scec.calc.*;
 import org.scec.param.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
@@ -21,7 +21,7 @@ import org.scec.param.event.*;
 
 
 /**
- * <p>Title: Set1_Area_Forecast</p>
+ * <p>Title: Set2_MultiSource_Forecast</p>
  * <p>Description: Area Equake rupture forecast. The Peer Group Test cases </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -30,14 +30,14 @@ import org.scec.param.event.*;
  * @version 1.0
  */
 
-public class Set1_Area_Forecast extends EqkRupForecast
+public class Set2_MultiSource_Forecast extends EqkRupForecast
     implements ParameterChangeListener{
 
   /**
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("Test Set1 Area");
+  private static String  C = new String("Set2 Multi-Source Forecast");
   private boolean D = false;
 
   /**
@@ -47,15 +47,33 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private TimeSpan time;
 
   // this is the GR distribution used for all sources
+  private GutenbergRichterMagFreqDist dist_gr_A_orig;
   private GutenbergRichterMagFreqDist dist_GR;
+  private YC_1985_CharMagFreqDist dist_yc_B;
+  private YC_1985_CharMagFreqDist dist_yc_C;
 
-  // this is the source
+  // these are the fault traces for each fault source
+  private FaultTrace faultTraceB;
+  private FaultTrace faultTraceC;
+  private static final Location faultB_loc1 = new Location(38.6749,-121.5691,0);
+  private static final Location faultB_loc2 = new Location(38.6749,-122.4309,0);
+  private static final Location faultC_loc1 = new Location(37.3242,-121.8590,0);
+  private static final Location faultC_loc2 = new Location(37.3242,-122.1410,0);
+
+  // these are the fault sources
+  private Set1_Fault_Source fltSourceB;
+  private Set1_Fault_Source fltSourceC;
+
+
+  // this is the dip and rake for all events in all sources
+
+  private static final double DIP = 90.0;
+  private static final double RAKE = 90.0;
+
+  // this is the source used for the area-source points
   private PointGR_EqkSource pointGR_EqkSource;
 
-
-  /**
-   * Declaration for the static lat and longs for the Area
-   */
+  // Declaration for the static lat and longs for the Area
   private static final double LAT_TOP= 38.901;
   private static final double LAT_BOTTOM = 37.099;
   private static final double LAT_CENTER = 38.0;
@@ -66,17 +84,26 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private static final double MAX_DISTANCE =100;
 
   //Param Name
-  public final static String GRID_PARAM_NAME =  "Area Grid Spacing";
+  public final static String GRID_PARAM_NAME =  "Grid Spacing of Sources";
   public final static String GRID_PARAM_UNITS =  "km";
   private final static double GRID_PARAM_MIN = 0.001;
   private final static double GRID_PARAM_MAX = 100;
-  public final static String DEPTH_LOWER_PARAM_NAME =  "Lower Seis Depth";
-  public final static String DEPTH_UPPER_PARAM_NAME =  "Upper Seis Depth";
+  private Double DEFAULT_GRID_VAL = new Double(1);
+
+  // rupture offset parameter
+  public final static String OFFSET_PARAM_NAME =  "Offset";
+  private Double DEFAULT_OFFSET_VAL = new Double(1);
+  public final static String OFFSET_PARAM_UNITS = "kms";
+  private final static double OFFSET_PARAM_MIN = .01;
+  private final static double OFFSET_PARAM_MAX = 10000;
+
+
+  public final static String DEPTH_LOWER_PARAM_NAME =  "Area Lower Seis Depth";
+  public final static String DEPTH_UPPER_PARAM_NAME =  "Area Upper Seis Depth";
   public final static String DEPTH_PARAM_UNITS = "km";
   private final static double DEPTH_PARAM_MIN = 0;
   private final static double DEPTH_PARAM_MAX = 30;
   private final static Double DEPTH_PARAM_DEFAULT = new Double(5);
-  public final static String MAG_DIST_PARAM_NAME = "Area Mag Dist";
 
   //timespan Variable
   public final static String TIMESPAN_PARAM_NAME = "Area Timespan";
@@ -85,38 +112,22 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private final static double TIMESPAN_PARAM_MIN = 1e-10;
   private final static double TIMESPAN_PARAM_MAX = 1e10;
 
-   //Rake Variable
-  public final static String RAKE_PARAM_NAME = "Ave Rake";
-  public final static String RAKE_PARAM_UNITS = "degrees";
-  private final static Double RAKE_PARAM_DEFAULT = new Double(0);
-  private final static double RAKE_PARAM_MIN = -180;
-  private final static double RAKE_PARAM_MAX = 180;
-
-  //Rake Variable
-  public final static String DIP_PARAM_NAME = "Ave Dip";
-  public final static String DIP_PARAM_UNITS = "degrees";
-  private final static Double DIP_PARAM_DEFAULT = new Double(90);
-  private final static double DIP_PARAM_MIN = 0;
-  private final static double DIP_PARAM_MAX = 90;
-
-
-  // default grid spacing is 1km
-  private Double DEFAULT_GRID_VAL = new Double(1);
-
-  // list of forecast locations
+  // list of area forecast locations
   private LocationList locationList;
-
 
   // create the grid spacing parameter
   DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
                                                 GRID_PARAM_MAX,GRID_PARAM_UNITS,
                                                 DEFAULT_GRID_VAL);
 
+  // add the rupOffset spacing field
+DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM_MIN,
+                                             OFFSET_PARAM_MAX,OFFSET_PARAM_UNITS,DEFAULT_OFFSET_VAL);
+
   // create Depth Lower parameter
   DoubleParameter depthLowerParam = new DoubleParameter(DEPTH_LOWER_PARAM_NAME,DEPTH_PARAM_MIN,
                                                         DEPTH_PARAM_MAX,DEPTH_PARAM_UNITS,
                                                         DEPTH_PARAM_DEFAULT);
-
   // create depth Upper parameter
   DoubleParameter depthUpperParam = new DoubleParameter(DEPTH_UPPER_PARAM_NAME,DEPTH_PARAM_MIN,
                                                         DEPTH_PARAM_MAX,DEPTH_PARAM_UNITS,
@@ -125,19 +136,6 @@ public class Set1_Area_Forecast extends EqkRupForecast
   DoubleParameter timespanParam = new DoubleParameter(TIMESPAN_PARAM_NAME, TIMESPAN_PARAM_MIN,
                                                       TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,
                                                       TIMESPAN_PARAM_DEFAULT);
-  // create the rake parameter
-  DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME, RAKE_PARAM_MIN,
-                                                      RAKE_PARAM_MAX,RAKE_PARAM_UNITS,
-                                                      RAKE_PARAM_DEFAULT);
-  // create the dip parameter
-  DoubleParameter dipParam = new DoubleParameter(DIP_PARAM_NAME, DIP_PARAM_MIN,
-                                                      DIP_PARAM_MAX,DIP_PARAM_UNITS,
-                                                      DIP_PARAM_DEFAULT);
-  // create the supported MagDists
-  Vector supportedMagDists=new Vector();
-
-  //Mag Freq Dist Parameter
-  MagFreqDistParameter magDistParam ;
 
   // private declaration of the flag to check if any parameter has been changed from its original value.
   private boolean  parameterChangeFlag = true;
@@ -148,31 +146,54 @@ public class Set1_Area_Forecast extends EqkRupForecast
    *
    * No argument constructor
    */
-  public Set1_Area_Forecast() {
+  public Set2_MultiSource_Forecast() {
 
     // make adj params list
     adjustableParams.addParameter(gridParam);
+    adjustableParams.addParameter(offsetParam);
     adjustableParams.addParameter(depthLowerParam);
     adjustableParams.addParameter(depthUpperParam);
-    adjustableParams.addParameter(rakeParam);
-    adjustableParams.addParameter(dipParam);
     adjustableParams.addParameter(timespanParam);
-
-    // create the supported Mag-Dist parameter
-    supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
-    magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
-    adjustableParams.addParameter(this.magDistParam);
-
 
     // listen for change in the parameters
     gridParam.addParameterChangeListener(this);
+    offsetParam.addParameterChangeListener(this);
     depthLowerParam.addParameterChangeListener(this);
     depthUpperParam.addParameterChangeListener(this);
     timespanParam.addParameterChangeListener(this);
-    magDistParam.addParameterChangeListener(this);
-    rakeParam.addParameterChangeListener(this);
-    dipParam.addParameterChangeListener(this);
 
+    // make the mag-freq dists for the sources
+    double bValue = 0.9;
+    double magLower = 5.0;
+    // area source distribution:
+    dist_gr_A_orig = new GutenbergRichterMagFreqDist(5, 6.5, 16);
+    dist_gr_A_orig.setAllButTotMoRate(5,6.5,0.0395,bValue);
+    // Fault B distribution
+    double tempMoRate = FaultMomentCalc.getMoment(75.0e3*12.0e3, 2e-2);
+    double magUpper = 7.2;
+    double deltaMagChar = 0.5;
+    double magPrime = 6.7;
+    double deltaMagPrime = 1.0;
+    dist_yc_B = new YC_1985_CharMagFreqDist(0,7.5, 76);
+    dist_yc_B.setAllButTotCharRate(magLower, magUpper,deltaMagChar,magPrime,deltaMagPrime,bValue,tempMoRate);
+    // Fault C distribution
+    tempMoRate = FaultMomentCalc.getMoment(25.0e3*12.0e3, 1e-2);
+    magUpper = 6.7;
+    deltaMagChar = 0.5;
+    magPrime = 6.2;
+    deltaMagPrime = 1.0;
+    dist_yc_C = new YC_1985_CharMagFreqDist(0,7.0, 71);
+    dist_yc_C.setAllButTotCharRate(magLower, magUpper,deltaMagChar,magPrime,deltaMagPrime,bValue,tempMoRate);
+
+    // make the fault traces for the fault sources.
+
+    faultTraceB = new FaultTrace("Fault B");
+    faultTraceB.addLocation(faultB_loc1);
+    faultTraceB.addLocation(faultB_loc2);
+
+    faultTraceC = new FaultTrace("Fault C");
+    faultTraceC.addLocation(faultC_loc1);
+    faultTraceC.addLocation(faultC_loc2);
   }
 
 
@@ -200,11 +221,13 @@ public class Set1_Area_Forecast extends EqkRupForecast
 
     if(parameterChangeFlag) {
 
-      // check if magDist is null
-      if(this.magDistParam==null)
-          throw new RuntimeException("Magnitude Distribution is null");
+      // first update the timespan with what's in the parameter
+      setTimeSpan(((Double) timespanParam.getValue()).doubleValue());
 
+      // set the grid spacing used for all sources
       double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
+
+      // Now make/update the source used for all area-source grid points
       double depthLower =((Double)this.depthLowerParam.getValue()).doubleValue();
       double depthUpper =((Double)this.depthUpperParam.getValue()).doubleValue();
 
@@ -225,25 +248,47 @@ public class Set1_Area_Forecast extends EqkRupForecast
 
       int numLocs = locationList.size();
 
-      /* getting the Gutenberg magnitude distribution and scaling its cumRate to the original cumRate
-       * divided by the number of the locations (note that this is a clone of what's in the magDistParam)
-       */
-      dist_GR = (GutenbergRichterMagFreqDist) ((GutenbergRichterMagFreqDist)magDistParam.getValue()).deepClone();
+      dist_GR = (GutenbergRichterMagFreqDist) dist_gr_A_orig.deepClone();
 
       double cumRate = dist_GR.getCumRate((int) 0);
       cumRate /= numLocs;
       dist_GR.scaleToCumRate(0,cumRate);
 
-      double rake = ((Double) rakeParam.getValue()).doubleValue();
-      double dip = ((Double) dipParam.getValue()).doubleValue();
-
-      setTimeSpan(((Double) timespanParam.getValue()).doubleValue());
-
-      // Dip is hard wired at 90 degrees
-      pointGR_EqkSource = new PointGR_EqkSource(new Location(),dist_GR, rake, dip);
+      pointGR_EqkSource = new PointGR_EqkSource(new Location(),dist_GR, RAKE, DIP);
+      pointGR_EqkSource.setTimeSpan(timeSpan);
 
       if (D) System.out.println(C+" updateForecast(): rake="+pointGR_EqkSource.getRupture(0).getAveRake() +
                           "; dip="+ pointGR_EqkSource.getRupture(0).getRuptureSurface().getAveDip());
+
+      // now make the fault sources
+      double seisUpper = 0;
+      double seisLower = 12;
+      double offset = ((Double)offsetParam.getValue()).doubleValue();
+      double lengthSigma = 0;
+
+      // for fault B:
+      FrankelGriddedFaultFactory factoryB = new FrankelGriddedFaultFactory( faultTraceB,
+                                                                     DIP,
+                                                                     seisUpper,
+                                                                     seisLower,
+                                                                     gridSpacing );
+      GriddedSurfaceAPI surfaceB = factoryB.getGriddedSurface();
+
+      fltSourceB = new  Set1_Fault_Source(dist_yc_B, RAKE, offset,
+                                          (EvenlyGriddedSurface) surfaceB,
+                                          timeSpan, lengthSigma );
+
+      // for fault C:
+      FrankelGriddedFaultFactory factoryC = new FrankelGriddedFaultFactory( faultTraceC,
+                                                                     DIP,
+                                                                     seisUpper,
+                                                                     seisLower,
+                                                                     gridSpacing );
+      GriddedSurfaceAPI surfaceC = factoryC.getGriddedSurface();
+
+      fltSourceC = new  Set1_Fault_Source(dist_yc_C, RAKE, offset,
+                                          (EvenlyGriddedSurface)surfaceC,
+                                          timeSpan, lengthSigma );
 
     }
     parameterChangeFlag = false;
@@ -337,7 +382,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
    * @return integer value specifying the number of earthquake sources
    */
   public int getNumSources(){
-    return locationList.size();
+    return locationList.size() +2;
   }
 
   /**

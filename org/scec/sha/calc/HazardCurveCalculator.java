@@ -173,7 +173,7 @@ public class HazardCurveCalculator {
         int val=0;
         boolean update = false;
 
-        // update the progress bar
+        // find if we're at a point to update
         if(num == (int) (totNum*0.9)) { // 90% complete
               val = 90;
               update = true;
@@ -203,6 +203,7 @@ public class HazardCurveCalculator {
               val = 10;
               update = true;        }
 
+        // update the progress bar
         if(update == true) {
             progress.setString(Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
             progress.setValue(val);

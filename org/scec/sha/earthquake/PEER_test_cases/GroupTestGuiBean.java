@@ -90,6 +90,8 @@ public class GroupTestGuiBean implements
      */
     public final static String SET1_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set1_Fault_Forecast";
     public final static String SET1_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set1_Area_Forecast";
+//    public final static String SET2_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set2_NonPlanarFault_Forecast";
+
     //this vector saves the names of all the supported Eqk Rup Forecasts
     private Vector erfNamesVector=new Vector();
     //this vector holds the full class names of all the supported Eqk Rup Forecasts
@@ -520,6 +522,7 @@ public class GroupTestGuiBean implements
       erfClasses = new Vector();
       erfClasses.add( SET1_FAULT_FORECAST_CLASS_NAME );
       erfClasses.add( SET1_AREA_FORECAST_CLASS_NAME );
+//      erfClasses.add(SET2_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
       Iterator it= erfClasses.iterator();
       while(it.hasNext()){
         // make the ERF objects to get their adjustable parameters
@@ -1416,7 +1419,7 @@ public class GroupTestGuiBean implements
         // mag dist parameters for test case 1
         if(testCase.equalsIgnoreCase(TEST_CASE_ONE)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.5));
           magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
         }
@@ -1425,7 +1428,7 @@ public class GroupTestGuiBean implements
         if(testCase.equalsIgnoreCase(TEST_CASE_TWO)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
           magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
         }
@@ -1434,7 +1437,7 @@ public class GroupTestGuiBean implements
         if(testCase.equalsIgnoreCase(TEST_CASE_THREE)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
           magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
         }
@@ -1443,7 +1446,7 @@ public class GroupTestGuiBean implements
         if(testCase.equalsIgnoreCase(TEST_CASE_FOUR)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
           magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
         }
@@ -1485,7 +1488,7 @@ public class GroupTestGuiBean implements
         if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_ONE)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
           magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
         }
@@ -1494,7 +1497,7 @@ public class GroupTestGuiBean implements
        if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_TWO)) {
 
          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
         }
@@ -1503,7 +1506,7 @@ public class GroupTestGuiBean implements
        if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_THREE)) {
 
          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.8e16));
         }
@@ -1512,7 +1515,7 @@ public class GroupTestGuiBean implements
        if(testCase.equalsIgnoreCase(TEST_CASE_NINE_ONE)) {
 
          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
         }
@@ -1521,7 +1524,7 @@ public class GroupTestGuiBean implements
        if(testCase.equalsIgnoreCase(TEST_CASE_NINE_TWO)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
           magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
         }
@@ -1530,7 +1533,7 @@ public class GroupTestGuiBean implements
        if(testCase.equalsIgnoreCase(TEST_CASE_NINE_THREE)) {
 
          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MORATE);
+         magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
          magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.0));
          magEditor.getParameter(MagFreqDistParameterEditor.MO_RATE).setValue(new Double(1.905e16));
         }

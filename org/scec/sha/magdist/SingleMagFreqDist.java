@@ -111,11 +111,14 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param rate
    * @param moRate
    */
-  public void setRateAndMomentRate(double rate,double moRate) throws DataPoint2DException{
+  public void setRateAndMomentRate(double rate,double moRate, boolean relaxTotMoRate) throws DataPoint2DException{
 
     this.mag = MomentMagCalc.getMag(moRate/rate);
     int index = (int) Math.rint((mag - minX)/delta);
-    setMagAndRate(getX(index),rate);
+    if (relaxTotMoRate)
+      setMagAndRate(getX(index),rate);
+    else
+      setMagAndMomentRate(getX(index),moRate);
   }
 
   /**
@@ -132,7 +135,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   */
  public String getInfo() {
    double totMoRate= this.rate * MomentMagCalc.getMoment(this.mag);
-   return "mag="+this.mag+"; rate="+(float)rate+"; totMoRate="+(float)totMoRate;
+   return "mag="+(float) mag+"; rate="+(float)rate+"; totMoRate="+(float)totMoRate;
  }
 
  /**

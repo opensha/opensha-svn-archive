@@ -23,147 +23,169 @@ import org.scec.param.event.*;
  * <p>Description: Fault 1 Equake rupture forecast. The Peer Group Test cases </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author Nitin Gupta & Vipin Gupta
- * Date : Oct 24 , 2002
+ * @author Ned Field
+ * Date : Nov 30, 2002
  * @version 1.0
  */
 
-public class Set1_Fault_Forecast extends EqkRupForecast
+public class Set2_NonPlanarFault_Forecast extends EqkRupForecast
     implements ParameterChangeListener {
 
   /**
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("Test Set1 Fault");
+  private static String  C = new String("Set2, Non-Planar Fault");
   private boolean D = false;
 
   /**
-   * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
+   * timespan field in yrs for now (but have to ultimately make it a TimeSpan class variable
    */
   private double timeSpan;
   private TimeSpan time;
 
-  // save the source. Fault1 has only 1 source
+  // the prob eqk source (only one)
   private Set1_Fault_Source source;
 
-
-  //Parameter Names
-  public final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
+  // grid spacing parameter stuff
   public final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
-  public final static String OFFSET_PARAM_NAME =  "Offset";
-  public final static String MAG_DIST_PARAM_NAME = "Fault Mag Dist";
-  public final static String RAKE_PARAM_NAME ="Rake";
-  public final static String TIMESPAN_PARAM_NAME ="Time Span";
-  public final static String DIP_PARAM_NAME = "Dip";
-
-  // default grid spacing is 1km
   private Double DEFAULT_GRID_VAL = new Double(1);
   public final static String GRID_PARAM_UNITS = "kms";
   private final static double GRID_PARAM_MIN = .001;
   private final static double GRID_PARAM_MAX = 1000;
 
-
-  //default rupture offset is 1km
+  //rupture offset parameter stuff
+  public final static String OFFSET_PARAM_NAME =  "Offset";
   private Double DEFAULT_OFFSET_VAL = new Double(1);
   public final static String OFFSET_PARAM_UNITS = "kms";
   private final static double OFFSET_PARAM_MIN = .01;
   private final static double OFFSET_PARAM_MAX = 10000;
 
-  //default timeSpan is 1 year
+  // timeSpan parameter stuff
+  public final static String TIMESPAN_PARAM_NAME ="Time Span";
   private Double DEFAULT_TIMESPAN_VAL= new Double(1);
   public final static String TIMESPAN_PARAM_UNITS = "yrs";
   private final static double TIMESPAN_PARAM_MIN = 1e-10;
   private final static double TIMESPAN_PARAM_MAX = 1e10;
 
-  // values for Mag length sigma
-  private Double SIGMA_PARAM_MIN = new Double(0);
-  private Double SIGMA_PARAM_MAX = new Double(1);
+  // Mag-length sigma parameter stuff
+  public final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
+  private double SIGMA_PARAM_MIN = 0;
+  private double SIGMA_PARAM_MAX = 1;
   public Double DEFAULT_SIGMA_VAL = new Double(0.0);
 
-  private double LOWER_SEISMO_DEPTH = 12.0;
+  // slip rate prameter stuff
+  public final static String SLIP_RATE_NAME = "Slip Rate";
+  public final static String SLIP_RATE_UNITS = "cm/yr";
+  public final static double SLIP_RATE_MIN = 0.0;
+  public final static double SLIP_RATE_MAX = 1e5;
+  public final static Double SLIP_RATE_DEFAULT = new Double(2);
 
-  // fault-1 name
-  private String FAULT1_NAME = new String("Fault 1");
-  private Location fault1_LOCATION1 = new Location(38.22480, -122, 0);
-  private Location fault1_LOCATION2 = new Location(38.0, -122, 0);
-  private double UPPER_SEISMO_DEPTH1 = 0.0;
+  // parameter for magUpper of the GR dist
+  public static final String GR_MAG_UPPER=new String("Mag Upper");
+  public static final String GR_MAG_UPPER_INFO=new String("Max mag of the GR distribution");
+  public final static Double GR_MAG_UPPER_DEFAULT = new Double(7.2);
 
-  //fault-2 name
-  private String FAULT2_NAME = new String("Fault 2");
-  private Location fault2_LOCATION1 = new Location(38.22480, -122, 1);
-  private Location fault2_LOCATION2 = new Location(38.0, -122, 1);
-  private double UPPER_SEISMO_DEPTH2 = 1.0;
+  // segmentation parameter stuff
+  public final static String SEGMENTATION_NAME = new String ("Segmentation Model");
+  public final static String SEGMENTATION_NONE = new String ("Unsegmented");
+  public final static String SEGMENTATION_A = new String ("Segment A only");
+  public final static String SEGMENTATION_B = new String ("Segment B only");
+  public final static String SEGMENTATION_C = new String ("Segment C only");
+  public final static String SEGMENTATION_D = new String ("Segment D only");
+  public final static String SEGMENTATION_E = new String ("Segment E only");
 
-
-  // add the grid spacing field
+  // make the grid spacing parameter
   DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
-                                               GRID_PARAM_MAX,GRID_PARAM_UNITS,DEFAULT_GRID_VAL);
+      GRID_PARAM_MAX,GRID_PARAM_UNITS,DEFAULT_GRID_VAL);
 
-  // add the rupOffset spacing field
+  // make the rupture offset parameter
   DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM_MIN,
-                                               OFFSET_PARAM_MAX,OFFSET_PARAM_UNITS,DEFAULT_OFFSET_VAL);
+      OFFSET_PARAM_MAX,OFFSET_PARAM_UNITS,DEFAULT_OFFSET_VAL);
 
-  // add sigma for maglength(0-1)
+  // make the mag-length sigma parameter
   DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
-                         SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
+      SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
 
-  // add rake param
-  DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME);
-
-  //add the dip parameter
+  //make the timeSpan parameter
   DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
-                                               TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
+      TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
 
-  //add the dip parameter
-  DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME);
+  // make the mag-length sigma parameter
+  DoubleParameter slipRateParam = new DoubleParameter(SLIP_RATE_NAME,
+      SLIP_RATE_MIN, SLIP_RATE_MAX, SLIP_RATE_UNITS, SLIP_RATE_DEFAULT);
 
-  //adding the supported MagDists
-  Vector supportedMagDists=new Vector();
+  // make the magUpper parameter
+  DoubleParameter magUpperParam = new DoubleParameter(GR_MAG_UPPER,GR_MAG_UPPER_DEFAULT);
 
-  //Mag Freq Dist Parameter
-  MagFreqDistParameter magDistParam ;
+  // make the segmetation model parameter
+  Vector segModelNamesStrings=new Vector();
+  StringParameter segModelParam;
 
-  // Fault trace
+  // fault stuff
   FaultTrace faultTrace;
+  public final static double LOWER_SEISMO_DEPTH = 12.0;
+  public final static  double UPPER_SEISMO_DEPTH = 1.0;
+  public final static  double DIP=60.0;
+  public final static  double RAKE=-90.0;
+  // Fault trace locations
+  private final static Location traceLoc1 = new Location(37.609531,-121.7168636,1.0);     // southern most point
+  private final static Location traceLoc2 = new Location(37.804854,-121.8580591,1.0);
+  private final static Location traceLoc3 = new Location(38.000000,-122.0000000,1.0);
+  private final static Location traceLoc4 = new Location(38.224800,-122.0000000,1.0);
+  private final static Location traceLoc5 = new Location(38.419959,-121.8568637,1.0);
+  private final static Location traceLoc6 = new Location(38.614736,-121.7129562,1.0);     // northern most point
+
+  // GR mag freq dist stuff
+  GutenbergRichterMagFreqDist grMagFreqDist;
+  public final static  double GR_MIN = 5.0;
+  public final static  double GR_MAX = 10.0;
+  public final static  int GR_NUM = 51;
+  public final static  double GR_BVALUE = 0.9;
+  public final static  double GR_MAG_LOWER = 5.0;
 
   // private declaration of the flag to check if any parameter has been changed from its original value.
   private boolean  parameterChangeFlag = true;
 
 
   /**
-   * This constructor constructs the source
+   * This constructor makes the parameters and sets up the source
    *
    * No argument constructor
    */
-  public Set1_Fault_Forecast() {
+  public Set2_NonPlanarFault_Forecast() {
 
-    /* Now make the source in Fault 1 */
+    // make the segModelParam
+    segModelNamesStrings.add(SEGMENTATION_NONE);
+    segModelNamesStrings.add(SEGMENTATION_A);
+    segModelNamesStrings.add(SEGMENTATION_B);
+    segModelNamesStrings.add(SEGMENTATION_C);
+    segModelNamesStrings.add(SEGMENTATION_D);
+    segModelNamesStrings.add(SEGMENTATION_E);
+    segModelParam = new StringParameter(SEGMENTATION_NAME,segModelNamesStrings,
+                                      (String)segModelNamesStrings.get(0));
+
+    // now add the parameters to the adjustableParams list
     adjustableParams.addParameter(gridParam);
     adjustableParams.addParameter(offsetParam);
     adjustableParams.addParameter(lengthSigmaParam);
-    adjustableParams.addParameter(dipParam);
-    adjustableParams.addParameter(rakeParam);
+    adjustableParams.addParameter(slipRateParam);
+    adjustableParams.addParameter(magUpperParam);
+    adjustableParams.addParameter(segModelParam);
     adjustableParams.addParameter(timeSpanParam);
-
-    // adding the supported MagDistclasses
-    supportedMagDists.add(GaussianMagFreqDist.NAME);
-    supportedMagDists.add(SingleMagFreqDist.NAME);
-    supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
-    supportedMagDists.add(YC_1985_CharMagFreqDist.NAME);
-    magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
-    //add the magdist parameter
-    adjustableParams.addParameter(this.magDistParam);
-
 
     // listen for change in the parameters
     gridParam.addParameterChangeListener(this);
     offsetParam.addParameterChangeListener(this);
     lengthSigmaParam.addParameterChangeListener(this);
-    dipParam.addParameterChangeListener(this);
-    rakeParam.addParameterChangeListener(this);
+    slipRateParam.addParameterChangeListener(this);
+    magUpperParam.addParameterChangeListener(this);
+    segModelParam.addParameterChangeListener(this);
     timeSpanParam.addParameterChangeListener(this);
-    magDistParam.addParameterChangeListener(this);  }
+
+    grMagFreqDist = new GutenbergRichterMagFreqDist(GR_MIN, GR_MAX, GR_NUM);
+
+  }
 
 
   /**
@@ -198,54 +220,59 @@ public class Set1_Fault_Forecast extends EqkRupForecast
 
      if(parameterChangeFlag) {
 
-       // check if magDist is null
-       if(this.magDistParam.getValue()==null)
-          throw new RuntimeException("Click on update MagDist button and then choose Add Plot");
-
-       // dip param value
-       double dipValue = ((Double)dipParam.getValue()).doubleValue();
-       // first build the fault trace, then add
-       // add the location to the trace
-
-       SimpleFaultData faultData;
-       if(dipValue == 90){
-         // fault1
-         faultTrace = new FaultTrace(FAULT1_NAME);
-         faultTrace.addLocation((Location)fault1_LOCATION1.clone());
-         faultTrace.addLocation((Location)fault1_LOCATION2.clone());
-         //make the fault data
-         faultData= new SimpleFaultData(dipValue,
-              LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH1,faultTrace);
-         if(D) System.out.println(S+"faultdata:"+faultData);
+       // make the fault trace based on the segmentation model
+       String segModel = (String) segModelParam.getValue();
+       faultTrace = new FaultTrace("Non Planar Fault");
+       if(segModel.equals(SEGMENTATION_NONE)){
+         faultTrace.addLocation(traceLoc1);
+         faultTrace.addLocation(traceLoc2);
+         faultTrace.addLocation(traceLoc3);
+         faultTrace.addLocation(traceLoc4);
+         faultTrace.addLocation(traceLoc5);
+         faultTrace.addLocation(traceLoc6);
+       }
+       else if (segModel.equals(SEGMENTATION_E)){
+         faultTrace.addLocation(traceLoc1);
+         faultTrace.addLocation(traceLoc2);
+       }
+       else if (segModel.equals(SEGMENTATION_D)){
+         faultTrace.addLocation(traceLoc2);
+         faultTrace.addLocation(traceLoc3);
+       }
+       else if (segModel.equals(SEGMENTATION_C)){
+         faultTrace.addLocation(traceLoc3);
+         faultTrace.addLocation(traceLoc4);
+       }
+       else if (segModel.equals(SEGMENTATION_B)){
+         faultTrace.addLocation(traceLoc4);
+         faultTrace.addLocation(traceLoc5);
+       }
+       else if (segModel.equals(SEGMENTATION_A)){
+         faultTrace.addLocation(traceLoc5);
+         faultTrace.addLocation(traceLoc6);
        }
 
-       else {
-         //fault2
-         faultTrace = new FaultTrace(FAULT2_NAME);
-         faultTrace.addLocation((Location)fault2_LOCATION1.clone());
-         faultTrace.addLocation((Location)fault2_LOCATION2.clone());
-         //make the fault data
-         faultData= new SimpleFaultData(dipValue,
-              LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH2,faultTrace);
-         if(D) System.out.println(S+"faultdata:"+faultData);
-       }
 
-
-       //  create a fault factory and make the surface
-       FrankelGriddedFaultFactory factory =
-           new FrankelGriddedFaultFactory(faultData,
-                                         ((Double)gridParam.getValue()).doubleValue());
+       // Now make the gridded surface
+       double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
+       FrankelGriddedFaultFactory factory = new FrankelGriddedFaultFactory( faultTrace,
+                                                                            DIP,
+                                                                            UPPER_SEISMO_DEPTH,
+                                                                            LOWER_SEISMO_DEPTH,
+                                                                            gridSpacing );
 
        GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
-       if(D) System.out.println(S+"Columns in surface:"+surface.getNumCols());
-       if(D) System.out.println(S+"Rows in surface:"+surface.getNumRows());
-
-       if(D) System.out.println(S+"MagLenthSIgma:"+lengthSigmaParam.getValue());
+       // Now make the mag freq dist
+       double magUpper = ((Double) magUpperParam.getValue()).doubleValue();
+       double slipRate = ((Double) slipRateParam.getValue()).doubleValue() / 100.0;  // last is to convert to meters/yr
+       double ddw = (LOWER_SEISMO_DEPTH-UPPER_SEISMO_DEPTH)/Math.sin(DIP*Math.PI/180);
+       double faultArea = faultTrace.getTraceLength() * ddw * 1e6;  // the last is to convert to meters
+       double totMoRate = 3e10*faultArea*slipRate;
+       grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
 
        // Now make the source
-       source = new  Set1_Fault_Source((IncrementalMagFreqDist)magDistParam.getValue(),
-                                        ((Double)rakeParam.getValue()).doubleValue() ,
+       source = new  Set1_Fault_Source(grMagFreqDist, RAKE ,
                                         ((Double)offsetParam.getValue()).doubleValue(),
                                         (EvenlyGriddedSurface)surface,
                                         ((Double)timeSpanParam.getValue()).doubleValue(),

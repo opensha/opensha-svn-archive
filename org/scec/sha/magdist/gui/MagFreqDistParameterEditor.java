@@ -103,6 +103,13 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      public static final String BVALUE_INFO=new String("b in: log(rate) = a-b*magnitude");
      // Set all params but
      public final static String SET_ALL_PARAMS_BUT=new String("Set All Params But");
+     // The fix (constrain) options
+     public static final String FIX=new String("Constrain");
+     public static final String FIX_INFO=new String("Only one of these can be matched exactly due to mag discretization");
+     public static final String FIX_TOT_MO_RATE=new String("Total Moment Rate");
+     public static final String FIX_TO_CUM_RATE=new String("Total Cum. Rate");
+     public static final String FIX_RATE=new String("Rate");
+
 
 
    /**
@@ -113,17 +120,16 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      public static final String MO_RATE=new String("Moment Rate");
      public static final String SINGLE_PARAMS_TO_SET=new String("Single Dist. Params");
      public static final String RATE_AND_MAG =new String("Rate & Mag");
-     public static final String MAG_AND_MORATE =new String("Mag & Moment Rate");
-     public static final String RATE_AND_MORATE=new String("Rate & Moment Rate");
+     public static final String MAG_AND_MO_RATE =new String("Mag & Moment Rate");
+     public static final String RATE_AND_MO_RATE=new String("Rate & Moment Rate");
+     StringConstraint sdFixOptions;
 
   /**
    * Gutenberg-Richter Magnitude Frequency Distribution Parameter names
+   * (most are common and therefor defined above)
    */
-    public static final String GR_FIX=new String("fix");
-    public static final String GR_FIX_INFO=new String("Only one of these can be matched exactly due to discretization");
-    public static final String GR_FIX_TO_MORATE=new String("Fix Total Moment Rate");
-    public static final String GR_FIX_TO_CUM_RATE=new String("Fix Total CUM Rate");
-    StringConstraint grOptions;
+    StringConstraint grSetAllButOptions;
+    StringConstraint grFixOptions;
 
     /**
      * Young and Coppersmith, 1985 Char dist. parameter names
@@ -136,7 +142,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     public static final String YC_DELTA_MAG_PRIME_INFO = new String("Distance below Mag Prime where rate on GR equals that on the char. part");
     public static final String YC_TOT_CHAR_RATE = new String("Total Char. Rate");
     public static final String YC_TOT_CHAR_RATE_INFO = new String("Total rate of events above (magUpper-deltaMagChar)");
-    StringConstraint ycOptions;
+    StringConstraint ycSetAllButOptions;
 
    /**
     * Gaussian Magnitude Frequency Distribution Parameter string list constant
@@ -148,7 +154,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     public static final String TRUNCATE_ON_BOTH_SIDES= new String("Upper and Lower");
     public static final String TRUNCATE_NUM_OF_STD_DEV= new String("Truncation Level(# of Std Devs)");
     public static final String NONE= new String("None");
-    StringConstraint gdOptions;
+    StringConstraint gdSetAllButOptions;
 
     JButton button = new JButton("Update MagDist");
 
@@ -296,12 +302,15 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          DoubleParameter mag = new DoubleParameter(MAG, new Double(8));
          Vector vStrings=new Vector();
          vStrings.add(RATE_AND_MAG);
-         vStrings.add(MAG_AND_MORATE);
-         vStrings.add(RATE_AND_MORATE);
+         vStrings.add(MAG_AND_MO_RATE);
+         vStrings.add(RATE_AND_MO_RATE);
          StringParameter singleParamsToSet=new StringParameter(SINGLE_PARAMS_TO_SET,
                                            vStrings,(String)vStrings.get(0));
          singleParamsToSet.addParameterChangeListener(this);
-
+         Vector vStrings3 = new Vector ();
+         vStrings3.add(FIX_RATE);
+         vStrings3.add(FIX_TOT_MO_RATE);
+         sdFixOptions = new StringConstraint(vStrings3);
 
          /**
           * Make parameters for Gaussian distribution
@@ -312,7 +321,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          vStrings=new Vector();
          vStrings.add(TOT_CUM_RATE);
          vStrings.add(TOT_MO_RATE);
-         gdOptions = new StringConstraint(vStrings);
+         gdSetAllButOptions = new StringConstraint(vStrings);
          vStrings=new Vector();
          vStrings.add(NONE);
          vStrings.add(TRUNCATE_UPPER_ONLY);
@@ -321,6 +330,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          truncType.addParameterChangeListener(this);
          DoubleParameter truncLevel = new DoubleParameter(TRUNCATE_NUM_OF_STD_DEV, 0, Double.POSITIVE_INFINITY, new Double (3));
          truncLevel.addParameterChangeFailListener(this);
+
           /**
            * Make parameters for Gutenberg-Richter distribution
            */
@@ -328,13 +338,11 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          vStrings.add(TOT_MO_RATE);
          vStrings.add(TOT_CUM_RATE);
          vStrings.add(GR_MAG_UPPER);
-         grOptions = new StringConstraint(vStrings);
+         grSetAllButOptions = new StringConstraint(vStrings);
          Vector vStrings1 = new Vector ();
-         vStrings1.add(GR_FIX_TO_CUM_RATE);
-         vStrings1.add(GR_FIX_TO_MORATE);
-         StringParameter fix = new StringParameter(GR_FIX,vStrings1,GR_FIX_TO_CUM_RATE);
-         fix.setInfo(GR_FIX_INFO);
-         fix.addParameterChangeListener(this);
+         vStrings1.add(FIX_TO_CUM_RATE);
+         vStrings1.add(FIX_TOT_MO_RATE);
+         grFixOptions = new StringConstraint(vStrings1);
 
          /**
           * Make paramters for Youngs and Coppersmith 1985 char distribution
@@ -354,13 +362,18 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          vStrings=new Vector();
          vStrings.add(YC_TOT_CHAR_RATE);
          vStrings.add(TOT_MO_RATE);
-         ycOptions = new StringConstraint(vStrings);
+         ycSetAllButOptions = new StringConstraint(vStrings);
 
          // make the set all but paramter needed by YC, Gaussian and GR
          StringParameter setAllBut=new StringParameter(SET_ALL_PARAMS_BUT,
-                                      ycOptions,
-                                      (String)ycOptions.getAllowedStrings().get(0));
+                                      ycSetAllButOptions,
+                                      (String)ycSetAllButOptions.getAllowedStrings().get(0));
          setAllBut.addParameterChangeListener(this);
+
+         // make the fix parameter needed by Single and GR dists
+         StringParameter fixParam = new StringParameter(FIX,grFixOptions,FIX_TO_CUM_RATE);
+         fixParam.setInfo(FIX_INFO);
+         fixParam.addParameterChangeListener(this);
 
          // Add the parameters to the list (order is preserved)
          parameterList.addParameter(distributionName);
@@ -389,7 +402,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          parameterList.addParameter(totMoRate);
          parameterList.addParameter(totCumRate);
          // now add params that present choice dependent on above choice
-         parameterList.addParameter(fix);
+         parameterList.addParameter(fixParam);
 
 
 
@@ -414,8 +427,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         String distributionName=parameterList.getParameter(DISTRIBUTION_NAME).getValue().toString();
         StringParameter setAllButParam =
                              ( StringParameter)parameterList.getParameter(SET_ALL_PARAMS_BUT);
-        // Create the new parameter
-        StringParameter param2;
+        // Create the new (temporary) parameters
+        StringParameter param2, param3;
 
 
         // Turn off all parameters - start fresh, then make visible as required below
@@ -435,8 +448,15 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          * all the independent parameters again and draws the text boxes to fill
          * in the values.
          */
-        if(distributionName.equalsIgnoreCase(SingleMagFreqDist.NAME))
+        if(distributionName.equalsIgnoreCase(SingleMagFreqDist.NAME)) {
+          // change the fixParameter constraints
+          param3 = new StringParameter(FIX,sdFixOptions,
+                             (String)sdFixOptions.getAllowedStrings().get(0));
+          param3.addParameterChangeListener(this);
+          editor.replaceParameterForEditor( FIX, param3 );
+
            this.setSingleDistParamsVisible();
+        }
 
         /**
          *  If Gutenberg Richter Freq dist is selected
@@ -445,13 +465,20 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
           // change the constraints in set all but parameter
          param2 = new StringParameter(setAllButParam.getName(),
-                                      grOptions,
-                                     (String)grOptions.getAllowedStrings().get(0));
+                                      grSetAllButOptions,
+                                     (String)grSetAllButOptions.getAllowedStrings().get(0));
          param2.addParameterChangeListener(this);
          // swap editors
          editor.replaceParameterForEditor( setAllButParam.getName(), param2 );
 
-         this.setGR_DistParamsVisible();
+         // change the fixParameter constraints
+         param3 = new StringParameter(FIX,grFixOptions,
+                                      (String)grFixOptions.getAllowedStrings().get(0));
+         param3.addParameterChangeListener(this);
+         editor.replaceParameterForEditor( FIX, param3 );
+
+
+         setGR_DistParamsVisible();
         }
 
         /**
@@ -461,8 +488,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
          // change the constraints in set all but parameter
          param2 = new StringParameter(setAllButParam.getName(),
-                                      gdOptions,
-                                      (String)gdOptions.getAllowedStrings().get(0));
+                                      gdSetAllButOptions,
+                                      (String)gdSetAllButOptions.getAllowedStrings().get(0));
          param2.addParameterChangeListener(this);
          // swap editors
          editor.replaceParameterForEditor( setAllButParam.getName(), param2 );
@@ -477,8 +504,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
         // change the constraints in set all but parameter
         param2 = new StringParameter(setAllButParam.getName(),
-                                     ycOptions,
-                                     (String)ycOptions.getAllowedStrings().get(0));
+                                     ycSetAllButOptions,
+                                     (String)ycSetAllButOptions.getAllowedStrings().get(0));
         param2.addParameterChangeListener(this);
 
         // swap editors
@@ -507,18 +534,21 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         editor.setParameterInvisible(RATE, true);
         editor.setParameterInvisible(MAG, true);
         editor.setParameterInvisible(MO_RATE, false);
+        editor.setParameterInvisible(FIX,false);
       }
       // if Mag and Mo Rate is selected
-      if(paramToSet.equalsIgnoreCase(MAG_AND_MORATE)) {
+      if(paramToSet.equalsIgnoreCase(MAG_AND_MO_RATE)) {
         editor.setParameterInvisible(RATE, false);
         editor.setParameterInvisible(MAG, true);
         editor.setParameterInvisible(MO_RATE, true);
+        editor.setParameterInvisible(FIX,false);
       }
       // if Rate and Mo Rate is selected
-      if(paramToSet.equalsIgnoreCase(RATE_AND_MORATE)) {
+      if(paramToSet.equalsIgnoreCase(RATE_AND_MO_RATE)) {
         editor.setParameterInvisible(RATE, true);
         editor.setParameterInvisible(MAG, false);
         editor.setParameterInvisible(MO_RATE, true);
+        editor.setParameterInvisible(FIX,true);
       }
   }
 
@@ -562,8 +592,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     private void setGR_DistParamsVisible() {
 
       editor.setParameterInvisible(SET_ALL_PARAMS_BUT, true);
-      editor.setParameterInvisible(this.GR_MAG_LOWER, true);
-      editor.setParameterInvisible(this.GR_BVALUE, true);
+      editor.setParameterInvisible(GR_MAG_LOWER, true);
+      editor.setParameterInvisible(GR_BVALUE, true);
 
       // now make the params visible/invisible based on params desired to be set by user
       StringParameter param = (StringParameter)parameterList.getParameter(SET_ALL_PARAMS_BUT);
@@ -574,7 +604,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         editor.setParameterInvisible(TOT_CUM_RATE,true);
         editor.setParameterInvisible(GR_MAG_UPPER,true);
         editor.setParameterInvisible(TOT_MO_RATE,false);
-        editor.setParameterInvisible(GR_FIX,false);
+        editor.setParameterInvisible(FIX,false);
       }
 
       // set all parameters except cumulative rate
@@ -582,14 +612,14 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         editor.setParameterInvisible(GR_MAG_UPPER,true);
         editor.setParameterInvisible(TOT_MO_RATE,true);
         editor. setParameterInvisible(TOT_CUM_RATE,false);
-        editor.setParameterInvisible(GR_FIX,false);
+        editor.setParameterInvisible(FIX,false);
       }
 
       // set all parameters except mag upper
       if(paramToSet.equalsIgnoreCase(GR_MAG_UPPER)) {
         editor.setParameterInvisible(TOT_CUM_RATE,true);
         editor.setParameterInvisible(TOT_MO_RATE,true);
-        editor.setParameterInvisible(GR_FIX,true);
+        editor.setParameterInvisible(FIX,true);
         editor.setParameterInvisible(GR_MAG_UPPER,false);
       }
     }
@@ -743,6 +773,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
             SingleMagFreqDist single =new SingleMagFreqDist(min.doubleValue(),
                                             max.doubleValue(),num.intValue());
             String paramToSet=parameterList.getParameter(SINGLE_PARAMS_TO_SET).getValue().toString();
+            String fix=parameterList.getParameter(FIX).getValue().toString();
+
            // if rate and mag are set
            if(paramToSet.equalsIgnoreCase(RATE_AND_MAG)) {
               if(D) System.out.println(S+" Rate and mag is selected in SINGLE");
@@ -760,7 +792,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
               if(D) System.out.println(S+" after setting SINGLE DIST");
            }
            // if mag and moment rate are set
-           if(paramToSet.equalsIgnoreCase(MAG_AND_MORATE)) {
+           if(paramToSet.equalsIgnoreCase(MAG_AND_MO_RATE)) {
               Double mag = (Double)parameterList.getParameter(MAG).getValue();
               Double moRate = (Double)parameterList.getParameter(MO_RATE).getValue();
               if(mag.doubleValue()>max.doubleValue() || mag.doubleValue()<min.doubleValue()){
@@ -772,11 +804,14 @@ public class MagFreqDistParameterEditor extends ParameterEditor
                 throw new java.lang.RuntimeException("The chosen magnitude must fall on one of the discrete x-axis values");
               }
            }
-           // if rate and moment  rate are set
-           if(paramToSet.equalsIgnoreCase(RATE_AND_MORATE)) {
+           // if rate and moment rate are set
+           if(paramToSet.equalsIgnoreCase(RATE_AND_MO_RATE)) {
                Double rate = (Double)parameterList.getParameter(RATE).getValue();
                Double moRate = (Double)parameterList.getParameter(MO_RATE).getValue();
-               single.setRateAndMomentRate(rate.doubleValue(),moRate.doubleValue());
+               if(fix.equals(FIX_RATE))
+                  single.setRateAndMomentRate(rate.doubleValue(),moRate.doubleValue(),true);
+               else
+                  single.setRateAndMomentRate(rate.doubleValue(),moRate.doubleValue(),false);
            }
           magDist =  (IncrementalMagFreqDist) single;
         }
@@ -889,14 +924,14 @@ public class MagFreqDistParameterEditor extends ParameterEditor
            if(setAllParamsBut.equalsIgnoreCase(GR_MAG_UPPER)) {
              Double toCumRate = (Double)parameterList.getParameter(TOT_CUM_RATE).getValue();
              Double toMoRate = (Double)parameterList.getParameter(TOT_MO_RATE).getValue();
-             String  fix = parameterList.getParameter(GR_FIX).getValue().toString();
-             boolean relaxCumRate = false;
-             if(fix.equalsIgnoreCase(GR_FIX_TO_MORATE))
-                relaxCumRate = true;
+             String  fix = parameterList.getParameter(FIX).getValue().toString();
+             boolean relaxTotMoRate = true;
+             if(fix.equalsIgnoreCase(FIX_TOT_MO_RATE))
+                relaxTotMoRate = false;
              try {
                gR.setAllButMagUpper(magLower.doubleValue(),toMoRate.doubleValue(),
                                   toCumRate.doubleValue(),bValue.doubleValue(),
-                                  relaxCumRate);
+                                  relaxTotMoRate);
              }catch(RuntimeException e){
                throw new java.lang.RuntimeException("MagLower must fall on one of the discrete x-axis values");
              }
