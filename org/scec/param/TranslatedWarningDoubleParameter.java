@@ -35,7 +35,7 @@ public class TranslatedWarningDoubleParameter
     /** Class name for debugging. */
     protected final static String C = "TranslatedWarningDoubleParameter";
     /** If true print out debug statements. */
-    protected final static boolean D = false;
+    protected final static boolean D = true;
 
 
     /**
@@ -180,10 +180,35 @@ public class TranslatedWarningDoubleParameter
         if ( value == null  || !translate ||  !( value instanceof Double ) )
             param.setValue( value );
         else{
-            double d = trans.translate( ((Double)value).doubleValue() );
-            param.setValue( new Double( d ) );
+
+            Double dUntranslated = (Double)value;
+            Double dTranslated = new Double( trans.translate( dUntranslated.doubleValue() ) );
+
+            if( !param.isAllowed( dTranslated ) ) {
+                String err = S + "Value is not allowed: ";
+                if( value != null ) err += dUntranslated.toString();
+                if(D) System.out.println(err);
+                throw new ConstraintException( err );
+            }
+            else if ( !param.isRecommended( dTranslated ) ) {
+
+                if(D) System.out.println(S + "Firing Warning Event");
+
+                ParameterChangeWarningEvent event = new
+                      ParameterChangeWarningEvent( (Object)this, this, this.getValue(), dUntranslated );
+
+                fireParameterChangeWarning( event );
+                throw new WarningException( S + "Value is not recommended: " + dUntranslated.toString() );
+            }
+            else {
+                if(D) System.out.println(S + "Setting allowed and recommended value: ");
+                param.setValue( dTranslated );
+            }
         }
     }
+
+
+
 
     /**
      *  Returns the parameter's value. Each subclass defines what type of
@@ -287,6 +312,10 @@ public class TranslatedWarningDoubleParameter
     // *******************************************
     // *******************************************
 
+    public void setIgnoreWarning(boolean ignoreWarning) {
+        param.setIgnoreWarning(ignoreWarning);
+    }
+    public boolean isIgnoreWarning() { return param.isIgnoreWarning(); }
 
     // *******************************************
     // WarningDoubleParameterAPI Proxy methods
@@ -417,11 +446,22 @@ public class TranslatedWarningDoubleParameter
 
     /**
      *  Gets the constraints of this parameter. Each subclass may implement any
-     *  type of constraint it likes.
+     *  type of constraint it likes. This version returns a clone with reverse
+     *  translated min and max values.
      *
      * @return    The constraint value
      */
-    public ParameterConstraintAPI getConstraint(){ return param.getConstraint();}
+    public ParameterConstraintAPI getConstraint(){
+
+        if( param.getConstraint() == null || !translate ) return param.getConstraint();
+        DoubleConstraint constraint = (DoubleConstraint)param.getConstraint();
+
+        double transMin = trans.reverse( constraint.getMin().doubleValue() );
+        double transMax = trans.reverse( constraint.getMax().doubleValue() );
+        DoubleConstraint constraint2 =  new DoubleConstraint(transMin, transMax);
+        return constraint2;
+
+    }
 
     /**
      *  Gets the constraints of this parameter. Each subclass may implement any
@@ -467,7 +507,7 @@ public class TranslatedWarningDoubleParameter
      *
      * @return    The type value
      */
-    public String getType(){ return param.getType();}
+    public String getType(){ return "TranslatedWarningDoubleParameter";}
 
 
     /**
@@ -522,5 +562,8 @@ public class TranslatedWarningDoubleParameter
     */
 
     public boolean isNullAllowed(){ return param.isNullAllowed();}
+    public TranslatorAPI getTrans() {
+        return trans;
+    }
 
 }

@@ -717,8 +717,8 @@ public class Abrahamson_2000_IMR
         // Put parameters in the supportedIMParams list:
         supportedIMParams.clear();
 
-        logTransSAParam.setParameter( saParam );
-        supportedIMParams.addParameter( logTransSAParam );
+        // logTransSAParam.setParameter( saParam );
+        supportedIMParams.addParameter( saParam );
 
 //      This one not supported here
 //        supportedIMParams.addParameter( pgaParam );

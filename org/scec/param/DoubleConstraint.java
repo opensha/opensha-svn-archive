@@ -167,7 +167,7 @@ public class DoubleConstraint extends ParameterConstraint{
         StringBuffer b = new StringBuffer();
         //b.append(this.getClass().getName());
         if( name != null ) b.append( TAB + "Name = " + name + '\n' );
-        b.append( TAB + "Is Editable = " + this.editable + '\n' );
+        //b.append( TAB + "Is Editable = " + this.editable + '\n' );
         b.append( TAB + "Null Allowed = " + this.nullAllowed+ '\n' );
         if( min != null ) b.append( TAB + "Min = " + min.toString() + '\n' );
         if( max != null ) b.append( TAB + "Max = " + max.toString() + '\n' );

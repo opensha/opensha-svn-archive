@@ -36,6 +36,7 @@ public class WarningDoubleParameter
      * Only created if needed, else kept null.
      */
     protected Vector warningListeners = null;
+    private boolean ignoreWarning;
 
 
     /**
@@ -377,7 +378,7 @@ public class WarningDoubleParameter
             if(D) System.out.println(S + "Setting allowed and recommended null value: ");
             this.value = null;
         }
-        else if ( !isRecommended( value ) ) {
+        else if ( !ignoreWarning && !isRecommended( value ) ) {
 
             if(D) System.out.println(S + "Firing Warning Event");
 
@@ -569,12 +570,19 @@ public class WarningDoubleParameter
 
 
         param.setInfo(info);
+        param.setIgnoreWarning(this.ignoreWarning);
 
 
         if( !editable ) param.setNonEditable();
 
         if(D) System.out.println(S + "Ending");
         return param;
+    }
+    public void setIgnoreWarning(boolean ignoreWarning) {
+        this.ignoreWarning = ignoreWarning;
+    }
+    public boolean isIgnoreWarning() {
+        return ignoreWarning;
     }
 
 

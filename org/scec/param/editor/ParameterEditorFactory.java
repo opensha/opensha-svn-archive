@@ -7,6 +7,8 @@ import org.scec.param.ParameterAPI;
 import org.scec.exceptions.ParameterException;
 import org.scec.param.ParameterConstraintAPI;
 
+//TranslatedConstrainedDoubleParameterEditor
+
 /**
  * <b>Title:</b> ParameterEditorFactory<br>
  * <b>Description:</b> This factory is used to create the appropiate Editor for a Parameter based on the
@@ -53,7 +55,10 @@ public class ParameterEditorFactory {
 
         // Initial Type
         String type = param.getType();
+        String name = param.getName();
+
         if(D) System.out.println(S + "Type = " + type);
+        if(D) System.out.println(S + "Name = " + name);
 
 
         // Build full classname of the editor

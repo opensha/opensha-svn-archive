@@ -1,29 +1,21 @@
 package org.scec.sha.imr.gui;
 
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.data.*;
-
-
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.*;
 import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
-
+import com.jrefinery.chart.*;
+import com.jrefinery.chart.tooltips.*;
+import org.scec.data.function.*;
 import org.scec.gui.*;
-
+import org.scec.gui.plot.jfreechart.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
-import org.scec.data.function.*;
-import org.scec.gui.plot.jfreechart.*;
 
 
 /**
@@ -86,14 +78,14 @@ public class IMRTesterApplet
     /**
      *  Placeholder for currently selected IM
      */
-    protected ParameterAPI selectedIM = null;
+    //protected ParameterAPI selectedIM = null;
 
     /**
      *  Placeholder for currently selected IM name and value. Used for
      *  coefficients lookup in the hashtable. The string format is "IM
      *  Type/Value". For example "SA/1.2" or "PGM/PGA".
      */
-    protected String selectedIMNameAndValue = "";
+    //protected String selectedIMNameAndValue = "";
 
 
 
@@ -1150,6 +1142,8 @@ public class IMRTesterApplet
         StringBuffer b = new StringBuffer();
 
         ParameterAPI param = ( ParameterAPI ) e.getSource();
+
+
         ParameterConstraintAPI constraint = param.getConstraint();
         String oldValueStr = e.getOldValue().toString();
         String badValueStr = e.getBadValue().toString();
@@ -1191,22 +1185,37 @@ public class IMRTesterApplet
         StringBuffer b = new StringBuffer();
 
         WarningParameterAPI param = e.getWarningParameter();
-        DoubleConstraint constraint = param.getWarningConstraint();
-        Double min = constraint.getMin();
-        Double max = constraint.getMax();
-        String name = param.getName();
 
-        b.append( "You have exceeded the recommended range\n");
-        b.append( name );
-        b.append( ": (" );
-        b.append( min.toString() );
 
-        b.append( " - " );
-        b.append( max.toString() );
-        b.append( ")\n" );
-        b.append( "Click Yes to accept the new value: " );
-        b.append( e.getNewValue().toString() );
+        try{
+            Double min = param.getWarningMin();
+            Double max = param.getWarningMax();
 
+            String name = param.getName();
+
+            b.append( "You have exceeded the recommended range\n");
+            b.append( name );
+            b.append( ": (" );
+            b.append( min.toString() );
+
+            b.append( " to " );
+            b.append( max.toString() );
+            b.append( ")\n" );
+            b.append( "Click Yes to accept the new value: " );
+            b.append( e.getNewValue().toString() );
+        }
+        catch( Exception ee){
+
+            String name = param.getName();
+
+            b.append( "You have exceeded the recommended range for: \n");
+            b.append( name + '\n' );
+            b.append( "Click Yes to accept the new value: " );
+            b.append( e.getNewValue().toString() );
+            b.append( name );
+
+
+        }
         if(D) System.out.println(S + b.toString());
 
         int result = 0;

@@ -66,6 +66,7 @@ public class IMRGuiBean
 
     StringParameter xaxis = null;
 
+
     /**
      *  Number of points to calculate between x-axis min and x-axis max, i.e.
      *  the constraint range of the choosen x-axis independent variable
@@ -397,6 +398,15 @@ public class IMRGuiBean
         return getGraphControlsParamValue( Y_AXIS ) + " vs. " + getGraphControlsParamValue( X_AXIS );
     }
 
+
+    protected void setIgnoreWarnings(boolean ignoreWarning){
+
+        ListIterator it = translatedList.listIterator();
+        while(it.hasNext()){
+            ((TranslatedWarningDoubleParameter)it.next()).setIgnoreWarning(ignoreWarning);
+        }
+    }
+
     /**
      *  Controller function. Dispacter function. Based on which Y-Axis was
      *  choosen, determines which dependent variable discretized function to
@@ -419,7 +429,11 @@ public class IMRGuiBean
         // Determines from the IM Picklist in the GUI which IM parameter
         // to set as current IM in the IMR. This allows the IMR to be able
         // to calculate which coefficients to use to calculate the functions
+
+
+        setIgnoreWarnings(true);
         imr.setIntensityMeasure( imr.getParameter( getGraphControlsParamValue( IM ) ) );
+        setIgnoreWarnings(false);
 
         // Get choosen graph controls values
         String yAxisName = getGraphControlsParamValue( Y_AXIS );
@@ -792,8 +806,18 @@ public class IMRGuiBean
         it = imr.getSupportedIntensityMeasuresIterator();
         while ( it.hasNext() ) {
             DependentParameterAPI param = ( DependentParameterAPI ) it.next();
-            if ( !( independentParams.containsParameter( param.getName() ) ) )
-                independentParams.addParameter( param );
+            if ( !( independentParams.containsParameter( param.getName() ) ) ){
+
+                /** @todo Log Translated Params goes here */
+                if( param instanceof WarningDoubleParameter ){
+                    TranslatedWarningDoubleParameter transParam =
+                        new TranslatedWarningDoubleParameter( (WarningDoubleParameter)param);
+                    independentParams.addParameter( transParam );
+                    translatedList.add( transParam );
+                }
+                else independentParams.addParameter( param );
+
+            }
 
             ListIterator it2 = param.getIndependentParametersIterator();
             while ( it2.hasNext() ) {
@@ -824,6 +848,8 @@ public class IMRGuiBean
             System.out.println( S + "Ending: Created imr parameter change listener " );
 
     }
+
+    protected ArrayList translatedList = new ArrayList();
 
 
     /**

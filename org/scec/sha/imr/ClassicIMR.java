@@ -263,16 +263,16 @@ public abstract class ClassicIMR
     protected final static String SA_INFO = "Response Spectral Acceleration";
 
 
-    protected TranslatedWarningDoubleParameter logTransSAParam = null;
+    // protected TranslatedWarningDoubleParameter logTransSAParam = null;
 
 
     //protected final static Double SA_MIN = new Double(0);
-    protected final static Double SA_MIN = new Double( Math.log( 0.00000000000000000000001 ) );
+    protected final static Double SA_MIN = new Double( -200 );
 
-    protected final static Double SA_MAX = new Double( Math.log( 2 ) );
+    protected final static Double SA_MAX = new Double( Math.log( 4 ) );
 
     //protected final static Double SA_WARN_MIN = new Double(0);
-    protected final static Double SA_WARN_MIN = new Double( Math.log( 0.00000000000000000000001  ) );
+    protected final static Double SA_WARN_MIN = new Double( -200 );
 
     protected final static Double SA_WARN_MAX = new Double( Math.log( 2 ));
 
@@ -549,9 +549,6 @@ public abstract class ClassicIMR
         iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
         if ( iml < IML_MIN ) iml = IML_MIN;
 
-        /** Fix Needs to be removed */
-        System.out.println("The IML Value is : " + iml ) ;
-
         //iml = Math.log( iml );
 
         double prob = gauss.getCDF( iml );
@@ -674,8 +671,6 @@ public abstract class ClassicIMR
         DoubleConstraint warn1 = new DoubleConstraint(SA_WARN_MIN, SA_WARN_MAX);
         warn1.setNonEditable();
         saParam.setWarningConstraint(warn1);
-
-        logTransSAParam = new TranslatedWarningDoubleParameter(saParam);
 
         // Damping-level parameter for SA
         // (overide this in subclass of other damping levels are available)

@@ -178,7 +178,7 @@ public class StringConstraint extends ParameterConstraint implements DiscretePar
         b.append( C );
 
         if( name != null) b.append( TAB + "Name = " + name + '\n' );
-        b.append( TAB + "Is Editable = " + this.editable + '\n' );
+        //b.append( TAB + "Is Editable = " + this.editable + '\n' );
         b.append( TAB + "Null Allowed = " + this.nullAllowed+ '\n' );
         b.append( TAB + "Allowed values = " );
 

@@ -16,6 +16,10 @@ import org.scec.param.event.ParameterChangeWarningListener;
 
 public interface WarningParameterAPI extends ParameterAPI{
 
+
+    public void setIgnoreWarning(boolean ignoreWarning);
+    public boolean isIgnoreWarning();
+
     /**
      *  Sets the constraint if it is a StringConstraint and the parameter
      *  is currently editable.
@@ -104,5 +108,22 @@ public interface WarningParameterAPI extends ParameterAPI{
      * @return    Exact copy of this object's state
      */
     public Object clone() ;
+
+
+    /**
+     *  Gets the min value of the constraint object.
+     *
+     * @return                The min value
+     * @exception  Exception  Description of the Exception
+     */
+    public Double getWarningMin() throws Exception ;
+
+
+    /**
+     *  Returns the maximum allowed values.
+     *
+     * @return    The max value
+     */
+    public Double getWarningMax() ;
 
 }

@@ -11,6 +11,7 @@ import org.scec.gui.SidesBorder;
 import org.scec.param.*;
 import org.scec.util.ParamUtils;
 import org.scec.exceptions.*;
+import org.scec.param.translate.*;
 
 /**
  * <p>Title: TranslatedConstrainedDoubleParameterEditor</p>
@@ -21,14 +22,14 @@ import org.scec.exceptions.*;
  * @version 1.0
  */
 
-public class TranslatedConstrainedDoubleParameterEditor extends ConstrainedDoubleParameterEditor {
+public class TranslatedWarningDoubleParameterEditor extends ConstrainedDoubleParameterEditor {
 
-    protected static final String C = "TranslatedConstrainedDoubleParameterEditor";
-    protected static final boolean D = false;
+    protected static final String C = "TranslatedWarningDoubleParameterEditor";
+    protected static final boolean D = true;
 
-    public TranslatedConstrainedDoubleParameterEditor() { super(); }
+    public TranslatedWarningDoubleParameterEditor() { super(); }
 
-    public TranslatedConstrainedDoubleParameterEditor(ParameterAPI model)
+    public TranslatedWarningDoubleParameterEditor(ParameterAPI model)
 	    throws Exception
     { super(model); }
 
@@ -89,4 +90,63 @@ public class TranslatedConstrainedDoubleParameterEditor extends ConstrainedDoubl
     public void setWidgetBorder(Border b){
         ((NumericTextField)valueEditor).setBorder(b);
     }
+
+
+
+
+    /**
+     *  Needs to be called by subclasses when editable widget field change fails
+     *  due to constraint problems
+     *
+     * @param  value                    Description of the Parameter
+     * @exception  ConstraintException  Description of the Exception
+     */
+    public void unableToSetValue( Object value ) throws ConstraintException {
+
+        String S = C + ": unableToSetValue():";
+        if(D) System.out.println(S + "New Value = " + value.toString());
+
+
+        if( value instanceof String){
+            try{ value = new Double(value.toString()); }
+            catch( NumberFormatException ee){}
+        }
+
+        if ( ( value != null ) && ( model != null ) && value instanceof Double) {
+
+
+            Object obj = model.getValue();
+
+            if( obj != null && obj instanceof Double && model instanceof TranslatedWarningDoubleParameter){
+
+                TranslatedWarningDoubleParameter param = (TranslatedWarningDoubleParameter)model;
+                TranslatorAPI trans = param.getTrans();
+
+                if( trans != null || param.isTranslate() ){
+
+                    Double dUntranslated = (Double)value;
+                    Double dTranslated = new Double( trans.translate( dUntranslated.doubleValue() ) );
+                    Double oldUntranslated = (Double)param.getValue();
+
+                    if ( D ) System.out.println( S + "Old Value = " + obj.toString() );
+
+                    if ( !dUntranslated.toString().equals( oldUntranslated.toString() ) ) {
+                        org.scec.param.event.ParameterChangeFailEvent event = new org.scec.param.event.ParameterChangeFailEvent(
+                            param,
+                            param.getName(),
+                            oldUntranslated,
+                            dUntranslated
+                        );
+
+                        firePropertyChangeFailed( event );
+                    }
+                }
+            }
+        }
+    }
+
+
+
 }
+
+
