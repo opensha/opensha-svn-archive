@@ -1444,8 +1444,10 @@ public class IMRTesterApplet extends JApplet
         String S = C + ": itemStateChanged(): ";
         if ( D ) System.out.println( S + "Starting" );
 
-        if ( e.getSource().equals( imrComboBox ) )
+        if ( e.getSource().equals( imrComboBox ) ){
+            this.customAxis =false;
             updateChoosenIMR();
+         }
 
          else if( e.getSource().equals( jCheckxlog ) ){
 

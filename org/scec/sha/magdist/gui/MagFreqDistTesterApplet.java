@@ -67,27 +67,22 @@ public class MagFreqDistTesterApplet extends JApplet
   private final static String MO_RATE = new  String("Moment Rate");
   private SummedMagFreqDist summedMagFreqDist;
 
-  /**
-   *  Temp until figure out way to dynamically load classes during runtime
-   */
- /*
+  // Create the x-axis - either normal or log
+   com.jrefinery.chart.NumberAxis incrXAxis = null;
+   com.jrefinery.chart.NumberAxis cumXAxis = null;
+   com.jrefinery.chart.NumberAxis moXAxis = null;
 
-  protected final static String GaussianMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GaussianMagFreqDist";
-  protected final static String GuttenbergRichterMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GuttenbergRichterMagFreqDist";
-  protected final static String SingleMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SingleMagFreqDist";
-  protected final static String SummedMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SummedMagFreqDist";
+  //Create the y-axis - either normal or log
+   com.jrefinery.chart.NumberAxis incrYAxis = null;
+   com.jrefinery.chart.NumberAxis cumYAxis = null;
+   com.jrefinery.chart.NumberAxis moYAxis = null;
 
- */
 
-  /**
-   *  Temp until figure out way to dynamically load classes during runtime
-   */
- /*
-   protected final static String GAUSSIAN_NAME = "Gaussian Distribution";
-   protected final static String GR_NAME = "GuttenbergRichter Distribution";
-   protected final static String SINGLE_NAME = "Single Distribution";
-   protected final static String SUMMED_NAME = "Summed Distribution";
- */
+   private double xIncrMin,xIncrMax,yIncrMin,yIncrMax;
+   private double xCumMin,xCumMax,yCumMin,yCumMax;
+   private double xMoMin,xMoMax,yMoMin,yMoMax;
+
+
 
   /**
    *  Used to determine if should switch to new MagDist, and for display purposes
@@ -100,12 +95,7 @@ public class MagFreqDistTesterApplet extends JApplet
   Insets plotInsets = new Insets( 4, 10, 4, 4 );
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
   Insets emptyInsets = new Insets( 0, 0, 0, 0 );
-  /**
-   *  Hashmap that maps picklist MagFreqDist string names to the real fully qualified
-   *  class names
-   */
- //protected static HashMap magDistNames = new HashMap();
- // private JComboBox magDistComboBox = new JComboBox();
+
   private JPanel mainPanel = new JPanel();
   private GridBagLayout GBL = new GridBagLayout();
   private JComboBox rangeComboBox = new JComboBox();
@@ -115,7 +105,7 @@ public class MagFreqDistTesterApplet extends JApplet
   private JCheckBox jCheckylog = new JCheckBox();
   private JButton toggleButton = new JButton();
   private JPanel buttonPanel = new JPanel();
- // private JLabel magDistLabel = new JLabel();
+
   private JButton addButton = new JButton();
   private JPanel outerPanel = new JPanel();
   private JSplitPane mainSplitPane = new JSplitPane();
@@ -191,22 +181,7 @@ public class MagFreqDistTesterApplet extends JApplet
   JCheckBox jCheckSumDist = new JCheckBox();
 
 
-
-/**
- *  NED - Here is where you can add the new MagFreqDist, follow my examples below
- *  Populates the magDist hashmap with the strings in the picklist for the
- *  applet mapped to the class names of the MagFreqDist. This will use the class
- *  loader to load these
- */
  static {
-    /*
-    if ( magDistNames == null ) magDistNames = new HashMap();
-    magDistNames.clear();
-    magDistNames.put( GAUSSIAN_NAME, GaussianMagFreqDist_CLASS_NAME );
-    magDistNames.put( GR_NAME, GuttenbergRichterMagFreqDist_CLASS_NAME );
-    magDistNames.put( SINGLE_NAME, SingleMagFreqDist_CLASS_NAME );
-    magDistNames.put( SUMMED_NAME, SummedMagFreqDist_CLASS_NAME );
-    */
 
     try { UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() ); }
     catch ( Exception e ) {}
@@ -747,11 +722,11 @@ public class MagFreqDistTesterApplet extends JApplet
   }
 
   /**
-     *  Function that must be implemented by all Listeners for
-     *  ParameterChangeWarnEvents.
-     *
-     * @param  event  The Event which triggered this function call
-     */
+   *  Function that must be implemented by all Listeners for
+   *  ParameterChangeWarnEvents.
+   *
+   * @param  event  The Event which triggered this function call
+   */
     public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
         String S = C + " : parameterChangeWarning(): ";
@@ -912,7 +887,7 @@ public class MagFreqDistTesterApplet extends JApplet
        }catch(NumberFormatException e){
           JOptionPane.showMessageDialog(this,new String("Enter a Valid Numerical Value"),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
         }catch(Exception e) {
-          JOptionPane.showMessageDialog(this,new String("abc"),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
           e.printStackTrace();
         }
 
@@ -946,10 +921,7 @@ public class MagFreqDistTesterApplet extends JApplet
         String title = this.getCurrentMagDistName();
 
 
-        // Create the x-axis - either normal or log
-        com.jrefinery.chart.NumberAxis incrXAxis = null;
-        com.jrefinery.chart.NumberAxis cumXAxis = null;
-        com.jrefinery.chart.NumberAxis moXAxis = null;
+
 
         // create X- axis for mag vs incremental rate
         incrXAxis = new SHAHorizontalNumberAxis( incrXAxisLabel );
@@ -970,9 +942,7 @@ public class MagFreqDistTesterApplet extends JApplet
         moXAxis.setCrosshairLockedOnData( false );
         moXAxis.setCrosshairVisible(false);
 
-        com.jrefinery.chart.NumberAxis incrYAxis = null;
-        com.jrefinery.chart.NumberAxis cumYAxis = null;
-        com.jrefinery.chart.NumberAxis moYAxis = null;
+
         if (yLog)  {
           incrYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(incrYAxisLabel);
           cumYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(cumYAxisLabel);
@@ -1013,12 +983,13 @@ public class MagFreqDistTesterApplet extends JApplet
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
         if(this.customAxis) {
-          incrXAxis.setRange(this.minXValue,this.maxXValue);
-          cumXAxis.setRange(this.minXValue,this.maxXValue);
-          cumXAxis.setRange(this.minXValue,this.maxXValue);
-          incrYAxis.setRange(this.minYValue,this.maxYValue);
-          cumYAxis.setRange(this.minYValue,this.maxYValue);
-          moYAxis.setRange(this.minYValue,this.maxYValue);
+          incrXAxis.setRange(this.xIncrMin,this.xIncrMax);
+          cumXAxis.setRange(this.xCumMin,this.xCumMax);
+          moXAxis.setRange(this.xMoMin,this.xMoMax);
+          incrYAxis.setRange(this.yIncrMin,this.yIncrMax);
+          cumYAxis.setRange(this.yCumMin,this.yCumMax);
+          moYAxis.setRange(this.yMoMin,this.yMoMax);
+          customAxis=false;
         }
 
 
@@ -1289,9 +1260,35 @@ public class MagFreqDistTesterApplet extends JApplet
       addGraphPanel();
     }
     if(str.equalsIgnoreCase("custom Scale"))  {
+       Range rIncrX=incrXAxis.getRange();
+       double xIncrMin=rIncrX.getLowerBound();
+       double xIncrMax=rIncrX.getUpperBound();
+
+       Range rIncrY=incrYAxis.getRange();
+       double yIncrMin=rIncrY.getLowerBound();
+       double yIncrMax=rIncrY.getUpperBound();
+
+       Range rCumX=cumXAxis.getRange();
+       double xCumMin=rCumX.getLowerBound();
+       double xCumMax=rCumX.getUpperBound();
+
+       Range rCumY=cumYAxis.getRange();
+       double yCumMin=rCumY.getLowerBound();
+       double yCumMax=rCumY.getUpperBound();
+
+       Range rMoX=moXAxis.getRange();
+       double xMoMin=rMoX.getLowerBound();
+       double xMoMax=rMoX.getUpperBound();
+
+       Range rMoY=moYAxis.getRange();
+       double yMoMin=rMoY.getLowerBound();
+       double yMoMax=rMoY.getUpperBound();
+
        int xCenter=getAppletXAxisCenterCoor();
        int yCenter=getAppletYAxisCenterCoor();
-       MagFreqDistAxisScale axisScale=new MagFreqDistAxisScale(this);
+       MagFreqDistAxisScale axisScale=new MagFreqDistAxisScale(this,xIncrMin,xIncrMax,
+                                      yIncrMin,yIncrMax,xCumMin, xCumMax,yCumMin,yCumMax,
+                                      xMoMin,xMoMax,yMoMin,yMoMax);
        axisScale.setBounds(xCenter-60,yCenter-50,400,400);
        axisScale.pack();
        axisScale.show();
@@ -1303,9 +1300,15 @@ public class MagFreqDistTesterApplet extends JApplet
    * @param xMin : minimum value for X-axis
    * @param xMax : maximum value for X-axis
    */
-  public void setXRange(float xMin,float xMax) {
-     minXValue=xMin;
-     maxXValue=xMax;
+  public void setXRange(double xIncrMin,double xIncrMax,double xCumMin,double xCumMax,
+                        double xMoMin, double xMoMax) {
+
+     this.xIncrMin = xIncrMin;
+     this.xIncrMax = xIncrMax;
+     this.xCumMin  = xCumMin;
+     this.xCumMax = xCumMax;
+     this.xMoMin = xMoMin;
+     this.xMoMax = xMoMax;
      this.customAxis=true;
 
   }
@@ -1315,16 +1318,22 @@ public class MagFreqDistTesterApplet extends JApplet
    * @param yMin : minimum value for Y-axis
    * @param yMax : maximum value for Y-axis
    */
-  public void setYRange(float yMin,float yMax) {
-     minYValue=yMin;
-     maxYValue=yMax;
+  public void setYRange(double yIncrMin,double yIncrMax,double yCumMin,double yCumMax,
+                        double yMoMin, double yMoMax) {
+
+     this.yIncrMin = yIncrMin;
+     this.yIncrMax = yIncrMax;
+     this.yCumMin  = yCumMin;
+     this.yCumMax = yCumMax;
+     this.yMoMin = yMoMin;
+     this.yMoMax = yMoMax;
      this.customAxis=true;
      addGraphPanel();
   }
 
   void jCheckSumDist_actionPerformed(ActionEvent e) {
-
     if(jCheckSumDist.isSelected()) {
+      clearPlot(true);
       double min=magDist.getMin();
       double max=magDist.getMax();
       int num=magDist.getNum();

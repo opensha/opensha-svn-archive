@@ -1,7 +1,6 @@
 package org.scec.sha.magdist.gui;
 
 
-
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
@@ -20,6 +19,10 @@ import javax.swing.border.*;
 public class MagFreqDistAxisScale extends JFrame{
 
   private MagFreqDistTesterApplet magFreqDistTesterApplet;
+  double xIncrMin;
+  double xIncrMax, yIncrMin, yIncrMax, xCumMin, xCumMax, yCumMin, yCumMax,xMoMin;
+  double xMoMax,yMoMin, yMoMax;
+
   private Border border1;
   private TitledBorder titledBorder1;
   JPanel jPanel1 = new JPanel();
@@ -63,8 +66,23 @@ public class MagFreqDistAxisScale extends JFrame{
   private BorderLayout borderLayout1 = new BorderLayout();
 
 
-  public MagFreqDistAxisScale(MagFreqDistTesterApplet magFreqDist) {
+  public MagFreqDistAxisScale(MagFreqDistTesterApplet magFreqDist,double xIncrMin,
+                              double xIncrMax,double yIncrMin,double yIncrMax,double xCumMin,
+                              double xCumMax,double yCumMin,double yCumMax,double xMoMin,
+                              double xMoMax,double yMoMin,double yMoMax) {
     this.magFreqDistTesterApplet= magFreqDist;
+    this.xIncrMin =xIncrMin;
+    this.xIncrMax =xIncrMax;
+    this.yIncrMax =yIncrMax;
+    this.yIncrMin =yIncrMin;
+    this.xCumMax = xCumMax;
+    this.xCumMin = xCumMin;
+    this.yCumMax = yCumMax;
+    this.yCumMin = yCumMin;
+    this.xMoMax =xMoMax;
+    this.xMoMin =xMoMin;
+    this.yMoMax =yMoMax;
+    this.yMoMin =yMoMin;
     try{
       jbInit();
     }catch(Exception e){
@@ -98,6 +116,11 @@ public class MagFreqDistAxisScale extends JFrame{
     jButtonOk.setBackground(new Color(200, 200, 230));
     jButtonOk.setForeground(new Color(80, 80, 133));
     jButtonOk.setText("OK");
+    jButtonOk.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        jButtonOk_actionPerformed(e);
+      }
+    });
     jLabel4.setText("Max Y:");
     jLabel3.setText("Max X:");
     jLabel2.setText("Min Y:");
@@ -105,6 +128,11 @@ public class MagFreqDistAxisScale extends JFrame{
     jButtonCancel.setBackground(new Color(200, 200, 230));
     jButtonCancel.setForeground(new Color(80, 80, 133));
     jButtonCancel.setText("Cancel");
+    jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        jButtonCancel_actionPerformed(e);
+      }
+    });
     jPanel1.setBackground(new Color(200, 200, 230));
     jLabel5.setText("Min X:");
     jLabel6.setText("Min Y:");
@@ -114,6 +142,18 @@ public class MagFreqDistAxisScale extends JFrame{
     jLabel10.setText("Max X:");
     jLabel11.setText("Min Y:");
     jLabel12.setText("Max Y:");
+    jTextIncrMinX.setText(""+xIncrMin);
+    jTextIncrMaxX.setText(""+xIncrMax);
+    jTextCumMinX.setText(""+xCumMin);
+    jTextCumMaxX.setText(""+xCumMax);
+    jTextMoMinX.setText(""+xMoMin);
+    jTextMoMaxX.setText(""+xMoMax);
+    jTextIncrMinY.setText(""+yIncrMin);
+    jTextIncrMaxY.setText(""+yIncrMax);
+    jTextCumMinY.setText(""+yCumMin);
+    jTextCumMaxY.setText(""+yCumMax);
+    jTextMoMinY.setText(""+yMoMin);
+    jTextMoMaxY.setText(""+yMoMax);
     jPanel3.add(jLabel10, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-3, 40, 0, 0), 6, 5));
     jPanel3.add(jLabel12, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
@@ -174,6 +214,51 @@ public class MagFreqDistAxisScale extends JFrame{
     jPanel1.add(jPanel2,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(6, 15, 0, 18), 0, 0));
 
+  }
+
+  void jButtonOk_actionPerformed(ActionEvent e) {
+   try {
+      double xIncrMin=Double.parseDouble(this.jTextIncrMinX.getText());
+      double xIncrMax=Double.parseDouble(this.jTextIncrMaxX.getText());
+
+      double xCumMin=Double.parseDouble(this.jTextCumMinX.getText());
+      double xCumMax=Double.parseDouble(this.jTextCumMaxX.getText());
+
+      double xMoMin=Double.parseDouble(this.jTextMoMinX.getText());
+      double xMoMax=Double.parseDouble(this.jTextMoMaxX.getText());
+
+
+      if(xIncrMin>=xIncrMax  || xCumMin>=xCumMax  || xMoMin>=xMoMax){
+        JOptionPane.showMessageDialog(this,new String("Max X must be greater than Min X"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+      else
+        this.magFreqDistTesterApplet.setXRange(xIncrMin,xIncrMax,xCumMin,xCumMax,xMoMin,xMoMax);
+
+      double yIncrMin=Double.parseDouble(this.jTextIncrMinY.getText());
+      double yIncrMax=Double.parseDouble(this.jTextIncrMaxY.getText());
+
+      double yCumMin=Double.parseDouble(this.jTextCumMinY.getText());
+      double yCumMax=Double.parseDouble(this.jTextCumMaxY.getText());
+
+      double yMoMin=Double.parseDouble(this.jTextMoMinY.getText());
+      double yMoMax=Double.parseDouble(this.jTextMoMaxY.getText());
+
+      if(yIncrMin>=yIncrMax  || yCumMin>=yCumMax  || yMoMin>=yMoMax){
+        JOptionPane.showMessageDialog(this,new String("Max Y must be greater than Min Y"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+      else
+        this.magFreqDistTesterApplet.setYRange(yIncrMin,yIncrMax,yCumMin,yCumMax,yMoMin,yMoMax);
+      this.dispose();
+    } catch(Exception ex) {
+        System.out.println("Exception:"+ex);
+        JOptionPane.showMessageDialog(this,new String("Text Entered must be a valid numerical value"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
+    }
+  }
+
+  void jButtonCancel_actionPerformed(ActionEvent e) {
+       this.dispose();
   }
 
 }
