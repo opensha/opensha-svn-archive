@@ -40,8 +40,8 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   //Vs30 and basinDepth Vector
   Vector vs30,basinDepth;
 
-  //Iterator that contains the default Values for the Site parameters if CVM do not cover that site
-  private Iterator defaultSiteParams;
+  //Vector that contains the default Values for the Site parameters if CVM do not cover that site
+  private Vector defaultSiteParams;
 
   //Instance of the site TransLator class
   SiteTranslator siteTranslator = new SiteTranslator();
@@ -83,8 +83,9 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
          if(!flag){
            //iterating over the default site parameters to set the Site Param if
            //no value has been obtained from the CVM for that site.
-           while(defaultSiteParams.hasNext()){
-             ParameterAPI param = (ParameterAPI)defaultSiteParams.next();
+           Iterator it1 = defaultSiteParams.iterator();
+           while(it1.hasNext()){
+             ParameterAPI param = (ParameterAPI)it1.next();
              if(tempParam.getName().equals(param.getName()))
                tempParam.setValue(param.getValue());
            }
@@ -197,8 +198,8 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   * Sets the default Site Parameters in case CVM don't cover the regions
   * @param defaultSiteParamsIt : Iterator for the Site Params and their Values
   */
- public void setDefaultSiteParams(Iterator defaultSiteParamsIt){
-   defaultSiteParams = defaultSiteParamsIt;
+ public void setDefaultSiteParams(Vector defaultSiteParams){
+   this.defaultSiteParams = defaultSiteParams;
  }
 
 

@@ -18,7 +18,7 @@ import org.scec.data.Site;
 import org.scec.data.Location;
 import org.scec.data.region.*;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
-
+import org.scec.sha.util.SiteTranslator;
 
 /**
  * <p>Title:SitesInGriddedRegionGuiBean </p>
@@ -87,6 +87,8 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   //StringParameter to set site related params
   private StringParameter siteParam;
 
+  //SiteTranslator
+  SiteTranslator siteTrans = new SiteTranslator();
 
   //instance of class EvenlyGriddedRectangularGeographicRegion
   private SitesInGriddedRegion gridRectRegion;
@@ -374,7 +376,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
         tempParam.setValue(parameterList.getParameter(this.DEFAULT+tempParam.getName()).getValue());
         defaultSiteParams.add(tempParam);
       }
-      gridRectRegion.setDefaultSiteParams(defaultSiteParams.iterator());
+      gridRectRegion.setDefaultSiteParams(defaultSiteParams);
     }
     return gridRectRegion;
   }
@@ -406,6 +408,8 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
           //removing the existing site Params from the List and adding the
           //new Site Param with site as being defaults
           parameterList.removeParameter(tempParam.getName());
+          //getting the Site Param Value corresponding to the "DE" for the seleted IMr  from the SiteTranslator
+          siteTrans.setParameterValue(tempParam,"DE",Double.NaN);
           //creating the new Site Param, with "Default " added to its name, with existing site Params
           ParameterAPI newParam = (ParameterAPI)tempParam.clone();
           //If the parameterList already contains the site param with the "Default" name, then no need to change the existing name.
