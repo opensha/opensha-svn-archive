@@ -76,14 +76,15 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
    * Constructor : It accepts the classNames of the ERFs to be shown in the editor
    * @param erfClassNames
    */
-  public ERF_ServletModeGuiBean(Vector erfClassNames) {
-
-
-
+  public ERF_ServletModeGuiBean(Vector erfClassNames) throws RuntimeException{
 
     //gets the supported ERF List and initialise the selction of the ERF for the user
-    initERF_List();
-
+    try{
+      initERF_List();
+    }
+    catch(Exception ee){
+      throw new RuntimeException("Connection to ERF servlets failed");
+    }
     //sets the ParamList and Editor the Selected ERF.
     setParamsInForecast();
 
@@ -94,7 +95,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   /**
    * initERF_List. List of all available forecasts at this time
    */
-  protected void initERF_List() {
+  protected void initERF_List() throws Exception{
 
     EqkRupForecastAPI erf;
     this.parameterList = new ParameterList();
@@ -106,6 +107,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     //open the connections to all the ERF servlets to get their paramList and timspan
     //It also initialises all Vector with names of all the ERF's
     this.openConnectionToAllERF_Servlets();
+
     // make the forecast selection parameter
     StringParameter selectERF= new StringParameter(ERF_PARAM_NAME,
         erfNamesVector, (String)erfNamesVector.get(0));
@@ -226,13 +228,19 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     //Based on the selected ERF model it connects to the servlet for that ERF
     //and gets it ERF Object.
     //if the selected forecast is PEER_Fault Forecast
-    if(selectedForecast.equalsIgnoreCase(PEER_FaultForecast.NAME))
+    if(selectedForecast.equalsIgnoreCase(PEER_FaultForecast.NAME)){
+      try{
       eqkRupForecast=(ForecastAPI)this.openPEERFaultConnection(this.getERF_API);
-
+      }catch(Exception e){
+        throw new RuntimeException("Connection to PEER Fault ERF servlet failed");
+      }
+    }
     //if the selected forecast is WG02_List Forecast
-    if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME))
+    else if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME))try{
       eqkRupForecast=(ForecastAPI)this.openWG02_ERFConnection(this.getERF_ListAPI);
-
+    }catch(Exception e){
+      throw new RuntimeException("Connection to WG-02 ERF servlet failed");
+    }
     //changing the paramterChangeFlag for the selected forecast to false
     parameterChangeFlagsForAllERF.put(selectedForecast,new Boolean(false));
     }
@@ -355,7 +363,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
    * This is done to improve the efficency of the Applet, so that it does not need
    * to make the connection with the servlet to get timeSpan and paramList
    */
-  private void openConnectionToAllERF_Servlets(){
+  private void openConnectionToAllERF_Servlets() throws Exception{
     //open the connection with the PEER_FaultForecastServlet.
     String peerForecastName =(String)openPEERFaultConnection(getName);
     ParameterList peerParamList =(ParameterList)openPEERFaultConnection(getAdjParams);
@@ -384,72 +392,65 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   /**
    * sets up the connection with the PEER Fault Forecast Servlet on the server (scec.usc.edu)
    */
-  private  Object openPEERFaultConnection(String function) {
+  private  Object openPEERFaultConnection(String function) throws Exception{
 
     Object outputFromServletFunction=null;
-    try{
-      URL peerFaultServlet = new
-                             URL("http://scec.usc.edu:9999/examples/servlet/PEER_FaultForecastServlet");
+
+    URL peerFaultServlet = new
+                           URL("http://scec.usc.edu:9999/examples/servlet/PEER_FaultForecastServlet");
 
 
-      URLConnection servletConnection = peerFaultServlet.openConnection();
-      System.out.println("connection established:"+servletConnection.toString());
+    URLConnection servletConnection = peerFaultServlet.openConnection();
+    System.out.println("connection established:"+servletConnection.toString());
 
-      // inform the connection that we will send output and accept input
-      servletConnection.setDoInput(true);
-      servletConnection.setDoOutput(true);
+    // inform the connection that we will send output and accept input
+    servletConnection.setDoInput(true);
+    servletConnection.setDoOutput(true);
 
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+    // Don't use a cached version of URL connection.
+    servletConnection.setUseCaches (false);
+    servletConnection.setDefaultUseCaches (false);
+    // Specify the content type that we will send binary data
+    servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
 
-      ObjectOutputStream outputToServlet = new
-          ObjectOutputStream(servletConnection.getOutputStream());
+    ObjectOutputStream outputToServlet = new
+        ObjectOutputStream(servletConnection.getOutputStream());
 
-      System.out.println("Calling the function:"+function);
+    System.out.println("Calling the function:"+function);
 
-      //tells the servlet which function to call
-      outputToServlet.writeObject(function);
+    //tells the servlet which function to call
+    outputToServlet.writeObject(function);
 
-      /**
-       * if the function to be called is getERF_API
-       * then we need to passs the TimeSpan and Adjustable ParamList to the
-       * servlet.
-       */
-      if(function.equalsIgnoreCase(this.getERF_API)){
-        //gives the Adjustable Params  object to the Servelet
-        outputToServlet.writeObject(this.getAdjParamList());
-        //gives the timeSpan object to the servlet
-        outputToServlet.writeObject(this.getTimeSpan());
-      }
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // Receive the "object" from the servlet after it has received all the data
-      ObjectInputStream inputToServlet = new
-          ObjectInputStream(servletConnection.getInputStream());
-
-      outputFromServletFunction=inputToServlet.readObject();
-      System.out.println("Received the input from the servlet");
-      inputToServlet.close();
-
-    }catch(FileNotFoundException ee){
-      ee.printStackTrace();
+    /**
+     * if the function to be called is getERF_API
+     * then we need to passs the TimeSpan and Adjustable ParamList to the
+     * servlet.
+     */
+    if(function.equalsIgnoreCase(this.getERF_API)){
+      //gives the Adjustable Params  object to the Servelet
+      outputToServlet.writeObject(this.getAdjParamList());
+      //gives the timeSpan object to the servlet
+      outputToServlet.writeObject(this.getTimeSpan());
     }
-    catch (Exception e) {
-      System.out.println("Exception in connection with servlet:" +e);
-      e.printStackTrace();
-    }
+
+    outputToServlet.flush();
+    outputToServlet.close();
+
+    // Receive the "object" from the servlet after it has received all the data
+    ObjectInputStream inputToServlet = new
+                                       ObjectInputStream(servletConnection.getInputStream());
+
+    outputFromServletFunction=inputToServlet.readObject();
+    System.out.println("Received the input from the servlet");
+    inputToServlet.close();
     return outputFromServletFunction;
   }
 
   /**
    * sets up the connection with the WG-02 Forecast Servlet on the server (scec.usc.edu)
    */
-  private  Object openWG02_ERFConnection(String function) {
+  private  Object openWG02_ERFConnection(String function) throws java.lang.ClassNotFoundException,
+                                         java.net.UnknownHostException{
 
     Object outputFromServletFunction=null;
     try{
@@ -504,7 +505,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     }catch(FileNotFoundException ee){
       ee.printStackTrace();
     }
-    catch (Exception e) {
+    catch (java.io.IOException e) {
       System.out.println("Exception in connection with servlet:" +e);
       e.printStackTrace();
     }

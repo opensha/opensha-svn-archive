@@ -316,9 +316,15 @@ public class HazardCurveServerModeApp extends JApplet
       initIMR_GuiBean();
       initIMT_GuiBean();
       initSiteGuiBean();
-      initERF_ServletModeGuiBean();
-      initTimeSpanGuiBean();
+      try{
+        initERF_ServletModeGuiBean();
 
+        initTimeSpanGuiBean();
+      }catch(RuntimeException e){
+        JOptionPane.showMessageDialog(this,"Connection to ERF servlets failed","Internet Connection Problem",
+                                      JOptionPane.OK_OPTION);
+        System.exit(0);
+      }
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -956,13 +962,18 @@ public class HazardCurveServerModeApp extends JApplet
   private void computeHazardCurve() {
     this.isEqkList = false;
 
-
+    ForecastAPI eqkRupForecast =null;
 
     // whwther to show progress bar in case of update forecast
     erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
     // get the selected forecast model
-    ForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
-
+    try{
+      eqkRupForecast = erfGuiBean.getSelectedERF();
+    }catch(RuntimeException e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Servlet Connection Problem",
+                                    JOptionPane.OK_OPTION);
+      return ;
+    }
     if(this.progressCheckBox.isSelected())  {
         progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
         progressClass.displayProgressBar();
@@ -1091,7 +1102,10 @@ public class HazardCurveServerModeApp extends JApplet
      initX_Values(hazFunction);
      try {
        // calculate the hazard curve
-       calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+       //making just one object of the erf at a time and passing the reference of the
+       //new ERF from ERF_List to that reference of only one object of ERF exist at a time
+       ERF_API erf = erfList.getERF(i);
+       calc.getHazardCurve(hazFunction, site, imr, erf);
        hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
        hazFunction = toggleHazFuncLogValues(hazFunction);
      }catch (RuntimeException e) {
@@ -1225,7 +1239,11 @@ public class HazardCurveServerModeApp extends JApplet
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
    erfGuiBean = new ERF_ServletModeGuiBean(erf_Classes);*/
+   try{
    erfGuiBean = new ERF_ServletModeGuiBean(erf_Classes);
+   }catch(Exception e){
+      throw new RuntimeException("Connection to ERF servlets failed");
+   }
    erfPanel.setLayout(gridBagLayout5);
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
