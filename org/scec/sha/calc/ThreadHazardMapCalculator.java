@@ -13,7 +13,8 @@ import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.data.Site;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.data.function.DiscretizedFuncAPI;
-import org.scec.util.FileUtils;
+import org.scec.util.*;
+import org.scec.param.event.*;
 
 /**
  *
@@ -31,38 +32,36 @@ import org.scec.util.FileUtils;
  * @version 1.0
  */
 
-public class ThreadHazardMapCalculator
-{
+public class ThreadHazardMapCalculator {
   private static boolean D = false;
   // make a array for saving the X values
-  private static   double [] xValues = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-                             .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5 };
+ /* private static   double [] xValues = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
+                             .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5 };*/
   private static int MAX_DISTANCE = 200;
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   private boolean xLogFlag = true;
 
-  private static int numPoints = xValues.length;
+  //private static int numPoints = xValues.length;
   // now run the hazard map calculations
   HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
 
   public static void main(String[] args)
   {
 
-  /** THIS WILL BE USED TO RUN IN CONDOR POOL
+    /** THIS WILL BE USED TO RUN IN CONDOR POOL
        args array will have following order:
        // index 1 - GriddedRegion file name (region.dat)
-      // index 2 - ERF File Name (stepForecast.dat)
-      // index 0 - IMR File Name (shakemap_imr.dat)
-  */
-  try {
-    // make a array for saving the X values
-    ThreadHazardMapCalculator calc = new ThreadHazardMapCalculator();
-    calc.getHazardMapCurves(args);
-  } catch (Exception ex) {ex.printStackTrace(); }
-
-
-}
-
+       // index 2 - ERF File Name (stepForecast.dat)
+       // index 0 - IMR File Name (shakemap_imr.dat)
+       // index 3 - X-Values file name
+       // index 4 - Max Source distance.
+       */
+    try {
+      // make a array for saving the X values
+      ThreadHazardMapCalculator calc = new ThreadHazardMapCalculator();
+      calc.getHazardMapCurves(args);
+      } catch (Exception ex) {ex.printStackTrace(); }
+  }
 
 
 /**
@@ -134,22 +133,23 @@ public void getHazardMapCurves(String[] args) {
  private class HazardCurvesGenerator implements Runnable{
 
    private EqkRupForecast erfObj;
-   private AttenuationRelationshipAPI imrObj;
-   private SitesInGriddedRegion regionObj;
+   /*private AttenuationRelationshipAPI imrObj;
+   private SitesInGriddedRegion regionObj;*/
    private Site site;
    private int startIndex;
    private int endIndex;
+   private String[] args;
    HazardCurvesGenerator(String[] args,int startIndex, int endIndex){
      // load the objects from the file
-     regionObj = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
+     /*regionObj = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
      erfObj = (EqkRupForecast)FileUtils.loadObject(args[2]);
-     imrObj = (AttenuationRelationshipAPI)FileUtils.loadObject(args[0]);
-
+     imrObj = (AttenuationRelationshipAPI)FileUtils.loadObject(args[0]);*/
+     this.args = args;
      this.startIndex = startIndex;
      this.endIndex = endIndex;
    }
 
-   public void run(){
+   /*public void run(){
      Site site = null;
      Calendar calendar = Calendar.getInstance();
      String datetime = new String(calendar.get(Calendar.YEAR) + "-" +
@@ -189,6 +189,46 @@ public void getHazardMapCurves(String[] args) {
      }catch(Exception e){
        e.printStackTrace();
      }
+   }*/
+
+   public void run(){
+     Site site =null;
+     String[] command ={"sh","-c",""};
+     Calendar calendar = Calendar.getInstance();
+     String datetime = new String(calendar.get(Calendar.YEAR) + "-" +
+                                  (calendar.get(Calendar.MONTH) + 1) + "-" +
+                                  calendar.get(Calendar.DAY_OF_MONTH) + "  " +
+                                  calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+                                  calendar.get(Calendar.MINUTE) + ":" +
+                                  calendar.get(Calendar.SECOND));
+     try{
+       FileWriter fw = new FileWriter("ThreadTime.txt", true);
+       fw.write("Thread for : "+startIndex+"-"+endIndex+" started at: "+datetime+"\n");
+       fw.close();
+       /**
+        * calling a standalone java program that takes the following arguments in the order:
+        * startSite index, endSite index ,regionfilename, erfFileName,imrFileName,
+        * X-ValuesFileName and Max source distance.
+         **/
+       command[2] = "java -classpath opensha_hazardmapthread.jar:$CLASSPATH -Xmx500M "+
+                    "GridHazardMapCalculator "+ startIndex +" "+ endIndex+" "+args[1]+" "+args[2]+
+                    " "+args[0]+" "+args[3]+" "+args[4];
+       RunScript.runScript(command);
+       calendar = Calendar.getInstance();
+       datetime = new String(calendar.get(Calendar.YEAR) + "-" +
+                                  (calendar.get(Calendar.MONTH) + 1) + "-" +
+                                  calendar.get(Calendar.DAY_OF_MONTH) + "  " +
+                                  calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+                                  calendar.get(Calendar.MINUTE) + ":" +
+                                  calendar.get(Calendar.SECOND));
+       fw = new FileWriter("ThreadTime.txt", true);
+       fw.write("Thread for : "+startIndex+"-"+endIndex+" finished at: "+datetime+"\n");
+       fw.close();
+      }catch(Exception e){
+        e.printStackTrace();
+      }
+
+
    }
 
  }
