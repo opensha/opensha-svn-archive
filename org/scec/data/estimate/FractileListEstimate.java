@@ -1,79 +1,136 @@
 package org.scec.data.estimate;
 
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import org.scec.data.function.ArbDiscrEmpiricalDistFunc;
 
 /**
  * <p>Title: FractileListEstimate.java </p>
- * <p>Description: This estimate can also be used if user just provides
+ * <p>Description: This estimate is the cumulative distribution
+ * This estimate can also be used if user just provides
  * min,max and preferred values which is very common.
- *  The rules for this etimate are:
+ *
+ * The rules for this etimate are:
  * 1. 1>=y>=0
  * 2. y(i+1)>=y(i)
+ * 3. To ensure that median is available:
+ *    If number of values==1, ensure that y =  0.5
+ *    If number of values > 1, first_y<=0.5 and last_y>=0.5
  *
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author not attributable
+ * @author Ned Field, Nitin Gupta, Vipin Gupta
  * @version 1.0
  */
 
-public class FractileListEstimate {
-  private ArbitrarilyDiscretizedFunc func=null;
-   private String comments;
+public class FractileListEstimate extends Estimate {
+  private ArbDiscrEmpiricalDistFunc func=null;
    private final static int MIN_Y_VAL = 0;
    private final static int MAX_Y_VAL = 1;
    private final static String MSG_Y_RANGE = "All the Y values should be >= 0 "+
        "and <=1 for FractileListEstimate";
    private final static String MSG_Y_INCREASING = "Y values should be increasing "+
       " for PDF Estimate";
+   private final static String MEDIAN_UNDEFINED = "Invalid Y values as median is undefined"+
+       " for these set of Y values. ";
 
 
-   public FractileListEstimate(ArbitrarilyDiscretizedFunc func) {
+   /**
+    * Construnctor - Accepts the ArbDiscrEmpiricalDistFunc of X and Y values.
+    * The values specified should follow the constraints as specified in
+    * the setValues() function.
+    *
+    * @param func ArbitrarilyDiscretizedFunc function of  X and Y values
+    */
+   public FractileListEstimate(ArbDiscrEmpiricalDistFunc func) {
      setValues(func);
    }
 
    /**
-    * First and Last Y  should be qual to 0
-    * All Y >=0
+    * 1. y(i+1)>=y(i) - This is implied because ArbDiscrEmpiricalDistFunc enforces that.
+    * 2. All Y >=0
+    * 3. To ensure that median is available:
+    *    If number of values==1, ensure that y =  0.5
+    *    If number of values > 1, first_y<=0.5 and last_y>=0.5
     *
     * @param func
     */
-   public void setValues(ArbitrarilyDiscretizedFunc func) {
+   public void setValues(ArbDiscrEmpiricalDistFunc func) {
      double y= Double.NEGATIVE_INFINITY;
-     for(int i = 0; i<func.getNum();++i) {
-       if(func.getY(i)<y) throw new InvalidParamValException(MSG_Y_INCREASING);
-       y  = func.getY(i);
+     int numValues = func.getNum();
+     // this check ensures that median is defined for the fractile list
+     if(numValues==1 && func.getY(0)!=0.5)
+       throw new InvalidParamValException(MEDIAN_UNDEFINED);
+     else if(numValues>1 && (func.getY(0)>0.5 || func.getY(numValues-1)<0.5))
+       throw new InvalidParamValException(MEDIAN_UNDEFINED);
+     for(int i = 0; i<numValues;++i) {
        if(y<MIN_Y_VAL || y>MAX_Y_VAL) throw new InvalidParamValException(MSG_Y_RANGE);
      }
+     this.func = func;
    }
 
+
+   /**
+    * getMean() is not supported for FractileListEstimate
+    *
+    * @return throws an exception specifying that this function is not supported
+    */
    public double getMean() {
-     /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-     throw new java.lang.UnsupportedOperationException("Method getMean() not yet implemented.");
+     throw new java.lang.UnsupportedOperationException("Method getMean() not supported");
    }
 
+
+   /**
+    * Returns the X value corresponding to Y = 0.5
+    * If there is no Y where Y =0.5, then linear interpolation is used to find
+    * the interpolated X value.
+    * It is ensured that median is available by constraining  the values which
+    * can be set. See setValues() function documentation for details
+    *
+    * @return median value for this set of X and Y values
+    */
    public double getMedian() {
-     /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-     throw new java.lang.UnsupportedOperationException("Method getMedian() not yet implemented.");
-   }
+     return getFractile(0.5);
+  }
 
+
+  /**
+   * getStdDev() is not supported for FractileListEstimate
+   *
+   * @return throws an exception specifying that this function is not supported
+   */
    public double getStdDev() {
-     /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-     throw new java.lang.UnsupportedOperationException("Method getStdDev() not yet implemented.");
+     throw new java.lang.UnsupportedOperationException("Method getStdDev() not supported.");
    }
 
+
+   /**
+    *
+    * @param prob
+    * @return
+    */
    public double getFractile(double prob) {
-     /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-     throw new java.lang.UnsupportedOperationException("Method getFractile() not yet implemented.");
+     return func.getFirstInterpolatedX(prob);
    }
 
-   public void setComments(String comments) {
-    this.comments  = comments;
+  /**
+   * checks whether there are any X values which are less than < 0
+   *
+   * @return boolean value which is always false for this class
+   */
+  public boolean isNegativeValuePresent() {
+    //just checks the first X value because X values are monotonically increasing
+    if(func.getX(0)<0) return true;
+    return false;
   }
 
-  public String getComments() {
-    return this.comments;
-  }
 
+  /**
+   * getMode() is not supported for FractileListEstimate
+   *
+   * @return throws an exception specifying that this function is not supported
+   */
+  public double getMode() {
+     throw new java.lang.UnsupportedOperationException("Method getMode() not supported.");
+  }
 
 }

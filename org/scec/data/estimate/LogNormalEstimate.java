@@ -2,7 +2,7 @@ package org.scec.data.estimate;
 
 /**
  * <p>Title: LogNormalEstimate.java  </p>
- * <p>Description: The rules folloed for this estimate are :
+ * <p>Description: The rules followed for this estimate are :
  *  1. Std Dev should be >=0
  *  2. LinearMedian should be >=0
  * </p>
@@ -12,41 +12,48 @@ package org.scec.data.estimate;
  * @version 1.0
  */
 
-public class LogNormalEstimate implements EstimateAPI {
+public class LogNormalEstimate
+    extends Estimate {
 
   private double linearMedian;
   private double stdDev;
-  private String comments;
+  // flag to specify whether it will be base10 or natural log
   private boolean isBase10 = true;
   private final static String MSG_INVALID_STDDEV =
       "Invalid value for std dev. in Log Normal Estimate. It should be >=0";
   private final static String MSG_INVALID_MEDIAN =
       "Invalid value for median in Log Normal Estimate. It should be >=0";
 
-  public LogNormalEstimate() {
+  /**
+   * Constructor - set the linear median and standard deviation.
+   * For allowed values of median and stdDev, check their respective setValue
+   * function documentation
+   *
+   * @param linearMedian
+   * @param stdDev
+   */
+  public LogNormalEstimate(double linearMedian, double stdDev) {
+    setMedian(linearMedian);
+    setStdDev(stdDev);
   }
 
-
-  public double getMean() {
-    /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getMean() not yet implemented.");
-  }
-
-  public void setComments(String comments) {
-    this.comments  = comments;
-  }
-
-  public String getComments() {
-    return this.comments;
-  }
-
-
-
+  /**
+   * Set the linear median . Median should be > 0 else InvalidParamValException
+   * is thrown
+   *
+   * @param median linear median for this estimate
+   */
   public void setMedian(double median) {
-    if(median<0) throw new InvalidParamValException(MSG_INVALID_MEDIAN);
-    this.linearMedian = linearMedian;
+    if (median < 0)
+      throw new InvalidParamValException(MSG_INVALID_MEDIAN);
+    this.linearMedian = median;
   }
 
+  /**
+   * Return the median for this distribution
+   *
+   * @return
+   */
   public double getMedian() {
     return linearMedian;
   }
@@ -58,24 +65,64 @@ public class LogNormalEstimate implements EstimateAPI {
    * @param stdDev
    */
   public void setStdDev(double stdDev) {
-     if(stdDev<0) throw new InvalidParamValException(MSG_INVALID_STDDEV);
-     this.stdDev = stdDev;
-   }
+    if (stdDev < 0)
+      throw new InvalidParamValException(MSG_INVALID_STDDEV);
+    this.stdDev = stdDev;
+  }
 
-  public double getStdDev() { return stdDev; }
+  /**
+   * Get the standard deviation
+   *
+   * @return
+   */
+  public double getStdDev() {
+    return stdDev;
+  }
 
+  /**
+   * Whether we are using natural log or log to base 10 for this
+   *
+   * @return True if we are using log to base of 10, returns false if natural
+   * log is being used
+   */
   public boolean getIsBase10() {
     return this.isBase10;
   }
 
- public void setIsBase10(boolean isBase10) {
-   this.isBase10 = isBase10;
- }
-
-  public double getFractile(double prob) {
-    /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getFractile() not yet implemented.");
+  /**
+   * set whether to use natural log or log to base 10
+   *
+   * @param isBase10 true if you user wants to use log to base 10, false if
+   * natural log is desired
+   */
+  public void setIsBase10(boolean isBase10) {
+    this.isBase10 = isBase10;
   }
 
+  /**
+   * Checks whether there exist any X values < 0. Always returns true for this
+   * case as X can go from -infinity to +infinity
+   *
+   * @return  always returns true in this case.
+   */
+  public boolean isNegativeValuePresent() {
+    return true;
+  }
+
+  public double getMean() {
+    throw new java.lang.UnsupportedOperationException(
+        "Method getMean() not yet implemented.");
+  }
+
+  public double getFractile(double prob) {
+    throw new java.lang.UnsupportedOperationException(
+        "Method getFractile() not yet implemented.");
+  }
+
+
+  public double getMode() {
+    throw new java.lang.UnsupportedOperationException(
+        "Method getMode() not yet implemented.");
+  }
 
 }

@@ -2,7 +2,7 @@ package org.scec.param.estimate;
 
 import org.scec.param.*;
 import org.scec.exceptions.*;
-import org.scec.data.estimate.EstimateAPI;
+import org.scec.data.estimate.Estimate;
 
 
 /**
@@ -49,7 +49,7 @@ public class EstimateParameter extends DependentParameter
     * @param  name   Name of the parameter
     * @param  value  Integer value of this parameter
     */
-   public EstimateParameter( String name, EstimateAPI value ) {
+   public EstimateParameter( String name, Estimate value ) {
        this(name,  null, value);
    }
 
@@ -64,7 +64,7 @@ public class EstimateParameter extends DependentParameter
     * @throws  ConstraintException     Is thrown if the value is not allowed
     */
    public EstimateParameter( String name, ParameterConstraint constraint,
-                             String units, EstimateAPI value ) throws ConstraintException {
+                             String units, Estimate value ) throws ConstraintException {
        super( name, null, units, value );
    }
 
@@ -78,7 +78,7 @@ public class EstimateParameter extends DependentParameter
     * @exception  ConstraintException  thrown if the value is not allowed
     * @throws  ConstraintException     Is thrown if the value is not allowed
     */
-   public EstimateParameter( String name, String units, EstimateAPI value ) throws ConstraintException {
+   public EstimateParameter( String name, String units, Estimate value ) throws ConstraintException {
        this( name, null, units, value );
    }
 
@@ -105,7 +105,7 @@ public class EstimateParameter extends DependentParameter
     * @return      True if the value is allowed
     */
    public boolean isAllowed( Object val ){
-       if(val!=null && !(val instanceof EstimateAPI)) return false;
+       if(val!=null && !(val instanceof Estimate)) return false;
        return true;
    }
 

@@ -1,5 +1,5 @@
 package org.scec.param.estimate;
-import org.scec.data.estimate.EstimateAPI;
+import org.scec.data.estimate.Estimate;
 
 /**
  * <p>Title: DisplacementEstParameter.java </p>
@@ -14,7 +14,7 @@ public class DisplacementEstParameter extends SlipRateEstParameter{
   public DisplacementEstParameter( String name ) {
        this( name, null);
    }
-  public DisplacementEstParameter( String name, EstimateAPI value ) {
+  public DisplacementEstParameter( String name, Estimate value ) {
        super(name,  value);
   }
 }

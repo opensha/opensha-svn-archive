@@ -1,7 +1,7 @@
 package org.scec.param.estimate;
 
 import org.scec.param.DoubleConstraint;
-import org.scec.data.estimate.EstimateAPI;
+import org.scec.data.estimate.Estimate;
 /**
  * <p>Title: SlipRateEstParameter.java </p>
  * <p>Description: Slip Rate Estimate Parameter. </p>
@@ -27,7 +27,7 @@ public class SlipRateEstParameter extends EstimateParameter {
        this( name, null);
    }
 
-   public SlipRateEstParameter( String name, EstimateAPI value ) {
+   public SlipRateEstParameter( String name, Estimate value ) {
        super(name, constraint, units, value);
    }
 

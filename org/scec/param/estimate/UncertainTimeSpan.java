@@ -1,5 +1,5 @@
 package org.scec.param.estimate;
-import org.scec.data.estimate.EstimateAPI;
+import org.scec.data.estimate.Estimate;
 
 
 /**
@@ -25,7 +25,7 @@ public class UncertainTimeSpan {
   }
 
   public void set(DateEstParameter startDateEst,
-                  EstimateAPI durationEst) {
+                  Estimate durationEst) {
     /**@todo Implement this org.scec.param.estimate.UncertainTimeSpan method*/
     throw new java.lang.UnsupportedOperationException("Method set() not yet implemented.");
   }

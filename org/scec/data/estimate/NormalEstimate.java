@@ -2,8 +2,10 @@ package org.scec.data.estimate;
 
 /**
  * <p>Title: NormalEstimate.java  </p>
- * <p>Description: rules followed are:
- * 1. StdDEv should be >=0
+ * <p>Description:  This represents the mathematical Normal Distribution which
+ * can be defined using mean and standard deviation
+ * Rules followed are:
+ * 1. StdDev should be >=0
  *
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
@@ -12,53 +14,105 @@ package org.scec.data.estimate;
  * @version 1.0
  */
 
-public class NormalEstimate implements EstimateAPI {
+public class NormalEstimate extends Estimate {
   private double mean;
   private double stdDev;
-  private String comments;
   private final static String MSG_INVALID_STDDEV =
       "Invalid value for std dev. in Normal Estimate. It should be >=0";
 
+  /**
+   * Default constructor - accepts mean and standard deviation.
+   * Mean does not have any constraints.
+   * Standard deviation should fullfil the constraints as specified in setStdDev
+   * function
+   *
+   * @param mean
+   * @param stdDev
+   */
   public NormalEstimate(double mean, double stdDev) {
-    this.mean = mean;
-    this.stdDev = stdDev;
+    setMean(mean);
+    setStdDev(stdDev);
   }
 
+  /**
+   * Set mean for this distribution
+   *
+   * @param value specifying the mean for this distribution
+   */
   public void setMean(double mean) {
     this.mean = mean;
   }
 
+  /**
+   * Get the mean for this distribution
+   *
+   * @return double value containing the mean for this distribution
+   */
   public double getMean() {
     return mean;
   }
 
 
+  /**
+   * Set the stanndard deviation. It should be >=0 else exception
+   * will be thrown
+   *
+   * @param stdDev standard deviation
+   */
   public void setStdDev(double stdDev) {
     if(stdDev<0) throw new InvalidParamValException(MSG_INVALID_STDDEV);
     this.stdDev = stdDev;
   }
 
+  /**
+   * Return the standard deviation
+   *
+   * @return standard deviation for this class
+   */
   public double getStdDev() {
     return stdDev;
   }
 
-  public double getFractile(double prob) {
-    /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getFractile() not yet implemented.");
-  }
 
+  /**
+   * Get median. It should be noted that mean, median and mode
+   * have same values for a normal distribution
+   *
+   * @return median value
+   */
   public double getMedian() {
-    /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-    throw new java.lang.UnsupportedOperationException(
-        "Method getMedian() not yet implemented.");
+    return getMean();
   }
 
-  public void setComments(String comments) {
-   this.comments  = comments;
- }
+  /**
+   * Get mode. It should be noted that mean, median and mode
+   * have same values for a normal distribution
+   *
+   * @return mode value
+   */
+  public double getMode() {
+   return getMean();
+  }
 
- public String getComments() {
-   return this.comments;
+  /**
+   * Check to see if negative values are present. It is always true for
+   * this estimate becasue X values can go from -infinity to +infinity
+   * for this distribution.
+   *
+   * @return always returns true in this case
+   */
+  public boolean isNegativeValuePresent() {
+    return true;
+  }
+
+  /**
+   * This method is not supported in this distribution
+   *
+   * @param prob
+   * @return Always throws UnsupportedOperationException.
+   */
+ public double getFractile(double prob) {
+   throw new java.lang.UnsupportedOperationException("Method getFractile() not supported.");
  }
 
 }

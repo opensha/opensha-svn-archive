@@ -1,12 +1,14 @@
 package org.scec.data.estimate;
 
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import org.scec.data.function.ArbDiscrEmpiricalDistFunc;
 /**
  * <p>Title: PDF_Estimate.java </p>
- * <p>Description: Rules followe in this case are:
+ * <p>Description:  This is probability distribution function.
+ *
+ * Rules followed in this case are:
  * 1. First and Last y values should  be 0.
- * 2. X values should be increasing
- * 3. all y >=0
+ * 2. all y >=0
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -14,65 +16,89 @@ import org.scec.data.function.ArbitrarilyDiscretizedFunc;
  * @version 1.0
  */
 
-public class PDF_Estimate implements EstimateAPI {
-  private ArbitrarilyDiscretizedFunc func=null;
-  private String comments;
+public class PDF_Estimate extends Estimate {
+  protected ArbitrarilyDiscretizedFunc func=null;
+
   private final static String MSG_FIRST_LAST_Y_ZERO = "First and Last Y values "+
       "should be 0 for PDF_Estimate";
-  private final static String MSG_X_INCREASING = "X values should be increasing "+
-      " for PDF Estimate";
   private final static String MSG_Y_POSITIVE = "All the Y values should be >= 0 "+
       "for PDF Estimate";
 
+  /**
+   * Constructor - Accepts ArbitrarilyDiscretizedFunc which is  list of X and Y
+   * values. The X and Y values have some constraints which can be seen in
+   * setValues function documentation
+   *
+   * @param func
+   */
   public PDF_Estimate(ArbitrarilyDiscretizedFunc func) {
     setValues(func);
   }
 
   /**
-   * First and Last Y  should be qual to 0
+   * First and Last Y  should be equal to 0
    * All Y >=0
-   * X should be increasing
    *
    * @param func
    */
   public void setValues(ArbitrarilyDiscretizedFunc func) {
     if(func.getY(0)!=0 || func.getY(func.getNum()-1)!=0)
       throw new InvalidParamValException(MSG_FIRST_LAST_Y_ZERO);
-    double x= Double.NEGATIVE_INFINITY;
-    for(int i = 0; i<func.getNum();++i) {
-      if(func.getX(i)<x) throw new InvalidParamValException(MSG_X_INCREASING);
-      x  = func.getX(i);
+    for(int i = 0; i<func.getNum();++i)
       if(func.getY(i)<0) throw new InvalidParamValException(MSG_Y_POSITIVE);
-    }
+    this.func = func;
   }
 
+  /**
+   * Return the discrete fractile for this probability value.
+   *
+   * @param prob Probability for which fractile is desired
+   * @return
+   */
+  public double getFractile(double prob) {
+    ArbDiscrEmpiricalDistFunc empiricalDistFunc = getEmpiricalDistFunc();
+    return empiricalDistFunc.getDiscreteFractile(prob);
+ }
+
+ /**
+  * Construct the ArbDiscrEmpiricalDistFunc function so that it can be used
+  * to calculate fractile
+  *
+  * @return
+  */
+ private ArbDiscrEmpiricalDistFunc getEmpiricalDistFunc() {
+   ArbDiscrEmpiricalDistFunc empiricalDistFunc = new ArbDiscrEmpiricalDistFunc();
+   for(int i=0; i<func.getNum(); ++i)
+      empiricalDistFunc.set(func.getX(i), func.getY(i));
+   return empiricalDistFunc;
+ }
+
+ /**
+   * checks whether there are any X values which are less than < 0
+   *
+   * @return boolean value which is always false for this class
+   */
+  public boolean isNegativeValuePresent() {
+    //just checks the first X value because X values are monotonically increasing
+    if(func.getX(0)<0) return true;
+    return false;
+  }
+
+
   public double getMean() {
-    /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getMean() not yet implemented.");
+    throw new java.lang.UnsupportedOperationException("Method getMean() not supported");
   }
 
   public double getMedian() {
-    /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getMedian() not yet implemented.");
+    throw new java.lang.UnsupportedOperationException("Method getMedian() not supported");
   }
 
   public double getStdDev() {
-    /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getStdDev() not yet implemented.");
+    throw new java.lang.UnsupportedOperationException("Method getStdDev() not supported.");
   }
 
-  public double getFractile(double prob) {
-    /**@todo Implement this org.scec.data.estimate.EstimateAPI method*/
-    throw new java.lang.UnsupportedOperationException("Method getFractile() not yet implemented.");
-  }
-
-  public void setComments(String comments) {
-   this.comments  = comments;
+ public double getMode() {
+    throw new java.lang.UnsupportedOperationException("Method getMode() not supported.");
  }
-
- public String getComments() {
-   return this.comments;
- }
-
 
 }
