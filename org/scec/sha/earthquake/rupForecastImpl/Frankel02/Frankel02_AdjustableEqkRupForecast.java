@@ -180,7 +180,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     rupOffset_Param.addParameterChangeListener(this);
     backSeisParam.addParameterChangeListener(this);
 
-    this.makeAllFaultSources();
 
 /*
     try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
@@ -233,7 +232,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     charFaultSources = new Vector();
     grFaultSources = new Vector();
 
-    makeFaultSources("test2",1.0,null,0);
+    makeFaultSources("test7",1.0,null,0);
 
 /*
     makeFaultSources("ca-a-other-fixed-char", 1.0,null,0);
@@ -746,6 +745,12 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
         surface = stirlingFaultFactory.getGriddedSurface();
       }
 
+      if(D) {
+        System.out.println(totalMagFreqDist);
+        for(int n=0;n< totalMagFreqDist.getNum();n++)
+          System.out.println("\t"+(float)totalMagFreqDist.getX(n)+"  "+(float)totalMagFreqDist.getY(n));
+      }
+
       // MAKE THE SOURCES (adding to the appropriate list)
       if(magFreqDistType.equals(CHAR_MAG_FREQ_DIST)) {
         SimpleFaultRuptureSource frs = new SimpleFaultRuptureSource(totalMagFreqDist,
@@ -960,8 +965,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
    public static void main(String[] args) {
 
      Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
-//     frankCast.updateForecast();
-//     System.out.println("num Sources = "+frankCast.getNumSources());
+     frankCast.updateForecast();
+     System.out.println("num Sources = "+frankCast.getNumSources());
+     System.out.println("Num ruptures for 0th source = "+frankCast.getSource(0).getNumRuptures());
+
 /*
      frankCast.updateForecast();
      System.out.println("num sources="+frankCast.getNumSources());
