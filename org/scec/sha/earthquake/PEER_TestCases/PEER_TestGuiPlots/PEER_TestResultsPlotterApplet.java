@@ -43,7 +43,7 @@ import com.borland.jbcl.layout.*;
  * @version 1.0
  */
 
-public class PEER_TestGuiPlotter extends JApplet implements
+public class PEER_TestResultsPlotterApplet extends JApplet implements
                                           NamedObjectAPI,
                                           LogPlotAPI,
                                           ActionListener{
@@ -191,7 +191,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
   //Construct the applet
-  public PEER_TestGuiPlotter() {
+  public PEER_TestResultsPlotterApplet() {
     searchPaths = new String[3];
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     // for Y-log, convert 0 values in Y axis to this small value
@@ -201,6 +201,9 @@ public class PEER_TestGuiPlotter extends JApplet implements
   //Initialize the applet
   public void init() {
     try {
+      JOptionPane.showMessageDialog(this,
+                                  new String("If you are running this Application as Standalone, it might not contain upto data, you can go to the Website www.opensha.org to get the latest application"),
+                                  "Information Message",JOptionPane.INFORMATION_MESSAGE);
       jbInit();
       //shows the selection for the different Test Cases files
       initTestParamList();
@@ -349,13 +352,12 @@ public class PEER_TestGuiPlotter extends JApplet implements
     searchTestFiles();
     testCaseCombo.addActionListener(this);
     addButton();
-
   }
 
 
   //Main method
   public static void main(String[] args) {
-    PEER_TestGuiPlotter applet = new PEER_TestGuiPlotter();
+    PEER_TestResultsPlotterApplet applet = new PEER_TestResultsPlotterApplet();
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
@@ -373,7 +375,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
   //static initializer for setting look & feel
   static {
     try {
-      //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
       //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
     }
     catch(Exception e) {
@@ -621,7 +623,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
      ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
      try{
        // files.log contains all the files uploaded so far
-       InputStream input = PEER_TestGuiPlotter.class.getResourceAsStream("/"+DIR+fileName);
+       InputStream input = PEER_TestResultsPlotterApplet.class.getResourceAsStream("/"+DIR+fileName);
        DataInputStream dataStream = new DataInputStream(input);
        String line;
        // read the file line by line
@@ -648,7 +650,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
 
      try{
        // files.log contains all the files uploaded so far
-       InputStream input = PEER_TestGuiPlotter.class.getResourceAsStream("/"+DIR+"files.log");
+       InputStream input = PEER_TestResultsPlotterApplet.class.getResourceAsStream("/"+DIR+"files.log");
        DataInputStream dataStream = new DataInputStream(input);
        String line;
        while((line=dataStream.readLine())!=null) {

@@ -21,7 +21,7 @@ import com.borland.jbcl.layout.*;
 
 
 /**
- * <p>Title: PEER_TestDataApp </p>
+ * <p>Title: PEER_TestResultsSubmissionApplet </p>
  * <p>Description: This Applet allows the different user to submit their dataFiles
  * for the PEER Tests and these datafiles are then stored  as the Jar files on the
  * server scec.usc.edu .
@@ -33,10 +33,10 @@ import com.borland.jbcl.layout.*;
  * @version 1.0
  */
 
-public class PEER_TestDataApp extends JApplet {
+public class PEER_TestResultsSubmissionApplet extends JApplet {
 
   //ClassName and Debug property
-  private static final String C = "PEER_TestDataApp";
+  private static final String C = "PEER_TestResultsSubmissionApplet";
   private static final boolean D = true;
 
   //Directory from which to search for all the PEER test files
@@ -68,8 +68,8 @@ public class PEER_TestDataApp extends JApplet {
   private JScrollPane jScrollPane2 = new JScrollPane();
   private JTextArea yTextArea = new JTextArea();
   private BorderLayout borderLayout1 = new BorderLayout();
-  private JButton ResultButton = new JButton();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  JButton deleteFileButton = new JButton();
+  GridBagLayout gridBagLayout1 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -77,7 +77,7 @@ public class PEER_TestDataApp extends JApplet {
   }
 
   //Construct the applet
-  public PEER_TestDataApp() {
+  public PEER_TestResultsSubmissionApplet() {
   }
   //Initialize the applet
   public void init() {
@@ -125,14 +125,15 @@ public class PEER_TestDataApp extends JApplet {
     messageTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
     messageTextArea.setForeground(new Color(80, 80, 133));
     messageTextArea.setBorder(BorderFactory.createLineBorder(Color.black));
+    messageTextArea.setEditable(false);
     messageTextArea.setLineWrap(true);
     jLabel3.setForeground(new Color(80, 80, 133));
-    jLabel3.setText("Enter File Name:");
+    jLabel3.setText("Enter File Identifier:");
     fileNameText.setBackground(new Color(200, 200, 230));
     fileNameText.setFont(new java.awt.Font("Dialog", 1, 11));
     fileNameText.setForeground(new Color(80, 80, 133));
     jLabel4.setForeground(new Color(80, 80, 133));
-    jLabel4.setText("Message:");
+    jLabel4.setText("Information Box:");
     jLabel4.setVerticalAlignment(SwingConstants.TOP);
     testComboBox.setBackground(new Color(200, 200, 230));
     testComboBox.setFont(new java.awt.Font("Dialog", 1, 12));
@@ -143,48 +144,51 @@ public class PEER_TestDataApp extends JApplet {
     xTextArea.setBackground(new Color(200, 200, 230));
     xTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
     xTextArea.setForeground(new Color(80, 80, 133));
-    ResultButton.setBackground(new Color(200, 200, 230));
-    ResultButton.setFont(new java.awt.Font("Dialog", 1, 12));
-    ResultButton.setForeground(new Color(80, 80, 133));
-    ResultButton.setMaximumSize(new Dimension(71, 37));
-    ResultButton.setMinimumSize(new Dimension(71, 37));
-    ResultButton.setPreferredSize(new Dimension(71, 37));
-    ResultButton.setMnemonic('0');
-    ResultButton.setText("View Result");
-    ResultButton.addActionListener(new java.awt.event.ActionListener() {
+    deleteFileButton.setBackground(new Color(200, 200, 230));
+    deleteFileButton.setFont(new java.awt.Font("Dialog", 1, 12));
+    deleteFileButton.setForeground(new Color(80, 80, 133));
+    deleteFileButton.setMaximumSize(new Dimension(71, 37));
+    deleteFileButton.setMinimumSize(new Dimension(71, 37));
+    deleteFileButton.setPreferredSize(new Dimension(71, 37));
+    deleteFileButton.setText("Delete ");
+    deleteFileButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        ResultButton_actionPerformed(e);
+        deleteFileButton_actionPerformed(e);
       }
     });
     this.getContentPane().add(dataPanel, BorderLayout.CENTER);
-    dataPanel.add(testComboBox,  new GridBagConstraints(2, 1, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 17, 0, 5), 95, 7));
     dataPanel.add(jLabel1,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 12, 0, 15), 10, 14));
-    dataPanel.add(fileNameText,  new GridBagConstraints(2, 2, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(17, 17, 0, 5), 221, 8));
-    dataPanel.add(jLabel3,  new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(17, 12, 0, 17), 13, 12));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 10, 0, 0), 10, 14));
+    dataPanel.add(jLabel3,  new GridBagConstraints(0, 2, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(18, 10, 0, 19), 13, 12));
     dataPanel.add(xLabel,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(16, 24, 0, 20), 11, 3));
-    dataPanel.add(jLabel2,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 27, 0, 23), 8, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(16, 22, 0, 27), 11, 3));
     dataPanel.add(jScrollPane1,  new GridBagConstraints(0, 4, 1, 2, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 12, 28, 0), 54, 387));
-    dataPanel.add(jScrollPane2,  new GridBagConstraints(1, 4, 1, 2, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 15, 28, 0), 54, 387));
-    dataPanel.add(messageTextArea,  new GridBagConstraints(2, 4, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 9, 0, 5), 0, 206));
-    dataPanel.add(jLabel4,  new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 19, 0, 0), 44, 5));
-    dataPanel.add(appletLabel,  new GridBagConstraints(1, 0, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 18, 0, 112), 48, 16));
-    jScrollPane2.getViewport().add(yTextArea, null);
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 18, 0), 61, 397));
+    dataPanel.add(appletLabel,  new GridBagConstraints(2, 0, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 0, 0, 101), 34, 16));
     jScrollPane1.getViewport().add(xTextArea, null);
-    dataPanel.add(submitButton,  new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(135, 11, 28, 0), 36, 10));
-    dataPanel.add(ResultButton,  new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(135, 0, 28, 17), 37, 9));
+    dataPanel.add(jScrollPane2,  new GridBagConstraints(1, 4, 2, 2, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 17, 18, 0), 64, 397));
+    dataPanel.add(jLabel2,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(13, 29, 0, 0), 8, 7));
+    dataPanel.add(jLabel4,  new GridBagConstraints(3, 3, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 34, 0, 112), 2, 5));
+    dataPanel.add(messageTextArea,  new GridBagConstraints(3, 4, 2, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 32, 0, 29), 0, 266));
+    dataPanel.add(testComboBox,  new GridBagConstraints(3, 1, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 34, 0, 29), 49, 7));
+    dataPanel.add(fileNameText,  new GridBagConstraints(3, 2, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(18, 33, 0, 29), 176, 8));
+    dataPanel.add(submitButton,  new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(78, 29, 30, 0), 17, 4));
+    dataPanel.add(deleteFileButton,    new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(78, 6, 30, 29), 17, 4));
+    jScrollPane2.getViewport().add(yTextArea, null);
+
+    String messageText ="Text Goes Here ...................";
+    messageTextArea.setText(messageText);
+    messageTextArea.setEditable(false);
   }
   //Start the applet
   public void start() {
@@ -205,7 +209,7 @@ public class PEER_TestDataApp extends JApplet {
   }
   //Main method
   public static void main(String[] args) {
-    PEER_TestDataApp applet = new PEER_TestDataApp();
+    PEER_TestResultsSubmissionApplet applet = new PEER_TestResultsSubmissionApplet();
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
@@ -223,8 +227,7 @@ public class PEER_TestDataApp extends JApplet {
   //static initializer for setting look & feel
   static {
     try {
-      //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch(Exception e) {
     }
@@ -240,7 +243,7 @@ public class PEER_TestDataApp extends JApplet {
 
     try{
       // files.log contains all the files uploaded so far
-      InputStream input = PEER_TestGuiPlotter.class.getResourceAsStream("/"+DIR+"files.log");
+      InputStream input = PEER_TestResultsSubmissionApplet.class.getResourceAsStream("/"+DIR+"files.log");
       DataInputStream dataStream = new DataInputStream(input);
       String line;
       while((line=dataStream.readLine())!=null) {
@@ -266,10 +269,6 @@ public class PEER_TestDataApp extends JApplet {
   }
 
 
-
-
-
-
   /**
    * this method shows the X Values in the TextArea
    */
@@ -281,6 +280,7 @@ public class PEER_TestDataApp extends JApplet {
        st.append('\n');
     }
     xTextArea.setText(st.toString());
+    xTextArea.setEditable(false);
   }
 
 
@@ -292,23 +292,23 @@ public class PEER_TestDataApp extends JApplet {
   private boolean submitButton() throws RuntimeException{
 
       //creating the new file name in which function data has to be stored.
-      StringBuffer fileName =new StringBuffer(testComboBox.getSelectedItem().toString());
-      boolean flag = false;
-      fileName.append("_");
-      fileName.append(fileNameText.getText());
-      fileName.append(".dat");
+      String fileName =new String(testComboBox.getSelectedItem().toString());
+      boolean flag = true;
+      fileName=fileName.concat("_");
+      fileName=fileName.concat(fileNameText.getText());
+      fileName=fileName.concat(".dat");
       int size= testFiles.size();
       //checking if the fileName already exists, if so then ask user to input another fileName
       for(int i=0;i<size;++i)
         if(fileName.equals(testFiles.get(i).toString())){
-          flag=true;
+          flag=false;
           break;
         }
-      if(!flag)
+      if(flag)
         function.setName(fileName.toString());
       else{
         fileNameText.setText("");
-        throw new RuntimeException("FileName already exists, Please enter new File Name");
+        throw new RuntimeException("Identifier Name already exists, Please enter new Identifier Name");
       }
       flag = getYValues();
       return flag;
@@ -391,15 +391,23 @@ public class PEER_TestDataApp extends JApplet {
   void submitButton_actionPerformed(ActionEvent e) {
     //checks if user has entered the filename
     boolean flag = true;
+
     if(fileNameText.getText().trim().equals(""))
-      JOptionPane.showMessageDialog(this,new String("Must enter File name"),"Input Error",
+      JOptionPane.showMessageDialog(this,new String("Must enter Identifier name"),"Input Error",
                                     JOptionPane.ERROR_MESSAGE);
     else{
+      int index = fileNameText.getText().indexOf(" ");
+      if(index !=-1){
+        fileNameText.setText("");
+        throw new RuntimeException("Indentifier name cannot have spaces");
+      }
+
       try{
       flag = submitButton();
       }catch(RuntimeException ee){
+        flag=false;
         JOptionPane.showMessageDialog(this,new String(ee.getMessage()),
-                                      "Duplicate file Name",JOptionPane.INFORMATION_MESSAGE);
+                                      "Input Error",JOptionPane.ERROR_MESSAGE);
       }
 
       if(flag){
@@ -448,7 +456,6 @@ public class PEER_TestDataApp extends JApplet {
       // Specify the content type that we will send binary data
       servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
 
-      // send the serialized ArbDesc. "function" object to the servlet using serialization
       ObjectOutputStream outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
 
@@ -457,7 +464,13 @@ public class PEER_TestDataApp extends JApplet {
         System.out.println("Function Name:"+function.getName());
         System.out.println("Function Number:"+function.getNum());
       }
+      //sending the "Add" string to servlet to tell it to create a new data file
+      outputToServlet.writeObject(new String("Add"));
+
+      // sending the name of the new file name to be created by the servlet
       outputToServlet.writeObject(fileName);
+
+      //sending the vector of values to be input in the file, to the servlet
       outputToServlet.writeObject(vt);
       outputToServlet.flush();
       outputToServlet.close();
@@ -477,19 +490,89 @@ public class PEER_TestDataApp extends JApplet {
     }
   }
 
-  void ResultButton_actionPerformed(ActionEvent e) {
-    int confirm = JOptionPane.showConfirmDialog(this,new String("View Results for the PEER Test Files"),
-                                  "View PEER Results",JOptionPane.OK_CANCEL_OPTION);
+  /**
+   * Opens the connection with the servlet
+   * @param fileName = file to be deleted is sent to the servlet
+   */
+  void openDeleteConnection(String fileName) {
 
-     //opens the new webpage to show the plots for the added PEER Testfiles
-      if(confirm == JOptionPane.OK_OPTION){
-        try{
-        this.getAppletContext().showDocument(new URL("http://scec.usc.edu/OpenSHA/applications/PEER_TestGuiPlotter.html"));
-        }catch(Exception ee){
-          JOptionPane.showMessageDialog(this,new String(ee.getMessage()),
-                                        "Unable to make Connection",JOptionPane.OK_OPTION);
-        }
-      }
 
+
+    try{
+      if(D)
+        System.out.println("starting to make connection with servlet");
+      URL PEER_TestServlet = new
+                             URL("http://scec.usc.edu:9999/examples/servlet/PEER_InputFilesServlet");
+
+
+      URLConnection servletConnection = PEER_TestServlet.openConnection();
+      if(D)
+        System.out.println("connection established");
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+      //sending the "Delete" string to servlet to tell it to create a new data file
+      outputToServlet.writeObject(new String("Delete"));
+
+      // sending the name of the new file name to be created by the servlet
+      outputToServlet.writeObject(fileName);
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "destroy" from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      String temp=inputToServlet.readObject().toString();
+
+      if(D)
+        System.out.println("Receiving the Input from the Servlet:"+temp);
+      inputToServlet.close();
+    }catch (Exception e) {
+      System.out.println("Exception in connection with servlet:" +e);
+      e.printStackTrace();
+    }
+  }
+
+
+  /**
+   * When the user wants to delete the PEER data file from the server
+   * @param e
+   */
+  void deleteFileButton_actionPerformed(ActionEvent e) {
+    int xCenter=getAppletXAxisCenterCoor();
+    int yCenter=getAppletYAxisCenterCoor();
+    PEER_FileDeleteWindow p= new PEER_FileDeleteWindow(this, testFiles);
+    p.setLocation(xCenter-60,yCenter-50);
+    p.pack();
+    p.show();
+  }
+
+  /**
+   * gets the Applets X-axis center coordinates
+   * @return
+   */
+  private int getAppletXAxisCenterCoor() {
+    return (this.getX()+this.getWidth())/2;
+  }
+
+  /**
+   * gets the Applets Y-axis center coordinates
+   * @return
+   */
+  private int getAppletYAxisCenterCoor() {
+    return (this.getY() + this.getHeight())/2;
   }
 }
