@@ -19,9 +19,7 @@ import org.scec.param.event.*;
 import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.data.Site;
 import org.scec.sha.earthquake.ProbEqkRupture;
-import org.scec.sha.gui.controls.RegionsOfInterestControlPanel;
-import org.scec.sha.gui.controls.PuenteHillsScenarioTestControlPanel;
-import org.scec.sha.gui.controls.PuenteHillsScenarioControlPanel;
+import org.scec.sha.gui.controls.*;
 import org.scec.sha.gui.infoTools.*;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.data.XYZ_DataSetAPI;
@@ -41,7 +39,8 @@ import org.scec.exceptions.ParameterException;
  * @version 1.0
  */
 
-public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListener{
+public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListener,
+    GenerateHazusFilesConrolPanelAPI{
 
 
   /**
@@ -99,11 +98,13 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
   private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
   private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
+  private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
   private PuenteHillsScenarioTestControlPanel puenteHillsTestControl;
   private PuenteHillsScenarioControlPanel puenteHillsControl;
+  private GenerateHazusFilesControlPanel hazusControl;
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -446,7 +447,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
        NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
        erfGuiBean.getSelectedERF.
        Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
-       the forecast while erfGuiBean.getSelectedERF updates the
+       the forecast while erfGuiBean.getSelectedERF updates the ERF
        */
       this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
 
@@ -459,7 +460,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * and stores the value in each vectors(lat-Vector, Lon-Vector and IML or Prob Vector)
    * The IML or prob vector contains value based on what the user has selected in the Map type
    */
-  private void generateShakeMap() throws ParameterException,RuntimeException{
+  public XYZ_DataSetAPI generateShakeMap() throws ParameterException,RuntimeException{
 
     boolean probAtIML=false;
     double imlProbValue=imlProbGuiBean.getIML_Prob();
@@ -485,8 +486,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
      if(D) System.out.println(C + ":Param warning caught"+ex);
      ex.printStackTrace();
     }
-    ++step;
-    calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
 
     //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
     ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
@@ -498,14 +497,13 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       throw new ParameterException(e.getMessage());
     }
 
-    ++step;
-    calcProgress.setProgressMessage("  Generating the Map ...");
     double minLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
     double maxLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
     double minLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
     double maxLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
     double gridSpacing=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
     mapGuiBean.setRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
+    return xyzDataSet;
   }
 
 
@@ -520,9 +518,14 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    */
   private void addButton(){
     calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
-    step = 0;
+    step = 1;
     try{
-      generateShakeMap();
+      calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
+      if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
+        hazusControl.generateHazusFiles(this.imtGuiBean,(AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance());
+      else
+        generateShakeMap();
+      ++step;
     }catch(ParameterException e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
       calcProgress.showProgress(false);
@@ -536,6 +539,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       return;
     }
     if(step==2) {
+      calcProgress.setProgressMessage("  Generating the Map ...");
+
       String label;
       String imlOrProb=imlProbGuiBean.getSelectedOption();
       if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
@@ -543,8 +548,12 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       else
         label=imtGuiBean.getSelectedIMT();
       try{
-        mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),erfGuiBean.getHypocenterLocation(),
-                           label,getMapParametersInfo());
+        if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
+          mapGuiBean.makeHazusShapeFilesAndMap(hazusControl.getXYZ_DataForSA_03(),hazusControl.getXYZ_DataForSA_10(),
+                             hazusControl.getXYZ_DataForPGA(),hazusControl.getXYZ_DataForPGV(),
+                             erfGuiBean.getRupture(),label,getMapParametersInfo());
+        else
+          mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
       }catch(RuntimeException e){
         calcProgress.showProgress(false);
         calcProgress.dispose();
@@ -564,6 +573,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
+    this.controlComboBox.addItem(HAZUS_CONTROL);
   }
 
   /**
@@ -579,6 +589,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       initPuenteHillTestScenarioControl();
     else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_CONTROL))
       initPuenteHillScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(this.HAZUS_CONTROL))
+      initHazusScenarioControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -608,6 +620,17 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     }
   }
 
+  /**
+   *Initialise the Control panel to generate the shapefiles for hazus input.
+   */
+  private void initHazusScenarioControl(){
+    if(hazusControl == null)
+      hazusControl = new GenerateHazusFilesControlPanel(this,this);
+    hazusControl.show();
+    hazusControl.pack();
+  }
+
+
 
   /**
    * Initialize the Interesting regions control panel
@@ -629,6 +652,14 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * @returns the String containing the values selected for different parameters
    */
   public String getMapParametersInfo(){
+
+    String imtMetadata = null;
+    //if the Hazus Control for Sceario is selected the get the metadata for IMT from there
+    if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
+      imtMetadata = hazusControl.getIMT_Metadata();
+    else //else get the metadata from the IMT GuiBean.
+      imtMetadata = imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString();
+
     return "IMR Param List:<br>\n " +
            "---------------<br>\n"+
         this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
@@ -637,7 +668,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
         sitesGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
         "<br><br>IMT Param List: <br>\n"+
         "---------------<br>\n"+
-        imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        imtMetadata+"\n"+
         "<br><br>Forecast Param List: <br>\n"+
         "--------------------<br>\n"+
         erfGuiBean.getMetadataString()+"\n"+

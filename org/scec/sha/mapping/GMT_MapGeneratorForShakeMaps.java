@@ -3,8 +3,8 @@ package org.scec.sha.mapping;
 import java.util.*;
 //import javax.activation.*;
 //import java.text.DecimalFormat;
-//import java.net.*;
-//import java.io.*;
+import java.net.*;
+import java.io.*;
 
 import org.scec.param.*;
 import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
@@ -39,6 +39,12 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
   private String DEFAULT_HAZUS_FILE_PREFIX = "map_hazus";
   private String HAZUS_FILE_PREFIX = DEFAULT_HAZUS_FILE_PREFIX;
+
+  //Defintion of the static String used as the prefixes before the file names for hazus.
+  private final static String SA_10 ="sa10";
+  private final static String SA_03 ="sa03";
+  private final static String PGA ="pga";
+  private final static String PGV ="pgv";
 
   private EqkRupture eqkRup;
 
@@ -108,7 +114,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param pgvDataSet
    * @param eqkRupture
    */
-  public void makeHazusFileSetLocally(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
+  public String makeHazusFileSetLocally(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
                                        XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
                                        EqkRupture eqkRupture) {
     eqkRup = eqkRupture;
@@ -121,7 +127,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
     // Do 0.3-sec SA first
     imt="SA";
-    SCALE_LABEL = "sa03";
+    SCALE_LABEL = SA_03;
     setFileNames(SCALE_LABEL);
     this.xyzDataSet = sa03DataSet;
     makeXYZ_File(XYZ_FILE_NAME);
@@ -129,7 +135,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
     // Do 1.0-sec SA
     imt="SA";
-    SCALE_LABEL = "sa10";
+    SCALE_LABEL = SA_10;
     setFileNames(SCALE_LABEL);
     this.xyzDataSet = sa10DataSet;
     makeXYZ_File(XYZ_FILE_NAME);
@@ -137,7 +143,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
     // PGA
     imt="PGA";
-    SCALE_LABEL = "pga";
+    SCALE_LABEL = PGA;
     setFileNames(SCALE_LABEL);
     this.xyzDataSet = pgaDataSet;
     makeXYZ_File(XYZ_FILE_NAME);
@@ -145,7 +151,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
     // Do 0.3-sec SA first
     imt="PGV";
-    SCALE_LABEL = "pgv";
+    SCALE_LABEL = PGV;
     setFileNames(SCALE_LABEL);
     this.xyzDataSet = pgvDataSet;
     makeXYZ_File(XYZ_FILE_NAME);
@@ -157,9 +163,10 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     // now run the GMT script file
     String[] command ={"sh","-c","sh "+GMT_SCRIPT_NAME};
     RunScript.runScript(command);
-
+    String imgAddr = this.JPG_FILE_NAME;
     // set the filenames back to default
     setFileNames(null);
+    return imgAddr;
   }
 
 
@@ -185,25 +192,25 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
     // Do 0.3-sec SA first
     imt="SA";
-    SCALE_LABEL = "sa03";
+    SCALE_LABEL = SA_03;
     setFileNames(SCALE_LABEL);
     gmtLines.addAll(getGMT_ScriptLines());
 
     // Do 1.0-sec SA
     imt="SA";
-    SCALE_LABEL = "sa10";
+    SCALE_LABEL = SA_10;
     setFileNames(SCALE_LABEL);
     gmtLines.addAll(getGMT_ScriptLines());
 
     // PGA
     imt="PGA";
-    SCALE_LABEL = "pga";
+    SCALE_LABEL = PGA;
     setFileNames(SCALE_LABEL);
     gmtLines.addAll(getGMT_ScriptLines());
 
     // Do 0.3-sec SA first
     imt="PGV";
-    SCALE_LABEL = "pgv";
+    SCALE_LABEL = PGV;
     setFileNames(SCALE_LABEL);
     gmtLines.addAll(getGMT_ScriptLines());
 
@@ -221,6 +228,103 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
     return imgWebAddr;
   }
+
+
+  /**
+   * sets up the connection with the servlet on the server (gravity.usc.edu)
+   * @param sa03_xyzDataVals : XYZ data for the SA-0.3sec
+   * @param sa10_xyzDataVals : XYZ data for the SA-1.0sec
+   * @param pga_xyzDataVals  : XYZ data for the PGA
+   * @param pgv_xyzDataVals  : XYZ data for the PGV
+   * @param gmtFileLines     : Script lines to be executed on the server
+   * @param metadataLines    : MetadataLines
+   * @returns the webaddress of the Directory as the link to where all the
+   * output files are generated
+   * @throws RuntimeException
+   */
+  protected String openServletConnection(XYZ_DataSetAPI sa03_xyzDataVals,
+      XYZ_DataSetAPI sa10_xyzDataVals, XYZ_DataSetAPI pga_xyzDataVals,
+      XYZ_DataSetAPI pgv_xyzDataVals, Vector gmtFileLines,Vector metadataLines) throws RuntimeException{
+
+    String webaddr=null;
+    try{
+
+      if(D) System.out.println("starting to make connection with servlet");
+      URL hazusAndMapServlet = new
+                             URL("http://gravity.usc.edu/OpenSHA/servlet/HazusAndGMT_MapsGeneratorServlet");
+
+
+      URLConnection servletConnection = hazusAndMapServlet.openConnection();
+      if(D) System.out.println("connection established");
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+
+      //sending the Vector of the Script Lines to be executed on the server
+      outputToServlet.writeObject(gmtFileLines);
+
+
+      //sending the contents of the SA-0.3sec XYZ data set to the servlet
+      outputToServlet.writeObject(sa03_xyzDataVals);
+
+      //sending the contents of the SA-1.0sec XYZ data set to the servlet
+      outputToServlet.writeObject(sa10_xyzDataVals);
+
+      //sending the contents of the PGA XYZ data set to the servlet
+      outputToServlet.writeObject(pga_xyzDataVals);
+
+      //sending the contents of the PGV XYZ data set to the servlet
+      outputToServlet.writeObject(pgv_xyzDataVals);
+
+
+      //sending the static String as IMT names to be prefixed before the names of the
+      //the files when generating the files for the Hazus.
+      outputToServlet.writeObject(SA_03);
+      outputToServlet.writeObject(SA_10);
+      outputToServlet.writeObject(PGA);
+      outputToServlet.writeObject(PGV);
+
+      //sending the xyz file name to the servlet
+      outputToServlet.writeObject(XYZ_FILE_NAME);
+
+      //sending the contents of the Metadata file to the server.
+      outputToServlet.writeObject(metadataLines);
+
+      //sending the name of the MetadataFile to the server.
+      outputToServlet.writeObject(METADATA_FILE_NAME);
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "actual webaddress of all the gmt related files"
+     // from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      webaddr=inputToServlet.readObject().toString();
+      if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
+      inputToServlet.close();
+
+    }catch (Exception e) {
+      throw new RuntimeException("Server is down , please try again later");
+    }
+    return webaddr;
+  }
+
+
+
+
   /**
    * Makes scenarioshake maps locally using the GMT on the users own computer
    * @param xyzDataSet: XYZ Data

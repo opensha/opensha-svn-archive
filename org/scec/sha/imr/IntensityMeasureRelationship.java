@@ -263,6 +263,17 @@ public abstract class IntensityMeasureRelationship
     }
 
 
+    /**
+     * Checks if the Parameter is a supported intensity-Measure (checking
+     * only the name).
+     * @param intensityMeasure Name of the intensity Measure parameter
+     * @return
+     */
+    public boolean isIntensityMeasureSupported(String intensityMeasure){
+      if ( supportedIMParams.containsParameter(intensityMeasure))
+        return true;
+      return false;
+    }
 
 
     /**

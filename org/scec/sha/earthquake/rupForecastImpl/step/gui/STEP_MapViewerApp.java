@@ -431,7 +431,7 @@ public class STEP_MapViewerApp extends JApplet {
 
     // make the xyz dataset and pass it to the mapGuiBean
     mapGuiBean.makeMap(this.readAndWriteFile(minLat, maxLat, minLon, maxLon,
-        gridSpacing, selectedSet, isProbAt_IML, val),null,null,"Prob",this.dataSetText.getText());
+        gridSpacing, selectedSet, isProbAt_IML, val),null,"Prob",this.dataSetText.getText());
   }
 
   /**

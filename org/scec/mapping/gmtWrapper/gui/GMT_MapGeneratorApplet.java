@@ -204,7 +204,7 @@ public class GMT_MapGeneratorApplet extends Applet {
                       fileName+"\n\n"+
                       "From (respectively):";
 
-    gmtGuiBean.makeMap(xyzData,null,null," ",metadata);
+    gmtGuiBean.makeMap(xyzData,null," ",metadata);
   }
 }
 

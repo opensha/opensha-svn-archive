@@ -144,8 +144,7 @@ public class MapGuiBean extends ParameterListEditor implements
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeMap(XYZ_DataSetAPI xyzVals,EqkRupture eqkRupture,
-                               Location hypLoc,String imt,String metadata){
+  public void makeMap(XYZ_DataSetAPI xyzVals,EqkRupture eqkRupture,String imt,String metadata){
 
     boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
     //creating the Metadata file in the GMT_MapGenerator
@@ -175,6 +174,51 @@ public class MapGuiBean extends ParameterListEditor implements
       ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
     }
   }
+
+
+
+  /**
+   * this function generates and displays a GMT map for XYZ dataset using
+   * the settings in the GMT_SettingsControlPanel.
+   *
+   * @param fileName: name of the XYZ file
+   */
+  public void makeHazusShapeFilesAndMap(XYZ_DataSetAPI sa03_xyzVals,XYZ_DataSetAPI sa10_xyzVals,
+                      XYZ_DataSetAPI pga_xyzVals, XYZ_DataSetAPI pgv_pgvVals,
+                      EqkRupture eqkRupture,String imt,String metadata){
+
+    boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
+    //creating the Metadata file in the GMT_MapGenerator
+    gmtMap.createMapInfoFile(metadata);
+    if(gmtServerCheck){
+      try{
+        imgName =gmtMap.makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
+                                                     pgv_pgvVals,eqkRupture);
+        metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
+      }catch(RuntimeException e){
+       JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
+       return;
+      }
+    }
+    else{
+      try{
+        imgName = gmtMap.makeHazusFileSetLocally(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
+                                                     pgv_pgvVals,eqkRupture);
+      }catch(RuntimeException e){
+        JOptionPane.showMessageDialog(this,e.getMessage());
+        return;
+      }
+    }
+
+    //checks to see if the user wants to see the Map in a seperate window or not
+    if(this.showMapInSeperateWindow){
+      //adding the image to the Panel and returning that to the applet
+      ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
+    }
+  }
+
+
+
 
 
   /**
