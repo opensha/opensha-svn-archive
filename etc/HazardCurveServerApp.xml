@@ -6,7 +6,7 @@
   directories. For example, the JBuilder output directory might be "classes"
   and the Ant output directory might be "classes.ant".
 -->
-<project basedir="." default="postcompile" name="ScenarioShakeMapApp_test">
+<project basedir="." default="postcompile" name="HazardCurveServerApp_test">
   <property name="jbuilder.home" value="/Developer/Applications/JBuilder-2005/JBuilder.framework"/>
   <property name="jdk.home" value="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Home"/>
   <property name="dest" value="../classes.ant"/>
@@ -89,10 +89,14 @@
       <include name="org/scec/sha/imr/attenRelImpl/**"/>
       <exclude name="org/scec/sha/imr/attenRelImpl/gui/**"/>
       <exclude name="org/scec/sha/imr/attenRelImpl/test/**"/>
-      <include name="org/scec/sha/gui/ScenarioShakeMapApp.java"/>
+      <include name="org/scec/sha/gui/HazardCurveServerModeApplication.java"/>
       <include name="org/scec/param/**"/>
       <include name="org/scec/sha/earthquake/**"/>
-      <include name="org/scec/sha/calc/ScenarioShakeMapCalculator.java"/>
+      <include name="org/scec/sha/calc/**"/>
+      <include name="org/jfree/resources/**"/>
+      <include name="org/jfree/chart/resources/**"/>
+      <include name="org/jfree/chart/*.java"/>
+      <include name="org/jfree/chart/plot/*.java"/>
     </javac>
   </target>
   <target name="rmi">
@@ -118,7 +122,9 @@
       <arg value="org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_ListFactoryImpl"/>
       <arg value="org.scec.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecast_Impl"/>
       <arg value="org.scec.sha.calc.remoteCalc.RemoteHazardCurveFactoryImpl"/>
+      <arg value="org.scec.sha.calc.HazardCurveCalculator"/>
       <arg value="org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_ListImpl"/>
+      <arg value="org.scec.sha.calc.DisaggregationCalculator"/>
       <arg value="org.scec.sha.calc.remoteCalc.RemoteDisaggregationCalcFactoryImpl"/>
       <arg value="org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_FactoryImpl"/>
     </exec>
@@ -126,6 +132,16 @@
   <target name="resource">
     <copy todir="${dest}/img" overwrite="true">
       <fileset dir="${src}/img"/>
+    </copy>
+    <copy todir="${dest}/org/jfree/chart" overwrite="true">
+      <fileset dir="${src}/org/jfree/chart">
+        <include name="**/*.properties"/>
+      </fileset>
+    </copy>
+    <copy todir="${dest}/org/jfree/chart/plot" overwrite="true">
+      <fileset dir="${src}/org/jfree/chart/plot">
+        <include name="**/*.properties"/>
+      </fileset>
     </copy>
     <copy todir="${dest}/ch">
       <fileset dir="${src}/ch">
@@ -146,7 +162,7 @@
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,rmi,package">
-    <jar destfile="scenarioshakemap_test.jar" basedir="${dest}" manifest="ScenarioShakeMap_MANIFEST.MF">
+    <jar destfile="HazardCurveServerApp_Test.jar" basedir="${dest}" manifest="HazCurveServerMode_MANIFEST.MF">
       <include name="org/**"/>
       <include name="img/**"/>
       <include name="ch/**"/>
