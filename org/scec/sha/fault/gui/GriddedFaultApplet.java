@@ -1539,15 +1539,15 @@ public class GriddedFaultApplet
         dataScrollPane.getViewport().add( pointsTextArea, null );
 
         buttonPanel.add( addButton, new GridBagConstraints( 4, 0, 1, 1, 0.0, 0.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
+                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 7, 1, 0, 1 ), 5, 0 ) );
         buttonPanel.add( clearButton, new GridBagConstraints( 5, 0, 1, 1, 0.0, 0.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
+                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 7, 3, 0, 3 ), 0, 0 ) );
 
         buttonPanel.add( toggleButton, new GridBagConstraints( 6, 0, 1, 1, 0.0, 0.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
+                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 7, 1, 0, 1 ), 5, 0 ) );
 
         buttonPanel.add( plotColorCheckBox, new GridBagConstraints( 7, 0, 1, 1, 0.0, 0.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 5, 3, 0, 1 ), 0, 0 ) );
+                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 7, 3, 0, 1 ), 0, 0 ) );
 
         buttonPanel.add( faultComboBox, new GridBagConstraints( 1, 1, 1, 1, 0.0, 0.0
                       , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
@@ -1558,13 +1558,13 @@ public class GriddedFaultApplet
         buttonPanel.add (customFrankelComboBox, new GridBagConstraints( 1, 0, 1, 1, 0.0, 0.0
                       , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
         buttonPanel.add( customFrankelLabel, new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+                        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
 
         buttonPanel.add( frankel_StirlingLabel, new GridBagConstraints( 2, 0, 1, 1, 0.0, 0.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
+                        , GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
         buttonPanel.add( frankel_StirlingComboBox, new GridBagConstraints( 3, 0, 1, 1, 0.0, 0.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
+                        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 1 ), 15, 0 ) );
 
 
         parametersSplitPane.setBottomComponent( gridInfoPanel );
