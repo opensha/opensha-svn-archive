@@ -925,8 +925,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
         "<br><br>Region Param List: <br>\n"+
         "----------------<br>\n"+
         sitesGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n"+
-        "<br><br>Forecast Param List: <br>\n"+
-        "--------------------<br>\n"+
         erfGuiBean.getParameterListMetadataString()+"\n"+
         "<br><br>TimeSpan Param List: <br>\n"+
         "--------------------<br>\n"+

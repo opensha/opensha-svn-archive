@@ -18,6 +18,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
+import javax.swing.Timer;
 import java.awt.*;
 
 import org.scec.data.Location;
@@ -35,6 +36,7 @@ import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.sha.earthquake.EqkRupture;
+import java.awt.event.ActionListener;
 
 
 /**
@@ -118,8 +120,15 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   // get the selected forecast
   private EqkRupForecastAPI erf = null;
 
+  //Timer instance for the progress bar
+  private Timer timer;
+
   //progressBar class to be shown when ruptures are being updated
-  CalcProgressBar progress;
+  private CalcProgressBar progress;
+
+
+  //step keeps track what message to display to the user in the progress bar.
+  private int step ;
 
   /**
   * Constructor : It accepts the classNames of the ERFs to be shown in the editor
@@ -133,15 +142,19 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    parameterList = new ParameterList();
 
    progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures are being updated ...");
+   //starting the progress bar timer to show the updation for progress message.
+
+   step = 1;
+   startProgressBarTimer();
    setSelectedERF();
    setSourceFromSelectedERF(0);
    setRuptureForSelectedSource(0);
    getHypocenterLocationsForSelectedRupture();
-   progress.showProgress(false);
    listEditor  = new ParameterListEditor(parameterList);
    // now make the editor based on the parameter list
    listEditor.setTitle( TITLE );
    setHypocenterLocationInRupture(false);
+   stopProgressBarTimer();
    try {
       jbInit();
     }
@@ -154,9 +167,9 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   * creates the selected ERF based on the selected ERF Name
   */
  public void setSelectedERF(){
+   step = 2;
+   startProgressBarTimer();
 
-   progress.showProgress(true);
-   progress.setProgressMessage("Please wait while ERF is being updated ...");
 
    if(erf == null){
      // add the select forecast parameter
@@ -170,7 +183,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    }catch(Exception e){
      e.printStackTrace();
    }
-   progress.showProgress(false);
+   stopProgressBarTimer();
  }
 
  /**
@@ -178,10 +191,11 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   * @param sourceIndex
   */
  public void setSourceFromSelectedERF(int sourceIndex){
+   step = 3;
+   startProgressBarTimer();
+
    int numSources = erf.getNumSources();
    ArrayList sourcesVector = new ArrayList();
-   progress.showProgress(true);
-   progress.setProgressMessage("Please wait while sources are being updated");
    for(int i=0;i<numSources;++i)
      sourcesVector.add(i+" ( "+erf.getSource(i).getName()+" )");
 
@@ -199,7 +213,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    sourceValue = Integer.parseInt((((String)sourceParam.getValue()).substring(0,((String)sourceParam.getValue()).indexOf("("))).trim());
    //sets the ruptures information for selected source in the text area.
    setSelectedSourceRupturesInfo();
-   progress.showProgress(false);
+   stopProgressBarTimer();
  }
 
  /**
@@ -222,10 +236,11 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   * @param ruptureIndex
   */
  public void setRuptureForSelectedSource(int ruptureIndex){
+
+   step =4;
+   startProgressBarTimer();
    int numRuptures = erf.getNumRuptures(sourceValue);
 
-   progress.showProgress(true);
-   progress.setProgressMessage("Please wait while ruptures are being updated");
    //creating the rupture parameter
    ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,0,numRuptures-1,new Integer(ruptureIndex));
    ruptureParam.addParameterChangeListener(this);
@@ -241,7 +256,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
 
    //getting the selected rupture for the source
    probEqkRupture = erf.getRupture(sourceValue,ruptureValue);
-   progress.showProgress(false);
+   stopProgressBarTimer();
  }
 
  /**
@@ -277,6 +292,45 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
      else
        parameterList.addParameter(hypoCenterLocationParam);
 
+ }
+
+
+ /*
+  * starts the progress bar
+  */
+ private void startProgressBarTimer() {
+
+   timer = new Timer(500, new ActionListener() {
+     public void actionPerformed(ActionEvent event) {
+       if (step == 1) {
+         progress.setProgressMessage(
+             "Please wait while ruptures are being updated ...");
+       }
+       else if (step == 2)
+         progress.setProgressMessage(
+             "Please wait while ERF is being updated ...");
+       else if (step == 3)
+         progress.setProgressMessage(
+             "Please wait while sources are being updated");
+       else if (step == 4)
+         progress.setProgressMessage(
+             "Please wait while ruptures are being updated");
+
+       progress.validate();
+       progress.repaint();
+     }
+   });
+   timer.start();
+   progress.showProgress(true);
+ }
+
+
+ /*
+  * Stopping the timer for the Progress Bar.
+  */
+ private void stopProgressBarTimer() {
+   timer.stop();
+   progress.dispose();
  }
 
  /**
@@ -324,10 +378,6 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
        }
      }
      hypoCentreCheck.setSelected(false);
-     this.setSelectedERF();
-     setSourceFromSelectedERF(0);
-     setRuptureForSelectedSource(0);
-     getHypocenterLocationsForSelectedRupture();
      listEditor.refreshParamEditor();
    }
 
@@ -434,7 +484,9 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    */
   public String getParameterListMetadataString(){
     erfGuiBean.getERFParameterListEditor().getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setVisible(false);
-    String metadata = getParameterListEditor().getVisibleParameters().getParameterListMetadataString()+";"+
+    String metadata = "<br><br>Forecast Param List: <br>\n" +
+        "-------------------------<br>\n" +
+        getParameterListEditor().getVisibleParameters().getParameterListMetadataString()+";"+
                       erfGuiBean.getERFParameterListEditor().getVisibleParameters().getParameterListMetadataString()+"<br>"+
                       "<br>\nRupture Info: "+probEqkRupture.getInfo();
     return metadata;
@@ -510,11 +562,16 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   }
 
   void button_actionPerformed(ActionEvent e) {
-   frame.dispose();
-   setSelectedERF();
-   setSourceFromSelectedERF(0);
-   setRuptureForSelectedSource(0);
-   getHypocenterLocationsForSelectedRupture();
+    frame.dispose();
+    Thread t = new Thread(new Runnable() {
+      public void run() {
+        setSelectedERF();
+        setSourceFromSelectedERF(0);
+        setRuptureForSelectedSource(0);
+        getHypocenterLocationsForSelectedRupture();
+      }
+    });
+    t.start();
   }
 
 

@@ -91,7 +91,8 @@ public class EqkRuptureCreationPanel
   public final static String NULL_HYPOCENTER_STRING = "Null Hypocenter";
 
   //label to dispay hypocenter location for eqkRupture
-  private final static String hypocenterLocLabelString = "Hypocenter Location(Lat,Lon,Depth): ";
+  private final static String hypocenterLocLabelString =
+      "Hypocenter Location(Lat,Lon,Depth): ";
   private JLabel hypocenterLocationLabel = new JLabel();
 
   //title for this ParamerterListEditor
@@ -216,14 +217,16 @@ public class EqkRuptureCreationPanel
     this.add(hypocenterButton, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(4, 79, 11, 100), 43, 6));
-    this.add(hypocenterLocationLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(4, 79, 11, 100), 43, 6));
+    this.add(hypocenterLocationLabel,
+             new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.NONE,
+                                    new Insets(4, 79, 11, 100), 43, 6));
     this.add(listEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.BOTH,
                                                 new Insets(4, 4, 4, 4), 0, 0));
-    hypocenterLocationLabel.setForeground(new Color(80,80,140));
+    hypocenterLocationLabel.setForeground(new Color(80, 80, 140));
   }
 
   /**
@@ -273,7 +276,8 @@ public class EqkRuptureCreationPanel
         hypocenterList.add(lat + "," + lon + "," + depth);
       }
 
-      hypocenterLocationLabel.setText(hypocenterLocLabelString+NULL_HYPOCENTER_STRING);
+      hypocenterLocationLabel.setText(hypocenterLocLabelString +
+                                      NULL_HYPOCENTER_STRING);
       //hypocenterButton.setToolTipText(hypoLocString);
       parameterChangeFlag = false;
     }
@@ -377,8 +381,9 @@ public class EqkRuptureCreationPanel
    * ERF_RupSelectorGUI  bean.
    */
   public String getParameterListMetadataString() {
-    String metadata = listEditor.getVisibleParameters().
-        getParameterListMetadataString()
+    String metadata = "<br><br>Eqk Rupture Param List: <br>\n" +
+        "-------------------------<br>\n" +
+        listEditor.getVisibleParameters().getParameterListMetadataString()
         + "<br>" + "<br>\nRupture Info: " + eqkRupture.getInfo();
     return metadata;
   }
@@ -438,7 +443,7 @@ public class EqkRuptureCreationPanel
       hypocenterLocationWindow = new HypocenterLocationWindow(this,
           hypocenterList, eqkRupture);
     }
-    else if(parameterChangeFlag){
+    else if (parameterChangeFlag) {
       hypocenterLocationWindow.setHypocenterLocationListAndEqkRupture(
           hypocenterList, eqkRupture);
     }
@@ -446,9 +451,13 @@ public class EqkRuptureCreationPanel
     hypocenterLocationWindow.show();
 
     Location hypoLoc = eqkRupture.getHypocenterLocation();
-    if(hypoLoc == null)
-      hypocenterLocationLabel.setText(hypocenterLocLabelString+NULL_HYPOCENTER_STRING);
-    else
-      hypocenterLocationLabel.setText(hypocenterLocLabelString+hypoLoc.toString());
+    if (hypoLoc == null) {
+      hypocenterLocationLabel.setText(hypocenterLocLabelString +
+                                      NULL_HYPOCENTER_STRING);
+    }
+    else {
+      hypocenterLocationLabel.setText(hypocenterLocLabelString +
+                                      hypoLoc.toString());
+    }
   }
 }
