@@ -58,7 +58,7 @@ public class HazardCurveCalculator {
 
     JProgressBar progress = new JProgressBar(0,100);
     progress.setStringPainted(true); // display the percentage completed also
-    JLabel label = new JLabel("Updating Forecast......");
+    JLabel label = new JLabel(" Updating Forecast ...");
     frame.getContentPane().add(label);
     frame.show();
     frame.validate();
@@ -73,7 +73,6 @@ public class HazardCurveCalculator {
     frame.getContentPane().add(progress);
     frame.getContentPane().validate();
     frame.getContentPane().repaint();
-    this.updateProgress(progress,1);
 
 
     try {
@@ -95,18 +94,11 @@ public class HazardCurveCalculator {
     for(int i=0;i<numSources;++i)
         totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
 
-    int num9 = (int) (totRuptures*0.9);
-    int num8 = (int) (totRuptures*0.8);
-    int num7 = (int) (totRuptures*0.7);
-    int num6 = (int) (totRuptures*0.6);
-    int num5 = (int) (totRuptures*0.5);
-    int num4 = (int) (totRuptures*0.4);
-    int num3 = (int) (totRuptures*0.3);
-    int num2 = (int) (totRuptures*0.2);
-    int num1 = (int) (totRuptures*0.1);
-
     // rupture number presently being processed
     int currRuptures = 0;
+
+    progress.setString(Integer.toString(currRuptures) + "  of  " + Integer.toString(totRuptures) + "  Eqk Ruptures");
+    updateProgress(progress,0);
 
     for(int i=0;i < numSources ;i++) {
 
@@ -125,25 +117,42 @@ public class HazardCurveCalculator {
 
 
         // update the progress bar
-        if(currRuptures == num9) // 90% complete
+        if(currRuptures == (int) (totRuptures*0.9)) { // 90% complete
+              progress.setString(Integer.toString(currRuptures) + "  of  " + Integer.toString(totRuptures) + "  Eqk Ruptures");
               updateProgress(progress,90);
-        else if(currRuptures == num8) // 80% complete
+        }
+        else if(currRuptures == (int) (totRuptures*0.8)) { // 80% complete
+              progress.setString(Integer.toString(currRuptures) + "  of  " + Integer.toString(totRuptures) + "  Eqk Ruptures");
               updateProgress(progress,80);
-        else if(currRuptures == num7) // 70% complete
+        }
+        else if(currRuptures == (int) (totRuptures*0.7)) { // 70% complete
+              progress.setString(Integer.toString(currRuptures) + "  of  " + Integer.toString(totRuptures) + "  Eqk Ruptures");
               updateProgress(progress,70);
-        else if(currRuptures == num6) // 60% complete
+        }
+        else if(currRuptures == (int) (totRuptures*0.6)) { // 60% complete
+              progress.setString(Integer.toString(currRuptures) + "  of  " + Integer.toString(totRuptures) + "  Eqk Ruptures");
               updateProgress(progress,60);
-        else if(currRuptures == num5) // 50% complete
+        }
+        else if(currRuptures == (int) (totRuptures*0.5)) { // 50% complete
+              progress.setString(Integer.toString(currRuptures) + "  of  " + Integer.toString(totRuptures) + "  Eqk Ruptures");
               updateProgress(progress,50);
-        else if(currRuptures == num4) // 40% complete
+        }
+        else if(currRuptures == (int) (totRuptures*0.4)) { // 40% complete
+              progress.setString(Integer.toString(currRuptures) + "  of  " + Integer.toString(totRuptures) + "  Eqk Ruptures");
               updateProgress(progress,40);
-        else if(currRuptures == num3) // 30% complete
+        }
+        else if(currRuptures == (int) (totRuptures*0.3)) { // 30% complete
+              progress.setString(Integer.toString(currRuptures) + "  of  " + Integer.toString(totRuptures) + "  Eqk Ruptures");
               updateProgress(progress,30);
-        else if(currRuptures == num2) // 20% complete
+        }
+        else if(currRuptures == (int) (totRuptures*0.2)) { // 20% complete
+              progress.setString(Integer.toString(currRuptures) + "  of  " + Integer.toString(totRuptures) + "  Eqk Ruptures");
               updateProgress(progress,20);
-        else if(currRuptures == num1) // 10% complete
+        }
+        else if(currRuptures == (int) (totRuptures*0.1)) { // 10% complete
+              progress.setString(Integer.toString(currRuptures) + "  of  " + Integer.toString(totRuptures) + "  Eqk Ruptures");
               updateProgress(progress,10);
-
+        }
 
 
 
