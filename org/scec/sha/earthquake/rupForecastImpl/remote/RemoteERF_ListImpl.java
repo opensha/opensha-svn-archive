@@ -40,14 +40,6 @@ public class RemoteERF_ListImpl extends UnicastRemoteObject implements RemoteERF
     erfList = (ERF_List)org.scec.util.ClassUtils.createNoArgConstructorClassInstance(className);;
   }
 
-  /**
-   * add a new Eqk Rup forecast to the list
-   * @param eqkRupForecast
-   */
-  public void addERF(EqkRupForecast eqkRupForecast, double relWeight) {
-    erfList.addERF(eqkRupForecast,relWeight);
-  }
-
 
   /**
    * get the number of Eqk Rup Forecasts in this list

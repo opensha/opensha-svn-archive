@@ -40,7 +40,7 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
    * add a new Eqk Rup forecast to the list
    * @param eqkRupForecast
    */
-  public void addERF(EqkRupForecast eqkRupForecast, double relWeight) {
+  protected void addERF(EqkRupForecast eqkRupForecast, double relWeight) {
     erf_List.add(eqkRupForecast);
     this.relativeWeight.add(new Double(relWeight));
   }

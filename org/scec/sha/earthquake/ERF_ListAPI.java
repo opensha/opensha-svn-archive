@@ -17,12 +17,6 @@ public interface ERF_ListAPI extends ForecastAPI{
 
 
 
-  /**
-   * add a new Eqk Rup forecast to the list
-   * @param eqkRupForecast
-   */
-  public void addERF(EqkRupForecast eqkRupForecast, double relWeight);
-
 
   /**
    * get the ERF in the list with the specified index
