@@ -97,13 +97,21 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
     double maxLat=getMaxLat();
     double minLon=getMinLon();
     double maxLon=getMaxLon();
+
+    // this rounds the min lat (and lon) to an integer number of gridSpacing increments above the next
+    // lower integer lat (or lon)
+    double niceMinLat = (Math.floor(minLat - Math.floor(minLat))/gridSpacing)*gridSpacing + Math.floor(minLat);
+    double niceMinLon  = (Math.floor(minLon - Math.floor(minLon))/gridSpacing)*gridSpacing + Math.floor(minLon);
+
     Location tempLoc;
 
     //creates a instance of new locationList
     gridLocsList=new LocationList();
 
     // now loop over all grid points inside the max/min lat/lon and keep only those inside
+    minLat = niceMinLat;
     while(minLat <= maxLat){
+      minLon = niceMinLon;
       while(minLon <= maxLon){
         tempLoc = new Location(minLat,minLon);
         if (this.isLocationInside(tempLoc)) gridLocsList.addLocation(tempLoc);
