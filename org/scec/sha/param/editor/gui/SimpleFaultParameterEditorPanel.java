@@ -779,7 +779,13 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
         //make the object for the Stirling gridded fault
         if(fltType.equalsIgnoreCase(this.STIRLING)){
           fltFactory = new StirlingGriddedFaultFactory(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
-          ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(((Double)dipDirectionParam.getValue()).doubleValue());
+          //checking to see if the Dip Direction Param value is null then assign default Double.NaN
+          //else assign the dip direction value.
+          Double aveDipDir = (Double)dipDirectionParam.getValue();
+          if(aveDipDir == null)
+            ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(Double.NaN);
+          else
+            ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(aveDipDir.doubleValue());
         }
       }
       else{
