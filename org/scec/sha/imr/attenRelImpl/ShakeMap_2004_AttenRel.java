@@ -309,49 +309,6 @@ public class ShakeMap_2004_AttenRel
       double iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
       return getExceedProbability(mean, stdDev, iml);
 
-/*
-      double ave_bc, pga_bc, amp, stdDev, mean;
-      double as_prob, sa_prob, bjf_prob, cb_prob;
-
-      String imt = im.getName();
-      double iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
-
-      if(imt.equals(PGA_NAME)) {
-        attenRel.setIntensityMeasure(im);
-        pga_bc = attenRel.getMean();
-        amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
-        mean = pga_bc + Math.log(amp);
-        stdDev = attenRel.getStdDev();
-      }
-      else if (imt.equals(SA_NAME)) {
-        attenRel.setIntensityMeasure(im);
-        ave_bc = attenRel.getMean();
-        attenRel.setIntensityMeasure(pgaParam);
-        pga_bc = attenRel.getMean();
-        double per = ((Double) periodParam.getValue()).doubleValue();
-        if(per <= 0.5)
-          amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
-        else
-          amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
-        mean = ave_bc + Math.log(amp);
-        stdDev = attenRel.getStdDev();
-      }
-      else if (imt.equals(PGV_NAME)) {
-        periodParam.setValue(new Double(1.0));
-        attenRel.setIntensityMeasure(saParam);
-        ave_bc = attenRel.getMean();
-        attenRel.setIntensityMeasure(pgaParam);
-        pga_bc = attenRel.getMean();
-        amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
-        mean = ave_bc + Math.log(amp) + Math.log(37.27*2.54);  // last term is the PGV conversion
-        stdDev = attenRel.getStdDev();
-      }
-      else { // it must be MMI
-        throw new RuntimeException(MMI_ERROR_STRING);
-      }
-
-      return getExceedProbability(mean, stdDev, iml);
-*/
     }
 
     /**
@@ -446,7 +403,7 @@ public class ShakeMap_2004_AttenRel
 
 
     /**
-     * This sets the standard deviation type for all the attenuation relations.  Note that
+     * This sets the standard deviation type for all the attenuation relations.
      */
     private void setAttenRelsStdDevTypes() {
 

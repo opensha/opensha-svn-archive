@@ -75,6 +75,7 @@ public final class Wald_MMI_Calc {
      * The differences of 0.01 result from differences in how the values are rounded.
      * @param args
      */
+/* commented out until needed again
     public static void main(String[] args) {
 
       System.out.println("Comparison of values:");
@@ -118,6 +119,7 @@ public final class Wald_MMI_Calc {
       System.out.println((float) Wald_MMI_Calc.getMMI(41.2803/100, 80.9729) - 8.97);
       System.out.println((float) Wald_MMI_Calc.getMMI(42.2048/100, 85.205) - 9.04);
       System.out.println((float) Wald_MMI_Calc.getMMI(47.0372/100, 104.926) - 9.36);
-
     }
+    */
+
 }
