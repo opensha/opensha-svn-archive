@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import org.scec.data.TimeSpan;
 import org.scec.data.Location;
+import org.scec.param.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.earthquake.*;
@@ -238,4 +239,5 @@ public class Fault1EqkRupForecast {
    public String getName(){
      return C;
    }
+
 }

@@ -35,12 +35,11 @@ import org.scec.sha.magdist.*;
 public class MagFreqDistTesterApplet extends JApplet
             implements ItemListener,
                       ParameterChangeFailListener,
-                      ParameterChangeWarningListener,
-                      MagFreqDistTesterAPI{
+                      ParameterChangeWarningListener {
 
 
   protected final static String C = "MagFreqDistTesterApplet";
-  protected final static boolean D = false;
+  protected final static boolean D = true;
 
 
   /**
@@ -63,6 +62,9 @@ public class MagFreqDistTesterApplet extends JApplet
   protected final static Font BUTTON_FONT = new java.awt.Font( "Dialog", 1, 11 );
   final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
   final static Dimension COMBO_DIM = new Dimension( 180, 20 );
+
+  private final static String MAG_DIST_PARAM_NAME = "Mag Dist Param";
+
   final static String NO_PLOT_MSG = "No Plot Data Available";
   private final static String MAG = new  String("Magnitude");
   private final static String INCR_RATE = new String("Incremental Rate");
@@ -126,7 +128,6 @@ public class MagFreqDistTesterApplet extends JApplet
 
   private JPanel parametersPanel = new JPanel();
   private JPanel outerControlPanel = new JPanel();
-  private JSplitPane parametersSplitPane = new JSplitPane();
   private JPanel controlPanel = new JPanel();
   private ChartPanel incrPanel;
   private ChartPanel cumPanel;
@@ -138,8 +139,6 @@ public class MagFreqDistTesterApplet extends JApplet
   private SimpleAttributeSet setLegend;
   private JScrollPane dataScrollPane = new JScrollPane();
   private JTextArea pointsTextArea = new JTextArea();
-  private JPanel sheetPanel = new JPanel();
-  private JPanel inputPanel = new JPanel();
   private JLabel titleLabel = new JLabel();
   private JPanel plotPanel = new JPanel();
   private JPanel titlePanel = new JPanel();
@@ -165,7 +164,8 @@ public class MagFreqDistTesterApplet extends JApplet
      *  Currently selected IMR and related information needed for the gui to
      *  work
      */
-  MagDistGuiBean magDist = null;
+  MagFreqDistParameter magDist = null;
+  MagFreqDistParameterEditor magDistEditor;
 
     /**
      *  List that contains the lazy instantiation of imrs via reflection and the
@@ -319,10 +319,6 @@ public class MagFreqDistTesterApplet extends JApplet
 
     parametersPanel.setLayout(GBL);
     outerControlPanel.setLayout(GBL);
-    parametersSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    parametersSplitPane.setBorder(null);
-    parametersSplitPane.setDividerSize(5);
-    parametersSplitPane.setOneTouchExpandable(false);
     controlPanel.setLayout(GBL);
     controlPanel.setBorder(BorderFactory.createEtchedBorder(1));
     dataScrollPane.setBorder(BorderFactory.createEtchedBorder());
@@ -380,9 +376,6 @@ public class MagFreqDistTesterApplet extends JApplet
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(4, 0, 0, 4), 0, 0));
 
 
-    parametersSplitPane.setBottomComponent( sheetPanel );
-    parametersSplitPane.setTopComponent( inputPanel );
-    parametersSplitPane.setDividerLocation(240);
 
 
     mainSplitPane.setBottomComponent( outerControlPanel );
@@ -401,15 +394,27 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
 
-    parametersPanel.add(parametersSplitPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+
+// make  the mag dist parameter
+    Vector distNames = new Vector();
+    distNames.add(GaussianMagFreqDist.NAME);
+    distNames.add(SingleMagFreqDist.NAME);
+    distNames.add(GutenbergRichterMagFreqDist.NAME);
+    distNames.add(YC_1985_CharMagFreqDist.NAME);
+    magDist =  new MagFreqDistParameter(MAG_DIST_PARAM_NAME, distNames);
+    magDistEditor = new MagFreqDistParameterEditor(magDist);
+    //inputPanel.add(magDistEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
+      //          , GridBagConstraints.NORTH, GridBagConstraints.BOTH, emptyInsets, 0, 0 ));
+
+    parametersPanel.add( magDistEditor , new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+
+ //   parametersPanel.add(parametersSplitPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+   //         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
     dataScrollPane.getViewport().add(pointsTextArea, null);
     legendScrollPane.getViewport().add(this.legendPane,null);
 
-    sheetPanel.setLayout(GBL);
-
-    inputPanel.setLayout(GBL);
 
     plotPanel.add(titlePanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 2, 4 ), 0, 0 ));
@@ -425,15 +430,8 @@ public class MagFreqDistTesterApplet extends JApplet
     controlPanel.setBackground( background );
     outerControlPanel.setBackground( background );
     parametersPanel.setBackground( background );
-    inputPanel.setBackground( background );
-    sheetPanel.setBackground( background );
-    Vector distNames = new Vector();
-    distNames.add(MagDistGuiBean.GAUSSIAN_NAME);
-    distNames.add(MagDistGuiBean.SINGLE_NAME);
-    distNames.add(MagDistGuiBean.GR_NAME);
-    distNames.add(MagDistGuiBean.YC_1985__NAME);
-    magDist =  new MagDistGuiBean(this, distNames);
-    updateChoosenMagDist();
+
+
   }
 
 
@@ -555,7 +553,7 @@ public class MagFreqDistTesterApplet extends JApplet
                 incrData.setYLog(yLog);
                 toCumData.setYLog(yLog);
                 toMoData.setYLog(yLog);
-                pointsTextArea.setText( "                   "+magDist.getMagDistName()+"             ");
+                pointsTextArea.setText( "                   "+ ((IncrementalMagFreqDist)magDist.getValue()).getName()+"             ");
                 pointsTextArea.setText("\n");
                 pointsTextArea.append( MAG +" vs. "+ INCR_RATE + '\n' + incrFunctions.toString());
                 pointsTextArea.append("\n\n");
@@ -600,53 +598,6 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
 
-    /**
-     *  Used for synch applet with new Mag Dist choosen. Updates lables and
-     *  initializes the Mag Dist if needed.
-     */
-    public void updateChoosenMagDist() {
-
-        // Starting
-        String S = C + ": updateChoosenMagDist(): ";
-
-
-         // Clear the current traces
-        //clearPlot( true );
-
-        if ( titleLabel != null ) {
-            titleLabel.setText( currentMagDistName );
-            titleLabel.validate();
-            titleLabel.repaint();
-        }
-
-        if ( frame != null )
-            frame.setTitle( this.getAppletInfo() + ": " + "Magnitude-Frequency Distributions" );
-
-        sheetPanel.removeAll();
-        sheetPanel.add( magDist.getIndependentsEditor(),
-                new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
-                 );
-
-        inputPanel.removeAll();
-        ParameterListEditor controlsEditor = magDist.getControlsEditor();
-
-        if ( D )
-            System.out.println( S + "Controls = " + controlsEditor.getParameterList().toString() );
-
-        inputPanel.add( controlsEditor,
-                new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
-                 );
-
-        validate();
-        repaint();
-
-        // Ending
-        if ( D )
-            System.out.println( S + "Ending" );
-
-    }
 
   /**
    * Gets the currentMagDistName attribute of the MagFreqDistTesterApplet object
@@ -832,10 +783,10 @@ public class MagFreqDistTesterApplet extends JApplet
 
         String S = C + ": addButton(): ";
         if ( D ) System.out.println( S + "Starting" );
-        if ( D ) System.out.println( S + "Controls = " + this.magDist.controlsEditor.getParameterList().toString() );
 
         try{
-          IncrementalMagFreqDist function= magDist.getChoosenFunction();
+          IncrementalMagFreqDist function= (IncrementalMagFreqDist)this.magDist.getValue();
+          if(D) System.out.println(S+" after getting mag dist from editor");
           EvenlyDiscretizedFunc cumRate;
           EvenlyDiscretizedFunc moRate;
 
@@ -865,8 +816,6 @@ public class MagFreqDistTesterApplet extends JApplet
           toCumFunctions.add(cumRate);
           toMoFunctions.add(moRate);
 
-
-          magDist.synchToModel();
 
           // if summed distribution is selected, add to summed distribution
           if(this.jCheckSumDist.isSelected()) {
@@ -1258,7 +1207,6 @@ public class MagFreqDistTesterApplet extends JApplet
 
     void clearButton(){
         clearPlot( true );
-        magDist.synchToModel();
     }
 
     /**
@@ -1371,9 +1319,9 @@ public class MagFreqDistTesterApplet extends JApplet
 
     if(jCheckSumDist.isSelected()) {
       // if user wants a summed distribution
-      double min=magDist.getMin();
-      double max=magDist.getMax();
-      int num=magDist.getNum();
+      double min = magDistEditor.getMin();
+      double max = magDistEditor.getMax();
+      int num = magDistEditor.getNum();
 
       // make the new object of summed distribution
       summedMagFreqDist = new  SummedMagFreqDist(min,max,num);

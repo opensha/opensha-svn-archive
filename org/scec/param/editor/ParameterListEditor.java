@@ -54,7 +54,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
 
     /** List of all individual editors, one for each parameter in the parameter list */
-    private HashMap parameterEditors = new HashMap();
+    protected HashMap parameterEditors = new HashMap();
 
 
     /** The collection of paths used to search for editor classes. */

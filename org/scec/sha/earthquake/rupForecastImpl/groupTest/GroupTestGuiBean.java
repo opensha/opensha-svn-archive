@@ -21,8 +21,8 @@ import org.scec.sha.imr.*;
 import org.scec.data.function.*;
 import org.scec.util.*;
 import org.scec.data.*;
-import org.scec.sha.magdist.gui.MagDistGuiBean;
-import org.scec.sha.magdist.gui.MagFreqDistTesterAPI;
+import org.scec.sha.magdist.*;
+
 
 public class GroupTestGuiBean implements
                          NamedObjectAPI,
@@ -38,7 +38,7 @@ public class GroupTestGuiBean implements
    *  Search path for finding editors in non-default packages.
    */
   final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
-
+  private final static String SA_DAMPING = "SA Damping";
   /**
     *  Temp until figure out way to dynamically load classes during runtime
     */
@@ -62,16 +62,17 @@ public class GroupTestGuiBean implements
   private final static String OFFSET_PARAM_NAME =  "Offset (km)";
   private final static String DEPTH_LOWER_PARAM_NAME =  "Depth Lower(km)";
   private final static String DEPTH_UPPER_PARAM_NAME =  "Depth Upper(km)";
+  private final static String MAG_DIST_PARAM_NAME = "Mag Dist";
 
   //timespan Variable
   private final static String TIMESPAN_PARAM_NAME = "Timespan(#yrs)";
-
+  // dip name
+  private final static String DIP_PARAM_NAME = "Dip";
   //source Name
   private final static String SOURCE_PARAM_NAME = "Source";
 
   //Source Fault Name
-  private final static String SOURCE_FAULT_ONE = "Fault-1";
-  private final static String SOURCE_FAULT_TWO = "Fault-2";
+  private final static String SOURCE_FAULT_ONE = "Fault";
   private final static String SOURCE_FAULT_AREA = "Area";
 
   // default value for timespan field
@@ -80,6 +81,7 @@ public class GroupTestGuiBean implements
   private Double DEFAULT_GRID_VAL = new Double(1);
   //default rupture offset is 1km
   private Double DEFAULT_OFFSET_VAL = new Double(1);
+
   // values for Mag length sigma
   private Double SIGMA_PARAM_MIN = new Double(0);
   private Double SIGMA_PARAM_MAX = new Double(1);
@@ -101,11 +103,6 @@ public class GroupTestGuiBean implements
   private ParameterListEditor testCasesEditor = null;
 
   /**
-   * editor for site parameters
-   */
-  private ParameterListEditor siteEditor = null;
-
-  /**
    * editor for imt parameters
    */
   private ParameterListEditor imtEditor = null;
@@ -120,10 +117,6 @@ public class GroupTestGuiBean implements
    */
   private ParameterListEditor eqkSourceEditor = null;
 
-   /**
-    * editor for imr parameters. It contains a list of IMRs
-    */
-  private ParameterListEditor timespanEditor = null;
 
 
   /**
@@ -131,10 +124,6 @@ public class GroupTestGuiBean implements
    */
   private ParameterList testCasesParamList = new ParameterList();
 
-  /**
-   *  Site ParameterList
-   */
-  private ParameterList siteParamList = new ParameterList();
 
   /**
    *  IMT ParameterList
@@ -151,12 +140,6 @@ public class GroupTestGuiBean implements
    */
   private ParameterList eqkSourceParamList = new ParameterList();
 
-  /**
-   *  Timespan ParameterList.
-   */
-  private ParameterList timespanParamList = new ParameterList();
-
-
 
   // search path needed for making editors
   String[] searchPaths;
@@ -165,9 +148,11 @@ public class GroupTestGuiBean implements
   private Vector imrObject = new Vector();
   private GroupTestApplet applet= null;
 
-  //mag dit bean instance for the mag Freq Dist implementations
-  private MagDistGuiBean magDistBean;
+  //mag dist bean instance for the mag Freq Dist implementations
+  private MagFreqDistParameterEditor magDistEditor;
 
+  //Mag dist parameter
+  private MagFreqDistParameter magDistParam;
 
   /**
    * constructor
@@ -199,9 +184,6 @@ public class GroupTestGuiBean implements
 
     //init eqkSourceParamList. List of all available sources at this time
     initEqkSourceParamListAndEditor();
-
-    // timespan paramter list and editor
-    initTimespanParamListAndEditor();
 
     // Create site parameters
     updateSiteParamListAndEditor( );
@@ -343,13 +325,6 @@ public class GroupTestGuiBean implements
     ParameterAPI levelParam = imr.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME);
     imrParamList.addParameter(levelParam);
 
-
-    // now make the editor based on the paramter list
-    imrEditor = new ParameterListEditor( imrParamList, searchPaths);
-    imrEditor.setTitle( "Select IMR" );
-
-    toggleSigmaLevelBasedOnTypeValue(typeParam.getValue().toString());
-
   }
 
   /**
@@ -359,16 +334,26 @@ public class GroupTestGuiBean implements
 
     imtParamList = new ParameterList();
 
+    // get the selected IMR
+   String value = (String)imrParamList.getParameter(this.IMR_PARAM_NAME).getValue();
 
-    //add all the supported IMT parameters across all IMRs
+
+    //add all the supported IMT parameters
     Vector imt = new Vector();
+    this.imt_IML_map = new HashMap();
     int size = this.imrObject.size();
     ClassicIMRAPI imr;
-    Vector iml;
-    Vector imlParamsVector;
+    Vector iml=new Vector();
+    Vector imlParamsVector=new Vector();
+
     // loop over each IMR
     for(int i=0; i < size ; ++i) {
       imr = (ClassicIMRAPI)imrObject.get(i);
+
+     // if this is not the selected IMR then continue
+     if(!imr.getName().equalsIgnoreCase(value))
+       continue;
+
       Iterator it1 = imr.getSupportedIntensityMeasuresIterator();
       //loop over each IMT and find IML
       while ( it1.hasNext() ) {
@@ -378,12 +363,12 @@ public class GroupTestGuiBean implements
         // add all the independent parameters related to this IMT
         ListIterator it2 = param.getIndependentParametersIterator();
         if(D) System.out.println("IMT is:"+param.getName());
-        imlParamsVector = (Vector)imt_IML_map.get(param.getName());
-        if(imlParamsVector==null)
-          imlParamsVector = new Vector();
         while ( it2.hasNext() ) {
           iml = new Vector();
           DependentParameterAPI param2 = ( DependentParameterAPI ) it2.next();
+          // fon not add SA damping in IMT
+          if(param2.getName().equalsIgnoreCase(SA_DAMPING))
+            continue;
           DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
           ListIterator it3 = values.listIterator();
           while(it3.hasNext())   // add all the periods relating to the SA
@@ -396,6 +381,7 @@ public class GroupTestGuiBean implements
         if(imlParamsVector.size() > 0)
             imt_IML_map.put(param.getName(), imlParamsVector);
       }
+      break;
     }
 
     // add the IMT paramter
@@ -412,19 +398,6 @@ public class GroupTestGuiBean implements
     imtEditor.setTitle( "Select IMT" );
   }
 
-  /**
-   *  Create time span field
-   */
-   protected void initTimespanParamListAndEditor() {
-     this.timespanParamList = new ParameterList();
-
-     DoubleParameter timeParam = new DoubleParameter(TIMESPAN_PARAM_NAME, this.DEFAULT_TIMESPAN_VAL);
-     timespanParamList.addParameter(timeParam);
-
-     // now make the editor based on the paramter list
-     timespanEditor = new ParameterListEditor( timespanParamList, searchPaths);
-     timespanEditor.setTitle( "Timespan" );
-   }
 
    /**
     * init eqkSourceParamList. List of all available sources at this time
@@ -435,7 +408,6 @@ public class GroupTestGuiBean implements
       //add the source Parameter
       Vector faultVector=new Vector();
       faultVector.add(this.SOURCE_FAULT_ONE);
-      faultVector.add(this.SOURCE_FAULT_TWO);
       faultVector.add(this.SOURCE_FAULT_AREA);
       StringParameter selectSource= new StringParameter(this.SOURCE_PARAM_NAME,
                                   faultVector, SOURCE_FAULT_ONE);
@@ -464,10 +436,17 @@ public class GroupTestGuiBean implements
       DoubleParameter depthUpperParam = new DoubleParameter(DEPTH_UPPER_PARAM_NAME);
       eqkSourceParamList.addParameter(depthUpperParam);
 
+      //add the timespan parameter
+      DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME);
+      eqkSourceParamList.addParameter(dipParam);
+
+      //add the timespan parameter
+      DoubleParameter timespanParam = new DoubleParameter(this.TIMESPAN_PARAM_NAME);
+      eqkSourceParamList.addParameter(timespanParam);
 
       // now make the editor based on the paramter list
       eqkSourceEditor = new ParameterListEditor( eqkSourceParamList, searchPaths);
-      eqkSourceEditor.setTitle( "Select Source" );
+      eqkSourceEditor.setTitle( "Select Forecast" );
       // fault 1 is selected initially
       setParamsInSourceVisible(this.SOURCE_FAULT_ONE);
 
@@ -485,27 +464,49 @@ public class GroupTestGuiBean implements
    //starting
    String S = C + ": updateSiteParamListAndEditor(): ";
 
-   siteParamList = new ParameterList();
+   // make all the parameters as invisible
+   Iterator it = imrParamList.getParameterNamesIterator();
+   while(it.hasNext()) {
+     name = (String)it.next();
+     // remove site parameters related to previous IMR
+     if(!name.equalsIgnoreCase(IMR_PARAM_NAME) &&
+        !name.equalsIgnoreCase(ClassicIMR.SIGMA_TRUNC_TYPE_NAME) &&
+        !name.equalsIgnoreCase(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME))
+
+     imrParamList.removeParameter(name);
+   }
+
+
+
    // get the selected IMR
    String value = (String)imrParamList.getParameter(this.IMR_PARAM_NAME).getValue();
-
 
    // now find the object corresponding to the selected IMR
    int numIMRs = imrObject.size();
    for(int i=0; i<numIMRs; ++i) {
      ClassicIMRAPI imr = (ClassicIMRAPI)imrObject.get(i);
+
      // if this is the selected IMR
      if(imr.getName().equalsIgnoreCase(value)) {
-       Iterator it = imr.getSiteParamsIterator();
+       // add std dev parameter
+       //it =  imr.getStdDevIndependentParamsIterator();
+       //while(it.hasNext())
+        // imrParamList.addParameter((ParameterAPI)it.next());
+       imrParamList.addParameter(imr.getParameter("Std Dev Type"));
+       it = imr.getSiteParamsIterator();
        while(it.hasNext())
-         siteParamList.addParameter((ParameterAPI)it.next());
+         imrParamList.addParameter((ParameterAPI)it.next());
        break;
      }
    }
 
-  // now make the site editor based on the param list
-   siteEditor = new ParameterListEditor( siteParamList );
-   siteEditor.setTitle( "Site Paramters" );
+   // now make the editor based on the paramter list
+  imrEditor = new ParameterListEditor( imrParamList, searchPaths);
+  imrEditor.setTitle( "Select IMR" );
+
+  // set level visible/invisible based on trunc level
+   ParameterAPI typeParam = imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
+   toggleSigmaLevelBasedOnTypeValue(typeParam.getValue().toString());
  }
 
 
@@ -547,14 +548,6 @@ public class GroupTestGuiBean implements
         return imrEditor;
  }
 
- /**
-   *  Gets the siteEditor attribute of the GroupTestGuiBean object
-   *
-   * @return    The siteEditor value
-   */
-  public ParameterListEditor getSiteEditor() {
-    return siteEditor;
- }
 
   /**
    *  Gets the Eqk source Editor attribute of the GroupTestGuiBean object
@@ -565,32 +558,15 @@ public class GroupTestGuiBean implements
      return eqkSourceEditor;
    }
 
-  /**
-   *  Gets the timespanEditor attribute of the GroupTestGuiBean object
-   *
-   * @return    The timespanEditor value
-   */
-  public ParameterListEditor getTimespanEditor() {
-    return timespanEditor;
-  }
 
-
-/**
- *  Gets the independentsEditor attribute of the MagDistGuiBean object
- *
- * @return    The independentsEditor value
- */
- public ParameterListEditor getMagDistIndependentsEditor() {
-       return this.magDistBean.getIndependentsEditor();
- }
 
  /**
   *  Gets the controlssEditor attribute of the MagDistGuiBean object
   *
   * @return    The controlsEditor value
   */
-  public ParameterListEditor getMagDistControlsEditor() {
-      return this.magDistBean.getControlsEditor();
+  public MagFreqDistParameterEditor getMagDistControlsEditor() {
+      return this.magDistEditor;
   }
 
 
@@ -622,7 +598,9 @@ public class GroupTestGuiBean implements
       // if IMR selection changed, update the site parameter list
       if ( name1.equalsIgnoreCase(this.IMR_PARAM_NAME)) {
           updateSiteParamListAndEditor();
+          initImtParamListAndEditor();
           applet.updateChoosenIMR();
+          applet.updateChoosenIMT();
       }
 
       // if Truncation type changes
@@ -654,26 +632,28 @@ public class GroupTestGuiBean implements
       eqkSourceEditor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false );
     //make the source parameter visible
     eqkSourceEditor.setParameterInvisible(this.SOURCE_PARAM_NAME,true);
+    eqkSourceEditor.setParameterInvisible(this.TIMESPAN_PARAM_NAME,true);
     Vector supportedMagDists = new Vector();
     // if fault1 or fault2 is selected
-    if(source.equalsIgnoreCase(this.SOURCE_FAULT_ONE) ||
-       source.equalsIgnoreCase(this.SOURCE_FAULT_TWO)) {
+    if(source.equalsIgnoreCase(this.SOURCE_FAULT_ONE)) {
       eqkSourceEditor.setParameterInvisible(this.GRID_PARAM_NAME, true);
       eqkSourceEditor.setParameterInvisible(this.OFFSET_PARAM_NAME, true);
       eqkSourceEditor.setParameterInvisible(this.SIGMA_PARAM_NAME, true);
-      supportedMagDists.add(MagDistGuiBean.GAUSSIAN_NAME);
-      supportedMagDists.add(MagDistGuiBean.SINGLE_NAME);
-      supportedMagDists.add(MagDistGuiBean.GR_NAME);
-      supportedMagDists.add(MagDistGuiBean.YC_1985__NAME);
+      eqkSourceEditor.setParameterInvisible(this.DIP_PARAM_NAME, true);
+      supportedMagDists.add(GaussianMagFreqDist.NAME);
+      supportedMagDists.add(SingleMagFreqDist.NAME);
+      supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
+      supportedMagDists.add(YC_1985_CharMagFreqDist.NAME);
     } else if(source.equalsIgnoreCase(this.SOURCE_FAULT_AREA)) {
        // if Area source is selected
       eqkSourceEditor.setParameterInvisible(this.GRID_PARAM_NAME, true);
       eqkSourceEditor.setParameterInvisible(this.DEPTH_LOWER_PARAM_NAME, true);
       eqkSourceEditor.setParameterInvisible(this.DEPTH_UPPER_PARAM_NAME, true);
-      supportedMagDists.add(MagDistGuiBean.GR_NAME);
+      supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
 
     }
-    this.magDistBean = new MagDistGuiBean(applet, supportedMagDists);
+    this.magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
+    magDistEditor = new  MagFreqDistParameterEditor(magDistParam);
   }
 
 
