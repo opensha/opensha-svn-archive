@@ -153,12 +153,11 @@ public abstract class DependentParameter
 
     String S = C + ": setIndependentParameters(): ";
     checkEditable(S);
-
+    independentParameters.clear();
     ListIterator it = list.getParametersIterator();
     while( it.hasNext() ){
       ParameterAPI param = (ParameterAPI)it.next();
-      if( !containsIndependentParameter( param.getName() ) )
-        addIndependentParameter(param);
+      addIndependentParameter(param);
     }
 
   }

@@ -571,7 +571,7 @@ public class MagFreqDistParameter
         /*
          * If Gaussian MagDist is selected
          */
-        if (distributionName.equalsIgnoreCase(GaussianMagFreqDist.NAME)) {
+        else if (distributionName.equalsIgnoreCase(GaussianMagFreqDist.NAME)) {
           Double mean = (Double) parameterList.getParameter(MagFreqDistParameter.
               MEAN).getValue();
           Double stdDev = (Double) parameterList.getParameter(
@@ -663,7 +663,7 @@ public class MagFreqDistParameter
         /*
          * If Gutenberg Richter MagDist is selected
          */
-        if (distributionName.equalsIgnoreCase(GutenbergRichterMagFreqDist.NAME)) {
+        else if (distributionName.equalsIgnoreCase(GutenbergRichterMagFreqDist.NAME)) {
           GutenbergRichterMagFreqDist gR =
               new GutenbergRichterMagFreqDist(min.doubleValue(), max.doubleValue(),
                                               num.intValue());
@@ -778,7 +778,7 @@ public class MagFreqDistParameter
         /*
          * If Young and Coppersmith 1985 MagDist is selected
          */
-        if (distributionName.equalsIgnoreCase(YC_1985_CharMagFreqDist.NAME)) {
+        else if (distributionName.equalsIgnoreCase(YC_1985_CharMagFreqDist.NAME)) {
 
           double magLower = ( (Double) parameterList.getParameter(
               MagFreqDistParameter.GR_MAG_LOWER).getValue()).doubleValue();
@@ -900,6 +900,7 @@ public class MagFreqDistParameter
       this.setValue(magDist);
       //creates the independent parameterList for the MagFreqDist.
       //It only saves those parameters for visible distribution.
+
       setIndependentParameters(independentParamList);
     }
 
