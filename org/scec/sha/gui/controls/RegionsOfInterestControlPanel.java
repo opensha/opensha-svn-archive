@@ -48,6 +48,13 @@ public class RegionsOfInterestControlPanel extends JFrame {
       minLonVector.add(new Double(-123));
       maxLonVector.add(new Double(-121));
 
+      //CVM region
+      regionsComboBox.addItem("CVM Region");
+      minLatVector.add(new Double(33.5));
+      maxLatVector.add(new Double(34.7));
+      minLonVector.add(new Double(-119.5));
+      maxLonVector.add(new Double(-116.898));
+
 
 
       jbInit();
