@@ -81,7 +81,7 @@ public class Borcherdt2004_SiteAmpCalc {
    return Math.pow(vs30_ref/vs30,mv);
 }
 
-/* this check the calculations agains the ShakeMap (2003) Atten. Rel. Values (all are good)
+/* this check the calculations against the ShakeMap (2003) Atten. Rel. Values (all are good)
   public static void main(String[] args) {
 
     Borcherdt2004_SiteAmpCalc calc = new Borcherdt2004_SiteAmpCalc();

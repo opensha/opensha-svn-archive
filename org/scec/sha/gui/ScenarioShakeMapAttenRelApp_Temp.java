@@ -597,7 +597,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
     mapParametersInfo = getMapParametersInfo();
 
     addButton.setEnabled(false);
-    calcProgress = new CalcProgressBar("ScenarioShakeMapApp","Initialising for shakemap calculation");
+    calcProgress = new CalcProgressBar("ScenarioShakeMapApp","Initializing ShakeMap Calculation");
    //sets the Gridded region Sites and the type of plot user wants to see
    //IML@Prob or Prob@IML and it value.
     if(hazusControl == null || !hazusControl.isGenerateShapeFilesForHazus()){
@@ -609,9 +609,9 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
     timer = new Timer(200, new ActionListener() {
       public void actionPerformed(ActionEvent evt) {
         if(step == 1)
-          calcProgress.setProgressMessage("Doing calculation for shakemap ...");
+          calcProgress.setProgressMessage("Computing the ShakeMap Data ...");
         else if(step == 2)
-          calcProgress.setProgressMessage("Generating the shakemap ...");
+          calcProgress.setProgressMessage("Generating the ShakeMap Image ...");
         else if(step ==0){
           addButton.setEnabled(true);
           timer.stop();

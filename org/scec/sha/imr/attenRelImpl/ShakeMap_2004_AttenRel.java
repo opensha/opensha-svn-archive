@@ -96,6 +96,16 @@ import org.scec.util.*;
 * simply be a subclass of IntensityMeasureRelationship.  however, it's not because it
 * uses some of the private methods of AttenuationRelationship. <p>
 *
+* TESTS:<p>
+* For pga, 0.3-sec SA, 1.0-sec SA, and 3.0-sec SA, I tested shakemaps with Vs30=760
+* at all sites against averaging rock-site maps for each attenuation relationship separately. <p>
+* I made sure that pgv predictions are 1.0-sec SA predictions multiplied by the correct
+* scaling factor. <p>
+* I confirmed that the "Greater of Two Horz." component is just 1.15* the average horizontal. <p>
+* MMI calculations generally look correct, and the object that does the actual calucation
+* (Wald_MMI_Calc) was independently validated.
+*
+*
 * @author     Edward H. Field
 * @created    May, 2004
 * @version    1.0

@@ -92,7 +92,7 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
     for(int k=0;k<numSites;++k){
       //saves the number of the current site being processed
       currentSiteBeingProcessed = k+1;
-      //for each site initialising it to 0.0
+      //for each site initializing it to 0.0
       attenRelsAvgValForSite = 0.0;
       //getting one site at a time
       Site site = griddedRegionSites.getSite(k);

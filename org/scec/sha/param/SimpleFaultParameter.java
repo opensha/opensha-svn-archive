@@ -462,7 +462,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
     if(fltName !=null) //add only if the flt NAme is not equal to null
       independentParamList.addParameter(parameterList.getParameter(this.FAULT_NAME));
 
-    //initialising the vectors for the lats, lons, depths and dips
+    //initializing the vectors for the lats, lons, depths and dips
     ArrayList lats = new ArrayList();
     ArrayList lons = new ArrayList();
     ArrayList depths = new ArrayList();

@@ -84,7 +84,7 @@ public final class BasinDepthClass {
 
       ArrayList bd= new ArrayList();
 
-      //initialising the bd vector with the Double.NaN values
+      //initializing the bd vector with the Double.NaN values
       for(int i=0;i<size;++i)
         bd.add(new Double(Double.NaN));
 

@@ -923,7 +923,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     * fill he pick list with the test case numbers and sites
     */
    private void initializeTestsAndSites() {
-     //initialising the values inside the combobox for the supported test cases and sites
+     //initializing the values inside the combobox for the supported test cases and sites
      ArrayList v = new ArrayList();
 
      //test case-1 ,Set-1

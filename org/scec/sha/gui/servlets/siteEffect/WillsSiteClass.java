@@ -84,7 +84,7 @@ public final class WillsSiteClass {
 
       ArrayList vs30= new ArrayList();
 
-      //initialising the vs30 vector with the Double.NaN values
+      //initializing the vs30 vector with the Double.NaN values
       for(int i=0;i<size;++i)
         vs30.add("NA");
 
