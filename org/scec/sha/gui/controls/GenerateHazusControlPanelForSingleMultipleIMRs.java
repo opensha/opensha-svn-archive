@@ -43,8 +43,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
   private XYZ_DataSetAPI pgv_xyzdata;
 
   //metadata string for the different IMT required to generate the shapefiles for Hazus.
-  private String metadata="Hazus Metadata: \n<br>"+
-                          "----------------------";
+  private String metadata="";
   private JButton generateHazusShapeFilesButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
@@ -118,6 +117,9 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    */
   private void generateHazusFiles(ArrayList selectedAttenRels){
 
+    //metadata String
+    metadata="<br>Hazus Metadata: \n<br>"+
+             "-------------------\n<br>";
 
     //doing for SA
     hazusCalcForSA(selectedAttenRels);
@@ -208,7 +210,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
       ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(AttenuationRelationship.PGA_NAME);
 
     pga_xyzdata = application.generateShakeMap(selectedAttenRels);
-    metadata += "IMT = PGA"+"<br>\n";
+    metadata += "IMT = PGA"+"\n";
   }
 
 
@@ -226,13 +228,13 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     //Doing for SA-0.3sec
     setSA_PeriodForSelectedIMRs(selectedAttenRels,0.3);
     sa03_xyzdata = application.generateShakeMap(selectedAttenRels);
-    metadata = metadata += "IMT = SA[ SA Period = 0.3 ; SA Damping = 5.0 ]"+"<br>\n";
+    metadata += "IMT = SA[  SA Damping = 5.0 ; SA Period = 0.3 ]"+"<br>\n";
 
     step =3;
     //Doing for SA-1.0sec
     setSA_PeriodForSelectedIMRs(selectedAttenRels,1.0);
     sa10_xyzdata = application.generateShakeMap(selectedAttenRels);
-    metadata = metadata += "IMT = SA[ SA Period = 1.0 ; SA Damping = 5.0 ]"+"<br>\n";
+    metadata += "IMT = SA[  SA Damping = 5.0 ; SA Period = 1.0 ]"+"<br>\n";
   }
 
   /**
@@ -271,7 +273,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
       }
       pgvDataSet = new ArbDiscretizedXYZ_DataSet(pgvDataSet.getX_DataSet(),
           pgvDataSet.getY_DataSet(), newZVals);
-      metadata += "IMT= PGV"+"<br>\n";
+      metadata += "IMT = PGV"+"<br>\n";
     }
     return pgvDataSet;
   }
@@ -373,11 +375,10 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    */
   public void generateShapeFilesForHazus(){
 
-
-    generateHazusFiles(application.getSelectedAttenuationRelationships());
     //keeps tracks if the user has pressed the button to generate the xyz dataset
     //for prodcing the shapefiles for Hazus.
     setGenerateShapeFilesForHazus(true);
+    generateHazusFiles(application.getSelectedAttenuationRelationships());
     step = 0;
   }
 

@@ -452,10 +452,6 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.INFORMATION_MESSAGE);
       return;
     }
-    //make sures that next time user wants to generate the shapefiles for hazus
-    //he would have to pull up the control panel again and punch the button.
-    if(hazusControl !=null)
-      hazusControl.setGenerateShapeFilesForHazus(false);
   }
 
 
@@ -558,16 +554,17 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
    */
   public void makeMapForHazus(XYZ_DataSetAPI datasetForSA_03,XYZ_DataSetAPI datasetForSA_1,
                               XYZ_DataSetAPI datasetForPGA,XYZ_DataSetAPI datasetForPGV){
-    String label;
-    String imlOrProb=imlProbGuiBean.getSelectedOption();
-    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
-      label="Prob";
-    else
-      label=imrGuiBean.getSelectedIMT();
+    //sets the region coordinates for the GMT using the MapGuiBean
+    setRegionForGMT();
+
+    String label = getMapLabel();
 
     //creates the maps and information that goes into the Hazus.
     mapGuiBean.makeHazusShapeFilesAndMap(datasetForSA_03,datasetForSA_1,
         datasetForPGA,datasetForPGV,erfGuiBean.getRupture(),label,getMapParametersInfo());
+    //make sures that next time user wants to generate the shapefiles for hazus
+    //he would have to pull up the control panel again and punch the button.
+    hazusControl.setGenerateShapeFilesForHazus(false);
   }
 
 
@@ -606,18 +603,18 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
 
     addButton.setEnabled(false);
     calcProgress = new CalcProgressBar("ScenarioShakeMapApp","Initializing ShakeMap Calculation");
-   //sets the Gridded region Sites and the type of plot user wants to see
-   //IML@Prob or Prob@IML and it value.
-    if(hazusControl == null || !hazusControl.isGenerateShapeFilesForHazus()){
-      try{
-        getGriddedSitesMapTypeAndSelectedAttenRels();
-      }catch(RuntimeException ee){
-        addButton.setEnabled(true);
-        return;
-      }
-      // this function will get the selected IMT parameter and set it in IMT
-      imrGuiBean.setIMT();
+    //sets the Gridded region Sites and the type of plot user wants to see
+    //IML@Prob or Prob@IML and it value.
+
+    try{
+      getGriddedSitesMapTypeAndSelectedAttenRels();
+    }catch(RuntimeException ee){
+      addButton.setEnabled(true);
+      return;
     }
+
+    // this function will get the selected IMT parameter and set it in IMT
+    imrGuiBean.setIMT();
 
     timer = new Timer(200, new ActionListener() {
       public void actionPerformed(ActionEvent evt) {
@@ -649,18 +646,26 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
     setRegionForGMT();
     ++step;
 
-    //making the map
-    String label;
-    String imlOrProb=imlProbGuiBean.getSelectedOption();
-    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
-      label="Prob";
-    else
-      label=imrGuiBean.getSelectedIMT();
-
+    String label = getMapLabel();
     mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,mapParametersInfo);
 
     step =0;
-}
+  }
+
+  /**
+   *
+   * @returns the Map label based on the selected Map Type( Prob@IML or IML@Prob)
+   */
+  private String getMapLabel(){
+    //making the map
+    String label;
+
+    if(probAtIML)
+      label="Prob";
+    else
+      label=imrGuiBean.getSelectedIMT();
+    return label;
+  }
 
 
 
@@ -772,11 +777,13 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
   public String getMapParametersInfo(){
 
     String imrMetadata = "IMR Param List:<br>\n " +
-           "---------------<br>\n"+
-        this.imrGuiBean.getParameterListMetadataString()+"\n";
+           "---------------<br>\n";
+
     //if the Hazus Control for Sceario is selected the get the metadata for IMT from there
-    if(hazusControl !=null && hazusControl.isGenerateShapeFilesForHazus())
-      imrMetadata = imrMetadata+hazusControl.getIMT_Metadata();
+    if(hazusControl!=null && hazusControl.isGenerateShapeFilesForHazus())
+      imrMetadata +=imrGuiBean.getIMR_ParameterListMetadataString()+hazusControl.getIMT_Metadata()+"\n";
+    else
+      imrMetadata += imrGuiBean.getIMR_ParameterListMetadataString()+imrGuiBean.getIMT_ParameterListMetadataString()+"\n";
 
     return imrMetadata+
         "<br><br>Region Param List: <br>\n"+

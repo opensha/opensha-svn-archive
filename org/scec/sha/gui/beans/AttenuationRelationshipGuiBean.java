@@ -1197,7 +1197,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
    *
    * @returns the Metadata string for the IMR Gui Bean
    */
-  public String getParameterListMetadataString(){
+  public String getIMR_ParameterListMetadataString(){
     String metadata = "";
     if(!this.singleAttenRelSelected){
       for(int i=0;i<numSupportedAttenRels;++i){
@@ -1211,10 +1211,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
     else{
       metadata = this.singleAttenRelParamList.getParameterListMetadataString();
     }
-    //metadata +=" Identical Param: "+otherParamsEditor.getVisibleParameters().toString();
-    String imtMetadata = getIMT_ParameterListMetadataString()+"\n<br>";
-    metadata = imtMetadata + metadata;
-    return metadata;
+    return metadata+"<br>\n";
   }
 
 
@@ -1222,8 +1219,8 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
    *
    * @returns the Metadata string for the IMT Gui Bean
    */
- private String getIMT_ParameterListMetadataString(){
-   String metadata=null;
+ public String getIMT_ParameterListMetadataString(){
+   String metadata="";
    ListIterator it = imtEditorParamListEditor.getVisibleParameters().getParametersIterator();
    int paramSize = imtEditorParamListEditor.getVisibleParameters().size();
    while(it.hasNext()){
@@ -1243,7 +1240,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
      metadata = metadata.substring(0,metadata.length()-3);
    if(paramSize >1)
    metadata +=" ] ";
-   return metadata;
+   return metadata+"<br>\n";
  }
 
 
