@@ -118,6 +118,17 @@ public class PointGR_EqkSource extends ProbEqkSource {
   }
 
 
+  /**
+   * This method allows one to change the location without changing
+   * anything else.
+   * @param loc
+   */
+  public void setLocation(Location loc) {
+    location = loc;
+    probEqkRupture.setPointSurface(location);
+  }
+
+
   /** Set the time span in years
    *
    * @param yrs : timeSpan as specified in  Number of years

@@ -49,6 +49,27 @@ public class HazardCurveCalculator {
     ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
     for(int i=0;i < numSources ;i++) {
 
+      if(D)  {
+        if(i == (int) (numSources*0.9))
+              System.out.println(C + " 10% done");
+        if(i == (int) (numSources*0.8))
+              System.out.println(C + " 20% done");
+        if(i == (int) (numSources*0.7))
+              System.out.println(C + " 30% done");
+        if(i == (int) (numSources*0.6))
+              System.out.println(C + " 40% done");
+        if(i == (int) (numSources*0.5))
+              System.out.println(C + " 50% done");
+        if(i == (int) (numSources*0.4))
+              System.out.println(C + " 60% done");
+        if(i == (int) (numSources*0.3))
+              System.out.println(C + " 70% done");
+        if(i == (int) (numSources*0.2))
+              System.out.println(C + " 80% done");
+        if(i == (int) (numSources*0.1))
+              System.out.println(C + " 90% done");
+      }
+
       // get source and get its distance from the site
       ProbEqkSource source = eqkRupForecast.getSource(i);
       double distance = source.getMinDistance(site);

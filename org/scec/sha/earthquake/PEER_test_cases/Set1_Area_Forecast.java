@@ -44,6 +44,13 @@ public class Set1_Area_Forecast extends EqkRupForecast
    */
   private double timeSpan;
   private TimeSpan time;
+  private double rake;
+
+  // this is the GR distribution used for all sources
+  private GutenbergRichterMagFreqDist source_GR;
+
+  // this is the source
+  private PointGR_EqkSource pointGR_EqkSource;
 
 
   /**
@@ -64,11 +71,6 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private static final double LONG_CENTER= -122.0;
 
   private static final double MAX_DISTANCE =100;
-  /**
-   * definition of the vectors for storing the sources
-   */
-  private Vector area_EqkSources = new Vector();
-
 
   //Param Name
   private final static String GRID_PARAM_NAME =  "Area Grid Spacing";
@@ -100,7 +102,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
   // default grid spacing is 1km
   private Double DEFAULT_GRID_VAL = new Double(1);
 
-  //top loaction
+  // list of forecast locations
   private LocationList locationList;
 
 
@@ -154,7 +156,6 @@ public class Set1_Area_Forecast extends EqkRupForecast
     // create the supported Mag-Dist parameter
     supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
     magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
-    //add the magdist parameter
     adjustableParams.addParameter(this.magDistParam);
 
 
@@ -187,7 +188,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
 
 
   /**
-   * update the sources based on the user paramters, only when user has changed any parameter
+   * update the sources based on the user paramters, only when user has changed a parameter
    */
   public void updateForecast(){
 
@@ -195,10 +196,9 @@ public class Set1_Area_Forecast extends EqkRupForecast
 
       // check if magDist is null
       if(this.magDistParam==null)
-          throw new RuntimeException("Click on update MagDist button and then choose Add Plot");
+          throw new RuntimeException("Magnitude Distribution is null");
 
       double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
-
       double depthLower =((Double)this.depthLowerParam.getValue()).doubleValue();
       double depthUpper =((Double)this.depthUpperParam.getValue()).doubleValue();
 
@@ -218,25 +218,22 @@ public class Set1_Area_Forecast extends EqkRupForecast
                 locationList.addLocation(new Location(lat,lon,depth));
 
       int numLocs = locationList.size();
+System.out.println("done making location list; numLocs="+numLocs);
 
       /* getting the Gutenberg magnitude distribution and scaling its cumRate to the original cumRate
        * divided by the number of the locations (note that this is a clone of what's in the magDistParam)
        */
-      GutenbergRichterMagFreqDist gR = (GutenbergRichterMagFreqDist) ((GutenbergRichterMagFreqDist)magDistParam.getValue()).deepClone();
+      source_GR = (GutenbergRichterMagFreqDist) ((GutenbergRichterMagFreqDist)magDistParam.getValue()).deepClone();
 
-      double cumRate = gR.getCumRate((int) 0);
+      double cumRate = source_GR.getCumRate((int) 0);
       cumRate /= numLocs;
-      gR.scaleToCumRate(0,cumRate);
+      source_GR.scaleToCumRate(0,cumRate);
 
-      //creating the PointGR sources  and adding the objects for sources in the vector.
-      //FIX FIX have to have rake parameter;
+      rake = ((Double) rakeParam.getValue()).doubleValue();
 
-      for(int i=0;i<numLocs;++i){
-        PointGR_EqkSource pointGR_EqkSource = new PointGR_EqkSource(locationList.getLocationAt(i),gR,
-                                              ((Double)this.rakeParam.getValue()).doubleValue());
-        area_EqkSources.add(pointGR_EqkSource);
-      }
       setTimeSpan(((Double) timespanParam.getValue()).doubleValue());
+
+      pointGR_EqkSource = new PointGR_EqkSource(new Location(),source_GR, rake);
     }
     parameterChangeFlag = false;
   }
@@ -250,10 +247,6 @@ public class Set1_Area_Forecast extends EqkRupForecast
    */
   public void setTimeSpan(double yrs){
     timeSpan =yrs;
-    int size = area_EqkSources.size();
-    for( int i =0; i<size; ++i)
-      ((PointGR_EqkSource)area_EqkSources.get(i)).setTimeSpan(yrs);
-
   }
 
   /**
@@ -306,7 +299,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
   /**
    * Return the earhthquake source at index i. This methos returns the reference to
    * the class variable. So, when you call this method again, result from previous
-   * method call is no longer valid.
+   * method call may no longer bevalid.
    * this is secret, fast but dangerous method
    *
    * @param iSource : index of the source needed
@@ -315,7 +308,10 @@ public class Set1_Area_Forecast extends EqkRupForecast
    *
    */
   public ProbEqkSource getSource(int iSource) {
-    return (ProbEqkSource) area_EqkSources.get(iSource);
+
+    pointGR_EqkSource.setLocation(locationList.getLocationAt(iSource));
+    pointGR_EqkSource.setTimeSpan(timeSpan);
+    return pointGR_EqkSource;
   }
 
   /**
@@ -324,7 +320,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
    * @return integer value specifying the number of earthquake sources
    */
   public int getNumSources(){
-    return area_EqkSources.size();
+    return locationList.size();
   }
 
   /**
@@ -342,38 +338,28 @@ public class Set1_Area_Forecast extends EqkRupForecast
    */
   public ProbEqkSource getSourceClone(int iSource) {
     return null;
-      /*ProbEqkSource probEqkSource =getSource(iSource);
-      if(probEqkSource instanceof WardGridTestCharEqkSource){
-          WardGridTestCharEqkSource probEqkSource1 = (WardGridTestCharEqkSource)probEqkSource;
-          ProbEqkRupture r = probEqkSource1.getRupture(0);
-          r.
-          WardGridTestCharEqkSource frankel96_Char = new WardGridTestCharEqkSource(;
-
-      }*/
 
   }
 
 
   /**
-   * Return  iterator over all the earthquake sources
+   * Not yet implemented
    *
    * @return Iterator over all earhtquake sources
    */
   public Iterator getSourcesIterator() {
 
-    return area_EqkSources.iterator();
+    return null;
   }
 
   /**
-   * Get the list of all earthquake sources. Clone is returned.
-   * All the 3 different Vector source List are combined into the one Vector list
-   * So, list can be save in Vector and this object subsequently destroyed
+   * Not yet implemented
    *
    * @return Vector of Prob Earthquake sources
    */
   public Vector  getSourceList(){
 
-    return area_EqkSources;
+    return null;
   }
 
 
