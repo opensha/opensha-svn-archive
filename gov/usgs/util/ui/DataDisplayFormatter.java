@@ -81,8 +81,8 @@ public final class DataDisplayFormatter {
                                                  String xAxisUnits, String yAxisUnits,
                                                  String text) {
     String dataInfo = "";
-    dataInfo += text+"\n"+xAxisString+"\t" + yAxisString + "\n";
-    dataInfo += xAxisUnits+"\t"+yAxisUnits +"\n";
+    dataInfo += text+"\n"+xAxisString+"    \t    " + yAxisString + "\n";
+    dataInfo += xAxisUnits+"\t\t"+yAxisUnits +"\n";
 
     for(int i=0;i<function.getNum();++i)
       dataInfo += saValFormat.format(function.getX(i)) + "\t" + annualExceedanceFormat.format(function.getY(i))+ "\n";

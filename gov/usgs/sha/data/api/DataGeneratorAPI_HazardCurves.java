@@ -1,7 +1,7 @@
 package gov.usgs.sha.data.api;
 
 import gov.usgs.exceptions.*;
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import java.util.ArrayList;
 
 
 /**
@@ -31,13 +31,13 @@ public interface DataGeneratorAPI_HazardCurves {
    * Gets the data for Hazard Curve in case region specified is not a Territory and user
    * specifies Lat-Lon for the location.
    */
-  public ArbitrarilyDiscretizedFunc calculateHazardCurve(double lat, double lon,String selectedHazCurveType);
+  public void calculateHazardCurve(double lat, double lon,String selectedHazCurveType);
 
   /**
    * Gets the data for Hazard Curve in case region specified is not a Territory and user
    * specifies zip code for the location.
    */
-  public ArbitrarilyDiscretizedFunc calculateHazardCurve(String zipCode,String selectedHazCurveType) throws ZipCodeErrorException;
+  public void calculateHazardCurve(String zipCode,String selectedHazCurveType) throws ZipCodeErrorException;
 
   /**
    * Sets the selected geographic region.
@@ -51,5 +51,25 @@ public interface DataGeneratorAPI_HazardCurves {
    */
   public void setEdition(String edition);
 
+  /**
+   * Calculates the single value Hazard Curve when user provides with the return period
+   * @param returnPeriod double
+   */
+  public void calcSingleValueHazardCurveUsingReturnPeriod(double returnPeriod,
+      boolean logInterpolation);
 
+  /**
+   * Returns the Calculated Hazard curve function
+   * @return ArrayList
+   */
+  public ArrayList getHazardCurveFunction();
+
+  /**
+   * Calcutes the single value Hazard curve when user provides with the prob exceedance and
+   * Exposure time.
+   * @param probExceedProb double
+   * @param expTime double
+   */
+  public void calcSingleValueHazardCurveUsingPEandExptime(double probExceedProb,
+      double expTime, boolean logInterpolation);
 }

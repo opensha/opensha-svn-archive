@@ -6,6 +6,7 @@ import gov.usgs.exceptions.*;
 import gov.usgs.sha.data.api.*;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import gov.usgs.util.GlobalConstants;
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: DataGenerator_HazardCurves</p>
@@ -33,6 +34,15 @@ public class DataGenerator_HazardCurves
   //metadata to be shown when plotting the curves
   private String metadataForPlots;
 
+  private ArbitrarilyDiscretizedFunc hazardCurveFunction;
+
+  private final static double EXP_TIME = 50.0;
+
+
+  private static DecimalFormat percentageFormat = new DecimalFormat("0.00");
+  private static DecimalFormat saValFormat = new DecimalFormat("0.0000");
+  private static DecimalFormat annualExceedanceFormat = new DecimalFormat("0.000E00#");
+
 
   public DataGenerator_HazardCurves() {
   }
@@ -47,7 +57,7 @@ public class DataGenerator_HazardCurves
    * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_HazardCurves
    *   method
    */
-  public ArbitrarilyDiscretizedFunc calculateHazardCurve(double lat, double lon,String hazCurveType) {
+  public void calculateHazardCurve(double lat, double lon,String hazCurveType) {
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getBasicHazardcurve(geographicRegion,dataEdition,
         lat,lon,hazCurveType);
@@ -58,8 +68,7 @@ public class DataGenerator_HazardCurves
     function.setName(GlobalConstants.BASIC_HAZARD_CURVE);
     function.setXAxisName(GlobalConstants.HAZARD_CURVE_X_AXIS_NAME+"("+GlobalConstants.SA_UNITS+")");
     function.setYAxisName(GlobalConstants.HAZARD_CURVE_Y_AXIS_NAME);
-
-    return function;
+    hazardCurveFunction = function;
   }
 
   /**
@@ -72,7 +81,7 @@ public class DataGenerator_HazardCurves
    * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_HazardCurves
    *   method
    */
-  public ArbitrarilyDiscretizedFunc calculateHazardCurve(String zipCode,String hazCurveType) throws
+  public void calculateHazardCurve(String zipCode,String hazCurveType) throws
       ZipCodeErrorException {
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getBasicHazardcurve(geographicRegion,dataEdition,
@@ -84,7 +93,14 @@ public class DataGenerator_HazardCurves
     function.setName(GlobalConstants.BASIC_HAZARD_CURVE);
     function.setXAxisName(GlobalConstants.HAZARD_CURVE_X_AXIS_NAME+"("+GlobalConstants.SA_UNITS+")");
     function.setYAxisName(GlobalConstants.HAZARD_CURVE_Y_AXIS_NAME);
-    return function;
+    hazardCurveFunction = function;
+  }
+
+
+  public ArrayList getHazardCurveFunction(){
+    ArrayList functionList = new ArrayList();
+    functionList.add(hazardCurveFunction);
+    return functionList;
   }
 
 
@@ -94,6 +110,45 @@ public class DataGenerator_HazardCurves
     metadataForPlots += geographicRegion + "\n";
     metadataForPlots += dataEdition + "\n";
     metadataForPlots += location +"\n";
+  }
+
+
+
+  public void calcSingleValueHazardCurveUsingReturnPeriod(double returnPeriod,
+      boolean logInterpolation) {
+    HazardDataMiner miner = new HazardDataMiner();
+    double fex = 1/returnPeriod;
+    double exceedProb = miner.getExceedProb(fex,EXP_TIME);
+    double saVal=0.0;
+    if(logInterpolation)
+      saVal=hazardCurveFunction.getFirstInterpolatedX_inLogXLogYDomain(fex);
+    else
+      saVal=hazardCurveFunction.getFirstInterpolatedX(fex);
+    addDataFromSingleHazardCurveValue(fex,returnPeriod,exceedProb,EXP_TIME,saVal);
+  }
+
+  public void calcSingleValueHazardCurveUsingPEandExptime(double probExceed,
+      double expTime, boolean logInterpolation) {
+    HazardDataMiner miner = new HazardDataMiner();
+    double returnPd = miner.getReturnPeriod(probExceed, expTime);
+    double fex = 1/returnPd;
+    double saVal=0.0;
+    if(logInterpolation)
+      saVal=hazardCurveFunction.getFirstInterpolatedX_inLogXLogYDomain(fex);
+    else
+      saVal=hazardCurveFunction.getFirstInterpolatedX(fex);
+    addDataFromSingleHazardCurveValue(fex,returnPd,probExceed,expTime,saVal);
+  }
+
+
+
+  private void addDataFromSingleHazardCurveValue(double fex,double returnPd,double probExceed,
+                                            double expTime,double groundMotion){
+    dataInfo +="\n\n";
+    dataInfo +="Ground Motion \t Freq. of Exceed. \t Return Pd. \t P.E. \t Exp.time \n";
+    dataInfo +="(g)\t\t(per year)\t\t(years)\t%\t(years)\n";
+    dataInfo +=saValFormat.format(groundMotion)+"\t\t"+annualExceedanceFormat.format(fex)+
+        "\t\t"+returnPd+"\t"+percentageFormat.format(probExceed)+"\t"+expTime+"\n";
   }
 
 

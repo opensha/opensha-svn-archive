@@ -76,8 +76,9 @@ public class ProbHazCurvesGuiBean
 
   private DataGeneratorAPI_HazardCurves dataGenerator = new  DataGenerator_HazardCurves();
 
-  private ArbitrarilyDiscretizedFunc hazardCurveFunction;
-
+  private static final String SINGLE_HAZARD_CURVE_PARAM_NAME = "Calculate single hazard curve using";
+  private static final String USING_RETURN_PERIOD  = "Using Return Period";
+  private static final String USING_EXCEED_PROB_AND_EXP_TIME  = "Using Exceed prob. and Exp. time";
 
   private static final String RETURN_PERIOD_PARAM_NAME = "Return Period";
   private static final String PROB_EXCEED_PARAM_NAME = "Prob. of Exceedance";
@@ -89,7 +90,8 @@ public class ProbHazCurvesGuiBean
   //instance of the application using this GUI bean
   private ProbabilisticHazardApplicationAPI application;
 
-  private String selectedRegion,selectedEdition,imt,returnPeriod,exceedProbVal,expTimeVal;
+  private String selectedRegion,selectedEdition,imt,returnPeriod,exceedProbVal,expTimeVal,
+      singleHazardCalcMethod;
 
   public ProbHazCurvesGuiBean(ProbabilisticHazardApplicationAPI api) {
     application = api;
@@ -176,22 +178,58 @@ public class ProbHazCurvesGuiBean
         EXP_TIME_PARAM_NAME, expTimeConstraint,
         "Years", (String) supportedExpTimeList.get(0));
 
+    ArrayList supportedSingleHazardCalcMethodList = new ArrayList();
+    supportedSingleHazardCalcMethodList.add(USING_RETURN_PERIOD);
+    supportedSingleHazardCalcMethodList.add(USING_EXCEED_PROB_AND_EXP_TIME);
+    StringConstraint   singleHazardCalcMethodConstraint =
+        new StringConstraint(supportedSingleHazardCalcMethodList);
+    StringParameter singleHazardCalcMethodParam = new StringParameter(SINGLE_HAZARD_CURVE_PARAM_NAME,
+        singleHazardCalcMethodConstraint,(String)supportedSingleHazardCalcMethodList.get(0));
+
+    singleHazardCalcMethod = (String) singleHazardCalcMethodParam.getValue();
+
     returnPeriod = (String) returnPeriodParam.getValue();
-    exceedProbVal = (String) exceedProbParam.getValue();
-    expTimeVal = (String) expTimeParam.getValue();
 
     singleHazardValParameterList = new ParameterList();
+    singleHazardValParameterList.addParameter(singleHazardCalcMethodParam);
     singleHazardValParameterList.addParameter(returnPeriodParam);
     singleHazardValParameterList.addParameter(exceedProbParam);
     singleHazardValParameterList.addParameter(expTimeParam);
 
+    singleHazardCalcMethodParam.addParameterChangeListener(this);
     returnPeriodParam.addParameterChangeListener(this);
     exceedProbParam.addParameterChangeListener(this);
     expTimeParam.addParameterChangeListener(this);
     singleHazardValListEditor = new ParameterListEditor(
         singleHazardValParameterList);
+
+    setParametersForSingleHazardValueVisible();
     singleHazardValListEditor.setTitle("");
   }
+
+
+  /**
+   * Making the parameters for the Single Value Hazard Curve visible or invisible
+   * based on the mode user has chosen to calculate.
+   */
+  private void setParametersForSingleHazardValueVisible(){
+
+    //if the selected parameter is the Return Period
+    if(singleHazardCalcMethod.equals(USING_RETURN_PERIOD)){
+      singleHazardValListEditor.setParameterVisible(PROB_EXCEED_PARAM_NAME,false);
+      singleHazardValListEditor.setParameterVisible(EXP_TIME_PARAM_NAME,false);
+      singleHazardValListEditor.setParameterVisible(RETURN_PERIOD_PARAM_NAME, true);
+    }
+    //if the selected parameter is the Exceed Prob and Exp time
+    else if(singleHazardCalcMethod.equals(USING_EXCEED_PROB_AND_EXP_TIME)){
+      singleHazardValListEditor.setParameterVisible(RETURN_PERIOD_PARAM_NAME, false);
+      singleHazardValListEditor.setParameterVisible(PROB_EXCEED_PARAM_NAME,true);
+      singleHazardValListEditor.setParameterVisible(EXP_TIME_PARAM_NAME,true);
+    }
+  }
+
+
+
 
   private void jbInit() throws Exception {
     this.setLayout(borderLayout1);
@@ -259,7 +297,7 @@ public class ProbHazCurvesGuiBean
     mainSplitPane.setDividerLocation(350);
     locationSplitPane.setDividerLocation(155);
     buttonsSplitPane.setDividerLocation(150);
-
+    singleHazardCurveValButton.setEnabled(false);
   }
 
 
@@ -270,6 +308,7 @@ public class ProbHazCurvesGuiBean
    */
   public void clearData(){
     dataGenerator.clearData();
+    singleHazardCurveValButton.setEnabled(false);
   }
 
   /**
@@ -292,6 +331,11 @@ public class ProbHazCurvesGuiBean
     else if(paramName.equals(datasetGui.EDITION_PARAM_NAME)){
       selectedEdition = datasetGui.getSelectedDataSetEdition();
     }
+    else if(paramName.equals(SINGLE_HAZARD_CURVE_PARAM_NAME)){
+      singleHazardCalcMethod= (String)singleHazardValListEditor.getParameterEditor(
+          SINGLE_HAZARD_CURVE_PARAM_NAME).getValue();
+      setParametersForSingleHazardValueVisible();
+    }
     else if (paramName.equals(HAZ_CURVE_IMT_PERIOD_PARAM_NAME))
       imt = (String) hazardCurveIMTPeriodSelectionParam.getValue();
     else if (paramName.equals(RETURN_PERIOD_PARAM_NAME))
@@ -299,7 +343,7 @@ public class ProbHazCurvesGuiBean
           RETURN_PERIOD_PARAM_NAME).getValue();
     else if (paramName.equals(PROB_EXCEED_PARAM_NAME))
       exceedProbVal = (String) singleHazardValListEditor.getParameterEditor(
-          RETURN_PERIOD_PARAM_NAME).getValue();
+          PROB_EXCEED_PARAM_NAME).getValue();
     else if (paramName.equals(EXP_TIME_PARAM_NAME))
       expTimeVal = (String) singleHazardValListEditor.getParameterEditor(
           EXP_TIME_PARAM_NAME).getValue();
@@ -349,8 +393,8 @@ public class ProbHazCurvesGuiBean
 
     ArrayList supportedEditionList = new ArrayList();
     if(selectedRegion.equals(GlobalConstants.CONTER_48_STATES)){
-      supportedEditionList.add(GlobalConstants.data_1996);
       supportedEditionList.add(GlobalConstants.data_2002);
+      supportedEditionList.add(GlobalConstants.data_1996);
     }
     else if(selectedRegion.equals(GlobalConstants.ALASKA)||
             selectedRegion.equals(GlobalConstants.HAWAII))
@@ -396,7 +440,7 @@ public class ProbHazCurvesGuiBean
           Location loc = locGuiBean.getSelectedLocation();
           double lat = loc.getLatitude();
           double lon = loc.getLongitude();
-          hazardCurveFunction = dataGenerator.calculateHazardCurve(lat, lon,imt);
+          dataGenerator.calculateHazardCurve(lat, lon,imt);
         }
         catch (LocationErrorException e) {
           JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
@@ -408,8 +452,7 @@ public class ProbHazCurvesGuiBean
       else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
         try {
           String zipCode = locGuiBean.getZipCode();
-
-          hazardCurveFunction = dataGenerator.calculateHazardCurve(zipCode,imt);
+          dataGenerator.calculateHazardCurve(zipCode,imt);
         }
         catch (ZipCodeErrorException e) {
           JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
@@ -437,19 +480,29 @@ public class ProbHazCurvesGuiBean
   }
 
   void viewCurveButton_actionPerformed(ActionEvent e) {
-    ArrayList functions = new ArrayList();
-    functions.add(hazardCurveFunction);
-    GraphWindow window = new GraphWindow(functions);
+    GraphWindow window = new GraphWindow(dataGenerator.getHazardCurveFunction());
     window.show();
   }
 
   void hazCurveCalcButton_actionPerformed(ActionEvent e) {
     getDataForSA_Period();
     application.setDataInWindow(getData());
+    singleHazardCurveValButton.setEnabled(true);
   }
 
+  /**
+   * Calculates the Single Hazard Curve Value
+   * @param e ActionEvent
+   */
   void singleHazardCurveValButton_actionPerformed(ActionEvent e) {
 
+    boolean isLogInterpolation = logInterpolationRadioButton.isSelected();
+    if(singleHazardCalcMethod.equals(USING_EXCEED_PROB_AND_EXP_TIME))
+      dataGenerator.calcSingleValueHazardCurveUsingPEandExptime(Double.parseDouble(exceedProbVal),
+          Double.parseDouble(expTimeVal),isLogInterpolation);
+    else
+      dataGenerator.calcSingleValueHazardCurveUsingReturnPeriod(Double.parseDouble(returnPeriod),
+          isLogInterpolation);
+    application.setDataInWindow(getData());
   }
-
 }

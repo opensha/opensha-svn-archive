@@ -6,6 +6,7 @@ import gov.usgs.exceptions.ZipCodeErrorException;
 import gov.usgs.sha.calc.HazardDataCalc;
 
 
+
 /**
  * <p>Title: HazardDataMiner</p>
  *
@@ -22,6 +23,34 @@ public class HazardDataMiner {
    */
   public HazardDataMiner() {
   }
+
+
+
+  /**
+   *
+   * @param hazardCurveFunction ArbitrarilyDiscretizedFunc
+   * @param fex double Frequency of exceedance = 1/ReturnPd
+   * @param expTime double
+   * @return double
+   */
+  public double getExceedProb(
+      double fex, double expTime) {
+      HazardDataCalc calc = new HazardDataCalc();
+      return calc.computeExceedProb(fex,expTime);
+  }
+
+  /**
+   *
+   * @param exceedProb double
+   * @param expTime double
+   * @return double
+   */
+  public double getReturnPeriod(double exceedProb, double expTime) {
+      HazardDataCalc calc = new HazardDataCalc();
+      return calc.computeReturnPeriod(exceedProb,expTime);
+  }
+
+
 
 
   /**

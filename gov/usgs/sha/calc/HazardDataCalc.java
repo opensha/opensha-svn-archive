@@ -17,6 +17,34 @@ public class HazardDataCalc {
 
 
 
+
+    /**
+     *
+     * @param hazardCurveFunction ArbitrarilyDiscretizedFunc
+     * @param fex double Frequency of exceedance = 1/ReturnPd
+     * @param expTime double
+     * @return double
+     */
+    public double computeExceedProb(
+      double fex, double expTime) {
+      SingleValueHazardCurveCalculator calc = new SingleValueHazardCurveCalculator();
+      return calc.calculateProbExceed(fex,expTime);
+
+    }
+
+  /**
+   *
+   * @param exceedProb double
+   * @param expTime double
+   * @return double
+   */
+  public double computeReturnPeriod(double exceedProb, double expTime) {
+      SingleValueHazardCurveCalculator calc = new SingleValueHazardCurveCalculator();
+      return calc.calculateReturnPeriod(exceedProb,expTime);
+  }
+
+
+
   /**
    *
    * @param selectedRegion String

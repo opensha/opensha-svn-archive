@@ -126,7 +126,7 @@ public class LocationGuiBean
 
     StringParameter zipParam = null;
     if (isZipCodeSupported) {
-      zipParam = new StringParameter(ZIP_CODE_PARAM_NAME," ");
+      zipParam = new StringParameter(ZIP_CODE_PARAM_NAME,"");
       zipParam.addParameterChangeListener(this);
       parameterList.addParameter(zipParam);
     }
