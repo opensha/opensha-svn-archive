@@ -920,8 +920,9 @@ public class MagFreqDistTesterApplet extends JApplet
 
         String title = this.getCurrentMagDistName();
 
-
-
+        incrData.setConvertZeroToMin(true,new Double(.0000001));
+        toCumData.setConvertZeroToMin(true,.0000001);
+        toMoData.setConvertZeroToMin(true,.0000000001);
 
         // create X- axis for mag vs incremental rate
         incrXAxis = new SHAHorizontalNumberAxis( incrXAxisLabel );
@@ -952,7 +953,6 @@ public class MagFreqDistTesterApplet extends JApplet
           incrYAxis = new SHAVerticalNumberAxis(incrYAxisLabel);
           cumYAxis = new SHAVerticalNumberAxis(cumYAxisLabel);
           moYAxis = new SHAVerticalNumberAxis(moYAxisLabel);
-
        }
 
        // set properties for mag vs incremental rate Y- axis

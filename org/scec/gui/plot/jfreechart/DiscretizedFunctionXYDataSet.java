@@ -64,6 +64,9 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
 
     protected LinkedList xLogs = new LinkedList();
 
+    private double minVal = Double.MIN_VALUE;
+    private boolean convertZeroToMin = false;
+
 
     /**
      *  no arg constructor
@@ -187,8 +190,12 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
                 // get the value
                 double y = ( ( DiscretizedFuncAPI ) obj ).getY(item);
 
+                if(convertZeroToMin)
+                  if(y==0)
+                     return (Number)(new Double(minVal));
                 // return if not NaN
                 if( y != Double.NaN ) return (Number)(new Double(y));
+
 
             }
         }
@@ -287,31 +294,18 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
     public DiscretizedFuncList getFunctions() { return functions; }
     public void setFunctions(DiscretizedFuncList functions) {
         this.functions = functions;
-//      prepForXLog();
     }
+
+    public void setConvertZeroToMin(boolean zeroToMin) {
+       convertZeroToMin = zeroToMin;
+    }
+
+    public void setConvertZeroToMin(boolean zeroMin,double minVal){
+       convertZeroToMin = zeroMin;
+       this.minVal = minVal;
+    }
+
 }
 
 
-/*
-    public void prepForXLog(){
-        xLogs.clear();
 
-        ListIterator it = functions.listIterator();
-        int counter = 0;
-        while( it.hasNext() ){
-
-            boolean isZero = false;
-
-            DiscretizedFuncAPI f = (DiscretizedFuncAPI)it.next();
-            double firstX = f.getX(0);
-            if( firstX == Double.NaN ) isZero = false;
-            else if( firstX == 0 ) isZero = true;
-
-            Boolean isZeroB = new Boolean( isZero );
-            xLogs.add(isZeroB);
-            counter++;
-
-        }
-
-    }
-    */
