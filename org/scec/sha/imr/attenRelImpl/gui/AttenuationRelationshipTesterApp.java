@@ -210,7 +210,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     JSplitPane mainSplitPane = new JSplitPane();
     JSplitPane legendSplitPane =new JSplitPane();
     JScrollPane dataScrollPane = new JScrollPane();
-    JTextArea pointsTextArea = new JTextArea();
+    JTextPane pointsTextArea = new JTextPane();
     JButton toggleButton = new JButton();
     private boolean yLog = false;
     private boolean xLog = false;
@@ -978,8 +978,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
             setLegend =new SimpleAttributeSet();
             StyleConstants.setFontSize(setLegend,12);
             StyleConstants.setForeground(setLegend,legendColor[j]);
-
-              doc.insertString(doc.getLength(),legend,setLegend);
+            doc.insertString(doc.getLength(),legend,setLegend);
          }
        } catch (BadLocationException e) {
                 return;
@@ -1437,7 +1436,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         // Add points data to text area, people can see
 
        // pointsTextArea.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
-       pointsTextArea.setText(imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
+       pointsTextArea.setText(imr.getGraphXYAxisTitle() + "\n" + functions.toString() );
         //if ( D ) System.out.println( S + "Graphing function:" + function.toString() );
 
         addGraphPanel();

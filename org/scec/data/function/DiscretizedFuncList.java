@@ -350,7 +350,7 @@ public class DiscretizedFuncList implements NamedObjectAPI{
 
     }
 
-    private static String TAB = "   ";
+    private static String TAB = "\t";
     /**
      * Debugging information. Dumps the state of this object, number of
      * functions present, and calls the toString() of each element to
@@ -387,7 +387,7 @@ public class DiscretizedFuncList implements NamedObjectAPI{
             b.append("\nData Set #" + counter + '\n');
             b.append("Name: " + function.getName() + '\n');
             b.append("Num Points: " + function.getNum() + '\n');
-            b.append("Info: " + function.getInfo() + '\n');
+            b.append("Info: " + function.getInfo() + "\n\n");
             b.append("X, Y Data:" + '\n');
 
             while(it2.hasNext()){
