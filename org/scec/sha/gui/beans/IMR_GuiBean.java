@@ -71,6 +71,7 @@ public class IMR_GuiBean extends ParameterListEditor
       while(it.hasNext()){
         // make the IMR objects as needed to get the site params later
         AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI ) createIMRClassInstance((String)it.next(),this);
+        imr.setParamDefaults();
         imrObject.add(imr);
         imrNamesVector.add(imr.getName());
         Iterator it1 = imr.getSiteParamsIterator();

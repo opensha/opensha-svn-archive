@@ -107,10 +107,10 @@ public class Site_GuiBean extends JPanel implements
      tempParam = (Parameter)it.next();
      if(!parameterList.containsParameter(tempParam)) { // if this does not exist already
        parameterList.addParameter(tempParam);
-       if(tempParam instanceof StringParameter) { // if it Stringparamter, set its initial values
+       /*if(tempParam instanceof StringParameter) { // if it Stringparamter, set its initial values
          StringParameter strConstraint = (StringParameter)tempParam;
          tempParam.setValue(strConstraint.getAllowedStrings().get(0));
-        }
+        }*/
      }
      if(!site.containsParameter(tempParam))
        site.addParameter(tempParam);
@@ -136,10 +136,10 @@ public class Site_GuiBean extends JPanel implements
      tempParam = (Parameter)it.next();
      if(!parameterList.containsParameter(tempParam)) { // if this does not exist already
        Parameter cloneParam = (Parameter)tempParam.clone();
-       if(tempParam instanceof StringParameter) {
+       /*if(tempParam instanceof StringParameter) {
          StringParameter strConstraint = (StringParameter)tempParam;
          cloneParam.setValue(strConstraint.getAllowedStrings().get(0));
-        }
+        }*/
        parameterList.addParameter(cloneParam);
        site.addParameter(cloneParam);
      }
