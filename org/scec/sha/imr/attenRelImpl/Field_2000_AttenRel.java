@@ -22,6 +22,7 @@ import org.scec.util.*;
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
  * <LI>saParam - Response Spectral Acceleration
+ * <LI>pgvParam - Peak Ground Velocity (from 1-sec SA using the Newmark & Hall (1982) amp factor of 37.27*2.54)
  * </UL><p>
  * Other Independent Parameters:<p>
  * <UL>
@@ -236,11 +237,16 @@ public class Field_2000_AttenRel
             "The Intensity Measusre Parameter has not been set yet, unable to process."
         );
 
-
-        StringBuffer key = new StringBuffer( im.getName() );
-        if( im.getName().equalsIgnoreCase(SA_NAME) ) key.append( "/" + periodParam.getValue() );
-        if( coefficients.containsKey( key.toString() ) ) coeff = ( Field_2000_AttenRelCoefficients )coefficients.get( key.toString() );
-        else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );
+        // if IMT is PGV, get the 1-sec SA coefficients
+        if(im.getName().equals(PGV_NAME)) {
+          coeff = ( Field_2000_AttenRelCoefficients )coefficients.get( "SA/1.0" );
+        }
+        else {
+          StringBuffer key = new StringBuffer( im.getName() );
+          if( im.getName().equalsIgnoreCase(SA_NAME) ) key.append( "/" + periodParam.getValue() );
+          if( coefficients.containsKey( key.toString() ) ) coeff = ( Field_2000_AttenRelCoefficients )coefficients.get( key.toString() );
+          else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );
+        }
     }
 
 
@@ -296,8 +302,6 @@ public class Field_2000_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
-
-
         // the following is inefficient if the im Parameter has not been changed in any way
         updateCoefficients();
 
@@ -324,11 +328,9 @@ public class Field_2000_AttenRel
             mean += coeff.bdSlope*depth + coeff.bdIntercept;
         }
 
-
-        // No longer part of out framework. Always deal with log space
-        // Convert back to normal value
-        // mean = Math.exp(mean);
-
+        // convert the 1.0-period SA value if IMT="PGV"
+        if(im.getName().equals(PGV_NAME))
+          mean += Math.log(37.27*2.54);
 
         // return the result
         return (mean);
@@ -356,37 +358,36 @@ public class Field_2000_AttenRel
         // this is inefficient if the im has not been changed in any way
         updateCoefficients();
 
-/*
-        if (D) System.out.println(C+ " intra_slope="+coeff.intra_slope+"; intra_intercept="+
-                                  coeff.intra_intercept+"; tau="+ coeff.tau);
-        double test1 = coeff.intra_intercept+coeff.tau*coeff.tau;
-        double test2 = test1+coeff.intra_slope*mag;
-        if (D) System.out.println(C+ " total intercept="+test1+"; total var="+test2);
-*/
-
         // set the correct standard deviation depending on component and type
-
+        double temp_std;
         if ( stdDevType.equals( STD_DEV_TYPE_TOTAL_MAG_DEP ) ) {           // "Total - Mag Dep."
-            return  Math.sqrt( coeff.intra_slope*mag + coeff.intra_intercept + coeff.tau*coeff.tau ) ;
+            temp_std =  Math.sqrt( coeff.intra_slope*mag + coeff.intra_intercept + coeff.tau*coeff.tau ) ;
         }
         else if (stdDevType.equals( STD_DEV_TYPE_TOTAL ) ) {           // "Total"
-            return  Math.sqrt( ( coeff.intra_mag_ind*coeff.intra_mag_ind + coeff.tau*coeff.tau ) ) ;
+            temp_std =  Math.sqrt( ( coeff.intra_mag_ind*coeff.intra_mag_ind + coeff.tau*coeff.tau ) ) ;
         }
         else if ( stdDevType.equals( STD_DEV_TYPE_INTER ) ) {    // "Inter-Event"
-            return  coeff.tau;
+            temp_std =  coeff.tau;
         }
         else if ( stdDevType.equals( STD_DEV_TYPE_INTRA_MAG_DEP ) ) {    // "Intra-Event - Mag. Dep."
-            return Math.sqrt(coeff.intra_slope*mag + coeff.intra_intercept ) ;
+            temp_std = Math.sqrt(coeff.intra_slope*mag + coeff.intra_intercept ) ;
         }
         else if ( stdDevType.equals( STD_DEV_TYPE_INTRA ) ) {    // "Intra-Event"
-            return coeff.intra_mag_ind;
+            temp_std = coeff.intra_mag_ind;
         }
         else if ( stdDevType.equals( STD_DEV_TYPE_NONE) ) {    // "None (zero)"
-            return 0 ;
+            temp_std = 0 ;
         }
             else {
               throw new ParameterException( C + ": getStdDev(): Invalid StdDevType" );
         }
+
+        // convert the 1.0-period SA value if IMT="PGV"
+        if(im.getName().equals(PGV_NAME))
+          temp_std += Math.log(37.27*2.54);
+
+        return temp_std;
+
     }
 
 
@@ -564,14 +565,26 @@ public class Field_2000_AttenRel
         // Now Make the parameter noneditable:
         saParam.setNonEditable();
 
+        //Create PGV Parameter (pgvParam):
+        DoubleConstraint pgvConstraint = new DoubleConstraint(PGV_MIN, PGV_MAX);
+        pgvConstraint.setNonEditable();
+        pgvParam = new WarningDoubleParameter( PGV_NAME, pgvConstraint, PGV_UNITS);
+        pgvParam.setInfo( PGV_INFO );
+        DoubleConstraint warn = new DoubleConstraint(PGV_WARN_MIN, PGV_WARN_MAX);
+        warn.setNonEditable();
+        pgvParam.setWarningConstraint(warn);
+        pgvParam.setNonEditable();
+
         // Add the warning listeners:
         saParam.addParameterChangeWarningListener( warningListener );
         pgaParam.addParameterChangeWarningListener( warningListener );
+        pgvParam.addParameterChangeWarningListener( warningListener );
 
         // Put parameters in the supportedIMParams list:
         supportedIMParams.clear();
         supportedIMParams.addParameter( saParam );
         supportedIMParams.addParameter( pgaParam );
+        supportedIMParams.addParameter( pgvParam );
 
     }
 

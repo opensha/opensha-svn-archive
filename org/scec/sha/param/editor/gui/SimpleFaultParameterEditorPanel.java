@@ -35,7 +35,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   /** Class name for debugging. */
   protected final static String C = "SimpleFaultParameterEditorPanel";
   /** If true print out debug statements. */
-  protected final static boolean D = true;
+  protected final static boolean D = false;
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
 
@@ -723,6 +723,13 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
       //gets the griddedsurface from the faultFactory and sets the Value for the
       //SimpleFaultParameter
       surfaceParam.setValue((EvenlyGriddedSurface)fltFactory.getGriddedSurface());
+
+      if(D) {
+        EvenlyGriddedSurface surf = (EvenlyGriddedSurface)fltFactory.getGriddedSurface();
+        for(int i=0;i<surf.getNumCols();i++)
+          for(int k=0;k<surf.getNumRows();k++)
+            System.out.println(surf.getLocation(k,i).toString());
+      }
 
       //make the change flag to be false
       this.evenlyGriddedParamChange = false;

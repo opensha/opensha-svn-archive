@@ -13,7 +13,7 @@ import org.scec.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.scec.sha.param.editor.MagFreqDistParameterEditor;
 import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.SingleMagFreqDist;
-import org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
+import org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel;
 
 /**
  * <p>Title: PuenteHillsScenarioControlPanel</p>
@@ -105,8 +105,8 @@ public class PuenteHillsScenarioControlPanel {
     //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
     erfGuiBean.setParamsInForecast(0,0);
 
-    //Updating the IMR Gui Bean with the Cambell-1997 attenuation relationship.
-    imrGuiBean.getParameterList().getParameter(imrGuiBean.IMR_PARAM_NAME).setValue(Campbell_1997_AttenRel.NAME);
+    //Updating the IMR Gui Bean with the Field-2000 attenuation relationship.
+    imrGuiBean.getParameterList().getParameter(imrGuiBean.IMR_PARAM_NAME).setValue(Field_2000_AttenRel.NAME);
     imrGuiBean.synchToModel();
 
     //Updating the SitesInGriddedRegionGuiBean with the Puente Hills resion setting
