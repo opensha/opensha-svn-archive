@@ -85,7 +85,7 @@ public class MapGuiBean extends ParameterListEditor implements
    *
    * @param regionParamsFlag: boolean flag to check if the region params are to be shown in the
    */
-  public void showGMTParams(boolean regionParamsFlag) {
+  public void showRegionParams(boolean regionParamsFlag) {
       getParameterEditor(gmtMap.MAX_LAT_PARAM_NAME).setVisible(regionParamsFlag);
       getParameterEditor(gmtMap.MIN_LAT_PARAM_NAME).setVisible(regionParamsFlag);
       getParameterEditor(gmtMap.MAX_LON_PARAM_NAME).setVisible(regionParamsFlag);
@@ -101,7 +101,7 @@ public class MapGuiBean extends ParameterListEditor implements
    * @param maxLon
    * @param gridSpacing
    */
-  public void setGMTRegionParams(double minLat,double maxLat,double minLon,double maxLon,
+  public void setRegionParams(double minLat,double maxLat,double minLon,double maxLon,
                                double gridSpacing){
     if(D) System.out.println(C+" setGMTRegionParams: " +minLat+"  "+maxLat+"  "+minLon+"  "+maxLon);
     getParameterList().getParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
@@ -143,15 +143,15 @@ public class MapGuiBean extends ParameterListEditor implements
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeMap(XYZ_DataSetAPI xyzVals,String imt,String paramsInfo){
+  public void makeMap(XYZ_DataSetAPI xyzVals,String imt,String metadata){
 
     boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
     //creating the Metadata file in the GMT_MapGenerator
-    gmtMap.createMapInfoFile(paramsInfo);
+    gmtMap.createMapInfoFile(metadata);
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       imgName =gmtMap.makeMapUsingServlet(xyzVals,imt);
-      paramsInfo +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
+      metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
     }
     else{
       try{
@@ -165,18 +165,9 @@ public class MapGuiBean extends ParameterListEditor implements
     //checks to see if the user wants to see the Map in a seperate window or not
     if(this.showMapInSeperateWindow){
     //adding the image to the Panel and returning that to the applet
-    ImageViewerWindow imgView = new ImageViewerWindow(imgName,paramsInfo,gmtServerCheck);
+    ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
     }
   }
-
-  /**
-   *
-   * @returns the GMT_MapGenerator GMT object
-   */
-  public GMT_MapGenerator getGMTObject(){
-    return gmtMap;
-  }
-
 
 
   /**
@@ -187,12 +178,4 @@ public class MapGuiBean extends ParameterListEditor implements
     this.showMapInSeperateWindow = flag;
   }
 
-  /**
-   *
-   * @returns the image name of the Map ( or the full URL address to the image file
-   * if using the webService)
-   */
-  public String getImageName(){
-    return this.imgName;
-  }
 }
