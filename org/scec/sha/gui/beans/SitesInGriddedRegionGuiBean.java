@@ -57,12 +57,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   private static final double MAX_CVM_LON = -114.0;
 
 
-  //Vs30 vector: the values that return from the CVM
-  private Vector vs30Vector;
-
-  //BasinDepth vector: the values that return from the CVM
-  private Vector basinDepthVector;
-
   // title for site paramter panel
   protected final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
   //ParameterListEditor Instance
@@ -75,7 +69,8 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
 
   //Static String for setting the site Params
   public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
-  public final static String SET_SITES_USING_CVM = "Set site parameters from CVM";
+  public final static String SET_SITE_USING_WILLS_SITE_TYPE = "Use the Wills et al. (2000) Map Web Service";
+  public final static String SET_SITES_USING_SCEC_CVM = "Use both Wills Map and SCEC Basin Depth Web Service";
 
   /**
    * Longitude and Latitude paramerts to be added to the site params list
@@ -121,7 +116,8 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     //editorPanel.getParameterEditor(this.VS30_DEFAULT).setVisible(false);
     createAndUpdateSites();
     this.siteParamCombo.addItem(this.SET_ALL_SITES);
-    this.siteParamCombo.addItem(this.SET_SITES_USING_CVM);
+    this.siteParamCombo.addItem(this.SET_SITE_USING_WILLS_SITE_TYPE);
+    this.siteParamCombo.addItem(this.SET_SITES_USING_SCEC_CVM);
     try {
       jbInit();
     }catch(Exception e) {
@@ -346,11 +342,13 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   public SitesInGriddedRegion getGriddedRegionSite(){
 
     updateGriddedSiteParams();
-    //if the site Params needs to be set from the CVM
-    if(this.siteParamCombo.getSelectedItem().toString().equalsIgnoreCase(this.SET_SITES_USING_CVM)){
+    if(this.siteParamCombo.getSelectedItem().toString().equalsIgnoreCase(this.SET_ALL_SITES))
+        //if the site params does not need to be set from the CVM
+      gridRectRegion.setSameSiteParams();
+
+    //if the site Params needs to be set from the WILLS Site type and SCEC basin depth
+    else{
       setSiteParamsFromCVM();
-      //passing the vector of Vs30 and Basin Depth to the GriddedRegion Object, for each site from the CVM.
-      gridRectRegion.setSiteParamsFromCVM(true,this.vs30Vector,this.basinDepthVector);
       Vector defaultSiteParams = new Vector();
       for(int i=0;i<siteParams.size();++i){
         ParameterAPI tempParam = (ParameterAPI)siteParams.get(i);
@@ -359,8 +357,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
       }
       gridRectRegion.setDefaultSiteParams(defaultSiteParams.iterator());
     }
-    else //if the site params does not need to be set from the CVM
-      gridRectRegion.setSiteParamsFromCVM(false,null,null);
     return gridRectRegion;
   }
 
@@ -411,7 +407,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     //getting the Gridded Region site Object ParamList Iterator
     Iterator it = parameterList.getParametersIterator();
     //if the user decides to fill the values from the CVM
-    if(((String)siteParamCombo.getSelectedItem()).equalsIgnoreCase(this.SET_SITES_USING_CVM)){
+    if(((String)siteParamCombo.getSelectedItem()).equalsIgnoreCase(this.SET_SITES_USING_SCEC_CVM)){
       //editorPanel.getParameterEditor(this.VS30_DEFAULT).setVisible(true);
       while(it.hasNext()){
         //adds the default site Parameters becuase each site will have different site types and default value
@@ -484,18 +480,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     Double latMax = (Double)parameterList.getParameter(MAX_LATITUDE).getValue();
     Double gridSpacing = (Double)parameterList.getParameter(GRID_SPACING).getValue();
 
-   /* if(lonMin.doubleValue()<this.MIN_CVM_LON ||
-       lonMax.doubleValue()>this.MAX_CVM_LON ||
-       latMin.doubleValue()<this.MIN_CVM_LAT ||
-       latMax.doubleValue()>this.MAX_CVM_LAT) {
-
-        throw new RuntimeException("CVM can not get params for this site\n"+
-                                    "Constraints are:\n "+
-                                    MIN_CVM_LON+" < Longitude < "+MAX_CVM_LON +"\n"+
-                                    MIN_CVM_LAT+" < Latitude < "+MAX_CVM_LAT);
-
-    }*/
-
     // if values in longitude and latitude are invalid
     if(lonMin == null || latMin == null) {
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
@@ -503,108 +487,14 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     }
 
     CalcProgressBar calcProgress = new CalcProgressBar("Setting Gridded Region sites","Getting the site paramters from the CVM");
-    getVS30FromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
-    getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
+    if(this.siteParamCombo.getSelectedItem().toString().equalsIgnoreCase(this.SET_SITES_USING_SCEC_CVM))
+      //if we are setting the each site type using Wills site type and SCEC basin depth
+      gridRectRegion.setSiteParamsUsing_WILLS_VS30_AndBasinDepth();
+    else
+      //if we are setting each site using the Wills site type. basin depth is taken as default.
+      gridRectRegion.setSiteParamsUsing_WILLS_VS30();
     JOptionPane.showMessageDialog(this,"We have obtained the site paramaters from the CVM");
     calcProgress.dispose();
   }
-
-
-  /**
-   * Gets the VS30 from the CVM servlet
-   */
-  private void getVS30FromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax,
-                              Double gridSpacing) {
-
-    // if we want to the paramter from the servlet
-    try{
-
-      // make connection with servlet
-      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/WillsSiteClassServlet");
-      URLConnection servletConnection = cvmServlet.openConnection();
-
-      servletConnection.setDoOutput(true);
-
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
-
-      // send the student object to the servlet using serialization
-      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-
-      outputToServlet.writeObject("Vs30");
-      outputToServlet.writeObject(lonMin);
-      outputToServlet.writeObject(lonMax);
-      outputToServlet.writeObject(latMin);
-      outputToServlet.writeObject(latMax);
-      outputToServlet.writeObject(gridSpacing);
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // now read the connection again to get the vs30 as sent by the servlet
-      ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-      //vectors of lat and lon for the Vs30
-      vs30Vector=(Vector)ois.readObject();
-      ois.close();
-    }catch (NumberFormatException ex) {
-      JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
-    }catch (Exception exception) {
-      System.out.println("Exception in connection with servlet:" +exception);
-    }
-  }
-
-
-  /**
-   * Gets the Basin Depth from the CVM servlet
-   */
-  private void getBasinDepthFromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax,
-                                    Double gridSpacing) {
-
-    // if we want to the paramter from the servlet
-    try{
-
-      // make connection with servlet
-      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/SCEC_BasinDepthServlet");
-      URLConnection servletConnection = cvmServlet.openConnection();
-
-      servletConnection.setDoOutput(true);
-
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
-
-      // send the student object to the servlet using serialization
-      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-
-      outputToServlet.writeObject("BasinDepth");
-      outputToServlet.writeObject(lonMin);
-      outputToServlet.writeObject(lonMax);
-      outputToServlet.writeObject(latMin);
-      outputToServlet.writeObject(latMax);
-      outputToServlet.writeObject(gridSpacing);
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // now read the connection again to get the vs30 as sent by the servlet
-      ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-
-      //vectors of lat and lon for the Basin Depth
-      basinDepthVector=(Vector)ois.readObject();
-      ois.close();
-    }catch (NumberFormatException ex) {
-      JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
-    }catch (Exception exception) {
-      System.out.println("Exception in connection with servlet:" +exception);
-    }
-  }
-
 
 }

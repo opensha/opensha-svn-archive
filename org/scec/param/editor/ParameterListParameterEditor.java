@@ -39,9 +39,6 @@ ActionListener{
   //Editor to hold all the parameters in this parameter
   private ParameterListEditor editor;
 
-  //Instance for the Editor Button
-  private JButton button ;
-
   //Instance for the framee to show the all parameters in this editor
   private JDialog frame;
 
@@ -50,7 +47,6 @@ ActionListener{
 
   public ParameterListParameterEditor(ParameterAPI model){
     super(model);
-    this.setParameter(model);
   }
 
 
@@ -59,9 +55,9 @@ ActionListener{
    */
   public void setParameter(ParameterAPI param)  {
 
-    button = new JButton(param.getName());
-    button.addActionListener(this);
-    add(button,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
+    valueEditor = new JButton(param.getName());
+    ((JButton)valueEditor).addActionListener(this);
+    add(valueEditor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     String S = C + ": Constructor(): ";
     if ( D ) System.out.println( S + "Starting:" );
@@ -112,7 +108,7 @@ ActionListener{
    * the GUI component ( text field, picklist, etc. ) with
    * the new parameter value.
    */
-  public void syncToModel(){
+  public void refreshParamEditor(){
     editor.refreshParamEditor();
   }
 

@@ -39,9 +39,6 @@ public class WillsSiteClassServlet  extends HttpServlet {
     try {
       // get an input stream from the applet
       ObjectInputStream inputFromApplication = new ObjectInputStream(request.getInputStream());
-      // read the function desired by the user
-      String functionDesired = (String) inputFromApplication.readObject();
-      // read the minlon, maxlon, minlat, maxlat, gridspacing
       double minLon = ((Double)inputFromApplication.readObject()).doubleValue();
       double maxLon = ((Double)inputFromApplication.readObject()).doubleValue();
       double minLat = ((Double)inputFromApplication.readObject()).doubleValue();

@@ -37,22 +37,20 @@ public class SimpleFaultParameterEditor extends ParameterEditor
 
   SimpleFaultParameterGUI surfaceGUI ;
 
-  private JButton button ;
   public SimpleFaultParameterEditor() {}
 
   //constructor taking the Parameter as the input argument
   public SimpleFaultParameterEditor(ParameterAPI model){
   super(model);
-  this.setParameter(model);
   }
 
   /**
    * Set the values in the Parameters for the EvenlyGridded Surface
    */
   public void setParameter(ParameterAPI param)  {
-    button = new JButton(param.getName());
-    button.addActionListener(this);
-    add(button,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
+    valueEditor = new JButton(param.getName());
+    ((JButton)valueEditor).addActionListener(this);
+    add(valueEditor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     //setting the value for the simpleFaultParameter
     surfaceGUI = new SimpleFaultParameterGUI(param);
