@@ -58,8 +58,11 @@ public class PEER_TestGuiPlotter extends JApplet implements
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
   //log flags declaration
-  boolean xLog =false;
-  boolean yLog =false;
+  private boolean xLog =false;
+  private boolean yLog =false;
+
+  //Average flag declaration
+  private boolean isAverage = true;
 
   //variables that determine the window size
   protected final static int W = 850;
@@ -137,7 +140,6 @@ public class PEER_TestGuiPlotter extends JApplet implements
   private Border border1;
   private Border border2;
   private Border border3;
-  private JButton toggleButton = new JButton();
   private JCheckBox xLogCheckBox = new JCheckBox();
   private JCheckBox yLogCheckBox = new JCheckBox();
   private JLabel rangeLabel = new JLabel();
@@ -185,6 +187,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
   private JLabel testPanelLabel = new JLabel();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
+  private JCheckBox averageCheck = new JCheckBox();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
   //Construct the applet
@@ -241,17 +244,11 @@ public class PEER_TestGuiPlotter extends JApplet implements
         yLogCheckBox_actionPerformed(e);
       }
     });
-    toggleButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        toggleButton_actionPerformed(e);
-      }
-    });
     avgSplitPane.setDividerSize(1);
-    avgSplitPane.setOneTouchExpandable(true);
     testCasesPanel.setLayout(gridBagLayout5);
     avgLabel.setForeground(Color.red);
     avgLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    avgLabel.setText("Average");
+    avgLabel.setText("Included In Average");
     testCaseCombo.setFont(new java.awt.Font("Lucida Grande", 1, 14));
     testCaseCombo.setForeground(new Color(80, 80, 133));
     testCaseLabel.setFont(new java.awt.Font("Lucida Grande", 1, 14));
@@ -262,14 +259,25 @@ public class PEER_TestGuiPlotter extends JApplet implements
     testPanelLabel.setMaximumSize(new Dimension(63, 18));
     testPanelLabel.setMinimumSize(new Dimension(63, 18));
     testPanelLabel.setHorizontalAlignment(SwingConstants.CENTER);
-    testPanelLabel.setText("Plot Data Files");
+    testPanelLabel.setText("Data In Plot");
+    averageCheck.setForeground(new Color(80, 80, 133));
+    averageCheck.setSelected(true);
+    averageCheck.setText("Average");
+    averageCheck.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        averageCheck_actionPerformed(e);
+      }
+    });
+    xLogCheckBox.setForeground(new Color(80, 80, 133));
+    yLogCheckBox.setForeground(new Color(80, 80, 133));
+    rangeLabel.setForeground(new Color(80, 80, 133));
     dataScrollPane.getViewport().add( pointsTextArea, null );
-    toggleButton.setText("Show Data");
     xLogCheckBox.setText("XLog");
     yLogCheckBox.setText("YLog");
     rangeLabel.setText("SetAxisRange:");
     rangeComboBox.addItem(new String(AUTO_SCALE));
     rangeComboBox.addItem(new String(CUSTOM_SCALE));
+    rangeComboBox.setForeground(new Color(80,80,133));
     rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         rangeComboBox_actionPerformed(e);
@@ -293,16 +301,16 @@ public class PEER_TestGuiPlotter extends JApplet implements
     avgCasesPanel.add(avgLabel,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(7, 9, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    buttonPanel.add(toggleButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 9, 19, 0), 26, 0));
-    buttonPanel.add(rangeComboBox,  new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(11, 102, 19, 214), -32, 1));
     buttonPanel.add(xLogCheckBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 14, 19, 0), 21, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 18, 15, 0), 21, 0));
     buttonPanel.add(yLogCheckBox,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 8, 19, 0), 14, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 8, 15, 0), 14, 0));
+    buttonPanel.add(rangeComboBox,  new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 15, 185), 14, 1));
     buttonPanel.add(rangeLabel,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 0, 19, 318), 22, 6));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 9, 15, 0), 7, 6));
+    buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 40, 15, 0), 13, -8));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     mainSplitPane.setDividerLocation(540);
     plotSplitPane.setDividerLocation(475);
@@ -368,6 +376,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
     catch(Exception e) {
     }
   }
+
 
   /**
    * Reads the selected test case file. returns the function conatining x,y values
@@ -503,6 +512,8 @@ public class PEER_TestGuiPlotter extends JApplet implements
           if(fileName.equalsIgnoreCase(tempString)) {
             ArbitrarilyDiscretizedFunc func = readFile(DIR+fname);
             if(checkBox.isSelected())  functions.add(func);
+            //see if the Average Check Box is selected, only then add to the functions to calc. average
+            if(isAverage)
             if(avgCheckBox.isSelected())  avgFunctions.add(func);
           }
           }
@@ -580,34 +591,18 @@ public class PEER_TestGuiPlotter extends JApplet implements
       chartPanel.setDisplayToolTips(true);
       chartPanel.setHorizontalAxisTrace(false);
       chartPanel.setVerticalAxisTrace(false);
-      graphOn=false;
-      pointsTextArea.setText("TestCase:"+testSelected+"\n" +" X Axis:"+ X_AXIS_TITLE + "\n" +
-                                 "Y Axis:" + Y_AXIS_TITLE +"\n" +
-                                  functions.toString());
-      togglePlot();
+      DrawPlot();
    }
 
 
    /**
     *  Description of the Method
     */
-   protected void togglePlot() {
+   protected void DrawPlot() {
 
-     // Starting
-     String S = C + ": togglePlot(): ";
-     plotPanel.removeAll();
-     if ( graphOn ) {
 
-       toggleButton.setText( "Show Plot" );
-       graphOn = false;
+      String S= C+":DrawPlot";
 
-       plotPanel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-           , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
-     }
-     else {
-       graphOn = true;
-       // dataScrollPane.setVisible(false);
-       this.toggleButton.setText( "Show Data" );
        // panel added here
        if(chartPanel !=null)
          plotPanel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -618,7 +613,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
          plotPanel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
 
-     }
+
 
 
      validate();
@@ -795,14 +790,31 @@ public class PEER_TestGuiPlotter extends JApplet implements
     addGraphPanel();
   }
 
- //toggles between the Data window and the plot window
-  void toggleButton_actionPerformed(ActionEvent e) {
-    togglePlot();
-  }
+  /**Handles the ActionEvent Method for the Plot Data Checkboxes, Included  In Average
+   * Checkboxes, and when different set of test case is selected in the combo boxes.
+   */
 
   public void actionPerformed(ActionEvent e){
     if(e.getSource() instanceof JCheckBox) addGraphPanel();
     if(e.getSource() instanceof JComboBox) addButton();
+  }
+
+  /**
+   * This function is called each time an action is performed on the average CheckBox.
+   * @param e
+   */
+  void averageCheck_actionPerformed(ActionEvent e) {
+     if(this.averageCheck.isSelected()){
+       avgSplitPane.add(avgScrollPane, JSplitPane.RIGHT);
+       avgSplitPane.setDividerLocation(140);
+       isAverage = true;
+     }
+     else
+     {
+       this.avgSplitPane.setRightComponent(null);
+       isAverage= false;
+     }
+    addGraphPanel();
   }
 
 }
