@@ -203,7 +203,7 @@ public class GeographicRegion implements java.io.Serializable{
     else {
       double min = locList.getMinHorzDistToLine(loc);
       // now check the segiment defined by the last and first points
-      double temp = RelativeLocation.getApproxDistToLine(loc,locList.getLocationAt(locList.size()-1),
+      double temp = RelativeLocation.getApproxHorzDistToLine(loc,locList.getLocationAt(locList.size()-1),
                                                          locList.getLocationAt(0));
       if (temp < min) return temp;
       else return min;

@@ -481,100 +481,100 @@ public final class RelativeLocation {
       Location loc = new Location(34.5,-121,0);
       Location pt1 = new Location(34,-122,0);
       Location pt2 = new Location(35,-122,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
       System.out.println("test2:");
       loc = new Location(35.00001,-121,0);
       pt1 = new Location(34,-122,0);
       pt2 = new Location(35,-122,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
       System.out.println("test3:");
       loc = new Location(33.9999,-121,0);
       pt1 = new Location(34,-122,0);
       pt2 = new Location(35,-122,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
       System.out.println("test4:");
       loc = new Location(34,-121.5,0);
       pt1 = new Location(33,-122,0);
       pt2 = new Location(33,-121,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
       System.out.println("test5:");
       loc = new Location(34,-122.00001,0);
       pt1 = new Location(33,-122,0);
       pt2 = new Location(33,-121,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
       System.out.println("test6:");
       loc = new Location(34,-120.9999,0);
       pt1 = new Location(33,-122,0);
       pt2 = new Location(33,-121,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
       System.out.println("test7:");
       loc = new Location(33.5,-122,0);
       pt1 = new Location(33,-122,0);
       pt2 = new Location(34,-121,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
       System.out.println("test8:");
       loc = new Location(33.00001,-121,0);
       pt1 = new Location(33,-122,0);
       pt2 = new Location(34,-121,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
       System.out.println("test9:");
       loc = new Location(32.9999,-121,0);
       pt1 = new Location(33,-122,0);
       pt2 = new Location(34,-121,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
       System.out.println("test10:");
       loc = new Location(33.9999,-122,0);
       pt1 = new Location(33,-122,0);
       pt2 = new Location(34,-121,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
       System.out.println("test11:");
       loc = new Location(34.00001,-122,0);
       pt1 = new Location(33,-122,0);
       pt2 = new Location(34,-121,0);
-      System.out.println(getApproxDistToLine(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine_2(loc,pt1,pt2));
-      System.out.println(getApproxDistToLine(loc,pt2,pt1));
-      System.out.println(getApproxDistToLine_2(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
+      System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
+      System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
 
 /*
       System.out.println("Los Angeles Sement Length: = "+
@@ -726,7 +726,7 @@ public final class RelativeLocation {
      * @param lineLoc2
      * @return
      */
-    public static double getApproxDistToLine_2(Location loc, Location lineLoc1, Location lineLoc2) {
+    public static double getApproxHorzDistToLine_2(Location loc, Location lineLoc1, Location lineLoc2) {
       Direction dir = RelativeLocation.getDirection(lineLoc1,lineLoc2);
       LocationList locList = new LocationList();
       int nDist = (int)(dir.getHorzDistance()/0.1);
@@ -734,34 +734,26 @@ public final class RelativeLocation {
         dir.setHorzDistance((double)i * 0.1);
         locList.addLocation(RelativeLocation.getLocation(lineLoc1,dir));
       }
-      return locList.getMinHorzDistToLocations(loc);
+      return locList.getHorzDistToClosestLocation(loc);
 
-/*
-      Direction dir = RelativeLocation.getDirection(lineLoc1,lineLoc2);
-      Location tempLoc;
-      double minDist = Double.MAX_VALUE, tempDist;
-      int nDist = (int)(dir.getHorzDistance()/0.1);
-      for(int i = 0; i <= nDist; i++) {
-        dir.setHorzDistance((double)i * 0.1);
-        tempLoc = RelativeLocation.getLocation(lineLoc1,dir);
-        tempDist = RelativeLocation.getApproxHorzDistance(loc,tempLoc);
-        if (tempDist < minDist) minDist = tempDist;
-      }
-      return minDist;
-*/
     }
 
 
     /**
      * This computes the closest distance to any point on a line segment defined by two locations.
-     * This will not work if points the step by 360 degrees across the zero longitude.  This converts
-     * all points to a cartesian coordinate system and then computes the distance analytically.
+     * This is approximate because all points are converted to a cartesian coordinate system
+     * (from which the distance is computed analytically), and this conversion is sensitive to the
+     * latatude chosen for the x-axis compression as you go to higher latitudes (this uses the
+     * average of the given location latitude and the line-midpoint latitude).  This throws a
+     * Runtime Exception if any of the longitudes differ by more than 20 degrees (arbitrarily
+     * chosen to avoid really bad estimates).
+     *
      * @param loc
      * @param lineLoc1 - 1st point defining the line
      * @param lineLoc2 - 2nd point defining the line
      * @return
      */
-    public static double getApproxDistToLine(Location loc, Location lineLoc1, Location lineLoc2) {
+    public static double getApproxHorzDistToLine(Location loc, Location lineLoc1, Location lineLoc2) {
 
       // get the horizontal compression from the latitudes
       double horzCorr = Math.cos( Math.PI*(0.5*loc.getLatitude() + 0.25*lineLoc1.getLatitude()+0.25*lineLoc2.getLatitude())/180.0);

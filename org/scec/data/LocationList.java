@@ -147,7 +147,7 @@ public class LocationList implements java.io.Serializable{
      * @param loc
      * @return
      */
-    public double getMinHorzDistToLocations(Location loc) {
+    public double getHorzDistToClosestLocation(Location loc) {
       double min = Double.MAX_VALUE, temp;
       Iterator it = this.listIterator();
       while(it.hasNext()) {
@@ -168,7 +168,7 @@ public class LocationList implements java.io.Serializable{
       Location pt1, pt2;
       // loop over each line segment
       for(int i = 1; i < size(); i++) {
-        temp = RelativeLocation.getApproxDistToLine(loc,getLocationAt(i-1),getLocationAt(i));
+        temp = RelativeLocation.getApproxHorzDistToLine(loc,getLocationAt(i-1),getLocationAt(i));
         if (temp < min) min = temp;
       }
       return min;
