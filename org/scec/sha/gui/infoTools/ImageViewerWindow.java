@@ -17,7 +17,7 @@ public class ImageViewerWindow extends JFrame {
 
   private JSplitPane mapSplitPane = new JSplitPane();
   private JScrollPane mapScrollPane = new JScrollPane();
-  private JTextPane mapText = new JTextPane();
+  private JTextArea mapText = new JTextArea();
   private JLabel mapLabel = new JLabel();
 
   private String imageFile = new String();
@@ -41,7 +41,9 @@ public class ImageViewerWindow extends JFrame {
     this.setTitle(imageFile+" ShakeMap");
     this.getContentPane().setLayout(borderLayout1);
     mapSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    mapSplitPane.setMaximumSize(new Dimension(550, 100));
     mapText.setText(mapInfo);
+    mapText.setLineWrap(true);
     mapText.setForeground(Color.blue);
     mapText.setMaximumSize(new Dimension(550, 100));
     mapText.setEditable(false);
