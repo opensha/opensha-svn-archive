@@ -271,6 +271,9 @@ public class SCEMY_1997_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+        // check if distance is beyond the user specified max
+        if(dist > USER_MAX_DISTANCE) return VERY_SMALL_MEAN;
+
 //System.out.println("Dist_Rup = " + dist);
 
         // the following is inefficient if the im Parameter has not been changed in any way

@@ -280,6 +280,11 @@ public class BJF_1997_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+// for testing --        USER_MAX_DISTANCE = 210;
+        // check if distance is beyond the user specified max
+        if(distanceJB > USER_MAX_DISTANCE) return VERY_SMALL_MEAN;
+
+
         // the following is inefficient if the im Parameter has not been changed in any way
         updateCoefficients();
 
@@ -302,8 +307,6 @@ public class BJF_1997_AttenRel
             coeff.b5 * ( Math.log( Math.pow( ( distanceJB * distanceJB  + coeff.h * coeff.h  ), 0.5 ) ) ) +
             coeff.bv * ( Math.log( vs30 / coeff.va ) );
 
-// this was needed to mach the fankel coefficients
-//if(distanceJB > 210.0) mean = -10;
 
         // return the result
         return (mean);

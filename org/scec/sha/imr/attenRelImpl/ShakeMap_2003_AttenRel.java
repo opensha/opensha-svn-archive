@@ -636,6 +636,8 @@ while(it.hasNext()) {
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+        // check if distance is beyond the user specified max
+        if(distanceJB > USER_MAX_DISTANCE) return VERY_SMALL_MEAN;
 
         // Get b1 based on fault type
         double b1_BJF, b1_SM;

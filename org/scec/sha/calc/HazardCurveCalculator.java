@@ -37,7 +37,8 @@ public class HazardCurveCalculator {
   hazard analysis for that site; this default value is to allow all PEER test
   cases to pass through
   */
-  protected double MAX_DISTANCE = 300;
+  public final static double MAX_DISTANCE_DEFAULT = 1e6;
+  protected double MAX_DISTANCE = MAX_DISTANCE_DEFAULT;
 
   private int currRuptures = -1;
   private int totRuptures=0;
@@ -90,6 +91,10 @@ public class HazardCurveCalculator {
     // get the number of points
     int numPoints = hazFunction.getNum();
 
+    // set the maximum distance in the attenuation relationship
+    // (Note- other types of IMRs may not have this method so we should really check type here)
+    imr.setUserMaxDistance(MAX_DISTANCE);
+
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
 
@@ -124,7 +129,7 @@ public class HazardCurveCalculator {
       // get the ith source
       ProbEqkSource source = eqkRupForecast.getSource(i);
 
-      // compute it's distance from the site and skip if it's too far away
+      // compute the source's distance from the site and skip if it's too far away
       distance = source.getMinDistance(site);
       if(distance > MAX_DISTANCE) {
         //update progress bar for skipped ruptures

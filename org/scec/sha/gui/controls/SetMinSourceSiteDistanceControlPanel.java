@@ -5,6 +5,7 @@ import javax.swing.JFrame;
 
 import org.scec.param.DoubleParameter;
 import org.scec.param.editor.DoubleParameterEditor;
+import org.scec.sha.calc.HazardCurveCalculator;
 
 /**
  * <p>Title: SetMinSourceSiteDistanceControlPanel </p>
@@ -21,7 +22,7 @@ public class SetMinSourceSiteDistanceControlPanel extends JFrame {
 
   // distance Parameter
    private DoubleParameter distanceParam =
-       new DoubleParameter("Distance", 0, Double.MAX_VALUE, new Double(200));
+       new DoubleParameter("Distance", 0, Double.MAX_VALUE, new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT));
    // double param editor
   private DoubleParameterEditor distanceEditor=new DoubleParameterEditor();
   GridBagLayout gridBagLayout1 = new GridBagLayout();

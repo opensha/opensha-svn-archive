@@ -441,6 +441,10 @@ public class AS_1997_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+        // check if distance is beyond the user specified max
+        if(dist > USER_MAX_DISTANCE) return VERY_SMALL_MEAN;
+
+
         double F, f5, rockMeanPGA, rockMean;
         int HW;
 

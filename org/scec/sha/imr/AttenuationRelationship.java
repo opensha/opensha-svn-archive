@@ -382,6 +382,12 @@ public abstract class AttenuationRelationship
     public final static Double SIGMA_TRUNC_LEVEL_MIN = new Double(Double.MIN_VALUE);
     public final static Double SIGMA_TRUNC_LEVEL_MAX = new Double(Double.MAX_VALUE);
 
+    /**
+     * This allows users to set a maximul distance (beyond which the mean will
+     * be effectively zero)
+     */
+    protected double USER_MAX_DISTANCE = Double.MAX_VALUE;
+    protected final static double VERY_SMALL_MEAN = -35.0; // in ln() space
 
     /**
      *  Common error message = "Not all parameters have been set"
@@ -429,6 +435,14 @@ public abstract class AttenuationRelationship
         super();
     }
 
+    /**
+     * This method sets the user-defined distance beyond which ground motion is
+     * set to effectively zero (the mean is a large negative value).
+     * @param maxDist
+     */
+    public void setUserMaxDistance(double maxDist) {
+      USER_MAX_DISTANCE = maxDist;
+    }
 
     /**
      *  Sets the value of the currently selected intensityMeasure (if the

@@ -266,6 +266,9 @@ public class WC94_DisplMagRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+        // check if distance is beyond the user specified max
+        if(dist > USER_MAX_DISTANCE) return VERY_SMALL_MEAN;
+
         double mean;
 
         if (dist < MAX_DIST) {

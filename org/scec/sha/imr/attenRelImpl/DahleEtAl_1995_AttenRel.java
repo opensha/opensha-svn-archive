@@ -242,6 +242,9 @@ public class DahleEtAl_1995_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+        // check if distance is beyond the user specified max
+        if(distanceRup > USER_MAX_DISTANCE) return VERY_SMALL_MEAN;
+
         // the following is inefficient if the im Parameter has not been changed in any way
         updateCoefficients();
 

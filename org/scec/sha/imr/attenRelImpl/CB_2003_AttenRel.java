@@ -382,6 +382,8 @@ public class CB_2003_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+        // check if distance is beyond the user specified max
+        if(dist > USER_MAX_DISTANCE) return VERY_SMALL_MEAN;
 
         // throw exception if user has chosen vertical component and site type SITE_TYPE_NEHRP_BC
         if ( componentParam.getValue().toString().equals( COMPONENT_VERT ) && siteType.equals(SITE_TYPE_NEHRP_BC) )

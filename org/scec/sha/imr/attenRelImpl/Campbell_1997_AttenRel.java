@@ -332,6 +332,9 @@ public class Campbell_1997_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+        // check if distance is beyond the user specified max
+        if(dist > USER_MAX_DISTANCE) return VERY_SMALL_MEAN;
+
         if ( fltType.equals( FLT_TYPE_REVERSE ) )      F = 1.0;
         else if ( fltType.equals( FLT_TYPE_OTHER ) )   F = 0.0;
         else                                           F = 0.5;  // if "Unknown"

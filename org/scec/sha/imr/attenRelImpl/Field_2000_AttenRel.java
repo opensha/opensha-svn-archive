@@ -302,6 +302,9 @@ public class Field_2000_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+        // check if distance is beyond the user specified max
+        if(distanceJB > USER_MAX_DISTANCE) return VERY_SMALL_MEAN;
+
         // the following is inefficient if the im Parameter has not been changed in any way
         updateCoefficients();
 

@@ -24,6 +24,13 @@ public interface AttenuationRelationshipAPI
     extends IntensityMeasureRelationshipAPI
 {
 
+  /**
+   * This method sets the user-defined distance beyond which ground motion is
+   * set to effectively zero (the mean is a large negative value).
+   * @param maxDist
+   */
+     public void setUserMaxDistance(double maxDist);
+
 
     /**
      *  Sets the intensityMeasure parameter.
