@@ -103,7 +103,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
   //used only when stirling fault model is selected
   private static final Double DEFAULT_DIP_DIRECTION = null;
   private static final String DIP_DIRECTION_PARAM_UNITS = "degrees";
-  private static final String DIP_DIRECTION_INFO = "Leave Blank to make this perpendicular to Fault-Strike";
+  private static final String DIP_DIRECTION_INFO = "Leave blank to make this perpendicular to fault-Strike";
   private DoubleParameter dipDirectionParam = new DoubleParameter(DIP_DIRECTION_PARAM_NAME,
       new Double(0),new Double(360),DIP_DIRECTION_PARAM_UNITS,DEFAULT_DIP_DIRECTION);
 

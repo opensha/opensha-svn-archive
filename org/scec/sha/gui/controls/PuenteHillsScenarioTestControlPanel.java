@@ -15,7 +15,7 @@ import org.scec.sha.magdist.SingleMagFreqDist;
 import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 
 /**
- * <p>Title: PuenteHillsTestControlPanel</p>
+ * <p>Title: PuenteHillsScenarioTestControlPanel</p>
  * <p>Description: Sets the param value to replicate the official scenario shakemap
  * for the Puente Hill Scenario (http://www.trinet.org/shake/Puente_Hills_se)</p>
  * @author : Edward (Ned) Field and Nitin Gupta

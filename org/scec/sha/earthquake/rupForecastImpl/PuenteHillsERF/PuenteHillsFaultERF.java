@@ -51,7 +51,6 @@ public class PuenteHillsFaultERF extends EqkRupForecast
     SimpleFaultRuptureSource source;
 
     // MAKE THE FAULT SURFACE
-
     // the original fault trace points as given by Andreas Plesch (reversed to be in correct order)
     // Coyote Hills segment:
     //         B 117.868192971 33.899509717 -2500.00000
