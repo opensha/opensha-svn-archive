@@ -24,7 +24,7 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
 
   private FileWriter fw;
 
-  private double MIN_LAT= 33.5;
+  private double MIN_LAT= 32.5;
   private double MAX_LAT= 34.7;
   private double MIN_LON= -119.5;
   private double MAX_LON= -117.0;
@@ -76,9 +76,14 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
             //calling the siteTranslator
             boolean flag = siteTranslator.setParameterValue(tempParam,(String)vs30.get(i),((Double)basinDepth.get(i)).doubleValue());
             //writing the site info to the file to test if we are getting the correct site Paramters
+            Object value = tempParam.getValue();
             siteInfo = list.getLocationAt(i).getLatitude()+"\t\t"+list.getLocationAt(i).getLongitude()+"\t\t\t"+
-                       (String)vs30.get(i)+"\t\t\t"+((Double)basinDepth.get(i)).doubleValue()+
-                       "\t\t\t"+flag+"\t\t\t"+tempParam.getName()+"\t\t\t"+tempParam.getValue().toString()+"\n";
+              (String)vs30.get(i)+"\t\t\t"+((Double)basinDepth.get(i)).doubleValue()+
+              "\t\t\t"+flag+"\t\t\t"+tempParam.getName()+"\t\t\t" ;
+            if(value !=null)
+              siteInfo += tempParam.getValue().toString()+"\n";
+            else
+              siteInfo += "null"+"\n";
             fw.write(siteInfo);
           }
         }
