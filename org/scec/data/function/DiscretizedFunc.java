@@ -25,6 +25,8 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI, NamedObject
      */
     protected String info = "";
 
+    protected String name = "";
+
     /** The X-Axis name */
     protected String xAxisName = "";
 
@@ -35,6 +37,9 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI, NamedObject
     protected boolean xLog = false;
 
 
+
+    public String getName(){ return name; }
+    public void setName(String name){ this.name = name; }
 
     public String getXAxisName(){ return xAxisName; }
     public void setXAxisName(String name){ this.xAxisName = name; }
