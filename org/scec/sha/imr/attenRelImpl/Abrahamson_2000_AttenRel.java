@@ -9,6 +9,7 @@ import org.scec.param.*;
 import org.scec.param.event.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.imr.*;
+import org.scec.sha.surface.*;
 import org.scec.sha.propagation.*;
 import org.scec.util.*;
 
@@ -167,14 +168,15 @@ public class Abrahamson_2000_AttenRel
      * @param rake                      in degrees
      * @throws InvalidRangeException    If not valid rake angle
      */
-    protected static String setFaultTypeFromRake( double rake )
+    protected void setFaultTypeFromRake( double rake )
         throws InvalidRangeException
     {
-    /* */
         FaultUtils.assertValidRake( rake );
-        // not yet sure what to do here
-
-        return null;
+        if( (rake < 22.5 && rake > -22.5) || (rake < -157.5 && rake > 157.5) )
+          fltTypeParam.setValue(FLT_TYPE_SS);
+        else
+          throw new InvalidRangeException(NAME+" can only be used with strike-slip events"+
+             " (rake must be within 22.5 degrees of 0 or 180)");
     }
 
 
@@ -208,7 +210,7 @@ public class Abrahamson_2000_AttenRel
             throw e;
         }
 
-        // Set the PE
+        // Set the probEqkRupture
         this.probEqkRupture = probEqkRupture;
 
        /* Calculate the PropagationEffectParameters; this is
@@ -267,19 +269,21 @@ public class Abrahamson_2000_AttenRel
             if(D) System.out.println(C+"Warning Exception:"+e);
           }
 
-            /*
-            NOT NEEDED HERE
-               The following is a bit of a hack. It assumes the fault grid spacing
-               is less than 1 km, and that points off the bottem end of the fault
-               don't have significant hanging-wall effects;p Norm said the latter
-               is probably close enough (it's also what Frankel's code does).
+          // now set the directivity parameters
 
-            distanceJBParam.getValue( probEqkRupture, site );
-            if ( ( (Double)distanceJBParam.getValue() ).doubleValue() <= 1.0 )
-                isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
-            else
-                isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
-*/
+          // find the closest point on rupture trace
+          GriddedSurfaceAPI surface = probEqkRupture.getRuptureSurface();
+          int numTrPts = surface.getNumCols();
+          double dist, closestDist = Double.MAX_VALUE;
+          Location closestLoc;
+          for(int c=0; c<numTrPts;c++) {
+            dist = RelativeLocation.getHorzDistance(site.getLocation(),surface.getLocation(0,c));
+            if(dist < closestDist)
+              closestDist = dist;
+              closestLoc = surface.getLocation(0,c);
+          }
+          // compute the distance between the closest point on the trace and the hypocenter
+
         }
     }
 
@@ -610,9 +614,6 @@ public class Abrahamson_2000_AttenRel
 
         // Fault type parameter
         StringConstraint constraint = new StringConstraint();
-//        constraint.addString( FLT_TYPE_REVERSE );
-//        constraint.addString( FLT_TYPE_REV_OBL );
-//        constraint.addString( FLT_TYPE_OTHER );
         constraint.addString( FLT_TYPE_SS );
         constraint.setNonEditable();
         fltTypeParam = new StringParameter( FLT_TYPE_NAME, constraint, null);
