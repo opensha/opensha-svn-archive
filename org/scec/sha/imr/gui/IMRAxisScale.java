@@ -91,6 +91,8 @@ public class IMRAxisScale extends JFrame {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 14, 17), 24, 3));
   }
 /**
+ * This function also calls the setYRange and setXRange functions of the IMRTesterApplet class
+ * which sets the range of the axis based on the user input
  *
  * @param e= this event occur when the Ok button is clicked on the custom axis popup window
  */
@@ -98,16 +100,23 @@ public class IMRAxisScale extends JFrame {
     try {
       float xMin=Float.parseFloat(this.jTextMinX.getText());
       float xMax=Float.parseFloat(this.jTextMaxX.getText());
-      if(xMin>=xMax)
+      if(xMin>=xMax){
         JOptionPane.showMessageDialog(this,new String("Max X must be greater than Min X"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+      else
+        this.imrTesterApplet.setXRange(xMin,xMax);
       float yMin=Float.parseFloat(this.jTextMinY.getText());
       float yMax=Float.parseFloat(this.jTextMaxY.getText());
-      if(yMin>=yMax)
+      if(yMin>=yMax){
         JOptionPane.showMessageDialog(this,new String("Max Y must be greater than Min Y"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
-      this.imrTesterApplet.setXRange(xMin,xMax);
-      this.imrTesterApplet.setYRange(yMin,yMax);
+        return;
+      }
+      else
+        this.imrTesterApplet.setYRange(yMin,yMax);
       this.dispose();
     } catch(Exception ex) {
+        System.out.println("Exception:"+ex);
         JOptionPane.showMessageDialog(this,new String("Text Entered must be a valid numerical value"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
     }
   }

@@ -520,9 +520,9 @@ public abstract class ClassicIMR
         while ( it.hasNext() ) {
 
             DataPoint2D point = ( DataPoint2D ) it.next();
-            iml = point.getX();
+            iml = new Double(point.getX());
             this.im.setValue( iml );
-            point.setY( getExceedProbability() );
+            point.setY(getExceedProbability().doubleValue());
 
         }
 

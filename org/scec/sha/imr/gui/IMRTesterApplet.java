@@ -59,6 +59,16 @@ public class IMRTesterApplet
 
     private static int counter = 0;
 
+  /**
+   * these four values save the custom axis scale specified by user
+   */
+    private float minXValue;
+    private float maxXValue;
+    private float minYValue;
+    private float maxYValue;
+    private boolean customAxis=false;
+
+
     protected Object lock = new Object();
 
     /**
@@ -222,7 +232,9 @@ public class IMRTesterApplet
     JScrollPane dataScrollPane = new JScrollPane();
     JTextArea pointsTextArea = new JTextArea();
     JButton toggleButton = new JButton();
-
+    private boolean yLog = false;
+    private boolean xLog = false;
+    JComboBox rangeComboBox = new JComboBox();
     int titleSize = 0;
 
     protected ChartPanel panel;
@@ -406,7 +418,7 @@ public class IMRTesterApplet
 
         this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
         this.getContentPane().setBackground( background );
-        this.setSize(new Dimension(610, 483) );
+        this.setSize(new Dimension(842, 513) );
         this.getContentPane().setLayout( GBL );
 
         outerPanel.setBackground( background );
@@ -487,7 +499,7 @@ public class IMRTesterApplet
         addButton.addMouseListener(
             new java.awt.event.MouseAdapter() {
                 public void mouseClicked( MouseEvent e ) {
-                    System.out.println(C + ": addButton(): Mouse Clicked: ");
+                   // System.out.println(C + ": addButton(): Mouse Clicked: ");
                     addButton_mouseClicked( e );
                 }
             } );
@@ -589,8 +601,20 @@ public class IMRTesterApplet
         plotColorCheckBox.setForeground(new Color(80, 80, 133));
         plotColorCheckBox.setText("Black Background");
         plotColorCheckBox.addItemListener( this );
-
-        this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+        rangeComboBox.addItem(new String("Set Axis Scale"));
+        rangeComboBox.addItem(new String("Auto Scale"));
+        rangeComboBox.addItem(new String("Custom Scale"));
+        rangeComboBox.setBackground(new Color(200, 200, 230));
+    rangeComboBox.setForeground(new Color(80, 80, 133));
+    rangeComboBox.setMaximumSize(new Dimension(115, 19));
+        rangeComboBox.setMinimumSize(new Dimension(115, 19));
+        rangeComboBox.setPreferredSize(new Dimension(115, 19));
+        rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          rangeComboBox_actionPerformed(e);
+        }
+        });
+    this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
         outerPanel.add( mainPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -623,24 +647,26 @@ public class IMRTesterApplet
 
         dataScrollPane.getViewport().add( pointsTextArea, null );
 
-        buttonPanel.add( addButton, new GridBagConstraints( 2, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
-        buttonPanel.add( clearButton, new GridBagConstraints( 3, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
-        buttonPanel.add( toggleButton, new GridBagConstraints( 4, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 1 ), 0, 0 ) );
-        buttonPanel.add( imrComboBox, new GridBagConstraints( 1, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 15 ), 0, 0 ) );
-        buttonPanel.add( imrLabel, new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 0, 0, 0 ), 0, 0 ) );
+        buttonPanel.add( addButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 0, 0) );
+        buttonPanel.add( clearButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 0, 0) );
+        buttonPanel.add( toggleButton,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 1), 0, 0) );
+        buttonPanel.add( imrComboBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );
+        buttonPanel.add( imrLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0) );
 
-        buttonPanel.add(jCheckylog,          new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add(jCheckylog,           new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
-        buttonPanel.add(jCheckxlog,   new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add(jCheckxlog,    new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
 
-        buttonPanel.add(plotColorCheckBox,   new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
+        buttonPanel.add(plotColorCheckBox,      new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
+    buttonPanel.add(rangeComboBox,            new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
 
 
         parametersSplitPane.setBottomComponent( sheetPanel );
@@ -872,12 +898,18 @@ public class IMRTesterApplet
         LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
         //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
-
-
+        /* to set the range of the axis on the input from the user if the range combo box is selected*/
+        if(this.customAxis) {
+          xAxis.setRange(this.minXValue,this.maxXValue);
+          yAxis.setRange(this.minYValue,this.maxYValue);
+        }
         // build the plot
         org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(data, xAxis, yAxis, xLog, yLog);
-        plot.setBackgroundAlpha( .8f );
 
+
+
+
+        plot.setBackgroundAlpha( .8f );
         if( isWhite ) plot.setBackgroundPaint( Color.white );
         else plot.setBackgroundPaint( Color.black );
 
@@ -1426,8 +1458,52 @@ public class IMRTesterApplet
 
     }
 
-    private boolean yLog = false;
-    private boolean xLog = false;
+
+
+ /**
+  * whenever selection is made in the combo box
+  * @param e
+  */
+  void rangeComboBox_actionPerformed(ActionEvent e) {
+
+    String str=(String)rangeComboBox.getSelectedItem();
+    if(str.equalsIgnoreCase("Auto Scale")){
+      customAxis=false;
+      addGraphPanel();
+    }
+    if(str.equalsIgnoreCase("custom Scale"))  {
+       IMRAxisScale axisScale=new IMRAxisScale(this);
+       axisScale.pack();
+       axisScale.show();
+    }
+    this.rangeComboBox.setSelectedIndex(0);
+  }
+
+  /**
+   * sets the range for X-axis
+   * @param xMin : minimum value for X-axis
+   * @param xMax : maximum value for X-axis
+   */
+  public void setXRange(float xMin,float xMax) {
+     minXValue=xMin;
+     maxXValue=xMax;
+     this.customAxis=true;
+
+  }
+
+  /**
+   * sets the range for Y-axis
+   * @param yMin : minimum value for Y-axis
+   * @param yMax : maximum value for Y-axis
+   */
+  public void setYRange(float yMin,float yMax) {
+     minYValue=yMin;
+     maxYValue=yMax;
+     this.customAxis=true;
+     addGraphPanel();
+  }
+
+
 
 
 }
