@@ -146,45 +146,6 @@ public class PSHALogXYPlot
     }
 
 
-    /* *
-     * Handles a 'click' on the plot by updating the anchor values...
-     * /
-    public void handleClick(int x, int y, ChartRenderingInfo info) {
-
-        String S = C + ": handleClick(): ";
-        if( D ) System.out.println(S + "Starting");
-
-        // set the anchor value for the horizontal axis...
-        ValueAxis hva = this.getDomainAxis();
-        double hvalue = hva.translateJava2DtoValue((float)x, info.getDataArea());
-
-        hva.setAnchorValue(hvalue);
-        hva.setCrosshairValue(hvalue);
-
-        // set the anchor value for the vertical axis...
-        ValueAxis vva = this.getRangeAxis();
-        double vvalue = vva.translateJava2DtoValue((float)y, info.getDataArea());
-        vva.setAnchorValue(vvalue);
-        vva.setCrosshairValue(vvalue);
-
-
-        mouseClicked = true;
-        this.clickedX = hvalue;
-        this.clickedY = vvalue;
-        this.javaX = x;
-        this.javaY = y;
-
-        if( D ) System.out.println(S + "clickedX = " + clickedX);
-        if( D ) System.out.println(S + "clickedY = " + clickedY);
-        if( D ) System.out.println(S + "javaX = " + javaX);
-        if( D ) System.out.println(S + "javaY = " + javaY);
-
-        if( D ) System.out.println(S + "Ending");
-
-    }
-
-    */
-
     /**
      * Draws a representation of the data within the dataArea region, using the current renderer.
      *
@@ -445,4 +406,40 @@ public class PSHALogXYPlot
        g2.draw(line);
      } else super.drawHorizontalLine(g2, dataArea, value, stroke, paint);
     }
+
+    /**
+    * Handles a 'click' on the plot by updating the anchor values...
+    *
+    * @param x  x-coordinate, where the click occured.
+    * @param y  y-coordinate, where the click occured.
+    * @param info  an object for collection dimension information.
+    */
+   public void handleClick(int x, int y, ChartRenderingInfo info) {
+
+       // set the anchor value for the horizontal axis...
+       ValueAxis hva = getDomainAxis();
+       if (hva != null) {
+           double hvalue ;
+           if(this.xlogplot)
+             hvalue = ((HorizontalLogarithmicAxis)hva).myTranslateJava2DtoValue((float) x, info.getDataArea());
+           else
+             hvalue = hva.translateJava2DtoValue((float) x, info.getDataArea());
+           hva.setAnchorValue(hvalue);
+           setDomainCrosshairValue(hvalue);
+       }
+
+       // set the anchor value for the vertical axis...
+       ValueAxis vva = getRangeAxis();
+       if (vva != null) {
+         double vvalue;
+         if(this.ylogplot)
+           vvalue = ((VerticalLogarithmicAxis)vva).myTranslateJava2DtoValue((float) y, info.getDataArea());
+          else
+           vvalue = vva.translateJava2DtoValue((float) y, info.getDataArea());
+           vva.setAnchorValue(vvalue);
+           setRangeCrosshairValue(vvalue);
+       }
+
+   }
+
 }

@@ -252,12 +252,37 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         double plotMaxX = plotArea.getMaxX();
         if (isInverted()) {
           double logVal=(plotMaxX - java2DValue)/(plotMaxX-plotMinX)*(axisMax-axisMin)+axisMin;
-          return logVal;
+          return Math.pow(10,logVal);
         }
         else {
           double logVal=( java2DValue - plotMinX)/(plotMaxX-plotMinX)*(axisMax-axisMin)+axisMin;
-           return logVal;
+           return Math.pow(10,logVal);
         }
+    }
+
+    /**
+     * Converts a coordinate in Java2D space to the corresponding data
+     * value, assuming that the axis runs along one edge of the specified
+     * plotArea.
+     * @param java2DValue the coordinate in Java2D space.
+     * @param plotArea the area in which the data is plotted.
+     * @return The data value.
+     */
+
+    public double myTranslateJava2DtoValue(float java2DValue, Rectangle2D plotArea) {
+      double axisMin = Math.log(getRange().getLowerBound())/LOG10_VALUE;
+      double axisMax = Math.log(getRange().getUpperBound())/LOG10_VALUE;
+      double plotMinX = plotArea.getMinX();
+      double plotMaxX = plotArea.getMaxX();
+      if (isInverted()) {
+        double logVal=(plotMaxX - java2DValue)/(plotMaxX-plotMinX)*(axisMax-axisMin)+axisMin;
+        return logVal;
+
+      }
+      else {
+        double logVal=( java2DValue - plotMinX)/(plotMaxX-plotMinX)*(axisMax-axisMin)+axisMin;
+        return logVal;
+      }
     }
 
 
