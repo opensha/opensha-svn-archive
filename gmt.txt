@@ -1,0 +1,11 @@
+/opt/install/gmt/bin/xyz2grd xyz1060017707155.txt -Gxyz1060017707155.grd -I0.1 -R-123.0/-121.5/37.3/38.5 -D/degree/degree/amp/=/=/=  -: -H0
+/opt/install/gmt/bin/makecpt -C/usr/scec/data/gmt/MaxSpectrum.cpt -T-3.903000558639019/-2.3490758801472444/0.077696234 -Z > xyz1060017707155.cpt
+/opt/install/gmt/bin/gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait
+/opt/install/gmt/bin/grdsample xyz1060017707155.grd -Gxyz1060017707155HiResData.grd -I18c -Q
+/opt/install/gmt/bin/grdcut /usr/scec/data/gmt/calTopoInten18.grd -Gxyz1060017707155Inten.grd -R-123.0/-121.5/37.3/38.5
+/opt/install/gmt/bin/grdimage xyz1060017707155HiResData.grd -X0.75i -Y3.910081257576767i -JM6.5i -Ixyz1060017707155Inten.grd -Cxyz1060017707155.cpt -K -E70 -R-123.0/-121.5/37.3/38.5 > xyz1060017707155.ps
+/opt/install/gmt/bin/pscoast  -R-123.0/-121.5/37.3/38.5 -JM6.5i -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> xyz1060017707155.ps
+/opt/install/gmt/bin/gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255
+/opt/install/gmt/bin/psscale -B1:LogIML: -D3.5i/-0.5i/6i/0.3ih -Cxyz1060017707155.cpt -K -O -N70 >> xyz1060017707155.ps
+/opt/install/gmt/bin/psbasemap -B1/1eWNs -JM6.5i -R-123.0/-121.5/37.3/38.5 -Lfx1.25i/0.6i/33.0/50 -O >> xyz1060017707155.ps
+/bin/cat xyz1060017707155.ps | gs -sDEVICE=jpeg -sOutputFile=xyz1060017707155.jpg -
