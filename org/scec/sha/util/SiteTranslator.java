@@ -95,21 +95,30 @@ public class SiteTranslator implements java.io.Serializable{
     ListIterator  it = s.getParametersIterator();
     while(it.hasNext()){
       ParameterAPI tempParam = (ParameterAPI)it.next();
+
       //Abrahamson site type
       if(tempParam.getName().equalsIgnoreCase(AS_1997_AttenRel.SITE_TYPE_NAME)){
-        if(basinDepth>=100 || basinDepth==Double.NaN){
-          if(vs30 <=400 && vs30>180)
+        if(Double.isNaN(basinDepth)){
+          if(vs30 <=400)
+            tempParam.setValue(AS_1997_AttenRel.SITE_TYPE_SOIL);
+          else
+            tempParam.setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
+        }
+        else {
+          if(vs30 <=400 && basinDepth > 100)
             tempParam.setValue(AS_1997_AttenRel.SITE_TYPE_SOIL);
           else
             tempParam.setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
         }
       }
+
       //BJF site type
       else if(tempParam.getName().equalsIgnoreCase(BJF_1997_AttenRel.VS30_NAME)){
         if(vs30>180)
           tempParam.setValue(new Double(vs30));
       }
-      //Cambell basin depth
+
+      //Cambell 1997 basin depth
       else if(tempParam.getName().equalsIgnoreCase(Campbell_1997_AttenRel.BASIN_DEPTH_NAME)){
         if(vs30>=400)
           tempParam.setValue(new Double(0));
@@ -120,7 +129,8 @@ public class SiteTranslator implements java.io.Serializable{
           else  tempParam.setValue(new Double(basinDepth/1000));
         }
       }
-      //Cambell site type(Vs30)
+
+      //Cambell 1997 site type(Vs30)
       else if(tempParam.getName().equalsIgnoreCase(Campbell_1997_AttenRel.SITE_TYPE_NAME)){
         if(vs30>180 && vs30<=400)
           tempParam.setValue(Campbell_1997_AttenRel.SITE_TYPE_FIRM_SOIL);
@@ -129,6 +139,7 @@ public class SiteTranslator implements java.io.Serializable{
         else if(vs30>500)
           tempParam.setValue(Campbell_1997_AttenRel.SITE_TYPE_HARD_ROCK);
       }
+
       //Campbell & Bozorgnia (2003) site type
       else if(tempParam.getName().equalsIgnoreCase(CB_2003_AttenRel.SITE_TYPE_NAME)){
         if(vs30>180 && vs30<=300)
@@ -140,19 +151,33 @@ public class SiteTranslator implements java.io.Serializable{
         if(vs30 >500)
           tempParam.setValue(CB_2003_AttenRel.SITE_TYPE_FIRM_ROCK);
       }
+
       //Abrahamson site type
-      else if(tempParam.getName().equalsIgnoreCase(Abrahamson_2000_AttenRel.SITE_TYPE_NAME)){
-        if(basinDepth>=100 || basinDepth==Double.NaN){
-          if(vs30 <=400 && vs30>180)
+      if(tempParam.getName().equalsIgnoreCase(Abrahamson_2000_AttenRel.SITE_TYPE_NAME)){
+        if(Double.isNaN(basinDepth)){
+          if(vs30 <=400)
+            tempParam.setValue(Abrahamson_2000_AttenRel.SITE_TYPE_SOIL);
+          else
+            tempParam.setValue(Abrahamson_2000_AttenRel.SITE_TYPE_ROCK);
+        }
+        else {
+          if(vs30 <=400 && basinDepth > 100)
             tempParam.setValue(Abrahamson_2000_AttenRel.SITE_TYPE_SOIL);
           else
             tempParam.setValue(Abrahamson_2000_AttenRel.SITE_TYPE_ROCK);
         }
       }
+
       //SCEMY Site type
-      else if(tempParam.getName().equalsIgnoreCase(SCEMY_1997_AttenRel.SITE_TYPE_NAME)){
-        if(basinDepth>=100 || basinDepth==Double.NaN){
-          if(vs30 <=400 && vs30>180)
+      if(tempParam.getName().equalsIgnoreCase(SCEMY_1997_AttenRel.SITE_TYPE_NAME)){
+        if(Double.isNaN(basinDepth)){
+          if(vs30 <=400)
+            tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_SOIL);
+          else
+            tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        }
+        else {
+          if(vs30 <=400 && basinDepth > 100)
             tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_SOIL);
           else
             tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
