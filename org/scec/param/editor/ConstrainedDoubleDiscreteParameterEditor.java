@@ -191,14 +191,15 @@ public class ConstrainedDoubleDiscreteParameterEditor
                 valueEditor.setFont(JCOMBO_FONT);
                 ((JComboBox) valueEditor).addItemListener(this);
                 ((JComboBox) valueEditor).addFocusListener( this );
-
+                 widgetPanel.add(valueEditor, COMBO_WIDGET_GBC);
             }
             else{
                 valueEditor = makeConstantEditor( strs.get(0).toString() );
                 widgetPanel.setBackground(STRING_BACK_COLOR);
+                 widgetPanel.add(valueEditor, WIDGET_GBC);
             }
 
-            widgetPanel.add(valueEditor, WIDGET_GBC);
+
         }
 
         if(D) System.out.println(S + "Ending");

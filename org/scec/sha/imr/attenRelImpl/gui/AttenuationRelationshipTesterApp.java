@@ -491,11 +491,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
         outerControlPanel.setLayout( GBL );
         outerControlPanel.setBackground( background );
 
-
-        clearButton.setBackground( lightBlue );
-        clearButton.setForeground( darkBlue );
-    clearButton.setMaximumSize(new Dimension(80, 20));
-        clearButton.setFont( BUTTON_FONT );
         clearButton.setText( "Clear Plot" );
 
         clearButton.addFocusListener(
@@ -513,13 +508,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
                     clearButton_mouseClicked( e );
                 }
             } );
-        clearButton.setPreferredSize( BUTTON_DIM );
-        clearButton.setMinimumSize(new Dimension(80, 20) );
 
-        addButton.setBackground(new Color(200, 200, 230) );
-        addButton.setForeground( darkBlue );
-        addButton.setFont( BUTTON_FONT );
-        addButton.setMaximumSize(new Dimension(80, 20));
+
         addButton.setText( "Add Trace" );
 
 
@@ -541,26 +531,14 @@ public class AttenuationRelationshipTesterApp extends JApplet
                 }
             } );
 
-        addButton.setPreferredSize(new Dimension(80, 20) );
-        addButton.setMinimumSize(new Dimension(80, 20) );
 
-        axisScaleButton.setBackground(new Color(200, 200, 230) );
-        axisScaleButton.setForeground( darkBlue );
-        axisScaleButton.setFont( BUTTON_FONT );
-        axisScaleButton.setMaximumSize(new Dimension(120, 30));
         axisScaleButton.setText( "Set Axis Scale" );
-        axisScaleButton.setPreferredSize(new Dimension(120, 30) );
-        axisScaleButton.setMinimumSize(new Dimension(120, 30) );
         axisScaleButton.addActionListener(new java.awt.event.ActionListener() {
           public void actionPerformed(ActionEvent e) {
             axisScaleButton_actionPerformed(e);
           }
         });
 
-        toggleButton.setBackground( lightBlue );
-        toggleButton.setForeground( darkBlue );
-        toggleButton.setMaximumSize(new Dimension(80, 20));
-        toggleButton.setFont( BUTTON_FONT );
         toggleButton.setText( "Show Data" );
 
         toggleButton.addFocusListener(
@@ -578,12 +556,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
                     toggleButton_mouseClicked( e );
                 }
             } );
-        toggleButton.setPreferredSize( BUTTON_DIM );
-        toggleButton.setMinimumSize( BUTTON_DIM );
+
         //toggleButton.setVisible(false);
-
-
-        buttonPanel.setBackground( background );
         buttonPanel.setBorder( topBorder );
         buttonPanel.setLayout( GBL );
 
@@ -625,7 +599,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         imrLabel.setFont(new java.awt.Font( "Dialog", Font.BOLD, 13 ));
         imrLabel.setText( "Choose Model:    " );
 
-        imrComboBox.setBackground( lightBlue );
+        imrComboBox.setBackground(Color.white );
         imrComboBox.setForeground( darkBlue );
         imrComboBox.setFont( new java.awt.Font( "Dialog", Font.BOLD, 16 ) );
         imrComboBox.setBorder( null );
@@ -634,24 +608,13 @@ public class AttenuationRelationshipTesterApp extends JApplet
         imrComboBox.addItemListener( this );
         imrComboBox.setMinimumSize( COMBO_DIM );
 
-
-
-        jCheckxlog.setBackground(Color.white);
-        jCheckxlog.setFont(new java.awt.Font("Dialog", 1, 11));
-        jCheckxlog.setForeground(new Color(80, 80, 133));
         jCheckxlog.setText("X-Log");
         jCheckxlog.addItemListener( this );
 
-        jCheckylog.setBackground(Color.white);
-        jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
-        jCheckylog.setForeground(new Color(80, 80, 133));
         jCheckylog.setText("Y-Log");
         jCheckylog.addItemListener( this );
 
 
-        plotColorCheckBox.setBackground(Color.white);
-        plotColorCheckBox.setFont(new java.awt.Font("Dialog", 1, 11));
-        plotColorCheckBox.setForeground(new Color(80, 80, 133));
         plotColorCheckBox.setText("Black Background");
 
         plotColorCheckBox.addItemListener( this );
@@ -707,11 +670,11 @@ public class AttenuationRelationshipTesterApp extends JApplet
         dataScrollPane.getViewport().add( pointsTextArea, null );
 
 
-        buttonPanel.add( clearButton,             new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13) );
+        buttonPanel.add( clearButton,              new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 0, 0) );
 
-        buttonPanel.add( toggleButton,             new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13) );
+        buttonPanel.add( toggleButton,              new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 0, 0) );
 
         //buttonPanel.add( imrComboBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
         //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );
@@ -727,10 +690,10 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         buttonPanel.add(plotColorCheckBox,           new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 3), 0, 0));
-        buttonPanel.add(axisScaleButton,   new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(3, 4, 0, 0), 0, 0));
-        buttonPanel.add(addButton,               new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13));
+        buttonPanel.add(axisScaleButton,     new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 0, 1), 0, 0));
+        buttonPanel.add(addButton,                new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 0, 0));
         outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
         outerPanel.add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0

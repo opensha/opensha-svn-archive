@@ -1024,6 +1024,8 @@ public class HazardCurveApplet extends JApplet
    if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
    // do not show progress bar if not desired by user
    calc.showProgressBar(this.progressCheckBox.isSelected());
+   //check if the curves are to shown in the same black color for each erf.
+   isIndividualCurves = true;
     this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
    // calculate hazard curve for each ERF within the list
    for(int i=0; i<numERFs; ++i) {
@@ -1041,7 +1043,6 @@ public class HazardCurveApplet extends JApplet
        e.printStackTrace();
        return;
      }
-     isIndividualCurves = true;
      totalProbFuncs.add(hazFunction);
      addGraphPanel();
      chartPanel.paintImmediately(chartPanel.getBounds());
