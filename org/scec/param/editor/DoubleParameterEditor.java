@@ -150,6 +150,17 @@ public class DoubleParameterEditor extends ParameterEditor
                 if( !catchConstraint ){ this.unableToSetValue(value); }
                 keyTypeProcessing = false;
             }
+            catch (NumberFormatException ee) {
+                if(D) System.out.println(S + "Error = " + ee.toString());
+
+                Object obj = getValue();
+                if( obj != null )
+                    ((NumericTextField) valueEditor).setText(obj.toString());
+                else ((NumericTextField) valueEditor).setText( "" );
+
+                if( !catchConstraint ){ this.unableToSetValue(value); }
+                keyTypeProcessing = false;
+            }
             catch (WarningException ee){
                 keyTypeProcessing = false;
                 synchToModel();
@@ -202,6 +213,17 @@ public class DoubleParameterEditor extends ParameterEditor
             if( !catchConstraint ){ this.unableToSetValue(value); }
             focusLostProcessing = false;
         }
+        catch (NumberFormatException ee) {
+                if(D) System.out.println(S + "Error = " + ee.toString());
+
+                Object obj = getValue();
+                if( obj != null )
+                    ((NumericTextField) valueEditor).setText(obj.toString());
+                else ((NumericTextField) valueEditor).setText( "" );
+
+                if( !catchConstraint ){ this.unableToSetValue(value); }
+                keyTypeProcessing = false;
+            }
         catch (WarningException ee){
             focusLostProcessing = false;
             synchToModel();

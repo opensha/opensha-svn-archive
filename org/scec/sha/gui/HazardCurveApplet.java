@@ -554,7 +554,7 @@ public class HazardCurveApplet extends JApplet
       if(this.isEqkList) {
         int num = totalProbFuncs.size();
         int numFractiles;
-        if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE))
+        if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE) && !isIndividualCurves )
           numFractiles = 1;
         else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE) && !isIndividualCurves)
           numFractiles = 3;
@@ -793,6 +793,7 @@ public class HazardCurveApplet extends JApplet
        yLog  = false;
        data.setYLog(yLog);
      }
+     this.isIndividualCurves = true;
      this.addGraphPanel();
   }
 
@@ -1201,7 +1202,7 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+//   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erfGuiBean = new ERF_GuiBean(erf_Classes);
    erfPanel.setLayout(gridBagLayout5);

@@ -342,7 +342,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+//   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
    erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
 
@@ -449,7 +449,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
       griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
     }catch(Exception e) {
       JOptionPane.showMessageDialog(this,e.getMessage());
-      step = 3;
+       timer.stop();
       return;
     }
     int numSites = griddedRegionSites.getNumGridLocs();
@@ -481,7 +481,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
       try {
         imr.setProbEqkRupture(erfGuiBean.getRupture());
       } catch (Exception ex) {
-        step = 3;
+        timer.stop();
         JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
         this.repaint();
         this.validate();
