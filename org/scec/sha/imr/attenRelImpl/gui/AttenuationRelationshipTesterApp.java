@@ -45,8 +45,7 @@ import org.scec.sha.gui.controls.*;
  */
 
 public class AttenuationRelationshipTesterApp extends JApplet
-    implements
-        ParameterChangeFailListener,
+    implements ParameterChangeFailListener,
         ParameterChangeWarningListener,
         ItemListener, LogPlotAPI, AxisLimitsControlPanelAPI {
 
@@ -64,6 +63,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected double minYValue;
     protected double maxYValue;
     protected boolean customAxis = false;
+
 
 
 
@@ -213,6 +213,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     JPanel controlPanel = new JPanel();
     JButton clearButton = new JButton();
     JButton addButton = new JButton();
+    JButton axisScaleButton = new JButton();
     JPanel parametersPanel = new JPanel();
     JPanel buttonPanel = new JPanel();
     JPanel inputPanel = new JPanel();
@@ -225,7 +226,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
     JButton toggleButton = new JButton();
     private boolean yLog = false;
     private boolean xLog = false;
-    JComboBox rangeComboBox = new JComboBox();
     int titleSize = 0;
 
     //variables for the legend Panel, for our customise legend
@@ -262,7 +262,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
     DiscretizedFuncList functions = new DiscretizedFuncList();
     DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
-    private JLabel jAxisScale = new JLabel();
     AxisLimitsControlPanel axisLimits;
 
     private Vector imrsSelected=new Vector();
@@ -510,7 +509,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         addButton.setBackground(new Color(200, 200, 230) );
         addButton.setForeground( darkBlue );
-
         addButton.setFont( BUTTON_FONT );
         addButton.setMaximumSize(new Dimension(80, 20));
         addButton.setText( "Add Trace" );
@@ -534,10 +532,21 @@ public class AttenuationRelationshipTesterApp extends JApplet
                 }
             } );
 
-
-
         addButton.setPreferredSize(new Dimension(80, 20) );
         addButton.setMinimumSize(new Dimension(80, 20) );
+
+        axisScaleButton.setBackground(new Color(200, 200, 230) );
+        axisScaleButton.setForeground( darkBlue );
+        axisScaleButton.setFont( BUTTON_FONT );
+        axisScaleButton.setMaximumSize(new Dimension(120, 30));
+        axisScaleButton.setText( "Set Axis Scale" );
+        axisScaleButton.setPreferredSize(new Dimension(120, 30) );
+        axisScaleButton.setMinimumSize(new Dimension(120, 30) );
+        axisScaleButton.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            axisScaleButton_actionPerformed(e);
+          }
+        });
 
         toggleButton.setBackground( lightBlue );
         toggleButton.setForeground( darkBlue );
@@ -637,21 +646,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         plotColorCheckBox.setText("Black Background");
 
         plotColorCheckBox.addItemListener( this );
-        rangeComboBox.addItem(new String(AUTO_SCALE));
-        rangeComboBox.addItem(new String(CUSTOM_SCALE));
-        rangeComboBox.setBackground(new Color(200, 200, 230));
-        rangeComboBox.setForeground(new Color(80, 80, 133));
-        rangeComboBox.setMaximumSize(new Dimension(115, 19));
-        rangeComboBox.setMinimumSize(new Dimension(115, 19));
-        rangeComboBox.setPreferredSize(new Dimension(115, 19));
-        rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          rangeComboBox_actionPerformed(e);
-        }
-        });
-        jAxisScale.setFont(new java.awt.Font("Dialog", 1, 11));
-        jAxisScale.setForeground(new Color(80, 80, 133));
-        jAxisScale.setText("Set Axis: ");
+
         legendPane.setEditable(false);
 
         //loading the OpenSHA Logo
@@ -723,10 +718,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         buttonPanel.add(plotColorCheckBox,           new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 3), 0, 0));
-        buttonPanel.add(rangeComboBox,    new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
-        buttonPanel.add(jAxisScale,   new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(3, 4, 0, 0), 0, 0));
+        buttonPanel.add(axisScaleButton,   new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(3, 4, 0, 0), 0, 0));
         buttonPanel.add(addButton,               new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13));
         outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
@@ -1600,41 +1593,35 @@ public class AttenuationRelationshipTesterApp extends JApplet
   * whenever selection is made in the combo box
   * @param e
   */
-  void rangeComboBox_actionPerformed(ActionEvent e) {
-    String str=(String)rangeComboBox.getSelectedItem();
-    if(str.equalsIgnoreCase(AUTO_SCALE)){
-      customAxis=false;
-      addGraphPanel();
+  void axisScaleButton_actionPerformed(ActionEvent e) {
+    if(xAxis==null || yAxis==null) {
+      JOptionPane.showMessageDialog(this,AXIS_RANGE_NOT_ALLOWED);
+      return;
     }
-    else if(str.equalsIgnoreCase(CUSTOM_SCALE))  {
-       Range rX = xAxis.getRange();
-       Range rY= yAxis.getRange();
-       double minX=rX.getLowerBound();
-       double maxX=rX.getUpperBound();
-       double minY=rY.getLowerBound();
-       double maxY=rY.getUpperBound();
 
-       if(this.customAxis) { // select the custom scale in the control window
-         if(axisLimits==null)
-           axisLimits=new AxisLimitsControlPanel(this, this,
-             AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
-         else
-           axisLimits.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
-                                minX,maxX,minY,maxY);
+    Range rX = xAxis.getRange();
+    Range rY= yAxis.getRange();
+    double minX=rX.getLowerBound();
+    double maxX=rX.getUpperBound();
+    double minY=rY.getLowerBound();
+    double maxY=rY.getUpperBound();
+    if(this.customAxis) { // select the custom scale in the control window
+      if(axisLimits == null)
+        axisLimits=new AxisLimitsControlPanel(this, this,
+            AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
+      else  axisLimits.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
+                                       minX,maxX,minY,maxY);
 
-       }
-       else { // select the auto scale in the control window
-         if(axisLimits==null)
-           axisLimits=new AxisLimitsControlPanel(this, this,
-               AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
-         else
-           axisLimits.setParams(AxisLimitsControlPanel.AUTO_SCALE,
-                                minX,maxX,minY,maxY);
-       }
-
-       axisLimits.pack();
-       axisLimits.show();
     }
+    else { // select the auto scale in the control window
+      if(axisLimits == null)
+        axisLimits=new AxisLimitsControlPanel(this, this,
+            AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
+      else  axisLimits.setParams(AxisLimitsControlPanel.AUTO_SCALE,
+                                       minX,maxX,minY,maxY);
+    }
+    axisLimits.pack();
+    axisLimits.show();
   }
 
   /**
