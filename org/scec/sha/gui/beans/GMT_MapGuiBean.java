@@ -42,7 +42,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
   protected final static boolean D = false;
 
 
-  protected final static String GMT_TITLE = new String("Set GMT Parameters");
+  protected final static String GMT_TITLE = new String("Map Attributes");
 
   //instance of the GMT Control Panel to get the GMT parameters value.
   protected GMT_MapGenerator gmtMap= new GMT_MapGenerator();
@@ -71,10 +71,10 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
    */
   public GMT_MapGuiBean(GMT_MapGuiBeanAPI api) {
     application = api;
-    //initialise the param list and editor for the GMT Map Params and Editors
-    initParamListAndEditor();
+
     try {
-      jbInit();
+      //initialise the param list and editor for the GMT Map Params and Editors
+      initParamListAndEditor();
       getParameterEditor(gmtMap.GMT_WEBSERVICE_NAME).setVisible(false);
     }
     catch(Exception e) {
@@ -91,7 +91,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     //initialise the param list and editor for the GMT Map Params and Editors
      initParamListAndEditor();
      try {
-       jbInit();
+
        getParameterEditor(gmtMap.GMT_WEBSERVICE_NAME).setVisible(false);
      }
      catch(Exception e) {

@@ -55,12 +55,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     gmtMap= new GMT_MapGeneratorForShakeMaps();
     //initialise the param list and editor for the GMT Map Params and Editors
     initParamListAndEditor();
-    try {
-      jbInit();
-    }
-    catch(Exception e) {
-      e.printStackTrace();
-    }
+
   }
 
 
