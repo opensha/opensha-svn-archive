@@ -20,7 +20,8 @@ import org.scec.param.event.*;
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author Nitin gupta and Vipin Gupta
+ * Date : Sept 23 , 2002
  * @version 1.0
  */
 
@@ -114,7 +115,9 @@ public class GroupTestApplet extends Applet
     testCasesPanel.setLayout(gridBagLayout1);
     addButton.setText("Add Graph");
     clearButton.setText("Clear Plot");
-    dataButton.setText("Show Button");
+    dataButton.setMaximumSize(new Dimension(83, 39));
+    dataButton.setToolTipText("");
+    dataButton.setText("Show Plot");
     jCheckBox1.setText("X Log");
     jCheckBox2.setText("Y Log");
     imrPanel.setLayout(gridBagLayout2);
@@ -143,7 +146,7 @@ public class GroupTestApplet extends Applet
     magDistSplit.add(magDistControlPanel, JSplitPane.BOTTOM);
     chartSplit.setDividerLocation(525);
     controlsSplit.setDividerLocation(350);
-    magDistSplit.setDividerLocation(300);
+    magDistSplit.setDividerLocation(500);
 
     imtSplitPane.setDividerLocation(90);
 
@@ -151,19 +154,13 @@ public class GroupTestApplet extends Applet
     updateChoosenIMT();
     updateChoosenIMR();
     updateChoosenEqkSource();
-    updateChoosenMagDist();
     imrPanel.removeAll();
     imrPanel.add(groupTestBean.getImrEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                  GridBagConstraints.CENTER,
                  GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
     imrPanel.validate();
     imrPanel.repaint();
-    magDistControlPanel.removeAll();
-    magDistControlPanel.add(groupTestBean.getMagDistControlsEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                    GridBagConstraints.CENTER,
-                    GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    magDistControlPanel.validate();
-    magDistControlPanel.repaint();
+
   }
   //Start the applet
   public void start() {
@@ -406,29 +403,5 @@ public class GroupTestApplet extends Applet
   }
 
 
-  /**
-   *  Used for synch applet with new Mag Dist choosen. Updates lables and
-   *  initializes the Mag Dist if needed.
-   */
-  public void updateChoosenMagDist() {
-
-    // Starting
-    String S = C + ": updateChoosenMagDist(): ";
-
-    System.out.println(S);
-    // add the mag dist control editor
-    this.magDistControlPanel.removeAll();
-    magDistControlPanel.setLayout(gridBagLayout10);
-    magDistControlPanel.add(groupTestBean.getMagDistControlsEditor(),
-                    new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                    GridBagConstraints.CENTER,
-                    GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    magDistControlPanel.validate();
-    magDistControlPanel.repaint();
-    // Ending
-    if ( D )
-      System.out.println( S + "Ending" );
-
-  }
 
 }

@@ -23,6 +23,7 @@ import org.scec.param.event.*;
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta & Vipin Gupta
+ * Date : Oct 24 , 2002
  * @version 1.0
  */
 
@@ -49,9 +50,9 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
   private final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
   private final static String TRUNCTYPE_PARAM_NAME =  "Trunc-Type";
   private final static String TRUNCLEVEL_PARAM_NAME =  "Trunc-Level";
-  private final static String GRID_PARAM_NAME =  "Grid Spacing (km)";
+  private final static String GRID_PARAM_NAME =  "Fault Grid Spacing (km)";
   private final static String OFFSET_PARAM_NAME =  "Offset (km)";
-  private final static String MAG_DIST_PARAM_NAME = "Mag Dist";
+  private final static String MAG_DIST_PARAM_NAME = "Fault Mag Dist";
   private final static String RAKE_PARAM_NAME ="Rake";
 
   // dip name
@@ -106,8 +107,8 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
   // Fault trace
   FaultTrace faultTrace;
 
-  // private declaration of the flag
-  boolean  parameterChangeFlag = true;
+  // private declaration of the flag to check if any parameter has been changed from its original value.
+  private boolean  parameterChangeFlag = true;
 
 
   /**
@@ -169,6 +170,9 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
       parameterChangeFlag=true;
    }
 
+  /**
+   * update the sources based on the user paramters, only when user has changed any parameter
+   */
    public void updateGUI(){
      if(parameterChangeFlag) {
 

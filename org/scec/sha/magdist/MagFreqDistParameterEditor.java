@@ -5,12 +5,12 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.JButton;
 
-import org.scec.gui.LabeledBoxPanel;
+
 import org.scec.param.editor.*;
 import org.scec.param.*;
 import org.scec.exceptions.*;
 import org.scec.param.event.*;
-import org.scec.gui.LabeledBoxPanel;
+
 
 /**
  *  <b>Title:</b> MagFreqDistParameterEditor<p>
@@ -189,8 +189,10 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
 
         // Build package names search path
-       searchPaths = new String[1];
+       searchPaths = new String[3];
        searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+       searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
+       searchPaths[2] = "org.scec.sha.magdist" ;
     }
 
     /**

@@ -35,6 +35,10 @@ public class GroupTestGuiBean implements
 
   //object for the fault
   FaultCaseSet1_Fault faultcase1=new FaultCaseSet1_Fault();
+
+  //object for the Area;
+  FaultCaseSet2_Area faultcase2_area=new FaultCaseSet2_Area();
+
   /**
    *  Search path for finding editors in non-default packages.
    */
@@ -59,14 +63,10 @@ public class GroupTestGuiBean implements
   private final static String TRUNCTYPE_PARAM_NAME =  "Trunc-Type";
   private final static String TRUNCLEVEL_PARAM_NAME =  "Trunc-Level";
   private final static String IMT_PARAM_NAME =  "Select IMT";
-  private final static String GRID_PARAM_NAME =  "Grid Spacing (km)";
-  private final static String OFFSET_PARAM_NAME =  "Offset (km)";
-  private final static String DEPTH_LOWER_PARAM_NAME =  "Depth Lower(km)";
-  private final static String DEPTH_UPPER_PARAM_NAME =  "Depth Upper(km)";
+
   private final static String MAG_DIST_PARAM_NAME = "Mag Dist";
 
-  //timespan Variable
-  private final static String TIMESPAN_PARAM_NAME = "Timespan(#yrs)";
+
   // dip name
   private final static String DIP_PARAM_NAME = "Dip";
   //source Name
@@ -143,7 +143,7 @@ public class GroupTestGuiBean implements
 
 
   // search path needed for making editors
-  String[] searchPaths;
+  private String[] searchPaths;
 
   //saves the IMR objects, to the parameters related to an IMR.
   private Vector imrObject = new Vector();
@@ -406,25 +406,17 @@ public class GroupTestGuiBean implements
       selectSource.addParameterChangeListener(this);
       eqkSourceParamList.addParameter(selectSource);
 
-      //getting the value of the parameters for the fault-1
-
+      //getting the value of the parameters for the fault
       ListIterator it=faultcase1.getAdjustableParamsList();
       while(it.hasNext()){
         eqkSourceParamList.addParameter((ParameterAPI)it.next());
       }
 
-      //add Depth Lower
-      DoubleParameter depthLowerParam = new DoubleParameter(DEPTH_LOWER_PARAM_NAME);
-      eqkSourceParamList.addParameter(depthLowerParam);
-
-      //add depth Upper
-      DoubleParameter depthUpperParam = new DoubleParameter(DEPTH_UPPER_PARAM_NAME);
-      eqkSourceParamList.addParameter(depthUpperParam);
-
-
-      //add the timespan parameter
-      DoubleParameter timespanParam = new DoubleParameter(this.TIMESPAN_PARAM_NAME);
-      eqkSourceParamList.addParameter(timespanParam);
+      //getting the value of the parameters for the Area
+      it=faultcase2_area.getAdjustableParamsList();
+      while(it.hasNext()){
+        eqkSourceParamList.addParameter((ParameterAPI)it.next());
+      }
 
       // now make the editor based on the paramter list
       eqkSourceEditor = new ParameterListEditor( eqkSourceParamList, searchPaths);
@@ -606,23 +598,20 @@ public class GroupTestGuiBean implements
       eqkSourceEditor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false );
     //make the source parameter visible
     eqkSourceEditor.setParameterInvisible(this.SOURCE_PARAM_NAME,true);
-    eqkSourceEditor.setParameterInvisible(this.TIMESPAN_PARAM_NAME,true);
+
     Vector supportedMagDists = new Vector();
     // if fault1 or fault2 is selected
-    if(source.equalsIgnoreCase(this.SOURCE_FAULT_ONE)) {
-     it = faultcase1.getAdjustableParamsList();
-      while(it.hasNext()) {
-        String paramName=((ParameterAPI)it.next()).getName();
-        eqkSourceEditor.setParameterInvisible(paramName, true);
-      }
-    } else if(source.equalsIgnoreCase(this.SOURCE_FAULT_AREA)) {
-       // if Area source is selected
-      eqkSourceEditor.setParameterInvisible(this.GRID_PARAM_NAME, true);
-      eqkSourceEditor.setParameterInvisible(this.DEPTH_LOWER_PARAM_NAME, true);
-      eqkSourceEditor.setParameterInvisible(this.DEPTH_UPPER_PARAM_NAME, true);
-      supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
+    if(source.equalsIgnoreCase(this.SOURCE_FAULT_ONE))
+      it = faultcase1.getAdjustableParamsList();
+    else // if Area source is selected
+      it = faultcase2_area.getAdjustableParamsList();
 
+   // make the parameters visible or invisible
+    while(it.hasNext()) {
+      String paramName=((ParameterAPI)it.next()).getName();
+      eqkSourceEditor.setParameterInvisible(paramName, true);
     }
+
 
   }
 
@@ -673,4 +662,3 @@ public class GroupTestGuiBean implements
 
   }
 }
-
