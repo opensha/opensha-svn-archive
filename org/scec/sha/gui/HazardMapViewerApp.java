@@ -548,7 +548,6 @@ public class HazardMapViewerApp extends JApplet {
                    //corresponding prob.
                    double finalProb=interpolateProb(val, prevProb,currentProb,prevIML,currentIML);
                    String curveResult=lon+" "+lat+" "+finalProb+"\n";
-                   finalFile=selectedSet+".xyz";
                    FileWriter fw= new FileWriter(finalFile,true);
                    fw.write(curveResult);
                    fw.close();

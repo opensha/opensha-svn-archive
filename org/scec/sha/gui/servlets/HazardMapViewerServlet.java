@@ -66,7 +66,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
         if(optionSelected.equalsIgnoreCase(IMLorProbSelectorGuiBean.IML_AT_PROB))
           isProbAt_IML = false;
         // xyzfilename
-        String xyzFileName = this.readAndWriteFile(selectedSet, outputFilePrefix,
+        String xyzFileName = this.readAndWriteFile(selectedSet, new String(outputFilePrefix),
                                                     isProbAt_IML, val, map);
         // jpg file name
         String jpgFileName  = map.makeMap(xyzFileName);
@@ -80,8 +80,21 @@ public class HazardMapViewerServlet  extends HttpServlet {
         RunScript.runScript(command);
         command[2] = "mv "+jpgFileName+" webpages/hazardmapoutputfiles/";
         RunScript.runScript(command);
+        // remove the temporary files created
+        command[2]="rm "+outputFilePrefix+".grd";
+        RunScript.runScript(command);
+        command[2]="rm temp"+outputFilePrefix+".grd";
+        RunScript.runScript(command);
+        command[2]="rm temp_temp"+outputFilePrefix+".grd_info";
+        RunScript.runScript(command);
+        command[2]="rm "+outputFilePrefix+".cpt";
+        RunScript.runScript(command);
+        command[2]="rm "+outputFilePrefix+"HiResData.grd";
+        RunScript.runScript(command);
+        command[2]="rm "+outputFilePrefix+"Inten.grd";
+        RunScript.runScript(command);
         ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
-        outputToApplet.writeObject("http://scec.usc.edu:9999/"+outputFilePrefix+".html");
+        outputToApplet.writeObject("http://scec.usc.edu:9999/hazardmapoutputfiles/"+outputFilePrefix+".html");
         outputToApplet.close();
       }
 
@@ -267,7 +280,6 @@ public class HazardMapViewerServlet  extends HttpServlet {
                   //corresponding prob.
                   double finalProb=interpolateProb(val, prevProb,currentProb,prevIML,currentIML);
                   String curveResult=lon+" "+lat+" "+finalProb+"\n";
-                  finalFile=selectedSet+".xyz";
                   FileWriter fw= new FileWriter(finalFile,true);
                   fw.write(curveResult);
                   fw.close();
@@ -325,7 +337,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
     BufferedWriter htmlWriter = null;
     try{
 
-      FileOutputStream outputfile = new FileOutputStream("/export/home/scec-00/scecweb/jsdk2.1/webpages/"+outputFilePrefix+".html");
+      FileOutputStream outputfile = new FileOutputStream("/export/home/scec-00/scecweb/jsdk2.1/webpages/hazardmapoutputfiles/"+outputFilePrefix+".html");
       BufferedOutputStream buffout = new BufferedOutputStream(outputfile);
       htmlWriter = new BufferedWriter(new OutputStreamWriter(buffout));
       String htmlData=new String("<html><head><title>Download Page</title></head><body><p><br>");
@@ -333,13 +345,13 @@ public class HazardMapViewerServlet  extends HttpServlet {
       htmlWriter.newLine();
 
       htmlWriter.write("Download the XYZ file from "
-                       +"<a href= ../"+outputFilePrefix+".xyz target=htmlfile> here</a>");
+                       +"<a href= "+outputFilePrefix+".xyz target=htmlfile> here</a>");
       htmlWriter.write("<br>");
       htmlWriter.write("Download the ps file from "
-                      +"<a href= ../"+outputFilePrefix+".ps target=htmlfile> here</a>");
+                      +"<a href= "+outputFilePrefix+".ps target=htmlfile> here</a>");
       htmlWriter.write("<br>");
       htmlWriter.write("Download the jpg file from "
-                      +"<a href= ../"+outputFilePrefix+".jpg target=htmlfile> here</a>");
+                      +"<a href= "+outputFilePrefix+".jpg target=htmlfile> here</a>");
       htmlWriter.write("<br>");
 
       htmlWriter.write("Click to View the file<br>");

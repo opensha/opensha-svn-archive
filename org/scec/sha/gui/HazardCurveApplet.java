@@ -151,6 +151,8 @@ public class HazardCurveApplet extends JApplet
   private boolean isAllCurves = true; // whether to plot all curves
   // whether user wants to plot No percentile, or 5, 50 and 95 percentile or custom percentile
   private String percentileOption = ERF_EpistemicListControlPanel.NO_PERCENTILE;
+  // whether avg is selected by the user
+  private boolean avgSelected = false;
   private FractileCurveCalculator fractileCalc;
 
   /**
@@ -575,11 +577,16 @@ public class HazardCurveApplet extends JApplet
         else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE))
           numFractiles = 3;
         else numFractiles = 0;
-        int diff = num - numFractiles;
-        for(int i=0; i<diff; ++i) // set black color for curves
+        int diff ;
+        if(this.avgSelected) num= num - 1;
+        diff = num - numFractiles ;
+        int i;
+        for(i=0; i<diff; ++i) // set black color for curves
           renderer.setSeriesPaint(i,Color.black);
-        for(int i=diff;i<num;++i) // set red color for fractiles
+        for(i=diff;i<num;++i) // set red color for fractiles
           renderer.setSeriesPaint(i,Color.red);
+        // draw average in green color
+        if(this.avgSelected) renderer.setSeriesPaint(i,Color.green);
 
       }
 
@@ -1035,9 +1042,9 @@ for( hi=0; hi<totalProbFuncs.size(); hi++) {
   System.out.print("\n");
 }
 
-   // if fractile needs to be calculated
+   // if fractile or average needs to be calculated
    if(!this.percentileOption.equalsIgnoreCase
-      (ERF_EpistemicListControlPanel.NO_PERCENTILE)) {
+      (ERF_EpistemicListControlPanel.NO_PERCENTILE) || this.avgSelected) {
      // set the function list and weights in the calculator
      if (fractileCalc==null)
        fractileCalc = new FractileCurveCalculator(totalProbFuncs,
@@ -1058,6 +1065,8 @@ for( hi=0; hi<totalProbFuncs.size(); hi++) {
      double percentile = this.epistemicControlPanel.getCustomPercentileValue();
      totalProbFuncs.add(fractileCalc.getFractile(percentile/100));
    }
+   // calculate average
+   if(this.avgSelected) totalProbFuncs.add(fractileCalc.getMeanCurve());
 
    // set the X-axis label
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
@@ -1342,11 +1351,21 @@ for( hi=0; hi<totalProbFuncs.size(); hi++) {
    * User can choose "No Percentile", "5th, 50th and 95th Percentile" or
    * "Custom Percentile"
    *
-   * @param percentileOption : Oprion selected by the user. It can be set by
+   * @param percentileOption : Option selected by the user. It can be set by
    * various constant String values in ERF_EpistemicListControlPanel
    */
   public void setPercentileOption(String percentileOption) {
     this.percentileOption = percentileOption;
+  }
+
+  /**
+   * This function is needed to tell the applet whether avg is selected or not
+   * This is called from ERF_EpistemicListControlPanel
+   *
+   * @param isAvgSelected : true if avg is selected else false
+   */
+  public void setAverageSelected(boolean isAvgSelected) {
+    this.avgSelected = isAvgSelected;
   }
 
   /**

@@ -12,11 +12,13 @@ package org.scec.sha.gui.controls;
 
 public interface ERF_EpistemicListControlPanelAPI {
 
+
   /**
    * This function sets whether all curves are to drawn or only fractiles are to drawn
    * @param drawAllCurves :True if all curves are to be drawn else false
    */
   public void setPlotAllCurves(boolean drawAllCurves);
+
 
   /**
    * This function sets the percentils option chosen by the user.
@@ -27,6 +29,14 @@ public interface ERF_EpistemicListControlPanelAPI {
    * various constant String values in ERF_EpistemicListControlPanel
    */
   public void setPercentileOption(String percentileOption);
+
+
+  /**
+   * This function is needed to tell the applet whether avg is selected or not
+   *
+   * @param isAvgSelected : true if avg is selected else false
+   */
+  public void setAverageSelected(boolean isAvgSelected);
 
 
 }

@@ -34,10 +34,11 @@ public class ERF_EpistemicListControlPanel extends JFrame
   private DoubleParameter percentileParam =
       new DoubleParameter("Percentile", 0, 100, new Double(50));
   private DoubleParameterEditor percentileEditor=new DoubleParameterEditor();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   // saving the instance of caller class
   ERF_EpistemicListControlPanelAPI api;
+  private JCheckBox avgCheckBox = new JCheckBox();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
    *
@@ -55,6 +56,7 @@ public class ERF_EpistemicListControlPanel extends JFrame
                      parentComponent.getY()+parentComponent.getHeight()/2);
       // set the initial values in the caller
       api.setPercentileOption(percentileComboBox.getSelectedItem().toString());
+      api.setAverageSelected(this.avgCheckBox.isSelected());
       api.setPlotAllCurves(this.allCurvesCheckBox.isSelected());
     }
     catch(Exception e) {
@@ -74,30 +76,39 @@ public class ERF_EpistemicListControlPanel extends JFrame
     this.setTitle("Epistemic List Control");
     this.getContentPane().setLayout(gridBagLayout1);
     percentileComboBox.setBackground(new Color(200, 200, 230));
-    percentileComboBox.setForeground(new Color(80, 80, 133));
+    percentileComboBox.setForeground(Color.red);
     percentileComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         percentileComboBox_actionPerformed(e);
       }
     });
 
-    this.getContentPane().add(allCurvesCheckBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 10, 10, 13), 18, 3));
-    this.getContentPane().add(percentileComboBox,   new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 8, 0, 13), 68, -1));
+    avgCheckBox.setForeground(Color.green);
+    avgCheckBox.setText("Average");
+    avgCheckBox.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        avgCheckBox_actionPerformed(e);
+      }
+    });
+    this.getContentPane().add(percentileComboBox,    new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 8, 5, 0), 0, 0));
 
     // set the percentile editor
    percentileParam.addParameterChangeFailListener(this);
    percentileEditor.setParameter(percentileParam);
 
    // add the percentile editor to the window
-   this.getContentPane().add(percentileEditor,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-           ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+   this.getContentPane().add(percentileEditor,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 0, 5, 5), 0, 0));
+    this.getContentPane().add(allCurvesCheckBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 10, 9, 13), 10, 3));
+    this.getContentPane().add(avgCheckBox,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 9, 0, 13), 117, -12));
 
     percentileEditor.setVisible(false);
 
     // set the size
-    this.setSize(220,175);
+    this.setSize(220,190);
   }
 
   /**
@@ -171,5 +182,13 @@ public class ERF_EpistemicListControlPanel extends JFrame
   void allCurvesCheckBox_actionPerformed(ActionEvent e) {
      // update the value in calling class as well
      api.setPlotAllCurves(this.allCurvesCheckBox.isSelected());
+  }
+
+  /**
+   * set the average as selected/deselected in the applet as chosen by the user
+   * @param e
+   */
+  void avgCheckBox_actionPerformed(ActionEvent e) {
+    api.setAverageSelected(this.avgCheckBox.isSelected());
   }
 }

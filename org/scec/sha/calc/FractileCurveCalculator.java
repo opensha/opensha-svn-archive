@@ -84,7 +84,7 @@ public class FractileCurveCalculator {
     calling program changes its functionlist in any way, this program will be affected
     */
     this.funcList = functionList.deepClone();
-    relativeWeights = relativeWts;
+    relativeWeights = (Vector)relativeWts.clone();
     // save the number of X values
     this.num = numPoints;
 
