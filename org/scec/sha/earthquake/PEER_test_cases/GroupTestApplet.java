@@ -784,7 +784,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
 
        int xCenter=getAppletXAxisCenterCoor();
        int yCenter=getAppletYAxisCenterCoor();
-       PEER_Test_Cases_AxisScale axisScale=new PEER_Test_Cases_AxisScale(this,minX,maxX,minY,maxY);
+       AxisScale axisScale=new AxisScale(this,minX,maxX,minY,maxY);
        axisScale.setBounds(xCenter-60,yCenter-50,375,148);
        axisScale.pack();
        axisScale.show();

@@ -1632,7 +1632,7 @@ public class ClassicIMRTesterApp extends JApplet
 
        int xCenter=getAppletXAxisCenterCoor();
        int yCenter=getAppletYAxisCenterCoor();
-       ClassicIMRAxisScale axisScale=new ClassicIMRAxisScale(this,minX,maxX,minY,maxY);
+       AxisScale axisScale=new AxisScale(this,minX,maxX,minY,maxY);
        axisScale.setBounds(xCenter-60,yCenter-50,375,148);
        axisScale.pack();
        axisScale.show();

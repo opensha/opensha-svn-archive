@@ -1,21 +1,20 @@
-package org.scec.sha.earthquake.PEER_test_cases;
+package org.scec.gui;
 
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-
+import org.scec.gui.plot.LogPlotAPI;
 /**
- * <p>Title: PEER_Test_Cases_AxisScale</p>
+ * <p>Title: IMRAxisScale</p>
  *
- * <p>Description: This Class pop up window when custom scale is selecetd for the
- * combo box that enables the user to customise the X and Y Axis scale</p>
+ * <p>Description: This Class pop up window when custom scale is selecetd for the combo box that enables the
+ * user to customise the X and Y Axis scale</p>
 
  * @author : Nitin Gupta and Vipin Gupta
- * Date : Oct 31, 2002
  * @version 1.0
  */
 
-public class PEER_Test_Cases_AxisScale extends JFrame {
+public class AxisScale extends JFrame {
 
   /**
    * @todo variables
@@ -36,12 +35,11 @@ public class PEER_Test_Cases_AxisScale extends JFrame {
   JButton cancel = new JButton();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private GroupTestApplet groupTesterApplet;
+  private LogPlotAPI plot;
 
 
-  public PEER_Test_Cases_AxisScale(GroupTestApplet groupTesterApplet,double minX,
-                                   double maxX,double minY,double maxY) {
-    this.groupTesterApplet= groupTesterApplet;
+  public AxisScale(LogPlotAPI plot,double minX,double maxX,double minY,double maxY) {
+    this.plot= plot;
     this.minX=minX;
     this.minY=minY;
     this.maxX=maxX;
@@ -112,7 +110,7 @@ public class PEER_Test_Cases_AxisScale extends JFrame {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 14, 17), 24, 3));
   }
 /**
- * This function also calls the setYRange and setXRange functions of the groupTesterApplet class
+ * This function also calls the setYRange and setXRange functions of the IMRTesterApplet class
  * which sets the range of the axis based on the user input
  *
  * @param e= this event occur when the Ok button is clicked on the custom axis popup window
@@ -126,7 +124,7 @@ public class PEER_Test_Cases_AxisScale extends JFrame {
         return;
       }
       else
-        this.groupTesterApplet.setXRange(xMin,xMax);
+        this.plot.setXRange(xMin,xMax);
       double yMin=Double.parseDouble(this.jTextMinY.getText());
       double yMax=Double.parseDouble(this.jTextMaxY.getText());
 
@@ -135,7 +133,7 @@ public class PEER_Test_Cases_AxisScale extends JFrame {
         return;
       }
       else
-        this.groupTesterApplet.setYRange(yMin,yMax);
+        this.plot.setYRange(yMin,yMax);
       this.dispose();
     } catch(Exception ex) {
         System.out.println("Exception:"+ex);
