@@ -313,6 +313,8 @@ public class Campbell_1997_AttenRel
         double mag, dist, depth, F, mean, lnPGA;
         String fltType, siteType, component, im_name;
 
+        Double tempDepth;
+
         // default is alluvium
         double S_sr = 0.0;
         double S_hr = 0.0;
@@ -320,7 +322,7 @@ public class Campbell_1997_AttenRel
         try{
             mag = ((Double)magParam.getValue()).doubleValue();
             dist = ((Double)distanceSeisParam.getValue()).doubleValue();
-            depth = ((Double)basinDepthParam.getValue()).doubleValue();
+            tempDepth = (Double)basinDepthParam.getValue();
             fltType = fltTypeParam.getValue().toString();
             siteType = siteTypeParam.getValue().toString();
             component = componentParam.getValue().toString();
@@ -336,6 +338,19 @@ public class Campbell_1997_AttenRel
 
         if ( siteType.equals( SITE_TYPE_SOFT_ROCK ) )         S_sr = 1.0;
         else if ( siteType.equals( SITE_TYPE_HARD_ROCK ) )    S_hr = 1.0;
+
+        // set basin depth
+        if(tempDepth != null)
+          depth = tempDepth.doubleValue();
+        else {
+          if (S_hr == 1.0)
+            depth = 0;
+          else if(S_sr == 1.0)
+            depth = 1.0;
+          else
+            depth = 5.0;
+        }
+
 
 
         // Get horizontal PGA (which all depend on):
@@ -604,6 +619,7 @@ public class Campbell_1997_AttenRel
         siteTypeParam.setNonEditable();
 
         DoubleConstraint basinDepthConstraint = new DoubleConstraint(BASIN_DEPTH_MIN, BASIN_DEPTH_MAX);
+        basinDepthConstraint.setNullAllowed(true);
         basinDepthConstraint.setNonEditable();
         basinDepthParam = new WarningDoubleParameter( BASIN_DEPTH_NAME, basinDepthConstraint, BASIN_DEPTH_UNITS);
         basinDepthParam.setInfo( BASIN_DEPTH_INFO );
