@@ -1,14 +1,13 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-In HazardCurveCalculators (at least server mode):
+HazardDataSetPlotter:
 
-	a) if you accidentally hit compute twice quickly the app seems to crash after doing 
-	the computation once (or at least a second control panel pops up and nothing happens,
-	or something happens but the progress bar doesn't change).
+	make it so if you change data sets it will keep the 
+	previously chosen lat and lon if possible
 
-	b) change it so when you've clicked one of the buttons in the "Set Site Related Params" 
-	control panel, and it's succeeded, automatically close the window.
+In the "Plot Prefs" control panel add the ability to add/remove/change axis and plot labels.
+
 
 
 In all apps - can we have a bug-reporting via email utility?
