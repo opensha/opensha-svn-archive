@@ -999,6 +999,10 @@ public class HazardCurveApplet extends JApplet
   */
  public void computeHazardCurve() {
 
+   // do not show warning messages in IMR gui bean. this is needed
+    // so that warning messages for site parameters are not shown when Add graph is clicked
+   imrGuiBean.showWarningMessages(false);
+
    // intialize the hazard function
    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
    initDiscretizeValues(hazFunction);
@@ -1029,6 +1033,7 @@ public class HazardCurveApplet extends JApplet
      erfGuiBean.updateMagDistParam();
       // calculate the hazard curve
      calc.getHazardCurve(hazFunction, site, imr, eqkRupForecast);
+
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
            "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1065,6 +1070,8 @@ public class HazardCurveApplet extends JApplet
    // set the X-axis label
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
    totalProbFuncs.setYAxisName("Probability of Exceedance");
+   // you can show warning messages now
+   imrGuiBean.showWarningMessages(true);
   }
 
 

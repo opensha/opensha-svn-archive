@@ -39,6 +39,8 @@ public class IMR_GuiBean extends ParameterListEditor
   private Vector imrClasses = new Vector();
   //saves the IMR objects, to the parameters related to an IMR.
   private Vector imrObject = new Vector();
+  // this flag is needed else messages are shown twice on focus lost
+  private boolean inParameterChangeWarning = false;
 
   /**
    * constructor which accepts the class names of the imrs to be shown in pick list
@@ -237,12 +239,13 @@ public class IMR_GuiBean extends ParameterListEditor
      String S = C + " : parameterChangeWarning(): ";
      if(D) System.out.println(S + "Starting");
 
+     // if it is already processing a warning, then return
+     if(inParameterChangeWarning) return;
+     inParameterChangeWarning = true;
 
-     // only display messages if paramters are set at back
      StringBuffer b = new StringBuffer();
 
      WarningParameterAPI param = e.getWarningParameter();
-
 
      try{
        Double min = param.getWarningMin();
@@ -270,8 +273,6 @@ public class IMR_GuiBean extends ParameterListEditor
        b.append( "Click Yes to accept the new value: " );
        b.append( e.getNewValue().toString() );
        b.append( name );
-
-
      }
      if(D) System.out.println(S + b.toString());
 
@@ -298,10 +299,19 @@ public class IMR_GuiBean extends ParameterListEditor
        if(D) System.out.println(S + "Not sure what you choose, not changing value.");
        break;
      }
-
+     inParameterChangeWarning = false;
      if(D) System.out.println(S + "Ending");
    }
 
+   /**
+    * Whether to show the warning messages or not
+    * In some cases, we may not want to show warning messages.
+    * Presently it is being used in HazardCurveApplet
+    * @param show
+    */
+   public void showWarningMessages(boolean show){
+     inParameterChangeWarning = !show;
+   }
 
    /**
     * Shown when a Constraint error is thrown on a ParameterEditor
@@ -335,7 +345,7 @@ public class IMR_GuiBean extends ParameterListEditor
 
      // if this parameter for which failure was issued does not exist in
      // site parameter list, then do not show the message box
-     if(!found) return;
+     if(!found)  return;
 
 
 
