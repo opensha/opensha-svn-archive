@@ -50,6 +50,10 @@ GriddedFaultApplet - fix plotting symbols (make all circles) and check that horz
 
 AttenRelApp - make "Set Axes" button (rather than JcomoBox)
 
+TimeSpan object:
+
+	
+
 
 For the SCEC-ITR CME:
 ---------------------

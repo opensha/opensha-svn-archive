@@ -32,12 +32,13 @@ public class TimeSpan {
 
     protected GregorianCalendar startTime;
 
-    /** Elapsed time of the event since it's start time, in seconds. */
-    protected double duration;
-
-    /** End time of the event in milliseconds. */
+    // End Time In Milliseconds
     protected long endTime_mSec;
 
+    // temp duration????
+    double duration;
+
+    // Start-Time Parameters
     private final static String START_YEAR = "Start Year";
     private IntegerParameter startYearParam;
     private final static String START_MONTH = "Start Month";
@@ -51,43 +52,36 @@ public class TimeSpan {
     private final static String START_SECOND = "Start Second";
     private IntegerParameter startSecondParam;
 
-    private final static String DURATION = "Duration";
-    private DoubleParameter durationParam;
-
-    // various stings used
+    // Misc Strings
     public final static String YEARS = "Years";
+    public final static String MONTHS = "Months";
     public final static String DAYS = "Days";
     public final static String HOURS = "Hours";
     public final static String MINUTES = "Minutes";
     public final static String SECONDS = "Seconds";
-    public final static String ADJUSTABLE = "Adjustable";
+    public final static String MILLISECONDS = "Milliseconds";
+    public final static String NONE = "None";
 
-    // to define whether start (and end) times are needed
-    private boolean startTimeIndependent;
-
-    // to define the units on duration if "Adjustable"
-    private String durationUnits;
+    // For Duration Units Parameter
+    private final static String DURATION_UNITS = "Duration Units";
+    private final static String DURATION_UNITS_DEFAULT = YEARS;
     private StringParameter durationUnitsParam;
 
-    // to define the maximum precision for the start time
-    private String startTimePrecision;
+    // For Duration Parameter
+    private final static String DURATION = "Duration";
+    private final static Double DURATION_DEFAULT = new Double(50.);
+    private DoubleParameter durationParam;
+
+   // to define the maximum precision for the start time
+    public final static String START_TIME_PRECISION = "Start-Time Precision";
+    private String START_TIME_PRECISION_DEFAULT = YEARS;
+    private StringParameter startTimePrecisionParam;
 
     /**
      *  Constructor
      */
-    public TimeSpan(String startTimePrecision, String durationUnits) {
-      this.startTimePrecision = startTimePrecision;
-      this.durationUnits = durationUnits;
+    public TimeSpan() {
 
-      // create the parameters
-      startYearParam = new IntegerParameter(START_YEAR,1,Integer.MAX_VALUE,new Integer(2000));
-      startMonthParam = new IntegerParameter(START_MONTH,1,12,new Integer(1));
-      startDayParam = new IntegerParameter(START_DAY,1,32,new Integer(1));
-      startHourParam = new IntegerParameter(START_HOUR,1,24,new Integer(1));
-      startMinuteParam = new IntegerParameter(START_MINUTE,1,60,new Integer(1));
-      startSecondParam = new IntegerParameter(START_SECOND,1,60,new Integer(1));
-
-      durationParam = new DoubleParameter(DURATION,durationUnits);
 
     }
 
@@ -101,6 +95,50 @@ public class TimeSpan {
     public TimeSpan( double interval ) {
         this.duration = interval;
         endTime_mSec =  startTime.getTime().getTime() + (long)(duration * 1000)  ;
+    }
+
+
+    /**
+     * Initialize Parameters
+     */
+
+    private void initParams() {
+
+      // Start Time Parameters
+      startYearParam = new IntegerParameter(START_YEAR,1,Integer.MAX_VALUE,new Integer(2000));
+      startMonthParam = new IntegerParameter(START_MONTH,1,12,new Integer(1));
+      startDayParam = new IntegerParameter(START_DAY,1,32,new Integer(1));
+      startHourParam = new IntegerParameter(START_HOUR,1,24,new Integer(1));
+      startMinuteParam = new IntegerParameter(START_MINUTE,1,60,new Integer(1));
+      startSecondParam = new IntegerParameter(START_SECOND,1,60,new Integer(1));
+
+      // Duration Units Parameter
+      StringConstraint durationUnitsConstraint = new StringConstraint();
+      durationUnitsConstraint.addString( YEARS );
+      durationUnitsConstraint.addString( DAYS );
+      durationUnitsConstraint.addString( HOURS );
+      durationUnitsConstraint.addString( MINUTES );
+      durationUnitsConstraint.addString( SECONDS );
+      durationUnitsConstraint.addString( MILLISECONDS );
+      durationUnitsConstraint.setNonEditable();
+      durationUnitsParam = new StringParameter(this.DURATION_UNITS,durationUnitsConstraint,YEARS);
+
+      // Duration Parameter
+      durationParam = new DoubleParameter(DURATION,0.0,Double.MAX_VALUE,DURATION_UNITS_DEFAULT,DURATION_DEFAULT);
+
+      // Start Time Precision Parameter
+      StringConstraint precisionConstraint = new StringConstraint();
+      precisionConstraint.addString( YEARS );
+      precisionConstraint.addString( MONTHS );
+      precisionConstraint.addString( DAYS );
+      precisionConstraint.addString( HOURS );
+      precisionConstraint.addString( MINUTES );
+      precisionConstraint.addString( SECONDS );
+      precisionConstraint.addString( MILLISECONDS );
+      precisionConstraint.addString( NONE );
+      precisionConstraint.setNonEditable();
+      startTimePrecisionParam = new StringParameter(START_TIME_PRECISION,precisionConstraint,
+                                                    START_TIME_PRECISION_DEFAULT);
     }
 
 
@@ -127,12 +165,77 @@ public class TimeSpan {
 
     }
 
-
-    /** Sets the elapsed time of this event in seconds. */
-    public void setDuration( double duration ) {
-        this.duration = duration;
-        endTime_mSec =  startTime.getTime().getTime() + (long)(duration * 1000)  ;
+    /**
+     * Sets the Start-Time Precision
+     * @param startTimePrecision
+     */
+    public void setStartTimePrecision(String startTimePrecision) {
+      startTimePrecisionParam.setValue(startTimePrecision);
     }
+
+    /**
+     * Gets the Start-Time Precision
+     * @return
+     */
+    public String getStartTimePrecision() {
+      return (String) startTimePrecisionParam.getValue();
+    }
+
+    /**
+     * Sets the units for the duration
+     * @param durationUnits
+     */
+    public void setDurationUnits(String durationUnits) {
+      durationUnitsParam.setValue(durationUnits);
+    }
+
+    /**
+     * Gets the units for the duration
+     * @return
+     */
+    public String getDurationUnits() {
+      return (String) durationUnitsParam.getValue();
+    }
+
+
+    /**
+     * Sets the the duration
+     * @param duration
+     */
+    public void setDuration( double duration ) {
+      durationParam.setValue(duration);
+    }
+
+    /**
+     * Gets the duration
+     * @return
+     */
+    public double getDuration() {
+      return ((Double)durationParam.getValue()).doubleValue();
+    }
+
+    /**
+     * Set the Start Year
+     * @param startYear
+     */
+    public void setStartYear(int startYear) {
+      startTime.set(Calendar.YEAR, startYear);
+    }
+
+    /**
+     * Get the Start Year
+     * @return
+     */
+    public int getStartYear() {
+      return startTime.get(Calendar.YEAR);
+    }
+
+
+
+
+
+
+
 
     /** Sets the elapsed time of this event in seconds. */
     public void setStartTime( GregorianCalendar cal ) {
@@ -145,8 +248,6 @@ public class TimeSpan {
       startTime.set(Calendar.MINUTE, cal.get(Calendar.MINUTE));
       startTime.set(Calendar.SECOND, cal.get(Calendar.SECOND));
       startTime.set(Calendar.MILLISECOND, cal.get(Calendar.MILLISECOND));
-
-      endTime_mSec =  startTime.getTime().getTime() + (long)(duration * 1000)  ;
     }
 
     /** Sets the end time of this event in seconds.  The duration is then computed
@@ -165,9 +266,6 @@ public class TimeSpan {
         this.duration =  Math.round( (double) ( ( end - start ) / 1000 ) );
     }
 
-    /** Returns the elapsed time of this event in seconds. */
-    public double getDuration() { return duration; }
-
 
     /**
      *  get the end time.
@@ -185,24 +283,35 @@ public class TimeSpan {
 
     // this is temporary for testing purposes
     public static void main(String[] args) {
-      GregorianCalendar cal = new GregorianCalendar(2000,1,1,1,1,1);
-      double dur = 3600;
-      TimeSpan tspan = new TimeSpan(cal,dur);
-      GregorianCalendar calEnd = tspan.getEndTime();
+      GregorianCalendar cal = new GregorianCalendar();
+      cal.setLenient(false);
+      cal.set(Calendar.YEAR,2001);
+      cal.set(Calendar.MONTH,1);
+      cal.set(Calendar.DATE,28);
+      cal.set(Calendar.HOUR_OF_DAY,24);
+      cal.set(Calendar.MINUTE,1);
+      cal.set(Calendar.SECOND,1);
+
+//      double dur = 3600;
+//      TimeSpan tspan = new TimeSpan(cal,dur);
+//      GregorianCalendar calEnd = tspan.getEndTime();
+
       System.out.println(cal.toString());
+      System.out.print("getTime(): "+cal.getTime().getTime());
       System.out.print("Start: Year: "+cal.get(Calendar.YEAR)+"; ");
       System.out.print("Month: "+cal.get(Calendar.MONTH)+"; ");
       System.out.print("Day: "+cal.get(Calendar.DATE)+"; ");
       System.out.print("Hour: "+cal.get(Calendar.HOUR_OF_DAY)+"; ");
       System.out.print("Min: "+cal.get(Calendar.MINUTE)+"; ");
       System.out.print("Sec: "+cal.get(Calendar.SECOND)+"; \n");
-
+/*
       System.out.print("End:   Year: "+calEnd.get(Calendar.YEAR)+"; ");
       System.out.print("Month: "+calEnd.get(Calendar.MONTH)+"; ");
       System.out.print("Day: "+calEnd.get(Calendar.DATE)+"; ");
       System.out.print("Hour: "+calEnd.get(Calendar.HOUR_OF_DAY)+"; ");
       System.out.print("Min: "+calEnd.get(Calendar.MINUTE)+"; ");
       System.out.print("Sec: "+calEnd.get(Calendar.SECOND)+"; \n");
+*/
     }
 }
 
