@@ -1,11 +1,15 @@
 package org.scec.sha.earthquake.PEER_TestCases;
 
 import java.util.ListIterator;
+import java.util.Vector;
 
 import org.scec.sha.earthquake.*;
 import org.scec.data.*;
 import org.scec.param.ParameterList;
-
+import org.scec.param.DoubleParameter;
+import org.scec.param.StringParameter;
+import org.scec.param.event.ParameterChangeListener;
+import org.scec.param.event.ParameterChangeEvent;
 /**
  * <p>Title: PEER_LogicTreeERF_List </p>
  * <p>Description: This class is needed for Logic Tree for Set 2 Case 5 </p>
@@ -15,7 +19,8 @@ import org.scec.param.ParameterList;
  * @version 1.0
  */
 
-public class PEER_LogicTreeERF_List extends ERF_EpistemicList {
+public class PEER_LogicTreeERF_List extends ERF_EpistemicList
+    implements ParameterChangeListener{
 
   /**
    * @todo variables
@@ -38,10 +43,84 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList {
   private double REL_WEIGHT_3 = 0.02;
   private double REL_WEIGHT_4 = 0.06;
 
+  // grid spacing parameter stuff
+ public final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
+ private Double DEFAULT_GRID_VAL = new Double(1);
+ public final static String GRID_PARAM_UNITS = "kms";
+ private final static double GRID_PARAM_MIN = .001;
+ private final static double GRID_PARAM_MAX = 1000;
+
+ //rupture offset parameter stuff
+ public final static String OFFSET_PARAM_NAME =  "Offset";
+ private Double DEFAULT_OFFSET_VAL = new Double(1);
+ public final static String OFFSET_PARAM_UNITS = "kms";
+ private final static double OFFSET_PARAM_MIN = .01;
+ private final static double OFFSET_PARAM_MAX = 10000;
+
+ // timeSpan parameter stuff
+ public final static String TIMESPAN_PARAM_NAME ="Time Span";
+ private Double DEFAULT_TIMESPAN_VAL= new Double(1);
+ public final static String TIMESPAN_PARAM_UNITS = "yrs";
+ private final static double TIMESPAN_PARAM_MIN = 1e-10;
+ private final static double TIMESPAN_PARAM_MAX = 1e10;
+
+ // Mag-length sigma parameter stuff
+ public final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
+ private double SIGMA_PARAM_MIN = 0;
+ private double SIGMA_PARAM_MAX = 1;
+ public Double DEFAULT_SIGMA_VAL = new Double(0.0);
+
+ // fault-model parameter stuff
+ public final static String FAULT_MODEL_NAME = new String ("Fault Model");
+ public final static String FAULT_MODEL_FRANKEL = new String ("Frankel's");
+ public final static String FAULT_MODEL_STIRLING = new String ("Stirling's");
+
+ // make the grid spacing parameter
+ private DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
+     GRID_PARAM_MAX,GRID_PARAM_UNITS,DEFAULT_GRID_VAL);
+
+ // make the rupture offset parameter
+ private DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM_MIN,
+     OFFSET_PARAM_MAX,OFFSET_PARAM_UNITS,DEFAULT_OFFSET_VAL);
+
+ // make the mag-length sigma parameter
+ private DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
+     SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
+
+ //make the timeSpan parameter
+ private DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
+     TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
+
+ // make the fault-model parameter
+ private Vector faultModelNamesStrings = new Vector();
+ private StringParameter faultModelParam;
+
+
+
   /**
    * default constructor for this class
    */
   public PEER_LogicTreeERF_List() {
+
+    // make the faultModelParam
+    faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
+    faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
+    faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,(String)faultModelNamesStrings.get(0));
+
+    // now add the parameters to the adjustableParams list
+    adjustableParams.addParameter(gridParam);
+    adjustableParams.addParameter(offsetParam);
+    adjustableParams.addParameter(lengthSigmaParam);
+    adjustableParams.addParameter(timeSpanParam);
+    adjustableParams.addParameter(faultModelParam);
+
+    // listen for change in the parameters
+    gridParam.addParameterChangeListener(this);
+    offsetParam.addParameterChangeListener(this);
+    lengthSigmaParam.addParameterChangeListener(this);
+    timeSpanParam.addParameterChangeListener(this);
+    faultModelParam.addParameterChangeListener(this);
+
     // this constructor will create the instances of the non-planar with various parameters
     // thes instances will be added to the the list
 
@@ -101,4 +180,43 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList {
      return NAME;
    }
 
+   /**
+    * this function is called whenever any parameter changes in the
+    * adjustable parameter list
+    * @param e
+    */
+  public void parameterChange(ParameterChangeEvent e) {
+    Object newValue = e.getNewValue(); // get new value for this param
+    String name = e.getParameterName(); // get name of param which has been changed
+
+    // set this new value of param in all the EqkRupForecast in the list
+    int num = this.getNumERFs();
+    for(int i=0; i<num; ++i)
+      this.getERF(i).getParameter(name).setValue(newValue);
+    // set the parameter change flag to indicate that forecast needs to be updated
+    this.parameterChangeFlag = true;
+  }
+
+  /**
+   * Update the EqkRupForecasts with the new set of parameters
+   */
+  public void updateForecast() {
+    // set the new values for the parameters in all the EqkRupForecasts in the list
+    if(parameterChangeFlag) {
+      // set this new value of param in all the EqkRupForecast in the list
+      int num = this.getNumERFs();
+      for(int i=0; i<num; ++i) {
+        EqkRupForecast eqkRupForecast = this.getERF(i);
+        // see the new parameter values in all the forecasts in the list
+        eqkRupForecast.getParameter(GRID_PARAM_NAME).setValue(gridParam.getValue());
+        eqkRupForecast.getParameter(OFFSET_PARAM_NAME).setValue(offsetParam.getValue());
+        eqkRupForecast.getParameter(SIGMA_PARAM_NAME).setValue(lengthSigmaParam.getValue());
+        eqkRupForecast.getParameter(TIMESPAN_PARAM_NAME).setValue(timeSpanParam.getValue());
+        eqkRupForecast.getParameter(FAULT_MODEL_NAME).setValue(faultModelParam.getValue());
+      }
+    }
+    super.updateForecast();
+  }
 }
+
+

@@ -24,7 +24,6 @@ public class ERF_EpistemicListControlPanel extends JFrame
     implements ParameterChangeFailListener{
   private JCheckBox allCurvesCheckBox = new JCheckBox();
   private JComboBox percentileComboBox = new JComboBox();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   // static Strings to be shown in Percentile pick list
   private final static String NO_PERCENTILE = "No Percentile";
@@ -35,6 +34,7 @@ public class ERF_EpistemicListControlPanel extends JFrame
   private DoubleParameter percentileParam =
       new DoubleParameter("Percentile", 0, 100, new Double(50));
   private DoubleParameterEditor percentileEditor=new DoubleParameterEditor();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 
   public ERF_EpistemicListControlPanel(Component parentComponent) {
@@ -51,8 +51,9 @@ public class ERF_EpistemicListControlPanel extends JFrame
   }
   private void jbInit() throws Exception {
     allCurvesCheckBox.setForeground(new Color(80, 80, 133));
+    allCurvesCheckBox.setActionCommand("Plot all curves in one color");
     allCurvesCheckBox.setSelected(true);
-    allCurvesCheckBox.setText("Plot all curves in one color");
+    allCurvesCheckBox.setText("Plot all curves (in one color)");
     this.setTitle("Epistemic List Control");
     this.getContentPane().setLayout(gridBagLayout1);
     percentileComboBox.setBackground(new Color(200, 200, 230));
@@ -62,18 +63,21 @@ public class ERF_EpistemicListControlPanel extends JFrame
         percentileComboBox_actionPerformed(e);
       }
     });
+
+
     this.getContentPane().add(allCurvesCheckBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 10, 0, 13), 20, -8));
-    this.getContentPane().add(percentileComboBox,  new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 10, 10, 13), 60, -1));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 10, 10, 13), 18, 3));
+    this.getContentPane().add(percentileComboBox,   new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 8, 0, 13), 68, -1));
 
     // set the percentile editor
-    percentileParam.addParameterChangeFailListener(this);
-    percentileEditor.setParameter(percentileParam);
+   percentileParam.addParameterChangeFailListener(this);
+   percentileEditor.setParameter(percentileParam);
 
-    // add the percentile editor to the window
-    this.getContentPane().add(percentileEditor,  new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 10, 10, 13), 60, -1));
+   // add the percentile editor to the window
+   this.getContentPane().add(percentileEditor,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+           ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+
     percentileEditor.setVisible(false);
 
     // set the size

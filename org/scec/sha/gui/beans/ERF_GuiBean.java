@@ -14,6 +14,7 @@ import org.scec.param.event.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
 import org.scec.sha.magdist.parameter.MagFreqDistParameter;
+import org.scec.sha.earthquake.ERF_EpistemicList;
 
 
 /**
@@ -231,15 +232,29 @@ public class ERF_GuiBean extends ParameterListEditor implements
      // update the mag dist param
      if(this.getMagDistEditor()!=null)
        this.updateMagDistParam();
- //    eqkRupForecast.updateForecast();
      return eqkRupForecast;
    }
 
-
+   /**
+    * get the selected ERF instance.
+    * It returns the ERF after updating its forecast
+    * @return
+    */
    public EqkRupForecastAPI getSelectedERF() {
-     EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();;
+     EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();
      eqkRupForecast.updateForecast();
      return eqkRupForecast;
+   }
+
+   /**
+    * It sees whether selected ERF is a Epistemic list.
+    * @return : true if selected ERF is a epistemic list, else false
+    */
+   public boolean isEpistemicList() {
+     EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();
+     if(eqkRupForecast instanceof ERF_EpistemicList)
+       return true;
+     else return false;
    }
 
 

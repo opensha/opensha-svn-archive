@@ -836,6 +836,15 @@ public class HazardCurveApplet extends JApplet
       siteGuiBean.validate();
       siteGuiBean.repaint();
       }
+    if(name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME)) {
+      controlComboBox.removeAllItems();
+      this.initControlList();
+      // add the Epistemic control panel option if Epistemic ERF is selected
+      if(erfGuiBean.isEpistemicList()) {
+        this.controlComboBox.addItem(EPISTEMIC_CONTROL);
+        controlComboBox.setSelectedItem(EPISTEMIC_CONTROL);
+      }
+    }
   }
 
   /**
@@ -1076,6 +1085,8 @@ public class HazardCurveApplet extends JApplet
    erfPanel.setLayout(gridBagLayout5);
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+   erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getParameter().addParameterChangeListener(this);
+
   }
 
   /**
@@ -1085,7 +1096,6 @@ public class HazardCurveApplet extends JApplet
     this.controlComboBox.addItem(CONTROL_PANELS);
     this.controlComboBox.addItem(PEER_TEST_CONTROL);
     this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
-    this.controlComboBox.addItem(EPISTEMIC_CONTROL);
     this.controlComboBox.addItem(AXIS_CONTROL);
   }
 
@@ -1094,6 +1104,7 @@ public class HazardCurveApplet extends JApplet
    * @param e
    */
   void controlComboBox_actionPerformed(ActionEvent e) {
+    if(controlComboBox.getItemCount()<=0) return;
     String selectedControl = controlComboBox.getSelectedItem().toString();
     if(selectedControl.equalsIgnoreCase(this.PEER_TEST_CONTROL))
       initPEER_TestControl();
@@ -1197,7 +1208,6 @@ public class HazardCurveApplet extends JApplet
     for(int i=0; i<numPoints; ++i)
       logFunc.set(Math.log(originalFunc.getX(i)), 1);
   }
-
 
 
 }

@@ -104,38 +104,38 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   public final static String FAULT_MODEL_STIRLING = new String ("Stirling's");
 
   // make the grid spacing parameter
-  DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
+  private DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
       GRID_PARAM_MAX,GRID_PARAM_UNITS,DEFAULT_GRID_VAL);
 
   // make the rupture offset parameter
-  DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM_MIN,
+  private DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM_MIN,
       OFFSET_PARAM_MAX,OFFSET_PARAM_UNITS,DEFAULT_OFFSET_VAL);
 
   // make the mag-length sigma parameter
-  DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
+  private DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
       SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
 
   //make the timeSpan parameter
-  DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
+  private DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
       TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
 
   // make the mag-length sigma parameter
-  DoubleParameter slipRateParam = new DoubleParameter(SLIP_RATE_NAME,
+  private DoubleParameter slipRateParam = new DoubleParameter(SLIP_RATE_NAME,
       SLIP_RATE_MIN, SLIP_RATE_MAX, SLIP_RATE_UNITS, SLIP_RATE_DEFAULT);
 
   // make the magUpper parameter
-  DoubleParameter magUpperParam = new DoubleParameter(GR_MAG_UPPER,GR_MAG_UPPER_DEFAULT);
+  private DoubleParameter magUpperParam = new DoubleParameter(GR_MAG_UPPER,GR_MAG_UPPER_DEFAULT);
 
   // make the segmetation model parameter
-  Vector segModelNamesStrings=new Vector();
-  StringParameter segModelParam;
+  private Vector segModelNamesStrings=new Vector();
+  private StringParameter segModelParam;
 
   // make the fault-model parameter
-  Vector faultModelNamesStrings = new Vector();
-  StringParameter faultModelParam;
+  private Vector faultModelNamesStrings = new Vector();
+  private StringParameter faultModelParam;
 
   // fault stuff
-  FaultTrace faultTrace;
+  private FaultTrace faultTrace;
   public final static double LOWER_SEISMO_DEPTH = 12.0;
   public final static  double UPPER_SEISMO_DEPTH = 1.0;
   public final static  double DIP=60.0;
@@ -149,7 +149,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   private final static Location traceLoc6 = new Location(38.614736,-121.7129562,1.0);     // northern most point
 
   // GR mag freq dist stuff
-  GutenbergRichterMagFreqDist grMagFreqDist;
+  private GutenbergRichterMagFreqDist grMagFreqDist;
   public final static  double GR_MIN = 0.05;
   public final static  double GR_MAX = 9.95;
   public final static  int GR_NUM = 100;
@@ -200,6 +200,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     magUpperParam.addParameterChangeListener(this);
     segModelParam.addParameterChangeListener(this);
     timeSpanParam.addParameterChangeListener(this);
+    faultModelParam.addParameterChangeListener(this);
 
     grMagFreqDist = new GutenbergRichterMagFreqDist(GR_MIN, GR_MAX, GR_NUM);
 
