@@ -37,6 +37,9 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
 
   //double parameters for inutting the values for the iml or prob.
   private DoubleParameter probParam = new DoubleParameter(PROBABILITY,MIN_PROB,MAX_PROB,DEFAULT_PROB);
+
+  //we have to create a double parameter with constraints if we want to reflect the constarints
+  //as the tooltip text in the GUI.
   private DoubleParameter imlParam = new DoubleParameter(IML,0,Double.MAX_VALUE,DEFAULT_IML);
 
   /**

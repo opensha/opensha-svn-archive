@@ -14,7 +14,12 @@ import javax.swing.border.*;
  * The main functionality overidden from the parent class to achive Double
  * cusomization are the setWidgetObject() and AddWidget() functions. The parent's
  * class JComponent valueEditor field becomes an NumericTextField,  a subclass
- * of a JTextField. <p>
+ * of a JTextField.
+ * Note: We have to create a double parameter with constraints if we want to reflect the constarints
+ *       as the tooltip text in the GUI. Because when we editor is created for that
+ *       double parameter, it creates a constraint double parameter and then we can
+ *       change the constraint and it will be reflected in the tool tip text.
+ * <p>
  *
  * @author Steven W. Rock
  * @version 1.0
