@@ -78,6 +78,7 @@ import org.scec.sha.gui.infoTools.IMT_Info;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.util.ImageUtils;
 import org.scec.util.SystemPropertiesUtils;
+import org.scec.util.FileUtils;
 
 import ch.randelshofer.quaqua.QuaquaManager;
 
@@ -952,7 +953,7 @@ public class HazardCurveApplet extends JApplet
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
     // make a site object to pass to IMR
-    Site site = siteGuiBean.getSite();
+    Site site =  siteGuiBean.getSite();
 
     try {
       // this function will get the selected IMT parameter and set it in IMT
@@ -990,6 +991,7 @@ public class HazardCurveApplet extends JApplet
    initX_Values(hazFunction);
    try {
      // calculate the hazard curve
+     //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
      calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
      hazFunction = toggleHazFuncLogValues(hazFunction);
      hazFunction.setInfo(getParametersInfo());
