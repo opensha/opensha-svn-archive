@@ -49,8 +49,8 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
   private boolean D = false;
 
   private IncrementalMagFreqDist magFreqDist;
-  private double aveDip=90;
-  private double aveRake=0.0;
+  private static final double aveDip=90;
+  private static final  double aveRake=0.0;
   private double duration;
   private MagLengthRelationship magLengthRelationship;
   private double magCutOff;

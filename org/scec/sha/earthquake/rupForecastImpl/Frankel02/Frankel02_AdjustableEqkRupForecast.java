@@ -63,6 +63,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   protected final static FaultException ERR = new FaultException(
            C + ": loadFaultTraces(): Missing metadata from trace, file bad format.");
 
+
+  private FrankelGriddedFaultFactory frankelFaultFactory = new FrankelGriddedFaultFactory();
+  private StirlingGriddedFaultFactory stirlingFaultFactory = new StirlingGriddedFaultFactory();
+
   /*
    * Static variables for input files
    */
@@ -166,7 +170,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
     backSeisRupStrings.add(BACK_SEIS_RUP_POINT);
     backSeisRupStrings.add(BACK_SEIS_RUP_FINITE);
-    backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_POINT);
+    backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_FINITE);
 
     rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
         RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
@@ -254,7 +258,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
 //    String tempName = (String)faultFileParam.getValue();
 //    makeGridSources(tempName,1.0,null,0.0);
-
 
     makeGridSources("CAmapC_OpenSHA", 0.667, "CAmapG_OpenSHA", 0.333);
     makeGridSources("EXTmapC_OpenSHA", 0.5, "EXTmapGW_OpenSHA", 0.5);
@@ -376,8 +379,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     ArrayList branchWts = new ArrayList();    // wts for epistemic uncertainty
     double aleStdDev, aleWidth;         // aleatory mag uncertainties
 
-    FrankelGriddedFaultFactory frankelFaultFactory = null;
-    StirlingGriddedFaultFactory stirlingFaultFactory = null;
     SummedMagFreqDist totalMagFreqDist;
     double   lowerSeismoDepth, upperSeismoDepth;
     double lat, lon, rake=Double.NaN;
@@ -795,17 +796,11 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
       // Make the fault surface
       if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
-        // make the factory if it hasn't been done
-        if(frankelFaultFactory == null)
-          frankelFaultFactory = new FrankelGriddedFaultFactory();
         frankelFaultFactory.setAll(faultTrace, dip, upperSeismoDepth,
                                    lowerSeismoDepth, gridSpacing);
         surface = frankelFaultFactory.getGriddedSurface();
       }
       else {
-        // make the factory if it hasn't been done
-        if(stirlingFaultFactory == null)
-          stirlingFaultFactory = new StirlingGriddedFaultFactory();
         stirlingFaultFactory.setAll(faultTrace, dip, upperSeismoDepth,
                                    lowerSeismoDepth, gridSpacing);
         surface = stirlingFaultFactory.getGriddedSurface();
@@ -911,7 +906,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
     double lat,lon,aVal, moRate, rateAtZeroMag;
     Location loc;
-    Point2Vert_SS_FaultPoisSource src;
+    Point2Vert_SS_FaultPoisSource2 src;
     IncrementalMagFreqDist magFreqDist;
     while( it.hasNext() ){
 
@@ -981,9 +976,12 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
       // now make the source
       if(iflt == 2)
-        src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel,strike,duration,magCutOff);
+        src = new Point2Vert_SS_FaultPoisSource2(loc,magFreqDist,magLenRel,strike,
+                                                duration,magCutOff,frankelFaultFactory);
       else
-        src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel,duration,magCutOff);
+        src = new Point2Vert_SS_FaultPoisSource2(loc,magFreqDist,magLenRel,duration,
+                                                magCutOff, frankelFaultFactory);
+
 
       // add the source
       frankelBackgrSeisSources.add(src);
