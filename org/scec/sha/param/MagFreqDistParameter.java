@@ -31,8 +31,8 @@ public class MagFreqDistParameter
     /**
      * the string for the distribution choice parameter
      */
-    public final static String DISTRIBUTION_NAME="Choose Distribution";
-//    public final static String DISTRIBUTION_NAME="Distribution Type";
+    //public final static String DISTRIBUTION_NAME="Choose Distribution";
+    public final static String DISTRIBUTION_NAME="Distribution Type";
 
     /**
      * Name and Info strings of params needed by all distributions
