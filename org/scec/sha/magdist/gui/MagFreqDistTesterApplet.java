@@ -902,6 +902,11 @@ static {
         pointsTextArea.append(currentMagDistName + ": " + MAG +" vs. "+ CUM_RATE + '\n' + toCumFunctions.toString());
         pointsTextArea.append(currentMagDistName + ": " + MAG +" vs. "+ MO_RATE + '\n' + toMoFunctions.toString());
         //if ( D ) System.out.println( S + "Graphing function:" + function.toString() );
+
+        System.out.println( currentMagDistName + ": " + MAG +" vs. "+ INCR_RATE + '\n' + incrFunctions.toString());
+        System.out.println(currentMagDistName + ": " + MAG +" vs. "+ CUM_RATE + '\n' + toCumFunctions.toString());
+        System.out.println(currentMagDistName + ": " + MAG +" vs. "+ MO_RATE + '\n' + toMoFunctions.toString());
+
         addGraphPanel();
 
         if ( titleLabel != null ) {
@@ -930,7 +935,6 @@ static {
 
 
         // create a default chart based on some sample data...
-
         // Determine which labels to add to the axis labeling
         String incrXAxisLabel = incrFunctions.getXAxisName();
         String incrYAxisLabel = incrFunctions.getYAxisName();
@@ -974,9 +978,9 @@ static {
           moYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(moYAxisLabel);
         }
         else {
-          incrYAxis = new com.jrefinery.chart.VerticalNumberAxis(incrYAxisLabel);
-          cumYAxis = new com.jrefinery.chart.VerticalNumberAxis(cumYAxisLabel);
-          moYAxis = new com.jrefinery.chart.VerticalNumberAxis(moYAxisLabel);
+          incrYAxis = new SHAVerticalNumberAxis(incrYAxisLabel);
+          cumYAxis = new SHAVerticalNumberAxis(cumYAxisLabel);
+          moYAxis = new SHAVerticalNumberAxis(moYAxisLabel);
 
        }
 
@@ -1162,16 +1166,16 @@ static {
                 }
 
                 // panel for mag vs incremental-rate graph
-                innerPlotPanel.add( incrPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                  innerPlotPanel.add( incrPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                 // panel for mag vs cumulative-rate graph
-                innerPlotPanel.add( cumPanel, new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+               // innerPlotPanel.add( cumPanel, new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0
+                 //       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                 // panel for mag vs moment-rate graph
                 //innerPlotPanel.add( moPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
-                //       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+                  //     , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
             }
             else {

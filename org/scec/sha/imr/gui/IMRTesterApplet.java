@@ -872,7 +872,6 @@ public class IMRTesterApplet extends JApplet
         else
             xAxis = new com.jrefinery.chart.HorizontalNumberAxis( xAxisLabel );
 
-
         xAxis.setAutoRangeIncludesZero( false );
         xAxis.setCrosshairLockedOnData( false );
         xAxis.setCrosshairVisible(false);
@@ -883,8 +882,9 @@ public class IMRTesterApplet extends JApplet
         com.jrefinery.chart.NumberAxis yAxis = null;
 
         if (yLog) yAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(yAxisLabel);
-        else yAxis = new com.jrefinery.chart.VerticalNumberAxis( yAxisLabel );
+        else yAxis = new SHAVerticalNumberAxis( yAxisLabel );
 
+        yAxis.setAutoRangeMinimumSize(new Integer(0));
         yAxis.setAutoRangeIncludesZero( false );
         yAxis.setCrosshairLockedOnData( false );
         yAxis.setCrosshairVisible( false);

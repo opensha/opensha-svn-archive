@@ -33,9 +33,6 @@ public class GriddedFaultPlotter extends ArrayList{
     public final static String X_AXIS_LABEL = "Longitude (deg.)";
     public final static String Y_AXIS_LABEL = "Latitude (deg.)";
 
-    protected static int NUM_OF_COLOR_DIFF=65;
-    protected static int RED_BLUE_DIFF=4;
-
     protected com.jrefinery.chart.NumberAxis xAxis =  new com.jrefinery.chart.HorizontalNumberAxis( X_AXIS_LABEL );
     protected com.jrefinery.chart.NumberAxis yAxis =  new com.jrefinery.chart.VerticalNumberAxis( Y_AXIS_LABEL );
 
@@ -169,56 +166,16 @@ public class GriddedFaultPlotter extends ArrayList{
 
         /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
            being generated  in the Plot.java class constructor*/
-        //Smooth Colors transition from Red to Blue
-
-
-        if(gridSpacing >15 && gridSpacing<=20) {
-          NUM_OF_COLOR_DIFF=4;
-          RED_BLUE_DIFF=130;
-        }
-        if(gridSpacing >10 && gridSpacing<=15) {
-          NUM_OF_COLOR_DIFF=4;
-          RED_BLUE_DIFF=110;
-        }
-        if(gridSpacing >5 && gridSpacing<=10) {
-          NUM_OF_COLOR_DIFF=6;
-          RED_BLUE_DIFF=90;
-        }
-        if(gridSpacing >2 && gridSpacing<=5) {
-          NUM_OF_COLOR_DIFF=14;
-          RED_BLUE_DIFF=45;
-        }
-        if(gridSpacing >1 && gridSpacing<=2) {
-          NUM_OF_COLOR_DIFF=25;
-          RED_BLUE_DIFF=30;
-        }
-        if(gridSpacing >.5 && gridSpacing<=1) {
-          NUM_OF_COLOR_DIFF=35;
-          RED_BLUE_DIFF=13;
-        }
-        if(gridSpacing >.3 && gridSpacing<=.5) {
-          NUM_OF_COLOR_DIFF=50;
-          RED_BLUE_DIFF=8;
-        }
-        if(gridSpacing >.2 && gridSpacing<=.3) {
-          NUM_OF_COLOR_DIFF=70;
-          RED_BLUE_DIFF=5;
-        }
-        if(gridSpacing ==.2) {
-          NUM_OF_COLOR_DIFF=90;
-          RED_BLUE_DIFF=3;
-        }
-        Paint[] seriesPaint = new Paint[NUM_OF_COLOR_DIFF];
-        for(int i=255,j=0;i>=0;i-=RED_BLUE_DIFF,j++) {
+       //Smooth Colors transition from Red to Blue
+       int totalSeries=functions.getSeriesCount();
+        Paint[] seriesPaint = new Paint[totalSeries+2];
+        int count = (int)(Math.ceil(255.0/totalSeries));
+        for(int i=255,j=0;i>=0;i-=count,j++) {
             seriesPaint[j]=new Color(i,0,255-i);
-            //{new Color(i,0,i-255), Color.or, Color.yellow, Color.green,
-              //                 Color.blue , new Color(0.294118f, 0f, 0.509804f),new Color(238,130,238)};
         }
-
         plot.setSeriesPaint(seriesPaint);
         plot.setBackgroundPaint( plotColor );
         setRenderer(plot);
-
         // build chart
         JFreeChart chart = new JFreeChart(griddedSurfaceName, JFreeChart.DEFAULT_TITLE_FONT, plot, true );
         chart.setBackgroundPaint( GriddedFaultApplet.peach );
@@ -243,56 +200,6 @@ public class GriddedFaultPlotter extends ArrayList{
         OverlaidGridXYPlot plot = new OverlaidGridXYPlot(xAxis, yAxis);
         //OverlaidXYPlot plot = new OverlaidXYPlot(xAxis, yAxis);
 
-        /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
-           being generated  in the Plot.java class constructor*/
-        //Smooth Colors transition from Red to Blue
-
-        if(gridSpacing >15 && gridSpacing<=20) {
-          NUM_OF_COLOR_DIFF=4;
-          RED_BLUE_DIFF=130;
-        }
-        if(gridSpacing >10 && gridSpacing<=15) {
-          NUM_OF_COLOR_DIFF=4;
-          RED_BLUE_DIFF=110;
-        }
-        if(gridSpacing >5 && gridSpacing<=10) {
-          NUM_OF_COLOR_DIFF=6;
-          RED_BLUE_DIFF=90;
-        }
-        if(gridSpacing >2 && gridSpacing<=5) {
-          NUM_OF_COLOR_DIFF=14;
-          RED_BLUE_DIFF=45;
-        }
-        if(gridSpacing >1 && gridSpacing<=2) {
-          NUM_OF_COLOR_DIFF=25;
-          RED_BLUE_DIFF=30;
-        }
-
-        if(gridSpacing >.5 && gridSpacing<=1) {
-          NUM_OF_COLOR_DIFF=35;
-          RED_BLUE_DIFF=13;
-        }
-        if(gridSpacing >.3 && gridSpacing<=.5) {
-          NUM_OF_COLOR_DIFF=50;
-          RED_BLUE_DIFF=8;
-        }
-        if(gridSpacing >.2 && gridSpacing<=.3) {
-          NUM_OF_COLOR_DIFF=70;
-          RED_BLUE_DIFF=5;
-        }
-        if(gridSpacing ==.2) {
-          NUM_OF_COLOR_DIFF=90;
-          RED_BLUE_DIFF=3;
-        }
-        Paint[] seriesPaint = new Paint[NUM_OF_COLOR_DIFF];
-        for(int i=255,j=0;i>=0;i-=RED_BLUE_DIFF,j++) {
-            seriesPaint[j]=new Color(i,0,255-i);
-            //{new Color(i,0,i-255), Color.or, Color.yellow, Color.green,
-              //                 Color.blue , new Color(0.294118f, 0f, 0.509804f),new Color(238,130,238)};
-        }
-
-        plot.setSeriesPaint(seriesPaint);
-        plot.setBackgroundPaint( plotColor );
 
 
         // Add all subplots
@@ -303,23 +210,34 @@ public class GriddedFaultPlotter extends ArrayList{
 
             counter++;
             XYDataset dataSet = (XYDataset)it.next();
-            org.scec.sha.fault.demo.PSHAGridXYPlot plot1 = new org.scec.sha.fault.demo.PSHAGridXYPlot(dataSet, null, null);
-            //org.scec.gui.PSHAXYPlot plot1 = new org.scec.gui.PSHAXYPlot(dataSet, null, null, false, false );
-           plot1.setSeriesPaint(seriesPaint);
-            plot1.setBackgroundPaint( plotColor );
-            if( plotType == SUB_SHAPES){
-                if( counter == last ) {
-                    plot1.setXYItemRenderer( SUB_SHAPE_RENDERER );
-                    plot1.setReturnNoLabels(true);
-                }
-                else plot1.setXYItemRenderer( SHAPE_RENDERER );
-            }
-            else setRenderer(plot1);
-
-            plot.add(plot1);
-
-
+           /* To set the rainbow colors based on the depth of the fault, this also
+              overrides the colors being generated  in the Plot.java class constructor */
+           //Smooth Colors transition from Red to Blue
+        int totalSeries=dataSet.getSeriesCount();
+        Paint[] seriesPaint = new Paint[totalSeries+2];
+        int count = (int)(Math.ceil(255.0/totalSeries));
+        for(int i=255,j=0;i>=0;i-=count,j++) {
+            seriesPaint[j]=new Color(i,0,255-i);
         }
+
+        plot.setSeriesPaint(seriesPaint);
+        plot.setBackgroundPaint( plotColor );
+
+        org.scec.sha.fault.demo.PSHAGridXYPlot plot1 = new org.scec.sha.fault.demo.PSHAGridXYPlot(dataSet, null, null);
+        plot1.setSeriesPaint(seriesPaint);
+        plot1.setBackgroundPaint( plotColor );
+        if( plotType == SUB_SHAPES){
+           if( counter == last ) {
+               plot1.setXYItemRenderer( SUB_SHAPE_RENDERER );
+               plot1.setReturnNoLabels(true);
+           }
+           else plot1.setXYItemRenderer( SHAPE_RENDERER );
+       }
+       else setRenderer(plot1);
+
+       plot.add(plot1);
+
+     }
 
         // return a new chart containing the overlaid plot...
         JFreeChart chart = new JFreeChart(griddedSurfaceName, JFreeChart.DEFAULT_TITLE_FONT, plot, !lightweight);
@@ -330,7 +248,7 @@ public class GriddedFaultPlotter extends ArrayList{
         multiChartPanel.setChart(chart);
         return multiChartPanel;
 
-    }
+ }
 
 
 

@@ -38,7 +38,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param max
    * @param num
    */
-  private SingleMagFreqDist(double min,double max,int num) {
+  public SingleMagFreqDist(double min,double max,int num) {
     super(min,max,num);
   }
 

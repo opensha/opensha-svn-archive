@@ -53,7 +53,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
      private static final String SET_ALL_PARAMS_BUT=new String("Set All Params BUT");
      private static final String MIN=new String("Min");
      private static final String NUM=new String("Num");
-     private static final String DELTA=new String("Delta");
+     private static final String MAX=new String("Max");
 
    /**
     * Single Magnitude Frequency Distribution Parameter string list  constant
@@ -199,7 +199,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
         // make the min, delta and num Parameter
         DoubleParameter minParamter = new DoubleParameter(MIN);
-        DoubleParameter deltaParamter = new DoubleParameter(DELTA);
+        DoubleParameter maxParamter = new DoubleParameter(MAX);
         IntegerParameter numParamter = new IntegerParameter(NUM,new Integer(10));
 
 
@@ -208,7 +208,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
         // At this point all values have been set for the IM type, xaxis, and the yaxis
         controlsParamList = new ParameterList();
         controlsParamList.addParameter( minParamter );
-        controlsParamList.addParameter( deltaParamter );
+        controlsParamList.addParameter( maxParamter );
         controlsParamList.addParameter( numParamter );
 
        if(magDistClassName.equalsIgnoreCase(GuttenbergRichterMagFreqDist_CLASS_NAME)) {
@@ -504,7 +504,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
         IncrementalMagFreqDist magDist = null;
         Double min = (Double)controlsParamList.getParameter(MIN).getValue();
-        Double delta = (Double)controlsParamList.getParameter(DELTA).getValue();
+        Double max = (Double)controlsParamList.getParameter(MAX).getValue();
         Integer num = (Integer)controlsParamList.getParameter(NUM).getValue();
         //Integer num = new Integer(numDouble.toString());
 
@@ -513,9 +513,8 @@ public class MagDistGuiBean implements ParameterChangeListener {
          */
         if(magDistClassName.equalsIgnoreCase(SingleMagFreqDist_CLASS_NAME)) {
             SingleMagFreqDist single =new SingleMagFreqDist(min.doubleValue(),
-                                            num.intValue(),
-                                            delta.doubleValue());
-           String paramToSet=controlsParamList.getParameter(PARAMS_TO_SET).getValue().toString();
+                                            max.doubleValue(),num.intValue());
+            String paramToSet=controlsParamList.getParameter(PARAMS_TO_SET).getValue().toString();
            // if rate and mag are set
            if(paramToSet.equalsIgnoreCase(RATE_AND_MAG)) {
               Double rate = (Double)independentParams.getParameter(RATE).getValue();
@@ -553,8 +552,8 @@ public class MagDistGuiBean implements ParameterChangeListener {
                  truncType = 2;
               Double truncLevel = (Double)independentParams.getParameter(TRUNCATE_NUM_OF_STD_DEV).getValue();
               GaussianMagFreqDist gaussian =
-                  new GaussianMagFreqDist(min.doubleValue(), num.intValue(),
-                        delta.doubleValue(),mean.doubleValue(), stdDev.doubleValue(),
+                  new GaussianMagFreqDist(min.doubleValue(),max.doubleValue(),num.intValue(),
+                        mean.doubleValue(), stdDev.doubleValue(),
                         totMoRate.doubleValue(),truncLevel.doubleValue(),truncType);
               magDist =  (IncrementalMagFreqDist) gaussian;
         }
@@ -565,8 +564,8 @@ public class MagDistGuiBean implements ParameterChangeListener {
          */
        if(magDistClassName.equalsIgnoreCase(GuttenbergRichterMagFreqDist_CLASS_NAME)) {
            GuttenbergRichterMagFreqDist gR =
-                    new GuttenbergRichterMagFreqDist(min.doubleValue(),
-                         num.intValue(), delta.doubleValue());
+                    new GuttenbergRichterMagFreqDist(min.doubleValue(),max.doubleValue(),
+                         num.intValue());
 
            Double magLower = (Double)independentParams.getParameter(MAG_LOWER).getValue();
            Double bValue = (Double)independentParams.getParameter(BVALUE).getValue();
