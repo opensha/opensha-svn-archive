@@ -484,6 +484,28 @@ public class IMRGuiBean
             }
         }
 
+
+        /**
+         * Just for debugging right now
+         */
+
+         /*
+        int num = 20;
+        ParameterList newClones = new ParameterList();
+        ListIterator it100 = clones.getParametersIterator();
+        if( clones.size() > 0 ){
+            if ( num > clones.size() ) num = clones.size();
+            for(int i = 0; i < num; i++){
+
+                ParameterAPI param100 = (ParameterAPI)it100.next();
+                newClones.addParameter((ParameterAPI) param100.clone());
+
+            }
+            clones = newClones;
+        }
+        System.out.println("Clones size = " + clones.size());
+        */
+
         // Needed if IM are not in independent parameter list
         //ParameterAPI clone = ( ParameterAPI ) imr.getIntensityMeasure().clone();
         //if ( !clones.containsParameter( clone ) ) clones.addParameter( clone );
@@ -560,9 +582,48 @@ public class IMRGuiBean
         // Constraint contains a min and a max
         else if( ParamUtils.isWarningParameterAPI( xAxisParam ) ){
 
-            // Calculate min and max values from constraint
-            MinMaxDelta minmaxdelta = new MinMaxDelta( (WarningParameterAPI)xAxisParam );
-            function = buildFunction( xAxisParam, type, function, minmaxdelta );
+
+
+            /**
+             * @todo FIX - Axis IMR translation done here.
+             * may be poor design, what if IMR types change to another type in future.
+             * Translated parameters should deal directly with ParameterAPI, not specific subclass
+             * types. Something for phase II.
+             */
+            if( translateIMR){
+
+
+                ParameterAPI imrParam = (ParameterAPI)imr.getIntensityMeasure().clone();
+
+                String xAxisName = xAxisParam.getName();
+                String imrName = imrParam.getName();
+
+
+                if(  xAxisName.equalsIgnoreCase(imrName) && xAxisParam instanceof WarningDoubleParameter){
+
+                    WarningDoubleParameter warnParam = (WarningDoubleParameter)xAxisParam;
+                    TranslatedWarningDoubleParameter transParam = new TranslatedWarningDoubleParameter(warnParam);
+                    transParam.setTranslate(true);
+
+
+                    // Calculate min and max values from constraint
+                    MinMaxDelta minmaxdelta = new MinMaxDelta( (WarningParameterAPI)transParam );
+                    function = buildFunction( transParam, type, function, minmaxdelta );
+
+                }
+                else{
+                    // Calculate min and max values from constraint
+                    MinMaxDelta minmaxdelta = new MinMaxDelta( (WarningParameterAPI)xAxisParam );
+                    function = buildFunction( xAxisParam, type, function, minmaxdelta );
+                }
+            }
+            else{
+                // Calculate min and max values from constraint
+                MinMaxDelta minmaxdelta = new MinMaxDelta( (WarningParameterAPI)xAxisParam );
+                function = buildFunction( xAxisParam, type, function, minmaxdelta );
+            }
+
+
 
         }
 
@@ -591,25 +652,54 @@ public class IMRGuiBean
         ParameterAPI independentParam = imr.getParameter( xAxisParam.getName() );
         Object oldVal = independentParam.getValue();
 
-        // Loop over x-axis to calculate y-values, i.e. mean
         double val = minmaxdelta.min;
         double newVal;
-        while ( val <= minmaxdelta.max ) {
 
-            BigDecimal bdB = new BigDecimal( val );
-            bdB = bdB.setScale( 2, BigDecimal.ROUND_UP );
-            newVal = bdB.doubleValue();
+        if( independentParam instanceof WarningDoubleParameter &&
+            xAxisParam instanceof TranslatedWarningDoubleParameter){
 
-            independentParam.setValue( new Double( newVal ) );
-            DataPoint2D point = new DataPoint2D( newVal , getCalculation( type ) );
-            function.set( point );
-            val += minmaxdelta.delta;
+            ((TranslatedWarningDoubleParameter)xAxisParam).setParameter(
+               (WarningDoubleParameter)independentParam
+            );
+
+
+            while ( val <= minmaxdelta.max ) {
+
+                BigDecimal bdB = new BigDecimal( val );
+                bdB = bdB.setScale( 2, BigDecimal.ROUND_UP );
+                newVal = bdB.doubleValue();
+
+                xAxisParam.setValue( new Double( newVal ) );
+                DataPoint2D point = new DataPoint2D( newVal , getCalculation( type ) );
+                function.set( point );
+                val += minmaxdelta.delta;
+            }
+
         }
+        else{
+
+            while ( val <= minmaxdelta.max ) {
+
+                BigDecimal bdB = new BigDecimal( val );
+                bdB = bdB.setScale( 2, BigDecimal.ROUND_UP );
+                newVal = bdB.doubleValue();
+
+                independentParam.setValue( new Double( newVal ) );
+                DataPoint2D point = new DataPoint2D( newVal , getCalculation( type ) );
+                function.set( point );
+                val += minmaxdelta.delta;
+            }
+
+
+        }
+
+
 
         if( ParamUtils.isWarningParameterAPI( independentParam ) ){
             ( (WarningParameterAPI) independentParam ).setValueIgnoreWarning(oldVal);
         }
         else independentParam.setValue( oldVal );
+
 
         return function;
     }
@@ -1169,34 +1259,49 @@ public class IMRGuiBean
             min = 0;
             max = 1;
 
-            // Extract constraint
-            ParameterConstraintAPI constraint = param.getConstraint();
+            // Also handles subclasses such as TranslatedWarningDoubleParameters */
+            if( param instanceof TranslatedWarningDoubleParameter){
 
-            // Get min/max from Double Constraint
-            if ( ParamUtils.isDoubleConstraint( param ) ) {
-                min = ( ( DoubleConstraint ) constraint ).getMin().doubleValue();
-                max = ( ( DoubleConstraint ) constraint ).getMax().doubleValue();
+                try{
+                    TranslatedWarningDoubleParameter param1 = (TranslatedWarningDoubleParameter)param;
+                    min = param1.getWarningMin().doubleValue();
+                    max = param1.getWarningMax().doubleValue();
+                }
+                catch( Exception e){
+                    throw new ConstraintException(e.toString());
+                }
             }
-            // Check each value of discrete values and determine high and low values
-            else if ( ParamUtils.isDoubleDiscreteConstraint( param ) ) {
+            else{
 
-                DoubleDiscreteConstraint con = ( DoubleDiscreteConstraint ) constraint;
+                // Extract constraint
+                ParameterConstraintAPI constraint = param.getConstraint();
 
-                int size = con.size();
-                if ( size > 0 ) {
-                    ListIterator it = con.listIterator();
-                    Double DD = ( Double ) it.next();
+                // Get min/max from Double Constraint
+                if ( ParamUtils.isDoubleConstraint( param ) ) {
+                    min = ( ( DoubleConstraint ) constraint ).getMin().doubleValue();
+                    max = ( ( DoubleConstraint ) constraint ).getMax().doubleValue();
+                }
+                // Check each value of discrete values and determine high and low values
+                else if ( ParamUtils.isDoubleDiscreteConstraint( param ) ) {
 
-                    min = DD.doubleValue();
-                    max = max;
+                    DoubleDiscreteConstraint con = ( DoubleDiscreteConstraint ) constraint;
 
-                    while ( it.hasNext() ) {
-                        Double DD2 = ( Double ) it.next();
-                        double val = DD2.doubleValue();
-                        if ( val > max )
-                            max = val;
-                        else if ( val < min )
-                            min = val;
+                    int size = con.size();
+                    if ( size > 0 ) {
+                        ListIterator it = con.listIterator();
+                        Double DD = ( Double ) it.next();
+
+                        min = DD.doubleValue();
+                        max = max;
+
+                        while ( it.hasNext() ) {
+                            Double DD2 = ( Double ) it.next();
+                            double val = DD2.doubleValue();
+                            if ( val > max )
+                                max = val;
+                            else if ( val < min )
+                                min = val;
+                        }
                     }
                 }
             }
@@ -1211,44 +1316,57 @@ public class IMRGuiBean
          * @param  param                    Description of the Parameter
          * @exception  ConstraintException  Description of the Exception
          */
-        public MinMaxDelta( WarningParameterAPI param ) throws ConstraintException {
-
-            // Make sure this parameter has a constraint from which we can extract a Double value
-
+        public MinMaxDelta( WarningParameterAPI param ) throws ConstraintException{
             // Determine min and max ranges with which to iterate over
             min = 0;
             max = 1;
 
-            // Extract constraint
-            //ParameterConstraintAPI constraint =
-            ParameterConstraintAPI constraint = param.getWarningConstraint();
-            if( constraint == null ) constraint = param.getConstraint();
 
-            // Get min/max from Double Constraint
-            if ( ParamUtils.isDoubleConstraint( param ) ) {
-                min = ( ( DoubleConstraint ) constraint ).getMin().doubleValue();
-                max = ( ( DoubleConstraint ) constraint ).getMax().doubleValue();
+            // Also handles subclasses such as TranslatedWarningDoubleParameters */
+            if( param instanceof TranslatedWarningDoubleParameter){
+
+                try{
+                    TranslatedWarningDoubleParameter param1 = (TranslatedWarningDoubleParameter)param;
+                    min = param1.getWarningMin().doubleValue();
+                    max = param1.getWarningMax().doubleValue();
+                }
+                catch( Exception e){
+                    throw new ConstraintException(e.toString());
+                }
             }
-            // Check each value of discrete values and determine high and low values
-            else if ( ParamUtils.isDoubleDiscreteConstraint( param ) ) {
+            else{
 
-                DoubleDiscreteConstraint con = ( DoubleDiscreteConstraint ) constraint;
+                // Extract constraint
+                //ParameterConstraintAPI constraint =
+                ParameterConstraintAPI constraint = param.getWarningConstraint();
+                if( constraint == null ) constraint = param.getConstraint();
 
-                int size = con.size();
-                if ( size > 0 ) {
-                    ListIterator it = con.listIterator();
-                    Double DD = ( Double ) it.next();
+                // Get min/max from Double Constraint
+                if ( ParamUtils.isDoubleConstraint( param ) ) {
+                    min = ( ( DoubleConstraint ) constraint ).getMin().doubleValue();
+                    max = ( ( DoubleConstraint ) constraint ).getMax().doubleValue();
+                }
+                // Check each value of discrete values and determine high and low values
+                else if ( ParamUtils.isDoubleDiscreteConstraint( param ) ) {
 
-                    min = DD.doubleValue();
-                    max = max;
+                    DoubleDiscreteConstraint con = ( DoubleDiscreteConstraint ) constraint;
 
-                    while ( it.hasNext() ) {
-                        Double DD2 = ( Double ) it.next();
-                        double val = DD2.doubleValue();
-                        if ( val > max )
-                            max = val;
-                        else if ( val < min )
-                            min = val;
+                    int size = con.size();
+                    if ( size > 0 ) {
+                        ListIterator it = con.listIterator();
+                        Double DD = ( Double ) it.next();
+
+                        min = DD.doubleValue();
+                        max = max;
+
+                        while ( it.hasNext() ) {
+                            Double DD2 = ( Double ) it.next();
+                            double val = DD2.doubleValue();
+                            if ( val > max )
+                                max = val;
+                            else if ( val < min )
+                                min = val;
+                        }
                     }
                 }
             }
