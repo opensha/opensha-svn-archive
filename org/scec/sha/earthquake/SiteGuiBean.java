@@ -29,7 +29,7 @@ public class SiteGuiBean {
  protected final static String C = "SiteGuiBean";
 
   /**
-   * Latitude and longitude are added to the site parameters
+   * Latitude and longitude are added to the site paraattenRelImplmeters
    */
   public final static String LONGITUDE = "Longitude";
   public final static String LATITUDE = "Latitude";
@@ -67,11 +67,11 @@ public class SiteGuiBean {
   /**
    *  Temp until figure out way to dynamically load classes during runtime
    */
-  protected final static String BJF_CLASS_NAME = "org.scec.sha.imr.classicImpl.BJF_1997_IMR";
-  protected final static String AS_CLASS_NAME = "org.scec.sha.imr.classicImpl.AS_1997_IMR";
-  protected final static String C_CLASS_NAME = "org.scec.sha.imr.classicImpl.Campbell_1997_IMR";
-  protected final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.classicImpl.SCEMY_1997_IMR";
-  protected final static String F_CLASS_NAME = "org.scec.sha.imr.classicImpl.Field_2000_IMR";
+  protected final static String BJF_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.BJF_1997_AttenRel";
+  protected final static String AS_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.AS_1997_AttenRel";
+  protected final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
+  protected final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
+  protected final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
 
 
   // add the IMR class names to a vector
@@ -222,16 +222,16 @@ public double getLatitude() {
   /**
      * Creates a class instance from a string of the full class name including packages.
      * This is how you dynamically make objects at runtime if you don't know which\
-     * class beforehand. For example, if you wanted to create a BJF_1997_IMR you can do
+     * class beforehand. For example, if you wanted to create a BJF_1997_AttenRel you can do
      * it the normal way:<P>
      *
-     * <code>BJF_1997_IMR imr = new BJF_1997_IMR()</code><p>
+     * <code>BJF_1997_AttenRel imr = new BJF_1997_AttenRel()</code><p>
      *
-     * If your not sure the user wants this one or AS_1997_IMR you can use this function
+     * If your not sure the user wants this one or AS_1997_AttenRel you can use this function
      * instead to create the same class by:<P>
      *
-     * <code>BJF_1997_IMR imr =
-     * (BJF_1997_IMR)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.classicImpl.BJF_1997_IMR");
+     * <code>BJF_1997_AttenRel imr =
+     * (BJF_1997_AttenRel)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.attenRelImpl.BJF_1997_AttenRel");
      * </code><p>
      *
      */

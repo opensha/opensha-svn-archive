@@ -18,7 +18,7 @@ import com.jrefinery.data.*;
 import org.scec.param.event.*;
 import org.scec.param.*;
 import org.scec.param.editor.ParameterListEditor;
-import org.scec.sha.imr.classicImpl.gui.AttenuationRelationshipGuiBean;
+import org.scec.sha.imr.attenRelImpl.gui.AttenuationRelationshipGuiBean;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.earthquake.*;
 import org.scec.data.Site;
@@ -52,11 +52,11 @@ public class EqkForecastApplet extends JApplet
   /**
    *  Temp until figure out way to dynamically load classes during runtime
    */
-  protected final static String BJF_CLASS_NAME = "org.scec.sha.imr.classicImpl.BJF_1997_IMR";
-  protected final static String AS_CLASS_NAME = "org.scec.sha.imr.classicImpl.AS_1997_IMR";
-  protected final static String C_CLASS_NAME = "org.scec.sha.imr.classicImpl.Campbell_1997_IMR";
-  protected final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.classicImpl.SCEMY_1997_IMR";
-  protected final static String F_CLASS_NAME = "org.scec.sha.imr.classicImpl.Field_2000_IMR";
+  protected final static String BJF_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.BJF_1997_AttenRel";
+  protected final static String AS_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.AS_1997_AttenRel";
+  protected final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
+  protected final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
+  protected final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
 
 
   /**
@@ -552,16 +552,16 @@ public class EqkForecastApplet extends JApplet
    /**
      * Creates a class instance from a string of the full class name including packages.
      * This is how you dynamically make objects at runtime if you don't know which\
-     * class beforehand. For example, if you wanted to create a BJF_1997_IMR you can do
+     * class beforehand. For example, if you wanted to create a BJF_1997_AttenRel you can do
      * it the normal way:<P>
      *
-     * <code>BJF_1997_IMR imr = new BJF_1997_IMR()</code><p>
+     * <code>BJF_1997_AttenRel imr = new BJF_1997_AttenRel()</code><p>
      *
-     * If your not sure the user wants this one or AS_1997_IMR you can use this function
+     * If your not sure the user wants this one or AS_1997_AttenRel you can use this function
      * instead to create the same class by:<P>
      *
-     * <code>BJF_1997_IMR imr =
-     * (BJF_1997_IMR)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.classicImpl.BJF_1997_IMR");
+     * <code>BJF_1997_AttenRel imr =
+     * (BJF_1997_AttenRel)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.attenRelImpl.BJF_1997_AttenRel");
      * </code><p>
      *
      */

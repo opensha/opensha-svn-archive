@@ -19,7 +19,7 @@ import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.sha.imr.*;
-import org.scec.sha.imr.classicImpl.*;
+import org.scec.sha.imr.attenRelImpl.*;
 import org.scec.data.function.*;
 import org.scec.util.*;
 import org.scec.data.*;
@@ -58,12 +58,12 @@ public class GroupTestGuiBean implements
    /**
     *  Temp until figure out way to dynamically load classes during runtime
     */
-   public  final static String BJF_CLASS_NAME = "org.scec.sha.imr.classicImpl.BJF_1997_IMR";
-   public final static String AS_CLASS_NAME = "org.scec.sha.imr.classicImpl.AS_1997_IMR";
-   public final static String C_CLASS_NAME = "org.scec.sha.imr.classicImpl.Campbell_1997_IMR";
-   public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.classicImpl.SCEMY_1997_IMR";
-   public final static String F_CLASS_NAME = "org.scec.sha.imr.classicImpl.Field_2000_IMR";
-   public final static String A_CLASS_NAME = "org.scec.sha.imr.classicImpl.Abrahamson_2000_IMR";
+   public  final static String BJF_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.BJF_1997_AttenRel";
+   public final static String AS_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.AS_1997_AttenRel";
+   public final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
+   public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
+   public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
+   public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
 
 
    /**
@@ -231,16 +231,16 @@ public class GroupTestGuiBean implements
   /**
     * Creates a class instance from a string of the full class name including packages.
     * This is how you dynamically make objects at runtime if you don't know which\
-    * class beforehand. For example, if you wanted to create a BJF_1997_IMR you can do
+    * class beforehand. For example, if you wanted to create a BJF_1997_AttenRel you can do
     * it the normal way:<P>
     *
-    * <code>BJF_1997_IMR imr = new BJF_1997_IMR()</code><p>
+    * <code>BJF_1997_AttenRel imr = new BJF_1997_AttenRel()</code><p>
     *
-    * If your not sure the user wants this one or AS_1997_IMR you can use this function
+    * If your not sure the user wants this one or AS_1997_AttenRel you can use this function
     * instead to create the same class by:<P>
     *
-    * <code>BJF_1997_IMR imr =
-    * (BJF_1997_IMR)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.classicImpl.BJF_1997_IMR");
+    * <code>BJF_1997_AttenRel imr =
+    * (BJF_1997_AttenRel)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.attenRelImpl.BJF_1997_AttenRel");
     * </code><p>
     *
     */
@@ -999,6 +999,7 @@ public class GroupTestGuiBean implements
     arb.set(.01,1);
     arb.set(.05,1);
     arb.set(.15,1);
+    arb.set(.1,1);
     arb.set(.2,1);
     arb.set(.25,1);
     arb.set(.3,1);
@@ -1056,148 +1057,148 @@ public class GroupTestGuiBean implements
 
       //if selected test case is number 1
       if(value.equals(TEST_CASE_ONE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
 
       //if selected test case is number 2
       if(value.equals(TEST_CASE_TWO)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
       //if selected test case is number 3
       if(value.equals(TEST_CASE_THREE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
       //if selected test case is number 4
       if(value.equals(TEST_CASE_FOUR)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_TWO);
       }
 
       //if selected test case is number 5
       if(value.equals(TEST_CASE_FIVE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
       //if selected test case is number 6
       if(value.equals(TEST_CASE_SIX)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
       //if selected test case is number 7
       if(value.equals(TEST_CASE_SEVEN)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
       //if the selected test case is number 8_1
       if(value.equals(TEST_CASE_EIGHT_ONE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
       //if the selected test case is number 8_2
       if(value.equals(TEST_CASE_EIGHT_TWO)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(2.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_TWO);
       }
 
       //if the selected test case is number 8_3
       if(value.equals(TEST_CASE_EIGHT_THREE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_2SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_ONE);
       }
 
       //if the selected test case is number 9_1
       if(value.equals(TEST_CASE_NINE_ONE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_TWO);
       }
 
       //if the selected test case is number 9_2
       if(value.equals(TEST_CASE_NINE_TWO)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(AS_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(AS_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(AS_1997_IMR.SITE_TYPE_NAME).setValue(AS_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(AS_1997_AttenRel.SITE_TYPE_NAME).setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
         selectedFault = new String(FAULT_TWO);
       }
 
       //if the selected test case is number 9_3
       if(value.equals(TEST_CASE_NINE_THREE)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(Campbell_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(Campbell_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(Campbell_1997_IMR.STD_DEV_TYPE_MAG_DEP);
+        imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(Campbell_1997_AttenRel.STD_DEV_TYPE_MAG_DEP);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(Campbell_1997_IMR.SITE_TYPE_NAME).setValue(Campbell_1997_IMR.SITE_TYPE_SOFT_ROCK);
-        siteBean.getSiteParamList().getParameter(Campbell_1997_IMR.BASIN_DEPTH_NAME).setValue(new Double(2.0));
+        siteBean.getSiteParamList().getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
+        siteBean.getSiteParamList().getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
         selectedFault = new String(FAULT_TWO);
       }
 
       //if the selected test case is number 10
       if(value.equals(TEST_CASE_TEN)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
 
         /**
          * This fills the default values for the forecast paramters based
@@ -1211,11 +1212,11 @@ public class GroupTestGuiBean implements
 
       //if the selected test case is number 11
       if(value.equals(TEST_CASE_ELEVEN)){
-        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_IMR.NAME);
+        imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteBean.getSiteParamList().getParameter(SCEMY_1997_IMR.SITE_TYPE_NAME).setValue(SCEMY_1997_IMR.SITE_TYPE_ROCK);
+        siteBean.getSiteParamList().getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
 
         /**
          * This fills the default values for the forecast paramters based

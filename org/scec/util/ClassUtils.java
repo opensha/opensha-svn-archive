@@ -25,16 +25,16 @@ public class ClassUtils {
     /**
      * Creates a class instance from a string of the full class name including packages.
      * This is how you dynamically make objects at runtime if you don't know which\
-     * class beforehand. For example, if you wanted to create a BJF_1997_IMR you can do
+     * class beforehand. For example, if you wanted to create a BJF_1997_AttenRel you can do
      * it the normal way:<P>
      *
-     * <code>BJF_1997_IMR imr = new BJF_1997_IMR()</code><p>
+     * <code>BJF_1997_AttenRel imr = new BJF_1997_AttenRel()</code><p>
      *
-     * If your not sure the user wants this one or AS_1997_IMR you can use this function
+     * If your not sure the user wants this one or AS_1997_AttenRel you can use this function
      * instead to create the same class by:<P>
      *
-     * <code>BJF_1997_IMR imr =
-     * (BJF_1997_IMR)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.classicImpl.BJF_1997_IMR");
+     * <code>BJF_1997_AttenRel imr =
+     * (BJF_1997_AttenRel)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.attenRelImpl.BJF_1997_AttenRel");
      * </code><p>
      *
      */
