@@ -442,8 +442,14 @@ System.out.println("Char_momentRate="+tempMoRate);
    public static void main(String[] args) {
      WG02_EqkRupForecast qkCast = new WG02_EqkRupForecast();
      System.out.println("num_sources="+qkCast.getNumSources());
-     System.out.println("num_rups(lastSrc)="+qkCast.getNumRuptures(qkCast.getNumSources()-1));
-     qkCast.listSourceTotalProbs();
+     int num = 0;
+     for (int i=0; i < qkCast.getNumSources(); i++)
+       num += qkCast.getNumRuptures(i);
+     System.out.println("tot_ruptures="+num);
+
+
+//     System.out.println("num_rups(lastSrc)="+qkCast.getNumRuptures(qkCast.getNumSources()-1));
+//     qkCast.listSourceTotalProbs();
   }
 
 }
