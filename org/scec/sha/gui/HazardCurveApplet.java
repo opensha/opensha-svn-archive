@@ -1030,7 +1030,8 @@ public class HazardCurveApplet extends JApplet
       //get the selected ERF instance
       eqkRupForecast = erfGuiBean.getSelectedERF();
     }catch(Exception e){
-      e.printStackTrace();
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
+      return;
     }
     if(this.progressCheckBox.isSelected())  {
         progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
