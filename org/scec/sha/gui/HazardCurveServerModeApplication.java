@@ -1663,15 +1663,6 @@ public class HazardCurveServerModeApplication extends JApplet
     return maxYValue;
   }
 
-  /**
-   *
-   * @returns the list PlotCurveCharacterstics that contain the info about
-   * plotting the curve like plot line color , its width and line type.
-   */
-  public ArrayList getCurvePlottingCharacterstic(){
-    return graphPanel.getCurvePlottingCharacterstic();
-  }
-
 
   /**
    *
@@ -1791,10 +1782,10 @@ public class HazardCurveServerModeApplication extends JApplet
   }
 
   /**
-   *
-   * @returns the plotting feature like width, color and shape type of each
-   * curve in list.
-   */
+    *
+    * @returns the list PlotCurveCharacterstics that contain the info about
+    * plotting the curve like plot line color , its width and line type.
+    */
   public ArrayList getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharacterstic();
   }

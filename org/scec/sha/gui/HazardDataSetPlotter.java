@@ -570,16 +570,6 @@ public class HazardDataSetPlotter extends JApplet
   }
 
 
-  /**
-   *
-   * @returns the list PlotCurveCharacterstics that contain the info about
-   * plotting the curve like plot line color , its width and line type.
-   */
-  public ArrayList getCurvePlottingCharacterstic(){
-    return graphPanel.getCurvePlottingCharacterstic();
-  }
-
-
 
   /**
    *

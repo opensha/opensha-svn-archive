@@ -45,10 +45,11 @@ public interface GraphWindowAPI {
 
   /**
    *
-   * @returns the list PlotCurveCharacterstics that contain the info about
-   * plotting the curve like plot line color , its width and line type.
+   * @returns the plotting feature like width, color and shape type of each
+   * curve in list.
    */
-  public ArrayList getCurvePlottingCharacterstic();
+   public ArrayList getPlottingFeatures();
+
 
   /**
    *

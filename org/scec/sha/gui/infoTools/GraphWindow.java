@@ -81,7 +81,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     //creating the plotting pref array list from the application
     //becuase it needs to be similar to what application has.
     ArrayList plotCharacterstics = new ArrayList();
-    ArrayList applicationPlottingPrefList = api.getCurvePlottingCharacterstic();
+    ArrayList applicationPlottingPrefList = api.getPlottingFeatures();
     int size = applicationPlottingPrefList.size();
     for(int i=0;i<size;++i){
       PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)applicationPlottingPrefList.get(i);

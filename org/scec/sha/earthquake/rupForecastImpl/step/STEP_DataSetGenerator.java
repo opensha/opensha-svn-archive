@@ -79,8 +79,10 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     // set the vs30
     attenRel.getParameter(attenRel.WILLS_SITE_NAME).setValue(attenRel.WILLS_SITE_D);
     //make the Gridded Region object
+    System.out.println("Before creating the Location list");
     LocationList locList = createCaliforniaPolygonBoundaryLocationList();
     SitesInGriddedRegion region = new SitesInGriddedRegion(locList,GRID_SPACING);
+    System.out.println("After creating the location List");
     region.addSiteParams(attenRel.getSiteParamsIterator());
 
     int numSites = region.getNumGridLocs();
@@ -1143,6 +1145,13 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    locList.addLocation(new Location(41.958057,-124.205978));
    locList.addLocation(new Location(41.983608,-124.203751));
    locList.addLocation(new Location(41.998016,-124.210136));
+
+
+   /*locList.addLocation(new Location(42.2,-124.6));
+   locList.addLocation(new Location(42.2,-112));
+   locList.addLocation(new Location(32,-124.6));
+   locList.addLocation(new Location(32,-112));*/
+
    return locList;
  }
 
