@@ -92,8 +92,10 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       fw = new FileWriter(metadataFile);
       bw = new BufferedWriter(fw);
       size = metadataVector.size();
+
       for(int i=0;i<size;++i)
-        bw.write((String)metadataVector.get(i)+"\n");
+        bw.write(" "+(String)metadataVector.get(i)+"\n");
+      bw.close();
 
       //creating the XYZ file from the XYZ file from the XYZ dataSet
       Vector xVals = xyzDataSet.getX_DataSet();
@@ -115,15 +117,6 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
 
       //running the gmtScript file
       String[] command ={"sh","-c","sh "+gmtScriptFile};
-      RunScript.runScript(command);
-      //name of the outputfiles
-      outFile = xyzFileName.substring(0,xyzFileName.indexOf("."));
-      // remove the temporary files created
-      command[2]="rm temp"+outFile+".grd";
-      RunScript.runScript(command);
-      command[2]="rm temp_temp"+outFile+".grd_info";
-      RunScript.runScript(command);
-      command[2]="rm "+outFile+".cpt";
       RunScript.runScript(command);
 
       // get an ouput stream from the applet

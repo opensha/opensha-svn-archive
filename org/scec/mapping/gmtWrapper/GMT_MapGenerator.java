@@ -316,6 +316,7 @@ public class GMT_MapGenerator implements Serializable{
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
 
+    //get the metadata lines
     Vector metaDataLines = getMapInfoLines();
     imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metaDataLines);
 
@@ -875,7 +876,7 @@ public class GMT_MapGenerator implements Serializable{
    */
   public void createMapInfoFile(String mapInfo){
     Vector mapInfoLines = new Vector();
-    StringTokenizer st = new StringTokenizer(mapInfo,"<br>");
+    StringTokenizer st = new StringTokenizer(mapInfo,"\n");
     while(st.hasMoreTokens())
       mapInfoLines.add(st.nextToken());
     makeFileFromLines(mapInfoLines,METADATA_FILE_NAME);
