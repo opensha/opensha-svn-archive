@@ -24,7 +24,7 @@ import org.scec.param.event.*;
  *  presented in a Scroll Pane so all parameters are accessable, no matter the
  *  size of the containing application<p>
  *
- * @author     Nitin Gupta, Vipin Gupta
+ * @author     Nitin & Vipin Gupta, and Ned Field
  * @created    Oct 18, 2002
  * @version    1.0
  */
@@ -289,8 +289,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         IntegerParameter numParameter = new IntegerParameter(NUM, (int) 0, Integer.MAX_VALUE, new Integer(101));
         numParameter.setInfo(NUM_INFO);
 
-        // Now make the parameters list
-        // At this point all values have been set for the IM type, xaxis, and the yaxis
+        // Add these to the parameters list
          parameterList.addParameter( minParameter );
          parameterList.addParameter( numParameter );
          parameterList.addParameter( maxParameter );
