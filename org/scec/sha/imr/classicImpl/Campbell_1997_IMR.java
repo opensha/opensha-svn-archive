@@ -49,27 +49,27 @@ public class Campbell_1997_IMR
         NamedObjectAPI {
 
 
-    private final static String C = "Campbell_1997_IMR";
+    public final static String C = "Campbell_1997_IMR";
     private final static boolean D = false;
-    private final static String NAME = "Campbell (1997) w/ erratum (2000) changes";
+    public final static String NAME = "Campbell (1997) w/ erratum (2000) changes";
 
     // style of faulting options
-    private final static String FLT_TYPE_REVERSE = "Reverse";
-    private final static String FLT_TYPE_OTHER = "Other";
-    private final static String FLT_TYPE_UNKNOWN = "Unknown";
-    private final static String FLT_TYPE_DEFAULT = "Other";
+    public final static String FLT_TYPE_REVERSE = "Reverse";
+    public final static String FLT_TYPE_OTHER = "Other";
+    public final static String FLT_TYPE_UNKNOWN = "Unknown";
+    public final static String FLT_TYPE_DEFAULT = "Other";
 
     /**
      * Site Type Parameter ("Rock/Shallow-Soil" versus "Deep-Soil")
      */
      private StringParameter siteTypeParam = null;
-     private final static String SITE_TYPE_NAME = "Campbell Site Type";
+     public final static String SITE_TYPE_NAME = "Campbell Site Type";
      // no units
-     private final static String SITE_TYPE_INFO = "Geological conditions as the site";
-     private final static String SITE_TYPE_FIRM_SOIL =  "Firm-Soil";
-     private final static String SITE_TYPE_SOFT_ROCK =  "Soft-Rock";
-     private final static String SITE_TYPE_HARD_ROCK =  "Hard-Rock";
-     private final static String SITE_TYPE_DEFAULT =  "Firm-Soil";
+     public final static String SITE_TYPE_INFO = "Geological conditions as the site";
+     public final static String SITE_TYPE_FIRM_SOIL =  "Firm-Soil";
+     public final static String SITE_TYPE_SOFT_ROCK =  "Soft-Rock";
+     public final static String SITE_TYPE_HARD_ROCK =  "Hard-Rock";
+     public final static String SITE_TYPE_DEFAULT =  "Firm-Soil";
 
     // warning constraints:
     protected final static Double MAG_WARN_MIN = new Double(5);
@@ -87,9 +87,9 @@ public class Campbell_1997_IMR
      * basement, 5 km/sec P-wave velicity, or 3 km/sec S-wave velocity.
      */
     protected WarningDoubleParameter basinDepthParam = null;
-    protected final static String BASIN_DEPTH_NAME = "Campbell-Basin-Depth";
-    protected final static String BASIN_DEPTH_UNITS = "km";
-    protected final static String BASIN_DEPTH_INFO =
+    public final static String BASIN_DEPTH_NAME = "Campbell-Basin-Depth";
+    public final static String BASIN_DEPTH_UNITS = "km";
+    public final static String BASIN_DEPTH_INFO =
       "Depth to Cretaceous, crystalline basement, or 3 km/sec S-wave velocity";
     protected final static Double BASIN_DEPTH_DEFAULT = new Double(5.0);
     protected final static Double BASIN_DEPTH_MIN = new Double(0);
@@ -98,9 +98,9 @@ public class Campbell_1997_IMR
     protected final static Double BASIN_DEPTH_WARN_MAX = new Double(10);
 
 
-    protected final static String STD_DEV_TYPE_DEFAULT = "Total (Mag Dependent)";
-    protected final static String STD_DEV_TYPE_MAG_DEP = "Total (Mag Dependent)";
-    protected final static String STD_DEV_TYPE_PGA_DEP = "Total (PGA Dependent)";
+    public final static String STD_DEV_TYPE_DEFAULT = "Total (Mag Dependent)";
+    public final static String STD_DEV_TYPE_MAG_DEP = "Total (Mag Dependent)";
+    public final static String STD_DEV_TYPE_PGA_DEP = "Total (PGA Dependent)";
 
 
     /**

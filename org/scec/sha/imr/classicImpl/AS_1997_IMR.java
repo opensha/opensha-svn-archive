@@ -51,24 +51,24 @@ public class AS_1997_IMR
     private final static boolean D = false;
 
     // Name of IMR
-    private final static String NAME = "Abrahamson & Silva (1997)";
+    public final static String NAME = "Abrahamson & Silva (1997)";
 
     // style of faulting options
-    private final static String FLT_TYPE_REVERSE = "Reverse";
-    private final static String FLT_TYPE_REV_OBL = "Reverse-Oblique";
-    private final static String FLT_TYPE_OTHER = "Other";
-    private final static String FLT_TYPE_DEFAULT = "Other";
+    public final static String FLT_TYPE_REVERSE = "Reverse";
+    public final static String FLT_TYPE_REV_OBL = "Reverse-Oblique";
+    public final static String FLT_TYPE_OTHER = "Other";
+    public final static String FLT_TYPE_DEFAULT = "Other";
 
     /**
      * Site Type Parameter ("Rock/Shallow-Soil" versus "Deep-Soil")
      */
      private StringParameter siteTypeParam = null;
-     private final static String SITE_TYPE_NAME = "AS Site Type";
+     public final static String SITE_TYPE_NAME = "AS Site Type";
      // no units
-     private final static String SITE_TYPE_INFO = "Geological conditions at the site";
-     private final static String SITE_TYPE_ROCK =  "Rock/Shallow-Soil";
-     private final static String SITE_TYPE_SOIL =  "Deep-Soil";
-     private final static String SITE_TYPE_DEFAULT =  "Deep-Soil";
+     public final static String SITE_TYPE_INFO = "Geological conditions at the site";
+     public final static String SITE_TYPE_ROCK =  "Rock/Shallow-Soil";
+     public final static String SITE_TYPE_SOIL =  "Deep-Soil";
+     public final static String SITE_TYPE_DEFAULT =  "Deep-Soil";
 
     /**
      * Specifies whether the site is directly over the rupture surface.
@@ -77,11 +77,11 @@ public class AS_1997_IMR
      * This should really be a boolean sublcass of PropagationEffectParameter
      */
     private StringParameter isOnHangingWallParam = null;
-    private final static String IS_ON_HANGING_WALL_NAME = "On Hanging Wall?";
-    private final static String IS_ON_HANGING_WALL_INFO = "Is site directly over rupture?";
-    private final static String IS_ON_HANGING_WALL_TRUE = "Yes";
-    private final static String IS_ON_HANGING_WALL_FALSE = "No";
-    private final static String IS_ON_HANGING_WALL_DEFAULT = "No";
+    public final static String IS_ON_HANGING_WALL_NAME = "On Hanging Wall?";
+    public final static String IS_ON_HANGING_WALL_INFO = "Is site directly over rupture?";
+    public final static String IS_ON_HANGING_WALL_TRUE = "Yes";
+    public final static String IS_ON_HANGING_WALL_FALSE = "No";
+    public final static String IS_ON_HANGING_WALL_DEFAULT = "No";
 
     // these were given to Ned Field by Norm Abrahamson over the phone
     // (they're not given in their 1997 paper)

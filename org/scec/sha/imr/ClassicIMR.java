@@ -196,7 +196,7 @@ public abstract class ClassicIMR
     /**
      *  Classname constant used for debugging statements
      */
-    protected final static String C = "ClassicIMR";
+    public final static String C = "ClassicIMR";
 
     /**
      *  Prints out debugging statements if true
@@ -211,10 +211,10 @@ public abstract class ClassicIMR
      * in its entirety in the initSupportedIntenistyMeasureParams() method here.
      */
     protected  WarningDoubleParameter pgaParam = null;
-    protected final static String PGA_NAME = "PGA";
-    protected final static String PGA_UNITS = "g";
+    public final static String PGA_NAME = "PGA";
+    public final static String PGA_UNITS = "g";
     protected final static Double PGA_DEFAULT = new Double( Math.log( 0.1 ) );
-    protected final static String PGA_INFO = "Peak Ground Acceleration";
+    public final static String PGA_INFO = "Peak Ground Acceleration";
     protected final static Double PGA_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double PGA_MAX = new Double( Double.MAX_VALUE );
     protected final static Double PGA_WARN_MIN = new Double( Math.log(Double.MIN_VALUE) );
@@ -231,10 +231,10 @@ public abstract class ClassicIMR
      * here due to limited use.
      */
     protected  WarningDoubleParameter pgvParam = null;
-    protected final static String PGV_NAME = "PGV";
-    protected final static String PGV_UNITS = "cm/sec";
+    public final static String PGV_NAME = "PGV";
+    public final static String PGV_UNITS = "cm/sec";
     protected final static Double PGV_DEFAULT = new Double( Math.log( 0.1 ) );
-    protected final static String PGV_INFO = "Peak Ground Velocity";
+    public final static String PGV_INFO = "Peak Ground Velocity";
     protected final static Double PGV_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double PGV_MAX = new Double( Math.log(500) );
     protected final static Double PGV_WARN_MIN = new Double( Math.log(Double.MIN_VALUE) );
@@ -251,10 +251,10 @@ public abstract class ClassicIMR
      * and added in subclasses.
      */
     protected  WarningDoubleParameter saParam = null;
-    protected final static String SA_NAME = "SA";
-    protected final static String SA_UNITS = "g";
+    public final static String SA_NAME = "SA";
+    public final static String SA_UNITS = "g";
     protected final static Double SA_DEFAULT = new Double( Math.log(0.5) );
-    protected final static String SA_INFO = "Response Spectral Acceleration";
+    public final static String SA_INFO = "Response Spectral Acceleration";
     protected final static Double SA_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double SA_MAX = new Double( Math.log(4) );
     protected final static Double SA_WARN_MIN = new Double( Math.log(Double.MIN_VALUE) );
@@ -267,10 +267,10 @@ public abstract class ClassicIMR
      * Parameter.  This parameter is created and added to saParam in subclasses.
      */
     protected  DoubleDiscreteParameter periodParam = null;
-    protected final static String PERIOD_NAME = "SA Period";
-    protected final static String PERIOD_UNITS = "sec";
+    public final static String PERIOD_NAME = "SA Period";
+    public final static String PERIOD_UNITS = "sec";
     protected final static Double PERIOD_DEFAULT = new Double( 0 );
-    protected final static String PERIOD_INFO = "Oscillator Period for SA";
+    public final static String PERIOD_INFO = "Oscillator Period for SA";
     // The constraint is created and added in the subclass.
 
 
@@ -285,10 +285,10 @@ public abstract class ClassicIMR
      */
     protected DoubleDiscreteParameter dampingParam = null;
     protected DoubleDiscreteConstraint dampingConstraint = null;
-    protected final static String DAMPING_NAME = "SA Damping";
-    protected final static String DAMPING_UNITS = " % ";
+    public final static String DAMPING_NAME = "SA Damping";
+    public final static String DAMPING_UNITS = " % ";
     protected final static Double DAMPING_DEFAULT = new Double( 5 );
-    protected final static String DAMPING_INFO = "Oscillator Damping for SA";
+    public final static String DAMPING_INFO = "Oscillator Damping for SA";
     //The constraint is created and added in the subclass; most will support only this default value
 
 
@@ -299,9 +299,9 @@ public abstract class ClassicIMR
      * method here, but the warning constraint must be created and added in subclasses.
      */
     protected WarningDoubleParameter magParam = null;
-    protected final static String MAG_NAME = "Magnitude";
+    public final static String MAG_NAME = "Magnitude";
     // There are no units for Magnitude
-    protected final static String MAG_INFO = "Earthquake Moment Magnatude";
+    public final static String MAG_INFO = "Earthquake Moment Magnatude";
     protected final static Double MAG_DEFAULT = new Double(5.5);
     protected final static Double MAG_MIN = new Double(0);
     protected final static Double MAG_MAX = new Double(10);
@@ -314,13 +314,13 @@ public abstract class ClassicIMR
      * Parameter.
      */
     protected StringParameter componentParam = null;
-    protected final static String COMPONENT_NAME = "Component";
+    public final static String COMPONENT_NAME = "Component";
     // not units for Component
-    protected final static String COMPONENT_DEFAULT = "Average Horizontal";
-    protected final static String COMPONENT_AVE_HORZ = "Average Horizontal";
-    protected final static String COMPONENT_RANDOM_HORZ = "Random Horizontal";
-    protected final static String COMPONENT_VERT = "Vertical";
-    protected final static String COMPONENT_INFO = "Component of shaking";
+    public final static String COMPONENT_DEFAULT = "Average Horizontal";
+    public final static String COMPONENT_AVE_HORZ = "Average Horizontal";
+    public final static String COMPONENT_RANDOM_HORZ = "Random Horizontal";
+    public final static String COMPONENT_VERT = "Vertical";
+    public final static String COMPONENT_INFO = "Component of shaking";
     // constraint will be created and added in subclass
 
 
@@ -332,10 +332,10 @@ public abstract class ClassicIMR
      * must be created and added in subclasses.
      */
     protected WarningDoubleParameter vs30Param = null;
-    protected final static String VS30_NAME = "Vs30";
-    protected final static String VS30_UNITS = "m/sec";
-    protected final static String VS30_INFO = "Average 30 meter shear wave velocity at surface";
-    protected final static Double VS30_DEFAULT = new Double( "360" );
+    public final static String VS30_NAME = "Vs30";
+    public final static String VS30_UNITS = "m/sec";
+    public final static String VS30_INFO = "Average 30 meter shear wave velocity at surface";
+    public final static Double VS30_DEFAULT = new Double( "360" );
     protected final static Double VS30_MIN = new Double(0.0);
     protected final static Double VS30_MAX = new Double(5000.0);
     // warning values set in subclasses
@@ -349,14 +349,14 @@ public abstract class ClassicIMR
      * Other options are defined in some subclasses.
      */
     protected StringParameter stdDevTypeParam = null;
-    protected final static String STD_DEV_TYPE_NAME = "Std Dev Type";
+    public final static String STD_DEV_TYPE_NAME = "Std Dev Type";
     // No units for this one
-    protected final static String STD_DEV_TYPE_INFO = "Type of Standard Deviation";
-    protected final static String STD_DEV_TYPE_DEFAULT = "Total";
-    protected final static String STD_DEV_TYPE_TOTAL = "Total";
-    protected final static String STD_DEV_TYPE_INTER = "Inter-Event";
-    protected final static String STD_DEV_TYPE_INTRA = "Intra-Event";
-    protected final static String STD_DEV_TYPE_NONE = "None (zero)";
+    public final static String STD_DEV_TYPE_INFO = "Type of Standard Deviation";
+    public final static String STD_DEV_TYPE_DEFAULT = "Total";
+    public final static String STD_DEV_TYPE_TOTAL = "Total";
+    public final static String STD_DEV_TYPE_INTER = "Inter-Event";
+    public final static String STD_DEV_TYPE_INTRA = "Intra-Event";
+    public final static String STD_DEV_TYPE_NONE = "None (zero)";
 
 
     /**
@@ -365,9 +365,9 @@ public abstract class ClassicIMR
      * nomenclature generally differs among subclasses.
      */
     protected StringParameter fltTypeParam = null;
-    protected final static String FLT_TYPE_NAME = "Fault Type";
+    public final static String FLT_TYPE_NAME = "Fault Type";
     // No units for this one
-    protected final static String FLT_TYPE_INFO = "Style of faulting";
+    public final static String FLT_TYPE_INFO = "Style of faulting";
 
     /**
      * SigmaTruncTypeParam, a StringParameter that represents the type of
@@ -375,11 +375,11 @@ public abstract class ClassicIMR
      */
     protected StringParameter sigmaTruncTypeParam = null;
     public final static String SIGMA_TRUNC_TYPE_NAME = "Gaussian Truncation";
-    protected final static String SIGMA_TRUNC_TYPE_INFO = "Type of distribution truncation to apply when computing exceedance probabilities";
-    protected final static String SIGMA_TRUNC_TYPE_NONE = "None";
-    protected final static String SIGMA_TRUNC_TYPE_1SIDED = "1 Sided";
-    protected final static String SIGMA_TRUNC_TYPE_2SIDED = "2 Sided";
-    protected final static String SIGMA_TRUNC_TYPE_DEFAULT = "None";
+    public final static String SIGMA_TRUNC_TYPE_INFO = "Type of distribution truncation to apply when computing exceedance probabilities";
+    public final static String SIGMA_TRUNC_TYPE_NONE = "None";
+    public final static String SIGMA_TRUNC_TYPE_1SIDED = "1 Sided";
+    public final static String SIGMA_TRUNC_TYPE_2SIDED = "2 Sided";
+    public final static String SIGMA_TRUNC_TYPE_DEFAULT = "None";
 
     /**
      * SigmaTruncLevelParam, a DoubleParameter that represents where truncation occurs
@@ -387,11 +387,11 @@ public abstract class ClassicIMR
      */
     protected DoubleParameter sigmaTruncLevelParam = null;
     public final static String SIGMA_TRUNC_LEVEL_NAME = "Truncation Level";
-    protected final static String SIGMA_TRUNC_LEVEL_UNITS = "Std Dev";
-    protected final static String SIGMA_TRUNC_LEVEL_INFO = "The number of standard deviations, from the mean, where truncation occurs";
-    protected final static Double SIGMA_TRUNC_LEVEL_DEFAULT = new Double(2.0);
-    protected final static Double SIGMA_TRUNC_LEVEL_MIN = new Double(Double.MIN_VALUE);
-    protected final static Double SIGMA_TRUNC_LEVEL_MAX = new Double(Double.MAX_VALUE);
+    public final static String SIGMA_TRUNC_LEVEL_UNITS = "Std Dev";
+    public final static String SIGMA_TRUNC_LEVEL_INFO = "The number of standard deviations, from the mean, where truncation occurs";
+    public final static Double SIGMA_TRUNC_LEVEL_DEFAULT = new Double(2.0);
+    public final static Double SIGMA_TRUNC_LEVEL_MIN = new Double(Double.MIN_VALUE);
+    public final static Double SIGMA_TRUNC_LEVEL_MAX = new Double(Double.MAX_VALUE);
 
 
     /**
@@ -400,9 +400,9 @@ public abstract class ClassicIMR
      * getExceedProbability() DOES NOT store the value in this parameter.
      */
     protected  DoubleParameter exceedProbParam = null;
-    protected final static String EXCEED_PROB_NAME = "Exceed. Prob.";
+    public final static String EXCEED_PROB_NAME = "Exceed. Prob.";
     protected final static Double EXCEED_PROB_DEFAULT = new Double( 0.5 );
-    protected final static String EXCEED_PROB_INFO = "Exceedance Probability";
+    public final static String EXCEED_PROB_INFO = "Exceedance Probability";
     protected final static Double EXCEED_PROB_MIN = new Double( 1.0e-4 );
     protected final static Double EXCEED_PROB_MAX = new Double( 1.0 - 1e-4 );
 

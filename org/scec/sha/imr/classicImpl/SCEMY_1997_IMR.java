@@ -48,23 +48,23 @@ public class SCEMY_1997_IMR
 
     private final static String C = "SCEMY_1997_IMR";
     private final static boolean D = false;
-    private final static String NAME = "Sadigh et al (1997)";
+    public final static String NAME = "Sadigh et al (1997)";
 
     // style of faulting options
-    private final static String FLT_TYPE_DEFAULT = "Other";
-    private final static String FLT_TYPE_OTHER = "Other";
-    private final static String FLT_TYPE_REVERSE = "Reverse";
+    public final static String FLT_TYPE_DEFAULT = "Other";
+    public final static String FLT_TYPE_OTHER = "Other";
+    public final static String FLT_TYPE_REVERSE = "Reverse";
 
     /**
      * Site Type Parameter ("Rock/Shallow-Soil" versus "Deep-Soil")
      */
      private StringParameter siteTypeParam = null;
-     private final static String SITE_TYPE_NAME = "Sadigh Site Type";
+     public final static String SITE_TYPE_NAME = "Sadigh Site Type";
      // no units
-     private final static String SITE_TYPE_INFO = "Geological conditions as the site";
-     private final static String SITE_TYPE_ROCK =  "Rock";
-     private final static String SITE_TYPE_SOIL =  "Deep-Soil";
-     private final static String SITE_TYPE_DEFAULT =  "Deep-Soil";
+     public final static String SITE_TYPE_INFO = "Geological conditions as the site";
+     public final static String SITE_TYPE_ROCK =  "Rock";
+     public final static String SITE_TYPE_SOIL =  "Deep-Soil";
+     public final static String SITE_TYPE_DEFAULT =  "Deep-Soil";
 
      // warning constraints:
     protected final static Double MAG_WARN_MIN = new Double(4);

@@ -55,30 +55,30 @@ public class CB_2003_IMR
 
     private final static String C = "CB_2003_IMR";
     private final static boolean D = false;
-    private final static String NAME = "Campbell and Bozorgnia (2003)";
+    public final static String NAME = "Campbell and Bozorgnia (2003)";
 
     // style of faulting options
-    private final static String FLT_TYPE_THRUST = "Thrust (dip<45)";
-    private final static String FLT_TYPE_REVERSE = "Reverse (dip>45)";
-    private final static String FLT_TYPE_OTHER = "Strike Slip or Normal";
-    private final static String FLT_TYPE_UNKNOWN = "Unknown";
-    private final static String FLT_TYPE_DEFAULT = FLT_TYPE_OTHER;
+    public final static String FLT_TYPE_THRUST = "Thrust (dip<45)";
+    public final static String FLT_TYPE_REVERSE = "Reverse (dip>45)";
+    public final static String FLT_TYPE_OTHER = "Strike Slip or Normal";
+    public final static String FLT_TYPE_UNKNOWN = "Unknown";
+    public final static String FLT_TYPE_DEFAULT = FLT_TYPE_OTHER;
 
     /**
      * Site Type Parameter
      */
      private StringParameter siteTypeParam = null;
-     private final static String SITE_TYPE_NAME = "Campbell-2003 Site Type";
+     public final static String SITE_TYPE_NAME = "Campbell-2003 Site Type";
      // no units
-     private final static String SITE_TYPE_INFO = "Geological conditions as the site";
-     private final static String SITE_TYPE_FIRM_SOIL =  "Firm-Soil";
-     private final static String SITE_TYPE_VERY_FIRM_SOIL =  "Very-Firm-Soil";
-     private final static String SITE_TYPE_SOFT_ROCK =  "Soft-Rock";
-     private final static String SITE_TYPE_FIRM_ROCK =  "Firm-Rock";
-     private final static String SITE_TYPE_SOIL =  "Generic-Soil";
-     private final static String SITE_TYPE_ROCK =  "Generic-Rock";
-     private final static String SITE_TYPE_NEHRP_BC =  "BC-Boundary";
-     private final static String SITE_TYPE_DEFAULT =  "Firm-Soil";
+     public final static String SITE_TYPE_INFO = "Geological conditions as the site";
+     public final static String SITE_TYPE_FIRM_SOIL =  "Firm-Soil";
+     public final static String SITE_TYPE_VERY_FIRM_SOIL =  "Very-Firm-Soil";
+     public final static String SITE_TYPE_SOFT_ROCK =  "Soft-Rock";
+     public final static String SITE_TYPE_FIRM_ROCK =  "Firm-Rock";
+     public final static String SITE_TYPE_SOIL =  "Generic-Soil";
+     public final static String SITE_TYPE_ROCK =  "Generic-Rock";
+     public final static String SITE_TYPE_NEHRP_BC =  "BC-Boundary";
+     public final static String SITE_TYPE_DEFAULT =  "Firm-Soil";
 
     // warning constraints:
     protected final static Double MAG_WARN_MIN = new Double(5);
@@ -88,9 +88,9 @@ public class CB_2003_IMR
     // the minimum warning will get overridden by seisDepth is less than seisDepth
 
     // types of standard deviation
-    protected final static String STD_DEV_TYPE_MAG_DEP = "Total (Mag Dependent)";
-    protected final static String STD_DEV_TYPE_PGA_DEP = "Total (PGA Dependent)";
-    protected final static String STD_DEV_TYPE_DEFAULT = "Total (Mag Dependent)";
+    public final static String STD_DEV_TYPE_MAG_DEP = "Total (Mag Dependent)";
+    public final static String STD_DEV_TYPE_PGA_DEP = "Total (PGA Dependent)";
+    public final static String STD_DEV_TYPE_DEFAULT = "Total (Mag Dependent)";
 
 
     /**
@@ -106,9 +106,9 @@ public class CB_2003_IMR
      * linearly to 0.0 at 5 km from surface projection.
      */
     protected DoubleParameter hangingWallParam = null;
-    protected final static String HANGING_WALL_NAME = "Hanging Wall Param.";
+    public final static String HANGING_WALL_NAME = "Hanging Wall Param.";
     // no units
-    protected final static String HANGING_WALL_INFO = "1.0 if site is within surface projection of rupture, tapering (linearly) to 0.0 at 5 km beyond";
+    public final static String HANGING_WALL_INFO = "1.0 if site is within surface projection of rupture, tapering (linearly) to 0.0 at 5 km beyond";
     protected final static Double HANGING_WALL_MIN = new Double(0);
     protected final static Double HANGING_WALL_MAX = new Double(1);
     protected final static Double HANGING_WALL_DEFAULT = new Double(0.0);

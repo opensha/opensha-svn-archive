@@ -56,26 +56,26 @@ public class Abrahamson_2000_IMR
 
     private final static String C = "Abrahamson_2000_IMR";
     private final static boolean D = false;
-    private final static String NAME = "Abrahamson (2000)";
+    public final static String NAME = "Abrahamson (2000)";
 
     // style of faulting options
 //    private final static String FLT_TYPE_REVERSE = "Reverse";
 //    private final static String FLT_TYPE_REV_OBL = "Reverse-Oblique";
 //    private final static String FLT_TYPE_OTHER = "Other";
 //    private final static String FLT_TYPE_DEFAULT = "Other";
-    private final static String FLT_TYPE_SS = "Strike Slip";
-    private final static String FLT_TYPE_DEFAULT = "Strike Slip";
+    public final static String FLT_TYPE_SS = "Strike Slip";
+    public final static String FLT_TYPE_DEFAULT = "Strike Slip";
 
     /**
      * Site Type Parameter ("Rock/Shallow-Soil" versus "Deep-Soil")
      */
      private StringParameter siteTypeParam = null;
-     private final static String SITE_TYPE_NAME = "AS Site Type";
+     public final static String SITE_TYPE_NAME = "AS Site Type";
      // no units
-     private final static String SITE_TYPE_INFO = "Geological conditions at the site";
-     private final static String SITE_TYPE_ROCK =  "Rock/Shallow-Soil";
-     private final static String SITE_TYPE_SOIL =  "Deep-Soil";
-     private final static String SITE_TYPE_DEFAULT =  "Deep-Soil";
+     public final static String SITE_TYPE_INFO = "Geological conditions at the site";
+     public final static String SITE_TYPE_ROCK =  "Rock/Shallow-Soil";
+     public final static String SITE_TYPE_SOIL =  "Deep-Soil";
+     public final static String SITE_TYPE_DEFAULT =  "Deep-Soil";
 
     /*
     This is not needed here because only strike-slip events are supported
@@ -118,12 +118,12 @@ public class Abrahamson_2000_IMR
      * theta directivity parameter.
      */
     protected  DoubleParameter thetaDirParam = null;
-    protected final static String THETA_NAME = "theta";
-    protected final static String THETA_UNITS = "degrees";
+    public final static String THETA_NAME = "theta";
+    public final static String THETA_UNITS = "degrees";
     protected final static Double THETA_MIN = new Double(0);
     protected final static Double THETA_MAX = new Double(90);
     protected final static Double THETA_DEFAULT = new Double( 0 );
-    protected final static String THETA_INFO = "Angle Between Fault & Ray Path Directivity Parameter";
+    public final static String THETA_INFO = "Angle Between Fault & Ray Path Directivity Parameter";
 
 
      /**
@@ -136,7 +136,7 @@ public class Abrahamson_2000_IMR
     protected final static Double X_MIN = new Double(0);
     protected final static Double X_MAX = new Double(1);
     protected final static Double X_DEFAULT = new Double( 1 );
-    protected final static String X_INFO = "Length Ratio Directivity Parameter";
+    public final static String X_INFO = "Length Ratio Directivity Parameter";
 
 
     /**

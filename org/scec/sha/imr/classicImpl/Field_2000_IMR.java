@@ -49,17 +49,17 @@ public class Field_2000_IMR
     // debugging stuff:
     private final static String C = "Field_2000_IMR";
     private final static boolean D = false;
-    private final static String NAME = "Field (2000)";
+    public final static String NAME = "Field (2000)";
 
     // style of faulting options
-    private final static String FLT_TYPE_OTHER = "Other/Unknown";
-    private final static String FLT_TYPE_REVERSE = "Reverse";
-    private final static String FLT_TYPE_DEFAULT = "Other/Unknown";
+    public final static String FLT_TYPE_OTHER = "Other/Unknown";
+    public final static String FLT_TYPE_REVERSE = "Reverse";
+    public final static String FLT_TYPE_DEFAULT = "Other/Unknown";
 
     protected WarningDoubleParameter basinDepthParam = null;
-    protected final static String BASIN_DEPTH_NAME = "Basin-Depth-2.5";
-    protected final static String BASIN_DEPTH_UNITS = "km";
-    protected final static String BASIN_DEPTH_INFO =
+    public final static String BASIN_DEPTH_NAME = "Basin-Depth-2.5";
+    public final static String BASIN_DEPTH_UNITS = "km";
+    public final static String BASIN_DEPTH_INFO =
       "Depth to 2.5 km/sec S-wave-velocity isosurface, from SCEC Phase III Report";
     protected final static Double BASIN_DEPTH_DEFAULT = new Double(0.0);
     protected final static Double BASIN_DEPTH_MIN = new Double(0);

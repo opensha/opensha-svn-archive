@@ -48,13 +48,13 @@ public class BJF_1997_IMR
     // debugging stuff:
     private final static String C = "BJF_1997_IMR";
     private final static boolean D = false;
-    private final static String NAME = "Boore, Joyner & Fumal (1997)";
+    public final static String NAME = "Boore, Joyner & Fumal (1997)";
 
     // style of faulting options
-    private final static String FLT_TYPE_UNKNOWN = "Unknown";
-    private final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
-    private final static String FLT_TYPE_REVERSE = "Reverse";
-    private final static String FLT_TYPE_DEFAULT = "Unknown";
+    public final static String FLT_TYPE_UNKNOWN = "Unknown";
+    public final static String FLT_TYPE_STRIKE_SLIP = "Strike-Slip";
+    public final static String FLT_TYPE_REVERSE = "Reverse";
+    public final static String FLT_TYPE_DEFAULT = "Unknown";
 
     // warning constraint fields:
     protected final static Double VS30_WARN_MIN = new Double(180.0);
