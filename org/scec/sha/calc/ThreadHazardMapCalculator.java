@@ -15,6 +15,7 @@ import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.data.function.DiscretizedFuncAPI;
 import org.scec.util.*;
 import org.scec.param.event.*;
+import org.scec.sha.calc.SubmitJobForMultiprocessorComputation;
 
 /**
  *
@@ -75,8 +76,11 @@ public void getHazardMapCurves(String[] args) {
     SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
     hazCurveCalc.setMaxSourceDistance(this.MAX_DISTANCE);
     int numSites = griddedSites.getNumGridLocs();
-    for(int j=0;j<numSites;j +=100){
-      int endIndex = j+100;
+    //dividing the number of sites on each processor based on the number of processor
+    //requested from the server.
+    int sitesPerProcessor = numSites/SubmitJobForMultiprocessorComputation.NUM_OF_PROCESSORS_AVAILABLE+1;
+    for(int j=0;j<numSites;j+=sitesPerProcessor){
+      int endIndex = j+sitesPerProcessor;
       if(endIndex >=numSites)
         endIndex = numSites;
       Thread t = new Thread(new HazardCurvesGenerator(args,j,endIndex));

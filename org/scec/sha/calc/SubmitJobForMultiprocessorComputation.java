@@ -25,7 +25,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
 
 
   //number of processors requested to run this job
-  public final static double NUM_OF_PROCESSORS_AVAILABLE =8;
+  public final static int NUM_OF_PROCESSORS_AVAILABLE =8;
 
   //maximum wall time that we are requesting the processors for (in minutes)
   public final static double MAX_WALL_TIME =180;
