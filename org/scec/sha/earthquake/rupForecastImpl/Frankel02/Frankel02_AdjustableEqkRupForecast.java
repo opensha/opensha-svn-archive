@@ -16,7 +16,7 @@ import org.scec.data.Location;
 import org.scec.sha.fault.*;
 import org.scec.sha.fault.GriddedFaultFactory;
 import org.scec.sha.surface.GriddedSurfaceAPI;
-import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
+import org.scec.sha.magdist.*;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
@@ -74,102 +74,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   private final static String IN_FILE_PATH = "org/scec/sha/earthquake/rupForecastImpl/Frankel02/InputFiles/";
 
 // The input files for hazFXv3 and hazFXv3a (and wts):
-  private final static String FAULT_FILE_1 = "ca-a-other-fixed-char";
-  private final static double FAULT_FILE_WT_1 = 1.0;
-  private final static String FAULT_FILE_2 = "ca-a-other-norm-char";
-  private final static double FAULT_FILE_WT_2 = 1.0;
-  private final static String FAULT_FILE_3 = "ca-amod1-char";
-  private final static double FAULT_FILE_WT_3 = 0.5;
-  private final static String FAULT_FILE_4 = "ca-amod2-char";
-  private final static double FAULT_FILE_WT_4 = 0.5;
-  private final static String FAULT_FILE_5 = "ca-b-fullwt-norm-ell-65";
-  private final static double FAULT_FILE_WT_5 = 0.5;
-  private final static String FAULT_FILE_6 = "ca-b-fullwt-norm-ell-char";
-  private final static double FAULT_FILE_WT_6 = 0.333;
-  private final static String FAULT_FILE_7 = "ca-b-fullwt-norm-ell-gr";
-  private final static double FAULT_FILE_WT_7 = 0.167;
-  private final static String FAULT_FILE_8 = "ca-b-fullwt-norm-hank-65";
-  private final static double FAULT_FILE_WT_8 = 0.5;
-  private final static String FAULT_FILE_9 = "ca-b-fullwt-norm-hank-char";
-  private final static double FAULT_FILE_WT_9 = 0.333;
-  private final static String FAULT_FILE_10 = "ca-b-fullwt-norm-hank-gr";
-  private final static double FAULT_FILE_WT_10 = 0.167;
-  private final static String FAULT_FILE_11 = "ca-b-fullwt-ss-ell-65";
-  private final static double FAULT_FILE_WT_11 = 0.5;
-  private final static String FAULT_FILE_12 = "ca-b-fullwt-ss-ell-char";
-  private final static double FAULT_FILE_WT_12 = 0.333;
-  private final static String FAULT_FILE_13 = "ca-b-fullwt-ss-ell-gr";
-  private final static double FAULT_FILE_WT_13 = 0.167;
-  private final static String FAULT_FILE_14 = "ca-b-fullwt-ss-hank-65";
-  private final static double FAULT_FILE_WT_14 = 0.5;
-  private final static String FAULT_FILE_15 = "ca-b-fullwt-ss-hank-char";
-  private final static double FAULT_FILE_WT_15 = 0.333;
-  private final static String FAULT_FILE_16 = "ca-b-fullwt-ss-hank-gr";
-  private final static double FAULT_FILE_WT_16 = 0.167;
-  private final static String FAULT_FILE_17 = "ca-bflt-25weight-ell-char";
-  private final static double FAULT_FILE_WT_17 = 0.083;
-  private final static String FAULT_FILE_18 = "ca-bflt-25weight-ell-gr";
-  private final static double FAULT_FILE_WT_18 = 0.042;
-  private final static String FAULT_FILE_19 = "ca-bflt-25weight-hank-char";
-  private final static double FAULT_FILE_WT_19 = 0.083;
-  private final static String FAULT_FILE_20 = "ca-bflt-25weight-hank-gr";
-  private final static double FAULT_FILE_WT_20 = 0.042;
-  private final static String FAULT_FILE_21 = "ca-bflt-50weight-ell-65";
-  private final static double FAULT_FILE_WT_21 = 0.25;
-  private final static String FAULT_FILE_22 = "ca-bflt-50weight-ell-char";
-  private final static double FAULT_FILE_WT_22 = 0.167;
-  private final static String FAULT_FILE_23 = "ca-bflt-50weight-ell-gr";
-  private final static double FAULT_FILE_WT_23 = 0.083;
-  private final static String FAULT_FILE_24 = "ca-bflt-50weight-hank-65";
-  private final static double FAULT_FILE_WT_24 = 0.25;
-  private final static String FAULT_FILE_25 = "ca-bflt-50weight-hank-char";
-  private final static double FAULT_FILE_WT_25 = 0.167;
-  private final static String FAULT_FILE_26 = "ca-bflt-50weight-hank-gr";
-  private final static double FAULT_FILE_WT_26 = 0.083;
-  private final static String FAULT_FILE_27 = "ca-bflt-fix-norm-ell-65";
-  private final static double FAULT_FILE_WT_27 = 0.5;
-  private final static String FAULT_FILE_28 = "ca-bflt-fix-norm-ell-char";
-  private final static double FAULT_FILE_WT_28 = 0.333;
-  private final static String FAULT_FILE_29 = "ca-bflt-fix-norm-ell-gr";
-  private final static double FAULT_FILE_WT_29 = 0.167;
-  private final static String FAULT_FILE_30 = "ca-bflt-fix-norm-hank-65";
-  private final static double FAULT_FILE_WT_30 = 0.5;
-  private final static String FAULT_FILE_31 = "ca-bflt-fix-norm-hank-char";
-  private final static double FAULT_FILE_WT_31 = 0.333;
-  private final static String FAULT_FILE_32 = "ca-bflt-fix-norm-hank-gr";
-  private final static double FAULT_FILE_WT_32 = 0.167;
-  private final static String FAULT_FILE_33 = "ca-bflt-fix-ss-ell-65";
-  private final static double FAULT_FILE_WT_33 = 0.5;
-  private final static String FAULT_FILE_34 = "ca-bflt-fix-ss-ell-char";
-  private final static double FAULT_FILE_WT_34 = 0.333;
-  private final static String FAULT_FILE_35 = "ca-bflt-fix-ss-ell-gr";
-  private final static double FAULT_FILE_WT_35 = 0.167;
-  private final static String FAULT_FILE_36 = "ca-bflt-fix-ss-hank-65";
-  private final static double FAULT_FILE_WT_36 = 0.5;
-  private final static String FAULT_FILE_37 = "ca-bflt-fix-ss-hank-char";
-  private final static double FAULT_FILE_WT_37 = 0.333;
-  private final static String FAULT_FILE_38 = "ca-bflt-fix-ss-hank-gr";
-  private final static double FAULT_FILE_WT_38 = 0.167;
-  private final static String FAULT_FILE_39 = "ca-wg99-dist-char";
-  private final static double FAULT_FILE_WT_39 = 1.0;
-  private final static String FAULT_FILE_40 = "ca-wg99-dist-float";
-  private final static double FAULT_FILE_WT_40 = 1.0;
-  private final static String FAULT_FILE_41 = "creepflt";
-  private final static double FAULT_FILE_WT_41 = 1.0;
-
-  // not sure if the rest are needed
-  private final static String FAULT_FILE_42 = "ext-norm-65";
-  private final static double FAULT_FILE_WT_42 = 1.0;
-  private final static String FAULT_FILE_43 = "ext-norm-char";
-  private final static double FAULT_FILE_WT_43 = 0.5;
-  private final static String FAULT_FILE_44 = "ext-norm-gr";
-  private final static double FAULT_FILE_WT_44 = 0.5;
-  private final static String FAULT_FILE_45 = "wa_or-65";
-  private final static double FAULT_FILE_WT_45 = 1.0;
-  private final static String FAULT_FILE_46 = "wa_or-char";
-  private final static double FAULT_FILE_WT_46 = 0.5;
-  private final static String FAULT_FILE_47 = "wa_or-gr";
-  private final static double FAULT_FILE_WT_47 = 0.5;
 
   // Input files for hazgridXca (gridded seismicity)
   private final static String AREA_GRID_FILE_1 = "CAmapC.inv3";
@@ -282,15 +186,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
     allSourceNames = new Vector();
 
-    mkFileListVectors();
-    for(int i=0;i<faultFiles.size();i++) {
-      makeFaultSources((String)faultFiles.get(i));
-    }
-
-    for(int i=0;i<allSourceNames.size();i++)
-      for(int k=i+1;k<allSourceNames.size();k++)
-        if(((String)allSourceNames.get(k)).equals((String)allSourceNames.get(i)))
-           System.out.println("i="+i+"; k="+k+";  "+allSourceNames.get(i));
+    this.makeAllFaultSources();
 
 /*
     try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
@@ -333,135 +229,85 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
   }
 
-  private void mkFileListVectors() {
-    faultFiles = new Vector();
-    faultFileWts = new Vector();
-
-    faultFiles.add(FAULT_FILE_1);
-    faultFileWts.add(new Double(1.0));
-    faultFiles.add(FAULT_FILE_2);
-    faultFileWts.add(new Double(1.0));
-    faultFiles.add(FAULT_FILE_3);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_4);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_5);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_6);
-    faultFileWts.add(new Double(0.333));
-    faultFiles.add(FAULT_FILE_7);
-    faultFileWts.add(new Double(0.167));
-    faultFiles.add(FAULT_FILE_8);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_9);
-    faultFileWts.add(new Double(0.333));
-    faultFiles.add(FAULT_FILE_10);
-    faultFileWts.add(new Double(0.167));
-    faultFiles.add(FAULT_FILE_11);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_12);
-    faultFileWts.add(new Double(0.333));
-    faultFiles.add(FAULT_FILE_13);
-    faultFileWts.add(new Double(0.167));
-    faultFiles.add(FAULT_FILE_14);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_15);
-    faultFileWts.add(new Double(0.333));
-    faultFiles.add(FAULT_FILE_16);
-    faultFileWts.add(new Double(0.167));
-    faultFiles.add(FAULT_FILE_17);
-    faultFileWts.add(new Double(0.083));
-    faultFiles.add(FAULT_FILE_18);
-    faultFileWts.add(new Double(0.042));
-    faultFiles.add(FAULT_FILE_19);
-    faultFileWts.add(new Double(0.083));
-    faultFiles.add(FAULT_FILE_20);
-    faultFileWts.add(new Double(0.042));
-    faultFiles.add(FAULT_FILE_21);
-    faultFileWts.add(new Double(0.25));
-    faultFiles.add(FAULT_FILE_22);
-    faultFileWts.add(new Double(0.167));
-    faultFiles.add(FAULT_FILE_23);
-    faultFileWts.add(new Double(0.083));
-    faultFiles.add(FAULT_FILE_24);
-    faultFileWts.add(new Double(0.25));
-    faultFiles.add(FAULT_FILE_25);
-    faultFileWts.add(new Double(0.167));
-    faultFiles.add(FAULT_FILE_26);
-    faultFileWts.add(new Double(0.083));
-    faultFiles.add(FAULT_FILE_27);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_28);
-    faultFileWts.add(new Double(0.333));
-    faultFiles.add(FAULT_FILE_29);
-    faultFileWts.add(new Double(0.167));
-    faultFiles.add(FAULT_FILE_30);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_31);
-    faultFileWts.add(new Double(0.333));
-    faultFiles.add(FAULT_FILE_32);
-    faultFileWts.add(new Double(0.167));
-    faultFiles.add(FAULT_FILE_33);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_34);
-    faultFileWts.add(new Double(0.333));
-    faultFiles.add(FAULT_FILE_35);
-    faultFileWts.add(new Double(0.167));
-    faultFiles.add(FAULT_FILE_36);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_37);
-    faultFileWts.add(new Double(0.333));
-    faultFiles.add(FAULT_FILE_38);
-    faultFileWts.add(new Double(0.167));
-    faultFiles.add(FAULT_FILE_39);
-    faultFileWts.add(new Double(1.0));
-    faultFiles.add(FAULT_FILE_40);
-    faultFileWts.add(new Double(1.0));
-    faultFiles.add(FAULT_FILE_41);
-    faultFileWts.add(new Double(1.0));
-/* don't need these for now
-    faultFiles.add(FAULT_FILE_42);
-    faultFileWts.add(new Double(1.0));
-    faultFiles.add(FAULT_FILE_43);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_44);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_45);
-    faultFileWts.add(new Double(1.0));
-    faultFiles.add(FAULT_FILE_46);
-    faultFileWts.add(new Double(0.5));
-    faultFiles.add(FAULT_FILE_47);
-    faultFileWts.add(new Double(0.5));
-*/
-  }
-
 
 
   /**
-   * Read the Fault file and make the sources
+   * This makes the sources for the input files of hazFXv3 and hazFXv3a (and wts):
+   */
+  private void makeAllFaultSources() {
+    makeFaultSources("ca-a-other-fixed-char", 1.0,null,0);
+    makeFaultSources("ca-a-other-norm-char", 1.0,null,0);
+    makeFaultSources("ca-amod1-char", 0.5,null,0);
+    makeFaultSources("ca-amod2-char", 0.5,null,0);
+    makeFaultSources("ca-b-fullwt-norm-ell-65", 0.5, "ca-b-fullwt-norm-hank-65", 0.5);
+    makeFaultSources("ca-b-fullwt-norm-ell-char", 0.333, "ca-b-fullwt-norm-hank-char", 0.333);
+    makeFaultSources("ca-b-fullwt-norm-ell-gr", 0.167, "ca-b-fullwt-norm-hank-gr", 0.167);
+    makeFaultSources("ca-b-fullwt-ss-ell-65", 0.5, "ca-b-fullwt-ss-hank-65", 0.5);
+    makeFaultSources("ca-b-fullwt-ss-ell-char", 0.333, "ca-b-fullwt-ss-hank-char", 0.333);
+    makeFaultSources("ca-b-fullwt-ss-ell-gr", 0.167, "ca-b-fullwt-ss-hank-gr", 0.167);
+    makeFaultSources("ca-bflt-25weight-ell-char", 0.083, "ca-bflt-25weight-hank-char", 0.083);
+    makeFaultSources("ca-bflt-25weight-ell-gr", 0.042, "ca-bflt-25weight-hank-gr", 0.042);
+    makeFaultSources("ca-bflt-50weight-ell-65", 0.25, "ca-bflt-50weight-hank-65", 0.25);
+    makeFaultSources("ca-bflt-50weight-ell-char", 0.167, "ca-bflt-50weight-hank-char", 0.167);
+    makeFaultSources("ca-bflt-50weight-ell-gr", 0.083, "ca-bflt-50weight-hank-gr", 0.083);
+    makeFaultSources("ca-bflt-fix-norm-ell-65", 0.5, "ca-bflt-fix-norm-hank-65", 0.5);
+    makeFaultSources("ca-bflt-fix-norm-ell-char", 0.333, "ca-bflt-fix-norm-hank-char", 0.333);
+    makeFaultSources("ca-bflt-fix-norm-ell-gr", 0.167, "ca-bflt-fix-norm-hank-gr", 0.167);
+    makeFaultSources("ca-bflt-fix-ss-ell-65", 0.5, "ca-bflt-fix-ss-hank-65", 0.5);
+    makeFaultSources("ca-bflt-fix-ss-ell-char", 0.333, "ca-bflt-fix-ss-hank-char", 0.333);
+    makeFaultSources("ca-bflt-fix-ss-ell-gr", 0.167, "ca-bflt-fix-ss-hank-gr", 0.167);
+    makeFaultSources("ca-wg99-dist-char", 1.0,null,0);
+    makeFaultSources("ca-wg99-dist-float", 1.0,null,0);
+    makeFaultSources("creepflt", 1.0,null,0);
+
+// not sure if the rest are needed
+/*
+    makeFaultSources("ext-norm-65", 1.0,null,0);
+    makeFaultSources("ext-norm-char", 0.5,null,0);
+    makeFaultSources("ext-norm-gr", 0.5,null,0);
+    makeFaultSources("wa_or-65", 1.0,null,0);
+    makeFaultSources("wa_or-char", 0.5,null,0);
+    makeFaultSources("wa_or-gr", 0.5,null,0);
+
+*/
+  }
+
+  /**
+   * This reads the given filename(s) and makes the sources (equivalent to
+   * Frankel's hazFXv3 and hazFXv3a Fortran programs).  If the second fileName
+   * is not null, then its assumed that everything is identical except the mag-freq-dist
+   * parameter lines.  This allows us to have fewer sources by treating empistemic
+   * uncertainties as aleatory.  The two files generally differ only by whether Hanks
+   * or Ellsworth's Mag-Area relationship was used.
    *
    * @throws FaultException
    */
-  private  void makeFaultSources(String fileName) throws FaultException{
+  private  void makeFaultSources(String fileName1, double wt1, String fileName2, double wt2) throws FaultException{
 
     // Debuggin stuff
     String S = C + ": makeFaultSoureces(): ";
-//    if( D ) System.out.println(S + "Starting");
 
-    // read the lines of the input file into a list
-    ArrayList inputFaultFileLines=null;
-    try{ inputFaultFileLines = FileUtils.loadFile(IN_FILE_PATH + fileName ); }
+    // read the lines of the 1st input file into a list
+    ArrayList inputFaultFileLines1=null;
+    try{ inputFaultFileLines1 = FileUtils.loadFile(IN_FILE_PATH + fileName1 ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
-    if( D ) System.out.println("fileName = " + IN_FILE_PATH + fileName);
-//    if( D ) System.out.println(S + "num input-file lines = " + inputFaultFileLines.size());
+    if( D ) System.out.println("fileName1 = " + IN_FILE_PATH + fileName1);
+
+    // read second file's lines if necessary
+    ArrayList inputFaultFileLines2=null;
+    if(fileName2 != null) {
+      try{ inputFaultFileLines2 = FileUtils.loadFile(IN_FILE_PATH + fileName2 ); }
+      catch( FileNotFoundException e){ System.out.println(e.toString()); }
+      catch( IOException e){ System.out.println(e.toString());}
+      if( D ) System.out.println("fileName2 = " + IN_FILE_PATH + fileName2);
+    }
 
     FrankelA_CharEqkSources = new Vector();
     FrankelB_CharEqkSources = new Vector();
     FrankelB_GR_EqkSources = new Vector();
 
     String  magFreqDistType = "", faultingStyle, sourceName="";
-
     double dlen, dmove;                 // fault discretization and floater offset, respectively
     int numBranches, numMags;                    // num branches for mag epistemic uncertainty
     Vector branchDmags = new Vector();  // delta mags for epistemic uncertainty
@@ -469,6 +315,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     double aleStdDev, aleWidth;         // aleatory mag uncertainties
 
     GriddedFaultFactory factory;
+    SummedMagFreqDist totalMagFreqDist;
     double   lowerSeismoDepth, upperSeismoDepth;
     double lat, lon, rake=Double.NaN;
     double mag=0;  // used for magChar and magUpper (latter for the GR distributions)
@@ -482,13 +329,13 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     String faultModel = (String) faultModelParam.getValue();
     double rupOffset = ((Double) rupOffset_Param.getValue()).doubleValue();
 
-    double timeDuration =  timeSpan.getDuration();
-
-    ListIterator it = inputFaultFileLines.listIterator();
+    // get an iterator for the input file lines
+    ListIterator it = inputFaultFileLines1.listIterator();
 
     // get first line
     StringTokenizer st = new StringTokenizer(it.next().toString());
     // first line has the fault discretization & floater offset
+    // (these are 1.0 & 1.0 in all the files)
     dlen = Double.parseDouble(st.nextToken());
     dmove = Double.parseDouble(st.nextToken());
 
@@ -533,7 +380,16 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
       sourceName = "";
       while(st.hasMoreElements()) sourceName += st.nextElement()+" ";
 
-
+      // get source name from second file if necessary
+      String sourceName2="";
+      if(fileName2 != null) {
+        // get the same line from the second file
+        st = new StringTokenizer((String) inputFaultFileLines2.get(it.nextIndex()-1));
+        st.nextToken(); // skip first two
+        st.nextToken();
+        while(st.hasMoreElements()) sourceName2 += st.nextElement()+" ";
+        System.out.println("source1: "+sourceName+"\nsource2: "+sourceName2);
+      }
 
       // get the next line from the file
       st = new StringTokenizer(it.next().toString());
@@ -544,7 +400,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           mag=Double.parseDouble(st.nextToken());
           charRate=Double.parseDouble(st.nextToken());
           // if the file is "ca-wg99-dist-char" add the magnitude to the name to make source names unique
-          if(fileName.equals("ca-wg99-dist-char")) sourceName += " M="+mag;
+          if(fileName1.equals("ca-wg99-dist-char")) sourceName += " M="+mag;
           sourceName += " Char";
 
           // get itest
@@ -557,6 +413,11 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           if (aleStdDev == 0.0) itest = true;
 
           moRate = charRate*MomentMagCalc.getMoment(mag);
+
+          //  make the magFreqDist
+          totalMagFreqDist = new SummedMagFreqDist(5,8,0.1);
+
+          // make mag-freq dist (w/ both eleatory and epistemic)
       }
       else { // It's a GR distribution
 
@@ -586,8 +447,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           if (numMags == 1 && test < 5.8) itest = true;
           if (aleStdDev == 0.0) itest = true;
 
-          //calculate moment rate
+          //calculate moment rate (the exact same way Frankel does it)
           moRate = getMomentRate(magLower, numMags,deltaMag,aVal,bVal);
+
+          // make mag-freq-dist (w/ both aleatory and epistemic)
 
       }
 
@@ -775,6 +638,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
      * @param iSource : index of the source needed
     */
     public ProbEqkSource getSource(int iSource) {
+
+      // apply this here
+      double timeDuration =  timeSpan.getDuration();
 
       return (ProbEqkSource) allSources.get(iSource);
     }
