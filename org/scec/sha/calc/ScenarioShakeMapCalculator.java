@@ -147,7 +147,7 @@ public class ScenarioShakeMapCalculator {
           sumZVals.set(j,new Double(((Double)sumZVals.get(j)).doubleValue() + ((Double)zVals.get(j)).doubleValue()));
       }
     }
-    if(isProbAtIML){ //if Prob @IML then do Math.exp for the Prob's
+    if(isProbAtIML){ //if Prob@IML then do Math.exp for the Prob's
       int size1 = sumZVals.size();
       for (int j = 0; j < size1; ++j){
         double tempVal = Math.exp(((Double)sumZVals.get(j)).doubleValue());
