@@ -257,8 +257,8 @@ public class PEER_TestGuiPlotter extends JApplet implements
     plotSplitPane.add(jScrollPane1, JSplitPane.RIGHT);
     jScrollPane1.getViewport().add(testCasesPanel, null);
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 7, 15, 0), 14, -4));
+    buttonPanel.add(averageCheck,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 7, 15, 0), 14, 0));
     buttonPanel.add(rangeLabel,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 0, 15, 107), 22, 6));
     buttonPanel.add(rangeComboBox,  new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0
@@ -269,8 +269,8 @@ public class PEER_TestGuiPlotter extends JApplet implements
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 8, 15, 0), 14, 0));
     buttonPanel.add(xLogCheckBox,     new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 21, 15, 0), 21, 0));
-    buttonPanel.add(toggleButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 22, 15, 0), 26, -8));
+    buttonPanel.add(toggleButton,   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 22, 15, 0), 26, 0));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     mainSplitPane.setDividerLocation(540);
     plotSplitPane.setDividerLocation(575);
