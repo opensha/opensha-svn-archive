@@ -34,9 +34,15 @@ public final class IMT_Info {
   private final static double MAX_FAULT_DISPL = 100;
   private final static double NUM_FAULT_DISPL = 51;
 
+  //default values for the ShakeMapAttenRel MMI
+  private final static double MIN_MMI = 1;
+  private final static double MAX_MMI = 10;
+  private final static double NUM_MMI = 51;
+
   private double discretization_pga_sa;
   private double discretization_pgv;
   private double discretization_fault_displ;
+  private double discretization_mmi;
 
   private DecimalFormat format = new DecimalFormat("0.00000##");
 
@@ -44,6 +50,7 @@ public final class IMT_Info {
     discretization_pga_sa = (Math.log(MAX_SA_PGA) - Math.log(MIN_SA_PGA))/(NUM_SA_PGA-1);
     discretization_pgv = (Math.log(MAX_PGV) - Math.log(MIN_PGV))/(NUM_PGV-1);
     discretization_fault_displ = (Math.log(MAX_FAULT_DISPL) - Math.log(MIN_FAULT_DISPL))/(NUM_FAULT_DISPL-1);
+    discretization_mmi = (Math.log(MAX_MMI) - Math.log(MIN_MMI))/(NUM_MMI-1);
     format.setMaximumFractionDigits(5);
   }
 
@@ -88,10 +95,13 @@ public final class IMT_Info {
       return function;
     }
     else if((imtName.equals(ShakeMap_2003_AttenRel.MMI_NAME))){
-      throw new RuntimeException(ShakeMap_2003_AttenRel.MMI_ERROR_STRING);
+      for(int i=0; i < NUM_MMI ;++i){
+        double xVal = Double.parseDouble(format.format(Math.exp(Math.log(MIN_MMI)+i*discretization_mmi)));
+        function.set(xVal,1.0);
+      }
+      return function;
     }
-    else
-      throw new RuntimeException(S+" Unsupported IMT");
+    return null;
   }
 
   /**
@@ -190,6 +200,32 @@ public final class IMT_Info {
     return NUM_FAULT_DISPL;
   }
 
+
+  /**
+   *
+   * @returns the minimum X Value for MMI
+   */
+  public static double getMMI_Min(){
+    return MIN_MMI;
+  }
+
+  /**
+   *
+   * @returns the maximum X Value for MMI
+   */
+  public static double getMMI_Max(){
+    return MAX_MMI;
+  }
+
+  /**
+   *
+   * @returns the total number of default X Values for MMI
+   */
+  public static double getMMI_Num(){
+    return NUM_MMI;
+  }
+
+
   /**
    *  Returns the minimum default value for the selectd IMT
    * @param imt: Selected IMT
@@ -204,6 +240,8 @@ public final class IMT_Info {
       return getPGV_Min();
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return getFaultDispl_Min();
+    else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
+      return getMMI_Min();
     return 0;
   }
 
@@ -221,6 +259,8 @@ public final class IMT_Info {
       return getPGV_Max();
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return getFaultDispl_Max();
+    else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
+      return getMMI_Max();
     return 0;
   }
 
@@ -238,6 +278,8 @@ public final class IMT_Info {
       return getPGV_Num();
     else if(imt.equals(WC94_DisplMagRel.FAULT_DISPL_NAME))
       return getFaultDispl_Num();
+    else if(imt.equals(ShakeMap_2003_AttenRel.MMI_NAME))
+      return getMMI_Num();
     return 0;
   }
 

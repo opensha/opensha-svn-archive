@@ -706,17 +706,17 @@ public class HazardCurveApplet extends JApplet
               boolean success = (new File(peerDirName)).mkdir();
             }
 
-            Vector testCasesOne = this.peerTestsControlPanel.getPEER_SetOneTestCasesNames();
+            Vector testCasesTwo = this.peerTestsControlPanel.getPEER_SetTwoTestCasesNames();
 
-            int size = testCasesOne.size();
-            for(int i=0 ;i < size; ++i){
-              System.out.println("Working on # "+(i+1)+" of "+size);
+            int size = testCasesTwo.size();
+            for(int i=0 ;i < 6; ++i){
+              System.out.println("Working on # "+(i+1)+" of "+6);
 
               // first do PGA
-              peerTestsControlPanel.setTestCaseAndSite((String)testCasesOne.get(i));
+              peerTestsControlPanel.setTestCaseAndSite((String)testCasesTwo.get(i));
               addButton();
 
-              FileWriter peerFile=new FileWriter(peerDirName+(String)testCasesOne.get(i)+"-PGA_OpenSHA.dat");
+              FileWriter peerFile=new FileWriter(peerDirName+(String)testCasesTwo.get(i)+"-PGA_OpenSHA.dat");
               for(int j=0; j<totalProbFuncs.get(0).getNum();++j)
                 peerFile.write(totalProbFuncs.get(0).get(j).getX()+" "+totalProbFuncs.get(0).get(j).getY()+"\n");
               peerFile.close();
@@ -726,14 +726,14 @@ public class HazardCurveApplet extends JApplet
               imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.SA_NAME);
               imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue("1.0");
               addButton();
-              peerFile = new FileWriter(peerDirName+(String)testCasesOne.get(i)+"-1secSA_OpenSHA.dat");
+              peerFile = new FileWriter(peerDirName+(String)testCasesTwo.get(i)+"-1secSA_OpenSHA.dat");
               for(int j=0; j<totalProbFuncs.get(0).getNum();++j)
                 peerFile.write(totalProbFuncs.get(0).get(j).getX()+" "+totalProbFuncs.get(0).get(j).getY()+"\n");
               peerFile.close();
               this.clearPlot(true);
 
             }
-            //System.exit(101);
+            System.exit(101);
             //peerResultsFile.close();
           }catch(Exception ee){
             ee.printStackTrace();
@@ -1052,7 +1052,6 @@ public class HazardCurveApplet extends JApplet
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-     e.printStackTrace();
      return;
    }
 
@@ -1138,7 +1137,7 @@ public class HazardCurveApplet extends JApplet
      }catch (RuntimeException e) {
        JOptionPane.showMessageDialog(this, e.getMessage(),
                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-       e.printStackTrace();
+       //e.printStackTrace();
        return;
      }
      totalProbFuncs.add(hazFunction);
