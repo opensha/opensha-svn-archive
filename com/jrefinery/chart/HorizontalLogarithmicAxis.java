@@ -285,10 +285,16 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
 
          if (inverted) {
-	    return maxX - ((value - axisMin)/(axisMax - axisMin)) * (maxX - minX);
+           if(axisMin==axisMax)
+               return maxX;
+           else
+               return maxX - ((value - axisMin)/(axisMax - axisMin)) * (maxX - minX);
         }
         else {
-	    return minX + ((value - axisMin)/(axisMax - axisMin)) * (maxX - minX);
+          if(axisMin==axisMax)
+               return minX;
+          else
+               return minX + ((value - axisMin)/(axisMax - axisMin)) * (maxX - minX);
         }
      }
 

@@ -278,11 +278,17 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
        // }
 
         if (inverted) {
-            return minY + (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
+            if(axisMin==axisMax)
+               return minY;
+            else
+               return minY + (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
 
         }
         else {
-            return maxY - (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
+            if(axisMin==axisMax)
+              return maxY;
+            else
+              return maxY - (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
         }
 
     }
