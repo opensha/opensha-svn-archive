@@ -13,7 +13,7 @@ import org.scec.param.*;
 import org.scec.calc.MomentMagCalc;
 import org.scec.util.*;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.rupForecastImpl.GriddedRegionPoissonEqkSource;
+import org.scec.sha.earthquake.rupForecastImpl.*;
 import org.scec.sha.fault.FaultTrace;
 import org.scec.data.Location;
 import org.scec.sha.fault.*;
@@ -26,6 +26,7 @@ import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.data.LocationList;
 import org.scec.data.region.EvenlyGriddedGeographicRegion;
+import org.scec.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
 
 
 /**
@@ -111,7 +112,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     gridSpacing = 1;
     deltaMag = 0.1;
     backSeisValue = WG02_ERF_Epistemic_List.SEIS_INCLUDE;
-    grTailValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
+    grTailValue = WG02_ERF_Epistemic_List.SEIS_INCLUDE;
     name = "noName";
 
     // now make the sources
@@ -147,6 +148,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
     if(D) System.out.println(C+": last line of inputFileStrings = "+inputFileStrings.get(inputFileStrings.size()-1));
     allSources = new ArrayList();
+    ArrayList grTailSources = new ArrayList();
 
     FaultTrace faultTrace;
     GriddedFaultFactory faultFactory;
@@ -154,6 +156,9 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
     WG02_CharEqkSource wg02_source;
     GriddedRegionPoissonEqkSource backSource = null;
+    SimplePoissonFaultSource grTailSource = null;
+
+    WC1994_MagAreaRelationship magScalingRel = new WC1994_MagAreaRelationship();
 
     double   lowerSeismoDepth, upperSeismoDepth;
     double lat, lon;
@@ -163,10 +168,12 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     int numPts, i, lineIndex;
 
     double back_N, back_b, back_M1, back_M2;
+    double back_deltaMag = 0.05;  // this needs to be 0.05 to match the M2 of 7.25 (otherwise moment won't be exactly right)
     int back_num;
 
-    double tail_N, tail_b, tail_M1, tail_M2;
+    double tail_N, tail_b, tail_M1, tail_M2, tail_deltaMag = 0.1;
     int tail_num;
+    GutenbergRichterMagFreqDist tail_GR_dist = null;
 
 
     // Create iterator over inputFileStrings
@@ -188,8 +195,9 @@ public class WG02_EqkRupForecast extends EqkRupForecast
       back_M1 = new Double(st.nextToken()).doubleValue();
       back_M1 = ((double)Math.round(back_M1*100))/100.0; // round it to nice value
       back_M2 = new Double(st.nextToken()).doubleValue();
-      back_num = (int)((back_M2-5.0)/0.05);
-      GutenbergRichterMagFreqDist back_GR_dist = new GutenbergRichterMagFreqDist(5.0, back_num, 0.05, 1.0, back_b);
+      back_num = Math.round((float)((back_M2-5.0)/back_deltaMag)) + 1;
+      GutenbergRichterMagFreqDist back_GR_dist = new GutenbergRichterMagFreqDist(5.0, back_num, back_deltaMag,
+                                                                                 1.0, back_b);
       back_GR_dist.scaleToCumRate(back_M1,back_N);
 
       LocationList locList = new LocationList();
@@ -203,11 +211,14 @@ public class WG02_EqkRupForecast extends EqkRupForecast
                                                      0.0, 90.0); // aveRake=0; aveDip=90
 
 
-//      if(D) {
-        System.out.println("back_N="+back_N+"\nback_b="+back_b+"\nback_M1="+back_M1+"\nback_M2="+back_M2+"\nback_num="+back_num);
-        System.out.println("GR_rate(M1)="+back_GR_dist.getCumRate(back_M1));
+      if(D) {
+        System.out.println("back_N="+back_N+"\nback_b="+back_b+"\nback_M1="+back_M1+"\nback_M2="+
+                           back_M2+"\nback_num="+back_num+"\nback_deltaMag="+back_deltaMag);
+        System.out.println("GR_cum_rate(M1)="+back_GR_dist.getCumRate(back_M1));
+        System.out.println("GR_cum_rate(5.0)="+back_GR_dist.getCumRate(5.0));
+        System.out.println("M2 in GR_dist ="+back_GR_dist.getMaxX());
         System.out.println("num_back_grid_points="+gridReg.getNumGridLocs());
-//      }
+      }
 
       // add this source later so it's at the end of the list
     }
@@ -255,6 +266,30 @@ public class WG02_EqkRupForecast extends EqkRupForecast
       st = new StringTokenizer(it.next().toString());
       // skipping for now
       // vals are M1, M2, N(M³M1), b_val
+      if(grTailValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE)) {
+
+        tail_M1 = new Double(st.nextToken()).doubleValue();
+        if(tail_M1 != 5.0)
+          throw new RuntimeException("tail_M1 must equal 5.0!");
+        tail_M2 = new Double(st.nextToken()).doubleValue();
+        tail_N = new Double(st.nextToken()).doubleValue();
+        tail_b = new Double(st.nextToken()).doubleValue();
+        tail_num = Math.round((float)((tail_M2-tail_M1)/tail_deltaMag)) + 1;
+        // note: the above means M2 won't be exactly the same in what's next
+        tail_GR_dist = new GutenbergRichterMagFreqDist(tail_M1, tail_num, tail_deltaMag, 1.0, tail_b);
+        tail_GR_dist.scaleToCumRate(tail_M1,tail_N);
+
+      if(D) {
+        System.out.println("tail_N="+tail_N+"\ntail_b="+tail_b+"\ntail_M1="+tail_M1+"\ntail_M2="+
+                           tail_M2+"\ntail_num="+tail_num+"\ntail_deltaMag="+tail_deltaMag);
+        System.out.println("GR_rate(M1)="+tail_GR_dist.getCumRate(tail_M1));
+        System.out.println("M2 in GR_dist ="+tail_GR_dist.getMaxX());
+
+      }
+        // the source is made later after the fault is created
+
+      }
+
 
       // line with prob, meanMag, magSigma, nSigmaTrunc
       st = new StringTokenizer(it.next().toString());
@@ -269,7 +304,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
       // change the rupArea if it's one of the floating ruptures
       if( rup.equals("11")  || rup.equals("12") )
-        rupArea = Math.pow(10.0, meanMag-4.2);
+        rupArea = Math.pow(10.0, meanMag-4.2);  // Ellsworth model 2
 
       // set the rake (only diff for Mt Diable thrust)
       if( fault.equals("7") )
@@ -277,14 +312,38 @@ public class WG02_EqkRupForecast extends EqkRupForecast
       else
         rake = 0.0;
 
-
       // create the source
       wg02_source = new WG02_CharEqkSource(prob,meanMag,magSigma,nSigmaTrunc, deltaMag,
           faultSurface,rupArea,rupOffset,sourceName,rake);
+/*
+double tempMoRate = 0.0, m, p;
+for(int k=0; k<wg02_source.getNumRuptures(); k++) {
+  m = wg02_source.getRupture(k).getMag();
+  p =  wg02_source.getRupture(k).getProbability();
+  tempMoRate += (-Math.log(1-p)/timeSpan.getDuration())*org.scec.calc.MomentMagCalc.getMoment(m);
+}
+System.out.println("Char_momentRate="+tempMoRate);
+*/
 
       // add the source
       allSources.add(wg02_source);
+
+      // now create and add the GR tail source if it's needed
+      if(grTailValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE)) {
+        grTailSource = new SimplePoissonFaultSource(tail_GR_dist, faultSurface, magScalingRel,
+                                  0.0, 1.0, rupOffset, rake, timeSpan.getDuration());
+        grTailSource.setName(sourceName+"_tail");
+        // add the source to the temporary list (temporary so it can be appended to the end of allSources later)
+        grTailSources.add(grTailSource);
+//System.out.println("GR_tail_moment="+tail_GR_dist.getTotalMomentRate()+" ratio="+tail_GR_dist.getTotalMomentRate()/tempMoRate);
+      }
     }
+
+    // append the GR_tail sources if need be
+    if(grTailValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE))
+      allSources.addAll(grTailSources);
+
+    // add the background seis source if need be
     if(backSeisValue.equals(WG02_ERF_Epistemic_List.SEIS_INCLUDE))
       allSources.add(backSource);
   }
@@ -357,15 +416,42 @@ public class WG02_EqkRupForecast extends EqkRupForecast
    }
 
 
-   // this is temporary for testing purposes
+   /**
+    * This main method tests the forecast for the singleIterationWithModes case.
+    * Specifically, the "p_both" values listed by this method (the total probability
+    * for each source" agree well with those listed in the singleIterationWithModes.out3
+    * file.  The only exception is for the background seismicity, where our probability
+    * is higher due to an error in their code in computing the cumulative rate at mag 5.0.
+    * The error is specifically:
+    *
+    * "backRate(iMonte) = back_N * 10.**(- back_bValue*(exp_MinMag-back_M1))" in wg99_main.f
+    *
+    * Next I need to check some iterations to make sure nasty things aren't sneaking in.
+    * @param args
+    */
    public static void main(String[] args) {
      WG02_EqkRupForecast qkCast = new WG02_EqkRupForecast();
      System.out.println("num_sources="+qkCast.getNumSources());
      System.out.println("num_rups(lastSrc)="+qkCast.getNumRuptures(qkCast.getNumSources()-1));
+     double p_char, p_tail, p_both, p_tot=1.00;
+     int num = qkCast.getNumSources(), i1, i2;
+     for(i1=0; i1 < (num-1)/2; i1++) {
+       i2 = i1+(num-1)/2;
+       p_char = qkCast.getSource(i1).computeTotalProb();
+       p_tail = qkCast.getSource(i2).computeTotalProb();
+       p_both =  1 - (1-p_char)*(1-p_tail);
+       p_tot *= (1-p_both);
+       System.out.println(qkCast.getSource(i1).getName()+"  "+qkCast.getSource(i2).getName()+
+                          "; p_char="+(float)p_char+"; p_tail="+(float)p_tail+"; p_both="+(float)p_both);
+     }
+     // add the background source
+     p_both = qkCast.getSource(num-1).computeTotalProb();
+     System.out.println(qkCast.getSource(num-1).getName()+"; p_both="+(float)p_both+
+                        "; isPoiss="+qkCast.getSource(num-1).isSourcePoissonian());
+     p_tot *= (1-p_both);
 
-     // write out source names
-//     for(int i=0;i<qkCast.getNumSources();i++)
-//       System.out.println(i+"th source name = "+qkCast.getSource(i).getName());
+     p_tot = 1.0-p_tot;
+     System.out.println("p_tot="+p_tot);
   }
 
 }

@@ -17,7 +17,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
                         implements EvenlyGriddedGeographicRegionAPI {
 
   private final static String C = "EvenlyGriddedGeographicRegion";
-  private final static boolean D = true;
+  private final static boolean D = false;
 
   private double gridSpacing;
 

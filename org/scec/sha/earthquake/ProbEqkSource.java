@@ -142,4 +142,46 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
   public String getInfo() {
     return new String(this.info);
   }
+
+  public double computeTotalProb() {
+    double totProb=0;
+    if(isPoissonian) {
+      for(int i=0; i<getNumRuptures(); i++)
+        totProb += Math.log(1-getRupture(i).getProbability());
+      totProb = 1 - Math.exp(totProb);
+    }
+    else {
+      for(int i=0; i<getNumRuptures(); i++)
+        totProb += getRupture(i).getProbability();
+    }
+    return totProb;
+  }
+
+/*
+  public IncrementalMagFreqDist computeMagProbDist() {
+
+    ArbDiscrEmpiricalDistFunc distFunc = new ArbDiscrEmpiricalDistFunc();
+    ArbitrarilyDiscretizedFunc tempFunc = new ArbitrarilyDiscretizedFunc();
+    IncrementalMagFreqDist magFreqDist = null;
+
+    ProbEqkRupture qkRup;
+    for(int i=0; i<getNumRuptures(); i++) {
+      qkRup = getRupture(i);
+      distFunc.set(qkRup.getMag(),qkRup.getProbability());
+    }
+    // duplicate the distFunce
+    for(int i = 0; i < distFunc.getNum(); i++) tempFunc.set(distFunc.get(i));
+
+    // now get the cum dist
+    for(int i=tempFunc.getNum()-2; i >=0; i--)
+      tempFunc.set(tempFunc.getX(i),tempFunc.getY(i)+tempFunc.getY(i+1));
+
+    // now make the evenly discretized
+
+for(int i = 0; i < distFunc.getNum(); i++)
+      System.out.println((float)distFunc.getX(i)+"  "+(float)tempFunc.getX(i)+"  "+(float)distFunc.getY(i)+"  "+(float)tempFunc.getY(i));
+
+    return magFreqDist;
+  }
+*/
 }

@@ -10,7 +10,7 @@ singleIterationWithModes
 30    nYr (length of probability interval in years)
 0.025 0.50 0.975    Statistical points for output (percentiles, must list three)
 3.0e11  (shear modulus in dyne/cm**2)
-1  6.7  number of min mags and values of the min mags for computing the probabilities
+1  5.0  number of min mags and values of the min mags for computing the probabilities
 1    number of Monte Carlo realizations
 *** Regional Slip-rate constraints ***
 36. 43.    min, max regional slip-rate constraints (in mm/yr)
