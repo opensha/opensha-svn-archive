@@ -14,7 +14,7 @@ package org.scec.data.estimate;
 
 public class LogNormalEstimate
     extends Estimate {
-
+  public final static String NAME = "org.scec.data.estimate.LogNormalEstimate";
   private double linearMedian;
   private double stdDev;
   // flag to specify whether it will be base10 or natural log

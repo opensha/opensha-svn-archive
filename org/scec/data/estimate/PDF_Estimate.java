@@ -17,6 +17,7 @@ import org.scec.data.function.ArbDiscrEmpiricalDistFunc;
  */
 
 public class PDF_Estimate extends Estimate {
+  public final static String NAME = "org.scec.data.estimate.PDF_Estimate";
   protected ArbitrarilyDiscretizedFunc func=null;
 
   private final static String MSG_FIRST_LAST_Y_ZERO = "First and Last Y values "+

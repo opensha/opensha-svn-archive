@@ -1,5 +1,5 @@
 package org.scec.param;
-import org.scec.data.estimate.Estimate;
+import org.scec.data.estimate.*;
 import org.scec.exceptions.EditableException;
 import java.util.ArrayList;
 
@@ -44,6 +44,18 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
       super();
       setAllowedEstimateList(allowedEstimateList);
     }
+
+    /**
+     * Accepts min/max values. There is no constraint on Estimate type and so
+     * all the estimate types are allowed.
+     *
+     * @param min
+     * @param max
+     */
+    public DoubleEstimateConstraint(double min, double max) {
+      this(min,max,null);
+    }
+
 
 
     /**
@@ -198,5 +210,21 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
         c1.setNullAllowed( nullAllowed );
         c1.editable = true;
         return c1;
+    }
+
+    /**
+     * create  constraint so that only postive values are allowed. This function
+     * will automatically exclude normal and lognormal
+     *
+     * @return
+     */
+    public static DoubleEstimateConstraint createConstraintForPositiveAllowedValues() {
+      // negative values are not allowed. so, normal and lognormal are not allowed
+      DoubleEstimateConstraint constraint = new DoubleEstimateConstraint(0, Double.MAX_VALUE);
+      ArrayList allowedEstimateTypes = new ArrayList();
+      allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
+      allowedEstimateTypes.add(FractileListEstimate.NAME);
+      allowedEstimateTypes.add(PDF_Estimate.NAME);
+      return constraint;
     }
 }

@@ -20,6 +20,7 @@ import org.scec.data.function.ArbDiscrEmpiricalDistFunc;
 
 public class DiscreteValueEstimate extends Estimate {
   protected ArbitrarilyDiscretizedFunc func=null;
+  public final static String NAME = "org.scec.data.estimate.DiscreteValueEstimate";
 
   private final static String MSG_Y_POSITIVE = "All the Y values should be >= 0 and <=1 "+
       "for DiscreteValueEstimate";

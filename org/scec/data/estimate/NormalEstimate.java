@@ -15,6 +15,7 @@ package org.scec.data.estimate;
  */
 
 public class NormalEstimate extends Estimate {
+  public final static String NAME = "org.scec.data.estimate.NormalEstimate";
   private double mean;
   private double stdDev;
   private final static String MSG_INVALID_STDDEV =

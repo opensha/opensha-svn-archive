@@ -16,6 +16,7 @@ import org.scec.data.function.ArbitrarilyDiscretizedFunc;
  */
 
 public class IntegerEstimate extends PDF_Estimate{
+  public final static String NAME = "org.scec.data.estimate.IntegerEstimate";
   private final static String MSG_X_INCREASING = "X values should be increasing "+
      " for Integer Estimate";
   private final static String MSG_X_INTEGER = "All X values should be an integer "+

@@ -5,6 +5,7 @@ import org.scec.exceptions.*;
 import org.scec.data.estimate.Estimate;
 
 
+
 /**
  * <p>Title: EstimateParameter.java </p>
  * <p>Description: </p>
@@ -29,13 +30,14 @@ public class EstimateParameter extends DependentParameter
     * Also Sets the name of this parameter.
     */
    public EstimateParameter( String name ) {
-       this( name, null, null);
+       super( name, null, null, null);
    }
+
 
 
    /**
     * Constructor with no No constraints specified, all values are allowed.
-    * Sets the name and untis of this parameter.
+    * Sets the name and units of this parameter.
     */
    public EstimateParameter( String name, String units ) throws ConstraintException {
        this( name,  units, null );
@@ -63,10 +65,25 @@ public class EstimateParameter extends DependentParameter
     * @exception  ConstraintException  thrown if the value is not allowed
     * @throws  ConstraintException     Is thrown if the value is not allowed
     */
-   public EstimateParameter( String name, ParameterConstraint constraint,
+   public EstimateParameter( String name, DoubleEstimateConstraint constraint,
                              String units, Estimate value ) throws ConstraintException {
        super( name, null, units, value );
    }
+
+   /**
+   *  Sets the name, units and value.
+   *
+   * @param  name                     Name of the parametet
+   * @param  value                    Integer value of this parameter
+   * @param  units                    Units of this parameter
+   * @exception  ConstraintException  thrown if the value is not allowed
+   * @throws  ConstraintException     Is thrown if the value is not allowed
+   */
+  public EstimateParameter( String name, IntegerEstimateConstraint constraint,
+                            String units, Estimate value ) throws ConstraintException {
+      super( name, null, units, value );
+  }
+
 
    /**
     *  Sets the name, units and value. All values allowed because constraints
@@ -79,7 +96,7 @@ public class EstimateParameter extends DependentParameter
     * @throws  ConstraintException     Is thrown if the value is not allowed
     */
    public EstimateParameter( String name, String units, Estimate value ) throws ConstraintException {
-       this( name, null, units, value );
+       super( name, null, units, value );
    }
 
 

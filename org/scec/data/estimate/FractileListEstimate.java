@@ -23,6 +23,7 @@ import org.scec.data.function.ArbDiscrEmpiricalDistFunc;
  */
 
 public class FractileListEstimate extends Estimate {
+  public final static String NAME = "org.scec.data.estimate.FractileListEstimate";
   private ArbDiscrEmpiricalDistFunc func=null;
    private final static int MIN_Y_VAL = 0;
    private final static int MAX_Y_VAL = 1;
