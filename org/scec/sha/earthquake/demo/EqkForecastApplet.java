@@ -505,17 +505,17 @@ public class EqkForecastApplet extends JApplet
         }
 
         // get SA peiod paramter
-     ListIterator it2 = param.getIndependentParametersIterator();
-     while ( it2.hasNext() ) {
-        DependentParameterAPI param2 = ( DependentParameterAPI ) it2.next();
-        // if it is not SA Period then  get next parameter
-        if(!param2.getName().equalsIgnoreCase(SA_PERIOD))
-          continue;
+        ListIterator it2 = param.getIndependentParametersIterator();
+        while ( it2.hasNext() ) {
+          DependentParameterAPI param2 = ( DependentParameterAPI ) it2.next();
+          // if it is not SA Period then  get next parameter
+          if(!param2.getName().equalsIgnoreCase(SA_PERIOD))
+            continue;
 
-       //if it is SA period, get the allowed period values
-        DoubleDiscreteConstraint  values = (DoubleDiscreteConstraint) param2.getConstraint();
-        ListIterator it3 = values.listIterator();
-        while(it3.hasNext())  {// add all the periods realting to the SA
+          //if it is SA period, get the allowed period values
+          DoubleDiscreteConstraint  values = (DoubleDiscreteConstraint) param2.getConstraint();
+          ListIterator it3 = values.listIterator();
+          while(it3.hasNext())  {// add all the periods realting to the SA
           String  temp = SA+" "+it3.next().toString();
           imt.put(new String(temp),new String(temp));
           imtMap[numOfIMT].add(temp);

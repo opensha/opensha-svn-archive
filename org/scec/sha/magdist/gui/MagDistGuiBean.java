@@ -40,11 +40,11 @@ public class MagDistGuiBean implements ParameterChangeListener {
    *  Temp until figure out way to dynamically load classes during runtime
    */
 
-  protected static String GAUSSIAN_NAME = new String("Gaussian Dist");
-  protected static String GR_NAME = new String("GutenbergRichter Dist");
-  protected static String SINGLE_NAME = new String("Single Dist");
-  protected static String YC_1985__NAME = new String("Youngs and Coppersmith Dist");
-  protected static String SUMMED_NAME = new String("Summed Dist");
+  public static String GAUSSIAN_NAME = new String("Gaussian Dist");
+  public static String GR_NAME = new String("GutenbergRichter Dist");
+  public static String SINGLE_NAME = new String("Single Dist");
+  public static String YC_1985__NAME = new String("Youngs and Coppersmith Dist");
+
 
   protected final static String DISTRIBUTION_NAME="Choose Distribution";
 
@@ -61,6 +61,9 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
     MagFreqDistTesterAPI magFreqAPI ;
     ParameterChangeFailListener listener;
+
+    // vector of all the distribution names to be made visible
+    private Vector distNames;
 
     /**
      * Params string value
@@ -182,7 +185,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
      * @param  applet     The main applet application that will use these beans
      *      to swap in and out different Mag Dist's.
      */
-    public MagDistGuiBean(MagFreqDistTesterAPI applet) {
+    public MagDistGuiBean(MagFreqDistTesterAPI applet, Vector distNames) {
 
         // Starting
         String S = C + ": Constructor(): ";
@@ -190,7 +193,9 @@ public class MagDistGuiBean implements ParameterChangeListener {
         this.magFreqAPI = (MagFreqDistTesterAPI)applet;
         this.listener = (ParameterChangeFailListener) applet;
 
-        initControlsParamListAndEditor( GAUSSIAN_NAME);
+        // only distributions in the vector will be made visible
+        this.distNames= distNames;
+        initControlsParamListAndEditor( (String)distNames.get(0));
 
         // Create independent parameters
         initIndependentParamListAndEditor(  );
@@ -202,7 +207,6 @@ public class MagDistGuiBean implements ParameterChangeListener {
     }
 
 
-
     /**
      *  <b> FIX *** FIX *** FIX </b> This needs to be fixed along with the whole
      *  function package. Right now only Doubles can be plotted on x-axis as
@@ -210,7 +214,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
      *
      * @param  applet  Description of the Parameter
      */
-    protected void initControlsParamListAndEditor( String dName) {
+    protected void initControlsParamListAndEditor(String dName) {
 
         // Starting
         String S = C + ": initControlsParamListAndEditor(): ";
@@ -220,13 +224,9 @@ public class MagDistGuiBean implements ParameterChangeListener {
          * Adding the distribution name to the ControlEditorList.
          */
         controlsParamList = new ParameterList();
-        Vector distName=new Vector();
-        distName.add(GAUSSIAN_NAME);
-        distName.add(GR_NAME);
-        distName.add(SINGLE_NAME);
-        distName.add(YC_1985__NAME);
-        StringParameter distributionName =new StringParameter(DISTRIBUTION_NAME,distName,dName);
+        StringParameter distributionName =new StringParameter(DISTRIBUTION_NAME,distNames,dName);
         controlsParamList.addParameter(distributionName);
+        distributionName.addParameterChangeListener(this);
         if(dName.equalsIgnoreCase(GR_NAME))
           magDistClassName = new String(GutenbergRichterMagFreqDist_CLASS_NAME);
         else if(dName.equalsIgnoreCase(GAUSSIAN_NAME))
@@ -586,10 +586,9 @@ public class MagDistGuiBean implements ParameterChangeListener {
                 System.out.println( S + "Control or independent Parameter changed, need to update gui parameter editors" );
             synchRequiredVisibleParameters();
         }
-        if(D)
-          System.out.println("Name1::"+name1);
+
         if(name1.equalsIgnoreCase(DISTRIBUTION_NAME)){
-         this.magFreqAPI.updateChoosenMagDist();
+          this.magFreqAPI.updateChoosenMagDist();
         }
 
     }

@@ -427,7 +427,12 @@ public class MagFreqDistTesterApplet extends JApplet
     parametersPanel.setBackground( background );
     inputPanel.setBackground( background );
     sheetPanel.setBackground( background );
-    magDist =  new MagDistGuiBean(this);
+    Vector distNames = new Vector();
+    distNames.add(MagDistGuiBean.GAUSSIAN_NAME);
+    distNames.add(MagDistGuiBean.SINGLE_NAME);
+    distNames.add(MagDistGuiBean.GR_NAME);
+    distNames.add(MagDistGuiBean.YC_1985__NAME);
+    magDist =  new MagDistGuiBean(this, distNames);
     updateChoosenMagDist();
   }
 

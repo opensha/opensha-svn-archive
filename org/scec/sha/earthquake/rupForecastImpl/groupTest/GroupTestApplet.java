@@ -34,8 +34,7 @@ public class GroupTestApplet extends Applet
    */
   protected final static String C = "GroupTestApplet";
   // for debug purpose
-  protected final static boolean D = false;
-
+  protected final static boolean D = true;
 
 
   private boolean isStandalone = false;
@@ -45,25 +44,46 @@ public class GroupTestApplet extends Applet
   private Border border1;
   private JSplitPane controlsSplit = new JSplitPane();
   private JSplitPane magDistSplit = new JSplitPane();
-  private JPanel controlPanel = new JPanel();
-  private JPanel sitePanel = new JPanel();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private JPanel magDistControlPanel = new JPanel();
-  private JPanel magDistIndependentPanel = new JPanel();
-  private GridBagLayout gridBagLayout3 = new GridBagLayout();
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
   // default insets
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
  // height and width of the applet
   protected final static int W = 915;
-  protected final static int H = 670;
+  protected final static int H = 625;
 
 
   // make the GroupTestGUIBean instance
   GroupTestGuiBean groupTestBean;
+  private JSplitPane imtSplitPane = new JSplitPane();
+  private JSplitPane siteSplitPane = new JSplitPane();
+  private JPanel testCasesPanel = new JPanel();
+  private JPanel imtPanel = new JPanel();
+  private JPanel imrPanel = new JPanel();
+  private JPanel sitePanel = new JPanel();
+  private JSplitPane sourceSplitPane = new JSplitPane();
+  private JSplitPane timespanSplitPane = new JSplitPane();
+  private JPanel sourcePanel = new JPanel();
+  private JPanel magDistControlPanel = new JPanel();
+  private JPanel magDistIndependentPanel = new JPanel();
+  private JPanel timespanPanel = new JPanel();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
+  private GridBagLayout gridBagLayout5 = new GridBagLayout();
+  private GridBagLayout gridBagLayout6 = new GridBagLayout();
+  private GridBagLayout gridBagLayout7 = new GridBagLayout();
+  private GridBagLayout gridBagLayout8 = new GridBagLayout();
+  private GridBagLayout gridBagLayout9 = new GridBagLayout();
+  private GridBagLayout gridBagLayout10 = new GridBagLayout();
+  private GridBagLayout gridBagLayout11 = new GridBagLayout();
+  JButton addButton = new JButton();
+  JButton clearButton = new JButton();
+  JButton dataButton = new JButton();
+  JCheckBox jCheckBox1 = new JCheckBox();
+  JCheckBox jCheckBox2 = new JCheckBox();
+  private GridBagLayout gridBagLayout12 = new GridBagLayout();
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -90,34 +110,72 @@ public class GroupTestApplet extends Applet
   //Component initialization
   private void jbInit() throws Exception {
     border1 = BorderFactory.createLineBorder(SystemColor.controlText,1);
-    this.setSize(new Dimension(925, 644));
+    this.setSize(new Dimension(925, 590));
     this.setLayout(null);
     chartSplit.setBounds(new Rectangle(18, 9, 727, 514));
     buttonPanel.setBorder(border1);
-    buttonPanel.setBounds(new Rectangle(19, 536, 882, 79));
-    buttonPanel.setLayout(null);
+    buttonPanel.setBounds(new Rectangle(19, 536, 882, 44));
+    buttonPanel.setLayout(gridBagLayout12);
     controlsSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     magDistSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     magDistSplit.setBounds(new Rectangle(753, 9, 167, 513));
-    controlPanel.setLayout(gridBagLayout1);
-    sitePanel.setLayout(gridBagLayout2);
-    magDistControlPanel.setLayout(gridBagLayout3);
-    magDistIndependentPanel.setLayout(gridBagLayout4);
+    imtSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    sourceSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    timespanSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    testCasesPanel.setLayout(gridBagLayout1);
+    imtPanel.setLayout(gridBagLayout2);
+    imrPanel.setLayout(gridBagLayout3);
+    sourcePanel.setLayout(gridBagLayout5);
+    timespanPanel.setLayout(gridBagLayout8);
+    sitePanel.setLayout(gridBagLayout9);
+    addButton.setText("Add Graph");
+    clearButton.setText("Clear Plot");
+    dataButton.setText("Show Button");
+    jCheckBox1.setText("X Log");
+    jCheckBox2.setText("Y Log");
+    buttonPanel.add(dataButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), -9, -2));
+    buttonPanel.add(clearButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
     this.add(chartSplit, null);
     chartSplit.add(chartPanel, JSplitPane.TOP);
     chartSplit.add(controlsSplit, JSplitPane.BOTTOM);
-    controlsSplit.add(controlPanel, JSplitPane.TOP);
-    controlsSplit.add(sitePanel, JSplitPane.BOTTOM);
+    controlsSplit.add(imtSplitPane, JSplitPane.TOP);
     this.add(buttonPanel, null);
+    buttonPanel.add(addButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 25, 10, 0), 3, -2));
     this.add(magDistSplit, null);
-    magDistSplit.add(magDistControlPanel, JSplitPane.TOP);
-    magDistSplit.add(magDistIndependentPanel, JSplitPane.BOTTOM);
+    magDistSplit.add(sourceSplitPane, JSplitPane.TOP);
+    magDistSplit.add(timespanSplitPane, JSplitPane.BOTTOM);
+    controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
+    siteSplitPane.add(imrPanel, JSplitPane.TOP);
+    siteSplitPane.add(sitePanel, JSplitPane.BOTTOM);
+    imtSplitPane.add(testCasesPanel, JSplitPane.TOP);
+    imtSplitPane.add(imtPanel, JSplitPane.BOTTOM);
+    sourceSplitPane.add(sourcePanel, JSplitPane.TOP);
+    sourceSplitPane.add(magDistControlPanel, JSplitPane.BOTTOM);
+    timespanSplitPane.add(magDistIndependentPanel, JSplitPane.TOP);
+    timespanSplitPane.add(timespanPanel, JSplitPane.BOTTOM);
+    buttonPanel.add(jCheckBox1,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
+    buttonPanel.add(jCheckBox2,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 337), 22, 2));
     chartSplit.setDividerLocation(525);
-    controlsSplit.setDividerLocation(250);
-    magDistSplit.setDividerLocation(250);
+    controlsSplit.setDividerLocation(240);
+    magDistSplit.setDividerLocation(300);
 
+    imtSplitPane.setDividerLocation(85);
+    siteSplitPane.setDividerLocation(120);
+    sourceSplitPane.setDividerLocation(125);
+    timespanSplitPane.setDividerLocation(130);
+
+    updateChoosenTestCase();
+    updateChoosenIMT();
+    updateChoosenIMR();
+    updateChoosenEqkSource();
+    updateChoosenTimespan();
     updateChoosenMagDist();
-
    }
   //Start the applet
   public void start() {
@@ -143,7 +201,7 @@ public class GroupTestApplet extends Applet
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle("Applet Frame");
+    frame.setTitle("Peer Group Tests");
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
@@ -301,6 +359,80 @@ public class GroupTestApplet extends Applet
 
     }
 
+    /**
+     *  update the GUI with the timespan
+     */
+    public void updateChoosenTimespan() {
+      timespanPanel.removeAll();
+      timespanPanel.add(groupTestBean.getTimespanEditor(),
+                       new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                       GridBagConstraints.CENTER,
+                       GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+    }
+
+    /**
+     *  update the GUI with the test case choosen
+     */
+    public void updateChoosenTestCase() {
+      testCasesPanel.removeAll();
+      testCasesPanel.add(groupTestBean.getTestCasesEditor(),
+                       new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                       GridBagConstraints.CENTER,
+                       GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+    }
+
+    /**
+     *  update the GUI with the IMT choosen
+     */
+    public void updateChoosenIMT() {
+      imtPanel.removeAll();
+      imtPanel.add(groupTestBean.getIMTEditor(),
+                       new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                       GridBagConstraints.CENTER,
+                       GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+      imtPanel.validate();
+      imtPanel.repaint();
+    }
+
+    /**
+     *  update the GUI with the IMR choosen
+     *  refresh the sites params as well
+     */
+    public void updateChoosenIMR() {
+      // update the IMR panel
+      imrPanel.removeAll();
+      imrPanel.add(groupTestBean.getImrEditor(),
+                   new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                   GridBagConstraints.CENTER,
+                   GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+      // update the sites
+      sitePanel.removeAll();
+      sitePanel.add(groupTestBean.getSiteEditor(),
+                   new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                   GridBagConstraints.CENTER,
+                   GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+      imrPanel.validate();
+      imrPanel.repaint();
+      sitePanel.validate();
+      sitePanel.repaint();
+    }
+
+    /**
+     *  update the GUI with the choosen Eqk source
+     */
+    public void updateChoosenEqkSource() {
+      // update the EqkSource panel
+      this.sourcePanel.removeAll();
+      sourcePanel.add(groupTestBean.getEqkSourceEditor(),
+                   new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                   GridBagConstraints.CENTER,
+                   GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+      sourcePanel.validate();
+      sourcePanel.repaint();
+    }
+
 
     /**
      *  Used for synch applet with new Mag Dist choosen. Updates lables and
@@ -308,43 +440,33 @@ public class GroupTestApplet extends Applet
      */
   public void updateChoosenMagDist() {
 
-        // Starting
-        String S = C + ": updateChoosenMagDist(): ";
+    // Starting
+    String S = C + ": updateChoosenMagDist(): ";
 
-        // add the control editor
-        controlPanel.removeAll();
-        this.controlPanel.add(groupTestBean.getControlsEditor(),
-                new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
-                 );
+    System.out.println(S);
+    // add the mag dist control editor
+    this.magDistControlPanel.removeAll();
+    magDistControlPanel.setLayout(gridBagLayout10);
+    magDistIndependentPanel.setLayout(gridBagLayout11);
+    magDistControlPanel.add( groupTestBean.getMagDistControlsEditor(),
+                             new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
+                             );
 
-       // add the site editor
-        this.sitePanel.removeAll();
-        sitePanel.add( groupTestBean.getSiteEditor(),
-                new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
-                 );
+    // add the mag dist independent editor
+    this.magDistIndependentPanel.removeAll();
+    magDistIndependentPanel.add( groupTestBean.getMagDistIndependentsEditor(),
+                                 new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
+                                 );
 
-        // add the mag dist control editor
-        this.magDistControlPanel.removeAll();
-        magDistControlPanel.add( groupTestBean.getMagDistControlsEditor(),
-                       new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
-                 );
-
-        // add the mag dist independent editor
-        this.magDistIndependentPanel.removeAll();
-        magDistIndependentPanel.add( groupTestBean.getMagDistIndependentsEditor(),
-                       new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
-                 );
-
-        validate();
-        repaint();
-
-        // Ending
-        if ( D )
-            System.out.println( S + "Ending" );
+    magDistIndependentPanel.validate();
+    magDistIndependentPanel.repaint();
+    magDistControlPanel.validate();
+    magDistControlPanel.repaint();
+    // Ending
+    if ( D )
+      System.out.println( S + "Ending" );
 
     }
 
