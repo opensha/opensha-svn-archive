@@ -23,11 +23,11 @@ import org.scec.sha.gui.servlets.*;
 
 /**
  * <p>Title: HazardMapViewerServlet</p>
- * <p>Description: It reads the data directory and sends the metadata info back
- * to the applet to be shown in the applet.
- * It also generates the GMT map based on the settings of the user</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ * <p>Description: This servlet is hosted on web server gravity.usc.edu.
+ * This servlet allows application to give all the datasets ids that contains
+ * Hazard curves dataset.
+ * When user has selected the dataset using which he wants to compute Hazard Map,
+ * it is sent back to this servlet which then uses GMT script to create the map image.</p>
  * @author unascribed
  * @version 1.0
  */

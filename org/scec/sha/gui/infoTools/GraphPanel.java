@@ -847,6 +847,7 @@ public class GraphPanel extends JPanel {
     chartPanel = null;
     metadataText.setText("");
     pointsTextArea.setText(this.NO_PLOT_MSG);
+    curvePlottingCharacterstics.clear();
   }
 
 
