@@ -33,6 +33,9 @@ For the SCEC-ITR CME:
 
 Reorganize output files for hazard map database.
 
+Calculate the number of grid points in the region shown in Ned's ground
+motion amplification map with a grid spacing of 0.05 degrees.
+
 Define and implement a GeographicalRegion object (the most general being one represented with an arbitrary polygon, but we'll want a basic rectangular (& circular?) region as well).  This should have methods for determining wether an arbitrary Location object is within the Region.  This will be used by ERFs to define their region of applicability.  They will also be used to define a region for making a map.  We will also want to define methods (or subclasses) for creating a DiscretizedGeographicalRegion (again, for maps or for creating EarthquakeSource objects).  We need to think about these definitions together.
 
 Build ScenarioShakeMapApplet (with HazardMapApplet in mind).  Then do this on server side.
