@@ -13,13 +13,17 @@ import java.awt.Toolkit;
 
 import org.scec.sha.gui.beans.ERF_GuiBean;
 import org.scec.sha.calc.HazardCurveCalculator;
+import org.scec.sha.calc.DisaggregationCalculator;
 
 /**
  * <p>Title: Temp_HazardCurveAppForStandalone</p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <p>Description: This application is extension of HazardCurveApplication, where
+ * everything take place on the user's own machine. This version of application
+ * does not require any internet connection, the only difference between this
+ * application and its parent class that it uses user's system memory for doing
+ * any computation. Whereas , in the HazardCurve application all calculations
+ * take place on the users machine.</p>
+ * @author : Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
@@ -80,14 +84,15 @@ public class Temp_HazardCurveAppForStandalone extends Temp_HazardCurveApplicatio
 
 
   /**
-   * This method creates the HazardCurveCalc instance. If the internet connection
-   * is available then it creates a remote instance of the calculator on the server
-   * where the calculations take place, else calculation are performed on the user's
-   * own machine.
+   * This method creates the HazardCurveCalc and Disaggregation Calc(if selected) instances.
+   * Calculations are performed on the user's own machine, no internet connection
+   * is required for it.
    */
   protected void createCalcInstance(){
     try{
       calc = new HazardCurveCalculator();
+      if(disaggregationFlag)
+        disaggCalc = new DisaggregationCalculator();
     }catch(Exception e){
       e.printStackTrace();
     }

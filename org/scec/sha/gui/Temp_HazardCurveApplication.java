@@ -96,7 +96,19 @@ import ch.randelshofer.quaqua.QuaquaManager;
 
 /**
  * <p>Title: Temp_HazardCurveApplication</p>
- * <p>Description: </p>
+ * <p>Description: This application computes Hazard Curve for selected
+ * AttenuationRelationship model , Site and Earthquake Rupture Forecast (ERF)model.
+ * This computed Hazard curve is shown in a panel using JFreechart.
+ * This application works with/without internet connection.  If user using this
+ * application has network connection then it creates the instances of ERF on server
+ * and make all calls to server for any forecast updation. All the computation
+ * in this application is done using the server. Once the computations complete, it
+ * returns back the result.
+ * All the server client relationship has been established using RMI, which allows
+ * to make simple calls to the server similar to if things are existing on user's
+ * own machine.
+ * If network connection is not available to user then it will create all the
+ * objects on users local machine and do all computation there itself.</p>
  * @author Nitin Gupta and Vipin Gupta
  * Date : Sept 23 , 2002
  * @version 1.0
@@ -241,7 +253,7 @@ public class Temp_HazardCurveApplication extends JApplet
 
 
   //flag to check for the disaggregation functionality
-  private boolean disaggregationFlag= false;
+  protected boolean disaggregationFlag= false;
   private String disaggregationString;
 
   // PEER Test Cases
@@ -654,10 +666,10 @@ public class Temp_HazardCurveApplication extends JApplet
     }
 
     /**
-     * This method creates the HazardCurveCalc instance. If the internet connection
-     * is available then it creates a remote instance of the calculator on the server
-     * where the calculations take place, else calculation are performed on the user's
-     * own machine.
+     * This method creates the HazardCurveCalc and Disaggregation Calc(if selected) instances.
+     * If the internet connection is available then it creates a remote instances of
+     * the calculators on server where the calculations take place, else
+     * calculations are performed on the user's own machine.
      */
     protected void createCalcInstance(){
       calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
@@ -998,42 +1010,47 @@ public class Temp_HazardCurveApplication extends JApplet
    totalProbFuncs.setYAxisName("Probability of Exceedance");
 
    isHazardCalcDone = true;
-  // disaggregationString=null;
+   disaggregationString=null;
    //checking the disAggregation flag
-   //if(this.disaggregationFlag) {
-    // disaggCalc = new DisaggregationCalculator();
-    // if(this.progressCheckBox.isSelected())  {
-     //  disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status", "Beginning Disaggregation ");
-     //  disaggProgressClass.displayProgressBar();
-     //  disaggTimer.start();
-   // }
-
-     //if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
-    // int num = hazFunction.getNum();
-     //double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
+   if(this.disaggregationFlag) {
+     if(this.progressCheckBox.isSelected())  {
+       disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status", "Beginning Disaggregation ");
+       disaggProgressClass.displayProgressBar();
+       disaggTimer.start();
+    }
+    try{
+      if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
+    }catch(RemoteException e){
+      e.printStackTrace();
+    }
+     int num = hazFunction.getNum();
+     double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
      //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
-   //  if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
-    //   JOptionPane.showMessageDialog(this,
-     //                                new String("Chosen Probability is not"+
-      //                               " within the range of the min and max prob."+
-       //                              " in the Hazard Curve"),
-         //                            "Disaggregation Prob. selection error message",
-          //                           JOptionPane.OK_OPTION);
-     //else{
+     if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
+       JOptionPane.showMessageDialog(this,
+                                     new String("Chosen Probability is not"+
+                                     " within the range of the min and max prob."+
+                                     " in the Hazard Curve"),
+                                     "Disaggregation Prob. selection error message",
+                                     JOptionPane.OK_OPTION);
+     else{
        //gets the Disaggregation data
-      // double iml= hazFunction.getFirstInterpolatedX_inLogXLogYDomain(disaggregationProb);
-       //disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)eqkRupForecast);
-       //disaggregationString=disaggCalc.getResultsString();
-    // }
-  // }
+       double iml= hazFunction.getFirstInterpolatedX_inLogXLogYDomain(disaggregationProb);
+       try{
+         disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)forecast);
+         disaggregationString=disaggCalc.getResultsString();
+       }catch(RemoteException e){
+         e.printStackTrace();
+       }
+     }
+   }
    //displays the disaggregation string in the pop-up window
-   //if(disaggregationString !=null) {
-    // HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
-     //disaggregation.pack();
-     //disaggregation.show();
-
-   //}
-   //disaggregationString=null;
+   if(disaggregationString !=null) {
+     HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
+     disaggregation.pack();
+     disaggregation.show();
+   }
+   disaggregationString=null;
   }
 
 
