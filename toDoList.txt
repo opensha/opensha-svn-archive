@@ -28,13 +28,14 @@ See if mac can now handle different styles of tabs - can change only if you chan
 	Use the new site-type translator that Ned created (it's in SiteTranlator.java, 
 	and he moved the SiteTranslatorNew.java to SiteTranslatorOld.java).
 
-Get Bruce's code running on Mac OS X.
+Get Bruce's code running on Mac OS X - done, waiting to hear from Hope on whether it works.
 
 ScenarioShakeMapApp
 
 	make image scalable with window size (although keep aspect ratio fixed)
 
-	3) save matadata for each run in "map_info[milisecond stamp].txt" file
+	3) save matadata for each run in a "map_info.txt" file, 
+	and put a copy of this on the server in the directory for this run.
 
 	make URLs in info window live links (download when clicked)?
 
@@ -51,7 +52,7 @@ ScenarioShakeMapApp
 	so the latter is simply a wrapper around the GMT_MapGenerator (make the map and show the map and
 	metadata from the main app).
 
-	move "set site params" JCombo in  Region&SiteGuiBean a StringParameter and add it to the list.
+	move "set site params" JCombo in  Region&SiteGuiBean to a StringParameter and add it to the list.
 
 	5) set the scaleLabel argument (added to GMT_MapGenerator as described below) according to chosen IMT
 	(the GMT_MapGenerator will wrap it with "log(*)" is that option was chosen.
@@ -61,7 +62,7 @@ ScenarioShakeMapApp
 	(make the MapGuiBean wrap this new class rather than the parent).  
 
 	7) add option to make Hazus shape files to the GMT_MapGeneratorForShakeMaps class (add this to the script).  
-	Also include the URL for these.  Figure out how to handle the metadata on this.
+	
 
 GMT_MapGenerator:
 

@@ -182,7 +182,7 @@ public class MapGuiBean extends JPanel implements
     }
     else{
       try{
-        imgName = gmtMap.makeMap(xyzVals);
+        imgName = gmtMap.makeMapLocally(xyzVals);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;
