@@ -15,29 +15,29 @@ import org.scec.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 
 /**
  * <p>Title: PointPoissonERF</p>
- * <p>Description: This ERF creates a single PointPoissonEqkSource
+ * <p>Description: This ERF creates a single point source with a single rupture
  * for the following user-defined parameters:  </p>
  * <UL>
- * <LI>mag-freq-dist
- * <LI>source location (lat, lon, depth params; should be one LocationParam)
+ * <LI>magnitude
+ * <LI>Location (lat, lon, depth of point source)
  * <LI>rake - the rake (in degrees) assigned to all ruptures.
  * <LI>dip - the dip (in degrees) assigned to all rupture surfaces.
- * <LI>timeSpan - the duration of the forecast (in same units as in the magFreqDist)
+ * <LI>probability - the probability of the rupture (timeSpan is null)
  * </UL><p>
- * The source is Poissonain, and the timeSpan is in years.
+ * The source is non-Poissonain.
  * @author Ned Field
- * Date : June , 2004
+ * Date : Sept., 2004
  * @version 1.0
  */
 
 public class PointSourceERF extends EqkRupForecast{
 
   //for Debug purposes
-  private static String  C = new String("Point Source ERF");
+  private static String  C = "PointSourceERF";
   private boolean D = true;
 
   //name for this classs
-  public final static String  NAME = C;
+  public final static String  NAME = "Point Source ERF";
 
   // this is the source (only 1 for this ERF)
   private PointEqkSource source;
@@ -178,10 +178,10 @@ public class PointSourceERF extends EqkRupForecast{
                                     ((Double)srcLonParam.getValue()).doubleValue(),
                                     ((Double)srcDepthParam.getValue()).doubleValue());
        source = new PointEqkSource(loc,
-                                          ((Double) magParam.getValue()).doubleValue(),
-                                          ((Double) probParam.getValue()).doubleValue(),
-                                          ((Double)rakeParam.getValue()).doubleValue(),
-                                          ((Double)dipParam.getValue()).doubleValue());
+                                   ((Double) magParam.getValue()).doubleValue(),
+                                   ((Double) probParam.getValue()).doubleValue(),
+                                   ((Double)rakeParam.getValue()).doubleValue(),
+                                   ((Double)dipParam.getValue()).doubleValue());
        parameterChangeFlag = false;
      }
 

@@ -121,8 +121,9 @@ public class HazardCurveApplet extends JApplet
   public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PoissonFaultERF";
   public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
   public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Frankel02.RemoteFrankel02ERF_Client";
-  public final static String POINT_POISSON_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.PointPoissonSourceERF";
+  public final static String POINT_SRC_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.PointSourceERF";
   public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
+  public final static String POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List";
 
   // instances of the GUI Beans which will be shown in this applet
   private ERF_GuiBean erfGuiBean;
@@ -1215,7 +1216,8 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
-   erf_Classes.add(POINT_POISSON_FORECAST_CLASS_NAME);
+   erf_Classes.add(POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
+   erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
    //erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);

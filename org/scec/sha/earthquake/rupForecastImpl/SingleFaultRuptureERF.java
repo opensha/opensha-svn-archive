@@ -32,17 +32,17 @@ import org.scec.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 public class SingleFaultRuptureERF extends EqkRupForecast{
 
   //for Debug purposes
-  private static String  C = new String("Single Fault Rupture ERF");
+  private static String  C = "SingleFaultRuptureERF";
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  public final static String  NAME = "Single Fault Rupture ERF";
 
   // this is the source (only 1 for this ERF)
   private FaultRuptureSource source;
 
   // mag parameter stuff
-  public final static String MAG_PARAM_NAME = "Magnitude Probability";
+  public final static String MAG_PARAM_NAME = "Magnitude";
   private final static String MAG_PARAM_INFO = "The  magnitude of the rupture";
   private final static String MAG_PARAM_UNITS = null;
   private Double MAG_PARAM_MIN = new Double(5);
@@ -50,7 +50,7 @@ public class SingleFaultRuptureERF extends EqkRupForecast{
   private Double MAG_PARAM_DEFAULT = new Double(7.0);
 
   // prob parameter stuff
-  public final static String PROB_PARAM_NAME = "Source Probability";
+  public final static String PROB_PARAM_NAME = "Probability";
   private final static String PROB_PARAM_INFO = "The probability of the rupture";
   private final static String PROB_PARAM_UNITS = null;
   private Double PROB_PARAM_MIN = new Double(0);
@@ -116,6 +116,17 @@ public class SingleFaultRuptureERF extends EqkRupForecast{
     probParam.addParameterChangeListener(this);
   }
 
+  /**
+   * Constructor for this source (no arguments)
+   */
+  public SingleFaultRuptureERF(EqkRupture eqkRupture, double probability) {
+    this();
+    magParam.setValue(eqkRupture.getMag());
+    rakeParam.setValue(eqkRupture.getAveRake());
+    faultParam.setValue(eqkRupture.getRuptureSurface());
+    probParam.setValue(probability);
+    updateForecast();
+  }
 
 
 

@@ -18,7 +18,7 @@ import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
  * <p>Description: This converts a point source (single magnitude and probability) into many
  * vertical strike-slip finite (rake=0) ruptures.  This is basically a spinning source, but one where
  * there are multiple rupture possibilities along stike as well (the hypocenter is not constrained to
- * be at the mid point).  This is not a Poissonian source.  The fault discretization is
+ * be at the mid point).  This is a non-Poissonian source.  The fault discretization is
  * hard wired at 1 km.   <p>
  * The rupture length is computed from the supplied magScalingRelation.
  * Note that if this is a magAreaRelationship, the rupture length is computed as the area divivded

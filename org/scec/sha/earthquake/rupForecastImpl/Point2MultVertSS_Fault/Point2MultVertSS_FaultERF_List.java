@@ -6,19 +6,19 @@ import org.scec.data.TimeSpan;
 import org.scec.param.*;
 import org.scec.sha.param.*;
 import org.scec.sha.earthquake.*;
+import org.scec.sha.earthquake.rupForecastImpl.SingleFaultRuptureERF;
 import org.scec.sha.earthquake.rupForecastImpl.Point2MultVertSS_FaultSource;
 import org.scec.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
 
 
 /**
- * <p>Title: Point2MultVertSS_FaultERF</p>
+ * <p>Title: Point2MultVertSS_FaultERF_List</p>
  * <p>Description: This ERF creates a single Point2MultVertSS_FaultSource
  * for the following user-defined parameters:  </p>
  * <UL>
  * <LI>source latitude
  * <LI>source longitude
  * <LI>magnitude - the magnitude of the point source.
- * <LI>probability - the probability for the souce.
  * <LI>maxRupOffset - The increment by which ruptures are slid (floated) along a given strike
  * <LI>deltaStrike - discretization of strike for the spinning of the ruptures
  * </UL><p>
@@ -33,14 +33,14 @@ import org.scec.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelat
  * @version 1.0
  */
 
-public class Point2MultVertSS_FaultERF extends EqkRupForecast{
+public class Point2MultVertSS_FaultERF_List extends ERF_EpistemicList{
 
   //for Debug purposes
-  private static String  C = new String("Point2MultVertSS_FaultERF");
+  private static String  C = new String("Point2MultVertSS_FaultERF_List");
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = "Point 2 Mult Vertical SS Fault ERF";
+  public final static String  NAME = "Point2Mult Vertical SS Fault ERF List";
 
   // this is the source (only 1 for this ERF)
   private Point2MultVertSS_FaultSource source;
@@ -54,7 +54,6 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
   DoubleParameter srcLatParam;
   DoubleParameter srcLonParam;
   DoubleParameter magParam;
-  DoubleParameter probParam;
   DoubleParameter maxRupOffsetParam;
   DoubleParameter deltaStrikeParam;
 
@@ -75,19 +74,11 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
 
   // mag parameter stuff
   public final static String MAG_PARAM_NAME = "Magnitude";
-  private final static String MAG_PARAM_INFO = "The  magnitude of the point source";
+  private final static String MAG_PARAM_INFO = "The  magnitude for the point source";
   private final static String MAG_PARAM_UNITS = null;
   private Double MAG_PARAM_MIN = new Double(5);
   private Double MAG_PARAM_MAX = new Double(10);
   private Double MAG_PARAM_DEFAULT = new Double(7.0);
-
-  // prob parameter stuff
-  public final static String PROB_PARAM_NAME = "Probability";
-  private final static String PROB_PARAM_INFO = "The probability of the source (independent of whatever timeSpan is given)";
-  private final static String PROB_PARAM_UNITS = null;
-  private Double PROB_PARAM_MIN = new Double(0);
-  private Double PROB_PARAM_MAX = new Double(1);
-  private Double PROB_PARAM_DEFAULT = new Double(1.0);
 
   // maxRupOffset parameter stuff
   public final static String RUP_OFFSET_PARAM_NAME = "Max Rupture Offset";
@@ -109,7 +100,7 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
   /**
    * Constructor for this source (no arguments)
    */
-  public Point2MultVertSS_FaultERF() {
+  public Point2MultVertSS_FaultERF_List() {
 
     timeSpan = null;
 
@@ -126,11 +117,6 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
         MAG_PARAM_MAX,MAG_PARAM_UNITS,MAG_PARAM_DEFAULT);
     magParam.setInfo(MAG_PARAM_INFO);
 
-    // create the prob param
-    probParam = new DoubleParameter(PROB_PARAM_NAME,PROB_PARAM_MIN,
-        PROB_PARAM_MAX,PROB_PARAM_UNITS,PROB_PARAM_DEFAULT);
-    probParam.setInfo(PROB_PARAM_INFO);
-
     // create the rake param
     maxRupOffsetParam = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
         RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,RUP_OFFSET_PARAM_DEFAULT);
@@ -145,7 +131,6 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
     adjustableParams.addParameter(srcLatParam);
     adjustableParams.addParameter(srcLonParam);
     adjustableParams.addParameter(magParam);
-    adjustableParams.addParameter(probParam);
     adjustableParams.addParameter(maxRupOffsetParam);
     adjustableParams.addParameter(deltaStrikeParam);
 
@@ -153,7 +138,6 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
     srcLatParam.addParameterChangeListener(this);
     srcLonParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
-    probParam.addParameterChangeListener(this);
     maxRupOffsetParam.addParameterChangeListener(this);
     deltaStrikeParam.addParameterChangeListener(this);
   }
@@ -171,59 +155,23 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
        double lat = ((Double) srcLatParam.getValue()).doubleValue();
        double lon = ((Double) srcLonParam.getValue()).doubleValue();
        double mag = ((Double) magParam.getValue()).doubleValue();
-       double prob = ((Double) probParam.getValue()).doubleValue();
+       double prob = 1.0;
        double maxRupOffset = ((Double) maxRupOffsetParam.getValue()).doubleValue();
        double deltaStrike = ((Double) deltaStrikeParam.getValue()).doubleValue();
 
        source = new Point2MultVertSS_FaultSource(lat, lon, mag, prob, magLengthRel,upperSeisDepth,
                                                  lowerSeisDepth, maxRupOffset,  deltaStrike);
+
+       int numRups = source.getNumRuptures();
+       ProbEqkRupture eqkRup;
+       for(int i=0; i< numRups; i++) {
+         eqkRup = source.getRupture(i);
+         this.addERF(new SingleFaultRuptureERF(eqkRup, 1.0),eqkRup.getProbability());
+       }
        parameterChangeFlag = false;
      }
 
    }
-
-
-   /**
-    * Return the earhthquake source at index i.   Note that this returns a
-    * pointer to the source held internally, so that if any parameters
-    * are changed, and this method is called again, the source obtained
-    * by any previous call to this method will no longer be valid.
-    *
-    * @param iSource : index of the desired source (only "0" allowed here).
-    *
-    * @return Returns the ProbEqkSource at index i
-    *
-    */
-   public ProbEqkSource getSource(int iSource) {
-
-     // we have only one source
-    if(iSource!=0)
-      throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
-
-    return source;
-   }
-
-
-   /**
-    * Returns the number of earthquake sources (always "1" here)
-    *
-    * @return integer value specifying the number of earthquake sources
-    */
-   public int getNumSources(){
-     return 1;
-   }
-
-
-    /**
-     *  This returns a list of sources (contains only one here)
-     *
-     * @return ArrayList of Prob Earthquake sources
-     */
-    public ArrayList  getSourceList(){
-      ArrayList v =new ArrayList();
-      v.add(source);
-      return v;
-    }
 
 
   /**
@@ -243,4 +191,18 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
    public void setTimeSpan(TimeSpan time) {
      // do nothing
    }
+
+   // this is temporary for testing purposes
+   public static void main(String[] args) {
+     Point2MultVertSS_FaultERF_List erfList = new Point2MultVertSS_FaultERF_List();
+     erfList.updateForecast();
+     System.out.println("numERFs="+erfList.getNumERFs());
+     System.out.println("wtOfFirstERF="+erfList.getERF_RelativeWeight(0));
+     System.out.println("numSrcsInFirstERF="+erfList.getERF(0).getNumSources());
+     System.out.println("numRupsInFirstSrcOfFirstERF="+erfList.getERF(0).getSource(0).getNumRuptures());
+     System.out.println("probOfFirstRupInFirstSrcOfFirstERF="+erfList.getERF(0).getSource(0).getRupture(0).getProbability());
+     System.out.println(erfList.getERF(0).getSource(0).getRupture(0).getRuptureSurface().getLocation(0,0).getLatitude());
+     System.out.println(erfList.getERF(1).getSource(0).getRupture(0).getRuptureSurface().getLocation(0,0).getLatitude());
+   }
+
 }
