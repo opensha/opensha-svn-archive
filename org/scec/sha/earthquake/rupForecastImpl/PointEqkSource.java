@@ -11,10 +11,19 @@ import java.util.Iterator;
 
 /**
  * <p>Title: PointEqkSource </p>
- * <p>Description: This takes a Location, an IncrementalMagFreqDist (of Poissonian
- * rates), a duration, an aveRake, an aveDip, and creates a ProbEqkRupture for each
- * magnitude with a non-zero rate.  It is assumed that the duration units are the same
- * as those for the rates in the IncrementalMagFreqDist.</p>
+ * <p>Description: This makes a point source based on the following inputs:</p>
+ * <UL>Location
+ * <LI>IncrementalMagFreqDist and duration (or magnitude and probability)
+ * <LI>average rake
+ * <LI>average dip
+ * <LI>minimum magnitude (if a mag.-freq. dist. has been given).
+ * </UL><p>
+ *
+ * If an IncrementalMagFreqDist and duration have been given, then the source is
+ * Poissonian and it is assumed that the duration units are the same
+ * as those for the rates in the IncrementalMagFreqDist.  Also, magnitudes below the minimum
+ * are ignores, as are those with zero rates.  If magnitude/probability have
+ * been given, the source has only one rupture and is not Poissonian.</p>
  *
  * @author Edward Field
  * @date Sep 2, 2002
@@ -23,30 +32,26 @@ import java.util.Iterator;
 
 public class PointEqkSource extends ProbEqkSource implements java.io.Serializable{
 
-
   //for Debug purposes
   private static String  C = new String("PointEqkSource");
+  private static String NAME = "Point Eqk Source";
   private boolean D = false;
 
-  private IncrementalMagFreqDist magFreqDist;
   private Location location;
   private double aveDip=Double.NaN;
   private double aveRake=Double.NaN;
-  private double duration;
-
-  private double minMag = 0.0;
+  private double duration=Double.NaN;
+  private double minMag = Double.NaN;
 
   // to hold the non-zero mags and rates
-  //ArbitrarilyDiscretizedFunc magsAndRates;
-  //vector of Mag and Rates. I am using it over the ArbitrarilyDiscretisedFunc becuase
-  //that class cannot be serialsed as it uses the tree map. So I am using the vector of Mag and Rate
   ArrayList mags, rates;
 
 
   /**
-   * Constructor specifying the location object, the IncrementalMagFreqDist
-   * object, the duration, the average rake, the dip, and the minimum magnitude
-   * to consider from the magFreqDist in making the source (those below are ingored).
+   * Constructor specifying the Location, the IncrementalMagFreqDist, the duration,
+   * the average rake, the dip, and the minimum magnitude to consider from the magFreqDist
+   * in making the source (those below are ingored).  The source is set as Poissonian
+   * with this constructor.
    *
    */
   public PointEqkSource(Location loc, IncrementalMagFreqDist magFreqDist,double duration,
@@ -58,7 +63,9 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
     this.minMag=minMag;
 
     // set the magFreqDist
-    this.setMagFreqDist(magFreqDist);
+    setMagFreqDist(magFreqDist);
+
+    isPoissonian = true;
 
     // make the prob qk rupture
     probEqkRupture = new ProbEqkRupture();
@@ -71,9 +78,9 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
 
 
   /**
-   * Constructor specifying the location object, the IncrementalMagFreqDist
-   * object, the duration, the average rake, and the dip.  This sets minMag to
-   * zero (magnitudes from magFreqDist below are ignored in making the source)
+   * Constructor specifying the location, the IncrementalMagFreqDist, the duration,
+   * the average rake, and the dip.  This sets minMag to zero (magnitudes from magFreqDist
+   * below are ignored in making the source). The source is set as Poissonian with this constructor.
    *
    */
   public PointEqkSource(Location loc, IncrementalMagFreqDist magFreqDist,double duration,
@@ -84,12 +91,36 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
 
 
   /**
-   * This sets the magFreqDist
+   * Constructor specifying the location, a magnitude and probability,
+   * the average rake, and the dip.  The source is set as Poissonian with this
+   * constructor.
+   *
+   */
+  public PointEqkSource(Location loc, double magnitude,double probability,
+                        double aveRake, double aveDip){
+    this.location =loc;
+    this.aveRake=aveRake;
+    this.aveDip=aveDip;
+
+    // add the one magnitude to the mags list
+    mags = new ArrayList();
+    mags.add(new Double(magnitude));
+
+    this.isPoissonian = false;
+
+    // make the prob qk rupture
+    probEqkRupture = new ProbEqkRupture();
+    probEqkRupture.setPointSurface(location, aveDip);
+    probEqkRupture.setAveRake(aveRake);
+    probEqkRupture.setProbability(probability);
+  }
+
+
+  /**
+   * This creates the lists of mags and non-zero rates (above minMag).
    * @param magFreqDist
    */
-  public void setMagFreqDist(IncrementalMagFreqDist magFreqDist) {
-
-    this.magFreqDist=magFreqDist;
+  private void setMagFreqDist(IncrementalMagFreqDist magFreqDist) {
 
     // make list of non-zero rates and mags (if mag >= minMag)
     //magsAndRates = new ArbitrarilyDiscretizedFunc();
@@ -97,7 +128,6 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
     rates = new ArrayList();
     for (int i=0; i<magFreqDist.getNum(); ++i){
         if(magFreqDist.getY(i) > 0 && magFreqDist.getX(i) >= minMag){
-            //magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
           mags.add(new Double(magFreqDist.getX(i)));
           rates.add(new Double(magFreqDist.getY(i)));
         }
@@ -111,7 +141,6 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
    * @return the number of rutures (equals number of mags with non-zero rates)
    */
   public int getNumRuptures() {
-    //return magsAndRates.getNum();
     return mags.size();
   }
 
@@ -125,9 +154,9 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
     //probEqkRupture.setMag(magsAndRates.getX(nthRupture));
     probEqkRupture.setMag(((Double)mags.get(nthRupture)).doubleValue());
 
-    // compute and set the probability
-    double prob = 1 - Math.exp(-duration*((Double)rates.get(nthRupture)).doubleValue());
-    probEqkRupture.setProbability(prob);
+    // set the probability if it's Poissonian (otherwise this was already set)
+    if(isPoissonian)
+      probEqkRupture.setProbability(1 - Math.exp(-duration*((Double)rates.get(nthRupture)).doubleValue()));
 
     // return the ProbEqkRupture
     return probEqkRupture;
@@ -136,7 +165,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
 
   /**
    * This sets the duration used in computing Poisson probabilities.  This assumes
-   * the same units as in the magFreqDist rates.
+   * the same units as in the magFreqDist rates.  This is ignored if the source in non-Poissonian.
    * @param duration
    */
   public void setDuration(double duration) {
@@ -145,20 +174,8 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
 
 
   /**
-   * This sets minimum magnitude to be used from the mag-freq dist (those
-   * below are ignored in making the source).  Default is zero.
-   */
-  public void setMinMag(double minMag) {
-    this.minMag=minMag;
-    // redo the mag & rate vectors:
-    setMagFreqDist(this.magFreqDist);
-  }
-
-
-
-
-  /**
-  * This gets the duration used in computing Poisson probabilities
+  * This gets the duration used in computing Poisson probabilities (it may be NaN
+  * if the source is not Poissonian).
   * @param duration
   */
   public double getDuration() {
@@ -183,10 +200,10 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
     return location;
   }
 
-
   /**
-   * This gets the minimum magnitude considered from the mag-freq dist (those
-   * below are ignored in making the source).
+   * This gets the minimum magnitude to be considered from the mag-freq dist (those
+   * below are ignored in making the source).  This will be NaN if the source is not
+   * Poissonian.
    * @return minMag
    */
   public double getMinMag(){

@@ -177,7 +177,7 @@ public class PointSourceERF extends EqkRupForecast{
        Location loc = new Location( ((Double)srcLatParam.getValue()).doubleValue(),
                                     ((Double)srcLonParam.getValue()).doubleValue(),
                                     ((Double)srcDepthParam.getValue()).doubleValue());
-       source = new PointEqkSource(loc,null,
+       source = new PointEqkSource(loc,
                                           ((Double) magParam.getValue()).doubleValue(),
                                           ((Double) probParam.getValue()).doubleValue(),
                                           ((Double)rakeParam.getValue()).doubleValue(),
