@@ -8,7 +8,7 @@ import org.scec.calc.FractileCurveCalculator;
  * <p>Title: WeightedFuncList</p>
  * <p>Description: This class stores the epistemic lists with their uncertainties.
  * This class provides the collective info. for whole list. One can give a
- * arbitrary list for which percentiles have to be calculated.
+ * arbitrary list for which fractiles have to be calculated.
  * </p>
  * @author : Nitin Gupta
  * @created September 9, 2004.
@@ -23,8 +23,8 @@ public class WeightedFuncList {
   //Discretized list of functions for individual curves
   private DiscretizedFuncList functionList = new DiscretizedFuncList();
 
-  //Discretized list of function for each percentile calculated
-  private DiscretizedFuncList percentileList = new DiscretizedFuncList();
+  //Discretized list of function for each fractile calculated
+  private DiscretizedFuncList fractileList = new DiscretizedFuncList();
 
   //Discrrtized function to store the Mean function
   private ArbitrarilyDiscretizedFunc meanFunction;
@@ -37,13 +37,13 @@ public class WeightedFuncList {
   private FractileCurveCalculator fractileCalc;
 
   /**
-   * list of fractions at which we need to calculate the percentiles
+   * list of fractions at which we need to calculate the fractiles
    */
   private ArrayList fractionList = new ArrayList();
 
 
-  //checks if mean percentile was calculated or not.
-  private boolean isMeanPercentileCalculated = false;
+  //checks if mean fractile was calculated or not.
+  private boolean isMeanFractileCalculated = false;
 
   //weighted function info
   private String info=null;
@@ -73,25 +73,45 @@ public class WeightedFuncList {
       DiscretizedFuncAPI function = funcList.get(i);
       if(isFuncAllowed(function))
         functionList.add(function);
+      else
+        throw new RuntimeException("Function not allowed");
     }
-    //if person has already calculated the percentiles and then adding more functions to the
-    //existing list then we need to calculate the percentiles again and remove the existing
-    //list of percentiles. We recompute percentiles for all the functions in the list if
+    //if person has already calculated the fractiles and then adding more functions to the
+    //existing list then we need to calculate the fractiles again and remove the existing
+    //list of fractiles. We recompute fractiles for all the functions in the list if
     //any new function is added.
-    if(percentileList.size() >0){
-      percentileList.clear();
-      addPercentiles(fractionList);
+    if(fractileList.size() >0){
+      fractileList.clear();
+      addFractiles(fractionList);
     }
     //if mean has already been calculated for the existing function list then on addition of
-    //new function will result in automatic re-computation mean percentile.
-    if(isMeanPercentileCalculated)
+    //new function will result in automatic re-computation mean fractile.
+    if(isMeanFractileCalculated)
       addMean();
+    //creating the info string for the weighted function list
+    setInfoForWeightedFunctionList();
+  }
 
+  /**
+   * this function sets the info in the Discretized Weighted Function List
+   */
+  private void setInfoForWeightedFunctionList(){
+    String funcListInfo = "Total number of weighted function list are: "+functionList.size()+
+                          " with following relative weights: \n";
+    for(int i=0;i<relativeWts.size();++i)
+      funcListInfo +=(Double)relativeWts.get(i)+", ";
+
+    funcListInfo = funcListInfo.substring(0,funcListInfo.length()-2)+"\n";
+    functionList.setInfo(funcListInfo);
   }
 
   /**
    * Add Discretizedfunction and relative weight to the existing list of discretized functions
    * and relative wt list.
+   *
+   * Note: If one has weighted list to be added, the rather adding one weighted function at
+   * a time , use the function addList() function to add the whole list, which will expediate
+   * the computation time.
    * @param relWt
    * @param func
    */
@@ -99,26 +119,31 @@ public class WeightedFuncList {
     relativeWts.add(new Double(relWt));
     if(isFuncAllowed(func))
       functionList.add(func);
+    else
+      throw new RuntimeException("Function not allowed");
 
-    //if person has already calculated the percentiles and then adding more functions to the
-    //existing list then we need to calculate the percentiles again and remove the existing
-    //list of percentiles. We recompute percentiles for all the functions in the list if
+    //if person has already calculated the fractiles and then adding more functions to the
+    //existing list then we need to calculate the fractiles again and remove the existing
+    //list of fractiles. We recompute fractiles for all the functions in the list if
     //any new function is added.
-    if(percentileList.size() >0){
-      percentileList.clear();
-      addPercentiles(fractionList);
+    if(fractileList.size() >0){
+      fractileList.clear();
+      addFractiles(fractionList);
     }
     //if mean has already been calculated for the existing function list then on addition of
-    //new function will result in automatic re-computation mean percentile.
-    if(isMeanPercentileCalculated)
+    //new function will result in automatic re-computation mean fractile.
+    if(isMeanFractileCalculated)
       addMean();
+    //creating the info string for the weighted function list
+    setInfoForWeightedFunctionList();
+
   }
 
 
 
   /**
    * Makes sure that each function has equal number of numPoints otherwise it will
-   * return false and won't add the function to the list.
+   * return false
    * @param function
    * @return
    */
@@ -147,52 +172,52 @@ public class WeightedFuncList {
 
 
   /**
-   * This function saves the fraction for which percentile has to be computed.
-   * It then adds this calculated percentile in a DiscretizedFunctionList
+   * This function saves the fraction for which fractile has to be computed.
+   * It then adds this calculated fractile in a DiscretizedFunctionList
    * @param fraction
    */
-  public void addPercentile(double fraction){
+  public void addFractile(double fraction){
     fractionList.add(new Double(fraction));
     setFractileCurveCalcuations();
-    percentileList.add(fractileCalc.getFractile(fraction));
+    fractileList.add(fractileCalc.getFractile(fraction));
   }
 
   /**
-   * This function saves the list of fraction list for which percentile needed to be calculated.
-   * It then adds this calculated percentiles in a DiscretizedFunctionList.
+   * This function saves the list of fraction list for which fractile needed to be calculated.
+   * It then adds this calculated fractiles in a DiscretizedFunctionList.
    * @param fractionList: List of fraction (Doubles) for which we need to compute
-   * percentile.
+   * fractile.
    */
-  public void addPercentiles(ArrayList list){
+  public void addFractiles(ArrayList list){
     int size  = list.size();
     setFractileCurveCalcuations();
     for(int i=0;i<size;++i){
       fractionList.add(list.get(i));
       double fraction = ((Double)list.get(i)).doubleValue();
-      percentileList.add(fractileCalc.getFractile(fraction));
+      fractileList.add(fractileCalc.getFractile(fraction));
     }
 
-    //creating and setting the info for the percentileList
-    String percentileInfo = "Total Number of percentile calculated: "+percentileList.size()+" for "+
+    //creating and setting the info for the fractileList
+    String fractileInfo = "Total Number of fractile calculated: "+fractileList.size()+" for "+
                             "following fractions: \n";
-    for(int i=0;i<fractionList.size();++i){
-      percentileInfo +=(Double)fractionList.get(i)+", ";
-    }
-    percentileInfo = percentileInfo.substring(0,percentileInfo.length()-2)+"\n";
-    percentileList.setInfo("percentileInfo");
+    for(int i=0;i<fractionList.size();++i)
+      fractileInfo +=(Double)fractionList.get(i)+", ";
+
+    fractileInfo = fractileInfo.substring(0,fractileInfo.length()-2)+"\n";
+    fractileList.setInfo(fractileInfo);
   }
 
 
 
   /**
-   * Calculates mean percentile
-   * @returns the mean percentile from the list of functions.
+   * Calculates mean fractile
+   * @returns the mean fractile from the list of functions.
    */
   public void addMean(){
     setFractileCurveCalcuations();
     meanFunction = fractileCalc.getMeanCurve();
-    isMeanPercentileCalculated = true;
-    String meanInfo = "Mean percentile calculated \n";
+    isMeanFractileCalculated = true;
+    String meanInfo = "Mean fractile calculated \n";
   }
 
 
@@ -206,22 +231,22 @@ public class WeightedFuncList {
   }
 
   /**
-   * This function returns the list of function for which percentiles were computed.
+   * This function returns the list of function for which fractiles were computed.
    * @return
    */
-  public DiscretizedFuncList getPercentileList(){
-    if(percentileList.size() >0)
-      return percentileList;
+  public DiscretizedFuncList getFractileList(){
+    if(fractileList.size() >0)
+      return fractileList;
     return null;
   }
 
 
   /**
    *
-   * @returns the mean percentile function if it was computed
+   * @returns the mean fractile function if it was computed
    */
   public DiscretizedFuncAPI getMean(){
-    if(isMeanPercentileCalculated)
+    if(isMeanFractileCalculated)
       return meanFunction;
     return null;
   }
@@ -245,34 +270,36 @@ public class WeightedFuncList {
 
   /**
    *
-   * @returns total number of functions for which percentile was computed
+   * @returns total number of functions for which fractile was computed
    * This number return does not take into account if mean fractile was calculated.
    */
   public int getNumFractileFunctions(){
-    return percentileList.size();
+    return fractileList.size();
   }
 
 
   /**
    *
-   * It clears all the fraction list for which percentiles were computed.
-   * It also clears teh percentile list.
+   * It clears all the fraction list for which fractiles were computed.
+   * It also clears teh fractile list.
    *
    * Once this function has been called, user has to give a new list of fraction
-   * for which percentiles are to be computed.
+   * for which fractiles are to be computed.
    */
-  public void removeAllPercentiles(){
+  public void removeAllFractiles(){
     fractionList.clear();
-    percentileList.clear();
+    fractileList.clear();
   }
 
 
   /**
-   * Remove the mean percentile and sets it to null.
+   * Remove the mean fractile and sets it to null.
    */
   public void removeMean(){
-    if(isMeanPercentileCalculated)
+    if(isMeanFractileCalculated){
       meanFunction= null;
+      isMeanFractileCalculated = false;
+    }
   }
 
   /**
@@ -289,8 +316,8 @@ public class WeightedFuncList {
    *
    * @returns boolean. true if mean curve was calculated and false if not.
    */
-  public boolean isMeanFractileFunctionCalculated(){
-    return isMeanPercentileCalculated;
+  public boolean isMeanFunctionCalculated(){
+    return isMeanFractileCalculated;
   }
 
   /**
