@@ -94,15 +94,10 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
   // adjustable params for each forecast
   protected ParameterList adjustableParams = null;
 
+  //timespan object
   private TimeSpan timeSpan;
 
-  // adjustable parameter primitives
-  private int numIterations;
-  private double rupOffset;
-  private double deltaMag;
-  private double gridSpacing;
-  private String backSeis;
-  private String grTail;
+
 
   public void WG02_ERF_Epistemic_List() {
 
@@ -253,7 +248,7 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
    * Get the region for which this forecast is applicable
    * @return : Geographic region object specifying the applicable region of forecast
    */
- public GeographicRegion getApplicableRegion() {
+  public GeographicRegion getApplicableRegion() {
    return null;
    }
 
@@ -287,18 +282,19 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
     * @param param :ParameterList param
     * @returns the object for the ERF_List
     */
-   public ERF_ListAPI getERF_ListAPI(TimeSpan time, ParameterList param){
+   public ERF_ListAPI getERF_ListAPI(TimeSpan time, ParameterList params){
      System.out.println("Inside the getERF_List function");
-     numIterations = ((Integer)adjustableParams.getParameter(this.NUM_REALIZATIONS_PARAM_NAME).getValue()).intValue();
-     rupOffset = ((Double)adjustableParams.getParameter(this.RUP_OFFSET_PARAM_NAME).getValue()).doubleValue();
-     deltaMag = ((Double)adjustableParams.getParameter(this.DELTA_MAG_PARAM_NAME).getValue()).doubleValue();
-     gridSpacing = ((Double)adjustableParams.getParameter(this.GRID_SPACING_PARAM_NAME).getValue()).doubleValue();
-     backSeis = (String)adjustableParams.getParameter(this.BACK_SEIS_NAME).getValue();
-     grTail = (String)adjustableParams.getParameter(this.GR_TAIL_NAME).getValue();
+
+     int numIterations = ((Integer)params.getParameter(this.NUM_REALIZATIONS_PARAM_NAME).getValue()).intValue();
+     double rupOffset = ((Double)params.getParameter(this.RUP_OFFSET_PARAM_NAME).getValue()).doubleValue();
+     double deltaMag = ((Double)params.getParameter(this.DELTA_MAG_PARAM_NAME).getValue()).doubleValue();
+     double gridSpacing = ((Double)params.getParameter(this.GRID_SPACING_PARAM_NAME).getValue()).doubleValue();
+     String backSeis = (String)params.getParameter(this.BACK_SEIS_NAME).getValue();
+     String grTail = (String)params.getParameter(this.GR_TAIL_NAME).getValue();
      System.out.println("numIter:"+numIterations+";rupOffset:"+rupOffset+";deltaMag:"+deltaMag+";gridSpacing:"+";backSies:"+backSeis+";grTail:"+grTail);
      WG02_ERF_ListObject wg02_ERF_List= new WG02_ERF_ListObject(this.inputFileLines,this.iterationLineNumbers,
-                                    this.numIterations,this.rupOffset,this.deltaMag,this.gridSpacing,
-                                    this.backSeis,this.grTail);
+                                    numIterations,rupOffset,deltaMag,gridSpacing,
+                                    backSeis,grTail);
      wg02_ERF_List.setTimeSpan(time);
      return wg02_ERF_List;
    }
