@@ -63,6 +63,7 @@ public class GriddedFaultPlotter extends ArrayList{
     final public static int LINES = 2;
     final public static int SHAPES_AND_LINES = 3;
     final public static int SUB_SHAPES = 4;
+    final public static int SHAPES_LINES_AND_SHAPES=5;
 
     private int plotType = 1;
 
@@ -163,7 +164,6 @@ public class GriddedFaultPlotter extends ArrayList{
         org.scec.sha.fault.demo.PSHAGridXYPlot plot = new org.scec.sha.fault.demo.PSHAGridXYPlot(functions, xAxis, yAxis);
         //org.scec.gui.PSHAXYPlot plot = new org.scec.gui.PSHAXYPlot(functions, xAxis, yAxis,false,false);
 
-
         /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
            being generated  in the Plot.java class constructor*/
        //Smooth Colors transition from Red to Blue
@@ -213,29 +213,36 @@ public class GriddedFaultPlotter extends ArrayList{
            /* To set the rainbow colors based on the depth of the fault, this also
               overrides the colors being generated  in the Plot.java class constructor */
            //Smooth Colors transition from Red to Blue
-        int totalSeries=dataSet.getSeriesCount();
-        Paint[] seriesPaint = new Paint[totalSeries+2];
-        int count = (int)(Math.ceil(255.0/totalSeries));
-        for(int i=255,j=0;i>=0;i-=count,j++) {
-            seriesPaint[j]=new Color(i,0,255-i);
-        }
+            int totalSeries=dataSet.getSeriesCount();
+            Paint[] seriesPaint = new Paint[totalSeries+2];
+            int count = (int)(Math.ceil(255.0/totalSeries));
+            for(int i=255,j=0;i>=0;i-=count,j++) {
+              seriesPaint[j]=new Color(i,0,255-i);
+            }
 
-        plot.setSeriesPaint(seriesPaint);
-        plot.setBackgroundPaint( plotColor );
+            plot.setSeriesPaint(seriesPaint);
+            plot.setBackgroundPaint( plotColor );
 
-        org.scec.sha.fault.demo.PSHAGridXYPlot plot1 = new org.scec.sha.fault.demo.PSHAGridXYPlot(dataSet, null, null);
-        plot1.setSeriesPaint(seriesPaint);
-        plot1.setBackgroundPaint( plotColor );
-        if( plotType == SUB_SHAPES){
-           if( counter == last ) {
-               plot1.setXYItemRenderer( SUB_SHAPE_RENDERER );
-               plot1.setReturnNoLabels(true);
-           }
-           else plot1.setXYItemRenderer( SHAPE_RENDERER );
-       }
-       else setRenderer(plot1);
+            org.scec.sha.fault.demo.PSHAGridXYPlot plot1 = new org.scec.sha.fault.demo.PSHAGridXYPlot(dataSet, null, null);
+            plot1.setSeriesPaint(seriesPaint);
+            plot1.setBackgroundPaint( plotColor );
 
-       plot.add(plot1);
+
+            if( plotType == SUB_SHAPES){
+              if( counter == last ) {
+                plot1.setXYItemRenderer( SUB_SHAPE_RENDERER );
+                plot1.setReturnNoLabels(true);
+              }
+              else plot1.setXYItemRenderer( SHAPE_RENDERER );
+            }else if(plotType==SHAPES_LINES_AND_SHAPES) {
+              if( counter == last )
+                plot1.setXYItemRenderer(SHAPE_RENDERER);
+              else
+                plot1.setXYItemRenderer(SHAPES_AND_LINES_RENDERER);
+            }
+            else setRenderer(plot1);
+
+            plot.add(plot1);
 
      }
 

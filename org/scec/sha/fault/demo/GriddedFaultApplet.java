@@ -426,6 +426,7 @@ public class GriddedFaultApplet
                     }
                     else if ( selectable.equals( subAndSurfaceRadioButton ) ) {
                         faultTracePlot = BOTH_SUB_SURFACE_PLOT_TYPE;
+                        rect.enable();
                     }
                     else if ( selectable.equals( this.threeDRadioButton) ) {
                         faultTracePlot = THREE_D_PLOT_TYPE;
@@ -862,7 +863,7 @@ public class GriddedFaultApplet
 
 
                 plotter.clear();
-                plotter.setPlotType( GriddedFaultPlotter.SHAPES);
+                plotter.setPlotType( GriddedFaultPlotter.SHAPES_LINES_AND_SHAPES);
                 plotter.add( new FaultTraceXYDataSet(faultData1.getFaultTrace()) );
                 plotter.add(functions3);
                 addGraphPanel();
