@@ -29,7 +29,7 @@ import org.scec.sha.fault.FaultTrace;
 public class PuenteHillsScenarioControlPanel {
 
   //for debugging
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
 
   private EqkRupSelectorGuiBean erfGuiBean;

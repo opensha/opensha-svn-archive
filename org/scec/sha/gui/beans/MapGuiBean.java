@@ -105,8 +105,12 @@ public class MapGuiBean extends GMT_MapGuiBean {
                       XYZ_DataSetAPI pga_xyzVals, XYZ_DataSetAPI pgv_pgvVals,
                       EqkRupture eqkRupture,String imt,String metadata){
     String[] imgNames = null;
+    boolean hazusFileGeneratorCheck = ((Boolean)gmtMap.getAdjustableParamsList().
+                                       getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).getValue()).booleanValue();
+    if(!hazusFileGeneratorCheck)
+      gmtMap.getAdjustableParamsList().getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).setValue(new Boolean(true));
     //boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
-    gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
+    //gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
     //creating the Metadata file in the GMT_MapGenerator
     gmtMap.createMapInfoFile(metadata);
     //if(gmtServerCheck){
@@ -135,6 +139,9 @@ public class MapGuiBean extends GMT_MapGuiBean {
       //adding the image to the Panel and returning that to the applet
       ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,true);
     }
+    if(!hazusFileGeneratorCheck)
+      gmtMap.getAdjustableParamsList().getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).setValue(new Boolean(false));
+    //gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(gmtServerCheck));
   }
 
 }

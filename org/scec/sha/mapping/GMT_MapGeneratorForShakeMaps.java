@@ -62,7 +62,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
   StringParameter rupPlotParam;
 
   //creating the parameter to generate the Hazus Shape File
-  private final static String HAZUS_SHAPE_PARAM_NAME = "Generate Hazus Shape Files";
+  public final static String HAZUS_SHAPE_PARAM_NAME = "Generate Hazus Shape Files";
   private final static String HAZUS_SHAPE_PARAM_INFO = "This will generate the hazus shape files";
   BooleanParameter hazusShapeParam;
 
