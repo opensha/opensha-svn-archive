@@ -326,6 +326,7 @@ public class GraphPanel extends JPanel {
             legend = new String(meanInfo+SystemPropertiesUtils.getSystemLineSeparator());
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
+            ++j;
           }
         }
         else{ //if element in the list are individual function then get their info and show as legend
