@@ -289,7 +289,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
 // tempCumRate = 0;
 
-//    makeFaultSources("test12",0.3,"test12",0.4);
+//    makeFaultSources("creepflt",1.0,null,0.0);
 
 /*
     makeFaultSources("ca-a-other-fixed-char", 1.0,null,0);
@@ -334,11 +334,11 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     makeFaultSources("ca-wg99-dist-float", 1.0,null,0);
     makeFaultSources("creepflt", 1.0,null,0);
 
+
+    String tempName = (String)faultFileParam.getValue();
+    makeFaultSources(tempName,1.0,null,0.0);
+
 */
-//    String tempName = (String)faultFileParam.getValue();
-//    makeFaultSources(tempName,1.0,null,0.0);
-
-
     makeFaultSources("ca-a-other-fixed-char", 1.0, null, 1.0);
     makeFaultSources("ca-a-other-norm-char", 1.0, null, 1.0);
     makeFaultSources("ca-amod1-char", 0.5, null, 1.0);
@@ -364,7 +364,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     makeFaultSources("ca-wg99-dist-float", 1.0, null, 1.0);
     makeFaultSources("creepflt", 1.0, null, 1.0);
 
-/**/
+
 /*
     makeFaultSources("ca-a-other-fixed-char", 1.0, null, 1.0);
     makeFaultSources("ca-a-other-norm-char", 1.0, null, 1.0);
@@ -929,7 +929,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
       }
 
 // tempCumRate += totalMagFreqDist.getCumRate(0);
-
+//System.out.println("MoRate="+totalMagFreqDist.getTotalMomentRate());
       // MAKE THE SOURCES (adding to the appropriate list)
       if(magFreqDistType.equals(CHAR_MAG_FREQ_DIST)) {
         SimpleFaultRuptureSource frs = new SimpleFaultRuptureSource(totalMagFreqDist,

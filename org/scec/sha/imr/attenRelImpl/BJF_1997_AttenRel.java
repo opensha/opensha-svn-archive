@@ -302,14 +302,8 @@ public class BJF_1997_AttenRel
             coeff.b5 * ( Math.log( Math.pow( ( distanceJB * distanceJB  + coeff.h * coeff.h  ), 0.5 ) ) ) +
             coeff.bv * ( Math.log( vs30 / coeff.va ) );
 
-        // No longer part of out framework. Always deal with log space
-        // Convert back to normal value
-        // mean = Math.exp(mean);
-
-        /* convert to PSV for comparison with their figures (only for tests!):
-        if ( coeff.period != 0.0 )
-            mean /= (6.28318 /coeff.period);
-        */
+// this was needed to mach the fankel coefficients
+//if(distanceJB > 210.0) mean = -10;
 
         // return the result
         return (mean);
