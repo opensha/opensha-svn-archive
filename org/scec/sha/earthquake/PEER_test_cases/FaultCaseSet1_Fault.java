@@ -7,15 +7,17 @@ import java.util.Iterator;
 
 import org.scec.data.TimeSpan;
 import org.scec.data.Location;
+
 import org.scec.param.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_CharEqkSource;
+import org.scec.sha.magdist.*;
 
 
 /**
- * <p>Title: Fault1EqkRupForecast</p>
+ * <p>Title: FaultCaseSet1_Fault</p>
  * <p>Description: Fault 1 Equake rupture forecast. The Peer Group Test cases </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -23,14 +25,13 @@ import org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_CharEqkSource
  * @version 1.0
  */
 
-public class Fault1EqkRupForecast {
+public class FaultCaseSet1_Fault extends EqkRupForecast{
 
   /**
    * @todo variables
    */
-
   //for Debug purposes
-  private static String  C = new String("Fault1EqkRupForecast");
+  private static String  C = new String("FaultCaseTest1_Fault");
   private boolean D = false;
 
   /**
@@ -41,6 +42,27 @@ public class Fault1EqkRupForecast {
 
   // save the source. Fault1 has only 1 source
   private Frankel96_CharEqkSource source;
+
+  //Param Name
+  private final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
+  private final static String TRUNCTYPE_PARAM_NAME =  "Trunc-Type";
+  private final static String TRUNCLEVEL_PARAM_NAME =  "Trunc-Level";
+  private final static String GRID_PARAM_NAME =  "Grid Spacing (km)";
+  private final static String OFFSET_PARAM_NAME =  "Offset (km)";
+  private final static String MAG_DIST_PARAM_NAME = "Mag Dist";
+
+  // dip name
+  private final static String DIP_PARAM_NAME = "Dip";
+
+  // default grid spacing is 1km
+  private Double DEFAULT_GRID_VAL = new Double(1);
+  //default rupture offset is 1km
+  private Double DEFAULT_OFFSET_VAL = new Double(1);
+
+  // values for Mag length sigma
+  private Double SIGMA_PARAM_MIN = new Double(0);
+  private Double SIGMA_PARAM_MAX = new Double(1);
+  private Double DEFAULT_SIGMA_VAL = new Double(0.5);
 
   // fault name
   private String FAULT_NAME = new String("Fault 1");
@@ -54,6 +76,34 @@ public class Fault1EqkRupForecast {
   private double RATE = 0.0395;
   private double DIP = 90; // dip in degrees
 
+  // add the grid spacing field
+  DoubleParameter gridParam=new DoubleParameter(this.GRID_PARAM_NAME,this.DEFAULT_GRID_VAL);
+
+
+  // add the rupOffset spacing field
+  DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME, DEFAULT_OFFSET_VAL);
+
+
+  // add sigma for maglength(0-1)
+  DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
+                         SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
+    // lengthSigmaParam.addParameterChangeFailListener(applet);
+
+
+  //add the timespan parameter
+  DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME);
+
+
+ //   eqkSourceEditor.setParameterInvisible(this.GRID_PARAM_NAME, true);
+   //   eqkSourceEditor.setParameterInvisible(this.OFFSET_PARAM_NAME, true);
+    //  eqkSourceEditor.setParameterInvisible(this.SIGMA_PARAM_NAME, true);
+     // eqkSourceEditor.setParameterInvisible(this.DIP_PARAM_NAME, true);
+
+     //adding the supported MagDists
+      Vector supportedMagDists=new Vector();
+
+
+      MagFreqDistParameter magDistParam ;
 
 
   /**
@@ -61,9 +111,22 @@ public class Fault1EqkRupForecast {
    *
    * No argument constructor
    */
-  public Fault1EqkRupForecast() {
+  public FaultCaseSet1_Fault() {
 
     /* Now make the source in Fault 1 */
+    adjustableParams.addParameter(this.gridParam);
+    adjustableParams.addParameter(this.offsetParam);
+    adjustableParams.addParameter(this.lengthSigmaParam);
+    adjustableParams.addParameter(this.dipParam);
+
+    // adding the supported MagDistclasses
+    supportedMagDists.add(GaussianMagFreqDist.NAME);
+    supportedMagDists.add(SingleMagFreqDist.NAME);
+    supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
+    supportedMagDists.add(YC_1985_CharMagFreqDist.NAME);
+    magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
+
+    adjustableParams.addParameter(this.magDistParam);
 
     // first build the fault trace
     FaultTrace faultTrace= new FaultTrace(FAULT_NAME);
@@ -80,7 +143,6 @@ public class Fault1EqkRupForecast {
     GriddedSurfaceAPI surface = factory.getGriddedSurface();
     source = new  Frankel96_CharEqkSource( RAKE , MAG, RATE,
                                                       (EvenlyGriddedSurface)surface);
-
   }
 
 
@@ -239,5 +301,7 @@ public class Fault1EqkRupForecast {
    public String getName(){
      return C;
    }
+
+
 
 }

@@ -10,6 +10,7 @@ import org.scec.param.editor.*;
 import org.scec.param.*;
 import org.scec.exceptions.*;
 import org.scec.param.event.*;
+import org.scec.gui.LabeledBoxPanel;
 
 /**
  *  <b>Title:</b> MagFreqDistParameterEditor<p>
@@ -24,7 +25,7 @@ import org.scec.param.event.*;
  * @version    1.0
  */
 
-public class MagFreqDistParameterEditor extends ParameterListEditor
+public class MagFreqDistParameterEditor extends ParameterEditor
     implements ParameterChangeListener, ActionListener {
 
     /** Class name for debugging. */
@@ -35,7 +36,7 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
 
 
 
-  protected final static String DISTRIBUTION_NAME="Choose Distribution";
+    protected final static String DISTRIBUTION_NAME="Choose Distribution";
 
 
    /**
@@ -47,8 +48,19 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
     /**
      *  Search path for finding editors in non-default packages.
      */
+    private String[] searchPaths;
     final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
+
+    /**
+     * Paramter List for holding all parameters
+     */
+    ParameterList parameterList;
+
+    /**
+     * ParameterListEditor for holding parameters
+     */
+    ParameterListEditor editor;
 
     /**
      * Params string value
@@ -120,8 +132,13 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
     protected final static String SummedMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SummedMagFreqDist";
 
 
+    JButton button = new JButton("Update MagDist");
 
-  /**
+    public MagFreqDistParameterEditor()  {
+      button.addActionListener(this);
+    }
+
+    /**
      *  Constructor for the MagDistGuiBean object. This constructor is passed in a
      *  MagDist class name, a name for the Gui bean, and the main applet. From this
      *  info. the MagFreqDist class is created at run time along with the paramater
@@ -135,29 +152,45 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
      * @param  applet     The main applet application that will use these beans
      *      to swap in and out different Mag Dist's.
      */
-    public MagFreqDistParameterEditor(MagFreqDistParameter param)  {
+    public void setParameter(ParameterAPI param)  {
         //super();
-        // Starting
+       // Starting
         String S = C + ": Constructor(): ";
         if ( D ) System.out.println( S + "Starting:" );
+        // remove the previous editor
+        this.removeAll();
+        this.magDistParam = (MagFreqDistParameter) param;
+
+        // make the params editor
+        initParamListAndEditor();
+        editor = new ParameterListEditor(parameterList,searchPaths);
+        editor.setTitle(MAG_DIST_TITLE);
+        this.add(editor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
+              , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+        this.add(button,  new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+                      , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+               // Update which parameters should be invisible
+        synchRequiredVisibleParameters();
+        // All done
+        if ( D ) System.out.println( S + "Ending:" );
+    }
+
+
+    /**
+     * Main GUI Initialization point. This block of code is updated by JBuilder
+     * when using it's GUI Editor.
+     */
+    protected void jbInit() throws Exception {
+
+        // Main component
 
         this.setLayout( new GridBagLayout());
 
-        this.magDistParam = param;
 
         // Build package names search path
        searchPaths = new String[1];
        searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-
-        // make the params editor
-        initParamListAndEditor();
-
-
-        // Update which parameters should be invisible
-        synchRequiredVisibleParameters();
-
-        // All done
-        if ( D ) System.out.println( S + "Ending:" );
     }
 
     /**
@@ -168,37 +201,6 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
     public void actionPerformed(ActionEvent ae ) {
       this.getChoosenFunction();
     }
-    /**
-     * this function is called when focus is lost from the panel
-     * On focus lost, we need to update the mag dist
-     *
-     * @param fe
-     */
-    /*public void focusLost( FocusEvent fe) {
-       if (D) System.out.println(this.C+"Focus lost event");
-       boolean focusInPanel=false;
-       // make this as focus lost listener for all components in this editor
-       Component params[] = editorPanel.getComponents();
-       int size=params.length;
-       for(int i=0; i<size && !focusInPanel; ++i)
-            focusInPanel = params[i].hasFocus();
-
-       // if we loose focus from this panel, calculate Mag Dist
-       if(!focusInPanel) {
-         if(D) System.out.println(this.C+" " +" calculating magdist again");
-         this.getChoosenFunction();
-       }
-    }*/
-
-
-    /**
-     * this function is called when focus is gained
-     *
-     * @param fe
-     */
-    /*public void focusGained( FocusEvent fe) {
-
-    }*/
 
 
     /**
@@ -214,13 +216,14 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
         String S = C + ": initControlsParamListAndEditor(): ";
         if ( D ) System.out.println( S + "Starting:" );
 
-         /**
+        /**
          * Adding the distribution name to the ControlEditorList.
          */
         parameterList = new ParameterList();
         StringParameter distributionName =new StringParameter(DISTRIBUTION_NAME,
             this.magDistParam.getAllowedMagDists(),
             (String)this.magDistParam.getAllowedMagDists().get(0));
+
         parameterList.addParameter(distributionName);
         distributionName.addParameterChangeListener(this);
 
@@ -317,23 +320,9 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
          parameterList.addParameter(deltaMagChar);
          parameterList.addParameter(magPrime);
          parameterList.addParameter(deltaMagPrime);
-         setTitle(MAG_DIST_TITLE);
+
          //parameterList.addParameter(yc_bValue);
          //parameterList.addParameter(yc_toMoRate);
-
-
-         addParameters();
-
-       /*  // make this as focus lost listener for all components in this editor
-         Component params[]=this.editorPanel.getComponents();
-         int size=params.length;
-         for(int i=0; i<size ; ++i) {
-           Component textParams[] = ((ParameterEditor)params[i]).getComponents();
-           int textParamSize = textParams.length;
-           if(D) System.out.println(C+"size: "+textParamSize);
-           for(int j=0; j < textParamSize; ++j)
-             textParams[j].addFocusListener(this);
-         }*/
 
         // All done
         if ( D )
@@ -359,13 +348,13 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
         // Turn off all parameters - start fresh, then make visible as required below
         ListIterator it = parameterList.getParametersIterator();
         while ( it.hasNext() )
-          setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false);
+          editor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false);
 
         // make the min, max, num and select dist to be visible
-        setParameterInvisible(this.MIN,true);
-        setParameterInvisible(this.MAX,true);
-        setParameterInvisible(this.NUM,true);
-        setParameterInvisible(this.DISTRIBUTION_NAME,true);
+        editor.setParameterInvisible(this.MIN,true);
+        editor.setParameterInvisible(this.MAX,true);
+        editor.setParameterInvisible(this.NUM,true);
+        editor.setParameterInvisible(this.DISTRIBUTION_NAME,true);
 
         /**
          * if Single Mag Freq dist is selected
@@ -404,25 +393,25 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
      */
     private void setSingleDistParamsVisible() {
 
-      setParameterInvisible(PARAMS_TO_SET, true);
+      editor.setParameterInvisible(PARAMS_TO_SET, true);
       String paramToSet=parameterList.getParameter(PARAMS_TO_SET).getValue().toString();
       // if Rate and Mag is selected
       if(paramToSet.equalsIgnoreCase(RATE_AND_MAG)) {
-        setParameterInvisible(RATE, true);
-        setParameterInvisible(MAG, true);
-        setParameterInvisible(MO_RATE, false);
+        editor.setParameterInvisible(RATE, true);
+        editor.setParameterInvisible(MAG, true);
+        editor.setParameterInvisible(MO_RATE, false);
       }
       // if Mag and Mo Rate is selected
       if(paramToSet.equalsIgnoreCase(MAG_AND_MORATE)) {
-        setParameterInvisible(RATE, false);
-        setParameterInvisible(MAG, true);
-        setParameterInvisible(MO_RATE, true);
+        editor.setParameterInvisible(RATE, false);
+        editor.setParameterInvisible(MAG, true);
+        editor.setParameterInvisible(MO_RATE, true);
       }
       // if Rate and Mo Rate is selected
       if(paramToSet.equalsIgnoreCase(RATE_AND_MORATE)) {
-        setParameterInvisible(RATE, true);
-        setParameterInvisible(MAG, false);
-        setParameterInvisible(MO_RATE, true);
+        editor.setParameterInvisible(RATE, true);
+        editor.setParameterInvisible(MAG, false);
+        editor.setParameterInvisible(MO_RATE, true);
       }
   }
 
@@ -431,18 +420,18 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
      */
     private void setGaussianDistParamsVisible() {
       // set all the parameters visible
-      setParameterInvisible(MEAN, true);
-      setParameterInvisible(STD_DEV, true);
-      setParameterInvisible(GAUSSIAN_TO_MORATE, true);
-      setParameterInvisible(TRUNCATION_REQ, true);
+      editor.setParameterInvisible(MEAN, true);
+      editor.setParameterInvisible(STD_DEV, true);
+      editor.setParameterInvisible(GAUSSIAN_TO_MORATE, true);
+      editor.setParameterInvisible(TRUNCATION_REQ, true);
 
       String truncReq=parameterList.getParameter(TRUNCATION_REQ).getValue().toString();
 
       // make the truncation level visible only if truncation req is NOT NONE
       if(truncReq.equalsIgnoreCase(NONE))
-      setParameterInvisible(TRUNCATE_NUM_OF_STD_DEV,false);
+      editor.setParameterInvisible(TRUNCATE_NUM_OF_STD_DEV,false);
       else
-        setParameterInvisible(TRUNCATE_NUM_OF_STD_DEV,true);
+        editor.setParameterInvisible(TRUNCATE_NUM_OF_STD_DEV,true);
 
     }
 
@@ -451,35 +440,35 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
      */
     private void setGR_DistParamsVisible() {
 
-      setParameterInvisible(SET_ALL_PARAMS_BUT, true);
-      setParameterInvisible(this.GR_MAG_LOWER, true);
-      setParameterInvisible(this.GR_BVALUE, true);
+      editor.setParameterInvisible(SET_ALL_PARAMS_BUT, true);
+      editor.setParameterInvisible(this.GR_MAG_LOWER, true);
+      editor.setParameterInvisible(this.GR_BVALUE, true);
 
       // now make the params visible/invisible based on params desired to be set by user
       String paramToSet=parameterList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
 
       // set all paramerts except total Mo rate
       if(paramToSet.equalsIgnoreCase(GR_TO_MORATE)) {
-        setParameterInvisible(TO_CUM_RATE,true);
-        setParameterInvisible(GR_MAG_UPPER,true);
-        setParameterInvisible(GR_TO_MORATE,false);
-        setParameterInvisible(FIX,false);
+        editor.setParameterInvisible(TO_CUM_RATE,true);
+        editor.setParameterInvisible(GR_MAG_UPPER,true);
+        editor.setParameterInvisible(GR_TO_MORATE,false);
+        editor.setParameterInvisible(FIX,false);
       }
 
       // set all parameters except cumulative rate
       if(paramToSet.equalsIgnoreCase(TO_CUM_RATE)) {
-        setParameterInvisible(GR_MAG_UPPER,true);
-        setParameterInvisible(GR_TO_MORATE,true);
-        setParameterInvisible(TO_CUM_RATE,false);
-        setParameterInvisible(FIX,false);
+        editor.setParameterInvisible(GR_MAG_UPPER,true);
+        editor.setParameterInvisible(GR_TO_MORATE,true);
+        editor. setParameterInvisible(TO_CUM_RATE,false);
+        editor.setParameterInvisible(FIX,false);
       }
 
       // set all parameters except mag upper
       if(paramToSet.equalsIgnoreCase(GR_MAG_UPPER)) {
-        setParameterInvisible(TO_CUM_RATE,true);
-        setParameterInvisible(GR_TO_MORATE,true);
-        setParameterInvisible(FIX,true);
-        setParameterInvisible(GR_MAG_UPPER,false);
+        editor.setParameterInvisible(TO_CUM_RATE,true);
+        editor.setParameterInvisible(GR_TO_MORATE,true);
+        editor.setParameterInvisible(FIX,true);
+        editor.setParameterInvisible(GR_MAG_UPPER,false);
       }
     }
 
@@ -495,13 +484,13 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
       DoubleParameter deltaMagPrime = new DoubleParameter(YC_DELTA_MAG_PRIME);
       DoubleParameter yc_bValue = new DoubleParameter(YC_BVALUE);
       DoubleParameter yc_toMoRate = new DoubleParameter(YC_TO_MORATE);
-      setParameterInvisible(YC_MAG_LOWER, true);
-      setParameterInvisible(YC_MAG_UPPER, true);
-      setParameterInvisible(YC_DELTA_MAG_CHAR, true);
-      setParameterInvisible(YC_MAG_PRIME, true);
-      setParameterInvisible(YC_DELTA_MAG_PRIME, true);
-      setParameterInvisible(YC_BVALUE, true);
-      setParameterInvisible(YC_TO_MORATE, true);
+      editor.setParameterInvisible(YC_MAG_LOWER, true);
+      editor.setParameterInvisible(YC_MAG_UPPER, true);
+      editor.setParameterInvisible(YC_DELTA_MAG_CHAR, true);
+      editor.setParameterInvisible(YC_MAG_PRIME, true);
+      editor.setParameterInvisible(YC_DELTA_MAG_PRIME, true);
+      editor.setParameterInvisible(YC_BVALUE, true);
+      editor.setParameterInvisible(YC_TO_MORATE, true);
     }
 
 
@@ -585,7 +574,7 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
 
         while ( it.hasNext() ) {
             String name = ( ( ParameterAPI ) it.next() ).getName();
-            setParameterInvisible( name, true );
+            editor.setParameterInvisible( name, true );
         }
 
     }
@@ -800,51 +789,7 @@ public class MagFreqDistParameterEditor extends ParameterListEditor
      if(D) System.out.println(S+" after calling setValue in magDistParam");
   }
 
-   /**
-     * VERY IMPORTANT setup function. This is where all the parameter editors
-     * are dynamcally created based by parameter getType() function. It uses
-     * the ParameterEditorFactory to create the editors. THe search path is
-     * set for the factory, each ParameterEditor is created, and then added
-     * as a JPanel ( base class of all Editors ) to this list GUI scrolling list.
-     */
-    protected void addParameters() {
 
-        if ( parameterList == null )
-            return;
-
-        ListIterator it = parameterList.getParameterNamesIterator();
-        int counter = 0;
-        //boolean first = true;
-
-        // Set additional search paths for non-standard editors
-        if ( ( searchPaths != null ) || ( searchPaths.length > 0 ) )
-            ParameterEditorFactory.setSearchPaths( this.searchPaths );
-
-        parameterEditors.clear();
-        while ( it.hasNext() ) {
-
-            Object obj1 = it.next();
-            String name = ( String ) obj1;
-
-            ParameterAPI param = parameterList.getParameter( name );
-
-            // if(obj instanceof ParameterAPI){
-            //ParameterAPI param = (ParameterAPI)obj;
-            ParameterEditor panel = ParameterEditorFactory.getEditor( param );
-
-            parameterEditors.put( param.getName(), panel );
-
-            editorPanel.add( panel, new GridBagConstraints( 0, counter, 1, 1, 1.0, 0.0
-                    , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-            counter++;
-            //}
-        }
-        JButton button = new JButton("Update MagDist");
-        editorPanel.add( button, new GridBagConstraints( 0, counter, 1, 1, 1.0, 0.0
-                    , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-        button.addActionListener(this);
-
-    }
 
 
   public String getMagDistName() {

@@ -52,9 +52,13 @@ public class EvenlyGriddedSurface extends GriddedSurface {
      * This can be made more efficient
      *
      */
-    public GriddedSubsetSurface getNthSubsetSurface(int numSubSurfaceCols, int numSubSurfaceRows, int numSubSurfaceOffset, int n) {
+    public GriddedSubsetSurface getNthSubsetSurface(int numSubSurfaceCols,
+                                                    int numSubSurfaceRows,
+                                                    int numSubSurfaceOffset,
+                                                    int n) {
 
-        Iterator it = getSubsetSurfacesIterator(numSubSurfaceCols, numSubSurfaceRows, numSubSurfaceOffset);
+        Iterator it = getSubsetSurfacesIterator(numSubSurfaceCols,
+                           numSubSurfaceRows, numSubSurfaceOffset);
         int count = 0;
 
         // while there are more subset surfaces
@@ -78,7 +82,10 @@ public class EvenlyGriddedSurface extends GriddedSurface {
      * @param n The index of the desired surface (from 0 to (getNumSubsetSurfaces - 1))
      *
      */
-    public GriddedSubsetSurface getNthSubsetSurface(double subSurfaceLength, double subSurfaceWidth, double subSurfaceOffset, int n) {
+    public GriddedSubsetSurface getNthSubsetSurface(double subSurfaceLength,
+                                                   double subSurfaceWidth,
+                                                   double subSurfaceOffset,
+                                                   int n) {
        return getNthSubsetSurface((int)Math.rint(subSurfaceLength/gridSpacing),
                                   (int)Math.rint(subSurfaceWidth/gridSpacing),
                                   (int)Math.rint(subSurfaceOffset/gridSpacing),
