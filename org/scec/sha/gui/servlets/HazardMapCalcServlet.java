@@ -44,6 +44,7 @@ public class HazardMapCalcServlet extends HttpServlet {
 
      /**
       * get the vector of x-values for hazfunction
+      * and fill it in array of doubles
       */
      Vector hazVector  = (Vector) inputFromApplet.readObject();
      int num = hazVector.size();
