@@ -27,8 +27,8 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
   private JCheckBox jCheckxlog = new JCheckBox();
 
 
-  // message string to be dispalayed if user chooses Axis Scale
-    // without first clicking on "Add Graph"
+   // message string to be dispalayed if user chooses Axis Scale
+   // when a plot doesn't yet exist
    private final static String AXIS_RANGE_NOT_ALLOWED =
       new String("First Choose Add Graph. Then choose Axis Scale option");
 

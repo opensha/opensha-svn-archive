@@ -258,7 +258,7 @@ public class HazardDataSetPlotter extends JApplet
     buttonPanel.setLayout(flowLayout1);
 
 
-    addButton.setText("Add Graph");
+    addButton.setText("Compute");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);

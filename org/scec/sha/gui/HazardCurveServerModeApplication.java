@@ -442,7 +442,7 @@ public class HazardCurveServerModeApplication extends JApplet
     progressCheckBox.setSelected(true);
     progressCheckBox.setText("Show Progress Bar");
 
-    addButton.setText("Add Graph");
+    addButton.setText("Compute");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);

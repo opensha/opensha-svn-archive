@@ -59,7 +59,7 @@ public class AttenuationRelationshipApplet extends JApplet
     protected boolean customAxis = false;
 
     // message string to be dispalayed if user chooses Axis Scale
-    // without first clicking on "Add Graph"
+    // without first clicking on "Add Trace"
     private final static String AXIS_RANGE_NOT_ALLOWED =
         new String("First Choose Add Graph. Then choose Axis Scale option");
 
