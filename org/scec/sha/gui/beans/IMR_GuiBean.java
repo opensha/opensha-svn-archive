@@ -324,6 +324,21 @@ public class IMR_GuiBean extends ParameterListEditor
      String badValueStr = e.getBadValue().toString();
      String name = param.getName();
 
+     // only show messages for visible site parameters
+     AttenuationRelationshipAPI imr = getSelectedIMR_Instance();
+     ListIterator it = imr.getSiteParamsIterator();
+     boolean found = false;
+     // see whether this parameter exists in site param list for this IMR
+     while(it.hasNext() && !found)
+       if(((ParameterAPI)it.next()).getName().equalsIgnoreCase(name))
+         found = true;
+
+     // if this parameter for which failure was issued does not exist in
+     // site parameter list, then do not show the message box
+     if(!found) return;
+
+
+
      b.append( "The value ");
      b.append( badValueStr );
      b.append( " is not permitted for '");

@@ -127,8 +127,6 @@ public class HazardCurveApplet extends JApplet
    protected boolean customAxis = false;
 
 
-  // make the GroupTestGUIBean instance
-  HazardCurveGuiBean hazardCurveGuiBean;
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
@@ -245,9 +243,6 @@ public class HazardCurveApplet extends JApplet
       jbInit();
       xCenter=getAppletXAxisCenterCoor();
       yCenter=getAppletYAxisCenterCoor();
-
-      // make the GroupTestGuiBean
-      hazardCurveGuiBean = new HazardCurveGuiBean(this);
 
       // create the IMR Gui Bean object
       // It accepts the vector of IMR class names
