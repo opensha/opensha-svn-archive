@@ -11,33 +11,53 @@ import org.scec.param.ParameterList;
 import org.scec.data.*;
 
 /**
- * <b>Title:</b> ArbitrarilyDiscretizedFunction2D<br>
- * <b>Description:</b> This class allows any spacing betwee the x-points, i.e.
- * there is no order to the spacing.<p>
+ * <b>Title:</b> ArbitrarilyDiscretizedFunc<br>
+ * <b>Description:</b> This class is a sublcass implementation
+ * of a DiscretizedFunc that stores the data internaly as a
+ * sorted TreeMap of DataPoint2D. This subclass distinguishes itself
+ * by the fact that it assumes no spacing interval along the x-axis.
+ * Consecutive points can be spread out or bunched up in no predicatable
+ * order. <p>
  *
  * SWR: Note - not all funtionality has been implemented yet, such as all
  * iterators except getPointsIterator().<p>
  *
- *
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
  * @author Steven W. Rock
  * @version 1.0
  */
 
 public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
 
+    /* Class name Debbuging variables */
     protected final static String C = "ArbitrarilyDiscretizedFunc";
+
+    /* Boolean debugging variable to switch on and off debug printouts */
     protected final static boolean D = true;
 
     /**
      * The set of DataPoints2D that conprise the discretized function. These
-     * are stored in a DataPoint2D TreeMap so they are sorted on the X-Values
+     * are stored in a DataPoint2D TreeMap so they are sorted on the X-Values.<p>
+     *
+     * This TreeMap will not allow identical DataPoint2D. A comparator and equals()
+     * is used to determine equality. Since you can specify any comparator you
+     * want, this ArbitrarilyDiscretizedFunc can be adopted for most purposes.<p>
+     *
+     * Note: SWR: I had to make a special org.scec. version of the Java TreeMap and
+     * subclass DataPoint2DTreeMap to access internal objects in the Java TreeMap.
+     * Java's Treemap had internal objects hidden as private, I exposed them
+     * to subclasses by making them protected in org.scec.data.TreeMap. This
+     * was neccessary for index access to the points in the TreeMap. Seems like a poor
+     * oversight on the part of Java.
      */
     protected DataPoint2DTreeMap points = null;
 
 
     /**
+     * Constructor that takes a DataPoint2D Comparator. The comparator is used
+     * for sorting the DataPoint2D. Using the no-arg constructor instantiates
+     * the default Comparator that compares only x-values within tolerance to
+     * determine if two points are equal.<p>
+     *
      * The passed in comparator must be an implementor of DataPoint2DComparatorAPI.
      * These comparators know they are dealing with a DataPoint2D and usually
      * only compare the x-values for sorting. Special comparators may wish to
@@ -52,6 +72,11 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
     }
 
     /**
+     * Constructor that takes a DataPoint2D Comparator. The comparator is used
+     * for sorting the DataPoint2D. Using the no-arg constructor instantiates
+     * the default Comparator that compares only x-values within tolerance to
+     * determine if two points are equal.<p>
+     *
      * The passed in comparator must be an implementor of DataPoint2DComparatorAPI.
      * These comparators know they are dealing with a DataPoint2D and usually
      * only compare the x-values for sorting. Special comparators may wish to
@@ -62,34 +87,84 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
         points = new DataPoint2DTreeMap(comparator);
     }
 
-    /** Easiest one to use, uses the default DataPoint2DToleranceComparator comparator. */
+    /**
+     * No-Arg Constructor that uses the default DataPoint2DToleranceComparator comparator.
+     * The comparator is used for sorting the DataPoint2D. This default Comparator
+     * compares only x-values within tolerance to determine if two points are equal.<p>
+     */
     public ArbitrarilyDiscretizedFunc(double toleranace) {
         DataPoint2DToleranceComparator comparator = new DataPoint2DToleranceComparator();
         comparator.setTolerance(tolerance);
         points = new DataPoint2DTreeMap(comparator);
     }
 
+    /**
+     * No-Arg Constructor that uses the default DataPoint2DToleranceComparator comparator.
+     * The comparator is used for sorting the DataPoint2D. This default Comparator
+     * compares only x-values within tolerance to determine if two points are equal.<p>
+     *
+     * The default tolerance of 0 is used. This means that two x-values must be exactly
+     * equal doubles to be considered equal.
+     */
     public ArbitrarilyDiscretizedFunc() { points = new DataPoint2DTreeMap(); }
 
 
 
-    public void setTolerance(double newTolerance) throws InvalidRangeException {
+    /**
+     * Sets the tolerance of this function. Overides the default function in the
+     * abstract class in that it calls setTolerance in the tree map which
+     * updates the comparator in there.
+     *
+     * These field getters and setters provide the basic information to describe
+     * a function. All functions have a name, information string,
+     * and a tolerance level that specifies how close two points
+     * have to be along the x axis to be considered equal.
+     */
 
+    public void setTolerance(double newTolerance) throws InvalidRangeException {
         if( newTolerance < 0 )
             throw new InvalidRangeException("Tolerance must be larger or equal to 0");
         tolerance = newTolerance;
         points.setTolerance(newTolerance);
     }
 
+    /** returns the number of points in this function list */
     public int getNum(){ return points.size(); }
 
+     /**
+      * return the minimum x value along the x-axis. Since the values
+      * are sorted this is a very quick lookup
+      */
     public double getMinX(){ return ((DataPoint2D)points.firstKey()).getX(); }
+    /**
+      * return the maximum x value along the x-axis. Since the values
+      * are sorted this is a very quick lookup
+      */
     public double getMaxX(){ return ((DataPoint2D)points.lastKey()).getX(); }
 
+    /**
+     * Return the minimum y value along the y-axis. This value is calculated
+     * every time a DataPoint2D is added to the list and cached as a variable
+     * so this function returns very quickly. Slows down adding new points
+     * slightly.  I assume that most of the time these lists will be created
+     * once, then used for plotting and in other functions, in other words
+     * more lookups than inserts.
+     */
     public double getMinY(){ return points.getMinY(); }
-    public double getMaxY(){ return points.getMaxY(); }
+    /**
+     * Return the maximum y value along the y-axis. This value is calculated
+     * every time a DataPoint2D is added to the list and cached as a variable
+     * so this function returns very quickly. Slows down adding new points
+     * slightly.  I assume that most of the time these lists will be created
+     * once, then used for plotting and in other functions, in other words
+     * more lookups than inserts.
+     */
+     public double getMaxY(){ return points.getMaxY(); }
 
 
+    /**
+     * Returns the nth (x,y) point in the Function, else null
+     * if this index point doesn't exist */
     public DataPoint2D get(int index){ return points.get(index); }
 
 
@@ -114,36 +189,64 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
         throw new UnsupportedOperationException(C + ": Not implemented yet,l needs a Y comparator similar to the X value comparator.");
     }
 
-
+    /** Either adds a new DataPoint, or replaces an existing one, within tolerance */
     public void set(DataPoint2D point) throws DataPoint2DException{ points.put(point); }
+
+    /**
+     * Either adds a new DataPoint, or replaces an existing one, within tolerance,
+     * created from the input x and y values.
+     */
     public void set(double x, double y) throws DataPoint2DException{ set(new DataPoint2D(x,y)); }
+
+
+    /**
+     * Replaces a y value for an existing point, accessed by index. If no DataPoint exists
+     * nothing is done.
+     */
     public void set(int index, double y) throws DataPoint2DException{
         DataPoint2D point = get(index);
-        point.setY(y);
-        set(point);
+        if( point != null ) {
+            point.setY(y);
+            set(point);
+        }
     }
 
-
+    /**
+     * Determinces if a DataPoit2D exists in the treemap base on it's x value lookup.
+     * Returns true if found, else false if point not in list.
+     */
     public boolean hasPoint(DataPoint2D point){
         int index = getIndex(point);
         if( index < 0 ) return false;
         else return true;
     }
 
+    /**
+     * Determinces if a DataPoit2D exists in the treemap base on it's x value lookup.
+     * Returns true if found, else false if point not in list.
+     */
     public boolean hasPoint(double x, double y){
         return hasPoint( new DataPoint2D(x, y) );
     }
 
 
 
-     /** Values returned in Ascending order, returns null if nothing present */
+    /**
+     * Returns an iterator over all datapoints in the list. Results returned
+     * in sorted order. Returns null if no points present.
+     * @return
+     */
     public Iterator getPointsIterator(){
         Set keys = points.keySet();
         if( keys != null ) return keys.iterator();
         else return null;
     }
 
-    /**  */
+    /**
+     * Returns an iterator over all x-values in the list. Results returned
+     * in sorted order. Returns null if no points present.
+     * @return
+     */
     public ListIterator getXValuesIterator(){
         ArrayList list = new ArrayList();
         int max = points.size();
@@ -153,7 +256,11 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
         return list.listIterator();
     }
 
-    /**  */
+    /**
+     * Returns an iterator over all y-values in the list. Results returned
+     * in sorted order along the x-axis. Returns null if no points present.
+     * @return
+     */
     public ListIterator getYValuesIterator(){
         ArrayList list = new ArrayList();
         int max = points.size();
@@ -165,10 +272,17 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
 
 
     /**
-     * This function interpolates the first x-axis value corresponding to the given value of y
+     * Given the imput y value, finds the two sequential
+     * x values with the closest y values, then calculates an
+     * interpolated x value for this y value, fitted to the curve. <p>
+     *
+     * Since there may be multiple y values with the same value, this
+     * function just matches the first found.
+     *
      * @param y(value for which interpolated first x value has to be found
      * @return x(this  is the interpolated x based on the given y value)
      */
+
     public double getFirstInterpolatedX(double y){
       // finds the size of the point array
        int max=points.size();
@@ -197,7 +311,10 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
     }
 
     /**
-     * This function interpolates the y-axis value corresponding to the given value of x
+     * Given the imput x value, finds the two sequential
+     * x values with the closest x values, then calculates an
+     * interpolated y value for this x value, fitted to the curve.
+     *
      * @param x(value for which interpolated first y value has to be found
      * @return y(this  is the interpolated x based on the given x value)
      */
@@ -228,7 +345,14 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
     }
 
 
-    /** Returns a copy of this and all points in this DiscretizedFunction */
+    /**
+     * This function returns a new copy of this list, including copies
+     * of all the points. A shallow clone would only create a new DiscretizedFunc
+     * instance, but would maintain a reference to the original points. <p>
+     *
+     * Since this is a clone, you can modify it without changing the original.
+     * @return
+     */
     public DiscretizedFuncAPI deepClone(){
 
         ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc(  );
@@ -247,7 +371,8 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
 
     /**
      * Determines if two functions are the same by comparing
-     * that each point x value is the same
+     * that each point x value is the same. This requires
+     * the two lists to have the same number of points.
      */
     public boolean equalXValues(DiscretizedFuncAPI function){
         String S = C + ": equalXValues():";
@@ -264,7 +389,9 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
 
 
     /**
-     * Returns the x and y values of all the data points in two columns
+     * Standard java function, usually used for debugging, prints out
+     * the state of the list, such as number of points, the value of each point, etc.
+     * @return
      */
     public String toString(){
 
@@ -282,6 +409,11 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
     }
 
 
+    /**
+     * Almost the same as toString() but used
+     * specifically in a debugging context. Formatted slightly different
+     * @return
+     */
     public String toDebugString(){
 
         StringBuffer b = new StringBuffer();

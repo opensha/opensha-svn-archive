@@ -5,15 +5,23 @@ import org.scec.data.*;
 import org.scec.param.*;
 
 /**
- * Title:
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
+ * <b>Title:</b> ArbDiscrFuncWithParams<p>
+ * <b>Description:</b> This class is a sublcass implementation
+ * of a DiscretizedFunc that stores the data internaly as a
+ * sorted TreeMap of DataPoint2D. This subclass distinguishes itself
+ * by the fact that it assumes no spacing interval along the x-axis.
+ * Consecutive points can be spread out or bunched up in no predicatable
+ * order. <p>
+ *
+ * This function implements FuncWithParamsAPI so it maintains a
+ * ParameterList internally. These parameters are the values of
+ * the input variables that went into calculating this function.
+ *
  * @see DiscretizedFunction2D
  * @see XYDiscretizedFunction2DAPI
  * @see DiscretizedFunction2DAPI
  * @see ParameterList
- * @author
+ * @author Steven W. Rock
  * @version 1.0
  */
 
@@ -89,6 +97,16 @@ public class ArbDiscrFuncWithParams
     /** @todo  Data Accessors / Setters */
     // **********************************
 
+    /**
+     * Returns the info of this function. This subclass proxys this method to the
+     * lsit by returning list.toString(). THis is useful for plot legends,
+     * comparisions, etc.
+     *
+     * These field getters and setters provide the basic information to describe
+     * a function. All functions have a name, information string,
+     * and a tolerance level that specifies how close two points
+     * have to be along the x axis to be considered equal.
+     */
     public String getInfo(){ return list.toString(); }
 
     /**
@@ -106,14 +124,17 @@ public class ArbDiscrFuncWithParams
     /** Returns name/value pairs, separated with commas, as one string, usefule for legends, etc. */
     public String getParametersString(){ return list.toString(); }
 
-    /** Returns true if two DefaultXYDiscretizedFunction2D have the same independent parameters */
+    /** Returns true if the second function has the same named parameter values. One
+     * current use is to determine if two XYDiscretizedFunction2DAPIs are the same.
+     */
     public boolean equalParameterNamesAndValues(FuncWithParamsAPI function){
         if( function.getParametersString().equals( getParametersString() ) ) return true;
         else return false;
     }
 
-    /** Returns true if the second function has the same named parameters in
-     *  it's list, values may be different
+    /**
+     * Returns true if the second function has the same named parameters in
+     * it's list, values may be different
      */
     public boolean equalParameterNames(FuncWithParamsAPI function){
         return function.getParameterList().equalNames( this.getParameterList() );
@@ -122,7 +143,16 @@ public class ArbDiscrFuncWithParams
 
 
 
-    /** Returns a copy of this and all points in this DiscretizedFunction */
+    /**
+     * This function returns a new copy of this list, including copies
+     * of all the points. Paramters are also cloned. <p>
+     *
+     * A shallow clone would only create a new DiscretizedFunc
+     * instance, but would maintain a reference to the original points. <p>
+     *
+     * Since this is a clone, you can modify it without changing the original.
+     * @return
+     */
     public DiscretizedFuncAPI deepClone(){
 
         ArbDiscrFuncWithParams function = new ArbDiscrFuncWithParams();
@@ -153,6 +183,9 @@ public class ArbDiscrFuncWithParams
 
 
     /**
+     * Standard java function, usually used for debugging, prints out
+     * the state of the list, such as number of points, the value of each point, etc.
+     *
      * Returns all the parameters associated with the function as one string with
      * no new lines, of the format:<P>
      * name = value, name2 = value2, etc.

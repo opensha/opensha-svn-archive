@@ -9,15 +9,15 @@ import com.jrefinery.data.*;
 import org.scec.gui.plot.jfreechart.*;
 
 /**
- * <b>Title:</b> DiscretizedFunction2DList<br>
+ * <b>Title:</b> DiscretizedFuncList<br>
  * <b>Description:</b> List container for Discretized Functions.
- * <p>
- * Implement XYDataSet so that it can be passed into the
- * JRefinery Graphing Package
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
- * @see Function2DList
- * @see XYDataSet
+ * This class stores Discretized func API ( and any subclass )
+ * internally in an array list and provides standard list access
+ * functions such as those that would be found in a vector. <p>
+ *
+ * Note: Since this class behaves like an ArrayList, functions in the
+ * list may be accessed by index, or by iterator.
+ *
  * @author Steven W. Rock
  * @version 1.0
  */
@@ -31,23 +31,34 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     /** @todo  Variables */
     /* *******************/
 
-    /* Debbuging variables */
+    /* Class name Debbuging variables */
     protected final static String C = "DiscretizedFuncList";
+
+    /* Boolean debugging variable to switch on and off debug printouts */
     protected final static boolean D = false;
 
 
     /**
-     * List of DiscretizedFuncAPI
+     * List of DiscretizedFuncAPI. This is the internal data storage for the functions.
      */
     ArrayList functions = new ArrayList();
 
+    /** Every function list has a information string that can be used in displays, etc. */
     protected String info = "";
+
+    /** Every function list have a name for identifying it amoung several */
     protected String name = "";
 
-    /** The X-Axis name */
+    /**
+     * The X-Axis name, may be the same for all items in the list. .<p>
+     * SWR: Not sure if this is needed any more. Have to check into is.
+     */
     protected String xAxisName = "";
 
-    /** The Y-Axis name */
+    /**
+     * The Y-Axis name, may be the same for all items in the list. .<p>
+     * SWR: Not sure if this is needed any more. Have to check into is.
+     */
     protected String yAxisName = "";
 
 
@@ -56,7 +67,7 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     /** @todo  Constructors */
     /* **********************/
 
-    /** no arg constructor */
+    /** no arg constructor, this constructor currently is empty. */
     public DiscretizedFuncList() { super(); }
 
 
@@ -65,16 +76,24 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     /** @todo  Simple field getters/setters */
     /* **************************************/
 
+    /** Returns the name of this list */
     public String getName(){ return name; }
+    /** Sets the name of this list */
     public void setName(String name){ this.name = name; }
 
+    /** Returns the info of this list */
     public String getInfo(){ return info; }
+    /** Sets the info of this list */
     public void setInfo(String info){ this.info = info; }
 
+    /** Returns the xAxisName of this list */
     public String getXAxisName(){ return xAxisName; }
+    /** Sets the xAxisName of this list */
     public void setXAxisName(String name){ this.xAxisName = name; }
 
+    /** Returns the yAxisName of this list */
     public String getYAxisName(){ return yAxisName; }
+    /** Sets the yAxisName of this list */
     public void setYAxisName(String name){ this.yAxisName = name; }
 
     /** Combo Name of the X and Y axis, used for determining if tow DiscretizedFunction2DAPI */
@@ -86,11 +105,16 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     /** @todo  Function Helpers */
     /* **************************/
 
+    /** returns true if a function exists at the specified index */
     private boolean hasFunctionAtIndex(int index){
         if( (index + 1) > functions.size() ) return false;
         else return true;
     }
 
+    /**
+     * Returns the function at the specified index, else null if no function
+     * exists at that index.
+     */
     private DiscretizedFuncAPI getFunction(int index){
         return (DiscretizedFuncAPI)functions.get(index);
     }
@@ -110,13 +134,20 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     /** @todo  Basic List functions */
     /* ******************************/
 
+    /** Removes all function references from this list */
     public void clear(){ functions.clear(); }
+
+    /** Returns an ordered FIFO iterator over each function in the list */
     public ListIterator listIterator(){ return functions.listIterator( );  }
+
+    /** Returns an iterator over the functions in the lsit, no guarentee of order */
     public Iterator iterator(){ return functions.iterator( ); }
+
+    /** Returns the number of functions in the list */
     public int size(){ return functions.size(); }
 
     /**
-     * Returns the index of the first occurrence of the argument in this
+     * Returns the index of the first occurrence of the function in this
      * list; returns -1 if the object is not found. Uses equals() to determing
      * if the same.
      * @param function
@@ -140,7 +171,9 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     public void remove(int index){ functions.remove(index); }
 
     /**
-     * Removes the specified function if it exists as determined by equals()
+     * Removes the specified function if it exists as determined by equals().
+     * This function iterates over the list, comapring each stored function to the
+     * input argument. May be time consuming if many functions in the list.
      * @param function
      */
     public void remove(DiscretizedFuncAPI function){
@@ -205,7 +238,10 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     }
 
 
-    /** adds the DiscretizedFuncAPI if it doesn't exist based on the equals() method, else throws exception */
+    /**
+     * Adds the DiscretizedFuncAPI if it doesn't exist based on the equals() method, else throws exception.
+     * THis function first checks if the passed in function is allowed.
+     */
     public void add(DiscretizedFuncAPI function) throws DiscretizedFunction2DException{
 
         if( !isFuncAllowed(function) ) throw new DiscretizedFunction2DException(C + ": add(): " + "This function is not allowed.");
@@ -253,9 +289,9 @@ public class DiscretizedFuncList implements NamedObjectAPI{
 
 
     /**
-     * Returns true if all the DisctetizedFunctions in this list are equal
-     * and the boolean flag setting are the same. Equals is determined if
-     * the two lists are the same size, then calls containsAll()
+     * Returns true if all the DisctetizedFunctions in this list are equal.
+     * Equality is determined if the two lists are the same size,
+     * then calls containsAll()
      */
     public boolean equals(DiscretizedFuncList list){
 
@@ -278,7 +314,11 @@ public class DiscretizedFuncList implements NamedObjectAPI{
 
     /**
      * Returns a copy of this list, therefore any changes to the copy
-     * cannot affect this original list.
+     * cannot affect this original list. A deep clone is different from a
+     * normal Java clone or shallow clone in that each function in the list
+     * is also cloned. A shallow clone would only return a new instance of this
+     * DiscretizedFuncList, but not clone the elements. It would maintain a pointer
+     * to the same elements.
      */
     public DiscretizedFuncList deepClone(){
 
@@ -306,6 +346,16 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     }
 
     private static String TAB = "   ";
+    /**
+     * Debugging information. Dumps the state of this object, number of
+     * functions present, and calls the toString() of each element to
+     * dump it's state.<p>
+     *
+     * This is the function called to format the data for raw data display
+     * in the IMRTesterApplet.<p>
+     *
+     * Note: SWR: Still needs work to reformat the data better.
+     */
     public String toString(){
 
         String S = C + ": toString(): ";
@@ -347,7 +397,11 @@ public class DiscretizedFuncList implements NamedObjectAPI{
      * Returns all datapoints in a matrix, x values in first column,
      * first functions y vaules in second, second function's y values
      * in the third, etc. This function should be optimized by actually accessing
-     * the underlying TreeMap.
+     * the underlying TreeMap.<p>
+     *
+     * Note: SWR This function has been renamed from toString(). This
+     * function no longer works, but contains the formatting rules needed
+     * to still be imploemented by toString().
      */
     public String toStringOld(){
 
