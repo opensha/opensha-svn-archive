@@ -767,6 +767,15 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
    }
 
 
+
+   /**
+    *
+    * @returns the Intensity Measure Parameter Editor
+    */
+   public ParameterListEditor getIntensityMeasureParamEditor(){
+     return imtEditorParamListEditor;
+   }
+
   /**
    * Checks to see if the Intensity Measure is supported by the AttenuationRelationship.
    * If it is supported make its parameters and check box enabled and set the

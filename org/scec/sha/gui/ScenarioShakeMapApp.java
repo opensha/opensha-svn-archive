@@ -504,15 +504,10 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    */
   public XYZ_DataSetAPI generateShakeMap() throws ParameterException,RuntimeException{
     try {
-     // this function will get the selected IMT parameter and set it in IMT
-     imtGuiBean.setIMT();
-   }catch (Exception ex) {
-     if(D) System.out.println(C + ":Param warning caught"+ex);
-     ex.printStackTrace();
-    }
-    try{
+      // this function will get the selected IMT parameter and set it in IMT
+      imtGuiBean.setIMT();
       xyzDataSet =shakeMapCalc.getScenarioShakeMapData(griddedRegionSites,attenRel,erfGuiBean.getRupture(),
-                                        probAtIML,imlProbValue);
+          probAtIML,imlProbValue);
     }catch(ParameterException e){
       throw new ParameterException(e.getMessage());
     }
