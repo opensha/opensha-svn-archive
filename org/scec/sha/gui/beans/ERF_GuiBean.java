@@ -25,7 +25,7 @@ import org.scec.sha.magdist.parameter.MagFreqDistParameter;
 public class ERF_GuiBean extends ParameterListEditor implements
     ParameterChangeFailListener, ParameterChangeListener {
   //this vector saves the names of all the supported Eqk Rup Forecasts
-  private Vector erfNamesVector=new Vector();
+  protected Vector erfNamesVector=new Vector();
   //this vector holds the full class names of all the supported Eqk Rup Forecasts
   private Vector erfClasses;
   //saves the erf objects
@@ -37,19 +37,21 @@ public class ERF_GuiBean extends ParameterListEditor implements
 
 
   /**
+   * default constructor
+   */
+  public ERF_GuiBean() {
+  }
+
+
+  /**
    * Constructor : It accepts the classNames of the ERFs to be shown in the editor
    * @param erfClassNames
    */
   public ERF_GuiBean(Vector erfClassNames) {
-    this.parameterList = new ParameterList();
-    // save the classs names of ERFs to be shown
-    this.erfClasses = erfClassNames;
-    // search path needed for making editors
-    searchPaths = new String[2];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-    searchPaths[1] = "org.scec.sha.magdist.gui" ;
     // create the instance of ERFs
-    init_erf_IndParamListAndEditor();
+    init_erf_IndParamListAndEditor(erfClassNames);
+    // forecast 1  is selected initially
+     setParamsInForecast((String)erfNamesVector.get(0));
   }
 
 
@@ -93,17 +95,22 @@ public class ERF_GuiBean extends ParameterListEditor implements
    /**
    * init erf_IndParamList. List of all available forecasts at this time
    */
-   private void init_erf_IndParamListAndEditor() {
+   protected void init_erf_IndParamListAndEditor(Vector erfClassNames) {
 
      EqkRupForecastAPI erf;
-
+     this.parameterList = new ParameterList();
+     // save the classs names of ERFs to be shown
+     this.erfClasses = erfClassNames;
+     // search path needed for making editors
+     searchPaths = new String[2];
+     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+     searchPaths[1] = "org.scec.sha.magdist.gui" ;
      Iterator it= erfClasses.iterator();
 
      while(it.hasNext()){
        // make the ERF objects to get their adjustable parameters
        erf = (EqkRupForecastAPI ) createERFClassInstance((String)it.next());
-       if(D)
-         System.out.println("Iterator Class:"+erf.getName());
+       if(D)  System.out.println("Iterator Class:"+erf.getName());
        erfObject.add(erf);
        erfNamesVector.add(erf.getName());
        Iterator it1 = erf.getAdjustableParamsList();
@@ -116,14 +123,10 @@ public class ERF_GuiBean extends ParameterListEditor implements
      }
 
      // make the forecast selection parameter
-     StringParameter selectSource= new StringParameter(ERF_PARAM_NAME,
+     StringParameter selectERF= new StringParameter(ERF_PARAM_NAME,
                                  erfNamesVector, (String)erfNamesVector.get(0));
-     selectSource.addParameterChangeListener(this);
-     parameterList.addParameter(selectSource);
-
-
-     // forecast 1  is selected initially
-     setParamsInForecast((String)erfNamesVector.get(0));
+     selectERF.addParameterChangeListener(this);
+     parameterList.addParameter(selectERF);
   }
 
   /**
@@ -138,16 +141,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
      parameterList.addParameter(chooseERF_Param);
 
      // get the selected forecast
-     int size = this.erfNamesVector.size();
-     String erfName;
-     EqkRupForecastAPI erf = null;
-     for(int i=0; i<size; ++i) {
-       erfName = (String)erfNamesVector.get(i);
-       if(selectedForecast.equalsIgnoreCase(erfName)) { // we found selected forecast in the lsit
-         erf = (EqkRupForecastAPI)this.erfObject.get(i);
-         break;
-       }
-     }
+     EqkRupForecastAPI erf = this.getSelectedERF_Instance();
 
      Iterator it = erf.getAdjustableParamsList();
 

@@ -112,14 +112,16 @@ public class PEER_FaultForecast extends EqkRupForecast
                          SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
 
   // add rake param
-  DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME);
+  private Double DEFAULT_RAKE_VAL = new Double(0);
+  DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME, DEFAULT_RAKE_VAL);
 
   //add the dip parameter
   DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
                                                TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
 
   //add the dip parameter
-  DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME);
+  private Double DEFAULT_DIP_VAL = new Double(90);
+  DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME, DEFAULT_DIP_VAL);
 
   //adding the supported MagDists
   Vector supportedMagDists=new Vector();
@@ -166,7 +168,8 @@ public class PEER_FaultForecast extends EqkRupForecast
     dipParam.addParameterChangeListener(this);
     rakeParam.addParameterChangeListener(this);
     timeSpanParam.addParameterChangeListener(this);
-    magDistParam.addParameterChangeListener(this);  }
+    magDistParam.addParameterChangeListener(this);
+  }
 
 
   /**
@@ -277,7 +280,6 @@ public class PEER_FaultForecast extends EqkRupForecast
     // we have only one source
     if(iSource!=0)
       throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
-
     return source.getNumRuptures();
   }
 
