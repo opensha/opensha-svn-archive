@@ -3,7 +3,7 @@ package org.scec.sha.gui.beans;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import javax.swing.border.*;
+
 import javax.swing.*;
 
 import org.scec.param.*;
@@ -93,34 +93,11 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
 
 
   private JPanel imrPanel = new JPanel();
-  private JPanel imrimtPanel = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private GridBagLayout gridBagLayout3 = new GridBagLayout();
-
-
-  //static string declaration
-  private static String MULTIPLE_ATTEN_REL = "Show Multiple AttenRel";
-  private static String SINGLE_ATTEN_REL = "Show Single AttenRel";
-  // IMR GUI Editor & Parameter names
-  public final static String IMR_PARAM_NAME = "IMR";
-  public final static String IMR_EDITOR_TITLE =  "Set IMR";
-
-  //toggle button between the multiple attenuation and single Attenuation relationship GUI.
-  private JButton toggleButton = new JButton(MULTIPLE_ATTEN_REL);
-
-  //Flag to keep check which if single multiple attenRel is being used.
-  private boolean singleAttenRelSelected = true;
-
-  //ParameterList and Editor declaration for the single AttenRels selection
-  ParameterList singleAttenRelParamList = new ParameterList();
-  ParameterListEditor singleAttenRelParamListEditor;
-
-
 
   //Instance of the application using this Gui Bean.
   AttenuationRelationshipSiteParamsRegionAPI application;
-
 
   /**
    *
@@ -162,28 +139,16 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
    */
   void jbInit() throws Exception {
     this.setLayout(gridBagLayout1);
-    imrimtPanel.setLayout(gridBagLayout2);
-    imrPanel.setLayout(gridBagLayout3);
+    imrPanel.setLayout(gridBagLayout2);
     this.setMinimumSize(new Dimension(0, 0));
     this.setPreferredSize(new Dimension(430, 539));
-    imrimtPanel.setMinimumSize(new Dimension(0, 0));
-    toggleButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        toggleButton_actionPerformed(e);
-      }
-    });
+    imrPanel.setMinimumSize(new Dimension(0, 0));
     this.add(jScrollPane1,  new GridBagConstraints(0, 0, 0, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 3, 5, 5), 377, 469));
-    jScrollPane1.getViewport().add(imrimtPanel, null);
+    jScrollPane1.getViewport().add(imrPanel, null);
     //adding the IMT parameter list editor as the first element in the AttenRel Selection panel
-    imrimtPanel.add(imtEditorParamListEditor,new GridBagConstraints(0, 0, 3, 1, 1.0, 1.0
+    imrPanel.add(imtEditorParamListEditor,new GridBagConstraints(0, 0, 3, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 3, 5, 5), 0, 0));
-    //adding the toogle button to the GUI, lets the user switch between the single and multiple AttenRels
-    imrimtPanel.add(toggleButton,new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.EAST, new Insets(7, 200, 5, 5), 15, 5));
-    //adding the panel to add the AttenRels and their parameter.
-    imrimtPanel.add(imrPanel,new GridBagConstraints(0, 2, 3, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
     for(int i=0;i<numSupportedAttenRels;++i){
       attenRelCheckBox[i] = new JCheckBox(((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName());
       attenRelCheckBox[i].addItemListener(this);
@@ -479,127 +444,6 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
      updateIMT((String)imt.get(0));
    }
 
-
-   /**
-    *  Create a list of all the IMRs
-    */
-   private void init_imrParamListAndEditor() {
-
-
-
-     //gets the arrayList of the IMR's supported by the choosen IM
-     ArrayList supportedAttenRelsForSelectedIM = getAttenRelsSupportedForSelectedIM();
-
-     // if we are entering this function for the first time, then make imr objects
-     if(!singleAttenRelParamList.containsParameter(IMR_PARAM_NAME)) {
-       singleAttenRelParamList = new ParameterList();
-       ArrayList imrNamesVector=new ArrayList();
-       Iterator it= supportedAttenRelsForSelectedIM.iterator();
-       while(it.hasNext()){
-         // make the IMR objects as needed to get the site params later
-         AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )it.next();
-         imr.setParamDefaults();
-         imrNamesVector.add(imr.getName());
-         Iterator it1 = imr.getSiteParamsIterator();
-         // add change fail listener to the site parameters for this IMR
-         while(it1.hasNext()) {
-           ParameterAPI param = (ParameterAPI)it1.next();
-           param.addParameterChangeFailListener(this);
-         }
-       }
-
-       // make the IMR selection paramter
-       StringParameter selectIMR = new StringParameter(IMR_PARAM_NAME,
-           imrNamesVector,(String)imrNamesVector.get(0));
-       // listen to IMR paramter to change site params when it changes
-       selectIMR.addParameterChangeListener(this);
-       singleAttenRelParamList.addParameter(selectIMR);
-     }
-
-     // remove all the parameters except the IMR parameter
-     ListIterator it = singleAttenRelParamList.getParameterNamesIterator();
-     while(it.hasNext()) {
-       String paramName = (String)it.next();
-       if(!paramName.equalsIgnoreCase(IMR_PARAM_NAME))
-         singleAttenRelParamList.removeParameter(paramName);
-     }
-
-
-     // now find the selceted IMR and add the parameters related to it
-
-     // initalize imr
-     AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)supportedAttenRelsForSelectedIM.get(0);
-
-     // find & set the selectedIMR
-     imr = this.getSelectedIMR_Instance();
-
-     // getting the iterator of the Other Parameters for IMR
-     /**
-      * Instead of getting hard-coding for getting the selected Params Ned added
-      * a method to get the OtherParams for the selected IMR, Otherwise earlier we
-      * were getting the 3 params associated with IMR's by there name. But after
-      * adding the method to get the otherParams, it can also handle params that
-      * are customary to the selected IMR. So this automically adds the parameters
-      * associated with the IMR, which are : SIGMA_TRUNC_TYPE_NAME, SIGMA_TRUNC_LEVEL_NAME,
-      * STD_DEV_TYPE_NAME and any other param assoctade with the IMR.
-      */
-     ListIterator lt = imr.getOtherParamsIterator();
-     while(lt.hasNext()){
-       ParameterAPI tempParam=(ParameterAPI)lt.next();
-       //adding the parameter to the parameterList.
-       tempParam.addParameterChangeListener(this);
-       parameterList.addParameter(tempParam);
-     }
-
-     this.editorPanel.removeAll();
-     addParameters();
-     setTitle(IMR_EDITOR_TITLE);
-
-     // get the panel for increasing the font and border
-     // this is hard coding for increasing the IMR font
-     // the colors used here are from ParameterEditor
-     JPanel panel = this.getParameterEditor(this.IMR_PARAM_NAME).getOuterPanel();
-     TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
-     titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
-     Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
-     titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
-     titledBorder1.setTitle(IMR_PARAM_NAME);
-     Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
-     panel.setBorder(border1);
-
-     // set the trunc level based on trunc type
-     String value = (String)parameterList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
-     toggleSigmaLevelBasedOnTypeValue(value);
-
-   }
-
-
-   /**
-    * this method will return the name of selected IMR
-    * @return : Selected IMR name
-    */
-   public String getSelectedIMR_Name() {
-     return singleAttenRelParamList.getValue(IMR_PARAM_NAME).toString();
-   }
-
-   /**
-    * This method will return the instance of selected IMR
-    * @return : Selected IMR instance
-    */
-   public AttenuationRelationshipAPI getSelectedIMR_Instance() {
-     AttenuationRelationshipAPI imr = null;
-     String selectedIMR = getSelectedIMR_Name();
-     int size = imrObject.size();
-     for(int i=0; i<size ; ++i) {
-       imr = (AttenuationRelationshipAPI)imrObject.get(i);
-       if(imr.getName().equalsIgnoreCase(selectedIMR))
-         break;
-     }
-     return imr;
-   }
-
-
-
    /**
     * sigma level is visible or not
     * @param value
@@ -615,22 +459,7 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
      }
    }
 
-   /**
-    * sigma level is visible or not
-    * @param value
-    */
-   protected void toggleSigmaLevelBasedOnTypeValue(String value){
 
-     if( value.equalsIgnoreCase("none") ) {
-       if(D) System.out.println("Value = " + value + ", need to set value param off.");
-       setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, false );
-     }
-     else{
-       if(D) System.out.println("Value = " + value + ", need to set value param on.");
-       setParameterVisible( AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME, true );
-     }
-
-   }
 
    /**
     * It will return the IMT selected by the user
@@ -980,26 +809,6 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
    }
 
 
-   /**
-    * Returns the ArrayList of the AttenuationRelation being supported by the selected IM
-    * @return
-    */
-   public ArrayList getAttenRelsSupportedForSelectedIM(){
-     ParameterAPI param = getSelectedIntensityMeasure();
-     //Iterating over all the supported AttenRels to check if they support the selected IMT
-     String paramName = param.getName();
-     ArrayList attenRelsSupportedForIM = new ArrayList();
-     for(int i=0;i < numSupportedAttenRels;++i){
-       AttenuationRelationship attenRel = (AttenuationRelationship)attenRelsSupported.get(i);
-       if(attenRel.isIntensityMeasureSupported(param)){
-         attenRelsSupportedForIM.add(attenRel);
-       }
-     }
-     return attenRelsSupportedForIM;
-   }
-
-
-
   /**
    *
    * @returns the Metadata string for the IMR Gui Bean
@@ -1051,29 +860,5 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
  }
 
 
- /**
-  * Switches between the multiple and single attenuation relationhship gui bean.
-  */
- private void toggleBetweenSingleAndMultipleAttenRel(){
-   imrPanel.removeAll();
-   //if single attenuation relationship is already selected then toggle to multiple attenrel
-   if(singleAttenRelSelected){
-     singleAttenRelSelected = false;
-     toggleButton.setText(SINGLE_ATTEN_REL);
-   }
-   else{ //if multiple attenuation relationships panel was selected the toggle to single attenrel.
-     singleAttenRelSelected = true;
-     toggleButton.setText(MULTIPLE_ATTEN_REL);
-   }
 
- }
-
- /**
-  * this function is called when the person tries to switch between the single
-  * and multiple attenuationRelationship gui bean.
-  * @param e
-  */
-  void toggleButton_actionPerformed(ActionEvent e) {
-    toggleBetweenSingleAndMultipleAttenRel();
-  }
 }
