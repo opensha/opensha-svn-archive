@@ -83,7 +83,7 @@ public class DistanceJBParameter
     /**
      * Note that this does not throw a warning
      */
-    protected void calcValueFromSiteAndPE(){
+    protected void calcValueFromSiteAndEqkRup(){
         if( ( this.site != null ) && ( this.eqkRupture != null ) ){
 
             Location loc1 = site.getLocation();

@@ -54,7 +54,7 @@ public abstract class PropagationEffectParameter
      * Subclasses implement this in their own way. This is what
      * differentiates different subclasses.
      */
-    protected abstract void calcValueFromSiteAndPE();
+    protected abstract void calcValueFromSiteAndEqkRup();
 
 
     /* ***************************/
@@ -70,21 +70,21 @@ public abstract class PropagationEffectParameter
     public Object getValue(EqkRupture eqkRupture, Site site){
         this.eqkRupture = eqkRupture;
         this.site = site;
-        calcValueFromSiteAndPE();
+        calcValueFromSiteAndEqkRup();
         return super.getValue();
     }
 
     /** Sets the site and recalculates the value. The EqkRupture must have already been set */
     public Object getValue(Site site){
         this.site = site;
-        calcValueFromSiteAndPE();
+        calcValueFromSiteAndEqkRup();
         return this.value;
     }
 
     /** Sets the EqkRupture and recalculates the value. The Site must have already been set */
     public Object getValue(EqkRupture eqkRupture){
         this.eqkRupture = eqkRupture;
-        calcValueFromSiteAndPE();
+        calcValueFromSiteAndEqkRup();
         return this.value;
     }
 
@@ -92,7 +92,7 @@ public abstract class PropagationEffectParameter
     public void setValue(EqkRupture eqkRupture, Site site){
         this.eqkRupture = eqkRupture;
         this.site = site;
-        calcValueFromSiteAndPE();
+        calcValueFromSiteAndEqkRup();
     }
 
     /** The EqkRupture and Site must have already been set */
@@ -101,7 +101,7 @@ public abstract class PropagationEffectParameter
     /** Sets the Site and the value is recalculated */
     public void setSite(Site site){
         this.site = site;
-        calcValueFromSiteAndPE();
+        calcValueFromSiteAndEqkRup();
     }
     /** Returns the Site associated with this Parameter */
     public Site getSite(){ return site; }
@@ -109,7 +109,7 @@ public abstract class PropagationEffectParameter
     /** Sets the EqkRupture associated with this Parameter */
     public void setEqkRupture(EqkRupture eqkRupture){
         this.eqkRupture = eqkRupture;
-        calcValueFromSiteAndPE();
+        calcValueFromSiteAndEqkRup();
     }
     /** Returns the EqkRupture associated with this Parameter */
     public EqkRupture getEqkRupture(){ return eqkRupture; }

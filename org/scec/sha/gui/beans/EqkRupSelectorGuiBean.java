@@ -222,8 +222,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      probEqkRupture.setHypocenterLocation(getHypocenterLocation());
    }
 
-
-
    // get the panel for increasing the font and border
    // this is hard coding for increasing the IMR font
    // the colors used here are from ParameterEditor
