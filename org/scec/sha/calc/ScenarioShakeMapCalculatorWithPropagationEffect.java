@@ -73,7 +73,6 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect extends ScenarioSha
       //iterating overe all the selected attenautionRelationShips and getting the XYZ data for them
       for(int i=0;i<size;++i){
         AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
-        attenRel.setSite(site);
         double val= scenarioShakeMapDataCalc(propagationEffect,attenRel,isProbAtIML,value);
 
         //multiplying the value for the attenuation with the relative normalised wt for it
