@@ -269,7 +269,16 @@ public class GraphPanel extends JPanel {
     //total number of funtions that need to be plotted differently
     int numFuncs = plotCharacterstics.length;
     int datasetIndex = 0;
-    for(int j=0; j < numFuncs; ++j){
+    //secondarydataset index keeps track where do we have to add the seconadary data set in plot
+    for(int j=0,secondaryDatasetIndex=0; j < numFuncs; ++j,++secondaryDatasetIndex){
+      Color color = plotCharacterstics[j].getCurveColor();
+      double lineWidth = plotCharacterstics[j].getCurveWidth();
+      String lineType = plotCharacterstics[j].getCurveType();
+      //if size of that plot size then don't add it to the dataset
+      if(lineWidth ==0){
+        --secondaryDatasetIndex;
+        continue;
+      }
       int numCurves = plotCharacterstics[j].getNumContinuousCurvesWithSameCharacterstics();
       DiscretizedFuncList dataFunctions = new DiscretizedFuncList();
       DiscretizedFunctionXYDataSet dataset = new DiscretizedFunctionXYDataSet();
@@ -277,21 +286,19 @@ public class GraphPanel extends JPanel {
       dataset.setYLog(yLog);
       dataset.setConvertZeroToMin(true,Y_MIN_VAL);
       dataset.setFunctions(dataFunctions);
-      Color color = plotCharacterstics[j].getCurveColor();
-      double lineWidth = plotCharacterstics[j].getCurveWidth();
-      String lineType = plotCharacterstics[j].getCurveType();
+
 
       //creating the secondary dataset to show it in different color and shapes
       for(int i=datasetIndex;i<(datasetIndex+numCurves);++i)
         dataFunctions.add(totalProbFuncs.get(i));
       datasetIndex +=numCurves;
 
-      if(j!=0)
-        plot.setSecondaryDataset(j-1,dataset);
+      if(secondaryDatasetIndex!=0)
+        plot.setSecondaryDataset(secondaryDatasetIndex-1,dataset);
       else
         plot.setDataset(dataset);
 
-      drawCurvesUsingPlottingFeatures(lineType,color,lineWidth,j);
+      drawCurvesUsingPlottingFeatures(lineType,color,lineWidth,secondaryDatasetIndex);
     }
 
     plot.setBackgroundAlpha( .8f );
@@ -446,6 +453,7 @@ public class GraphPanel extends JPanel {
         plot.setRenderer(DASHED_LINE_RENDERER);
       else
         plot.setSecondaryRenderer(functionIndex-1,DASHED_LINE_RENDERER);
+
       DASHED_LINE_RENDERER.setStroke(new BasicStroke((float)curveWidth,BasicStroke.CAP_BUTT
           ,BasicStroke.JOIN_BEVEL,0,new float[] {9},0));
       DASHED_LINE_RENDERER.setPaint(color);
@@ -604,8 +612,8 @@ public class GraphPanel extends JPanel {
           org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES_AND_LINES,
           new StandardXYToolTipGenerator()
           );
-      LINE_AND_CIRCLES_RENDERER.setShape(new Ellipse2D.Double(-DELTA-curveWidth/2,
-          -DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
+      LINE_AND_CIRCLES_RENDERER.setShape(new Ellipse2D.Double(-DELTA-(curveWidth*4)/2,
+          -DELTA-(curveWidth*4)/2, SIZE+(curveWidth*4), SIZE+(curveWidth*4)));
       if(functionIndex==0)
         plot.setRenderer(LINE_AND_CIRCLES_RENDERER);
       else
@@ -619,7 +627,7 @@ public class GraphPanel extends JPanel {
           org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES_AND_LINES,
           new StandardXYToolTipGenerator()
           );
-      LINE_AND_TRIANGLES_RENDERER.setShape(ShapeUtils.createDownTriangle((float)curveWidth));
+      LINE_AND_TRIANGLES_RENDERER.setShape(ShapeUtils.createUpTriangle((float)(curveWidth*4)));
       if(functionIndex==0)
         plot.setRenderer(LINE_AND_TRIANGLES_RENDERER);
       else
@@ -633,7 +641,22 @@ public class GraphPanel extends JPanel {
           org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
           new StandardXYToolTipGenerator()
           );
-      X_SHAPE_RENDERER.setShape(ShapeUtils.createDiagonalCross((float)curveWidth/2,1.0f));
+      X_SHAPE_RENDERER.setShape(ShapeUtils.createDiagonalCross((float)curveWidth,0.1f));
+      X_SHAPE_RENDERER.setShapesFilled(false);
+      if(functionIndex==0)
+        plot.setRenderer(X_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,X_SHAPE_RENDERER);
+      //X_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      X_SHAPE_RENDERER.setPaint(color);
+    }
+    //+ symbols
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS)){
+      StandardXYItemRenderer X_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      X_SHAPE_RENDERER.setShape(ShapeUtils.createRegularCross((float)curveWidth,0.1f));
       X_SHAPE_RENDERER.setShapesFilled(false);
       if(functionIndex==0)
         plot.setRenderer(X_SHAPE_RENDERER);

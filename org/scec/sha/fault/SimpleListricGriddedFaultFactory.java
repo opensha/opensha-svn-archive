@@ -1,4 +1,4 @@
-     package org.scec.sha.fault;
+package org.scec.sha.fault;
 
 import java.util.*;
 import org.scec.calc.RelativeLocation;

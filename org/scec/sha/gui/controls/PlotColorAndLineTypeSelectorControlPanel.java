@@ -41,6 +41,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   public final static String DASHED_LINE = "Dash Line";
   public final static String DOT_DASH_LINE = "Dot and Dash Line";
   public final static String X = "X Symbols";
+  public final static String CROSS_SYMBOLS = "+ Symbols";
   public final static String FILLED_CIRCLES = "Filled Circles";
   public final static String CIRCLES = "Circles";
   public final static String FILLED_SQUARES = "Filled Squares";
@@ -103,7 +104,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     jLabel1.setFont(new java.awt.Font("Arial", 0, 18));
     jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel1.setHorizontalTextPosition(SwingConstants.CENTER);
-    jLabel1.setText("Set Dataset color and plot line type");
+    jLabel1.setText("Plot Characterstics Settings Control Panel");
     applyButton.setText("Apply");
     applyButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -131,22 +132,21 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     });
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(jLabel1,  new GridBagConstraints(0, 0, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 6, 0, 11), 338, 12));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 6, 0, 11), 248, 12));
     jPanel1.add(colorAndLineTypeSelectorPanel,  new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 11), 557, 204));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 11), 557, 200));
     colorAndLineTypeSelectorPanel.getViewport().add(curveFeaturePanel, null);
-    jPanel1.add(applyButton,  new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 59, 5, 107), 6, 5));
-    jPanel1.add(RevertButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 54, 5, 0), 6, 5));
+    jPanel1.add(cancelButton,  new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 2, 108), 2, 5));
+    jPanel1.add(RevertButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 21, 2, 0), 0, 5));
     jPanel1.add(doneButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 9, 5, 0), 6, 5));
-    jPanel1.add(cancelButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 8, 5, 0), 6, 5));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 2, 0), -6, 5));
+    jPanel1.add(applyButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 99, 2, 0), -4, 5));
     jPanel1.setSize(600,300);
     //colorAndLineTypeSelectorPanel.setSize(500,250);
     setSize(600,300);
-    this.setTitle("Plot Characterstics Settings Control Panel");
   }
 
 
@@ -183,6 +183,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       lineTypeSelector[i].addItem(DASHED_LINE);
       lineTypeSelector[i].addItem(DOT_DASH_LINE);
       lineTypeSelector[i].addItem(X);
+      lineTypeSelector[i].addItem(CROSS_SYMBOLS);
       lineTypeSelector[i].addItem(FILLED_CIRCLES);
       lineTypeSelector[i].addItem(CIRCLES);
       lineTypeSelector[i].addItem(FILLED_SQUARES);
@@ -248,14 +249,36 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     else if(e.getSource() instanceof JComboBox){
       Object comboBox = e.getSource();
       //if the source of the event was color button
+      int itemIndex=0;
       for(int i=0;i<numCurves;++i){
-        if(comboBox.equals(lineTypeSelector[i]))
+        if(comboBox.equals(lineTypeSelector[i])){
           plottingFeatures[i].setCurveType((String)lineTypeSelector[i].getSelectedItem());
+          itemIndex= i;
+          break;
+        }
       }
+
+      setStyleSizeBasedOnSelectedShape(itemIndex,(String)lineTypeSelector[itemIndex].getSelectedItem());
     }
   }
 
 
+  /**
+   * Set the default size value based on the selected Style
+   * @param index : number of
+   * @param selectedStyle
+   */
+  private void setStyleSizeBasedOnSelectedShape(int index,String selectedStyle){
+
+    if(selectedStyle.equals(this.SOLID_LINE) || selectedStyle.equals(this.DASHED_LINE) ||
+       selectedStyle.equals(this.DOTTED_LINE) || selectedStyle.equals(this.DOT_DASH_LINE))
+      lineWidthParameterEditor[index].setValue(new Double(1.0));
+    else if(selectedStyle.equals(this.LINE_AND_CIRCLES) || selectedStyle.equals(this.LINE_AND_TRIANGLES))
+      lineWidthParameterEditor[index].setValue(new Double(1.0));
+    else
+     lineWidthParameterEditor[index].setValue(new Double(4.0));
+    lineWidthParameterEditor[index].refreshParamEditor();
+  }
 
 
   /**

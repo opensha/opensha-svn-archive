@@ -39,7 +39,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
 
   private static int windowNumber =0;
 
-  private static final String TITLE = "Curves Window";
+  private static final String TITLE = "Plot Window - ";
 
   private double minXValue, maxXValue, minYValue,maxYValue;
 
@@ -129,6 +129,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     buttonControlPanel = new ButtonControlPanel(this);
     buttonPanel.add(buttonControlPanel,null);
     togglePlot();
+    this.setTitle(TITLE+windowNumber);
   }
 
 
@@ -196,9 +197,9 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     */
    private void drawGraph() {
      if(drawCurvesUsingPlotPrefs)
-       graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE+"-"+windowNumber,buttonControlPanel,getPlottingFeatures());
+       graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,"",buttonControlPanel,getPlottingFeatures());
      else
-       graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE+"-"+windowNumber,buttonControlPanel);
+       graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,"",buttonControlPanel);
      togglePlot();
    }
 
@@ -208,7 +209,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     */
    public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,
-                               TITLE+"-"+windowNumber,buttonControlPanel,plotFeatures);
+                               "",buttonControlPanel,plotFeatures);
      togglePlot();
    }
 

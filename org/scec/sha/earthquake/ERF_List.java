@@ -38,7 +38,6 @@ public abstract class ERF_List implements ERF_ListAPI,
   protected TimeSpan timeSpan;
 
 
-
   /**
    * add a new Eqk Rup forecast to the list
    * @param eqkRupForecast
