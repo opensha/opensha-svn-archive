@@ -147,6 +147,15 @@ public class GenerateHazusFilesControlPanel extends JFrame {
     return hazusFilesCheck.isSelected();
   }
 
+
+  /**
+   * Sets the value for checkbox for shape files for Hazus
+   * @param flag
+   */
+  public void setHazusShapeFilesControlSelected(boolean flag){
+    hazusFilesCheck.setSelected(flag);
+  }
+
   /**
    *
    * @returns the XYZ data set for the SA-0.3sec

@@ -37,6 +37,9 @@ public class PuenteHillsScenarioControlPanel {
   private MapGuiBean mapGuiBean;
   private IMT_GuiBean imtGuiBean;
 
+  //default magnitude.
+  private double magnitude = 7.1;
+
   //class default constructor
   /**
    * Accepts 3 params for the EqkRupSelectorGuiBean, IMR_GuiBean, SitesInGriddedRegionGuiBean
@@ -183,7 +186,7 @@ public class PuenteHillsScenarioControlPanel {
     MagFreqDistParameterEditor magEditor = erfParamGuiBean.getMagDistEditor();
     magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
     magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-    magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(7.1));
+    magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(magnitude));
     erfParamGuiBean.refreshParamEditor();
     // now have the editor create the magFreqDist
     magEditor.setMagDistFromParams();
@@ -212,5 +215,13 @@ public class PuenteHillsScenarioControlPanel {
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.GMT_WEBSERVICE_NAME).setValue(new Boolean(false));
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).setValue(new Boolean(false));
     mapGuiBean.refreshParamEditor();
+  }
+
+  /**
+   * Sets the magnitude for the Puente Hill Scenarios
+   * @param mag
+   */
+  public void setMagnitude(double mag){
+    magnitude = mag;
   }
 }

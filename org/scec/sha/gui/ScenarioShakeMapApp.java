@@ -40,7 +40,7 @@ import org.scec.exceptions.ParameterException;
  */
 
 public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListener,
-    GenerateHazusFilesConrolPanelAPI{
+    GenerateHazusFilesConrolPanelAPI,RunAll_PuenteHillsScenariosControlPanelAPI{
 
 
   /**
@@ -103,13 +103,14 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
   private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
   private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
+  private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
   private PuenteHillsScenarioTestControlPanel puenteHillsTestControl;
   private PuenteHillsScenarioControlPanel puenteHillsControl;
   private GenerateHazusFilesControlPanel hazusControl;
-
+  private RunAll_PuenteHillsScenariosControlPanel puenteHillsScenariosControl;
 
   // instances of the GUI Beans which will be shown in this applet
   private EqkRupSelectorGuiBean erfGuiBean;
@@ -505,37 +506,50 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     }catch(ParameterException e){
       throw new ParameterException(e.getMessage());
     }
+    return xyzDataSet;
+  }
 
+
+  /**
+   * Sets the GMT Region coordinates
+   */
+  private void setRegionForGMT(){
     double minLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
     double maxLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
     double minLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
     double maxLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
     double gridSpacing=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
     mapGuiBean.setRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
-    return xyzDataSet;
   }
 
 
-
-
   void addButton_actionPerformed(ActionEvent e) {
-    addButton();
+    calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
+    step = 1;
+    //get the site values for each site in the gridded region
+    getGriddedRegionSites();
+
+    if(puenteHillsScenariosControl !=null){
+      puenteHillsScenariosControl.runAllScenarios(puenteHillsControl,imrGuiBean);
+      puenteHillsScenariosControl = null;
+    }
+    else
+      addButton();
   }
 
   /**
    * when the generate Map button is pressed
    */
-  private void addButton(){
-    calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
-    step = 1;
+  public void addButton(){
+
     try{
-      //get the site values for each site in the gridded region
-      getGriddedRegionSites();
       calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
       if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
         hazusControl.generateHazusFiles(this.imtGuiBean,(AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance());
       else
         generateShakeMap();
+      //sets the region coordinates for the GMT using the MapGuiBean
+      setRegionForGMT();
       ++step;
     }catch(ParameterException e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
@@ -586,6 +600,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
     this.controlComboBox.addItem(HAZUS_CONTROL);
+    this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);
   }
 
   /**
@@ -603,7 +618,36 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       initPuenteHillScenarioControl();
     else if(selectedControl.equalsIgnoreCase(this.HAZUS_CONTROL))
       initHazusScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(this.RUN_ALL_CASES_FOR_PUENTE_HILLS))
+      initRunAllPuenteHillsScenariosControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
+  }
+
+
+
+  /**
+   * Initialises the Run all Puente Hills Scenario Control
+   * to run all the cases for it after iterating over all the Attenuations and
+   * Magnitudes.
+   */
+  private void initRunAllPuenteHillsScenariosControl(){
+    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to run all cases for Puente Hill Scenarios?",
+                                    "Run all Puente Hills Scenarios Control",JOptionPane.YES_NO_CANCEL_OPTION);
+    if(selectedOption == JOptionPane.OK_OPTION){
+      if(hazusControl == null){
+        hazusControl = new GenerateHazusFilesControlPanel(this,this);
+        hazusControl.setHazusShapeFilesControlSelected(true);
+      }
+      if(puenteHillsControl == null){
+        puenteHillsControl = new PuenteHillsScenarioControlPanel(erfGuiBean,imrGuiBean,
+            sitesGuiBean,mapGuiBean,imtGuiBean);
+        puenteHillsControl.setParamsForPuenteHillsScenario();
+      }
+      if(puenteHillsScenariosControl==null){
+        puenteHillsScenariosControl = new RunAll_PuenteHillsScenariosControlPanel(this);
+      }
+
+    }
   }
 
   /**
