@@ -24,28 +24,19 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     protected final static boolean D = false;
 
     /** The internal storage collection of points, stored as a linked list */
-    protected LinkedList points = new LinkedList();
+    protected double points[];
 
     /** The minimum x-value in this series, pins the index values with delta */
     protected double minX=Double.NaN;
+
+        /** The maximum x-value in this series */
+    protected double maxX=Double.NaN;
 
     /** Distance between x points */
     protected double delta=Double.NaN;
 
     /** Number of points in this function */
     protected int num;
-
-    /**
-     * The minimum Y-Value in this data series, calculated everytime a
-     * point is added to this function
-     */
-    protected double minY = Double.NaN;
-
-    /**
-     * The maximum Y-Value in this data series, calculated everytime a
-     * point is added to this function
-     */
-    protected double maxY = Double.NaN;
 
     /**
      * Boolean that indicates no values have been put into this function yet.
@@ -55,31 +46,43 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
 
     /**
-     * Only possible constructor, these three inputs are required
-     * to fully quantify the domain of this list. The list is
-     * initialized to this size all with null y values.
+     * This is one of two constructor options
+     * to fully quantify the domain of this list.
      * @param min   - Starting x value
      * @param num   - number of points in list
      * @param delta - distance between x values
      */
     public EvenlyDiscretizedFunc(double min, int num, double delta) {
 
-        this.minX = minX;
+        this.minX = min;
         this.delta = delta;
         this.num = num;
+        maxX = minX + (num-1)*delta;
 
-        clear();
+        points = new double[num];
+    }
 
+
+    /**
+     * The other three input options
+     * to fully quantify the domain of this list.
+     * @param min   - Starting x value
+     * @param num   - number of points in list
+     * @param delta - distance between x values
+     */
+    public EvenlyDiscretizedFunc(double min, double max, double delta) {
+
+        num = (maxX-minX)/delta + 1;
+        this(min, num, delta);
     }
 
     /**
-     * Clears out the y values - initializes linked list of
-     * y values to have all null points
+     * Sets all y values to NaN
      */
     public void clear(){
-        points.clear();
-        for( int i = 0; i < num; i++){ points.add( null ); }
+        for( int i = 0; i < num; i++){ points[i] = Double.NaN; }
     }
+
     /**
      * Returns true if two values are within tolerance to
      * be considered equal. Used internally
@@ -93,9 +96,22 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     public double getDelta() { return delta; }
     public int getNum(){ return num; }
     public double getMinX(){ return minX; }
-    public double getMaxX(){ return getX( num-1); }
-    public double getMinY(){ return minY; }
-    public double getMaxY(){ return maxY; }
+    public double getMaxX(){ return maxX; }
+
+    public double getMinY(){
+        double minY = Double.POSITIVE_INFINITY;
+        for(int i = 0; i<num; ++i)
+            if(points[i] < minY) minY = points[i];
+        return minY;
+    }
+
+    public double getMaxY(){
+        double maxY = Double.NEGATIVE_INFINITY;
+        for(int i = 0; i<num; ++i)
+            if(points[i] > maxY) maxY = points[i];
+        return maxY;
+    }
+
 
 
     public DataPoint2D get(int index){
@@ -119,9 +135,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      */
     public double getY(int index){
         if( index < 0 || index > ( num -1 ) ) return Double.NaN;
-        Object obj = points.get(index);
-        if( obj == null ) return Double.NaN;
-        else return ((Double)obj).doubleValue();
+        return points[index];
     }
 
     /**
@@ -130,12 +144,6 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * along the x axis.
      */
     public double getY(double x){ return getY( getXIndex( x) ); }
-
-
-    /** Returns the index of this DataPoint based on it's x-value */
-    public int getIndex(DataPoint2D point){
-        return getXIndex( point.getX() );
-    }
 
     /**
      * Iterates from lowest to highest x value and compares to the
@@ -146,8 +154,8 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      */
     public int getXIndex( double x){
 
-        double xx = x;
-        double xxMin = this.minX;
+        double xx = x;              // Why this?
+        double xxMin = this.minX;   // Why this?
 
         for( int i = 0; i < num; i++){
             if( withinTolerance(xx, ( xxMin + i*delta ) ) ) return i;
@@ -161,31 +169,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      */
     public void set(DataPoint2D point) throws DataPoint2DException {
 
-        int index = getXIndex( point.getX() );
-        if( index < 0 ){
-            throw new DataPoint2DException(C + ": set(): This point doesn't match a permitted x value.");
-        }
-
-        // Calculate min and max values
-        if ( !first ) {
-
-            double y = point.getY();
-            double min = minY;
-            double max = maxY;
-
-            if ( y < min ) minY = point.getY();
-            else if ( y > max )  maxY = point.getY();
-
-        }
-        else {
-            minY = point.getY();
-            maxY = point.getY();
-            first = false;
-        }
-
-
-        points.set( index,new Double(point.getY()));
-
+        set( point.getX(), point.getY());
     }
 
     /**
@@ -193,8 +177,11 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * within tolerance of one of the x-values in the function
      */
     public void set(double x, double y) throws DataPoint2DException {
-        DataPoint2D point = new DataPoint2D(x,y);
-        set(point);
+        int index = getXIndex( x );
+        if( index < 0 ){
+            throw new DataPoint2DException(C + ": set(): This point doesn't match a permitted x value.");
+        }
+        points[index] = y;
     }
 
     /**
@@ -205,33 +192,8 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         if( index < 0 || index > ( num -1 ) ) {
             throw new DataPoint2DException(C + ": set(): The specified index doesn't match this function domain.");
         }
-        double x = this.getX(index);
-        set(x, y);
+        points[index] = y;
     }
-
-
-    /**
-     * Not sure if this is how we want to implement these two hasPoint functions.
-     * Returns true if the x value is withing tolerance of an x-value in this list,
-     * and the y value is not null. Another possiblility would be to have this method
-     * return true if the x value is a valid point in this function.
-     */
-    public boolean hasPoint(DataPoint2D point){
-        int index = getXIndex( point.getX() );
-        if (index < 0) return false;
-        double y = this.getY(index);
-        if( y == Double.NaN ) return false;
-        return true;
-    }
-
-    /**
-     * Not sure if this is how we want to implement these two hasPoint functions.
-     * Returns true if the x value is withing tolerance of an x-value in this list,
-     * and the y value is not null. Another possiblility would be to have this method
-     * return true if the x value is a valid point in this function.
-     */
-    public boolean hasPoint(double x, double y){ return hasPoint( new DataPoint2D(x,y) ); }
-
 
     /**
      * This function may be slow if there are many points in the list. It has to
@@ -242,18 +204,26 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      */
     public Iterator getPointsIterator(){
         ArrayList list = new ArrayList();
-        for( int i = 0; i < this.num; i++){
+        for( int i = 0; i < num; i++){
             list.add( new DataPoint2D( getX(i), getY(i) ) );
         }
         return list.listIterator();
     }
 
+    /**
+     * This returns an iterator over x values as Double objects
+     * @return
+     */
     public ListIterator getXValuesIterator(){
         ArrayList list = new ArrayList();
-        for( int i = 0; i < this.num; i++){ list.add(new Double(getX(i))); }
+        for( int i = 0; i < num; i++){ list.add(new Double(getX(i))); }
         return list.listIterator();
     }
 
+    /**
+     * This returns an iterator over y values as Double objects
+     * @return
+     */
     public ListIterator getYValuesIterator(){
         ArrayList list = new ArrayList();
         for( int i = 0; i < this.num; i++){ list.add(new Double(getY(i))); }
@@ -267,19 +237,14 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * @return x(this  is the interpolated x based on the given y value)
      */
     public double getFirstInterpolatedX(double y){
-      // finds the size of the point array
-       int max=points.size();
        int i;
        double y1=Double.NaN;
        double y2=Double.NaN;
        //if passed parameter(y value) is not within range then throw exception
-       if(y>getY(max-1) || y<getY(0))
+       if( y>getMaxY() || y<getMinY() )
           throw new InvalidRangeException("Y Value must be within the range: "+getY(0)+" and "+getY(max-1));
-      //if y value is equal to the maximum value of all given Y's then return the corresponding X value
-       if(y==getY(max-1))
-         return getX(max-1);
       //finds the Y values within which the the given y value lies
-       for(i=0;i<max-1;++i) {
+       for(i=0;i<num-1;++i) {
          y1=getY(i);
          y2=getY(i+1);
         if(y>=y1 && y<=y2)
@@ -299,18 +264,13 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * @return y(this  is the interpolated x based on the given x value)
      */
     public double getInterpolatedY(double x){
-    // finds the size of the point array
-       int max=points.size();
        double x1=Double.NaN;
        double x2=Double.NaN;
        //if passed parameter(x value) is not within range then throw exception
-       if(x>getX(max-1) || x<getX(0))
+       if(x>getX(num-1) || x<getX(0))
           throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1));
-      //if x value is equal to the maximum value of all given X's then return the corresponding Y value
-       if(x==getX(max-1))
-         return getY(x);
       //finds the X values within which the the given x value lies
-       for(int i=0;i<max-1;++i) {
+       for(int i=0;i<num-1;++i) {
          x1=getX(i);
          x2=getX(i+1);
         if(x>=x1 && x<=x2)
@@ -325,10 +285,6 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     }
 
 
-
-
-
-
     /** FIX *** Returns a copy of this and all points in this DiscretizedFunction */
     public DiscretizedFuncAPI deepClone(){
 
@@ -337,19 +293,13 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         );
 
         f.info = info;
-        f.maxY = maxY;
-        f.minY = minY;
         f.minX = minX;
+        f.maxX = maxX;
         f.name = name;
         f.tolerance = tolerance;
 
-        ListIterator it = getYValuesIterator();
-        int counter = 0;
-        while( it.hasNext() ){
-            Object obj = it.next();
-            if( obj != null ) f.set(counter++, ((Double)obj).doubleValue() );
-            else f.set(counter++, Double.NaN );
-        }
+        for(int i = 0; i<num; i++)
+            f.setY(i, points[i]);
 
         return f;
     }
