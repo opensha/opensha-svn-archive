@@ -36,7 +36,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private final double MAX_LAT= 36.60;
   private final double MIN_LON = -121.45 ;
   private final double MAX_LON= -114.50;
-  private final double GRID_SPACING= .1;
+  private final double GRID_SPACING= 1.0;
   private static final String STEP_DIR = "step/";
   private static final String STEP_BACKGROUND_FILE = "backGround.txt";
   private static final String STEP_ADDON_FILE_SUFFIX = "_addon.txt";
@@ -123,7 +123,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     }
     //if the backGround file does not already exist then create it
     else{
-      backSiesProbVals = getBackSeisProbVals(imr,region,(EqkRupForecast)forecast);
+      backSiesProbVals = getProbVals(imr,region,(EqkRupForecast)forecast);
       createFile(backSiesProbVals,this.STEP_DIR+this.STEP_BACKGROUND_FILE);
       //creting the metadata file for the backGround
       String backFile = this.STEP_BACKGROUND_FILE.substring(0,STEP_BACKGROUND_FILE.indexOf("."));
@@ -139,7 +139,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_ADD_ON);
     forecast.updateForecast();
     //creating the dataFile for the STEP Addon Probabilities
-    Vector stepAddonProbVals = getBackSeisProbVals(imr,region,(EqkRupForecast)forecast);
+    Vector stepAddonProbVals = getProbVals(imr,region,(EqkRupForecast)forecast);
     String stepDirName = this.getStepDirName();
     File addonFile = new File(this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
     if(!addonFile.exists()){
@@ -210,7 +210,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    * @param eqkRupForecast : STEP Forecast
    * @returns the Vector of Probability values for the given region
    */
-  private Vector getBackSeisProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
+  private Vector getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
                                      EqkRupForecast eqkRupForecast){
 
     Vector probVals = new Vector();
@@ -284,8 +284,8 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
           // For poisson source
           if(poissonSource)
-              hazVal = hazVal*Math.pow(1-qkProb,condProb);
-          // For non-Poissin source
+              hazVal = hazVal*StrictMath.pow(1-qkProb,condProb);
+          // For non-Poissoin source
           else
               sourceHazVal =sourceHazVal + qkProb*condProb;
         }
@@ -300,7 +300,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       else
         hazVal = 0.0;
 
-      probVals.add(new Double(Math.log(hazVal)));
+      probVals.add(new Double(StrictMath.log(hazVal)));
     }
 
     return probVals;

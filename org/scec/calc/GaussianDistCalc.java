@@ -40,11 +40,7 @@ public final class GaussianDistCalc {
     * random variable assuming no truncation of the distribution.
     */
     public static double getExceedProb(double standRandVariable) {
-
-      if(standRandVariable < 0)
         return 1.0 - getCDF(standRandVariable);
-      else
-        return getCDF(standRandVariable);
     }
 
 
@@ -112,7 +108,7 @@ public final class GaussianDistCalc {
     * says this is good enough for seismic hazard calculations.
     *
     */
-    private static double getCDF(double standRandVariable) {
+    public static double getCDF(double standRandVariable) {
 
       double val;
       double result;
@@ -121,9 +117,8 @@ public final class GaussianDistCalc {
       else                          val = -standRandVariable;
 
       result = 0.5 * Math.pow( (((((d6*val+d5)*val+d4)*val+d3)*val+d2)*val+d1)*val+1, -16);
-      /*if(standRandVariable < 0) return result;
-      else                      return 1.0-result;*/
-      return result;
+      if(standRandVariable < 0) return result;
+      else                      return 1.0-result;
     }
 
 

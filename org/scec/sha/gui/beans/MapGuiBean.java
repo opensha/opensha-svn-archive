@@ -176,6 +176,7 @@ public class MapGuiBean extends JPanel implements
    * @throws Exception
    */
   private void jbInit() throws Exception {
+    gmtServerCheck.setSelected(true);
     gmtServerCheck.setText("Use GMT web Service");
     gmtServerCheck.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
