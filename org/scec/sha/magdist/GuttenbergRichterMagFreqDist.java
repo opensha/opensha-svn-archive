@@ -225,38 +225,6 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
   }
 
 
-
-
-  /**
-     * this function will throw an exception if the given x-value is not
-     * within tolerance of one of the x-values in the function
-     */
-    public void set(DataPoint2D point) throws DataPoint2DException {
-        super.set(point);
-    }
-
-
-
-    /**
-     * this function will throw an exception if the given x-value is not
-     * within tolerance of one of the x-values in the function
-     */
-    public void set(double x, double y) throws DataPoint2DException {
-       super.set(x,y);
-    }
-
-
-
-    /**
-     * this function will throw an exception if the index is not
-     * within the range of 0 to num -1
-     */
-    public void set(int index, double y) throws DataPoint2DException {
-        super.set(index,y);
-    }
-
-
-
   /**
    *
    * @returns the cumulative rate at magLower
