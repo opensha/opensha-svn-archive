@@ -5,10 +5,10 @@ import javax.swing.JFrame;
 
 import org.scec.param.ParameterList;
 import org.scec.param.editor.ParameterListEditor;
-import org.scec.sha.gui.controls.PropagationEffectControlPanelAPI;
+import org.scec.sha.gui.controls.CalculationSettingsControlPanelAPI;
 
 /**
- * <p>Title: PropagationEffectControlPanel</p>
+ * <p>Title: CalculationSettingsControlPanel</p>
  * <p>Description: This class takes the adjustable parameters from the calculators
  * like ScenarioshakeMapCalc and HazardMapCalc and show it in the control panel. </p>
  * @author : Ned Field, Nitin Gupta and Vipin  Gupta
@@ -16,21 +16,21 @@ import org.scec.sha.gui.controls.PropagationEffectControlPanelAPI;
  * @version 1.0
  */
 
-public class PropagationEffectControlPanel extends JFrame {
+public class CalculationSettingsControlPanel extends JFrame {
 
   //declaring the instance of the parameterlist and editor.
   private ParameterList paramList;
   private ParameterListEditor editor;
   private BorderLayout borderLayout1 = new BorderLayout();
   //instance of the class implementing PropagationEffectControlPanelAPI interface.
-  private PropagationEffectControlPanelAPI application;
+  private CalculationSettingsControlPanelAPI application;
 
   /**
    *
    * @param api : Instance of the class using this control panel and implmenting
-   * the PropagationEffectControlPanelAPI.
+   * the CalculationSettingsControlPanelAPI.
    */
-  public PropagationEffectControlPanel(Component parentComponent,PropagationEffectControlPanelAPI api) {
+  public CalculationSettingsControlPanel(Component parentComponent,CalculationSettingsControlPanelAPI api) {
     application = api;
     paramList = api.getCalcAdjustableParams();
     editor = new ParameterListEditor(paramList);
@@ -45,7 +45,7 @@ public class PropagationEffectControlPanel extends JFrame {
     }
   }
   private void jbInit() throws Exception {
-    this.setSize(300,350);
+    this.setSize(250,180);
     this.setTitle("Calculation Settings");
     this.getContentPane().setLayout(new GridBagLayout());
     this.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0

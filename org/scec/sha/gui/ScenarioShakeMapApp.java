@@ -55,7 +55,7 @@ import org.scec.exceptions.ParameterException;
  */
 
 public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListener,
-    AttenuationRelationshipSiteParamsRegionAPI,PropagationEffectControlPanelAPI,Runnable{
+    AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Runnable{
 
   /**
    * Name of the class
@@ -145,7 +145,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
   private GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
   private CalcOptionControl calcControl;
-  private PropagationEffectControlPanel calcParamsControl;
+  private CalculationSettingsControlPanel calcParamsControl;
 
   // instances of the GUI Beans which will be shown in this applet
   private EqkRupSelectorGuiBean erfGuiBean;
@@ -745,6 +745,14 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   }
 
 
+  /**
+   *
+   * @returns the Metadata string for the Calculation Settings Adjustable Params
+   */
+  public String getCalcParamMetadataString(){
+    return getCalcAdjustableParams().getParameterListMetadataString();
+  }
+
 
   /**
    * Initialize the items to be added to the control list
@@ -787,9 +795,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    */
   private void initCalcParamsControl(){
     if(calcParamsControl == null)
-      calcParamsControl = new PropagationEffectControlPanel(this,this);
+      calcParamsControl = new CalculationSettingsControlPanel(this,this);
 
-    calcParamsControl.pack();
     calcParamsControl.show();
   }
 
@@ -885,11 +892,16 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     String imrMetadata = "IMR Param List:<br>\n " +
            "---------------<br>\n";
 
+
     //if the Hazus Control for Sceario is selected the get the metadata for IMT from there
     if(hazusControl!=null && hazusControl.isGenerateShapeFilesForHazus())
       imrMetadata +=imrGuiBean.getIMR_ParameterListMetadataString()+hazusControl.getIMT_Metadata()+"\n";
     else
       imrMetadata += imrGuiBean.getIMR_ParameterListMetadataString()+imrGuiBean.getIMT_ParameterListMetadataString()+"\n";
+
+    //getting the metadata for the Calculation setting Params
+    String calculationSettingsParamsMetadata = "<br><br>Calculation Param List:<br>\n "+
+        "------------------<br>\n"+getCalcParamMetadataString()+"\n";
 
     return imrMetadata+
         "<br><br>Region Param List: <br>\n"+
@@ -903,6 +915,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
         timeSpanGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n"+
         "<br><br>GMT Param List: <br>\n"+
         "--------------------<br>\n"+
-        mapGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n";
+        mapGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n"+
+        calculationSettingsParamsMetadata;
   }
 }

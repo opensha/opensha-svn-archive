@@ -75,13 +75,11 @@ ActionListener{
       if(D) System.out.println(S + "Starting");
 
       super.setParameter(model);
-      ((JCheckBox)valueEditor).setToolTipText("No Constraints");
 
       String info = model.getInfo();
-      if( (info != null ) && !( info.equals("") ) ){
-          this.nameLabel.setToolTipText( info );
-      }
-      else this.nameLabel.setToolTipText( null);
+      if( (info != null ) && !( info.equals("") ) )
+        ((JCheckBox)valueEditor).setToolTipText(info);
+      else ((JCheckBox)valueEditor).setToolTipText(null);
 
 
       if(D) System.out.println(S + "Ending");

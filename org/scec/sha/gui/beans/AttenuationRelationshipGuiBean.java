@@ -1273,7 +1273,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
      metadata = metadata.substring(0,metadata.length()-3);
    if(paramSize >1)
    metadata +=" ] ";
-   return metadata+"<br>\n";
+   return metadata+"\n";
  }
 
 
