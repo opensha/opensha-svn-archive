@@ -309,6 +309,12 @@ public class PEER_TestsGuiBean implements
         AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI ) createIMRClassInstance((String)it.next(),this);
         imrObject.add(imr);
         imrNamesVector.add(imr.getName());
+        Iterator it1 = imr.getSiteParamsIterator();
+        // add change fail listener to the site parameters for this IMR
+        while(it1.hasNext()) {
+          ParameterAPI param = (ParameterAPI)it1.next();
+          param.addParameterChangeFailListener(this);
+        }
       }
 
       // make the IMR selection paramter
@@ -479,10 +485,17 @@ public class PEER_TestsGuiBean implements
       while(it.hasNext()){
         // make the ERF objects to get their adjustable parameters
         erf = (EqkRupForecastAPI ) createERFClassInstance((String)it.next());
-        if(D)
-          System.out.println("Iterator Class:"+erf.getName());
+        if(D) System.out.println("Iterator Class:"+erf.getName());
         erfObject.add(erf);
         erfNamesVector.add(erf.getName());
+        Iterator it1 = erf.getAdjustableParamsList();
+
+        // add the listener for the paramters in the forecast
+        while(it1.hasNext()) {
+           ParameterAPI param = (ParameterAPI)it1.next();
+          param.addParameterChangeFailListener(this);
+        }
+
       }
 
       // make the forecast selection parameter
@@ -835,7 +848,7 @@ public class PEER_TestsGuiBean implements
      int num = hazFunction.getNum();
 
      //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
-     if(selectedProb > hazFunction.getY(0) || selectedProb < hazFunction.getY(num-1))
+     if(selectedProb > hazFunction.getMaxY() || selectedProb < hazFunction.getMinY())
        JOptionPane.showMessageDialog(applet,
                                      new String("Chosen Probability is not"+
                                      " within the range of the min and max prob."+
@@ -898,14 +911,14 @@ public class PEER_TestsGuiBean implements
     String badValueStr = e.getBadValue().toString();
     String name = param.getName();
 
-    try{
+   /* try{
       // only show messages for site parameters
       if(this.imrParamList.getParameter(name)==null)
         return;
     } catch(ParameterException paramException) {
       // we do not need to do anything in case this paramter is not in site paramters list
       return;
-    }
+    }*/
 
     b.append( "The value ");
     b.append( badValueStr );
