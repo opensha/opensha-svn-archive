@@ -39,7 +39,7 @@ public class ClassicIMRGuiBean
 
 
     protected final static String C = "IMRGuiBean";
-    protected final static boolean D = true;
+    protected final static boolean D = false;
 
     public final static String IM_NAME = "Intensity Measure";
     public final static String IM_V1 = "PGA";
