@@ -148,7 +148,7 @@ public class CustomListricFault extends JFrame {
        // check for depths text area
        // vector of depths
         Vector depths = new Vector();
-        double upperSeismo = -1;
+        double upperSeismo = Double.NaN;
         double lowerSeismo;
         // first check the depths. Check that there is only one value in 1 row
         // also only numbers are allowed
@@ -162,7 +162,8 @@ public class CustomListricFault extends JFrame {
             throw new RuntimeException("Only 1 value in each row is allowed in depth values");
           lowerSeismo = Double.parseDouble(token.nextToken());
           // check that depths are in increasing order
-          FaultUtils.assertValidSeisUpperAndLower(upperSeismo, lowerSeismo);
+          if(depths.size()!=0)
+            FaultUtils.assertValidSeisUpperAndLower(upperSeismo, lowerSeismo);
           // add this depth. If it is not numeric charcter, then exceeption will be thrown and caught
           depths.add(new Double(lowerSeismo));
           upperSeismo = lowerSeismo;
