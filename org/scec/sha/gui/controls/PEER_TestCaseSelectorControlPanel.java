@@ -691,13 +691,13 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      // mag dist parameters for test case 7
      else if(selectedTest.equalsIgnoreCase(TEST_CASE_SEVEN)) {
        magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(9.95));
-       magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(100));
+       magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.0));
+       magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(10));
+       magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(1001));
        magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
        magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_CHAR).setValue(new Double(0.5));
        magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
-       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(4.95));
+       magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(0.01));
        magEditor.getParameter(MagFreqDistParameterEditor.YC_MAG_PRIME).setValue(new Double(5.95));
        magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_UPPER).setValue(new Double(6.45));
        magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
