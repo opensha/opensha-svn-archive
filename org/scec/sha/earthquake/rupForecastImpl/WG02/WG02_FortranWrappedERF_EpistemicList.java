@@ -416,10 +416,10 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
                 new Double(Double.parseDouble(st.nextToken())));
             paramList.addParameter(timeParam);
           }
-          //creating the instance of the parameterListParameter with name being the name of the fault
+          //creating the instance of the TreeBranchWeightsParameter with name being the name of the fault
           //and adding the parameterList to it.
-          ParameterListParameter param =
-              new ParameterListParameter(faultName+this.PROB_MODEL_WTS,paramList);
+          TreeBranchWeightsParameter param =
+              new TreeBranchWeightsParameter(faultName+this.PROB_MODEL_WTS,paramList);
           //adding the parameter to the adjustable parameterList
           this.adjustableParams.addParameter(param);
         }

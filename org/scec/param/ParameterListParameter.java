@@ -23,7 +23,7 @@ public class ParameterListParameter extends Parameter
 
   protected final static String PARAM_TYPE ="ParameterListParameter";
 
-  private final static double tolerence = 0.01;
+
 
 
   /**
@@ -64,21 +64,17 @@ public class ParameterListParameter extends Parameter
 
 
   /**
-   * Set's the parameter's value. It checks that all the Parameter in this parameterList
-   * should be DoubleParameter.
+   * Set's the parameter's value, which is basically a parameterList.
    *
    * @param  value                 The new value for this Parameter
    * @throws  ParameterException   Thrown if the object is currenlty not
    *      editable
-   * @throws  ConstraintException  Thrown if the object value is not allowed
    */
   public void setValue( ParameterList value ) throws ParameterException {
 
     ListIterator it  = value.getParametersIterator();
     while(it.hasNext()){
       ParameterAPI param = (ParameterAPI)it.next();
-      if(!(param instanceof DoubleParameter))
-        throw new RuntimeException(C+" Only DoubleParameter allowed in this Parameter");
     }
     setValue( (Object) value );
   }
@@ -122,31 +118,6 @@ public class ParameterListParameter extends Parameter
     return type;
   }
 
-  /**
-   *
-   * @returns true if the sum of the sum of the parameters value, inside the parameterList
-   * lie within the range of "1".
-   * else return false.
-   */
-  public boolean checkParametersSumtoOne(ParameterList paramList){
-    ListIterator it =paramList.getParametersIterator();
-    double paramsSum=0;
-    while(it.hasNext()){
-      paramsSum += ((Double)((ParameterAPI)it.next()).getValue()).doubleValue();
-    }
-    return isInTolerence(paramsSum);
-  }
-
-  /**
-   * check if this parameter values  lies in tolerence
-   * @param num - sum of the parameter value
-   * @return
-   */
-  private boolean isInTolerence(double num){
-    if((num <= (1+this.tolerence)) && (num >= (1-this.tolerence)))
-      return true;
-    return false;
-  }
 }
 
 

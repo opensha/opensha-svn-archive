@@ -13,11 +13,11 @@ import org.scec.param.event.*;
 
 /**
  * <p>Title: ParameterListParameterEditor</p>
- * <p>Description: This class is more like a parameterList consisting of only
- * Double Parameters and considering this parameterList as a single Parameter.
+ * <p>Description: This class is more like a parameterList consisting of any number of
+ * parameters. This parameterList considered as a single Parameter.
  * This parameter editor will show up as the button on th GUI interface and
  * when the user punches the button, all the parameters will pop up in a seperate window
- * showing all the double parameters contained within this parameter.</p>
+ * showing all the parameters contained within this parameter.</p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @created : Aug 14,2003
  * @version 1.0
@@ -32,15 +32,12 @@ ActionListener{
   protected final static boolean D = false;
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
-  //static declaration for the title of the Parameters
-  private final static String EDITOR_TITLE = "Prob. Model Wts.";
-
-  private ParameterListParameter param ;
+  protected ParameterListParameter param ;
   //Editor to hold all the parameters in this parameter
-  private ParameterListEditor editor;
+  protected ParameterListEditor editor;
 
   //Instance for the framee to show the all parameters in this editor
-  private JDialog frame;
+  protected JDialog frame;
 
   //default class constructor
   public ParameterListParameterEditor() {}
@@ -51,7 +48,7 @@ ActionListener{
 
 
   /**
-   * Set the values in the Parameters for the EvenlyGridded Surface
+   * Set the values in the parameters in this parameterList parameter
    */
   public void setParameter(ParameterAPI param)  {
 
@@ -74,9 +71,9 @@ ActionListener{
 
 
   /**
-   * creating the GUI parameters elements for the EvenlyGriddedSurface Param
+   * creating the GUI parameters elements for the parameterlistparameter Param
    */
-  private void initParamListAndEditor(){
+  protected void initParamListAndEditor(){
 
     editor = new ParameterListEditor((ParameterList)param.getValue());
     editor.setTitle("Set "+param.getName());
@@ -158,14 +155,6 @@ ActionListener{
    */
   void button_actionPerformed(ActionEvent e) {
     ParameterList paramList = editor.getParameterList();
-    boolean doSumToOne =param.checkParametersSumtoOne(paramList);
-    if(doSumToOne){
-      param.setValue(paramList);
-      frame.dispose();
-    }
-    else{
-      JOptionPane.showMessageDialog(frame,"Parameters Value should sum to One",
-                                    "Incorrect Input",JOptionPane.ERROR_MESSAGE);
-    }
+    param.setValue(paramList);
   }
 }

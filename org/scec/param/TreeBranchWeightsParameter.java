@@ -19,8 +19,9 @@ public class TreeBranchWeightsParameter extends ParameterListParameter
   protected final static String C = "TreeBranchWeightsParameter";
   /** If true print out debug statements. */
   protected final static boolean D = false;
+  protected final static String PARAM_TYPE = C;
 
-  private double tolerance = .001;
+  private double tolerance = .01;
 
   /**
    *  No constraints specified for this parameter. Sets the name of this
@@ -44,28 +45,6 @@ public class TreeBranchWeightsParameter extends ParameterListParameter
 
 
   /**
-   * checks whether all the Branch Weight Values sum to One.
-   * @return
-   */
-  public boolean doWeightsSumToOne(){
-    double sum =0;
-    ParameterList paramList = (ParameterList)this.getValue();
-    ListIterator it = paramList.getParametersIterator();
-    while(it.hasNext()){
-      ParameterAPI param =(ParameterAPI)it.next();
-      sum += ((Double)param.getValue()).doubleValue();
-    }
-
-    //checks if the sum of the branch weights lies within the tolerenace
-    double WeightOfBranches = 1.0;
-    if((sum <= (WeightOfBranches + getTolerance()) )  && (sum>=WeightOfBranches - getTolerance()))
-      return true;
-
-    return false;
-
-  }
-
-  /**
    * sets the tolerance for the sums of the weights
    * @param tolerance
    */
@@ -80,6 +59,61 @@ public class TreeBranchWeightsParameter extends ParameterListParameter
   public double getTolerance(){
     return this.tolerance;
   }
+
+  /**
+   * Set's the parameter's value. It checks that all the weights Parameter in this parameterList
+   * should be DoubleParameter.
+   *
+   * @param  value                 The new value for this Parameter
+   * @throws  ParameterException   Thrown if the object is currenlty not
+   *      editable
+   * @throws  ConstraintException  Thrown if the object value is not allowed
+   */
+  public void setValue( ParameterList value ) throws ParameterException {
+
+    ListIterator it  = value.getParametersIterator();
+    while(it.hasNext()){
+      ParameterAPI param = (ParameterAPI)it.next();
+      if(!(param instanceof DoubleParameter))
+        throw new RuntimeException(C+" Only DoubleParameter allowed in this Parameter");
+    }
+    setValue( (Object) value );
+  }
+
+  /**
+   *
+   * @returns true if the Branch Weight Values sum to One, inside the parameterList
+   * lie within the range of "1".
+   * else return false.
+   */
+  public boolean doWeightsSumToOne(ParameterList paramList){
+    ListIterator it =paramList.getParametersIterator();
+    double paramsSum=0;
+    while(it.hasNext()){
+      paramsSum += ((Double)((ParameterAPI)it.next()).getValue()).doubleValue();
+    }
+    return isInTolerence(paramsSum);
+  }
+
+  /**
+   * check if this parameter values  lies in tolerence
+   * @param num - sum of the parameter value
+   * @return
+   */
+  private boolean isInTolerence(double num){
+    if((num <= (1+this.tolerance)) && (num >= (1-this.tolerance)))
+      return true;
+    return false;
+  }
+
+  /**
+   * Returns the name of the parameter class
+   */
+  public String getType() {
+    String type = this.PARAM_TYPE;
+    return type;
+  }
+
 
 }
 
