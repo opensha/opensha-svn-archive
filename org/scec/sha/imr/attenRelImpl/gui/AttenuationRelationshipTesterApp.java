@@ -52,7 +52,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected final static String C = "AttenuationRelationshipTesterApp";
     private final static String version = "0.0.3";
     protected final static boolean D = false;
-
+    private boolean warning = false;
   /**
    * these four values save the custom axis scale specified by user
    */
@@ -347,7 +347,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
      *
      * @return    The fileFromUser value
      */
-    protected File getFileFromUser() {
+    private File getFileFromUser() {
         JFileChooser fc = new JFileChooser();
 
         // use current directory
@@ -404,7 +404,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
      *  THis must be called before the IMR is used. This is what initializes the
      *  IMR
      */
-    protected void initIMRGui() {
+    private void initIMRGui() {
 
         // starting
         String S = C + ": initIMRGui(): ";
@@ -439,7 +439,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
      *
      * @exception  Exception  Description of the Exception
      */
-    protected void jbInit() throws Exception {
+    private void jbInit() throws Exception {
 
         String S = C + ": jbInit(): ";
 
@@ -499,6 +499,11 @@ public class AttenuationRelationshipTesterApp extends JApplet
         );
 
         addButton.setText( "Add Trace" );
+    addButton.addFocusListener(new java.awt.event.FocusAdapter() {
+      public void focusGained(FocusEvent e) {
+        addButton_focusGained(e);
+      }
+    });
 
         addButton.addActionListener(new java.awt.event.ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -777,7 +782,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
      *  Used for synch applet with new IMR choosen. Updates lables and
      *  initializes the IMR if needed.
      */
-    protected void updateChoosenIMR() {
+    private void updateChoosenIMR() {
 
         // Starting
         String S = C + ": updateChoosenIMR(): ";
@@ -832,7 +837,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     /**
      *  Adds a feature to the GraphPanel attribute of the AttenuationRelationshipTesterApplet object
      */
-    protected void addGraphPanel() {
+    private void addGraphPanel() {
 
         // Starting
         String S = C + ": addGraphPanel(): ";
@@ -944,7 +949,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
 
 
-    void clearButton(){
+    private void clearButton(){
         clearPlot( true );
         imr.synchToModel();
     }
@@ -952,7 +957,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     /**
      *  Clears the plot screen of all traces
      */
-    void clearPlot(boolean clearFunctions) {
+    private void clearPlot(boolean clearFunctions) {
 
         if ( D )
             System.out.println( "Clearing plot area" );
@@ -989,7 +994,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     /**
      *  Description of the Method
      */
-    protected void togglePlot() {
+    private void togglePlot() {
 
         // Starting
         String S = C + ": togglePlot(): ";
@@ -1093,7 +1098,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
      *
      * @param  e  Description of the Parameter
      */
-    void pointsTextArea_mouseClicked( MouseEvent e ) {
+    private void pointsTextArea_mouseClicked( MouseEvent e ) {
 
         // Starting
         String S = C + ": pointsTextArea_mouseClicked(): ";
@@ -1182,7 +1187,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         String S = C + " : parameterChangeWarning(): ";
         if(D) System.out.println(S + "Starting");
-
+        warning = true;
         if(this.inParameterChangeWarning) return;
 
         inParameterChangeWarning = true;
@@ -1249,13 +1254,11 @@ public class AttenuationRelationshipTesterApp extends JApplet
         if(D) System.out.println(S + "Ending");
     }
 
-    void addButton_actionPerformed(ActionEvent e){
-
-        String S = C + " : addButton_actionPerformed";
-        if(D) System.out.println(S + "Starting");
-        addButton();
-        if(D) System.out.println(S + "Ending");
-
+    private void addButton_actionPerformed(ActionEvent e) {
+      String S = C + " : addButton_actionPerformed";
+      if(D) System.out.println(S + "Starting");
+      addButton();
+      if(D) System.out.println(S + "Ending");
     }
 
     /**
@@ -1264,9 +1267,9 @@ public class AttenuationRelationshipTesterApp extends JApplet
      *
      * @param  e  The feature to be added to the Button_mouseClicked attribute
      */
-    protected void addButton(){
+    private void addButton(){
 
-        String S = C + ": addButton(): ";
+      String S = C + ": addButton(): ";
         if ( D ) System.out.println( S + "Starting" );
         if ( D ) System.out.println( S + "Controls = " + this.imr.controlsEditor.getParameterList().toString() );
 
@@ -1387,7 +1390,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     }
 
 
-    protected void clearButton_actionPerformed(ActionEvent e){
+    private void clearButton_actionPerformed(ActionEvent e){
 
         String S = C + " : clearButtonFocusGained(): ";
         if(D) System.out.println(S + "Starting");
@@ -1397,7 +1400,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     }
 
 
-    protected void toggleButton_actionPerformed(ActionEvent e){
+    private void toggleButton_actionPerformed(ActionEvent e){
 
         String S = C + " : toggleButtonFocusGained(): ";
         if(D) System.out.println(S + "Starting");
@@ -1487,7 +1490,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
   * whenever selection is made in the combo box
   * @param e
   */
-  void axisScaleButton_actionPerformed(ActionEvent e) {
+  private void axisScaleButton_actionPerformed(ActionEvent e) {
     if(xAxis==null || yAxis==null) {
       JOptionPane.showMessageDialog(this,AXIS_RANGE_NOT_ALLOWED);
       return;
@@ -1569,12 +1572,19 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
 
 
-  void imgLabel_mouseClicked(MouseEvent e) {
+  private void imgLabel_mouseClicked(MouseEvent e) {
     try{
       this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE),"_new");
     }catch(java.net.MalformedURLException ee){
       JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
                                     "Error Connecting to Internet",JOptionPane.OK_OPTION);
+    }
+  }
+
+  private void addButton_focusGained(FocusEvent e) {
+    if(warning)  {
+      addButton.doClick();
+      warning = false;
     }
   }
 }
