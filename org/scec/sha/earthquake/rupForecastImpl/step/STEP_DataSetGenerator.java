@@ -214,15 +214,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
                                      EqkRupForecast eqkRupForecast){
 
     Vector probVals = new Vector();
-    double MAX_DISTANCE = 300;
-
-
-    /* this determines how the calucations are done (doing it the way it's outlined
-    in the paper SRL gives probs greater than 1 if the total rate of events for the
-    source exceeds 1.0, even if the rates of individual ruptures are << 1).
-    */
-    boolean poissonSource = false;
-
+    double MAX_DISTANCE = 1000;
 
     // declare some varibles used in the calculation
     double qkProb, distance;
@@ -230,7 +222,6 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
-
 
     // this boolean will tell us whether a source was actually used
     // (e.g., all could be outside MAX_DISTANCE)
@@ -241,6 +232,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     int numSites = region.getNumGridLocs();
     for(int j=0;j<numSites;++j){
       imr.setSite(region.getSite(j));
+
       // loop over sources
       for(i=0;i < numSources ;i++) {
 
@@ -255,13 +247,6 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
         // indicate that a source has been used
         sourceUsed = true;
-
-        // determine whether it's poissonian
-        poissonSource = source.isSourcePoissonian();
-
-        if(!poissonSource)
-          sourceHazVal=0;
-
 
         // get the number of ruptures for the current source
         int numRuptures = source.getNumRuptures();
@@ -283,15 +268,8 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
           condProb = imr.getExceedProbability(this.IML_VALUE);
 
           // For poisson source
-          if(poissonSource)
-              hazVal = hazVal*StrictMath.pow(1-qkProb,condProb);
-          // For non-Poissoin source
-          else
-              sourceHazVal =sourceHazVal + qkProb*condProb;
+          hazVal = hazVal*StrictMath.pow(1-qkProb,condProb);
         }
-        // for non-poisson source:
-        if(!poissonSource)
-            hazVal = hazVal*(1-sourceHazVal);
       }
 
       // finalize the hazard function
@@ -300,7 +278,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       else
         hazVal = 0.0;
 
-      probVals.add(new Double(StrictMath.log(hazVal)));
+      probVals.add(new Double(hazVal));
     }
 
     return probVals;
