@@ -77,7 +77,7 @@ public class HazardMapApplet extends JApplet implements
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String FRANKEL_ADJ_PARAM_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-  public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecastWebEnabled";
+  public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -374,6 +374,8 @@ public class HazardMapApplet extends JApplet implements
         the forecast while erfGuiBean.getSelectedERF updates the
         */
         this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
+        this.timeSpanGuiBean.validate();
+        this.timeSpanGuiBean.repaint();
       }
   }
 
