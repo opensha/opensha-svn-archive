@@ -88,13 +88,16 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     this.setTitle("Hazus Shapefiles Control");
     infoPanel.setBackground(SystemColor.menu);
     infoPanel.setEnabled(false);
-    String info = new String("This generates the Hazus shapefiles (sa-0.3sec,"+
-                             " sa-1.0sec, pga and pgv) for the selected scenario.");
-    infoPanel.setPreferredSize(new Dimension(812, 16));
+    String info = new String("Clicking the above generates a set of Hazus shapefiles (0.3- and 1.0-sec SA,"+
+                             " pga, and pgv) for the selected Earthquake "+
+                             "Rupture and IMR.  Be sure to have selected "+
+                             "Average-Horizontal component, and note that PGV "+
+                             "is in units of inches/sec in these files (as assumed by Hazus)");
+    infoPanel.setPreferredSize(new Dimension(812, 24));
     infoPanel.setEditable(false);
     infoPanel.setText(info);
-    jPanel1.setMinimumSize(new Dimension(350, 70));
-    jPanel1.setPreferredSize(new Dimension(350, 125));
+    jPanel1.setMinimumSize(new Dimension(350, 130));
+    jPanel1.setPreferredSize(new Dimension(350, 180));
     generateHazusShapeFilesButton.setText("Generate Hazus Shape Files");
     generateHazusShapeFilesButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {

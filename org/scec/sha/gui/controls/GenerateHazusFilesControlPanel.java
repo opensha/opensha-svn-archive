@@ -75,8 +75,11 @@ public class GenerateHazusFilesControlPanel extends JFrame {
     this.setTitle("Hazus Shapefiles Control");
     infoPanel.setBackground(SystemColor.menu);
     infoPanel.setEnabled(false);
-    String info = new String("This generates the Hazus shapefiles (sa-0.3sec,"+
-                             " sa-1.0sec, pga and pgv) for the selected scenario.");
+    String info = new String("This generates a set of Hazus shapefiles (sa-0.3sec,"+
+                             " sa-1.0sec, pga and pgv) for the selected Earthquake "+
+                             "Rupture and IMR.  Be sure to have selected "+
+                             "Average-Horizontal component, and note that PGV in these files "+
+                             "is in units of inches/sec (as assumed by Hazus)");
     infoPanel.setPreferredSize(new Dimension(812, 16));
     infoPanel.setEditable(false);
     infoPanel.setText(info);
