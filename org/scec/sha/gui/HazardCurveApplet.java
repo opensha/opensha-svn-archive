@@ -145,7 +145,7 @@ public class HazardCurveApplet extends JApplet
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
   // height and width of the applet
-  private final static int W = 1000;
+  private final static int W = 1100;
   private final static int H = 750;
 
   /**
@@ -339,7 +339,7 @@ public class HazardCurveApplet extends JApplet
     border7 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     //this.getContentPane().setBackground(Color.white);
-    this.setSize(new Dimension(973, 670));
+    this.setSize(new Dimension(1060, 670));
     this.getContentPane().setLayout(borderLayout1);
 
 
@@ -429,6 +429,7 @@ public class HazardCurveApplet extends JApplet
     imrSplitPane.setBottomComponent(imtPanel);
     imrSplitPane.setTopComponent(imrPanel);
     erfSplitPane.setBottomComponent(timeSpanPanel);
+    erfSplitPane.setLastDividerLocation(210);
     erfSplitPane.setTopComponent(erfPanel);
     sitePanel.setLayout(gridBagLayout13);
     sitePanel.setBackground(Color.white);
@@ -471,8 +472,8 @@ public class HazardCurveApplet extends JApplet
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     topSplitPane.setDividerLocation(600);
     imrSplitPane.setDividerLocation(300);
-    erfSplitPane.setDividerLocation(180);
-    controlsSplit.setDividerLocation(180);
+    erfSplitPane.setDividerLocation(230);
+    controlsSplit.setDividerLocation(230);
     erfPanel.validate();
     erfPanel.repaint();
     chartSplit.setDividerLocation(600);

@@ -18,7 +18,6 @@ public class ImageViewerWindow extends JFrame {
 
   private JSplitPane mapSplitPane = new JSplitPane();
   private JScrollPane mapScrollPane = new JScrollPane();
-  private JTextArea mapText = new JTextArea();
   private JLabel mapLabel = new JLabel();
 
   private String imageFile = new String();
@@ -26,6 +25,8 @@ public class ImageViewerWindow extends JFrame {
 
   private String mapInfo= new String();
   private BorderLayout borderLayout1 = new BorderLayout();
+  private JScrollPane jScrollPane1 = new JScrollPane();
+  private JTextArea mapText = new JTextArea();
   public ImageViewerWindow(String imageFileName,String mapInfo,boolean gmtFromServer) {
     imageFile = imageFileName;
     this.mapInfo = mapInfo;
@@ -45,13 +46,6 @@ public class ImageViewerWindow extends JFrame {
     this.getContentPane().setLayout(borderLayout1);
     mapSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     mapSplitPane.setMaximumSize(new Dimension(550, 100));
-    mapText.setText(mapInfo);
-    mapText.setLineWrap(true);
-    mapText.setForeground(Color.blue);
-    mapText.setMaximumSize(new Dimension(550, 100));
-    mapText.setEditable(false);
-    mapText.setSelectedTextColor(new Color(80, 80, 133));
-    mapText.setSelectionColor(Color.blue);
 
     //adding the image to the label
     if(!this.gmtFromServer)
@@ -59,9 +53,17 @@ public class ImageViewerWindow extends JFrame {
     else
       mapLabel.setIcon(new ImageIcon(new URL(imageFile)));
 
+    mapText.setText(mapInfo);
+    mapText.setLineWrap(true);
+    mapText.setForeground(Color.blue);
+    mapText.setMaximumSize(new Dimension(550, 100));
+    mapText.setEditable(false);
+    mapText.setSelectedTextColor(new Color(80, 80, 133));
+    mapText.setSelectionColor(Color.blue);
     this.getContentPane().add(mapSplitPane, BorderLayout.CENTER);
     mapSplitPane.add(mapScrollPane, JSplitPane.TOP);
-    mapSplitPane.add(mapText, JSplitPane.BOTTOM);
+    mapSplitPane.add(jScrollPane1, JSplitPane.BOTTOM);
+    jScrollPane1.getViewport().add(mapText, null);
     mapScrollPane.getViewport().add(mapLabel, null);
     mapSplitPane.setDividerLocation(600);
   }
