@@ -1,14 +1,6 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-For site-type translation problem with Field_2000 basin depth do the following:
-
-	change parameter name to "Field-Basin-Depth"
-
-	Revert translation back to making this null if no value available
-	(this means that user-defined defaults are always ignored in ShakeMap App)
-
-	Tell ned to check Puente Hills calcs against the pub (PGA Field_2000)
 
 Create LocationParameter:
 
@@ -41,7 +33,7 @@ AttenautionRelationshipApp:
 		Throw exception if more than two numbers on a line (e.g., 3 goes through right now).
 
 		If only one number on the line the exception massage is blank
-
+ 
 Change app names as follows (on our web site):
 
 	HazardDataSetPlotter --> PlotCurveFromHazardDataSetApp
