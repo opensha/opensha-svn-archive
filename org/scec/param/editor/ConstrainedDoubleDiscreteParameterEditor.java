@@ -186,7 +186,7 @@ public class ConstrainedDoubleDiscreteParameterEditor
 
                 valueEditor = new JComboBox(strs);
                 valueEditor.setPreferredSize(JCOMBO_DIM);
-                valueEditor.setBackground(this.BACK_COLOR);
+                //valueEditor.setBackground(this.BACK_COLOR);
                 valueEditor.setMinimumSize(JCOMBO_DIM);
                 valueEditor.setFont(JCOMBO_FONT);
                 ((JComboBox) valueEditor).addItemListener(this);

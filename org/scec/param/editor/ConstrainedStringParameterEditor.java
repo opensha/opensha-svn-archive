@@ -181,7 +181,7 @@ public class ConstrainedStringParameterEditor
                 valueEditor.setPreferredSize(JCOMBO_DIM);
                 valueEditor.setMinimumSize(JCOMBO_DIM);
                 valueEditor.setFont(JCOMBO_FONT);
-                valueEditor.setBackground(this.BACK_COLOR);
+                //valueEditor.setBackground(this.BACK_COLOR);
                 ((JComboBox) valueEditor).addItemListener(this);
                 valueEditor.addFocusListener( this );
                 widgetPanel.add(valueEditor, COMBO_WIDGET_GBC);

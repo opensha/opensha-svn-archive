@@ -315,7 +315,7 @@ public class HazardCurveApplet extends JApplet
     border6 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     border7 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
-    this.getContentPane().setBackground(Color.white);
+    //this.getContentPane().setBackground(Color.white);
     this.setSize(new Dimension(973, 670));
     this.getContentPane().setLayout(borderLayout1);
 
@@ -618,6 +618,7 @@ public class HazardCurveApplet extends JApplet
 
       graphOn=false;
       togglePlot();
+      this.isIndividualCurves = false;
    }
 
 
@@ -695,7 +696,7 @@ public class HazardCurveApplet extends JApplet
               progressClass.updateProgress(calc.getCurrRuptures(), calc.getTotRuptures());
             if(isIndividualCurves) {
               drawGraph();
-              isIndividualCurves = false;
+              //isIndividualCurves = false;
             }
             if (calc.done()) {
               // Toolkit.getDefaultToolkit().beep();

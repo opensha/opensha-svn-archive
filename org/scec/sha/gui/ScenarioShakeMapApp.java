@@ -10,7 +10,7 @@ import java.io.*;
 
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.*;
-import org.scec.sha.earthquake.rupForecastImpl.*;
+//import org.scec.sha.earthquake.rupForecastImpl.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.param.event.*;
@@ -218,6 +218,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
     imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
     //parameterTabbedPanel.setLayout(JTabbedPane.);
+    //parameterTabbedPanel.setTabLayoutPolicy(0);
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab("Earthquake Rupture from Forecast", eqkRupPanel );
@@ -342,7 +343,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-//   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   //   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
    erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
 

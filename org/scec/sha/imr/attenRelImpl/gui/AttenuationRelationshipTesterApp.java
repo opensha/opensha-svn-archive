@@ -139,6 +139,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
     protected final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
     protected final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
+    protected final static String DAHLE_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel";
 
     /**
      *  Temp until figure out way to dynamically load classes during runtime
@@ -151,6 +152,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected final static String A_NAME = "Abrahamson (2000)";
     protected final static String CB_NAME = "Campbell & Bozorgnia (2003)";
     protected final static String SM_NAME = "ShakeMap (2003)";
+    protected final static String DAHLE_NAME = "Dahle et al. (1995)";
 
 
     /**
@@ -177,6 +179,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         imrNames.put( A_NAME, A_CLASS_NAME );
         imrNames.put( CB_NAME, CB_CLASS_NAME );
         imrNames.put( SM_NAME, SM_CLASS_NAME );
+        imrNames.put( DAHLE_NAME, DAHLE_CLASS_NAME );
 
         try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }
         catch ( Exception e ) {}
@@ -449,19 +452,19 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
     border1 = BorderFactory.createLineBorder(new Color(80, 80, 133),2);
     this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
-        this.getContentPane().setBackground( background );
+        //this.getContentPane().setBackground( background );
         this.setSize(new Dimension(900, 690) );
         this.getContentPane().setLayout( GBL );
 
-        outerPanel.setBackground( background );
+        //outerPanel.setBackground( background );
         outerPanel.setLayout( GBL );
 
-        mainPanel.setBackground( background );
+        //mainPanel.setBackground( background );
         mainPanel.setBorder(border1 );
         // mainPanel.setBorder(BorderFactory.createLineBorder( darkBlue ) );
         mainPanel.setLayout( GBL );
 
-        titlePanel.setBackground( background );
+        //titlePanel.setBackground( background );
         titlePanel.setBorder( bottomBorder );
         titlePanel.setMinimumSize(new Dimension(40, 40));
         titlePanel.setPreferredSize(new Dimension(40, 40));
@@ -476,20 +479,20 @@ public class AttenuationRelationshipTesterApp extends JApplet
         //titleLabel.setText(this.getAppletInfo());
         //titleLabel.setFont( new java.awt.Font( "Dialog", 1, 16 ) );
 
-        plotPanel.setBackground( background );
+        //plotPanel.setBackground( background );
         // plotPanel.setBorder(oval);
         plotPanel.setLayout( GBL );
 
-        innerPlotPanel.setBackground( background );
+        //innerPlotPanel.setBackground( background );
         innerPlotPanel.setLayout( GBL );
         innerPlotPanel.setBorder( null );
 
         controlPanel.setLayout( GBL );
-        controlPanel.setBackground( background );
+        //controlPanel.setBackground( background );
         controlPanel.setBorder(BorderFactory.createEtchedBorder(1));
 
         outerControlPanel.setLayout( GBL );
-        outerControlPanel.setBackground( background );
+        //outerControlPanel.setBackground( background );
 
         clearButton.setText( "Clear Plot" );
 
@@ -562,16 +565,16 @@ public class AttenuationRelationshipTesterApp extends JApplet
         buttonPanel.setLayout( GBL );
 
         parametersPanel.setLayout( GBL );
-        parametersPanel.setBackground( background );
+        //parametersPanel.setBackground( background );
         //parametersPanel.setBorder(BorderFactory.createEtchedBorder());
 
         //inputPanel.setBorder(oval);
         inputPanel.setLayout( GBL );
-        inputPanel.setBackground( background );
+        //inputPanel.setBackground( background );
 
         //sheetPanel.setBorder(BorderFactory.createEtchedBorder());
         sheetPanel.setLayout( GBL );
-        sheetPanel.setBackground( background );
+        //sheetPanel.setBackground( background );
 
         //parametersSplitPane.setBorder(oval);
         parametersSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -599,14 +602,14 @@ public class AttenuationRelationshipTesterApp extends JApplet
         imrLabel.setFont(new java.awt.Font( "Dialog", Font.BOLD, 13 ));
         imrLabel.setText( "Choose Model:    " );
 
-        imrComboBox.setBackground(Color.white );
-        imrComboBox.setForeground( darkBlue );
+        //imrComboBox.setBackground(Color.white );
+        //imrComboBox.setForeground( darkBlue );
         imrComboBox.setFont( new java.awt.Font( "Dialog", Font.BOLD, 16 ) );
-        imrComboBox.setBorder( null );
-        imrComboBox.setPreferredSize( COMBO_DIM );
+        //imrComboBox.setBorder( null );
+        //imrComboBox.setPreferredSize( COMBO_DIM );
 
         imrComboBox.addItemListener( this );
-        imrComboBox.setMinimumSize( COMBO_DIM );
+        //imrComboBox.setMinimumSize( COMBO_DIM );
 
         jCheckxlog.setText("X-Log");
         jCheckxlog.addItemListener( this );
@@ -1021,6 +1024,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
         if( clearFunctions)
           {
           functions.clear();
+          functions.setXAxisName( "");
+          functions.setYAxisName( "");
           imrsSelected.clear();
           }
 
@@ -1370,13 +1375,29 @@ public class AttenuationRelationshipTesterApp extends JApplet
         data.setYLog(yLog);
 
         String xOld = functions.getXAxisName();
+        String xUnitsOld="";
+        if(xOld.indexOf('(')!=-1)
+          xUnitsOld = xOld.substring(xOld.indexOf('(')+1, xOld.indexOf(')'));
         String yOld = functions.getYAxisName();
 
         String xNew = imr.getGraphXAxisLabel();
+        String xUnitsNew ="";
+        if(xNew.indexOf('(')!=-1)
+          xUnitsNew = xNew.substring(xNew.indexOf('(')+1, xNew.indexOf(')'));
         String yNew = imr.getGraphIMYAxisLabel();
 
         newGraph = false;
-        if( !xOld.equals(xNew) ) newGraph = true;
+
+        // only clear graph if units differ on X axis
+        if( xUnitsNew.equals(xUnitsOld)  && !xUnitsNew.equals("") && !xUnitsOld.equals("")) {
+          String tempX = xNew.substring(0, xNew.indexOf('('));
+          if(xOld.indexOf(tempX)==-1) { // set the new X axis label
+            xNew=xOld.substring(0, xOld.indexOf('('))+" "+xNew.substring(0, xNew.indexOf('('))+
+                 " ("+ xUnitsNew+")";
+            functions.setXAxisName( xNew );
+          }
+        } else newGraph = true;
+
         if( !yOld.equals(yNew) ) newGraph = true;
 
         if( newGraph ){

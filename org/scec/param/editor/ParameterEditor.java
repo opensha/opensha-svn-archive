@@ -61,7 +61,7 @@ public class ParameterEditor
     protected final static String EMPTY = "";
 
     // static defined colors
-    protected static Color BACK_COLOR = Color.white;
+    //protected static Color BACK_COLOR = Color.white;
     protected static Color FORE_COLOR = new Color( 80, 80, 140 );
     protected static Color STRING_BACK_COLOR = Color.lightGray;
 
@@ -85,7 +85,7 @@ public class ParameterEditor
     public static Font DEFAULT_FONT = new Font( "SansSerif", Font.PLAIN, 10 );
 
     // Default borders
-    protected final static Border BORDER = new SidesBorder( BACK_COLOR, BACK_COLOR, BACK_COLOR, BACK_COLOR );
+    //protected final static Border BORDER = new SidesBorder( BACK_COLOR, BACK_COLOR, BACK_COLOR, BACK_COLOR );
     protected final static Border CONST_BORDER = BorderFactory.createLineBorder( Color.blue, 1 );
     protected final static Border FOCUS_BORDER = BorderFactory.createLineBorder( Color.orange, 1 );
     protected final static Border ETCHED = BorderFactory.createEtchedBorder();
@@ -366,25 +366,25 @@ public class ParameterEditor
         border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
 
 
-        this.setBorder( BORDER );
-        this.setBackground( BACK_COLOR );
+        //this.setBorder( BORDER );
+        //this.setBackground( BACK_COLOR );
         this.setLayout( GBL );
 
 
         // Outermost panel
         outerPanel.setLayout( GBL );
-        outerPanel.setBackground( BACK_COLOR );
+        //outerPanel.setBackground( BACK_COLOR );
         outerPanel.setBorder(border1);
 
         // widgetPanel panel init
-        widgetPanel.setBackground( BACK_COLOR );
+        //widgetPanel.setBackground( BACK_COLOR );
         widgetPanel.setLayout( GBL );
         widgetPanel.setMinimumSize( WIGET_PANEL_DIM );
         widgetPanel.setPreferredSize( WIGET_PANEL_DIM );
 
 
         // nameLabel panel init
-        nameLabel.setBackground( BACK_COLOR );
+        //nameLabel.setBackground( BACK_COLOR );
         nameLabel.setMaximumSize( LABEL_DIM );
         nameLabel.setMinimumSize( LABEL_DIM );
         nameLabel.setPreferredSize( LABEL_DIM );
@@ -393,8 +393,8 @@ public class ParameterEditor
         nameLabel.setText( LABEL_TEXT );
         nameLabel.setFont( DEFAULT_LABEL_FONT );
 
-        if ( FORE_COLOR != null )
-            nameLabel.setForeground( FORE_COLOR );
+        //if ( FORE_COLOR != null )
+          //  nameLabel.setForeground( FORE_COLOR );
 
         // Build gui layout
         //labelPanel.add( nameLabel, NAME_LABEL_GBC );

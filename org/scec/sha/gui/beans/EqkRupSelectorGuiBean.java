@@ -307,7 +307,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     /*This loops over all the parent of this class until the parent is Frame(applet)
     this is required for the passing in the JDialog to keep the focus on the adjustable params
     frame*/
-
     while(!(parent instanceof JFrame) && parent != null)
       parent = parent.getParent();
     frame = new JDialog((JFrame)parent);

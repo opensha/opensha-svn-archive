@@ -178,7 +178,7 @@ public class LabeledBoxPanel extends JPanel{
         border2 = new SidesBorder( Color.white, borderColor, borderColor, borderColor );
 
 
-        this.setBackground( Color.white );
+        //this.setBackground( Color.white );
         this.setBorder( border2 );
         this.setLayout( GBL );
 
@@ -191,7 +191,7 @@ public class LabeledBoxPanel extends JPanel{
         headerPanel.setBackground( headerPanelBackgroundColor );
         headerPanel.setBorder( border );
 
-        editorPanel.setBackground( Color.white );
+        //editorPanel.setBackground( Color.white );
         jScrollPane1.setBorder( null );
 
         add( jScrollPane1, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
