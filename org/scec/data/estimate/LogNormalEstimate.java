@@ -2,7 +2,10 @@ package org.scec.data.estimate;
 
 /**
  * <p>Title: LogNormalEstimate.java  </p>
- * <p>Description: </p>
+ * <p>Description: The rules folloed for this estimate are :
+ *  1. Std Dev should be >=0
+ *  2. LinearMedian should be >=0
+ * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
@@ -48,6 +51,12 @@ public class LogNormalEstimate implements EstimateAPI {
     return linearMedian;
   }
 
+  /**
+   * Set the standard deviation. It should be >=0 else InvalidParamValException
+   * is thrown
+   *
+   * @param stdDev
+   */
   public void setStdDev(double stdDev) {
      if(stdDev<0) throw new InvalidParamValException(MSG_INVALID_STDDEV);
      this.stdDev = stdDev;
@@ -55,9 +64,9 @@ public class LogNormalEstimate implements EstimateAPI {
 
   public double getStdDev() { return stdDev; }
 
- public boolean getIsBase10() {
-   return this.isBase10;
- }
+  public boolean getIsBase10() {
+    return this.isBase10;
+  }
 
  public void setIsBase10(boolean isBase10) {
    this.isBase10 = isBase10;

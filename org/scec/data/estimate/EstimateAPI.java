@@ -2,10 +2,11 @@ package org.scec.data.estimate;
 
 /**
  * <p>Title: EstimateAPI.java </p>
- * <p>Description: </p>
+ * <p>Description: This is the common interface for handling various types
+ * of estimates. </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author not attributable
+ * @author
  * @version 1.0
  */
 

@@ -3,7 +3,11 @@ package org.scec.data.estimate;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 /**
  * <p>Title: PDF_Estimate.java </p>
- * <p>Description: </p>
+ * <p>Description: Rules followe in this case are:
+ * 1. First and Last y values should  be 0.
+ * 2. X values should be increasing
+ * 3. all y >=0
+ * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable

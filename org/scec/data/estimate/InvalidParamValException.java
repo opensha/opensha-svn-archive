@@ -2,7 +2,8 @@ package org.scec.data.estimate;
 
 /**
  * <p>Title: InvalidParamValException.java </p>
- * <p>Description: </p>
+ * <p>Description: This exception is thrown if user tries to set any value in
+ * the estimates which violates the constraints of that estimate  </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable

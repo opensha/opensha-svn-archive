@@ -2,7 +2,10 @@ package org.scec.data.estimate;
 
 /**
  * <p>Title: NormalEstimate.java  </p>
- * <p>Description: </p>
+ * <p>Description: rules followed are:
+ * 1. StdDEv should be >=0
+ *
+ * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
