@@ -550,8 +550,6 @@ public class AttenuationRelationshipApplet extends JApplet
 
         //object for the ButtonControl Panel
         buttonControlPanel = new ButtonControlPanel(this);
-        buttonPanel.add(addButton, null);
-        buttonPanel.add( clearButton, null );
         buttonPanel.add(addButton, 0);
         buttonPanel.add(clearButton, 1);
         buttonPanel.add(buttonControlPanel,2);
