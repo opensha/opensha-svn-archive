@@ -488,7 +488,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         double size = this.getTickUnit().getSize();
 	int count = this.calculateVisibleTickCount();
 	double x0=0.0;
-        double sum=0.1;
+        float sum=0.0f;
         int i=lowest;
 
         /**
@@ -514,9 +514,10 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         if(lower==0.0 || upper==0.0)
                throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
         for( i=lowest;;++i) {
-          double val1=Math.pow(10,i);
-          double val2=Math.pow(10,i+1);
-          if(lower==val1 || upper==val1)
+          float val1=(float)Math.pow(10,i);
+          float val2=(float)Math.pow(10,i+1);
+
+          if(lower==val1 || upper==(val1))
             break;
           if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
             // no major axis exixts in dat so you have to add the major axis
@@ -535,7 +536,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
         for (i=lowest;;i++) {
           for(int j=0;j<10;++j){
-              sum =j*StrictMath.pow(10,i);
+              sum =j*(float)StrictMath.pow(10,i);
               if(sum<getRange().getLowerBound())
                  continue;
               if(sum>getRange().getUpperBound())
@@ -600,24 +601,14 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 		y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getHeight());
 	    }
 
-            if(sum==getRange().getLowerBound()) {
-              x=(float)xx;
-            }
-
-            if(xx<plotArea.getMinX())
-              continue;
-
-            if(xx>plotArea.getMaxX())
-               return;
-
-           /**
+            /**
             * Code added to prevent overlapping of the Tick Labels.
             */
-             if((x<x0 || upperBound-lowerBound >=3) && j!=1){
+             if((x<x0 || (upperBound-lowerBound>3)) && j!=1){
                 tickLabel="";
              }
              else {
-               if(x<x0 && j==1)
+               if(j==1)
                  removePreviousNine(i);
                x0=x+tickLabelBounds.getWidth()+2;
              }

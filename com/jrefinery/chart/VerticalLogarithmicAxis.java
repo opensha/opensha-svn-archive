@@ -609,7 +609,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 	int count = this.calculateVisibleTickCount();
 
 	double y0=plotArea.getMaxY();
-        double sum=0.0f;
+        float sum=0.0f;
 
         /*if(counter==2)
            getTickUnit().formatter.setMaximumFractionDigits(3);*/
@@ -631,8 +631,8 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
         if(lower==0.0 || upper==0.0)
                throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for Y-Log Plot");
         for(int i=lowest;;++i) {
-          double val1=Math.pow(10,i);
-          double val2=Math.pow(10,i+1);
+          float val1=(float)Math.pow(10,i);
+          float val2=(float)Math.pow(10,i+1);
           if(lower==val1 || upper==val1)
             break;
           if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
@@ -649,7 +649,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
          */
         for (int i=lowest; ; i++){
 	    for(int j=0;j<10;++j) {
-              sum =j*StrictMath.pow(10,i);
+              sum =j*(float)StrictMath.pow(10,i);
               if(sum<getRange().getLowerBound())
                 continue;
               if(sum>getRange().getUpperBound())
@@ -658,6 +658,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
               double val=currentTickValue;
               double logval;
               double yy;
+
               if(sum==getRange().getLowerBound())
                yy=plotArea.getMaxY();
               else {
@@ -709,17 +710,10 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
             /**
              * Code added to remove the overlapping of the tickLabels
              */
-              if(sum==getRange().getLowerBound())
-                y=(float)yy;
-              if(yy>plotArea.getMaxY())
-                continue;
-              if(yy<plotArea.getMinY())
-                 return;
-              if((y>y0 || (upperBound-lowerBound>=3)) && j!=1)
+             if((y>y0 || (upperBound-lowerBound>3)) && j!=1)
                 tickLabel="";
-
               else {
-                if(y>y0 && j==1)
+                if(j==1)
                   removePreviousNine(i);
               y0=y-tickLabelBounds.getHeight()-0.25;
               }
