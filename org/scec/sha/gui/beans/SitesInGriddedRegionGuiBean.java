@@ -407,7 +407,8 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     //getting the Gridded Region site Object ParamList Iterator
     Iterator it = parameterList.getParametersIterator();
     //if the user decides to fill the values from the CVM
-    if(((String)siteParamCombo.getSelectedItem()).equalsIgnoreCase(this.SET_SITES_USING_SCEC_CVM)){
+    if(((String)siteParamCombo.getSelectedItem()).equalsIgnoreCase(this.SET_SITES_USING_SCEC_CVM)||
+       ((String)siteParamCombo.getSelectedItem()).equalsIgnoreCase(this.SET_SITE_USING_WILLS_SITE_TYPE)){
       //editorPanel.getParameterEditor(this.VS30_DEFAULT).setVisible(true);
       while(it.hasNext()){
         //adds the default site Parameters becuase each site will have different site types and default value
@@ -493,7 +494,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     else
       //if we are setting each site using the Wills site type. basin depth is taken as default.
       gridRectRegion.setSiteParamsUsing_WILLS_VS30();
-    JOptionPane.showMessageDialog(this,"We have obtained the site paramaters from the CVM");
     calcProgress.dispose();
   }
 

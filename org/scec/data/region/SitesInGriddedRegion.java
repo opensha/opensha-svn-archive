@@ -151,7 +151,11 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    setSiteParamsUsing_WILLS_VS30 = true;
    setSiteParamsUsingVs30AndBasinDepth = false;
    setSameSiteParams = false;
-   getVS30FromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+   try{
+     getVS30FromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+   }catch(Exception e){
+     throw new RuntimeException(e.getMessage());
+   }
    int size = getNumGridLocs();
    basinDepth = new Vector();
    for(int i=0;i<size;++i)
@@ -167,8 +171,12 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    setSiteParamsUsing_WILLS_VS30 = false;
    setSiteParamsUsingVs30AndBasinDepth = true;
    setSameSiteParams = false;
-   getVS30FromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
-   getBasinDepthFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+   try{
+     getVS30FromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+     getBasinDepthFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+   }catch(Exception e){
+     throw new RuntimeException(e.getMessage());
+   }
  }
 
  /**

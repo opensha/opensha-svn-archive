@@ -63,6 +63,12 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       //Name of the XYZ file
       String xyzFileName = (String)inputFromApplet.readObject();
 
+      //Metadata content: Map Info
+      Vector metadataVector = (Vector)inputFromApplet.readObject();
+
+      //Name of the Metadata file
+      String metadataFileName = (String)inputFromApplet.readObject();
+
       //reading the gmtScript file that user sent as the attachment and create
       //a new gmt script inside the directory created for the user.
       //The new gmt script file created also has one minor modification
@@ -79,6 +85,15 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       for(int i=0;i<size;++i)
         bw.write((String)gmtMapScript.get(i)+"\n");
       bw.close();
+
+
+      String metadataFile = newDir+"/"+metadataFileName;
+      //creating the metadata (map Info) file in the new directory created for user
+      fw = new FileWriter(metadataFile);
+      bw = new BufferedWriter(fw);
+      size = metadataVector.size();
+      for(int i=0;i<size;++i)
+        bw.write((String)metadataVector.get(i)+"\n");
 
       //creating the XYZ file from the XYZ file from the XYZ dataSet
       Vector xVals = xyzDataSet.getX_DataSet();

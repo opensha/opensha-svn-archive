@@ -34,6 +34,7 @@ public class GMT_MapGenerator implements Serializable{
   private String GMT_SCRIPT_NAME = "gmtScript.txt";
   private String DEFAULT_XYZ_FILE_NAME = "xyz_data.txt";
   private String XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
+  private String METADATA_FILE_NAME = "map_info.txt";
   private String PS_FILE_NAME = "map.ps";
   private String DEFAULT_PS_FILE_NAME = PS_FILE_NAME;
   private String JPG_FILE_NAME = "map.jpg";
@@ -140,15 +141,22 @@ public class GMT_MapGenerator implements Serializable{
   public final static String SHOW_HIWYS_NONE = "None";
   StringParameter showHiwysParam;
 
+  //Boolean parameter to see if user wants GMT from the GMT webservice
+  public  final static String GMT_WEBSERVICE_NAME = "Use GMT WebService";
+  private final static String GMT_WEBSERVICE_INFO= "GMT of Server";
+  BooleanParameter gmtFromServer;
+
+  //Boolean parameter to see if user wants linear or log plot
+  public final static String LOG_PLOT_NAME = "Plot Log";
+  private final static String LOG_PLOT_INFO = "Plot Log or Linear Map";
+  BooleanParameter logPlot;
+
   private String gmtFileName;
 
   protected ParameterList adjustableParams;
 
   //GMT files web address(if the person is using the gmt webService)
   String imgWebAddr=null;
-
-  FileWriter fw =null;
-  BufferedWriter br=null;
 
 
 
@@ -212,6 +220,11 @@ public class GMT_MapGenerator implements Serializable{
     showHiwysParam = new StringParameter( SHOW_HIWYS_PARAM_NAME, showHiwysConstraint, SHOW_HIWYS_PARAM_DEFAULT );
     showHiwysParam.setInfo( SHOW_HIWYS_PARAM_INFO );
 
+    gmtFromServer = new BooleanParameter(GMT_WEBSERVICE_NAME,new Boolean("true"));
+    gmtFromServer.setInfo(GMT_WEBSERVICE_INFO);
+
+    logPlot = new BooleanParameter(LOG_PLOT_NAME, new Boolean("true"));
+    logPlot.setInfo(LOG_PLOT_INFO);
 
     // create adjustable parameter list
     adjustableParams = new ParameterList();
@@ -229,7 +242,8 @@ public class GMT_MapGenerator implements Serializable{
     adjustableParams.addParameter(showHiwysParam);
     adjustableParams.addParameter(coastParam);
     adjustableParams.addParameter(imageWidthParam);
-
+    adjustableParams.addParameter(gmtFromServer);
+    adjustableParams.addParameter(logPlot);
   }
 
 
@@ -302,7 +316,8 @@ public class GMT_MapGenerator implements Serializable{
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
 
-    imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines);
+    Vector metaDataLines = getMapInfoLines();
+    imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metaDataLines);
 
     return imgWebAddr+JPG_FILE_NAME;
   }
@@ -337,11 +352,14 @@ public class GMT_MapGenerator implements Serializable{
     makeFileFromLines(gmtLines,gmtFileName);
 
     //put files in String array which are to be sent to the server as the attachment
-    String[] fileNames = new String[2];
+    String[] fileNames = new String[3];
     //getting the GMT script file name
     fileNames[0] = gmtFileName;
     //getting the XYZ file Name
     fileNames[1] = XYZ_FILE_NAME;
+
+    //metadata file
+    fileNames[2] = METADATA_FILE_NAME;
     openWebServiceConnection(fileNames);
     return imgWebAddr+JPG_FILE_NAME;
   }
@@ -371,6 +389,28 @@ public class GMT_MapGenerator implements Serializable{
   public String getImageFileName(){
     return this.JPG_FILE_NAME;
   }
+
+  /**
+   *
+   * @returns the Vector containing the Metadata Info
+   */
+  private Vector getMapInfoLines(){
+    Vector metadataFilesLines = new Vector();
+    try{
+      FileReader  fr = new FileReader(METADATA_FILE_NAME);
+      BufferedReader br = new BufferedReader(fr);
+      String fileLines = br.readLine();
+      while(fileLines !=null){
+        metadataFilesLines.add(fileLines);
+        fileLines = br.readLine();
+      }
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+
+    return metadataFilesLines;
+  }
+
 
   // make the local XYZ file
   private void makeXYZ_File() {
@@ -418,10 +458,10 @@ public class GMT_MapGenerator implements Serializable{
   // make a local file from a vector of strings
   private void makeFileFromLines(Vector lines, String fileName) {
     try{
-        fw = new FileWriter(fileName);
-        br = new BufferedWriter(fw);
+        FileWriter fw = new FileWriter(fileName);
+        BufferedWriter br = new BufferedWriter(fw);
         for(int i=0;i<lines.size();++i)
-          br.write((String) lines.get(i));
+          br.write((String) lines.get(i)+"\n");
         br.close();
     }catch(Exception e){
       e.printStackTrace();
@@ -443,6 +483,11 @@ public class GMT_MapGenerator implements Serializable{
     fs[1] =new FileDataSource(fileName[1]);
     dh[1] = new DataHandler(fs[1]);
 
+
+    System.out.println("File-2: "+fileName[2]);
+    fs[2] =new FileDataSource(fileName[2]);
+    dh[2] = new DataHandler(fs[2]);
+
     GMT_WebService_Impl client = new GMT_WebService_Impl();
     GMT_WebServiceAPI gmt = client.getGMT_WebServiceAPIPort();
     try{
@@ -458,7 +503,7 @@ public class GMT_MapGenerator implements Serializable{
   /**
    * sets up the connection with the servlet on the server (gravity.usc.edu)
    */
-  private String openServletConnection(XYZ_DataSetAPI xyzDataVals, Vector gmtFileLines) {
+  private String openServletConnection(XYZ_DataSetAPI xyzDataVals, Vector gmtFileLines, Vector metadataLines) {
 
     String webaddr=null;
     try{
@@ -493,7 +538,13 @@ public class GMT_MapGenerator implements Serializable{
       outputToServlet.writeObject(xyzDataVals);
 
       //sending the xyz file name to the servlet
-      outputToServlet.writeObject(this.XYZ_FILE_NAME);
+      outputToServlet.writeObject(XYZ_FILE_NAME);
+
+      //sending the contents of the Metadata file to the server.
+      outputToServlet.writeObject(metadataLines);
+
+      //sending the name of the MetadataFile to the server.
+      outputToServlet.writeObject(METADATA_FILE_NAME);
 
       outputToServlet.flush();
       outputToServlet.close();
@@ -790,6 +841,44 @@ public class GMT_MapGenerator implements Serializable{
 
 
     return gmtCommandLines;
+  }
+
+  /**
+   * Checks to see if map to be generated is using the log or linear values.
+   * If Log is selecetd then takes the log of the linear value, and gives
+   * a very small value if zero occurs.
+   * @param xyzVals
+   */
+  public void logPlot(XYZ_DataSetAPI xyzVals){
+    //checks to see if the user wants Log Plot, if so then convert the zValues to the Log Space
+    boolean logPlotCheck = ((Boolean)logPlot.getValue()).booleanValue();
+    if(logPlotCheck){
+      //Vector of the Original z Values in the linear space
+      Vector zLinearVals = xyzVals.getZ_DataSet();
+      //Vector to add the Z Values as the Log space
+      Vector zLogVals = new Vector();
+      int size = zLinearVals.size();
+      for(int i=0;i<size;++i){
+        double zVal = ((Double)zLinearVals.get(i)).doubleValue();
+        if(zVal == 0)
+          zVal = StrictMath.pow(10,-16);
+        zLogVals.add(new Double(0.4343 * StrictMath.log(zVal)));
+      }
+      //setting the values in the XYZ Dataset.
+      xyzVals.setXYZ_DataSet(xyzVals.getX_DataSet(),xyzVals.getY_DataSet(),zLogVals);
+    }
+  }
+
+  /**
+   * Creates the file with the Map Parameters Info.
+   * @param mapInfo: MetaData for the Map.
+   */
+  public void createMapInfoFile(String mapInfo){
+    Vector mapInfoLines = new Vector();
+    StringTokenizer st = new StringTokenizer(mapInfo,"<br>");
+    while(st.hasMoreTokens())
+      mapInfoLines.add(st.nextToken());
+    makeFileFromLines(mapInfoLines,METADATA_FILE_NAME);
   }
 
 }

@@ -29,7 +29,7 @@ import org.scec.data.*;
  * @version 1.0
  */
 
-public class MapGuiBean extends JPanel implements
+public class MapGuiBean extends ParameterListEditor implements
     ParameterChangeListener {
 
   /**
@@ -49,12 +49,8 @@ public class MapGuiBean extends JPanel implements
   //flag to see if one wants to run the GMT from the server
   private boolean gmtFromServer = true;
 
-  private ParameterListEditor editor;
 
-  //check to see if user user wants GMT from the GMT webservice
-  private JCheckBox gmtServerCheck = new JCheckBox();
-  //check to see if user wants linear or log plot
-  private JCheckBox logPlotCheck = new JCheckBox();
+
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   //boolean flag to check if we need to show the Map in a seperate window
@@ -73,11 +69,12 @@ public class MapGuiBean extends JPanel implements
 
     //get the adjustableParam List from the GMT_MapGenerator
     ListIterator it=gmtMap.getAdjustableParamsIterator();
-    ParameterList parameterList = new ParameterList();
+    parameterList = new ParameterList();
     while(it.hasNext())
       parameterList.addParameter((ParameterAPI)it.next());
-    editor = new ParameterListEditor(parameterList);
-    editor.setTitle(GMT_TITLE);
+    editorPanel.removeAll();
+    addParameters();
+    setTitle(GMT_TITLE);
     parameterList.getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).addParameterChangeListener(this);
     changeColorScaleModeValue(GMT_MapGenerator.COLOR_SCALE_MODE_DEFAULT);
     try {
@@ -93,11 +90,11 @@ public class MapGuiBean extends JPanel implements
    * @param regionParamsFlag: boolean flag to check if the region params are to be shown in the
    */
   public void showGMTParams(boolean regionParamsFlag) {
-      editor.getParameterEditor(gmtMap.MAX_LAT_PARAM_NAME).setVisible(regionParamsFlag);
-      editor.getParameterEditor(gmtMap.MIN_LAT_PARAM_NAME).setVisible(regionParamsFlag);
-      editor.getParameterEditor(gmtMap.MAX_LON_PARAM_NAME).setVisible(regionParamsFlag);
-      editor.getParameterEditor(gmtMap.MIN_LON_PARAM_NAME).setVisible(regionParamsFlag);
-      editor.getParameterEditor(gmtMap.GRID_SPACING_PARAM_NAME).setVisible(regionParamsFlag);
+      getParameterEditor(gmtMap.MAX_LAT_PARAM_NAME).setVisible(regionParamsFlag);
+      getParameterEditor(gmtMap.MIN_LAT_PARAM_NAME).setVisible(regionParamsFlag);
+      getParameterEditor(gmtMap.MAX_LON_PARAM_NAME).setVisible(regionParamsFlag);
+      getParameterEditor(gmtMap.MIN_LON_PARAM_NAME).setVisible(regionParamsFlag);
+      getParameterEditor(gmtMap.GRID_SPACING_PARAM_NAME).setVisible(regionParamsFlag);
   }
 
   /**
@@ -111,11 +108,11 @@ public class MapGuiBean extends JPanel implements
   public void setGMTRegionParams(double minLat,double maxLat,double minLon,double maxLon,
                                double gridSpacing){
     if(D) System.out.println(C+" setGMTRegionParams: " +minLat+"  "+maxLat+"  "+minLon+"  "+maxLon);
-    editor.getParameterList().getParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
-    editor.getParameterList().getParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
-    editor.getParameterList().getParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
-    editor.getParameterList().getParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME).setValue(new Double(maxLon));
-    editor.getParameterList().getParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME).setValue(new Double(gridSpacing));
+    getParameterList().getParameter(GMT_MapGenerator.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
+    getParameterList().getParameter(GMT_MapGenerator.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
+    getParameterList().getParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME).setValue(new Double(minLon));
+    getParameterList().getParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME).setValue(new Double(maxLon));
+    getParameterList().getParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME).setValue(new Double(gridSpacing));
   }
 
 
@@ -136,11 +133,11 @@ public class MapGuiBean extends JPanel implements
    */
   private void changeColorScaleModeValue(String val) {
     if(val.equalsIgnoreCase(GMT_MapGenerator.COLOR_SCALE_MODE_FROMDATA)) {
-      editor.getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(false);
-      editor.getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(false);
+      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(false);
+      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(false);
     } else {
-      editor.getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(true);
-      editor.getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(true);
+      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME).setVisible(true);
+      getParameterEditor(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME).setVisible(true);
     }
   }
 
@@ -152,30 +149,12 @@ public class MapGuiBean extends JPanel implements
    */
   public void makeMap(XYZ_DataSetAPI xyzVals,String paramsInfo){
 
-    //checks to see if the user wants Log Plot, if so then convert the zValues to the Log Space
-    if(this.logPlotCheck.isSelected()){
-      //Vector of the Original z Values in the linear space
-      Vector zLinearVals = xyzVals.getZ_DataSet();
-      //Vector to add the Z Values as the Log space
-      Vector zLogVals = new Vector();
-      int size = zLinearVals.size();
-      for(int i=0;i<size;++i){
-        double zVal = ((Double)zLinearVals.get(i)).doubleValue();
-        if(zVal ==0){
-          /*JOptionPane.showMessageDialog(this,"Cannot take out log becuase Values contain zeros,"+
-                                        "so reverting back to Linear","Cannot Plot Log",JOptionPane.OK_OPTION);
-          this.logPlotCheck.setSelected(false);
-          zLogVals = zLinearVals;
-          break;*/
-          zVal = StrictMath.pow(10,-16);
-        }
-        zLogVals.add(new Double(0.4343 * StrictMath.log(zVal)));
-      }
-      //setting the values in the XYZ Dataset.
-      xyzVals.setXYZ_DataSet(xyzVals.getX_DataSet(),xyzVals.getY_DataSet(),zLogVals);
-    }
-    if(this.gmtServerCheck.isSelected()){
-
+    //checking if log Plot has to be generated, if so then take the log of the z values in the data.
+    gmtMap.logPlot(xyzVals);
+    boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
+    //creating the Metadata file in the GMT_MapGenerator
+    gmtMap.createMapInfoFile(paramsInfo);
+    if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       imgName =gmtMap.makeMapUsingServlet(xyzVals);
       paramsInfo +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
@@ -204,28 +183,6 @@ public class MapGuiBean extends JPanel implements
     return gmtMap;
   }
 
-  /**
-   * Sets the gui elements for the map using GMT
-   * @throws Exception
-   */
-  private void jbInit() throws Exception {
-    gmtServerCheck.setSelected(true);
-    gmtServerCheck.setText("Use GMT web Service");
-    gmtServerCheck.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        gmtServerCheck_actionPerformed(e);
-      }
-    });
-    this.setLayout(gridBagLayout1);
-    logPlotCheck.setSelected(true);
-    logPlotCheck.setText("Log Plot");
-    this.add(editor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 0, 13), 361, 226));
-    this.add(gmtServerCheck,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 123, 0, 132), 0, 0));
-    this.add(logPlotCheck,                   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 112, 9, 148), 55, 1));
-  }
 
 
   /**
@@ -243,21 +200,5 @@ public class MapGuiBean extends JPanel implements
    */
   public String getImageName(){
     return this.imgName;
-  }
-
-  /**
-   *
-   * @returns whether the user wants the GMT from server or from his own machine
-   */
-  public boolean isGMT_FromServer(){
-    return this.gmtFromServer;
-  }
-
-  void gmtServerCheck_actionPerformed(ActionEvent e) {
-
-    if(this.gmtServerCheck.isSelected())
-      this.gmtFromServer=true;
-    else
-      gmtFromServer=false;
   }
 }
