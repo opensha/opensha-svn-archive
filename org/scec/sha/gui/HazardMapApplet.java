@@ -81,19 +81,11 @@ public class HazardMapApplet extends JApplet
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
-  public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
-  public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
-  public final static String SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF";
-  public final static String SIMPLE_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureERF";
-  public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
-  public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
-  public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
-  public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-  public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-  public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-  public final static String WG02_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
-  public final static String PUENTE_HILLS_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PuenteHillsERF.PuenteHillsFaultERF";
-  public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Frankel02.RemoteFrankel02ERF_Client";
+  public final static String RMI_SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimplePoissonFaultERFClient";
+  public final static String RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient";
+  public final static String RMI_STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient";
+  public final static String RMI_STEP_ALASKAN_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
+  public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient";
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
@@ -352,19 +344,11 @@ public class HazardMapApplet extends JApplet
      // create the ERF Gui Bean object
    ArrayList erf_Classes = new ArrayList();
 
-   /*erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(SIMPLE_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(WG02_FORECAST_CLASS_NAME);
-   erf_Classes.add(PUENTE_HILLS_FORECAST_CLASS_NAME);*/
    erf_Classes.add(this.RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(this.RMI_SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME);
+   erf_Classes.add(this.RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(this.RMI_STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(this.RMI_STEP_ALASKAN_FORECAST_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
