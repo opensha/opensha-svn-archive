@@ -12,8 +12,8 @@ import org.scec.exceptions.*;
  * @version 1.0
  */
 
-public class ParameterListParameter extends Parameter
-    implements ParameterAPI, java.io.Serializable{
+public class ParameterListParameter extends DependentParameter
+    implements java.io.Serializable{
 
 
   /** Class name for debugging. */
@@ -77,6 +77,9 @@ public class ParameterListParameter extends Parameter
       ParameterAPI param = (ParameterAPI)it.next();
     }
     setValue( (Object) value );
+
+    //setting the independent Param List for this parameter
+    setIndependentParameters(value);
   }
 
   /**

@@ -12,8 +12,8 @@ import org.scec.exceptions.*;
  * @version 1.0
  */
 
-public class BooleanParameter extends Parameter
-    implements ParameterAPI, java.io.Serializable{
+public class BooleanParameter extends DependentParameter
+    implements  java.io.Serializable{
 
 
   /** Class name for debugging. */
