@@ -9,6 +9,7 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.net.*;
 import java.lang.reflect.InvocationTargetException;
+import java.io.*;
 
 
 
@@ -105,6 +106,7 @@ public class HazardCurveApplet extends JApplet
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
   private final static String CVM_CONTROL = "Set Site Params from CVM";
   private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
+  private final static String RUN_ALL_PEER_TESTS = "Run all PEER Test Cases";
 
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
@@ -115,6 +117,7 @@ public class HazardCurveApplet extends JApplet
   private SitesOfInterestControlPanel sitesOfInterest;
   private SetSiteParamsFromCVMControlPanel cvmControlPanel;
   private X_ValuesInCurveControlPanel xValuesPanel;
+  private RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
 
   // message string to be dispalayed if user chooses Axis Scale
    // without first clicking on "Add Graph"
@@ -692,7 +695,33 @@ public class HazardCurveApplet extends JApplet
      * @param e
      */
     void addButton_actionPerformed(ActionEvent e) {
-      addButton();
+      if(this.runAllPEER_Tests !=null){
+        if(this.runAllPEER_Tests.runAllPEER_TestCases()){
+          try{
+            FileWriter peerResultsFile = new FileWriter("PEER_TestCasesSetOneResultsFile.txt");
+            peerResultsFile.write("PEER Set One Test Cases Results:\n");
+            peerResultsFile.close();
+            Vector testCasesOne = this.peerTestsControlPanel.getPEER_SetOneTestCasesNames();
+            peerResultsFile = new FileWriter("PEER_TestCasesSetOneResultsFile.txt",true);
+            int size = testCasesOne.size();
+            for(int i=0;i< size; ++i){
+              peerTestsControlPanel.setTestCaseAndSite((String)testCasesOne.get(i));
+              addButton();
+
+              peerResultsFile.write((String)testCasesOne.get(i)+"\n");
+              peerResultsFile.write(this.totalProbFuncs.toString()+"\n"+"\n");
+              this.repaint();
+              this.validate();
+              this.clearPlot(true);
+            }
+            peerResultsFile.close();
+          }catch(Exception ee){
+            ee.printStackTrace();
+          }
+        }
+      }
+      else
+        addButton();
     }
 
 
@@ -1292,6 +1321,7 @@ public class HazardCurveApplet extends JApplet
     this.controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(CVM_CONTROL);
     this.controlComboBox.addItem(X_VALUES_CONTROL);
+    this.controlComboBox.addItem(RUN_ALL_PEER_TESTS);
   }
 
   /**
@@ -1319,7 +1349,26 @@ public class HazardCurveApplet extends JApplet
       initCVMControl();
     else if(selectedControl.equalsIgnoreCase(this.X_VALUES_CONTROL))
       initX_ValuesControl();
+    else if(selectedControl.equalsIgnoreCase(this.RUN_ALL_PEER_TESTS))
+      initRunALL_PEER_TestCases();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
+  }
+
+  /**
+   * Initialises the Run All PEER Test Control Panel
+   * This function is called when user seletes "Run all PEER Tests Cases"
+   * from the control pick list
+   */
+  private void initRunALL_PEER_TestCases(){
+    if(distanceControlPanel==null) distanceControlPanel= new SetMinSourceSiteDistanceControlPanel(this);
+    if(peerTestsControlPanel==null)
+      peerTestsControlPanel=new PEER_TestCaseSelectorControlPanel(this,
+          imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean, timeSpanGuiBean,
+          this.distanceControlPanel);
+    if(runAllPEER_Tests == null)
+      runAllPEER_Tests = new RunAll_PEER_TestCasesControlPanel(this);
+    runAllPEER_Tests.show();
+    runAllPEER_Tests.pack();
   }
 
   /**

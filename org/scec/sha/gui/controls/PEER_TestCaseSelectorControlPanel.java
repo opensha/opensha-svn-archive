@@ -97,6 +97,9 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private JLabel jLabel2 = new JLabel();
   private JComboBox testCaseComboBox = new JComboBox();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  //Vector to store the peer test cases names
+  private Vector peerTestSetOne = new Vector();
+  private Vector peerTestSetTwo = new Vector();
 
 
   public PEER_TestCaseSelectorControlPanel(Component parent, IMR_GuiBean imrGuiBean,
@@ -867,7 +870,12 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ELEVEN+"-"+this.SITE_THREE));
      v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ELEVEN+"-"+this.SITE_FOUR));
 
+     //adding the SET ONE PEER test cases to the set one vector
+     int size = v.size();
+     for(int i=0;i<size;++i)
+       this.peerTestSetOne.add(v.get(i));
 
+     v.removeAllElements();
      //test case-1 , Set-2
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_ONE+"-"+this.SITE_ONE));
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_ONE+"-"+this.SITE_TWO));
@@ -899,11 +907,20 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_SIX+"-"+this.SITE_TWO));
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_SIX+"-"+this.SITE_THREE));
 
-
-     int size = v.size();
+     //adding the SET TWO PEER test cases to the set two vector
+     size = v.size();
      for(int i=0;i<size;++i)
-       this.testCaseComboBox.addItem(v.get(i));
+       this.peerTestSetTwo.add(v.get(i));
 
+
+     size = this.peerTestSetOne.size();
+     for(int i=0;i<size;++i)
+       this.testCaseComboBox.addItem(peerTestSetOne.get(i));
+
+
+     size = this.peerTestSetTwo.size();
+     for(int i=0;i<size;++i)
+       this.testCaseComboBox.addItem(peerTestSetTwo.get(i));
    }
 
    /**
@@ -915,4 +932,20 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     setTestCaseAndSite(testSelected);
   }
 
+  /**
+   *
+   * @returns the Vector of the PEER Test Case set One
+   */
+  public Vector getPEER_SetOneTestCasesNames(){
+   return this.peerTestSetOne;
+  }
+
+
+  /**
+   *
+   * @returns the Vector of the PEER Test Case set Two
+   */
+  public Vector getPEER_SetTwoTestCasesNames(){
+   return this.peerTestSetTwo;
+  }
 }
