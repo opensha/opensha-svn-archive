@@ -15,6 +15,9 @@ Update the makeMapUsingServer() method of the GMT_MapGenerator:
 
 	make functionality consistent with web service
 
+Make the setting values from CVM to be webservice rather than being the servlet. 
+	Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. 
+
 SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
 
 Develop HazardSpectrumApplet for Caltrans.  This is like the hazard curve calculator except:
