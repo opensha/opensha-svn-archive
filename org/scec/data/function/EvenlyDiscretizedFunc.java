@@ -300,32 +300,49 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     }
 
 
-     /**
-     * This function interpolates the first x-axis value corresponding to the given value of y.
-     * @param y(value for which interpolated first x value has to be found
-     * @return x(this  is the interpolated x based on the given y value)
-     */
-    public double getFirstInterpolatedX(double y){
-       int i;
-       double y1=Double.NaN;
-       double y2=Double.NaN;
-       //if passed parameter(y value) is not within range then throw exception
-       if( y>getMaxY() || y<getMinY() )
-          throw new InvalidRangeException("Y Value must be within the range: "+getMinY()+" and "+getMaxY());
-      //finds the Y values within which the the given y value lies
-       for(i=0;i<num-1;++i) {
-         y1=getY(i);
-         y2=getY(i+1);
-        if(y>=y1 && y<=y2)
-           break;
+    /**
+        * Given the imput y value, finds the two sequential
+        * x values with the closest y values, then calculates an
+        * interpolated x value for this y value, fitted to the curve. <p>
+        *
+        * Since there may be multiple y values with the same value, this
+        * function just matches the first found.
+        *
+        * @param y(value for which interpolated first x value has to be found
+        * @return x(this  is the interpolated x based on the given y value)
+        */
+
+       public double getFirstInterpolatedX(double y){
+         double y1=Double.NaN;
+         double y2=Double.NaN;
+         int i;
+
+         boolean found = false; // this boolean hold whether the passed y value lies within range
+
+         //finds the Y values within which the the given y value lies
+         for(i=0;i<num-1;++i) {
+           y1=getY(i);
+           y2=getY(i+1);
+           if((y<=y1 && y>=y2 && y2<=y1) || (y>=y1 && y<=y2 && y2>=y1)) {
+             found = true;
+             break;
+           }
+         }
+
+         //if passed parameter(y value) is not within range then throw exception
+         if(!found) throw new InvalidRangeException("Y Value ("+y+") must be within the range: "+getY(0)+" and "+getY(num-1));
+
+
+         //finding the x values for the coressponding y values
+         double x1=getX(i);
+         double x2=getX(i+1);
+
+         //using the linear interpolation equation finding the value of x for given y
+         double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
+         return x;
        }
-       //finding the x values for the coressponding y values
-       double x1=getX(i);
-       double x2=getX(i+1);
-       //using the linear interpolation equation finding the value of x for given y
-       double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
-       return x;
-    }
+
+
 
     /**
      * This function interpolates the y-axis value corresponding to the given value of x
