@@ -121,7 +121,14 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
       if(D)
         System.out.println("Getting the Prob. values for the addon rates for STEP");
 
-        stepAddonProbVals = getProbVals_faster(attenRel,region,(EqkRupForecast)forecast);
+      long startTime, duration;
+      startTime = System.currentTimeMillis();
+
+      stepAddonProbVals = getProbVals_faster(attenRel,region,(EqkRupForecast)forecast);
+
+      duration = startTime - System.currentTimeMillis();
+      if(D)
+        System.out.println("computation time = "+duration);
 
     }catch(Exception e){
       e.printStackTrace();
@@ -160,8 +167,9 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
 
     if(D)
       System.out.println("Number of sites:"+numSites);
-    if(D)
+    if(D) {
       System.out.println("Starting with hazard calculations for STEP");
+    }
     for(int j=0;j<numSites;++j){
       double hazVal =1;
       double condProb =0;
@@ -223,13 +231,18 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
         hazVal = 0.0;
       //System.out.println("HazVal: "+hazVal);
       probVals.add(new Double(hazVal));
+
+/*
       if(D)
-        System.out.println("Calculation completed for site#"+j+" with Lat:"+site.getLocation().getLatitude()+
-                           " Lon:"+site.getLocation().getLongitude()+ "  with prob val:"+hazVal);
+        System.out.println("Calculation completed for site#"+j+" with Lat:"+(float)site.getLocation().getLatitude()+
+                           " Lon:"+(float)site.getLocation().getLongitude()+ "  with prob val:"+ (float)hazVal);
+*/
     }
 
-    if(D)
+    if(D) {
       System.out.println("Done with Hazard Calc. for Addon Rates for STEP");
+    }
+
     return probVals;
   }
 
@@ -261,8 +274,9 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
     int numSites = region.getNumGridLocs();
     if(D)
       System.out.println("Number of sites for faster method:"+numSites);
-    if(D)
+    if(D) {
       System.out.println("Starting with hazard calculations for STEP");
+     }
     for(int j=0;j<numSites;++j){
       double hazVal =1;
       double condProb =0;
@@ -304,12 +318,15 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
         hazVal = 0.0;
       //System.out.println("HazVal: "+hazVal);
       probVals.add(new Double(hazVal));
+/**/
       if(D)
-        System.out.println("Calculation completed for site#"+j+" with Lat:"+site.getLocation().getLatitude()+
-                           " Lon:"+site.getLocation().getLongitude()+ "  with prob val:"+hazVal);
+        System.out.println("Calculation completed for site#"+j+" with Lat:"+(float)site.getLocation().getLatitude()+
+                           " Lon:"+(float)site.getLocation().getLongitude()+ "  with prob val:"+(float)hazVal);
+
     }
-    if(D)
+    if(D) {
       System.out.println("Done with Hazard Calc. for Addon Rates for STEP");
+    }
     return probVals;
   }
 

@@ -481,6 +481,19 @@ public final class RelativeLocation {
       Location loc = new Location(34.5,-121,0);
       Location pt1 = new Location(34,-122,0);
       Location pt2 = new Location(35,-122,0);
+
+      long t1, t2;
+      double junk;
+      t1 = System.currentTimeMillis();
+      for(int i=0; i < 1000000; i++) junk = getApproxHorzDistance(pt1,pt2);
+      t2 = t1 - System.currentTimeMillis();
+      System.out.println("approx time = "+ t2);
+      t1 = System.currentTimeMillis();
+      for(int i=0; i < 1000000; i++) junk = getHorzDistance(pt1,pt2);
+      t2 = t1 - System.currentTimeMillis();
+      System.out.println("time = "+ t2);
+
+/*
       System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
       System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
       System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
@@ -575,6 +588,7 @@ public final class RelativeLocation {
       System.out.println(getApproxHorzDistToLine_2(loc,pt1,pt2));
       System.out.println(getApproxHorzDistToLine(loc,pt2,pt1));
       System.out.println(getApproxHorzDistToLine_2(loc,pt2,pt1));
+*/
 
 /*
       System.out.println("Los Angeles Sement Length: = "+

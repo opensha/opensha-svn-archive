@@ -307,7 +307,10 @@ public class ShakeMap_2003_AttenRel
       if(!imt.equals(MMI_NAME)) {
         updateCoefficients();
         double b_mean = getRockMean();
-        return b_mean + Math.log(getAmpFactor(im.getName()));
+        if(imt.equals(PGA_NAME))
+           return b_mean + Math.log(getAmpFactor(im.getName(),b_mean));
+        else
+           return b_mean + Math.log(getAmpFactor(im.getName()));
       }
       else
         return Math.log(getMMI());  // return the log for now (until I figure a better way)
@@ -326,14 +329,12 @@ public class ShakeMap_2003_AttenRel
       // get the PGA for B category
       coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGA_NAME );
       coeffSM  = ( BJF_1997_AttenRelCoefficients )coefficientsSM.get( PGA_NAME );
-      double b_pga = getRockMean();
+      return getAmpFactor(imt, getRockMean());
+    }
 
-      if(D) {
-        System.out.println(C+S+" b_pag (gals) = "+Math.exp(b_pga)*980.0);
-//        System.out.println(C+"pga_low = "+pga_low);
-//        System.out.println(C+"pga_mid = "+pga_mid);
-//        System.out.println(C+"pga_high = "+pga_high);
-      }
+    private double getAmpFactor(String imt, double b_pga) {
+
+      String S = ".getAmpFactor()";
 
       // figure out whether we need short-period or mid-period amps
       boolean shortPeriod;

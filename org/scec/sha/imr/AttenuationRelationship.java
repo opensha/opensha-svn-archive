@@ -629,6 +629,7 @@ public abstract class AttenuationRelationship
         if(Math.log(1.0-qkProb) < -30.0)
                 throw new RuntimeException("Error: The probability for this ProbEqkRupture ("+qkProb+
                             ") is too high for a Possion source (~infinite number of events)");
+
         totProb *= Math.pow(1.0-qkProb,getExceedProbability());
       }
       return 1-totProb;
