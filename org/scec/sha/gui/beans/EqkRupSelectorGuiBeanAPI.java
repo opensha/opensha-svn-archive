@@ -4,6 +4,8 @@ import org.scec.data.Location;
 import org.scec.param.ParameterAPI;
 import org.scec.param.editor.ParameterEditor;
 import org.scec.sha.earthquake.EqkRupture;
+import org.scec.param.ParameterList;
+import org.scec.param.editor.ParameterListEditor;
 
 /**
  * <p>Title: EqkRupSelectorGuiBeanAPI</p>
@@ -66,5 +68,18 @@ public interface EqkRupSelectorGuiBeanAPI {
      * @returns the ParameterEditor associated with paramName
      */
     public ParameterEditor getParameterEditor(String paramName);
+
+    /**
+     *
+     * @returns the visible parameters in the list
+     */
+    public ParameterList getVisibleParameterList();
+
+    /**
+     *
+     * @returns the parameterlist editor
+     */
+    public ParameterListEditor getParameterListEditor();
+
 
   }

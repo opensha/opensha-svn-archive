@@ -120,7 +120,6 @@ public class PuenteHillsScenarioTestControlPanel {
     //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
     erfPanel.setSourceFromSelectedERF(0);
     erfPanel.setRuptureForSelectedSource(0);
-    erfPanel.getHypocenterLocationsForSelectedRupture();
 
 
     //Updating the IMR Gui Bean with the ShakeMap attenuation relationship.

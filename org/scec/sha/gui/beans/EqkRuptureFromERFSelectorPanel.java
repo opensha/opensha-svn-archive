@@ -334,6 +334,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    else if( name1.equals(this.SOURCE_PARAM_NAME) ){
      //getting the selected Source Value
      sourceValue = Integer.parseInt((((String)sourceParam.getValue()).substring(0,((String)sourceParam.getValue()).indexOf("("))).trim());
+     setSelectedSourceRupturesInfo();
      // set the new forecast parameters. Also change the number of ruptures in this source
      hypoCentreCheck.setSelected(false);
      setRuptureForSelectedSource(0);
@@ -572,6 +573,17 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   public ParameterListEditor getParameterListEditor(){
     return listEditor;
   }
+
+
+
+  /**
+   *
+   * @returns the visible parameters in the list
+   */
+  public ParameterList getVisibleParameterList(){
+    return listEditor.getVisibleParameters();
+  }
+
 
   /**
    *

@@ -20,6 +20,9 @@ import org.scec.param.editor.ConstrainedStringParameterEditor;
 import org.scec.sha.earthquake.EqkRupture;
 import org.scec.data.Location;
 import org.scec.param.editor.ParameterEditor;
+import org.scec.param.ParameterList;
+import org.scec.param.editor.ParameterListEditor;
+
 
 /**
  * <p>Title: Eqk Rupture Selector GuiBean</p>
@@ -262,5 +265,20 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     return eqkRupturePanel;
   }
 
+  /**
+   *
+   * @returns the visible parameters in the list
+   */
+  public ParameterList getVisibleParameterList(){
+    return eqkRupturePanel.getVisibleParameterList();
+  }
+
+  /**
+   *
+   * @returns the parameterlist editor
+   */
+  public ParameterListEditor getVisibleParameterListEditor(){
+    return eqkRupturePanel.getParameterListEditor();
+  }
 
 }

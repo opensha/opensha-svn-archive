@@ -404,6 +404,25 @@ public class EqkRuptureCreationPanel extends  JPanel
     return null;
   }
 
+
+  /**
+   *
+   * @returns the visible parameters in the list
+   */
+  public ParameterList getVisibleParameterList(){
+    return listEditor.getVisibleParameters();
+  }
+
+  /**
+   *
+   * @returns the parameterlist editor
+   */
+  public ParameterListEditor getParameterListEditor(){
+    return listEditor;
+  }
+
+
+
   /**
    * When Set Hypocenter Location in EqkRupture button is pressed.
    * @param e

@@ -11,6 +11,7 @@ import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
+import org.scec.sha.param.editor.SimpleFaultParameterEditor;
 import org.scec.sha.param.editor.MagFreqDistParameterEditor;
 import org.scec.sha.param.*;
 import org.scec.sha.magdist.SingleMagFreqDist;
@@ -21,15 +22,16 @@ import org.scec.data.Direction;
 import org.scec.calc.RelativeLocation;
 import org.scec.sha.fault.FaultTrace;
 
+
 /**
- * <p>Title: PuenteHillsScenarioTestControlPanel</p>
+ * <p>Title: PuenteHillsScenarioControlPanelUsingEqkRuptureCreation</p>
  * <p>Description: Sets the param value to replicate the official scenario shakemap
  * for the Puente Hill Scenario (http://www.trinet.org/shake/Puente_Hills_se)</p>
  * @author : Edward (Ned) Field and Nitin Gupta
  * @version 1.0
  */
 
-public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
+public class PuenteHillsScenarioControlPanelUsingEqkRuptureCreation {
 
   //for debugging
   protected final static boolean D = false;
@@ -54,7 +56,7 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
    * @param regionGuiBean
    * @param MapGuiBean
    */
-  public PuenteHillsScenarioControlPanelForSingleMultipleAttenRel(EqkRupSelectorGuiBean erfGuiBean,
+  public PuenteHillsScenarioControlPanelUsingEqkRuptureCreation(EqkRupSelectorGuiBean erfGuiBean,
       AttenuationRelationshipGuiBean imrGuiBean, SitesInGriddedRectangularRegionGuiBean regionGuiBean,
       MapGuiBean mapGuiBean) {
     //getting the instance for variuos GuiBeans from the applet required to set the
@@ -284,28 +286,25 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     //this control panel will set the values by itself.
     //This is done in the EqkRupSelectorGuiBean
     ParameterEditor paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
-    paramEditor.setValue(erfGuiBean.RUPTURE_FROM_EXISTING_ERF);
+    paramEditor.setValue(erfGuiBean.CREATE_RUPTURE);
     paramEditor.refreshParamEditor();
-    EqkRuptureFromERFSelectorPanel erfPanel= (EqkRuptureFromERFSelectorPanel)erfGuiBean.getEqkRuptureSelectorPanel();
-    erfPanel.showAllParamsForForecast(false);
+    EqkRuptureCreationPanel erfPanel= (EqkRuptureCreationPanel)erfGuiBean.getEqkRuptureSelectorPanel();
 
     //changing the ERF to SimpleFaultERF
-    paramEditor = erfPanel.getParameterEditor(erfPanel.ERF_PARAM_NAME);
-    paramEditor.setValue(PoissonFaultERF.NAME);
+    paramEditor = erfPanel.getParameterEditor(erfPanel.SRC_TYP_PARAM_NAME);
+    paramEditor.setValue(erfPanel.FINITE_SRC_NAME);
     paramEditor.refreshParamEditor();
 
-    //Getting the instance for the editor that holds all the adjustable params for the selcetd ERF
-    ERF_GuiBean erfParamGuiBean =erfPanel.getERF_ParamEditor();
 
     // Set rake value to 90 degrees
-    erfParamGuiBean.getERFParameterList().getParameter(PoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(90));
+    erfPanel.getParameter(erfPanel.RAKE_PARAM_NAME).setValue(new Double(90));
 
 
     double dip = 27;
     double depth1=5, depth2=17;
 
     //getting the instance for the SimpleFaultParameterEditorPanel from the GuiBean to adjust the fault Params
-    SimpleFaultParameterEditorPanel faultPanel= erfParamGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
+    SimpleFaultParameterEditorPanel faultPanel= ((SimpleFaultParameterEditor)erfPanel.getParameterEditor(erfPanel.FAULT_PARAM_NAME)).getParameterEditorPanel();
     //creating the Lat vector for the SimpleFaultParameter
 
     ArrayList lats = new ArrayList();
@@ -337,18 +336,10 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     //updaing the faultParameter to update the faultSurface
     faultPanel.setEvenlyGriddedSurfaceFromParams();
 
-    //updating the magEditor with the values for the Puente Hills Scenario
-    MagFreqDistParameterEditor magEditor = erfParamGuiBean.getMagDistEditor();
-    magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
-    magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-    magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(magnitude));
-    erfParamGuiBean.getERFParameterListEditor().refreshParamEditor();
-    // now have the editor create the magFreqDist
-    magEditor.setMagDistFromParams();
 
-    //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
-    erfPanel.setSourceFromSelectedERF(0);
-    erfPanel.setRuptureForSelectedSource(0);
+    erfPanel.getParameter(erfPanel.MAG_PARAM_NAME).setValue(new Double(magnitude));
+    erfPanel.getParameterListEditor().refreshParamEditor();
+
 
     //checking if the single AttenRel is selected
     boolean isSingleAttenRelSelected =imrGuiBean.isSingleAttenRelTypeSelected();

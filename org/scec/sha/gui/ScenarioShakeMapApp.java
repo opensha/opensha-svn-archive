@@ -115,25 +115,28 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
-  //public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
-  public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
-  public final static String SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
-  public final static String SIMPLE_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PoissonFaultERF";
-  //public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
-  //public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
-  public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
-  public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-  public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-  public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-  public final static String WG02_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
-  public final static String PUENTE_HILLS_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PuenteHillsERF.PuenteHillsFaultERF";
-  public final static String POINT_POISSON_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PointPoissonSourceERF";
+  /**
+   *  The object class names for all the supported Eqk Rup Forecasts
+   */
+  public final static String RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient";
+  public final static String RMI_STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient";
+  public final static String RMI_STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
+  public final static String RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client";
+  public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient";
+  public final static String RMI_PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_AreaForecastClient";
+  public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
+  public final static String RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient";
+  public final static String RMI_POINT2MULT_VSS_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
+  public final static String RMI_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client";
+  public final static String RMI_WG02_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient";
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
   //private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
   private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
+  private final static String PUENTE_HILLS_CONTROL_USING_EQK_RUPTURE_CREATION_METHOD =
+      "Set Params for Puente Hills Sceanrio using EqkRupture creation panel";
   private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
   //private final static String SF_BAY_CONTROL = "Set Params and generate shapefiles for SF Bay Area";
   //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
@@ -142,7 +145,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
-  //private PuenteHillsScenarioTestControlPanel puenteHillsTestControl;
+  private PuenteHillsScenarioControlPanelUsingEqkRuptureCreation puenteHillsControlUsingEqkRupture;
   private PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
   private GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
   private CalcOptionControl calcControl;
@@ -348,19 +351,20 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
      // create the ERF Gui Bean object
    ArrayList erf_Classes = new ArrayList();
 
-//   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-   erf_Classes.add(POINT_POISSON_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-//   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(SIMPLE_FAULT_FORECAST_CLASS_NAME);
-//   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-//   erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(WG02_FORECAST_CLASS_NAME);
-   erf_Classes.add(PUENTE_HILLS_FORECAST_CLASS_NAME);
+   /**
+    *  The object class names for all the supported Eqk Rup Forecasts
+    */
+   erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
+   erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
+   erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
+   erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_WG02_ERF_CLASS_NAME);
+
    try{
      erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
    }catch(InvocationTargetException e){
@@ -740,6 +744,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     this.controlComboBox.addItem(HAZUS_CONTROL);
     //this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
+    this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_USING_EQK_RUPTURE_CREATION_METHOD);
     //this.controlComboBox.addItem(SF_BAY_CONTROL);
     this.controlComboBox.addItem(MAP_CALC_CONTROL);
     this.controlComboBox.addItem(CALC_PARAMS_CONTROL);
@@ -757,8 +762,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       initRegionsOfInterestControl();
     else if(selectedControl.equalsIgnoreCase(this.HAZUS_CONTROL))
       initHazusScenarioControl();
-    //else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_TEST_CONTROL))
-      //initPuenteHillTestScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_CONTROL_USING_EQK_RUPTURE_CREATION_METHOD))
+      initPuenteHillTestScenarioControl();
     else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL))
       initPuenteHillScenarioControl();
     //else if(selectedControl.equalsIgnoreCase(SF_BAY_CONTROL))
@@ -813,19 +818,19 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   }
 
   /**
-   * Initialize the Interesting regions control panel
-   * It will provide a pick list of interesting regions
+   * Initialize the parameter settings for Puente Hills Scenario
    */
- /* private void initPuenteHillTestScenarioControl() {
-    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to Puente Hills Test?",
+  private void initPuenteHillTestScenarioControl() {
+    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters"+
+        " to Puente Hills Scenario Using the EarthquakeRupture Creation Panel?",
                                     "Puente Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
-      if(this.puenteHillsTestControl==null)
-        puenteHillsTestControl = new PuenteHillsScenarioTestControlPanel(this.erfGuiBean,(IMR_GuiBeanAPI) imrGuiBean,
-                                                                this.sitesGuiBean,this.mapGuiBean,(IMT_GuiBeanAPI)imtGuiBean);
-      puenteHillsTestControl.setParamsForPuenteHillsScenario();
+      if(puenteHillsControlUsingEqkRupture==null)
+        puenteHillsControlUsingEqkRupture = new PuenteHillsScenarioControlPanelUsingEqkRuptureCreation(erfGuiBean,imrGuiBean,
+                                                                sitesGuiBean,mapGuiBean);
+      puenteHillsControlUsingEqkRupture.setParamsForPuenteHillsScenario();
     }
-  }*/
+  }
 
 
   /**
@@ -848,9 +853,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
  }
 
 
-  /**
-   * Initialize the Interesting regions control panel
-   * It will provide a pick list of interesting regions
+ /**
+  * Initialize the parameter settings for Puente Hills Scenario
    */
   private void initPuenteHillScenarioControl() {
     int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to Puente Hills Scenario?",
