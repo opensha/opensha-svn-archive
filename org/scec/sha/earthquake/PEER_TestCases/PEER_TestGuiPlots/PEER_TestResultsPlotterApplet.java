@@ -319,8 +319,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     dataVersionLabel.setForeground(new Color(80, 80, 133));
     dataVersionLabel.setHorizontalAlignment(SwingConstants.CENTER);
     dataVersionLabel.setText("jLabel1");
-    testCasesPanel.setMinimumSize(new Dimension(115, 480));
-    testCasesPanel.setPreferredSize(new Dimension(121, 480));
+    testCasesPanel.setMinimumSize(new Dimension(115, 37));
+    testCasesPanel.setPreferredSize(new Dimension(121, 37));
     powerLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     dataScrollPane.getViewport().add( pointsTextArea, null );
     xLogCheckBox.setText("XLog");
