@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ------------
  * Dataset.java
  * ------------
- * (C) Copyright 2000-2002, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -39,6 +39,7 @@
  * 22-Jan-2002 : Reconsidered (and removed) the getLegendItemCount() and getLegendItemLabels()
  *               methods...leave this to client code (DG);
  * 27-Sep-2002 : Added get/setDatasetGroup(...) methods (DG);
+ * 10-Jan-2003 : Updated Javadocs (DG);
  *
  */
 
@@ -47,17 +48,15 @@ package com.jrefinery.data;
 /**
  * The base interface for data sets.
  * <P>
- * All datasets are required to support the DatasetChangeEvent mechanism by allowing listeners to
- * register and receive notification of any changes to the dataset.
+ * All datasets are required to support the {@link DatasetChangeEvent} mechanism by allowing 
+ * listeners to register and receive notification of any changes to the dataset.
  * <P>
- * In addition, all datasets must belong to one (and only one) DatasetGroup.  The group object
- * maintains a reader-writer lock which provides synchronised access to the datasets in
+ * In addition, all datasets must belong to one (and only one) {@link DatasetGroup}.  The group 
+ * object maintains a reader-writer lock which provides synchronised access to the datasets in
  * multi-threaded code.
  *
- * @see PieDataset
- * @see SeriesDataset
- *
- * @author DG
+ * @author David Gilbert
+ * 
  */
 public interface Dataset {
 

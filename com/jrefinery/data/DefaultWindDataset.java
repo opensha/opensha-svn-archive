@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -----------------------
  * DefaultWindDataset.java
  * -----------------------
- * (C) Copyright 2001, 2002, by Achilleus Mantzios and Contributors.
+ * (C) Copyright 2001-2003, by Achilleus Mantzios and Contributors.
  *
  * Original Author:  Achilleus Mantzios;
  * Contributor(s):   David Gilbert (for Simba Management Limited);
@@ -45,7 +45,7 @@ import java.util.Date;
 /**
  * A default implementation of the WindDataset interface.
  *
- * @author AM
+ * @author Achilleus Mantzios
  */
 public class DefaultWindDataset extends AbstractSeriesDataset implements WindDataset {
 
@@ -165,7 +165,7 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
     public Number getXValue(int series, int item) {
         List oneSeriesData = (List) allSeriesData.get(series);
         WindDataItem windItem = (WindDataItem) oneSeriesData.get(item);
-        return windItem.x;
+        return windItem.getX();
     }
 
     /**
@@ -191,7 +191,7 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
     public Number getWindDirection(int series, int item) {
         List oneSeriesData = (List) allSeriesData.get(series);
         WindDataItem windItem = (WindDataItem) oneSeriesData.get(item);
-        return windItem.windDir;
+        return windItem.getWindDirection();
     }
 
     /**
@@ -204,7 +204,7 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
     public Number getWindForce(int series, int item) {
         List oneSeriesData = (List) allSeriesData.get(series);
         WindDataItem windItem = (WindDataItem) oneSeriesData.get(item);
-        return windItem.windForce;
+        return windItem.getWindForce();
     }
 
     /**
@@ -228,17 +228,19 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
 
 /**
  * A wind data item.
+ * 
+ * @author Achilleus Mantzios
  */
 class WindDataItem implements Comparable {
 
     /** The x-value. */
-    public Number x;
+    private Number x;
 
     /** The wind direction. */
-    public Number windDir;
+    private Number windDir;
 
     /** The wind force. */
-    public Number windForce;
+    private Number windForce;
 
     /**
      * Creates a new wind data item.
@@ -254,13 +256,42 @@ class WindDataItem implements Comparable {
     }
 
     /**
+     * Returns the x-value.
+     * 
+     * @return The x-value.
+     */
+    public Number getX() {
+        return this.x;
+    }
+    
+    /**
+     * Returns the wind direction.
+     * 
+     * @return The wind direction.
+     */
+    public Number getWindDirection() {
+        return this.windDir;
+    }
+    
+    /**
+     * Returns the wind force.
+     * 
+     * @return The wind force.
+     */
+    public Number getWindForce() {
+        return this.windForce;
+    }
+    
+    /**
      * Compares this item to another object.
      *
      * @param object  the other object.
+     * 
+     * @return An int that indicates the relative comparison.
      */
     public int compareTo(Object object) {
         if (object instanceof WindDataItem) {
-            WindDataItem item = (WindDataItem)object;
+            WindDataItem item = (WindDataItem) object;
             if (this.x.doubleValue() > item.x.doubleValue()) {
                 return 1;
             }

@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -----------
  * Values.java
  * -----------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -32,6 +32,7 @@
  * Changes:
  * --------
  * 08-Nov-2001 : Version 1 (DG);
+ * 23-Oct-2002 : Renamed getValueCount --> getItemCount (DG);
  *
  */
 
@@ -40,24 +41,24 @@ package com.jrefinery.data;
 /**
  * An interface through which (single-dimension) data values can be accessed.
  *
- * @author DG
+ * @author David Gilbert
  */
 public interface Values {
 
     /**
-     * Returns the number of values in the collection.
+     * Returns the number of items (values) in the collection.
      *
-     * @return the number of values in the collection.
+     * @return the item count.
      */
-    public int getValueCount();
+    public int getItemCount();
 
     /**
      * Returns a value.
      *
-     * @param index  the index of the item of interest (zero-based).
+     * @param item  the item of interest (zero-based index).
      *
      * @return the value.
      */
-    public Number getValue(int index);
+    public Number getValue(int item);
 
 }

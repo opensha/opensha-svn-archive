@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -----------------------
  * TimeSeriesDataPair.java
  * -----------------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -51,15 +51,15 @@ package com.jrefinery.data;
  * often be sorted within a list, and allowing the time period to be changed
  * could destroy the sort order.
  * <P>
- * Implements the Comparable interface so that standard Java sorting can be
+ * Implements the <code>Comparable</code> interface so that standard Java sorting can be
  * used to keep the data pairs in order.
  *
- * @author DG
+ * @author David Gilbert
  */
 public class TimeSeriesDataPair implements Cloneable, Comparable {
 
     /** The time period. */
-    private TimePeriod period;
+    private RegularTimePeriod period;
 
     /** The value associated with the time period. */
     private Number value;
@@ -70,7 +70,7 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
      * @param period  the time period.
      * @param value  the value associated with the time period.
      */
-    public TimeSeriesDataPair(TimePeriod period, Number value) {
+    public TimeSeriesDataPair(RegularTimePeriod period, Number value) {
 
         this.period = period;
         this.value = value;
@@ -83,7 +83,7 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
      * @param period  the time period.
      * @param value  the value associated with the time period.
      */
-    public TimeSeriesDataPair(TimePeriod period, double value) {
+    public TimeSeriesDataPair(RegularTimePeriod period, double value) {
 
         this(period, new Double(value));
 
@@ -117,7 +117,7 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
      *
      * @return the time period.
      */
-    public TimePeriod getPeriod() {
+    public RegularTimePeriod getPeriod() {
         return this.period;
     }
 
@@ -158,7 +158,7 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
         // -------------------------------------------------------
         if (o1 instanceof TimeSeriesDataPair) {
             TimeSeriesDataPair datapair = (TimeSeriesDataPair) o1;
-            result = this.getPeriod().compareTo(datapair.getPeriod());
+            result = getPeriod().compareTo(datapair.getPeriod());
         }
 
         // CASE 2 : Comparing to a general object

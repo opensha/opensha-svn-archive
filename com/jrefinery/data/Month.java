@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ----------
  * Month.java
  * ----------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -43,6 +43,7 @@
  * 19-Mar-2002 : Changed API for TimePeriod classes (DG);
  * 10-Sep-2002 : Added getSerialIndex() method (DG);
  * 04-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 10-Jan-2003 : Changed base class and method names (DG);
  *
  */
 
@@ -56,11 +57,11 @@ import com.jrefinery.date.SerialDate;
 /**
  * Represents a single month.
  * <P>
- * This class is immutable, which is a requirement for all TimePeriod subclasses.
+ * This class is immutable, which is a requirement for all {@link RegularTimePeriod} subclasses.
  *
- * @author DG
+ * @author David Gilbert
  */
-public class Month extends TimePeriod {
+public class Month extends RegularTimePeriod {
 
     /** The month (1-12). */
     private int month;
@@ -113,7 +114,7 @@ public class Month extends TimePeriod {
      */
     public Month(Date time) {
 
-        this(time, TimePeriod.DEFAULT_TIME_ZONE);
+        this(time, RegularTimePeriod.DEFAULT_TIME_ZONE);
 
     }
 
@@ -166,7 +167,7 @@ public class Month extends TimePeriod {
      *
      * @return the month preceding this one.
      */
-    public TimePeriod previous() {
+    public RegularTimePeriod previous() {
 
         Month result;
         if (this.month != SerialDate.JANUARY) {
@@ -190,7 +191,7 @@ public class Month extends TimePeriod {
      *
      * @return the month following this one.
      */
-    public TimePeriod next() {
+    public RegularTimePeriod next() {
         Month result;
         if (month != SerialDate.DECEMBER) {
             result = new Month(month + 1, year);
@@ -278,7 +279,7 @@ public class Month extends TimePeriod {
 
         // CASE 2 : Comparing to another TimePeriod object
         // -----------------------------------------------
-        else if (o1 instanceof TimePeriod) {
+        else if (o1 instanceof RegularTimePeriod) {
             // more difficult case - evaluate later...
             result = 0;
         }
@@ -302,10 +303,10 @@ public class Month extends TimePeriod {
      *
      * @return the first millisecond of the month.
      */
-    public long getStart(Calendar calendar) {
+    public long getFirstMillisecond(Calendar calendar) {
 
         Day first = new Day(1, this.month, year.getYear());
-        return first.getStart(calendar);
+        return first.getFirstMillisecond(calendar);
 
     }
 
@@ -317,11 +318,11 @@ public class Month extends TimePeriod {
      *
      * @return the last millisecond of the month.
      */
-    public long getEnd(Calendar calendar) {
+    public long getLastMillisecond(Calendar calendar) {
 
         int eom = SerialDate.lastDayOfMonth(this.month, year.getYear());
         Day last = new Day(eom, this.month, year.getYear());
-        return last.getEnd(calendar);
+        return last.getLastMillisecond(calendar);
 
     }
 

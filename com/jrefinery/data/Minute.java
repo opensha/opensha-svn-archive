@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -----------
  * Minute.java
  * -----------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -42,6 +42,7 @@
  * 19-Mar-2002 : Changed API, the minute is now defined in relation to an Hour (DG);
  * 10-Sep-2002 : Added getSerialIndex() method (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 10-Jan-2003 : Changed base class and method names (DG);
  *
  */
 
@@ -54,11 +55,11 @@ import java.util.TimeZone;
 /**
  * Represents a minute.
  * <P>
- * This class is immutable, which is a requirement for all TimePeriod subclasses.
+ * This class is immutable, which is a requirement for all {@link RegularTimePeriod} subclasses.
  *
- * @author DG
+ * @author David Gilbert
  */
-public class Minute extends TimePeriod {
+public class Minute extends RegularTimePeriod {
 
     /** Useful constant for the first minute in a day. */
     public static final int FIRST_MINUTE_IN_HOUR = 0;
@@ -103,7 +104,7 @@ public class Minute extends TimePeriod {
      * @param time  the time.
      */
     public Minute(Date time) {
-        this(time, TimePeriod.DEFAULT_TIME_ZONE);
+        this(time, RegularTimePeriod.DEFAULT_TIME_ZONE);
     }
 
     /**
@@ -145,7 +146,7 @@ public class Minute extends TimePeriod {
      *
      * @return the minute preceding this one.
      */
-    public TimePeriod previous() {
+    public RegularTimePeriod previous() {
 
         Minute result;
         if (this.minute != FIRST_MINUTE_IN_HOUR) {
@@ -169,7 +170,7 @@ public class Minute extends TimePeriod {
      *
      * @return the minute following this one.
      */
-    public TimePeriod next() {
+    public RegularTimePeriod next() {
 
         Minute result;
         if (this.minute != LAST_MINUTE_IN_HOUR) {
@@ -204,7 +205,7 @@ public class Minute extends TimePeriod {
      *
      * @return the first millisecond.
      */
-    public long getStart(Calendar calendar) {
+    public long getFirstMillisecond(Calendar calendar) {
 
         int year = this.hour.getDay().getYear();
         int month = this.hour.getDay().getMonth() - 1;
@@ -225,7 +226,7 @@ public class Minute extends TimePeriod {
      *
      * @return the last millisecond.
      */
-    public long getEnd(Calendar calendar) {
+    public long getLastMillisecond(Calendar calendar) {
 
         int year = this.hour.getDay().getYear();
         int month = this.hour.getDay().getMonth() - 1;
@@ -286,7 +287,7 @@ public class Minute extends TimePeriod {
 
         // CASE 2 : Comparing to another TimePeriod object
         // -----------------------------------------------
-        else if (o1 instanceof TimePeriod) {
+        else if (o1 instanceof RegularTimePeriod) {
             // more difficult case - evaluate later...
             result = 0;
         }

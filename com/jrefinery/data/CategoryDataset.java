@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * --------------------
  * CategoryDataset.java
  * --------------------
- * (C) Copyright 2000-2002, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -37,49 +37,24 @@
  * 22-Oct-2001 : Renamed DataSource.java --> Dataset.java etc. (DG);
  * 17-Nov-2001 : Updated Javadoc comments (DG);
  * 04-Mar-2002 : Updated import statement (DG);
+ * 23-Oct-2002 : Reorganised code (DG);
+ * 10-Jan-2003 : Updated Javadocs (DG);
+ * 21-Jan-2003 : Merged with TableDataset (which only existed in CVS) (DG);
  *
  */
 
 package com.jrefinery.data;
 
-import java.util.List;
-
 /**
- * The interface for a dataset with one or more series, and values associated
- * with "categories".
+ * The interface for a dataset with one or more series, and values associated with categories.
  * <P>
- * The categories are represented by any Java object, with the category label
- * being provided by the toString() method.
- * <P>
- * The JFreeChart class library uses this interface to obtain data for bar
- * charts and line charts.
+ * The categories are represented by <code>Comparable</code> instance, with the category label
+ * being provided by the <code>toString</code> method.
  *
- * @author DG
+ * @author David Gilbert
  */
-public interface CategoryDataset extends SeriesDataset {
+public interface CategoryDataset extends KeyedValues2D, Dataset {
 
-    /**
-     * Returns the number of categories in the dataset.
-     *
-     * @return the category count.
-     */
-    public int getCategoryCount();
-
-    /**
-     * Returns a list of the categories in the dataset.
-     *
-     * @return the category list.
-     */
-    public List getCategories();
-
-    /**
-     * Returns the value for a series and category.
-     *
-     * @param series  the series (zero-based index).
-     * @param category  the category.
-     *
-     * @return the value for a series and category.
-     */
-    public Number getValue(int series, Object category);
+    // no additional methods required
 
 }

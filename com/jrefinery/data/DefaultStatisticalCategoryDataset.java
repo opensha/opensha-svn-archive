@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * --------------------------------------
  * DefaultStatisticalCategoryDataset.java
  * --------------------------------------
- * (C) Copyright 2002, by Pascal Collet.
+ * (C) Copyright 2002, 2003, by Pascal Collet.
  *
  * Original Author:  Pascal Collet;
- * Contributor(s):   -;
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * $Id$
  *
@@ -33,16 +33,13 @@
  * -------
  * 21-Aug-2002 : Version 1, contributed by Pascal Collet (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 05-Feb-2003 : Revised implementation to use KeyedObjects2D (DG);
  *
  */
 
 package com.jrefinery.data;
 
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.ResourceBundle;
 
 /**
  * A convenience class that provides a default implementation of the
@@ -51,480 +48,275 @@ import java.util.ResourceBundle;
  * The standard constructor accepts data in a two dimensional array where the
  * first dimension is the series, and the second dimension is the category.
  *
- * @author PC
+ * @author Pascal Collet
  */
-public class DefaultStatisticalCategoryDataset extends AbstractSeriesDataset
-                                               implements StatisticalCategoryDataset {
+public class DefaultStatisticalCategoryDataset extends AbstractDataset
+                                               implements StatisticalCategoryDataset,
+                                                          RangeInfo {
 
-    /** The series names. */
-    private String[] seriesNames;
+    /** Storage for the data. */
+    private KeyedObjects2D data;
 
-    /** The categories. */
-    private Object[] categories;
-
-    /** Storage for the mean value data. */
-    private Number[][] meanData;
-
-    /** Storage for the standard deviation value data. */
-    private Number[][] stdDevData;
-
+    /** The minimum range value. */
+    private Number minimumRangeValue;
+    
+    /** The maximum range value. */
+    private Number maximumRangeValue;
+    
+    /** The range of values. */
+    private Range valueRange;
+    
     /**
      * Creates a new dataset.
-     *
-     * @param mean  the mean value data.
-     * @param stdDev  the standard deviation value data.
      */
-    public DefaultStatisticalCategoryDataset(double[][] mean, double[][] stdDev) {
+    public DefaultStatisticalCategoryDataset() {
 
-        this(DatasetUtilities.createNumberArray2D(mean),
-             DatasetUtilities.createNumberArray2D(stdDev));
+        this.data = new KeyedObjects2D();
+        this.minimumRangeValue = new Double(0.0);
+        this.maximumRangeValue = new Double(0.0);
+        this.valueRange = new Range(0.0, 0.0);
 
     }
 
     /**
-     * Constructs a dataset and populates it with data from the array.
-     * <p>
-     * The arrays are indexed as data[series][category].  Series and category
-     * names are automatically generated - you can change them using the
-     * setSeriesName(...) and setCategory(...) methods.
+     * Returns the mean value for an item.
      *
-     * @param mean  the mean value data
-     * @param stdDev  the standard deviation value data
-     */
-    public DefaultStatisticalCategoryDataset(Number[][] mean, Number[][] stdDev) {
-
-        this(null, null, mean, stdDev);
-
-    }
-
-    /**
-     * Constructs a DefaultStatisticalCategoryDataset, populates it with data
-     * from the arrays, and uses the supplied names for the series.
-     * <p>
-     * Category names are generated automatically ("Category 1", "Category 2", etc).
+     * @param row  the row index (zero-based).
+     * @param column  the column index (zero-based).
      *
-     * @param seriesNames  the series names.
-     * @param mean  the mean values data, indexed as data[series][category].
-     * @param stdDev  the stdDev values data, indexed as data[series][category].
+     * @return the mean value.
      */
-    public DefaultStatisticalCategoryDataset(String[] seriesNames,
-                                             Number[][] mean,
-                                             Number[][] stdDev) {
-
-        this(seriesNames, null, mean, stdDev);
-
-    }
-
-    /**
-     * Constructs a DefaultStatisticalCategoryDataset, populates it with data
-     * from the arrays, and uses the supplied names for the series and the
-     * supplied objects for the categories.
-     *
-     * @param seriesNames  the series names.
-     * @param categories  the categories.
-     * @param mean  the mean values data, indexed as data[series][category].
-     * @param stdDev  the stdDev values data, indexed as data[series][category].
-     */
-    public DefaultStatisticalCategoryDataset(String[] seriesNames,
-                                             Object[] categories,
-                                             Number[][] mean,
-                                             Number[][] stdDev) {
-
-        this.meanData = mean;
-        this.stdDevData = stdDev;
-
-        if (mean != null && stdDev != null) {
-
-            String baseName = "com.jrefinery.data.resources.DataPackageResources";
-            ResourceBundle resources = ResourceBundle.getBundle(baseName);
-
-            int seriesCount = mean.length;
-            if (seriesCount != stdDev.length) {
-                String errMsg = "DefaultStatisticalCategoryDataset: the number "
-                      + "of series in the start value dataset does "
-                      + "not match the number of series in the end "
-                      + "value dataset.";
-                throw new IllegalArgumentException(errMsg);
-            }
-            if (seriesCount > 0) {
-
-                // set up the series names...
-                if (seriesNames != null) {
-
-                    if (seriesNames.length != seriesCount) {
-                        throw new IllegalArgumentException("DefaultStatisticalCategoryDataset: "
-                            + "the number of series names does not match the number of series in "
-                            + "the data.");
-                    }
-
-                    this.seriesNames = seriesNames;
-                }
-                else {
-                    String prefix = resources.getString("series.default-prefix") + " ";
-                    this.seriesNames = generateNames(seriesCount, prefix);
-                }
-
-                // set up the category names...
-                int categoryCount = mean[0].length;
-                if (categoryCount != stdDev[0].length) {
-                    String errMsg = "DefaultStatisticalCategoryDataset: the number of categories "
-                        + "in the mean value dataset does not match the number of "
-                        + "categories in the standard deviation value dataset.";
-                    throw new IllegalArgumentException(errMsg);
-                }
-                if (categories != null) {
-                    if (categories.length != categoryCount) {
-                        throw new IllegalArgumentException("DefaultStatisticalCategoryDataset: "
-                            + "the number of categories does not match the number of categories "
-                            + "in the data.");
-                    }
-                    this.categories = categories;
-                }
-                else {
-                    String prefix = resources.getString("categories.default-prefix") + " ";
-                    this.categories = generateNames(categoryCount, prefix);
-                }
-
-            }
-            else {
-                this.seriesNames = null;
-                this.categories = null;
-            }
-        }
-
-    }
-
-    /**
-     * Returns the number of series in the dataset (possibly zero).
-     *
-     * @return the number of series in the dataset.
-     */
-    public int getSeriesCount() {
-
-        int result = 0;
-        if (meanData != null) {
-            result = meanData.length;
+    public Number getMeanValue (int row, int column) {
+        
+        Number result = null;
+        MeanAndStandardDeviation masd = (MeanAndStandardDeviation) this.data.getObject(row, column);
+        if (masd != null) {
+            result = masd.getMean();
         }
         return result;
 
     }
 
     /**
-     * Returns the name of the specified series.
+     * Returns the value for an item.
      *
-     * @param series the index of the required series (zero-based).
+     * @param row  the row index.
+     * @param column  the column index.
      *
-     * @return the series name
+     * @return the value.
      */
-    public String getSeriesName(int series) {
-
-        // check argument...
-        if ((series >= getSeriesCount()) || (series < 0)) {
-
-            throw new IllegalArgumentException("DefaultStatisticalCategoryDataset"
-                + ".getSeriesName(int): no such series.");
-        }
-
-        // return the value...
-        return seriesNames[series];
-
-    }
+    public Number getValue (int row, int column) {
+        return getMeanValue(row, column);
+    }   
 
     /**
-     * Sets the names of the series in the dataset.
-     * @param seriesNames The names of the series in the dataset.
+     * Returns the value for an item.
+     *
+     * @param rowKey  the row key.
+     * @param columnKey  the columnKey.
+     *
+     * @return the value.
      */
-    public void setSeriesNames(String[] seriesNames) {
-
-        // check argument...
-        if (seriesNames == null) {
-            throw new IllegalArgumentException("DefaultStatisticalCategoryDataset"
-                + ".setSeriesNames(): null not permitted.");
-        }
-
-        if (seriesNames.length != getSeriesCount()) {
-            throw new IllegalArgumentException("DefaultStatisticalCategoryDataset"
-                + ".setSeriesNames(): the number of series names does not match the data.");
-        }
-
-        // make the change...
-        this.seriesNames = seriesNames;
-        fireDatasetChanged();
-
-    }
+    public Number getValue (Comparable rowKey, Comparable columnKey) {
+        return getMeanValue(rowKey, columnKey);
+    }   
 
     /**
-     * Returns the number of categories in the dataset.
-     * <P>
-     * This method is part of the CategoryDataset interface.
-     * @return The number of categories in the dataset.
+     * Returns the mean value for an item.
+     *
+     * @param rowKey  the row key.
+     * @param columnKey  the columnKey.
+     *
+     * @return the mean value.
      */
-    public int getCategoryCount() {
-
-        int result = 0;
-
-        if (meanData != null) {
-            if (getSeriesCount() > 0) {
-                result = meanData[0].length;
-            }
+    public Number getMeanValue (Comparable rowKey, Comparable columnKey) {
+        
+        Number result = null;
+        MeanAndStandardDeviation masd 
+            = (MeanAndStandardDeviation) this.data.getObject(rowKey, columnKey);
+        if (masd != null) {
+            result = masd.getMean();
         }
-
         return result;
-
+        
     }
 
     /**
-     * Returns a list of the categories in the dataset.
-     * <P>
-     * Supports the CategoryDataset interface.
-     * @return A list of the categories in the dataset.
+     * Returns the standard deviation value for an item.
+     *
+     * @param row  the row index (zero-based).
+     * @param column  the column index (zero-based).
+     *
+     * @return the standard deviation.
      */
-    public List getCategories() {
-
-      // the CategoryDataset interface expects a list of categories, but we've stored them in
-      // an array...
-      if (categories == null) {
-        return new ArrayList();
-      }
-      else {
-        return Collections.unmodifiableList(Arrays.asList(categories));
-      }
-
-    }
-
-    /**
-     * Sets the categories for the dataset.
-     * @param categories An array of objects representing the categories in the dataset.
-     */
-    public void setCategories(Object[] categories) {
-
-      // check arguments...
-      if (categories == null) {
-        throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.setCategories(...): "
-            + "null not permitted.");
-      }
-
-      if (categories.length != meanData[0].length) {
-        throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.setCategories(...): "
-            + "the number of categories does not match the data.");
-      }
-
-      for (int i = 0; i < categories.length; i++) {
-        if (categories[i] == null) {
-          throw new IllegalArgumentException("DefaultStatisticalCategoryDataset"
-              + ".setCategories(...): null category not permitted.");
+    public Number getStdDevValue (int row, int column) {
+        
+        Number result = null;
+        MeanAndStandardDeviation masd = (MeanAndStandardDeviation) this.data.getObject(row, column);
+        if (masd != null) {
+            result = masd.getStandardDeviation();
         }
-      }
-
-      // make the change...
-      this.categories = categories;
-      fireDatasetChanged();
-
+        return result;
+        
     }
 
     /**
-     * Returns the data value for one category in a series.
-     * <P>
-     * This method is part of the CategoryDataset interface.  Not particularly
-     * meaningful for this class...but it is used in the DatasetUtilities when
-     * computing the range extent so we should be careful to return a value large
-     * enough so that the mean+stdDev value will always be plotted properly.
+     * Returns the standard deviation value for an item.
      *
-     * @param series  the required series (zero based index).
-     * @param category  the required category.
+     * @param rowKey  the row key.
+     * @param columnKey  the columnKey.
      *
-     * @return the data value for one category in a series (null possible).
+     * @return the standard deviation.
      */
-    public Number getValue(int series, Object category) {
-
-        double m = getMeanValue(series, category).doubleValue();
-        double s = getStdDevValue(series, category).doubleValue();
-        return new Double(m + s);
-
-    }
-
-    /**
-     * Returns the mean data value for one category in a series.
-     * <P>
-     * This method is part of the StatisticalCategoryDataset interface.
-     * @param series The required series (zero based index).
-     * @param category The required category.
-     * @return The mean data value for one category in a series (null possible).
-     */
-    public Number getMeanValue(int series, Object category) {
-      // check arguments...
-      if ((series < 0) || (series >= getSeriesCount())) {
-          throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.getValue(...): "
-              + "series index out of range.");
-      }
-
-      if (category == null) {
-          throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.getValue(...): "
-              + "null category not allowed.");
-      }
-
-      int categoryIndex = getCategoryIndex(category);
-
-      if (categoryIndex < 0) {
-          throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.getValue(...): "
-              + "unknown category.");
-      }
-
-      // fetch the value...
-      return meanData[series][categoryIndex];
-
-    }
-
-    /**
-     * Returns the standard deviation data value for one category in a series.
-     * <P>
-     * This method is part of the IntervalCategoryDataset interface.
-     * @param series The required series (zero based index).
-     * @param category The required category.
-     * @return The standard deviation data value for one category in a series (null possible).
-     */
-    public Number getStdDevValue(int series, Object category) {
-
-      // check arguments...
-      if ((series < 0) || (series >= getSeriesCount())) {
-          throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.getValue(...): "
-              + "series index out of range.");
-      }
-
-      if (category == null) {
-          throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.getValue(...): "
-              + "null category not allowed.");
-      }
-
-      int categoryIndex = this.getCategoryIndex(category);
-
-      if (categoryIndex < 0) {
-          throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.getValue(...): "
-              + "unknown category.");
-      }
-
-      // fetch the value...
-      return stdDevData[series][categoryIndex];
-
-    }
-
-    /**
-     * Sets the mean data value for one category in a series.
-     *
-     * @param series The series (zero-based index).
-     * @param category The category.
-     * @param value The value.
-     */
-    public void setMeanValue(int series, Object category, Number value) {
-
-      // does the series exist?
-      if ((series < 0) || (series > getSeriesCount())) {
-          throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.setValue: "
-              + "series outside valid range.");
-      }
-
-      // is the category valid?
-      int categoryIndex = getCategoryIndex(category);
-      if (categoryIndex < 0) {
-          throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.setValue: "
-              + "unrecognised category.");
-      }
-
-      // update the data...
-      meanData[series][categoryIndex] = value;
-      fireDatasetChanged();
-
-    }
-
-    /**
-     * Sets the mean data values.
-     *
-     * @param value  the data.
-     */
-    public void setMeanValue(Number[][] value) {
-
-        meanData = value;
-        fireDatasetChanged();
-
-    }
-
-    /**
-     * Sets the standard deviation data value for one category in a series.
-     *
-     * @param series The series (zero-based index).
-     * @param category The category.
-     * @param value The value.
-     */
-    public void setStdDevValue(int series, Object category, Number value) {
-
-        // does the series exist?
-        if ((series < 0) || (series > getSeriesCount())) {
-            throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.setValue: "
-                + "series outside valid range.");
-        }
-
-        // is the category valid?
-        int categoryIndex = getCategoryIndex(category);
-        if (categoryIndex < 0) {
-            throw new IllegalArgumentException("DefaultStatisticalCategoryDataset.setValue: "
-                + "unrecognised category.");
-        }
-
-        // update the data...
-        stdDevData[series][categoryIndex] = value;
-        fireDatasetChanged();
-
-    }
-
-    /**
-     * Sets the standard deviation values.
-     *
-     * @param value  the values.
-     */
-    public void setStdDevValue(Number[][] value) {
-        stdDevData = value;
-        fireDatasetChanged();
-    }
-
-    /**
-     * Returns the index of the specified category.
-     *
-     * @param category  the category.
-     *
-     * @return the index.
-     */
-    private int getCategoryIndex(Object category) {
-
-        int result = -1;
-        for (int i = 0; i < categories.length; i++) {
-            if (category.equals(categories[i])) {
-                result = i;
-                break;
-            }
+    public Number getStdDevValue (Comparable rowKey, Comparable columnKey) {
+        
+        Number result = null;
+        MeanAndStandardDeviation masd 
+            = (MeanAndStandardDeviation) this.data.getObject(rowKey, columnKey);
+        if (masd != null) {
+            result = masd.getStandardDeviation();
         }
         return result;
 
     }
 
     /**
-     * Generates an array of names, by appending a space plus an integer (starting with 1)
-     * to the supplied prefix string.
+     * Returns the column index for a given key.
      *
-     * @param count the number of names required.
-     * @param prefix the name prefix.
+     * @param key  the column key.
      *
-     * @return  an array of names.
+     * @return the column index.
      */
-    private String[] generateNames(int count, String prefix) {
+    public int getColumnIndex(Comparable key) {
+        return this.data.getColumnIndex(key);
+    }
 
-        String[] result = new String[count];
-        String name;
-        for (int i = 0; i < count; i++) {
-            name = prefix + (i + 1);
-            result[i] = name;
+    /**
+     * Returns a column key.
+     *
+     * @param column  the column index (zero-based).
+     *
+     * @return the column key.
+     */
+    public Comparable getColumnKey(int column) {
+        return this.data.getColumnKey(column);
+    }
+
+    /**
+     * Returns the column keys.
+     *
+     * @return the keys.
+     */
+    public List getColumnKeys() {
+        return this.data.getColumnKeys();
+    }
+
+    /**
+     * Returns the row index for a given key.
+     *
+     * @param key  the row key.
+     *
+     * @return the row index.
+     */
+    public int getRowIndex(Comparable key) {
+        return this.data.getRowIndex(key);
+    }
+
+    /**
+     * Returns a row key.
+     *
+     * @param row  the row index (zero-based).
+     *
+     * @return the row key.
+     */
+    public Comparable getRowKey(int row) {
+        return this.data.getRowKey(row);
+    }
+
+    /**
+     * Returns the row keys.
+     *
+     * @return the keys.
+     */
+    public List getRowKeys() {
+        return this.data.getRowKeys();
+    }
+
+    /**
+     * Returns the number of rows in the table.
+     *
+     * @return the row count.
+     */
+    public int getRowCount() {
+        return this.data.getRowCount();
+    }
+
+    /**
+     * Returns the number of columns in the table.
+     *
+     * @return the column count.
+     */
+    public int getColumnCount() {
+        return this.data.getColumnCount();
+    }
+
+    /**
+     * Adds a mean and standard deviation to the table.  
+     * 
+     * @param mean  the mean.
+     * @param standardDeviation  the standard deviation.
+     * @param rowKey  the row key.
+     * @param columnKey  the column key.
+     */
+    public void add(double mean, double standardDeviation, 
+                    Comparable rowKey, Comparable columnKey) {
+                   
+        MeanAndStandardDeviation item = new MeanAndStandardDeviation(new Double(mean),
+                                                                     new Double(standardDeviation));
+                                                                              
+        this.data.addObject(item, rowKey, columnKey);
+        if ((mean + standardDeviation) > this.maximumRangeValue.doubleValue()) {
+            this.maximumRangeValue = new Double(mean + standardDeviation);
+            this.valueRange = new Range(this.minimumRangeValue.doubleValue(), 
+                                        this.maximumRangeValue.doubleValue());
         }
-        return result;
+        if ((mean - standardDeviation) < this.minimumRangeValue.doubleValue()) {
+            this.minimumRangeValue = new Double(mean - standardDeviation);
+            this.valueRange = new Range(this.minimumRangeValue.doubleValue(), 
+                                        this.maximumRangeValue.doubleValue());
+        }
 
+        fireDatasetChanged();
+
+    }
+
+    /**
+     * Returns the minimum value in the dataset's range (or null if all the
+     * values in the range are null).
+     *
+     * @return the minimum value.
+     */
+    public Number getMinimumRangeValue() {
+        return this.minimumRangeValue;
+    }
+
+    /**
+     * Returns the maximum value in the dataset's range (or null if all the
+     * values in the range are null).
+     *
+     * @return the maximum value.
+     */
+    public Number getMaximumRangeValue() {
+        return this.maximumRangeValue;
+    }
+
+    /**
+     * Returns the range of the values in this dataset's range.
+     *
+     * @return the range.
+     */
+    public Range getValueRange() {
+        return this.valueRange;
     }
 
 }

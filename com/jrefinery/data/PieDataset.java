@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ---------------
  * PieDataset.java
  * ---------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   Sam (oldman);
@@ -34,36 +34,21 @@
  * 17-Nov-2001 : Version 1 (DG);
  * 22-Jan-2002 : Removed the getCategoryCount() method, updated Javadoc comments (DG);
  * 18-Apr-2002 : getCategories() now returns List instead of Set (oldman);
+ * 23-Oct-2002 : Reorganised the code: PieDataset now extends KeyedValues interface (DG);
  *
  */
 
 package com.jrefinery.data;
 
-import java.util.List;
-
 /**
- * The interface for a general-purpose dataset where values are associated with categories.
+ * A general purpose dataset where values are associated with keys.
+ * <p>
+ * As the name suggests, you can use this dataset to supply data for pie charts.
  *
- * @author DG
+ * @author David Gilbert
  */
-public interface PieDataset extends Dataset {
+public interface PieDataset extends KeyedValues, Dataset {
 
-    /**
-     * Returns the categories in the dataset.
-     *
-     * @return the categories.
-     */
-    public List getCategories();
-
-    /**
-     * Returns the value for a category.
-     * <P>
-     * This method should return null if the category is not found.
-     *
-     * @param category  the category.
-     *
-     * @return the value.
-     */
-    public Number getValue(Object category);
-
+    // no new methods added, just combines KeyedValues and Dataset interfaces.
+    
 }

@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ----------------
  * Millisecond.java
  * ----------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -37,6 +37,7 @@
  * 29-Mar-2002 : Fixed bug in getStart(...), getEnd(...) and compareTo(...) methods (DG);
  * 10-Sep-2002 : Added getSerialIndex() method (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 10-Jan-2003 : Changed base class and method names (DG);
  *
  */
 
@@ -49,11 +50,11 @@ import java.util.TimeZone;
 /**
  * Represents a millisecond.
  * <P>
- * This class is immutable, which is a requirement for all TimePeriod subclasses.
+ * This class is immutable, which is a requirement for all {@link RegularTimePeriod} subclasses.
  *
- * @author DG
+ * @author David Gilbert
  */
-public class Millisecond extends TimePeriod {
+public class Millisecond extends RegularTimePeriod {
 
     /** A constant for the first millisecond in a second. */
     public static final int FIRST_MILLISECOND_IN_SECOND = 0;
@@ -93,7 +94,7 @@ public class Millisecond extends TimePeriod {
      * @param time  the time.
      */
     public Millisecond(Date time) {
-        this(time, TimePeriod.DEFAULT_TIME_ZONE);
+        this(time, RegularTimePeriod.DEFAULT_TIME_ZONE);
     }
 
     /**
@@ -135,9 +136,9 @@ public class Millisecond extends TimePeriod {
      *
      * @return the millisecond preceding this one.
      */
-    public TimePeriod previous() {
+    public RegularTimePeriod previous() {
 
-        TimePeriod result = null;
+        RegularTimePeriod result = null;
 
         if (this.millisecond != FIRST_MILLISECOND_IN_SECOND) {
             result = new Millisecond(this.millisecond - 1, this.second);
@@ -157,9 +158,9 @@ public class Millisecond extends TimePeriod {
      *
      * @return the millisecond following this one.
      */
-    public TimePeriod next() {
+    public RegularTimePeriod next() {
 
-        TimePeriod result = null;
+        RegularTimePeriod result = null;
 
         if (this.millisecond != LAST_MILLISECOND_IN_SECOND) {
             result = new Millisecond(this.millisecond + 1, this.second);
@@ -226,7 +227,7 @@ public class Millisecond extends TimePeriod {
         // -------------------------------------------
         if (o1 instanceof Millisecond) {
             Millisecond ms = (Millisecond) o1;
-            difference = getStart() - ms.getStart();
+            difference = getFirstMillisecond() - ms.getFirstMillisecond();
             if (difference > 0) {
                 result = 1;
             }
@@ -242,7 +243,7 @@ public class Millisecond extends TimePeriod {
 
         // CASE 2 : Comparing to another TimePeriod object
         // -----------------------------------------------
-        else if (o1 instanceof TimePeriod) {
+        else if (o1 instanceof RegularTimePeriod) {
             // more difficult case - evaluate later...
             result = 0;
         }
@@ -263,8 +264,8 @@ public class Millisecond extends TimePeriod {
      *
      * @return the first millisecond of the time period.
      */
-    public long getStart() {
-        return this.second.getStart() + this.millisecond;
+    public long getFirstMillisecond() {
+        return this.second.getFirstMillisecond() + this.millisecond;
     }
 
     /**
@@ -272,11 +273,11 @@ public class Millisecond extends TimePeriod {
      *
      * @param calendar  the calendar.
      *
-     * @return The first millisecond of the time period.
+     * @return the first millisecond of the time period.
      */
-    public long getStart(Calendar calendar) {
+    public long getFirstMillisecond(Calendar calendar) {
 
-        return this.second.getStart(calendar) + this.millisecond;
+        return this.second.getFirstMillisecond(calendar) + this.millisecond;
 
     }
 
@@ -285,8 +286,8 @@ public class Millisecond extends TimePeriod {
      *
      * @return the last millisecond of the time period.
      */
-    public long getEnd() {
-        return this.second.getStart() + millisecond;
+    public long getLastMillisecond() {
+        return this.second.getFirstMillisecond() + millisecond;
     }
 
     /**
@@ -294,11 +295,11 @@ public class Millisecond extends TimePeriod {
      *
      * @param calendar  the calendar.
      *
-     * @return The last millisecond of the time period.
+     * @return the last millisecond of the time period.
      */
-    public long getEnd(Calendar calendar) {
+    public long getLastMillisecond(Calendar calendar) {
 
-        return this.second.getStart(calendar) + this.millisecond;
+        return this.second.getFirstMillisecond(calendar) + this.millisecond;
 
     }
 

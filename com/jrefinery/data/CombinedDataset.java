@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * --------------------
  * CombinedDataset.java
  * --------------------
- * (C) Copyright 2001, 2002, by Bill Kelemen.
+ * (C) Copyright 2001-2003, by Bill Kelemen.
  *
  * Original Author:  Bill Kelemen;
  * Contributor(s):   -;
@@ -52,7 +52,7 @@ import java.util.List;
  * required when using a CombinedPlot with a combination of XYPlots,
  * HighLowPlots, TimeSeriesPlot's and VerticalXYBarPlots.
  *
- * @see com.jrefinery.chart.CombinedXYPlot
+ * @see com.jrefinery.chart.plot.CombinedXYPlot
  *
  * @author Bill Kelemen (bill@kelemen-usa.com)
  */

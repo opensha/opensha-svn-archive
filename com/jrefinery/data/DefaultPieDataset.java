@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ----------------------
  * DefaultPieDataset.java
  * ----------------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   Sam (oldman);
@@ -35,67 +35,43 @@
  * 22-Jan-2002 : Removed legend methods from dataset implementations (DG);
  * 07-Apr-2002 : Modified implementation to guarantee data sequence to remain in the order
  *               categories are added (oldman);
+ * 23-Oct-2002 : Added getCategory(int) method and getItemCount() method, in line with changes
+ *               to the PieDataset interface (DG);
+ * 04-Feb-2003 : Changed underlying data storage to DefaultKeyedValues2D (DG);
  *
  */
 
 package com.jrefinery.data;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Arrays;
 
 /**
- * A default implementation of the PieDataset interface.
+ * A default implementation of the {@link PieDataset} interface.
  *
- * @author DG
+ * @author David Gilbert
  */
 public class DefaultPieDataset extends AbstractDataset implements PieDataset {
 
-    /**
-     * Storage for keys
-     */
-    protected List keys = null;
-
-    /**
-     * Storage for values
-     */
-    protected List vals = null;
-
+    /** Storage for the data. */
+    private DefaultKeyedValues data;
+    
     /**
      * Constructs a pie dataset, initially empty.
      */
     public DefaultPieDataset() {
 
-        keys = new java.util.ArrayList();
-        vals = new java.util.ArrayList();
+        this.data = new DefaultKeyedValues();
 
     }
 
     /**
-     * Constructs a pie dataset and populates it with data from the array.
+     * Returns the number of items in the dataset.
      *
-     * @param data  the data.
+     * @return the item count.
      */
-    public DefaultPieDataset(Number[] data) {
-
-        this(Arrays.asList(data));
-
-    }
-
-    /**
-     * Constructs a pie dataset, and populates it with the given values.
-     *
-     * @param values  a collection of values.
-     */
-    public DefaultPieDataset(Collection values) {
-
-        keys = new java.util.ArrayList(values.size());
-        vals = new java.util.ArrayList(values);
-
-        for (int i = 0; i < vals.size(); i++) {
-            keys.add(String.valueOf(i + 1));
-        }
-
+    public int getItemCount() {
+        return this.data.getItemCount();
     }
 
     /**
@@ -103,49 +79,99 @@ public class DefaultPieDataset extends AbstractDataset implements PieDataset {
      *
      * @return the categories in the dataset.
      */
-    public List getCategories() {
-        return keys;
+    public List getKeys() {
+        return Collections.unmodifiableList(this.data.getKeys());
     }
 
     /**
-     * Returns the data value for a category.
+     * Returns the key for an item.
      *
-     * @param category  the required category.
+     * @param item  the item index (zero-based).
      *
-     * @return the data value for a category (null possible).
+     * @return the category.
      */
-    public Number getValue(Object category) {
+    public Comparable getKey(int item) {
+
+        Comparable result = null;
+        if (getItemCount() > item) {
+            result = this.data.getKey(item);
+        }
+        return result;
+
+    }
+
+    /**
+     * Returns the index for a key.
+     *
+     * @param key  the key.
+     *
+     * @return the key index.
+     */
+    public int getIndex(Comparable key) {
+
+        return this.data.getIndex(key);
+
+    }
+
+    /**
+     * Returns a value.
+     *
+     * @param item  the value index.
+     *
+     * @return the value (possibly <code>null</code>).
+     */
+    public Number getValue(int item) {
+
+        Number result = null;
+        if (getItemCount() > item) {
+            result = (Number) this.data.getValue(item);
+        }
+        return result;
+
+    }
+
+    /**
+     * Returns the data value associated with a key.
+     *
+     * @param key  the key.
+     *
+     * @return The value (possibly <code>null</code>).
+     */
+    public Number getValue(Comparable key) {
 
         // check arguments...
-        if (category == null) {
-            throw new IllegalArgumentException("DefaultPieDataset: null category not allowed.");
+        if (key == null) {
+            throw new IllegalArgumentException("DefaultPieDataset: null key not allowed.");
         }
 
         // fetch the value...
-        return (Number) vals.get(keys.indexOf(category));
+        return this.data.getValue(key);
 
     }
 
     /**
-     * Sets the data value for one category in a series.
+     * Sets the data value for a key.
      *
-     * @param category  the category.
+     * @param key  the key.
      * @param value  the value.
      */
-    public void setValue(Object category, Number value) {
+    public void setValue(Comparable key, Number value) {
 
-        int idx = keys.indexOf(category);
-
-        if (idx == -1) {
-            keys.add(category);
-            vals.add(value);
-        }
-        else {
-            vals.set(idx, value);
-        }
-
+        this.data.setValue(key, value);
         fireDatasetChanged();
 
+    }
+    
+    /**
+     * Sets the data value for a key.
+     *
+     * @param key  the key.
+     * @param value  the value.
+     */
+    public void setValue(Comparable key, double value) {
+    
+        setValue(key, new Double(value));
+    
     }
 
 }

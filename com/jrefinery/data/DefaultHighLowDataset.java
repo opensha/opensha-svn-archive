@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * --------------------------
  * DefaultHighLowDataset.java
  * --------------------------
- * (C) Copyright 2002, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -43,7 +43,7 @@ import java.util.Date;
 /**
  * A simple implementation of the HighLowDataset.
  *
- * @author DG
+ * @author David Gilbert
  */
 public class DefaultHighLowDataset extends AbstractSeriesDataset implements HighLowDataset {
 
@@ -123,6 +123,20 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
     }
 
     /**
+     * Returns the x-value for one item in a series, as a Date.
+     * <p>
+     * This method is provided for convenience only.
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the x-value as a Date.
+     */
+    public Date getXDate(int series, int item) {
+        return date[item];
+    }
+
+    /**
      * Returns the y-value for one item in a series.
      * <p>
      * This method (from the XYDataset interface) is mapped to the getCloseValue(...) method.
@@ -133,7 +147,7 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
      * @return the y-value.
      */
     public Number getYValue(int series, int item) {
-        return this.getCloseValue(series, item);
+        return getCloseValue(series, item);
     }
 
     /**

@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -----------
  * Series.java
  * -----------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -54,7 +54,7 @@ import java.util.Iterator;
  * You can also register a SeriesChangeListener to receive notification of
  * changes to the series data.
  *
- * @author DG
+ * @author David Gilbert
  */
 public class Series implements Cloneable {
 
@@ -83,7 +83,7 @@ public class Series implements Cloneable {
      * Constructs a series.
      *
      * @param name  the series name.
-     * @param description  the series description.
+     * @param description  the series description (<code>null</code> permitted).
      */
     protected Series(String name, String description) {
 
@@ -119,9 +119,9 @@ public class Series implements Cloneable {
     }
 
     /**
-     * Returns the description of the series (possibly null).
+     * Returns a description of the series.
      *
-     * @return the description of the series.
+     * @return A description of the series (possibly <code>null</code>).
      */
     public String getDescription() {
 
@@ -132,7 +132,7 @@ public class Series implements Cloneable {
     /**
      * Sets the description of the series.
      *
-     * @param description the new description (null permitted).
+     * @param description  the description (<code>null</code> permitted).
      */
     public void setDescription(String description) {
 

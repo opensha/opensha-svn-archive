@@ -5,7 +5,7 @@
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ---------
  * Week.java
  * ---------
- * (C) Copyright 2001, 2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2001-2003, by Simba Management Limited and Contributors.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   Aimin Han;
@@ -44,6 +44,7 @@
  * 06-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 18-Oct-2002 : Changed to observe 52 or 53 weeks per year, consistent with GregorianCalendar.
  *               Thanks to Aimin Han for the code (DG);
+ * 02-Jan-2003 : Removed debug code (DG);
  *
  */
 
@@ -58,13 +59,13 @@ import com.jrefinery.date.SerialDate;
  * Represents a week within a particular year.
  * <P>
  * A year will have 52 or 53 weeks.  Sometimes the first week of the year actually starts in the
- * previous year - see the Javadocs for GregorianCalendar for details.
+ * previous year - see the Javadocs for <code>GregorianCalendar</code> for details.
  * <P>
- * This class is immutable, which is a requirement for all TimePeriod subclasses.
+ * This class is immutable, which is a requirement for all {@link RegularTimePeriod} subclasses.
  *
- * @author DG
+ * @author David Gilbert
  */
-public class Week extends TimePeriod {
+public class Week extends RegularTimePeriod {
 
     /** Constant for the first week in the year. */
     public static final int FIRST_WEEK_IN_YEAR = 1;
@@ -123,7 +124,7 @@ public class Week extends TimePeriod {
      */
     public Week(Date time) {
 
-        this(time, TimePeriod.DEFAULT_TIME_ZONE);
+        this(time, RegularTimePeriod.DEFAULT_TIME_ZONE);
 
     }
 
@@ -184,7 +185,7 @@ public class Week extends TimePeriod {
      *
      * @return The preceding week.
      */
-    public TimePeriod previous() {
+    public RegularTimePeriod previous() {
 
         Week result;
         if (this.week != FIRST_WEEK_IN_YEAR) {
@@ -197,7 +198,8 @@ public class Week extends TimePeriod {
                 int yy = prevYear.getYear();
                 Calendar prevYearCalendar = Calendar.getInstance();
                 prevYearCalendar.set(yy, Calendar.DECEMBER, 31);
-                result = new Week(prevYearCalendar.getActualMaximum(Calendar.WEEK_OF_YEAR), prevYear);
+                result = new Week(prevYearCalendar.getActualMaximum(Calendar.WEEK_OF_YEAR),
+                                  prevYear);
             }
             else {
                 result = null;
@@ -212,7 +214,7 @@ public class Week extends TimePeriod {
      *
      * @return the following week.
      */
-    public TimePeriod next() {
+    public RegularTimePeriod next() {
 
         Week result;
         if (week < 52) {
@@ -222,7 +224,7 @@ public class Week extends TimePeriod {
             Calendar calendar = Calendar.getInstance();
             calendar.set(this.year.getYear(), Calendar.DECEMBER, 31);
             int actualMaxWeek = calendar.getActualMaximum(Calendar.WEEK_OF_YEAR);
-            if (week != actualMaxWeek ) {
+            if (week != actualMaxWeek) {
                 result = new Week(week + 1, year);
             }
             else {
@@ -256,7 +258,7 @@ public class Week extends TimePeriod {
      *
      * @return the first millisecond of the week.
      */
-    public long getStart(Calendar calendar) {
+    public long getFirstMillisecond(Calendar calendar) {
 
         long result = 0L;
 
@@ -273,7 +275,7 @@ public class Week extends TimePeriod {
         SerialDate jan1 = SerialDate.createInstance(day, month, thisYear);
         SerialDate startOfWeek = SerialDate.addDays((this.week - 1) * 7, jan1);
         Day first = new Day(startOfWeek);
-        result = first.getStart(calendar);
+        result = first.getFirstMillisecond(calendar);
 
         return result;
 
@@ -285,16 +287,16 @@ public class Week extends TimePeriod {
      *
      * @param calendar  the calendar.
      *
-     * @return The last millisecond of the week.
+     * @return the last millisecond of the week.
      */
-    public long getEnd(Calendar calendar) {
+    public long getLastMillisecond(Calendar calendar) {
 
         Calendar cal = (Calendar) calendar.clone();
         cal.set(year.getYear(), Calendar.JANUARY, 1);
         int actualMaxWeek = cal.getActualMaximum(Calendar.WEEK_OF_YEAR);
 
         if (this.week == actualMaxWeek) {
-            return this.year.getEnd(calendar);
+            return this.year.getLastMillisecond(calendar);
         }
         else {
             Calendar firstDayOfFirstWeek = Calendar.getInstance();
@@ -310,10 +312,9 @@ public class Week extends TimePeriod {
             SerialDate endOfWeek = SerialDate.addDays((this.week) * 7 - 1, jan1);
             Day last = new Day(endOfWeek);
 
-            Date date = new Date(last.getEnd(calendar));
-            System.out.println(date.toString());
+           // Date date = new Date(last.getLastMillisecond(calendar));
 
-            return last.getEnd(calendar);
+            return last.getLastMillisecond(calendar);
         }
 
     }
@@ -380,7 +381,7 @@ public class Week extends TimePeriod {
 
         // CASE 2 : Comparing to another TimePeriod object
         // -----------------------------------------------
-        else if (o1 instanceof TimePeriod) {
+        else if (o1 instanceof RegularTimePeriod) {
             // more difficult case - evaluate later...
             result = 0;
         }

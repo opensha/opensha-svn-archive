@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,420 +22,241 @@
  * ---------------------------
  * DefaultCategoryDataset.java
  * ---------------------------
- * (C) Copyright 2000-2002, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
  *
  * $Id$
  *
- * Changes (from 18-Sep-2001)
- * --------------------------
- * 18-Sep-2001 : Added standard header and fixed DOS encoding problem (DG);
- * 15-Oct-2001 : Moved to new package (com.jrefinery.data.*) (DG);
- * 22-Oct-2001 : Renamed DataSource.java --> Dataset.java etc (DG);
- * 15-Nov-2001 : Added argument checking code (DG);
- * 16-Jan-2002 : Implemented setValue(...) method (DG);
- * 05-Feb-2002 : Fix for bug mapping category to index value (DG);
- * 07-Jun-2002 : Fixed bug ID 565819, minor issue in setValue method (DG);
- * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * Changes
+ * -------
+ * 21-Jan-2003 : Added standard header, and renamed DefaultCategoryDataset (DG);
  *
  */
-
 package com.jrefinery.data;
 
 import java.util.List;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.ResourceBundle;
 
 /**
- * A convenience class that provides a default implementation of the
- * CategoryDataset interface.
- * <p>
- * The standard constructor accepts data in a two dimensional array where the
- * first dimension is the series, and the second dimension is the category.
- *
- * @author DG
+ * A default implementation of the {@link CategoryDataset} interface.
+ * 
+ * @author David Gilbert
  */
-public class DefaultCategoryDataset extends AbstractSeriesDataset implements CategoryDataset {
+public class DefaultCategoryDataset extends AbstractDataset
+                                    implements CategoryDataset {
 
-    /** The series names. */
-    protected String[] seriesNames;
-
-    /** The categories. */
-    protected Object[] categories;
-
-    /** Storage for the data. */
-    protected Number[][] data;
+    /** A storage structure for the data. */
+    private DefaultKeyedValues2D data;
 
     /**
-     * Creates a new category dataset.
-     * <p>
-     * The array is indexed as data[series][category].  Series and category
-     * names are automatically generated, but you can change them using the
-     * setSeriesName(...) and setCategory(...) methods.
-     *
-     * @param data  the data.
+     * Creates a new (empty) dataset.
      */
-    public DefaultCategoryDataset(double[][] data) {
-
-        this(DatasetUtilities.createNumberArray2D(data));
-
+    public DefaultCategoryDataset() {
+        this.data = new DefaultKeyedValues2D();
     }
 
     /**
-     * Constructs a dataset and populates it with data from the array.
-     * <p>
-     * The array is indexed as data[series][category].  Series and category
-     * names are automatically generated, but you can change them using the
-     * setSeriesName(...) and setCategory(...) methods.
+     * Returns the number of rows in the table.
      *
-     * @param data The data.
+     * @return the row count.
      */
-    public DefaultCategoryDataset(Number[][] data) {
-
-        this(null, null, data);
-
+    public int getRowCount() {
+        return this.data.getRowCount();
     }
 
     /**
-     * Constructs a DefaultCategoryDataset, populates it with data from the
-     * array, and uses the supplied names for the series.
-     * <p>
-     * Category names are generated automatically ("Category 1", "Category 2",
-     * etc).
+     * Returns the number of columns in the table.
      *
-     * @param seriesNames  the series names.
-     * @param data  the data, indexed as data[series][category].
+     * @return the column count.
      */
-    public DefaultCategoryDataset(String[] seriesNames, Number[][] data) {
-
-        this(seriesNames, null, data);
-
+    public int getColumnCount() {
+        return this.data.getColumnCount();
     }
 
     /**
-     * Constructs a DefaultCategoryDataset, populates it with data from the
-     * array, and uses the supplied names for the series and the supplied
-     * objects for the categories.
+     * Returns a value from the table.
      *
-     * @param seriesNames  the series names.
-     * @param categories  the categories.
-     * @param data  the data, indexed as data[series][category].
+     * @param row  the row index (zero-based).
+     * @param column  the column index (zero-based).
+     *
+     * @return the value (possibly null).
      */
-    public DefaultCategoryDataset(String[] seriesNames, Object[] categories, Number[][] data) {
-
-        this.data = data;
-
-        if (data != null) {
-
-            String baseName = "com.jrefinery.data.resources.DataPackageResources";
-            ResourceBundle resources = ResourceBundle.getBundle(baseName);
-
-            int seriesCount = data.length;
-            if (seriesCount > 0) {
-
-                // set up the series names...
-                if (seriesNames != null) {
-
-                    if (seriesNames.length != seriesCount) {
-                        throw new IllegalArgumentException(
-                            "DefaultCategoryDataset: the number of "
-                            + "series names does not match the number of "
-                            + "series in the data.");
-                    }
-
-                    this.seriesNames = seriesNames;
-                }
-                else {
-                    String prefix = resources.getString("series.default-prefix") + " ";
-                    this.seriesNames = generateNames(seriesCount, prefix);
-                }
-
-                // set up the category names...
-                int categoryCount = data[0].length;
-                if (categories != null) {
-                    if (categories.length != categoryCount) {
-                        throw new IllegalArgumentException(
-                            "DefaultCategoryDataset: the number of "
-                            + "categories does not match the number of "
-                            + "categories in the data.");
-                    }
-                    this.categories = categories;
-                }
-                else {
-                    String prefix = resources.getString("categories.default-prefix") + " ";
-                    this.categories = generateNames(categoryCount, prefix);
-                }
-
-            }
-            else {
-                this.seriesNames = null;
-                this.categories = null;
-            }
-        }
-
+    public Number getValue(int row, int column) {
+        return this.data.getValue(row, column);
     }
 
     /**
-     * Returns the number of series in the dataset (possibly zero).
+     * Returns a row key.
      *
-     * @return the number of series in the dataset.
+     * @param row  the row index (zero-based).
+     *
+     * @return the row key.
      */
-    public int getSeriesCount() {
-
-        int result = 0;
-        if (data != null) {
-            result = data.length;
-        }
-        return result;
-
+    public Comparable getRowKey(int row) {
+        return this.data.getRowKey(row);
     }
 
     /**
-     * Returns the name of the specified series.
+     * Returns the row index for a given key.
      *
-     * @param series  the index of the required series (zero-based).
+     * @param key  the row key.
      *
-     * @return the name of the specified series.
+     * @return the row index.
      */
-    public String getSeriesName(int series) {
-
-        // check argument...
-        if ((series >= getSeriesCount()) || (series < 0)) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.getSeriesName(int): no such series.");
-        }
-
-        // return the value...
-        return seriesNames[series];
-
+    public int getRowIndex(Comparable key) {
+        return this.data.getRowIndex(key);
     }
 
     /**
-     * Sets the name of a series.
+     * Returns the row keys.
      *
-     * @param series  the series (zero-based index).
-     * @param name  the series name.
+     * @return the keys.
      */
-    public void setSeriesName(int series, String name) {
-
-        // check arguments...
-        if ((series < 0) || (series >= getSeriesCount())) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.setSeriesName(...): no such series.");
-        }
-
-        if (name == null) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.setSeriesName(...): null not permitted.");
-        }
-
-        seriesNames[series] = name;
-        fireDatasetChanged();
-
+    public List getRowKeys() {
+        return this.data.getRowKeys();
     }
 
     /**
-     * Sets the names of all the series in the dataset.
+     * Returns a column key.
      *
-     * @param seriesNames  the series names.
+     * @param column  the column index (zero-based).
+     *
+     * @return the column key.
      */
-    public void setSeriesNames(String[] seriesNames) {
-
-        // check argument...
-        if (seriesNames == null) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.setSeriesNames(): null not permitted.");
-        }
-
-        if (seriesNames.length != getSeriesCount()) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.setSeriesNames(): the "
-                + "number of series names does not match the data.");
-        }
-
-        // make the change...
-        this.seriesNames = seriesNames;
-        fireDatasetChanged();
-
+    public Comparable getColumnKey(int column) {
+        return this.data.getColumnKey(column);
     }
 
     /**
-     * Returns the number of categories in the dataset.
+     * Returns the column index for a given key.
+     *
+     * @param key  the column key.
+     *
+     * @return the column index.
+     */
+    public int getColumnIndex(Comparable key) {
+        return this.data.getColumnIndex(key);
+    }
+
+    /**
+     * Returns the column keys.
+     *
+     * @return the keys.
+     */
+    public List getColumnKeys() {
+        return this.data.getColumnKeys();
+    }
+
+    /**
+     * Returns the value for a pair of keys.
      * <P>
-     * This method is part of the CategoryDataset interface.
+     * This method should return <code>null</code> if either of the keys is not found.
      *
-     * @return the number of categories in the dataset.
+     * @param rowKey  the row key.
+     * @param columnKey  the column key.
+     *
+     * @return the value.
      */
-    public int getCategoryCount() {
-
-        int result = 0;
-
-        if (data != null) {
-            if (getSeriesCount() > 0) {
-                result = data[0].length;
-            }
-        }
-
-        return result;
-
+    public Number getValue(Comparable rowKey, Comparable columnKey) {
+        return this.data.getValue(rowKey, columnKey);
     }
 
     /**
-     * Returns a list of the categories in the dataset.
-     * <P>
-     * Supports the CategoryDataset interface.
-     *
-     * @return a list of the categories in the dataset.
-     */
-    public List getCategories() {
-
-        // the CategoryDataset interface expects a list of categories, but
-        // we've stored them in an array...
-        if (categories == null) {
-            return new java.util.ArrayList();
-        }
-        else {
-            return Collections.unmodifiableList(Arrays.asList(categories));
-        }
-
-    }
-
-    /**
-     * Sets the categories for the dataset.
-     *
-     * @param categories  an array of objects representing the categories in the dataset.
-     */
-    public void setCategories(Object[] categories) {
-
-        // check arguments...
-        if (categories == null) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.setCategories(...): null not permitted.");
-        }
-
-        if (categories.length != data[0].length) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.setCategories(...): "
-                + "the number of categories does not match the data.");
-        }
-
-        for (int i = 0; i < categories.length; i++) {
-            if (categories[i] == null) {
-                throw new IllegalArgumentException(
-                    "DefaultCategoryDataset.setCategories(...): null category not permitted.");
-            }
-        }
-
-        // make the change...
-        this.categories = categories;
-        fireDatasetChanged();
-
-    }
-
-    /**
-     * Returns the data value for one category in a series.
-     * <P>
-     * This method is part of the CategoryDataset interface.
-     *
-     * @param series  the required series (zero based index).
-     * @param category  the required category.
-     * @return  the data value for one category in a series (null possible).
-     */
-    public Number getValue(int series, Object category) {
-
-        // check arguments...
-        if ((series < 0) || (series >= getSeriesCount())) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.getValue(...): series index out of range.");
-        }
-
-        if (category == null) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.getValue(...): null category not allowed.");
-        }
-
-        int categoryIndex = this.getCategoryIndex(category);
-
-        if (categoryIndex < 0) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.getValue(...): unknown category.");
-        }
-
-        // fetch the value...
-        return data[series][categoryIndex];
-
-    }
-
-    /**
-     * Sets the data value for one category in a series.
-     *
-     * @param series  the series (zero-based index).
-     * @param category  the category.
+     * Adds a value to the table.  Performs the same function as setValue(...).
+     * 
      * @param value  the value.
+     * @param rowKey  the row key.
+     * @param columnKey  the column key.
      */
-    public void setValue(int series, Object category, Number value) {
-
-        // does the series exist?
-        if ((series < 0) || (series >= getSeriesCount())) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.setValue: series outside valid range.");
-        }
-
-        // is the category valid?
-        int categoryIndex = getCategoryIndex(category);
-        if (categoryIndex < 0) {
-            throw new IllegalArgumentException(
-                "DefaultCategoryDataset.setValue: unrecognised category.");
-        }
-
-        // update the data...
-        data[series][categoryIndex] = value;
+    public void addValue(Number value, Comparable rowKey, Comparable columnKey) {
+        this.data.addValue(value, rowKey, columnKey);
         fireDatasetChanged();
-
     }
 
     /**
-     * Returns the category index for the given category.
-     *
-     * @param category  the category.
-     *
-     * @return the index.
+     * Adds a value to the table.
+     * 
+     * @param value  the value.
+     * @param rowKey  the row key.
+     * @param columnKey  the column key.
      */
-    private int getCategoryIndex(Object category) {
-
-        int result = -1;
-        for (int i = 0; i < categories.length; i++) {
-            if (category.equals(categories[i])) {
-                result = i;
-                break;
-            }
-        }
-        return result;
-
+    public void addValue(double value, Comparable rowKey, Comparable columnKey) {
+        this.addValue(new Double(value), rowKey, columnKey);
     }
 
     /**
-     * Generates an array of names, by appending a space plus an integer
-     * (starting with 1) to the supplied prefix string.
-     *
-     * @param count  the number of names required.
-     * @param prefix  the name prefix.
-     *
-     * @return an array of <i>prefixN</i> with N = { 1 .. count }.
+     * Adds or updates a value in the table.
+     * 
+     * @param value  the value.
+     * @param rowKey  the row key.
+     * @param columnKey  the column key.
      */
-    private String[] generateNames(int count, String prefix) {
+    public void setValue(Number value, Comparable rowKey, Comparable columnKey) {
+        this.data.setValue(value, rowKey, columnKey);
+        fireDatasetChanged();
+    }
 
-        String[] result = new String[count];
-        String name;
-        for (int i = 0; i < count; i++) {
-            name = prefix + (i + 1);
-            result[i] = name;
-        }
-        return result;
+    /**
+     * Adds or updates a value in the table.
+     * 
+     * @param value  the value.
+     * @param rowKey  the row key.
+     * @param columnKey  the column key.
+     */
+    public void setValue(double value, Comparable rowKey, Comparable columnKey) {
+        this.setValue(new Double(value), rowKey, columnKey);
+    }
 
+    /**
+     * Removes a value from the dataset.
+     * 
+     * @param rowKey  the row key.
+     * @param columnKey  the column key.
+     */
+    public void removeValue(Comparable rowKey, Comparable columnKey) {
+        this.data.removeValue(rowKey, columnKey);
+        fireDatasetChanged();
+    }
+
+    /**
+     * Removes a row from the dataset.
+     * 
+     * @param rowIndex  the row index.
+     */
+    public void removeRow(int rowIndex) {
+        this.data.removeRow(rowIndex);
+        fireDatasetChanged();
+    }
+
+    /**
+     * Removes a row from the dataset.
+     * 
+     * @param rowKey  the row key.
+     */
+    public void removeRow(Comparable rowKey) {
+        this.data.removeRow(rowKey);
+        fireDatasetChanged();
+    }
+
+    /**
+     * Removes a column from the dataset.
+     * 
+     * @param columnIndex  the column index.
+     */
+    public void removeColumn(int columnIndex) {
+        this.data.removeColumn(columnIndex);
+        fireDatasetChanged();
+    }
+
+    /**
+     * Removes a column from the dataset.
+     * 
+     * @param columnKey  the column key.
+     */
+    public void removeColumn(Comparable columnKey) {
+        this.data.removeColumn(columnKey);
+        fireDatasetChanged();
     }
 
 }

@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -----------------
  * MeterDataset.java
  * -----------------
- * (C) Copyright 2002, by Hari and Contributors.
+ * (C) Copyright 2002, 2003, by Hari and Contributors.
  *
  * Original Author:  Hari (ourhari@hotmail.com);
  * Contributor(s):   David Gilbert (for Simba Management Limited);
@@ -34,6 +34,7 @@
  * 02-Apr-2002 : Version 1, based on code contributed by Hari (DG);
  * 16-Apr-2002 : Updated version from Hari (DG);
  * 23-Aug-2002 : Updated Javadoc comments (DG);
+ * 23-Oct-2002 : Now extends the Value interface (DG);
  *
  */
 
@@ -48,7 +49,7 @@ package com.jrefinery.data;
  *
  * @author Hari
  */
-public interface MeterDataset extends Dataset {
+public interface MeterDataset extends Value, Dataset {
 
     /** A constant representing the 'normal' level. */
     public static final int NORMAL_DATA = 0;
@@ -61,13 +62,6 @@ public interface MeterDataset extends Dataset {
 
     /** A constant representing the full data range. */
     public static final int FULL_DATA = 3;
-
-    /**
-     * Returns the value.
-     *
-     * @return The value.
-     */
-    public Number getValue();
 
     /**
      * Returns the lower value in the overall range.

@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ---------------------
  * DatasetUtilities.java
  * ---------------------
- * (C) Copyright 2000-2002, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   Andrzej Porebski (bug fix);
@@ -50,29 +50,30 @@
  * 12-Jul-2002 : Method name change in DomainInfo interface (DG);
  * 30-Jul-2002 : Added pie dataset summation method (DG);
  * 01-Oct-2002 : Added a method for constructing an XYDataset from a Function2D instance (DG);
+ * 24-Oct-2002 : Amendments required following changes to the CategoryDataset interface (DG);
+ * 18-Nov-2002 : Changed CategoryDataset to TableDataset (DG);
  *
  */
 
 package com.jrefinery.data;
 
 import java.util.Iterator;
-import java.util.Collection;
 import java.util.List;
 
 /**
- * This class contains static methods that perform various useful functions
- * relating to datasets.
+ * A collection of useful static methods relating to datasets.
  *
- * @author DG
+ * @author David Gilbert
  */
 public class DatasetUtilities {
 
     /**
-     * Constructs an array of Number objects from an array of doubles.
+     * Constructs an array of <code>Number</code> objects from an array of <code>double</code> 
+     * primitives.
      *
      * @param data  the data.
      *
-     * @return data as array of Number.
+     * @return an array of <code>Double</code>.
      */
     public static Number[] createNumberArray(double[] data) {
 
@@ -87,12 +88,12 @@ public class DatasetUtilities {
     }
 
     /**
-     * Constructs an array of arrays of Number objects from a corresponding
-     * structure containing double primitives.
+     * Constructs an array of arrays of <code>Number</code> objects from a corresponding
+     * structure containing <code>double</code> primitives.
      *
      * @param data  the data.
      *
-     * @return data as array of Number.
+     * @return an array of <code>Double</code>.
      */
     public static Number[][] createNumberArray2D(double[][] data) {
 
@@ -121,12 +122,12 @@ public class DatasetUtilities {
         // check parameters...
         if (data == null) {
             throw new IllegalArgumentException(
-                "Datasets.getMinimumDomainValue: null dataset not allowed.");
+                "Datasets.getDomainExtent: null dataset not allowed.");
         }
 
         if ((data instanceof CategoryDataset) && !(data instanceof XYDataset)) {
-            throw new IllegalArgumentException("Datasets.getMinimumDomainValue(...): "
-                +  "CategoryDataset does not have numerical domain.");
+            throw new IllegalArgumentException("Datasets.getDomainExtent(...): "
+                +  "CategoryDataset does not have a numerical domain.");
         }
 
         // work out the minimum value...
@@ -203,23 +204,22 @@ public class DatasetUtilities {
         // hasn't implemented RangeInfo, so we'll have to iterate...
         else if (data instanceof CategoryDataset) {
 
-            CategoryDataset categoryData = (CategoryDataset) data;
+            CategoryDataset tableData = (CategoryDataset) data;
             double minimum = Double.POSITIVE_INFINITY;
             double maximum = Double.NEGATIVE_INFINITY;
-            int seriesCount = categoryData.getSeriesCount();
-            for (int series = 0; series < seriesCount; series++) {
-                Iterator iterator = categoryData.getCategories().iterator();
-                while (iterator.hasNext()) {
-                    Object category = iterator.next();
+            int rowCount = tableData.getRowCount();
+            int columnCount = tableData.getColumnCount();
+            for (int row = 0; row < rowCount; row++) {
+                for (int column = 0; column < columnCount; column++) {
                     Number lvalue = null;
                     Number uvalue = null;
                     if (data instanceof IntervalCategoryDataset) {
                         IntervalCategoryDataset icd = (IntervalCategoryDataset) data;
-                        lvalue = icd.getStartValue(series, category);
-                        uvalue = icd.getEndValue(series, category);
+                        lvalue = icd.getStartValue(row, column);
+                        uvalue = icd.getEndValue(row, column);
                     }
                     else {
-                        lvalue = categoryData.getValue(series, category);
+                        lvalue = tableData.getValue(row, column);
                         uvalue = lvalue;
                     }
                     if (lvalue != null) {
@@ -306,12 +306,12 @@ public class DatasetUtilities {
         // check parameters...
         if (data == null) {
             throw new IllegalArgumentException(
-                "Datasets.getMinimumDomainValue: null dataset not allowed.");
+                "DatasetUtilities.getMinimumDomainValue: null dataset not allowed.");
         }
 
         if ((data instanceof CategoryDataset) && !(data instanceof XYDataset)) {
-            throw new IllegalArgumentException("Datasets.getMinimumDomainValue(...): "
-                + "CategoryDataset does not have numerical domain.");
+            throw new IllegalArgumentException("DatasetUtilities.getMinimumDomainValue(...): "
+                + "TableDataset does not have numerical domain.");
         }
 
         // work out the minimum value...
@@ -457,18 +457,17 @@ public class DatasetUtilities {
 
             CategoryDataset categoryData = (CategoryDataset) data;
             double minimum = Double.POSITIVE_INFINITY;
-            int seriesCount = categoryData.getSeriesCount();
+            int seriesCount = categoryData.getRowCount();
+            int itemCount = categoryData.getColumnCount();
             for (int series = 0; series < seriesCount; series++) {
-                Iterator iterator = categoryData.getCategories().iterator();
-                while (iterator.hasNext()) {
-                    Object category = iterator.next();
+                for (int item = 0; item < itemCount; item++) {
                     Number value = null;
                     if (data instanceof IntervalCategoryDataset) {
                         IntervalCategoryDataset icd = (IntervalCategoryDataset) data;
-                        value = icd.getStartValue(series, category);
+                        value = icd.getStartValue(series, item);
                     }
                     else {
-                        value = categoryData.getValue(series, category);
+                        value = categoryData.getValue(series, item);
                     }
                     if (value != null) {
                         minimum = Math.min(minimum, value.doubleValue());
@@ -557,18 +556,17 @@ public class DatasetUtilities {
 
             CategoryDataset categoryData = (CategoryDataset) data;
             double maximum = Double.NEGATIVE_INFINITY;
-            int seriesCount = categoryData.getSeriesCount();
+            int seriesCount = categoryData.getColumnCount();
+            int itemCount = categoryData.getRowCount();
             for (int series = 0; series < seriesCount; series++) {
-                Iterator iterator = categoryData.getCategories().iterator();
-                while (iterator.hasNext()) {
-                    Object category = iterator.next();
+                for (int item = 0; item < itemCount; item++) {
                     Number value = null;
                     if (data instanceof IntervalCategoryDataset) {
                         IntervalCategoryDataset icd = (IntervalCategoryDataset) data;
-                        value = icd.getEndValue(series, category);
+                        value = icd.getEndValue(series, item);
                     }
                     else {
-                        value = categoryData.getValue(series, category);
+                        value = categoryData.getValue(series, item);
                     }
                     if (value != null) {
                         maximum = Math.max(maximum, value.doubleValue());
@@ -623,50 +621,82 @@ public class DatasetUtilities {
     }
 
     /**
-     * Creates a pie dataset from a category dataset by taking all the values
-     * (across series) for a single category.
+     * Creates a pie dataset from a table dataset by taking all the values
+     * for a single row.
      *
      * @param data  the data.
-     * @param category  the category.
+     * @param rowKey  the row key.
      *
      * @return a pie dataset.
      */
-    public static PieDataset createPieDataset(CategoryDataset data, Object category) {
+    public static PieDataset createPieDatasetForRow(CategoryDataset data, Comparable rowKey) {
+
+        int row = data.getRowIndex(rowKey);
+        return createPieDatasetForRow(data, row);
+
+    }
+
+    /**
+     * Creates a pie dataset from a table dataset by taking all the values
+     * for a single row.
+     *
+     * @param data  the data.
+     * @param row  the row (zero-based index).
+     *
+     * @return a pie dataset.
+     */
+    public static PieDataset createPieDatasetForRow(CategoryDataset data, int row) {
 
         DefaultPieDataset result = new DefaultPieDataset();
-        int seriesCount = data.getSeriesCount();
-        for (int i = 0; i < seriesCount; i++) {
-            String seriesName = data.getSeriesName(i);
-            result.setValue(seriesName, data.getValue(i, category));
+        int columnCount = data.getColumnCount();
+        for (int current = 0; current < columnCount; current++) {
+            Comparable columnKey = data.getColumnKey(current);
+            result.setValue(columnKey, data.getValue(row, current));
         }
         return result;
 
     }
 
     /**
-     * Creates a pie dataset from a category dataset by taking all the values
-     * for a single series.
+     * Creates a pie dataset from a table dataset by taking all the values
+     * for a single column.
      *
      * @param data  the data.
-     * @param series  the series (zero-based index).
+     * @param columnKey  the column key.
      *
      * @return a pie dataset.
      */
-    public static PieDataset createPieDataset(CategoryDataset data, int series) {
+    public static PieDataset createPieDatasetForColumn(CategoryDataset data,
+                                                       Comparable columnKey) {
+
+        int column = data.getColumnIndex(columnKey);
+        return createPieDatasetForColumn(data, column);
+
+    }
+
+    /**
+     * Creates a pie dataset from a table dataset by taking all the values
+     * for a single column.
+     *
+     * @param data  the data.
+     * @param column  the column (zero-based index).
+     *
+     * @return a pie dataset.
+     */
+    public static PieDataset createPieDatasetForColumn(CategoryDataset data, int column) {
 
         DefaultPieDataset result = new DefaultPieDataset();
-        Collection categories = data.getCategories();
-        Iterator iterator = categories.iterator();
-        while (iterator.hasNext()) {
-            Object current = iterator.next();
-            result.setValue(current, data.getValue(series, current));
+        int rowCount = data.getRowCount();
+        for (int i = 0; i < rowCount; i++) {
+            Comparable rowKey = data.getRowKey(i);
+            result.setValue(rowKey, data.getValue(i, column));
         }
         return result;
 
     }
 
     /**
-     * Calculates the total of all the values in a PieDataset.
+     * Calculates the total of all the values in a {@link PieDataset}.
      *
      * @param data  the dataset.
      *
@@ -675,14 +705,13 @@ public class DatasetUtilities {
     public static double getPieDatasetTotal(PieDataset data) {
 
         // get a list of categories...
-        List categories = data.getCategories();
+        List categories = data.getKeys();
 
-        // compute the total value of the data series skipping over the
-        // negative values
+        // compute the total value of the data series skipping over the negative values
         double totalValue = 0;
         Iterator iterator = categories.iterator();
         while (iterator.hasNext()) {
-            Object current = iterator.next();
+            Comparable current = (Comparable) iterator.next();
             if (current != null) {
                 Number value = data.getValue(current);
                 double v = 0.0;
@@ -698,12 +727,12 @@ public class DatasetUtilities {
     }
 
     /**
-     * Returns the range of values for the range (as in domain/range) of the
-     * dataset, assuming that the series in one category are stacked.
+     * Returns the minimum and maximum values for the dataset's range (as in domain/range),
+     * assuming that the series in one category are stacked.
      *
-     * @param data   the dataset.
+     * @param data  the dataset.
      *
-     * @return  the range of values for the range of the dataset.
+     * @return the value range.
      */
     public static Range getStackedRangeExtent(CategoryDataset data) {
 
@@ -714,15 +743,13 @@ public class DatasetUtilities {
             double minimum = 0.0;
             double maximum = 0.0;
 
-            Iterator iterator = data.getCategories().iterator();
-            while (iterator.hasNext()) {
-
-                Object category = iterator.next();
+            int categoryCount = data.getColumnCount();
+            for (int item = 0; item < categoryCount; item++) {
                 double positive = 0.0;
                 double negative = 0.0;
-                int seriesCount = data.getSeriesCount();
+                int seriesCount = data.getRowCount();
                 for (int series = 0; series < seriesCount; series++) {
-                    Number number = data.getValue(series, category);
+                    Number number = data.getValue(series, item);
                     if (number != null) {
                         double value = number.doubleValue();
                         if (value > 0.0) {
@@ -762,15 +789,13 @@ public class DatasetUtilities {
 
             double minimum = 0.0;
 
-            Iterator iterator = data.getCategories().iterator();
-            while (iterator.hasNext()) {
-
-                Object category = iterator.next();
+            int categoryCount = data.getRowCount();
+            for (int item = 0; item < categoryCount; item++) {
                 double total = 0.0;
 
-                int seriesCount = data.getSeriesCount();
+                int seriesCount = data.getColumnCount();
                 for (int series = 0; series < seriesCount; series++) {
-                    Number number = data.getValue(series, category);
+                    Number number = data.getValue(series, item);
                     if (number != null) {
                         double value = number.doubleValue();
                         if (value < 0.0) {
@@ -806,15 +831,13 @@ public class DatasetUtilities {
 
             double maximum = 0.0;
 
-            Iterator iterator = data.getCategories().iterator();
-            while (iterator.hasNext()) {
-
-                Object category = iterator.next();
+            int categoryCount = data.getRowCount();
+            for (int item = 0; item < categoryCount; item++) {
                 double total = 0.0;
 
-                int seriesCount = data.getSeriesCount();
+                int seriesCount = data.getColumnCount();
                 for (int series = 0; series < seriesCount; series++) {
-                    Number number = data.getValue(series, category);
+                    Number number = data.getValue(series, item);
                     if (number != null) {
                         double value = number.doubleValue();
                         if (value > 0.0) {
@@ -835,7 +858,7 @@ public class DatasetUtilities {
     }
 
     /**
-     * Creates an XYDataset by sampling the specified function over a fixed range.
+     * Creates an {@link XYDataset} by sampling the specified function over a fixed range.
      *
      * @param f  the function.
      * @param start  the start value for the range.
@@ -843,7 +866,7 @@ public class DatasetUtilities {
      * @param samples  the number of samples (must be > 1).
      * @param seriesName  the name to give the resulting series.
      *
-     * @return  the XYDataset.
+     * @return  the dataset.
      */
     public static XYDataset sampleFunction2D(Function2D f,
                                              double start, double end, int samples,
@@ -872,4 +895,59 @@ public class DatasetUtilities {
 
     }
 
+    /**
+     * Creates a {@link CategoryDataset} that contains a copy of the data in an array 
+     * (instances of <code>Double</code> are created to represent the data items).
+     * <p>
+     * Row and column keys are created by appending 0, 1, 2, ... to the supplied prefixes.
+     * 
+     * @param rowKeyPrefix  the row key prefix.
+     * @param columnKeyPrefix  the column key prefix.
+     * @param data  the data.
+     * 
+     * @return the dataset.
+     */
+    public static CategoryDataset createCategoryDataset(String rowKeyPrefix,
+                                                        String columnKeyPrefix,
+                                                        double[][] data) {
+
+        DefaultCategoryDataset result = new DefaultCategoryDataset();
+        for (int r = 0; r < data.length; r++) {
+            String rowKey = rowKeyPrefix + (r + 1);
+            for (int c = 0; c < data[r].length; c++) {
+                String columnKey = columnKeyPrefix + (c + 1);
+                result.addValue(new Double(data[r][c]), rowKey, columnKey);
+            }
+        }
+        return result;
+
+    }
+
+    /**
+     * Creates a {@link CategoryDataset} that contains a copy of the data in an array.
+     * <p>
+     * Row and column keys are created by appending 0, 1, 2, ... to the supplied prefixes.
+     * 
+     * @param rowKeyPrefix  the row key prefix.
+     * @param columnKeyPrefix  the column key prefix.
+     * @param data  the data.
+     * 
+     * @return the dataset.
+     */
+    public static CategoryDataset createCategoryDataset(String rowKeyPrefix,
+                                                        String columnKeyPrefix,
+                                                        Number[][] data) {
+
+        DefaultCategoryDataset result = new DefaultCategoryDataset();
+        for (int r = 0; r < data.length; r++) {
+            String rowKey = rowKeyPrefix + (r + 1);
+            for (int c = 0; c < data[r].length; c++) {
+                String columnKey = columnKeyPrefix + (c + 1);
+                result.addValue(data[r][c], rowKey, columnKey);
+            }
+        }
+        return result;
+
+    }
+    
 }

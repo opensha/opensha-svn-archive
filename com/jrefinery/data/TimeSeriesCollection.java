@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -------------------------
  * TimeSeriesCollection.java
  * -------------------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -50,6 +50,7 @@
  * 24-Aug-2002 : Implemented DomainInfo interface, and added the DomainIsPointsInTime flag (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 16-Oct-2002 : Added remove methods (DG);
+ * 10-Jan-2003 : Changed method names in RegularTimePeriod class (DG);
  *
  */
 
@@ -63,10 +64,11 @@ import java.util.TimeZone;
 /**
  * A collection of time series objects.
  * <P>
- * This class implements the IntervalXYDataset interface.  One consequence of
- * this is that this class can be used quite easily to supply data to JFreeChart.
+ * This class implements the {@link XYDataset} interface, as well as the extended 
+ * {@link IntervalXYDataset} interface.  This makes it a convenient dataset for use with the
+ * {@link com.jrefinery.chart.plot.XYPlot} class.
  *
- * @author DG
+ * @author David Gilbert
  */
 public class TimeSeriesCollection extends AbstractSeriesDataset
                                   implements IntervalXYDataset, DomainInfo {
@@ -118,7 +120,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      *
      * @param series the series.
      */
-    public TimeSeriesCollection(BasicTimeSeries series) {
+    public TimeSeriesCollection(TimeSeries series) {
         this(series, TimeZone.getDefault());
     }
 
@@ -129,7 +131,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      * @param series the series.
      * @param zone the timezone.
      */
-    public TimeSeriesCollection(BasicTimeSeries series, TimeZone zone) {
+    public TimeSeriesCollection(TimeSeries series, TimeZone zone) {
 
         this.data = new java.util.ArrayList();
         if (series != null) {
@@ -203,7 +205,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      *
      * @return the series.
      */
-    public BasicTimeSeries getSeries(int series) {
+    public TimeSeries getSeries(int series) {
 
         // check arguments...
         if ((series < 0) || (series > getSeriesCount())) {
@@ -212,7 +214,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
         }
 
         // fetch the series...
-        BasicTimeSeries ts = (BasicTimeSeries) data.get(series);
+        TimeSeries ts = (TimeSeries) data.get(series);
         return ts;
 
     }
@@ -230,7 +232,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
 
         // check arguments...delegated
         // fetch the series name...
-        return this.getSeries(series).getName();
+        return getSeries(series).getName();
 
     }
 
@@ -241,7 +243,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      *
      * @param series the time series.
      */
-    public void addSeries(BasicTimeSeries series) {
+    public void addSeries(TimeSeries series) {
 
         // check argument...
         if (series == null) {
@@ -261,7 +263,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      *
      * @param series  the series to remove.
      */
-    public void removeSeries(BasicTimeSeries series) {
+    public void removeSeries(TimeSeries series) {
 
         // check argument...
         if (series == null) {
@@ -283,7 +285,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      */
     public void removeSeries(int index) {
 
-        BasicTimeSeries series = getSeries(index);
+        TimeSeries series = getSeries(index);
         if (series != null) {
             removeSeries(series);
         }
@@ -301,7 +303,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      */
     public int getItemCount(int series) {
 
-        return this.getSeries(series).getItemCount();
+        return getSeries(series).getItemCount();
 
     }
 
@@ -315,9 +317,9 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      */
     public Number getXValue(int series, int item) {
 
-        BasicTimeSeries ts = (BasicTimeSeries) data.get(series);
+        TimeSeries ts = (TimeSeries) data.get(series);
         TimeSeriesDataPair dp = ts.getDataPair(item);
-        TimePeriod period = dp.getPeriod();
+        RegularTimePeriod period = dp.getPeriod();
 
         return new Long(getX(period));
 
@@ -330,14 +332,14 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      *
      * @return the x-value.
      */
-    private long getX(TimePeriod period) {
+    private long getX(RegularTimePeriod period) {
 
         long result = 0L;
         switch (position) {
-            case (START) : result = period.getStart(workingCalendar); break;
-            case (MIDDLE) : result = period.getMiddle(workingCalendar); break;
-            case (END) : result = period.getEnd(workingCalendar); break;
-            default: result = period.getMiddle(workingCalendar);
+            case (START) : result = period.getFirstMillisecond(workingCalendar); break;
+            case (MIDDLE) : result = period.getMiddleMillisecond(workingCalendar); break;
+            case (END) : result = period.getLastMillisecond(workingCalendar); break;
+            default: result = period.getMiddleMillisecond(workingCalendar);
         }
         return result;
 
@@ -353,9 +355,9 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      */
     public Number getStartXValue(int series, int item) {
 
-        BasicTimeSeries ts = (BasicTimeSeries) data.get(series);
+        TimeSeries ts = (TimeSeries) data.get(series);
         TimeSeriesDataPair dp = ts.getDataPair(item);
-        return new Long(dp.getPeriod().getStart(workingCalendar));
+        return new Long(dp.getPeriod().getFirstMillisecond(workingCalendar));
 
     }
 
@@ -369,9 +371,9 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      */
     public Number getEndXValue(int series, int item) {
 
-        BasicTimeSeries ts = (BasicTimeSeries) data.get(series);
+        TimeSeries ts = (TimeSeries) data.get(series);
         TimeSeriesDataPair dp = ts.getDataPair(item);
-        return new Long(dp.getPeriod().getEnd(workingCalendar));
+        return new Long(dp.getPeriod().getLastMillisecond(workingCalendar));
 
     }
 
@@ -385,7 +387,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
      */
     public Number getYValue(int series, int item) {
 
-        BasicTimeSeries ts = (BasicTimeSeries) data.get(series);
+        TimeSeries ts = (TimeSeries) data.get(series);
         TimeSeriesDataPair dp = (TimeSeriesDataPair) ts.getDataPair(item);
         return dp.getValue();
 
@@ -452,17 +454,17 @@ public class TimeSeriesCollection extends AbstractSeriesDataset
         Range temp = null;
         Iterator iterator = data.iterator();
         while (iterator.hasNext()) {
-            BasicTimeSeries series = (BasicTimeSeries) iterator.next();
+            TimeSeries series = (TimeSeries) iterator.next();
             int count = series.getItemCount();
             if (count > 0) {
-                TimePeriod start = series.getTimePeriod(0);
-                TimePeriod end = series.getTimePeriod(count - 1);
+                RegularTimePeriod start = series.getTimePeriod(0);
+                RegularTimePeriod end = series.getTimePeriod(count - 1);
                 if (this.domainIsPointsInTime) {
                     temp = new Range(getX(start), getX(end));
                 }
                 else {
-                    temp = new Range(start.getStart(workingCalendar),
-                                     end.getEnd(workingCalendar));
+                    temp = new Range(start.getFirstMillisecond(workingCalendar),
+                                     end.getLastMillisecond(workingCalendar));
                 }
                 result = Range.combine(result, temp);
             }

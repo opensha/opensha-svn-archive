@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * --------
  * Day.java
  * --------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -43,6 +43,7 @@
  * 24-Jun-2002 : Removed unnecessary imports (DG);
  * 10-Sep-2002 : Added getSerialIndex() method (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 10-Jan-2003 : Changed base class and method names (DG);
  *
  */
 
@@ -59,17 +60,17 @@ import com.jrefinery.date.SerialDate;
 /**
  * Represents a single day in the range 1-Jan-1900 to 31-Dec-9999.
  * <P>
- * This class is immutable, which is a requirement for all TimePeriod subclasses.
+ * This class is immutable, which is a requirement for all {@link RegularTimePeriod} subclasses.
  *
- * @author DG
+ * @author David Gilbert
  */
-public class Day extends TimePeriod {
+public class Day extends RegularTimePeriod {
 
     /** A standard date formatter. */
     protected static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     /** A date formatter for the default locale. */
-    protected static final DateFormat
+    protected static final DateFormat 
         DATE_FORMAT_SHORT = DateFormat.getDateInstance(DateFormat.SHORT);
 
     /** A date formatter for the default locale. */
@@ -117,7 +118,7 @@ public class Day extends TimePeriod {
      * @param time  the time.
      */
     public Day(Date time) {
-        this(time, TimePeriod.DEFAULT_TIME_ZONE);
+        this(time, RegularTimePeriod.DEFAULT_TIME_ZONE);
     }
 
     /**
@@ -183,7 +184,7 @@ public class Day extends TimePeriod {
      *
      * @return the day preceding this one.
      */
-    public TimePeriod previous() {
+    public RegularTimePeriod previous() {
 
         Day result;
         int serial = serialDate.toSerial();
@@ -203,7 +204,7 @@ public class Day extends TimePeriod {
      *
      * @return the day following this one, or <code>null</code> if some limit has been reached.
      */
-    public TimePeriod next() {
+    public RegularTimePeriod next() {
 
         Day result;
         int serial = serialDate.toSerial();
@@ -235,7 +236,7 @@ public class Day extends TimePeriod {
      *
      * @return the start of the day as milliseconds since 01-01-1970.
      */
-    public long getStart(Calendar calendar) {
+    public long getFirstMillisecond(Calendar calendar) {
 
         int year = this.serialDate.getYYYY();
         int month = this.serialDate.getMonth();
@@ -257,7 +258,7 @@ public class Day extends TimePeriod {
      *
      * @return the end of the day as milliseconds since 01-01-1970.
      */
-    public long getEnd(Calendar calendar) {
+    public long getLastMillisecond(Calendar calendar) {
 
         int year = this.serialDate.getYYYY();
         int month = this.serialDate.getMonth();
@@ -321,7 +322,7 @@ public class Day extends TimePeriod {
 
         // CASE 2 : Comparing to another TimePeriod object
         // -----------------------------------------------
-        else if (o1 instanceof TimePeriod) {
+        else if (o1 instanceof RegularTimePeriod) {
             // more difficult case - evaluate later...
             result = 0;
         }

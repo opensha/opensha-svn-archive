@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ------------
  * Quarter.java
  * ------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -42,6 +42,7 @@
  * 24-Jun-2002 : Removed main method (just test code) (DG);
  * 10-Sep-2002 : Added getSerialIndex() method (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 10-Jan-2003 : Changed base class and method names (DG);
  *
  */
 
@@ -53,16 +54,13 @@ import java.util.TimeZone;
 import com.jrefinery.date.SerialDate;
 
 /**
- * Defines a quarter (in a given year).
+ * Defines a quarter (in a given year).  The range supported is Q1 1900 to Q4 9999.
  * <P>
- * This class is immutable, which is a requirement for all TimePeriod
- * subclasses.
- * <P>
- * The range supported is Q1 1900 to Q4 9999.
+ * This class is immutable, which is a requirement for all {@link RegularTimePeriod} subclasses.
  *
- * @author DG
+ * @author David Gilbert
  */
-public class Quarter extends TimePeriod {
+public class Quarter extends RegularTimePeriod {
 
     /** Constant for quarter 1. */
     public static final int FIRST_QUARTER = 1;
@@ -135,7 +133,7 @@ public class Quarter extends TimePeriod {
      */
     public Quarter(Date time) {
 
-        this(time, TimePeriod.DEFAULT_TIME_ZONE);
+        this(time, RegularTimePeriod.DEFAULT_TIME_ZONE);
     }
 
     /**
@@ -177,7 +175,7 @@ public class Quarter extends TimePeriod {
      *
      * @return The quarter preceding this one (or null if this is Q1 1900).
      */
-    public TimePeriod previous() {
+    public RegularTimePeriod previous() {
 
         Quarter result;
         if (quarter > FIRST_QUARTER) {
@@ -201,7 +199,7 @@ public class Quarter extends TimePeriod {
      *
      * @return The quarter following this one (or null if this is Q4 9999).
      */
-    public TimePeriod next() {
+    public RegularTimePeriod next() {
 
         Quarter result;
         if (quarter < LAST_QUARTER) {
@@ -281,7 +279,7 @@ public class Quarter extends TimePeriod {
 
         // CASE 2 : Comparing to another TimePeriod object
         // -----------------------------------------------
-        else if (o1 instanceof TimePeriod) {
+        else if (o1 instanceof RegularTimePeriod) {
             // more difficult case - evaluate later...
             result = 0;
         }
@@ -314,11 +312,11 @@ public class Quarter extends TimePeriod {
      *
      * @return the first millisecond in the Quarter.
      */
-    public long getStart(Calendar calendar) {
+    public long getFirstMillisecond(Calendar calendar) {
 
         int month = Quarter.FIRST_MONTH_IN_QUARTER[this.quarter];
         Day first = new Day(1, month, this.year.getYear());
-        return first.getStart(calendar);
+        return first.getFirstMillisecond(calendar);
 
     }
 
@@ -330,12 +328,12 @@ public class Quarter extends TimePeriod {
      *
      * @return the last millisecond of the Quarter.
      */
-    public long getEnd(Calendar calendar) {
+    public long getLastMillisecond(Calendar calendar) {
 
         int month = Quarter.LAST_MONTH_IN_QUARTER[this.quarter];
         int eom = SerialDate.lastDayOfMonth(month, this.year.getYear());
         Day last = new Day(eom, month, this.year.getYear());
-        return last.getEnd(calendar);
+        return last.getLastMillisecond(calendar);
 
     }
 

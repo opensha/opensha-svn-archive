@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -------------------------------
  * StatisticalCategoryDataset.java
  * -------------------------------
- * (C) Copyright 2002, by Pascal Collet and Contributors.
+ * (C) Copyright 2002, 2003, by Pascal Collet and Contributors.
  *
  * Original Author:  Pascal Collet;
  * Contributor(s):   David Gilbert (for Simba Management Limited);
@@ -33,41 +33,59 @@
  * -------
  * 21-Aug-2002 : Version 1, contributed by Pascal Collet (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 24-Oct-2002 : Amendments in line with changes to the CategoryDataset interface (DG);
  *
  */
 
 package com.jrefinery.data;
 
 /**
- * A category dataset that defines a median and standard deviation value for each
- * series/category combination.
+ * A category dataset that defines a median and standard deviation value for each item.
  *
- * @author PC
+ * @author Pascal Collet
  *
  */
 public interface StatisticalCategoryDataset extends CategoryDataset {
 
     /**
-     * Returns the mean value for the specified series
-     * (zero-based index) and category.
+     * Returns the mean value for an item.
      *
-     * @param series  the series index (zero-based).
-     * @param category  the category.
+     * @param row  the row index (zero-based).
+     * @param column  the column index (zero-based).
      *
      * @return the mean value.
      */
-    public Number getMeanValue (int series, Object category);
+    public Number getMeanValue(int row, int column);
 
     /**
-     * Returns the standard deviation value for the specified series
-     * (zero-based index) and category.
+     * Returns the mean value for an item.
      *
-     * @param series  the series index (zero-based).
-     * @param category  the category.
+     * @param rowKey  the row key.
+     * @param columnKey  the columnKey.
+     *
+     * @return the mean value.
+     */
+    public Number getMeanValue(Comparable rowKey, Comparable columnKey);
+
+    /**
+     * Returns the standard deviation value for an item.
+     *
+     * @param row  the row index (zero-based).
+     * @param column  the column index (zero-based).
      *
      * @return the standard deviation.
      */
-    public Number getStdDevValue (int series, Object category);
+    public Number getStdDevValue(int row, int column);
+
+    /**
+     * Returns the standard deviation value for an item.
+     *
+     * @param rowKey  the row key.
+     * @param columnKey  the columnKey.
+     *
+     * @return the standard deviation.
+     */
+    public Number getStdDevValue(Comparable rowKey, Comparable columnKey);
 
 }
 

@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,11 @@
  * -------------
  * XYSeries.java
  * -------------
- * (C) Copyright 2001, Simba Management Limited and Contributors.
+ * (C) Copyright 2001-2003, Simba Management Limited and Contributors.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   Aaron Metzger;
+ *                   Jonathan Gabbai;
  *
  * $Id$
  *
@@ -38,6 +39,7 @@
  * 29-Aug-2002 : Modified to give user control over whether or not duplicate x-values are
  *               allowed (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 11-Nov-2002 : Added maximum item count, code contributed by Jonathan Gabbai (DG);
  *
  */
 
@@ -49,12 +51,15 @@ import java.util.List;
 /**
  * Represents a sequence of zero or more data pairs in the form (x, y).
  *
- * @author DG
+ * @author David Gilbert
  */
 public class XYSeries extends Series {
 
     /** The list of data pairs in the series. */
     private List data;
+
+    /** The maximum number of items for the series. */
+    private int maximumItemCount = Integer.MAX_VALUE;
 
     /** A flag that controls whether or not duplicate x-values are allowed. */
     private boolean allowDuplicateXValues;
@@ -93,6 +98,30 @@ public class XYSeries extends Series {
     }
 
     /**
+     * Returns the maximum number of items that will be retained in the series.
+     * <P>
+     * The default value is <code>Integer.MAX_VALUE</code>).
+     *
+     * @return the maximum item count.
+     */
+    public int getMaximumItemCount() {
+        return this.maximumItemCount;
+    }
+
+    /**
+     * Sets the maximum number of items that will be retained in the series.
+     * <P>
+     * If you add a new item to the series such that the number of items will exceed the
+     * maximum item count, then the FIRST element in the series is automatically removed,
+     * ensuring that the maximum item count is not exceeded.
+     *
+     * @param maximum  the maximum.
+     */
+    public void setMaximumItemCount(int maximum) {
+        this.maximumItemCount = maximum;
+    }
+
+    /**
      * Adds a data item to the series.
      *
      * @param pair  the (x, y) pair.
@@ -110,11 +139,19 @@ public class XYSeries extends Series {
         int index = Collections.binarySearch(data, pair);
         if (index < 0) {
             data.add(-index - 1, pair);
+
+            // check if this addition will exceed the maximum item count...
+            if (getItemCount() > this.maximumItemCount) {
+                this.data.remove(0);
+            }
             fireSeriesChanged();
         }
         else {
             if (allowDuplicateXValues == true) {
                 data.add(index, pair);
+                if (getItemCount() > this.maximumItemCount) {
+                    this.data.remove(0);
+                }
                 fireSeriesChanged();
             }
             else {
@@ -134,7 +171,7 @@ public class XYSeries extends Series {
      */
     public void add(double x, double y) throws SeriesException {
 
-        this.add(new Double(x), new Double(y));
+        add(new Double(x), new Double(y));
 
     }
 
@@ -150,7 +187,7 @@ public class XYSeries extends Series {
      */
     public void add(double x, Number y) throws SeriesException {
 
-        this.add(new Double(x), y);
+        add(new Double(x), y);
 
     }
 
@@ -175,11 +212,11 @@ public class XYSeries extends Series {
     /**
      * Deletes a range of items from the series.
      *
-     * @param start  The start index (zero-based).
-     * @param end  The end index (zero-based).
+     * @param start  the start index (zero-based).
+     * @param end  the end index (zero-based).
      */
     public void delete(int start, int end) {
-        for (int i = start; i <= end - start; i++) {
+        for (int i = start; i <= end; i++) {
             data.remove(start);
         }
         fireSeriesChanged();
@@ -287,3 +324,4 @@ public class XYSeries extends Series {
     }
 
 }
+

@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -------------------------
  * TimeSeriesTableModel.java
  * -------------------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -45,21 +45,21 @@ import javax.swing.table.AbstractTableModel;
 /**
  * Wrapper around a time series to convert it to a table model for use in a JTable.
  *
- * @author DG
+ * @author David Gilbert
  */
 public class TimeSeriesTableModel extends AbstractTableModel implements SeriesChangeListener {
 
     /** The series. */
-    private BasicTimeSeries series;
+    private TimeSeries series;
 
     /** A flag that controls whether the series is editable. */
     private boolean editable;
 
     /** The edits. */
-    private BasicTimeSeries edits;
+    private TimeSeries edits;
 
     /** The new time period. */
-    private TimePeriod newTimePeriod;
+    private RegularTimePeriod newTimePeriod;
 
     /** The new value. */
     private Number newValue;
@@ -68,7 +68,7 @@ public class TimeSeriesTableModel extends AbstractTableModel implements SeriesCh
      * Default constructor.
      */
     public TimeSeriesTableModel() {
-        this(new BasicTimeSeries("Untitled"));
+        this(new TimeSeries("Untitled"));
     }
 
     /**
@@ -76,7 +76,7 @@ public class TimeSeriesTableModel extends AbstractTableModel implements SeriesCh
      *
      * @param series  the time series.
      */
-    public TimeSeriesTableModel(BasicTimeSeries series) {
+    public TimeSeriesTableModel(TimeSeries series) {
         this(series, false);
     }
 
@@ -86,13 +86,13 @@ public class TimeSeriesTableModel extends AbstractTableModel implements SeriesCh
      * @param series  the time series.
      * @param editable  if <ocde>true</code>, the table is editable.
      */
-    public TimeSeriesTableModel(BasicTimeSeries series, boolean editable) {
+    public TimeSeriesTableModel(TimeSeries series, boolean editable) {
 
         this.series = series;
         this.series.addChangeListener(this);
         this.editable = editable;
         if (editable) {
-            this.edits = new BasicTimeSeries("EDITS");
+            this.edits = new TimeSeries("EDITS");
         }
         else {
             this.edits = null;

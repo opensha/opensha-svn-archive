@@ -5,7 +5,7 @@
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ----------------------------
  * IntervalCategoryDataset.java
  * ----------------------------
- * (C) Copyright 2000-2002, by Eduard Martinescu and Contributors.
+ * (C) Copyright 2002, 2003, by Eduard Martinescu and Contributors.
  *
  * Original Author:  Eduard Martinescu;
  * Contributor(s):   David Gilbert (for Simba Management Limited);
@@ -34,6 +34,8 @@
  * 19-Mar-2002 : Version 1 contributed by Eduard Martinescu.  The interface name and method names
  *               have been renamed to be consistent with existing interfaces (DG);
  * 06-Jun-2002 : Updated Javadoc comments (DG);
+ * 24-Oct-2002 : Categories and series are now indexed by int or Comparable, following changes
+ *               made to the CategoryDataset interface (DG);
  *
  */
 
@@ -42,28 +44,48 @@ package com.jrefinery.data;
 /**
  * A category dataset that defines a value range for each series/category combination.
  *
- * @author EM
+ * @author Eduard Martinescu
  */
 public interface IntervalCategoryDataset extends CategoryDataset {
 
     /**
-     * Returns the min value for the specified series (zero-based index) and category.
+     * Returns the start value for the interval for a given series and category.
      *
-     * @param series  the series index (zero-based).
-     * @param category  the category.
+     * @param series  the series (zero-based index).
+     * @param category  the category (zero-based index).
      *
-     * @return  the min value.
+     * @return the start value (possibly null).
      */
-    public Number getStartValue(int series, Object category);
+    public Number getStartValue(int series, int category);
 
     /**
-     * Returns the max value for the specified series (zero-based index) and category.
+     * Returns the start value for the interval for a given series and category.
      *
-     * @param series  the series index (zero-based).
-     * @param category  the category.
+     * @param series  the series key.
+     * @param category  the category key.
      *
-     * @return the max value.
+     * @return the start value (possibly null).
      */
-    public Number getEndValue(int series, Object category);
+    public Number getStartValue(Comparable series, Comparable category);
+
+    /**
+     * Returns the end value for the interval for a given series and category.
+     *
+     * @param series  the series (zero-based index).
+     * @param category  the category (zero-based index).
+     *
+     * @return the end value (possibly null).
+     */
+    public Number getEndValue(int series, int category);
+
+    /**
+     * Returns the end value for the interval for a given series and category.
+     *
+     * @param series  the series key.
+     * @param category  the category key.
+     *
+     * @return the end value (possibly null).
+     */
+    public Number getEndValue(Comparable series, Comparable category);
 
 }

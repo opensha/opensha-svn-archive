@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -----------------------
  * CombinationDataset.java
  * -----------------------
- * (C) Copyright 2001, 2002, by Bill Kelemen.
+ * (C) Copyright 2001-2003, by Bill Kelemen.
  *
  * Original Author:  Bill Kelemen;
  * Contributor(s):   -;
@@ -41,6 +41,7 @@ package com.jrefinery.data;
  * Interface that describes the new methods that any combined dataset needs to
  * implement. A combined dataset object will combine one or more datasets and
  * expose a sub-set or union of the combined datasets.
+ * 
  * @author Bill Kelemenm (bill@kelemen-usa.com)
  */
 public interface CombinationDataset {

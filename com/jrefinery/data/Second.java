@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -----------
  * Second.java
  * -----------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -41,6 +41,7 @@
  * 13-Mar-2002 : Added parseSecond() method (DG);
  * 10-Sep-2002 : Added getSerialIndex() method (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 10-Jan-2003 : Changed base class and method names (DG);
  *
  */
 
@@ -53,12 +54,12 @@ import java.util.TimeZone;
 /**
  * Represents a second in a particular day.
  * <P>
- * This class is immutable, which is a requirement for all TimePeriod subclasses.
+ * This class is immutable, which is a requirement for all {@link RegularTimePeriod} subclasses.
  *
- * @author DG
+ * @author David Gilbert
  *
  */
-public class Second extends TimePeriod {
+public class Second extends RegularTimePeriod {
 
     /** Useful constant for the first second in a day. */
     public static final int FIRST_SECOND_IN_MINUTE = 0;
@@ -100,7 +101,7 @@ public class Second extends TimePeriod {
      * @param time  the time.
      */
     public Second(Date time) {
-        this(time, TimePeriod.DEFAULT_TIME_ZONE);
+        this(time, RegularTimePeriod.DEFAULT_TIME_ZONE);
     }
 
     /**
@@ -142,7 +143,7 @@ public class Second extends TimePeriod {
      *
      * @return the second preceding this one.
      */
-    public TimePeriod previous() {
+    public RegularTimePeriod previous() {
 
         Second result = null;
 
@@ -165,7 +166,7 @@ public class Second extends TimePeriod {
      *
      * @return the second following this one.
      */
-    public TimePeriod next() {
+    public RegularTimePeriod next() {
 
         Second result = null;
 
@@ -199,8 +200,8 @@ public class Second extends TimePeriod {
      *
      * @return  the first millisecond.
      */
-    public long getStart(Calendar calendar) {
-        return this.minute.getStart(calendar) + second * 1000L;
+    public long getFirstMillisecond(Calendar calendar) {
+        return this.minute.getFirstMillisecond(calendar) + second * 1000L;
     }
 
     /**
@@ -210,8 +211,8 @@ public class Second extends TimePeriod {
      *
      * @return the last millisecond.
      */
-    public long getEnd(Calendar calendar) {
-        return this.minute.getStart(calendar) + second * 1000L + 999L;
+    public long getLastMillisecond(Calendar calendar) {
+        return this.minute.getLastMillisecond(calendar) + second * 1000L + 999L;
     }
 
     /**
@@ -259,7 +260,7 @@ public class Second extends TimePeriod {
 
         // CASE 2 : Comparing to another TimePeriod object
         // -----------------------------------------------
-        else if (o1 instanceof TimePeriod) {
+        else if (o1 instanceof RegularTimePeriod) {
             // more difficult case - evaluate later...
             result = 0;
         }

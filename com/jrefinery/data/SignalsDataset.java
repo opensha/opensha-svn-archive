@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * -------------------
  * SignalsDataset.java
  * -------------------
- * (C) Copyright 2002, by Sylvain Vieujot and Contributors.
+ * (C) Copyright 2002, 2003, by Sylvain Vieujot and Contributors.
  *
  * Original Author:  Sylvain Vieujot;
  * Contributor(s):   David Gilbert (for Simba Management Limited);
@@ -40,7 +40,7 @@ package com.jrefinery.data;
 /**
  * An interface that adds signal information to an XYDataset.
  *
- * @author sylvain
+ * @author Sylvain Vieujot
  */
 public interface SignalsDataset extends XYDataset {
 

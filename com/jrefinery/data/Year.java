@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ---------
  * Year.java
  * ---------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -41,6 +41,7 @@
  * 19-Mar-2002 : Changed API for TimePeriod classes (DG);
  * 10-Sep-2002 : Added getSerialIndex() method (DG);
  * 04-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 10-Jan-2003 : Changed base class and method names (DG);
  *
  */
 
@@ -54,24 +55,24 @@ import com.jrefinery.date.SerialDate;
 /**
  * Represents a year in the range 1900 to 9999.
  * <P>
- * This class is immutable, which is a requirement for all TimePeriod subclasses.
+ * This class is immutable, which is a requirement for all {@link RegularTimePeriod} subclasses.
  *
- * @author DG
+ * @author David Gilbert
  */
-public class Year extends TimePeriod {
+public class Year extends RegularTimePeriod {
 
     /** The year. */
     private int year;
 
     /**
-     * Constructs a new Year, based on the current system date/time.
+     * Creates a new <code>Year</code>, based on the current system date/time.
      */
     public Year() {
         this(new Date());
     }
 
     /**
-     * Constructs a time period representing a single year.
+     * Creates a time period representing a single year.
      *
      * @param year  the year.
      */
@@ -92,13 +93,13 @@ public class Year extends TimePeriod {
     }
 
     /**
-     * Constructs a new Year, based on a particular instant in time, using the
+     * Creates a new <code>Year</code>, based on a particular instant in time, using the
      * default time zone.
      *
      * @param time  the time.
      */
     public Year(Date time) {
-        this(time, TimePeriod.DEFAULT_TIME_ZONE);
+        this(time, RegularTimePeriod.DEFAULT_TIME_ZONE);
     }
 
     /**
@@ -129,7 +130,7 @@ public class Year extends TimePeriod {
      *
      * @return the year preceding this one (or null if the current year is 1900).
      */
-    public TimePeriod previous() {
+    public RegularTimePeriod previous() {
 
         if (year > SerialDate.MINIMUM_YEAR_SUPPORTED) {
             return new Year(year - 1);
@@ -145,7 +146,7 @@ public class Year extends TimePeriod {
      *
      * @return The year following this one (or null if the current year is 9999).
      */
-    public TimePeriod next() {
+    public RegularTimePeriod next() {
 
         if (year < SerialDate.MAXIMUM_YEAR_SUPPORTED) {
             return new Year(year + 1);
@@ -175,10 +176,10 @@ public class Year extends TimePeriod {
      *
      * @return the first millisecond of the year.
      */
-    public long getStart(Calendar calendar) {
+    public long getFirstMillisecond(Calendar calendar) {
 
         Day jan1 = new Day(1, SerialDate.JANUARY, year);
-        return jan1.getStart(calendar);
+        return jan1.getLastMillisecond(calendar);
 
     }
 
@@ -190,17 +191,17 @@ public class Year extends TimePeriod {
      *
      * @return the last millisecond of the year.
      */
-    public long getEnd(Calendar calendar) {
+    public long getLastMillisecond(Calendar calendar) {
 
         Day dec31 = new Day(31, SerialDate.DECEMBER, year);
-        return dec31.getEnd(calendar);
+        return dec31.getLastMillisecond(calendar);
 
     }
 
     /**
-     * Tests the equality of this Year object to an arbitrary object.  Returns
-     * true if the target is a Year instance representing the same year as this
-     * object.  In all other cases, returns false.
+     * Tests the equality of this <code>Year</code> object to an arbitrary object.  Returns
+     * <code>true</code> if the target is a <code>Year</code> instance representing the same
+     * year as this object.  In all other cases, returns <code>false</code>.
      *
      * @param object  the object.
      *
@@ -224,7 +225,7 @@ public class Year extends TimePeriod {
     }
 
     /**
-     * Returns an integer indicating the order of this Year object relative to
+     * Returns an integer indicating the order of this <code>Year</code> object relative to
      * the specified object:
      *
      * negative == before, zero == same, positive == after.
@@ -246,7 +247,7 @@ public class Year extends TimePeriod {
 
         // CASE 2 : Comparing to another TimePeriod object
         // -----------------------------------------------
-        else if (o1 instanceof TimePeriod) {
+        else if (o1 instanceof RegularTimePeriod) {
             // more difficult case - evaluate later...
             result = 0;
         }
@@ -263,7 +264,7 @@ public class Year extends TimePeriod {
     }
 
     /**
-     * Returns a string representing the year (e.g. "2002").
+     * Returns a string representing the year..
      *
      * @return a string representing the year.
      */

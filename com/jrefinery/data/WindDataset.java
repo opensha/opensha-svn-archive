@@ -1,11 +1,11 @@
-/* ============================================
- * JFreeChart : a free Java chart class library
- * ============================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,7 +22,7 @@
  * ----------------
  * WindDataset.java
  * ----------------
- * (C) Copyright 2001, 2002, by Achilleus Mantzios and Contributors.
+ * (C) Copyright 2001-2003, by Achilleus Mantzios and Contributors.
  *
  * Original Author:  Achilleus Mantzios;
  * Contributor(s):   David Gilbert (for Simba Management Limited);
@@ -41,7 +41,7 @@ package com.jrefinery.data;
  * Interface for a dataset that supplies wind intensity and direction values
  * observed at various points in time.
  *
- * @author AM
+ * @author Achilleus Mantzios
  */
 public interface WindDataset extends XYDataset {
 
