@@ -47,7 +47,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   //Deciaml format to show the Hypocenter Location Object in the StringParameter
   private DecimalFormat decimalFormat=new DecimalFormat("0.000##");
 
-  private final static String EQK_RUP_SELECTOR_TITLE = "EqkRupSelector Title";
+  private final static String EQK_RUP_SELECTOR_TITLE = "Eqk. Rup. Selector";
 
 
   // ERF Editor stuff

@@ -69,8 +69,8 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   ParameterList parameterList = new ParameterList();
 
   //Static String for setting the site Params
-  public final static String SET_ALL_SITES = "Set all sites with this Site-type";
-  public final static String SET_SITES_USING_CVM = "Set all sites with Site-type from CVM";
+  public final static String SET_ALL_SITES = "Apply site parameter to all locations";
+  public final static String SET_SITES_USING_CVM = "Set site parameters from SCEC CVM";
 
   /**
    * Longitude and Latitude paramerts to be added to the site params list

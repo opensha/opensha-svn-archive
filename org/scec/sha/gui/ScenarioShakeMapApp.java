@@ -172,7 +172,7 @@ public class ScenarioShakeMapApp extends JApplet implements
     prob_IMLPanel.setLayout(gridBagLayout2);
     addButton.setBackground(new Color(200, 200, 230));
     addButton.setForeground(new Color(80, 80, 133));
-    addButton.setText("Add Map");
+    addButton.setText("Make Map");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);
@@ -479,8 +479,8 @@ public class ScenarioShakeMapApp extends JApplet implements
       try {
         imr.setProbEqkRupture(erfGuiBean.getRupture());
       } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
         calcProgress.dispose();
+        JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
         this.repaint();
         this.validate();
         return;
