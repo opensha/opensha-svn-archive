@@ -67,10 +67,10 @@ public class HazardMapServerModeApplet extends JApplet implements
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
-  public final static String PEER_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultForecast";
+
   public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
-  public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_ListricFaultForecast";
+
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String FRANKEL_FORECAST_ADJUSTABLE_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
@@ -568,10 +568,10 @@ public class HazardMapServerModeApplet extends JApplet implements
   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
   erf_Classes.add(FRANKEL_FORECAST_ADJUSTABLE_CLASS_NAME);
   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-  erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
+
   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-  erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
+
   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
   try{
     erfGuiBean = new ERF_GuiBean(erf_Classes);
