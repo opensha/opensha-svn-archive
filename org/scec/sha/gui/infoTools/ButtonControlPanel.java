@@ -55,23 +55,23 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     }
   }
   void jbInit() throws Exception {
-    jCheckxlog.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jCheckxlog_actionPerformed(e);
-      }
-    });
     jCheckxlog.setText("X Log");
     jCheckxlog.setFont(new java.awt.Font("Dialog", 1, 11));
     this.setLayout(flowLayout1);
     this.setDoubleBuffered(false);
     this.setMinimumSize(new Dimension(0, 0));
     this.setPreferredSize(new Dimension(400, 36));
-    jCheckylog.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jCheckylog_actionPerformed(e);
+    jCheckxlog.addItemListener(new java.awt.event.ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        jCheckxlog_itemStateChanged(e);
       }
     });
     jCheckylog.setText("Y Log");
+    jCheckylog.addItemListener(new java.awt.event.ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        jCheckylog_itemStateChanged(e);
+      }
+    });
     jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
     setAxisButton.setText("Set Axis");
     setAxisButton.addActionListener(new java.awt.event.ActionListener() {
@@ -117,7 +117,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
    * Action method when yLog is selected or deselected
    * @param e : ActionEvent
    */
-  void jCheckylog_actionPerformed(ActionEvent e) {
+  void jCheckylog_itemStateChanged(ItemEvent e) {
     application.setY_Log(jCheckylog.isSelected());
   }
 
@@ -125,7 +125,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
    * Action method when xLog is selected or deselected
    * @param e : ActionEvent
    */
-  void jCheckxlog_actionPerformed(ActionEvent e) {
+  void jCheckxlog_itemStateChanged(ItemEvent e) {
     application.setX_Log(jCheckxlog.isSelected());
   }
 
