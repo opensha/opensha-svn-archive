@@ -30,7 +30,10 @@ import org.scec.param.*;
        // index 1 - end index for sites
        // index 2 - GriddedRegion file name (region.dat)
       // index 3 - ERF File Name (stepForecast.dat)
-      // index 4 - IMR File Name (shakemap_imr.dat) </p>
+      // index 4 - IMR File Name (shakemap_imr.dat)
+      // index 5 - X values File Name (xValues.dat)
+      // index 6 - Max Source Distance value
+ </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field, Nitin Gupta, Vipin Gupta
