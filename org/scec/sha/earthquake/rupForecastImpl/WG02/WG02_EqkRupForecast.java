@@ -205,7 +205,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
       locList.addLocation(new Location(38.23, -123.61, 0.0));
       locList.addLocation(new Location(39.02, -122.08, 0.0));
       EvenlyGriddedGeographicRegion gridReg = new EvenlyGriddedGeographicRegion(locList,0.1);
-System.out.println("num background locs = "+gridReg.getNumGridLocs());
+//System.out.println("num background locs = "+gridReg.getNumGridLocs());
 
       backSource = new GriddedRegionPoissonEqkSource(gridReg, back_GR_dist, timeSpan.getDuration(),
                                                      0.0, 90.0); // aveRake=0; aveDip=90
