@@ -30,11 +30,14 @@ public class PropagationEffectControlPanel extends JFrame {
    * @param api : Instance of the class using this control panel and implmenting
    * the PropagationEffectControlPanelAPI.
    */
-  public PropagationEffectControlPanel(PropagationEffectControlPanelAPI api) {
+  public PropagationEffectControlPanel(Component parentComponent,PropagationEffectControlPanelAPI api) {
     application = api;
     paramList = api.getCalcAdjustableParams();
     editor = new ParameterListEditor(paramList);
     try {
+      // show the window at center of the parent component
+      setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
+                     parentComponent.getY()+parentComponent.getHeight()/2);
       jbInit();
     }
     catch(Exception e) {
@@ -42,7 +45,7 @@ public class PropagationEffectControlPanel extends JFrame {
     }
   }
   private void jbInit() throws Exception {
-    this.setSize(300,300);
+    this.setSize(300,350);
     this.setTitle("Set Distance Parameters");
     this.getContentPane().setLayout(new GridBagLayout());
     this.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0

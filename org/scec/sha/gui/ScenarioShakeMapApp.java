@@ -787,7 +787,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    */
   private void initDistanceParamControl(){
     if(distanceControl == null)
-      distanceControl = new PropagationEffectControlPanel(this);
+      distanceControl = new PropagationEffectControlPanel(this,this);
 
     distanceControl.pack();
     distanceControl.show();
