@@ -63,7 +63,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   public final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
 
   //Site Params ArrayList
-  ArrayList siteParams = new ArrayList();
+  ArrayList siteParams ;
 
   //Static String for setting the site Params
   public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
@@ -337,6 +337,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
                                       maxLatitude,minLongitude,maxLongitude,
                                       ((Double)gridSpacing.getValue()).doubleValue());
   }
+
 
   /**
    *

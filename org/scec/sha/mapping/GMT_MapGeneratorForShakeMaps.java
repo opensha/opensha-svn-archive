@@ -202,8 +202,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     eqkRup = eqkRupture;
 
     GMT_PATH="/opt/install/gmt/bin/";
-    GS_PATH="/usr/bin/gs";
-    CONVERT_PATH="/usr/X11R6/bin/convert";
+    GS_PATH="/usr/local/bin/gs";
+    CONVERT_PATH="/usr/bin/convert";
 
     ArrayList gmtLines = new ArrayList();
 

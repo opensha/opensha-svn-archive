@@ -20,7 +20,7 @@ public final class BasinDepthClass {
 
 
   //ArrayList for computing the lat and lons for the given gridded region
-  ArrayList locations = new ArrayList();
+  ArrayList locations ;
   String basinDepthFile;
 
   /**
@@ -39,6 +39,8 @@ public final class BasinDepthClass {
     basinDepthFile = fileName;
   }
 
+
+
   /**
    * Prepare the input of the all the location in the gridded region and provide that input
    * to compute the Basin Depth values for each region.
@@ -52,6 +54,7 @@ public final class BasinDepthClass {
   private void prepareSitesInput(double minLon, double maxLon, double minLat,
                                       double maxLat, double gridSpacing) {
 
+    locations = new ArrayList();
     EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
 
     ListIterator it= region.getGridLocationsIterator();

@@ -57,8 +57,11 @@ public class EqkRupture implements java.io.Serializable {
         double aveRake,
 	GriddedSurfaceAPI ruptureSurface,
 	Location hypocenterLocation) throws InvalidRangeException{
-
-        FaultUtils.assertValidRake(aveRake);
+      this.mag = mag;
+      FaultUtils.assertValidRake(aveRake);
+      this.hypocenterLocation = hypocenterLocation;
+      this.aveRake = aveRake;
+      this.ruptureSurface = ruptureSurface;
     }
 
 

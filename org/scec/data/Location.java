@@ -113,6 +113,7 @@ public class Location implements java.io.Serializable {
      * @exception  InvalidRangeException  Thrown if latitude not in the appropiate range.
      */
     protected void validateLatitude( double lat, String S ) throws InvalidRangeException {
+
         if ( lat < -90 ) throw new InvalidRangeException( S + "Latitude cannot be less than -90" );
         else if ( lat > 90 ) throw new InvalidRangeException( S + "Latitude cannot be greater than 90" );
     }

@@ -39,6 +39,8 @@ public final class ConnectToCVM {
     return willsSiteClass.getWillsSiteClass();
   }
 
+
+
   /**
    * Gets the Basin Depth Values for each gridded site from the file on the local computer
    * @param lonMin
@@ -57,6 +59,10 @@ public final class ConnectToCVM {
     BasinDepthClass basinDepthClass = new  BasinDepthClass(minLon, maxLon, minLat, maxLat, gridSpacing,fileName);
     return basinDepthClass.getBasinDepth();
   }
+
+
+
+
 
 
 
