@@ -16,6 +16,7 @@ public class DataSuite extends TestCase
     suite.addTest(new TestSuite(DataPoint2DTests.class));
     suite.addTest(new TestSuite(LocationTests.class));
     suite.addTest(new TestSuite(DataPoint2DTreeMapTests.class));
+    suite.addTest(new TestSuite(TimeSpanTests.class));
     return suite;
   }
   
