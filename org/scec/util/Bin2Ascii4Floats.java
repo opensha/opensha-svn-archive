@@ -11,9 +11,9 @@ import java.io.*;
  * @version 1.0
  */
 
-public class Binary2Ascii {
+public class Bin2Ascii4Floats {
 
-  public Binary2Ascii() {
+  public Bin2Ascii4Floats() {
   }
   public static void main(String[] args) {
     Binary2Ascii binary2Ascii1 = new Binary2Ascii();
