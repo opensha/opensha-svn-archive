@@ -26,11 +26,12 @@ public class HazusIML_FileGenerator {
     // for each data set, read the meta data and sites info
 
     try{
-      FileWriter fw = new FileWriter(Hazus+"final.txt");
+      FileWriter fw = new FileWriter(Hazus+"final.dat");
       fw.write("#Column Info: Lat Lon IML values for the return period: 100, 250,"+
-               "500,750,1000,1500,2000,2500");
+               "500,750,1000,1500,2000,2500"+"\n\n");
       for(int i=0;i<dirList.length;++i){
         imlVector.removeAllElements();
+
         if(dirList[i].endsWith(".txt")){
           double returnPd = 100;
           prob = -1*(1- Math.exp((1/returnPd)*50));
@@ -74,7 +75,7 @@ public class HazusIML_FileGenerator {
           String lat = dirList[i].substring(0,dirList[i].indexOf("_"));
           String lon = dirList[i].substring(dirList[i].indexOf("_")+1,dirList[i].indexOf(".txt"));
           fw.write(lat+"  "+lon+"  ");
-          for(int j=0;j<imlVector.size()-1;++i)
+          for(int j=0;j<imlVector.size()-1;++j)
             fw.write(""+((Double)imlVector.get(j)).doubleValue()+",");
           fw.write(""+((Double)imlVector.get(imlVector.size()-1)).doubleValue()+"\n");
         }
@@ -93,24 +94,28 @@ public class HazusIML_FileGenerator {
     try{
       FileReader fr = new FileReader(Hazus+filename);
       BufferedReader br = new BufferedReader(fr);
-      String line = br.readLine();
-      StringTokenizer st = new StringTokenizer(line);
-      double prevIML = new Double(st.nextToken()).doubleValue();
-      double prevProb = new Double(st.nextToken()).doubleValue();
-      while(line!=null){
-        line= br.readLine();
-        st = new StringTokenizer(line);
+      String prevLine = br.readLine();
+      String currLine= br.readLine();
+      StringTokenizer st =null;
+      while(currLine!=null){
+        st = new StringTokenizer(prevLine);
+        double prevIML = new Double(st.nextToken()).doubleValue();
+        double prevProb = new Double(st.nextToken()).doubleValue();
+        st = new StringTokenizer(currLine);
         double currIML = new Double(st.nextToken()).doubleValue();
         double currProb = new Double(st.nextToken()).doubleValue();
-        if(prob <=currProb && prob >=prevProb){
+        //System.out.println("CurrProb: "+currProb+" PrevProb: "+prevProb+" prob: "+prob);
+        if(prob >=currProb && prob <=prevProb){
           double logCurrProb = Math.log(currProb);
           double logPrevProb = Math.log(prevProb);
           double logCurrIML = Math.log(currIML);
           double logPrevIML = Math.log(prevIML);
-          double iml = (((prob-logPrevProb)/(logCurrProb- logPrevProb)) *
-                        (logCurrIML - logPrevIML)) + logPrevIML;
+          double iml = (((prob-logCurrProb)/(logPrevProb- logCurrProb)) *
+                        (logPrevIML - logCurrIML)) + logCurrIML;
           return Math.exp(iml);
         }
+        prevLine = currLine;
+        currLine = br.readLine();
       }
     }catch(Exception e){
       System.out.println(filename+" file not found");
