@@ -466,7 +466,7 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
      * @return : return the name for this class
      */
    public String getName(){
-     return "Frankel96_EqkRupForecast";
+     return C;
    }
 
 }

@@ -10,7 +10,7 @@ import org.scec.data.DataPoint2D;
  * <p>Description: This is incremental Gutenberg-Richter distribution</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author Vipin Gupta   Date: Aug 8, 2002
+ * @author Nitin Gupta & Vipin Gupta   Date: Aug 8, 2002
  * @version 1.0
  */
 

@@ -805,7 +805,7 @@ public class IMRGuiBean
         yaxisConstraint.addString( Y_AXIS_V1 );
         yaxisConstraint.addString( Y_AXIS_V2 );
         yaxisConstraint.addString( Y_AXIS_V3 );
-         yaxisConstraint.addString( Y_AXIS_V4 );
+        yaxisConstraint.addString( Y_AXIS_V4 );
         StringParameter yaxis = new StringParameter( Y_AXIS_NAME, yaxisConstraint, Y_AXIS_V1 );
 
         // IM Choices picklist Parameter - Note these choices are now all DoubleParameters
@@ -1025,6 +1025,7 @@ public class IMRGuiBean
             independentsEditor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false );
 
         DependentParameterAPI imParam = null;
+
         // Add im parameters independent parameters to list if IML at Exceed Prob. is not selected
         if(!yAxisName.equals( Y_AXIS_V4 )) {
           imParam = ( DependentParameterAPI ) imr.getParameter( imName );
