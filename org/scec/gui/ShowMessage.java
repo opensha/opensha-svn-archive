@@ -47,19 +47,23 @@ public class ShowMessage extends JFrame {
     jMessagePanel.setMaximumSize(new Dimension(370, 145));
     jMessagePanel.setMinimumSize(new Dimension(370, 145));
     jMessagePanel.setPreferredSize(new Dimension(370, 145));
+    this.getContentPane().setBackground(new Color(200, 200, 230));
     this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     this.setResizable(false);
     jMessageLabel.setBackground(new Color(200, 200, 230));
     jMessageLabel.setFont(new java.awt.Font("Dialog", 1, 13));
     jMessageLabel.setForeground(new Color(80, 80, 133));
+    jMessageLabel.setMaximumSize(new Dimension(350, 40));
+    jMessageLabel.setMinimumSize(new Dimension(350, 40));
+    jMessageLabel.setPreferredSize(new Dimension(350, 40));
     jMessageLabel.setHorizontalAlignment(SwingConstants.LEFT);
     jMessageLabel.setHorizontalTextPosition(SwingConstants.CENTER);
     this.getContentPane().add(jMessagePanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 80, 18));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 11, 12), 0, 0));
+    jMessagePanel.add(jMessageLabel,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(16, 21, 0, 10), 0, 0));
     jMessagePanel.add(jMessageButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(40, 166, 29, 198), 33, 13));
-    jMessagePanel.add(jMessageLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(13, 12, 0, 13), 425, 41));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 143, 12, 140), 38, 5));
     this.jMessageLabel.setText(this.infoMessage);
   }
 
