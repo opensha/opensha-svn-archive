@@ -80,6 +80,24 @@ public final class GlobalConstants {
         "description are not a substitute for technical knowledge of seismic design " +
         "and/or analysis.";
 
+    public static final String SITE_DISCUSSION =
+        "There are two sets of site coefficients in use, \n" +
+        "depending on the analysis option selected, differing only \n" +
+        "for Site Class E when Ss or S1 equals or exceeds 1.25 or 0.50 \n" +
+        "respectively.  The most recent set of site coefficients\n " +
+        "has values of Fa = 0.9 and Fv = 2.4 for Site Class E for\n " +
+        "these conditions.  The older tables \n" +
+        "of site coefficients referred the user to footnote a.\n " +
+        "The new tables were introduced in the 2000\n " +
+        "Edition of the NEHRP Recommended Provisions for Seismic Regulations\n " +
+        "for New Buildings and other Structures. Recent editions of other design\n " +
+        "documents have adopted the new tables.\n\n" +
+        "This program automatically selects the appropriate site \n" +
+        "coefficient tables depending on the analysis option selected. The user may\n" +
+        "see the difference by comparing the tables for the 1997 and 2000 editions\n " +
+        "of the NEHRP Provisions.";
+
+
     public static final int DIVIDING_FACTOR_HUNDRED = 100;
 
 
