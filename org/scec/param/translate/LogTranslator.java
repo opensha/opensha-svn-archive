@@ -7,9 +7,8 @@ import org.scec.exceptions.TranslateException;
  * <p>Description: Translates values into the log space and back.
  * Throws translate errors when trying to take the log of negative
  * or zero values. </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
 
