@@ -96,6 +96,7 @@ public class HazardCurveApplet extends JApplet
   private final static String EPISTEMIC_CONTROL = "ERF Epistemic Control";
   private final static String AXIS_CONTROL = "Axis Control";
   private final static String DISTANCE_CONTROL = "Source-Site Distance Control";
+  private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
 
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
@@ -103,6 +104,7 @@ public class HazardCurveApplet extends JApplet
   private AxisLimitsControlPanel axisControlPanel;
   private ERF_EpistemicListControlPanel epistemicControlPanel;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
+  private SitesOfInterestControlPanel sitesOfInterest;
   // message string to be dispalayed if user chooses Axis Scale
    // without first clicking on "Add Graph"
   private final static String AXIS_RANGE_NOT_ALLOWED =
@@ -1193,6 +1195,7 @@ public class HazardCurveApplet extends JApplet
     this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
     this.controlComboBox.addItem(AXIS_CONTROL);
     this.controlComboBox.addItem(DISTANCE_CONTROL);
+    this.controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
   }
 
   /**
@@ -1204,14 +1207,20 @@ public class HazardCurveApplet extends JApplet
     String selectedControl = controlComboBox.getSelectedItem().toString();
     if(selectedControl.equalsIgnoreCase(this.PEER_TEST_CONTROL))
       initPEER_TestControl();
-    if(selectedControl.equalsIgnoreCase(this.DISAGGREGATION_CONTROL))
+    else if(selectedControl.equalsIgnoreCase(this.DISAGGREGATION_CONTROL))
       initDisaggregationControl();
-    if(selectedControl.equalsIgnoreCase(this.EPISTEMIC_CONTROL))
+    else if(selectedControl.equalsIgnoreCase(this.EPISTEMIC_CONTROL))
       initEpistemicControl();
-    if(selectedControl.equalsIgnoreCase(this.AXIS_CONTROL))
+    else if(selectedControl.equalsIgnoreCase(this.AXIS_CONTROL))
       initAxisControl();
-    if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
+    else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
       initDistanceControl();
+    else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
+      initDistanceControl();
+    else if(selectedControl.equalsIgnoreCase(this.SITES_OF_INTEREST_CONTROL))
+      initSitesOfInterestControl();
+
+
    controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -1268,6 +1277,17 @@ public class HazardCurveApplet extends JApplet
       distanceControlPanel = new SetMinSourceSiteDistanceControlPanel(this);
     distanceControlPanel.pack();
     distanceControlPanel.show();
+  }
+
+  /**
+   * Initialize the Interesting sites control panel
+   * It will provide a pick list of interesting sites
+   */
+  private void initSitesOfInterestControl() {
+    if(this.sitesOfInterest==null)
+      sitesOfInterest = new SitesOfInterestControlPanel(this, this.siteGuiBean);
+    sitesOfInterest.pack();
+    sitesOfInterest.show();
   }
 
   /**
