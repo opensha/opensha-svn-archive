@@ -30,8 +30,8 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
 
   // declare the slip rates
   private double SLIP_RATE_1 = 0.1;
-  private double SLIP_RATE_2 = 0.2;
-  private double SLIP_RATE_3 = 0.5;
+  private double SLIP_RATE_2 = 2;
+  private double SLIP_RATE_3 = 5;
 
   //declare the mag Upper
   private double MAG_1 = 7.15;

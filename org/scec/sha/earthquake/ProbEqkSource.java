@@ -29,8 +29,21 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
   protected ProbEqkRupture probEqkRupture;
 
 
+  /**
+   * This boolean tells whether the source is Poissonian, which will influence the
+   * calculation sequence in the HazardCurveCalculator.  Note that the default value
+   * is true, so non-Poissonian sources will need to overide this value.
+   */
+  protected boolean isThisPoissonian=true;
 
 
+  /**
+   * This method tells whether the source is Poissonian, which will influence the
+   * calculation sequence in the HazardCurveCalculator
+   */
+  public boolean isSourcePoissonian() {
+    return isThisPoissonian;
+  }
 
   /**
    * Get the iterator over all ruptures

@@ -77,8 +77,7 @@ public class HazardCurveCalculator {
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
-    // this will allow the calcs to be done differently if it's a poisson source
-    // this is hard coded here, but could rather be an attribute of a ProbEqkSource id desired
+    // this determines how the calucations are done
     boolean poissonSource = false;
 
     ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
@@ -149,6 +148,9 @@ public class HazardCurveCalculator {
       // indicate that a source has been used
       sourceUsed = true;
 
+      // determine whether it's poissonian
+      poissonSource = source.isSourcePoissonian();
+
       // initialize the source hazard function to 0.0 if it's a non-poisson source
       if(!poissonSource)
         initDiscretizeValues(sourceHazFunc, 0.0);
@@ -177,14 +179,16 @@ public class HazardCurveCalculator {
         condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
 
 
-
-        if(poissonSource)  // For poisson source
+        // For poisson source
+        if(poissonSource)
           for(k=0;k<numPoints;k++)
             hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
-        else // For non-Poissin source
+        // For non-Poissin source
+        else
           for(k=0;k<numPoints;k++)
             sourceHazFunc.set(k,sourceHazFunc.getY(k) + qkProb*condProbFunc.getY(k));
       }
+      // for non-poisson source:
       if(!poissonSource)
         for(k=0;k<numPoints;k++)
           hazFunction.set(k,hazFunction.getY(k)*(1-sourceHazFunc.getY(k)));
