@@ -76,6 +76,12 @@ public interface EqkRupForecastAPI extends NamedObjectAPI{
       */
      public GeographicRegion getApplicableRegion() ;
 
+     /**
+      * Gets the Adjustable parameter list for the ERF
+      * @return
+      */
+     public ParameterList getAdjustableParameterList();
+
 }
 
 

@@ -193,7 +193,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
       // set this new value of param in all the EqkRupForecast in the list
       int num = this.getNumERFs();
       for(int i=0; i<num; ++i) {
-        EqkRupForecast eqkRupForecast = this.getERF(i);
+        EqkRupForecast eqkRupForecast = (EqkRupForecast)this.getERF(i);
         // see the new parameter values in all the forecasts in the list
         eqkRupForecast.getParameter(GRID_PARAM_NAME).setValue(gridParam.getValue());
         eqkRupForecast.getParameter(OFFSET_PARAM_NAME).setValue(offsetParam.getValue());

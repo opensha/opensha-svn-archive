@@ -203,7 +203,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI, ERF_API,
 
    /**
     *
-    * @returns the adjustable ParameterList
+    * @returns the adjustable ParameterList for the ERF
     */
    public ParameterList getAdjustableParameterList(){
      return this.adjustableParams;

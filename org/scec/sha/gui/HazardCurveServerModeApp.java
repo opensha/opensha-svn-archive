@@ -39,7 +39,7 @@ import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.sha.calc.FractileCurveCalculator;
 import org.scec.data.Site;
 import org.scec.sha.earthquake.ERF_API;
-import org.scec.sha.gui.servlets.erf.ERF_ListAPI;
+import org.scec.sha.earthquake.ERF_ListAPI;
 import org.scec.sha.earthquake.ForecastAPI;
 
 /**
@@ -999,6 +999,7 @@ public class HazardCurveServerModeApp extends JApplet
     // if this is forecast list , handle it differently
     //boolean isEqkForecastList = false;
     if(eqkRupForecast instanceof ERF_ListAPI)  {
+      //System.out.println("It is an instance for the ERF_ListAPI");
       handleForecastList(site, imr, (ERF_ListAPI)eqkRupForecast);
       return;
     }

@@ -15,11 +15,11 @@ import org.scec.data.region.GeographicRegion;
  * <p>Description: This class holds the list of Eqk Rup Forecast </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author : Edward (Ned) Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
-public abstract class ERF_List implements EqkRupForecastAPI,
+public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
     TimeSpanChangeListener {
 
   // vector to hold the instances of Eqk Rup Forecasts
@@ -59,8 +59,8 @@ public abstract class ERF_List implements EqkRupForecastAPI,
    * @param index : index of Eqk rup forecast to return
    * @return
    */
-  public EqkRupForecast getERF(int index) {
-    return (EqkRupForecast)erf_List.get(index);
+  public ERF_API getERF(int index) {
+    return (ERF_API)erf_List.get(index);
   }
 
   /**
@@ -90,9 +90,6 @@ public abstract class ERF_List implements EqkRupForecastAPI,
   }
 
 
-
-
-
   /**
    * get the name of this class
    * @return
@@ -117,7 +114,7 @@ public abstract class ERF_List implements EqkRupForecastAPI,
     if(this.parameterChangeFlag) {
       int num = erf_List.size();
       for(int i=0; i< num; ++i)
-        this.getERF(i).updateForecast();
+        ((EqkRupForecast)this.getERF(i)).updateForecast();
     }
     this.parameterChangeFlag = false;
   }
@@ -140,6 +137,16 @@ public abstract class ERF_List implements EqkRupForecastAPI,
       ((EqkRupForecast)erf_List.get(i)).setTimeSpan(time);
  }
 
+
+ /**
+  *
+  * @returns the adjustable ParameterList for the ERF
+  */
+ public ParameterList getAdjustableParameterList(){
+   return this.adjustableParams;
+ }
+
+
  /**
   * get the timespan
   *
@@ -157,6 +164,15 @@ public abstract class ERF_List implements EqkRupForecastAPI,
   */
  public void parameterChange( EventObject event ) {
    this.parameterChangeFlag = true;
+ }
+
+
+ /**
+  * sets the value for the parameter change flag
+  * @param flag
+  */
+ public void setParameterChangeFlag(boolean flag){
+   this.parameterChangeFlag = flag;
  }
 
 }
