@@ -425,23 +425,15 @@ public class AttenuationRelationshipApplet extends JApplet
         this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
         this.setSize(new Dimension(900, 690) );
         this.getContentPane().setLayout( GBL);
-
-        //outerPanel.setBackground( background );
         outerPanel.setLayout( GBL );
-
         mainPanel.setBorder(border1 );
-        // mainPanel.setBorder(BorderFactory.createLineBorder( darkBlue ) );
         mainPanel.setLayout( GBL );
-
-        //titlePanel.setBackground( background );
         titlePanel.setBorder( bottomBorder );
         titlePanel.setMinimumSize(new Dimension(40, 40));
         titlePanel.setPreferredSize(new Dimension(40, 40));
         titlePanel.setLayout( GBL);
         //creating the Object the GraphPaenl class
         graphPanel = new GraphPanel(this);
-
-
 
         imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
           public void mouseClicked(MouseEvent e) {
@@ -452,10 +444,9 @@ public class AttenuationRelationshipApplet extends JApplet
         innerPlotPanel.setLayout(GBL);
         innerPlotPanel.setBorder( null );
         controlPanel.setLayout(GBL);
-        //controlPanel.setBackground( background );
         controlPanel.setBorder(BorderFactory.createEtchedBorder(1));
         outerControlPanel.setLayout(GBL);
-        //outerControlPanel.setBackground( background );
+
 
         clearButton.setText( "Clear Plot" );
 
@@ -475,23 +466,10 @@ public class AttenuationRelationshipApplet extends JApplet
           }
         });
 
-
-
-
-        //toggleButton.setVisible(false);
         buttonPanel.setBorder( topBorder );
         buttonPanel.setLayout(flowLayout1 );
 
-        //parametersPanel.setBackground( background );
-        //parametersPanel.setBorder(BorderFactory.createEtchedBorder());
 
-        //inputPanel.setBorder(oval);
-        //inputPanel.setBackground( background );
-
-        //sheetPanel.setBorder(BorderFactory.createEtchedBorder());
-        //sheetPanel.setBackground( background );
-
-        //parametersSplitPane.setBorder(oval);
         parametersSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
         parametersSplitPane.setBorder( null );
         parametersSplitPane.setDividerSize( 5 );
@@ -506,20 +484,16 @@ public class AttenuationRelationshipApplet extends JApplet
 
         dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
 
-        //titleLabel.setForeground( darkBlue );
-
         attenRelLabel.setForeground( darkBlue );
         attenRelLabel.setFont(new java.awt.Font( "Dialog", Font.BOLD, 13 ));
         attenRelLabel.setText( "Choose Model:    " );
 
-        //attenRelComboBox.setBackground(Color.white );
-        //attenRelComboBox.setForeground( darkBlue );
+
         attenRelComboBox.setFont( new java.awt.Font( "Dialog", Font.BOLD, 16 ) );
-        //attenRelComboBox.setBorder( null );
-        //attenRelComboBox.setPreferredSize( COMBO_DIM );
+
 
         attenRelComboBox.addItemListener( this );
-        //attenRelComboBox.setMinimumSize( COMBO_DIM );
+
 
         plotColorCheckBox.setText("Black Background");
 
@@ -594,15 +568,12 @@ public class AttenuationRelationshipApplet extends JApplet
 
         parametersSplitPane.setBottomComponent( sheetPanel );
         parametersSplitPane.setTopComponent( inputPanel );
-        // parametersSplitPane.setDividerLocation( 360 );
         parametersSplitPane.setDividerLocation(220 );
 
         parametersSplitPane.setOneTouchExpandable( false );
 
         mainSplitPane.setBottomComponent( outerControlPanel );
         mainSplitPane.setTopComponent(plotPanel );
-
-        //mainSplitPane.setDividerLocation( 430 );
         mainSplitPane.setDividerLocation(600 );
         mainSplitPane.setOneTouchExpandable( false );
 
