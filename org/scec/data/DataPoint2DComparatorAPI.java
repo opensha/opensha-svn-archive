@@ -25,7 +25,7 @@ public interface DataPoint2DComparatorAPI extends Comparator {
      * @param  newTolerance               The new tolerance value
      * @exception  InvalidRangeException  Is Thrown if the tolarance is negative
      */
-    public void setTolerance( Double newTolerance ) throws InvalidRangeException;
+    public void setTolerance( double newTolerance ) throws InvalidRangeException;
 
 
     /**
@@ -34,6 +34,6 @@ public interface DataPoint2DComparatorAPI extends Comparator {
      *
      * @return    The tolerance value
      */
-    public Double getTolerance();
+    public double getTolerance();
 
 }

@@ -45,7 +45,7 @@ public abstract class IntensityMeasureRelationship
     protected ParameterList siteParams = new ParameterList();
 
     /** ParameterList of all ProbEqkRupture parameters */
-    protected ParameterList potentialEarthquakeParams = new ParameterList();
+    protected ParameterList probEqkRuptureParams = new ParameterList();
 
     /** ParameterList of all propagation effect parameters */
     protected ParameterList propagationEffectParams = new ParameterList();
@@ -59,7 +59,7 @@ public abstract class IntensityMeasureRelationship
     /** The current ProbEqkRupture object (passing one in will set potential-
      *  earthquake related parameters.
      */
-    protected ProbEqkRupture potentialEarthquake;
+    protected ProbEqkRupture probEqkRupture;
 
     /**
      *  Intensity Measure.  This is a specification of the type of shaking one
@@ -105,21 +105,21 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Returns a reference to the current potentialEarthquake object in the IMR
+     *  Returns a reference to the current probEqkRupture object in the IMR
      *
-     * @return    The potentialEarthquake object
+     * @return    The probEqkRupture object
      */
-    public ProbEqkRupture getProbEqkRupture() { return potentialEarthquake; }
+    public ProbEqkRupture getProbEqkRupture() { return probEqkRupture; }
 
     /**
-     *  Sets the potentialEarthquake object in the IMR as a reference
+     *  Sets the probEqkRupture object in the IMR as a reference
      *  to the one passed in, and sets any potential-earthquake related
      *  parameters that the IMR depends upon.
      *
-     * @param  potentialEarthquake  The new potentialEarthquake object
+     * @param  probEqkRupture  The new probEqkRupture object
      */
-    public void setProbEqkRupture( ProbEqkRupture potentialEarthquake ) {
-        this.potentialEarthquake = potentialEarthquake;
+    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) {
+        this.probEqkRupture = probEqkRupture;
     }
 
 
@@ -202,20 +202,20 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Sets the potentialEarthquake, site and intensityMeasure objects
+     *  Sets the probEqkRupture, site and intensityMeasure objects
      *  simultaneously.
      *
-     * @param  potentialEarthquake    The new PE value
+     * @param  probEqkRupture    The new PE value
      * @param  site                   The new Site value
      * @param  intensityMeasure       The new IM value
      */
     public void setAll(
-            ProbEqkRupture potentialEarthquake,
+            ProbEqkRupture probEqkRupture,
             Site site,
             ParameterAPI intensityMeasure
              ) {
         setSite(site);
-        setProbEqkRupture( potentialEarthquake );
+        setProbEqkRupture( probEqkRupture );
         setIntensityMeasure( intensityMeasure );
     }
 
@@ -236,7 +236,7 @@ public abstract class IntensityMeasureRelationship
         try{ return siteParams.getParameter(name); }
         catch(ParameterException e){}
 
-        try{ return potentialEarthquakeParams.getParameter(name); }
+        try{ return probEqkRuptureParams.getParameter(name); }
         catch(ParameterException e){}
 
         try{ return propagationEffectParams.getParameter(name); }
@@ -278,7 +278,7 @@ public abstract class IntensityMeasureRelationship
      * @return    The Potential Earthquake Parameters Iterator
      */
     public ListIterator getProbEqkRuptureParamsIterator() {
-        return potentialEarthquakeParams.getParametersIterator();
+        return probEqkRuptureParams.getParametersIterator();
     }
 
 

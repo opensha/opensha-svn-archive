@@ -25,7 +25,7 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI 
      *  it is ignored, and defaults to no tolerance. If the tolerance is less
      *  than zero and InvalidRangeException is thrown
      */
-    protected Double tolerance = new Double( 0.0 );
+    protected double tolerance = 0.0 ;
 
 
     /**
@@ -45,9 +45,9 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI 
      *      and still considered equal
      * @exception  InvalidRangeException  Thrown if tolerance is negative
      */
-    public DataPoint2DToleranceComparator( Double tolerance ) throws InvalidRangeException {
+    public DataPoint2DToleranceComparator( double tolerance ) throws InvalidRangeException {
 
-        if ( tolerance.doubleValue() < 0 ) {
+        if ( tolerance < 0 ) {
             throw new InvalidRangeException( "Tolerance must be larger or equal to 0" );
         }
 
@@ -62,8 +62,8 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI 
      * @param  newTolerance               The new tolerance value
      * @exception  InvalidRangeException  Thrown if tolerance is negative
      */
-    public void setTolerance( Double newTolerance ) throws InvalidRangeException {
-        if ( tolerance.doubleValue() < 0 ) {
+    public void setTolerance( double newTolerance ) throws InvalidRangeException {
+        if ( tolerance < 0 ) {
             throw new InvalidRangeException( "Tolerance must be larger or equal to 0" );
         }
 
@@ -77,7 +77,7 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI 
      *
      * @return    The tolerance value
      */
-    public Double getTolerance() {
+    public double getTolerance() {
         return tolerance;
     }
 
@@ -110,10 +110,10 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI 
             throw new ClassCastException( "The second object is not an DataPoint2D, unable to compare" );
         }
 
-        double x1 = ( ( DataPoint2D ) o1 ).getX().doubleValue();
-        double x2 = ( ( DataPoint2D ) o2 ).getX().doubleValue();
+        double x1 = ( ( DataPoint2D ) o1 ).getX();
+        double x2 = ( ( DataPoint2D ) o2 ).getX();
 
-        if ( Math.abs( x1 - x2 ) <= tolerance.doubleValue() ) {
+        if ( Math.abs( x1 - x2 ) <= tolerance) {
             return 0;
         } else if ( x1 > x2 ) {
             return 1;

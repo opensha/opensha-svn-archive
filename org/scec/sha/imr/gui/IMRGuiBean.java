@@ -508,7 +508,7 @@ public class IMRGuiBean
                 // has been changed. Recall the coefficients are stored in a hash table "IM Name/Period" as the key
                 imr.setIntensityMeasure( imr.getParameter( getGraphControlsParamValue( IM ) ) );
 
-                DataPoint2D point = new DataPoint2D( val, getCalculation( type ) );
+                DataPoint2D point = new DataPoint2D( val.doubleValue(), getCalculation( type ));
                 function.set( point );
 
             }
@@ -562,7 +562,7 @@ public class IMRGuiBean
             newVal = bdB.doubleValue();
 
             independentParam.setValue( new Double( newVal ) );
-            DataPoint2D point = new DataPoint2D( new Double( newVal ), getCalculation( type ) );
+            DataPoint2D point = new DataPoint2D( newVal , getCalculation( type ) );
             function.set( point );
             val += minmaxdelta.delta;
         }
@@ -584,7 +584,7 @@ public class IMRGuiBean
      *      probability
      * @return       The imr calculation
      */
-    private Double getCalculation( int type ) {
+    private double getCalculation( int type ) {
         Double result = new Double( 0 );
         switch ( type ) {
             case MEAN:
@@ -597,7 +597,7 @@ public class IMRGuiBean
                 result = imr.getStdDev();
                 break;
         }
-        return result;
+        return result.doubleValue();
     }
 
 

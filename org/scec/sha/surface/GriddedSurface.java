@@ -37,17 +37,17 @@ public class GriddedSurface
     /**
      *  Description of the Field
      */
-    protected Double aveStrike;
+    protected double aveStrike=Double.NaN;
 
     /**
      *  Description of the Field
      */
-    protected Double aveDip;
+    protected double aveDip=Double.NaN;
 
     /**
      *  KM**2
      */
-    protected Double surfaceArea;
+    protected double surfaceArea=Double.NaN;
 
 
     /**
@@ -108,19 +108,11 @@ public class GriddedSurface
      */
     public void setAveStrike( double aveStrike ) throws InvalidRangeException{
         FaultUtils.assertValidStrike( aveStrike );
-        this.aveStrike = new Double( aveStrike );
+        this.aveStrike =  aveStrike ;
     }
 
 
-    /**
-     *  Sets the aveStrike attribute of the GriddedSurface object
-     *
-     * @param  aveStrike  The new aveStrike value
-     */
-    public void setAveStrike( Double aveStrike ) throws InvalidRangeException{
-        FaultUtils.assertValidStrike( aveStrike.doubleValue() );
-        this.aveStrike = aveStrike;
-    }
+
 
 
     /**
@@ -130,19 +122,10 @@ public class GriddedSurface
      */
     public void setAveDip( double aveDip ) throws InvalidRangeException{
         FaultUtils.assertValidDip( aveDip );
-        this.aveDip = new Double( aveDip );
+        this.aveDip = aveDip ;
     }
 
 
-    /**
-     *  Sets the aveDip attribute of the GriddedSurface object
-     *
-     * @param  aveDip  The new aveDip value
-     */
-    public void setAveDip( Double aveDip ) throws InvalidRangeException{
-        FaultUtils.assertValidDip( aveDip.doubleValue() );
-        this.aveDip = aveDip;
-    }
 
 
     /**
@@ -169,7 +152,7 @@ public class GriddedSurface
      *
      * @return    The aveStrike value
      */
-    public Double getAveStrike() {
+    public double getAveStrike() {
         return aveStrike;
     }
 
@@ -179,7 +162,7 @@ public class GriddedSurface
      *
      * @return    The aveDip value
      */
-    public Double getAveDip() {
+    public double getAveDip() {
         return aveDip;
     }
 
@@ -189,7 +172,7 @@ public class GriddedSurface
      *
      * @return    The surfaceArea value
      */
-    public Double getSurfaceArea() {
+    public double getSurfaceArea() {
         return surfaceArea;
     }
 
@@ -239,9 +222,9 @@ public class GriddedSurface
 
         StringBuffer b = new StringBuffer();
         b.append( C + '\n');
-        if ( aveStrike != null ) b.append( "Ave. Strike = " + aveStrike + '\n' );
-        if ( aveDip != null ) b.append( "Ave. Dip = " + aveDip + '\n' );
-        if ( surfaceArea != null ) b.append( "Surface Area = " + surfaceArea + '\n' );
+        if ( aveStrike != Double.NaN ) b.append( "Ave. Strike = " + aveStrike + '\n' );
+        if ( aveDip != Double.NaN ) b.append( "Ave. Dip = " + aveDip + '\n' );
+        if ( surfaceArea != Double.NaN ) b.append( "Surface Area = " + surfaceArea + '\n' );
 
         b.append( "Row" + TAB + "Col" + TAB + "Latitude" + TAB + "Longitude" + TAB + "Depth");
 

@@ -33,16 +33,16 @@ public class Location {
     /**
      *  Location depth
      */
-    protected double depth;
+    protected double depth=Double.NaN;
     /**
      *  Location Latitude
      */
-    protected double latitude;
+    protected double latitude=Double.NaN;
 
     /**
      *  Location longitude
      */
-    protected double longitude;
+    protected double longitude=Double.NaN;
 
 
     /**
@@ -86,6 +86,9 @@ public class Location {
     }
 
 
+
+
+
     /**
      *  Sets the depth of the Location
      *
@@ -93,32 +96,12 @@ public class Location {
      */
     public void setDepth( double depth ) {
         String S = C + ": setDepth(): ";
-        //validateDepth( depth, S );
+        //validateDepth( depth.doubleValue(), S );
         this.depth = depth;
     }
 
 
-    /**
-     *  Sets the depth of the Location
-     *
-     * @param  depth  The new depth value
-     */
-    public void setDepth( Double depth ) {
-        String S = C + ": setDepth(): ";
-        //validateDepth( depth.doubleValue(), S );
-        this.depth = depth.doubleValue();
-    }
 
-
-    /**
-     *  Sets the latitude attribute of the Location object
-     *
-     * @param  latitude                   The new latitude value
-     * @exception  InvalidRangeException  Description of the Exception
-     */
-    public void setLatitude( Double latitude ) throws InvalidRangeException {
-        setLatitude( latitude.doubleValue() );
-    }
 
 
     /**
@@ -131,17 +114,6 @@ public class Location {
         String S = C + ": setLatitude(): ";
         validateLatitude( latitude, S );
         this.latitude = latitude;
-    }
-
-
-    /**
-     *  Sets the longitude attribute of the Location object
-     *
-     * @param  longitude                  The new longitude value
-     * @exception  InvalidRangeException  Description of the Exception
-     */
-    public void setLongitude( Double longitude ) throws InvalidRangeException {
-        setLongitude( longitude.doubleValue() );
     }
 
 

@@ -25,15 +25,9 @@ public interface GriddedSurfaceAPI extends Container2DAPI {
      *
      * @return    The aveDip value
      */
-    public Double getAveDip();
+    public double getAveDip();
 
 
-    /**
-     *  Sets the aveDip attribute of the GriddedSurfaceAPI object
-     *
-     * @param  aveDip  The new aveDip value
-     */
-    public void setAveDip( Double aveDip ) throws InvalidRangeException;
 
 
     /**
@@ -49,15 +43,9 @@ public interface GriddedSurfaceAPI extends Container2DAPI {
      *
      * @return    The aveStrike value
      */
-    public Double getAveStrike();
+    public double getAveStrike();
 
 
-    /**
-     *  Sets the aveStrike attribute of the GriddedSurfaceAPI object
-     *
-     * @param  aveStrike  The new aveStrike value
-     */
-    public void setAveStrike( Double aveStrike ) throws InvalidRangeException;
 
 
     /**

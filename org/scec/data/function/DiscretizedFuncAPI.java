@@ -27,8 +27,8 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     public void setInfo( String info );
     public String getInfo();
 
-    public void setTolerance(Double newTolerance);
-    public Double getTolerance();
+    public void setTolerance(double newTolerance);
+    public double getTolerance();
 
 
 
@@ -37,10 +37,10 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /* ******************************/
 
     public int getNum();
-    public Double getMinX();
-    public Double getMaxX();
-    public Double getMinY();
-    public Double getMaxY();
+    public double getMinX();
+    public double getMaxX();
+    public double getMinY();
+    public double getMaxY();
 
 
 
@@ -51,14 +51,14 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /** Returns the nth point in the Function */
     public DataPoint2D get(int index);
     /** returns the Y value given an index */
-    public Double getX(int index);
+    public double getX(int index);
     /** returns the Y value given an index */
-    public Double getY(int index);
+    public double getY(int index);
     /** returns the Y value given an x value - within tolerance */
-    public Double getY(Double x);
+    public double getY(double x);
 
-    public Double getInterpolatedX(Double y);
-    public Double getInterpolatedY(Double x);
+    public double getInterpolatedX(double y);
+    public double getInterpolatedY(double x);
 
 
 
@@ -66,8 +66,8 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /* Index Getters From Points */
     /* ***************************/
 
-    public int getXIndex(Double x);
-    public int getYIndex(Double y);
+    public int getXIndex(double x);
+    public int getYIndex(double y);
     public int getIndex(DataPoint2D point);
 
 
@@ -79,8 +79,8 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /** Either adds a new DataPoint, or replaces an existing one, within tolerance */
     public void set(DataPoint2D point) throws DataPoint2DException;
     /** Either adds a new DataPoint, or replaces an existing one, within tolerance */
-    public void set(Double x, Double y) throws DataPoint2DException;
-    public void set(int index, Double Y);
+    public void set(double x, double y) throws DataPoint2DException;
+    public void set(int index, double Y);
 
 
 
@@ -89,7 +89,7 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /* **********/
 
     public boolean hasPoint(DataPoint2D point);
-    public boolean hasPoint(Double x, Double y);
+    public boolean hasPoint(double x, double y);
 
 
 

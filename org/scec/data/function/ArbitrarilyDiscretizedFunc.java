@@ -63,7 +63,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
     }
 
     /** Easiest one to use, uses the default DataPoint2DToleranceComparator comparator. */
-    public ArbitrarilyDiscretizedFunc(Double toleranace) {
+    public ArbitrarilyDiscretizedFunc(double toleranace) {
         DataPoint2DToleranceComparator comparator = new DataPoint2DToleranceComparator();
         comparator.setTolerance(tolerance);
         points = new DataPoint2DTreeMap(comparator);
@@ -73,9 +73,9 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
 
 
 
-    public void setTolerance(Double newTolerance) throws InvalidRangeException {
+    public void setTolerance(double newTolerance) throws InvalidRangeException {
 
-        if( newTolerance.doubleValue() < 0 )
+        if( newTolerance < 0 )
             throw new InvalidRangeException("Tolerance must be larger or equal to 0");
         tolerance = newTolerance;
         points.setTolerance(newTolerance);
@@ -83,41 +83,41 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
 
     public int getNum(){ return points.size(); }
 
-    public Double getMinX(){ return ((DataPoint2D)points.firstKey()).getX(); }
-    public Double getMaxX(){ return ((DataPoint2D)points.lastKey()).getX(); }
+    public double getMinX(){ return ((DataPoint2D)points.firstKey()).getX(); }
+    public double getMaxX(){ return ((DataPoint2D)points.lastKey()).getX(); }
 
-    public Double getMinY(){ return points.getMinY(); }
-    public Double getMaxY(){ return points.getMaxY(); }
+    public double getMinY(){ return points.getMinY(); }
+    public double getMaxY(){ return points.getMaxY(); }
 
 
     public DataPoint2D get(int index){ return points.get(index); }
 
 
     /** Returns the x value of a point given the index */
-    public Double getX(int index){ return get(index).getX(); }
+    public double getX(int index){ return get(index).getX(); }
 
     /** Returns the y value of a point given the index */
-    public Double getY(int index){ return get(index).getY(); }
+    public double getY(int index){ return get(index).getY(); }
 
     /** returns the Y value given an x value - within tolerance, returns null if not found */
-    public Double getY(Double x){ return points.get( x ).getY(); }
+    public double getY(double x){ return points.get( x ).getY(); }
 
 
     /** returns the Y value given an x value - within tolerance, returns null if not found */
     public int getIndex(DataPoint2D point){ return points.getIndex( point ); }
 
     /** Returns the x value of a point given the index */
-    public int getXIndex(Double x){ return points.getIndex( new DataPoint2D(x, new Double(0.0) ) ); }
+    public int getXIndex(double x){ return points.getIndex( new DataPoint2D(x, 0.0 ) ); }
 
     /** Returns the y value of a point given the index */
-    public int getYIndex(Double y){
+    public int getYIndex(double y){
         throw new UnsupportedOperationException(C + ": Not implemented yet,l needs a Y comparator similar to the X value comparator.");
     }
 
 
     public void set(DataPoint2D point) throws DataPoint2DException{ points.put(point); }
-    public void set(Double x, Double y) throws DataPoint2DException{ set(new DataPoint2D(x,y)); }
-    public void set(int index, Double y) throws DataPoint2DException{
+    public void set(double x, double y) throws DataPoint2DException{ set(new DataPoint2D(x,y)); }
+    public void set(int index, double y) throws DataPoint2DException{
         DataPoint2D point = get(index);
         point.setY(y);
         set(point);
@@ -130,7 +130,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
         else return true;
     }
 
-    public boolean hasPoint(Double x, Double y){
+    public boolean hasPoint(double x, double y){
         return hasPoint( new DataPoint2D(x, y) );
     }
 
@@ -148,7 +148,7 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
         ArrayList list = new ArrayList();
         int max = points.size();
         for( int i = 0; i < max; i++){
-            list.add( this.getX(i) );
+            list.add( new Double(this.getX(i)) );
         }
         return list.listIterator();
     }
@@ -158,17 +158,17 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
         ArrayList list = new ArrayList();
         int max = points.size();
         for( int i = 0; i < max; i++){
-            list.add( this.getY(i) );
+            list.add( new Double(this.getY(i)));
         }
         return list.listIterator();
     }
 
 
     /** FIX */
-    public Double getInterpolatedX(Double y){ throw new UnsupportedOperationException(C + ": Not implemented yet."); }
+    public double getInterpolatedX(double y){ throw new UnsupportedOperationException(C + ": Not implemented yet."); }
 
     /** FIX */
-    public Double getInterpolatedY(Double x){ throw new UnsupportedOperationException(C + ": Not implemented yet."); }
+    public double getInterpolatedY(double x){ throw new UnsupportedOperationException(C + ": Not implemented yet."); }
 
 
 

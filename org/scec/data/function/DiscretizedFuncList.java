@@ -331,8 +331,8 @@ public class DiscretizedFuncList implements NamedObjectAPI{
             while(it2.hasNext()){
 
                 DataPoint2D point = (DataPoint2D)it2.next();
-                double x = point.getX().doubleValue();
-                double y = point.getY().doubleValue();
+                double x = point.getX();
+                double y = point.getY();
 
                 b.append(TAB + x + ", " + y + '\n');
             }
@@ -388,12 +388,12 @@ public class DiscretizedFuncList implements NamedObjectAPI{
                 DataPoint2D point = (DataPoint2D)it.next();
 
                 if(first){
-                    double x1 = point.getX().doubleValue();
+                    double x1 = point.getX();
                     xx[i] = x1;
                 }
 
-                Double y1 = point.getY();
-                model[counter][i] = y1;
+                double y1 = point.getY();
+                model[counter][i] = new Double(y1);
 
                 i++;
             }

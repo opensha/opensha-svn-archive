@@ -31,7 +31,7 @@ public class GaussianMagFreqDist extends DiscreteMagFreqDist {
 	protected double magStdDev;
 
     public void set(DataPoint2D point, int index) throws DataPoint2DException{}
-    public void set(Double x, Double y, int index) throws DataPoint2DException{}
+    public void set(double x, double y, int index) throws DataPoint2DException{}
 
     /*
       Note Constructor Defaults:
@@ -59,7 +59,7 @@ public class GaussianMagFreqDist extends DiscreteMagFreqDist {
         double numStdDevCutoff
     ) {
 
-        this.delta = new Double(deltaMag);
+        this.delta = deltaMag;
         setMagStdDevAndTotMomentRate(meanMag, magStdDev, totMoRate);
         this.numStdDevCutoff = numStdDevCutoff;
     }
@@ -75,8 +75,8 @@ public class GaussianMagFreqDist extends DiscreteMagFreqDist {
         double numStdDevCutoff
     ){
 
-        this.minX = new Double(minMag);
-        this.delta = new Double(deltaMag);
+        this.minX = minMag;
+        this.delta = deltaMag;
         //this.num = numMag;
 
         // this.min = minMag;

@@ -27,7 +27,7 @@ public abstract class DiscreteMagFreqDist
 
 
     /** 1D array giving the rate (per year) at each discrete mag defined above. The Ordiantes from the DiscreteFunctionAPI. */
-    protected double totalMomentRate;
+    protected double totalMomentRate=Double.NaN;
 
     /* **********************/
     /** @todo  Constructors */
@@ -39,7 +39,7 @@ public abstract class DiscreteMagFreqDist
     }
 
     public DiscreteMagFreqDist(double minMag, double deltaMag, int numMag) {
-        super(new Double(minMag), numMag, new Double(deltaMag));
+        super(minMag, numMag, deltaMag);
     }
 
     public double getCumulativeRate(double mag){
@@ -63,12 +63,12 @@ public abstract class DiscreteMagFreqDist
      */
     public int getNum() { return -1;}
 
-    public Double getMinMag(){ return getMinX(); }
-    public Double getMaxMag(){ return getMaxX(); }
+    public double getMinMag(){ return getMinX(); }
+    public double getMaxMag(){ return getMaxX(); }
 
-    public Double getMinRate(){ return null; }
-    public Double getMaxRate(){ return null; }
-    public Double getDelta(){ return null; }
+    public double getMinRate(){ return null; }
+    public double getMaxRate(){ return null; }
+    public double getDelta(){ return null; }
 
 
 
@@ -77,13 +77,13 @@ public abstract class DiscreteMagFreqDist
     // public HashMap getRates() {return rates;}
 
     /** Checks mag withing tolerance to return rate */
-    public Double getRate(Double mag) {
+    public double getRate(double mag) {
 	    //return (Double)(rates.get(mag));
         return null;
     }
 
     /** Bypasses tolerance check when calling class knows the exact index, i.e. x-value index, they want */
-    public Double getRate(int index) {
+    public double getRate(int index) {
 	    //return (Double)(rates.get(mag));
         return null;
     }

@@ -39,12 +39,12 @@ public class DataPoint2D implements Comparable {
     /**
      *  X coordinate
      */
-    private Double x;
+    private double x= Double.NaN;
 
     /**
      *  Y coordinate
      */
-    private Double y;
+    private double y = Double.NaN;
 
 
 
@@ -54,7 +54,7 @@ public class DataPoint2D implements Comparable {
      * @param  x  Description of the Parameter
      * @param  y  Description of the Parameter
      */
-    public DataPoint2D( Double x, Double y ) {
+    public DataPoint2D( double x, double y ) {
         this.x = x;
         this.y = y;
     }
@@ -65,7 +65,7 @@ public class DataPoint2D implements Comparable {
      *
      * @param  newX  The new x value
      */
-    public void setX( Double newX ) {
+    public void setX( double newX ) {
         x = newX;
     }
 
@@ -75,7 +75,7 @@ public class DataPoint2D implements Comparable {
      *
      * @param  newY  The new y value
      */
-    public void setY( Double newY ) {
+    public void setY( double newY ) {
         y = newY;
     }
 
@@ -86,7 +86,7 @@ public class DataPoint2D implements Comparable {
      * @param  x  The x coordinate
      * @param  y  The y coordinate
      */
-    public void set( Double x, Double y ) {
+    public void set( double x, double y ) {
         this.x = x;
         this.y = y;
     }
@@ -113,7 +113,7 @@ public class DataPoint2D implements Comparable {
      *
      * @return    The x value
      */
-    public Double getX() {
+    public double getX() {
         return x;
     }
 
@@ -123,7 +123,7 @@ public class DataPoint2D implements Comparable {
      *
      * @return    The y value
      */
-    public Double getY() {
+    public double getY() {
         return y;
     }
 
@@ -139,9 +139,9 @@ public class DataPoint2D implements Comparable {
      * @return        true if the two x-values are the same
      */
     public boolean equals( DataPoint2D point ) {
-        Double xx = point.getX();
-        if ( x.equals( xx ) ) return true;
-        else  return false;
+       double xx = point.getX();
+       if ( x== xx  ) return true;
+       else  return false;
     }
 
 
@@ -154,12 +154,12 @@ public class DataPoint2D implements Comparable {
      *      considered equal
      * @return            true if the two x-values are the same within tolerance
      */
-    public boolean equals( DataPoint2D point, Double tolerance ) {
+    public boolean equals( DataPoint2D point, double tolerance ) {
 
-        double x = this.x.doubleValue();
-        double xx = point.getX().doubleValue();
+        double x = this.x;
+        double xx = point.getX();
 
-        if ( Math.abs( x - xx ) <= tolerance.doubleValue() ) return true;
+        if ( Math.abs( x - xx ) <= tolerance) return true;
         else return false;
 
     }
@@ -173,7 +173,7 @@ public class DataPoint2D implements Comparable {
      * @return    true if this x-value and y-value equals the passed in x and y
      *      values
      */
-    public boolean equals( Double x, Double y ) {
+    public boolean equals( double x, double y ) {
         if ( ( this.x == x ) && ( this.y == y ) ) return true;
         else return false;
     }
@@ -185,7 +185,7 @@ public class DataPoint2D implements Comparable {
      * @param  x  The value to compare this x-value to
      * @return    true if this x-value equals the passed in x value
      */
-    public boolean equals( Double x ) {
+    public boolean equals( double x ) {
         if ( this.x == x ) return true;
         else return false;
     }
@@ -215,10 +215,11 @@ public class DataPoint2D implements Comparable {
 
         int result = 0;
 
-        Double x = this.x;
-        Double xx = point.getX();
+        Double x =  new Double(this.x);
+        Double xx = new Double(point.getX());
 
-        return x.compareTo( xx );
+         return x.compareTo(xx);
+
     }
 
 
@@ -262,8 +263,8 @@ public class DataPoint2D implements Comparable {
      */
     protected void invert() {
 
-        Double xx = this.y;
-        Double yy = this.x;
+        double xx = this.y;
+        double yy = this.x;
         y = yy;
         x = xx;
 
@@ -277,8 +278,8 @@ public class DataPoint2D implements Comparable {
      * @return    An exact copy of this object.
      */
     public Object clone() {
-        Double xx = new Double( x.doubleValue() );
-        Double yy = new Double( y.doubleValue() );
+        double xx = this.x;
+        double yy = this.y;
         DataPoint2D point = new DataPoint2D( xx, yy );
         return point;
     }

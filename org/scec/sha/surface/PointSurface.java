@@ -8,7 +8,7 @@ import org.scec.data.Location;
 import org.scec.exceptions.InvalidRangeException;
 
 /**
- *  <b>Title:</b> PointSource<p>
+ *  <b>Title:</b> PointSurface<p>
  *
  *  <b>Description:</b> Represents a point source for a Potential Earthquake,
  *  i.e. the simplist model, with no rupture surface. However all the methods
@@ -24,85 +24,67 @@ import org.scec.exceptions.InvalidRangeException;
  * @version    1.0
  */
 
-public class PointSource extends Location implements GriddedSurfaceAPI {
+public class PointSurface extends Location implements GriddedSurfaceAPI {
 
     /**
      *  Description of the Field
      */
-    protected Double aveStrike;
+    protected double aveStrike=Double.NaN;
     /**
      *  Description of the Field
      */
-    protected Double aveDip;
+    protected double aveDip=Double.NaN;
 
     protected String name;
 
     /**
-     *  Constructor for the PointSource object
+     *  Constructor for the PointSurface object
      */
-    public PointSource() {
+    public PointSurface() {
         super();
     }
 
 
     /**
-     *  Constructor for the PointSource object
+     *  Constructor for the PointSurface object
      *
      * @param  lat    Description of the Parameter
      * @param  lon    Description of the Parameter
      * @param  depth  Description of the Parameter
      */
-    public PointSource( double lat, double lon, double depth ) {
+    public PointSurface( double lat, double lon, double depth ) {
         super( lat, lon, depth );
     }
 
 
     /**
-     *  Sets the aveStrike attribute of the PointSource object
+     *  Sets the aveStrike attribute of the PointSurface object
      *
      * @param  aveStrike  The new aveStrike value
      */
     public void setAveStrike( double aveStrike ) throws InvalidRangeException{
         FaultUtils.assertValidStrike( aveStrike );
-        this.aveStrike = new Double( aveStrike );
+        this.aveStrike = aveStrike ;
     }
 
 
-    /**
-     *  Sets the aveStrike attribute of the PointSource object
-     *
-     * @param  aveStrike  The new aveStrike value
-     */
-    public void setAveStrike( Double aveStrike ) throws InvalidRangeException {
-        FaultUtils.assertValidStrike( aveStrike.doubleValue() );
-        this.aveStrike = aveStrike;
-    }
-
 
     /**
-     *  Sets the aveDip attribute of the PointSource object
+     *  Sets the aveDip attribute of the PointSurface object
      *
      * @param  aveDip  The new aveDip value
      */
     public void setAveDip( double aveDip ) throws InvalidRangeException{
         FaultUtils.assertValidDip( aveDip );
-        this.aveDip = new Double( aveDip );
+        this.aveDip =  aveDip ;
     }
 
 
-    /**
-     *  Sets the aveDip attribute of the PointSource object
-     *
-     * @param  aveDip  The new aveDip value
-     */
-    public void setAveDip( Double aveDip ) throws InvalidRangeException {
-        FaultUtils.assertValidDip( aveDip.doubleValue() );
-        this.aveDip = aveDip;
-    }
+
 
 
     /**
-     *  Sets the location attribute of the PointSource object
+     *  Sets the location attribute of the PointSurface object
      *
      * @param  x                                   The new location value
      * @param  y                                   The new location value
@@ -113,13 +95,13 @@ public class PointSource extends Location implements GriddedSurfaceAPI {
         if ( x == 0 && y == 0 ) {
             this.setLocation( location );
         } else {
-            throw new ArrayIndexOutOfBoundsException( "PointSource can only have one point, i.e. x=0, y=0." );
+            throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
         }
     }
 
 
     /**
-     *  Sets the location attribute of the PointSource object
+     *  Sets the location attribute of the PointSurface object
      *
      * @param  location  The new location value
      */
@@ -146,40 +128,40 @@ public class PointSource extends Location implements GriddedSurfaceAPI {
 
         if ( row == 0 && column == 0 ) {
 
-            if ( ( obj instanceof Location ) || ( obj instanceof PointSource ) ) {
+            if ( ( obj instanceof Location ) || ( obj instanceof PointSurface ) ) {
 
                 Location location = ( Location ) obj;
             } else {
-                throw new ArrayIndexOutOfBoundsException( "Passed in  object must be Location or PointSource." );
+                throw new ArrayIndexOutOfBoundsException( "Passed in  object must be Location or PointSurface." );
             }
         } else {
-            throw new ArrayIndexOutOfBoundsException( "PointSource can only have one point, i.e. x=0, y=0." );
+            throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
         }
     }
 
 
     /**
-     *  Gets the aveStrike attribute of the PointSource object
+     *  Gets the aveStrike attribute of the PointSurface object
      *
      * @return    The aveStrike value
      */
-    public Double getAveStrike() {
+    public double getAveStrike() {
         return aveStrike;
     }
 
 
     /**
-     *  Gets the aveDip attribute of the PointSource object
+     *  Gets the aveDip attribute of the PointSurface object
      *
      * @return    The aveDip value
      */
-    public Double getAveDip() {
+    public double getAveDip() {
         return aveDip;
     }
 
 
     /**
-     *  Returns a clone of this PointSource Location fields
+     *  Returns a clone of this PointSurface Location fields
      *
      * @return    The location value
      */
@@ -189,7 +171,7 @@ public class PointSource extends Location implements GriddedSurfaceAPI {
 
 
     /**
-     *  Gets the location attribute of the PointSource object
+     *  Gets the location attribute of the PointSurface object
      *
      * @param  row     Description of the Parameter
      * @param  column  Description of the Parameter
@@ -201,7 +183,7 @@ public class PointSource extends Location implements GriddedSurfaceAPI {
 
 
     /**
-     *  Gets the locationsIterator attribute of the PointSource object
+     *  Gets the locationsIterator attribute of the PointSurface object
      *
      * @return    The locationsIterator value
      */
@@ -258,7 +240,7 @@ public class PointSource extends Location implements GriddedSurfaceAPI {
 
 
     /**
-     *  Gets the numRows attribute of the PointSource object
+     *  Gets the numRows attribute of the PointSurface object
      *
      * @return    The numRows value
      */
@@ -268,7 +250,7 @@ public class PointSource extends Location implements GriddedSurfaceAPI {
 
 
     /**
-     *  Gets the numCols attribute of the PointSource object
+     *  Gets the numCols attribute of the PointSurface object
      *
      * @return    The numCols value
      */
@@ -292,7 +274,7 @@ public class PointSource extends Location implements GriddedSurfaceAPI {
         if ( row == 0 && column == 0 ) {
             return getLocation();
         } else {
-            throw new ArrayIndexOutOfBoundsException( "PointSource can only have one point, i.e. x=0, y=0." );
+            throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
         }
     }
 
@@ -377,7 +359,7 @@ public class PointSource extends Location implements GriddedSurfaceAPI {
             this.longitude = -1;
             this.depth = -1;
         } else {
-            throw new ArrayIndexOutOfBoundsException( "PointSource can only have one point, i.e. x=0, y=0." );
+            throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
         }
     }
 }

@@ -129,14 +129,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
     }
 
 
-    /**
-     *  Sets the aveStrike attribute of the GriddedSubsetSurface object
-     *
-     * @param  aveStrike  The new aveStrike value
-     */
-    public void setAveStrike( Double aveStrike ) {
-        ( ( GriddedSurface ) data ).setAveStrike( aveStrike );
-    }
+
 
 
     /**
@@ -149,14 +142,6 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
     }
 
 
-    /**
-     *  Sets the aveDip attribute of the GriddedSubsetSurface object
-     *
-     * @param  aveDip  The new aveDip value
-     */
-    public void setAveDip( Double aveDip ) {
-        ( ( GriddedSurface ) data ).setAveDip( aveDip );
-    }
 
 
     /**
@@ -217,7 +202,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      *
      * @return    The aveStrike value
      */
-    public Double getAveStrike() {
+    public double getAveStrike() {
         return ( ( GriddedSurface ) data ).getAveStrike();
     }
 
@@ -231,7 +216,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      *
      * @return    The aveDip value
      */
-    public Double getAveDip() {
+    public double getAveDip() {
         return ( ( GriddedSurface ) data ).getAveDip();
     }
 

@@ -379,7 +379,7 @@ public abstract class ClassicIMR
     }
 
     /**
-     *  Sets the potentialEarthquake, site, and intensityMeasure objects
+     *  Sets the probEqkRupture, site, and intensityMeasure objects
      *  simultaneously.<p>
      *
      *  SWR: Warning - this function doesn't provide full rollback in case of
@@ -392,7 +392,7 @@ public abstract class ClassicIMR
      *
      *
      *
-     * @param  potentialEarthquake      The new all value
+     * @param  probEqkRupture      The new all value
      * @param  site                     The new all value
      * @param  intensityMeasure         The new all value
      * @exception  ParameterException   Description of the Exception
@@ -400,12 +400,12 @@ public abstract class ClassicIMR
      * @exception  ConstraintException  Description of the Exception
      */
     public void setAll(
-            ProbEqkRupture potentialEarthquake,
+            ProbEqkRupture probEqkRupture,
             Site site,
             ParameterAPI intensityMeasure
              )
              throws ParameterException, IMRException, ConstraintException {
-        super.setAll( potentialEarthquake, site, intensityMeasure );
+        super.setAll( probEqkRupture, site, intensityMeasure );
     }
 
 
@@ -622,7 +622,7 @@ public abstract class ClassicIMR
     /**
      *  Creates the following potential-Earthquake Parameters for subclasses: magParam
      *  (moment Magnitude parameter).  Warning constraints must be created and added
-     *  in subclasses. This parameter is also added to the potentialEarthquakeParams list
+     *  in subclasses. This parameter is also added to the probEqkRuptureParams list
      *  in subclasses.<br>
      *
      */

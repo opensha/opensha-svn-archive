@@ -23,7 +23,7 @@ public class ProbEqkRuptureList {
     protected final static boolean D = false;
 
     protected ProbEqkRuptureInfo info;
-    protected Vector potentialEarthquakes = new Vector();
+    protected Vector probEqkRuptures = new Vector();
 
 
     /* **********************/
@@ -67,9 +67,9 @@ public class ProbEqkRuptureList {
 
     }
 
-    public ListIterator listIterator(){ return potentialEarthquakes.listIterator(); }
-    public void clear(){ potentialEarthquakes.clear(); }
-    public int size(){ return potentialEarthquakes.size(); }
+    public ListIterator listIterator(){ return probEqkRuptures.listIterator(); }
+    public void clear(){ probEqkRuptures.clear(); }
+    public int size(){ return probEqkRuptures.size(); }
 
     public void setInfo(ProbEqkRuptureInfo newInfo) { info = newInfo; }
     public ProbEqkRuptureInfo getInfo() { return info; }

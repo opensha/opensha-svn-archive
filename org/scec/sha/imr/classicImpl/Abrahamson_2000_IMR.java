@@ -109,7 +109,7 @@ public class Abrahamson_2000_IMR
 
 /* NOT NEEDED HERE
      * Joyner-Boore Distance parameter, used as a proxy for computing their
-     * hanging-wall term from a site and potentialEarthquake.
+     * hanging-wall term from a site and probEqkRupture.
 
     private DistanceJBParameter distanceJBParam = null;
     private final static Double DISTANCE_JB_DEFAULT = new Double( 0 );
@@ -160,7 +160,7 @@ public class Abrahamson_2000_IMR
 
     /**
      * Determines the style of faulting from the rake angle (which
-     * comes from the potentialEarthquake object) and fills in the
+     * comes from the probEqkRupture object) and fills in the
      * value of the fltTypeParam; since their paper does not quantify the
      * distinction, Norm advised as follows: Reverse if 67.5<rake<112.5;
      * Oblique-Reverse if 22.5<rake<67.5 or 112.5<rake<157.5; Other is rake
@@ -183,7 +183,7 @@ public class Abrahamson_2000_IMR
 
     /**
      * Determines the style of faulting from the rake angle (which
-     * comes from the potentialEarthquake object) and fills in the
+     * comes from the probEqkRupture object) and fills in the
      * value of the fltTypeParam; since their paper does not quantify the
      * distinction, Norm advised as follows: Reverse if 67.5<rake<112.5;
      * Oblique-Reverse if 22.5<rake<67.5 or 112.5<rake<157.5; Other is rake
@@ -203,26 +203,26 @@ public class Abrahamson_2000_IMR
 
     /**
      *  This sets the potential-earthquake related parameters (magParam
-     *  and fltTypeParam) based on the potentialEarthquake passed in.
-     *  The internally held potentialEarthquake object is also set as that
+     *  and fltTypeParam) based on the probEqkRupture passed in.
+     *  The internally held probEqkRupture object is also set as that
      *  passed in. Since this object updates more than one parameter, an
      *  attempt is made to rollback to the original parameter values in case
      *  there are any errors thrown in the process.
      *
-     * @param  pe  The new potentialEarthquake value
+     * @param  pe  The new probEqkRupture value
      */
-    public void setProbEqkRupture( ProbEqkRupture potentialEarthquake ) throws ConstraintException{
+    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
 
         Double magOld = (Double)magParam.getValue( );
         String fltOld = (String)fltTypeParam.getValue();
 
         // constraints get checked
-        magParam.setValue( potentialEarthquake.getMag() );
+        magParam.setValue( probEqkRupture.getMag() );
 
         // If fail, rollback to all old values
         try{
-            String fltTypeStr = determineFaultTypeFromRake( potentialEarthquake.getAveRake() );
+            String fltTypeStr = determineFaultTypeFromRake( probEqkRupture.getAveRake() );
             fltTypeParam.setValue(fltTypeStr);
         }
         catch( ConstraintException e ){
@@ -231,10 +231,10 @@ public class Abrahamson_2000_IMR
         }
 
         // Set the PE
-        this.potentialEarthquake = potentialEarthquake;
+        this.probEqkRupture = probEqkRupture;
 
        /* Calculate the PropagationEffectParameters; this is
-        * not efficient if both the site and potentialEarthquake
+        * not efficient if both the site and probEqkRupture
         * are set before getting the mean, stdDev, or ExceedProbability
         */
         setPropagationEffectParams();
@@ -267,7 +267,7 @@ public class Abrahamson_2000_IMR
         super.setSite( site );
 
         // Calculate the PropagationEffectParameters; this is
-        // not efficient if both the site and potentialEarthquake
+        // not efficient if both the site and probEqkRupture
         // are set before getting the mean, stdDev, or ExceedProbability
         setPropagationEffectParams();
 
@@ -276,13 +276,13 @@ public class Abrahamson_2000_IMR
 
     /**
      * This calculates the distanceRupParam and isOnHangingWallParam values based
-     * on the current site and potentialEarthquake. NOT YET IMPLEMENTED <P>
+     * on the current site and probEqkRupture. NOT YET IMPLEMENTED <P>
      */
     protected void setPropagationEffectParams(){
 
-        if( ( this.site != null ) && ( this.potentialEarthquake != null ) ){
+        if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 
-            distanceRupParam.getValue( potentialEarthquake, site );
+            distanceRupParam.getValue( probEqkRupture, site );
 
 
             /*
@@ -292,7 +292,7 @@ public class Abrahamson_2000_IMR
                don't have significant hanging-wall effects;p Norm said the latter
                is probably close enough (it's also what Frankel's code does).
 
-            distanceJBParam.getValue( potentialEarthquake, site );
+            distanceJBParam.getValue( probEqkRupture, site );
             if ( ( (Double)distanceJBParam.getValue() ).doubleValue() <= 1.0 )
                 isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
             else
@@ -591,7 +591,7 @@ public class Abrahamson_2000_IMR
 
     /**
      *  Creates the two Potential Earthquake parameters (magParam and
-     *  fltTypeParam) and adds them to the potentialEarthquakeParams
+     *  fltTypeParam) and adds them to the probEqkRuptureParams
      *  list. Makes the parameters noneditable.
      */
     protected void initProbEqkRuptureParams(  ) {
@@ -617,9 +617,9 @@ public class Abrahamson_2000_IMR
         fltTypeParam.setInfo( FLT_TYPE_INFO );
         fltTypeParam.setNonEditable();
 
-        potentialEarthquakeParams.clear();
-        potentialEarthquakeParams.addParameter( magParam );
-        potentialEarthquakeParams.addParameter( fltTypeParam );
+        probEqkRuptureParams.clear();
+        probEqkRuptureParams.addParameter( magParam );
+        probEqkRuptureParams.addParameter( fltTypeParam );
     }
 
     /**

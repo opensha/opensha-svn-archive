@@ -98,11 +98,11 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
     /**
      *  The minimum Y-Value in this data series
      */
-    protected Double minY;
+    protected double minY=Double.NaN;
     /**
      *  The maximum Y-Value in this data series
      */
-    protected Double maxY;
+    protected double maxY=Double.NaN;
     /**
      *  Flag to indicate if any DataPoints have been added yet
      */
@@ -165,8 +165,8 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
      * @param  newTolerance               The new tolerance value
      * @exception  InvalidRangeException  Description of the Exception
      */
-    public void setTolerance( Double newTolerance ) throws InvalidRangeException {
-        if ( newTolerance.doubleValue() < 0 ) {
+    public void setTolerance( double newTolerance ) throws InvalidRangeException {
+        if ( newTolerance < 0 ) {
             throw new InvalidRangeException( "Tolerance must be larger or equal to 0" );
         }
 
@@ -231,12 +231,12 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
      * @param  index  Description of the Parameter
      * @return        Description of the Return Value
      */
-    public DataPoint2D get( Double x ) {
+    public DataPoint2D get( double x ) {
 
         Set set = this.keySet();
         java.util.Iterator it = set.iterator();
         DataPoint2D point = null;
-        DataPoint2D findPoint = new DataPoint2D(x, new Double(0.0) );
+        DataPoint2D findPoint = new DataPoint2D(x,0.0);
 
         while( it.hasNext() ){
 
@@ -275,7 +275,7 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
      *
      * @return    The minY value
      */
-    public Double getMinY() { return minY; }
+    public double getMinY() { return minY; }
 
 
     /**
@@ -283,7 +283,7 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
      *
      * @return    The maxY value
      */
-    public Double getMaxY() { return maxY; }
+    public double getMaxY() { return maxY; }
 
 
     /**
@@ -292,7 +292,7 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
      *
      * @return    The tolerance value
      */
-    public Double getTolerance() { return comparator.getTolerance(); }
+    public double getTolerance() { return comparator.getTolerance(); }
 
 
     /**
@@ -351,9 +351,9 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
         // Calculate min and max values
         if ( !first ) {
 
-            double y = key.getY().doubleValue();
-            double min = minY.doubleValue();
-            double max = maxY.doubleValue();
+            double y = key.getY();
+            double min = minY;
+            double max = maxY;
 
             if ( y < min ) {
                 minY = key.getY();

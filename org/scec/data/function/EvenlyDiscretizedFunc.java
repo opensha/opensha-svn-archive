@@ -27,10 +27,10 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     protected LinkedList points = new LinkedList();
 
     /** The minimum x-value in this series, pins the index values with delta */
-    protected Double minX;
+    protected double minX=Double.NaN;
 
     /** Distance between x points */
-    protected Double delta;
+    protected double delta=Double.NaN;
 
     /** Number of points in this function */
     protected int num;
@@ -39,13 +39,13 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * The minimum Y-Value in this data series, calculated everytime a
      * point is added to this function
      */
-    protected Double minY = null;
+    protected double minY = Double.NaN;
 
     /**
      * The maximum Y-Value in this data series, calculated everytime a
      * point is added to this function
      */
-    protected Double maxY = null;
+    protected double maxY = Double.NaN;
 
     /**
      * Boolean that indicates no values have been put into this function yet.
@@ -62,7 +62,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * @param num   - number of points in list
      * @param delta - distance between x values
      */
-    public EvenlyDiscretizedFunc(Double min, int num, Double delta) {
+    public EvenlyDiscretizedFunc(double min, int num, double delta) {
 
         this.minX = minX;
         this.delta = delta;
@@ -85,17 +85,17 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * be considered equal. Used internally
      */
     protected boolean withinTolerance(double x, double xx){
-        if( Math.abs( x - xx)  <= this.tolerance.doubleValue() ) return true;
+        if( Math.abs( x - xx)  <= this.tolerance) return true;
         else return false;
     }
 
 
-    public Double getDelta() { return delta; }
+    public double getDelta() { return delta; }
     public int getNum(){ return num; }
-    public Double getMinX(){ return minX; }
-    public Double getMaxX(){ return getX( num-1); }
-    public Double getMinY(){ return minY; }
-    public Double getMaxY(){ return maxY; }
+    public double getMinX(){ return minX; }
+    public double getMaxX(){ return getX( num-1); }
+    public double getMinY(){ return minY; }
+    public double getMaxY(){ return maxY; }
 
 
     public DataPoint2D get(int index){
@@ -108,20 +108,20 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * @param index
      * @return
      */
-    public Double getX(int index){
+    public double getX(int index){
         if( index < 0 || index > ( num -1 ) ) return null;
-        else return new Double( minX.doubleValue() + delta.doubleValue() * index );
+        else return ( minX + delta * index );
     }
 
     /**
      * Returns the ith y element in this function. Returns null
      * if index is negative or greater than number of points.
      */
-    public Double getY(int index){
+    public double getY(int index){
         if( index < 0 || index > ( num -1 ) ) return null;
         Object obj = points.get(index);
         if( obj == null ) return null;
-        else return (Double)obj;
+        else return ((Double)obj).doubleValue();
     }
 
     /**
@@ -129,7 +129,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * if the x value is not within tolerance of any x points
      * along the x axis.
      */
-    public Double getY(Double x){ return getY( getXIndex( x) ); }
+    public double getY(double x){ return getY( getXIndex( x) ); }
 
 
     /** Returns the index of this DataPoint based on it's x-value */
@@ -144,19 +144,19 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * @param index
      * @return
      */
-    public int getXIndex( Double x){
+    public int getXIndex( double x){
 
-        double xx = x.doubleValue();
-        double xxMin = this.minX.doubleValue();
+        double xx = x;
+        double xxMin = this.minX;
 
         for( int i = 0; i < num; i++){
-            if( withinTolerance(xx, ( xxMin + i*delta.doubleValue() ) ) ) return i;
+            if( withinTolerance(xx, ( xxMin + i*delta ) ) ) return i;
         }
         return -1;
     }
 
     /** FIX *** returns the Y value given an x value - within tolerance */
-    public int getYIndex(Double y){
+    public int getYIndex(double y){
         throw new UnsupportedOperationException(C + ": Not implemented yet.");
     }
 
@@ -176,9 +176,9 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         // Calculate min and max values
         if ( !first ) {
 
-            double y = point.getY().doubleValue();
-            double min = minY.doubleValue();
-            double max = maxY.doubleValue();
+            double y = point.getY();
+            double min = minY;
+            double max = maxY;
 
             if ( y < min ) minY = point.getY();
             else if ( y > max )  maxY = point.getY();
@@ -199,7 +199,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * this function will throw an exception if the given x-value is not
      * within tolerance of one of the x-values in the function
      */
-    public void set(Double x, Double y) throws DataPoint2DException {
+    public void set(double x, double y) throws DataPoint2DException {
         DataPoint2D point = new DataPoint2D(x,y);
         set(point);
     }
@@ -208,11 +208,11 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * this function will throw an exception if the index is not
      * within the range of 0 to num -1
      */
-    public void set(int index, Double y) throws DataPoint2DException {
+    public void set(int index, double y) throws DataPoint2DException {
         if( index < 0 || index > ( num -1 ) ) {
             throw new DataPoint2DException(C + ": set(): The specified index doesn't match this function domain.");
         }
-        Double x = this.getX(index);
+        double x = this.getX(index);
         set(x, y);
     }
 
@@ -226,7 +226,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     public boolean hasPoint(DataPoint2D point){
         int index = getXIndex( point.getX() );
         if (index < 0) return false;
-        Double y = this.getY(index);
+        double y = this.getY(index);
         if( y == null ) return false;
         return true;
     }
@@ -237,7 +237,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * and the y value is not null. Another possiblility would be to have this method
      * return true if the x value is a valid point in this function.
      */
-    public boolean hasPoint(Double x, Double y){ return hasPoint( new DataPoint2D(x,y) ); }
+    public boolean hasPoint(double x, double y){ return hasPoint( new DataPoint2D(x,y) ); }
 
 
     /**
@@ -269,12 +269,12 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
 
     /** Not implemented yet, will throw exception if used */
-    public Double getInterpolatedX(Double y){
+    public double getInterpolatedX(double y){
         throw new UnsupportedOperationException(C + ": Not implemented yet.");
     }
 
     /** Not implemented yet, will throw exception if used */
-    public Double getInterpolatedY(Double x){
+    public double getInterpolatedY(double x){
         throw new UnsupportedOperationException(C + ": Not implemented yet.");
     }
 
@@ -286,13 +286,13 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     public DiscretizedFuncAPI deepClone(){
 
         EvenlyDiscretizedFunc f = new EvenlyDiscretizedFunc(
-            new Double( minX.doubleValue() ), num, new Double(delta.doubleValue() )
+            minX, num, delta
         );
 
         f.info = info;
-        f.maxY = new Double( maxY.doubleValue() );
-        f.minY = new Double( minY.doubleValue() );
-        f.minX = new Double( minX.doubleValue() );
+        f.maxY = maxY;
+        f.minY = minY;
+        f.minX = minX;
         f.name = name;
         f.tolerance = tolerance;
 
@@ -300,8 +300,8 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         int counter = 0;
         while( it.hasNext() ){
             Object obj = it.next();
-            if( obj != null ) f.set(counter++, (Double)obj );
-            else f.set(counter++, null );
+            if( obj != null ) f.set(counter++, ((Double)obj).doubleValue() );
+            else f.set(counter++, Double.NaN );
         }
 
         return f;
@@ -319,12 +319,12 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         if( num != function.getNum() ) return false;
 
 
-        double min = minX.doubleValue();
-        double min1 = ((EvenlyDiscretizedFunc)function).getMinX().doubleValue();
+        double min = minX;
+        double min1 = ((EvenlyDiscretizedFunc)function).getMinX();
         if( !withinTolerance( min, min1 ) ) return false;
 
-        double d = delta.doubleValue();
-        double d1 = ((EvenlyDiscretizedFunc)function).getDelta().doubleValue();
+        double d = delta;
+        double d1 = ((EvenlyDiscretizedFunc)function).getDelta();
         if( d != d1 ) return false;
 
         return true;
@@ -343,12 +343,12 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
         for( int i = 0; i < num; i++){
 
-            Double y1 = getY(i);
-            Double y2 = function.getY(i);
+            double y1 = getY(i);
+            double y2 = function.getY(i);
 
-            if( y1 == null &&  y2 != null ) return false;
-            else if( y2 == null &&  y1 != null ) return false;
-            else if( y1.doubleValue() != y2.doubleValue() ) return false;
+            if( y1 == Double.NaN &&  y2 != Double.NaN ) return false;
+            else if( y2 == Double.NaN &&  y1 != Double.NaN ) return false;
+            else if( y1 != y2 ) return false;
 
         }
 

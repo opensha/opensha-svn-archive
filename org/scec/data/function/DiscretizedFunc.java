@@ -19,7 +19,7 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI, NamedObject
      * than 1/2 the delta between data points for evenly discretized function, no
      * restriction for arb discretized function, no standard delta.
      */
-    protected Double tolerance = new Double(0);
+    protected double tolerance = 0.0;
 
     /** Information about this function, will be used in making the legend from
      *  a parameter list of variables
@@ -33,9 +33,9 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI, NamedObject
     public String getInfo(){ return info; }
     public void setInfo(String info){ this.info = info; }
 
-    public Double getTolerance() { return tolerance; }
-    public void setTolerance(Double newTolerance) throws InvalidRangeException {
-        if( newTolerance.doubleValue() < 0 )
+    public double getTolerance() { return tolerance; }
+    public void setTolerance(double newTolerance) throws InvalidRangeException {
+        if( newTolerance < 0 )
             throw new InvalidRangeException("Tolerance must be larger or equal to 0");
         tolerance = newTolerance;
     }

@@ -56,9 +56,9 @@ public class DataPoint2DTestCase extends TestCase {
      *  The JUnit setup method
      */
     protected void setUp() {
-        d1 = new DataPoint2D( new Double( 12.2 ), new Double( 11.3 ) );
-        d3 = new DataPoint2D( new Double( 120.2 ), new Double( 111.3 ) );
-        d2 = new DataPoint2D( new Double( 12.2 ), new Double( 11.3 ) );
+        d1 = new DataPoint2D( 12.2,  11.3  );
+        d3 = new DataPoint2D( 120.2 ,  111.3  );
+        d2 = new DataPoint2D( 12.2, 11.3  );
 
     }
 

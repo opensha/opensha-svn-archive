@@ -98,7 +98,7 @@ public class SCEMY_1997_IMR
 
     /**
      * Determines the style of faulting from the rake angle (which
-     * comes from the potentialEarthquake object) and fills in the
+     * comes from the probEqkRupture object) and fills in the
      * value of the fltTypeParam.
      *
      * @param rake                      Input determines the fault type
@@ -116,7 +116,7 @@ public class SCEMY_1997_IMR
 
     /**
      * Determines the style of faulting from the rake angle (which
-     * comes from the potentialEarthquake object) and fills in the
+     * comes from the probEqkRupture object) and fills in the
      * value of the fltTypeParam.
      *
      * @param rake                      Input determines the fault type
@@ -135,26 +135,26 @@ public class SCEMY_1997_IMR
 
     /**
      *  This sets the potential-earthquake related parameters (magParam
-     *  and fltTypeParam) based on the potentialEarthquake passed in.
-     *  The internally held potentialEarthquake object is also set as that
+     *  and fltTypeParam) based on the probEqkRupture passed in.
+     *  The internally held probEqkRupture object is also set as that
      *  passed in. Since this object updates more than one parameter, an
      *  attempt is made to rollback to the original parameter values in case
      *  there are any errors thrown in the process.
      *
-     * @param  pe  The new potentialEarthquake value
+     * @param  pe  The new probEqkRupture value
      */
-    public void setProbEqkRupture( ProbEqkRupture potentialEarthquake ) throws ConstraintException{
+    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
 
         Double magOld = (Double)magParam.getValue( );
         String fltOld = (String)fltTypeParam.getValue();
 
         // constraints get checked
-        magParam.setValue( potentialEarthquake.getMag() );
+        magParam.setValue( probEqkRupture.getMag() );
 
         // If fail, rollback to all old values
         try{
-            String fltTypeStr = determineFaultTypeFromRake( potentialEarthquake.getAveRake() );
+            String fltTypeStr = determineFaultTypeFromRake( probEqkRupture.getAveRake() );
             fltTypeParam.setValue(fltTypeStr);
         }
         catch( ConstraintException e ){
@@ -163,10 +163,10 @@ public class SCEMY_1997_IMR
         }
 
         // Set the PE
-        this.potentialEarthquake = potentialEarthquake;
+        this.probEqkRupture = probEqkRupture;
 
        /* Calculate the PropagationEffectParameters; this is
-        * not efficient if both the site and potentialEarthquake
+        * not efficient if both the site and probEqkRupture
         * are set before getting the mean, stdDev, or ExceedProbability
         */
         setPropagationEffectParams();
@@ -200,7 +200,7 @@ public class SCEMY_1997_IMR
         super.setSite( site );
 
         // Calculate the PropagationEffectParameters; this is
-        // not efficient if both the site and potentialEarthquake
+        // not efficient if both the site and probEqkRupture
         // are set before getting the mean, stdDev, or ExceedProbability
         setPropagationEffectParams();
 
@@ -208,12 +208,12 @@ public class SCEMY_1997_IMR
 
     /**
      * This calculates the distanceRupParam value based on the current
-     * site and potentialEarthquake. <P>
+     * site and probEqkRupture. <P>
      */
     protected void setPropagationEffectParams(){
 
-        if( ( this.site != null ) && ( this.potentialEarthquake != null ) )
-            distanceRupParam.getValue( potentialEarthquake, site );
+        if( ( this.site != null ) && ( this.probEqkRupture != null ) )
+            distanceRupParam.getValue( probEqkRupture, site );
 
     }
 
@@ -285,7 +285,7 @@ public class SCEMY_1997_IMR
 
       // Coefficients that do not depend on intensity measure:
       // NOTE: HARD CODE THESE IN WHEN I KNOW IT'S WORKING
-      double c2_rlt =1.0;       // c2 for rock, mag≤6.5
+      double c2_rlt =1.0;       // c2 for rock, mag\uFFFD6.5
       double c2_rgt = 1.1;      // c2 for rock, mag>6.5
       double c5_rlt = 1.29649;
       double c5_rgt = -0.48451;
@@ -296,7 +296,7 @@ public class SCEMY_1997_IMR
       double c1_s_rv = -1.92;   // c1 for soil, reverse faulting
       double c2_s = 1.0;
       double c3_s = 1.7;
-      double c4_slt = 2.1863;   // soil, mag≤6.5
+      double c4_slt = 2.1863;   // soil, mag\uFFFD6.5
       double c4_sgt = 0.3825;   // soil, mag>6.5
       double c5_slt = 0.32;
       double c5_sgt = 0.5882;
@@ -447,7 +447,7 @@ public class SCEMY_1997_IMR
 
     /**
      *  Creates the two Potential Earthquake parameters (magParam and
-     *  fltTypeParam) and adds them to the potentialEarthquakeParams
+     *  fltTypeParam) and adds them to the probEqkRuptureParams
      *  list. Makes the parameters noneditable.
      */
     protected void initProbEqkRuptureParams(  ) {
@@ -471,9 +471,9 @@ public class SCEMY_1997_IMR
         fltTypeParam.setInfo( FLT_TYPE_INFO );
         fltTypeParam.setNonEditable();
 
-        potentialEarthquakeParams.clear();
-        potentialEarthquakeParams.addParameter( magParam );
-        potentialEarthquakeParams.addParameter( fltTypeParam );
+        probEqkRuptureParams.clear();
+        probEqkRuptureParams.addParameter( magParam );
+        probEqkRuptureParams.addParameter( fltTypeParam );
 
     }
 
@@ -654,8 +654,8 @@ public class SCEMY_1997_IMR
              implements NamedObjectAPI {
 
         /*     Coefficient Naming Convention:
-        “rlt” = rock, less than 6.5
-        “rgt” = rock, greater than 6.5
+        \uFFFDrlt\uFFFD = rock, less than 6.5
+        \uFFFDrgt\uFFFD = rock, greater than 6.5
         "s_ss" = soil, strike slip
         "s_rv" = soil, reverse
         "sigma_ri" = slope for rock intercept

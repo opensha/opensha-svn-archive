@@ -39,11 +39,11 @@ public class EvenlyDiscrFuncWithParams
     // **********************
 
 
-    public EvenlyDiscrFuncWithParams(Double min, int num, Double delta) {
+    public EvenlyDiscrFuncWithParams(double min, int num, double delta) {
         super(min, num, delta);
     }
 
-    public EvenlyDiscrFuncWithParams(Double min, int num, Double delta, ParameterList list) {
+    public EvenlyDiscrFuncWithParams(double min, int num,double delta, ParameterList list) {
         super(min, num, delta);
         this.list = list;
     }
@@ -92,13 +92,13 @@ public class EvenlyDiscrFuncWithParams
     public DiscretizedFuncAPI deepClone(){
 
         EvenlyDiscrFuncWithParams f = new EvenlyDiscrFuncWithParams(
-            new Double( minX.doubleValue() ), num, new Double(delta.doubleValue() )
+             minX, num, delta
         );
 
         f.info = info;
-        f.maxY = new Double( maxY.doubleValue() );
-        f.minY = new Double( minY.doubleValue() );
-        f.minX = new Double( minX.doubleValue() );
+        f.maxY = maxY;
+        f.minY = minY;
+        f.minX = minX;
         f.name = name;
         f.tolerance = tolerance;
 
@@ -108,8 +108,8 @@ public class EvenlyDiscrFuncWithParams
         int counter = 0;
         while( it.hasNext() ){
             Object obj = it.next();
-            if( obj != null ) f.set(counter++, (Double)obj );
-            else f.set(counter++, null );
+            if( obj != null ) f.set(counter++, ((Double)obj).doubleValue() );
+            else f.set(counter++, Double.NaN);
         }
 
         return f;

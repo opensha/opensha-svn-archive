@@ -154,10 +154,10 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
 
                 if( this.xLog && ((Boolean)xLogs.get(series)).booleanValue() ) item += 1;
 
-                Double x = ( ( DiscretizedFuncAPI ) obj ).getX(item);
-                if( x != null ) {
-                    if ( D )  System.out.println( C + ": getXValue(): X = " + x.toString() );
-                    return ( Number ) x;
+                double x = ( ( DiscretizedFuncAPI ) obj ).getX(item);
+                if( x != Double.NaN ) {
+                    if ( D )  System.out.println( C + ": getXValue(): X = " + x);
+                    return (Number)(new Double(x));
                 }
             }
         }
@@ -181,10 +181,10 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
 
                 if( this.xLog && ((Boolean)xLogs.get(series)).booleanValue() ) item += 1;
 
-                Double y = ( ( DiscretizedFuncAPI ) obj ).getY(item);
-                if( y != null ) {
-                    if ( D )  System.out.println( C + ": getYValue(): Y = " + y.toString() );
-                    return ( Number ) y;
+                double y = ( ( DiscretizedFuncAPI ) obj ).getY(item);
+                if( y != Double.NaN ) {
+                    if ( D )  System.out.println( C + ": getYValue(): Y = " + y);
+                    return ( Number )(new Double(y));
                 }
             }
         }
@@ -280,9 +280,9 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
             boolean isZero = false;
 
             DiscretizedFuncAPI f = (DiscretizedFuncAPI)it.next();
-            Double firstX = f.getX(0);
-            if( firstX == null ) isZero = false;
-            else if( firstX.doubleValue() == 0 ) isZero = true;
+            double firstX = f.getX(0);
+            if( firstX == Double.NaN ) isZero = false;
+            else if( firstX == 0 ) isZero = true;
 
             Boolean isZeroB = new Boolean( isZero );
             xLogs.add(isZeroB);

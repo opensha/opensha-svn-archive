@@ -126,7 +126,7 @@ public class ProbEqkRupture {
 	public GriddedSurfaceAPI getRuptureSurface() { return ruptureSurface; }
     /**
      * Note: Since this takes a GriddedSurfaceAPI both a
-     * PointSource and GriddedSurface can be set here
+     * PointSurface and GriddedSurface can be set here
      */
 	public void setRuptureSurface(GriddedSurfaceAPI r) { ruptureSurface = r; }
 
@@ -143,9 +143,9 @@ public class ProbEqkRupture {
         return 0;
     }
 
-    public void setPointSource(Location location){}
-    public void setPointSource(Location location, double aveStrike, double aveDip){}
-    public void setPointSource(PointSource pointSource){}
+    public void setPointSurface(Location location){}
+    public void setPointSurface(Location location, double aveStrike, double aveDip){}
+    public void setPointSurface(PointSurface pointSurface){}
 
 
 

@@ -119,10 +119,10 @@ public interface ClassicIMRAPI
      *  Gets the mean attribute of the ClassicIntensityMeasureRelationshipAPI
      *  object
      *
-     * @param  potentialEarthquake  Description of the Parameter
+     * @param  probEqkRupture  Description of the Parameter
      * @return                      The mean value
      * /
-    public Double getMean( ProbEqkRupture potentialEarthquake );
+    public Double getMean( ProbEqkRupture probEqkRupture );
 
 
     /* *
@@ -149,13 +149,13 @@ public interface ClassicIMRAPI
      *  Gets the mean attribute of the ClassicIntensityMeasureRelationshipAPI
      *  object
      *
-     * @param  potentialEarthquake   Description of the Parameter
+     * @param  probEqkRupture   Description of the Parameter
      * @param  site                  Description of the Parameter
      * @param  intensityMeasureType  Description of the Parameter
      * @return                       The mean value
      * /
     public Double getMean(
-            ProbEqkRupture potentialEarthquake,
+            ProbEqkRupture probEqkRupture,
             Site site,
             ParameterAPI intensityMeasureType
              );
@@ -169,10 +169,10 @@ public interface ClassicIMRAPI
      *  Gets the stdDev attribute of the ClassicIntensityMeasureRelationshipAPI
      *  object
      *
-     * @param  potentialEarthquake  Description of the Parameter
+     * @param  probEqkRupture  Description of the Parameter
      * @return                      The stdDev value
      * /
-    public Double getStdDev( ProbEqkRupture potentialEarthquake );
+    public Double getStdDev( ProbEqkRupture probEqkRupture );
 
 
     /* *
@@ -199,13 +199,13 @@ public interface ClassicIMRAPI
      *  Gets the stdDev attribute of the ClassicIntensityMeasureRelationshipAPI
      *  object
      *
-     * @param  potentialEarthquake   Description of the Parameter
+     * @param  probEqkRupture   Description of the Parameter
      * @param  site                  Description of the Parameter
      * @param  intensityMeasureType  Description of the Parameter
      * @return                       The stdDev value
      * /
     public Double getStdDev(
-            ProbEqkRupture potentialEarthquake,
+            ProbEqkRupture probEqkRupture,
             Site site,
             ParameterAPI intensityMeasureType
              );
@@ -226,14 +226,14 @@ public interface ClassicIMRAPI
      *  Gets the exceedProbability attribute of the
      *  ClassicIntensityMeasureRelationshipAPI object
      *
-     * @param  potentialEarthquake    Description of the Parameter
+     * @param  probEqkRupture    Description of the Parameter
      * @param  site                   Description of the Parameter
      * @param  intensityMeasureLevel  Description of the Parameter
      * @param  intensityMeasureType   Description of the Parameter
      * @return                        The exceedProbability value
      * /
     public Double getExceedProbability(
-            ProbEqkRupture potentialEarthquake,
+            ProbEqkRupture probEqkRupture,
             Site site,
             ParameterAPI intensityMeasureLevel,
             DoubleParameter intensityMeasureType
@@ -244,12 +244,12 @@ public interface ClassicIMRAPI
      *  First sets the PE, then calculates the Exceedence Probability from all
      *  the variables of this IMR, calcualting over a range of parameter values.
      *
-     * @param  potentialEarthquake  The new potential earthquake value
+     * @param  probEqkRupture  The new potential earthquake value
      * @return                      The exceed Probability values put in a
      *      DiscretizedFunction
      * /
     public DiscretizedFunction2DAPI getExceedProbabilities(
-        ProbEqkRupture potentialEarthquake ,
+        ProbEqkRupture probEqkRupture ,
         DiscretizedFunction2DAPI intensityMeasureLevels
     ) ;
 
@@ -287,7 +287,7 @@ public interface ClassicIMRAPI
      *  Sets all parameters, then calculates the Exceedence Probability from all
      *  the variables of this IMR, calcualting over a range of parameter values.
      *
-     * @param  potentialEarthquake    The new potential earthquake value
+     * @param  probEqkRupture    The new potential earthquake value
      * @param  site                   The new site value
      * @param  intensityMeasureLevel  The new IML value
      * @param  intensityMeasureType   The new IMT value
@@ -295,7 +295,7 @@ public interface ClassicIMRAPI
      *      DiscretizedFunction
      * /
     public DiscretizedFunction2DAPI getExceedProbabilities(
-            ProbEqkRupture potentialEarthquake,
+            ProbEqkRupture probEqkRupture,
             Site site,
             DiscretizedFunction2DAPI intensityMeasureLevels,
             ParameterAPI intensityMeasureType
@@ -320,14 +320,14 @@ public interface ClassicIMRAPI
      *  Gets the exceedProbabilities attribute of the
      *  ClassicIntensityMeasureRelationshipAPI object
      *
-     * @param  potentialEarthquake    Description of the Parameter
+     * @param  probEqkRupture    Description of the Parameter
      * @param  site                   Description of the Parameter
      * @param  intensityMeasureLevel  Description of the Parameter
      * @param  intensityMeasureType   Description of the Parameter
      * @return                        The exceedProbabilities value
      * /
     public DiscretizedFunction2DAPI getExceedProbabilities(
-            ProbEqkRupture potentialEarthquake,
+            ProbEqkRupture probEqkRupture,
             Site site,
             DiscretizedFunction2DAPI intensityMeasureLevels,
             ParameterAPI intensityMeasureType
