@@ -7,14 +7,20 @@ import org.scec.param.event.ParameterChangeFailEvent;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
 
-// Fix - Needs more comments
-
 /**
- *  <b>Title:</b> ParameterEditorAPI<p>
+ * <b>Title:</b> ParameterEditorAPI<p>
  *
- *  <b>Description:</b> All Parameter Editors must implement these functions so
- *  that the Parameter Editor knows how to handle them without knowing the exact
- *  Editor class it is dealing with.<p>
+ * <b>Description:</b> Common interface functions that all implementing
+ * ParameterEditors must implement so that they can be plugged transparently
+ * into GUI frameworks. <p>
+ *
+ * This allows classes that use the ParameterEditors to deal with any
+ * Editor type equally. Using this interface they all look the same. This
+ * permits new editors to be added to the framework without changing the
+ * using classes. <p>
+ *
+ * Note that all editors edit a Parameter. Internally they maintain a reference
+ * to the particular parameter type they know how to handle. <p>
  *
  * @author     Steven W. Rock
  * @created    April 17, 2002
@@ -23,81 +29,49 @@ import org.scec.param.event.ParameterChangeListener;
 
 public interface ParameterEditorAPI {
 
-    /**
-     *  Sets the value attribute of the ParameterEditorAPI object
-     *
-     * @param  object  The new value value
-     */
+    /** Set the value of the Parameter this editor is editing. */
     public void setValue( Object object );
 
-    /**
-     *  Gets the value attribute of the ParameterEditorAPI object
-     *
-     * @return    The value value
-     */
+    /** Returns the value of the parameter object.  */
     public Object getValue();
 
     /**
-     *  Description of the Method
-     *
-     * @param  object  Description of the Parameter
+     * Needs to be called by subclasses when editable widget field change fails
+     * due to constraint problems. Allows rollback to the previous good value.
      */
     public void unableToSetValue( Object object );
 
     /**
-     *  Description of the Method
+     * Called when the parameter has changed independently from
+     * the editor. This function needs to be called to to update
+     * the GUI component ( text field, picklsit, etc. ) with
+     * the new parameter value.
      */
     public void synchToModel();
 
-    /**
-     *  Gets the asText attribute of the ParameterEditorAPI object
-     *
-     * @return    The asText value
-     */
+    /** Returns the value of the parameer as a String, regardless of it's true data type */
     public String getAsText();
 
     /**
-     *  Sets the asText attribute of the ParameterEditorAPI object
-     *
-     * @param  string                        The new asText value
-     * @exception  IllegalArgumentException  Description of the Exception
+     * Set the value of the parameer as a String, regardless of it's true data type .
+     * Internally the string is converted to the correct data type if possible.
      */
     public void setAsText( String string ) throws IllegalArgumentException;
 
-    /**
-     *  Gets the tags attribute of the ParameterEditorAPI object
-     *
-     * @return    The tags value
-     */
+    /** Not sure what this is used for. */
     public String[] getTags();
 
-    /**
-     *  Gets the parameter attribute of the ParameterEditorAPI object
-     *
-     * @return    The parameter value
-     */
+    /** Sets the parameter that is stored internally for this GUI widget to edit */
     public ParameterAPI getParameter();
 
-    /**
-     *  Sets the parameter attribute of the ParameterEditorAPI object
-     *
-     * @param  model  The new parameter value
-     */
+    /** Returns the parameter that is stored internally that this GUI widget is editing */
     public void setParameter( ParameterAPI model );
 
 
-    /**
-     *  Sets the focusEnabled attribute of the ParameterEditorAPI object
-     *
-     * @param  newFocusEnabled  The new focusEnabled value
-     */
+    /** Sets the focusEnabled boolean indicating this is the GUI componet with the current focus */
     public void setFocusEnabled( boolean newFocusEnabled );
 
-    /**
-     *  Gets the focusEnabled attribute of the ParameterEditorAPI object
-     *
-     * @return    The focusEnabled value
-     */
+    /** Returns the focusEnabled boolean indicating this is the GUI componet with the current focus */
     public boolean isFocusEnabled();
 
 }

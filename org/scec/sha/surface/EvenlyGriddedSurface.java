@@ -2,15 +2,15 @@ package org.scec.sha.surface;
 
 import java.util.Iterator;
 import java.util.Vector;
+
 /**
- * <p>Title:EvenlyGriddedSurface </p>
+ * <p>Title: EvenlyGriddedSurface </p>
+ *
  * <p>Description: This class gives the list of subset surfaces on the fault</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author : Nitin Gupta & Vipin Gupta    Date: Aug,23,2002
  * @version 1.0
  */
-
 public class EvenlyGriddedSurface extends GriddedSurface {
 
     /**

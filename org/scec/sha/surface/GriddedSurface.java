@@ -11,57 +11,66 @@ import org.scec.exceptions.LocationException;
 import org.scec.data.*;
 
 
-// Fix - Needs more comments
-
 /**
- *  <b>Title:</b> GriddedSurface<p>
+ * <b>Title:</b> GriddedSurface<p>
  *
- *  <b>Description:</b> Implements a GriddedSurfaceAPI and Container2DAPI. The
- *  main difference is that this class only accepts Location Objects in it's
- *  grid<p>
+ * <b>Description:</b> Base implementation of the GriddedSurfaceAPI.
+ * Provides all basic functionality for a GriddedSurface. Subclasses
+ * will just refine specific functions. Note that this class
+ * also implements a Container2DAPI so it can be used anywhere that
+ * interface is expected. <p>
+ *
+ * The paradigm of the GriddedSurface is that it represents a geographical
+ * surface of Location objects slicing through or on the surface of the earth.
+ * Recall that a Container2DAPI represents a collection of Objects in
+ * a matrix, or grid, accessed by row and column inedexes. All GriddedSurfaces
+ * do is to constrain the object at each grid point to be a Location object.
+ * There are also additional calculation methods specific to the paradigm
+ * model, such as aveDip, aveStrike, etc. that depends on the grid objects
+ * being Location objects. <p>
+ *
+ * The only constraint that will be imposed on these Locations is that
+ * they are ordered geographcally. That means that if one Location is physically
+ * next to another, those Locations will be next to each other in the grid.
+ * Note this does not imply even spacing, nor a geographic straight line. This means
+ * that all points along row one may not be at the same longitude. Subclasses
+ * may impose further constraints. <p>
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002
  * @version    1.0
  */
-
 public class GriddedSurface
          extends Container2D
          implements GriddedSurfaceAPI {
 
 
+    /** Class name for debugging. */
     protected final static String C = "GriddedSurface";
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    /**
-     *  Description of the Field
-     */
+
+    /** The average strike of this surface on the Earth.  */
     protected double aveStrike=Double.NaN;
 
-    /**
-     *  Description of the Field
-     */
+    /** The average dip of this surface into the Earth.  */
     protected double aveDip=Double.NaN;
 
-    /**
-     *  KM**2
-     */
+    /** The surface area that this GriddedSurface covers in KM**2 */
     protected double surfaceArea=Double.NaN;
 
 
-    /**
-     *  Constructor for the GriddedSurface object
-     */
-    public GriddedSurface() {
-        super();
-    }
+    /** Constructor for the GriddedSurface object - just calls super(). */
+    public GriddedSurface() { super();  }
 
 
     /**
-     *  Constructor for the GriddedSurface object
+     *  Constructor for the GriddedSurface object,
+     *  sets the number of rows and columns in the super() call.
      *
-     * @param  numRows  Description of the Parameter
-     * @param  numCols  Description of the Parameter
+     * @param  numRows  Number of rows in the gridded surface.
+     * @param  numCols  Number of columns in the gridded surface.
      */
     public GriddedSurface( int numRows, int numCols ) {
         super( numRows, numCols );
@@ -69,13 +78,13 @@ public class GriddedSurface
 
 
     /**
-     *  set an object in the 2D grid
+     *  Set an object in the 2D grid. Ensures the object passed in is a Location.
      *
-     * @param  row                                 Description of the Parameter
-     * @param  column                              Description of the Parameter
-     * @param  obj                                 Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
-     * @exception  ClassCastException              Description of the Exception
+     * @param  row                                 The row to set the Location.
+     * @param  column                              The row to set the Location.
+     * @param  obj                                 Must be a Location object
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
+     * @exception  ClassCastException              Thrown if the passed in Obejct is not a Location.
      */
     public void set( int row, int column, Object obj ) throws ArrayIndexOutOfBoundsException, ClassCastException {
 
@@ -89,11 +98,13 @@ public class GriddedSurface
 
 
     /**
-     *  add a Location to the grid
+     *  Add a Location to the grid - does the same thing as set except that it
+     *  ensures the object is a Location object.
      *
-     * @param  row       The new location value
-     * @param  column    The new location value
-     * @param  location  The new location value
+     * @param  row                                 The row to set this Location at.
+     * @param  column                              The column to set this Location at.
+     * @param  location                            The new location value.
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
      */
     public void setLocation( int row, int column, Location location ) {
         super.set( row, column, location );
@@ -101,9 +112,8 @@ public class GriddedSurface
 
 
     /**
-     *  Sets the aveStrike attribute of the GriddedSurface object
-     *
-     * @param  aveStrike  The new aveStrike value
+     * Sets the average strike of this surface on the Earth. An InvalidRangeException
+     * is thrown if the ave strike is not a valid value, i.e. must be > 0, etc.
      */
     public void setAveStrike( double aveStrike ) throws InvalidRangeException{
         FaultUtils.assertValidStrike( aveStrike );
@@ -115,9 +125,8 @@ public class GriddedSurface
 
 
     /**
-     *  Sets the aveDip attribute of the GriddedSurface object
-     *
-     * @param  aveDip  The new aveDip value
+     * Sets the average dip of this surface into the Earth. An InvalidRangeException
+     * is thrown if the ave strike is not a valid value, i.e. must be > 0, etc.
      */
     public void setAveDip( double aveDip ) throws InvalidRangeException{
         FaultUtils.assertValidDip( aveDip );
@@ -128,12 +137,13 @@ public class GriddedSurface
 
 
     /**
-     *  Get a Location to the grid, unless it doesn't exist
+     *  Retrieves a Location in the 2D grid - does the same thing as get except
+     *  that it casts the returned object to a Location.
      *
-     * @param  row                    Description of the Parameter
-     * @param  col                    Description of the Parameter
-     * @return                        The location value
-     * @exception  LocationException  Description of the Exception
+     * @param  row     The row to get this Location from.
+     * @param  column  The column to get this Location from.
+     * @return         The location stored at the row and column.
+     * @exception  LocationException  Thown if the object being retrieved cannot be cast to a Location.
      */
     public Location getLocation( int row, int col )
              throws LocationException {
@@ -146,74 +156,30 @@ public class GriddedSurface
     }
 
 
-    /**
-     *  Gets the aveStrike attribute of the GriddedSurface object
-     *
-     * @return    The aveStrike value
-     */
-    public double getAveStrike() {
-        return aveStrike;
-    }
+    /** Returns the average strike of this surface on the Earth.  */
+    public double getAveStrike() { return aveStrike; }
+
+    /** Returns the average dip of this surface into the Earth.  */
+    public double getAveDip() { return aveDip; }
+
+    /** Returns the surface area that this GriddedSurface covers in KM**2 */
+    public double getSurfaceArea() { return surfaceArea; }
 
 
-    /**
-     *  Gets the aveDip attribute of the GriddedSurface object
-     *
-     * @return    The aveDip value
-     */
-    public double getAveDip() {
-        return aveDip;
-    }
+
+    /** Does same thing as listIterator() in super Interface */
+    public ListIterator getLocationsIterator() { return super.listIterator(); }
 
 
-    /**
-     *  KM**2
-     *
-     * @return    The surfaceArea value
-     */
-    public double getSurfaceArea() {
-        return surfaceArea;
-    }
+    /** FIX *** Needs to be implemented */
+    public double computeAveStrike() { return 0; }
 
+    /** FIX *** Needs to be implemented */
+    public double computeAveDip() { return 0; }
 
-    /**
-     *  Gets the locationsIterator attribute of the GriddedSurface object
-     *
-     * @return    The locationsIterator value
-     */
-    public ListIterator getLocationsIterator() {
-        return super.listIterator();
-    }
+    /** FIX *** Needs to be implemented */
+    public double computeSurfaceArea() { return 0; }
 
-
-    /**
-     *  FIX *** Needs to be implemented
-     *
-     * @return    Description of the Return Value
-     */
-    public double computeAveStrike() {
-        return 0;
-    }
-
-
-    /**
-     *  FIX *** Needs to be implemented
-     *
-     * @return    Description of the Return Value
-     */
-    public double computeAveDip() {
-        return 0;
-    }
-
-
-    /**
-     *  FIX *** Needs to be implemented
-     *
-     * @return    Description of the Return Value
-     */
-    public double computeSurfaceArea() {
-        return 0;
-    }
 
     final static char TAB = '\t';
     /** Prints out each location and fault information for debugging */

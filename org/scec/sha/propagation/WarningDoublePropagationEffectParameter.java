@@ -8,36 +8,43 @@ import org.scec.param.event.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.earthquake.*;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> WarningDoublePropagationEffectParameter<p>
- * <b>Description:</b><p>
+ *
+ * <b>Description:</b> Base Propagation Effect Parameter
+ * that implements the WarningParameterAPI. This class
+ * is only needed and distinct from the WarningDoubleParameter
+ * because multiple inheritance is not supported in Java.
+ * These PropagationEffect Parameters need a different
+ * base class (PropagationEffectParameter) than the
+ * WarningDoubleParameter ( DoubleParameter ). It basically
+ * has the same functionality. See WarningDoublepParameter
+ * for further documentation.
+ * <p>
  *
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public abstract class WarningDoublePropagationEffectParameter
     extends PropagationEffectParameter
     implements WarningParameterAPI
 {
 
-     /**
-     *  THe constraint for this Parameter.
-     */
+     /** The warning constraint for this Parameter. */
     protected DoubleConstraint warningConstraint = null;
 
     /**
-     * Only created if needed, else kept null.
+     * Listeners that are interested in receiveing
+     * warnings when the warning constraints are exceeded.
+     * Only created if needed, else kept null, i.e. "Lazy Instantiation".
      */
     protected Vector warningListeners = null;
 
     /**
-     * Set to true to turn off warnings, will automatically set the value, unless
-     * exceeds Absolute contrsints.
+     * Set to true to turn off warnings, will automatically set the value,
+     * unless exceeds Absolute contrsints.
      */
-    private boolean ignoreWarning;
+    protected boolean ignoreWarning;
 
 
     /**
@@ -57,12 +64,10 @@ public abstract class WarningDoublePropagationEffectParameter
 
 
 
+
     /**
-     *  Adds a feature to the ParameterChangeFailListener attribute of the
-     *  ParameterEditor object
-     *
-     * @param  listener  The feature to be added to the
-     *      ParameterChangeFailListener attribute
+     * Adds a listener to receive warning events when the warning constraints are exceeded.
+     * Only permitted if this parameter is currenlty editable, else an EditableException is thrown.
      */
     public synchronized void addParameterChangeWarningListener( ParameterChangeWarningListener listener )
         throws EditableException
@@ -77,9 +82,8 @@ public abstract class WarningDoublePropagationEffectParameter
     }
 
     /**
-     *  Description of the Method
-     *
-     * @param  listener  Description of the Parameter
+     * Adds a listener to receive warning events when the warning constraints are exceeded.
+     * Only permitted if this parameter is currenlty editable, else an EditableException is thrown.
      */
     public synchronized void removeParameterChangeWarningListener( ParameterChangeWarningListener listener )
         throws EditableException
@@ -92,9 +96,13 @@ public abstract class WarningDoublePropagationEffectParameter
             warningListeners.removeElement( listener );
     }
 
-    /**
-     *  Sets the constraint if it is a DoubleConstraint and the parameter
+     /**
+     * Sets the constraint if it is a DoubleConstraint and the parameter
      *  is currently editable.
+     *
+     * @param warningConstraint     The new constraint for warnings
+     * @throws ParameterException   Thrown if the constraint is not a DoubleConstraint
+     * @throws EditableException    Thrown if the isEditable flag set to false.
      */
     public void setWarningConstraint(DoubleConstraint warningConstraint)
         throws ParameterException, EditableException
@@ -105,18 +113,14 @@ public abstract class WarningDoublePropagationEffectParameter
         this.warningConstraint = warningConstraint;
     }
 
-    /**
-     *  Gets the warning constraint.
-     */
+    /** Returns the warning constraint. May return null. */
     public DoubleConstraint getWarningConstraint() throws ParameterException{
         return warningConstraint;
     }
 
     /**
-     *  Gets the min value of the constraint object.
-     *
-     * @return                The min value
-     * @exception  Exception  Description of the Exception
+     *  Gets the min value of the constraint object. If the constraint
+     *  is not set returns null.
      */
     public Double getWarningMin() throws Exception {
         if ( warningConstraint != null ) return warningConstraint.getMin();
@@ -125,10 +129,9 @@ public abstract class WarningDoublePropagationEffectParameter
 
 
     /**
-     *  Returns the maximum allowed values.
-     *
-     * @return    The max value
-     */
+     *  Returns the maximum allowed value of the constraint
+     *  object. If the constraint is not set returns null.
+     */`
     public Double getWarningMax() {
         if ( warningConstraint != null ) return warningConstraint.getMax();
         else return null;
@@ -136,10 +139,13 @@ public abstract class WarningDoublePropagationEffectParameter
     }
 
 
-
-
     /**
-     *  Set's the parameter's value.
+     *  Set's the parameter's value. There are several checks that must pass
+     *  before the value can be set.  The parameter must be currently editable,
+     *  else an EditableException is thrown. The warning constraints, if set will
+     *  throw a WarningException if exceeded. Finally if all other checks pass,
+     *  if the absoulte constraints are set, they cannot be exceeded. If they are
+     *  a Constraint Exception is thrown.
      *
      * @param  value                 The new value for this Parameter
      * @throws  ParameterException   Thrown if the object is currenlty not
@@ -182,12 +188,9 @@ public abstract class WarningDoublePropagationEffectParameter
 
 
     /**
-     *  Set's the parameter's value.
-     *
-     * @param  value                 The new value for this Parameter
-     * @throws  ParameterException   Thrown if the object is currenlty not
-     *      editable
-     * @throws  ConstraintException  Thrown if the object value is not allowed
+     *  Set's the parameter's value bypassing all checks including
+     *  the absolute constraint check. WARNING: SWR: This may be a bug.
+     *  Should we bypass the Absolute Constraints. ???
      */
     public void setValueIgnoreWarning( Object value ) throws ConstraintException, ParameterException {
         this.value = value;
@@ -195,10 +198,11 @@ public abstract class WarningDoublePropagationEffectParameter
 
     /**
      *  Uses the constraint object to determine if the new value being set is
-     *  within recommended range. If no Constraints are present all values are recommended.
+     *  within recommended range. If no Constraints are present all values are
+     *  recommended, including null.
      *
      * @param  obj  Object to check if allowed via constraints
-     * @return      True if the value is allowed
+     * @return      True if the value is allowed.
      */
     public boolean isRecommended( Object obj ) {
         if ( warningConstraint != null ) return warningConstraint.isAllowed( obj );
@@ -208,9 +212,7 @@ public abstract class WarningDoublePropagationEffectParameter
 
 
     /**
-     *  Description of the Method
-     *
-     * @param  event  Description of the Parameter
+     * Notifes all listeners of a ChangeWarningEvent has occured.
      */
     public void fireParameterChangeWarning( ParameterChangeWarningEvent event ) {
 

@@ -5,22 +5,29 @@ import org.scec.exceptions.*;
 import org.scec.param.*;
 import org.scec.sha.earthquake.*;
 
-// Fix - Needs more comments
+// FIX *** FIX *** SWR: Many functions not implemented. Is this class still needed???
 
 /**
  * <b>Title:</b> PropagationEffect<p>
  *
- * <b>Description:</b> The parameter options are held internally as a ParamterList
- * of PropagationEffectCalculator objects, which extend Paramter. When passed a
- * paramName String, the code will return: <p>
+ * <b>WARNING:</b> SWR: I noticed alot of incomplete functions in this class. Is
+ * this class even being used??? <p>
  *
- * <code>PropagationEffectCalculator.getParamterName() == paramName</code> <p>
+ * <b>Description:</b> This is a ParameterList of PropagationEffectParameters that also maintains
+ * a reference to the Site and probEqkRupture objects that are common
+ * to all the parameters. Recall from the PropagationEffectParameter documentation
+ * these two parameters can be set in the PropagationEffectParameter to
+ * uniquly determine the parameters's value, bypassing the normal useage
+ * of setValue() to update the parameter's value. <p>
  *
- * and will then return the value given by the getParameterValue() method for that
- * PropagationEffectCalculator.  One can create and add a new, arbitrary
- * PropagationEffectCalculator() to the vector of options.<p>
+ * The parameter options are held internally as a ParamterList
+ * of PropagationEffectParameter objects which extend Paramter. These parameters
+ * can be access by name, and the value can also be returned. <p>
  *
- * However, this class recognizes (and checks for first) the following
+ * Since this class is a ParameterList one can create and add a new, arbitrary
+ * PropagationEffectCalculator() to the vector of options. More importantly
+ * this class also maintains a list of pre-defined parameters. This class
+ * recognizes (and checks for first) the following
  * common propagation-effect parameter names (used in existing
  * IntensityMeasureRelationships) and performs some of the calculations
  * simultaneously to increase efficiency (e.g., it's faster to compute
@@ -45,20 +52,24 @@ import org.scec.sha.earthquake.*;
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class PropagationEffect extends ParameterList {
 
-    protected Site site;
-	protected ProbEqkRupture probEqkRupture;
+
+    /** The Site used for calculating the PropagationEffect parameter values. */
+    protected Site site = null;
+
+    /** The ProbEqkRupture used for calculating the PropagationEffect parameter values.*/
+    protected ProbEqkRupture probEqkRupture = null;
 
     /** is held in object, and added to vector of PropagationEffectParameters
-     * values - int 0 or 1
+     * values - int 0 or 1. SWR: ??? Not sure what this means.
      */
     protected DoubleParameter AS_1997_HangingWall;
 
     /** is held in object, and added to vector of PropagationEffectParameters
      * fraction of fault length that ruptures toward
-     * the site; a directivity parameter*/
+     * the site; a directivity parameter.  SWR: ??? Not sure what this means.
+     */
     protected DoubleParameter abrahamson_2000_X;
 
     /** is held in object, and added to vector of PropagationEffectParameters.
@@ -77,72 +88,100 @@ public class PropagationEffect extends ParameterList {
    	protected DoubleParameter distanceSeis;
 
 
+    /** No Argument consructor */
+    public PropagationEffect() { }
 
-    public PropagationEffect() {
-    }
-
-    public PropagationEffect( Site site, ProbEqkRupture pe) {
-
-    }
+    /** FIX - Currently does nothing, should set the variables */
+    public PropagationEffect( Site site, ProbEqkRupture pe) {}
 
 
+    /** Returns the common Site fo all internal parametes */
     public Site getSite() { return site; }
-	/** also update all calculators with new site? */
+	/**
+     *  Sets the common Site fo all internal parameters.
+     *  FIX *** Should update all parameters in the list.
+     */
     public void setSite(Site site) { this.site = site; }
 
-	public ProbEqkRupture getProbEqkRupture() { return probEqkRupture; }
-	/** also update all calculators with new ProbEqkRupture? */
+	/** Returns the common ProbEqkRupture fo all internal parametes */
+    public ProbEqkRupture getProbEqkRupture() { return probEqkRupture; }
+	/**
+     *  Sets the ProbEqkRupture Site fo all internal parameters.
+     *  FIX *** Should update all parameters in the list.
+     */
     public void setProbEqkRupture(ProbEqkRupture pe) { probEqkRupture = pe; }
 
 
 
     /**
-     * Used to add calculators to list. Also can use the
-     * more general parameter list API
+     * Used to add Propagation Effect Parameters to list. Also can use the
+     * more general parameter list API in the parent class. This one is here
+     * for convinience.
+     *
+     * FIX *** Currently does nothing.
      */
     public void AddPropagationEffectParameter(PropagationEffectParameter parameter) {
 
     }
 
-    /** update both existing PE and Site */
+    /**
+     * Update both existing PE and Site, recalculates all parameter.
+     * FIX *** Currently does nothing.
+    */
     public Object getValue(String paramName, Site site, ProbEqkRupture pe ) {
     	return null;
     }
 
-    /** update existing Site */
+    /**
+     * Update existing Site, then recalculates the parameters,
+     * returning a result for a specific parameter.
+     * FIX *** Currently does nothing.
+     */
     public Object getValue(String paramName, Site site) {
     	return null;
     }
 
-    /** update existing Earthquake */
+    /**
+     * Update existing ProbEqkRupture, then recalculates the parameters,
+     * returning a result for a specific parameter.
+     * FIX *** Currently does nothing.
+     */
     public Object getValue(String paramName,
 			   ProbEqkRupture probEqkRuptureObj ) {
     	return null;
     }
 
+    /**
+     * Returns the calculated value for one specific parameter in this list.
+     * FIX *** Currently does nothing.
+     */
     public Object getValue(String paramName) {
     	return null;
     }
 
-    /** set's a new value to a Parameter in the list, if it exists, else throws exception */
+    /**
+     * Set's a new value to a Parameter in the list, if it exists, else throws exception
+     * FIX *** Currently does nothing.
+     */
     public void setValue(String name, Object value) throws ParameterException, ConstraintException {
         throw new java.lang.UnsupportedOperationException("This subclass doesn't permit modifications");
     }
 
 
 
-
-
-
-
+    /** Returns the value for the specified rpe-defined parameter */
     public Double getAS_1997_HangingWall() { return (Double)AS_1997_HangingWall.getValue(); }
+    /** Returns the value for the specified rpe-defined parameter */
     public Double getAbrahamson_2000_X() { return (Double)abrahamson_2000_X.getValue(); }
+    /** Returns the value for the specified rpe-defined parameter */
     public Double getAbrahamson_2000_Theta() { return (Double)abrahamson_2000_Theta.getValue(); }
 
+    /** Returns the value for the specified rpe-defined parameter */
     public Double getDistanceRup() { return (Double)distanceRup.getValue(); }
+    /** Returns the value for the specified rpe-defined parameter */
     public Double getDistanceJB() { return (Double)distanceJB.getValue(); }
+    /** Returns the value for the specified rpe-defined parameter */
     public Double getDistanceSeis() { return (Double)distanceSeis.getValue(); }
-
 
 
 }

@@ -8,49 +8,56 @@ import org.scec.param.*;
 import org.scec.sha.calc.*;
 import org.scec.calc.RelativeLocation;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> DistanceSeisParameter<p>
  *
- * <b>Description:</b> This computes the closest distance to the seimogenic part of the fault;
+ * <b>Description:</b> Special subclass of PropagationEffectParameter.
+ * This computes the closest distance to the seimogenic part of the fault;
  * that is, the closest distance to the part of the fault that is below the seimogenic
  * thickness (seisDepth); this depth is currently hardwired at 3 km, but we can add
  * setSeisDepth() and getSeisDepth() methods if desired (the setter will have to create
  * a new constraint with seisDepth as the lower bound, which can be done even if the
  * parameter has been set as non editable). <p>
  *
+ * @see DistanceRupParameter
+ * @see DistanceJBParameter
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class DistanceSeisParameter
      extends WarningDoublePropagationEffectParameter
      implements WarningParameterAPI
 {
 
 
-    /* Debbuging variables */
+    /** Class name used in debug strings */
     protected final static String C = "DistanceSeisParameter";
+    /** If true debug statements are printed out */
     protected final static boolean D = false;
 
 
+    /** Hardcoded name */
     private final static String NAME = "DistanceSeis";
+    /** Hardcoded units string */
     private final static String UNITS = "km";
+    /** Hardcoded info string */
     private final static String INFO = "Seismogenic Distance (closest distance to seismogenic part of fault surface)";
-    // Min value depends on chosen seismogenic thickness
+
+    /** Hardcoded max allowed value */
     private final static Double MAX = new Double(Double.MAX_VALUE);
 
-    // set default seismogenic depth
-    // actually hard-wired for now.
+    /** set default seismogenic depth. actually hard-wired for now. */
     private double seisDepth = 3.0;
 
 
-    /**  */
+    /**
+     * No-Arg constructor that just calls init() with null constraints.
+     * All value are allowed.
+     */
     public DistanceSeisParameter() { init(); }
 
 
-    /**  */
+    /** Constructor that sets up constraints. This is a constrained parameter. */
     public DistanceSeisParameter(ParameterConstraintAPI warningConstraint)
         throws ConstraintException
     {
@@ -64,7 +71,7 @@ public class DistanceSeisParameter
     }
 
 
-
+    /** Initializes the constraints, name, etc. for this parameter */
     protected void init( DoubleConstraint warningConstraint){
         this.warningConstraint = warningConstraint;
         this.constraint = new DoubleConstraint(seisDepth, Double.MAX_VALUE );
@@ -76,8 +83,14 @@ public class DistanceSeisParameter
         //setNonEditable();
     }
 
+    /** Initializes the constraints, name, etc. for this parameter */
     protected void init(){ init( null ); }
 
+    /**
+     * SWR: Note - This function's performance could be increased by having
+     * RelativeLocation return a double instead of a Direction for the function call
+     * <code>Direction dir = RelativeLocation.getDirection(loc1, loc2)</code>
+     */
     protected void calcValueFromSiteAndPE(){
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 
@@ -107,7 +120,7 @@ public class DistanceSeisParameter
 
     }
 
-
+    /** This is used to determine what widget editor to use in GUI Applets.  */
     public String getType() {
         String type = "DoubleParameter";
         // Modify if constrained

@@ -7,48 +7,59 @@ import org.scec.util.FaultUtils;
 import org.scec.data.Location;
 import org.scec.exceptions.InvalidRangeException;
 
-// Fix - Needs more comments
-
 /**
- *  <b>Title:</b> PointSurface<p>
+ * <b>Title:</b> PointSurface<p>
  *
- *  <b>Description:</b> Represents a point source for a Potential Earthquake,
- *  i.e. the simplist model, with no rupture surface. However all the methods
- *  of a GriddedSurface are implemented so it looks like a surface instead of
- *  a point source<p>
+ * <b>Description:</b> This is a special case of the GriddedSurface
+ * that defaults to one point, i.e. there is only one Location, and the
+ * grid size is only [1,1], one row and one column. <p>
+ *
+ * This will be used by point source models of Potential Earthquake.
+ * This is the simplist model, with no rupture surface. <p>
+ *
+ * Note: all the methods of a GriddedSurface are implemented so it behaves
+ * just like a surface instead of a point source. Thus this class can
+ * be used anywhere a GriddedSurface can. It plugs right into the framework.<p>
+ *
+ * Since there is only one Location this class extends Location instead of the
+ * base implementing GriddedSurface class. There is no need to set up an array,
+ * etc. All the list accessor functions can be bypassed and simply return this
+ * location everytime. Improves performace over the base class. <p>
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002
  * @version    1.0
  */
-
 public class PointSurface extends Location implements GriddedSurfaceAPI {
 
     /**
-     *  Description of the Field
+     * The average strike of this surface on the Earth. Even though this is a
+     * point source, an average strike can be assigned to it to assist with
+     * particular scientific caculations. Initially set to NaN.
      */
     protected double aveStrike=Double.NaN;
+
     /**
-     *  Description of the Field
+     * The average dip of this surface into the Earth. Even though this is a
+     * point source, an average dip can be assigned to it to assist with
+     * particular scientific caculations. Initially set to NaN.
      */
     protected double aveDip=Double.NaN;
 
+    /** The name of this point source.  */
     protected String name;
 
-    /**
-     *  Constructor for the PointSurface object
-     */
-    public PointSurface() {
-        super();
-    }
+    /** Constructor for the PointSurface object - just calls super(). */
+    public PointSurface() { super(); }
 
 
     /**
-     *  Constructor for the PointSurface object
+     *  Constructor for the PointSurface object. Sets all the fields
+     *  for a Location object. Mirrors the Location constructor.
      *
-     * @param  lat    Description of the Parameter
-     * @param  lon    Description of the Parameter
-     * @param  depth  Description of the Parameter
+     * @param  lat    latitude for the Location of this point source.
+     * @param  lon    longitude for the Location of this point source.
+     * @param  depth  depth below the earth for the Location of this point source.
      */
     public PointSurface( double lat, double lon, double depth ) {
         super( lat, lon, depth );
@@ -56,9 +67,10 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
 
 
     /**
-     *  Sets the aveStrike attribute of the PointSurface object
-     *
-     * @param  aveStrike  The new aveStrike value
+     * Sets the average strike of this surface on the Earth. An InvalidRangeException
+     * is thrown if the ave strike is not a valid value, i.e. must be > 0, etc.
+     * Even though this is a point source, an average strike can be assigned to
+     * it to assist with particular scientific caculations.
      */
     public void setAveStrike( double aveStrike ) throws InvalidRangeException{
         FaultUtils.assertValidStrike( aveStrike );
@@ -66,11 +78,11 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
     }
 
 
-
     /**
-     *  Sets the aveDip attribute of the PointSurface object
-     *
-     * @param  aveDip  The new aveDip value
+     * Sets the average dip of this surface into the Earth. An InvalidRangeException
+     * is thrown if the ave strike is not a valid value, i.e. must be > 0, etc.
+     * Even though this is a point source, an average dip can be assigned to
+     * it to assist with particular scientific caculations.
      */
     public void setAveDip( double aveDip ) throws InvalidRangeException{
         FaultUtils.assertValidDip( aveDip );
@@ -80,14 +92,15 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
 
 
 
-
     /**
-     *  Sets the location attribute of the PointSurface object
+     *  Add a Location to the grid - does the same thing as set except that it
+     *  ensures the object is a Location object. Note that x and y must always
+     *  be 0,0.
      *
-     * @param  x                                   The new location value
-     * @param  y                                   The new location value
-     * @param  location                            The new location value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  row                                 The row to set this Location at.
+     * @param  column                              The column to set this Location at.
+     * @param  location                            The new location value.
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
      */
     public void setLocation( int x, int y, Location location ) throws ArrayIndexOutOfBoundsException {
         if ( x == 0 && y == 0 ) {
@@ -98,11 +111,7 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
     }
 
 
-    /**
-     *  Sets the location attribute of the PointSurface object
-     *
-     * @param  location  The new location value
-     */
+    /** Since this is a point source, the single Location can be set without indexes. Does a clone copy. */
     public void setLocation( Location location ) {
         this.setLatitude( location.getLatitude() );
         this.setLongitude( location.getLongitude() );
@@ -111,13 +120,14 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
 
 
     /**
-     *  set an object in the 2D grid
+     *  Set an object in the 2D grid. Ensures the object passed in is a Location.
+     *  Note that x and y must always be 0,0.
      *
-     * @param  row                                 Description of the Parameter
-     * @param  column                              Description of the Parameter
-     * @param  obj                                 Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
-     * @exception  ClassCastException              Description of the Exception
+     * @param  row                                 The row to set the Location. Must be 0.
+     * @param  column                              The row to set the Location. Must be 0.
+     * @param  obj                                 Must be a Location object
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if the row or column lies beyond the grid space indexes.
+     * @exception  ClassCastException              Thrown if the passed in Obejct is not a Location.
      */
     public void set( int row, int column, Object obj )
              throws
@@ -138,53 +148,32 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
     }
 
 
-    /**
-     *  Gets the aveStrike attribute of the PointSurface object
-     *
-     * @return    The aveStrike value
-     */
-    public double getAveStrike() {
-        return aveStrike;
-    }
+    /** Returns the average strike of this surface on the Earth.  */
+    public double getAveStrike() { return aveStrike; }
+
+    /** Returns the average dip of this surface into the Earth.  */
+    public double getAveDip() { return aveDip; }
+
+    /** Returns a clone copy of the Location of this point source  */
+    public Location getLocation(){ return cloneLocation(); }
 
 
     /**
-     *  Gets the aveDip attribute of the PointSurface object
+     *  Gets the location attribute of the PointSurface object. Does the same
+     *  thing as get except that it casts the returned object to a Location.
+     *  Note that x and y must always be 0,0.
      *
-     * @return    The aveDip value
-     */
-    public double getAveDip() {
-        return aveDip;
-    }
-
-
-    /**
-     *  Returns a clone of this PointSurface Location fields
-     *
-     * @return    The location value
-     */
-    public Location getLocation() {
-        return cloneLocation();
-    }
-
-
-    /**
-     *  Gets the location attribute of the PointSurface object
-     *
-     * @param  row     Description of the Parameter
-     * @param  column  Description of the Parameter
-     * @return         The location value
+     * @param  row     The row to get this Location from. Must be 0.
+     * @param  column  The column to get this Location from. Must be 0.
+     * @return         The location stored at the row and column.
+     * @exception  LocationException  Thown if the object being retrieved cannot be cast to a Location.
      */
     public Location getLocation( int row, int column ) {
         return getLocation();
     }
 
 
-    /**
-     *  Gets the locationsIterator attribute of the PointSurface object
-     *
-     * @return    The locationsIterator value
-     */
+    /** Does same thing as listIterator() in super Interface. Will contain only one Location */
     public ListIterator getLocationsIterator() {
 
         Vector v = new Vector();
@@ -193,78 +182,39 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
     }
 
 
-    /**
-     *  iterate over all columns in one row of the surface
-     *
-     * @param  row                                 Description of the Parameter
-     * @return                                     The columnIterator value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
-     */
+     /** return getLocationsIterator() */
     public ListIterator getColumnIterator( int row ) throws ArrayIndexOutOfBoundsException {
         return getLocationsIterator();
     }
 
-
-    /**
-     *  iterate over all rows in one column in the surface
-     *
-     * @param  column                              Description of the Parameter
-     * @return                                     The rowIterator value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
-     */
+    /** return getLocationsIterator() */
     public ListIterator getRowIterator( int column ) throws ArrayIndexOutOfBoundsException {
         return getLocationsIterator();
     }
 
+    /** return getLocationsIterator() */
+    public ListIterator getAllByColumnsIterator() { return getLocationsIterator(); }
 
-    /**
-     *  iterate over all points, all rows per column, iterating over all columns
-     *
-     * @return    The allByColumnsIterator value
-     */
-    public ListIterator getAllByColumnsIterator() {
-        return getLocationsIterator();
-    }
+    /** return getLocationsIterator() */
+    public ListIterator getAllByRowsIterator() { return getLocationsIterator();}
 
 
-    /**
-     *  iterate over all points, all columns per row, iterating over all rows
-     *
-     * @return    The allByRowsIterator value
-     */
-    public ListIterator getAllByRowsIterator() {
-        return getLocationsIterator();
-    }
+    /** Gets the numRows of the PointSurface. Always returns 1. */
+    public int getNumRows() { return 1; }
+
+
+    /** Gets the numRows of the PointSurface. Always returns 1. */
+    public int getNumCols() { return 1; }
 
 
     /**
-     *  Gets the numRows attribute of the PointSurface object
+     *  Get's the Location of this PointSource.
      *
-     * @return    The numRows value
-     */
-    public int getNumRows() {
-        return 1;
-    }
-
-
-    /**
-     *  Gets the numCols attribute of the PointSurface object
+     * @param  row              The row to get this Location from. Must be 0.
+     * @param  column           The column to get this Location from. Must be 0.
+     * @return Value            The Location.
      *
-     * @return    The numCols value
-     */
-    public int getNumCols() {
-        return 1;
-    }
-
-
-    /**
-     *  set's an object in the 2D grid
-     *
-     * @param  row                                 Description of the Parameter
-     * @param  column                              Description of the Parameter
-     * @return                                     Description of the Return
-     *      Value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if row or column not equal to 0.
      */
     public Object get( int row, int column )
              throws ArrayIndexOutOfBoundsException {
@@ -277,11 +227,7 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
     }
 
 
-    /**
-     *  Description of the Method
-     *
-     * @return    Description of the Return Value
-     */
+    /** Make a clone ( copies all fields ) of the Location. */
     protected Location cloneLocation() {
 
         Location location = new Location(
@@ -294,27 +240,20 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
     }
 
 
-    /**
-     *  Description of the Method
-     *
-     * @return    Description of the Return Value
-     */
-    public ListIterator listIterator() {
-        return getLocationsIterator();
-    }
+    /** return getLocationsIterator() */
+    public ListIterator listIterator() { return getLocationsIterator();}
 
 
-    /**
-     *  deletes all data
-     */
+    /** FIX *** Does nothing - should clear the Location values  */
     public void clear() { }
 
 
     /**
-     *  check if this grid point has data
+     *  Check if this grid point has data. Will return false for all
+     *  rows and columns != 0.
      *
-     * @param  row     Description of the Parameter
-     * @param  column  Description of the Parameter
+     * @param  row     The row to get this Location from. Must be 0.
+     * @param  column  The column to get this Location from. Must be 0.
      * @return         Description of the Return Value
      */
     public boolean exist( int row, int column ) {
@@ -326,28 +265,23 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
     }
 
 
-    /**
-     *  returns number of elements in array
-     *
-     * @return    Description of the Return Value
-     */
+
+    /** returns number of elements in array. Returns 1.  */
     public long size() {
         return 1L;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getName() {
-        return name;
-    }
+    /** Sets the name of this PointSource. Uesful for lookup in a list */
+    public void setName(String name) { this.name = name; }
+    /** Gets the name of this PointSource. Uesful for lookup in a list */
+    public String getName() { return name; }
 
     /**
      *  set's an object in the 2D grid
      *
-     * @param  row                                 Description of the Parameter
-     * @param  column                              Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  row            The row to get this Location from. Must be 0.
+     * @param  column         The column to get this Location from. Must be 0.
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if row or column is not zero.
      */
     public void delete( int row, int column )
              throws ArrayIndexOutOfBoundsException {

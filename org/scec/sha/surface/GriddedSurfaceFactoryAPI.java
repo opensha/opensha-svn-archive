@@ -1,19 +1,15 @@
 package org.scec.sha.surface;
 
-// Fix - Needs more comments
 
 /**
  * <b>Title:</b> GriddedSurfaceFactoryAPI<p>
  *
- * <b>Description:</b> All creators of GriddedSurfaces must implement this<p>
+ * <b>Description:</b> Interface for a Factory that
+ * will create various instances of the GriddedSurface
+ * and subclasses. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
  */
 
-
-public interface GriddedSurfaceFactoryAPI {
-
-    public GriddedSurfaceAPI getGriddedSurface();
-
-}
+public interface GriddedSurfaceFactoryAPI { public GriddedSurfaceAPI getGriddedSurface(); }

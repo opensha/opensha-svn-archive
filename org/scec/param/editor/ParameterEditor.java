@@ -12,25 +12,34 @@ import org.scec.gui.*;
 import org.scec.param.*;
 import org.scec.param.event.*;
 
-// Fix - Needs more comments
-
 /**
- *  <b>Title:</b> ParameterEditor<p>
+ * <b>Title:</b> ParameterEditor<p>
  *
- *  <b>Description:</b> This is the base Editor class that all Editors extend
- *  from This sets up a JPanel to have a Label on the left, cooresponding to the
- *  name of the Parameter, and a widget on the right. What the widget is depends
- *  on the subclass. It can be as simple as a JTextField, or a JComboList of
- *  selectable values cooresponding to the Parameter Constraints. All common
- *  functionality of the Editors are in this class. The only thing that
- *  subclasses have to deal with is setting the specific widget for the
- *  subclass, and how to handle key and focus events on this widget.<p>
+ * <b>Description:</b> This is the base Editor class that all Parameter
+ * GUI Editors extend to inherit the common functionality. This editor
+ * extends JPanel that uses a TitledBorder to display the name of the
+ * Parameter, and has an addWidget function that all subclasses will
+ * extend to add different types of text fields or picklists. <p>
+ *
+ * All the functionality of the Editors are in this class. The only thing that
+ * subclasses have to deal with is setting the specific widget for the
+ * subclass, and how to handle key and focus events on this widget. <p>
+
+ * The types of widgets added to edit the parameter value are JTextField,
+ * NumericTextField, IntegerTextField, or JComboBox for contrained values. <p>
+ *
+ * Note: There are many static constants such as Colors, fonts, etc. Subclasses
+ * should use these static instances. It will cut down on the number of classes
+ * instantiated, helps with performance, and maintains a common look and
+ * feel for this parameter framework. Each static field will not be commented,
+ * they should be self explainatory. You need to understand java Swing to
+ * understand all these constants. See each component's Javadoc for further
+ * documentation. <p>
  *
  * @author     Steven W. Rock
  * @created    April 17, 2002
  * @version    1.0
  */
-
 public class ParameterEditor
          extends JPanel
          implements
@@ -38,34 +47,50 @@ public class ParameterEditor
         FocusListener,
         KeyListener {
 
-    /** Class name for debugging. */
+        /** Class name for debugging. */
     protected final static String C = "ParameterEditor";
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
 
+    /** Default text for text field */
     protected final static String DATA_TEXT = "Enter data here";
+
+    /** Default string for parameter title */
     protected final static String LABEL_TEXT = "This is the Label";
     protected final static String EMPTY = "";
+
+    // static defined colors
     protected static Color BACK_COLOR = Color.white;
     protected static Color FORE_COLOR = new Color( 80, 80, 140 );
     protected static Color STRING_BACK_COLOR = Color.lightGray;
+
+    // dimensions for layout of components
     protected final static Dimension LABEL_DIM = new Dimension( 100, 14 );
     protected final static Dimension LABEL_PANEL_DIM = new Dimension( 100, 15 );
     protected final static Dimension WIGET_PANEL_DIM = new Dimension( 100, 19 );
     protected final static Dimension JCOMBO_DIM = new Dimension( 100, 18 );
+
+    // Panel layout manager
     protected final static GridBagLayout GBL = new GridBagLayout();
+
+    // insets used to layout components.
     protected final static Insets ZERO_INSETS = new Insets( 0, 0, 0, 0 );
     protected final static Insets FIVE_INSETS = new Insets( 0, 5, 0, 0 );
     protected final static Insets FIVE_FIVE_INSETS = new Insets( 0, 5, 0, 5 );
+
+    // Default fonts
     protected static Font JCOMBO_FONT = new Font( "SansSerif", 0, 10 );
     public static Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 11 );
     public static Font DEFAULT_FONT = new Font( "SansSerif", Font.PLAIN, 10 );
+
+    // Default borders
     protected final static Border BORDER = new SidesBorder( BACK_COLOR, BACK_COLOR, BACK_COLOR, BACK_COLOR );
     protected final static Border CONST_BORDER = BorderFactory.createLineBorder( Color.blue, 1 );
     protected final static Border FOCUS_BORDER = BorderFactory.createLineBorder( Color.orange, 1 );
     protected final static Border ETCHED = BorderFactory.createEtchedBorder();
 
+    // Constraints for each specific panel
     protected final static GridBagConstraints NAME_LABEL_GBC = new GridBagConstraints(
             0, 0, 1, 1, 1.0, 0.0, 10, 2, new Insets( 1, 5, 0, 0 ), 0, 0 );
 
@@ -81,39 +106,42 @@ public class ParameterEditor
     protected final static GridBagConstraints WIDGET_GBC = new GridBagConstraints(
             0, 0, 1, 1, 1.0, 0.0, 10, 2, new Insets( 1, 3, 0, 1 ), 0, 0 );
 
-    protected ParameterAPI model;
-
+    // Actually panels all other componets are placed in
     protected JPanel outerPanel = new JPanel();
     protected JPanel labelPanel = new JPanel();
     protected JPanel widgetPanel = new JPanel();
     protected JLabel nameLabel = new JLabel();
-    protected JComponent valueEditor = null;
     protected boolean focusEnabled = true;
-    TitledBorder titledBorder1;
     Border border1;
 
+    /** This border displays the name of the parameter. */
+    TitledBorder titledBorder1;
 
     /**
+     *  This is a VERY IMPORTANT component to understand this framework.
+     *  This is the component that all subclasses must overide. Could be a
+     *  JTextField, JComboBox, NumericTextField, etc.
+     */
+    protected JComponent valueEditor = null;
+
+    /** The internal parameter that this Editor is editing */
+    protected ParameterAPI model;
+
+    **
      * Flag whether to catch errors when constraint error thrown. Resets
-     * value to last value before setting with new value
+     * value to last value before setting with new value.
      */
     boolean catchConstraint = false;
 
 
-    /**
-     * Flag to indicate this widget is processing a key typed event
-     */
+    /** Flag to indicate that this widget is processing a key typed event */
     protected boolean keyTypeProcessing = false;
 
-    /**
-     * Flag to indicate that this widget is processing a focus lost event
-     */
+    /** Flag to indicate that this widget is processing a focus lost event */
     protected boolean focusLostProcessing = false;
 
 
-    /**
-     *  Constructor for the ParameterEditor object
-     */
+    /** Constructor for the ParameterEditor hat just calls jbinit().  */
     public ParameterEditor() {
 
         String S = C + ": Constructor(): ";
@@ -122,10 +150,11 @@ public class ParameterEditor
 
     }
 
+
     /**
-     *  Constructor for the ParameterEditor object
-     *
-     * @param  model  Description of the Parameter
+     *  Constructor for the ParameterEditor that set's the parameter
+     *  then calls jbInit(). Throws a NullPointerException if the
+     *  passed in parameter is null.
      */
     public ParameterEditor( ParameterAPI model ) {
 
@@ -140,10 +169,15 @@ public class ParameterEditor
     }
 
     /**
-     *  Needs to be called by subclasses when editable widget field changed
+     *  Needs to be called by subclasses when editable widget field changed.
+     *  If the input value is null, checks if the parameter allows nulls, else
+     *  returns without an update. If the value is not null, set's the parameter
+     *  value. The parameter may throw a constraint exception. If setting the
+     *  parameter succeedes a ParameterChangeEvent is created and all
+     *  parameter change listeners are notified of the new value.
      *
-     * @param  value                    The new value value
-     * @exception  ConstraintException  Description of the Exception
+     * @param  value                    The new value to set in the parameter.
+     * @exception  ConstraintException  Thrown if the parameter rejects the new value.
      */
     public void setValue( Object value ) throws ConstraintException {
 
@@ -189,10 +223,12 @@ public class ParameterEditor
 
 
     /**
-     *  This function sets the name and the value of this editor. It attempts to
-     *  use the constraint name if found, else uses the parameter name
-     *
-     * @param  model
+     *  Set's the parameter to be edited by this editor. The editor is
+     *  updated with the name of the parameter as well as the widget
+     *  component value. It attempts to use the Constraint name if
+     *  different from the parameter and present, else uses the
+     *  parameter name. This function actually just calls
+     *  removeWidget() then addWidget() then setWidgetObject().
      */
     public void setParameter( ParameterAPI model ) {
 
@@ -214,18 +250,19 @@ public class ParameterEditor
     }
 
     /**
-     *  Sets the asText attribute of the ParameterEditor object
-     *
-     * @param  string                        The new asText value
-     * @exception  IllegalArgumentException  Description of the Exception
+     * Set the value of the parameer as a String, regardless of it's true data type .
+     * Internally the string is converted to the correct data type if possible.
+     * This base class does nothing in this function, i.e. empty function. To be
+     * determined by subclasses.
      */
     public void setAsText( String string ) throws IllegalArgumentException { }
 
     /**
-     *  Sets the widgetObject attribute of the ParameterEditor object
-     *
-     * @param  name  The new widgetObject value
-     * @param  obj   The new widgetObject value
+     * VERY IMPORTANT function to understand this framework. This
+     * is the function overidden by all subclasses to add different types
+     * of editors. The titled border name is also updated. This base class
+     * has no editor widget assigned to it so it just updates the
+     * titled border parameter name and sets the tooltip.
      */
     protected void setWidgetObject( String name, Object obj ) {
         updateNameLabel( name );
@@ -233,9 +270,10 @@ public class ParameterEditor
     }
 
     /**
-     *  Sets the nameLabelToolTip attribute of the ParameterEditor object
-     *
-     * @param  str  The new nameLabelToolTip value
+     * The tooltip for the name label ( titled border ) can add
+     * additional informartion about the Parameter. Typically
+     * this info is too long to provide in the Parameter name,
+     * such as string units, etc.
      */
     protected void setNameLabelToolTip( String str ) {
 
@@ -248,76 +286,41 @@ public class ParameterEditor
             this.setToolTipText(null);
         }
     }
-
-    /**
-     *  Sets the focusEnabled attribute of the ParameterEditor object
-     *
-     * @param  newFocusEnabled  The new focusEnabled value
-     */
-    public void setFocusEnabled( boolean newFocusEnabled ) {
-        focusEnabled = newFocusEnabled;
-    }
+ /** Sets the focusEnabled boolean indicating this is the GUI componet with the current focus */
+    public void setFocusEnabled( boolean newFocusEnabled ) { focusEnabled = newFocusEnabled; }
 
 
-
-    /**
-     *  Gets the value attribute of the ParameterEditor object
-     *
-     * @return    The value value
-     */
+    /** Proxy call to the internal parameter to return it's value.  */
     public Object getValue() {
         return model.getValue();
     }
 
-    /**
-     *  Gets the parameter attribute of the ParameterEditor object
-     *
-     * @return    The parameter value
-     */
-    public ParameterAPI getParameter() {
-        return model;
-    }
+    /** Returns the parameter this editor is pointing to.  */
+    public ParameterAPI getParameter() { return model; }
 
-    /**
-     *  Gets the tags attribute of the ParameterEditor object
-     *
-     * @return    The tags value
-     */
-    public String[] getTags() {
-        return null;
-    }
+    /** Not sure what this is used for. This base class function is empty. */
+    public String[] getTags() { return null; }
 
-    /**
-     *  Gets the asText attribute of the ParameterEditor object
-     *
-     * @return    The asText value
-     */
-    public String getAsText() {
-        return getValue().toString();
-    }
+    /** Returns the value of the parameer as a String, regardless of it's true data type */
+    public String getAsText() { return getValue().toString(); }
 
-    /**
-     *  Gets the focusEnabled attribute of the ParameterEditor object
-     *
-     * @return    The focusEnabled value
-     */
-    public boolean isFocusEnabled() {
-        return focusEnabled;
-    }
+    /** Returns the focusEnabled boolean indicating this is the GUI componet with the current focus */
+    public boolean isFocusEnabled() { return focusEnabled; }
+
 
 
     /**
-     * Implemented in subclasses. Called if the model changes seperatly from the
-     * GUI, such as with the ParameterWarningListener.e
+     * Called when the parameter has changed independently from
+     * the editor, such as with the ParameterWarningListener.
+     * This function needs to be called to to update
+     * the GUI component ( text field, picklsit, etc. ) with
+     * the new parameter value. Implemented in subclasses.
      */
     public void synchToModel() { }
 
     /**
-     *  Needs to be called by subclasses when editable widget field change fails
-     *  due to constraint problems
-     *
-     * @param  value                    Description of the Parameter
-     * @exception  ConstraintException  Description of the Exception
+     * Needs to be called by subclasses when editable widget field change fails
+     * due to constraint problems. Allows rollback to the previous good value.
      */
     public void unableToSetValue( Object value ) throws ConstraintException {
 
@@ -336,10 +339,8 @@ public class ParameterEditor
 
 
     /**
-     *  Description of the Method
-     *
-     * @param  label  Description of the Parameter
-     * @return        Description of the Return Value
+     * Not sure what this is used for, but makes a JLabel with default values
+     * and sets the text to the passed in String.
      */
     public static JLabel makeConstantEditor( String label ) {
 
@@ -355,9 +356,8 @@ public class ParameterEditor
 
 
     /**
-     *  Description of the Method
-     *
-     * @exception  Exception  Description of the Exception
+     * Main GUI Initialization point. This block of code is updated by JBuilder
+     * when using it's GUI Editor.
      */
     protected void jbInit() throws Exception {
 
@@ -409,8 +409,9 @@ public class ParameterEditor
 
     }
 
-    /**
-     *  Description of the Method
+    /** Removes the Parameter editor component from this editor.
+     *  Allows this editor to be reconfigured to handle a
+     *  new type of parameter.
      */
     protected void removeWidget() {
         String S = C + ": addWidget(): ";
@@ -420,7 +421,20 @@ public class ParameterEditor
     }
 
     /**
-     *  Adds a feature to the Widget attribute of the ParameterEditor object
+     * VERY IMPORTANT function to understand this framework.
+     * This function must be overidden by all subclasses. This is
+     * where the particular type of editor component is added
+     * to the GUI for editing the particular type of parameter. <p>
+     *
+     * This base class sets the widget to a simple JTextField
+     * for an example of usage. This allows this editor
+     * to be able to edit an unconstrained String Parameter.
+     * No subclass is needed for that type of parameter. <p>
+     *
+     * Note: most subclasses add more complexity to this component.
+     * For example, the DoubleParameterEditor makes this widget
+     * componet an NumericTextField that only accepts numeric
+     * characters, such as digets and a period for the decimal place.
      */
     protected void addWidget() {
 
@@ -434,15 +448,12 @@ public class ParameterEditor
 
     }
 
+    /** Allows the GUI to set different borders to this editor for customization */
     public void setWidgetBorder(Border b){
         //((JTextField)valueEditor).setBorder(b);
     }
 
-    /**
-     *  Description of the Method
-     *
-     * @param  label  Description of the Parameter
-     */
+    /** Updates the name label (titled border ) of this editor with a new parameter name. */
     protected void updateNameLabel( String label ) {
 
         String units = model.getUnits();
@@ -459,42 +470,21 @@ public class ParameterEditor
         }
     }
 
-    /**
-     *  Description of the Method
-     *
-     * @param  e  Description of the Parameter
-     */
-    public void focusGained( FocusEvent e ) {
-    }
+    /** Called when this editor gains the GUI focus for keyboard and mouse events. */
+    public void focusGained( FocusEvent e ) { }
 
-    /**
-     *  Description of the Method
-     *
-     * @param  e  Description of the Parameter
-     */
+    /** Called when this editor looses the GUI focus for keyboard and mouse events. */
     public void focusLost( FocusEvent e ) {
     }
 
 
-    /**
-     *  Description of the Method
-     *
-     * @param  e  Description of the Parameter
-     */
+    /** Called when a key is typed in this editor. */
     public void keyTyped( KeyEvent e ) { }
 
-    /**
-     *  Description of the Method
-     *
-     * @param  e  Description of the Parameter
-     */
+    /** Called when a key is pressed in this editor. */
     public void keyPressed( KeyEvent e ) { }
 
-    /**
-     *  Description of the Method
-     *
-     * @param  e  Description of the Parameter
-     */
+    /** Called when a key was pressed and is now released in this editor. */
     public void keyReleased( KeyEvent e ) { }
 
 }

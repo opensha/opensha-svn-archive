@@ -8,40 +8,51 @@ import org.scec.param.*;
 import org.scec.sha.calc.*;
 import org.scec.calc.RelativeLocation;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> DistanceJBParameter<p>
- * <b>Description:</b> This finds the shortest distance to the surface projection of the
- * fault.<p>
  *
+ * <b>Description:</b> Special subclass of PropagationEffectParameter.
+ * This finds the shortest distance to the surface projection of the fault.
+ * <p>
+ *
+ * @see DistanceRupParameter
+ * @see DistanceSeisParameter
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class DistanceJBParameter
      extends WarningDoublePropagationEffectParameter
      implements WarningParameterAPI
 {
 
 
-    /* Debbuging variables */
+
+    /** Class name used in debug strings */
     protected final static String C = "DistanceJBParameter";
+    /** If true debug statements are printed out */
     protected final static boolean D = false;
 
 
+    /** Hardcoded name */
     private final static String NAME = "DistanceJB";
+    /** Hardcoded units string */
     private final static String UNITS = "km";
+    /** Hardcoded info string */
     private final static String INFO = "Joyner-Boore Distance (closest distance to surface projection of fault)";
+    /** Hardcoded min allowed value */
     private final static Double MIN = new Double(0.0);
+    /** Hardcoded max allowed value */
     private final static Double MAX = new Double(Double.MAX_VALUE);
 
 
-    /**  */
+    /**
+     * No-Arg constructor that just calls init() with null constraints.
+     * All value are allowed.
+     */
     public DistanceJBParameter() { init(); }
 
 
-    /**  */
+    /** Constructor that sets up constraints. This is a constrained parameter. */
     public DistanceJBParameter(ParameterConstraintAPI warningConstraint)
         throws ConstraintException
     {
@@ -54,7 +65,7 @@ public class DistanceJBParameter
         init( (DoubleConstraint)warningConstraint );
     }
 
-
+    /** Initializes the constraints, name, etc. for this parameter */
     protected void init( DoubleConstraint warningConstraint){
         this.warningConstraint = warningConstraint;
         this.constraint = new DoubleConstraint(MIN,MAX);
@@ -66,6 +77,7 @@ public class DistanceJBParameter
         //setNonEditable();
     }
 
+    /** Initializes the constraints, name, etc. for this parameter */
     protected void init(){ init( null ); }
 
     /**
@@ -96,10 +108,7 @@ public class DistanceJBParameter
     }
 
 
-    /**
-     * This is used to determine what editor to use
-     * @return
-     */
+    /** This is used to determine what widget editor to use in GUI Applets.  */
     public String getType() {
         String type = "DoubleParameter";
         // Modify if constrained

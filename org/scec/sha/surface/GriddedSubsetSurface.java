@@ -7,30 +7,35 @@ import org.scec.data.Location;
 import org.scec.data.*;
 
 /**
- *  <b>Title:</b> GriddedSubsetSurface<p>
+ * <b>Title:</b> GriddedSubsetSurface<p>
  *
- *  <b>Description:</b> Implements the same functionality as a GriddedSurface,
- *  but only maintains a small read only window view into a GriddedSurface. The
- *  Gridded Surface actually stores the data points.<p>
+ * <b>Description:</b> Implements the same functionality as a GriddedSurface,
+ * but only maintains a small read only window view into a GriddedSurface. The
+ * Gridded Surface actually stores the data points.<p>
  *
- *  <b>Note:</b> SetLocation, setAveStrike, setAveDip have been disabled, this
- *  class is read-only into the dataset. <p>
+ * <b>Note:</b> This class is purely a convinience class that translates indexes so the
+ * user can deal with a smaller window than the full GriddedSurface. Think of
+ * this as a "ZOOM" function into a GriddedSurface.<p>
  *
+ * <b>Note:</b> SetLocation, setAveStrike, setAveDip have been disabled, this
+ * class is read-only into the dataset. <p>
+ *
+ * @see Window2D
  * @author     Steven W. Rock
  * @created    February 26, 2002
  * @version    1.0
  */
-
 public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSurfaceAPI {
 
     /**
      *  Constructor for the GriddedSubsetSurface object
      *
-     * @param  numRows                             Description of the Parameter
-     * @param  numCols                             Description of the Parameter
-     * @param  startRow                            Description of the Parameter
-     * @param  startCol                            Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  numRows                             Specifies the length of the window.
+     * @param  numCols                             Specifies the height of the window
+     * @param  startRow                            Start row into the main GriddedSurface.
+     * @param  startCol                            Start column into the main GriddedSurface.
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if window indexes exceed the
+     * main GriddedSurface indexes.
      */
     public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol )
              throws ArrayIndexOutOfBoundsException {
@@ -41,12 +46,13 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
     /**
      *  Constructor for the GriddedSubsetSurface object
      *
-     * @param  numRows                             Description of the Parameter
-     * @param  numCols                             Description of the Parameter
-     * @param  startRow                            Description of the Parameter
-     * @param  startCol                            Description of the Parameter
-     * @param  data                                Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  numRows                             Specifies the length of the window.
+     * @param  numCols                             Specifies the height of the window
+     * @param  startRow                            Start row into the main GriddedSurface.
+     * @param  startCol                            Start column into the main GriddedSurface.
+     * @param  data                                The main GriddedSurface this is a window into
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if window indexes exceed the
+     * main GriddedSurface indexes.
      */
     public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol, GriddedSurfaceAPI data )
              throws ArrayIndexOutOfBoundsException {
@@ -54,13 +60,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
     }
 
 
-    /**
-     *  add a Location to the grid
-     *
-     * @param  row       The new location value
-     * @param  col       The new location value
-     * @param  location  The new location value
-     */
+    /** Add a Location to the grid. This method throws UnsupportedOperationException as it is disabled. */
     public void setLocation( int row, int col,
             org.scec.data.Location location ) {
         throw new java.lang.UnsupportedOperationException( "This function is not implemented in this subclass" );
@@ -68,14 +68,22 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
 
 
     /**
-     *  Change the extents of the underlying GriddedSurface that we are
-     *  referencing.
+     * Resizes the window view into the main GriddedSurface data. <p>
      *
-     * @param  startRow                            The new limits value
-     * @param  startCol                            The new limits value
-     * @param  numRows                             The new limits value
-     * @param  numCols                             The new limits value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * Note: This function uses some advanced features of a transactional nature.
+     * A transaction is basically a series of steps that must follow each other.
+     * If any of the steps fails, the previous steps must be rolled back. I
+     * perform this by calling initTransaction(), rollback() if error, else commit().
+     * It sounds more complicated than it it. This approach basically resets
+     * the window size to the starting size if any of the new indexes fail. Each
+     * is checked one at a time.
+     *
+     * @param  startRow                            The Start row into the main GriddedSurface.
+     * @param  startCol                            Start column into the main GriddedSurface.
+     * @param  numRows                             The new length of the window.
+     * @param  numCols                             The new height of the window
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if window indexes exceed the
+     * main GriddedSurface indexes.
      */
     public void setLimits(
             int startRow,
@@ -107,8 +115,14 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
     }
 
 
-    /**
-     *  replace the underlying surface with this surface
+     /**
+     * Replaces the real data of the GriddedSurface with
+     * a new surface. <p>
+     *
+     * Note: This could be a dangerous thing to do if the
+     * indexes are invalid for the new surface. I am not
+     * sure if this is being checked. Please consult the
+     * Container2D documentation for further information.
      *
      * @param  gs  The new newMainSurface value
      */
@@ -117,11 +131,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
     }
 
 
-    /**
-     *  Sets the aveStrike attribute of the GriddedSubsetSurface object
-     *
-     * @param  aveStrike  The new aveStrike value
-     */
+    /** Sets the aveStrike attribute of the GriddedSubsetSurface object. */
     public void setAveStrike( double aveStrike ) {
         ( ( GriddedSurface ) data ).setAveStrike( aveStrike );
     }
@@ -130,11 +140,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
 
 
 
-    /**
-     *  Sets the aveDip attribute of the GriddedSubsetSurface object
-     *
-     * @param  aveDip  The new aveDip value
-     */
+    /** Sets the aveDip attribute of the GriddedSubsetSurface object */
     public void setAveDip( double aveDip ) {
         ( ( GriddedSurface ) data ).setAveDip( aveDip );
     }
@@ -143,12 +149,19 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
 
 
     /**
-     *  Get a Location to the grid, unless it doesn't exist
+     *  Get a Location to the grid, unless it doesn't exist. Note
+     *  these points are translated to the real grid. FOr example
+     *  0 row and column returns from the GriddedSurface the Location
+     *  at (startRow, startColumn). <p>
      *
-     * @param  row                    Description of the Parameter
-     * @param  col                    Description of the Parameter
-     * @return                        The location value
-     * @exception  LocationException  Description of the Exception
+     * Recall that the grid point may be a valid point but there
+     * is no Location object stored at that grid point.
+     *
+     * @param  row                    The row index from which to obtain the Location, in subset coordinates.
+     * @param  col                    The column index from which to obtain the Location, in subset coordinates.
+     * @return                        The location value if found.
+     * @exception  LocationException  Thrown if a Location doesn't exist
+     * at the specified grid point.
      */
     public Location getLocation( int row, int col )
              throws LocationException {
@@ -162,37 +175,31 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
 
 
     /**
-     *  Gets the locationsIterator attribute of the GriddedSubsetSurface object
+     *  Gets the locationsIterator attribute of the GriddedSubsetSurface object.
+     *  Will return a subset iterator, not iterating over the whole GriddedSurface,
+     *  but just over the subset window points.
      *
-     * @return    The locationsIterator value
+     * @return    A listIterator of Location obejcts.
      */
     public ListIterator getLocationsIterator() {
         return this.listIterator();
     }
 
 
-    /**
-     *  returns the number of rows in the main GriddedSurface
-     *
-     * @return    The mainNumRows value
-     */
+    /** Proxy method that returns the number of rows in the main GriddedSurface. */
     public int getMainNumRows() {
         return data.getNumRows();
     }
 
 
-    /**
-     *  returns the number of colums in the main GriddedSurface
-     *
-     * @return    The mainNumCols value
-     */
+    /** Proxy method that returns the number of colums in the main GriddedSurface. */
     public int getMainNumCols() {
         return data.getNumCols();
     }
 
 
     /**
-     *  Gets the aveStrike attribute of the GriddedSubsetSurface object. <P>
+     *  Proxy method that returns the aveStrike of the main GriddedSurface. <P>
      *
      *  SWR: Note - should we be returning the main GriddedSurface ave strike,
      *  or the ave. strike for the subsurface, which may be different from the
@@ -206,7 +213,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
 
 
     /**
-     *  Gets the aveDip attribute of the GriddedSubsetSurface object. <P>
+     *  Proxy method that returns the aveDip of the main GriddedSurface. <P>
      *
      *  SWR: Note - should we be returning the main GriddedSurface ave. dip, or
      *  the ave. dip for the subsurface, which may be different from the main
@@ -218,8 +225,9 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
         return ( ( GriddedSurface ) data ).getAveDip();
     }
 
-
+    /** Debug string to represent a tab. Used by toString().  */
     final static char TAB = '\t';
+
     /** Prints out each location and fault information for debugging */
     public String toString(){
 

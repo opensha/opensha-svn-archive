@@ -9,12 +9,14 @@ import org.scec.sha.calc.*;
 import org.scec.calc.RelativeLocation;
 
 
-// Fix - Needs more comments
-
-/**
+//**
  * <b>Title:</b> DistanceRupParameter<p>
- * <b>Description:</b> This finds the shortest distance to the fault surface.<p>
  *
+ * <b>Description:</b> Special subclass of PropagationEffectParameter.
+ * This finds the shortest distance to the fault surface. <p>
+ *
+ * @see DistanceJBParameter
+ * @see DistanceSeisParameter
  * @author Steven W. Rock
  * @version 1.0
  */
@@ -23,24 +25,30 @@ public class DistanceRupParameter
      implements WarningParameterAPI
 {
 
-    /* Debbuging variables */
+
+    /** Class name used in debug strings */
     protected final static String C = "DistanceRupParameter";
+    /** If true debug statements are printed out */
     protected final static boolean D = false;
 
 
+    /** Hardcoded name */
     private final static String NAME = "DistanceRup";
+    /** Hardcoded units string */
     private final static String UNITS = "km";
+    /** Hardcoded info string */
     private final static String INFO = "Rupture Distance (closest distance to fault surface)";
+    /** Hardcoded min allowed value */
     private final static Double MIN = new Double(0.0);
+    /** Hardcoded max allowed value */
     private final static Double MAX = new Double(Double.MAX_VALUE);
 
 
-
-    /**  */
+    /** No-Arg constructor that calls init(). No constraint so all values are allowed.  */
     public DistanceRupParameter() { init(); }
 
 
-    /**  */
+    /** Constructor that sets up constraints. This is a constrained parameter. */
     public DistanceRupParameter(ParameterConstraintAPI warningConstraint)
         throws ConstraintException
     {
@@ -53,6 +61,7 @@ public class DistanceRupParameter
         init( (DoubleConstraint)warningConstraint );
     }
 
+    /** Sets default fields on the Constraint,  such as info and units. */
     protected void init( DoubleConstraint warningConstraint){
         this.warningConstraint = warningConstraint;
         this.constraint = new DoubleConstraint(MIN, MAX );
@@ -64,10 +73,15 @@ public class DistanceRupParameter
         //setNonEditable();
     }
 
+    /** Sets the warning constraint to null, then initializes the absolute constraint */
     protected void init(){ init( null ); }
 
 
-
+    /**
+     * SWR: Note - This function's performance could be increased by having
+     * RelativeLocation return a double instead of a Direction for the function call
+     * <code>Direction dir = RelativeLocation.getDirection(loc1, loc2)</code>
+     */
     protected void calcValueFromSiteAndPE(){
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 
@@ -95,7 +109,7 @@ public class DistanceRupParameter
 
     }
 
-
+    /** This is used to determine what widget editor to use in GUI Applets.  */
     public String getType() {
         String type = "DoubleParameter";
         // Modify if constrained

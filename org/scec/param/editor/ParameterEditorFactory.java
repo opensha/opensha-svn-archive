@@ -7,19 +7,30 @@ import org.scec.param.ParameterAPI;
 import org.scec.exceptions.ParameterException;
 import org.scec.param.ParameterConstraintAPI;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> ParameterEditorFactory<p>
  *
- * <b>Description:</b> This factory is used to create the appropiate Editor for a Parameter based on the
- * String type. This class uses a few rules to generate the complete package and class name of the
- * editor. This class is used by the ParameterListEditor and makes it so you can create new Parameter
- * classes without having to recompile the ParameterListEditor or this Foactory class.<p>
+ * <b>Description:</b> This factory is used to create the appropiate
+ * Editor for a Parameter based on the String type accessed by getType() that
+ * every Parameter subclass implements. This class uses a few rules to
+ * generate the complete package and class name of the editor. This class is
+ * used by the ParameterListEditor and makes it so you can create new Parameter
+ * classes without having to recompile the ParameterListEditor or this Factory class.
+ * In other words the ParameterEditors are dynamically loaded at runtime based on the
+ * paramter type. There is no hardcoding of editor information here.  <p>
  *
- * <b>Note:</b> This class is currently uses only static functions and variables. We may need to change this
- * in the future if many clients try to set the searchPaths. No synchronization has been built in yet. Susceptable
+ * <b>Note:</b> This class is currently uses only static functions and variables.
+ * We may need to change this in the future if many clients try to set the
+ * searchPaths. No synchronization has been built in yet. Susceptable
  * to multiple threads changing the searchPaths.<p>
+ *
+ * <b>Note: </b> This class only knows about ParameterEditor class. By creating
+ * the subclass full package and class name dynamically this class can use java
+ * Reflection API to dynamically create any subclass type, without knowing
+ * any details about it. This allows new editors to be designed in the future
+ * and added to the framework without modifying this Factory class nor
+ * our GUI components that use this Factory class to generate the Editors.
+ * Very flexible framework.
  *
  * @author Steven W. Rock
  * @version 1.0
@@ -37,19 +48,44 @@ public class ParameterEditorFactory {
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-
+    /** First path this Factory looks for Editor Classes */
     protected final static String DEFAULT_PATH = "org.scec.param.editor";
+
+    /**
+     * Additional search paths ( i.e. corresponds to java pacakges ) that the
+     * programmer can add to. Currently the org/scec/sha/propagation is
+     * an additional path.
+     */
     protected static String[] searchPaths;
 
 
+    /**
+     * The constructor is made private because all functions are static. No
+     * need to initialize with a constructor.
+     */
     private ParameterEditorFactory() { }
 
+    /**
+     * Allows the programmer to add additional searchpaths for locating java
+     * classes. Currently the org/scec/sha/propagation is an additional path.
+     */
     public static void setSearchPaths(String[] searchPaths){
         ParameterEditorFactory.searchPaths = searchPaths;
     }
+    /** Returns the current search paths for java files. */
     public static String[] getSearchPaths(){ return searchPaths; }
 
-    public static ParameterEditor getEditor(ParameterAPI param) throws ParameterException {
+    /**
+     * Main API function call for this Factory class. You simply pass in the
+     * parameter you wish to create an editor for. This function then calls
+     * getType() on the parameter to build an editor class name. Then a full package
+     * name is created by trying each search path sequentially to locate the
+     * editor Class. Finally the constructor is called on the String full classname
+     * using java Reflection API. The parameter is set in the editor and the
+     * editor is returned as an ParameterEditor.
+     *
+     */
+     public static ParameterEditor getEditor(ParameterAPI param) throws ParameterException {
 
         // Debugging
         String S = C + ": getEditor(): ";
