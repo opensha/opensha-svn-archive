@@ -25,6 +25,8 @@ import org.scec.sha.surface.*;
  * <LI>rake - that rake (in degrees) assigned to all ruptures.
  * <LI>timeSpan - the duration of the forecast (in same usints as in the magFreqDist)
  * </UL><p>
+ * Note that none of these input objects are saved internally (after construction) in
+ * order to conserve memory (this is why there are no associated get/set methods for each).<p>
  * The ruptures are placed uniformly across the fault surface (at rupOffset spacing), which
  * means there is a tapering of implied slip amounts at the ends of the fault.<p>
  * All magnitudes below 5.0 in the magDist are ignored in building the ruptures (unless
@@ -70,8 +72,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
   */
 
   /**
-   * This creates a Simple Poisson Fault Source using a minMag of 5.0 (magnitudes
-   * lower than this are ignored in building the ruptures).
+   * This creates the Simple Poisson Fault Source.
    * @param magDist - any incremental mag. freq. dist. object
    * @param faultSurface - any EvenlyGriddedSurface representation of the fault
    * @param magScalingRel - any magAreaRelationship or magLengthRelationthip
@@ -80,6 +81,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
    * @param rupOffset - amount of offset for floating ruptures
    * @param rake - average rake of the ruptures
    * @param timeSpan - the timeSpan of interest in years (this is a Poissonian source)
+   * @param minMag - the minimum magnitude to be considered from magDist (lower mags are ignored)
    */
   public SimplePoissonFaultSource(IncrementalMagFreqDist magDist,
                                   EvenlyGriddedSurface faultSurface,
@@ -88,14 +90,13 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
                                   double rupAspectRatio,
                                   double rupOffset,
                                   double rake,
-                                  double timeSpan) {
+                                  double timeSpan,
+                                  double minMag) {
 
       this.timeSpan = timeSpan;
 
       // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
       makeFaultCornerLocs(faultSurface);
-
-      double minMag = 5.0;
 
       // make the rupture list
       ruptureList = new Vector();
@@ -113,6 +114,20 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
       }
   }
 
+
+  /**
+   * Same as other constuctor, but where minMag defaults to 5.0.
+   */
+  public SimplePoissonFaultSource(IncrementalMagFreqDist magDist,
+                                  EvenlyGriddedSurface faultSurface,
+                                  MagScalingRelationship magScalingRel,
+                                  double magScalingSigma,
+                                  double rupAspectRatio,
+                                  double rupOffset,
+                                  double rake,
+                                  double timeSpan) {
+    this( magDist, faultSurface, magScalingRel,magScalingSigma,rupAspectRatio,rupOffset,rake,timeSpan,5.0);
+  }
 
   /**
    * This computes the rupture length from the information supplied
