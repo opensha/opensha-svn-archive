@@ -98,7 +98,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
   /**
    *
-   * @returns the GridLocations List
+   * @returns a list of grid-site locations
    */
   public LocationList getGridLocationsList(){
     //creating the instance of the locationList

@@ -156,7 +156,7 @@ public class GeographicRegion implements java.io.Serializable{
 
   /**
    *
-   * @return the List of Locations
+   * @return the List of Locations (a polygon representing the outline of the region)
    */
   public LocationList getLocationList(){
     return locList;
