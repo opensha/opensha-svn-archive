@@ -263,12 +263,12 @@ public class PEER_TestGuiPlotter extends JApplet implements
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 0, 15, 107), 22, 6));
     buttonPanel.add(rangeComboBox,  new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(7, 102, 15, 19), -32, 1));
-    buttonPanel.add(BGColorCheckBox,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 10, 15, 0), 17, -8));
-    buttonPanel.add(yLogCheckBox,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 8, 15, 0), 14, -8));
-    buttonPanel.add(xLogCheckBox,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 21, 15, 0), 21, -8));
+    buttonPanel.add(BGColorCheckBox,   new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 10, 15, 0), 17, 0));
+    buttonPanel.add(yLogCheckBox,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 8, 15, 0), 14, 0));
+    buttonPanel.add(xLogCheckBox,     new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 21, 15, 0), 21, 0));
     buttonPanel.add(toggleButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 22, 15, 0), 26, -8));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
