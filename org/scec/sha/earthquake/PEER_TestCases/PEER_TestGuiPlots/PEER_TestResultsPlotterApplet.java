@@ -202,10 +202,10 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private JButton toggleButton = new JButton();
   private JLabel guiLabel = new JLabel();
   private JLabel dataVersionLabel = new JLabel();
-  private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
-  private JLabel powerLabel = new JLabel();
-  private GridBagLayout gridBagLayout7 = new GridBagLayout();
+  JLabel powerLabel = new JLabel();
+  GridBagLayout gridBagLayout3 = new GridBagLayout();
+  GridBagLayout gridBagLayout7 = new GridBagLayout();
 
   //Construct the applet
   public PEER_TestResultsPlotterApplet() {
@@ -239,18 +239,13 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     border3 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
     border4 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
     border5 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
-    this.setSize(new Dimension(749, 622));
-    powerLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        powerLabel_mouseClicked(e);
-      }
-    });
+    this.setSize(new Dimension(749, 618));
     this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(BorderFactory.createEtchedBorder());
-    mainPanel.setLayout(gridBagLayout3);
+    mainPanel.setLayout(gridBagLayout7);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     mainSplitPane.setDividerSize(1);
-    buttonPanel.setLayout(gridBagLayout7);
+    buttonPanel.setLayout(gridBagLayout3);
     topPlotPanel.setLayout(gridBagLayout6);
     plotSplitPane.setMinimumSize(new Dimension(545, 0));
     plotSplitPane.setDividerSize(5);
@@ -321,6 +316,12 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     dataVersionLabel.setText("jLabel1");
     testCasesPanel.setMinimumSize(new Dimension(115, 37));
     testCasesPanel.setPreferredSize(new Dimension(121, 37));
+    powerLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        powerLabel_mouseClicked(e);
+      }
+    });
+    powerLabel.setToolTipText("");
     powerLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     dataScrollPane.getViewport().add( pointsTextArea, null );
     xLogCheckBox.setText("XLog");
@@ -336,7 +337,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     });
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 1, 0), -48, 6));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), -48, -61));
     plotSplitPane.add(topPlotPanel, JSplitPane.LEFT);
 
     topPlotPanel.add(testCaseLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -353,24 +354,24 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     avgCasesPanel.add(avgLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    buttonPanel.add(yLogCheckBox,    new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 15, 3));
-    buttonPanel.add(rangeLabel,    new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 16, 0, 0), 8, 7));
-    buttonPanel.add(rangeComboBox,       new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 0, 0, 0), 33, 0));
-    buttonPanel.add(toggleButton,    new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 16, 41, 92), 30, 7));
-    buttonPanel.add(averageCheck,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 10, 0, 0), 1, 4));
-    buttonPanel.add(xLogCheckBox,    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 22, 1));
-    buttonPanel.add(powerLabel,    new GridBagConstraints(3, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(4, 45, 3, 17), 210, 34));
+    buttonPanel.add(yLogCheckBox,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 0, 17, 0), 15, 3));
+    buttonPanel.add(rangeLabel,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 16, 21, 0), 8, 7));
+    buttonPanel.add(rangeComboBox,  new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(14, 0, 21, 0), 33, 0));
+    buttonPanel.add(toggleButton,      new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 16, 4, 92), 30, 0));
+    buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 10, 16, 0), 1, 4));
+    buttonPanel.add(xLogCheckBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 0, 18, 0), 22, 1));
     mainPanel.add(guiLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 267, 0, 190), 37, 10));
     mainPanel.add(dataVersionLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 139, 0, 171), 394, 3));
+    mainPanel.add(powerLabel,   new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 329, 0, 206), 70, 0));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     mainSplitPane.setDividerLocation(435);
     plotSplitPane.setDividerLocation(475);
@@ -964,6 +965,18 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
    }
+  }
+  void powerLabel_mousePressed(MouseEvent e) {
+
+  }
+  void powerLabel_mouseReleased(MouseEvent e) {
+
+  }
+  void powerLabel_mouseEntered(MouseEvent e) {
+
+  }
+  void powerLabel_mouseExited(MouseEvent e) {
+
   }
 
 }
