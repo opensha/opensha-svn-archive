@@ -268,15 +268,22 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     return listEditor.getParameterList().getParameter(param);
   }
 
+
   /**
    *
-   * @returns the ERF_GuiBean Object
+   * @returns the EqkRupforecast model
    */
-  public ERF_GuiBean getERF_GuiObject(){
-    return erfGuiBean;
+  public EqkRupForecastAPI getSelectedERF() {
+    return erfGuiBean.getSelectedERF();
   }
 
-
+  /**
+    *
+    * @returns the EqkRupforecast model
+    */
+   public EqkRupForecastAPI getSelectedERF_Instance() {
+     return erfGuiBean.getSelectedERF_Instance();
+  }
 
 
 }
