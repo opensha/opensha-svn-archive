@@ -28,22 +28,15 @@ public class SiteInterpolation {
   private int gridPointsPerLatitude;
   private float[] saPeriods;
   private int numPeriods;
-  private DecimalFormat gridSpacingFormat = new DecimalFormat("0.0#");
+  private DecimalFormat gridSpacingFormat = new DecimalFormat("0.00");
 
 
-  public ArbitrarilyDiscretizedFunc getPeriodValuesForLocation(DataRecord record,String
-      selectedRegion,
-      String selectedEdition,
+  public ArbitrarilyDiscretizedFunc getPeriodValuesForLocation(String fileName,DataRecord record,
       double latitude, double longitude) {
     float lat = 0;
     float lon = 0;
     float[] saArray = null;
 
-    DataFileNameSelector dataFileSelector = new DataFileNameSelector();
-    //getting the fileName to be read for the selected location
-    String fileName = dataFileSelector.getFileName(selectedRegion,
-        selectedEdition, latitude,
-        longitude);
     getRegionBounds(record,fileName);
     if ( (latitude == minLat && longitude == minLon) ||
         (latitude == maxLat && longitude == minLon) ||
@@ -141,11 +134,8 @@ public class SiteInterpolation {
   private float[] getPeriodValues(DataRecord record,String fileName,int recNo) {
     record.getRecord(fileName,recNo);
 
-    float[] vals = record.getPeriods();
-    for(int i=0;i<vals.length;++i)
-      vals[i] /= GlobalConstants.DIVIDING_FACTOR_HUNDRED;
+    return record.getPeriods();
 
-    return vals;
   }
 
   private ArbitrarilyDiscretizedFunc createFunction(float[] saVals){
@@ -162,8 +152,10 @@ public class SiteInterpolation {
    * @return int
    */
   private int getRecordNumber(float lat, float lon) {
-    int colIndex = (int) ( (lon - minLon) / gridSpacing) + 1;
-    int rowIndex = (int) ( (maxLat - lat) / gridSpacing) + 1;
+    String lonGridVal = gridSpacingFormat.format((lon - minLon) / gridSpacing);
+    String latGridVal = gridSpacingFormat.format((maxLat - lat) / gridSpacing);
+    int colIndex = (int) (Float.parseFloat(lonGridVal) ) + 1;
+    int rowIndex = (int) ( Float.parseFloat(latGridVal)) + 1;
     int recNum = (rowIndex - 1) * gridPointsPerLatitude + (colIndex - 1) + 1;
     return recNum + 3;
   }

@@ -308,6 +308,7 @@ public class ProbabilisticHazardApplication
       parametersPanel.add(guiBeanAPI.getGuiBean(), java.awt.BorderLayout.CENTER);
       parametersPanel.updateUI();
     }
+    setDataInWindow(guiBeanAPI.getData());
     previousSelectedAnalysisOption = selectedAnalysisOption;
   }
 

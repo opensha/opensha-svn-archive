@@ -61,9 +61,11 @@ public class SsS1Calculator {
                                             double latitude, double longitude) {
 
     NEHRP_Record record = new NEHRP_Record();
+    DataFileNameSelector dataFileSelector = new DataFileNameSelector();
+    String fileName  = dataFileSelector.getFileName(selectedRegion,selectedEdition,latitude,longitude);
     SiteInterpolation siteSaVals = new SiteInterpolation();
-    ArbitrarilyDiscretizedFunc function = siteSaVals.getPeriodValuesForLocation(record,
-        selectedRegion,selectedEdition,latitude,longitude);
+    ArbitrarilyDiscretizedFunc function = siteSaVals.getPeriodValuesForLocation(fileName,record,
+        latitude,longitude);
 
     gridSpacing = siteSaVals.getGridSpacing();
 

@@ -18,7 +18,7 @@ public final class DataDisplayFormatter {
 
   private static DecimalFormat periodFormat = new DecimalFormat("0.0#");
   private static DecimalFormat saValFormat = new DecimalFormat("0.000");
-
+  private static DecimalFormat annualExceedanceFormat = new DecimalFormat("0.000E00#");
 
     /**
      * Creates the SubTitle info String
@@ -62,6 +62,30 @@ public final class DataDisplayFormatter {
     dataInfo += periodFormat.format(function.getX(1)) + "\t" +
         saValFormat.format(function.getY(1)) + "  " + text2 + "," +
         siteClass + "\n\n";
+
+    return dataInfo;
+  }
+
+  /**
+   * Formats the data to be displayed
+   * @param function ArbitrarilyDiscretizedFunc
+   * @param saString String
+   * @param text1 String : First text to be displayed
+   * @param text2 String : Second Text to be displayed
+   * @param siteClass String
+   * @return String
+   */
+  public static String createFunctionInfoString_HazardCurves(ArbitrarilyDiscretizedFunc
+                                                 function,
+                                                 String xAxisString, String yAxisString,
+                                                 String xAxisUnits, String yAxisUnits,
+                                                 String text) {
+    String dataInfo = "";
+    dataInfo += text+"\n"+xAxisString+"\t" + yAxisString + "\n";
+    dataInfo += xAxisUnits+"\t"+yAxisUnits +"\n";
+
+    for(int i=0;i<function.getNum();++i)
+      dataInfo += saValFormat.format(function.getX(i)) + "\t" + annualExceedanceFormat.format(function.getY(i))+ "\n";
 
     return dataInfo;
   }

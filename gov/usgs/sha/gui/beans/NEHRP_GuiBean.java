@@ -11,7 +11,7 @@ import org.scec.data.region.RectangularGeographicRegion;
 import org.scec.param.StringParameter;
 import org.scec.param.editor.ConstrainedStringParameterEditor;
 import org.scec.data.Location;
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -80,7 +80,7 @@ public class NEHRP_GuiBean
   private static final String MCE_GROUND_MOTION = "MCE Ground Motion";
 
 
-  private DataGenerator_NEHRP dataGenerator = new DataGenerator_NEHRP();
+  private DataGeneratorAPI_NEHRP dataGenerator = new DataGenerator_NEHRP();
 
   //site coeffiecient window instance
   SiteCoefficientInfoWindow siteCoefficientWindow;
@@ -227,9 +227,9 @@ public class NEHRP_GuiBean
     buttonsSplitPane.add(responseSpectraButtonPanel, JSplitPane.BOTTOM);
 
     responseSpectraButtonPanel.add(viewButton,
-                                   new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+                                   new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(0, 42, 0, 0), 8, 6));
+        new Insets(2, 2, 2, 2), 8, 6));
     responseSpectraButtonPanel.add(mapSpecButton,
                                    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,

@@ -17,14 +17,13 @@ public class HazardCurves_Record extends DataRecord{
   //Hazard Period
   public float hazPeriod;
 
-  //SA values
-  public float[] values = new float[20];
 
   //Record Length
   public static final int recordLength = 4 + 4 + 4 + 4 + 4 + (20*4);
 
 
   public void getRecord(String fileName, long recordNum) {
+    values = new float[20];
     RandomAccessFile fin = null;
     try {
       fin = new RandomAccessFile(fileName, "r");
@@ -32,9 +31,10 @@ public class HazardCurves_Record extends DataRecord{
       recordNumber = ByteSwapUtil.swap(fin.readInt());
       latitude = ByteSwapUtil.swap(fin.readFloat());
       longitude = ByteSwapUtil.swap(fin.readFloat());
+      hazPeriod = ByteSwapUtil.swap(fin.readFloat());
       numValues = ByteSwapUtil.swap(fin.readShort());
-      values[0] = ByteSwapUtil.swap(fin.readFloat());
-      values[1] = ByteSwapUtil.swap(fin.readFloat());
+      for(int i=0;i<numValues;++i)
+        values[i] = ByteSwapUtil.swap(fin.readFloat());
 
       fin.close();
     }    catch (IOException ex) {

@@ -23,6 +23,43 @@ public class HazardDataMiner {
   public HazardDataMiner() {
   }
 
+
+  /**
+   * Gets the Basic Hazard Curve using the Lat and Lon
+   * @param geographicRegion String
+   * @param dataEdition String
+   * @param lat double
+   * @param lon double
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  public ArbitrarilyDiscretizedFunc getBasicHazardcurve(String geographicRegion,
+                                     String dataEdition, double lat, double lon,
+                                     String hazCurveType) {
+
+    HazardDataCalc calc = new HazardDataCalc();
+    return calc.computeHazardCurve(geographicRegion, dataEdition, lat, lon,hazCurveType);
+  }
+
+
+  /**
+   * Gets the Basic Hazard Curve using the Lat and Lon
+   * @param geographicRegion String
+   * @param dataEdition String
+   * @param zipCode String
+   * @return DiscretizedFuncList
+   * @throws ZipCodeErrorException
+   */
+  public ArbitrarilyDiscretizedFunc getBasicHazardcurve(String geographicRegion,
+                                     String dataEdition, String zipCode,
+                                     String hazCurveType) throws
+      ZipCodeErrorException {
+
+    HazardDataCalc calc = new HazardDataCalc();
+    return calc.computeHazardCurve(geographicRegion, dataEdition, zipCode,hazCurveType);
+  }
+
+
+
   /**
    * Gets the Ss and S1 when location is provided using the Lat and Lon
    * @param geographicRegion String

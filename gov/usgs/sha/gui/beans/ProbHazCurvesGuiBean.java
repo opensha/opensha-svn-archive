@@ -23,9 +23,8 @@ import javax.swing.border.TitledBorder;
 import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
 import gov.usgs.exceptions.ZipCodeErrorException;
 import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
-import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
-import gov.usgs.sha.data.DataGenerator_NEHRP;
-import gov.usgs.sha.gui.infoTools.SiteCoefficientInfoWindow;
+import gov.usgs.sha.data.api.DataGeneratorAPI_HazardCurves;
+import gov.usgs.sha.data.DataGenerator_HazardCurves;
 import gov.usgs.sha.gui.infoTools.GraphWindow;
 import java.awt.event.*;
 import gov.usgs.exceptions.LocationErrorException;
@@ -75,7 +74,9 @@ public class ProbHazCurvesGuiBean
 
 
 
-  private DataGenerator_NEHRP dataGenerator = new DataGenerator_NEHRP();
+  private DataGeneratorAPI_HazardCurves dataGenerator = new  DataGenerator_HazardCurves();
+
+  private ArbitrarilyDiscretizedFunc hazardCurveFunction;
 
 
   private static final String RETURN_PERIOD_PARAM_NAME = "Return Period";
@@ -389,12 +390,13 @@ public class ProbHazCurvesGuiBean
     //doing the calculation if not territory and Location GUI is visible
     if (locationVisible) {
       String locationMode = locGuiBean.getLocationMode();
+
       if (locationMode.equals(locGuiBean.LAT_LON)) {
         try {
           Location loc = locGuiBean.getSelectedLocation();
           double lat = loc.getLatitude();
           double lon = loc.getLongitude();
-          dataGenerator.calculateSsS1(lat, lon);
+          hazardCurveFunction = dataGenerator.calculateHazardCurve(lat, lon,imt);
         }
         catch (LocationErrorException e) {
           JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
@@ -407,7 +409,7 @@ public class ProbHazCurvesGuiBean
         try {
           String zipCode = locGuiBean.getZipCode();
 
-          dataGenerator.calculateSsS1(zipCode);
+          hazardCurveFunction = dataGenerator.calculateHazardCurve(zipCode,imt);
         }
         catch (ZipCodeErrorException e) {
           JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
@@ -422,16 +424,9 @@ public class ProbHazCurvesGuiBean
         }
       }
     }
-    else { // if territory and location Gui is not visible
-      dataGenerator.calculateSsS1();
-    }
   }
 
 
-  private void ssButton_actionPerformed(ActionEvent actionEvent) {
-    getDataForSA_Period();
-    application.setDataInWindow(getData());
-  }
 
   /**
    *
@@ -441,21 +436,16 @@ public class ProbHazCurvesGuiBean
     return dataGenerator.getDataInfo();
   }
 
-
-
-  private void viewButton_actionPerformed(ActionEvent actionEvent) {
-   //ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
-     //   mapSpectrumCalculated, sdSpectrumCalculated,smSpectrumCalculated);
-    //GraphWindow window = new GraphWindow(functions);
-    //window.show();
-  }
-
   void viewCurveButton_actionPerformed(ActionEvent e) {
-
+    ArrayList functions = new ArrayList();
+    functions.add(hazardCurveFunction);
+    GraphWindow window = new GraphWindow(functions);
+    window.show();
   }
 
   void hazCurveCalcButton_actionPerformed(ActionEvent e) {
-
+    getDataForSA_Period();
+    application.setDataInWindow(getData());
   }
 
   void singleHazardCurveValButton_actionPerformed(ActionEvent e) {

@@ -180,6 +180,13 @@ public final class GlobalConstants {
   public final static String DESIGN_SPECTRUM_SD_Vs_T_GRAPH =
       "Design Spectrum Sd Vs T";
 
+
+  public final static String ANNUAL_FREQ_EXCEED_UNITS = "per year";
+  public final static String BASIC_HAZARD_CURVE = "Basic Hazard Curve";
+  public final static String HAZARD_CURVE_X_AXIS_NAME = "Accelaration";
+  public final static String HAZARD_CURVE_Y_AXIS_NAME = "Annual Frequency of Exceedance";
+
+
   //some SA constants
   public final static String SA_DAMPING = "5% Damping";
 

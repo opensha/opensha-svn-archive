@@ -3,7 +3,7 @@ package gov.usgs.sha.data.api;
 import java.util.*;
 
 import gov.usgs.exceptions.*;
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+
 
 /**
  * <p>Title: DataGeneratorAPI_NEHRP</p>
@@ -52,6 +52,38 @@ public interface DataGeneratorAPI_NEHRP {
    * @param siteClass String
    */
   public void setSiteClass(String siteClass);
+
+  /**
+   * Returns the site class
+   * @return String
+   */
+  public String getSelectedSiteClass();
+
+
+  /**
+   * Returns the list of functions for plotting.
+   * @param isMapSpectrumFunctionNeeded boolean true if user has clicked the map spectrum button
+   * @param isSDSpectrumFunctionNeeded boolean true if user has clicked the SD spectrum button
+   * @param isSMSpectrumFunctionNeeded boolean true if user has clicked the SM spectrum button
+   * @return ArrayList
+   */
+  public ArrayList getFunctionsToPlotForSA(boolean
+                                        isMapSpectrumFunctionNeeded,
+                                        boolean isSDSpectrumFunctionNeeded,
+                                        boolean isSMSpectrumFunctionNeeded);
+
+  /**
+   * Returns the SA at .2sec
+   * @return double
+   */
+  public double getSs();
+
+  /**
+   * Returns the SA at 1 sec
+   * @return double
+   */
+  public double getSa();
+
 
 
   /**

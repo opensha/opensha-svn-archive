@@ -370,7 +370,7 @@ public class SiteCoefficientInfoWindow
      double x2  = getValueFromString(columnNames[columnNumber]);
      double y1 = Double.parseDouble(y1String);
      double x1  = getValueFromString(columnNames[columnNumber-1]);
-     return linearInterpolation(x1,y1,x2,y2, sValue);
+     return Interpolation.getInterpolatedY(x1,x2,y1,y2, sValue);
    }
  }
 
@@ -388,10 +388,7 @@ public class SiteCoefficientInfoWindow
 
  }
 
- private double linearInterpolation(double x1, double y1, double x2, double y2,
-                                    double x) {
-   return (y2-y1)/(x2-x1)*(x-x1)+y1;
- }
+
 
   public float getFa() {
     return fa;

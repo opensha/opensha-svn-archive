@@ -4,6 +4,7 @@ import gov.usgs.exceptions.ZipCodeErrorException;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.data.function.DiscretizedFuncList;
 
+
 /**
  * <p>Title: HazardDataCalc</p>
  *
@@ -13,6 +14,43 @@ import org.scec.data.function.DiscretizedFuncList;
  * @version 1.0
  */
 public class HazardDataCalc {
+
+
+
+  /**
+   *
+   * @param selectedRegion String
+   * @param selectedEdition String
+   * @param latitude double
+   * @param longitude double
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  public ArbitrarilyDiscretizedFunc computeHazardCurve(String selectedRegion,
+      String selectedEdition,
+      double latitude,
+      double longitude,String hazCurveType) {
+
+    HazardCurveCalculator calc = new HazardCurveCalculator();
+    return calc.getBasicHazardCurve(selectedRegion, selectedEdition, latitude,
+                                    longitude,hazCurveType);
+
+  }
+
+  /**
+   *
+   * @param selectedRegion String
+   * @param selectedEdition String
+   * @param zipCode String
+   * @return ArbitrarilyDiscretizedFunc
+   * @throws ZipCodeErrorException
+   */
+  public ArbitrarilyDiscretizedFunc computeHazardCurve(String selectedRegion,
+      String selectedEdition,
+      String zipCode,String hazCurveType) throws ZipCodeErrorException {
+    HazardCurveCalculator calc = new HazardCurveCalculator();
+    return calc.getBasicHazardCurve(selectedRegion, selectedEdition, zipCode,hazCurveType);
+  }
+
 
   /**
    *
