@@ -49,9 +49,9 @@ import org.scec.util.*;
  * represent those of PGA scaled by the relative difference of the totals.  Again, this
  * only applies at low maginitudes, and the approximated values should be very close to
  * the true values.<p>
- * This class supports a maximum horizontal component by multiplying the average horizontal
+ * This class supports a "Greater of Two Horz." component by multiplying the average horizontal
  * component  median by a factor of 1.15.  This value was taken directly from the official ShakeMap
- * documentation.  The standard deviation for the maximum horizontal is set the same as the average
+ * documentation.  The standard deviation for this component is set the same as the average
  * horizontal (not sure if this is correct).  <p>
  * Regarding the Modified Mercalli Intensity (MMI) IMT, note that what is returned by
  * the getMean() method is the natural-log of MMI.  Although this is not technically
@@ -98,7 +98,7 @@ public class ShakeMap_2003_AttenRel
     /**
      * Thier maximum horizontal component option.
      */
-    public final static String COMPONENT_MAX_HORZ = "Max Horizontal";
+    public final static String COMPONENT_GREATER_OF_TWO_HORZ = "Greater of Two Horz.";
 
     // Joyner-Boore Distance parameter
     private DistanceJBParameter distanceJBParam = null;
@@ -662,7 +662,7 @@ public class ShakeMap_2003_AttenRel
 
         //correct it max horizontal is desired
         String component = (String) componentParam.getValue();
-        if(component.equals(COMPONENT_MAX_HORZ)) {
+        if(component.equals(COMPONENT_GREATER_OF_TWO_HORZ)) {
           meanSM += 0.139762;        // add ln(1.15)
           meanBJF += 0.139762;
         }
@@ -728,7 +728,7 @@ public class ShakeMap_2003_AttenRel
 
         double stdevBJF, stdevSM;
         // set the correct standard deviation depending on component and type
-        if(component.equals(COMPONENT_AVE_HORZ) || component.equals(COMPONENT_MAX_HORZ)) {
+        if(component.equals(COMPONENT_AVE_HORZ) || component.equals(COMPONENT_GREATER_OF_TWO_HORZ)) {
 
             if ( stdDevType.equals( STD_DEV_TYPE_TOTAL ) ) {           // "Total"
               stdevBJF = Math.pow( ( coeffBJF.sigmaE * coeffBJF.sigmaE + coeffBJF.sigma1 * coeffBJF.sigma1 ) , 0.5 );
@@ -1007,7 +1007,7 @@ public class ShakeMap_2003_AttenRel
         StringConstraint constraint = new StringConstraint();
         constraint.addString( COMPONENT_AVE_HORZ );
         constraint.addString( COMPONENT_RANDOM_HORZ );
-        constraint.addString( COMPONENT_MAX_HORZ );
+        constraint.addString( COMPONENT_GREATER_OF_TWO_HORZ );
         constraint.setNonEditable();
         componentParam = new StringParameter( COMPONENT_NAME, constraint, COMPONENT_DEFAULT );
         componentParam.setInfo( COMPONENT_INFO );

@@ -66,8 +66,8 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
 
   //Static String for setting the site Params
   public final static String SET_ALL_SITES = "Apply same site parameter(s) to all locations";
-  public final static String SET_SITE_USING_WILLS_SITE_TYPE = "Use the Wills et al. (2000) Map Web Service";
-  public final static String SET_SITES_USING_SCEC_CVM = "Use both Wills Map and SCEC Basin Depth Web Service";
+  public final static String SET_SITE_USING_WILLS_SITE_TYPE = "Use the CGS Preliminary Site Conditions Map of CA (web service)";
+  public final static String SET_SITES_USING_SCEC_CVM = "Use both CGS Map and SCEC Basin Depth (web services)";
 
   /**
    * Longitude and Latitude paramerts to be added to the site params list

@@ -119,7 +119,7 @@ public class PuenteHillsScenarioControlPanel {
 
     //Updating the IMR Gui Bean with the ShakeMap attenuation relationship.
     imrGuiBean.getParameterList().getParameter(imrGuiBean.IMR_PARAM_NAME).setValue(ShakeMap_2003_AttenRel.NAME);
-    imrGuiBean.getSelectedIMR_Instance().getParameter(ShakeMap_2003_AttenRel.COMPONENT_NAME).setValue(ShakeMap_2003_AttenRel.COMPONENT_MAX_HORZ);
+    imrGuiBean.getSelectedIMR_Instance().getParameter(ShakeMap_2003_AttenRel.COMPONENT_NAME).setValue(ShakeMap_2003_AttenRel.COMPONENT_GREATER_OF_TWO_HORZ);
     imrGuiBean.refreshParamEditor();
 
     //Updating the SitesInGriddedRegionGuiBean with the Puente Hills resion setting
