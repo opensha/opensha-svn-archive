@@ -31,7 +31,23 @@ public abstract class Estimate {
    *
    * @return It returns true if any x<0. If all x>=0, it returns false
    */
-  public boolean isNegativeValuePresent();
+  public boolean isNegativeValuePresent() {
+    return (getMinXValue()<0);
+  }
+
+  /**
+   * Get the minimum among the list of X values in this list
+   *
+   * @return
+   */
+  public double getMinXValue();
+
+  /**
+   * Get the maximum among the list of X values in this list
+   *
+   * @return
+   */
+  public double getMaxXValue();
 
    /**
     * Get the comments associated with this object

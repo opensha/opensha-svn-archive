@@ -99,15 +99,28 @@ public class LogNormalEstimate
     this.isBase10 = isBase10;
   }
 
+
   /**
-   * Checks whether there exist any X values < 0. Always returns true for this
-   * case as X can go from -infinity to +infinity
-   *
-   * @return  always returns true in this case.
-   */
-  public boolean isNegativeValuePresent() {
-    return true;
-  }
+  * Get the minimum among the list of X values in this list. Always returns
+  * Double.NEGATIVE_INFINITY for this case.
+  *
+  * @return
+  */
+ public double getMinXValue() {
+   return Double.NEGATIVE_INFINITY;
+ }
+
+ /**
+  * Get the maximum among the list of X values in this list. Always returns
+  * Double.POSITIVE_INFINITY for this case
+  *
+  * @return
+  */
+ public double getMaxXValue() {
+   return Double.POSITIVE_INFINITY;
+ }
+
+
 
   public double getMean() {
     throw new java.lang.UnsupportedOperationException(

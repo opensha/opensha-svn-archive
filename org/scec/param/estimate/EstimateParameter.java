@@ -106,7 +106,7 @@ public class EstimateParameter extends DependentParameter
     */
    public boolean isAllowed( Object val ){
        if(val!=null && !(val instanceof Estimate)) return false;
-       return true;
+       return super.isAllowed(val);
    }
 
 

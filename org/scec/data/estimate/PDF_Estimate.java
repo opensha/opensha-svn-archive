@@ -74,14 +74,21 @@ public class PDF_Estimate extends Estimate {
  }
 
  /**
-   * checks whether there are any X values which are less than < 0
+   * Get the minimum among the list of X values in this list
    *
-   * @return boolean value which is always false for this class
+   * @return
    */
-  public boolean isNegativeValuePresent() {
-    //just checks the first X value because X values are monotonically increasing
-    if(func.getX(0)<0) return true;
-    return false;
+  public double getMinXValue() {
+    return func.getX(0);
+  }
+
+  /**
+   * Get the maximum among the list of X values in this list
+   *
+   * @return
+   */
+  public double getMaxXValue() {
+    return func.getX(func.getNum() - 1);
   }
 
 

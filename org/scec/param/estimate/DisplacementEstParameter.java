@@ -13,7 +13,8 @@ import org.scec.data.estimate.Estimate;
 public class DisplacementEstParameter extends SlipRateEstParameter{
   public DisplacementEstParameter( String name ) {
        this( name, null);
-   }
+  }
+
   public DisplacementEstParameter( String name, Estimate value ) {
        super(name,  value);
   }

@@ -9,7 +9,6 @@ import org.scec.data.function.ArbDiscrEmpiricalDistFunc;
  *  value of 45,60,90 with probabilities of 0.2,0.3,0.5 respectively.
  *
  *
- *
  * Rules followed in this case are:
  * 2. 0<=y<=1 for all y
  * </p>
@@ -72,17 +71,6 @@ public class DiscreteValueEstimate extends Estimate {
    return empiricalDistFunc;
  }
 
- /**
-   * checks whether there are any X values which are less than < 0
-   *
-   * @return boolean value which is always false for this class
-   */
-  public boolean isNegativeValuePresent() {
-    //just checks the first X value because X values are monotonically increasing
-    if(func.getX(0)<0) return true;
-    return false;
-  }
-
 
   /**
    * Get the mode for this distribution. It is same as median for this case
@@ -101,6 +89,25 @@ public class DiscreteValueEstimate extends Estimate {
   public double getMedian() {
     return getFractile(0.5);
   }
+
+  /**
+  * Get the minimum among the list of X values in this list
+  *
+  * @return
+  */
+ public double getMinXValue() {
+   return func.getX(0);
+ }
+
+ /**
+  * Get the maximum among the list of X values in this list
+  *
+  * @return
+  */
+ public double getMaxXValue() {
+   return func.getX(func.getNum()-1);
+ }
+
 
   public double getStdDev() {
     throw new java.lang.UnsupportedOperationException("Method getStdDev() not supported.");

@@ -95,15 +95,25 @@ public class NormalEstimate extends Estimate {
   }
 
   /**
-   * Check to see if negative values are present. It is always true for
-   * this estimate becasue X values can go from -infinity to +infinity
-   * for this distribution.
+   * Get the minimum among the list of X values in this list. Always returns
+   * Double.NEGATIVE_INFINITY for this case.
    *
-   * @return always returns true in this case
+   * @return
    */
-  public boolean isNegativeValuePresent() {
-    return true;
+  public double getMinXValue() {
+    return Double.NEGATIVE_INFINITY;
   }
+
+  /**
+   * Get the maximum among the list of X values in this list. Always returns
+   * Double.POSITIVE_INFINITY for this case
+   *
+   * @return
+   */
+  public double getMaxXValue() {
+    return Double.POSITIVE_INFINITY;
+  }
+
 
   /**
    * This method is not supported in this distribution
