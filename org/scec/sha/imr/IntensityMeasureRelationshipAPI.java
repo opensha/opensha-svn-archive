@@ -48,6 +48,19 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
     public void setPropagationEffect(PropagationEffect propEffect);
 
 
+
+    /**
+     * Sets the exceed probabality param value. This function is only for setting
+     * the value of the Exceed Prob. Param , so that we can get the IML@ excced prob.
+     *
+     * @param prob : The value passed in to set the Exceed Prob Param is not what
+     * is returned back from function getExceedProb(), becuase that returns the
+     * computed exceedance probablity at the selected IML.
+     *
+     * @throws ParameterException
+     */
+    public void setExceedProb(double prob) throws ParameterException;
+
     /**
      *  Returns a reference to the current EqkRupture object in the IMR
      *
@@ -160,6 +173,8 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
     /**
      *  This calculates the probability that the intensity-measure level
      *  (the value in the Intensity-Measure Parameter) will be exceeded.
+     *  This function does not return the value set inside the exceedance
+     *  prob. param, rather return a computed probabilty value at choosen IML.
      *
      * @return    The exceed Probability value
      */

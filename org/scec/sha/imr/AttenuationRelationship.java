@@ -722,13 +722,12 @@ public abstract class AttenuationRelationship
         hasIndependentParams = true;
         metadata += ((ParameterAPI)it.next()).getMetadataString() + "; ";
       }
-      //does the modification to the application if
+      //does the modification to the application if it has the independent Params
       if(hasIndependentParams){
         metadata = metadata.substring(0,metadata.length()-2);
         metadata += " ]";
       }
       return metadata;
-
     }
 
 

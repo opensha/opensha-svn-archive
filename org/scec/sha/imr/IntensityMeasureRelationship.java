@@ -244,6 +244,22 @@ public abstract class IntensityMeasureRelationship
 
     }
 
+    /**
+     * Sets the exceed probabality param value. This function is only for setting
+     * the value of the Exceed Prob. Param , so that we can get the IML@ excced prob.
+     *
+     * @param prob : The value passed in to set the Exceed Prob Param is not what
+     * is returned back from function getExceedProb(), becuase that returns the
+     * computed exceedance probablity at the selected IML.
+     *
+     * @throws ParameterException
+     */
+    public void setExceedProb(double prob) throws ParameterException{
+      //just sets the exccedProb param value
+      exceedProbParam.setValue(prob);
+    }
+
+
 
 
     /**

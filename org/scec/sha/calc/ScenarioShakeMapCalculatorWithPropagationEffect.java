@@ -67,6 +67,23 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
     // get the selected attenuationRelation array size.
     int size = selectedAttenRels.size();
 
+    /**
+     * Based on the selected IML@prob or Prob@IML the corresponding value is
+     * set in the selected IMR's
+     */
+    for(int i=0;i<size;++i){ //iterate over all the selected AttenuationRelationships
+      AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
+      if(isProbAtIML) //if Prob@IML set the Intensity Measure Level
+        attenRel.setIntensityMeasureLevel(new Double(value));
+      else{
+        try{ //if IML@Prob set the Exceed Prob param for the Attenuation.
+          attenRel.setExceedProb(value);
+        }catch(ParameterException e){
+          throw new ParameterException(e.getMessage());
+        }
+      }
+    }
+
     ArrayList zVals;
     ArrayList sumZVals = new ArrayList();
     //store the sum of the averaged value of all the selected AttenRel
@@ -79,12 +96,13 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
       attenRelsAvgValForSite = 0.0;
       //getting one site at a time
       Site site = griddedRegionSites.getSite(k);
+
       //setting the site in the PropagationEffect
       propagationEffect.setSite(site);
       //iterating overe all the selected attenautionRelationShips and getting the XYZ data for them
       for(int i=0;i<size;++i){
         AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
-        double val= scenarioShakeMapDataCalc(propagationEffect,attenRel,isProbAtIML,value);
+        double val= scenarioShakeMapDataCalc(propagationEffect,attenRel,isProbAtIML);
 
         //multiplying the value for the attenuation with the relative normalised wt for it
         if(!isProbAtIML)//it is IML at Prob then we don't need to take the log before averaging the values
@@ -149,29 +167,28 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
 
   /**
    *
-   * This function computes a Scenario ShakeMap Data for the given Region, IMR, and ERF.
-   * The computed  data in the form of X, Y and Z is place XYZ_DataSetAPI object.
-   * @param griddedRegionSites : Gridded Region Object
-   * @param imr : selected IMR object
-   * @param rupture : selected EarthquakeRupture Object.
+   * @param propagationEffect : Propagation Effect comtaining the site and rupture information.
+   * @param imr selected IMR object.
    * @param isProbAtIML : if true the prob at the specified IML value (next param) will
-   * be computed; if false the IML at the specified Prob value (next param) will be computed.
-   * @param value : the IML or Prob to compute the map for.
-   * @param sitesLat : ArrayList containing  gridded Locations Latitudes Values
-   * @param sitesLon : ArrayList containing  gridded Locations Longitudes Values
-   * @returns the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
+   * be computed; if false the IML at the specified Prob value will be computed.
+   * @returns computed value for the exceed Prob or IML based on above argument.
    * @throws ParameterException
    */
   private double scenarioShakeMapDataCalc(PropagationEffect propagationEffect,
-      AttenuationRelationship imr,boolean isProbAtIML,double value) throws ParameterException {
+      AttenuationRelationship imr,boolean isProbAtIML) throws ParameterException {
 
     imr.setPropagationEffect(propagationEffect);
-    if(D) System.out.println(imr.getAllParamMetadata());
+    if(D) {
+      System.out.println("Selected Site : " +imr.getSite().getLocation().toString());
+      System.out.println("--------------");
+      System.out.println(imr.getName()+" Params: "+imr.getAllParamMetadata());
+      System.out.println("--------------\n");
+    }
     if(isProbAtIML)
-      return imr.getExceedProbability(value);
+      return imr.getExceedProbability();
     else{
       try{
-        return imr.getIML_AtExceedProb(value);
+        return imr.getIML_AtExceedProb();
       }catch(ParameterException e){
         throw new ParameterException(e.getMessage());
       }
