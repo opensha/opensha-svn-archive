@@ -32,15 +32,27 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   //name of the attenuationrelationship weights parameter
   public static final String lineWidthParamName = "Size -";
 
+
+
   //static line types that allows user to select in combobox.
-  public final static String LINE = "Line";
-  public final static String DISCONTINUOUS_LINES = "Discontinuous line";
-  public final static String FILLED_CIRCLES = "Circles";
-  public final static String FILLED_DOWN_TRIANGLE = "Filled Down Triangle";
-  public final static String FILLED_UP_TRIANGLE = "Filled Up Triangle";
-  public final static String FILLED_DIAMOND = "Filled Diamond";
-  public final static String DIAGONAL_CROSS = "Diagonal Cross";
-  public final static String LINE_AND_SHAPE = "Line with Shapes";
+  public final static String SOLID_LINE = "Solid Line";
+  public final static String DOTTED_LINE = "Dotted Line";
+  public final static String DASHED_LINE = "Dash Line";
+  public final static String DOT_DASH_LINE = "Dot and Dash Line";
+  public final static String X = "X Symbols";
+  public final static String FILLED_CIRCLES = "Filled Circles";
+  public final static String CIRCLES = "Circles";
+  public final static String FILLED_SQUARES = "Filled Squares";
+  public final static String SQUARES = "Squares";
+  public final static String FILLED_TRIANGLES = "Filled Triangles";
+  public final static String TRIANGLES = "Triangles";
+  public final static String FILLED_INV_TRIANGLES = "Filled Inv. Triangles";
+  public final static String INV_TRIANGLES = "Inv. Triangles";
+  public final static String FILLED_DIAMONDS = "Filled Diamond";
+  public final static String DIAMONDS = "Diamond";
+  public final static String LINE_AND_CIRCLES = "Line and Circles";
+  public final static String LINE_AND_TRIANGLES = "Line and Triangles";
+
 
   //Dynamic Gui elements array to show the dataset color coding and line plot scheme
   private JLabel[] datasetSelector;
@@ -161,14 +173,23 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       colorChooserButton[i].addActionListener(this);
       lineTypeSelector[i] = new JComboBox();
       //adding choices to line type selector
-      lineTypeSelector[i].addItem(LINE);
+      lineTypeSelector[i].addItem(SOLID_LINE);
+      lineTypeSelector[i].addItem(DOTTED_LINE);
+      lineTypeSelector[i].addItem(DASHED_LINE);
+      lineTypeSelector[i].addItem(DOT_DASH_LINE);
+      lineTypeSelector[i].addItem(X);
       lineTypeSelector[i].addItem(FILLED_CIRCLES);
-      lineTypeSelector[i].addItem(FILLED_UP_TRIANGLE);
-      lineTypeSelector[i].addItem(FILLED_DOWN_TRIANGLE);
-      lineTypeSelector[i].addItem(FILLED_DIAMOND);
-      lineTypeSelector[i].addItem(DIAGONAL_CROSS);
-      lineTypeSelector[i].addItem(LINE_AND_SHAPE);
-      lineTypeSelector[i].addItem(DISCONTINUOUS_LINES);
+      lineTypeSelector[i].addItem(CIRCLES);
+      lineTypeSelector[i].addItem(FILLED_SQUARES);
+      lineTypeSelector[i].addItem(SQUARES);
+      lineTypeSelector[i].addItem(FILLED_TRIANGLES);
+      lineTypeSelector[i].addItem(TRIANGLES);
+      lineTypeSelector[i].addItem(FILLED_INV_TRIANGLES);
+      lineTypeSelector[i].addItem(INV_TRIANGLES);
+      lineTypeSelector[i].addItem(FILLED_DIAMONDS);
+      lineTypeSelector[i].addItem(DIAMONDS);
+      lineTypeSelector[i].addItem(LINE_AND_CIRCLES);
+      lineTypeSelector[i].addItem(LINE_AND_TRIANGLES);
       //setting the selected plot type to be one currently selected.
       lineTypeSelector[i].setSelectedItem(plottingFeatures[i].getCurveType());
       lineTypeSelector[i].addActionListener(this);

@@ -53,7 +53,7 @@ public class GraphPanel extends JPanel {
   private JPanel chartPane = new JPanel();
 
   // these are coordinates and size of the circles visible in the plot
-  private final static double SIZE = 6.0;
+  private final static double SIZE = 3;
   private final static double DELTA = SIZE / 2.0;
 
 
@@ -254,6 +254,7 @@ public class GraphPanel extends JPanel {
     //primaryDataFunctions.add(totalProbFuncs.get(0));
     //primaryDataset.setFunctions(primaryDataFunctions);
 
+    plot = null;
     // build the plot
     plot = new XYPlot(null,xAxis, yAxis, null);
 
@@ -278,126 +279,18 @@ public class GraphPanel extends JPanel {
       String lineType = plotCharacterstics[j].getCurveType();
 
       //creating the secondary dataset to show it in different color and shapes
-      for(int i=datasetIndex;i<(datasetIndex+numCurves);++i){
+      for(int i=datasetIndex;i<(datasetIndex+numCurves);++i)
         dataFunctions.add(totalProbFuncs.get(i));
-       // plot.getRenderer().setSeriesPaint(i,color);
-        //plot.getRenderer().setSeriesStroke(i,new BasicStroke((float)lineWidth));
-      }
       datasetIndex +=numCurves;
+
       if(j!=0)
         plot.setSecondaryDataset(j-1,dataset);
       else
         plot.setDataset(dataset);
 
-
-
-      if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE)){
-        StandardXYItemRenderer LINE_RENDERER = new StandardXYItemRenderer(
-            org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
-            new StandardXYToolTipGenerator()
-            );
-        if(j==0)
-          plot.setRenderer(LINE_RENDERER);
-        else
-          plot.setSecondaryRenderer(j-1,LINE_RENDERER);
-        LINE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
-        LINE_RENDERER.setPaint(color);
-      }
-      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DISCONTINUOUS_LINES)){
-        StandardXYItemRenderer DISCONTINUOUS_LINE_RENDERER = new StandardXYItemRenderer(
-            org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
-            new StandardXYToolTipGenerator()
-            );
-        if(j==0)
-          plot.setRenderer(DISCONTINUOUS_LINE_RENDERER);
-        else
-          plot.setSecondaryRenderer(j-1,DISCONTINUOUS_LINE_RENDERER);
-        DISCONTINUOUS_LINE_RENDERER.setStroke(new BasicStroke((float)lineWidth,BasicStroke.CAP_BUTT
-            ,BasicStroke.JOIN_BEVEL,0,new float[] {9},0));
-        DISCONTINUOUS_LINE_RENDERER.setPaint(color);
-      }
-      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES)){
-       StandardXYItemRenderer CIRCLE_SHAPE_RENDERER = new StandardXYItemRenderer(
-            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
-            new StandardXYToolTipGenerator()
-            );
-        CIRCLE_SHAPE_RENDERER.setShape(new Ellipse2D.Double(-DELTA-lineWidth/2,
-          -DELTA-lineWidth/2, SIZE+lineWidth, SIZE+lineWidth));
-        if(j==0)
-          plot.setRenderer(CIRCLE_SHAPE_RENDERER);
-        else
-          plot.setSecondaryRenderer(j-1,CIRCLE_SHAPE_RENDERER);
-        CIRCLE_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
-        CIRCLE_SHAPE_RENDERER.setPaint(color);
-      }
-      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_UP_TRIANGLE)){
-       StandardXYItemRenderer UP_TRIANGLE_SHAPE_RENDERER = new StandardXYItemRenderer(
-            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
-            new StandardXYToolTipGenerator()
-            );
-        UP_TRIANGLE_SHAPE_RENDERER.setShape(ShapeUtils.createUpTriangle((float)lineWidth));
-        if(j==0)
-          plot.setRenderer(UP_TRIANGLE_SHAPE_RENDERER);
-        else
-          plot.setSecondaryRenderer(j-1,UP_TRIANGLE_SHAPE_RENDERER);
-        //UP_TRIANGLE_SHAPE_RENDERER.setSeriesShape(datasetIndex
-        UP_TRIANGLE_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
-        UP_TRIANGLE_SHAPE_RENDERER.setPaint(color);
-      }
-      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_DOWN_TRIANGLE)){
-       StandardXYItemRenderer DOWN_TRIANGLE_SHAPE_RENDERER = new StandardXYItemRenderer(
-            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
-            new StandardXYToolTipGenerator()
-            );
-        DOWN_TRIANGLE_SHAPE_RENDERER.setShape(ShapeUtils.createDownTriangle((float)lineWidth));
-        if(j==0)
-          plot.setRenderer(DOWN_TRIANGLE_SHAPE_RENDERER);
-        else
-          plot.setSecondaryRenderer(j-1,DOWN_TRIANGLE_SHAPE_RENDERER);
-        DOWN_TRIANGLE_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
-        DOWN_TRIANGLE_SHAPE_RENDERER.setPaint(color);
-      }
-      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_DIAMOND)){
-       StandardXYItemRenderer DIAMOND_SHAPE_RENDERER = new StandardXYItemRenderer(
-            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
-            new StandardXYToolTipGenerator()
-            );
-        DIAMOND_SHAPE_RENDERER.setShape(ShapeUtils.createDiamond((float)lineWidth));
-        if(j==0)
-          plot.setRenderer(DIAMOND_SHAPE_RENDERER);
-        else
-          plot.setSecondaryRenderer(j-1,DIAMOND_SHAPE_RENDERER);
-        DIAMOND_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
-        DIAMOND_SHAPE_RENDERER.setPaint(color);
-      }
-      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_SHAPE)){
-       StandardXYItemRenderer LINE_AND_SHAPE_RENDERER = new StandardXYItemRenderer(
-            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES_AND_LINES,
-            new StandardXYToolTipGenerator()
-            );
-        if(j==0)
-          plot.setRenderer(LINE_AND_SHAPE_RENDERER);
-        else
-          plot.setSecondaryRenderer(j-1,LINE_AND_SHAPE_RENDERER);
-        LINE_AND_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
-        LINE_AND_SHAPE_RENDERER.setPaint(color);
-      }
-      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DIAGONAL_CROSS)){
-       StandardXYItemRenderer DIAGONAL_CROSS_SHAPE_RENDERER = new StandardXYItemRenderer(
-            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
-            new StandardXYToolTipGenerator()
-            );
-        DIAGONAL_CROSS_SHAPE_RENDERER.setShape(ShapeUtils.createDiagonalCross((float)lineWidth/2,1.0f));
-        DIAGONAL_CROSS_SHAPE_RENDERER.setShapesFilled(false);
-        if(j==0)
-          plot.setRenderer(DIAGONAL_CROSS_SHAPE_RENDERER);
-        else
-          plot.setSecondaryRenderer(j-1,DIAGONAL_CROSS_SHAPE_RENDERER);
-        DIAGONAL_CROSS_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
-        DIAGONAL_CROSS_SHAPE_RENDERER.setPaint(color);
-      }
+      drawCurvesUsingPlottingFeatures(lineType,color,lineWidth,j);
     }
-    //plot.setRenderer( LINE_RENDERER );
+
     plot.setBackgroundAlpha( .8f );
 
     JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
@@ -518,9 +411,271 @@ public class GraphPanel extends JPanel {
   }
 
   /**
+   * For each function in the list it sets the plotting characeterstics of the curve
+   * so that when that list is given to JFreechart , it creates it with these characterstics.
+   * @param lineType
+   * @param color
+   * @param curveWidth
+   * @param functionIndex
+   */
+  private void drawCurvesUsingPlottingFeatures(String lineType,Color color,
+      double curveWidth,int functionIndex){
+    //Solid Line
+    if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE)){
+      StandardXYItemRenderer SOLID_LINE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
+          new StandardXYToolTipGenerator()
+          );
+      if(functionIndex==0)
+        plot.setRenderer(SOLID_LINE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,SOLID_LINE_RENDERER);
+      SOLID_LINE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      SOLID_LINE_RENDERER.setPaint(color);
+    }
+    //Dashed Line
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DASHED_LINE)){
+      StandardXYItemRenderer DASHED_LINE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
+          new StandardXYToolTipGenerator()
+          );
+      if(functionIndex==0)
+        plot.setRenderer(DASHED_LINE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,DASHED_LINE_RENDERER);
+      DASHED_LINE_RENDERER.setStroke(new BasicStroke((float)curveWidth,BasicStroke.CAP_BUTT
+          ,BasicStroke.JOIN_BEVEL,0,new float[] {9},0));
+      DASHED_LINE_RENDERER.setPaint(color);
+    }
+    //Dotted Line
+   else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DOTTED_LINE)){
+     StandardXYItemRenderer DOTTED_LINE_RENDERER = new StandardXYItemRenderer(
+         org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
+         new StandardXYToolTipGenerator()
+         );
+     if(functionIndex==0)
+       plot.setRenderer(DOTTED_LINE_RENDERER);
+     else
+       plot.setSecondaryRenderer(functionIndex-1,DOTTED_LINE_RENDERER);
+     DOTTED_LINE_RENDERER.setStroke(new BasicStroke((float)curveWidth,BasicStroke.CAP_BUTT
+         ,BasicStroke.JOIN_BEVEL,0,new float[] {1},0));
+     DOTTED_LINE_RENDERER.setPaint(color);
+    }
+    //Dash and Dotted Line
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DOT_DASH_LINE)){
+      StandardXYItemRenderer DASH_DOTTED_LINE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
+          new StandardXYToolTipGenerator()
+          );
+      if(functionIndex==0)
+        plot.setRenderer(DASH_DOTTED_LINE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,DASH_DOTTED_LINE_RENDERER);
+      DASH_DOTTED_LINE_RENDERER.setStroke(new BasicStroke((float)curveWidth,BasicStroke.CAP_BUTT
+          ,BasicStroke.JOIN_BEVEL,0,new float[] {5,3,2,3},0));
+      DASH_DOTTED_LINE_RENDERER.setPaint(color);
+    }
+    //Filled Circle
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES)){
+      StandardXYItemRenderer FILLED_CIRCLES_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      FILLED_CIRCLES_SHAPE_RENDERER.setShape(new Ellipse2D.Double(-DELTA-curveWidth/2,
+          -DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
+      if(functionIndex==0)
+        plot.setRenderer(FILLED_CIRCLES_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,FILLED_CIRCLES_SHAPE_RENDERER);
+      //FILLED_CIRCLES_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      FILLED_CIRCLES_SHAPE_RENDERER.setPaint(color);
+    }
+    //Circle
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.CIRCLES)){
+      StandardXYItemRenderer CIRCLES_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      CIRCLES_SHAPE_RENDERER.setShape(new Ellipse2D.Double(-DELTA-curveWidth/2,
+          -DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
+      CIRCLES_SHAPE_RENDERER.setShapesFilled(false);
+      if(functionIndex==0)
+        plot.setRenderer(CIRCLES_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,CIRCLES_SHAPE_RENDERER);
+      //CIRCLES_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      CIRCLES_SHAPE_RENDERER.setPaint(color);
+    }
+    //Filled Triangles
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_TRIANGLES)){
+      StandardXYItemRenderer FILLED_TRIANGLES_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      FILLED_TRIANGLES_SHAPE_RENDERER.setShape(ShapeUtils.createUpTriangle((float)curveWidth));
+      if(functionIndex==0)
+        plot.setRenderer(FILLED_TRIANGLES_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,FILLED_TRIANGLES_SHAPE_RENDERER);
+      //UP_TRIANGLE_SHAPE_RENDERER.setSeriesShape(datasetIndex
+      //FILLED_TRIANGLES_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      FILLED_TRIANGLES_SHAPE_RENDERER.setPaint(color);
+    }
+    //Triangles
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.TRIANGLES)){
+      StandardXYItemRenderer TRIANGLES_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      TRIANGLES_SHAPE_RENDERER.setShape(ShapeUtils.createUpTriangle((float)curveWidth));
+      TRIANGLES_SHAPE_RENDERER.setShapesFilled(false);
+      if(functionIndex==0)
+        plot.setRenderer(TRIANGLES_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,TRIANGLES_SHAPE_RENDERER);
+      //UP_TRIANGLE_SHAPE_RENDERER.setSeriesShape(datasetIndex
+      //TRIANGLES_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      TRIANGLES_SHAPE_RENDERER.setPaint(color);
+    }
+    //Filled Inv Triangles
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_INV_TRIANGLES)){
+      StandardXYItemRenderer FILLED_INV_TRIANGLES_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      FILLED_INV_TRIANGLES_SHAPE_RENDERER.setShape(ShapeUtils.createDownTriangle((float)curveWidth));
+      if(functionIndex==0)
+        plot.setRenderer(FILLED_INV_TRIANGLES_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,FILLED_INV_TRIANGLES_SHAPE_RENDERER);
+      //FILLED_INV_TRIANGLES_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      FILLED_INV_TRIANGLES_SHAPE_RENDERER.setPaint(color);
+    }
+    //Inverted Triangles
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.INV_TRIANGLES)){
+      StandardXYItemRenderer INV_TRIANGLES_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      INV_TRIANGLES_SHAPE_RENDERER.setShape(ShapeUtils.createDownTriangle((float)curveWidth));
+      INV_TRIANGLES_SHAPE_RENDERER.setShapesFilled(false);
+      if(functionIndex==0)
+        plot.setRenderer(INV_TRIANGLES_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,INV_TRIANGLES_SHAPE_RENDERER);
+      //INV_TRIANGLES_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      INV_TRIANGLES_SHAPE_RENDERER.setPaint(color);
+    }
+    //Filled Diamonds
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_DIAMONDS)){
+      StandardXYItemRenderer FILLED_DIAMONDS_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      FILLED_DIAMONDS_SHAPE_RENDERER.setShape(ShapeUtils.createDiamond((float)curveWidth));
+      if(functionIndex==0)
+        plot.setRenderer(FILLED_DIAMONDS_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,FILLED_DIAMONDS_SHAPE_RENDERER);
+      //FILLED_DIAMONDS_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      FILLED_DIAMONDS_SHAPE_RENDERER.setPaint(color);
+    }
+    //Diamonds
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DIAMONDS)){
+      StandardXYItemRenderer DIAMONDS_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      DIAMONDS_SHAPE_RENDERER.setShape(ShapeUtils.createDiamond((float)curveWidth));
+      DIAMONDS_SHAPE_RENDERER.setShapesFilled(false);
+      if(functionIndex==0)
+        plot.setRenderer(DIAMONDS_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,DIAMONDS_SHAPE_RENDERER);
+      //DIAMONDS_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      DIAMONDS_SHAPE_RENDERER.setPaint(color);
+    }
+    //Line and circle
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES)){
+      StandardXYItemRenderer LINE_AND_CIRCLES_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES_AND_LINES,
+          new StandardXYToolTipGenerator()
+          );
+      LINE_AND_CIRCLES_RENDERER.setShape(new Ellipse2D.Double(-DELTA-curveWidth/2,
+          -DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
+      if(functionIndex==0)
+        plot.setRenderer(LINE_AND_CIRCLES_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,LINE_AND_CIRCLES_RENDERER);
+      LINE_AND_CIRCLES_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      LINE_AND_CIRCLES_RENDERER.setPaint(color);
+    }
+    //Line and Triangles
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_TRIANGLES)){
+      StandardXYItemRenderer LINE_AND_TRIANGLES_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES_AND_LINES,
+          new StandardXYToolTipGenerator()
+          );
+      LINE_AND_TRIANGLES_RENDERER.setShape(ShapeUtils.createDownTriangle((float)curveWidth));
+      if(functionIndex==0)
+        plot.setRenderer(LINE_AND_TRIANGLES_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,LINE_AND_TRIANGLES_RENDERER);
+      LINE_AND_TRIANGLES_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      LINE_AND_TRIANGLES_RENDERER.setPaint(color);
+    }
+    //X symbols
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.X)){
+      StandardXYItemRenderer X_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      X_SHAPE_RENDERER.setShape(ShapeUtils.createDiagonalCross((float)curveWidth/2,1.0f));
+      X_SHAPE_RENDERER.setShapesFilled(false);
+      if(functionIndex==0)
+        plot.setRenderer(X_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,X_SHAPE_RENDERER);
+      //X_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      X_SHAPE_RENDERER.setPaint(color);
+    }
+    //squares
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.SQUARES)){
+      StandardXYItemRenderer SQUARE_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      SQUARE_SHAPE_RENDERER.setShape(new Rectangle.Double(-DELTA-curveWidth/2,
+          -DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
+      SQUARE_SHAPE_RENDERER.setShapesFilled(false);
+      if(functionIndex==0)
+        plot.setRenderer(SQUARE_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,SQUARE_SHAPE_RENDERER);
+      //SQUARE_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      SQUARE_SHAPE_RENDERER.setPaint(color);
+    }
+    //filled squares
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_SQUARES)){
+      StandardXYItemRenderer FILLED_SQUARE_SHAPE_RENDERER = new StandardXYItemRenderer(
+          org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+          new StandardXYToolTipGenerator()
+          );
+      FILLED_SQUARE_SHAPE_RENDERER.setShape(new Rectangle.Double(-DELTA-curveWidth/2,
+          -DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
+      if(functionIndex==0)
+        plot.setRenderer(FILLED_SQUARE_SHAPE_RENDERER);
+      else
+        plot.setSecondaryRenderer(functionIndex-1,FILLED_SQUARE_SHAPE_RENDERER);
+      //FILLED_SQUARE_SHAPE_RENDERER.setStroke(new BasicStroke((float)curveWidth));
+      FILLED_SQUARE_SHAPE_RENDERER.setPaint(color);
+    }
+  }
+
+
+  /**
    * Draws the graph panel
    */
-
   public void drawGraphPanel(String xAxisName, String yAxisName,ArrayList funcList,
                              boolean xLog,boolean yLog,boolean customAxis, String title,
                              ButtonControlPanel buttonControlPanel ) {
@@ -624,7 +779,7 @@ public class GraphPanel extends JPanel {
     plot.setInsets(new Insets(10, 0, 0, 20));
 
     float lineWidth = ((BasicStroke)LINE_RENDERER.getBaseStroke()).getLineWidth();
-    String plotType = PlotColorAndLineTypeSelectorControlPanel.LINE;
+    String plotType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
 
     int numSeries = totalProbFuncs.size();
     for(int i=0; i < numSeries; ++i) LINE_RENDERER.setSeriesPaint(i,legendPaint[i]);
