@@ -69,7 +69,7 @@ public class Field_2000_IMR
 
 
     // warning constraint fields:
-    protected final static Double VS30_WARN_MIN = new Double(50.0);
+    protected final static Double VS30_WARN_MIN = new Double(180.0);
     protected final static Double VS30_WARN_MAX = new Double(3500.0);
     protected final static Double MAG_WARN_MIN = new Double(5.0);
     protected final static Double MAG_WARN_MAX = new Double(8.0);

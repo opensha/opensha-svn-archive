@@ -57,7 +57,7 @@ public class BJF_1997_IMR
     private final static String FLT_TYPE_DEFAULT = "Unknown";
 
     // warning constraint fields:
-    protected final static Double VS30_WARN_MIN = new Double(50.0);
+    protected final static Double VS30_WARN_MIN = new Double(180.0);
     protected final static Double VS30_WARN_MAX = new Double(3500.0);
     protected final static Double MAG_WARN_MIN = new Double(5.5);
     protected final static Double MAG_WARN_MAX = new Double(7.5);
