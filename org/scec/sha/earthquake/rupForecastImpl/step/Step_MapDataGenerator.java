@@ -38,7 +38,7 @@ public class Step_MapDataGenerator implements ParameterChangeWarningListener{
   private double maxLat = 36.5;
   private double minLon = -121.5;
   private double maxLon= -115.0;
-  private double gridSpacing= 0.05;
+  private double gridSpacing= 0.1;
 
   public Step_MapDataGenerator() {
     // make the forecast
