@@ -325,8 +325,11 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     double charRate=0,charRate2, dip=0, downDipWidth=0, depthToTop=0;
     double minMag, maxMag, minMag2=0, maxMag2=0;
 
-    double test;
-    boolean itest; // true means
+    double mLow, mHigh;
+
+
+    double test, test2=0;
+    double magEp, wtEp;
 
     // get adjustable parameters values
     String faultModel = (String) faultModelParam.getValue();
@@ -412,7 +415,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           // add "Char" to the source name
           sourceName += " Char";
 
-          // get the same from the second file if necessary
+          // get the same info from the second file if necessary
           if(fileName2 != null) {
             // get the same line from the second file
             st = new StringTokenizer((String) inputFaultFileLines2.get(it.nextIndex()-1));
@@ -424,7 +427,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           }
 
           // make the Char magFreqDist (depending on whether uncertainties should be considered)
-          double mLow, mHigh;
           if(minMag < 5.8 || aleStdDev == 0.0) {   // the no-uncertainty case:
             if(fileName2 == null){
               SingleMagFreqDist tempDist = new SingleMagFreqDist(mag,1,0.1,mag,moRate*wt1);
@@ -432,6 +434,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
               totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
             }
             else {
+              // make sure minMag2 does not violate the if statement above
+              // (comment this out after it's run once since files won't change)
+              if(minMag2 >= 5.8) throw new RuntimeException(C+" Problem: minMag of second file conflicts");
               if(mag > mag2) {
                 mLow = mag2;
                 mHigh = mag;
@@ -440,9 +445,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
                 mLow =mag;
                 mHigh = mag2;
               }
-              int numMag = Math.round((float) ((mHigh-mLow)/0.05+1));
-              totalMagFreqDist = new SummedMagFreqDist(mLow,mHigh,numMag, false, false);
-              SingleMagFreqDist tempDist = new SingleMagFreqDist(mLow,mHigh,numMag);
+              totalMagFreqDist = new SummedMagFreqDist(mLow,mHigh,2, false, false);
+              SingleMagFreqDist tempDist = new SingleMagFreqDist(mLow,mHigh,2);
               tempDist.setMagAndMomentRate(mag,moRate*wt1);
               totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
               tempDist.setMagAndMomentRate(mag2,moRate2*wt2);
@@ -451,19 +455,24 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           }
           else { // Apply both aleatory and epistemic uncertainties
             //find the lower and upper magnitudes
-            if(mag < mag2) {
+            if(fileName2 == null){
               mLow = minMag;
-              mHigh = maxMag2;
-            }
-            else {
-              mLow = minMag2;
               mHigh = maxMag;
             }
-            int numMag = Math.round((float)((maxMag-minMag)/0.05 + 1));
-            totalMagFreqDist = new SummedMagFreqDist(minMag,maxMag,numMag, false, false);
+            else {
+              if(mag < mag2) {
+                mLow = minMag;
+                mHigh = maxMag2;
+              }
+              else {
+                mLow = minMag2;
+                mHigh = maxMag;
+              }
+            }
+            int numMag = Math.round((float)((mHigh-mLow)/0.05 + 1));
+            totalMagFreqDist = new SummedMagFreqDist(mLow,mHigh,numMag, false, false);
             // loop over epistemic uncertianties
-            GaussianMagFreqDist tempDist = new GaussianMagFreqDist(minMag,maxMag,numMag);
-            double magEp, wtEp;
+            GaussianMagFreqDist tempDist = new GaussianMagFreqDist(mLow,mHigh,numMag);
             for(int i=0;i<branchDmags.size();i++) {
               magEp = mag + ((Double)branchDmags.get(i)).doubleValue();
               wtEp = ((Double)branchWts.get(i)).doubleValue();
@@ -488,7 +497,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           magLower=Double.parseDouble(st.nextToken());
           mag=Double.parseDouble(st.nextToken());
           deltaMag=Double.parseDouble(st.nextToken());
-          // mover lower and upper mags to be bin centered
+          // move lower and upper mags to be bin centered (if they aren't the same)
           if(mag != magLower){
             magLower += deltaMag/2.0;
             mag -= deltaMag/2.0;
@@ -516,46 +525,162 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
             moRate2 = getMomentRate(magLower2, numMags2,deltaMag2,aVal2,bVal2);
           }
 
-          // Set name suffix
+          // Set the source-name suffix
           if( mag == magLower )
             sourceName += " fl-Char";
           else {
             sourceName += " GR";
           }
 
+          // Do the single-magnitude case first
           if(numMags == 1) {
-            test = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
-            if(test >= 5.8 && aleStdDev != 0.0) {
-              // Gaussian dist - both aleatory and epistemic uncertainty
+            minMag = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+            maxMag = mag + ((Double)branchDmags.get(branchDmags.size()-1)).doubleValue() + aleWidth*0.05;
 
-              // check that the other file won't fall out of this case
+            // Do Gaussian dist w/ aleatory and epistemic uncertainty first
+            if(minMag >= 5.8 && aleStdDev != 0.0) {
+
+              // get mLow and mHigh for distribution
               if (fileName2 != null) {
-                double test2 = mag2 + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
-                if (test2 < 5.8) {
-                  System.out.println("PROBLEM: test="+test+"; test2="+test2+" ---"+sourceName);
+                minMag2 = mag2 + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
+                maxMag2 = mag2 + ((Double)branchDmags.get(branchDmags.size()-1)).doubleValue() + aleWidth*0.05;
+                // throw execption if minMag2 fails the above test
+                if (minMag2 < 5.8) {   // (comment out after initial run since input files won't change)
+                  throw new RuntimeException(C+" PROBLEM: conflicting treatment of file2");
+                }
+                if(mag < mag2) {
+                  mLow = minMag;
+                  mHigh = maxMag2;
+                }
+                else {
+                  mLow = minMag2;
+                  mHigh = maxMag;
+                }
+              }
+              else {
+                mLow = minMag;
+                mHigh = maxMag;
+              }
+
+              int numMag = Math.round((float)((mHigh-mLow)/0.05 + 1));
+              totalMagFreqDist = new SummedMagFreqDist(mLow,mHigh,numMag, false, false);
+              // loop over epistemic uncertianties
+              GaussianMagFreqDist tempDist = new GaussianMagFreqDist(mLow,mHigh,numMag);
+              for(int i=0;i<branchDmags.size();i++) {
+                magEp = mag + ((Double)branchDmags.get(i)).doubleValue();
+                wtEp = ((Double)branchWts.get(i)).doubleValue();
+                tempDist.setAllButCumRate(magEp,aleStdDev,moRate*wtEp*wt1,aleWidth*0.05/aleStdDev,2);
+                totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
+              }
+              // now add those from the second file if necessary
+              if(fileName2 != null){
+                for(int i=0;i<branchDmags.size();i++) {
+                  magEp = mag2 + ((Double)branchDmags.get(i)).doubleValue();
+                  wtEp = ((Double)branchWts.get(i)).doubleValue();
+                  tempDist.setAllButCumRate(magEp,aleStdDev,moRate2*wtEp*wt2,aleWidth*0.05/aleStdDev,2);
+                  totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
                 }
               }
             }
+            // Do Single mad dist w/ no uncertainties
             else {
-              // single mag dist; no uncertainty
+              if(fileName2 == null){
+                SingleMagFreqDist tempDist = new SingleMagFreqDist(mag,1,0.1,mag,moRate*wt1);
+                totalMagFreqDist = new SummedMagFreqDist(mag,1,0.1, false, false);
+                totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
+              }
+              else {
+                if(mag > mag2) {
+                  mLow = mag2;
+                  mHigh = mag;
+                }
+                else {
+                  mLow =mag;
+                  mHigh = mag2;
+                }
+                totalMagFreqDist = new SummedMagFreqDist(mLow,mHigh,2, false, false);
+                SingleMagFreqDist tempDist = new SingleMagFreqDist(mLow,mHigh,2);
+                tempDist.setMagAndMomentRate(mag,moRate*wt1);
+                totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
+                tempDist.setMagAndMomentRate(mag2,moRate2*wt2);
+                totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
+              }
             }
           }
+
+          // GR distribution case
           else {
+
+            // get mLow and mHigh of the total mag-freq-dist
             test = mag + ((Double)branchDmags.get(0)).doubleValue();
             if(test >= 6.5 && aleStdDev != 0.0) {
-              // GR dist with epistemic uncertainty
-
-              // check that the other file won't fall out of this case
-              if (fileName2 != null) {
-                double test2 = mag2 + ((Double)branchDmags.get(0)).doubleValue();
-                if (test2 < 6.5) {
-                  System.out.println("PROBLEM: test="+test+"; test2="+test2+" ---"+sourceName);
-                }
-              }
-
+              maxMag = mag + ((Double)branchDmags.get(branchDmags.size()-1)).doubleValue();
             }
             else {
-              // GR dist with no epistemic uncertainty
+              maxMag = mag;
+            }
+            if (fileName2 != null) {
+              test2 = mag2 + ((Double)branchDmags.get(0)).doubleValue();
+              if(test2 >= 6.5 && aleStdDev != 0.0) {
+                maxMag2 = mag2 + ((Double)branchDmags.get(branchDmags.size()-1)).doubleValue();
+              }
+              else {
+                maxMag2 = mag2;
+              }
+              if(maxMag2 > maxMag){
+                mHigh = maxMag2;
+              }
+              else {
+                mHigh = maxMag;
+              }
+              mLow = magLower;
+              // Check that magLower and deltaMag are same for both files
+              // (this only needs to be done once)
+              if (magLower != magLower2 || deltaMag != deltaMag2) {
+                throw new RuntimeException(C + ": Error - magLower & deltaMag must be same for both files");
+              }
+            }
+            else {
+              mLow = magLower;
+              mHigh = maxMag;
+            }
+
+            // make the GR distributions
+            int numMag = Math.round((float)((mHigh-mLow)/deltaMag + 1));
+            totalMagFreqDist = new SummedMagFreqDist(mLow,mHigh,numMag, false, false);
+            GutenbergRichterMagFreqDist tempGR_dist = new GutenbergRichterMagFreqDist(mLow,mHigh,numMag);
+
+            // GR with epistemic uncertainties
+            if(test >= 6.5 && aleStdDev != 0.0) {
+              for(int i=0;i<branchDmags.size();i++) {
+                magEp = mag + ((Double)branchDmags.get(i)).doubleValue();
+                wtEp = ((Double)branchWts.get(i)).doubleValue();
+                tempGR_dist.setAllButTotCumRate(magLower,magEp,moRate*wtEp*wt1,bVal);
+                totalMagFreqDist.addIncrementalMagFreqDist(tempGR_dist);
+              }
+            }
+            // GR w/ no epistemic uncertainties
+            else {
+              tempGR_dist.setAllButTotCumRate(magLower,mag,moRate*wt1,bVal);
+              totalMagFreqDist.addIncrementalMagFreqDist(tempGR_dist);
+            }
+
+            // now do same for second file if necessary
+            if(fileName2 != null) {
+              // GR with epistemic uncertainties
+              if(test2 >= 6.5 && aleStdDev != 0.0) {
+                for(int i=0;i<branchDmags.size();i++) {
+                  magEp = mag2 + ((Double)branchDmags.get(i)).doubleValue();
+                  wtEp = ((Double)branchWts.get(i)).doubleValue();
+                  tempGR_dist.setAllButTotCumRate(magLower2,magEp,moRate2*wtEp*wt2,bVal2);
+                  totalMagFreqDist.addIncrementalMagFreqDist(tempGR_dist);
+                }
+              }
+              // GR w/ no epistemic uncertainties
+              else {
+                tempGR_dist.setAllButTotCumRate(magLower2,mag2,moRate2*wt2,bVal2);
+                totalMagFreqDist.addIncrementalMagFreqDist(tempGR_dist);
+              }
             }
           }
 /*
@@ -875,7 +1000,7 @@ for(int i=0;i<allSources.size();i++) {
 
 
    /**
-    * this computes the moment for the GR distribution exactly the way frankel does is
+    * this computes the moment for the GR distribution exactly the way frankel's code does it
     */
    private double getMomentRate(double magLower, int numMag, double deltaMag, double aVal, double bVal) {
      double mo = 0;
