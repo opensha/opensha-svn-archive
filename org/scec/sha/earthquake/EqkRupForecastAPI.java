@@ -48,12 +48,15 @@ public interface EqkRupForecastAPI extends NamedObjectAPI{
 
 
      /**
+/** @merge workspace: Changes in the Workspace */
+/** @merge repository: Changes from the Repository
       * This method gets the time-span field
       */
      public TimeSpan getTimeSpan();
 
 
      /**
+*/
       * get the adjustable parameters for this forecast
       *
       * @return

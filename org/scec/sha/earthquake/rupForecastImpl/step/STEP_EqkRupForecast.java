@@ -37,10 +37,7 @@ import org.scec.param.event.ParameterChangeEvent;
   private static String  C = new String("STEP_EqkRupForecast");
   private boolean D = true;
 
-
-  /**
-   * Static variable for input file names
-   */
+  // Input file name
   private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/SoCalDeltaRates.txt";
 
   // ArrayList of input file lines
@@ -55,13 +52,14 @@ import org.scec.param.event.ParameterChangeEvent;
   private static final double DIP=90.0;
   private static final double MAG_LOWER=4;
   private static final double MAG_UPPER=8;
-  private static final int NUM_MAG=41;
+  private static final int    NUM_MAG=41;
   private static final double DEPTH=0;
 
   // vector to hold the sources
   Vector sources;
 
-
+  // private declaration of the flag to check if any parameter has been changed.
+  private boolean  parameterChangeFlag = true;
 
 
   /**
@@ -106,7 +104,8 @@ import org.scec.param.event.ParameterChangeEvent;
 
     if (D) System.out.println("Number of lines in file = "+inputFileLines.size());
 
-    this.makeSources();
+    // Make the sources
+    makeSources();
   }
 
 
@@ -123,8 +122,6 @@ import org.scec.param.event.ParameterChangeEvent;
     this.sources = new Vector();
     double lat, lon;
     double duration = timeSpan.getDuration();
-    double magLower;
-    double deltaMag=0.1;
 
     IncrementalMagFreqDist magFreqDist;
     PointPoissonEqkSource ptSource;
@@ -133,7 +130,8 @@ import org.scec.param.event.ParameterChangeEvent;
     ListIterator it = inputFileLines.listIterator();
 
     // skip first two lines
-    StringTokenizer st = new StringTokenizer(it.next().toString());
+    StringTokenizer st;
+    st = new StringTokenizer(it.next().toString());
     st = new StringTokenizer(it.next().toString());
 
     while( it.hasNext() ) {
@@ -158,7 +156,7 @@ import org.scec.param.event.ParameterChangeEvent;
 
 
   /**
-   * sets the timeSpan field
+   * REMOVE THIS sets the timeSpan field
    * @param yrs : does not do anything yet (timespan is an adjustable
    * DoubleParameter for now)
    */
@@ -191,7 +189,7 @@ import org.scec.param.event.ParameterChangeEvent;
      * @param i
      * @return
      */
-    public EqkRupture getRuptureClone(int iSource, int nRupture) {
+    public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
       return getSource(iSource).getRuptureClone(nRupture);
     }
 
@@ -202,7 +200,7 @@ import org.scec.param.event.ParameterChangeEvent;
      * @param i
      * @return
      */
-    public EqkRupture getRupture(int iSource, int nRupture) {
+    public ProbEqkRupture getRupture(int iSource, int nRupture) {
        return getSource(iSource).getRupture(nRupture);
     }
 
@@ -302,6 +300,15 @@ import org.scec.param.event.ParameterChangeEvent;
 
      STEP_EqkRupForecast forecast = new STEP_EqkRupForecast();
      System.out.println("getNumSources(): "+forecast.getNumSources());
+     ProbEqkSource qkSrc = forecast.getSource(0);
+     System.out.println("getNumRuptures(): "+qkSrc.getNumRuptures());
+     EqkRupture rup;
+     for(int i=0;i<qkSrc.getNumRuptures();i++) {
+       rup = qkSrc.getRupture(i);
+       Location loc = (Location) rup.getRuptureSurface().get(0,0);
+       if(i==0) System.out.print(loc.getLongitude()+"  "+loc.getLongitude()+"  ");
+       System.out.print(rup.getMag()+"  ");
+     }
    }
 
 }

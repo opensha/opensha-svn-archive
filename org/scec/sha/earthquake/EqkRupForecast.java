@@ -167,7 +167,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * @param i
    * @return
    */
-  public abstract EqkRupture getRupture(int iSource, int nRupture);
+  public abstract ProbEqkRupture getRupture(int iSource, int nRupture);
 
   /**
    * Get the ith rupture of the source. this method DOES NOT return reference
@@ -179,7 +179,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * @param i
    * @return
    */
-  public abstract EqkRupture getRuptureClone(int iSource, int nRupture) ;
+  public abstract ProbEqkRupture getRuptureClone(int iSource, int nRupture) ;
 
 
   /**
