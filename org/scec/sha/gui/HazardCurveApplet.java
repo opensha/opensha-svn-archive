@@ -41,6 +41,8 @@ import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.sha.calc.FractileCurveCalculator;
 import org.scec.data.Site;
 import org.scec.sha.gui.infoTools.IMT_Info;
+import org.scec.sha.gui.infoTools.ButtonControlPanelAPI;
+import org.scec.sha.gui.infoTools.ButtonControlPanel;
 
 /**
  * <p>Title: HazardCurveApplet</p>
@@ -53,7 +55,8 @@ import org.scec.sha.gui.infoTools.IMT_Info;
 public class HazardCurveApplet extends JApplet
     implements Runnable,  ParameterChangeListener, AxisLimitsControlPanelAPI,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
-    X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI{
+    X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
+    ButtonControlPanelAPI{
 
   /**
    * Name of the class
@@ -97,12 +100,14 @@ public class HazardCurveApplet extends JApplet
   private Site_GuiBean siteGuiBean;
   private TimeSpanGuiBean timeSpanGuiBean;
 
+  //instance for the ButtonControlPanel
+  ButtonControlPanel buttonControlPanel;
+
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
   private final static String DISAGGREGATION_CONTROL = "Disaggregation";
   private final static String EPISTEMIC_CONTROL = "ERF Epistemic Control";
-  private final static String AXIS_CONTROL = "Axis Control";
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
   private final static String CVM_CONTROL = "Set Site Params from CVM";
@@ -112,7 +117,6 @@ public class HazardCurveApplet extends JApplet
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
   private DisaggregationControlPanel disaggregationControlPanel;
-  private AxisLimitsControlPanel axisControlPanel;
   private ERF_EpistemicListControlPanel epistemicControlPanel;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
   private SitesOfInterestControlPanel sitesOfInterest;
@@ -252,13 +256,9 @@ public class HazardCurveApplet extends JApplet
 
   JSplitPane topSplitPane = new JSplitPane();
   JButton clearButton = new JButton();
-  JLabel imgLabel = new JLabel();
-  JCheckBox jCheckylog = new JCheckBox();
-  JButton toggleButton = new JButton();
   JPanel buttonPanel = new JPanel();
   JCheckBox progressCheckBox = new JCheckBox();
   JButton addButton = new JButton();
-  JCheckBox jCheckxlog = new JCheckBox();
   JComboBox controlComboBox = new JComboBox();
   JSplitPane chartSplit = new JSplitPane();
   JPanel panel = new JPanel();
@@ -277,7 +277,6 @@ public class HazardCurveApplet extends JApplet
   GridBagLayout gridBagLayout13 = new GridBagLayout();
   GridBagLayout gridBagLayout12 = new GridBagLayout();
   JPanel imrPanel = new JPanel();
-  FlowLayout flowLayout1 = new FlowLayout();
   GridBagLayout gridBagLayout10 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
   HazardCurveCalculator calc;
@@ -286,6 +285,9 @@ public class HazardCurveApplet extends JApplet
   CalcProgressBar disaggProgressClass;
   Timer timer;
   Timer disaggTimer;
+  private JButton peelOffButton = new JButton();
+  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+  private FlowLayout flowLayout1 = new FlowLayout();
 
 
   //Get command-line parameter value
@@ -378,7 +380,7 @@ public class HazardCurveApplet extends JApplet
     border6 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     border7 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
-    //this.getContentPane().setBackground(Color.white);
+
     this.setSize(new Dimension(1060, 670));
     this.getContentPane().setLayout(borderLayout1);
 
@@ -401,60 +403,31 @@ public class HazardCurveApplet extends JApplet
     //loading the OpenSHA Logo
 
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+
     clearButton.setText("Clear Plot");
     clearButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         clearButton_actionPerformed(e);
       }
     });
-    imgLabel.setText("");
-    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
-    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        imgLabel_mouseClicked(e);
-      }
-    });
-    //jCheckylog.setBackground(Color.white);
-    jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
-    //jCheckylog.setForeground(new Color(80, 80, 133));
-    jCheckylog.setText("Y Log");
-    jCheckylog.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jCheckylog_actionPerformed(e);
-      }
-    });
-    toggleButton.setToolTipText("");
-    toggleButton.setText("Show Data");
-    toggleButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        toggleButton_actionPerformed(e);
-      }
-    });
-    //buttonPanel.setBackground(Color.white);
+
+    buttonPanel.setAlignmentX((float) 0.0);
+    buttonPanel.setAlignmentY((float) 0.0);
     buttonPanel.setMinimumSize(new Dimension(568, 20));
     buttonPanel.setLayout(flowLayout1);
-    //progressCheckBox.setBackground(Color.white);
+
     progressCheckBox.setFont(new java.awt.Font("Dialog", 1, 12));
-    //progressCheckBox.setForeground(new Color(80, 80, 133));
+
     progressCheckBox.setSelected(true);
     progressCheckBox.setText("Show Progress Bar");
+
     addButton.setText("Add Graph");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);
       }
     });
-   // jCheckxlog.setBackground(Color.white);
-    jCheckxlog.setFont(new java.awt.Font("Dialog", 1, 11));
-    //jCheckxlog.setForeground(new Color(80, 80, 133));
-    jCheckxlog.setText("X Log");
-    jCheckxlog.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jCheckxlog_actionPerformed(e);
-      }
-    });
-    //controlComboBox.setBackground(new Color(200, 200, 230));
-    //controlComboBox.setForeground(new Color(80, 80, 133));
+
     controlComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         controlComboBox_actionPerformed(e);
@@ -486,18 +459,35 @@ public class HazardCurveApplet extends JApplet
     imrPanel.setBackground(Color.white);
     chartSplit.setLeftComponent(panel);
     chartSplit.setRightComponent(paramsTabbedPane);
+
+
+
+    peelOffButton.setText("Peel Off");
+
+
+    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        imgLabel_mouseClicked(e);
+      }
+    });
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(11, 4, 5, 6), 243, 231));
-    buttonPanel.add(controlComboBox, null);
-    buttonPanel.add(addButton, null);
-    buttonPanel.add(clearButton, null);
-    buttonPanel.add(toggleButton, null);
-    buttonPanel.add(jCheckxlog, null);
-    buttonPanel.add(jCheckylog, null);
-    buttonPanel.add(progressCheckBox, null);
-    buttonPanel.add(imgLabel, null);
+
+    //object for the ButtonControl Panel
+    buttonControlPanel = new ButtonControlPanel(this);
+
+    buttonPanel.add(controlComboBox, 0);
+    buttonPanel.add(addButton, 1);
+    buttonPanel.add(clearButton, 2);
+    buttonPanel.add(peelOffButton, 3);
+    buttonPanel.add(progressCheckBox, 4);
+    buttonPanel.add(buttonControlPanel,5);
+    buttonPanel.add(imgLabel, 6);
+
+
+
     topSplitPane.add(chartSplit, JSplitPane.TOP);
     chartSplit.add(panel, JSplitPane.LEFT);
     chartSplit.add(paramsTabbedPane, JSplitPane.RIGHT);
@@ -518,8 +508,8 @@ public class HazardCurveApplet extends JApplet
     erfPanel.repaint();
     chartSplit.setDividerLocation(600);
 
-
   }
+
   //Start the applet
   public void start() {
   }
@@ -701,14 +691,14 @@ public class HazardCurveApplet extends JApplet
    /**
     *  Toggle between showing the graph and showing the actual data
     */
-   private void togglePlot() {
+   public void togglePlot() {
 
        // Starting
        String S = C + ": togglePlot(): ";
        panel.removeAll();
        if ( graphOn ) {
 
-           this.toggleButton.setText( "Show Plot" );
+           buttonControlPanel.getToggleButton().setText( "Show Plot" );
            graphOn = false;
 
            panel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -716,8 +706,8 @@ public class HazardCurveApplet extends JApplet
        }
        else {
            graphOn = true;
-           // dataScrollPane.setVisible(false);
-           this.toggleButton.setText( "Show Data" );
+
+           buttonControlPanel.getToggleButton().setText( "Show Data" );
                          // panel added here
            if(chartPanel !=null)
                panel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -892,27 +882,6 @@ public class HazardCurveApplet extends JApplet
      addGraphPanel();
     }
 
-    /**
-     * if we select or deselect x log
-     * @param e
-     */
-    void jCheckxlog_actionPerformed(ActionEvent e) {
-      xLog  = this.jCheckxlog.isSelected();
-      data.setXLog(xLog);
-      drawGraph();
-    }
-
-    /**
-     * if we select or deselect x log
-     * @param e
-     */
-    void jCheckylog_actionPerformed(ActionEvent e) {
-      yLog  = this.jCheckylog.isSelected();
-      data.setYLog(yLog);
-      drawGraph();
-  }
-
-
 
   /**
    * when "show data" button is clicked
@@ -964,12 +933,12 @@ public class HazardCurveApplet extends JApplet
    *
    */
   public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
-     minXValue=xMin;
-     maxXValue=xMax;
-     minYValue=yMin;
-     maxYValue=yMax;
-     this.customAxis=true;
-     drawGraph();
+    minXValue=xMin;
+    maxXValue=xMax;
+    minYValue=yMin;
+    maxYValue=yMax;
+    this.customAxis=true;
+    drawGraph();
 
   }
 
@@ -977,18 +946,18 @@ public class HazardCurveApplet extends JApplet
    * set the auto range for the axis. This function is called
    * from the AxisLimitControlPanel
    */
- public void setAutoRange() {
-   this.customAxis=false;
-   drawGraph();
- }
+  public void setAutoRange() {
+    this.customAxis=false;
+    drawGraph();
+  }
 
   /**
-    * This function to specify whether disaggregation is selected or not
-    * @param isSelected : True if disaggregation is selected , else false
-    */
-   public void setDisaggregationSelected(boolean isSelected) {
-     disaggregationFlag = isSelected;
-   }
+   * This function to specify whether disaggregation is selected or not
+   * @param isSelected : True if disaggregation is selected , else false
+   */
+  public void setDisaggregationSelected(boolean isSelected) {
+    disaggregationFlag = isSelected;
+  }
 
 
 
@@ -1376,7 +1345,6 @@ public class HazardCurveApplet extends JApplet
     this.controlComboBox.addItem(CONTROL_PANELS);
     this.controlComboBox.addItem(PEER_TEST_CONTROL);
     this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
-    this.controlComboBox.addItem(AXIS_CONTROL);
     this.controlComboBox.addItem(DISTANCE_CONTROL);
     this.controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(CVM_CONTROL);
@@ -1397,10 +1365,6 @@ public class HazardCurveApplet extends JApplet
       initDisaggregationControl();
     else if(selectedControl.equalsIgnoreCase(this.EPISTEMIC_CONTROL))
       initEpistemicControl();
-    else if(selectedControl.equalsIgnoreCase(this.AXIS_CONTROL))
-      initAxisControl();
-    else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
-      initDistanceControl();
     else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
       initDistanceControl();
     else if(selectedControl.equalsIgnoreCase(this.SITES_OF_INTEREST_CONTROL))
@@ -1534,38 +1498,19 @@ public class HazardCurveApplet extends JApplet
   }
 
   /**
-   * Initialize the PEER Test control.
-   * This function is called when user selects "Axis Control"
-   * from controls pick list
+   *
+   * @returns the Range for the X-Axis
    */
-  private void initAxisControl() {
-    if(xAxis==null || yAxis==null) {
-      JOptionPane.showMessageDialog(this,AXIS_RANGE_NOT_ALLOWED);
-      return;
-    }
-    Range rX = xAxis.getRange();
-    Range rY= yAxis.getRange();
-    double minX=rX.getLowerBound();
-    double maxX=rX.getUpperBound();
-    double minY=rY.getLowerBound();
-    double maxY=rY.getUpperBound();
-    if(this.customAxis) { // select the custom scale in the control window
-      if(axisControlPanel == null)
-        axisControlPanel=new AxisLimitsControlPanel(this, this,
-            AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
-      else  axisControlPanel.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
-                                       minX,maxX,minY,maxY);
+  public Range getX_AxisRange(){
+    return xAxis.getRange();
+  }
 
-    }
-    else { // select the auto scale in the control window
-      if(axisControlPanel == null)
-        axisControlPanel=new AxisLimitsControlPanel(this, this,
-            AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
-      else  axisControlPanel.setParams(AxisLimitsControlPanel.AUTO_SCALE,
-                                       minX,maxX,minY,maxY);
-    }
-    axisControlPanel.pack();
-    axisControlPanel.show();
+  /**
+   *
+   * @returns the Range for the Y-Axis
+   */
+  public Range getY_AxisRange(){
+    return yAxis.getRange();
   }
 
   /**
@@ -1661,10 +1606,25 @@ public class HazardCurveApplet extends JApplet
     this.avgSelected = isAvgSelected;
   }
 
+  /**
+   * tells the application if the xLog is selected
+   * @param xLog : boolean
+   */
+  public void setX_Log(boolean xLog){
+    this.xLog = xLog;
+    data.setXLog(xLog);
+    drawGraph();
+  }
 
-
-
-
+  /**
+   * tells the application if the yLog is selected
+   * @param yLog : boolean
+   */
+  public void setY_Log(boolean yLog){
+    this.yLog = yLog;
+    data.setYLog(yLog);
+    drawGraph();
+  }
   void imgLabel_mousePressed(MouseEvent e) {
 
   }
@@ -1677,8 +1637,6 @@ public class HazardCurveApplet extends JApplet
   void imgLabel_mouseExited(MouseEvent e) {
 
   }
-
-
 
 }
 
