@@ -7,7 +7,8 @@ import javax.swing.*;
 
 
 import org.scec.param.DoubleParameter;
-import org.scec.param.editor.DoubleParameterEditor;
+import org.scec.param.editor.ConstrainedDoubleParameterEditor;
+import org.scec.param.DoubleConstraint;
 import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
@@ -60,7 +61,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   private JComboBox[] lineTypeSelector;
   //AttenuationRelationship parameters and list declaration
   private DoubleParameter[] lineWidthParameter;
-  private DoubleParameterEditor[] lineWidthParameterEditor;
+  private ConstrainedDoubleParameterEditor[] lineWidthParameterEditor;
 
   private JButton applyButton = new JButton();
   private JButton cancelButton = new JButton();
@@ -99,7 +100,9 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
+    jLabel1.setFont(new java.awt.Font("Arial", 0, 18));
     jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
+    jLabel1.setHorizontalTextPosition(SwingConstants.CENTER);
     jLabel1.setText("Set Dataset color and plot line type");
     applyButton.setText("Apply");
     applyButton.addActionListener(new java.awt.event.ActionListener() {
@@ -128,12 +131,12 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     });
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(jLabel1,  new GridBagConstraints(0, 0, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 40, 0, 132), 107, 12));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 6, 0, 11), 338, 12));
     jPanel1.add(colorAndLineTypeSelectorPanel,  new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 11), 457, 151));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 11), 557, 204));
     colorAndLineTypeSelectorPanel.getViewport().add(curveFeaturePanel, null);
     jPanel1.add(applyButton,  new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 9, 5, 60), 6, 5));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 59, 5, 107), 6, 5));
     jPanel1.add(RevertButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 54, 5, 0), 6, 5));
     jPanel1.add(doneButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
@@ -143,6 +146,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     jPanel1.setSize(600,300);
     //colorAndLineTypeSelectorPanel.setSize(500,250);
     setSize(600,300);
+    this.setTitle("Plot Characterstics Settings Control Panel");
   }
 
 
@@ -164,7 +168,8 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     colorChooserButton = new  JButton[numCurves];
     lineTypeSelector = new JComboBox[numCurves];
     lineWidthParameter = new DoubleParameter[numCurves];
-    lineWidthParameterEditor = new DoubleParameterEditor[numCurves];
+    lineWidthParameterEditor = new ConstrainedDoubleParameterEditor[numCurves];
+    DoubleConstraint sizeConstraint = new DoubleConstraint(0,20);
     for(int i=0;i<numCurves;++i){
       //creating the dataset Labl with the color in which they are shown in plots.
       datasetSelector[i] = new JLabel(plottingFeatures[i].getCurveName());
@@ -195,15 +200,16 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       lineTypeSelector[i].addActionListener(this);
 
       try{
-        lineWidthParameter[i] = new DoubleParameter(lineWidthParamName+(i+1),0,10,
+        lineWidthParameter[i] = new DoubleParameter(lineWidthParamName+(i+1),sizeConstraint,
             new Double(plottingFeatures[i].getCurveWidth()));
-        lineWidthParameterEditor[i] = new DoubleParameterEditor(lineWidthParameter[i]);
+
+        lineWidthParameterEditor[i] = new ConstrainedDoubleParameterEditor(lineWidthParameter[i]);
       }catch(Exception e){
         e.printStackTrace();
       }
     }
 
-    curveFeaturePanel.removeAll();
+    //curveFeaturePanel.removeAll();
     for(int i=0;i<numCurves;++i){
       curveFeaturePanel.add(datasetSelector[i],new GridBagConstraints(0, i+1, 1, 1, 1.0, 1.0
       ,GridBagConstraints.WEST, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));

@@ -380,6 +380,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    */
   private void initImlProb_GuiBean(){
     imlProbGuiBean = new IMLorProbSelectorGuiBean();
+    imlProbGuiBean.setIMLConstraintBasedOnSelectedIMT(imrGuiBean.getSelectedIMT());
     prob_IMLPanel.add(imlProbGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
   }
