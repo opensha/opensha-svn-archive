@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 import java.io.*;
 import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.util.RunScript;
+import java.util.LinkedList;
+import java.util.Iterator;
 
 /**
  * <p>Title: SubmitJobForGridComputation.java </p>
@@ -19,55 +21,63 @@ import org.scec.util.RunScript;
 
 public class SubmitJobForGridComputation {
 
-  private static boolean D = false;
+  private final static boolean D = false;
   // parent directory on almaak.usc.edu where computations will take place
-  private static String REMOTE_DIR = "/home/rcf-71/vgupta/pool/";
+  private final static String REMOTE_DIR = "/home/rcf-71/vgupta/pool/OpenSHA/";
 
   // tar file which will conatin all the hazard curves
-  private static String OUTPUT_TAR_FILE_NAME = "outputfiles.tar";
+  private final static String OUTPUT_TAR_FILE_NAME = "outputfiles.tar";
 
   //tar file which contain all the submit files and Dag.
-  private static String SUBMIT_TAR_FILES = "submitfiles.tar";
-  private DecimalFormat decimalFormat = new DecimalFormat("0.00##");
-  private static int SUGGESTED_NUM_SITES_IN_WORK_UNIT = 100;
+  private final static String SUBMIT_TAR_FILES = "submitfiles.tar";
+  private final DecimalFormat decimalFormat = new DecimalFormat("0.00##");
+  private final static int SUGGESTED_NUM_SITES_IN_WORK_UNIT = 100;
 
   //private static String REMOTE_EXECUTABLE_NAME = "HazardMapCalculator.pl";
-  private static String REMOTE_EXECUTABLE_NAME =
-      "GridHazardMapCalculator.class";
+  private final static String REMOTE_EXECUTABLE_NAME = "GridHazardMapCalculator.class";
+  // name of the perl executable which will accept a submit file to submit to condor
+  private final static String PERL_EXECUTABLE = "OpenSHA_HazardMapCalculator.pl";
 
   //Hazard Map Jar file using which executable will be executed
-  private static String HAZARD_MAP_JAR_FILE_NAME =
+  private final static String HAZARD_MAP_JAR_FILE_NAME =
       "opensha_hazardmapcondor.jar";
 
   // this executable will create a new directory at the machine
-  private static String PRE_PROCESSOR_EXECUTABLE = "HazardMapPreProcessor.sh";
+  private final static String PRE_PROCESSOR_EXECUTABLE = "HazardMapPreProcessor.sh";
   // name of condor submit file which will submit the pre processor job
-  private static String PRE_PROCESSOR_CONDOR_SUBMIT = "preparation";
+  private final static String PRE_PROCESSOR_CONDOR_SUBMIT = "preparation";
   // name of Job that will be used in DAG
-  // private static String PRE_PROCESSOR_JOB_NAME = "PREPARATION";
+  private final static String PRE_PROCESSOR_JOB_NAME = "PREPARATION";
 
   // this script will be executed after all the hazard map dataset is created
-  private static String POST_PROCESSOR_EXECUTABLE = "HazardMapPostProcessor.sh";
+  private final static String POST_PROCESSOR_EXECUTABLE = "HazardMapPostProcessor.sh";
   // name of condor submit file which will submit the post processor job
-  private static String POST_PROCESSOR_CONDOR_SUBMIT = "finish";
+  private final static String POST_PROCESSOR_CONDOR_SUBMIT = "finish";
   // name of Job that will be used in DAG
-  private static String FINISH_JOB_NAME = "FINISH";
+  private final static String FINISH_JOB_NAME = "FINISH";
 
-  //name of the condor submit script to run the Dag and untar the submit files on the remote machine
-  private static String DAG_CONDOR_SUBMIT = "run_dag";
+  // files for untarring the submit files on the remote machine
+  private final static String UNTAR_CONDOR_SUBMIT = "untarSubmitFiles";
+  private final static String UNTAR_CONDOR_SUBMIT_EXECUTABLE= "UntarSubmit.sh";
+  private final static String UNTAR_CONDOR_SUBMIT_JOB_NAME="UNTARSUBMIT";
 
-  private static String DAG_FILE_NAME = "pathway1.dag";
-  private static String LOG_FILE_NAME = "pathway1.log";
-  private static String FTP_FILES_TO_REMOTE_MACHINE = "submitdag.sh";
-  private static String GET_CURVES_FROM_REMOTE_MACHINE = "getCurves.sh";
-  private static String PUT_SUBMIT_FILES_TO_REMOTE_MACHINE =
+
+
+  private final static String DAG_FILE_NAME = "pathway1.dag";
+  private final static String LOG_FILE_NAME = "pathway1.log";
+  private final static String GET_CURVES_FROM_REMOTE_MACHINE = "getCurves.sh";
+  private final static String PUT_SUBMIT_FILES_TO_REMOTE_MACHINE =
       "putSubmitFiles.sh";
+  private final static String SUBMIT_DAG_SHELL_SCRIPT_NAME = "submitDag.sh";
+  private final static String PERL_JOB_NAME = "CurveX";
+  private final static String PERL_CONDOR_SUBMIT = "Job";
+  private final static String HAZARD_CURVES_SUBMIT ="HazardCurves";
 
   /**
    *
    * @param imrFileName FileName in which IMR is saved as a serialized object
    * @param erfFileName Filename in which ERF is saved as a serialized object
-       * @param regionFileName FileName in which Region is saved as a serialized object
+   * @param regionFileName FileName in which Region is saved as a serialized object
    * @param outputDir directory where condor submit files will be created
    * @param remoteMachineSubdir subdirectory on remote machine where computations will take
    * place. So, compuatations will take place in directory /home/rcf-71/vgupta/pool/remoteMachineSubdirName
@@ -94,6 +104,7 @@ public class SubmitJobForGridComputation {
       // file in which DAG will be written
       FileWriter frmap = new FileWriter(outputDir + this.DAG_FILE_NAME);
 
+
       // this will create  a new directory for each run on the remote machine
       String condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
                                                "" + remoteMachineSubdirName,
@@ -101,15 +112,23 @@ public class SubmitJobForGridComputation {
                                                PRE_PROCESSOR_CONDOR_SUBMIT,
                                                REMOTE_DIR,
                                                PRE_PROCESSOR_EXECUTABLE);
-      //frmap.write("Job "+this.PRE_PROCESSOR_JOB_NAME+" " +condorSubmit+"\n");
+      frmap.write("Job "+this.PRE_PROCESSOR_JOB_NAME+" " +condorSubmit+"\n");
 
-      //creating the directory using the condor_submit on the remote machine
-      FileWriter fr = new FileWriter(outputDir + "makeDir.sh");
-      fr.write("#!/bin/csh\n");
-      fr.write("cd " + outputDir + "\n");
-      fr.write("condor_submit " + condorSubmit);
-      fr.close();
-      //RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+"makeDir.sh"});
+
+      //creates the shell script to gridftp the condor submit files(in tar format)
+      //to almaak.usc.edu
+      ftpSubmitFilesToRemoteMachine(outputDir, remoteDir);
+      frmap.write("Script Post "+PRE_PROCESSOR_JOB_NAME+" "+
+                  PUT_SUBMIT_FILES_TO_REMOTE_MACHINE+"\n");
+
+
+      // now make a condor script which will untar the condor submit files on remote machine
+      condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix, "",
+                                        outputDir, UNTAR_CONDOR_SUBMIT,
+                                        remoteDir, UNTAR_CONDOR_SUBMIT_EXECUTABLE);
+      frmap.write("Job " + this.UNTAR_CONDOR_SUBMIT_JOB_NAME + " " + condorSubmit + "\n");
+      frmap.write("PARENT "+PRE_PROCESSOR_JOB_NAME+" CHILD "+condorSubmit+"\n");
+
 
       // a post processor which will tar all the files on remote machine after
       // all hazard map calculations are done
@@ -118,87 +137,95 @@ public class SubmitJobForGridComputation {
                                         remoteDir, POST_PROCESSOR_EXECUTABLE);
       frmap.write("Job " + this.FINISH_JOB_NAME + " " + condorSubmit + "\n");
 
+
       //create shell script to ftp hazard curve tar file from remote machine
+      // to local machine and then untar them on the local machine
       ftpCurvesFromRemoteMachine(outputDir, remoteDir);
       frmap.write("Script POST " + FINISH_JOB_NAME + " " +
                   GET_CURVES_FROM_REMOTE_MACHINE + "\n");
 
-      int numSites = griddedSites.getNumGridLocs(); // num grid locs
-      int numLats = griddedSites.getNumGridLats(); //num lats
-      int numLons = griddedSites.getNumGridLons(); // num Lons
-      int numSitesInWorkUnit = getNumSitesInWorkUnit(numSites, numLats, numLons);
 
-      if (D)
-        System.out.println("num locations:" + numSites);
-      int index = 1;
-      int endSite = 0;
-      int startSite = 0;
-
-      //Name of the main executable file to be executed for the Hazard Maps Calulation.
-      String executable = "executable = " + remoteDir + REMOTE_EXECUTABLE_NAME +
-          "\n";
-      //
-      fileDataSuffix = "jar_files = " + this.HAZARD_MAP_JAR_FILE_NAME + "\n" +
-          "transfer_executable=false" + "\n" +
-          "should_transfer_files=YES" + "\n" +
-          "WhenToTransferOutput = ON_EXIT" + "\n" +
-          "transfer_input_files=" + regionFileName + "," + erfFileName + "," +
-          imrFileName + "\n" +
-          "queue" + "\n";
-
-      for (int site = 0; site < numSites; site += numSitesInWorkUnit) {
-        startSite = site;
-        if ( (numSitesInWorkUnit < numLons) &&
-            ( (numLons * index - site) < numSitesInWorkUnit)) {
-          endSite = numLons * index;
-          site = numLons * index - numSitesInWorkUnit;
-          ++index;
-        }
-        else
-          endSite = site + numSitesInWorkUnit;
-
-        String arguments = REMOTE_EXECUTABLE_NAME.substring(0,REMOTE_EXECUTABLE_NAME.indexOf('.')) +
-            " " + endSite + " " + regionFileName
-            + " " + erfFileName + " " + imrFileName;
-        String fileNamePrefix = "HazardCurve" + site;
-        String condorSubmitScript =
-            createCondorScript(fileDataPrefix, fileDataSuffix, arguments,
-                               outputDir, fileNamePrefix + "_" + startSite,
-                               remoteDir, executable);
-//write to DAG file
-        String jobName = "CurveX" + startSite;
-        frmap.write("Job " + jobName + " " + condorSubmitScript + "\n");
+      // make the submit files to submit the jobs
+      LinkedList list  = getSubmitFileNames(imrFileName, erfFileName,
+                                     regionFileName, outputDir, remoteDir,
+                                     griddedSites);
+      Iterator it = list.iterator();
+      int i=0;
+      while(it.hasNext()) {
+        condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
+                                          "" + (String) it.next(),
+                                          outputDir,
+                                          PERL_CONDOR_SUBMIT + "_" + i,
+                                          remoteDir, PERL_EXECUTABLE);
+        String jobName = PERL_JOB_NAME + i;
+        frmap.write("Job " + jobName + " " + condorSubmit + "\n");
         frmap.write("PARENT " + jobName + " CHILD " + this.FINISH_JOB_NAME +
                     "\n");
-//frmap.write("PARENT "+this.PRE_PROCESSOR_JOB_NAME+" CHILD "+jobName+"\n");
+        frmap.write("PARENT " + UNTAR_CONDOR_SUBMIT_JOB_NAME + " CHILD " +
+                    jobName + "\n");
       }
+
       // close the DAG files
       frmap.close();
 
-      //creates the shell script to grid ftp the tar containing the "submit files" and dag
-      //it also grid FTP the script to run the Dag.
-      ftpSubmitFilesAndDagToRemoteMachine(outputDir, remoteDir);
-
       // submit the DAG for execution
       submitDag(outputDir, remoteDir);
-
-      //running the dag on the remote from the local machine using the condor_submit
-      condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix, null,
-                                        outputDir, DAG_CONDOR_SUBMIT, remoteDir,
-                                        FTP_FILES_TO_REMOTE_MACHINE);
-
-      //creating the directory using the condor_submit on the remote machine
-      fr = new FileWriter(outputDir + "rundag.sh");
-      fr.write("#!/bin/csh\n");
-      fr.write("cd " + outputDir + "\n");
-      fr.write("condor_submit " + condorSubmit);
-      fr.close();
-      //RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+"rundag.sh"});
-
     }
     catch (Exception ex) {
       ex.printStackTrace();
     }
+  }
+
+
+  /**
+   * Generate the submit files which will be ftped to almmak and submitted from there
+   * @param imrFileName
+   * @param erfFileName
+   * @param regionFileName
+   * @param outputDir
+   * @param remoteDir
+   * @param griddedSites
+   * @return
+   */
+  private LinkedList getSubmitFileNames(String imrFileName, String erfFileName,
+                                     String regionFileName, String outputDir,
+                                     String remoteDir,
+                                     SitesInGriddedRegion griddedSites) {
+
+    int numSites = griddedSites.getNumGridLocs(); // num grid locs
+    int endSite = 0;
+    int startSite = 0;
+
+    // some lines needed in the condor submit file
+    String fileDataPrefix = "universe = java\n" +
+       "globusscheduler=almaak.usc.edu/jobmanager-fork\n" +
+       "initialdir=" + outputDir + "\n";
+    String fileDataSuffix = "jar_files = " + this.HAZARD_MAP_JAR_FILE_NAME + "\n" +
+        "transfer_executable=false" + "\n" +
+        "should_transfer_files=YES" + "\n" +
+        "WhenToTransferOutput = ON_EXIT" + "\n" +
+        "transfer_input_files=" + HAZARD_MAP_JAR_FILE_NAME+","+
+        REMOTE_EXECUTABLE_NAME+","+ regionFileName + "," + erfFileName + "," +
+        imrFileName + "\n" +
+        "queue" + "\n";
+    LinkedList list = new LinkedList();
+
+    // snd start index and end index to each computer
+    for (int site = 0; site < numSites; site += this.SUGGESTED_NUM_SITES_IN_WORK_UNIT) {
+      startSite = site;
+      endSite = site + SUGGESTED_NUM_SITES_IN_WORK_UNIT;
+
+      String arguments = REMOTE_EXECUTABLE_NAME.substring(0,REMOTE_EXECUTABLE_NAME.indexOf('.')) +
+          " " + startSite+" "+endSite + " " + regionFileName
+          + " " + erfFileName + " " + imrFileName;
+      String fileNamePrefix = HAZARD_CURVES_SUBMIT + site;
+      String condorSubmitScript = createCondorScript(fileDataPrefix, fileDataSuffix, arguments,
+                             outputDir, fileNamePrefix + "_" + startSite,
+                             remoteDir, REMOTE_EXECUTABLE_NAME);
+      list.add(condorSubmitScript);
+    }
+
+    return list;
   }
 
   /**
@@ -231,42 +258,26 @@ public class SubmitJobForGridComputation {
   }
 
   /**
-   * creates the shell to Grid FTP the submit files and Dag to remote machine.
-   * It also grid FTP a script that untar the submit files tar and executes the DAG.
+   * creates the shell to Grid FTP the submit files to remote machine.
+   *
    * @param remoteDir
    * @param outputDir
    */
-  private void ftpSubmitFilesAndDagToRemoteMachine(String outputDir,
+  private void ftpSubmitFilesToRemoteMachine(String outputDir,
       String remoteDir) {
     try {
 
-      //Shell script to untar the submit files and execute the dag on the remote machine
-      FileWriter frScript = new FileWriter(outputDir +
-                                           FTP_FILES_TO_REMOTE_MACHINE);
-      frScript.write("#!/bin/csh\n");
-      frScript.write("cd " + remoteDir + " \n");
-      frScript.write("tar -xf " + SUBMIT_TAR_FILES + "\n");
-      frScript.write("condor_submit_dag " + this.DAG_FILE_NAME + "\n");
-      frScript.close();
-
-      // write the post script.
       //When all jobs are finished, grid ftp files from almaak to gravity
       FileWriter frFTP = new FileWriter(outputDir +
                                         PUT_SUBMIT_FILES_TO_REMOTE_MACHINE);
 
       frFTP.write("#!/bin/csh\n");
       frFTP.write("cd " + outputDir + "\n");
-      frFTP.write("chmod +x " + FTP_FILES_TO_REMOTE_MACHINE + "\n");
-      frFTP.write("tar -cf " + SUBMIT_TAR_FILES + " *.sub " + DAG_FILE_NAME +
-                  "\n");
+      frFTP.write("tar -cf " + SUBMIT_TAR_FILES + " *.sub " + "\n");
       frFTP.write("globus-url-copy file:" + outputDir +
                   SUBMIT_TAR_FILES +
                   " gsiftp://almaak.usc.edu" + remoteDir + SUBMIT_TAR_FILES +
                   "\n");
-      frFTP.write("globus-url-copy file:" + outputDir +
-                  FTP_FILES_TO_REMOTE_MACHINE +
-                  "  gsiftp://almaak.usc.edu" + remoteDir +
-                  FTP_FILES_TO_REMOTE_MACHINE + "\n");
       frFTP.close();
     }
     catch (Exception e) {
@@ -298,33 +309,15 @@ public class SubmitJobForGridComputation {
   // creates a shell script that will submit the DAG
   private void submitDag(String outputDir, String remoteDir) {
     try {
-      ftpCurvesFromRemoteMachine(outputDir, remoteDir);
+       FileWriter fw = new FileWriter(outputDir+this.SUBMIT_DAG_SHELL_SCRIPT_NAME);
+       fw.write("#!/bin/csh\n");
+       fw.write("cd "+outputDir+"\n");
+       fw.write("condor_submit_dag "+this.DAG_FILE_NAME+"\n");
+       fw.close();
       //RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+SUBMIT_DAG_SHELL_SCRIPT_NAME});
     }
     catch (Exception e) {
       e.printStackTrace();
-    }
-  }
-
-  /**
-   *
-   * @param numSites Total number of sites in the region
-   * @param numLats Number of Lats
-   * @param numLons Number of Lons
-   * @param suggestedNumSitesInWorkUnit Suggested number of sites in a workunit
-   * @return
-   */
-  private int getNumSitesInWorkUnit(int numSites, int numLats, int numLons) {
-    if (numLons > SUGGESTED_NUM_SITES_IN_WORK_UNIT) {
-      // if numlons  are greater
-      int numDivs = (int) Math.ceil( (double) numLons /
-                                    (double) SUGGESTED_NUM_SITES_IN_WORK_UNIT);
-      return (int) Math.ceil( (double) numLons / (double) numDivs);
-    }
-    else { //if numLons are less
-      int num = (int) Math.floor( (double) SUGGESTED_NUM_SITES_IN_WORK_UNIT /
-                                 (double) numLons);
-      return num * numLons;
     }
   }
 
