@@ -61,7 +61,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
      /** A flag indicating whether or not the axis label is drawn vertically. */
     protected boolean verticalLabel;
     public static final double LOG10_VALUE = Math.log(10);
-    private int lowest=-20; // lowest power of ten allowed
+    private int lowest=-30; // lowest power of ten allowed
     private int counter=0;
     /**
      * Constructs a vertical number axis, using default values where necessary.
@@ -698,7 +698,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
               if(yy>plotArea.getMaxY())
                 continue;
               if(yy<plotArea.getMinY())
-                return;
+                 return;
               if((y>y0 || upperBound-lowerBound>=3) && j!=1)
                 tickLabel="";
 

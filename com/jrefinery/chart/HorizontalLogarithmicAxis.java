@@ -60,7 +60,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
                                                new DecimalFormat("0.00000");
 
     private int counter=0;
-    private int lowest=-20; // lowest power of ten allowed
+    private int lowest=-30; // lowest power of ten allowed
     /**
      * Constructs a horizontal logarithmic axis, using default values where necessary.
      */
