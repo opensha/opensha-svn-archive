@@ -470,7 +470,7 @@ public class NEHRP_GuiBean
 
     //dataGenerator.setFa(1);
     //dataGenerator.setFv(1);
-    dataGenerator.setSiteClass(GlobalConstants.SITE_CLASS_B);
+    //dataGenerator.setSiteClass(GlobalConstants.SITE_CLASS_B);
 
     setButtonsEnabled(true);
   }
