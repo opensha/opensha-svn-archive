@@ -575,12 +575,25 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
             * new constraint for the independent parameter.
             */
            if(param1.containsIndependentParameter(independentParam.getName())){
-             ArrayList paramVals = ((DoubleDiscreteConstraint)param1.getIndependentParameter(independentParam.getName()).getConstraint()).getAllowedValues();
-             for(int j=0;j<allowedValues.size();++j)
-               if(!paramVals.contains(allowedValues.get(j)))
+             ParameterAPI tempParam = param1.getIndependentParameter(independentParam.getName());
+             ArrayList paramVals = ((DoubleDiscreteConstraint)tempParam.getConstraint()).getAllowedValues();
+             //keeps track if the constraint of the independent param has been changed.
+             boolean changedFlag = false;
+             int size = allowedValues.size();
+             for(int j=0;j<size;++j){
+               if(!paramVals.contains(allowedValues.get(j))){
                  paramVals.add(allowedValues.get(j));
-             DoubleDiscreteConstraint constraint = new DoubleDiscreteConstraint(paramVals);
-             independentParam.setConstraint(constraint);
+                 changedFlag = true;
+               }
+             }
+             if(changedFlag){
+               //sorting the arraylist with the double values
+               Collections.sort(paramVals);
+
+               DoubleDiscreteConstraint constraint = new DoubleDiscreteConstraint(paramVals);
+               //setting the new constraint in the independentParam
+               tempParam.setConstraint(constraint);
+             }
            }
            else //add the independent parameter to the dependent param list
              param1.addIndependentParameter(independentParam);
