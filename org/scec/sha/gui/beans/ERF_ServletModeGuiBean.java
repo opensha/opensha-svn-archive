@@ -21,6 +21,7 @@ import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.*;
 import org.scec.sha.earthquake.rupForecastImpl.WG02.*;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.sha.gui.servlets.erf.*;
+import org.scec.sha.earthquake.*;
 import org.scec.data.TimeSpan;
 import org.scec.sha.earthquake.rupForecastImpl.Frankel96.*;
 import org.scec.sha.earthquake.rupForecastImpl.step.*;
@@ -396,12 +397,12 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     //parameterChangeFlagsForAllERF.put(peerForecastName,new Boolean(true));
 
     //open the connection for the WG-02 ERF EpistemicList
-    String wg02ForecastName =(String)openWG02_ERFConnection(getName);
+    /*String wg02ForecastName =(String)openWG02_ERFConnection(getName);
     ParameterList wg02ParamList =(ParameterList)openWG02_ERFConnection(getAdjParams);
     TimeSpan wg02TimeSpan =(TimeSpan)openWG02_ERFConnection(getTimeSpan);
     wg02TimeSpan.addParameterChangeListener(this);
     paramListForAllERF.put(wg02ForecastName,wg02ParamList);
-    timespanListForAllERF.put(wg02ForecastName,wg02TimeSpan);
+    timespanListForAllERF.put(wg02ForecastName,wg02TimeSpan);*/
     //parameterChangeFlagsForAllERF.put(wg02ForecastName,new Boolean(true));
 
     //open the connection with the USGS/CGS(1996) Forecast model
@@ -440,7 +441,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     // gets the Names of all the ERF from the Hashtable and adds them to the vector
     //this list of ERF names act as the selection list for user to choose the ERF of his desire.
     this.erfNamesVector.add(peerForecastName);
-    this.erfNamesVector.add(wg02ForecastName);
+    //this.erfNamesVector.add(wg02ForecastName);
     this.erfNamesVector.add(frankelForecastName);
     this.erfNamesVector.add(stepForecastName);
     this.erfNamesVector.add(stepAP_ForecastName);

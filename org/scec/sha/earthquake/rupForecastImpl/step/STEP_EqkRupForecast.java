@@ -92,10 +92,14 @@ import org.scec.param.event.ParameterChangeEvent;
   /**
    * No argument constructor
    */
-  public STEP_EqkRupForecast() throws Exception{
+  public STEP_EqkRupForecast() {
 
     // read the delta rates here so we have the timespan info
-    deltaRateFileLines = FileUtils.loadFile( new URL(DELTA_RATES_FILE_NAME) );
+    try{
+      deltaRateFileLines = FileUtils.loadFile( new URL(DELTA_RATES_FILE_NAME) );
+    }catch(Exception e){
+      throw new RuntimeException(e.getMessage());
+    }
 
     // Create the timeSpan & set its constraints
     StringTokenizer st = new StringTokenizer(deltaRateFileLines.get(0).toString());

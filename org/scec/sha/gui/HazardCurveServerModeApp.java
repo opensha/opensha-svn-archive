@@ -38,9 +38,9 @@ import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.sha.calc.FractileCurveCalculator;
 import org.scec.data.Site;
-import org.scec.sha.gui.servlets.erf.ERF_API;
+import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.gui.servlets.erf.ERF_ListAPI;
-import org.scec.sha.gui.servlets.erf.ForecastAPI;
+import org.scec.sha.earthquake.ForecastAPI;
 
 /**
  * <p>Title: HazardCurveServerModeApp</p>

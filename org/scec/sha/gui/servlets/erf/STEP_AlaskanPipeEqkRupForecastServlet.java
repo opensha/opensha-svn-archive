@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-import org.scec.sha.gui.servlets.erf.ERF_API;
+import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.gui.servlets.erf.ERF_WebServiceAPI;
 import org.scec.sha.gui.beans.ERF_ServletModeGuiBean;
 import org.scec.param.*;
@@ -23,9 +23,7 @@ import org.scec.util.FileUtils;
 import org.scec.exceptions.FaultException;
 import org.scec.calc.MomentMagCalc;
 import org.scec.util.FileUtils;
-import org.scec.sha.gui.servlets.erf.STEP_AlaskanPipeEqkRupForecastObject;
-import org.scec.sha.gui.servlets.erf.STEP_ERF_AlaskanPipeAdjustableParamClass;
-
+import org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast;
 
 /**
  * <p>Title: STEP_AlaskanPipeEqkRupForecastServlet</p>
@@ -38,22 +36,9 @@ import org.scec.sha.gui.servlets.erf.STEP_ERF_AlaskanPipeAdjustableParamClass;
 
 public class STEP_AlaskanPipeEqkRupForecastServlet extends HttpServlet implements ERF_WebServiceAPI{
 
-  private static final String className ="STEP Alaskan Pipeline ERF";
 
-  // Input file name
-  private final static String INPUT_FILE_NAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/PipelineGrid.txt";
-
-  // ArrayList of input file lines
-  private ArrayList inputFileLines;
-
-
-  // adjustable params for each forecast
-  protected ParameterList adjustableParams = null;
-  // timespan object for each forecast
-  protected TimeSpan timeSpan;
-
-  //Instance of the STEP Adjustable Param class
-  private STEP_ERF_AlaskanPipeAdjustableParamClass stepAdjParams;
+  //STEP Alaskan ERF Object
+  STEP_AlaskanPipeForecast stepAlaskanERF = new STEP_AlaskanPipeForecast();
 
   //Process the HTTP Get request
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -105,29 +90,12 @@ public class STEP_AlaskanPipeEqkRupForecastServlet extends HttpServlet implement
 
 
   /**
-   * Initialises the Forecast Param List and TimeSpan
-   */
-
-  private void STEP_AlaskanPipeEqkRupForecastServlet() {
-
-    // read the lines of the input files into a list
-    try{
-      inputFileLines = FileUtils.loadFile(this.INPUT_FILE_NAME);
-      //creates the instance of the Step Adjustable Param class
-      this.stepAdjParams =new STEP_ERF_AlaskanPipeAdjustableParamClass();
-    }catch(Exception e){
-      e.printStackTrace();
-    }
-  }
-
-
-  /**
    * Return the name for this class
    *
    * @return : return the name for this class
    */
   public String getName(){
-    return this.className;
+    return this.stepAlaskanERF.getName();
   }
 
   /**
@@ -136,10 +104,7 @@ public class STEP_AlaskanPipeEqkRupForecastServlet extends HttpServlet implement
    * @return
    */
   public ParameterList getAdjustableParams(){
-    if(this.inputFileLines == null)
-      STEP_AlaskanPipeEqkRupForecastServlet();
-    adjustableParams = stepAdjParams.getAdjustableParams();
-    return this.adjustableParams;
+    return this.stepAlaskanERF.getAdjustableParameterList();
   }
 
   /**
@@ -169,11 +134,23 @@ public class STEP_AlaskanPipeEqkRupForecastServlet extends HttpServlet implement
    * @param param :ParameterList param
    * @returns the object for the EqkRupForecast with updated sources
    */
-  public ERF_API getERF_API(TimeSpan time, ParameterList param){
-    STEP_AlaskanPipeEqkRupForecastObject stepERF =
-        new STEP_AlaskanPipeEqkRupForecastObject(time,this.inputFileLines);
+  public ERF_API getERF_API(TimeSpan time, ParameterList params){
+    //creating the new instance for the STEP foracst
+    STEP_AlaskanPipeForecast stepERF = new STEP_AlaskanPipeForecast();
 
-    return stepERF;
+    //getting the parameterList for the STEP forecast
+    ParameterList paramList = stepERF.getAdjustableParameterList();
+    //getting the iterators for the parameter passed as the argument in thgis function, called from applet
+    ListIterator it = params.getParametersIterator();
+    //setting the updated values for the adjustable params from the applet
+    // in the parameterList
+    while(it.hasNext()){
+      ParameterAPI tempParam = (ParameterAPI)it.next();
+      paramList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
+    }
+    stepERF.setParameterChangeFlag(true);
+    stepERF.updateForecast();
+    return (ERF_API)stepERF;
   }
 
 
@@ -183,31 +160,7 @@ public class STEP_AlaskanPipeEqkRupForecastServlet extends HttpServlet implement
    * @return : time span object is returned which contains start time and duration
    */
   public TimeSpan getTimeSpan() {
-    // Create the timeSpan & set its constraints
-    StringTokenizer st = new StringTokenizer(inputFileLines.get(0).toString());
-    int year =  (new Integer(st.nextToken())).intValue();
-    int month =  (new Integer(st.nextToken())).intValue();
-    int day =  (new Integer(st.nextToken())).intValue();
-    int hour =  (new Integer(st.nextToken())).intValue();
-    int minute =  (new Integer(st.nextToken())).intValue();
-    int second =  (new Integer(st.nextToken())).intValue();
-
-
-    st = new StringTokenizer(inputFileLines.get(1).toString());
-    double duration = (new Double(st.nextToken())).doubleValue();
-
-    this.timeSpan = new TimeSpan(TimeSpan.SECONDS,TimeSpan.DAYS);
-    timeSpan.setStartTime(year,month,day,hour,minute,second);
-    timeSpan.setDuration(duration);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR, year,year);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_MONTH, month,month);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_DAY, day,day);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_HOUR, hour,hour);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_MINUTE, minute,minute);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_SECOND, second,second);
-    timeSpan.setDuractionConstraint(duration,duration);
-
-    return timeSpan;
+    return stepAlaskanERF.getTimeSpan();
   }
 
 }

@@ -4,6 +4,7 @@ import org.scec.param.ParameterList;
 import org.scec.data.region.GeographicRegion;
 import org.scec.data.TimeSpan;
 import org.scec.data.Location;
+import org.scec.sha.earthquake.ERF_API;
 
 /**
  * <p>Title: ERF_WebServiceAPI </p>

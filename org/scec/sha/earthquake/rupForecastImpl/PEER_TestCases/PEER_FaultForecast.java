@@ -165,13 +165,13 @@ public class PEER_FaultForecast extends EqkRupForecast
     * @param  event
     */
    public void parameterChange( ParameterChangeEvent event ) {
-
       parameterChangeFlag=true;
    }
 
-  /**
-   * update the source based on the paramters (only if a parameter value has changed)
-   */
+
+   /**
+    * update the source based on the paramters (only if a parameter value has changed)
+    */
    public void updateForecast(){
      String S = C + "updateForecast::";
 
@@ -179,7 +179,7 @@ public class PEER_FaultForecast extends EqkRupForecast
 
        // check if magDist is null
        if(this.magDistParam.getValue()==null)
-          throw new RuntimeException("Mag Dist is null");
+         throw new RuntimeException("Mag Dist is null");
 
        // dip param value
        double dipValue = ((Double)dipParam.getValue()).doubleValue();
@@ -288,5 +288,4 @@ public class PEER_FaultForecast extends EqkRupForecast
    public String getName(){
      return NAME;
    }
-
 }

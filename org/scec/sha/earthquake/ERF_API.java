@@ -1,4 +1,4 @@
-package org.scec.sha.gui.servlets.erf;
+package org.scec.sha.earthquake;
 
 import java.util.Vector;
 

@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-import org.scec.sha.gui.servlets.erf.ERF_API;
+import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.gui.servlets.erf.ERF_WebServiceAPI;
 import org.scec.sha.gui.beans.ERF_ServletModeGuiBean;
 import org.scec.param.*;
@@ -23,9 +23,7 @@ import org.scec.util.FileUtils;
 import org.scec.exceptions.FaultException;
 import org.scec.calc.MomentMagCalc;
 import org.scec.util.FileUtils;
-import org.scec.sha.gui.servlets.erf.STEP_EqkRupForecastObject;
-import org.scec.sha.gui.servlets.erf.STEP_ERF_AdjustableParamClass;
-
+import org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast;
 
 /**
  * <p>Title: STEP_EqkRupForecastServlet</p>
@@ -36,24 +34,10 @@ import org.scec.sha.gui.servlets.erf.STEP_ERF_AdjustableParamClass;
  */
 
 
-public class STEP_EqkRupForecastServlet extends HttpServlet implements ERF_WebServiceAPI{
+public class STEP_EqkRupForecastServlet extends HttpServlet implements ERF_WebServiceAPI {
 
-  private static final String className ="STEP ERF";
-
-  // Input file name
-  private final static String DELTA_RATES_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
-
-  // ArrayList of input file lines
-  private ArrayList deltaRateFileLines;
-
-
-  // adjustable params for each forecast
-  protected ParameterList adjustableParams = null;
-  // timespan object for each forecast
-  protected TimeSpan timeSpan;
-
-  //Instance of the STEP Adjustable Param class
-  private STEP_ERF_AdjustableParamClass stepAdjParams;
+  //STEP Forecast Object
+  STEP_EqkRupForecast stepForecast = new STEP_EqkRupForecast();
 
   //Process the HTTP Get request
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -105,29 +89,12 @@ public class STEP_EqkRupForecastServlet extends HttpServlet implements ERF_WebSe
 
 
   /**
-   * Initialises the Forecast Param List and TimeSpan
-   */
-
-  private void STEP_EqkRupForecast() {
-
-    // read the lines of the input files into a list
-    try{
-      deltaRateFileLines = FileUtils.loadFile(new URL(DELTA_RATES_FILE_NAME));
-      //creates the instance of the Step Adjustable Param class
-      this.stepAdjParams =new STEP_ERF_AdjustableParamClass();
-    }catch(Exception e){
-      e.printStackTrace();
-    }
-  }
-
-
-  /**
    * Return the name for this class
    *
    * @return : return the name for this class
    */
   public String getName(){
-    return this.className;
+    return this.stepForecast.getName();
   }
 
   /**
@@ -136,10 +103,7 @@ public class STEP_EqkRupForecastServlet extends HttpServlet implements ERF_WebSe
    * @return
    */
   public ParameterList getAdjustableParams(){
-    if(this.deltaRateFileLines == null)
-      STEP_EqkRupForecast();
-    adjustableParams = stepAdjParams.getAdjustableParams();
-    return this.adjustableParams;
+    return this.stepForecast.getAdjustableParameterList();
   }
 
   /**
@@ -169,11 +133,23 @@ public class STEP_EqkRupForecastServlet extends HttpServlet implements ERF_WebSe
    * @param param :ParameterList param
    * @returns the object for the EqkRupForecast with updated sources
    */
-  public ERF_API getERF_API(TimeSpan time, ParameterList param){
-    STEP_EqkRupForecastObject stepERF =
-        new STEP_EqkRupForecastObject(time,this.deltaRateFileLines,param);
+  public ERF_API getERF_API(TimeSpan time, ParameterList params){
+    //creating the new instance for the STEP foracst
+    STEP_EqkRupForecast stepERF = new STEP_EqkRupForecast();
 
-    return stepERF;
+    //getting the parameterList for the STEP forecast
+    ParameterList paramList = stepERF.getAdjustableParameterList();
+    //getting the iterators for the parameter passed as the argument in thgis function, called from applet
+    ListIterator it = params.getParametersIterator();
+    //setting the updated values for the adjustable params from the applet
+    // in the parameterList
+    while(it.hasNext()){
+      ParameterAPI tempParam = (ParameterAPI)it.next();
+      paramList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
+    }
+    stepERF.setParameterChangeFlag(true);
+    stepERF.updateForecast();
+    return (ERF_API)stepERF;
   }
 
 
@@ -183,33 +159,7 @@ public class STEP_EqkRupForecastServlet extends HttpServlet implements ERF_WebSe
    * @return : time span object is returned which contains start time and duration
    */
   public TimeSpan getTimeSpan() {
-    // Create the timeSpan & set its constraints
-    StringTokenizer st = new StringTokenizer(deltaRateFileLines.get(0).toString());
-    int year =  (new Integer(st.nextToken())).intValue();
-    int month =  (new Integer(st.nextToken())).intValue();
-    int day =  (new Integer(st.nextToken())).intValue();
-    int hour =  (new Integer(st.nextToken())).intValue();
-    int minute =  (new Integer(st.nextToken())).intValue();
-    int second =  (new Integer(st.nextToken())).intValue();
-
-
-
-    st = new StringTokenizer(deltaRateFileLines.get(1).toString());
-    double duration = (new Double(st.nextToken())).doubleValue();
-
-
-    timeSpan = new TimeSpan(TimeSpan.SECONDS,TimeSpan.DAYS);
-    timeSpan.setStartTime(year,month,day,hour,minute,second);
-    timeSpan.setDuration(duration);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR, year,year);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_MONTH, month,month);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_DAY, day,day);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_HOUR, hour,hour);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_MINUTE, minute,minute);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_SECOND, second,second);
-    timeSpan.setDuractionConstraint(duration,duration);
-
-    return timeSpan;
+    return stepForecast.getTimeSpan();
   }
 
 }

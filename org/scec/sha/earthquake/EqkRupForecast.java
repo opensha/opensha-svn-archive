@@ -22,7 +22,7 @@ import org.scec.data.region.GeographicRegion;
  * @version 1.0
  */
 
-public abstract class EqkRupForecast implements EqkRupForecastAPI,
+public abstract class EqkRupForecast implements EqkRupForecastAPI, ERF_API,
     TimeSpanChangeListener {
 
   // adjustable params for each forecast
@@ -200,4 +200,21 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
     return null;
    }
 
+
+   /**
+    *
+    * @returns the adjustable ParameterList
+    */
+   public ParameterList getAdjustableParameterList(){
+     return this.adjustableParams;
+   }
+
+
+   /**
+    * sets the value for the parameter change flag
+    * @param flag
+    */
+   public void setParameterChangeFlag(boolean flag){
+     this.parameterChangeFlag = flag;
+   }
 }

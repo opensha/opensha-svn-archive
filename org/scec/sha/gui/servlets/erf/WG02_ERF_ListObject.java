@@ -3,7 +3,7 @@ package org.scec.sha.gui.servlets.erf;
 import java.io.*;
 import java.util.*;
 
-import org.scec.sha.gui.servlets.erf.ERF_API;
+import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultSource;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.earthquake.rupForecastImpl.WG02.*;
