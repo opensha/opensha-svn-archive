@@ -10,16 +10,31 @@ import org.scec.param.ParameterList;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
 
-// Fix - Needs more comments
 
 /**
- *  <b>Title:</b> ParameterListEditor<p>
+ * <b>Title:</b> ParameterListEditor<p>
  *
- *  <b>Description:</b> The main Parameter Editor Panel that takes in a
- *  ParameterList, and using the ParameterEditorFactory to build all individual
- *  Parameter Editors for each editor in the Parameter List. The list is
- *  presented in a Scroll Pane so all parameters are accessable, no matter the
- *  size of the containing application<p>
+ * <b>Description:</b> The main Parameter Editor Panel that takes in a
+ * ParameterList, and using the ParameterEditorFactory to build all individual
+ * Parameter Editors for each editor in the Parameter List. The list is
+ * presented in a Scroll Pane so all parameters are accessable, no matter the
+ * size of the containing application. <p>
+ *
+ * What is real special about this class is that it only knows about ParameterEditor
+ * and ParameterAPI! In other words it knows nothing about subclasses. Since
+ * subclasses all exhibit the same API new ones can be added to the framework
+ * at any time and this class doesn't change at all. This class is
+ * self configurable. <p>
+ *
+ * Note: This class obtains all it's GUI look and behavior from it's
+ * parent, the LabeledBoxPanel. THese two classes were seperated to
+ * partition the GUI logic from the Parameter List and Editors logic.
+ * This class acts as the Controller, the ParameterList and is the model,
+ * and the parameterEditors and LabeledBoxPanel parent class comprise the
+ * GUI View. This is designed after the Model View Controller (MVC)
+ * design pattern, a very common design in object-oriented programming. <p>
+ *
+ * Note: SWR: I highly recommend all Java programmers understand the MVC framework! <p>
  *
  * @author     Steven W. Rock
  * @created    April 17, 2002
@@ -33,24 +48,28 @@ public class ParameterListEditor extends LabeledBoxPanel {
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
+    /** The internal list of parameters that this editor will allow modification on. */
     private ParameterList parameterList;
 
+    /** List of all individual editors, one for each parameter in the parameter list */
     private HashMap parameterEditors = new HashMap();
 
+    /** The collection of paths used to search for editor classes. */
     String[] searchPaths;
 
 
+    /** Calls super() to configure the GUI */
     public ParameterListEditor() {
         super();
         this.setLayout( new GridBagLayout());
     }
 
     /**
-     *  Constructor for the ParameterListEditor object
-     *
-     * @param  paramList       Description of the Parameter
-     * @param  changeListener  Description of the Parameter
-     * @param  failListener    Description of the Parameter
+     * Constructor for the ParameterListEditor object, calls
+     * super() to initialize the GUI. The model Parameter List
+     * is set, the search paths configured, then all Parameter
+     * Editors are initialized with the parameters, and added
+     * to the GUI in a scrolling list. <p>
      */
     public ParameterListEditor(ParameterList paramList) {
 
@@ -70,12 +89,11 @@ public class ParameterListEditor extends LabeledBoxPanel {
     }
 
     /**
-     *  Constructor for the ParameterListEditor object
-     *
-     * @param  paramList       Description of the Parameter
-     * @param  changeListener  Description of the Parameter
-     * @param  failListener    Description of the Parameter
-     * @param  searchPaths     Description of the Parameter
+     * Constructor for the ParameterListEditor object, calls
+     * super() to initialize the GUI. The model Parameter List
+     * is set, the search paths configured, then all Parameter
+     * Editors are initialized with the parameters, and added
+     * to the GUI in a scrolling list. <p>
      */
     public ParameterListEditor(ParameterList paramList, String[] searchPaths) {
 
@@ -90,23 +108,19 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
     }
 
-    /**
-     *  Sets the parameterList attribute of the ParameterListEditor object
-     *
-     * @param  paramList  The new parameterList value
-     */
-    public void setParameterList( ParameterList paramList ) {
-        parameterList = paramList;
-    }
+    /** Sets the parameterList. Simple javabean method */
+    public void setParameterList( ParameterList paramList ) { parameterList = paramList; }
 
+    /** gets the parameterList. Simple javabean method */
+    public ParameterList getParameterList() { return parameterList; }
 
     /**
      *  Hides or shows one of the ParameterEditors in the ParameterList. setting
      *  the boolean parameter to true hides the panel, setting it to false shows
-     *  the panel
+     *  the panel. Note, all editors are accesable by parameter name. <p>
      *
-     * @param  parameterName  The new parameterInvisible value
-     * @param  invisible      The new parameterInvisible value
+     * @param  parameterName  The parameter editor to toggle on or off.
+     * @param  invisible      The boolean flag. If true editor is visible.
      */
     public void setParameterInvisible( String parameterName, boolean invisible ) {
 
@@ -120,24 +134,16 @@ public class ParameterListEditor extends LabeledBoxPanel {
     }
 
 
-    public ParameterList getParameterList() {
-        return parameterList;
-    }
 
-    /**
-     *  Gets the defaultSearchPath attribute of the ParameterListEditor class
-     *
-     * @return    The defaultSearchPath value
-     */
+
+    /** Returns the default search path for editor classes.  */
     public static String getDefaultSearchPath() {
         return ParameterEditorFactory.DEFAULT_PATH;
     }
 
     /**
-     *  Gets the visibleParametersCloned attribute of the ParameterListEditor
-     *  object
-     *
-     * @return    The visibleParametersCloned value
+     * Returns a cloned ParameterList of all parameters that have their
+     * GUI editors currently visible.
      */
     public ParameterList getVisibleParametersCloned() {
 
@@ -162,9 +168,9 @@ public class ParameterListEditor extends LabeledBoxPanel {
     /**
      *  Gets the parameterEditor attribute of the ParameterListEditor object
      *
-     * @param  parameterName               Description of the Parameter
-     * @return                             The parameterEditor value
-     * @exception  NoSuchElementException  Description of the Exception
+     * @param  parameterName               The Parameter editor to look up.
+     * @return                             Returns the found ParameterEditor for the named parameter
+     * @exception  NoSuchElementException  Thrown if the named parameter doesn't exist.
      */
     public ParameterEditor getParameterEditor( String parameterName ) throws NoSuchElementException {
 
@@ -181,7 +187,13 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
 
     /**
-     *  Description of the Method
+     * Proxy to each parameter editor. THe lsit of editors is iterated over, calling the
+     * same function. <p>
+     *
+     * Updates the paramter editor with the parameter value. Used when
+     * the parameter is set for the first time, or changed by a background
+     * process independently of the GUI. This could occur with a ParameterChangeFail
+     * event.
      */
     public void synchToModel() {
 
@@ -195,10 +207,8 @@ public class ParameterListEditor extends LabeledBoxPanel {
     }
 
     /**
-     *  Description of the Method
-     *
-     * @param  parameterName  Description of the Parameter
-     * @param  param          Description of the Parameter
+     * Searches for the named parameter editor, then replaces the parameter
+     * it is currently editing.
      */
     public void replaceParameterForEditor( String parameterName, ParameterAPI param ) {
 
@@ -217,8 +227,11 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
 
     /**
-     *  Adds a feature to the Parameters attribute of the ParameterListEditor
-     *  object
+     * VERY IMPORTANT setup function. This is where all the parameter editors
+     * are dynamcally created based by parameter getType() function. It uses
+     * the ParameterEditorFactory to create the editors. THe search path is
+     * set for the factory, each ParameterEditor is created, and then added
+     * as a JPanel ( base class of all Editors ) to this list GUI scrolling list.
      */
     private void addParameters() {
 

@@ -13,16 +13,27 @@ import org.scec.util.ParamUtils;
 import org.scec.exceptions.*;
 import org.scec.param.translate.*;
 
-// Fix - Needs more comments
-
 /**
- * <b>Title:</b> TranslatedConstrainedDoubleParameterEditor<p>
- * <b>Description:</b> <p>
+ * <b>Title:</b> TranslatedWarningDoubleParameterEditor<p>
  *
+ * <b>Description:</b> Special ParameterEditor for editing
+ * TranslatedWarningDoubleParameter. The widget is a NumericTextField
+ * so that only numbers can be typed in. When hitting <enter> or moving the
+ * mouse away from the NumericField, the value will change back to the
+ * original if the new number is outside the constraints range. The constraints
+ * also appear as a tool tip when you hold the mouse cursor over
+ * the NumericTextField. <p>
+ *
+ * This type of editor is unique in that the parameter model contains two types
+ * of constraints, warning and absolute. So this class actually will fire
+ * warning events when exceeded and all listeners registered with the referenced
+ * parameter will be notified. Other than that there is nothing more unique about
+ * this editor from the ConstrainedDoubleParameterEditor. <p>
+ *
+ * @see ParameterEditor
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class TranslatedWarningDoubleParameterEditor extends ConstrainedDoubleParameterEditor {
 
     /** Class name for debugging. */
@@ -30,12 +41,33 @@ public class TranslatedWarningDoubleParameterEditor extends ConstrainedDoublePar
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
+    /** No-Arg constructor calls parent constructtor */
     public TranslatedWarningDoubleParameterEditor() { super(); }
 
+    /**
+     * Constructor that sets the parameter that it edits. An
+     * Exception is thrown if the model is not an DoubleParameter.
+     * This function only calls the super constructor. <p>
+     *
+     * Note: When calling the super() constuctor addWidget() is called
+     * which configures the IntegerTextField as the editor widget. <p>
+     */
     public TranslatedWarningDoubleParameterEditor(ParameterAPI model)
 	    throws Exception
     { super(model); }
 
+    /**
+     * Sets the parameter to be edited. This class sets the NumericTextField's
+     * tooltips to the warning constraint min an max, not the absolute constraint.
+     * This function calls removeWidget(), addWidget() then setWidgetObject()
+     * to update the GUI with the new values. <p>
+     *
+     * Note: With this function a programmer can add TranslatedWarningDoubleParameter,
+     * WarningParameterAPI, and DoubleParameter objects. It transparently
+     * acts like it's ancestor classes when the input parameter is one of the
+     * simpler models.
+     *
+     */
     public void setParameter(ParameterAPI model) throws ParameterException {
 
         String S = C + ": setParameter(): ";
@@ -90,6 +122,7 @@ public class TranslatedWarningDoubleParameterEditor extends ConstrainedDoublePar
         if(D) System.out.println(S + "Ending");
     }
 
+    /** Allows customization of the IntegerTextField border */
     public void setWidgetBorder(Border b){
         ((NumericTextField)valueEditor).setBorder(b);
     }
@@ -99,10 +132,12 @@ public class TranslatedWarningDoubleParameterEditor extends ConstrainedDoublePar
 
     /**
      *  Needs to be called by subclasses when editable widget field change fails
-     *  due to constraint problems
+     *  due to constraint problems. This class implements this by
+     *  translating the TranslatedWarningDOubleParameters using it's
+     *  translator before firing the ParameterChangeFailEvent and notifying
+     *  listeners.
      *
-     * @param  value                    Description of the Parameter
-     * @exception  ConstraintException  Description of the Exception
+     * @param  value                    The value object the parameter rejected
      */
     public void unableToSetValue( Object value ) throws ConstraintException {
 

@@ -202,8 +202,16 @@ public class DoubleDiscreteParameter
 
 
     /**
-     *  Sets the constraint if it is a DoubleDiscreteConstraint and the parameter
+     *
+     */
+
+    /**
+     * Sets the constraint if it is a DoubleDiscreteConstraint and the parameter
      *  is currently editable.
+     *
+     * @param constraint            The new constraint object
+     * @throws ParameterException   Thrown if constraint is not a DoubleDiscreteConstraint
+     * @throws EditableException    Thrown if Parameter is currently uneditable.
      */
     public void setConstraint(ParameterConstraintAPI constraint)
         throws ParameterException, EditableException
@@ -226,9 +234,7 @@ public class DoubleDiscreteParameter
 
     /**
      *  Gets the type attribute of the DoubleDiscreteParameter object. This is
-     *  used to determine which gui editor to use for this parameter
-     *
-     * @return    The type value
+     *  used to determine which gui editor to use for this parameter.
      */
     public String getType() {
         String type = C;
@@ -239,11 +245,7 @@ public class DoubleDiscreteParameter
     }
 
 
-    /**
-     *  Returns a clone of all allowed values.
-     *
-     * @return    List of allowed values
-     */
+    /** Returns a clone of all allowed values. Proxy to constraint object. */
     public Vector getAllowedDoubles() {
         return ( ( DoubleDiscreteConstraint ) this.constraint ).getAllowedDoubles();
     }
@@ -308,11 +310,7 @@ public class DoubleDiscreteParameter
     }
 
 
-    /**
-     *  Returns a copy so you can't edit or damage the origial
-     *
-     * @return    Exact copy of this object.
-     */
+    /** Returns a copy so you can't edit or damage the original. */
     public Object clone() {
         DoubleDiscreteConstraint c1 = ( DoubleDiscreteConstraint ) constraint.clone();
 

@@ -11,10 +11,19 @@ import org.scec.param.event.*;
 /**
  *  <b>Title:</b> ParameterAPI Interface<p>
  *
- *  <b>Description:</b> The parameter value can be any type of object. One
- *  reason for having this class is to enable new types of attributes to be
- *  defined and added to a Site, ProbEqkRupture, or PropagationEffect
- *  object without having to rewrite the Java code. <p>
+ *  <b>Description:</b> All parameter classes must implement this API to
+ *  "plug" into the framework. A parameter basically contains some type
+ *  of java object, such as a String, Double, etc. This parameter
+ *  framework extends on the basic Java DataTypes by adding constraint objects,
+ *  a name, information string, units string, parameter change fail and succede
+ *  listeners, etc. These parameters are "Supercharged" data types with alot
+ *  of functionality added. This API defines the basic added functionality and
+ *  getter and setter functions for adding these extra features. <p>
+ *
+ *  The parameter value can be any type of object as defined by subclasses. One
+ *  reason for having this framework is to enable new types of parameter
+ *  in the future to be defined and added to a Site, ProbEqkRupture,
+ *  or PropagationEffect object without having to rewrite the Java code. <p>
  *
  *  By defining the parameter value here as a generic object, one is not
  *  restricted to adding scalar quantities. For example, one could create a
@@ -25,9 +34,9 @@ import org.scec.param.event.*;
  *
  *  Representing such non-scalar quantities as Parameters might seem confusing
  *  semantically (e.g., perhaps Attribute would be better). However, the term
- *  Parameter is consistent with the notion that an
- *  IntensityMeasureRealtionship will used this information as an independent
- *  variable when computing earthquake motion. <p>
+ *  Parameter is consistent with the notion that an IntensityMeasureRealtionship
+ *  will used this information as an independent variable when computing
+ *  earthquake motion. <p>
  *
  *  <b>Revision History</b> <br>
  *  1/1/2002 SWR
@@ -63,7 +72,7 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable {
     public String getConstraintName(  );
 
     /**
-     * Returns the constraints of this parameter. Each
+     * Returns the constraint of this parameter. Each
      * subclass may store any type of constraint it likes.
      */
     public ParameterConstraintAPI getConstraint();
@@ -77,17 +86,18 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable {
 
     /** Returns the units of this parameter, represented as a String. */
     public String getUnits();
+
     /** Sets the string name of units of this parameter */
     public void setUnits(String units);
 
     /** Returns a description of this Parameter, typically used for tooltips. */
     public String getInfo();
+
     /** Sets the info attribute of the ParameterAPI object. */
     public void setInfo( String info );
 
     /** Returns the value onject stored in this parameter. */
     public Object getValue();
-
 
     /**
      *  Set's the parameter's value.
@@ -99,13 +109,8 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable {
      */
     public void setValue( Object value ) throws ConstraintException, ParameterException;
 
-    /**
-     *  Needs to be called by subclasses when field change fails
-     *  due to constraint problems
-     *
-     * @param  value                    Description of the Parameter
-     * @exception  ConstraintException  Description of the Exception
-     */
+
+     /** Needs to be called by subclasses when field change fails due to constraint problems. */
      public void unableToSetValue( Object value ) throws ConstraintException;
 
 
@@ -156,11 +161,9 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable {
     public void firePropertyChange( ParameterChangeEvent event ) ;
 
 
-     /**
+    /**
      *  Returns the data type of the value object. Used to determine which type
      *  of Editor to use in a GUI.
-     *
-     * @return    The type value
      */
     public String getType();
 

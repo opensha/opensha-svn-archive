@@ -9,18 +9,20 @@ import javax.swing.border.*;
 import org.scec.exceptions.*;
 import org.scec.param.*;
 
-// Fix - Needs more comments
-
 /**
- * <b>Title:</b> StringParameterEditor<p>
+ * <b>Title:</b> IntegerParameterEditor<p>
  *
- * <b>Description:</b> Simplist Editor in that the widget is a JTExtField with no
- * Constraints on it.<p>
+ * <b>Description:</b> Subclass of ParameterEditor for editing StringParameters.
+ * The widget is an JTextField. <p>
+ *
+ * The main functionality overidden from the parent class to achive Integer
+ * cusomization are the setWidgetObject() and AddWidget() functions. The parent's
+ * class JComponent valueEditor field becomes an IntegerTextField,  a subclass
+ * of a JTextField. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class StringParameterEditor
     extends ParameterEditor
 {
@@ -30,8 +32,16 @@ public class StringParameterEditor
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
+    /** No-Arg constructor calls parent constructtor */
     public StringParameterEditor() { super(); }
 
+    /**
+     * Constructor that sets the parameter that it edits. An
+     * Exception is thrown if the model is not an StringParameter.
+     *
+     * Note: When calling the super() constuctor addWidget() is called
+     * which configures the IntegerTextField as the editor widget. <p>
+     */
     public StringParameterEditor(ParameterAPI model) throws Exception{
 
         super(model);
@@ -44,8 +54,10 @@ public class StringParameterEditor
         //addWidget();
     }
 
+    /** Currently does nothing */
     public void setAsText(String string) throws IllegalArgumentException{}
 
+    /** Passes in a new Parameter with name to set as the parameter to be editing */
     protected void setWidgetObject(String name, Object obj){
 
         super.setWidgetObject(name, obj);
@@ -53,10 +65,12 @@ public class StringParameterEditor
 
     }
 
+    /** Allows customization of the IntegerTextField border */
     public void setWidgetBorder(Border b){
         ((JTextField)valueEditor).setBorder(b);
     }
 
+    /** This is where the JTextField is defined and configured. */
     protected void addWidget(){
 
         valueEditor = new JTextField();
@@ -72,6 +86,10 @@ public class StringParameterEditor
 
     }
 
+    /**
+     * Called everytime a key is typed in the text field to validate it
+     * as a valid integer character ( digits and - sign in first position ).
+     */
     public void keyTyped(KeyEvent e) {
 
 
@@ -122,6 +140,11 @@ public class StringParameterEditor
 
     }
 
+    /**
+     * Called when the user clicks on another area of the GUI outside
+     * this editor panel. This synchornizes the editor text field
+     * value to the internal parameter reference.
+     */
     public void focusLost(FocusEvent e) {
 
         String S = C + ": focusLost(): ";
@@ -167,6 +190,7 @@ public class StringParameterEditor
 
     }
 
+    /** Sets the parameter to be edited. */
     public void setParameter(ParameterAPI model) {
 
         String S = "StringParameterEditor: setParameter(): ";
@@ -177,6 +201,12 @@ public class StringParameterEditor
         if(D) System.out.println(S + "Ending");
     }
 
+    /**
+     * Updates the JTextField string with the parameter value. Used when
+     * the parameter is set for the first time, or changed by a background
+     * process independently of the GUI. This could occur with a ParameterChangeFail
+     * event.
+     */
     public void synchToModel(){
         Object obj = model.getValue();
 

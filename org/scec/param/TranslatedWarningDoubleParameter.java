@@ -79,6 +79,7 @@ public class TranslatedWarningDoubleParameter
 
     /** Returns true if translation is in affect, false otherwise */
     public boolean isTranslate() { return translate; }
+
     /**
      * Public api that allows enabling or disabling translation. If disabled,
      * this class acts as if it was transparent, i.e. it does noting, just provides
@@ -131,6 +132,7 @@ public class TranslatedWarningDoubleParameter
      * assumed that the parameter is already in translated space.
      */
     public void setParameter(WarningDoubleParameter param){ this.param = param; }
+
     /**
      * Public access to the wrapped parameter, allows getting the parameter.
      * This is useful for normal access to the parameter in translated space.<p>

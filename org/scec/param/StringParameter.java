@@ -8,18 +8,18 @@ import org.scec.exceptions.*;
  *  <b>Title:</b> StringParameter<p>
  *
  *  <b>Description:</b> String Parameter that accepts strings as it's values.
- * If constraints are present, setting the vlaue must pass the constraint
- * check. Since the parameter class in an ancestor, all parameter's fields are
+ * If constraints are present, setting the value must pass the constraint
+ * check. Since the Parameter class in an ancestor, all Parameter's fields are
  * inherited. <p>
  *
- * The constraints are StringConstraint which implies a StringParameter
- * can only be choosen from a list of files.
+ * The constraints are StringConstraint which implies a StringParameter value
+ * can only be choosen from a list of strings. <p>
  *
  * Note: SWR: The constraint object could be "supercharged" by using Regular
  * Expressions introduced in java 1.4. Then we wouldn't need a list
  * of allowed values but rather a matcher pattern. For example "[A-Za-z]*"
  * would allow all values that start with a lowercase or upper case
- * alphabet letter.<p>
+ * alphabet letter. <p>
  *
  * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002

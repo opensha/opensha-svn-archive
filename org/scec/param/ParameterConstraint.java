@@ -5,16 +5,16 @@ import org.scec.exceptions.EditableException;
 /**
  * <b>Title:</b> ParameterConstraint<p>
  *
- * <b>Description:</b> (artial (abstract) implementation of the
+ * <b>Description:</b> Partial (abstract) implementation of the
  * ParameterConstraintAPI. This class implements some of the
  * simple common code base for all subclasses. There are
  * three fields and corresponding getters and setters that
  * are implemented. These fields are:
  *
  * <ul>
- * <li>name, getName(), setName()
- * <li>editable, isEditable(), setNonEditable(), checkEditable()
- * <li>nullAllowed, isNullAllowed(), setNullAllowed()
+ * <li>name, getName(), setName().
+ * <li>editable, isEditable(), setNonEditable(), checkEditable().
+ * <li>nullAllowed, isNullAllowed(), setNullAllowed().
  * <ul>
  *
  * @author Steven W. Rock
@@ -28,16 +28,16 @@ public abstract class ParameterConstraint implements ParameterConstraintAPI {
     protected final static boolean D = false;
 
 
-    /** No arg constructor does nothing */
+    /** No arg constructor does nothing. */
     public ParameterConstraint() {}
 
     /** This value indicates if the value is editable after it is first set. */
     protected boolean editable = true;
 
-    /** Every constraint has a assigned name - useful for displays and lookups */
+    /** Every constraint has a assigned name - useful for displays and lookups. */
     protected String name = null;
 
-    /** Inidcates whether null values are allowed as possible values */
+    /** Inidcates whether null values are allowed as possible values. */
     protected boolean nullAllowed = false;
 
     /**
@@ -54,7 +54,7 @@ public abstract class ParameterConstraint implements ParameterConstraintAPI {
 
     /**
      *  Disables editing units, info, constraints, et. Basically all set()s disabled
-     *  except for setValue()
+     *  except for setValue().
      */
     public void setNonEditable() { editable = false; }
 

@@ -287,6 +287,14 @@ public class DoubleParameter
      *  Sets the constraint if it is a StringConstraint and the parameter
      *  is currently editable.
      */
+    /**
+     * Sets the constraint if it is a StringConstraint and the parameter
+     * is currently editable.
+     *
+     * @param constraint            The new constraint.
+     * @throws ParameterException   Thrown if constraint is not a DoubleConstraint.
+     * @throws EditableException    Thrown if the parameter is currently uneditable.
+     */
     public void setConstraint(ParameterConstraintAPI constraint)
         throws ParameterException, EditableException
     {
@@ -303,35 +311,23 @@ public class DoubleParameter
 
     }
 
-    /**
-     *  Gets the min value of the constraint object.
-     *
-     * @return                The min value
-     * @exception  Exception  Description of the Exception
-     */
+    /** Gets the min value of the constraint object. */
     public Double getMin() throws Exception {
-        if ( constraint != null )
-            return ( ( DoubleConstraint ) constraint ).getMin();
+        if ( constraint != null ) return ( ( DoubleConstraint ) constraint ).getMin();
         else return null;
     }
 
 
-    /**
-     *  Returns the maximum allowed values.
-     *
-     * @return    The max value
-     */
+    /** Returns the maximum allowed values. */
     public Double getMax() {
-        if ( constraint != null )
-            return ( ( DoubleConstraint ) constraint ).getMax();
+        if ( constraint != null ) return ( ( DoubleConstraint ) constraint ).getMax();
         else return null;
     }
 
 
     /**
-     *  Gets the type attribute of the DoubleParameter object.
-     *
-     * @return    The type value
+     *  Gets the type of this parameter. Used by the Editor framework to decide
+     *  what type of editor to create for this parameter.
      */
     public String getType() {
         String type = C;
@@ -382,8 +378,8 @@ public class DoubleParameter
      *
      * @param  value                 The new value for this Parameter
      * @throws  ParameterException   Thrown if the object is currenlty not
-     *      editable
-     * @throws  ConstraintException  Thrown if the object value is not allowed
+     *      editable.
+     * @throws  ConstraintException  Thrown if the object value is not allowed.
      */
     public void setValue( double value ) throws ConstraintException, ParameterException {
         setValue( new Double( value ) );
@@ -443,11 +439,7 @@ public class DoubleParameter
     }
 
 
-    /**
-     *  Returns a copy so you can't edit or damage the origial.
-     *
-     * @return    Exact copy of this object's state
-     */
+    /** Returns a copy so you can't edit or damage the origial. */
     public Object clone() {
         DoubleConstraint c1 = ( DoubleConstraint ) constraint.clone();
         DoubleParameter param = null;

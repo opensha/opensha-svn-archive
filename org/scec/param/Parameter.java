@@ -37,7 +37,7 @@ public abstract class Parameter
         ParameterAPI
 {
 
-
+    /** Class name used for debug statements and building the parameter type for getType(). */
     protected final static String C = "Parameter";
     /** If true print out debug statements. */
     protected final static boolean D = false;
@@ -104,9 +104,8 @@ public abstract class Parameter
      *      set to null
      * @param  units                    The units for this parameter
      * @param  value                    The value object of this parameter.
-     * @exception  ConstraintException  Description of the Exception
      * @throws  ConstraintException     This is thrown if the passes in
-     *      parameter is not allowed
+     *      parameter is not allowed.
      */
     public Parameter( String name, ParameterConstraintAPI constraint, String units, Object value )
              throws ConstraintException {
@@ -152,10 +151,10 @@ public abstract class Parameter
     /**
      *  Set's the parameter's value.
      *
-     * @param  value                 The new value for this Parameter
+     * @param  value                 The new value for this Parameter.
      * @throws  ParameterException   Thrown if the object is currenlty not
-     *      editable
-     * @throws  ConstraintException  Thrown if the object value is not allowed
+     *      editable.
+     * @throws  ConstraintException  Thrown if the object value is not allowed.
      */
     public void setValue( Object value ) throws ConstraintException, ParameterException {
         String S = C + ": setValue(): ";
@@ -176,10 +175,7 @@ public abstract class Parameter
 
     /**
       *  Needs to be called by subclasses when field change fails
-      *  due to constraint problems
-      *
-      * @param  value                    Description of the Parameter
-      * @exception  ConstraintException  Description of the Exception
+      *  due to constraint problems.
       */
      public void unableToSetValue( Object value ) throws ConstraintException {
 
@@ -205,9 +201,10 @@ public abstract class Parameter
         if ( !failListeners.contains( listener ) ) failListeners.addElement( listener );
      }
 
-    /**  Every parameter constraint has a name, this function gets that name.
-     *   Defaults to the name of the parameter but in a few cases may
-     *   be different.
+    /**
+     * Every parameter constraint has a name, this function gets that name.
+     * Defaults to the name of the parameter but in a few cases may
+     * be different.
      */
      public String getConstraintName(  ){
         if( constraint != null ) {
@@ -324,9 +321,7 @@ public abstract class Parameter
 
 
     /**
-     * @param  info  The new info value
-
-     * Sets the info attribute of the Parameter object if editable. This is
+     * Sets the info string of the Parameter object if editable. This is
      * usually used to describe what this object represents. May be used
      * in gui tooltips.
      */
@@ -338,28 +333,15 @@ public abstract class Parameter
 
 
 
-    /** Sets the units of this parameter */
+    /** Sets the units string of this parameter. Can be used in tooltips, etc.  */
     public void setUnits(String units) throws EditableException {
         checkEditable(C + ": setUnits(): ");
         this.units = units;
     }
 
 
-
-
-
-    /**
-     *  Returns the parameter's value. Each subclass defines what type of
-     *  object. it returns
-     *
-     * @return    The value value
-     */
-    public Object getValue() {
-        return value;
-    }
-
-
-
+    /** Returns the parameter's value. Each subclass defines what type of object it returns. */
+    public Object getValue()  { return value;}
 
     /** Returns the units of this parameter, represented as a String. */
     public String getUnits() { return units; }
@@ -369,12 +351,11 @@ public abstract class Parameter
 
 
     /**
-     *  Gets the constraints of this parameter. Each subclass may implement any
-     *  type of constraint it likes.
+     *  Sets the constraints of this parameter. Each subclass may implement any
+     *  type of constraint it likes. An EditableException is thrown if this parameter
+     *  is currently uneditable.
      *
      * @return    The constraint value
-     * Gets the constraints of this parameter if editable. Each
-     * subclass may implement any type of constraint it likes.
      */
     public void setConstraint(ParameterConstraintAPI constraint) throws EditableException{
         checkEditable(C + ": setConstraint(): ");
@@ -392,31 +373,33 @@ public abstract class Parameter
      *  constraint object follows the same api.
      *  Disables editing units, info, constraints, et. Basically all set()s disabled
      *  except for setValue(). Once set non-editable, it cannot be set back.
+     *  This is a one-time operation.
      */
-    public void setNonEditable() {
-        editable = false;
-    }
+    public void setNonEditable() { editable = false; }
 
 
 
     /** Every parameter has a name, this function returns that name. */
     public String getName() { return name; }
+
     /** Every parameter has a name, this function sets that name, if editable. */
     public void setName(String name){
         checkEditable(C + ": setName(): ");
         this.name = name;
     }
 
-      /** Returns the short class name of this object. */
+    /**
+     * Returns the short class name of this object. Used by the editor framework to
+     * dynamically assign an editor to subclasses. If there are constraints
+     * present, typically "Constrained" is prepended to the short class name.
+     */
     public String getType() { return C; }
 
 
     /** Determines if the value can be edited, i.e. changed once initialized. */
     public boolean isEditable() { return editable; }
 
-    /**
-     *  Returns a copy so you can't edit or damage the origial
-     */
+    /** Returns a copy so you can't edit or damage the origial. */
     public abstract Object clone();
 
 

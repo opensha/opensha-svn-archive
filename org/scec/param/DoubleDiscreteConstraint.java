@@ -5,13 +5,12 @@ import java.util.Vector;
 import org.scec.exceptions.ConstraintException;
 import org.scec.exceptions.EditableException;
 
-// Fix - Needs more comments
-
 /**
- *  <b>Title:</b> DoubleDiscreteConstraint<p>
- *  <b>Description:</b> Identical to the StringConstraint in that a list of
- *  Doubles are stored in a Vector that are the possible values to choose from<p>
+ * <b>Title:</b> DoubleDiscreteConstraint<p>
  *
+ * <b>Description:</b> This constraint contains a list of possible allowed
+ * double values. These can tipically be presented in a GUI picklist. This is
+ * the same fucntionality for all DiscreteParameterConstraints.
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002
@@ -28,24 +27,19 @@ public class DoubleDiscreteConstraint
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-
-    /**
-     *  List of possible Double values allowed by this constraint
-     */
+    /** List of possible Double values allowed by this constraint */
     private Vector doubles = new Vector();
 
 
-    /**
-     *  No-arg Constructor for the DoubleDiscreteConstraint object
-     */
+    /** No-arg Constructor, just calls super() */
     public DoubleDiscreteConstraint() { super(); }
 
 
     /**
-     *  Constructor for the DoubleDiscreteConstraint object
+     *  Constructor that assigns the list of allowed doubles.
      *
-     * @param  doubles                  The allowed Doubles in this constraint
-     * @exception  ConstraintException  Is thrown if doubles is empty
+     * @param  doubles                  A vector of allowed Doubles in this constraint.
+     * @exception  ConstraintException  Is thrown if passed in list is empty.
      */
     public DoubleDiscreteConstraint( Vector doubles ) throws ConstraintException {
 
@@ -59,7 +53,8 @@ public class DoubleDiscreteConstraint
 
 
     /**
-     *  Sets the doubles attribute of the DoubleDiscreteConstraint object
+     * Assigns the list of allowed doubles. Throws an editable
+     * Exception if this constraint is currently set to non-editable.
      *
      * @param  doubles  The new list of allowed doubles
      */
@@ -73,20 +68,19 @@ public class DoubleDiscreteConstraint
 
 
     /**
-     *  Returns cloned vector of allowed values, unable to modify original
-     *  values
+     *  Returns cloned vector of allowed values. unable to modify
+     *  original values.
      *
-     * @return    The allowedValues value
+     * @return    The allowed doubles in a Vectoru
      */
-    public Vector getAllowedValues() {
-        return getAllowedDoubles();
-    }
+    public Vector getAllowedValues() { return getAllowedDoubles(); }
 
 
     /**
-     *  Returns a cloned Vector of the allowed Doubles
+     *  Returns cloned vector of allowed values. unable to modify
+     *  original values.
      *
-     * @return    The allowedDoubles value
+     * @return    The allowed doubles in a Vectoru
      */
     public Vector getAllowedDoubles() {
         return ( Vector ) doubles.clone();
@@ -94,10 +88,10 @@ public class DoubleDiscreteConstraint
 
 
     /**
-     *  Checks if the value is allowed
+     *  Checks if the value is allowed by checking the list of doubles.
      *
-     * @param  d  value to check
-     * @return    True if the value is allowed
+     * @param  d  value to check.
+     * @return    True if the value is allowed, i.e. in the doubles list.
      */
     public boolean isAllowed( Object obj ) {
         if( nullAllowed && ( obj == null ) ) return true;
@@ -108,10 +102,10 @@ public class DoubleDiscreteConstraint
 
 
     /**
-     *  Checks if the value is allowed
+     *  Checks if the value is allowed by checking the list of doubles.
      *
-     * @param  d  value to check
-     * @return    True if the value is allowed
+     * @param  d  value to check.
+     * @return    True if the value is allowed, i.e. in the doubles list.
      */
     public boolean isAllowed( Double d ) {
         if( nullAllowed && ( d == null ) ) return true;
@@ -121,39 +115,29 @@ public class DoubleDiscreteConstraint
 
 
     /**
-     *  Checks if the value is allowed
+     *  Checks if the value is allowed by checking the list of doubles.
      *
-     * @param  d  value to check
-     * @return    True if the value is allowed
+     * @param  d  value to check.
+     * @return    True if the value is allowed, i.e. in the doubles list.
      */
-    public boolean isAllowed( double d ) {
-        return isAllowed( new Double( d ) );
-    }
+    public boolean isAllowed( double d ) { return isAllowed( new Double( d ) ); }
+
+
+    /** Returns Iterator over all allowed values */
+    public ListIterator listIterator() { return doubles.listIterator(); }
 
 
     /**
-     *  Returns Iterator over all allowed values
-     *
-     * @return    The iterator over allowed values
-     */
-    public ListIterator listIterator() {
-        return doubles.listIterator();
-    }
-
-
-    /**
-     *  Adds a double to the list of allowed values
-     *
-     * @param  d  The value to add to the allowed values list
+     * Adds a double to the list of allowed values. An EditableException
+     * is thrown is the list is currently not editable.
      */
     public void addDouble( double d ) throws EditableException {
         addDouble( new Double(d) );
     }
 
     /**
-     *  Adds a Double to the list of allowed values
-     *
-     * @param  d  The value to add to the allowed values list
+     * Adds a Double to the list of allowed values. An EditableException
+     * is thrown is the list is currently not editable.
      */
     public void addDouble( Double d ) throws EditableException {
 
@@ -165,9 +149,8 @@ public class DoubleDiscreteConstraint
     }
 
     /**
-     *  Removes one of the allowed values from the list
-     *
-     * @param  d  The value to remove
+     * Removes a Double from the list of allowed values. An EditableException
+     * is thrown is the list is currently not editable.
      */
     public void removeDouble( Double d ) throws EditableException {
 
@@ -179,9 +162,8 @@ public class DoubleDiscreteConstraint
 
 
     /**
-     *  Removes one of the allowed values from the list
-     *
-     * @param  d  The value to remove
+     * Removes a Double from the list of allowed values. An EditableException
+     * is thrown is the list is currently not editable.
      */
     public void removeDouble( double d ) throws EditableException {
         removeDouble( new Double(d) );
@@ -190,8 +172,8 @@ public class DoubleDiscreteConstraint
     /**
      *  Checks if the value is one of the allowed objects
      *
-     * @param  d  The value to check
-     * @return    True if this value is one of the allowed objects
+     * @param  d  The value to check.
+     * @return    True if this value is one of the allowed objects.
      */
     public boolean containsDouble( Double d ) {
         if ( doubles.contains( d ) ) return true;
@@ -201,26 +183,16 @@ public class DoubleDiscreteConstraint
     /**
      *  Checks if the value is one of the allowed objects
      *
-     * @param  d  The value to check
-     * @return    True if this value is one of the allowed objects
+     * @param  d  The value to check.
+     * @return    True if this value is one of the allowed objects.
      */
-    public boolean containsDouble( double d ) {
-        return containsDouble( new Double(d) );
-    }
+    public boolean containsDouble( double d ) { return containsDouble( new Double(d) ); }
 
-    /**
-     *  The number of allowed values for this constraint
-     *
-     * @return    number of allowed values
-     */
+    /** The number of allowed values for this constraint. */
     public int size() { return doubles.size(); }
 
 
-    /**
-     *  returns the classname of the constraint, and the min & max
-     *
-     * @return    Formatted String of this obejct's state
-     */
+    /** Prints out the state of this constraint for debugging. */
     public String toString() {
 
         String TAB = "    ";

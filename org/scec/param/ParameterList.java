@@ -11,12 +11,12 @@ import org.scec.exceptions.ParameterException;
  * <b>Description:</b> List container for parameters. Specialized version of Hashtable.
  * The keys of the hashtable are the names of the parameters. Can add specialized
  * iterators so that it returns only specific types of paramters, i.e. return
- * all DoubleParameters<p>
+ * all DoubleParameters. <p>
  *
  * This class assumes that two parameters are equal if they have the same name.
  * This implies that parameters have unique names. This must be the case for
  * all functions below that take a String name as an argument would fail if
- * two or more parameters have the same name.<p>
+ * two or more parameters have the same name. <p>
  *
  * An additional complication is that Parameters can have a constraint with a
  * different name. To handle this a mapping has to be generated such that
@@ -25,12 +25,12 @@ import org.scec.exceptions.ParameterException;
  * when the constraint name differs. In most cases the parameter name and
  * constraint name will be identical. Due to uniqueness of parameter names
  * this implies that all constraint names must be unique also, when differing
- * from the constraint name.<P>
+ * from the constraint name. <P>
  *
  * Note: Many of these functions are duplicated, where one form takes a
  * Parameter as input, and the second takes the Parameter name as a String as
  * input. THe first case can extract the parameter name, and proxy the
- * method call to the String name form.<p>
+ * method call to the String name form. <p>
  *
  * 4/3/2002 SWR<BR>
  * WARNING - This class needs a little more work and a JUnit test case.
@@ -54,10 +54,10 @@ public class ParameterList {
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    /** Internal vector list of parameters */
+    /** Internal vector list of parameters. */
     protected Vector params = new Vector();
 
-    /** Internal list of constraint name mapped to parameter name */
+    /** Internal list of constraint name mapped to parameter name. */
     protected Hashtable constraintNameMap = new Hashtable();
 
 
@@ -65,7 +65,7 @@ public class ParameterList {
     /** @todo  Constructors */
     /* **********************/
 
-    /** no arg constructor */
+    /** no arg constructor. Does nothing. */
     public ParameterList() {}
 
 
@@ -92,7 +92,7 @@ public class ParameterList {
      * Adds the parameter to the internal sotrage of parameters if it
      * doesn't exist, else throws exception. If the constraint has a different
      * name from the parameter, the constraint name is mapped to the parameter
-     * name
+     * name.
      */
     public void addParameter(ParameterAPI param) throws ParameterException{
 
@@ -120,7 +120,7 @@ public class ParameterList {
     }
 
     /**
-     * Maps back the constraint name to parameter name if this is a constraint name
+     * Maps back the constraint name to parameter name if this is a constraint name.
      * @param name      The value to check if it is a constraint
      * @return          Either the unmodified name if not constraint name, else the parameter
      * name from the mappings if this is a constraint name.
@@ -130,7 +130,7 @@ public class ParameterList {
         return name;
     }
 
-    /** Returns parameter if exist else throws exception */
+    /** Returns parameter if exist else throws exception. */
     public ParameterAPI getParameter(String name) throws ParameterException {
 
         name = getParameterName( name );
@@ -147,7 +147,7 @@ public class ParameterList {
     }
 
 
-    /** Returns parameter contained value object if the parameter exist, else throws exception */
+    /** Returns parameter contained value object if the parameter exist, else throws exception. */
     public Object getValue(String name) throws ParameterException{
 
         name = getParameterName( name );
@@ -163,7 +163,7 @@ public class ParameterList {
         }
     }
 
-    /** Set's a new value to a Parameter in the list if it exists, else throws exception */
+    /** Set's a new value to a Parameter in the list if it exists, else throws exception. */
     public void setValue(String name, Object value) throws ParameterException, ConstraintException {
 
         String S = C + ": setValue(): ";
@@ -184,7 +184,7 @@ public class ParameterList {
 
     }
 
-    /** Returns parameter type of named parameter in list, if not exist throws exception */
+    /** Returns parameter type of named parameter in list, if not exist throws exception. */
     public String getType(String name) throws ParameterException {
         name = getParameterName( name );
         int index = getIndexOf(name);
@@ -200,7 +200,7 @@ public class ParameterList {
     }
 
 
-    /** Checks if the parameter exists in the list. Returns true if it does, else returns false */
+    /** Checks if the parameter exists in the list. Returns true if it does, else returns false. */
     public boolean containsParameter(ParameterAPI param){
 
         String name = param.getName();
@@ -210,7 +210,7 @@ public class ParameterList {
 
     }
 
-    /** Checks if the parameter exists in the list. Returns true if it does, else returns false */
+    /** Checks if the parameter exists in the list. Returns true if it does, else returns false. */
     public boolean containsParameter(String paramName){
         int index = getIndexOf(paramName);
         if( index!=-1 ) { return true; }
@@ -219,7 +219,7 @@ public class ParameterList {
     }
 
 
-    /** Removes parameter if it exists, else throws exception */
+    /** Removes parameter if it exists, else throws exception. */
     public void removeParameter(ParameterAPI param) throws ParameterException {
         String name = param.getName();
         int index = getIndexOf(name);
@@ -237,7 +237,7 @@ public class ParameterList {
         }
     }
 
-    /** Removes parameter if it exists, else throws exception */
+    /** Removes parameter if it exists, else throws exception. */
     public void removeParameter(String name) throws ParameterException {
         int index = getIndexOf(name);
         if( index!=-1 ) { params.remove(index); }
@@ -291,7 +291,7 @@ public class ParameterList {
     /** Removes all parameters from the list, making it empty, ready for new parameters.  */
     public void clear(){ params.clear(); }
 
-    /** Returns the number of parameters in the list */
+    /** Returns the number of parameters in the list. */
     public int size(){ return params.size(); }
 
     /**
