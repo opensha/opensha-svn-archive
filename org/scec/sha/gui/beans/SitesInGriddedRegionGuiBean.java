@@ -227,13 +227,6 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
    * @return
    */
   public Iterator getSitesClone() {
-    // make the new gridded site objects list
-    EvenlyGriddedRectangularGeographicRegion newGridRectRegion= new EvenlyGriddedRectangularGeographicRegion(((Double)minLat.getValue()).doubleValue(),
-        ((Double)maxLat.getValue()).doubleValue(),
-        ((Double)minLon.getValue()).doubleValue(),
-        ((Double)maxLon.getValue()).doubleValue(),
-        ((Double)gridSpacing.getValue()).doubleValue());
-
     ListIterator lIt=gridRectRegion.getGridLocationsIterator();
     ArrayList newSiteVector=new ArrayList();
     while(lIt.hasNext())
