@@ -7,7 +7,7 @@ import java.util.*;
 import org.scec.param.*;
 import org.scec.param.event.*;
 import org.scec.sha.imr.attenRelImpl.*;
-import org.scec.sha.propagation.*;
+
 
 import org.scec.exceptions.*;
 import org.scec.data.function.*;
