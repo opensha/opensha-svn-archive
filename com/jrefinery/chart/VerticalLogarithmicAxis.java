@@ -440,7 +440,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
         g2.setFont(tickLabelFont);
 
         Iterator iterator = ticks.iterator();
-       while (iterator.hasNext()) {
+        while (iterator.hasNext()) {
            Tick tick = (Tick)iterator.next();
            //float yy = (float)this.translateValueToJava2D(tick.getNumericalValue(), plotArea);
            float yy=(float)tick.getY() ;
@@ -464,7 +464,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
               else { // show in superscript form
                 g2.drawString("10", tick.getX(), tick.getY());
                 g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()-1));
-                g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+12,tick.getY()-6);
+                g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+16,tick.getY()-6);
               }
            }
            if (tickMarksVisible) {
@@ -622,7 +622,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
         // whether you want to show in superscript form or not
         if((upperBound-lowerBound)>= 4)
            superscript=true;
-        if(getRange().getLowerBound()<0.0001 || getRange().getUpperBound()>10000.0)
+        if(getRange().getLowerBound()<0.001 || getRange().getUpperBound()>1000.0)
           superscript=true;
 
         // see whther there exists any major axis in data
