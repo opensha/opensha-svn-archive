@@ -217,7 +217,7 @@ public abstract class AttenuationRelationship
     protected final static Double PGV_DEFAULT = new Double( Math.log( 0.1 ) );
     public final static String PGV_INFO = "Peak Ground Velocity";
     protected final static Double PGV_MIN = new Double( Math.log(Double.MIN_VALUE) );
-    protected final static Double PGV_MAX = new Double( Math.log(500) );
+    protected final static Double PGV_MAX = new Double( Double.MAX_VALUE );
     protected final static Double PGV_WARN_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double PGV_WARN_MAX = new Double( Math.log(500) );
 
@@ -237,7 +237,7 @@ public abstract class AttenuationRelationship
     protected final static Double SA_DEFAULT = new Double( Math.log(0.5) );
     public final static String SA_INFO = "Response Spectral Acceleration";
     protected final static Double SA_MIN = new Double( Math.log(Double.MIN_VALUE) );
-    protected final static Double SA_MAX = new Double( Math.log(4) );
+    protected final static Double SA_MAX = new Double( Double.MAX_VALUE );
     protected final static Double SA_WARN_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double SA_WARN_MAX = new Double( Math.log(2) );
 
