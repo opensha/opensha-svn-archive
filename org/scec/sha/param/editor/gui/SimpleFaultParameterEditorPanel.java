@@ -672,7 +672,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   }
 
   /**
-   * This function is called when Update button is pressed
+   * This function is called when Update  Surface button is pressed
    *
    * @param ae
    */
@@ -684,7 +684,13 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     }
   }
 
-
+  /**
+   * creates the evenly gridded surface from the fault parameter.
+   * This function has to be called explicitly in order to Create/Update or it can
+   * updated when the user press the "Update Surface" button
+   * the  gridded surface.
+   * @throws RuntimeException
+   */
   public void setEvenlyGriddedSurfaceFromParams()throws RuntimeException{
 
     //checks if any parameter has been only then updates the Griddedsurface
@@ -807,19 +813,34 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     }
   }
 
-
+  /**
+   *
+   * @returns the fault trace
+   */
   public FaultTrace getFaultTrace(){
     return fltTrace;
   }
 
+  /**
+   *
+   * @returns the Upper Siesmogenic depth
+   */
   public double getUpperSiesmogenicDepth(){
     return upperSies;
   }
 
+  /**
+   *
+   * @returns the Lower Siesmogenic depth
+   */
   public double getLowerSiesmogenicDepth(){
     return lowerSies;
   }
 
+  /**
+   *
+   * @returns the name of the fault
+   */
   public String getFaultName(){
     return (String)parameterList.getParameter(this.FAULT_NAME).getValue();
   }
