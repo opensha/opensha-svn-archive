@@ -442,38 +442,6 @@ private void intiAdjParams() {
   }
 
 
-
-  /**
-   * Gets the number of ruptures for the source at index iSource
-   * @param iSource
-   */
-    public int getNumRuptures(int iSource){
-      return getSource(iSource).getNumRuptures();
-    }
-
-    /**
-     * Returns a clone of (rather than a reference to) the nth rupture of the
-     * ith source.
-     *
-     * @param source
-     * @param i
-     * @return
-     */
-    public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
-      return getSource(iSource).getRuptureClone(nRupture);
-    }
-
-    /**
-     * Get the nth rupture of the ith source.
-     *
-     * @param source
-     * @param i
-     * @return
-     */
-    public ProbEqkRupture getRupture(int iSource, int nRupture) {
-       return getSource(iSource).getRupture(nRupture);
-    }
-
     /**
      * Returns the  ith earthquake source
      *
@@ -493,40 +461,6 @@ private void intiAdjParams() {
       return allSources.size();
     }
 
-    /**
-     * Return a clone of (rather than a reference to) the ith earthquake source
-     *
-     * @param iSource : index of the source needed
-     *
-     * @return Returns the ProbEqkSource at index i
-     *
-     * FIX:FIX :: This function has not been implemented yet. Have to give it thought
-     *
-     */
-    public ProbEqkSource getSourceClone(int iSource) {
-      return null;
-      /*ProbEqkSource probEqkSource =getSource(iSource);
-      if(probEqkSource instanceof Frankel96_CharEqkSource){
-          Frankel96_CharEqkSource probEqkSource1 = (Frankel96_CharEqkSource)probEqkSource;
-          ProbEqkRupture r = probEqkSource1.getRupture(0);
-          r.
-          Frankel96_CharEqkSource frankel96_Char = new Frankel96_CharEqkSource(;
-
-      }*/
-
-    }
-
-
-
-    /**
-     * Return  iterator over all the earthquake sources
-     *
-     * @return Iterator over all earhtquake sources
-     */
-    public Iterator getSourcesIterator() {
-      Iterator i = getSourceList().iterator();
-      return i;
-    }
 
      /**
       * Get the list of all earthquake sources.
