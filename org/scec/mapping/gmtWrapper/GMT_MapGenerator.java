@@ -512,7 +512,7 @@ public class GMT_MapGenerator implements Serializable{
     DecimalFormat df2 = new DecimalFormat("0.E0");
     Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
     inc = tickInc.floatValue();
-    gmtCommandLine=GMT_PATH+"psscale -Ba"+inc+":LogIML: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
+    gmtCommandLine=GMT_PATH+"psscale -Ba"+inc+":IML: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
     //RunScript.runScript(command);
     br.write(gmtCommandLine+"\n");
 

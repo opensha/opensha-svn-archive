@@ -49,13 +49,23 @@ public class MapGuiBean extends JPanel implements
   private GMT_MapGenerator gmtMap= new GMT_MapGenerator();
 
   //flag to see if one wants to run the GMT from the server
-  private boolean gmtFromServer = false;
+  private boolean gmtFromServer = true;
 
   private ParameterListEditor editor;
-  //Label to show the imageFile
-  private JLabel gmtMapLabel = new JLabel();
+
+  //check to see if user user wants GMT from the GMT webservice
   private JCheckBox gmtServerCheck = new JCheckBox();
+  //check to see if user wants linear or log plot
+  private JCheckBox logPlotCheck = new JCheckBox();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
+
+  //boolean flag to check if we need to show the Map in a seperate window
+  private boolean showMapInSeperateWindow = true;
+
+  //name of the image file( or else full URL to image file if using the webservice)
+  String imgName=null;
+
+
 
   /**
    * Class constructor accepts the GMT parameters list
@@ -145,7 +155,19 @@ public class MapGuiBean extends JPanel implements
    * @param fileName: name of the XYZ file
    */
   public void makeMap(XYZ_DataSetAPI xyzVals,String paramsInfo){
-    String imgName=null;
+
+    //checks to see if the user wants Log Plot, if so then convert the zValues to the Log Space
+    if(this.logPlotCheck.isSelected()){
+      //Vector of the Original z Values in the linear space
+      Vector zLinearVals = xyzVals.getZ_DataSet();
+      //Vector to add the Z Values as the Log space
+      Vector zLogVals = new Vector();
+      int size = zLinearVals.size();
+      for(int i=0;i<size;++i)
+        zLogVals.add(new Double(0.4343 * Math.log(((Double)zLinearVals.get(i)).doubleValue())));
+      //setting the values in the XYZ Dataset.
+      xyzVals.setXYZ_DataSet(xyzVals.getX_DataSet(),xyzVals.getY_DataSet(),zLogVals);
+    }
     if(this.gmtServerCheck.isSelected()){
       //imgName = openConnection(xyzVals);
       imgName=gmtMap.makeMapUsingWebServer(xyzVals);
@@ -159,8 +181,12 @@ public class MapGuiBean extends JPanel implements
         return;
       }
     }
+
+    //checks to see if the user wants to see the Map in a seperate window or not
+    if(this.showMapInSeperateWindow){
     //adding the image to the Panel and returning that to the applet
     ImageViewerWindow imgView = new ImageViewerWindow(imgName,paramsInfo,gmtFromServer);
+    }
   }
 
   /**
@@ -184,10 +210,13 @@ public class MapGuiBean extends JPanel implements
       }
     });
     this.setLayout(gridBagLayout1);
+    logPlotCheck.setText("Log Plot");
     this.add(editor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 0, 13), 361, 226));
     this.add(gmtServerCheck,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 123, 0, 132), 0, 0));
+    this.add(logPlotCheck,       new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 113, 8, 145), 55, 1));
   }
 
   /**
@@ -247,6 +276,22 @@ public class MapGuiBean extends JPanel implements
     return imgURL;
   }
 
+  /**
+   * Flag to determine whether to show the Map in a seperate pop up window
+   * @param flag
+   */
+  public void setMapToBeShownInSeperateWindow(boolean flag){
+    this.showMapInSeperateWindow = flag;
+  }
+
+  /**
+   *
+   * @returns the image name of the Map ( or the full URL address to the image file
+   * if using the webService)
+   */
+  public String getImageName(){
+    return this.imgName;
+  }
 
   /**
    *

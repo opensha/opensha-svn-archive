@@ -36,7 +36,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private final double MAX_LAT= 36.60;
   private final double MIN_LON = -121.45 ;
   private final double MAX_LON= -114.50;
-  private final double GRID_SPACING= 1.0;
+  private final double GRID_SPACING= .1;
   private static final String STEP_DIR = "step/";
   private static final String STEP_BACKGROUND_FILE = "backGround.txt";
   private static final String STEP_ADDON_FILE_SUFFIX = "_addon.txt";
