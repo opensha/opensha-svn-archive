@@ -341,13 +341,13 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
      // create the ERF Gui Bean object
    Vector erf_Classes = new Vector();
 
-   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
+//   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
+//   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
+//   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+//   erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
    try{
