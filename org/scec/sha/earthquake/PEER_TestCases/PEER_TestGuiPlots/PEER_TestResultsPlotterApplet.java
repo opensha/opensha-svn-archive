@@ -244,7 +244,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     mainPanel.setBorder(BorderFactory.createEtchedBorder());
     mainPanel.setLayout(gridBagLayout7);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    mainSplitPane.setDividerSize(1);
+    mainSplitPane.setDividerSize(5);
     buttonPanel.setLayout(gridBagLayout3);
     topPlotPanel.setLayout(gridBagLayout6);
     plotSplitPane.setMinimumSize(new Dimension(545, 0));
@@ -273,7 +273,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       }
     });
     avgSplitPane.setPreferredSize(new Dimension(308, 480));
-    avgSplitPane.setDividerSize(1);
+    avgSplitPane.setDividerSize(5);
     testCasesPanel.setLayout(gridBagLayout5);
     avgLabel.setForeground(Color.red);
     avgLabel.setHorizontalAlignment(SwingConstants.LEFT);
@@ -729,8 +729,9 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     */
    private  void searchTestFiles(){
      // ArrayList is needed for the sorted list
-     ArrayList testCaseList1 = new ArrayList(); // this list saves test case from 1 to 9
-     ArrayList testCaseList2 = new ArrayList(); // this list saves test case 10 and 11
+     ArrayList testCaseList1 = new ArrayList(); // this list saves SET 1 test case from 1 to 9
+     ArrayList testCaseList2 = new ArrayList(); // this list saves SET 1 test case 10 and 11
+     ArrayList testCaseList3 = new ArrayList(); // this list saves SET 2 test cases
      try{
        // files.log contains all the files uploaded so far
        InputStream input = PEER_TestResultsPlotterApplet.class.getResourceAsStream("/"+DIR+"files.log");
@@ -746,11 +747,17 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
          boolean isTenOrEleven = false;
          boolean flag = false;
+         boolean isSet2 = false;
+
+         //check whether this is Set 2
+         if(testCases.indexOf("Set2")>-1) isSet2 = true;
+
          // check wther this is test case 10 or 11
-         if((testCases.indexOf("10")>-1) || (testCases.indexOf("11")>-1))
+         if((testCases.indexOf("Case10")>-1) || (testCases.indexOf("Case11")>-1))
            isTenOrEleven = true;
+
          // check in list 1
-         if(!isTenOrEleven) { // if this is case from 1 through 9
+         if(!isTenOrEleven && !isSet2) { // if this is case from 1 through 9
            Iterator it = testCaseList1.iterator();
            while(it.hasNext()) {
              // check whether this set has already been added to list
@@ -762,9 +769,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
            if(!flag) testCaseList1.add(testCases);
          }
 
-
          // check in list 2 whether the case exists
-        if(isTenOrEleven) { // if this is case 10 or 11
+         if(isTenOrEleven && !isSet2) { // if this is case 10 or 11
           Iterator it = testCaseList2.iterator();
           while(it.hasNext()) {
             // check whether this set has already been added to list
@@ -774,17 +780,33 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
             }
           }
           if(!flag) testCaseList2.add(testCases);
-         }
+        }
 
+         // check in list 3 whether the case exists
+         if(isSet2) { // if this is Set2 case
+          Iterator it = testCaseList3.iterator();
+          while(it.hasNext()) {
+            // check whether this set has already been added to list
+            if(((String)it.next()).equalsIgnoreCase(testCases)) {
+              flag = true;
+              break;
+            }
+          }
+           if(!flag) testCaseList3.add(testCases);
+        }
        }
        Collections.sort(testCaseList1);
        Collections.sort(testCaseList2);
+       Collections.sort(testCaseList3);
 
        // add to the combo box
        Iterator it =  testCaseList1.iterator();
        while(it.hasNext()) testCaseCombo.addItem(it.next());
        it =  testCaseList2.iterator();
        while(it.hasNext()) testCaseCombo.addItem(it.next());
+       it =  testCaseList3.iterator();
+       while(it.hasNext()) testCaseCombo.addItem(it.next());
+
 
      }catch(Exception e) {
        e.printStackTrace();
@@ -798,17 +820,17 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     */
    private void readDataVersion() {
      try{
-      // files.log contains all the files uploaded so far
-      InputStream input = PEER_TestResultsPlotterApplet.class.getResourceAsStream("/"+DIR+"data.version");
-      DataInputStream dataStream = new DataInputStream(input);
-      String line;
-      // first line of the file saves the version number
-      // second line saves the date aand time data was last updated
-      dataVersion = dataStream.readLine();
-      dataLastUpdated = dataStream.readLine();
-    }catch(Exception e) {
-      e.printStackTrace();
-    }
+       // files.log contains all the files uploaded so far
+       InputStream input = PEER_TestResultsPlotterApplet.class.getResourceAsStream("/"+DIR+"data.version");
+       DataInputStream dataStream = new DataInputStream(input);
+       String line;
+       // first line of the file saves the version number
+       // second line saves the date aand time data was last updated
+       dataVersion = dataStream.readLine();
+       dataLastUpdated = dataStream.readLine();
+     }catch(Exception e) {
+       e.printStackTrace();
+     }
 
    }
 

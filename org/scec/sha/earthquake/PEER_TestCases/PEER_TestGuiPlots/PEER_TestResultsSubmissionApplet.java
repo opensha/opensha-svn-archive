@@ -24,7 +24,7 @@ import org.scec.util.ImageUtils;
  * for the PEER Tests and these datafiles are then stored  as the Jar files on the
  * server scec.usc.edu .
  * After Submission of their datafiles, the users can see the result of their files
- * as the PEER test plots in the Applet PEER_Test_GuiPlotter</p>
+ * as the PEER test plots in the Applet PEER_TestResultsPlotterApplet</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * @author: Nitin Gupta & Vipin Gupta
  * @date : Dec 17,2002
@@ -354,8 +354,9 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
    */
   private  void searchTestFiles(){
     // ArrayList is needed for the sorted list
-    ArrayList testCaseList1 = new ArrayList(); // this list saves test case from 1 to 9
-    ArrayList testCaseList2 = new ArrayList(); // this list saves test case 10 and 11
+    ArrayList testCaseList1 = new ArrayList(); // this list saves SET 1 test case from 1 to 9
+    ArrayList testCaseList2 = new ArrayList(); // this list saves SET 1 test case 10 and 11
+    ArrayList testCaseList3 = new ArrayList(); // this list saves SET 2 test cases
     try{
       // files.log contains all the files uploaded so far
       InputStream input = PEER_TestResultsSubmissionApplet.class.getResourceAsStream("/"+DIR+"files.log");
@@ -371,11 +372,16 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
         boolean isTenOrEleven = false;
         boolean flag = false;
+        boolean isSet2 = false;
+
+        //check whether this is Set 2
+         if(testCases.indexOf("Set2")>-1)  isSet2 = true;
+
         // check wther this is test case 10 or 11
         if((testCases.indexOf("10")>-1) || (testCases.indexOf("11")>-1))
           isTenOrEleven = true;
         // check in list 1
-        if(!isTenOrEleven) { // if this is case from 1 through 9
+        if(!isTenOrEleven && !isSet2) { // if this is case from 1 through 9
           Iterator it = testCaseList1.iterator();
           while(it.hasNext()) {
             // check whether this set has already been added to list
@@ -389,7 +395,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
 
         // check in list 2 whether the case exists
-       if(isTenOrEleven) { // if this is case 10 or 11
+       if(isTenOrEleven && !isSet2) { // if this is case 10 or 11
          Iterator it = testCaseList2.iterator();
          while(it.hasNext()) {
            // check whether this set has already been added to list
@@ -401,14 +407,29 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
          if(!flag) testCaseList2.add(testCases);
         }
 
+        // check in list 3 whether the case exists
+        if(isSet2) { // if this is Set2 case
+         Iterator it = testCaseList3.iterator();
+         while(it.hasNext()) {
+           // check whether this set has already been added to list
+           if(((String)it.next()).equalsIgnoreCase(testCases)) {
+             flag = true;
+             break;
+           }
+         }
+         if(!flag) testCaseList3.add(testCases);
+        }
       }
       Collections.sort(testCaseList1);
       Collections.sort(testCaseList2);
+      Collections.sort(testCaseList3);
 
       // add to the combo box
       Iterator it =  testCaseList1.iterator();
       while(it.hasNext()) testComboBox.addItem(it.next());
       it =  testCaseList2.iterator();
+      while(it.hasNext()) testComboBox.addItem(it.next());
+      it =  testCaseList3.iterator();
       while(it.hasNext()) testComboBox.addItem(it.next());
 
     }catch(Exception e) {
