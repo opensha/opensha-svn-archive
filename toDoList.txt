@@ -4,7 +4,11 @@
 For OpenSHA:
 ------------
 
-Applets - resizing problems on Mac (revisit now that Java 1.4 is used?)
+Applets 
+
+	- resizing problems on Mac (revisit now that Java 1.4 is used?)
+
+	- why do applets look so bad with Safari
 
 ProbEqkRupture -  add a clone() method and use this in getRuptureClone(*) methods of ProbEqkSource and ProbEqkForecast objects.
 
