@@ -23,7 +23,7 @@
  * LogXYItemRenderer.java
  * ---------------------------
  *
- *
+ *Author : Nitin Gupta and Vipin Gupta
  *
  *
  * $Id$

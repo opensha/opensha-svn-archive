@@ -24,11 +24,7 @@
  * ------------------------------
  * (C) Copyright 2002, by Eric Thomas and Contributors.
  *
- * Original Author:  Eric Thomas;
- * Contributor(s):   Michael Duffy
- *                   David Gilbert (for Simba Management Limited);
- *
- *
+ * Original Author:  Nitin Gupta & Vipin gupta
  * 16-May-2002 : Version 1, based on existing HorizontalNumberAxis and VerticalLogarithmicAxis
  *               classes (ET).
  *
@@ -542,7 +538,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 	int count = this.calculateVisibleTickCount();
 	double x0=0.0;
         float sum=0.1f;
-        int i=-20;
+        int i=lowest;
 
         if(counter==2)
           this.tickUnit.formatter.setMaximumFractionDigits(3);
@@ -552,6 +548,8 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         boolean superscript=false;
 
         // whether you want to show in superscript form or not
+        if((powerOf10(range.getUpperBound())- powerOf10(range.getLowerBound())) >= 4)
+           superscript=true;
         if(range.getLowerBound()<0.0001 || range.getUpperBound()>10000.0)
           superscript=true;
 
@@ -578,7 +576,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
           * For Loop - Drawing the ticks which corresponds to the  power of 10
           */
 
-        for (i=-20;;i++) {
+        for (i=lowest;;i++) {
            for(int j=0;j<10;++j){
               sum =j*(float)Math.pow(10,i);
               if(sum<range.getLowerBound())
@@ -716,6 +714,24 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         return this.tickUnit.getSize()/15;
     }
 
+
+    /**
+      * this function is used to find the nearest power of 10 for any number passed as the parameter
+      * this function is used for computing the difference in the power of 10
+      * for the lowerBound and UpperBounds of the range, to enable the superscript labeing of the ticks
+      * @param num
+      * @return
+      */
+     private int powerOf10(double num) {
+
+         int i=lowest;
+         while(num > Math.pow(10,i)){
+            if(num>=Math.pow(10,i) && num<Math.pow(10,i+1))
+               return i;
+            ++i;
+         }
+        return 0;
+    }
 
      /**
      * Draws the plot on a Java 2D graphics device (such as the screen or a printer).
@@ -889,6 +905,8 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         return result;
 
     }
+
+
 
 
 }

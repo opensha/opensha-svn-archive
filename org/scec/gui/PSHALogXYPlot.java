@@ -18,7 +18,7 @@ import org.scec.sha.imr.gui.IMRTesterApplet;
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 

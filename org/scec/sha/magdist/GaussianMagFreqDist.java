@@ -285,7 +285,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
   /**
    * This functions call the method set(int,double) in the EvenlyDiscretized class
    * to set the y-axis values based on the x-axis data provided by the user.
-   *
+   * Based on the truncType the methods sets the Y-axis(rate)
    */
   private void computeRates() {
     for(int i=0;i<num;++i) {

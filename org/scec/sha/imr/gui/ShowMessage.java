@@ -9,7 +9,7 @@ import java.awt.event.*;
  * <p>Description: This class handles all  the messages that the GUI will throwing for any kind of runtime exception for Log Plots</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author : Nitin & Vipin
+ * @author : Nitin Gupta Date :Aug,7,2002
  * @version 1.0
  */
 

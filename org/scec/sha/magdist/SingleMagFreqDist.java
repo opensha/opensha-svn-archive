@@ -6,7 +6,7 @@ import org.scec.calc.*;
  * <p>Description: This has only magnitude with the non-zero rate</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author :Nitin Gupta Date:Aug,8,2002
  * @version 1.0
  */
 
@@ -48,45 +48,80 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @param delta
    * @param num
    * @param mag
-   * @param momentRate
+   * @param moRate
    */
 
-  public SingleMagFreqDist(double min,double delta,int num,double mag,double momentRate) {
+  public SingleMagFreqDist(double min,double delta,int num,double mag,double moRate) {
     super(min,num,delta);
     this.mag=mag;
-    this.rate=momentRate;
+    this.rate=moRate;
   }
 
+  /**
+   * returns the rate for which  magnitude has non-zero rate
+   * @return
+   */
   public double getRate() {
     return rate;
   }
 
+  /**
+   *Gets the magnitude which has non-zero rate
+   * @return
+   */
   public double getMag() {
     return mag;
   }
 
+  /**
+   * sets the magnitude for non-zero rate
+   * @param mag
+   * @param rate
+   */
   public void setMagAndRate(double mag, double rate) {
     this.mag=mag;
     this.rate=rate;
   }
 
-  public void setMagAndMomentRate(double mag,double momentRate) {
+  /**
+   * Sets the magnitude
+   * For this magnitude it calculates the non-zero rate from a static function
+   * getMoment of the class MomentMagCalc and moRate
+   * @param mag
+   * @param moRate
+   */
+  public void setMagAndMomentRate(double mag,double moRate) {
     this.mag=mag;
-    this.rate=momentRate/MomentMagCalc.getMoment(mag);
+    this.rate=moRate/MomentMagCalc.getMoment(mag);
   }
 
-  public void setRateAndMomentRate(double rate,double momentRate) {
+  /**
+   * sets the non-zero rate
+   * For this rate the magnitude is calculated using the static function
+   * getMag of the class MomentMagCalc  and moRate
+   * @param rate
+   * @param moRate
+   */
+  public void setRateAndMomentRate(double rate,double moRate) {
     this.rate=rate;
-    this.mag=MomentMagCalc.getMag(momentRate);
+    this.mag=MomentMagCalc.getMag(moRate);
   }
 
+  /**
+   *
+   * @return the name of the class which was invoked by the user
+   */
  public String getName() {
    return "SingleMagFreqDist";
  }
 
+ /**
+  *
+  * @return the total information stored in the class in form of a string
+  */
  public String getInfo() {
-   double momentRate= this.rate * MomentMagCalc.getMoment(this.mag);
-   return "mag="+this.mag+";"+"rate="+rate+";"+"moRate="+momentRate;
+   double moRate= this.rate * MomentMagCalc.getMoment(this.mag);
+   return "mag="+this.mag+";"+"rate="+rate+";"+"moRate="+moRate;
  }
 
 }

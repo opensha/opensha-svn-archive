@@ -10,7 +10,7 @@ import java.awt.event.*;
  * user to customise the X and Y Axis scale</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author : Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 

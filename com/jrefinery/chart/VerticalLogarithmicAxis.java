@@ -24,22 +24,12 @@
  * ----------------------------
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
  *
- * Original Author:  Michael Duffy;
+ * Original Author:  Nitin Gupta and Vipin Gupta
  * Contributor(s):   David Gilbert (for Simba Management Limited);
  *                   Eric Thomas;
  *
  * $Id$
  *
- * Changes
- * -------
- * 14-Mar-2002 : Version 1 contributed by Michael Duffy (DG);
- * 19-Apr-2002 : drawVerticalString(...) is now drawRotatedString(...) in RefineryUtilities (DG);
- * 23-Apr-2002 : Added a range property (DG);
- * 15-May-2002 : Modified to be able to deal with negative and zero values (via new
- *               'adjustedLog10()' method);  occurrences of "Math.log(10)" changed to "LOG10_VALUE";
- *               changed 'intValue()' to 'longValue()' in 'refreshTicks()' to fix label-text value
- *               out-of-range problem; removed 'draw()' method; added 'autoRangeMinimumSize' check;
- *               added 'log10TickLabelsFlag' parameter flag and implementation (ET);
  *
  */
 
@@ -607,9 +597,14 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
            this.tickUnit.formatter.setMaximumFractionDigits(3);
         boolean superscript=false;
 
+
         // whether you want to show in superscript form or not
+        if((powerOf10(range.getUpperBound())- powerOf10(range.getLowerBound())) >= 4)
+           superscript=true;
         if(range.getLowerBound()<0.0001 || range.getUpperBound()>10000.0)
           superscript=true;
+
+
 
         // see whther there exists any major axis in data
         double lower = range.getLowerBound();
@@ -621,7 +616,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             break;
           if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
             // no major axis exixts in dat so you have to add the major axis
-            this.setRange(val1,val2);
+            this.setRange(val1,upper);
             break;
           }
           if(lower < val2 && upper > val2) // we have found 1 major axis
@@ -747,6 +742,24 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
       return false;
     return true;
  }
+
+  /**
+    * this function is used to find the nearest power of 10 for any number passed as the parameter
+    * this function is used for computing the difference in the power of 10
+    * for the lowerBound and UpperBounds of the range, to enable the superscript labeing of the ticks
+    * @param num
+    * @return
+    */
+   private int powerOf10(double num) {
+
+       int i=lowest;
+       while(num > Math.pow(10,i)){
+          if(num>=Math.pow(10,i) && num<Math.pow(10,i+1))
+             return i;
+          ++i;
+       }
+      return 0;
+    }
 
 
     /**

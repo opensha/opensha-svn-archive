@@ -7,7 +7,7 @@ import org.scec.data.function.EvenlyDiscretizedFunc;
  * <p>Description:This class give the rate of earthquakes (number per year) in succesion</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author : Nitin Gupta Date:July,26,2002
  * @version 1.0
  */
 
