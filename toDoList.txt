@@ -4,10 +4,15 @@
 For OpenSHA:
 ------------
 
+FractileCurveCalculator
+
+	In here we deep clone funcList, so shouldn't we deep clone the weights as well?
+
 ERF_EpistemicListControlPanel
 
 	Add option to plot the average (which is different from the
-	50% fractile).
+	50% fractile) using the FractileCurveCalculator.getMeanCurve() method
+	recently added by Ned.
 
 All XY plots:
 
@@ -24,7 +29,6 @@ ProbEqkRupture -  add a clone() method and use this in getRuptureClone(*) method
 
 ProbEqkRupture - does this need a TimeSpan field (some of our sources do not have a timespan object, and so will not be capable of setting this)?  Lets take it out for now.
 
-Look over FractileCurveCalculator (Ned)
 
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
 

@@ -104,7 +104,42 @@ public class FractileCurveCalculator {
   }
 
   /**
-   *
+   * This computes the mean curve from the list of functions (and their associated
+   * weights).
+   * @return
+   */
+  public ArbitrarilyDiscretizedFunc getMeanCurve() {
+    ArbitrarilyDiscretizedFunc result = (ArbitrarilyDiscretizedFunc) funcList.get(0).deepClone();
+    double wt, totWt=0;
+    int numPoints = funcList.get(0).getNum();
+    int numFuncs = funcList.size();
+    int i, f;
+
+    // initialize function to zero
+    for(i=0;i<numPoints;i++)
+      result.set(i,0.0);
+
+    // add all functions (weighted) together
+    for(f=0;f<numFuncs;f++)
+      for(i=0;i<numPoints;i++) {
+        wt = ((Double)relativeWeights.get(f)).doubleValue();
+        result.set(i, result.getY(i) + wt*funcList.get(f).getY(i) );
+        totWt += wt;
+      }
+
+    // now normalize by the total weight
+      // initialize result to zero
+      for(i=0;i<numPoints;i++)
+        result.set(i,result.getY(i)/totWt);
+
+    return result;
+  }
+
+
+
+
+  /**
+   *  This returns the fractile curve corresponding to the specified fraction
    * @param fraction
    * @return
    */
