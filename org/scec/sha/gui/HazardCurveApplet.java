@@ -699,9 +699,13 @@ public class HazardCurveApplet extends JApplet
             }
           }
         });
+        Thread t = new Thread(this);
+        t.start();
       }
-      Thread t = new Thread(this);
-      t.start();
+      else {
+        this.computeHazardCurve();
+        this.drawGraph();
+      }
     }
 
     /**
@@ -934,7 +938,7 @@ public class HazardCurveApplet extends JApplet
         progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
         progressClass.displayProgressBar();
     }
-    timer.start();
+     if(this.progressCheckBox.isSelected()) timer.start();
 
     // get the selected IMR
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
@@ -1008,7 +1012,6 @@ public class HazardCurveApplet extends JApplet
     }
    }
 
-
    // add the function to the function list
    totalProbFuncs.add(hazFunction);
 
@@ -1039,10 +1042,11 @@ public class HazardCurveApplet extends JApplet
    //check if the curves are to shown in the same black color for each erf.
     this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
    // calculate hazard curve for each ERF within the list
-    this.isIndividualCurves = false;
+    if(!this.progressCheckBox.isSelected()) this.isIndividualCurves = false;
+    else this.isIndividualCurves = true;
    for(int i=0; i<numERFs; ++i) {
      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-     while(isIndividualCurves);
+      if(this.progressCheckBox.isSelected()) while(isIndividualCurves);
      // intialize the hazard function
      initX_Values(hazFunction);
      try {
@@ -1058,7 +1062,10 @@ public class HazardCurveApplet extends JApplet
      }
      totalProbFuncs.add(hazFunction);
      this.isIndividualCurves = true;
-     //chartPanel.paintImmediately(chartPanel.getBounds());
+    if(!this.progressCheckBox.isSelected()) {
+      addGraphPanel();
+      chartPanel.paintImmediately(chartPanel.getBounds());
+    }
    }
 
 

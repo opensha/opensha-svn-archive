@@ -183,7 +183,7 @@ public class HazardCurveCalculator {
     else
       for(i=0;i<numPoints;++i)
         hazFunction.set(i,0.0);
-
+    --numForecasts;
     if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
 
   }
@@ -198,7 +198,7 @@ public class HazardCurveCalculator {
   }
 
   public boolean done() {
-    return (currRuptures==totRuptures && (--numForecasts==0));
+    return (currRuptures==totRuptures && (numForecasts==0));
   }
 
 
