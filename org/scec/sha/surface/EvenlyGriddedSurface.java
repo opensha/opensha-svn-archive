@@ -87,8 +87,8 @@ public class EvenlyGriddedSurface extends GriddedSurface {
                                                    double subSurfaceWidth,
                                                    double subSurfaceOffset,
                                                    int n) {
-       return getNthSubsetSurface((int)Math.rint(subSurfaceLength/gridSpacing),
-                                  (int)Math.rint(subSurfaceWidth/gridSpacing),
+       return getNthSubsetSurface((int)Math.rint(subSurfaceLength/gridSpacing+1),
+                                  (int)Math.rint(subSurfaceWidth/gridSpacing+1),
                                   (int)Math.rint(subSurfaceOffset/gridSpacing),
                                   n);
     }
@@ -150,8 +150,8 @@ public class EvenlyGriddedSurface extends GriddedSurface {
                                               double subSurfaceWidth,
                                               double subSurfaceOffset) {
 
-       return getSubsetSurfacesIterator((int)Math.rint(subSurfaceLength/gridSpacing),
-                                        (int)Math.rint(subSurfaceWidth/gridSpacing),
+       return getSubsetSurfacesIterator((int)Math.rint(subSurfaceLength/gridSpacing+1),
+                                        (int)Math.rint(subSurfaceWidth/gridSpacing+1),
                                         (int)Math.rint(subSurfaceOffset/gridSpacing));
 
     }
@@ -165,8 +165,8 @@ public class EvenlyGriddedSurface extends GriddedSurface {
      * @return total number of subSurface along the fault
      */
     public int getNumSubsetSurfaces(double subSurfaceLength,double subSurfaceWidth,double subSurfaceOffset){
-      int lengthCols =  (int)Math.rint(subSurfaceLength/gridSpacing);
-      int widthCols =    (int)Math.rint(subSurfaceWidth/gridSpacing);
+      int lengthCols =  (int)Math.rint(subSurfaceLength/gridSpacing+1);
+      int widthCols =    (int)Math.rint(subSurfaceWidth/gridSpacing+1);
       int offsetCols =   (int)Math.rint(subSurfaceOffset/gridSpacing);
       int totalSubSurfaces =1;
       // number of subSurfaces along the length of fault

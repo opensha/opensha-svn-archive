@@ -25,7 +25,7 @@ import org.scec.sha.earthquake.*;
 public class HazardCurveCalculator {
 
   protected final static String C = "HazardCurveCalculator";
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
 
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site

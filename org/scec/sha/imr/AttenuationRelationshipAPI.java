@@ -90,6 +90,21 @@ public interface AttenuationRelationshipAPI
 
 
     /**
+     *  This calculates the probability that the supplied intensity-measure level
+     *  will be exceeded given the mean and stdDev computed from current independent
+     *  parameter values.  Note that the answer is not stored in the internally held
+     *  exceedProbParam (this latter param is used only for the
+     *  getIML_AtExceedProb() method).
+     *
+     * @return                         The exceedProbability value
+     * @exception  ParameterException  Description of the Exception
+     * @exception  IMRException        Description of the Exception
+     */
+    public double getExceedProbability(double iml);
+
+
+
+    /**
      *  Returns a handle to the component parameter.
      *
      * @return    The componentParameter value

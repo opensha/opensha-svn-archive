@@ -564,6 +564,29 @@ public abstract class AttenuationRelationship
         return getExceedProbability(mean, stdDev, iml);
     }
 
+    /**
+     *  This calculates the probability that the supplied intensity-measure level
+     *  will be exceeded given the mean and stdDev computed from current independent
+     *  parameter values.  Note that the answer is not stored in the internally held
+     *  exceedProbParam (this latter param is used only for the
+     *  getIML_AtExceedProb() method).
+     *
+     * @return                         The exceedProbability value
+     * @exception  ParameterException  Description of the Exception
+     * @exception  IMRException        Description of the Exception
+     */
+    public double getExceedProbability(double iml) throws ParameterException, IMRException {
+
+        // set the im parameter in order to verify that it's a permitted value
+        im.setValue(new Double(iml));
+
+        // Calculate the standardized random variable
+        double stdDev = getStdDev();
+        double mean = getMean();
+
+        return getExceedProbability(mean, stdDev, iml);
+    }
+
 
 
     protected double getExceedProbability(double mean, double stdDev, double iml)
