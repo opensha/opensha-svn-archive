@@ -19,9 +19,9 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
  */
 public class RemoteFrankel02ERF_Client extends RemoteERF_Client {
 
-  public RemoteFrankel02ERF_Client() throws Exception {
-    className = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-    getRemoteERF();
+  public RemoteFrankel02ERF_Client() {
+    String className = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
+    getRemoteERF(className);
   }
 
 }

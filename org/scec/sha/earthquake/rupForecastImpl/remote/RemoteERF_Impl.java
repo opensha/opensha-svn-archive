@@ -20,7 +20,7 @@ import org.scec.sha.earthquake.EqkRupForecast;
 
 /**
  *
- * <p>Title: ERFFrankel02ServerImpl.java </p>
+ * <p>Title: RemoteERF_Impl.java </p>
  * <p>Description: This class wraps the ERFs for remote access </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>

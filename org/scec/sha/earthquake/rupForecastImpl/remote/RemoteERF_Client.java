@@ -30,12 +30,11 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.*;
 public abstract class RemoteERF_Client extends EqkRupForecast implements ParameterChangeListener {
 
   private RemoteERF_API erfServer = null;
-  protected String className = null;
 
   /**
    * Get the reference to the remote ERF
    */
-  protected void getRemoteERF() {
+  protected void getRemoteERF(String className) {
     try {
       RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(RegisterRemoteERF_Factory.registrationName);
       erfServer = remoteERF_Factory.getRemoteERF(className);
