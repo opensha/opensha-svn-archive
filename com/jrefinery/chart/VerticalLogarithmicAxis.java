@@ -71,7 +71,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
      /** A flag indicating whether or not the axis label is drawn vertically. */
     protected boolean verticalLabel;
     public static final double LOG10_VALUE = Math.log(10);
-
+    private int lowest=-20; // lowest power of ten allowed
     private int counter=0;
     /**
      * Constructs a vertical number axis, using default values where necessary.
@@ -390,55 +390,6 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
 
             double lower = r.getLowerBound();
             double upper = r.getUpperBound();
-            //double range = upper-lower;
-           // System.out.println("vertical Logaxis:sutoadjustrange:lower::"+lower+",upper::"+upper);
-            // ensure the autorange is at least <minRange> in size...
-           /* double minRange = this.autoRangeMinimumSize.doubleValue();
-            if (range<minRange) {
-                upper = (upper+lower+minRange)/2;
-                lower = (upper+lower-minRange)/2;
-            }
-
-            if (this.autoRangeIncludesZero) {
-                if (this.autoRangeStickyZero) {
-                    if (upper<=0.0) {
-                        upper = 0.0;
-                    }
-                    else {
-                        upper = upper+upperMargin*range;
-                    }
-                    if (lower>=0.0) {
-                        lower = 0.0;
-                    }
-                    else {
-                        lower = lower-lowerMargin*range;
-                    }
-                }
-                else {
-                    upper = Math.max(0.0, upper+upperMargin*range);
-                    lower = Math.min(0.0, lower-lowerMargin*range);
-                }
-            }
-            else {
-                if (this.autoRangeStickyZero) {
-                    if (upper<=0.0) {
-                        upper = Math.min(0.0, upper+upperMargin*range);
-                    }
-                    else {
-                        upper = upper+upperMargin*range;
-                    }
-                    if (lower>=0.0) {
-                        lower = Math.max(0.0, lower-lowerMargin*range);
-                    }
-                    else {
-                        lower = lower-lowerMargin*range;
-                    }
-                }
-                else {
-                    upper = upper+upperMargin*range;
-                    lower = lower-lowerMargin*range;
-                }
-            }*/
 
             this.range = new Range(lower, upper);
         }
@@ -488,15 +439,26 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             Tick tick = (Tick)iterator.next();
             //float yy = (float)this.translateValueToJava2D(tick.getNumericalValue(), plotArea);
             float yy=(float)tick.getY() ;
-            if(tick.getNumericalValue()==range.getLowerBound())
-              yy=(float)plotArea.getMaxY();
-            else {
-              double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
-              yy = (float)this.myTranslateValueToJava2D(logval, plotArea);
-            }
+            double val=1;
+            int eIndex =tick.getText().indexOf("E");
+            if(tick.getText()!="" && eIndex==-1)
+               val=Double.parseDouble(tick.getText());
+            double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
+            yy = (float)this.myTranslateValueToJava2D(logval, plotArea);
+
+            if(isPowerOfTen(val)) // for major axis
+              g2.setFont(tickLabelFont);
+            else  // show minor axis in smaller font
+              g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()-2));
+
             if (tickLabelsVisible) {
                g2.setPaint(this.tickLabelPaint);
-               g2.drawString(tick.getText(), tick.getX(), tick.getY());
+               if(eIndex==-1)
+                 g2.drawString(tick.getText(), tick.getX(), tick.getY());
+               else { // show in superscript form
+                 g2.drawString("10", tick.getX(), tick.getY());
+                 g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+12,tick.getY()-6);
+               }
             }
             if (tickMarksVisible) {
                g2.setStroke(this.getTickMarkStroke());
@@ -626,7 +588,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
      * @param drawArea The area in which the plot and the axes should be drawn.
      * @param plotArea The area in which the plot should be drawn.
      */
-    public void refreshTicks(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea)throws java.lang.ArithmeticException {
+    public void refreshTicks(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea) {
 
 	this.ticks.clear();
         ++counter;
@@ -640,82 +602,111 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
 	int count = this.calculateVisibleTickCount();
 
 	double y0=plotArea.getMaxY();
-        float sum=0.1f;
-        int i=-20;
+        float sum=0.0f;
         if(counter==2)
-         this.tickUnit.formatter.setMaximumFractionDigits(4);
+           this.tickUnit.formatter.setMaximumFractionDigits(3);
+        boolean superscript=false;
 
+        // whether you want to show in superscript form or not
+        if(range.getLowerBound()<0.0001 || range.getUpperBound()>10000.0)
+          superscript=true;
 
+        // see whther there exists any major axis in data
+        double lower = range.getLowerBound();
+        double upper = range.getUpperBound();
+        for(int i=lowest;;++i) {
+          double val1=Math.pow(10,i);
+          double val2=Math.pow(10,i+1);
+          if(lower==val1 || upper==val1)
+            break;
+          if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
+            // no major axis exixts in dat so you have to add the major axis
+            this.setRange(val1,val2);
+            break;
+          }
+          if(lower < val2 && upper > val2) // we have found 1 major axis
+            break;
+        }
 
         /**
          * For Loop - Drawing the ticks which corresponds to the  power of 10
          */
-        for (i=-20; ; i++) {
+        for (int i=lowest; ; i++){
 	    for(int j=0;j<10;++j) {
               sum =j*(float)Math.pow(10,i);
               if(sum<range.getLowerBound())
-                 continue;
+                continue;
               if(sum>range.getUpperBound())
                 return;
-             double currentTickValue = sum;
+              double currentTickValue = sum;
               double val=currentTickValue;
               double logval;
               double yy;
-            if(sum==range.getLowerBound())
+              if(sum==range.getLowerBound())
                yy=plotArea.getMaxY();
-            else {
+              else {
                logval=Math.log(val)/LOG10_VALUE;
                 yy = this.myTranslateValueToJava2D(logval, plotArea);
-            }
-
-            if(sum<=0.0)
-               throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for Y-Log Plot");
-
-            String tickLabel = this.tickUnit.valueToString(currentTickValue);
-
-            /**
-             * to remove the extra zeros
-             */
-	    if(tickLabel.startsWith("0"))
-              tickLabel=tickLabel.substring(1);
-              int ticklength= tickLabel.length();
-            if(tickLabel.indexOf(".")!=-1) {
-            if(tickLabel.lastIndexOf("0")==ticklength-1)
-              for(int k= ticklength-1;;){
-                  tickLabel=tickLabel.substring(0,k);
-                  --k;
-                  if(k<0)
-                    break;
-                  if(tickLabel.charAt(k)=='0' || tickLabel.charAt(k)=='.')
-                    continue;
-                  else break;
               }
-            }
 
-	    Rectangle2D tickLabelBounds = tickLabelFont.getStringBounds(tickLabel,
+              if(sum<=0.0)
+                throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for Y-Log Plot");
+
+              String tickLabel = this.tickUnit.valueToString(currentTickValue);
+
+              if(j!=1) // for minor axis, just display 2 to 9
+                 tickLabel=this.tickUnit.valueToString(j);
+              else if(superscript) // whether you want to show in superscript format
+                tickLabel=new String("10E"+i);
+
+
+              /**
+               * to remove the extra zeros
+               */
+              if(tickLabel.startsWith("0")) // remove the starting ZERO
+                  tickLabel=tickLabel.substring(1);
+                int ticklength= tickLabel.length();
+
+                if(tickLabel.lastIndexOf("0")==ticklength-1) {
+                    for(int k= ticklength-1; tickLabel.indexOf(".")!=-1 ;){
+                      tickLabel=tickLabel.substring(0,k);
+                      --k;
+                      if(k<0)
+                        break;
+                      if(tickLabel.charAt(k)=='0' || tickLabel.charAt(k)=='.')
+                        continue;
+                      else
+                        break;
+                    }
+                  }
+
+
+
+              Rectangle2D tickLabelBounds = tickLabelFont.getStringBounds(tickLabel,
                                                                         g2.getFontRenderContext());
-	    float x = (float)(plotArea.getX()
+              float x = (float)(plotArea.getX()
                               -tickLabelBounds.getWidth()
                               -tickLabelInsets.left-tickLabelInsets.right);
-	    float y = (float)(yy+(tickLabelBounds.getHeight()/2));
+              float y = (float)(yy+(tickLabelBounds.getHeight()/2));
 
-           /**
+
+            /**
              * Code added to remove the overlapping of the tickLabels
              */
-            if(sum==range.getLowerBound())
-               y=(float)yy;
-            if(yy>plotArea.getMaxY())
-              continue;
-            if(yy<plotArea.getMinY())
-              return;
-            if(y>y0 && j!=1)
-              tickLabel="";
+              if(sum==range.getLowerBound())
+                y=(float)yy;
+              if(yy>plotArea.getMaxY())
+                continue;
+              if(yy<plotArea.getMinY())
+                return;
+              if(y>y0 && j!=1)
+                tickLabel="";
 
-            else {
-              if(y>y0 && j==1)
-                 removePreviousNine(i);
+              else {
+                if(y>y0 && j==1)
+                  removePreviousNine(i);
               y0=y-tickLabelBounds.getHeight()-0.25;
-            }
+              }
               Tick tick = new Tick(new Double(currentTickValue), tickLabel, x, y);
 	      ticks.add(tick);
 	}
@@ -737,6 +728,26 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
       }
     }
   }
+
+
+  /**
+   * checks to see whether num is a power of a ten or not
+   * returns true if number is a power of ten else returns false
+   * @param num
+   */
+  private boolean isPowerOfTen(double num) {
+     /*for(int i=lowest;;++i) {
+      double val=Math.pow(10,i);
+      if(val==num)
+        return true;
+      if(val>num)
+        return false;
+    }*/
+    if(num>=2 && num<=9)
+      return false;
+    return true;
+ }
+
 
     /**
      * Returns true if the specified plot is compatible with the axis, and false otherwise.

@@ -64,6 +64,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
                                                new DecimalFormat("0.00000");
 
     private int counter=0;
+    private int lowest=-20; // lowest power of ten allowed
     /**
      * Constructs a horizontal logarithmic axis, using default values where necessary.
      */
@@ -547,7 +548,30 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
           this.tickUnit.formatter.setMaximumFractionDigits(3);
 
 
-        i=-20;
+
+        boolean superscript=false;
+
+        // whether you want to show in superscript form or not
+        if(range.getLowerBound()<0.0001 || range.getUpperBound()>10000.0)
+          superscript=true;
+
+        // see whther there exists any major axis in data
+        double lower = range.getLowerBound();
+        double upper = range.getUpperBound();
+        for( i=lowest;;++i) {
+          double val1=Math.pow(10,i);
+          double val2=Math.pow(10,i+1);
+          if(lower==val1 || upper==val1)
+            break;
+          if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
+            // no major axis exixts in dat so you have to add the major axis
+            this.setRange(val1,val2);
+            break;
+          }
+          if(lower < val2 && upper > val2) // we have found 1 major axis
+            break;
+        }
+
 
 
          /**
@@ -580,15 +604,20 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
 
 	        String tickLabel = this.tickUnit.valueToString(currentTickValue);
+                if(j!=1) // for minor axis, just display 2 to 9
+                  tickLabel=this.tickUnit.valueToString(j);
+                else if(superscript) // whether you want to show in superscript format
+                  tickLabel=new String("10E"+i);
+
                /**
                 * to remove the extra zeros
                 */
-	        if(tickLabel.startsWith("0"))
+	        if(tickLabel.startsWith("0")) // remove the starting ZERO
                   tickLabel=tickLabel.substring(1);
                 int ticklength= tickLabel.length();
-                if(tickLabel.indexOf(".")!=-1) {
-                  if(tickLabel.lastIndexOf("0")==ticklength-1) {
-                    for(int k= ticklength-1;;){
+
+                if(tickLabel.lastIndexOf("0")==ticklength-1) {
+                    for(int k= ticklength-1; tickLabel.indexOf(".")!=-1 ;){
                       tickLabel=tickLabel.substring(0,k);
                       --k;
                       if(k<0)
@@ -599,8 +628,6 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
                         break;
                     }
                   }
-                }
-
 
             Rectangle2D tickLabelBounds = tickLabelFont.getStringBounds(tickLabel,
 									g2.getFontRenderContext());
@@ -643,6 +670,26 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
       }
 
     }
+
+
+
+    /**
+       * checks to see whether num is a power of a ten or not
+       * returns true if number is a power of ten else returns false
+       * @param num
+       */
+      private boolean isPowerOfTen(double num) {
+         /*for(int i=lowest;;++i) {
+          double val=Math.pow(10,i);
+          if(val==num)
+            return true;
+          if(val>num)
+            return false;
+        }*/
+        if(num>=2 && num<=9)
+          return false;
+        return true;
+ }
 
   /**
    * removes the prevois nine so that powers of 10 can be displayed
@@ -704,24 +751,34 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         while (iterator.hasNext()) {
             Tick tick = (Tick)iterator.next();
             float xx = (float)tick.getX();
-
-            if(tick.getNumericalValue()==range.getLowerBound())
-               xx = (float)plotArea.getMinX();
-            else {
-                double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
-	         xx = (float)this.myTranslateValueToJava2D(logval, plotArea);
-            }
-
+            double val=1;
+            int eIndex =tick.getText().indexOf("E");
+            if(tick.getText()!="" && eIndex==-1)
+              val=Double.parseDouble(tick.getText());
+            double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
+	    xx = (float)this.myTranslateValueToJava2D(logval, plotArea);
+            if(isPowerOfTen(val)) // for major axis
+              g2.setFont(tickLabelFont);
+            else  // show minor axis in smaller font
+              g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()-2));
             if (tickLabelsVisible) {
                 g2.setPaint(this.tickLabelPaint);
                 if (this.verticalTickLabels) {
                     RefineryUtilities.drawRotatedString(tick.getText(), g2,
                                                         tick.getX(), tick.getY(), -Math.PI/2);
+
                 }
                 else {
+                  if(eIndex==-1)
                     g2.drawString(tick.getText(), tick.getX(), tick.getY());
+                  else { // show in superscript form
+                            g2.drawString("10", tick.getX(), tick.getY());
+                            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+12,tick.getY()-6);
+                  }
                 }
             }
+
+
 
             if (tickMarksVisible) {
                 g2.setStroke(this.getTickMarkStroke());
