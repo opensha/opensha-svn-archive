@@ -877,9 +877,15 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     if (D) System.out.println("Vs30 is:"+vs30.doubleValue());
 
     // set the value in the list
-
     siteParamList.getParameter(this.VS30_STRING).setValue(new Double(vs30.doubleValue()));
 
+    // refresh the panel with the value
+    sitePanel.removeAll();
+    this.siteEditor = new ParameterListEditor(siteParamList, this, this);
+    siteEditor.setTitle(SITE_PARAMS);
+    sitePanel.add(siteEditor,BorderLayout.CENTER);
+    validate();
+    repaint();
 
    }catch (NumberFormatException ex) {
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
@@ -974,7 +980,11 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
               periodParam.setValue(new Double(period));
            }
           // pass the site object to each IMR
-          ((ClassicIMRAPI)imrObject.get(i)).setSite(site);
+          try {
+             ((ClassicIMRAPI)imrObject.get(i)).setSite(site);
+          } catch (Exception ex) {
+                 if(D) System.out.println(C + ":Param warning caught");
+          }
          }
        }
       // getye total sources
@@ -1168,6 +1178,12 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       repaint();
 
    }
+
+   /**
+    * this function is called when basin depth is to be fetched from the server
+    *
+    * @param e
+    */
   void jCheckBasin_actionPerformed(ActionEvent e) {
 
   }

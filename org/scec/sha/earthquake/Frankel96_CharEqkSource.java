@@ -45,6 +45,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
                                 EvenlyGriddedSurface surface) {
 
       probEqkRupture = new ProbEqkRupture();
+      this.rate  = rate;
       probEqkRupture.setAveRake(rake);
       probEqkRupture.setMag(mag);
       probEqkRupture.setRuptureSurface(surface);
@@ -113,7 +114,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
    * @param site
    * @return minimum distance
    */
-   public  double getMinDistance(Site site) {
+   public double getMinDistance(Site site) {
 
       double min;
       EvenlyGriddedSurface surface = (EvenlyGriddedSurface) probEqkRupture.getRuptureSurface();
