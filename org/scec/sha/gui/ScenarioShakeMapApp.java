@@ -448,7 +448,7 @@ public class ScenarioShakeMapApp extends JApplet implements
         return;
       }
       if(probAtIML)
-        siteValue.add(new Double(imr.getExceedProbability(imlProbValue)));
+        siteValue.add( new Double(Math.log((new Double(imr.getExceedProbability(Math.log(imlProbValue)))).doubleValue())));
       else{
         imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(imlProbValue));
         siteValue.add(new Double(imr.getIML_AtExceedProb()));
