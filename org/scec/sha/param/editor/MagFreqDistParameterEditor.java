@@ -69,6 +69,9 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     private StringConstraint sdFixOptions,  grSetAllButOptions, grFixOptions,
         ycSetAllButOptions, gdSetAllButOptions;
 
+    //keeps track if it has got the magdist parameter list and added listeners to it
+    //Also keeps track if we have already got the parameters options for the magdist parameters
+    private boolean addedListenersToParameters ;
 
 
     /**
@@ -212,19 +215,22 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          * get adjustable params from MagFreqDistParam and add listeners to them
          */
         parameterList = magDistParam.getAdjustableParams();
-        ListIterator it  = parameterList.getParametersIterator();
-        while(it.hasNext()){
-          ParameterAPI param = (ParameterAPI)it.next();
-          param.addParameterChangeFailListener(this);
-          param.addParameterChangeListener(this);
+        //do it if not done already ( allows the person to just do it once)
+        if(!addedListenersToParameters){
+          ListIterator it  = parameterList.getParametersIterator();
+          while(it.hasNext()){
+            ParameterAPI param = (ParameterAPI)it.next();
+            param.addParameterChangeFailListener(this);
+            param.addParameterChangeListener(this);
+          }
+          // String Constraints
+          sdFixOptions = magDistParam.getSingleDistFixOptions();
+          grSetAllButOptions = magDistParam.getGRSetAllButOptions();
+          grFixOptions = magDistParam.getGRFixOptions();
+          ycSetAllButOptions = magDistParam.getYCSetAllButOptions();
+          gdSetAllButOptions = magDistParam.getGaussianDistSetAllButOptions();
+          addedListenersToParameters = true;
         }
-        // String Constraints
-        sdFixOptions = magDistParam.getSingleDistFixOptions();
-        grSetAllButOptions = magDistParam.getGRSetAllButOptions();
-        grFixOptions = magDistParam.getGRFixOptions();
-        ycSetAllButOptions = magDistParam.getYCSetAllButOptions();
-        gdSetAllButOptions = magDistParam.getGaussianDistSetAllButOptions();
-
   }
 
 

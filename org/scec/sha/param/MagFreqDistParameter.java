@@ -111,6 +111,11 @@ public class MagFreqDistParameter
       ycSetAllButOptions, gdSetAllButOptions;
 
 
+  /**
+   * Make the parameter that lists the choice of distributions
+   * Add all the supported paramters based on the selected
+   */
+  private ParameterList parameterList = new ParameterList();
 
 
     /**
@@ -121,6 +126,8 @@ public class MagFreqDistParameter
      */
     public MagFreqDistParameter( String name ) {
         super( name, null, null, null );
+        //initialise the mag dist parameters
+        initAdjustableParams();
     }
 
 
@@ -136,6 +143,8 @@ public class MagFreqDistParameter
      */
     public MagFreqDistParameter( String name, ArrayList allowedMagDists ) throws ConstraintException {
         super( name, new MagFreqDistConstraint( allowedMagDists ), null, null );
+        //initialise the mag dist parameters
+        initAdjustableParams();
     }
 
 
@@ -149,6 +158,8 @@ public class MagFreqDistParameter
      */
     public MagFreqDistParameter( String name, MagFreqDistConstraint constraint ) throws ConstraintException {
         super( name, constraint, null, null );
+        //initialise the mag dist parameters
+        initAdjustableParams();
     }
 
 
@@ -161,6 +172,8 @@ public class MagFreqDistParameter
      */
     public MagFreqDistParameter( String name, IncrementalMagFreqDist value ) {
         super(name, null, null, value);
+        //initialise the mag dist parameters
+        initAdjustableParams();
     }
 
 
@@ -177,6 +190,8 @@ public class MagFreqDistParameter
     public MagFreqDistParameter( String name, ArrayList allowedMagDists, IncrementalMagFreqDist value )
                                 throws ConstraintException {
         super( name, new MagFreqDistConstraint( allowedMagDists ), null, value );
+        //initialise the mag dist parameters
+        initAdjustableParams();
     }
 
 
@@ -194,6 +209,8 @@ public class MagFreqDistParameter
     public MagFreqDistParameter( String name, MagFreqDistConstraint constraint,
                                 IncrementalMagFreqDist value ) throws ConstraintException {
         super( name, constraint, null, value );
+        //initialise the mag dist parameters
+        initAdjustableParams();
 
     }
 
@@ -310,15 +327,20 @@ public class MagFreqDistParameter
     }
 
     /**
-     * Return the adjustable params for the MagFreqDistParameter
      *
+     * @returns the adjustable parameterlist
+     */
+    public ParameterList getAdjustableParams(){
+      return parameterList;
+    }
+
+    /**
+     * Creates the adjustable params for the MagFreqDistParameter based on the
+     * selected distribution.
      * @return
      */
-    public ParameterList getAdjustableParams() {
-      /**
-        * Make the parameter that lists the choice of distributions
-        */
-       ParameterList parameterList = new ParameterList();
+    private void initAdjustableParams() {
+
        StringParameter distributionName =new StringParameter(DISTRIBUTION_NAME,getAllowedMagDists(),
            (String) getAllowedMagDists().get(0));
 
@@ -443,7 +465,6 @@ public class MagFreqDistParameter
         parameterList.addParameter(totCumRate);
         // now add params that present choice dependent on above choice
         parameterList.addParameter(fixParam);
-        return parameterList;
     }
 
 

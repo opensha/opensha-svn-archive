@@ -57,11 +57,11 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   // boolean for telling whether to show a progress bar
   boolean showProgressBar = true;
 
-  //Hashtable where keys corresponds to being as the keys and ParamList as their Values
-  private Hashtable paramListForAllERF=new Hashtable();
+  //HashMap where keys corresponds to being as the keys and ParamList as their Values
+  private HashMap paramListForAllERF=new HashMap();
 
-  //Hashtable where keys corresponds to being as the keys and timeSpan as their Values
-  private Hashtable timespanListForAllERF = new Hashtable();
+  //HashMap where keys corresponds to being as the keys and timeSpan as their Values
+  private HashMap timespanListForAllERF = new HashMap();
 
   //Hashtable where keys corresponds to the name of the forecast and value tell if any parameter
   //for that forecast has been changed
@@ -211,8 +211,9 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   public ForecastAPI getSelectedERF() {
 
     // update the mag dist param
-    if(this.getMagDistEditor()!=null)
-      this.updateMagDistParam();
+    this.updateMagDistParam();
+    //update the fault Parameter
+    updateFaultParam();
     //System.out.println("MagDist Value:"+this.getMagDistEditor().getParameter("Mag Dist").getValue().toString());
 
     CalcProgressBar progress= null;
@@ -309,6 +310,13 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     if(magEditor!=null)  magEditor.setMagDistFromParams();
   }
 
+  /**checks if the Fault Parameter Editor exists inside it ,
+   * if so then gets its Editor and calls the method to update the faultParams.
+   */
+  protected void updateFaultParam() {
+    SimpleFaultParameterEditor faultEditor = getSimpleFaultParamEditor();
+    if(faultEditor!=null)  faultEditor.getParameterEditorPanel().setEvenlyGriddedSurfaceFromParams();
+  }
 
   /**
    *  Shown when a Constraint error is thrown on a ParameterEditor

@@ -134,6 +134,8 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
    */
   public SimpleFaultParameter(String name) {
     super(name,null,null,null);
+    //initializing the simple fault parameter
+    initParamList();
   }
 
   /**
@@ -144,6 +146,8 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
    */
   public SimpleFaultParameter(String name, EvenlyGriddedSurface surface){
     super(name,null,null,surface);
+    //initializing the simple fault parameter
+    initParamList();
   }
 
 
@@ -221,7 +225,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
    * This is only few parameters that compose the SimpleFaultParameter, which is a complex
    * parameter comprising of other parameters too.
    */
-  public void initParamList(){
+  private void initParamList(){
 
     parameterList = new ParameterList();
     parameterList.addParameter(faultName);

@@ -190,7 +190,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    */
   private void initParamListAndEditor(){
 
-    surfaceParam.initParamList();
+    //surfaceParam.initParamList();
 
     ParameterList paramList = surfaceParam.getFaultTraceParamList();
     ListIterator it  = paramList.getParametersIterator();
