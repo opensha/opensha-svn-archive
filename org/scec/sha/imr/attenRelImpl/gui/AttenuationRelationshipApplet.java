@@ -715,10 +715,11 @@ public class AttenuationRelationshipApplet extends JApplet
      */
     private void addGraphPanel() {
 
-        graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,null,buttonControlPanel);
-        if( isWhite ) graphPanel.setPlotBackgroundColor(Color.white );
-        else graphPanel.setPlotBackgroundColor( Color.black );
-        togglePlot();
+      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,null,buttonControlPanel);
+      togglePlot();
+      if( isWhite ) graphPanel.setPlotBackgroundColor(Color.white );
+      else graphPanel.setPlotBackgroundColor( Color.black );
+
     }
 
     /**
@@ -1008,8 +1009,8 @@ public class AttenuationRelationshipApplet extends JApplet
           if( newGraph ){
             functionList.clear();
             attenRelsSelected.clear();
-            xAxisName = attenRel.getGraphIMYAxisLabel();
-            yAxisName = attenRel.getGraphXAxisLabel();
+            xAxisName = attenRel.getGraphXAxisLabel();
+            yAxisName =attenRel.getGraphIMYAxisLabel() ;
           }
 
           newGraph = false;
@@ -1086,12 +1087,12 @@ public class AttenuationRelationshipApplet extends JApplet
         else if( e.getSource().equals( plotColorCheckBox ) ){
 
           if( isWhite ) {
-            isWhite = true;
-            graphPanel.setPlotBackgroundColor(Color.white);
-          }
-          else{
             isWhite = false;
             graphPanel.setPlotBackgroundColor(Color.black);
+          }
+          else{
+            isWhite = true;
+            graphPanel.setPlotBackgroundColor(Color.white);
           }
         }
 

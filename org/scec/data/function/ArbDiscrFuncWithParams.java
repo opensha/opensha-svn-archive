@@ -172,15 +172,4 @@ public class ArbDiscrFuncWithParams
         return function.getParameterList().equals( this.list );
     }
 
-
-    /**
-     * Standard java function, usually used for debugging, prints out
-     * the state of the list, such as number of points, the value of each point, etc.
-     *
-     * Returns all the parameters associated with the function as one string with
-     * no new lines, of the format:<P>
-     * name = value, name2 = value2, etc.
-     */
-    public String toString(){ return this.list.toString(); }
-
 }
