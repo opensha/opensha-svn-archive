@@ -527,7 +527,14 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     timer = new javax.swing.Timer(100, new ActionListener() {
       public void actionPerformed(ActionEvent evt) {
         if(step==2) {
-          mapGuiBean.makeMap(xyzDataSet,getMapParametersInfo());
+          String label;
+          String imlOrProb=imlProbGuiBean.getSelectedOption();
+          if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
+            label="Prob";
+          else
+            label=imtGuiBean.getSelectedIMT();
+
+          mapGuiBean.makeMap(xyzDataSet,label,getMapParametersInfo());
           calcProgress.dispose();
           timer.stop();
         }

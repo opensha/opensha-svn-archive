@@ -255,7 +255,7 @@ public class GMT_MapGenerator implements Serializable{
    *
    * This returns the name of the jpg file
    */
-  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet){
+  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, String scaleLabel){
 
     // THESE SHOULD BE SET DYNAMICALLY
     // CURRENTLY HARD CODED FOR Ned and Nitin's Macs
@@ -264,7 +264,7 @@ public class GMT_MapGenerator implements Serializable{
     CONVERT_PATH="/sw/bin/convert";
 
     // The color scale label (will be an input param eventually)
-    SCALE_LABEL = "IML";
+    SCALE_LABEL = scaleLabel;
 
     counter += 1;
 
@@ -272,8 +272,11 @@ public class GMT_MapGenerator implements Serializable{
 
     this.xyzDataSet = xyzDataSet;
 
+    // take the log(z) values if necessary (and change label)
+    checkForLogPlot();
+
     // make the local XYZ data file
-    makeXYZ_File();
+    makeXYZ_File(XYZ_FILE_NAME);
 
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
@@ -297,7 +300,7 @@ public class GMT_MapGenerator implements Serializable{
    *
    * This returns the full web address to the resulting jpg file.
    */
-  public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet){
+  public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet, String scaleLabel){
 
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
@@ -305,9 +308,12 @@ public class GMT_MapGenerator implements Serializable{
     CONVERT_PATH="/usr/X11R6/bin/convert";
 
     // The color scale label (will be an input param eventually)
-    SCALE_LABEL = "IML";
+    SCALE_LABEL = scaleLabel;
 
     this.xyzDataSet = xyzDataSet;
+
+    // take the log(z) values if necessary (and change label)
+    checkForLogPlot();
 
     // check the xyz data set
     if(!xyzDataSet.checkXYZ_NumVals())
@@ -330,7 +336,7 @@ public class GMT_MapGenerator implements Serializable{
    *
    * This returns the full web address to the resulting jpg file.
    */
-  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet){
+  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, String scaleLabel){
 
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
@@ -338,12 +344,15 @@ public class GMT_MapGenerator implements Serializable{
     CONVERT_PATH="/usr/X11R6/bin/convert";
 
     // The color scale label (will be an input param eventually)
-    SCALE_LABEL = "IML";
+    SCALE_LABEL = scaleLabel;
 
     this.xyzDataSet = xyzDataSet;
 
+    // take the log(z) values if necessary (and change label)
+    checkForLogPlot();
+
     // make the local XYZ data file
-    makeXYZ_File();
+    makeXYZ_File(XYZ_FILE_NAME);
 
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
@@ -414,7 +423,7 @@ public class GMT_MapGenerator implements Serializable{
 
 
   // make the local XYZ file
-  private void makeXYZ_File() {
+  private void makeXYZ_File(String fileName) {
     Vector lines = new Vector();
     Vector xVals = xyzDataSet.getX_DataSet();
     Vector yVals = xyzDataSet.getY_DataSet();
@@ -428,7 +437,7 @@ public class GMT_MapGenerator implements Serializable{
     else
       throw new RuntimeException("X, Y and Z dataset does not have equal size");
 
-    makeFileFromLines(lines, XYZ_FILE_NAME);
+    makeFileFromLines(lines, fileName);
   }
 
 
@@ -578,7 +587,7 @@ public class GMT_MapGenerator implements Serializable{
    * @param xyzFileName name of the xyz file for which map will be generated
    * @return
    */
-  public void makeMapForCME(String xyzFileName, String psFileName, String jpgFileName) {
+  public void makeMapForCME(String xyzFileName, String psFileName, String jpgFileName, String scaleLabel) {
 
     XYZ_FILE_NAME = xyzFileName;
     PS_FILE_NAME = psFileName;
@@ -592,9 +601,21 @@ public class GMT_MapGenerator implements Serializable{
     CONVERT_PATH="/usr/X11R6/bin/convert";
 
     // The color scale label (will be an input param eventually)
-    SCALE_LABEL = "IML";
+    SCALE_LABEL = scaleLabel;
 
-    this.make_xyzDataSet(XYZ_FILE_NAME);
+    make_xyzDataSet(XYZ_FILE_NAME);
+
+    // take the log(z) values if necessary (and change label)
+    checkForLogPlot();
+
+    // save file locally if log-plot is desired
+    boolean logPlotCheck = ((Boolean)logPlot.getValue()).booleanValue();
+    if(logPlotCheck){
+      makeXYZ_File(DEFAULT_XYZ_FILE_NAME);
+      XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
+    }
+
+
 
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
@@ -845,17 +866,17 @@ public class GMT_MapGenerator implements Serializable{
   }
 
   /**
-   * Checks to see if map to be generated is using the log or linear values.
-   * If Log is selecetd then takes the log of the linear value, and gives
-   * a very small value if zero occurs.
+   * If log-plot has been chosen, this replaces the z-values in the xyzDataSet
+   * with the log (base 10) values.  Zero values are converted to 10e-16.
+   * This also wraps the SCALE_LABEL in "log(*)".
    * @param xyzVals
    */
-  public void logPlot(XYZ_DataSetAPI xyzVals){
+  private void checkForLogPlot(){
     //checks to see if the user wants Log Plot, if so then convert the zValues to the Log Space
     boolean logPlotCheck = ((Boolean)logPlot.getValue()).booleanValue();
     if(logPlotCheck){
       //Vector of the Original z Values in the linear space
-      Vector zLinearVals = xyzVals.getZ_DataSet();
+      Vector zLinearVals = xyzDataSet.getZ_DataSet();
       //Vector to add the Z Values as the Log space
       Vector zLogVals = new Vector();
       int size = zLinearVals.size();
@@ -866,13 +887,16 @@ public class GMT_MapGenerator implements Serializable{
         zLogVals.add(new Double(0.4343 * StrictMath.log(zVal)));
       }
       //setting the values in the XYZ Dataset.
-      xyzVals.setXYZ_DataSet(xyzVals.getX_DataSet(),xyzVals.getY_DataSet(),zLogVals);
+      xyzDataSet.setXYZ_DataSet(xyzDataSet.getX_DataSet(),xyzDataSet.getY_DataSet(),zLogVals);
+      SCALE_LABEL = "log"+SCALE_LABEL;
     }
   }
 
   /**
-   * Creates the file with the Map Parameters Info.
-   * @param mapInfo: MetaData for the Map.
+   * This simply saves the supplied string to an ascii file that is placed in the
+   * same directory where the image, gmt script, etc. are placed.  The name of the file is in
+   * the METADATA_FILE_NAME String.  This is simply a method for saving arbitrary
+   * metatdata associated with a map.
    */
   public void createMapInfoFile(String mapInfo){
     Vector mapInfoLines = new Vector();

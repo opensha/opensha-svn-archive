@@ -147,21 +147,19 @@ public class MapGuiBean extends ParameterListEditor implements
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeMap(XYZ_DataSetAPI xyzVals,String paramsInfo){
+  public void makeMap(XYZ_DataSetAPI xyzVals,String IMT,String paramsInfo){
 
-    //checking if log Plot has to be generated, if so then take the log of the z values in the data.
-    gmtMap.logPlot(xyzVals);
     boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
     //creating the Metadata file in the GMT_MapGenerator
     gmtMap.createMapInfoFile(paramsInfo);
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
-      imgName =gmtMap.makeMapUsingServlet(xyzVals);
+      imgName =gmtMap.makeMapUsingServlet(xyzVals,IMT);
       paramsInfo +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
     }
     else{
       try{
-        imgName = gmtMap.makeMapLocally(xyzVals);
+        imgName = gmtMap.makeMapLocally(xyzVals,IMT);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;
