@@ -52,6 +52,12 @@ public class Site_GuiBean extends JPanel implements
   //stores the basin depth from CVM
   double basinDepth ;
 
+  // min and max limits of lat and lin for which CVM can work
+  private static final double MIN_CVM_LAT = 32.0;
+  private static final double MAX_CVM_LAT = 36.0;
+  private static final double MIN_CVM_LON = -121.0;
+  private static final double MAX_CVM_LON = -114.0;
+
   // site translator
   SiteTranslator siteTranslator = new SiteTranslator();
 
@@ -309,8 +315,20 @@ public class Site_GuiBean extends JPanel implements
       Double lonMin = (Double)parameterList.getParameter(LONGITUDE).getValue();
       Double lonMax = new Double(lonMin.doubleValue());
       Double latMin = (Double)parameterList.getParameter(LATITUDE).getValue();
-
       Double latMax = new Double(latMin.doubleValue());
+      if(lonMin.doubleValue()<this.MIN_CVM_LON ||
+         lonMax.doubleValue()>this.MAX_CVM_LON ||
+         latMin.doubleValue()<this.MIN_CVM_LAT ||
+         latMax.doubleValue()>this.MAX_CVM_LAT) {
+
+        JOptionPane.showMessageDialog(this, "CVM can not get params for this site\n"+
+                                      "Constraints are:\n "+
+                                      MIN_CVM_LON+" < Longitude < "+MAX_CVM_LON +"\n"+
+                                      MIN_CVM_LAT+" < Latitude < "+MAX_CVM_LAT);
+        this.cvmCheckBox.setSelected(false);
+        return;
+      }
+
       Double gridSpacing = new Double(0.05);
 
       // if values in longitude and latitude are invalid
