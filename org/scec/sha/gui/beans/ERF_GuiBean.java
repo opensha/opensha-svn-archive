@@ -107,9 +107,13 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     * @param className
     * @return
     */
-   private String getERFName(String className) throws InvocationTargetException{
-     Object obj = this.createERFClassInstance(className);
-     return ((EqkRupForecastAPI)obj).getName();
+   private String getERFName(String className) {
+     try{
+       Object obj = this.createERFClassInstance(className);
+       return ((EqkRupForecastAPI)obj).getName();
+     }catch(Exception e){
+       return null;
+     }
    }
 
    /**
@@ -131,8 +135,11 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      Iterator it = erfClasses.iterator();
 
      //adding the names of all the ERF's to the erfNamesVector- Pick List for the ERF's
-     while(it.hasNext())
-     erfNamesVector.add(this.getERFName((String)it.next()));
+     while(it.hasNext()){
+       Object obj = getERFName((String)it.next());
+       if(obj !=null)
+         erfNamesVector.add(obj);
+     }
 
      Iterator it1 = eqkRupForecast.getAdjustableParamsIterator();
 
