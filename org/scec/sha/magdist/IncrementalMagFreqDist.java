@@ -263,40 +263,4 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
         for(int i=0;i<num;++i)
             super.set(i,scaleIncrRate*getIncrRate(i));
     }
-
-    /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GaussianMagFreqDist class and calling the set functions of this from outside
-   * @param point
-   * @throws MagFreqDistException
-   */
-  public void set(DataPoint2D point) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GaussianMagFreqDist from outside this class");
-  }
-
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GaussianMagFreqDist class and calling the set functions of this from outside
-   * @param x
-   * @param y
-   * @throws MagFreqDistException
-   */
-  public void set(double x,double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GaussianMagFreqDist from outside this class");
-  }
-
-  /**
-   * Throws the exception if the set functions are called from outside the class
-   * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GaussianMagFreqDist class and calling the set functions of this from outside
-   * @param index
-   * @param y
-   * @throws MagFreqDistException
-   */
-  public void set(int index,double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GaussianMagFreqDist from outside this class");
-  }
-
 }
