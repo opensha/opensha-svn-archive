@@ -8,19 +8,24 @@ import org.scec.data.*;
 import org.scec.calc.RelativeLocation;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.surface.*;
+import org.scec.sha.magdist.*;
 
 
 /**
  * <p>Title: SimpleFaultRuptureSource </p>
- * <p>Description: This implements a basic, non-Poissonian fault source for arbitrary: <p>
+ * <p>Description: This implements a basic fault source for arbitrary: <p>
  * <UL>
- * <LI>magnitude - the magnitude of the event
+ * <LI>magnitude (or magnitude-frequncy dist.)
  * <LI>ruptureSurface - any EvenlyDiscretizedSurface
  * <LI>rake - that rake (in degrees) assigned to all ruptures.
- * <LI>probability - the probabilisty of the source
+ * <LI>probability (or duration)
  * </UL><p>
- * Note that none of these input objects are saved internally (after construction) in
- * order to conserve memory (this is why there are no associated get/set methods for each).<p>
+ * If magnitude/probability are given the source is set as non poissonisn (and
+ * duration is meaningless); If a mag-freq-dist and duration is given than the source
+ * is assumed to be Poissonain. The entire surface ruptures for all cases (no floating
+ * of events)  Note that none of the input objects are saved internally
+ * (after construction) in order to conserve memory (this is why there
+ * are no associated get/set methods for each).<p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field
@@ -47,7 +52,7 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
   */
 
   /**
-   * Constructor.
+   * Constructor - this is for a single mag, non-poissonian rupture.
    * @param magnitude
    * @param ruptureSurface - any EvenlyGriddedSurface representation of the fault
    * @param rake - average rake of the ruptures
@@ -83,7 +88,51 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
 
   }
 
+  /**
+   * Constructor - this produces a separate rupture for each mag in the mag-freq-dist.
+   * This source is set as Poissonian.
+   * @param magnitude-frequency distribution
+   * @param ruptureSurface - any EvenlyGriddedSurface representation of the fault
+   * @param rake - average rake of the ruptures
+   * @param duration - the duration in years
+   */
+  public SimpleFaultRuptureSource(IncrementalMagFreqDist magDist,
+                                  EvenlyGriddedSurface ruptureSurface,
+                                  double rake,
+                                  double duration) {
 
+      this.isPoissonian = true;
+
+      if (D) {
+        System.out.println("surface rows, cols: "+ruptureSurface.getNumCols()+", "+ruptureSurface.getNumRows());
+        System.out.println("rake: "+rake);
+        System.out.println("duration: "+duration);
+      }
+
+      // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
+      makeFaultCornerLocs(ruptureSurface);
+
+      // make the rupture list
+      ruptureList = new Vector();
+      double mag;
+      double prob;
+
+      // Make the ruptures
+      for(int i=0;i<magDist.getNum();++i){
+        mag = magDist.getX(i);
+        // make sure it has a non-zero rate
+        if(magDist.getY(i) > 0) {
+          prob = 1 - Math.exp(-duration*magDist.getY(i));
+          probEqkRupture = new ProbEqkRupture();
+          probEqkRupture.setAveRake(rake);
+          probEqkRupture.setRuptureSurface(ruptureSurface);
+          probEqkRupture.setMag(mag);
+          probEqkRupture.setProbability(prob);
+          ruptureList.add(probEqkRupture);
+        }
+      }
+
+  }
 
   /**
    * @return the total num of rutures for all magnitudes

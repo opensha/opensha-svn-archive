@@ -8,6 +8,7 @@ import org.scec.param.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.param.*;
 import org.scec.param.event.*;
+import org.scec.sha.magdist.*;
 import org.scec.sha.param.SimpleFaultParameter;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
@@ -15,16 +16,15 @@ import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
 
 /**
  * <p>Title: SimpleFaultRuptureERF</p>
- * <p>Description: This ERF creates a single SimpleFaultRuptureSource for the following
- * user-defined parameters:  </p>
+ * <p>Description: This ERF creates a single SimpleFaultRuptureSource (full fault rupture)
+ * for the following user-defined parameters:  </p>
  * <UL>
- * <LI>magnitude - the magnitude of the event
+ * <LI>mag-freq-dist
  * <LI>ruptureSurface - any EvenlyDiscretizedSurface
  * <LI>rake - that rake (in degrees) assigned to all ruptures.
  * <LI>timeSpan - the duration of the forecast (in same units as in the magFreqDist)
- * <LI>probability - the probability of the event
  * </UL><p>
- * The timeSpan has absolutely no effect on anything because the probability is set by hand.
+ * The source is Poissonain, and the timeSpan is in years.
  * @author Ned Field
  * Date : Jan , 2004
  * @version 1.0
@@ -44,18 +44,7 @@ public class SimpleFaultRuptureERF extends EqkRupForecast
   private SimpleFaultRuptureSource source;
 
   //mag-freq dist parameter Name
-  public final static String MAGNITUDE_PARAM_NAME = "Magnitude";
-  private final static String MAGNITUDE_PARAM_INFO = "Moment-magnitude of the source";
-  private final static double MAGNITUDE_PARAM_MIN = 1.0;
-  private final static double MAGNITUDE_PARAM_MAX = 10.0;
-  private final static Double MAGNITUDE_PARAM_DEFAULT = new Double(7.0);
-
-  //mag-freq dist parameter Name
-  public final static String PROB_PARAM_NAME = "Probability";
-  private final static String PROB_PARAM_INFO = "Probability for the source";
-  private final static double PROB_PARAM_MIN = Double.MIN_VALUE;
-  private final static double PROB_PARAM_MAX = 1.0;
-  private final static Double PROB_PARAM_DEFAULT = new Double(1.0);
+  public final static String MAG_DIST_PARAM_NAME = "Mag Freq Dist";
 
   // fault parameter name
   public final static String FAULT_PARAM_NAME = "Fault Parameter";
@@ -69,8 +58,7 @@ public class SimpleFaultRuptureERF extends EqkRupForecast
   private Double RAKE_PARAM_DEFAULT = new Double(0.0);
 
   // parameter declarations
-  DoubleParameter magParam;
-  DoubleParameter probParam;
+  MagFreqDistParameter magDistParam;
   SimpleFaultParameter faultParam;
   DoubleParameter rakeParam;
 
@@ -84,13 +72,11 @@ public class SimpleFaultRuptureERF extends EqkRupForecast
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
-    // make the magnitude parameter
-    magParam = new DoubleParameter(MAGNITUDE_PARAM_NAME,MAGNITUDE_PARAM_MIN,MAGNITUDE_PARAM_MAX,MAGNITUDE_PARAM_DEFAULT);
-    magParam.setInfo(this.MAGNITUDE_PARAM_INFO);
-
-    // make the probability parameter
-    probParam = new DoubleParameter(PROB_PARAM_NAME,PROB_PARAM_MIN,PROB_PARAM_MAX,PROB_PARAM_DEFAULT);
-    probParam.setInfo(this.PROB_PARAM_INFO);
+    // make the magFreqDistParameter
+    Vector supportedMagDists=new Vector();
+    supportedMagDists.add(GaussianMagFreqDist.NAME);
+    supportedMagDists.add(SingleMagFreqDist.NAME);
+    magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
 
     // make the fault parameter
     faultParam = new SimpleFaultParameter(FAULT_PARAM_NAME);
@@ -101,16 +87,14 @@ public class SimpleFaultRuptureERF extends EqkRupForecast
     rakeParam.setInfo(RAKE_PARAM_INFO);
 
     // add the adjustable parameters to the list
-    adjustableParams.addParameter(magParam);
-    adjustableParams.addParameter(probParam);
     adjustableParams.addParameter(rakeParam);
     adjustableParams.addParameter(faultParam);
+    adjustableParams.addParameter(magDistParam);
 
     // register the parameters that need to be listened to
-    magParam.addParameterChangeListener(this);
-    probParam.addParameterChangeListener(this);
     rakeParam.addParameterChangeListener(this);
     faultParam.addParameterChangeListener(this);
+    magDistParam.addParameterChangeListener(this);
   }
 
 
@@ -132,14 +116,10 @@ public class SimpleFaultRuptureERF extends EqkRupForecast
 
      if(parameterChangeFlag) {
 
-       // get the mag & prob
-       double mag = ((Double) magParam.getValue()).doubleValue();
-       double prob = ((Double) probParam.getValue()).doubleValue();
-       if (D) System.out.println(S+":  mag="+mag+"; prob="+prob);
-
-
-       source = new SimpleFaultRuptureSource(mag, (EvenlyGriddedSurface) faultParam.getValue(),
-                                             ((Double)rakeParam.getValue()).doubleValue(), prob);
+       source = new SimpleFaultRuptureSource((IncrementalMagFreqDist) magDistParam.getValue(),
+                                             (EvenlyGriddedSurface) faultParam.getValue(),
+                                             ((Double)rakeParam.getValue()).doubleValue(),
+                                             timeSpan.getDuration());
        parameterChangeFlag = false;
      }
 
