@@ -215,7 +215,7 @@ public class SCEMY_1997_AttenRel
         );
 
         StringBuffer key = new StringBuffer( im.getName() );
-        if( im.getName() == SA_NAME ) key.append( "/" + periodParam.getValue() );
+        if( im.getName().equalsIgnoreCase( SA_NAME) ) key.append( "/" + periodParam.getValue() );
         if( coefficients.containsKey( key.toString() ) ) coeff = ( SCEMY_1997_AttenRelCoefficients )coefficients.get( key.toString() );
         else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );
     }

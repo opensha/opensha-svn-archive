@@ -304,7 +304,7 @@ public class Abrahamson_2000_AttenRel
         );
 
         StringBuffer key = new StringBuffer( im.getName() );
-        if( im.getName() == SA_NAME ) key.append( "/" + periodParam.getValue() );
+        if( im.getName().equalsIgnoreCase( SA_NAME) ) key.append( "/" + periodParam.getValue() );
 
         // so far only the horizontal coeffs case
         a2 = 0.909;

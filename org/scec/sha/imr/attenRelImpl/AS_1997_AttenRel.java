@@ -396,8 +396,7 @@ public class AS_1997_AttenRel
         );
 
         StringBuffer key = new StringBuffer( im.getName() );
-        if( im.getName() == SA_NAME ) key.append( "/" + periodParam.getValue() );
-
+        if( im.getName().equalsIgnoreCase(SA_NAME )) key.append( "/" + periodParam.getValue() );
         // Get component-dependent coefficients
         if ( componentParam.getValue().toString().equals( COMPONENT_AVE_HORZ ) ) {
             // these are the same for all periods
@@ -405,7 +404,6 @@ public class AS_1997_AttenRel
 
             // now get the period dependent coeffs
             coeff = ( AS_1997_AttenRelCoefficients )horzCoeffs.get( key.toString() );
-
 // Above replaces the following because I don't think the test is needed (can never be violated)
 //            if( horzCoeffs.containsKey( key.toString() ) ) coeff = ( AS_1997_AttenRelCoefficients )horzCoeffs.get( key.toString() );
 //            else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );

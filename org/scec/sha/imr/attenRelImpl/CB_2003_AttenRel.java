@@ -303,7 +303,7 @@ public class CB_2003_AttenRel
         );
 
         StringBuffer key = new StringBuffer( im.getName() );
-        if( im.getName() == SA_NAME ) key.append( "/" + periodParam.getValue() );
+        if( im.getName().equalsIgnoreCase( SA_NAME) ) key.append( "/" + periodParam.getValue() );
 
         // Set coefficients depending on component:
         if ( componentParam.getValue().toString().equals( COMPONENT_AVE_HORZ ) ) {

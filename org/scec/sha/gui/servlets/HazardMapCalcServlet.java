@@ -74,17 +74,17 @@ public class HazardMapCalcServlet extends HttpServlet {
       */
      String mapParametersInfo = (String) inputFromApplet.readObject();
 
-     // now run the calculation
-     HazardMapCalculator calc = new HazardMapCalculator();
-     calc.getHazardMapCurves(condProbFunc, hazFunc, sites, imr,
-                             eqkRupForecast, mapParametersInfo );
-
-
      // report to the user whether the operation was successful or not
      // get an ouput stream from the applet
      ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
      outputToApplet.writeObject(new String("Success"));
      outputToApplet.close();
+
+     // now run the calculation
+     HazardMapCalculator calc = new HazardMapCalculator();
+     calc.getHazardMapCurves(condProbFunc, hazFunc, sites, imr,
+                             eqkRupForecast, mapParametersInfo );
+
    } catch (Exception e) {
      // report to the user whether the operation was successful or not
      e.printStackTrace();

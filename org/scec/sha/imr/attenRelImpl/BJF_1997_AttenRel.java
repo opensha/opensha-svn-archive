@@ -226,7 +226,7 @@ public class BJF_1997_AttenRel
         else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );
 */
         StringBuffer key = new StringBuffer( im.getName() );
-        if( im.getName() == SA_NAME ) key.append( "/" + periodParam.getValue() );
+        if( im.getName().equalsIgnoreCase(SA_NAME) ) key.append( "/" + periodParam.getValue() );
         if( coefficients.containsKey( key.toString() ) ) coeff = ( BJF_1997_AttenRelCoefficients )coefficients.get( key.toString() );
         else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );
     }
