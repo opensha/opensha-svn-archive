@@ -87,6 +87,7 @@ public class MagFreqDistTesterApplet extends JApplet
    com.jrefinery.chart.NumberAxis incrXAxis = null;
    com.jrefinery.chart.NumberAxis cumXAxis = null;
    com.jrefinery.chart.NumberAxis moXAxis = null;
+   private Double AUTO_RANGE_MINIMUM_SIZE = new Double(1e-100);
 
   //Create the y-axis - either normal or log
    com.jrefinery.chart.NumberAxis incrYAxis = null;
@@ -905,6 +906,8 @@ public class MagFreqDistTesterApplet extends JApplet
         incrYAxis.setStandardTickUnits(units);
         incrYAxis.setAutoRangeIncludesZero(false);
         incrYAxis.setAutoRangeStickyZero(true);
+        incrYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
+
 
         // set properties for mag vs incremental rate Y- axis
         cumYAxis.setAutoRangeIncludesZero( true );
@@ -913,6 +916,7 @@ public class MagFreqDistTesterApplet extends JApplet
         cumYAxis.setStandardTickUnits(units);
         cumYAxis.setAutoRangeIncludesZero(false);
         cumYAxis.setAutoRangeStickyZero(true);
+        cumYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
 
         // set properties for mag vs incremental rate Y- axis
         moYAxis.setAutoRangeIncludesZero( true );
@@ -921,6 +925,7 @@ public class MagFreqDistTesterApplet extends JApplet
         moYAxis.setStandardTickUnits(units);
         moYAxis.setAutoRangeIncludesZero(false);
         moYAxis.setAutoRangeStickyZero(true);
+        moYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
 
 
         int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
