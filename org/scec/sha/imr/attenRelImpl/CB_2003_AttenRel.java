@@ -383,6 +383,12 @@ public class CB_2003_AttenRel
         }
 
 
+        // throw exception if user has chosen vertical component and site type SITE_TYPE_NEHRP_BC
+        if ( componentParam.getValue().toString().equals( COMPONENT_VERT ) && siteType.equals(SITE_TYPE_NEHRP_BC) )
+               throw new RuntimeException(SITE_TYPE_NEHRP_BC +" site type is not supported "+
+               "for the vertical component. Please choose a different site type.");
+
+
         // Set fault type
         if ( fltType.equals( FLT_TYPE_REVERSE ) ) {
             F_rv = 1;
@@ -456,6 +462,14 @@ public class CB_2003_AttenRel
 
         double mag;
         String stdevType = stdDevTypeParam.getValue().toString();
+
+
+        // throw exception if user has chosen vertical component and site type SITE_TYPE_NEHRP_BC
+        if ( componentParam.getValue().toString().equals( COMPONENT_VERT ) &&
+             siteTypeParam.getValue().toString().equals(SITE_TYPE_NEHRP_BC) )
+                  throw new RuntimeException(SITE_TYPE_NEHRP_BC +" site type is not supported "+
+                  "for the vertical component. Please choose a different site type.");
+
 
         if ( stdevType.equals( STD_DEV_TYPE_NONE ) )
             return 0;
