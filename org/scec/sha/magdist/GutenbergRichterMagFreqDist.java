@@ -1,6 +1,7 @@
 package org.scec.sha.magdist;
 
 import org.scec.exceptions.*;
+import org.scec.data.function.*;
 import org.scec.data.DataPoint2D;
 
 
@@ -312,5 +313,19 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     return ("bValue="+bValue+";magLower="+magLower+";magUpper="+magUpper +
         ";totMoRate="+ (float) this.getTotalMomentRate()+";totCumRate="+ (float) getCumRate(magLower));
   }
+
+  /** Returns a rcopy of this and all points in this GutenbergRichter */
+public DiscretizedFuncAPI deepClone(){
+
+    GutenbergRichterMagFreqDist f = new GutenbergRichterMagFreqDist(minX, num, delta);
+    f.setAllButTotMoRate(this.magLower, this.magUpper, this.getTotCumRate(), this.bValue);
+    f.tolerance = tolerance;
+    f.setInfo(this.getInfo());
+    f.setName(this.getName());
+    for(int i = 0; i<num; i++)
+        f.set(i, points[i]);
+
+    return f;
+   }
 
 }
