@@ -259,7 +259,7 @@ public class Campbell_1997_IMR
     protected void setPropagationEffectParams(){
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
-            distanceSeisParam.getValue( probEqkRupture, site );
+            distanceSeisParam.setValue( probEqkRupture, site );
         }
 
     }

@@ -75,6 +75,12 @@ public abstract class PropagationEffectParameter
         return this.value;
     }
 
+    public void setValue(ProbEqkRupture probEqkRupture, Site site){
+        this.probEqkRupture = probEqkRupture;
+        this.site = site;
+        calcValueFromSiteAndPE();
+    }
+
     /** The ProbEqkRupture and Site must have already been set */
     public Object getValue(){ return this.value; }
 

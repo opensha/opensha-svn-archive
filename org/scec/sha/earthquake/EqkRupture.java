@@ -133,8 +133,19 @@ public class EqkRupture {
 
 
 
-    public void setPointSurface(Location location){}
-    public void setPointSurface(Location location, double aveStrike, double aveDip){}
-    public void setPointSurface(PointSurface pointSurface){}
+    public void setPointSurface(Location location){
+        PointSurface ps = new PointSurface(location.getLatitude(), location.getLongitude(), location.getDepth());
+        setPointSurface(ps);
+    }
+    public void setPointSurface(Location location, double aveStrike, double aveDip){
+        setPointSurface(location);
+        ruptureSurface.setAveStrike(aveStrike);
+        ruptureSurface.setAveDip(aveDip);
+
+    }
+
+    public void setPointSurface(PointSurface pointSurface){
+        this.ruptureSurface = pointSurface;
+    }
 
 }

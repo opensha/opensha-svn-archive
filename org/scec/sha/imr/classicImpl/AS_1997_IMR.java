@@ -277,7 +277,7 @@ public class AS_1997_IMR
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 
-            distanceRupParam.getValue( probEqkRupture, site );
+            distanceRupParam.setValue( probEqkRupture, site );
 
             /* The following is a bit of a hack. It assumes the fault grid spacing
                is less than 1 km, and that points off the bottem end of the fault

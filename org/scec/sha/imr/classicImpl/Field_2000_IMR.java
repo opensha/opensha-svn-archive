@@ -218,7 +218,7 @@ public class Field_2000_IMR
     protected void setPropagationEffectParams(){
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
-            distanceJBParam.getValue( probEqkRupture, site );
+            distanceJBParam.setValue( probEqkRupture, site );
         }
     }
 

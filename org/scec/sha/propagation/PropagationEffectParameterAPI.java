@@ -23,6 +23,8 @@ public interface PropagationEffectParameterAPI {
     /** The Site must have already been set */
     public Object getValue(ProbEqkRupture probEqkRupture);
 
+    public void setValue(ProbEqkRupture probEqkRupture, Site site);
+
     /** The ProbEqkRupture and Site must have already been set */
     public Object getValue();
 

@@ -283,7 +283,7 @@ public class Abrahamson_2000_IMR
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 
-            distanceRupParam.getValue( probEqkRupture, site );
+            distanceRupParam.setValue( probEqkRupture, site );
 
 
             /*
