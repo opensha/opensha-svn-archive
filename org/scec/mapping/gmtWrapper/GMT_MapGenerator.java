@@ -783,6 +783,8 @@ public class GMT_MapGenerator implements Serializable{
     if( colorScaleMode.equals(COLOR_SCALE_MODE_MANUALLY) ) {
       colorScaleMin = ((Double) this.colorScaleMinParam.getValue()).doubleValue();
       colorScaleMax = ((Double) this.colorScaleMaxParam.getValue()).doubleValue();
+      if (colorScaleMin >= colorScaleMax)
+        throw new RuntimeException("Error: Color-Scale Min must be less than the Max");
     }
     else {
       colorScaleMin = xyzDataSet.getMinZ();
