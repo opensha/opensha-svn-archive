@@ -77,6 +77,10 @@ public class GroupTestGuiBean implements
     private final static String IMT_PARAM_NAME =  "IMT";
     private ParameterListEditor imtEditor = null;
     private ParameterList imtParamList = new ParameterList();
+    //stores the IMT Params for the choosen IMR
+    private Vector imtParam;
+
+
 
     // Site Gui Editor
     private ParameterListEditor siteEditor = null;
@@ -112,7 +116,7 @@ public class GroupTestGuiBean implements
 
 
   /*
-   * ***********************************************
+   * *********************************************
    * Hard Coded stuff for PEER test cases below
    */
 
@@ -431,73 +435,80 @@ public class GroupTestGuiBean implements
   /**
    *  Create a list of all the IMTs
    */
-  protected void init_imtParamListAndEditor() {
 
-    imtParamList = new ParameterList();
+   protected void init_imtParamListAndEditor() {
 
-    // get the selected IMR
-   String value = (String)imrParamList.getParameter(this.IMR_PARAM_NAME).getValue();
-
-
+     imtParamList = new ParameterList();
+     // get the selected IMR
+    String value = (String)imrParamList.getParameter(this.IMR_PARAM_NAME).getValue();
     //add all the supported IMT parameters
-    Vector imt = new Vector();
-    this.imt_IML_map = new HashMap();
-    int size = this.imrObject.size();
-    AttenuationRelationshipAPI imr;
-    Vector iml=new Vector();
+     int size = this.imrObject.size();
+     AttenuationRelationshipAPI imr;
 
+     //vector to store all the IMT's supported by an IMR
+     Vector imt=new Vector();
+     imtParam = new Vector();
 
     // loop over each IMR
-    for(int i=0; i < size ; ++i) {
-      imr = (AttenuationRelationshipAPI)imrObject.get(i);
+     for(int i=0; i < size ; ++i) {
+       imr = (AttenuationRelationshipAPI)imrObject.get(i);
+       // if this is not the selected IMR then continue
+       if(!imr.getName().equalsIgnoreCase(value))
+         continue;
+       Iterator it1 = imr.getSupportedIntensityMeasuresIterator();
 
-     // if this is not the selected IMR then continue
-     if(!imr.getName().equalsIgnoreCase(value))
-       continue;
+       //loop over each IMT and find IML
+        while ( it1.hasNext() ) {
+          DependentParameterAPI param = ( DependentParameterAPI ) it1.next();
+          StringParameter param1=new StringParameter(param.getName());
+          Vector imlParamsVector=new Vector();
 
-      Iterator it1 = imr.getSupportedIntensityMeasuresIterator();
-      //loop over each IMT and find IML
-      while ( it1.hasNext() ) {
-        DependentParameterAPI param = ( DependentParameterAPI ) it1.next();
-        imt.add(new String(param.getName()));
-        Vector imlParamsVector=new Vector();
-        // add all the independent parameters related to this IMT
-        ListIterator it2 = param.getIndependentParametersIterator();
-        if(D) System.out.println("IMT is:"+param.getName());
-        while ( it2.hasNext() ) {
-          iml = new Vector();
-          DependentParameterAPI param2 = ( DependentParameterAPI ) it2.next();
-          // fon not add SA damping in IMT
-          if(param2.getName().equalsIgnoreCase(AttenuationRelationship.DAMPING_NAME))
-            continue;
-          DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
-          ListIterator it3 = values.listIterator();
-          while(it3.hasNext())   // add all the periods relating to the SA
-            iml.add(it3.next().toString());
-          StringParameter imlParam = new StringParameter(param2.getName(),
-                                             iml, (String)iml.get(0));
-          imlParamsVector.add(imlParam);
+          // add all the independent parameters related to this IMT
+          ListIterator it2 = param.getIndependentParametersIterator();
+          if(D) System.out.println("IMT is:"+param.getName());
+          while ( it2.hasNext() ) {
+            Vector iml = new Vector();
+            ParameterAPI param2 = (ParameterAPI ) it2.next();
+            DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
+            ListIterator it3 = values.listIterator();
+            while(it3.hasNext())   // add all the periods relating to the SA
+              iml.add(it3.next().toString());
+            StringParameter independentParam = new StringParameter(param2.getName(),
+                                               iml, (String)iml.get(0));
+            param1.addIndependentParameter(independentParam);
+          }
+          imtParam.add(param1);
+          imt.add(param.getName());
         }
-        // mapping between this IMT and all IMLs supported by it
-        if(imlParamsVector.size() > 0)
-            imt_IML_map.put(param.getName(), imlParamsVector);
+        break;
       }
-      break;
-    }
 
-    // add the IMT paramter
-    StringParameter imtParameter = new StringParameter (IMT_PARAM_NAME,imt,
-                                                           (String)imt.get(0));
-    imtParameter.addParameterChangeListener(this);
-    imtParamList.addParameter(imtParameter);
+     // add the IMT paramter
+      StringParameter imtParameter = new StringParameter (IMT_PARAM_NAME,imt,
+                                                             (String)imt.get(0));
+      imtParameter.addParameterChangeListener(this);
+      imtParamList.addParameter(imtParameter);
 
-    // add all the IMLs to the current initialized IMT
-    updateIML((String)imt.get(0));
+     /* gets the iterator for each supported IMT and iterates over all its indepenedent
+      * parameters to add them to the common Vector to display in the IMT Panel
+      **/
 
-    // now make the editor based on the paramter list
-    imtEditor = new ParameterListEditor( imtParamList, searchPaths);
-    imtEditor.setTitle( "Select IMT" );
-  }
+     Iterator it=imtParam.iterator();
+
+     while(it.hasNext()){
+       Iterator it1=((DependentParameterAPI)it.next()).getIndependentParametersIterator();
+       while(it1.hasNext())
+         imtParamList.addParameter((ParameterAPI)it1.next());
+     }
+
+
+     // now make the editor based on the paramter list
+     imtEditor = new ParameterListEditor( imtParamList, searchPaths);
+     imtEditor.setTitle( "Select IMT" );
+     // add all the IMLs to the current initialized IMT
+     updateIML((String)imt.get(0));
+
+   }
 
 
    /**
@@ -741,32 +752,29 @@ public class GroupTestGuiBean implements
   }
 
   /**
-   * Update the IML based on the selected IMT
-   * @param imlName
+   * This function updates the IMTeditor with the independent parameters for the selected
+   * IMT, by making only those visible to the user.
+   * @param imlName : It is the name of the selected IMT, based on which we make
+   * its independentParameters visible.
    */
+
   private void updateIML(String imlName) {
-    // get the IML assocated with this IMT
-    Vector imlParams = (Vector)this.imt_IML_map.get(imlName);
-
-    StringParameter imtParam = (StringParameter)imtParamList.getParameter(this.IMT_PARAM_NAME);
-    // make the imt param list again
-    imtParamList = new ParameterList();
-    imtParamList.addParameter(imtParam);
-    // if there is IML associated with this IMT
-    if(imlParams!=null) {
-      int size = imlParams.size();
-
-      for(int i=0; i<size ; ++i) {
-        StringParameter param = ( StringParameter )imlParams.get(i);
-        if(D) System.out.println("i="+i+" param:"+param.getName());
-        if(!imtParamList.containsParameter(param))
-          imtParamList.addParameter(param);
+    Iterator it= imtParamList.getParametersIterator();
+    //making all the IMT parameters invisible
+    while(it.hasNext())
+      imtEditor.setParameterInvisible(((ParameterAPI)it.next()).getName(),false);
+      //making the Dependent parameter visible
+      imtEditor.setParameterInvisible(IMT_PARAM_NAME,true);
+      it=imtParam.iterator();
+      //for the selected IMT making its independent parameters visible
+      while(it.hasNext()){
+        DependentParameterAPI param=(DependentParameterAPI)it.next();
+        if(param.getName().equalsIgnoreCase(imlName)){
+          Iterator it1=param.getIndependentParametersIterator();
+        while(it1.hasNext())
+          imtEditor.setParameterInvisible(((ParameterAPI)it1.next()).getName(),true);
       }
     }
-    // now make the editor based on the paramter list
-    imtEditor = new ParameterListEditor( imtParamList, searchPaths);
-    imtEditor.setTitle( "Select IMT" );
-
   }
 
   /**
@@ -798,6 +806,11 @@ public class GroupTestGuiBean implements
     // get the selected IMT, if it is SA, get the period as well
     String imt = (String)this.imtParamList.getValue(this.IMT_PARAM_NAME);
 
+
+    //get the value of the selected IMT
+    String selectedImt=(String)imtParamList.getParameter(IMT_PARAM_NAME).getValue();
+
+
     // get the IMR names list
     int imrSize=this.imrNamesVector.size();
 
@@ -823,25 +836,17 @@ public class GroupTestGuiBean implements
           if(D) System.out.println("siteString:::"+site.toString());
           imr = (AttenuationRelationshipAPI)imrObject.get(i);
 
-          imr.setIntensityMeasure(imt);
-
-          //set all the independent parameters related to this IMT
-          ListIterator it = this.imtParamList.getParameterNamesIterator();
-          while(it.hasNext()) {
-            String name = (String)it.next();
-            if(name.equalsIgnoreCase(this.IMT_PARAM_NAME))
-              continue;
-            //set independent paramerts  for selected IMT in IMR
-            ParameterAPI param = imr.getParameter(name);
-            param.setValue(new Double((String)imtParamList.getValue(name)));
+          //set all the  parameters related to this IMT
+          Iterator it= imtParam.iterator();
+          while(it.hasNext()){
+            DependentParameterAPI param=(DependentParameterAPI)it.next();
+            if(param.getName().equalsIgnoreCase(selectedImt))
+              imr.setIntensityMeasure(param);
           }
-
-
           break;
         } catch (Exception ex) {
           if(D) System.out.println(C + ":Param warning caught"+ex);
           ex.printStackTrace();
-
         }
       }
     }

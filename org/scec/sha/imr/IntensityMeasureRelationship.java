@@ -172,10 +172,14 @@ public abstract class IntensityMeasureRelationship
     public void setIntensityMeasure( ParameterAPI intensityMeasure ) throws ParameterException, ConstraintException {
 
         if( isIntensityMeasureSupported( intensityMeasure ) ) {
-            im = supportedIMParams.getParameter( intensityMeasure.getName() );
-            im.setValue( intensityMeasure.getValue() );
+            setIntensityMeasure( intensityMeasure.getName() );
+            ListIterator it=((DependentParameterAPI)intensityMeasure).getIndependentParametersIterator();
+            while(it.hasNext()){
+              ParameterAPI param = (ParameterAPI)it.next();
+              getParameter(param.getName()).setValue(new Double((String)param.getValue()));
+            }
         }
-        else throw new ParameterException( C + ": setIntensityMeasure(): " + "This im is not supported, name = " + intensityMeasure.getName() );
+        else throw new ParameterException("This im is not supported, name = " + intensityMeasure.getName() );
     }
 
 
@@ -190,7 +194,7 @@ public abstract class IntensityMeasureRelationship
         if( supportedIMParams.containsParameter( intensityMeasureName ) ) {
             im = supportedIMParams.getParameter( intensityMeasureName );
         }
-        else throw new ParameterException( C + ": setIntensityMeasure(): " + "This im is not supported, name = " + intensityMeasureName );
+        else throw new ParameterException("This im is not supported, name = " + intensityMeasureName );
     }
 
 
@@ -205,11 +209,16 @@ public abstract class IntensityMeasureRelationship
     public boolean isIntensityMeasureSupported( ParameterAPI intensityMeasure ) {
 
         if ( supportedIMParams.containsParameter( intensityMeasure ) ) {
-            ParameterAPI param = supportedIMParams.getParameter( intensityMeasure.getName() );
-            if ( param.isAllowed( intensityMeasure.getValue() ) )
-                return true;
-            else
-                return false;
+         //   ParameterAPI param = supportedIMParams.getParameter( intensityMeasure.getName() );
+            ListIterator it=((DependentParameterAPI)intensityMeasure).getIndependentParametersIterator();
+            while(it.hasNext()){
+              ParameterAPI param = (ParameterAPI)it.next();
+              if(getParameter(param.getName()).isAllowed(new Double((String)param.getValue())))
+                 continue;
+               else
+                 return false;
+            }
+            return true;
         }
         else
             return false;
@@ -320,6 +329,7 @@ public abstract class IntensityMeasureRelationship
      */
     public ListIterator getSupportedIntensityMeasuresIterator() {
         return supportedIMParams.getParametersIterator();
+
     }
 }
 
