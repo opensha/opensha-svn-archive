@@ -8,15 +8,35 @@ For the SCEC-ITR CME:
 Implement retrieval of Primary Key in insert as a JDBC Transaction.
 
 Create Admin Page JSP that lists the following Selections
-  - Add/View/Delete Predicate Type
-  - Add/View/Delete Resource Type
-  - Add/View/Delete Predidate Instance
-  - Add/View/Delete Resource Instance
   - Add/View/Delete Predicate Inputs
   - Add/View/Delete Predicate Outputs
 
+Add "Admin Home Page" link to each JSP, including "Successfully did xxx" pages.
+
 Write JSP, FormBeans, Validation Methods, and Action Methods to 
   implement the Add/View/Delete Predicate Type pages.
+
+Add URI to URL Mapping to DB Table
+  - Create URI to URL Table DAO
+
+Create User Main Screen that says"
+  "Create Resource"
+  "View Resource"
+  "Status of Resource"
+
+Create "Construct Resource" Input Pages
+  - Create "Construct Gridded Region" Page.
+  - Create "Construct IMR" Page.
+  - Create "Construct ERM" Page.
+
+Create a SCEC-URI generator function.
+
+Create Form Beans, Action Methods to bring up HazardMapGenerator 
+  Computational Step page.
+
+Spike on "how can we specify a Predicate with a URL"
+
+Spike on "How can we run a long lasting program from an action method without blocking"
 
 
 For OpenSHA:
