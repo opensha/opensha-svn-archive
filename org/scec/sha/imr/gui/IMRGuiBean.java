@@ -123,6 +123,9 @@ public class IMRGuiBean
 
     IMRTesterApplet applet = null;
 
+    protected ArrayList translatedList = new ArrayList();
+    private boolean translateIMR = true;
+
     /**
      *  Constructor for the IMRGuiBean object. This constructor is passed in a
      *  IMR class name, a name for the Gui bean, and the main applet. From this
@@ -401,6 +404,7 @@ public class IMRGuiBean
 
     protected void setIgnoreWarnings(boolean ignoreWarning){
 
+        if( !translateIMR) return;
         ListIterator it = translatedList.listIterator();
         while(it.hasNext()){
             ((TranslatedWarningDoubleParameter)it.next()).setIgnoreWarning(ignoreWarning);
@@ -432,7 +436,7 @@ public class IMRGuiBean
 
 
         setIgnoreWarnings(true);
-        imr.setIntensityMeasure( imr.getParameter( getGraphControlsParamValue( IM ) ) );
+        imr.setIntensityMeasure( (ParameterAPI)imr.getParameter( getGraphControlsParamValue( IM ) ).clone() );
         setIgnoreWarnings(false);
 
         // Get choosen graph controls values
@@ -440,11 +444,9 @@ public class IMRGuiBean
         String xAxisName = getGraphControlsParamValue( X_AXIS );
 
         // Determine which Y=Axis choice to process
-        if ( !yAxisMap.containsKey( yAxisName ) )
-            throw new ConstraintException( S + "Invalid choice choosen for y-axis." );
+        if ( !yAxisMap.containsKey( yAxisName ) ) throw new ConstraintException( S + "Invalid choice choosen for y-axis." );
         int type = ( ( Integer ) yAxisMap.get( yAxisName ) ).intValue();
-        if ( D )
-            System.out.println( S + "Type = " + type );
+        if ( D ) System.out.println( S + "Type = " + type );
 
         // Get X-Axis parameter
         ParameterAPI xAxisParam = imr.getParameter( xAxisName );
@@ -458,6 +460,29 @@ public class IMRGuiBean
 
         // Clone the parameter list used to calculate this Discretized Function
         ParameterList clones = independentsEditor.getVisibleParametersCloned();
+
+
+        /**
+         * @todo FIX - Legend IMR translation done here.
+         * may be poor design, what if IMR types change to another type in future.
+         * Translated parameters should deal directly with ParameterAPI, not specific subclass
+         * types.
+         */
+        if( translateIMR){
+            ParameterAPI imrParam = (ParameterAPI)imr.getIntensityMeasure().clone();
+            if( imrParam instanceof WarningDoubleParameter){
+
+                WarningDoubleParameter warnParam = (WarningDoubleParameter)imrParam;
+                TranslatedWarningDoubleParameter transParam = new TranslatedWarningDoubleParameter(warnParam);
+                transParam.setTranslate(true);
+
+                if( clones.containsParameter(warnParam.getName()) ){
+                    clones.removeParameter( warnParam.getName() );
+                    clones.addParameter(transParam);
+                }
+
+            }
+        }
 
         // Needed if IM are not in independent parameter list
         //ParameterAPI clone = ( ParameterAPI ) imr.getIntensityMeasure().clone();
@@ -520,7 +545,7 @@ public class IMRGuiBean
                 // new period constraint value (SA and Period have same constraints. Then the SA
                 // will be passed into the IMR which will set the new coefficients because the SA period
                 // has been changed. Recall the coefficients are stored in a hash table "IM Name/Period" as the key
-                imr.setIntensityMeasure( imr.getParameter( getGraphControlsParamValue( IM ) ) );
+                imr.setIntensityMeasure( imr.getParameter( getGraphControlsParamValue( IM ) ));
 
                 DataPoint2D point = new DataPoint2D( val.doubleValue(), getCalculation( type ));
                 function.set( point );
@@ -602,7 +627,7 @@ public class IMRGuiBean
         double result =  0.0;
         switch ( type ) {
             case MEAN:
-                result = Math.pow(Math.E, imr.getMean());
+                result = Math.exp( imr.getMean() );
                 break;
             case EXCEED_PROB:
                 result = imr.getExceedProbability();
@@ -797,10 +822,8 @@ public class IMRGuiBean
 
         // Starting
         String S = C + ": initIndependentParamEditor(): ";
-        if ( D )
-            System.out.println( S + "Starting:" );
-        if ( imr == null )
-            throw new ParameterException( S + "Imr is null, unable to init independent parameters." );
+        if ( D ) System.out.println( S + "Starting:" );
+        if ( imr == null ) throw new ParameterException( S + "Imr is null, unable to init independent parameters." );
 
         // Initialize the parameter list
         independentParams = new ParameterList();
@@ -839,7 +862,7 @@ public class IMRGuiBean
             if ( !( independentParams.containsParameter( param.getName() ) ) ){
 
                 /** @todo Log Translated Params goes here */
-                if( param instanceof WarningDoubleParameter ){
+                if( translateIMR && ( param instanceof WarningDoubleParameter) ){
                     TranslatedWarningDoubleParameter transParam =
                         new TranslatedWarningDoubleParameter( (WarningDoubleParameter)param);
                     independentParams.addParameter( transParam );
@@ -879,7 +902,7 @@ public class IMRGuiBean
 
     }
 
-    protected ArrayList translatedList = new ArrayList();
+
 
 
     /**
@@ -1061,6 +1084,12 @@ public class IMRGuiBean
         }
         return xAxisConstraint;
 
+    }
+    public void setTranslateIMR(boolean translateIMR) {
+        this.translateIMR = translateIMR;
+    }
+    public boolean isTranslateIMR() {
+        return translateIMR;
     }
 
 

@@ -27,6 +27,11 @@ import org.scec.data.NamedObjectAPI;
 
 public abstract class DiscretizedFunc implements DiscretizedFuncAPI, NamedObjectAPI{
 
+
+    protected final static String C = "DiscretizedFunc";
+    protected final static boolean D = true;
+
+
     /**
      * The tolerance allowed in specifying a x-value near a real x-value,
      * so that the real x-value is used. Note that the tolerance must be smaller
@@ -116,6 +121,16 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI, NamedObject
      */
     public boolean equals(DiscretizedFuncAPI function){
         if( !getName().equals(function.getName() )  ) return false;
+
+
+
+        if( D ) {
+            String S = C + ": equals(): ";
+            System.out.println(S + "This info = " + getInfo() );
+            System.out.println(S + "New info = " + function.getInfo() );
+
+        }
+
         if( !getInfo().equals(function.getInfo() )  ) return false;
         return true;
     }

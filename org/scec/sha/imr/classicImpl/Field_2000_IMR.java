@@ -324,7 +324,7 @@ public class Field_2000_IMR
 
         // No longer part of out framework. Always deal with log space
         // Convert back to normal value
-        // mean = Math.pow(Math.E, mean);
+        // mean = Math.exp(mean);
 
 
         // return the result

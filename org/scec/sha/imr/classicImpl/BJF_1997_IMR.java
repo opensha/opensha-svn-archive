@@ -316,7 +316,7 @@ public class BJF_1997_IMR
 
         // No longer part of out framework. Always deal with log space
         // Convert back to normal value
-        // mean = Math.pow(Math.E, mean);
+        // mean = Math.exp(mean);
 
         /* convert to PSV for comparison with their figures (only for tests!):
         if ( coeff.period != 0.0 )

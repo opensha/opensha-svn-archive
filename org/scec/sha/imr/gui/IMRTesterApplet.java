@@ -39,26 +39,26 @@ import org.scec.param.event.*;
  * @version    1.0
  */
 
-public class IMRTesterApplet
-         extends JApplet
-         implements
+public class IMRTesterApplet extends JApplet
+    implements
         ParameterChangeFailListener,
         ParameterChangeWarningListener,
-        ItemListener {
+        ItemListener
+{
 
     protected final static String C = "IMRTesterApplet";
     protected final static boolean D = false;
 
-    private static int counter = 0;
+    protected static int counter = 0;
 
   /**
    * these four values save the custom axis scale specified by user
    */
-    private float minXValue;
-    private float maxXValue;
-    private float minYValue;
-    private float maxYValue;
-    private boolean customAxis=false;
+    protected float minXValue;
+    protected float maxXValue;
+    protected float minYValue;
+    protected float maxYValue;
+    protected boolean customAxis = false;
 
 
     protected Object lock = new Object();
@@ -1279,7 +1279,28 @@ public class IMRTesterApplet
         if ( D ) System.out.println( S + "Starting" );
         if ( D ) System.out.println( S + "Controls = " + this.imr.controlsEditor.getParameterList().toString() );
 
+        if( D && functions != null ){
+            ListIterator it = functions.listIterator();
+            while( it.hasNext() ){
+
+                DiscretizedFuncAPI func = (DiscretizedFuncAPI)it.next();
+                if ( D ) System.out.println( S + "Func info = " + func.getInfo() );
+
+            }
+        }
+
         DiscretizedFuncAPI function = imr.getChoosenFunction();
+        if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
+
+        if( D && functions != null ){
+            ListIterator it = functions.listIterator();
+            while( it.hasNext() ){
+
+                DiscretizedFuncAPI func = (DiscretizedFuncAPI)it.next();
+                if ( D ) System.out.println( S + "Func info = " + func.getInfo() );
+
+            }
+        }
 
         data.setXLog(xLog);
         data.setYLog(yLog);

@@ -21,6 +21,7 @@ public class LogTranslator implements TranslatorAPI {
     }
     public double reverse(double val)  throws TranslateException{
         //if( val < 0 ) throw new TranslateException("Cannot reverse log negative values from log space.");
-        return Math.pow(Math.E, val);
+        return Math.exp( val );
+
     }
 }

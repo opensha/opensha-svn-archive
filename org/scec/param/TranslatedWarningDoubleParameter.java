@@ -35,7 +35,7 @@ public class TranslatedWarningDoubleParameter
     /** Class name for debugging. */
     protected final static String C = "TranslatedWarningDoubleParameter";
     /** If true print out debug statements. */
-    protected final static boolean D = true;
+    protected final static boolean D = false;
 
 
     /**
@@ -380,7 +380,13 @@ public class TranslatedWarningDoubleParameter
      *
      * @return    Exact copy of this object's state
      */
-    public Object clone(){ return param.clone();}
+    public Object clone(){
+
+        TranslatedWarningDoubleParameter param1 = new TranslatedWarningDoubleParameter( (WarningDoubleParameter)param.clone() );
+        param1.setTranslate( this.translate );
+        return param1;
+
+    }
 
 
 

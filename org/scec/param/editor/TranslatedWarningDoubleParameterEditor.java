@@ -25,7 +25,7 @@ import org.scec.param.translate.*;
 public class TranslatedWarningDoubleParameterEditor extends ConstrainedDoubleParameterEditor {
 
     protected static final String C = "TranslatedWarningDoubleParameterEditor";
-    protected static final boolean D = true;
+    protected static final boolean D = false;
 
     public TranslatedWarningDoubleParameterEditor() { super(); }
 

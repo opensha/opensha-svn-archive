@@ -265,20 +265,18 @@ public abstract class ClassicIMR
     protected final static String SA_INFO = "Response Spectral Acceleration";
 
 
-    // protected TranslatedWarningDoubleParameter logTransSAParam = null;
-
 
     //protected final static Double SA_MIN = new Double(0);
     protected final static Double SA_MIN = new Double( -200 );
 
     // Math.log(4)
-    protected final static Double SA_MAX = new Double( 1.3862943611198907 );
+    protected final static Double SA_MAX = new Double( Math.log(4) );
 
     //protected final static Double SA_WARN_MIN = new Double(0);
     protected final static Double SA_WARN_MIN = new Double( -200 );
 
     // log( 2 )
-    protected final static Double SA_WARN_MAX = new Double( .6931471805599454 );
+    protected final static Double SA_WARN_MAX = new Double( Math.log(2) );
 
     /**
      * Period parameter, reserved for the oscillator period that Spectral
@@ -414,7 +412,7 @@ public abstract class ClassicIMR
 
 
     // defined to prevent taking the log of zero when calculating exceed Prob
-    protected final double IML_MIN = Double.MIN_VALUE;
+    // protected final double IML_MIN = Double.MIN_VALUE;
 
 
 
@@ -559,7 +557,7 @@ public abstract class ClassicIMR
         // Calculate the probability of exceeding the iml value
         double iml;
         iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
-        if ( iml < IML_MIN ) iml = IML_MIN;
+        //if ( iml < IML_MIN ) iml = IML_MIN;
 
         //iml = Math.log( iml );
 
