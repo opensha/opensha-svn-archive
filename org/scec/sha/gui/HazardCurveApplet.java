@@ -230,36 +230,36 @@ public class HazardCurveApplet extends JApplet
   //static string for the OPENSHA website
   private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
-  private JLabel imgLabel = new JLabel();
-  private JSplitPane siteSplitPane = new JSplitPane();
-  private JSplitPane chartSplit = new JSplitPane();
-  private JPanel timeSpanPanel = new JPanel();
-  private GridBagLayout gridBagLayout8 = new GridBagLayout();
-  private GridBagLayout gridBagLayout5 = new GridBagLayout();
-  private JSplitPane erfSplitPane = new JSplitPane();
-  private JPanel sitePanel = new JPanel();
-  private JPanel imtPanel = new JPanel();
-  private JSplitPane controlsSplit = new JSplitPane();
-  private JTabbedPane paramsTabbedPane = new JTabbedPane();
-  private JPanel erfPanel = new JPanel();
-  private GridBagLayout gridBagLayout15 = new GridBagLayout();
-  private GridBagLayout gridBagLayout13 = new GridBagLayout();
-  private GridBagLayout gridBagLayout12 = new GridBagLayout();
-  private JPanel imrPanel = new JPanel();
-  private JSplitPane buttonSplitPane = new JSplitPane();
-  private JPanel panel = new JPanel();
-  private GridBagLayout gridBagLayout9 = new GridBagLayout();
-  private JButton clearButton = new JButton();
-  private JCheckBox jCheckylog = new JCheckBox();
-  private JButton toggleButton = new JButton();
-  private JPanel buttonPanel = new JPanel();
-  private JCheckBox progressCheckBox = new JCheckBox();
-  private JButton addButton = new JButton();
-  private JCheckBox jCheckxlog = new JCheckBox();
-  private JComboBox controlComboBox = new JComboBox();
-  private GridBagLayout gridBagLayout10 = new GridBagLayout();
-  private GridBagLayout gridBagLayout14 = new GridBagLayout();
-  private BorderLayout borderLayout1 = new BorderLayout();
+  JSplitPane topSplitPane = new JSplitPane();
+  JButton clearButton = new JButton();
+  JLabel imgLabel = new JLabel();
+  JCheckBox jCheckylog = new JCheckBox();
+  JButton toggleButton = new JButton();
+  JPanel buttonPanel = new JPanel();
+  JCheckBox progressCheckBox = new JCheckBox();
+  JButton addButton = new JButton();
+  JCheckBox jCheckxlog = new JCheckBox();
+  JComboBox controlComboBox = new JComboBox();
+  JSplitPane chartSplit = new JSplitPane();
+  JPanel panel = new JPanel();
+  GridBagLayout gridBagLayout9 = new GridBagLayout();
+  JPanel timeSpanPanel = new JPanel();
+  GridBagLayout gridBagLayout8 = new GridBagLayout();
+  JSplitPane imrSplitPane = new JSplitPane();
+  GridBagLayout gridBagLayout5 = new GridBagLayout();
+  JSplitPane erfSplitPane = new JSplitPane();
+  JPanel sitePanel = new JPanel();
+  JPanel imtPanel = new JPanel();
+  JSplitPane controlsSplit = new JSplitPane();
+  JTabbedPane paramsTabbedPane = new JTabbedPane();
+  JPanel erfPanel = new JPanel();
+  GridBagLayout gridBagLayout15 = new GridBagLayout();
+  GridBagLayout gridBagLayout13 = new GridBagLayout();
+  GridBagLayout gridBagLayout12 = new GridBagLayout();
+  JPanel imrPanel = new JPanel();
+  GridBagLayout gridBagLayout10 = new GridBagLayout();
+  GridBagLayout gridBagLayout14 = new GridBagLayout();
+  BorderLayout borderLayout1 = new BorderLayout();
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -330,38 +330,8 @@ public class HazardCurveApplet extends JApplet
     //addButton.setBorder(null);
 
     //loading the OpenSHA Logo
-    imgLabel.setText("");
-    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
-    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        imgLabel_mouseClicked(e);
-      }
-    });
 
-    siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    siteSplitPane.setDividerSize(5);
-    timeSpanPanel.setLayout(gridBagLayout12);
-    erfSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    erfSplitPane.setBottomComponent(timeSpanPanel);
-    erfSplitPane.setTopComponent(erfPanel);
-    sitePanel.setLayout(gridBagLayout13);
-    sitePanel.setBackground(Color.white);
-    imtPanel.setLayout(gridBagLayout8);
-    imtPanel.setBackground(Color.white);
-    controlsSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    controlsSplit.setDividerSize(5);
-    erfPanel.setLayout(gridBagLayout5);
-    erfPanel.setBackground(Color.white);
-    erfPanel.setBorder(border2);
-    erfPanel.setMaximumSize(new Dimension(2147483647, 10000));
-    erfPanel.setMinimumSize(new Dimension(2, 300));
-    erfPanel.setPreferredSize(new Dimension(2, 300));
-    imrPanel.setLayout(gridBagLayout15);
-    imrPanel.setBackground(Color.white);
-    panel.setLayout(gridBagLayout9);
-    panel.setBackground(Color.white);
-    panel.setBorder(border5);
-    panel.setMinimumSize(new Dimension(0, 0));
+    topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     clearButton.setBackground(new Color(200, 200, 230));
     clearButton.setFont(new java.awt.Font("Dialog", 1, 11));
     clearButton.setForeground(new Color(80, 80, 133));
@@ -373,6 +343,13 @@ public class HazardCurveApplet extends JApplet
     clearButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         clearButton_actionPerformed(e);
+      }
+    });
+    imgLabel.setText("");
+    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        imgLabel_mouseClicked(e);
       }
     });
     jCheckylog.setBackground(Color.white);
@@ -435,48 +412,70 @@ public class HazardCurveApplet extends JApplet
         controlComboBox_actionPerformed(e);
       }
     });
-    buttonSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    buttonSplitPane.setBottomComponent(buttonPanel);
-    buttonSplitPane.setTopComponent(panel);
+    panel.setLayout(gridBagLayout9);
+    panel.setBackground(Color.white);
+    panel.setBorder(border5);
+    panel.setMinimumSize(new Dimension(0, 0));
+    timeSpanPanel.setLayout(gridBagLayout12);
+    imrSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    imrSplitPane.setBottomComponent(imtPanel);
+    imrSplitPane.setTopComponent(imrPanel);
+    erfSplitPane.setBottomComponent(timeSpanPanel);
+    erfSplitPane.setTopComponent(erfPanel);
+    sitePanel.setLayout(gridBagLayout13);
+    sitePanel.setBackground(Color.white);
+    imtPanel.setLayout(gridBagLayout8);
+    imtPanel.setBackground(Color.white);
+    controlsSplit.setDividerSize(5);
+    erfPanel.setLayout(gridBagLayout5);
+    erfPanel.setBackground(Color.white);
+    erfPanel.setBorder(border2);
+    erfPanel.setMaximumSize(new Dimension(2147483647, 10000));
+    erfPanel.setMinimumSize(new Dimension(2, 300));
+    erfPanel.setPreferredSize(new Dimension(2, 300));
+    imrPanel.setLayout(gridBagLayout15);
+    imrPanel.setBackground(Color.white);
+    chartSplit.setLeftComponent(panel);
+    chartSplit.setRightComponent(paramsTabbedPane);
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    buttonPanel.add(imgLabel,  new GridBagConstraints(0, 2, 0, 0, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 3, 3, 3), 0, 0));
-    jPanel1.add(chartSplit,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(9, 9, 2, 1), 185, 281));
+    jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(11, 4, 5, 6), -2, 143));
+    buttonPanel.add(imgLabel,  new GridBagConstraints(2, 1, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    buttonPanel.add(controlComboBox,   new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(4, 4, 4, 4), 49, 0));
+    buttonPanel.add(addButton,   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+    buttonPanel.add(clearButton,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+    buttonPanel.add(toggleButton,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+    buttonPanel.add(jCheckxlog,   new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 14, 7));
+    buttonPanel.add(jCheckylog,   new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 9, 3));
+    buttonPanel.add(progressCheckBox,   new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 14, 0));
+    topSplitPane.add(chartSplit, JSplitPane.TOP);
+    chartSplit.add(panel, JSplitPane.LEFT);
     chartSplit.add(paramsTabbedPane, JSplitPane.RIGHT);
-    controlsSplit.add(imrPanel, JSplitPane.TOP);
-    controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
-    siteSplitPane.add(sitePanel, JSplitPane.TOP);
-    siteSplitPane.add(imtPanel, JSplitPane.BOTTOM);
+    imrSplitPane.add(imrPanel, JSplitPane.TOP);
+    imrSplitPane.add(imtPanel, JSplitPane.BOTTOM);
+    controlsSplit.add(imrSplitPane, JSplitPane.LEFT);
     paramsTabbedPane.add(controlsSplit, "IMR, IMT & Site");
+    controlsSplit.add(sitePanel, JSplitPane.RIGHT);
     paramsTabbedPane.add(erfSplitPane, "ERF & Time Span");
     erfSplitPane.add(erfPanel, JSplitPane.LEFT);
     erfSplitPane.add(timeSpanPanel, JSplitPane.RIGHT);
-    chartSplit.add(buttonSplitPane, JSplitPane.LEFT);
-    buttonSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonSplitPane.add(panel, JSplitPane.TOP);
-    buttonPanel.add(toggleButton,   new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
-    buttonPanel.add(jCheckylog,   new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 1, 3));
-    buttonPanel.add(controlComboBox,   new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(4, 4, 4, 4), 40, 0));
-    buttonPanel.add(addButton,   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
-    buttonPanel.add(clearButton,   new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
-    buttonPanel.add(jCheckxlog,   new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 1, 7));
-    buttonPanel.add(progressCheckBox,   new GridBagConstraints(3, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 14, 0));
-    siteSplitPane.setDividerLocation(200);
-    chartSplit.setDividerLocation(575);
-    controlsSplit.setDividerLocation(200);
+    topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
+    topSplitPane.setDividerLocation(550);
+    imrSplitPane.setDividerLocation(300);
+    erfSplitPane.setDividerLocation(180);
+    controlsSplit.setDividerLocation(180);
     erfPanel.validate();
     erfPanel.repaint();
-    buttonSplitPane.setDividerLocation(500);
-    erfSplitPane.setDividerLocation(475);
+    chartSplit.setDividerLocation(600);
 
 
   }
@@ -908,6 +907,8 @@ public class HazardCurveApplet extends JApplet
           this.controlComboBox.addItem(EPISTEMIC_CONTROL);
           controlComboBox.setSelectedItem(EPISTEMIC_CONTROL);
         }
+        this.timeSpanGuiBean.validate();
+        this.timeSpanGuiBean.repaint();
       }
   }
 
@@ -1421,6 +1422,18 @@ public class HazardCurveApplet extends JApplet
        selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
      return true;
     return false;
+  }
+  void imgLabel_mousePressed(MouseEvent e) {
+
+  }
+  void imgLabel_mouseReleased(MouseEvent e) {
+
+  }
+  void imgLabel_mouseEntered(MouseEvent e) {
+
+  }
+  void imgLabel_mouseExited(MouseEvent e) {
+
   }
 
 }
