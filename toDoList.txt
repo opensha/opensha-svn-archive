@@ -1,3 +1,15 @@
-test
+**************** SHORT TERM: ****************
 
-did this go through?
+
+
+
+
+**************** LONG TERM: ****************
+
+Figure out why applets don't resize with browser window size on Mac OS.
+
+Create an archived email list or discussion board for OpenSHA.
+
+Add 3D visualization to GriddedFaultApplet (need Java3D on Mac OS first)?
+
+Go over exception throwing in entire package to make sure it looks appropriate.
