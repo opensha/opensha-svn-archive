@@ -622,7 +622,7 @@ public abstract class AttenuationRelationship
       //now loop over ruptures changing only the magnitude parameter.
       for(int i=0; i <ptSrc.getNumRuptures(); i++) {
         tempRup = ptSrc.getRupture(i);
-        magParam.setValue(tempRup.getMag());
+        magParam.setValueIgnoreWarning(new Double(tempRup.getMag()));
         qkProb = tempRup.getProbability();
 
         // check for numerical problems
