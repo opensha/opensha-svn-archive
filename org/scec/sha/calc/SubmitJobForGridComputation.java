@@ -316,7 +316,7 @@ public class SubmitJobForGridComputation {
       String fileNamePrefix = HAZARD_CURVES_SUBMIT + site;
       String condorSubmitScript = createCondorScript(fileDataPrefix, fileDataSuffix, arguments,
                              remoteDir,outputDir, fileNamePrefix + "_" + startSite,
-                             remoteDir, "/bin/date");
+                             remoteDir, "");
       list.add(condorSubmitScript);
     }
 
