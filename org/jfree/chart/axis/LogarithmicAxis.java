@@ -646,9 +646,9 @@ public class LogarithmicAxis extends NumberAxis {
     final double upperBoundVal = getRange().getUpperBound();
 
     //get log10 version of lower bound and round to integer:
-    int iBegCount = (int) Math.floor(switchedLog10(lowerBoundVal));
+    int iBegCount = (int) StrictMath.floor(switchedLog10(lowerBoundVal));
     //get log10 version of upper bound and round to integer:
-    final int iEndCount = (int) Math.ceil(switchedLog10(upperBoundVal));
+    final int iEndCount = (int) StrictMath.ceil(switchedLog10(upperBoundVal));
 
     if (iBegCount == iEndCount && iBegCount > 0 && Math.pow(10, iBegCount) > lowerBoundVal) {
       //only 1 power of 10 value, it's > 0 and its resulting
@@ -660,7 +660,7 @@ public class LogarithmicAxis extends NumberAxis {
     String tickLabel;
     boolean zeroTickFlag = false;
 
-    setRange(Math.pow(10,iBegCount),Math.pow(10,iEndCount));
+    //setRange(Math.pow(10,iBegCount),Math.pow(10,iEndCount));
     boolean superscript=false;
 
     // whether you want to show in superscript form or not
@@ -682,7 +682,8 @@ public class LogarithmicAxis extends NumberAxis {
         //for each tick to be displayed
         if (smallLogFlag) {
           //small log values in use
-          tickVal = Math.pow(10, i) + (Math.pow(10, i) * j);
+          tickVal = Double.parseDouble("1e"+i) * (1 + j);
+          //tickVal = Math.pow(10, i) + (Math.pow(10, i) * j);
           if (j == 0) {
             //checks to if tick Labels to be represented in the form of superscript of 10.
             if(log10TickLabelsInPowerFlag){
@@ -859,9 +860,9 @@ public class LogarithmicAxis extends NumberAxis {
     final double upperBoundVal = getRange().getUpperBound();
 
     //get log10 version of lower bound and round to integer:
-    int iBegCount = (int) Math.floor(switchedLog10(lowerBoundVal));
+    int iBegCount = (int) StrictMath.floor(switchedLog10(lowerBoundVal));
     //get log10 version of upper bound and round to integer:
-    final int iEndCount = (int) Math.ceil(switchedLog10(upperBoundVal));
+    final int iEndCount = (int) StrictMath.ceil(switchedLog10(upperBoundVal));
 
     if (iBegCount == iEndCount && iBegCount > 0 && Math.pow(10, iBegCount) > lowerBoundVal) {
       //only 1 power of 10 value, it's > 0 and its resulting
@@ -872,7 +873,7 @@ public class LogarithmicAxis extends NumberAxis {
     double tickVal;
     String tickLabel;
     boolean zeroTickFlag = false;
-    setRange(Math.pow(10,iBegCount),Math.pow(10,iEndCount));
+    //setRange(Math.pow(10,iBegCount),Math.pow(10,iEndCount));
 
     boolean superscript=false;
 
@@ -894,7 +895,8 @@ public class LogarithmicAxis extends NumberAxis {
         //for each tick to be displayed
         if (smallLogFlag) {
           //small log values in use
-          tickVal = Math.pow(10, i) + (Math.pow(10, i) * j);
+          tickVal = Double.parseDouble("1e"+i) * (1 + j);
+          //tickVal = Math.pow(10, i) + (Math.pow(10, i) * j);
           if (j == 0) {
 
             //checks to if tick Labels to be represented in the form of superscript of 10.
