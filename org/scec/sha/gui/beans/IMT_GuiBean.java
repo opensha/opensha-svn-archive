@@ -216,7 +216,7 @@ public String getParameterListMetadataString(){
       metadata += tempParam.getName()+" = "+(String)tempParam.getValue()+" ; ";
     }
   }
-  metadata.substring(0,metadata.length()-5);
+  metadata = metadata.substring(0,metadata.length()-3);
   if(paramSize >1)
   metadata +=" ] ";
   return metadata;

@@ -2,6 +2,7 @@ package org.scec.sha.gui.controls;
 
 
 import org.scec.data.XYZ_DataSetAPI;
+import org.scec.sha.imr.AttenuationRelationship;
 
 /**
  * <p>Title: GenerateHazusFilesConrolPanelAPI</p>
@@ -20,4 +21,17 @@ public interface GenerateHazusFilesConrolPanelAPI {
    * The IML or prob vector contains value based on what the user has selected in the Map type
    */
   public XYZ_DataSetAPI generateShakeMap();
+
+  /**
+   *
+   * @returns the selected Attenuationrelationship model within the application
+   */
+  public AttenuationRelationship getSelectedAttenuationRelationship();
+
+
+  /**
+   * This function sets the Gridded region Sites and the type of plot user wants to see
+   * IML@Prob or Prob@IML and it value.
+   */
+  public void getGriddedSitesAndMapType();
 }

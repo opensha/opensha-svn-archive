@@ -76,7 +76,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private AttenuationRelationship attenRel;
 
   //Instance to the ShakeMap calculator to get the XYZ data for the selected scenario
-  private ScenarioShakeMapCalculator shakeMapCalc;
+  //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
+  private ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
@@ -504,11 +505,10 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     try {
      // this function will get the selected IMT parameter and set it in IMT
      imtGuiBean.setIMT();
-   } catch (Exception ex) {
+   }catch (Exception ex) {
      if(D) System.out.println(C + ":Param warning caught"+ex);
      ex.printStackTrace();
     }
-
     try{
       xyzDataSet =shakeMapCalc.getScenarioShakeMapData(griddedRegionSites,attenRel,erfGuiBean.getRupture(),
                                         probAtIML,imlProbValue);
@@ -532,32 +532,44 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   }
 
 
-  void addButton_actionPerformed(ActionEvent e) {
+  /**
+   * This function sets the Gridded region Sites and the type of plot user wants to see
+   * IML@Prob or Prob@IML and it value.
+   */
+  public void getGriddedSitesAndMapType(){
+    calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
     //gets the IML or Prob selected value
     getIMLorProb();
     //get the site values for each site in the gridded region
     getGriddedRegionSites();
-    //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
-    shakeMapCalc = new ScenarioShakeMapCalculator();
+    calcProgress.dispose();
+    calcProgress.showProgress(false);
+  }
+
+  void addButton_actionPerformed(ActionEvent e) {
+   //sets the Gridded region Sites and the type of plot user wants to see
+   //IML@Prob or Prob@IML and it value.
+    if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())
+      getGriddedSitesAndMapType();
+    //checking if the person wants to run all the cases for the Puente Hill Scenarios
     if(puenteHillsScenariosControl !=null){
-      puenteHillsScenariosControl.runAllScenarios(puenteHillsControl,imrGuiBean);
+      puenteHillsScenariosControl.runAllScenarios(puenteHillsControl,hazusControl,imrGuiBean);
       puenteHillsScenariosControl = null;
     }
-    else
+    else //if the person just want to run one scenario at time.
       addButton();
+    hazusControl = null;
   }
 
   /**
    * when the generate Map button is pressed
    */
   public void addButton(){
-    calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
     step = 1;
     try{
-      calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
-      if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
-        hazusControl.generateHazusFiles(this.imtGuiBean,attenRel);
-      else
+      if(step ==1)
+        calcProgress = new CalcProgressBar("ShakeMapApp","  Calculating ShakeMap Data ...");
+      if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())
         generateShakeMap();
       //sets the region coordinates for the GMT using the MapGuiBean
       setRegionForGMT();
@@ -569,7 +581,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       return;
     }
     catch(Exception ee){
-      //ee.printStackTrace();
+      ee.printStackTrace();
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
       calcProgress.showProgress(false);
       calcProgress.dispose();
@@ -585,12 +597,12 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       else
         label=imtGuiBean.getSelectedIMT();
       try{
-        if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
-          mapGuiBean.makeHazusShapeFilesAndMap(hazusControl.getXYZ_DataForSA_03(),hazusControl.getXYZ_DataForSA_10(),
-                             hazusControl.getXYZ_DataForPGA(),hazusControl.getXYZ_DataForPGV(),
-                             erfGuiBean.getRupture(),label,getMapParametersInfo());
-        else
-          mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
+        if(hazusControl !=null && hazusControl.isHazusShapeFilesButtonPressed())
+            mapGuiBean.makeHazusShapeFilesAndMap(hazusControl.getXYZ_DataForSA_03(),hazusControl.getXYZ_DataForSA_10(),
+                hazusControl.getXYZ_DataForPGA(),hazusControl.getXYZ_DataForPGV(),
+                erfGuiBean.getRupture(),label,getMapParametersInfo());
+          else
+            mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
       }catch(RuntimeException e){
         calcProgress.showProgress(false);
         calcProgress.dispose();
@@ -645,19 +657,20 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to run all cases for Puente Hill Scenarios?",
                                     "Run all Puente Hills Scenarios Control",JOptionPane.YES_NO_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
-      if(hazusControl == null){
-        hazusControl = new GenerateHazusFilesControlPanel(this,this);
-        hazusControl.setHazusShapeFilesControlSelected(true);
-      }
+      //creating the instance of the Puente Hills if not already instantiated
       if(puenteHillsControl == null){
         puenteHillsControl = new PuenteHillsScenarioControlPanel(erfGuiBean,imrGuiBean,
             sitesGuiBean,mapGuiBean,imtGuiBean);
         puenteHillsControl.setParamsForPuenteHillsScenario();
       }
+      //creating the instance to generate the shape files for Hazus if not already instantiated
+      if(hazusControl == null){
+        hazusControl = new GenerateHazusFilesControlPanel(this,imtGuiBean,this);
+      }
+      //creating the instance to run all the scenarios for the Puente Hills.
       if(puenteHillsScenariosControl==null){
         puenteHillsScenariosControl = new RunAll_PuenteHillsScenariosControlPanel(this);
       }
-
     }
   }
 
@@ -692,7 +705,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    */
   private void initHazusScenarioControl(){
     if(hazusControl == null)
-      hazusControl = new GenerateHazusFilesControlPanel(this,this);
+      hazusControl = new GenerateHazusFilesControlPanel(this,imtGuiBean,this);
     hazusControl.show();
     hazusControl.pack();
   }
@@ -716,13 +729,21 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
   /**
    *
+   * @returns the selected Attenuationrelationship model
+   */
+  public AttenuationRelationship getSelectedAttenuationRelationship(){
+    return attenRel;
+  }
+
+  /**
+   *
    * @returns the String containing the values selected for different parameters
    */
   public String getMapParametersInfo(){
 
     String imtMetadata = null;
     //if the Hazus Control for Sceario is selected the get the metadata for IMT from there
-    if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
+    if(hazusControl !=null && hazusControl.isHazusShapeFilesButtonPressed())
       imtMetadata = hazusControl.getIMT_Metadata();
     else //else get the metadata from the IMT GuiBean.
       //imtMetadata = imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString();
