@@ -9,6 +9,8 @@ import java.util.*;
 
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.*;
+import org.scec.sha.earthquake.rupForecastImpl.*;
+import org.scec.sha.earthquake.EqkRupForecastAPI;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -60,6 +62,7 @@ public class ScenarioShakeMapApp extends Applet {
   private SitesInGriddedRegionGuiBean sitesGuiBean;
   private IMLorProbSelectorGuiBean imlProbGuiBean;
   private MapGuiBean mapGuiBean;
+  private TimeSpanGuiBean timeSpanGuiBean;
 
   private boolean isStandalone = false;
   private JPanel mainPanel = new JPanel();
@@ -87,6 +90,8 @@ public class ScenarioShakeMapApp extends Applet {
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private JPanel siteRegionPanel = new JPanel();
   private JPanel imtPanel = new JPanel();
+  private GridBagLayout gridBagLayout7 = new GridBagLayout();
+  private GridBagLayout gridBagLayout8 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -104,6 +109,10 @@ public class ScenarioShakeMapApp extends Applet {
     catch(Exception e) {
       e.printStackTrace();
     }
+    this.initIMRPanel();
+    this.initERFSelector_GuiBean();
+    this.initImlProb_GuiBean();
+    this.initTimeSpanGuiBean();
   }
   //Component initialization
   private void jbInit() throws Exception {
@@ -122,6 +131,8 @@ public class ScenarioShakeMapApp extends Applet {
     imr_IMTSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     imr_RegionSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     imrSelectionPanel.setLayout(gridBagLayout5);
+    siteRegionPanel.setLayout(gridBagLayout7);
+    imtPanel.setLayout(gridBagLayout8);
     this.add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 5, 2), 0, 492));
@@ -207,8 +218,8 @@ public class ScenarioShakeMapApp extends Applet {
      imrGuiBean = new IMR_GuiBean(imrClasses);
      //imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
 
-     // show this gui bean the JPanel
-    imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+     // show this IMRgui bean the Panel
+    imrSelectionPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
          GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 
      // get the selected IMR
@@ -217,7 +228,7 @@ public class ScenarioShakeMapApp extends Applet {
      sitesGuiBean = new SitesInGriddedRegionGuiBean();
      sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
      // show the sitebean in JPanel
-     imrPanel.add(this.sitesGuiBean, new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0,
+     siteRegionPanel.add(this.sitesGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
          GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 
 
@@ -228,7 +239,7 @@ public class ScenarioShakeMapApp extends Applet {
      // create the IMT Gui Bean object
      imtGuiBean = new IMT_GuiBean(imr);
 
-     imrPanel.add(imtGuiBean, new GridBagConstraints( 2, 0, 1, 1, 1.0, 1.0,
+     imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 
 
@@ -262,7 +273,27 @@ public class ScenarioShakeMapApp extends Applet {
    */
   private void initImlProb_GuiBean(){
     imlProbGuiBean = new IMLorProbSelectorGuiBean();
+    prob_IMLPanel.add(imlProbGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+  }
 
+  /**
+   * Initialize the TimeSpan gui bean
+   */
+  private void initTimeSpanGuiBean() {
+
+    /* get the selected ERF
+    NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
+    erfGuiBean.getSelectedERF.
+    Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
+    the forecast while erfGuiBean.getSelectedERF updates the forecast
+    */
+    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
+    // create the TimeSpan Gui Bean object
+    timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
+    // show the sitebean in JPanel
+    this.timespanPanel.add(this.timeSpanGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
   }
 
 
