@@ -749,7 +749,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
         this.imrGuiBean.getParameterListMetadataString()+"\n";
     //if the Hazus Control for Sceario is selected the get the metadata for IMT from there
     if(hazusControl !=null && hazusControl.isGenerateShapeFilesForHazus())
-      imrMetadata = hazusControl.getIMT_Metadata()+imrMetadata;
+      imrMetadata = imrMetadata+hazusControl.getIMT_Metadata();
 
     return imrMetadata+
         "<br><br>Region Param List: <br>\n"+

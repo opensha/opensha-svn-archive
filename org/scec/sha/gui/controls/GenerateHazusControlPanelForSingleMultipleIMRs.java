@@ -41,7 +41,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
   private XYZ_DataSetAPI pgv_xyzdata;
 
   //metadata string for the different IMT required to generate the shapefiles for Hazus.
-  private String metadata;
+  private String metadata="Hazus Metadata: \n<br>"+
+                          "----------------------";
   private JButton generateHazusShapeFilesButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
@@ -194,7 +195,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
       ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(AttenuationRelationship.PGA_NAME);
 
     pga_xyzdata = application.generateShakeMap(selectedAttenRels);
-    //metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
+    metadata += "IMT = PGA"+"<br>\n";
   }
 
 
@@ -211,12 +212,12 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
     //Doing for SA-0.3sec
     setSA_PeriodForSelectedIMRs(selectedAttenRels,0.3);
     sa03_xyzdata = application.generateShakeMap(selectedAttenRels);
-    //metadata = imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
+    metadata = metadata += "IMT = SA[ SA Period = 0.3 ; SA Damping = 5.0 ]"+"<br>\n";
 
     //Doing for SA-1.0sec
     setSA_PeriodForSelectedIMRs(selectedAttenRels,1.0);
     sa10_xyzdata = application.generateShakeMap(selectedAttenRels);
-    //metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
+    metadata = metadata += "IMT = SA[ SA Period = 1.0 ; SA Damping = 5.0 ]"+"<br>\n";
   }
 
   /**
@@ -254,7 +255,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
       }
       pgvDataSet = new ArbDiscretizedXYZ_DataSet(pgvDataSet.getX_DataSet(),
           pgvDataSet.getY_DataSet(), newZVals);
-      metadata += "IMT: PGV"+"<br>\n";
+      metadata += "IMT= PGV"+"<br>\n";
     }
     return pgvDataSet;
   }
