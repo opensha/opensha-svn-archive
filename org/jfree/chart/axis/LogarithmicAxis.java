@@ -521,12 +521,13 @@ public class LogarithmicAxis extends NumberAxis {
           final double absUpper = Math.abs(upper);
           //need to account for case where upper==0.0
           final double adjVal = (absUpper > SMALL_LOG_VALUE) ? absUpper / 100.0 : 0.01;
-          upper = (upper + lower + adjVal) / 2;
+          upper = (upper + lower + adjVal) / 2 ;
           lower = (upper + lower - adjVal) / 2;
         }
       }
-
-      setRange(new Range(lower, upper), false, false);
+      double range = upper - lower;
+      double upperMargin = getUpperMargin() *range;
+      setRange(new Range(lower, upper+upperMargin), false, false);
 
       setupSmallLogFlag();       //setup flag based on bounds values
     }
@@ -662,7 +663,7 @@ public class LogarithmicAxis extends NumberAxis {
     //get log10 version of lower bound and round to integer:
     int iBegCount = (int) StrictMath.floor(switchedLog10(lowerBoundVal));
     //get log10 version of upper bound and round to integer:
-    final int iEndCount = (int) StrictMath.ceil(switchedLog10(upperBoundVal));
+    int iEndCount = (int) StrictMath.ceil(switchedLog10(upperBoundVal));
 
     if (iBegCount == iEndCount && iBegCount > 0 && Math.pow(10, iBegCount) > lowerBoundVal) {
       //only 1 power of 10 value, it's > 0 and its resulting
@@ -674,7 +675,11 @@ public class LogarithmicAxis extends NumberAxis {
     String tickLabel;
     boolean zeroTickFlag = false;
     if(log10TickLabelsInPowerFlag && (iEndCount - iBegCount < 2)){
-      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
+      double range = upperBoundVal - lowerBoundVal;
+      double upperMargin = getUpperMargin() *range;
+      if(iEndCount == iBegCount)
+        ++iEndCount;
+      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount)+upperMargin);
     }
 
 
@@ -853,7 +858,7 @@ public class LogarithmicAxis extends NumberAxis {
                                    RectangleEdge edge) {
 
     getTicks().clear();
-    double y0 =999;
+    double y0 =9999;
     //get lower bound value:
     double lowerBoundVal = getRange().getLowerBound();
     //if small log values and lower bound value too small
@@ -867,7 +872,7 @@ public class LogarithmicAxis extends NumberAxis {
     //get log10 version of lower bound and round to integer:
     int iBegCount = (int) StrictMath.floor(switchedLog10(lowerBoundVal));
     //get log10 version of upper bound and round to integer:
-    final int iEndCount = (int) StrictMath.ceil(switchedLog10(upperBoundVal));
+    int iEndCount = (int) StrictMath.ceil(switchedLog10(upperBoundVal));
 
     if (iBegCount == iEndCount && iBegCount > 0 && Math.pow(10, iBegCount) > lowerBoundVal) {
       //only 1 power of 10 value, it's > 0 and its resulting
@@ -880,7 +885,11 @@ public class LogarithmicAxis extends NumberAxis {
     boolean zeroTickFlag = false;
 
     if(log10TickLabelsInPowerFlag && (iEndCount - iBegCount < 2)){
-      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
+      double range = upperBoundVal - lowerBoundVal;
+      double upperMargin = getUpperMargin() *range;
+      if(iEndCount == iBegCount)
+        ++iEndCount;
+      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount)+upperMargin);
     }
 
     for (int i = iBegCount; i <= iEndCount; i++) {

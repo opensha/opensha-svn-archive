@@ -15,10 +15,8 @@ import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
 import org.jfree.chart.labels.*;
 
-//import org.scec.data.function.*;
 import org.scec.gui.*;
-//import org.scec.gui.plot.jfreechart.*;
-//import org.scec.gui.plot.*;
+
 /**
 
  * <p>Title: LogPlotTesterApp</p>
@@ -117,7 +115,7 @@ public class LogPlotTesterApp extends JApplet  {
  // DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
   Color lightBlue = new Color( 200, 200, 230 );
-  Insets defaultInsets = new Insets( 4, 4, 4, 4 );
+  Insets defaultInsets = new Insets( 0, 0, 0, 0 );
   private JComboBox dataSetCombo = new JComboBox();
   private JLabel jLabel6 = new JLabel();
   //draws the XY Plot
@@ -456,14 +454,21 @@ public class LogPlotTesterApp extends JApplet  {
     //create the standard ticks so that smaller values too can plotted on the chart
     //TickUnits units = MyTickUnits.createStandardTickUnits();
     this.setAxis();
-    //xAxis = new org.jfree.chart.axis.LogarithmicAxis("X-Axis");
+
+
+    if(this.axisCombo.getSelectedItem().equals(LOG)){
+      if(this.log10AsECheck.isSelected()) setLog10AsEFlag();
+      else if(this.log10CaretCheck.isSelected()) setLog10AsCaretFlag();
+      else if(this.log10PowerCheck.isSelected()) setLog10AsPowerFlag();
+      setMinorAxisFlag();
+    }
 
     xAxis.setAutoRangeIncludesZero( false );
     //xAxis.setStandardTickUnits(units);
     xAxis.setTickMarksVisible(false);
 
 
-    //yAxis = new org.jfree.chart.axis.LogarithmicAxis("Y-Axis");
+
 
     yAxis.setAutoRangeIncludesZero( false );
     //yAxis.setStandardTickUnits(units);
@@ -476,13 +481,6 @@ public class LogPlotTesterApp extends JApplet  {
 
 
     StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
-
-    if(this.axisCombo.getSelectedItem().equals(LOG)){
-      if(this.log10AsECheck.isSelected()) setLog10AsEFlag();
-      else if(this.log10CaretCheck.isSelected()) setLog10AsCaretFlag();
-      else if(this.log10PowerCheck.isSelected()) setLog10AsPowerFlag();
-      setMinorAxisFlag();
-    }
 
     try{
       //If the first test case is not chosen then plot the graph acording to the default x and y axis values
@@ -531,25 +529,6 @@ public class LogPlotTesterApp extends JApplet  {
   }
 
 
-  /**
-   * This function handles the Zero values in the X and Y data set when exception is thrown,
-   * it reverts back to the linear scale displaying a message box to the user.
-   */
- /* public void invalidLogPlot(String message) {
-
-    if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
-      ShowMessage showMessage=new ShowMessage(this,"      X-Log Plot Error as it contains Zero Values");
-      showMessage.pack();
-      showMessage.show();
-    }
-    else if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
-      ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
-      showMessage.pack();
-      showMessage.show();
-    }
-  }*/
-
-
 
 
   /**
@@ -578,7 +557,6 @@ public class LogPlotTesterApp extends JApplet  {
   }
 
   void clearPlot(){
-    //functions = new XYSeriesCollection();
     functions.removeAllSeries();
     innerPlotPanel.removeAll();
     panel = null;
@@ -827,6 +805,8 @@ public class LogPlotTesterApp extends JApplet  {
     if(log10CaretCheck.isSelected()){
       ((LogarithmicAxis)xAxis).setLog10TickLabelsFlag();
       ((LogarithmicAxis)yAxis).setLog10TickLabelsFlag();
+      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(true);
+      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(true);
     }
   }
 
@@ -839,6 +819,8 @@ public class LogPlotTesterApp extends JApplet  {
     if(log10PowerCheck.isSelected()){
       ((LogarithmicAxis)xAxis).setLog10TickLabelsInPowerFlag();
       ((LogarithmicAxis)yAxis).setLog10TickLabelsInPowerFlag();
+      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(false);
+      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(false);
     }
   }
 
@@ -851,6 +833,8 @@ public class LogPlotTesterApp extends JApplet  {
     if(log10AsECheck.isSelected()){
       ((LogarithmicAxis)xAxis).setExpTickLabelsFlag();
       ((LogarithmicAxis)yAxis).setExpTickLabelsFlag();
+      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(true);
+      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(true);
     }
   }
 
