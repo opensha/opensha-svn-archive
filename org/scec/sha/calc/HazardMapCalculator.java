@@ -42,6 +42,10 @@ public class HazardMapCalculator {
   cases to pass through
   */
   protected double MAX_DISTANCE = 2500;
+
+  // boolean for telling whether to show a progress bar
+  boolean showProgressBar = true;
+
   private CalcProgressBar progressClass ;
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   // directory where all the hazard map data sets will be saved
@@ -85,6 +89,12 @@ public class HazardMapCalculator {
     String newDir;
     this.xLogFlag = imtLogFlag;
     HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
+    hazCurveCalc.showProgressBar(false);
+
+    if(this.showProgressBar) { // show the progress bar
+      progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+      progressClass.displayProgressBar();
+    }
 
     // get the number of data sets presently in directory
     File mainDir = new File(this.DATASETS_PATH);
@@ -105,8 +115,12 @@ public class HazardMapCalculator {
     //creating a new directory that stores all the HazardCurves for that region
     boolean success = (new File(newDir)).mkdir();
     int numSites = griddedSites.getNumGridLocs();
+
     int numPoints = xValues.length;
     for(int j=0;j<numSites;++j){
+      if(this.showProgressBar) { // show the progress bar and update sites
+        progressClass.updateProgress(j, numSites);
+      }
       site = griddedSites.getSite(j);
       // make and initialize the haz function
       ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -178,6 +192,14 @@ public class HazardMapCalculator {
       return hazFunc;
     } else
       throw new RuntimeException("Unsupported IMT");
+  }
+
+  /**
+  * This allows tuning on or off the showing of a progress bar
+  * @param show - set as true to show it, or false to not show it
+  */
+  public void showProgressBar(boolean show) {
+    this.showProgressBar=show;
   }
 
 }
