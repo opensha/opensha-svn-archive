@@ -40,7 +40,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
    *  Temp until figure out way to dynamically load classes during runtime
    */
   protected final static String GAUSSIAN_NAME = "Gaussian Distribution";
-  protected final static String GR_NAME = "GuttenbergRichter Distribution";
+  protected final static String GR_NAME = "GutenbergRichter Distribution";
   protected final static String SINGLE_NAME = "Single Distribution";
   protected final static String SUMMED_NAME = "Summed Distribution";
 
@@ -84,7 +84,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
 
   /**
-   * GuttenbergRichter Magnitude Frequency Distribution Parameter string list constant
+   * GutenbergRichter Magnitude Frequency Distribution Parameter string list constant
    */
 
     private static final String TO_MORATE=new String("Total Moment Rate");
@@ -148,7 +148,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
      *  This is name of various classes
      */
     protected final static String GaussianMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GaussianMagFreqDist";
-    protected final static String GuttenbergRichterMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GuttenbergRichterMagFreqDist";
+    protected final static String GutenbergRichterMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GutenbergRichterMagFreqDist";
     protected final static String SingleMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SingleMagFreqDist";
     protected final static String SummedMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SummedMagFreqDist";
 
@@ -213,7 +213,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
         StringParameter distributionName =new StringParameter(DISTRIBUTION_NAME,distName,dName);
         controlsParamList.addParameter(distributionName);
         if(dName.equalsIgnoreCase(GR_NAME))
-          magDistClassName = new String(GuttenbergRichterMagFreqDist_CLASS_NAME);
+          magDistClassName = new String(GutenbergRichterMagFreqDist_CLASS_NAME);
         if(dName.equalsIgnoreCase(GAUSSIAN_NAME))
           magDistClassName = new String(GaussianMagFreqDist_CLASS_NAME);
         if(dName.equalsIgnoreCase(SINGLE_NAME))
@@ -317,9 +317,9 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
 
         /**
-         * Add parameters for Guttenberg-Richter distribution
+         * Add parameters for Gutenberg-Richter distribution
          */
-         if(magDistClassName.equalsIgnoreCase(GuttenbergRichterMagFreqDist_CLASS_NAME)) {
+         if(magDistClassName.equalsIgnoreCase(GutenbergRichterMagFreqDist_CLASS_NAME)) {
            DoubleParameter magLower = new DoubleParameter(MAG_LOWER);
            DoubleParameter magUpper = new DoubleParameter(MAG_UPPER);
            DoubleParameter bValue = new DoubleParameter(BVALUE);
@@ -377,8 +377,8 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
         /* check if distribution selection changed */
         if(distributionName.equalsIgnoreCase(GR_NAME) &&
-                       !magDistClassName.equalsIgnoreCase(this.GuttenbergRichterMagFreqDist_CLASS_NAME)) {
-          magDistClassName = GuttenbergRichterMagFreqDist_CLASS_NAME;
+                       !magDistClassName.equalsIgnoreCase(this.GutenbergRichterMagFreqDist_CLASS_NAME)) {
+          magDistClassName = GutenbergRichterMagFreqDist_CLASS_NAME;
           refresh = true;
         }
 
@@ -430,9 +430,9 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
 
         /**
-         *  If Guttenberg Richter Freq dist is selected
+         *  If Gutenberg Richter Freq dist is selected
          */
-        if(this.magDistClassName.equalsIgnoreCase(this.GuttenbergRichterMagFreqDist_CLASS_NAME)) {
+        if(this.magDistClassName.equalsIgnoreCase(this.GutenbergRichterMagFreqDist_CLASS_NAME)) {
           String paramToSet=independentParams.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
 
           if(paramToSet.equalsIgnoreCase(TO_MORATE)) {
@@ -666,11 +666,11 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
 
          /*
-         * If Guttenberg Richter MagDist is selected
+         * If Gutenberg Richter MagDist is selected
          */
-       if(magDistClassName.equalsIgnoreCase(GuttenbergRichterMagFreqDist_CLASS_NAME)) {
-           GuttenbergRichterMagFreqDist gR =
-                    new GuttenbergRichterMagFreqDist(min.doubleValue(),max.doubleValue(),
+       if(magDistClassName.equalsIgnoreCase(GutenbergRichterMagFreqDist_CLASS_NAME)) {
+           GutenbergRichterMagFreqDist gR =
+                    new GutenbergRichterMagFreqDist(min.doubleValue(),max.doubleValue(),
                          num.intValue());
 
            Double magLower = (Double)independentParams.getParameter(MAG_LOWER).getValue();

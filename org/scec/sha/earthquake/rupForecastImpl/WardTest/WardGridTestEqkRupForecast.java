@@ -15,7 +15,7 @@ import org.scec.data.Location;
 import org.scec.sha.fault.FrankelGriddedFaultFactory;
 import org.scec.sha.fault.GriddedFaultFactory;
 import org.scec.sha.surface.GriddedSurfaceAPI;
-import org.scec.sha.magdist.GuttenbergRichterMagFreqDist;
+import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;

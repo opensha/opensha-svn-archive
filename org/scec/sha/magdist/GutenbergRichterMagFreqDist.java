@@ -6,8 +6,8 @@ import org.scec.data.DataPoint2D;
 
 
 /**
- * <p>Title: GuttenbergRichterMagFreqDist.java </p>
- * <p>Description: This is incremental Guttenberg-Richter distribution</p>
+ * <p>Title: GutenbergRichterMagFreqDist.java </p>
+ * <p>Description: This is incremental Gutenberg-Richter distribution</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Vipin Gupta   Date: Aug 8, 2002
@@ -15,10 +15,10 @@ import org.scec.data.DataPoint2D;
  */
 
 
-public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
+public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
 
 
-  private String C = new String("GuttenbergRichterMagFreqDist"); // for showing messages
+  private String C = new String("GutenbergRichterMagFreqDist"); // for showing messages
 
   private double magLower ; // lowest magnitude that has non zero rate
   private double magUpper ; // highest magnitude that has non zero rate
@@ -34,7 +34,7 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     * using the parameters we call the parent class constructors to initialise the parent class variables
     */
 
-   public GuttenbergRichterMagFreqDist(double min,int num,double delta){
+   public GutenbergRichterMagFreqDist(double min,int num,double delta){
      super(min,num,delta);
    }
 
@@ -49,7 +49,7 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     * using the min, max and num we calculate the delta
     */
 
-   public GuttenbergRichterMagFreqDist(double min,double max,int num) {
+   public GutenbergRichterMagFreqDist(double min,double max,int num) {
      super(min,max,num);
 
    }
@@ -67,7 +67,7 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     * @param bValue : b value for this distribution
     */
 
-   public GuttenbergRichterMagFreqDist(double min,int num,double delta,
+   public GutenbergRichterMagFreqDist(double min,int num,double delta,
                                         double totMoRate,double bValue) throws DataPoint2DException {
      super(min,num,delta);
      // assumes magLower = minX and magUpper = maxX
@@ -87,7 +87,7 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     * @param bValue : b value for this distribution
     */
 
-   public GuttenbergRichterMagFreqDist(double min,int num,double delta,
+   public GutenbergRichterMagFreqDist(double min,int num,double delta,
                                        double magLower, double magUpper,
                                        double totMoRate,double bValue) throws DataPoint2DException {
      super(min,num,delta);
@@ -186,36 +186,36 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
   /**
    * Throws the exception if the set functions are called from outside the class
    * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GuttenbergRitcherMagFreqDist class and calling the set functions of this from outside
+   * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside
    * @param point
    * @throws MagFreqDistException
    */
   public void set(DataPoint2D point) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GuttenbergRichterMagFreqDist from outside this class");
+    throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
   }
 
   /**
    * Throws the exception if the set functions are called from outside the class
    * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GuttenbergRitcherMagFreqDist class and calling the set functions of this from outside
+   * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside
    * @param x
    * @param y
    * @throws MagFreqDistException
    */
   public void set(double x,double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GuttenbergRichterMagFreqDist from outside this class");
+    throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
   }
 
   /**
    * Throws the exception if the set functions are called from outside the class
    * These have been made to prevent the access to the set functions of the EvenlyDiscretizedFunc class
-   * by making a objects of the GuttenbergRitcherMagFreqDist class and calling the set functions of this from outside.
+   * by making a objects of the GutenbergRitcherMagFreqDist class and calling the set functions of this from outside.
    * @param index
    * @param y
    * @throws MagFreqDistException
    */
   public void set(int index,double y) throws MagFreqDistException {
-    throw new MagFreqDistException("Cannot Access the set function of the GuttenbergRichterMagFreqDist from outside this class");
+    throw new MagFreqDistException("Cannot Access the set function of the GutenbergRichterMagFreqDist from outside this class");
   }
 
 
@@ -230,8 +230,6 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     // it also checks that magUpper > magLower
     if(magLower < minX || magLower > maxX)
         throw new DataPoint2DException(C+":calculateRelativeRates():"+"magLower should lie between minX and maxX");
-    if(magUpper < minX || magUpper > maxX)
-        throw new DataPoint2DException(C+":calculateRelativeRates():"+"magUpper should lie between minX and maxX");
     if(magLower > magUpper)
         throw new InvalidRangeException(C+":calculateRelativeRates():"+"magLower cannot be less than magUpper");
 
@@ -312,7 +310,7 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
    */
   public String getInfo() {
     return ("bValue="+bValue+";magLower="+magLower+";magUpper="+magUpper +
-        ";moRate="+this.getTotalMomentRate()+";totCumRate="+getCumRate(magLower));
+        ";totMoRate="+this.getTotalMomentRate()+";totCumRate="+getCumRate(magLower));
   }
 
 }

@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.Iterator;
 
 import org.scec.sha.surface.EvenlyGriddedSurface;
-import org.scec.sha.magdist.GuttenbergRichterMagFreqDist;
+import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.sha.magdist.SingleMagFreqDist;
 import org.scec.sha.calc.WC1994_MagLengthRelationship;
 import org.scec.data.*;
@@ -14,7 +14,7 @@ import org.scec.sha.earthquake.*;
 
 /**
  * <p>Title: Frankel96_GR_EqkSource </p>
- * <p>Description: frankel 1996 Guttenberg Richter Type B earthquake source</p>
+ * <p>Description: frankel 1996 Gutenberg Richter Type B earthquake source</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta & Vipin Gupta
@@ -29,7 +29,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
   private static String  C = new String("Frankel96_GR_EqkSource");
   private boolean D = false;
 
-  private GuttenbergRichterMagFreqDist gR;
+  private GutenbergRichterMagFreqDist gR;
   private double rake;
   private double timeSpan;
   //these are the static static defined varibles to be used to find the number of ruptures.
@@ -39,7 +39,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
   private EvenlyGriddedSurface surface;
 
   /**
-   * constructor specifying the values needed for Guttenberg Richter
+   * constructor specifying the values needed for Gutenberg Richter
    * and also for constructing the rupture
    *
    * @param rake  : Average rake of the surface
@@ -70,8 +70,8 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
     probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setAveRake(rake);
 
-    //Setting the GuttenbergDistribution
-    gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,num);
+    //Setting the GutenbergDistribution
+    gR = new GutenbergRichterMagFreqDist(magLower,magUpper,num);
     gR.setAllButTotCumRate(magLower,magUpper,moRate,bValue );
 
     // This was used for reading his orig file

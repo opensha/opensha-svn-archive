@@ -16,7 +16,7 @@ import org.scec.data.Location;
 import org.scec.sha.fault.FrankelGriddedFaultFactory;
 import org.scec.sha.fault.GriddedFaultFactory;
 import org.scec.sha.surface.GriddedSurfaceAPI;
-import org.scec.sha.magdist.GuttenbergRichterMagFreqDist;
+import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
@@ -104,7 +104,7 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
     if( D ) System.out.println(S + "Starting");
     String fileName="";
     GriddedFaultFactory factory;
-    GuttenbergRichterMagFreqDist guttenbergRichter;
+    GutenbergRichterMagFreqDist gutenbergRichter;
     //file to be read based on the flag that is received as the parameter
     // variable declaration
     ArrayList rawFaultTraceData = null;

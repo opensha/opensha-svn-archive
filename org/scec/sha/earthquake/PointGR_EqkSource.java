@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake;
 
-import org.scec.sha.magdist.GuttenbergRichterMagFreqDist;
+import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.data.*;
 import org.scec.calc.RelativeLocation;
 
@@ -24,7 +24,7 @@ public class PointGR_EqkSource extends ProbEqkSource {
   private static String  C = new String("PointGR_EqkSource");
   private boolean D = false;
 
-  private GuttenbergRichterMagFreqDist gR;
+  private GutenbergRichterMagFreqDist gR;
   private double timeSpan = Double.NaN;
   //these are the static static defined varibles to be used to find the number of ruptures.
   private int totNumRups;
@@ -32,7 +32,7 @@ public class PointGR_EqkSource extends ProbEqkSource {
   private Location location;
 
   /**
-   * constructor specifying the values needed for Guttenberg Richter
+   * constructor specifying the values needed for Gutenberg Richter
    * and also for constructing the rupture
    *
    * @param rake  : Average rake of the surface
@@ -60,8 +60,8 @@ public class PointGR_EqkSource extends ProbEqkSource {
     if( D ) System.out.println("PointGR_EqkSource:delta::"+delta);
     if( D ) System.out.println("PointGR_EqkSource:num::"+num);
 
-    //Setting the GuttenbergDistribution
-    gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,num);
+    //Setting the GutenbergDistribution
+    gR = new GutenbergRichterMagFreqDist(magLower,magUpper,num);
     gR.setAllButTotMoRate(magLower,magUpper,cumRate,bValue );
 
     // Determine number of ruptures
