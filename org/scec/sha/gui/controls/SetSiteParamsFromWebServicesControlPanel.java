@@ -116,11 +116,11 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
    Double lonMax = new Double(lonMin.doubleValue());
    Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
    Double latMax = new Double(latMin.doubleValue());
-   String vs30 = "NA";
+   String willsClass = "NA";
    double basinDepth = Double.NaN;
    try{
    // get the vs 30 and basin depth from cvm
-   vs30 = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
+   willsClass = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
                                                       latMin.doubleValue(),latMax.doubleValue(),
                                                       0.5)).get(0);
    basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
@@ -131,19 +131,19 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
      return;
    }
 
-   System.out.println("Vs30: "+vs30+"  BasinDepth: "+basinDepth);
+//   System.out.println("willsClass: "+willsClass+"  BasinDepth: "+basinDepth);
    // now set the paramerts in the IMR
    if(this.imrComboBox.getSelectedItem().equals(this.SET_SELECTED_IMR)) { // do for selected IMR
        AttenuationRelationshipAPI imr =   this.imrGuiBean.getSelectedIMR_Instance();
        setSiteParamsInIMR(imr, lonMin.doubleValue(), latMin.doubleValue(),
-                          vs30, basinDepth);
+                          willsClass, basinDepth);
     } else { // do for all IMRS
        ArrayList imrObjects = this.imrGuiBean.getSupportedIMRs();
        int num = imrObjects.size();
        for(int i=0; i<num; ++i)
          setSiteParamsInIMR((AttenuationRelationshipAPI)imrObjects.get(i),
                             lonMin.doubleValue(), latMin.doubleValue(),
-                            vs30, basinDepth);
+                            willsClass, basinDepth);
     }
     // reflect the new parameter value in GUI
     this.siteGuiBean.getParameterListEditor().refreshParamEditor();
@@ -155,20 +155,22 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
    * @param imr
    * @param lon
    * @param lat
-   * @param vs30
+   * @param willsClass
    * @param basinDepth
    */
   private void setSiteParamsInIMR(AttenuationRelationshipAPI imr, double lon,
-                             double lat, String vs30, double basinDepth) {
-    // make the site object
-    Site site = new Site(new Location(lat, lon));
+                             double lat, String willsClass, double basinDepth) {
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
     while(it.hasNext()) {
       ParameterAPI tempParam = (ParameterAPI)it.next();
       //adding the site Params from the CVM, if site is out the range of CVM then it
       //sets the site with whatever site Parameter Value user has choosen in the application
-      boolean flag = siteTranslator.setParameterValue(tempParam,vs30,basinDepth);
-      site.addParameter(tempParam);
+      boolean flag = siteTranslator.setParameterValue(tempParam,willsClass,basinDepth);
+      if( !flag ) {
+        String message = "cannot set the site parameter \""+tempParam.getName()+"\" from Wills class \""+willsClass+"\""+
+                         "\n (no known, sanctioned translation - please set by hand)";
+        JOptionPane.showMessageDialog(this,message,"Warning",JOptionPane.OK_OPTION);
+      }
     }
 
   }
