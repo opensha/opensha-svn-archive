@@ -478,8 +478,12 @@ public class ScenarioShakeMapApp extends JApplet implements
       JOptionPane.showMessageDialog(this, "Please enter the file name");
       return;
     }
-    makeFile(siteLat,siteLon,siteValue);
-    mapGuiBean.makeMap(this.fileNameTextField.getText().trim());
+    try {
+      makeFile(siteLat,siteLon,siteValue);
+    }catch(Exception e) {
+
+    }
+    mapGuiBean.makeMap(this.fileNameTextField.getText().trim()+".txt");
   }
 
 
@@ -493,7 +497,7 @@ public class ScenarioShakeMapApp extends JApplet implements
   private void makeFile(Vector lat,Vector lon,Vector siteValue){
     try{
          int size=lat.size();
-         FileWriter fr = new FileWriter(this.fileNameTextField.getText().trim());
+         FileWriter fr = new FileWriter(this.fileNameTextField.getText().trim()+".txt");
          for(int i=0;i<size;++i)
            fr.write(lat.get(i)+" "+lon.get(i)+" "+siteValue.get(i)+"\n");
          fr.close();
