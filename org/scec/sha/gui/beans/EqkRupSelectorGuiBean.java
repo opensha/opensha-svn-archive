@@ -435,7 +435,9 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    * @param e
    */
   void hypoCentreCheck_actionPerformed(ActionEvent e) {
-    int sourceIndex = ((Integer)listEditor.getParameterList().getParameter(this.SOURCE_PARAM_NAME).getValue()).intValue();
+    String sourceValue = (String)listEditor.getParameterList().getParameter(this.SOURCE_PARAM_NAME).getValue();
+
+    int sourceIndex = Integer.parseInt(sourceValue.substring(0,sourceValue.indexOf("(")).trim());
     int ruptureIndex = ((Integer)listEditor.getParameterList().getParameter(this.RUPTURE_PARAM_NAME).getValue()).intValue();
     setParamsInForecast(sourceIndex,ruptureIndex);
   }
