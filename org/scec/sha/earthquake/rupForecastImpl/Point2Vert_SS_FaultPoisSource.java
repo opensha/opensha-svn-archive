@@ -44,7 +44,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
 
   //for Debug purposes
   private static String  C = new String("PointPoissonEqkSource");
-  private boolean D = true;
+  private boolean D = false;
 
   private IncrementalMagFreqDist magFreqDist;
   private double aveDip=90;

@@ -127,7 +127,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
    */
   private ArrayList charFaultSources;
   private ArrayList grFaultSources;
-  private ArrayList FrankelBackgrSeisSources;
+  private ArrayList frankelBackgrSeisSources;
   private ArrayList allSources;
 
   private WC1994_MagLengthRelationship magLenRel = new WC1994_MagLengthRelationship();
@@ -199,10 +199,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,
         (String)faultModelNamesStrings.get(0));
 
-    backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
+//    backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
 //    backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
-//    backSeisOptionsStrings.add(BACK_SEIS_ONLY);
-    backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_EXCLUDE);
+    backSeisOptionsStrings.add(BACK_SEIS_ONLY);
+    backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_ONLY);
 
     rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
         RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
@@ -266,7 +266,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
    */
   private void makeAllGridSources() {
 
-    makeGridSources("junk",1.0,null,0.0);
+    frankelBackgrSeisSources = new ArrayList();
+    makeGridSources("shear1_OpenSHA",1.0,null,0.0);
   }
 
 
@@ -828,7 +829,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     // Debuggin stuff
     String S = C + ": makeGridSources(): ";
 
-    double bVal, magMin, magMax, deltaMag, magRef, strike, siteMaxMag;
+    double bVal, magMin, magMax, deltaMag, magRef, strike, siteMagMax;
     int iflt, maxmat;
 
     // read the lines of the 1st input file into a list
@@ -861,8 +862,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     deltaMag = Double.parseDouble(st.nextToken());
     magRef = Double.parseDouble(st.nextToken());  // this is ignored in Frankel's code
 
-    if(magMin != magMax) magMin += deltaMag/2.0;
-
     // get the 2nd line
     st = new StringTokenizer(it.next().toString());
     iflt = Integer.parseInt(st.nextToken());    // source type:
@@ -874,6 +873,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     st.nextToken(); // skip this one (site specific b-value never used)
 
     maxmat = Integer.parseInt(st.nextToken()); // indicates whether there are site-specific max mags
+                                               // (0 if no adn 1 if yes)
 
     // get fixed strike from next line if necessary
     if(iflt == 2) {
@@ -881,7 +881,17 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
       strike = Double.parseDouble(st.nextToken());
     }
 
-    double lat,lon,aVal, moRate;
+//    if(D) {
+    System.out.println("bVal="+bVal+"  magMin="+magMin+"  magMax="+ magMax+"  deltaMag"+deltaMag+
+                         "  iflt="+iflt+"  maxmat="+maxmat);
+//    }
+
+    // make magMin bin centered
+    if(magMin != magMax) magMin += deltaMag/2.0;
+
+    double tempRate=0;
+
+    double lat,lon,aVal, moRate, rateAtZeroMag;
     Location loc;
     Point2Vert_SS_FaultPoisSource src;
     GutenbergRichterMagFreqDist grDist1, grDist2;
@@ -892,32 +902,42 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
       lon =  Double.parseDouble(st.nextToken());
       lat =  Double.parseDouble(st.nextToken());
-      aVal = Double.parseDouble(st.nextToken());
+      rateAtZeroMag = Double.parseDouble(st.nextToken());
+      aVal = 0.434294*Math.log(rateAtZeroMag);
+System.out.print("lat="+lat+"  lon="+lon+"  rateAtZeroMag="+ rateAtZeroMag+"  aVal="+aVal);
       loc = new Location(lat,lon);
       if(maxmat == 1)
-        siteMaxMag = Double.parseDouble(st.nextToken());
+        siteMagMax = Double.parseDouble(st.nextToken());
       else
-        siteMaxMag = magMax;
+        siteMagMax = magMax;
 
       // Note - In Frankel's code there are some checks (and actions) if siteMaxMag < 0.0
       // I'm ignoring these because this is never the case for the CA input files
 
       // move the max mag down to be bin centered
-      siteMaxMag -= deltaMag/2.0;
+      siteMagMax -= deltaMag/2.0;
 
-      int numMag = Math.round((float) ((siteMaxMag-magMin)/deltaMag));
+      int numMag = Math.round((float) ((siteMagMax-magMin)/deltaMag));
 
       moRate = getMomentRate(magMin, numMag, deltaMag, aVal, bVal);
 
+System.out.print("  magMin="+magMin+"  numMag="+numMag+"  deltaMag="+ deltaMag+"  bVal="+bVal+"\n");
+
       grDist1 = new GutenbergRichterMagFreqDist(magMin,numMag,deltaMag,moRate,bVal);
+//      double temp = Math.pow(10,aVal-bVal*magMin);
+//      grDist1.scaleToIncrRate(magMin,temp);
+
+tempRate += grDist1.getTotCumRate();
 
       // now make the source
       src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,duration,6.0,0);
 
       // add the source
-      FrankelBackgrSeisSources.add(src);
+      frankelBackgrSeisSources.add(src);
 
     }
+
+System.out.println("tot rate = "+tempRate);
   }
 
 
@@ -986,7 +1006,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
          // now create the allSources list:
          allSources.addAll(charFaultSources);
          allSources.addAll(grFaultSources);
-         allSources.addAll(FrankelBackgrSeisSources);
+         allSources.addAll(frankelBackgrSeisSources);
 
        }
        else if (backSeis.equalsIgnoreCase(BACK_SEIS_EXCLUDE)) {
@@ -998,7 +1018,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
        else {// only background sources
         makeAllGridSources();
         // now create the allSources list:
-        allSources.addAll(FrankelBackgrSeisSources);
+        allSources.addAll(frankelBackgrSeisSources);
        }
 
        parameterChangeFlag = false;
@@ -1040,7 +1060,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
      Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
      frankCast.updateForecast();
      System.out.println("num sources="+frankCast.getNumSources());
-     int n;
+/*     int n;
      for(int i=0; i<frankCast.getNumSources(); i++) {
        n=i+1;
        System.out.println(n+"th source: "+frankCast.getSource(i).getName());
