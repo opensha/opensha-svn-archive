@@ -35,7 +35,7 @@ public class IMR_GuiBean extends ParameterListEditor
 
   // IMR GUI Editor & Parameter names
   public final static String IMR_PARAM_NAME = "IMR";
-  public final static String IMR_EDITOR_TITLE =  "Select IMR";
+  public final static String IMR_EDITOR_TITLE =  "Set IMR";
   //this vector saves the names of all the supported IMRs
   private Vector imrNamesVector=new Vector();
   //this vector holds the full class names of all the supported IMRs

@@ -38,7 +38,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
   // ERF Editor stuff
   public final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
   // these are to store the list of independ params for chosen ERF
-  public final static String ERF_EDITOR_TITLE =  "Select Forecast";
+  public final static String ERF_EDITOR_TITLE =  "Set Forecast";
   // boolean for telling whether to show a progress bar
   boolean showProgressBar = true;
 

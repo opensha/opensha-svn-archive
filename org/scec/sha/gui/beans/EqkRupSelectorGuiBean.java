@@ -47,6 +47,8 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   //Deciaml format to show the Hypocenter Location Object in the StringParameter
   private DecimalFormat decimalFormat=new DecimalFormat("0.000##");
 
+  private final static String EQK_RUP_SELECTOR_TITLE = "EqkRupSelector Title";
+
 
   // ERF Editor stuff
   public final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
@@ -166,7 +168,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    listEditor= new ParameterListEditor(parameterList, searchPaths);
 
    // now make the editor based on the parameter list
-   listEditor.setTitle( erfGuiBean.ERF_EDITOR_TITLE );
+   listEditor.setTitle( EQK_RUP_SELECTOR_TITLE );
 
    if(!this.hypoCentreCheck.isSelected()){
      probEqkRupture.setHypocenterLocation(null);

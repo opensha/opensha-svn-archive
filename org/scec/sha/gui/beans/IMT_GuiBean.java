@@ -22,7 +22,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
   // IMT GUI Editor & Parameter names
   public final static String IMT_PARAM_NAME =  "IMT";
   // IMT Panel title
-  public final static String IMT_EDITOR_TITLE =  "Choose IMT";
+  public final static String IMT_EDITOR_TITLE =  "Set IMT";
 
   //stores the IMT Params for the choosen IMR
   private Vector imtParam;
