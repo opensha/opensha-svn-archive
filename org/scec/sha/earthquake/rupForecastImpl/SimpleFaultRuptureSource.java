@@ -20,12 +20,12 @@ import org.scec.sha.magdist.*;
  * <LI>rake - that rake (in degrees) assigned to all ruptures.
  * <LI>probability (or duration)
  * </UL><p>
- * If magnitude/probability are given the source is set as non poissonisn (and
+ * If magnitude/probability are given the source is set as non poissonian (and
  * duration is meaningless); If a mag-freq-dist and duration is given than the source
  * is assumed to be Poissonain. The entire surface ruptures for all cases (no floating
- * of events)  Note that none of the input objects are saved internally
- * (after construction) in order to conserve memory (this is why there
- * are no associated get/set methods for each).<p>
+ * of events)  Note that duration is the only constructor argument saved internally
+ * in order to conserve memory (this is why there are no associated get/set methods
+ * for anything besides duration).<p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field
@@ -43,13 +43,10 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
   //name for this classs
   protected String  NAME = C;
 
+  protected double duration;
+
   private Vector ruptureList;  // keep this in case we add more mags later
   private Vector faultCornerLocations = new Vector();   // used for the getMinDistance(Site) method
-
-  /* Note that none of the input objects are saved after the ruptureList is created
-     by the constructor.  This is deliberate to save memory.  A setName() method was
-     added here to enable users to give a unique identifier once created.
-  */
 
   /**
    * Constructor - this is for a single mag, non-poissonian rupture.
@@ -102,6 +99,7 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
                                   double duration) {
 
       this.isPoissonian = true;
+      this.duration = duration;
 
       if (D) {
         System.out.println("surface rows, cols: "+ruptureSurface.getNumCols()+", "+ruptureSurface.getNumRows());
@@ -132,6 +130,25 @@ public class SimpleFaultRuptureSource extends ProbEqkSource {
         }
       }
 
+  }
+
+  /**
+   * This changes the duration for the case where a mag-freq dist was given in
+   * the constructor (for the Poisson) case.
+   * @param newDuration
+   */
+  public void setDuration(double newDuration) {
+    if(this.isPoissonian != true)
+      throw new RuntimeException(C+" Error - the setDuration method can only be used for the Poisson case");
+    ProbEqkRupture eqkRup;
+    double oldProb, newProb;
+    for(int i = 0; i < ruptureList.size(); i++) {
+      eqkRup = (ProbEqkRupture) ruptureList.get(i);
+      oldProb = eqkRup.getProbability();
+      newProb = 1.0 - Math.pow((1.0-oldProb), newDuration/duration);
+      eqkRup.setProbability(newProb);
+    }
+    duration=newDuration;
   }
 
   /**

@@ -4,17 +4,24 @@ import java.util.Vector;
 import java.util.Iterator;
 
 import org.scec.sha.surface.EvenlyGriddedSurface;
-import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
-import org.scec.sha.magdist.SingleMagFreqDist;
-import org.scec.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelationship;
+import org.scec.sha.magdist.IncrementalMagFreqDist;
 import org.scec.data.*;
 import org.scec.calc.RelativeLocation;
 import org.scec.sha.earthquake.*;
 
 
+import org.scec.sha.fault.*;
+import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
+;
+
+
+
 /**
- * <p>Title: Frankel96_GR_EqkSource </p>
- * <p>Description: frankel 1996 Gutenberg Richter Type B earthquake source</p>
+ * <p>Title: Frankel02_GR_EqkSource </p>
+ * <p>Description: This implements Frankel's floating-rupture Gutenberg Richter
+ * source used in the 2002 version of his code.  We made this, rather than using
+ * the more general SimplePoissonFaultSource only for enhances performance (e.g.,
+ * no need to float down dip or to support Area(Mag) uncertainties.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta & Vipin Gupta
@@ -26,72 +33,62 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
 
 
   //for Debug purposes
-  private static String  C = "Frankel96_GR_EqkSource";
+  private static String  C = "Frankel02_GR_EqkSource";
   private boolean D = false;
 
-  private GutenbergRichterMagFreqDist gR;
   private double rake;
-  private double timeSpan;
+  private double duration;
   //these are the static static defined varibles to be used to find the number of ruptures.
   private final static double RUPTURE_WIDTH =100.0;
   private double rupOffset;
   private int totNumRups;
   private EvenlyGriddedSurface surface;
+  private Vector mags, rates;
 
   /**
-   * constructor specifying the values needed for Gutenberg Richter
-   * and also for constructing the rupture
+   * constructor specifying the values needed for the source
    *
-   * @param rake  : Average rake of the surface
-   * @param bValue : b Value in the GR distribution
-   * @param magLower : magLower as in GR distribution
-   * @param magUpper : magUpper as in GR distribution
-   * @param moRate : moment rate  of GR distribution (N-m/yr)
-   * @param delta  : delta as in GR distribution
-   * @param surface : Fault Surface
+   * @param magFreqDist - any IncrementalMagFreqDist
+   * @param surface - any EvenlyGriddedSurface
+   * @param rupOffset - floating rupture offset (km)
+   * @param rake - rake for all ruptures
+   * @param duration - forecast duration (yrs)
+   * @param sourceName - source name
    */
-  public Frankel02_GR_EqkSource(double rake,
-                                double bValue,
-                                double magLower,
-                                double magUpper,
-                                double moRate,
-                                double delta,
-                                double rupOffset,
+  public Frankel02_GR_EqkSource(IncrementalMagFreqDist magFreqDist,
                                 EvenlyGriddedSurface surface,
-                                String faultName) {
+                                double rupOffset,
+                                double rake,
+                                double duration,
+                                String sourceName) {
 
-    this.name = faultName+" GR";
-    this.rake=rake;
     this.surface=surface;
     this.rupOffset = rupOffset;
-    // see here that we have rounded num to nearest integer value
+    this.rake=rake;
+    this.duration = duration;
+    this.name = sourceName;
 
-    int num = (int)Math.rint((magUpper - magLower)/delta + 1);
-    if( D ) System.out.println("Frankel96_GR_EqkSource:magUpper::"+magUpper);
-    if( D ) System.out.println("Frankel96_GR_EqkSource:magLower::"+magLower);
-    if( D ) System.out.println("Frankel96_GR_EqkSource:delta::"+delta);
-    if( D ) System.out.println("Frankel96_GR_EqkSource:num::"+num);
     probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setAveRake(rake);
 
-    //Setting the GutenbergDistribution
-    gR = new GutenbergRichterMagFreqDist(magLower,magUpper,num);
-    gR.setAllButTotCumRate(magLower,magUpper,moRate,bValue );
-
-    // This was used for reading his orig file
-    //double rate = Math.pow(10,aVal - bValue*magLower);
-    //gR.scaleToIncrRate(magLower,rate);
+    // get a list of mags and rates for non-zero rates
+    mags = new Vector();
+    rates = new Vector();
+    for (int i=0; i<magFreqDist.getNum(); ++i){
+      if(magFreqDist.getY(i) > 0){
+        //magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
+        mags.add(new Double(magFreqDist.getX(i)));
+        rates.add(new Double(magFreqDist.getY(i)));
+      }
+    }
 
     // Determine number of ruptures
-    int numMags = gR.getNum();
+    int numMags = mags.size();
     totNumRups=0;
-    WC1994_MagLengthRelationship magLength = new WC1994_MagLengthRelationship();
-    for(int i=0;i<num;++i){
-      double rupLen = magLength.getMedianLength(gR.getX(i),rake);
+    for(int i=0;i<numMags;++i){
+      double rupLen = Math.pow(10.0,-3.22+0.69*((Double)mags.get(i)).doubleValue());
       totNumRups += getNumRuptures(rupLen);
     }
-    if( D ) System.out.println("Frankel96_GR_EqkSource:Frankel96_GR_EqkSource:totNumRups::"+totNumRups);
-    if( D ) System.out.println("Frankel96_GR_EqkSource:Frankel96_GR_EqkSource:momentRate::"+gR.getTotalMomentRate());
   }
 
   /**
@@ -107,18 +104,19 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
    * @return the object of the ProbEqkRupture class after setting the probability
    */
   public ProbEqkRupture getRupture(int nthRupture){
-    int numMags = gR.getNum();
+    int numMags = mags.size();
     double mag=0, rupLen=0;
-    int numRups=0, tempNumRups=0;
+    int numRups=0, tempNumRups=0, iMag=-1;
 
     if(nthRupture < 0 || nthRupture>=getNumRuptures())
        throw new RuntimeException("Invalid rupture index. This index does not exist");
 
     // this finds the magnitude:
-    WC1994_MagLengthRelationship magLength = new WC1994_MagLengthRelationship();
     for(int i=0;i<numMags;++i){
-      mag=gR.getX(i);
-      rupLen = magLength.getMedianLength(gR.getX(i),rake);
+      mag = ((Double)mags.get(i)).doubleValue();
+      iMag = i;
+      rupLen = Math.pow(10.0,-3.22+0.69*mag);
+      if(D) System.out.println("mag="+mag+"; rupLen="+rupLen);
       numRups = getNumRuptures(rupLen);
       tempNumRups += numRups;
       if(nthRupture < tempNumRups)
@@ -127,8 +125,8 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
 
     probEqkRupture.setMag(mag);
     // set probability
-    double rate = gR.getY(mag);
-    double prob = 1- Math.exp(-timeSpan*rate/numRups);
+    double rate = ((Double)rates.get(iMag)).doubleValue();
+    double prob = 1- Math.exp(-duration*rate/numRups);
     probEqkRupture.setProbability(prob);
 
     // set rupture surface
@@ -144,9 +142,9 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
    *
    * @param yrs : timeSpan as specified in  Number of years
    */
-  public void setTimeSpan(double yrs) {
+  public void setDuration(double yrs) {
    //set the time span in yrs
-    timeSpan = yrs;
+    duration = yrs;
   }
 
 
@@ -194,5 +192,33 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
   */
  public String getName() {
    return name;
+  }
+
+
+  /**
+   * this is to test the code
+   * @param args
+   */
+  public static void main(String[] args) {
+    FaultTrace fltTr = new FaultTrace("name");
+    fltTr.addLocation(new Location(33.0,-122,0));
+    fltTr.addLocation(new Location(34.0,-122,0));
+    FrankelGriddedFaultFactory factory = new FrankelGriddedFaultFactory(fltTr,90,0,10,1);
+
+    GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(6.5,3,0.5,6.5,7.5,1.0e14,1.0);
+    System.out.println("cumRate="+(float)gr.getTotCumRate());
+
+    Frankel02_GR_EqkSource src = new Frankel02_GR_EqkSource(gr,(EvenlyGriddedSurface)factory.getGriddedSurface(),
+                                                            10.0,0.0,1,"name");
+    ProbEqkRupture rup;
+    for(int i=0; i< src.getNumRuptures();i++) {
+      rup = src.getRupture(i);
+      System.out.print("rup #"+i+":\n\tmag="+rup.getMag()+"\n\tprob="+
+                          rup.getProbability()+"\n\tRup Ends: "+
+                          (float)rup.getRuptureSurface().getLocation(0,0).getLatitude()+"  "+
+                          (float)rup.getRuptureSurface().getLocation(0,rup.getRuptureSurface().getNumCols()-1).getLatitude()+
+                          "\n\n");
+    }
+
   }
 }

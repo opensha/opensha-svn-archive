@@ -11,10 +11,8 @@ import java.util.Iterator;
 import org.scec.param.*;
 import org.scec.calc.MomentMagCalc;
 import org.scec.util.*;
-import org.scec.sha.fault.FaultTrace;
 import org.scec.data.Location;
 import org.scec.sha.fault.*;
-import org.scec.sha.fault.GriddedFaultFactory;
 import org.scec.sha.surface.GriddedSurfaceAPI;
 import org.scec.sha.magdist.*;
 import org.scec.exceptions.FaultException;
@@ -51,9 +49,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   public final static String NAME = new String("USGS/CGS 2002 Adj. Cal. ERF");
 
 
-  Vector allSourceNames;
-
-  private double GRID_SPACING = 1.0;
+//  Vector allSourceNames;
 
   private String CHAR_MAG_FREQ_DIST = "1";
   private String GR_MAG_FREQ_DIST = "2";
@@ -129,9 +125,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   /**
    * Vectors for holding the various sources, separated by type
    */
-  private Vector FrankelA_CharEqkSources;
-  private Vector FrankelB_CharEqkSources;
-  private Vector FrankelB_GR_EqkSources;
+  private Vector charFaultSources;
+  private Vector grFaultSources;
   private Vector FrankelBackgrSeisSources;
   private Vector allSources;
 
@@ -173,6 +168,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
+    timeSpan.setDuration(50);
 
     // create and add adj params to list
     initAdjParams();
@@ -184,7 +180,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     rupOffset_Param.addParameterChangeListener(this);
     backSeisParam.addParameterChangeListener(this);
 
-    allSourceNames = new Vector();
+//    allSourceNames = new Vector();
+
+    charFaultSources = new Vector();
+    grFaultSources = new Vector();
 
     this.makeAllFaultSources();
 
@@ -212,8 +211,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
         (String)faultModelNamesStrings.get(0));
 
     backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
-    backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
-    backSeisOptionsStrings.add(BACK_SEIS_ONLY);
+//    backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
+//    backSeisOptionsStrings.add(BACK_SEIS_ONLY);
     backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_EXCLUDE);
 
     rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
@@ -235,6 +234,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
    * This makes the sources for the input files of hazFXv3 and hazFXv3a (and wts):
    */
   private void makeAllFaultSources() {
+
     makeFaultSources("ca-a-other-fixed-char", 1.0,null,0);
     makeFaultSources("ca-a-other-norm-char", 1.0,null,0);
     makeFaultSources("ca-amod1-char", 0.5,null,0);
@@ -261,14 +261,14 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     makeFaultSources("creepflt", 1.0,null,0);
 
 // not sure if the rest are needed
-/* */
+/*
     makeFaultSources("ext-norm-65", 1.0,null,0);
     makeFaultSources("ext-norm-char", 0.5,null,0);
     makeFaultSources("ext-norm-gr", 0.5,null,0);
     makeFaultSources("wa_or-65", 1.0,null,0);
     makeFaultSources("wa_or-char", 0.5,null,0);
     makeFaultSources("wa_or-gr", 0.5,null,0);
-
+*/
 
   }
 
@@ -303,18 +303,15 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
       if( D ) System.out.println("fileName2 = " + IN_FILE_PATH + fileName2);
     }
 
-    FrankelA_CharEqkSources = new Vector();
-    FrankelB_CharEqkSources = new Vector();
-    FrankelB_GR_EqkSources = new Vector();
-
     String  magFreqDistType = "", faultingStyle, sourceName="";
-    double dlen, dmove;                 // fault discretization and floater offset, respectively
+    double gridSpacing, dmove;                 // fault discretization and floater offset, respectively
     int numBranches, numMags, numMags2;                    // num branches for mag epistemic uncertainty
     Vector branchDmags = new Vector();  // delta mags for epistemic uncertainty
     Vector branchWts = new Vector();    // wts for epistemic uncertainty
     double aleStdDev, aleWidth;         // aleatory mag uncertainties
 
-    GriddedFaultFactory factory;
+    FrankelGriddedFaultFactory frankelFaultFactory = null;
+    StirlingGriddedFaultFactory stirlingFaultFactory = null;
     SummedMagFreqDist totalMagFreqDist;
     double   lowerSeismoDepth, upperSeismoDepth;
     double lat, lon, rake=Double.NaN;
@@ -331,9 +328,14 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     double test, test2=0;
     double magEp, wtEp;
 
+    GriddedSurfaceAPI surface;
+
     // get adjustable parameters values
     String faultModel = (String) faultModelParam.getValue();
     double rupOffset = ((Double) rupOffset_Param.getValue()).doubleValue();
+
+    // get the duration
+    double duration = timeSpan.getDuration();
 
     // get an iterator for the input file lines
     ListIterator it = inputFaultFileLines1.listIterator();
@@ -342,8 +344,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     StringTokenizer st = new StringTokenizer(it.next().toString());
     // first line has the fault discretization & floater offset
     // (these are 1.0 & 1.0 in all the files)
-    dlen = Double.parseDouble(st.nextToken());
-    dmove = Double.parseDouble(st.nextToken());
+    gridSpacing = Double.parseDouble(st.nextToken());
+    dmove = Double.parseDouble(st.nextToken());  // this is ignored since we have the rupOffset parameter
 
     // get the 2nd line from the file
     st = new StringTokenizer(it.next().toString());
@@ -394,11 +396,12 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
         st.nextToken(); // skip first two
         st.nextToken();
         while(st.hasMoreElements()) sourceName2 += st.nextElement()+" ";
-//        System.out.println("source1: "+sourceName+"\nsource2: "+sourceName2);
       }
 
       // get the next line from the file
       st = new StringTokenizer(it.next().toString());
+
+      // MAKE THE MAG-FREQ-DIST
 
       // if it's a characteristic distribution:
       if(magFreqDistType.equals(CHAR_MAG_FREQ_DIST)) {
@@ -426,27 +429,28 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
             maxMag2 = mag2 + ((Double)branchDmags.get(branchDmags.size()-1)).doubleValue() + aleWidth*0.05;
           }
 
-          // make the Char magFreqDist (depending on whether uncertainties should be considered)
+          // make the Char magFreqDist for case where no  uncertainties should be considered
           if(minMag < 5.8 || aleStdDev == 0.0) {   // the no-uncertainty case:
             if(fileName2 == null){
               SingleMagFreqDist tempDist = new SingleMagFreqDist(mag,1,0.1,mag,moRate*wt1);
               totalMagFreqDist = new SummedMagFreqDist(mag,1,0.1, false, false);
               totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
             }
+            // the case when the second filename is not null
             else {
               // make sure minMag2 does not violate the if statement above
               // (comment this out after it's run once since files won't change)
               if(minMag2 >= 5.8) throw new RuntimeException(C+" Problem: minMag of second file conflicts");
+              // find the min/max mags for the combined distribution
+              SingleMagFreqDist tempDist;
               if(mag > mag2) {
-                mLow = mag2;
-                mHigh = mag;
+                totalMagFreqDist = new SummedMagFreqDist(mag2,mag,2, false, false);
+                tempDist = new SingleMagFreqDist(mag2,mag,2);
               }
               else {
-                mLow =mag;
-                mHigh = mag2;
+                totalMagFreqDist = new SummedMagFreqDist(mag,mag2,2, false, false);
+                tempDist = new SingleMagFreqDist(mag,mag2,2);
               }
-              totalMagFreqDist = new SummedMagFreqDist(mLow,mHigh,2, false, false);
-              SingleMagFreqDist tempDist = new SingleMagFreqDist(mLow,mHigh,2);
               tempDist.setMagAndMomentRate(mag,moRate*wt1);
               totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
               tempDist.setMagAndMomentRate(mag2,moRate2*wt2);
@@ -492,6 +496,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
       }
       else { // It's a GR distribution
 
+          // read the GR parameters
           aVal=Double.parseDouble(st.nextToken());
           bVal=Double.parseDouble(st.nextToken());
           magLower=Double.parseDouble(st.nextToken());
@@ -527,7 +532,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
           // Set the source-name suffix
           if( mag == magLower )
-            sourceName += " fl-Char";
+            sourceName += " fl-Char";  // this is to ensure a unique source name
           else {
             sourceName += " GR";
           }
@@ -582,7 +587,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
                 }
               }
             }
-            // Do Single mad dist w/ no uncertainties
+            // Do Single mag dist w/ no uncertainties
             else {
               if(fileName2 == null){
                 SingleMagFreqDist tempDist = new SingleMagFreqDist(mag,1,0.1,mag,moRate*wt1);
@@ -590,16 +595,15 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
                 totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
               }
               else {
+                SingleMagFreqDist tempDist;
                 if(mag > mag2) {
-                  mLow = mag2;
-                  mHigh = mag;
+                  totalMagFreqDist = new SummedMagFreqDist(mag2,mag,2, false, false);
+                  tempDist = new SingleMagFreqDist(mag2,mag,2);
                 }
                 else {
-                  mLow =mag;
-                  mHigh = mag2;
-                }
-                totalMagFreqDist = new SummedMagFreqDist(mLow,mHigh,2, false, false);
-                SingleMagFreqDist tempDist = new SingleMagFreqDist(mLow,mHigh,2);
+                  totalMagFreqDist = new SummedMagFreqDist(mag,mag2,2, false, false);
+                  tempDist = new SingleMagFreqDist(mag,mag2,2);
+                 }
                 tempDist.setMagAndMomentRate(mag,moRate*wt1);
                 totalMagFreqDist.addIncrementalMagFreqDist(tempDist);
                 tempDist.setMagAndMomentRate(mag2,moRate2*wt2);
@@ -683,42 +687,14 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
               }
             }
           }
-/*
-if (fileName2 != null) {
-  test = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
-  double test2 = mag2 + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
-  if(numMags == 1) {
-    if(test < 6.5 || test2 < 6.5)
-      System.out.println("test1="+test+"; test2="+test2+ "  --- "+sourceName);
-  }
-}
-*/
-
-/*
-          // set itest
-          itest = false;
-
-          test = mag + ((Double)branchDmags.get(0)).doubleValue();
-          if( test < 6.5 && numMags > 1 )  itest = true;
-
-          test = mag + ((Double)branchDmags.get(0)).doubleValue() - aleWidth*0.05;
-          if (numMags == 1 && test < 5.8) itest = true;
-
-          // over ride if aleatory uncertainty is zero (not sure why they do this)
-          if (aleStdDev == 0.0) itest = true;
-
-
-
-          // make mag-freq-dist (w/ both aleatory and epistemic)
-*/
-      }
+       }
 
       if(D) System.out.println("    "+sourceName);
 
-      // KEEP THIS?
-      allSourceNames.add(sourceName);
+//      allSourceNames.add(sourceName);
 
-      // NOW GET THE FAULT SURFACE
+      // MAKE THE FAULT SURFACE
+
       // next line has dip, ...
       st=new StringTokenizer(it.next().toString());
       dip=Double.parseDouble(st.nextToken());
@@ -751,57 +727,39 @@ if (fileName2 != null) {
 
 //      if( D ) System.out.println(C+":faultTrace::"+faultTrace.toString());
 
+      // Make the fault surface
       if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
-        factory = new FrankelGriddedFaultFactory( faultTrace, dip, upperSeismoDepth,
-                                                   lowerSeismoDepth, GRID_SPACING);
+        // make the factory if it hasn't been done
+        if(frankelFaultFactory == null)
+          frankelFaultFactory = new FrankelGriddedFaultFactory();
+        frankelFaultFactory.setAll(faultTrace, dip, upperSeismoDepth,
+                                   lowerSeismoDepth, gridSpacing);
+        surface = frankelFaultFactory.getGriddedSurface();
       }
       else {
-        factory = new StirlingGriddedFaultFactory( faultTrace, dip, upperSeismoDepth,
-                                                   lowerSeismoDepth, GRID_SPACING);
+        // make the factory if it hasn't been done
+        if(stirlingFaultFactory == null)
+          stirlingFaultFactory = new StirlingGriddedFaultFactory();
+        stirlingFaultFactory.setAll(faultTrace, dip, upperSeismoDepth,
+                                   lowerSeismoDepth, gridSpacing);
+        surface = stirlingFaultFactory.getGriddedSurface();
       }
 
-      GriddedSurfaceAPI surface = factory.getGriddedSurface();
-
-/*
-      // Now make the source(s)
-      if(faultClass.equalsIgnoreCase(FAULT_CLASS_B) && mag>6.5){
-            // divide the rate according the faction assigned to GR dist
-//            double rate = (1.0-fracGR)*charRate;
-//            double moRate = fracGR*charRate*MomentMagCalc.getMoment(mag);
-              double rate = charRate;
-              double moRate = charRate*MomentMagCalc.getMoment(mag);
-            // make the GR source
-            if(moRate>0.0) {
-              Frankel02_GR_EqkSource frankel96_GR_src = new Frankel02_GR_EqkSource(rake,B_VALUE,MAG_LOWER,
-                                                   mag,moRate,DELTA_MAG,rupOffset,(EvenlyGriddedSurface)surface, faultName);
-              frankel96_GR_src.setTimeSpan(timeDuration);
-              FrankelB_GR_EqkSources.add(frankel96_GR_src);
-            }
-            // now make the Char source
-            if(rate>0.0) {
-              Frankel02_CharEqkSource frankel96_Char_src = new  Frankel02_CharEqkSource(rake,mag,rate,
-                                                      (EvenlyGriddedSurface)surface, faultName);
-              frankel96_Char_src.setTimeSpan(timeDuration);
-              FrankelB_CharEqkSources.add(frankel96_Char_src);
-            }
-      }
-      else if (faultClass.equalsIgnoreCase(FAULT_CLASS_B)) {    // if class B and mag<=6.5, it's all characteristic
-            Frankel02_CharEqkSource frankel96_Char_src = new  Frankel02_CharEqkSource(rake,mag,charRate,
-                                                      (EvenlyGriddedSurface)surface, faultName);
-            frankel96_Char_src.setTimeSpan(timeDuration);
-            FrankelB_CharEqkSources.add(frankel96_Char_src);
-
-      }
-      else if (faultClass.equalsIgnoreCase(FAULT_CLASS_A)) {   // class A fault
-            Frankel02_CharEqkSource frankel96_Char_src = new  Frankel02_CharEqkSource(rake,mag,charRate,
-                                                      (EvenlyGriddedSurface)surface, faultName);
-            frankel96_Char_src.setTimeSpan(timeDuration);
-            FrankelA_CharEqkSources.add(frankel96_Char_src);
+      // MAKE THE SOURCES (adding to the appropriate list)
+      if(magFreqDistType.equals(CHAR_MAG_FREQ_DIST)) {
+        SimpleFaultRuptureSource frs = new SimpleFaultRuptureSource(totalMagFreqDist,
+                                                                    (EvenlyGriddedSurface) surface,
+                                                                    rake,duration);
+        frs.setName(sourceName);
+        charFaultSources.add(frs);
       }
       else {
-            throw new FaultException(C+" Error - Bad fault Class :"+faultClass);
+        Frankel02_GR_EqkSource fgrs = new Frankel02_GR_EqkSource(totalMagFreqDist,
+                                                                 (EvenlyGriddedSurface) surface,
+                                                                 rupOffset, rake, duration, sourceName);
+        grFaultSources.add(fgrs);
       }
-*/
+
     }  // bottom of loop over input-file lines
 
   }
@@ -952,20 +910,17 @@ if (fileName2 != null) {
        allSources = new Vector();
 
        if (backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE)) {
-//         makeFaultSources();
          makeBackSeisSources();
          // now create the allSources list:
-         allSources.addAll(FrankelA_CharEqkSources);
-         allSources.addAll(FrankelB_CharEqkSources);
-         allSources.addAll(FrankelB_GR_EqkSources);
+         allSources.addAll(charFaultSources);
+         allSources.addAll(grFaultSources);
          allSources.addAll(FrankelBackgrSeisSources);
+
        }
        else if (backSeis.equalsIgnoreCase(BACK_SEIS_EXCLUDE)) {
- //        makeFaultSources();
          // now create the allSources list:
-         allSources.addAll(FrankelA_CharEqkSources);
-         allSources.addAll(FrankelB_CharEqkSources);
-         allSources.addAll(FrankelB_GR_EqkSources);
+         allSources.addAll(charFaultSources);
+         allSources.addAll(grFaultSources);
        }
        else {// only background sources
         makeBackSeisSources();
@@ -974,13 +929,6 @@ if (fileName2 != null) {
        }
 
        parameterChangeFlag = false;
-/*
-String tempName;
-for(int i=0;i<allSources.size();i++) {
-  tempName = ((ProbEqkSource) allSources.get(i)).getName();
-  System.out.println("source "+ i +"is "+tempName);
-}
-*/
      }
 
    }
@@ -1017,6 +965,8 @@ for(int i=0;i<allSources.size();i++) {
    public static void main(String[] args) {
 
      Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
+//     frankCast.updateForecast();
+//     System.out.println("num Sources = "+frankCast.getNumSources());
 /*
      frankCast.updateForecast();
      System.out.println("num sources="+frankCast.getNumSources());
