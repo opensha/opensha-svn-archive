@@ -88,27 +88,43 @@ public class SimpleFaultParameterGUI extends JFrame{
       this.dispose();
   }
 
+  /**
+   * gets the fault trace for the griddedSurface
+   * @return
+   */
   public FaultTrace getFaultTrace(){
    return gridSurface.getFaultTrace();
   }
 
-
+  /**
+   * gets the Upper Siesmogenic depth for the gridded surface
+   * @return
+   */
   public double getUpperSies(){
     return gridSurface.getUpperSiesmogenicDepth();
   }
 
+  /**
+   * gets the lower Seismogenic depth for the gridded surface
+   * @return
+   */
   public double getLowerSies(){
     return gridSurface.getLowerSiesmogenicDepth();
   }
 
+  /**
+   * gets the fault Name
+   * @return
+   */
   public String getFaultName(){
     return gridSurface.getFaultName();
   }
 
+  /**
+   * gets the SimpleFaultParameterEditor object back to the applications
+   * @return
+   */
   public SimpleFaultParameterEditor getSimpleParameterFaultEditor(){
     return this.gridSurface;
   }
-
-
-
 }

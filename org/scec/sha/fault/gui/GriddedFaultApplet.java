@@ -406,6 +406,7 @@ public class GriddedFaultApplet
         this.frankel_StirlingComboBox.setVisible(false);
 
         surface = (EvenlyGriddedSurface)faultParam.getValue();
+        System.out.println("GriddedSurface: "+surface.toString());
       }
 
       surface.setName(faultName);
@@ -896,7 +897,8 @@ public class GriddedFaultApplet
                 if( surface == null ||
                     !surface.getName().equals(currentGriddedSurfaceName) ||
                     gridSpacingChanged()||
-                    !currentGriddedFaultType.equalsIgnoreCase(selectedFaultType)){
+                    !currentGriddedFaultType.equalsIgnoreCase(selectedFaultType)
+                    || this.isCustomFault){
 
                     surface = getFaultGriddedSurface(currentGriddedSurfaceName);
 
