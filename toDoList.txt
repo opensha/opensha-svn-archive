@@ -1,82 +1,32 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-IMR_GuiBean 	-extend to allow multiple IMRs to be selected, with relative weights 
-		applied to each.  
-Following is how we envision the application will be built:
-There will be 2 GuiBeans as we have currently, as we have in present application. When the application starts up it will give the instances of all the supported AttenuationRelationship to both the IMT_GuiBean and also to the IMR_GuiBean. User is first supposed to select the IMT and its independent parameters, these selecetd IMT Parameters will be the input to the IMR_GuiBean. Only those AttenuationRelationship that support the IMT and its independent parameters will be enabled and user has choice to select from among those AttenuationRelationship. Each AttenuationRelationship will be having the associated weights which can either absolute( sum total should be 1) or can be relative which we can normalize later, but have to document this to make sure user knows about it. Each attenuation relationship will also be associated "Non-Identical Params" like Component, Std. Dev Type. We will keep the default parameters value for these parameters to be similar but in case user tries to choose different values of these parameter, we can throw the Warning message to him. There will also be "Identical Params" like Gaussian Truncation where all have same constraints for the parameter. Now once the person has made the selection for the Attenuation Relationship, site params in the GriddedRegionGuiBean and SiteGuiBean have to reflected accordingly. Now we have to take the clones of siteParams because some attenuations, like Campbell-97 and Field-2003, have same site types, and we want to set the site types in all selected attenuations.  
+Finish getting Frankel's 2002 code running on the Mac.
+
+MultipleIMR_GuiBean:
+
+	1) combine this with the IMTGuiBean (no reason to have the two separate)
+
+	2) test it
+
+	3) Implement the "Generate Jazus Shape files for Scenario" control panel
+
+	4) Move averaging of XYZ datasets to the scenario shakeMap calculator 
+	(created a method that takes the list of IMRs and their associated weights).
+	This will later be optimized using the PropagationEffect object.
+
+	5) check how averaging is done (e.g., on log values?); ned will do this.
 
 
-
--Create capability to associate IMRs to specific source types in the calculations
-		(this will take some thought).
-
-
-                 
-
-We did not discuss about it , so Ned might have to think about it, because this will only be supported in our HazardCurve applications.
-This will require using an epistemic list control panel (generalize existing one?) to declare what to compute and plot(ind. curves, mean, fractile, ...). 
-
-This capability once created can be used in the applet we envision to create to run the Hazard Maps on Grid using the webservice.  
-
-Automate HAZUS shape-file generation & validate
+Create capability to associate IMRs to specific source types in the calculations (this will take some thought and perhaps some communication with Golder).
 
 Make a library to represent t-surfaces (or look on internet to see if someone else has come up with a good object-oriented design).
 
-===================================
-
-Use the get metadata methods in the MagFreqDist tester applet; then Ned needs to go through and make sure everything looks correct.
-
-
-Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the user what they are looking at in a plot; 2) save the state of a stand-alone app on the user's computer so they can relaunch later and begin where they left off; and 3) save enough information to the SRB (or equivalent) so we can tell at runtime whether a calculation has already been done, or so other's browsing the SRB will see what's available.
-
-We obviously want as much of a common solution to these three cases as possible. The goal seems to be achievable by simply saving the settings for all the parameters in the working environment (GUI or batch mode), and for each ParameterListEditor, or its GuiBean subclass, to be able to recreate the previous state when the metaData is fed back in.
-
-The solution seems to be for each type of parameter to support a getMetaDataSring() method (we could also make a getMetaDataXML() method if need be) (note that we are using the toString() inappropriately and should probably revert to convention on this method).  For primitive parameter types this will simply give:
-
-	name
-	value
-
-(I don't think the type, units or constraints are needed because other entities that create the parameters decide these things; all the metaData is going to be used for is for setting values)
-
-Also, if a parameter has any dependent parameters these should get saved as well (as well as dependent parameters of dependent parameters, etc., but hopefully developers won't get carried away with numerous sub levels).
-
-Using the "SA" IMT as an example (it has two dependent parameters: "Period" and "Damping"), the short, plot-label representation might look like:
-
-	IMT = SA [Period = 1.0; Damping = 5.0]
-
-This raises issues with respect to allowed characters in a parameter name.  Why don't we reserve the following special characters for writing the string-representation of metadata (meaning these can't be used in parameter names):
-
-	=	- separate name/value pairs
-	;	- to separate parameters
-	[	- to encapsulate dependent params
-	]	- to encapsulate dependent params
-	:	- for writing out parameterList (or GuiBean) values (also "----" under these?)
-
-Can we avoid such special character issues using XML representation (for the case where we read values back in to redo a calculation)?
-
-With respect to GuiBeans we have discussed two approaches.  Let's take the ERF_GuiBean as an example.  One mode (mentioned above) is to read back in the parameter settings (from XML), set the parameter values accordingly, and then recreate the ERF.  If the ERF is very time consuming to create, then the second mode would be to read back in the serialized version of the object, and since all the parameter are already set, the GuiBean would not have to do anything.  
-
-Note that all non primitive parameter types (e.g., MagFreqDistParam and SimpleFaultParam) must contain all info needed by their respective editor to recreate the object; this info is stored in their dependent parameter list.
-
-===================================
-
-Update AttenRelPlotter with new generic graphing components.
-
-HazardCurvApp - 
-
-	after using ERF list, all lines are black.
-
-	maintain state of the plot when peeled off (axis limits and log selections)
-
-	
+Finish the PropagationEffect object and utilize it (Ned will do this).
 
 Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
 
 AttenuationRelationshipApp
-
-	Remove the label (and space) at the top where is says "Attenuation Relationship GUI"
-	(this is redundant with the application title bar)
 
 	Fix this plotting problem: Choose ShakeMap (2003), select "Std. Dev." for the Y axis, and 
 	then add plot (you can't see anything, presumably because the data only has one value).  This
@@ -95,8 +45,6 @@ GMT_MapGenerator:
 
 Look into how to save an application in its current state (and to an abitrary file name) so that a user can double click later to come back.
 
-We need to somehow metadata in the HazardCurveCalculator; also make the ability to "peel off" the plot/metadata window (Ned and Nitin will discuss this more later)?
-
 Finish PEER results plotter & data submission tool (when they give us the final files).
 
 Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x). Ned needs to double check these.
@@ -104,6 +52,28 @@ Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(E
 Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
+
+
+Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the user what they are looking at in a plot (this is done); 2) save the state of a stand-alone app on the user's computer so they can relaunch later and begin where they left off; and 3) save enough information to the SRB (or equivalent) so we can tell at runtime whether a calculation has already been done, or so other's browsing the SRB will see what's available. This raises issues with respect to allowed characters in a parameter name.  Why don't we reserve the following special characters for writing the string-representation of metadata (meaning these can't be used in parameter names):
+
+	=	- separate name/value pairs
+	;	- to separate parameters
+	[	- to encapsulate dependent params
+	]	- to encapsulate dependent params
+	:	- for writing out parameterList (or GuiBean) values (also "----" under these?)
+
+	Can we avoid such special character issues using XML representation (for the case where 
+	we read values back in to redo a calculation)?
+
+	With respect to GuiBeans we have discussed two approaches.  Let's take the ERF_GuiBean as 
+	an example.  One mode (mentioned above) is to read back in the parameter settings (from XML), 
+	set the parameter values accordingly, and then recreate the ERF.  If the ERF is very time 
+	consuming to create, then the second mode would be to read back in the serialized version 
+	of the object, and since all the parameter are already set, the GuiBean would not have to 
+	do anything.  Note that all non primitive parameter types (e.g., MagFreqDistParam and 
+	SimpleFaultParam) must contain all info needed by their respective editor to recreate the 
+	object; this info is stored in their dependent parameter list.
+
 
 *****************************************************************
 
@@ -117,8 +87,6 @@ Ned needs to think about the following:
 	Subduction IntraSlab
 	Shallow Crustal in Active Tectonic Regions
 	Shallow Crustal in Stable Tectonic Regions
-
-Implement 2002 National Hazard maps model - Ned will work on.
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D
 
@@ -144,12 +112,6 @@ ERF		-extend API to include getting max and min magnitude, and the various types
 		sources generated (to check for compatibility with each chosen IMR)
 
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
-
-SimpleGriddedFaultFactory
-
-	we create a new instance of this object every time we create 
-	a new surface; it would be more efficient to use the set methods
-	before getting a new surface (use the setAll() method added by Ned).
 
 EvenlyGriddedSurface: have the getAveDip() method compute the dip explicitly (in case it's a subset of a listric fault)?
 

@@ -162,6 +162,29 @@ public abstract class DependentParameter
 
   }
 
+  /**
+   * Rather than giving the name and value info, this returns the name and the name/value
+   * pairs for all the parameters in the IndependentParameterList of this parameter.
+   * This can be used for any parameters where the value does not have a sensible
+   * ascii representation (e.g., a ParameterListParameter).
+   * @return
+   */
+  public String getDependentParamMetadataString() {
+    StringBuffer metadata = new StringBuffer();
+    metadata.append(getName()+" [ ");
+    ListIterator list = getIndependentParametersIterator();
+    while(list.hasNext()){
+     ParameterAPI tempParam = (ParameterAPI)list.next();
+     metadata.append(tempParam.getMetadataString()+" ; ");
+     /* Note that the getmetadatSring is called here rather than the
+        getDependentParamMetadataString() method becuase the former is
+        so far overriden in all Parameter types that have independent
+        parameters; we may want to change this later on. */
+    }
+    metadata.replace(metadata.length()-2,metadata.length()," ]");
+    return metadata.toString();
+  }
+
 
   /** Adds the parameter if it doesn't exist, else throws exception */
   public void addIndependentParameter(ParameterAPI parameter) throws ParameterException, EditableException{

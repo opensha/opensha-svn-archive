@@ -55,4 +55,7 @@ public interface DependentParameterAPI extends ParameterAPI {
     /** Returns all the names of the independent parameters concatenated */
     public String getIndependentParametersKey();
 
+    /** see implementation in the DependentParameter class for information */
+    public String getDependentParamMetadataString();
+
 }

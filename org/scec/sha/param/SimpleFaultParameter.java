@@ -709,24 +709,13 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
   }
 
   /**
-   *
-   * @returns the matadata string for parameter.
-   * This function returns the metadata which can be used to reset the values
-   * of the parameters created.
-   * *NOTE : Look at the function getMetadataXML() which return the values of
-   * these parameters in the XML format and can used recreate the parameters
-   * from scratch.
+   * This overrides the getmetadataString() method because the value here
+   * does not have an ASCII representation (and we need to know the values
+   * of the independent parameter instead).
+   * @returns Sstring
    */
   public String getMetadataString() {
-    StringBuffer metadata = new StringBuffer();
-    metadata.append(getName()+" [ ");
-    ListIterator list = getIndependentParametersIterator();
-    while(list.hasNext()){
-     ParameterAPI tempParam = (ParameterAPI)list.next();
-     metadata.append(tempParam.getMetadataString()+" ; ");
-    }
-    metadata.replace(metadata.length()-2,metadata.length()," ]");
-    return metadata.toString();
+    return getDependentParamMetadataString();
   }
 
   /**
