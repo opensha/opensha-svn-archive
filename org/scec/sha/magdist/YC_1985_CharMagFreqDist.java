@@ -164,6 +164,10 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
     // checks that magUpper, magLower, magPrime, deltaMagPrime, and deltaMagChar
     // are well posed.
+    if( deltaMagChar < 0 )
+        throw new InvalidRangeException("deltaMagChar must be positive");
+    if( deltaMagPrime < 0 )
+        throw new InvalidRangeException("deltaMagPrime must be positive");
     if(magLower < minX || magLower > maxX)
         throw new DataPoint2DException("magLower should lie between minX and maxX");
     if(magLower > magUpper)
@@ -174,6 +178,9 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
         throw new InvalidRangeException("magPrime-deltaMagPrime must be greater than magLower");
     if( deltaMagChar > (magUpper-magPrime+deltaMagPrime) )
         throw new InvalidRangeException("deltaMagChar > (magUpper-magPrime+deltaMagPrime), which is not allowed");
+    if( magPrime > (magUpper-deltaMagChar) )
+        throw new InvalidRangeException("magPrime > (magUpper-deltaMagChar), which is not allowed");
+
 
     double magForRate = magPrime - deltaMagPrime;
 
