@@ -5,13 +5,15 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.util.ArrayList;
+
+
 import org.scec.util.FileUtils;
-
-
 import org.scec.data.region.*;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.calc.SubmitJobForGridComputation;
+import org.scec.sha.calc.SubmitJobForMultiprocessorComputation;
+import org.scec.sha.gui.infoTools.HazardMapSubmissionMethods;
 
 /**
  * <p>Title: HazardMapCalcServlet </p>
@@ -59,6 +61,10 @@ public class HazardMapCalcServlet extends HttpServlet {
       ArrayList xValuesList = (ArrayList) inputFromApplet.readObject();
       // get the MAX_SOURCE distance
       double maxDistance =  ((Double) inputFromApplet.readObject()).doubleValue();
+
+      //get the mode of Hazard Map calculation(Using Grid or Thread)
+      String hazardMapCalcOption = (String)inputFromApplet.readObject();
+
       //get the email address from the applet
       String emailAddr = (String) inputFromApplet.readObject();
       //get the parameter values in String form needed to reproduce this
@@ -112,11 +118,15 @@ public class HazardMapCalcServlet extends HttpServlet {
       if(D) System.out.println("after wget");
 
       // now run the calculation on grid
-      SubmitJobForGridComputation computation =
-          new SubmitJobForGridComputation(IMR_FILE_NAME, ERF_FILE_NAME,
-                                     REGION_FILE_NAME, X_VALUES_FILE_NAME,
-                                     maxDistance, newDir, newDirId, sites,
-                                     emailAddr);
+      SubmitJobForGridComputation computation = null;
+
+      if(hazardMapCalcOption.equals(HazardMapSubmissionMethods.USE_GRID))
+        computation =  new SubmitJobForGridComputation(IMR_FILE_NAME, ERF_FILE_NAME,
+            REGION_FILE_NAME, X_VALUES_FILE_NAME,maxDistance, newDir, newDirId, sites,
+            emailAddr);
+      else
+        computation =  new SubmitJobForMultiprocessorComputation(IMR_FILE_NAME, ERF_FILE_NAME,
+            REGION_FILE_NAME, X_VALUES_FILE_NAME,maxDistance, newDir, newDirId,emailAddr);
     }
     catch (Exception e) {
       // report to the user whether the operation was successful or not
