@@ -454,6 +454,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    */
   public void run(){
     getRegionAndMapType();
+    //checks if the calculation are to be done on the server
+    calcOnServer = application.doCalculationOnServer();
     generateShapeFilesForHazus();
   }
 
@@ -463,8 +465,6 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    */
   void generateHazusShapeFilesButton_actionPerformed(ActionEvent e) {
     calcProgress = new CalcProgressBar("Hazus Shape file data","Starting Calculation...");
-    //checks if the calculation are to be done on the server
-    calcOnServer = application.doCalculationOnServer();
     timer = new Timer(200, new ActionListener() {
       public void actionPerformed(ActionEvent evt) {
         if(step == 1)
@@ -520,9 +520,9 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * IML@Prob or Prob@IML and it value.
    */
   public void getRegionAndMapType(){
+    application.getGriddedSitesMapTypeAndSelectedAttenRels();
     step =1;
     timer.start();
-    application.getGriddedSitesMapTypeAndSelectedAttenRels();
   }
 
   /**
