@@ -8,6 +8,7 @@ Implement STEP-map maker (adds USGS/CGS1995 hazard map dataset to the STEP hazar
 
 Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
 
+Generalize ERF servlets so that one object can be used for any arbitrary ERF.
 
 Update the makeMapUsingServer() method of the GMT_MapGenerator:
 
