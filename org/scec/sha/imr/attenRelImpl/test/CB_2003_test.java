@@ -47,11 +47,18 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
   }
 
 
-  public void testAbrahamson2000_Creation() {
+  public void testCB2003_Creation() {
     // create the instance of the AS_1997
     cb_2003 = new CB_2003_AttenRel(this);
     AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(cb_2003,CB_2003_RESULTS, tolerence);
-    attenRelChecker.readResultFile();
+    boolean result =attenRelChecker.readResultFile();
+    int testNumber;
+    if(result == false){
+     testNumber = attenRelChecker.getTestNumber();
+     this.assertTrue("CB-2003 Test Failed for following test Set-"+testNumber,result);
+   }
+   else
+      this.assertTrue("CB-2003 Passed all the test",result);
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){
@@ -69,6 +76,7 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
   {
     if(args.length !=0)
       tolerence=(new Double(args[0].trim())).doubleValue();
+    System.out.println("Tolerence :"+tolerence);
     junit.swingui.TestRunner.run(CB_2003_test.class);
   }
 

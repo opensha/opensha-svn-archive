@@ -196,6 +196,8 @@ public class AttenRelResultsChecker {
             }
             // Get the Discretized Function - calculation done here
             DiscretizedFuncAPI function = getFunctionForXAxis( xAxisParam,yAxisValue  );
+            for(int j=0;j<function.getNum();++j)
+              System.out.println("OpenSHA value for the test:"+testNumber+"; is:"+function.getY(j));
             //compare the computed result using SHA with the target result for the defined set of parameters
             boolean result =compareResults(function, targetFunction);
             if(result == false)

@@ -47,7 +47,7 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
   }
 
 
-  public void testAbrahamson2000_Creation() {
+  public void testBJF1997_Creation() {
     // create the instance of the AS_1997
     bjf_1997 = new BJF_1997_AttenRel(this);
     AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(bjf_1997,

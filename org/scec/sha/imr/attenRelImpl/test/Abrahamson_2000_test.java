@@ -52,7 +52,14 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
     abrahamson_2000 = new Abrahamson_2000_AttenRel(this);
     AttenRelResultsChecker attenRelChecker = new
         AttenRelResultsChecker(abrahamson_2000,ABRAHAMSON_2000_RESULTS, tolerence);
-    attenRelChecker.readResultFile();
+    boolean result =attenRelChecker.readResultFile();
+    int testNumber;
+    if(result == false){
+      testNumber = attenRelChecker.getTestNumber();
+      this.assertTrue("Abrahamson-2000 Test Failed for following test Set-"+testNumber,result);
+    }
+    else
+      this.assertTrue("Abrahamson-2000 Passed all the test",result);
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){

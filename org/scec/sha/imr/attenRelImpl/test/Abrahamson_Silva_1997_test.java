@@ -47,12 +47,19 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
   }
 
 
-  public void testAbrahamson2000_Creation() {
+  public void testAS1997_Creation() {
     // create the instance of the AS_1997
     as_1997 = new AS_1997_AttenRel(this);
     AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(as_1997,
                                                  ABRAHAMSON_1997_RESULTS, tolerence);
-    attenRelChecker.readResultFile();
+    boolean result =attenRelChecker.readResultFile();
+    int testNumber;
+    if(result == false){
+      testNumber = attenRelChecker.getTestNumber();
+      this.assertTrue("AS-1997 Test Failed for following test Set-"+testNumber,result);
+    }
+    else
+      this.assertTrue("AS-1997 Passed all the test",result);
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){

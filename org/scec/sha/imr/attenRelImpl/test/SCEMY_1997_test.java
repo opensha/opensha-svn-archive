@@ -46,7 +46,7 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
   }
 
 
-  public void testAbrahamson2000_Creation() {
+  public void testSCEMY1997Creation() {
     // create the instance of the AS_1997
     scemy_1997 = new SCEMY_1997_AttenRel(this);
     AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(scemy_1997,SADIGH_1997_RESULTS,tolerence);
