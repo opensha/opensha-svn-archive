@@ -2,10 +2,11 @@ package org.scec.sha.calc;
 
 import java.text.DecimalFormat;
 import java.io.*;
-import org.scec.data.region.SitesInGriddedRegion;
-import org.scec.util.RunScript;
 import java.util.LinkedList;
 import java.util.Iterator;
+import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.util.RunScript;
+import org.scec.cme.SRBDrop;
 
 /**
  * <p>Title: SubmitJobForGridComputation</p>
@@ -73,6 +74,21 @@ public class SubmitJobForGridComputation {
   private final static String PERL_CONDOR_SUBMIT = "Job";
   private final static String HAZARD_CURVES_SUBMIT ="HazardCurves";
 
+  //Directory names in which we store the different file types
+  private final static String SUBMIT_FILES_DIR = "submitfiles/";
+  //stores all the image and map related info in this directory
+  private final static String MAP_INFO_DIR = "mapinfo/";
+  private final static String LOG_FILES_DIR = "logfiles/";
+  private final static String SCRIPT_FILES_DIR = "scriptfiles/";
+  private final static String OBJECTS_DIR = "objectfiles/";
+  private final static String METADATA_DIR = "datafiles/";
+
+  //name of the shell script that will create the move the files to their respective directories
+  private final static String FILE_MOVE_SCRIPT = "movefiles.sh";
+
+  private final static String DIRECTORY_PATH_FOR_SRB ="/home/sceclib.scec/development/Pathway_1/HazardMaps/";
+
+
   /**
    *
    * @param imrFileName FileName in which IMR is saved as a serialized object
@@ -90,7 +106,32 @@ public class SubmitJobForGridComputation {
     if (!outputDir.endsWith("/"))
       outputDir = outputDir + "/";
 
-      // some standard lines that will be written to all the condor submit files
+
+    //creating a directory for the submit files
+    String submitFilesDir = outputDir+SUBMIT_FILES_DIR;
+    new File(submitFilesDir).mkdir();
+
+    //creating a directory to store all the mapInfo
+    String mapInfoDir = outputDir+MAP_INFO_DIR;
+    new File(mapInfoDir).mkdir();
+
+    //creating a directory to store all the log files
+    String logFiles = outputDir+LOG_FILES_DIR;
+    new File(logFiles).mkdir();
+
+    //creating a directory to store all the script files
+    String scriptFiles = outputDir+SCRIPT_FILES_DIR;
+    new File(scriptFiles).mkdir();
+
+    //creating a directory to store all the objects files
+    String objectFiles = outputDir+OBJECTS_DIR;
+    new File(objectFiles).mkdir();
+
+    //creating a directory to store all the data files
+    String dataFiles = outputDir+METADATA_DIR;
+    new File(dataFiles).mkdir();
+
+    // some standard lines that will be written to all the condor submit files
     String remoteDir = REMOTE_DIR + remoteMachineSubdirName + "/";
 
     String fileDataPrefix = "universe = globus\n" +
@@ -105,7 +146,6 @@ public class SubmitJobForGridComputation {
       // file in which DAG will be written
       FileWriter frmap = new FileWriter(outputDir + this.DAG_FILE_NAME);
 
-
       // this will create  a new directory for each run on the remote machine
       String condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
                                                "" + remoteMachineSubdirName,
@@ -115,14 +155,12 @@ public class SubmitJobForGridComputation {
                                                PRE_PROCESSOR_EXECUTABLE);
       frmap.write("Job "+this.PRE_PROCESSOR_JOB_NAME+" " +condorSubmit+"\n");
 
-
       //creates the shell script to gridftp the condor submit files(in tar format)
       //to almaak.usc.edu
       ftpSubmitFilesToRemoteMachine(outputDir, remoteDir, imrFileName, erfFileName,
                                      regionFileName);
       frmap.write("Script Post "+PRE_PROCESSOR_JOB_NAME+" "+
                   PUT_SUBMIT_FILES_TO_REMOTE_MACHINE+"\n");
-
 
       // now make a condor script which will untar the condor submit files on remote machine
       condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix, "",
@@ -175,8 +213,25 @@ public class SubmitJobForGridComputation {
       // close the DAG files
       frmap.close();
 
+      FileWriter fw = new FileWriter(outputDir+FILE_MOVE_SCRIPT);
+      fw.write("#!/bin/csh\n");
+      fw.write("cd "+outputDir);
+      fw.write("cp *.sub "+ SUBMIT_FILES_DIR);
+      fw.write("cp *.dag "+ SUBMIT_FILES_DIR);
+      fw.write("cp *.err "+ LOG_FILES_DIR );
+      fw.write("cp *.out "+ LOG_FILES_DIR);
+      fw.write("cp *.obj "+ OBJECTS_DIR);
+      fw.write("cp *.sh "+ SCRIPT_FILES_DIR);
+      fw.write("cp *.txt "+ METADATA_DIR);
+      fw.close();
+      RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+FILE_MOVE_SCRIPT});
       // submit the DAG for execution
       submitDag(outputDir, remoteDir);
+      SRBDrop srb = new SRBDrop(true);
+      srb.directoryPut(outputDir,new String(DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName),true);
+      String localPathtoMetadataFile = dataFiles+"Metadata.txt";
+      String remotePathToMetadataFile = DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName+METADATA_DIR+"Metadata.txt";
+      srb.addMDToCollection(localPathtoMetadataFile,remotePathToMetadataFile,"=");
     }
     catch (Exception ex) {
       ex.printStackTrace();
