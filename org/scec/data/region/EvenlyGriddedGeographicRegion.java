@@ -16,10 +16,9 @@ import org.scec.data.Location;
 public class EvenlyGriddedGeographicRegion extends GeographicRegion
                         implements EvenlyGriddedGeographicRegionAPI {
 
+  private final static String C = "EvenlyGriddedGeographicRegion";
+  private final static boolean D = true;
 
-  /**
-   * class variables
-   */
   private double gridSpacing;
 
   private LocationList gridLocsList;
@@ -119,5 +118,22 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
       }
       minLat+=gridSpacing;
     }
+
+    int i;
+    if(D)
+      for(i = 0; i < gridLocsList.size(); i++)
+        System.out.println((float)gridLocsList.getLocationAt(i).getLatitude()+"  "+(float)gridLocsList.getLocationAt(i).getLongitude());
+
   }
+
+  public static void main(String[] args) {
+    LocationList locList = new LocationList();
+    locList.addLocation(new Location(37.19, -120.61, 0.0));
+    locList.addLocation(new Location(36.43, -122.09, 0.0));
+    locList.addLocation(new Location(38.23, -123.61, 0.0));
+    locList.addLocation(new Location(39.02, -122.08, 0.0));
+    EvenlyGriddedGeographicRegion gridReg = new EvenlyGriddedGeographicRegion(locList,0.05);
+    System.out.println("num = "+gridReg.getNumGridLocs());
+  }
+
 }
