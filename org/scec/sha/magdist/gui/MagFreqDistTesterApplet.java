@@ -42,6 +42,7 @@ public class MagFreqDistTesterApplet extends JApplet
   protected final static boolean D = true;
 
 
+  protected String legend=null;
   protected final static int W = 850;
   protected final static int H = 670;
   protected final static int A1 = 360;
@@ -123,7 +124,7 @@ public class MagFreqDistTesterApplet extends JApplet
   private ChartPanel incrPanel;
   private ChartPanel cumPanel;
   private ChartPanel moPanel;
-
+  private JPanel legendPanel =new JPanel();
   private JScrollPane dataScrollPane = new JScrollPane();
   private JTextArea pointsTextArea = new JTextArea();
   private JPanel sheetPanel = new JPanel();
@@ -143,6 +144,7 @@ public class MagFreqDistTesterApplet extends JApplet
   OvalBorder oval = new OvalBorder( 12, 4, darkBlue, darkBlue );
 
   int titleSize = 0;
+  private Paint[] paint;
 
    /**
      *  Currently selected IMR and related information needed for the gui to
@@ -579,6 +581,8 @@ public class MagFreqDistTesterApplet extends JApplet
                     cumPanel.getChart().getPlot().setBackgroundPaint(Color.black);
                 if( moPanel != null )
                     moPanel.getChart().getPlot().setBackgroundPaint(Color.black);
+                if(legendPanel !=null)
+                   legendPanel.setBackground(Color.black);
 
             }
             else{
@@ -589,6 +593,8 @@ public class MagFreqDistTesterApplet extends JApplet
                     cumPanel.getChart().getPlot().setBackgroundPaint(Color.white);
                 if( moPanel != null )
                     moPanel.getChart().getPlot().setBackgroundPaint(Color.white);
+                if(legendPanel !=null)
+                    legendPanel.setBackground(Color.black);
             }
         }
 
@@ -1023,10 +1029,17 @@ public class MagFreqDistTesterApplet extends JApplet
         moPlot.setXYItemRenderer( renderer );
 
 
-        JFreeChart incrChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, incrPlot, true );
-        JFreeChart cumChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, cumPlot, true );
-        JFreeChart moChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, moPlot, true );
+        JFreeChart incrChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, incrPlot,false);
+        JFreeChart cumChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, cumPlot,false );
+        JFreeChart moChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, moPlot,false );
 
+
+
+        int numOfColors = incrPlot.getSeriesCount();
+        paint =new Paint[numOfColors];
+        for(int i=0;i<numOfColors;++i)
+           paint[i]=incrPlot.getSeriesOutlinePaint(i);
+        // Graphics
         incrChart.setBackgroundPaint( lightBlue );
         cumChart.setBackgroundPaint( lightBlue );
         moChart.setBackgroundPaint( lightBlue );
@@ -1038,6 +1051,20 @@ public class MagFreqDistTesterApplet extends JApplet
         incrPanel = new ChartPanel(incrChart, true, true, true, true, false);
         cumPanel = new ChartPanel(cumChart, true, true, true, true, false);
         moPanel = new ChartPanel(moChart, true, true, true, true, false);
+
+        int xLabel=10;
+        int yLabel=10;
+        legendPanel.setLayout(null);
+        legendPanel.removeAll();
+        for(int i=0;i<numOfColors;++i){
+            //g.setPaint(paint[i]);
+            JLabel label = new JLabel(this.incrFunctions.get(i).getName()+"::"+this.incrFunctions.get(i).getInfo()+";"+
+                        this.toCumFunctions.get(i).getInfo()+";"+this.toMoFunctions.get(i).getInfo());
+            label.setFont(new java.awt.Font("Dialog", 1, 8));
+            legendPanel.add(label);
+            label.setBounds(xLabel,yLabel,400,20);
+            yLabel +=30;
+        }
         //panel.setMouseZoomable(true);
 
 
@@ -1061,6 +1088,7 @@ public class MagFreqDistTesterApplet extends JApplet
         moPanel.setGenerateToolTips(true);
         moPanel.setHorizontalAxisTrace(false);
         moPanel.setVerticalAxisTrace(false);
+
 
 
 
@@ -1155,12 +1183,17 @@ public class MagFreqDistTesterApplet extends JApplet
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                 // panel for mag vs cumulative-rate graph
-               // innerPlotPanel.add( cumPanel, new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0
-                 //       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+                innerPlotPanel.add( cumPanel, new GridBagConstraints( 1, 0, 1, 1, 1.0, 1.0
+                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                 // panel for mag vs moment-rate graph
                 //innerPlotPanel.add( moPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
                   //     , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+                  //panel for the legend
+                  innerPlotPanel.add( legendPanel, new GridBagConstraints( 1,1, 1, 1, 1.0, 1.0
+                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
 
             }
             else {
