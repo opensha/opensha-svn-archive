@@ -34,7 +34,7 @@ public class PointPoissonERF extends EqkRupForecast{
 
   //for Debug purposes
   private static String  C = new String("Point Poisson ERF");
-  private boolean D = false;
+  private boolean D = true;
 
   //name for this classs
   public final static String  NAME = C;
@@ -166,6 +166,16 @@ public class PointPoissonERF extends EqkRupForecast{
                                           ((Double)rakeParam.getValue()).doubleValue(),
                                           ((Double)dipParam.getValue()).doubleValue());
        parameterChangeFlag = false;
+     }
+
+     if(D) {
+       System.out.println(C+" numSources="+getNumSources());
+       System.out.println(C+" numRuptures(0th src)="+getSource(0).getNumRuptures());
+       System.out.println(C+" isPoissonian(0th src)="+getSource(0).isSourcePoissonian());
+       for(int n=0; n <getSource(0).getNumRuptures(); n++) {
+         System.out.println(C+" "+n+"th rup prob="+ getSource(0).getRupture(n).getProbability());
+         System.out.println(C+" "+n+"th rup mag="+getSource(0).getRupture(n).getMag());
+       }
      }
 
    }

@@ -189,9 +189,21 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 
 
         // For poisson source
-        if(poissonSource)
+        if(poissonSource) {
+          /* First make sure the probability isn't 1.0 (or too close); otherwise rates are
+             infinite and all IMLs will be exceeded (because of ergodic assumption).  This
+             can happen if the number of expected events (over the timespan) exceeds ~37,
+             because at this point 1.0-Math.exp(-num) = 1.0 by numerical precision (and thus,
+             an infinite number of events).  The number 30 used in the check below provides a
+             safe margin.
+          */
+          if(Math.log(1.0-qkProb) < -30.0)
+            throw new RuntimeException("Error: The probability for this ProbEqkRupture ("+qkProb+
+                                      ") is too high for a Possion source (~infinite number of events)");
+
           for(k=0;k<numPoints;k++)
             hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
+        }
         // For non-Poissin source
         else
           for(k=0;k<numPoints;k++)
@@ -242,6 +254,19 @@ public class HazardCurveCalculator extends UnicastRemoteObject
       arb.set(i,val);
   }
 
+  // this is temporary for testing purposes
+  public static void main(String[] args) {
+    double temp1, temp2, temp3, temp4;
+    boolean OK;
+    for(double n=1; n<2;n += 0.02) {
+      temp1 = Math.pow(10,n);
+      temp2 = 1.0-Math.exp(-temp1);
+      temp3 = Math.log(1.0-temp2);
+      temp4 = (temp3+temp1)/temp1;
+      OK = temp1<=30;
+      System.out.println((float)n+"\t"+temp1+"\t"+temp2+"\t"+temp3+"\t"+temp4+"\t"+OK);
+    }
+  }
 }
 
 
