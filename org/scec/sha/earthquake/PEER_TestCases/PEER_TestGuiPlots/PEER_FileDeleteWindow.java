@@ -24,6 +24,12 @@ public class PEER_FileDeleteWindow extends JFrame {
   JButton okButton = new JButton();
   JButton cancelButton = new JButton();
 
+  // messages shown to the user
+  private static String MSG_INCORRECT_PASSWORD = "Incorrect Password";
+  private static String TITLE_INCORRECT_PASSWORD  = "Check Password";
+  private static String TITLE_CONFIRMATION = "Confirmation Message";
+  private static String MSG_DELETE = "Are you sure you want to delete ";
+
   //Instance of the PEER_TestResultsSubmissionApplet
   PEER_TestResultsSubmissionApplet peer=null;
 
@@ -225,22 +231,20 @@ public class PEER_FileDeleteWindow extends JFrame {
     String password = new String(filePassword.getPassword());
 
     if(!peer.checkPassword(password))
-      JOptionPane.showMessageDialog(this,new String("Incorrect Password"),"Check Password",
+      JOptionPane.showMessageDialog(this,this.MSG_INCORRECT_PASSWORD,
+                                    this.TITLE_INCORRECT_PASSWORD,
                                     JOptionPane.OK_OPTION);
 
     else {
+      String selectedTestCase = testComboBox.getSelectedItem().toString();
+      String identifier = identifierComboBox.getSelectedItem().toString();
+      String fileName = selectedTestCase+"_"+identifier+".dat";
       //delete the file selected.
-      int flag=JOptionPane.showConfirmDialog(this,new String("Are you sure you want to delete the file??"),
-          "Confirmation Message",JOptionPane.OK_CANCEL_OPTION);
-
+      int flag=JOptionPane.showConfirmDialog(this,this.MSG_DELETE+fileName+"?",
+          this.TITLE_CONFIRMATION,JOptionPane.OK_CANCEL_OPTION);
       int found=0;
-      if(flag == JOptionPane.OK_OPTION)
-         found=1;
-      if(found==1){
-        String selectedTestCase = testComboBox.getSelectedItem().toString();
-        String identifier = identifierComboBox.getSelectedItem().toString();
-         peer.openDeleteConnection(selectedTestCase+"_"+identifier+".dat");
-      }
+      if(flag == JOptionPane.OK_OPTION) found=1;
+      if(found==1) peer.openDeleteConnection(fileName);
       this.dispose();
     }
     filePassword.setText("");

@@ -37,6 +37,41 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   private static final String C = "PEER_TestResultsSubmissionApplet";
   private static final boolean D = true;
 
+  // Strings for various messages to be shown
+  private static String MSG_INSTRUCTIONS = "1) Select the test case you would like to submit data for.\n\n"+
+                        "2) Enter your identifier (this is used to label your "+
+                        "result in the comparison plot).\n"+
+                        "NOTE: your identifier cannot have any spaces, dots(.)"+
+                        " or a underscore (_) in it.\n\n"+
+                        "3) Paste your y-axis data in the right-hand box on the right "+
+                        "according to the x-values shown in the left-hand box.\n\n"+
+                        "4) Hit the submit button.";
+  private static String MSG_ALREADY_EXISTS = "Identifier already exists, Want to overwrite? ";
+  private static String TITLE_INFORMATION = "Information Message ";
+  private static String MSG_ENTER_Y_VALUES = "Must Enter Y Values";
+  private static String TITLE_INPUT_ERROR = "Input Error";
+  private static String MSG_INCORRECT_Y_VALUES = "Incorrect number of Y Values";
+  private static String MSG_MISSING_IDENTIFIER = "Must enter Identifier name";
+  private static String MSG_SPACES_IDENTIFIER = "Indentifier name cannot have spaces";
+  private static String MSG_UNDERSCORE_IDENTIFIER = "Indentifier name cannot have UnderScore('_')";
+  private static String MSG_DOT_IDENTIFIER = "Indentifier name cannot have Dot('.')";
+  private static String MSG_ADDING_FILE = "  Adding new file; please be patient...";
+  private static String MSG_FILE_ADDED = "File Added Successfully.\n\n " +
+      "NOTE: To see this change in the  web-based plotter you'll"+
+      "need to quit and restart your browser (or download a new"+
+      "stand-alone version)";
+  private static String TITLE_ADD_CONFIRMATION = "Add Confirmation";
+  private static String MSG_DELETING_FILE ="  Deletion being performed; please be patient...";
+  private static String MSG_FILE_DELETED =new String("File deleted successfully");
+  private static String TITLE_DELETE_CONFIRMATION ="Delete Confirmation";
+  private static String MSG_FILE_OVERWRITE ="  Overwriting file, Please be patient......";
+  private static String MSG_FILE_OVERWRITTEN = "File Overwritten Successfully.....";
+  private static String TITLE_OERWRITE_CONFIRMATION = "Overwrite Confirmation";
+  private static String MSG_NO_INTERNET_CONNECTION= "No Internet Connection Available";
+  private static String TITLE_NO_INTERNET_CONNECTION=  "Error Connecting to Internet";
+
+
+
   //Directory from which to search for all the PEER test files
   String DIR = "GroupTestDataFiles/";
   String FILE_EXTENSION=".dat";
@@ -142,14 +177,6 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     this.setSize(new Dimension(704, 597));
     this.getContentPane().setLayout(borderLayout1);
 
-    String messageText ="1) Select the test case you would like to submit data for.\n\n"+
-                        "2) Enter your identifier (this is used to label your "+
-                        "result in the comparison plot).\n"+
-                        "NOTE: your identifier cannot have any spaces, dots(.)"+
-                        " or a underscore (_) in it.\n\n"+
-                        "3) Paste your y-axis data in the right-hand box on the right "+
-                        "according to the x-values shown in the left-hand box.\n\n"+
-                        "4) Hit the submit button.";
 
     mainPanel.setLayout(gridBagLayout4);
     mainPanel.setBackground(Color.white);
@@ -196,7 +223,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     messageTextArea.setEditable(false);
     messageTextArea.setLineWrap(true);
     messageTextArea.setWrapStyleWord(true);
-    messageTextArea.setText(messageText);
+    messageTextArea.setText(MSG_INSTRUCTIONS);
     messageTextArea.setEditable(false);
     jLabel1.setFont(new java.awt.Font("Dialog", 1, 12));
     jLabel1.setForeground(new Color(80, 80, 133));
@@ -494,9 +521,8 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     }
     else{
       //if someone wants to overwrite the existing data file.
-      int flag1=JOptionPane.showConfirmDialog(this,new
-          String("Identifier already exists, Want to overwrite??"),
-          "Information message",JOptionPane.OK_CANCEL_OPTION);
+      int flag1=JOptionPane.showConfirmDialog(this,MSG_ALREADY_EXISTS,
+          TITLE_INFORMATION, JOptionPane.OK_CANCEL_OPTION);
       int found=0;
       //user wants to overwrite
       if(flag1 ==JOptionPane.OK_OPTION)  found=1;
@@ -525,7 +551,8 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     String yValues= new String(yTextArea.getText());
     //checking if the TextArea where values are to be entered is empty.
     if(yValues.equals("")){
-      JOptionPane.showMessageDialog(this,new String("Must Enter Y Values"),"Input Error",
+      JOptionPane.showMessageDialog(this, MSG_ENTER_Y_VALUES ,
+                                    this.TITLE_INPUT_ERROR,
                                     JOptionPane.ERROR_MESSAGE);
       return false;
     }
@@ -540,7 +567,8 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
       //checking if the vector size is 20, which are number of X values we have
       int size = vt.size();
       if(size!= function.getNum()){
-        JOptionPane.showMessageDialog(this,new String("Incorrect number of Y Values"),"Input Error",
+        JOptionPane.showMessageDialog(this,MSG_INCORRECT_Y_VALUES,
+                                      this.TITLE_INPUT_ERROR,
                                       JOptionPane.ERROR_MESSAGE);
         return false;
       }
@@ -596,7 +624,8 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     try{
       if(fileNameText.getText().trim().equals("")){
         flag = false;
-        JOptionPane.showMessageDialog(this,new String("Must enter Identifier name"),"Input Error",
+        JOptionPane.showMessageDialog(this,MSG_MISSING_IDENTIFIER,
+                                      this.TITLE_INPUT_ERROR,
                                       JOptionPane.ERROR_MESSAGE);
       }
       else{
@@ -605,34 +634,22 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
         int indexofUnderScore = fileNameText.getText().indexOf("_");
         if(indexofSpace !=-1){
           fileNameText.setText("");
-          throw new RuntimeException("Indentifier name cannot have spaces");
+          throw new RuntimeException(this.MSG_SPACES_IDENTIFIER);
         }
         if(indexofUnderScore !=-1){
           fileNameText.setText("");
-          throw new RuntimeException("Indentifier name cannot have UnderScore('_')");
+          throw new RuntimeException(this.MSG_UNDERSCORE_IDENTIFIER);
         }
         if(indexofDot !=-1){
           fileNameText.setText("");
-          throw new RuntimeException("Indentifier name cannot have Dot('.')");
+          throw new RuntimeException(this.MSG_DOT_IDENTIFIER);
         }
         submitButton();
       }
     }catch(RuntimeException ee){
       JOptionPane.showMessageDialog(this,new String(ee.getMessage()),
-                                    "Input Error",JOptionPane.ERROR_MESSAGE);
+                                    this.TITLE_INPUT_ERROR,JOptionPane.ERROR_MESSAGE);
     }
-
-    /*if(flag && !overwriteFlag){
-      int confirm=JOptionPane.showConfirmDialog(this,new String("Want to continue with the file Submission??"),
-          "Confirmation",JOptionPane.OK_CANCEL_OPTION,JOptionPane.INFORMATION_MESSAGE);
-
-      int found=0;
-      //makes the connection to the servlet if the user has selected the OK option in the DialogBox.
-      if(confirm == JOptionPane.OK_OPTION)
-         found=1;
-      if(found==1)
-         openConnection();
-    }*/
   }
 
 
@@ -645,7 +662,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
   void showInformationFrame(JFrame frame,String msg){
 
-    frame.setTitle("Information");
+    frame.setTitle(this.TITLE_INFORMATION);
     JLabel label =new JLabel(msg);
     frame.getContentPane().setLayout(new GridBagLayout());
     frame.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -663,9 +680,9 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   void openConnection() {
 
     //Frame added to show the user that data processing going on
-    String msg="  Adding new file, Please be patient......";
+
     JFrame frame = new JFrame();
-    showInformationFrame(frame,msg);
+    showInformationFrame(frame,this.MSG_ADDING_FILE);
 
     //vector which contains all the X and Y values from the function  to be send to the
     //servlet.
@@ -681,15 +698,13 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     String fileName = function.getName();
 
     try{
-      if(D)
-      System.out.println("starting to make connection with servlet");
+      if(D) System.out.println("starting to make connection with servlet");
       URL PEER_TestServlet = new
                             URL("http://scec.usc.edu:9999/examples/servlet/PEER_InputFilesServlet");
 
 
       URLConnection servletConnection = PEER_TestServlet.openConnection();
-      if(D)
-      System.out.println("connection established");
+      if(D) System.out.println("connection established");
 
       // inform the connection that we will send output and accept input
       servletConnection.setDoInput(true);
@@ -726,12 +741,11 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
      String temp=inputToServlet.readObject().toString();
 
-     if(D)
-       System.out.println("Receiving the Input from the Servlet:"+temp);
+     if(D) System.out.println("Receiving the Input from the Servlet:"+temp);
      inputToServlet.close();
      //displaying the user the addition  has ended
-     JOptionPane.showMessageDialog(this,new String("File Added Successfully....."),
-                                   "Add Confirmation",JOptionPane.OK_OPTION);
+     JOptionPane.showMessageDialog(this,this.MSG_FILE_ADDED,
+                                   this.TITLE_ADD_CONFIRMATION,JOptionPane.OK_OPTION);
 
      //adding the file to the vector as well as the combo box that
      //displays the files that can be deleted
@@ -751,9 +765,9 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
 
     //Frame added to show the user that data processing going on
-    String msg ="  Deletion being performed, Please be patient......";
+
     JFrame frame = new JFrame();
-    showInformationFrame(frame,msg);
+    showInformationFrame(frame,this.MSG_DELETING_FILE);
     try{
       if(D)
         System.out.println("starting to make connection with servlet");
@@ -797,8 +811,9 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
         System.out.println("Receiving the Input from the Servlet:"+temp);
       inputToServlet.close();
       //displaying the user the deletion  has ended
-      JOptionPane.showMessageDialog(this,new String("File Deleted Successfully....."),
-                                   "Delete Confirmation",JOptionPane.OK_OPTION);
+      JOptionPane.showMessageDialog(this,this.MSG_DELETING_FILE,
+                                   this.TITLE_DELETE_CONFIRMATION,
+                                   JOptionPane.OK_OPTION);
 
 
       //removing the deleted file from the vector as well as the combo box that
@@ -824,8 +839,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     public boolean checkPassword(String password) {
 
       try{
-        if(D)
-          System.out.println("starting to make connection with servlet");
+        if(D) System.out.println("starting to make connection with servlet");
         URL PEER_TestServlet = new
                                URL("http://scec.usc.edu:9999/examples/servlet/PEER_InputFilesServlet");
 
@@ -866,8 +880,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
         String temp=inputToServlet.readObject().toString();
 
-        if(D)
-          System.out.println("Receiving the Input from the Servlet:"+temp);
+        if(D) System.out.println("Receiving the Input from the Servlet:"+temp);
         inputToServlet.close();
         if(temp.equalsIgnoreCase("success"))return true;
         else return false;
@@ -887,10 +900,10 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     void openOverwriteConnection(String fileName) {
 
       overwriteFlag=false;
-      String msg="  Overwriting file, Please be patient......";
+
       //Frame added to show the user that data processing going on
       JFrame frame = new JFrame();
-      showInformationFrame(frame,msg);
+      showInformationFrame(frame,MSG_FILE_OVERWRITE);
       //vector which contains all the X and Y values from the function  to be send to the
       //servlet.
       Vector vt =new Vector();
@@ -901,14 +914,12 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
       }
 
       try{
-        if(D)
-          System.out.println("starting to make connection with servlet");
+        if(D) System.out.println("starting to make connection with servlet");
         URL PEER_TestServlet = new
                                URL("http://scec.usc.edu:9999/examples/servlet/PEER_InputFilesServlet");
 
         URLConnection servletConnection = PEER_TestServlet.openConnection();
-        if(D)
-          System.out.println("connection established");
+        if(D) System.out.println("connection established");
 
         // inform the connection that we will send output and accept input
         servletConnection.setDoInput(true);
@@ -946,12 +957,12 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
         String temp=inputToServlet.readObject().toString();
 
-        if(D)
-          System.out.println("Receiving the Input from the Servlet:"+temp);
+        if(D) System.out.println("Receiving the Input from the Servlet:"+temp);
         inputToServlet.close();
         //displaying the user the addition  has ended
-        JOptionPane.showMessageDialog(this,new String("File Overwritten Successfully....."),
-                                      "Overwrite Info.",JOptionPane.OK_OPTION);
+        JOptionPane.showMessageDialog(this,this.MSG_FILE_OVERWRITTEN,
+                                      this.TITLE_OERWRITE_CONFIRMATION,
+                                      JOptionPane.OK_OPTION);
         frame.dispose();
       }catch (Exception e) {
         System.out.println("Exception in connection with servlet:" +e);
@@ -992,8 +1003,10 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     try{
     this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE),"_blank");
     }catch(java.net.MalformedURLException ee){
-      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
-                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
+      JOptionPane.showMessageDialog(this,
+                                    this.MSG_NO_INTERNET_CONNECTION,
+                                    this.TITLE_NO_INTERNET_CONNECTION,
+                                    JOptionPane.OK_OPTION);
     }
   }
   void imgLabel_mousePressed(MouseEvent e) {
