@@ -68,6 +68,15 @@ public abstract class ERF_List implements EqkRupForecastAPI {
   }
 
   /**
+   * Return the vector containing the Double values with
+   * relative weights for each ERF
+   * @return : Vector of Double values
+   */
+  public Vector getRelativeWeightsList() {
+    return relativeWeight;
+  }
+
+  /**
    * return the list of adjustable params
    * Presently there are no adjustable params.
    * @return

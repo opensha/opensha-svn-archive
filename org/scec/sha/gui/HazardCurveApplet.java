@@ -34,6 +34,7 @@ import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.ERF_List;
 import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
+import org.scec.sha.calc.FractileCurveCalculator;
 import org.scec.data.Site;
 
 /**
@@ -46,7 +47,7 @@ import org.scec.data.Site;
 
 public class HazardCurveApplet extends JApplet
     implements LogPlotAPI, ParameterChangeListener, AxisLimitsControlPanelAPI,
-    DisaggregationControlPanelAPI {
+    DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI {
 
   /**
    * Name of the class
@@ -136,6 +137,13 @@ public class HazardCurveApplet extends JApplet
   private com.jrefinery.chart.axis.NumberAxis xAxis = null;
   private com.jrefinery.chart.axis.NumberAxis yAxis = null;
 
+
+  // variable needed for plotting Epistemic list
+  private boolean isEqkList = false; // whther we are plottin the Eqk List
+  private boolean isAllCurves = true; // whether to plot all curves
+  // whether user wants to plot No percentile, or 5, 50 and 95 percentile or custom percentile
+  private String percentileOption = ERF_EpistemicListControlPanel.NO_PERCENTILE;
+  private FractileCurveCalculator fractileCalc;
 
   /**
    * these four values save the custom axis scale specified by user
@@ -541,6 +549,22 @@ public class HazardCurveApplet extends JApplet
       com.jrefinery.chart.renderer.LogXYItemRenderer renderer
           = new com.jrefinery.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
+      // draw all plots in black for Eqk List
+      if(this.isEqkList) {
+        int num = totalProbFuncs.size();
+        int numFractiles;
+        if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE))
+          numFractiles = 1;
+        else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE))
+          numFractiles = 3;
+        else numFractiles = 0;
+        int diff = num - numFractiles;
+        for(int i=0; i<diff; ++i) // set black color for curves
+          renderer.setSeriesOutlinePaint(i,Color.black);
+        for(int i=diff;i<num;++i) // set red color for fractiles
+          renderer.setSeriesOutlinePaint(i,Color.red);
+
+      }
 
       /* to set the range of the axis on the input from the user if the range combo box is selected*/
       if(this.customAxis) {
@@ -557,8 +581,9 @@ public class HazardCurveApplet extends JApplet
       plot.setRangeCrosshairLockedOnData(false);
       plot.setRangeCrosshairVisible(false);
       plot.setBackgroundAlpha( .8f );
-
       plot.setRenderer( renderer );
+
+
 
       JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
 
@@ -881,6 +906,7 @@ public class HazardCurveApplet extends JApplet
    * this function is called when add Graph is clicked
    */
   public void computeHazardCurve() {
+    this.isEqkList = false;
 
     // intialize the hazard function
     ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -912,7 +938,8 @@ public class HazardCurveApplet extends JApplet
       handleForecastList(site, imr, eqkRupForecast);
       return;
     }
-
+    // this is not a eqk list
+   this.isEqkList = false;
     // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
    // initialize the values in condProbfunc with log values as passed in hazFunction
@@ -973,7 +1000,7 @@ public class HazardCurveApplet extends JApplet
                                   EqkRupForecastAPI eqkRupForecast) {
    ERF_List erfList  = (ERF_List)eqkRupForecast;
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
-
+   this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
    // clear the function list
    totalProbFuncs.clear();
    // calculate the hazard curve
@@ -1000,6 +1027,31 @@ public class HazardCurveApplet extends JApplet
      }
      totalProbFuncs.add(hazFunction);
    }
+
+   // if fractile needs to be calculated
+   if(!this.percentileOption.equalsIgnoreCase
+      (ERF_EpistemicListControlPanel.NO_PERCENTILE)) {
+     // set the function list and weights in the calculator
+     if (fractileCalc==null)
+       fractileCalc = new FractileCurveCalculator(totalProbFuncs,
+         erfList.getRelativeWeightsList());
+     else  fractileCalc.set(totalProbFuncs, erfList.getRelativeWeightsList());
+   }
+
+   if(!isAllCurves) totalProbFuncs.clear(); //if all curves are not needed to be drawn
+
+   // if 5th, 50 and 95th percetile need to be plotted
+   if(this.percentileOption.equalsIgnoreCase
+      (ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE)) {
+     totalProbFuncs.add(fractileCalc.getFractile(.05)); // 5th fractile
+     totalProbFuncs.add(fractileCalc.getFractile(.5)); // 50th fractile
+     totalProbFuncs.add(fractileCalc.getFractile(.95)); // 95th fractile
+   } else if(this.percentileOption.equalsIgnoreCase // for custom percentile
+      (ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE )) {
+     double percentile = this.epistemicControlPanel.getCustomPercentilsValue();
+     totalProbFuncs.add(fractileCalc.getFractile(percentile/100));
+   }
+
    // set the X-axis label
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
    totalProbFuncs.setYAxisName("Probability of Exceedance");
@@ -1153,7 +1205,7 @@ public class HazardCurveApplet extends JApplet
     */
    private void initEpistemicControl() {
      if(this.epistemicControlPanel==null)
-       epistemicControlPanel = new ERF_EpistemicListControlPanel(this);
+       epistemicControlPanel = new ERF_EpistemicListControlPanel(this,this);
      epistemicControlPanel.show();
   }
 
@@ -1209,6 +1261,25 @@ public class HazardCurveApplet extends JApplet
       logFunc.set(Math.log(originalFunc.getX(i)), 1);
   }
 
+  /**
+   * This function sets whether all curves are to drawn or only fractiles are to drawn
+   * @param drawAllCurves :True if all curves are to be drawn else false
+   */
+  public void setPlotAllCurves(boolean drawAllCurves) {
+    this.isAllCurves = drawAllCurves;
+  }
+
+  /**
+   * This function sets the percentils option chosen by the user.
+   * User can choose "No Percentile", "5th, 50th and 95th Percentile" or
+   * "Custom Percentile"
+   *
+   * @param percentileOption : Oprion selected by the user. It can be set by
+   * various constant String values in ERF_EpistemicListControlPanel
+   */
+  public void setPercentileOption(String percentileOption) {
+    this.percentileOption = percentileOption;
+  }
 
 }
 

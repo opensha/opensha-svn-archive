@@ -26,9 +26,9 @@ public class ERF_EpistemicListControlPanel extends JFrame
   private JComboBox percentileComboBox = new JComboBox();
 
   // static Strings to be shown in Percentile pick list
-  private final static String NO_PERCENTILE = "No Percentile";
-  private final static String FIVE_50_95_PERCENTILE = "5th, 50th and 95th Percentile";
-  private final static String CUSTOM_PERCENTILE = "Custom Percentile";
+  public final static String NO_PERCENTILE = "No Percentile";
+  public final static String FIVE_50_95_PERCENTILE = "5th, 50th and 95th Percentile";
+  public final static String CUSTOM_PERCENTILE = "Custom Percentile";
 
   //percentile Parameter
   private DoubleParameter percentileParam =
@@ -36,14 +36,26 @@ public class ERF_EpistemicListControlPanel extends JFrame
   private DoubleParameterEditor percentileEditor=new DoubleParameterEditor();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
+  // saving the instance of caller class
+  ERF_EpistemicListControlPanelAPI api;
 
-  public ERF_EpistemicListControlPanel(Component parentComponent) {
+  /**
+   *
+   * @param api : the calling class. It should implement the ERF_EpistemicListControlPanelAPI
+   * @param parentComponent
+   */
+  public ERF_EpistemicListControlPanel(ERF_EpistemicListControlPanelAPI api,
+                                       Component parentComponent) {
     try {
       jbInit();
+      this.api = api;
       initPercentileCombo();
       // show the window at center of the parent component
       this.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
                      parentComponent.getY()+parentComponent.getHeight()/2);
+      // set the initial values in the caller
+      api.setPercentileOption(percentileComboBox.getSelectedItem().toString());
+      api.setPlotAllCurves(this.allCurvesCheckBox.isSelected());
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -54,6 +66,11 @@ public class ERF_EpistemicListControlPanel extends JFrame
     allCurvesCheckBox.setActionCommand("Plot all curves in one color");
     allCurvesCheckBox.setSelected(true);
     allCurvesCheckBox.setText("Plot all curves (in one color)");
+    allCurvesCheckBox.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        allCurvesCheckBox_actionPerformed(e);
+      }
+    });
     this.setTitle("Epistemic List Control");
     this.getContentPane().setLayout(gridBagLayout1);
     percentileComboBox.setBackground(new Color(200, 200, 230));
@@ -63,7 +80,6 @@ public class ERF_EpistemicListControlPanel extends JFrame
         percentileComboBox_actionPerformed(e);
       }
     });
-
 
     this.getContentPane().add(allCurvesCheckBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 10, 10, 13), 18, 3));
@@ -134,6 +150,26 @@ public class ERF_EpistemicListControlPanel extends JFrame
     if(selected.equalsIgnoreCase(this.CUSTOM_PERCENTILE))
       this.percentileEditor.setVisible(true);
     else percentileEditor.setVisible(false);
+    // update the option in the calling class also
+    api.setPercentileOption(selected);
 
+  }
+
+  /**
+   * This function returns custom percentile value
+   * @return :double value of percentile between 0 and 100
+   */
+  public double getCustomPercentilsValue() {
+    return ((Double)percentileParam.getValue()).doubleValue();
+  }
+
+  /**
+   * this function is called whenever check box for "plotting all curves" is selected
+   * or deselected
+   * @param e
+   */
+  void allCurvesCheckBox_actionPerformed(ActionEvent e) {
+     // update the value in calling class as well
+     api.setPlotAllCurves(this.allCurvesCheckBox.isSelected());
   }
 }

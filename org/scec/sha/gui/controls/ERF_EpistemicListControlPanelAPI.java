@@ -1,0 +1,32 @@
+package org.scec.sha.gui.controls;
+
+/**
+ * <p>Title:ERF_EpistemicListControlPanelAPI </p>
+ * <p>Description: Any applet which uses the ERF_EpistemicListControlPanel needs
+ * to implement this API</p>
+ * <p>Copyright: Copyright (c) 2002</p>
+ * <p>Company: </p>
+ * @author unascribed
+ * @version 1.0
+ */
+
+public interface ERF_EpistemicListControlPanelAPI {
+
+  /**
+   * This function sets whether all curves are to drawn or only fractiles are to drawn
+   * @param drawAllCurves :True if all curves are to be drawn else false
+   */
+  public void setPlotAllCurves(boolean drawAllCurves);
+
+  /**
+   * This function sets the percentils option chosen by the user.
+   * User can choose "No Percentile", "5th, 50th and 95th Percentile" or
+   * "Custom Percentile"
+   *
+   * @param percentileOption : Oprion selected by the user. It can be set by
+   * various constant String values in ERF_EpistemicListControlPanel
+   */
+  public void setPercentileOption(String percentileOption);
+
+
+}
