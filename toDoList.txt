@@ -1,6 +1,16 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
+
+Remove setEditable method in Parameter class and make returned clones editable (document accordingly)
+
+Parameter Class: current value should be forced to null if the constraint is ever changed (currently a value can remain even if it's incompatible with a new constraint).  Figure out how to deal with strings (which can't have null values) - perhaps just set as first listed.  Go through package an make sure this new behavior won't screw anything up - do this by searching for all occurrences of the setConstraint method (that occurs outside a constructor?) and make sure nothing is screwed up.
+
+EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient (don't create the entire vector or subset surfaces each time).  See if this speeds up the PEER Set2-Case1-a test.
+
+Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label). Hazard curve calculator seems to have this problem.
+
 Put the PEER Set 2 tests into their supplied Excel file.  Notes:
 
 	1) Nitin, below there is mention that Set2-Case5 needs 
@@ -22,13 +32,25 @@ Put the PEER Set 2 tests into their supplied Excel file.  Notes:
 
 	5) we are not doing Set2-Case7.
 
-Finish implementing Set2-Case5 (Nitin knows it's incorrectly implemented).
+Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x).
 
-Parameter Class: current value should be forced to null if the constraint is ever changed (currently a value can remain even if it's incompatible with a new constraint).  Figure out how to deal with strings (which can't have null values).
+HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  Implement the "X-values control panel" - the IMT is always "SA".
 
-EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient (don't create the entire vector or subset surfaces each time).  See if this speeds up the PEER Set2-Case1-a test.
+Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel
 
-Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label). Hazard curve calculator seems to have this problem.
+Lets chance syncToModel (and "synchToModel" as it is spelled in some places) method to something like refreshParamEditor (assuming this is used only to refresh editors).
+
+Make the WG02 ERF servlet so that more than one user can use it at any given time. 
+
+Get Bruce's code running on gravity and Mac OS X.
+
+Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings.
+
+Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
+
+*****************************************************************
+
+Change Vs30 servlet to return "A", "B", "BC", ... rather than the numberical value.  Ask Chris wills if he prefers the Field (2000) or the ShakeMao (2003) translation.
 
 Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done.
 
@@ -38,62 +60,6 @@ Ned needs to think about the following:
 	Subduction IntraSlab
 	Shallow Crustal in Active Tectonic Regions
 	Shallow Crustal in Stable Tectonic Regions
-
-JFreeChart - 
-
-	Clean up the class and document changes in the code (the way they do).  
-
-	Submit class with app to JFreeChart (with Eric Cced).
-
-Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x).
-
-Change "Set X Values for Hazard Curve Calc" as follows:
-
-	new name: "X-axis (IML) Values for Hazard Curves"
-
-	add a pick list with three options (for now)
-
-		a) "PEER Test-Case Values"
-
-		b) "Custom Values"
-
-		c) "Min, Max, and Num", & a "set" button
-
-		d) "Default"
-
-	if (a) is chosen, set as the PEER values 
-	(and don't allow user to hand-edit values, but do show them)
-
-	if (b) is chosen, user will paste their own values in (allow hand-editing)
-
-	if (c) is chosen, allow user to set the min, max, num, and then make discrete values 
-	that are evenly discretized in the log domain (don't allow hand editing, but do show)
-
-		e.g., 	delta_in_log_domain = (log(max)-log(min))/(num-1)
-
-	if (d) is chosen, use (c) with min=0.001, max=10.0, and num=41  
-	(note that these defaults are good for PGA and SA but not necessarily for other 
-	IMTs (e.g., PGV); we have a problem that this control panel does not know what IMT
-	has been selected).  Don't allow hand editing, but do show values.  When this is done
-	we will have to change the PEER test case selector control panel to choose the right
-	X values (since they will no longer be the default).
-
-
-See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
-
-HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?
-
-Check lat/lon values of cities in sites of interest.  Lets try to find some official list of city lats and lons for at least california.
-
-Deploy SimplePoissonFaultERF in servlet mode and remove the servlet mode PEER_FaultForecast (update the ERF servlet-mode GUIbean accordingly).  Ned will check out (from web-site jars).
-
-Lets chance syncToModel (and "synchToModel" as it is spelled in some places) method to something like refreshParamEditor (assuming this is used only to refresh editors).
-
-Make the WG02 ERF servlet so that more than one user can use it at any given time. 
-
-Look at Bruce's code for Shape-file generation for scenarios (different from probabilistic map inputs)
-
-Resolve memory issues, after we figure out exactly what they are.
 
 Implement 2002 National Hazard maps model - Ned will work on.
 
@@ -109,32 +75,10 @@ SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned 
 
 Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.
 
-Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings.
-
 Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
 
 Make the setting values from CVM to be webservice rather than a servlet. Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. 
 
-Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  Should we be using UTM coordinates?
-
-Go through existing apps and list issues we'd like to improve.
-
-Add the following adjustable parameters to the wg99/02 Fortran code:
-
-		(Mike's order of priority)
-		Start time, Time interval
-		M threshold (for probability outputs)
-		Probability model weights
-		COV values and weights
-		M-logA model weights
-		Treatment of R (slip rate vs area scaling)
-		Magnitude pdf (sigma value)
-		Segmentation model weights
-		Background a and b values
-
-	Have WG02 group make the following changes to code(?):
-
-    		addition of intermediate segment lats and lons for our output file
 
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
@@ -168,8 +112,6 @@ SimpleGriddedFaultFactory
 	before getting a new surface (use the setAll() method added by Ned).
 
 EvenlyGriddedSurface: have the getAveDip() method compute the dip explicitly (in case it's a subset of a listric fault)?
-
-
 
 (even lower priority below)
 
