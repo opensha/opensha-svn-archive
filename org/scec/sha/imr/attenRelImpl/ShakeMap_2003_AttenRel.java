@@ -94,7 +94,13 @@ public class ShakeMap_2003_AttenRel
     public final static String MMI_INFO = "Modified Mercalli Intensity";
     protected final static Double MMI_MIN = new Double( Math.log(1.0) );
     protected final static Double MMI_MAX = new Double( Math.log(10.0) );
-    protected final static String MMI_ERROR_STRING= "Cannot comput the standard deviation for MMI";
+    public final static String MMI_ERROR_STRING = "Problem: "+NAME + " cannot complete the requested computation for MMI\n\n" +
+                                                  "This has occurred because you attempted to compute a probability "+
+                                                  "of exceedance, the standard deviation, or an IML at some "+
+                                                  "probability other than 0.5.  The inability to compute these will "+
+                                                  "remain until someone comes up with the probability distribution for "+
+                                                  "MMI (which is not trivial).  For now you can compute the median or "+
+                                                  "the IML that has a 0.5 chance of being exceeded (the median).";
 
 
     /**

@@ -17,6 +17,7 @@ import org.scec.sha.imr.attenRelImpl.*;
 
 public final class IMT_Info {
 
+  private String S = "IMT_Info()";
 
   //Default values for the SA and PGA
   private final static double MIN_SA_PGA = .0001;
@@ -86,7 +87,11 @@ public final class IMT_Info {
       }
       return function;
     }
-    return null;
+    else if((imtName.equals(ShakeMap_2003_AttenRel.MMI_NAME))){
+      throw new RuntimeException(ShakeMap_2003_AttenRel.MMI_ERROR_STRING);
+    }
+    else
+      throw new RuntimeException(S+" Unsupported IMT");
   }
 
   /**
