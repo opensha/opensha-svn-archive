@@ -1,26 +1,15 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+JFreeChart - figure out is there is a way to increase space on right side of plot without increasing the upper axis limit (e.g., if "1000" is the upper limit it's label gets cut off; JFreeChart solves this by making the upper axis limit 1.05*1000).  Also offset the man X-axis labels further down on Log plots (they touch the bar)
+
 See if mac can now handle different styles of tabs.
 
-Resolve memory issues.
-
-Implement 2002 National Hazard maps model.
-
-HazardSpectrumApplet - make it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances?
+HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?
 
 Finish implementing Set2-Case5 (Nitin knows it's incorrectly implemented).
 
-HazardCurveApplet:
-
-	Axis control panel doesn't seem to work for log-log plots (try setting custom)
-
-	Exception thrown by MagFreqDistParameterEditor are not shown in a popup window
-
-	"Set X values for Hazard Curve Calc." control panel doesn't seem to work
-	(and lacks "Done" button)
-
-	"Set Site Params from CVM" control panel doesn't work for old SF lat and lon.
+Check lat/lon values of cities in sites of interest.  Lets try to find some official list of city lats and lons for at least california.
 
 Deploy SimplePoissonFaultERF in servlet mode and remove the servlet mode PEER_FaultForecast (update the ERF servlet-mode GUIbean accordingly).
 
@@ -43,7 +32,15 @@ Lets chance syncToModel (and "synchToModel" as it is spelled in some places) met
 
 Make the WG02 ERF servlet so that more than one user can use it at any given time. 
 
-JFreeChart:  add method to allow our style of log-plot labeling (remove booleans), and another method for labeling minor axes as an option.  Add button for changing XY data in our Log Plot Tester Applet.  Make this Applet one of their demos?
+
+
+Contact Bruce about Shape-file generation for scenarios (different from probabilistic map inputs)
+
+JFreeChart - finish the tester GUI and compose email of suggested changes
+
+Resolve memory issues, after we figure out exactly what they are.
+
+Implement 2002 National Hazard maps model - Ned will work on.
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out.
 
