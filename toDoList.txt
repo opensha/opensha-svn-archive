@@ -1,6 +1,8 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+See if mac can now handle different styles of tabs.
+
 Resolve memory issues.
 
 Implement 2002 National Hazard maps model.
@@ -44,8 +46,6 @@ Make the WG02 ERF servlet so that more than one user can use it at any given tim
 JFreeChart:  add method to allow our style of log-plot labeling (remove booleans), and another method for labeling minor axes as an option.  Add button for changing XY data in our Log Plot Tester Applet.  Make this Applet one of their demos?
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out.
-
-Try to solve problem with cutting and pasting on Mac OS X with Java 1.4.1. - Apple is working on this with info from Nitin.  Actually they claim that Panther no longer has this problem.
 
 Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.
 
