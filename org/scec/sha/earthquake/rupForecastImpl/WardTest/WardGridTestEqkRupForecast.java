@@ -292,12 +292,18 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
      return C;
    }
 
+   /**
+    * this function is needed to prepare for the forecast
+    */
+   public void updateForecast() {
+     throw new UnsupportedOperationException(C+"this function Not implemented.");
+   }
+
    public static void main(String args[]) {
 
       WardGridTestEqkRupForecast test = new WardGridTestEqkRupForecast();
 
       //test.setTimeSpan();
-
 
    }
 

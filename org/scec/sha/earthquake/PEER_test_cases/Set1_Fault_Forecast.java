@@ -177,7 +177,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
   /**
    * update the sources based on the user paramters, only when user has changed any parameter
    */
-   public void updateGUI(){
+   public void updateForecast(){
      String S = C + "updateGUI::";
 
      if(parameterChangeFlag) {

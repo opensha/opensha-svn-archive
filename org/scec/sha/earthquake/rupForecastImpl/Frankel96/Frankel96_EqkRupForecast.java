@@ -469,4 +469,11 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
      return C;
    }
 
+   /**
+    * this function is needed to prepare for the forecast
+    */
+   public void updateForecast() {
+    throw new UnsupportedOperationException(C+"this function Not implemented.");
+   }
+
 }
