@@ -601,6 +601,18 @@ public class TranslatedWarningDoubleParameter
      */
     public void setNonEditable(){ param.setNonEditable();}
 
+    /**
+     *
+     * @returns the matadata string for parameter.
+     * This function returns the metadata which can be used to reset the values
+     * of the parameters created.
+     * *NOTE : Look at the function getMetadataXML() which return the values of
+     * these parameters in the XML format and can used recreate the parameters
+     * from scratch.
+     */
+    public String getMetadataString() {
+      return getName()+" = "+getValue().toString();
+    }
 
     public boolean isNullAllowed(){ return param.isNullAllowed();}
     public TranslatorAPI getTrans() {

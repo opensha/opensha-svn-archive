@@ -421,6 +421,38 @@ public class ParameterList implements Serializable {
 
     }
 
+
+    /**
+     * this function iterates over all the parameters in
+     * the parematerList and get their metadata in the
+     * string format.
+     *
+     * @returns the metadata string for the parameterList
+     *
+     * Metadata returned from this function can only be used
+     * to set the values of the parameters, cannot be used to
+     * recreate the parameters.
+     * Note: See getParameterListMetadataXML function which returns
+     * the metadata in the XML format and can used to recreate the
+     * parameterList from scratch.
+     */
+    public String getParameterListMetadataString(){
+      int size  = params.size();
+      StringBuffer metaData = new StringBuffer();
+      boolean first = true;
+      for(int i=0;i<size;++i){
+        ParameterAPI tempParam=(ParameterAPI)params.get(i);
+        if(first){
+          metaData.append(tempParam.getMetadataString());
+          first = false;
+        }
+        else
+          metaData.append("; "+tempParam.getMetadataString());
+      }
+      return metaData.toString();
+    }
+
+
     /** Returns the index of the named Parameter in this list. Returns -1 if not found. */
     private int getIndexOf(String key) {
       int size = params.size();

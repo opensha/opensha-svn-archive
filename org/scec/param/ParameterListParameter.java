@@ -44,6 +44,8 @@ public class ParameterListParameter extends DependentParameter
    */
   public ParameterListParameter(String name, ParameterList paramList){
     super(name,null,null,paramList);
+    //setting the independent Param List for this parameter
+    setIndependentParameters(paramList);
   }
 
 
@@ -77,9 +79,8 @@ public class ParameterListParameter extends DependentParameter
       ParameterAPI param = (ParameterAPI)it.next();
     }
     setValue( (Object) value );
-
     //setting the independent Param List for this parameter
-    setIndependentParameters(value);
+    this.setIndependentParameters(value);
   }
 
   /**
@@ -128,6 +129,28 @@ public class ParameterListParameter extends DependentParameter
     String type = this.PARAM_TYPE;
     return type;
   }
+
+  /**
+   *
+   * @returns the matadata string for parameter.
+   * This function returns the metadata which can be used to reset the values
+   * of the parameters created.
+   * *NOTE : Look at the function getMetadataXML() which return the values of
+   * these parameters in the XML format and can used recreate the parameters
+   * from scratch.
+   */
+  public String getMetadataString() {
+    StringBuffer metadata = new StringBuffer();
+    metadata.append(getName()+" [ ");
+    ListIterator list = getIndependentParametersIterator();
+    while(list.hasNext()){
+     ParameterAPI tempParam = (ParameterAPI)list.next();
+     metadata.append(tempParam.getMetadataString()+" ; ");
+    }
+    metadata.replace(metadata.length()-2,metadata.length()," ]");
+    return metadata.toString();
+  }
+
 
 }
 

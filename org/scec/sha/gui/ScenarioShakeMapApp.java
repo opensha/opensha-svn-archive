@@ -631,21 +631,21 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   public String getMapParametersInfo(){
     return "IMR Param List:<br>\n " +
            "---------------<br>\n"+
-        this.imrGuiBean.getVisibleParametersCloned().toString()+"\n"+
+        this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
         "<br><br>Region Param List: <br>\n"+
         "----------------<br>\n"+
-        sitesGuiBean.getVisibleParametersCloned().toString()+"\n"+
+        sitesGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
         "<br><br>IMT Param List: <br>\n"+
         "---------------<br>\n"+
-        imtGuiBean.getVisibleParametersCloned().toString()+"\n"+
+        imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
         "<br><br>Forecast Param List: <br>\n"+
         "--------------------<br>\n"+
-        erfGuiBean.getParameterListEditor().getVisibleParametersCloned().toString()+"\n"+
+        erfGuiBean.getParameterListEditor().getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
         "<br><br>TimeSpan Param List: <br>\n"+
         "--------------------<br>\n"+
-        timeSpanGuiBean.getVisibleParametersCloned().toString()+"\n"+
+        timeSpanGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
         "<br><br>GMT Param List: <br>\n"+
         "--------------------<br>\n"+
-        mapGuiBean.getVisibleParametersCloned().toString()+"\n";
+        mapGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n";
   }
 }

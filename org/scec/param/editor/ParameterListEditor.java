@@ -55,8 +55,11 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
 
     /** List of all individual editors, one for each parameter in the parameter list */
-    protected HashMap parameterEditors = new HashMap();
-
+    /** Both the parameterEditor and parameterName maintain the same ordering of the
+     *  parameters. parametersEditor store the editor for each parameter name stored
+     *  in the  parameterName variable at the same index.*/
+    protected ArrayList parameterEditors = new ArrayList();
+    protected ArrayList parametersName = new ArrayList();
 
     /** The collection of paths used to search for editor classes. */
     protected String[] searchPaths;
@@ -127,16 +130,28 @@ public class ParameterListEditor extends LabeledBoxPanel {
      */
     public void setParameterVisible( String parameterName, boolean visible ) {
 
-        parameterName = this.parameterList.getParameterName( parameterName );
-        if ( parameterEditors.containsKey( parameterName ) ) {
-
-            ParameterEditor editor = ( ParameterEditor ) parameterEditors.get( parameterName );
+        parameterName = parameterList.getParameterName( parameterName );
+        int index = getIndexOf(parameterName);
+        if ( index != -1 ) {
+            ParameterEditor editor = ( ParameterEditor ) parameterEditors.get(index);
             editor.setVisible( visible );
         }
 
     }
 
-
+    /**
+     *
+     * @param paramName
+     * @returns the index of the parameter Name in the ArrayList
+     */
+    private int getIndexOf(String paramName){
+      int size =  parametersName.size();
+      for(int i=0;i<size;++i){
+        if(((String)parametersName.get(i)).equals(paramName))
+          return i;
+      }
+      return -1;
+    }
 
 
     /** Returns the default search path for editor classes.  */
@@ -152,32 +167,18 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
         ParameterList visibles = new ParameterList();
 
-        Set keys = parameterEditors.keySet();
-        Iterator it = keys.iterator();
+        Iterator it = parameterEditors.iterator();
         while ( it.hasNext() ) {
 
-            Object key = it.next();
-            ParameterEditor editor = ( ParameterEditor ) parameterEditors.get( key );
+            ParameterEditor editor = ( ParameterEditor ) it.next();
             if ( editor.isVisible() ) {
                 ParameterAPI param = ( ParameterAPI ) editor.getParameter();
-                ParameterList paramList = ((DependentParameter)param).getIndependentParameterList();
-                traverse(paramList,visibles);
                 visibles.addParameter( param );
             }
-
         }
         return visibles;
     }
 
-
-    private void traverse(ParameterList paramList,ParameterList visibles){
-      ListIterator it1 = paramList.getParametersIterator();
-      while(it1.hasNext()){
-        ParameterList list= ((DependentParameter)it1.next()).getIndependentParameterList();
-        traverse(list,visibles);
-        visibles.addParameterList(list);
-      }
-    }
 
     /**
      *  Gets the parameterEditor attribute of the ParameterListEditor object
@@ -188,14 +189,14 @@ public class ParameterListEditor extends LabeledBoxPanel {
      */
     public ParameterEditor getParameterEditor( String parameterName ) throws NoSuchElementException {
 
-        parameterName = this.parameterList.getParameterName( parameterName );
-        if ( parameterEditors.containsKey( parameterName ) ) {
-
-            ParameterEditor editor = ( ParameterEditor ) parameterEditors.get( parameterName );
-            return editor;
-        }
-        else
-            throw new NoSuchElementException( "No ParameterEditor exist named " + parameterName );
+      parameterName = parameterList.getParameterName( parameterName );
+      int index = getIndexOf(parameterName);
+      if ( index != -1 ) {
+        ParameterEditor editor = ( ParameterEditor ) parameterEditors.get(index);
+        return editor;
+      }
+      else
+        throw new NoSuchElementException( "No ParameterEditor exist named " + parameterName );
 
     }
 
@@ -210,12 +211,9 @@ public class ParameterListEditor extends LabeledBoxPanel {
      * event.
      */
     public void refreshParamEditor() {
-
-        Set keys = parameterEditors.keySet();
-        Iterator it = keys.iterator();
+        Iterator it = parameterEditors.iterator();
         while ( it.hasNext() ) {
-            Object key = it.next();
-            ParameterEditorAPI editor = ( ParameterEditorAPI ) parameterEditors.get( key );
+            ParameterEditorAPI editor = ( ParameterEditorAPI )it.next();
             editor.refreshParamEditor();
         }
     }
@@ -226,16 +224,14 @@ public class ParameterListEditor extends LabeledBoxPanel {
      */
     public void replaceParameterForEditor( String parameterName, ParameterAPI param ) {
 
-        parameterName = this.parameterList.getParameterName( parameterName );
-        if ( parameterEditors.containsKey( parameterName ) ) {
-
-            ParameterEditor editor = ( ParameterEditor ) parameterEditors.get( parameterName );
-            editor.setParameter( param );
-
-            parameterList.removeParameter( parameterName );
-            parameterList.addParameter( param );
-
-        }
+      parameterName = this.parameterList.getParameterName( parameterName );
+      int index = getIndexOf(parameterName);
+      if ( index != -1 ) {
+        ParameterEditor editor = ( ParameterEditor ) parameterEditors.get(index);
+        editor.setParameter( param );
+        parameterList.removeParameter( parameterName );
+        parameterList.addParameter( param );
+      }
 
     }
 
@@ -273,8 +269,8 @@ public class ParameterListEditor extends LabeledBoxPanel {
             // if(obj instanceof ParameterAPI){
             //ParameterAPI param = (ParameterAPI)obj;
             ParameterEditor panel = ParameterEditorFactory.getEditor( param );
-
-            parameterEditors.put( param.getName(), panel );
+            parametersName.add(counter,name);
+            parameterEditors.add(counter,panel );
             editorPanel.add(panel);
             editorPanel.add( panel, new GridBagConstraints( 0, counter, 0,1, 1.0, 1.0
                     , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 4, 4 ), 0, 0 ) );

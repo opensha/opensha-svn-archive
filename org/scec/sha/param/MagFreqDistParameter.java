@@ -904,6 +904,27 @@ public class MagFreqDistParameter
     }
 
     /**
+     *
+     * @returns the matadata string for parameter.
+     * This function returns the metadata which can be used to reset the values
+     * of the parameters created.
+     * *NOTE : Look at the function getMetadataXML() which return the values of
+     * these parameters in the XML format and can used recreate the parameters
+     * from scratch.
+     */
+    public String getMetadataString() {
+      StringBuffer metadata = new StringBuffer();
+      metadata.append(getName()+" [ ");
+      ListIterator list = getIndependentParametersIterator();
+      while(list.hasNext()){
+       ParameterAPI tempParam = (ParameterAPI)list.next();
+       metadata.append(tempParam.getMetadataString()+" ; ");
+      }
+      metadata.replace(metadata.length()-2,metadata.length()," ]");
+      return metadata.toString();
+    }
+
+    /**
      * Return the FIX and SET_ALL_PARAMS_BUT constraints for each dist
      *
      * @return

@@ -423,6 +423,19 @@ public abstract class Parameter
     /** Determines if the value can be edited, i.e. changed once initialized. */
     public boolean isEditable() { return editable; }
 
+    /**
+     *
+     * @returns the matadata string for parameter.
+     * This function returns the metadata which can be used to reset the values
+     * of the parameters created.
+     * *NOTE : Look at the function getMetadataXML() which return the values of
+     * these parameters in the XML format and can used recreate the parameters
+     * from scratch.
+     */
+    public String getMetadataString() {
+      return name+" = "+value.toString();
+    }
+
     /** Returns a copy so you can't edit or damage the origial. */
     public abstract Object clone();
 
