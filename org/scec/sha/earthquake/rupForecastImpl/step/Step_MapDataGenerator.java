@@ -1,6 +1,7 @@
 package org.scec.sha.earthquake.rupForecastImpl.step;
 
 import javax.swing.JOptionPane;
+import java.util.Calendar;
 
 import org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast;
 import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
@@ -36,7 +37,7 @@ public class Step_MapDataGenerator implements ParameterChangeWarningListener{
   private double minLat = 32.5;
   private double maxLat = 36.5;
   private double minLon = -121.5;
-  private double maxLon= -114.5;
+  private double maxLon= -115.0;
   private double gridSpacing= 0.05;
 
   public Step_MapDataGenerator() {
@@ -57,15 +58,17 @@ public class Step_MapDataGenerator implements ParameterChangeWarningListener{
     // make the calculator
     HazardMapCalculator calc = new HazardMapCalculator();
     calc.showProgressBar(false);
-
-    java.util.Date date = new java.util.Date();
+    Calendar calendar = Calendar.getInstance();
     // name of new directory
-    String newDir = new String("STEP::"+date.getMonth()+"-"+date.getDay()+"-"+
-                               date.getYear()+"("+date.getHours()+":"+
-                               date.getMinutes()+":"+date.getSeconds()+")");
+    String newDir = new String("STEP::"+(calendar.get(Calendar.MONTH)+1)+"-"+
+                               calendar.get(Calendar.DAY_OF_MONTH)+"-"+
+                               calendar.get(Calendar.YEAR)+"("+
+                               calendar.get(Calendar.HOUR_OF_DAY)+":"+
+                               calendar.get(Calendar.MINUTE)+":"+
+                               calendar.get(Calendar.SECOND)+")");
 
     calc.getHazardMapCurves("/export/home/scec-00/scecweb/jsdk2.1/HazardMapDataSets/"+newDir,
-                            true, xValues, region, imr, forecast, date.toString() +
+                            true, xValues, region, imr, forecast, newDir +
                             forecast.toString() + imr.toString());
 
   }
