@@ -30,8 +30,9 @@ public class HazardMapCalcPostProcessing {
    * @param emailAddr
    */
   public HazardMapCalcPostProcessing(String fileName,
-                                          int expectedNumOfFiles,
-                                          String emailAddr) {
+                                     int expectedNumOfFiles,
+                                     String emailAddr,
+                                     int datasetId) {
     try {
       FileReader file = new FileReader(fileName);
       BufferedReader reader = new BufferedReader(file);
@@ -52,7 +53,8 @@ public class HazardMapCalcPostProcessing {
       msg.println("From: " + FROM); // so that mailers will display the sender's e-mail address
       msg.println("Subject: Grid Job Status \n");
       msg.println("Grid Computation complete\nExpected Num of Files="+
-                  expectedNumOfFiles+"\nFiles Generated="+actualFiles);
+                  expectedNumOfFiles+"\nFiles Generated="+actualFiles+
+                  "\nDataset Id="+datasetId);
       // Close the connection to the SMTP server and send the message out to the recipient
       smtp.closeServer();
     }
@@ -72,7 +74,7 @@ public class HazardMapCalcPostProcessing {
   public static void main(String[] args) {
     HazardMapCalcPostProcessing hazardMapCalcPostProcessing1 =
         new HazardMapCalcPostProcessing(args[0], Integer.parseInt(args[1]),
-                                        args[2]);
+                                        args[2], Integer.parseInt(args[3]));
   }
 
 }

@@ -143,7 +143,9 @@ public class SubmitJobForGridComputation {
       //create shell script to ftp hazard curve tar file from remote machine
       // to local machine and then untar them on the local machine
       ftpCurvesFromRemoteMachine(outputDir, remoteDir,
-                                 griddedSites.getNumGridLocs(), emailAddr);
+                                 griddedSites.getNumGridLocs(),
+                                 emailAddr,
+                                 remoteMachineSubdirName);
 
       frmap.write("Script POST " + FINISH_JOB_NAME + " " +
                   GET_CURVES_FROM_REMOTE_MACHINE + "\n");
@@ -297,7 +299,7 @@ public class SubmitJobForGridComputation {
   //create shell script to ftp hazard curve tar file from remote machine
   private void ftpCurvesFromRemoteMachine(String outputDir, String remoteDir,
                                           int expectedNumOfFiles,
-                                          String emailAddr) {
+                                          String emailAddr, long datasetId) {
     try {
       // write the post script.
       //When all jobs are finished, grid ftp files from almaak to gravity
