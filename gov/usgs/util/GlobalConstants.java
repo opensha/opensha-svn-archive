@@ -91,6 +91,33 @@ public final class GlobalConstants {
     public static final String SITE_CLASS_E = "Site Class B";
     public static final String SITE_CLASS_F = "Site Class B";
 
+    // Fa table data for site coefficient window
+    public final static String[] faColumnNames = {
+      "Site Class", "Ss<=0.25", "Ss=0.50",
+      "Ss=0.75", "Ss=1.00", "Ss=1.25"};
+    public final static Object[][] faData = {
+      {"A", "0.8", "0.8", "0.8", "0.8", "0.8"},
+      {"B", "1.0", "1.0", "1.0", "1.0", "1.0"},
+      {"C", "1.2", "1.2", "1.1", "1.0", "1.0"},
+      {"D", "1.6", "1.4", "1.2", "1.1", "1.0"},
+      {"E", "2.5", "1.7", "1.2", "0.9", "0.9"},
+      {"F", "a", "a", "a", "a", "a"}
+    };
+
+    // Fv table data for site coefficient window
+    public final static String[] fvColumnNames = {
+      "Site Class", "Ss<=0.10", "Ss=0.20",
+      "Ss=0.30", "Ss=0.40", "Ss=0.50"};
+    public final static Object[][] fvData = {
+      {"A", "0.8", "0.8", "0.8", "0.8", "0.8"},
+      {"B", "1.0", "1.0", "1.0", "1.0", "1.0"},
+      {"C", "1.7", "1.6", "1.5", "1.4", "1.3"},
+      {"D", "2.4", "2.0", "1.8", "1.6", "1.5"},
+      {"E", "3.5", "3.2", "2.8", "2.4", "2.4"},
+      {"F", "a", "a", "a", "a", "a"}
+    };
+
+
 
     /**
      * Returns the supported Site Classes

@@ -23,6 +23,7 @@ import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
 import gov.usgs.exceptions.ZipCodeErrorException;
 import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
 import gov.usgs.sha.data.DataGenerator_NEHRP;
+import gov.usgs.sha.gui.infoTools.SiteCoefficientInfoWindow;
 
 /**
  * <p>Title:NEHRP_GuiBean</p>
@@ -462,7 +463,7 @@ public class NEHRP_GuiBean
 
 
   private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-
+    SiteCoefficientWindow dialog = new SiteCoefficientWindow();
   }
 
   private void smSDButton_actionPerformed(ActionEvent actionEvent) {
