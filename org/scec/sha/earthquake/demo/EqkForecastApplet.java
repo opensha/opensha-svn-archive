@@ -8,6 +8,7 @@ import java.lang.reflect.*;
 
 import org.scec.param.event.*;
 import org.scec.param.*;
+import org.scec.param.editor.ParameterListEditor;
 import org.scec.sha.imr.gui.IMRGuiBean;
 import org.scec.sha.imr.ClassicIMRAPI;
 import javax.swing.border.*;
@@ -21,7 +22,9 @@ import javax.swing.border.*;
  */
 
 public class EqkForecastApplet extends JApplet
-    implements  ParameterChangeWarningListener {
+    implements  ParameterChangeWarningListener,
+                ParameterChangeFailListener,
+                ParameterChangeListener {
   private boolean isStandalone = false;
 
   private String C = "EqkForecastApplet";
@@ -51,12 +54,20 @@ public class EqkForecastApplet extends JApplet
 
   protected final static String SA = "SA";
   protected final static String SA_PERIOD = "SA Period";
-  protected final static String FRANKEL_1996_FORECAST = "Frankel 1996 Forecast Model";
-  protected final static int W = 820;
-  protected final static int H = 670;
+  protected final static String FRANKEL_1996_FORECAST = "Frankel 1996";
+  protected final static int W = 880;
+  protected final static int H = 590;
+
+  // it maps the IMR names and supported IMT for each IMR
   protected ArrayList[] imtMap;
 
+  //it maps the IMR names and site supported by each IMR
+  protected ArrayList[] siteMap;
+
   final static GridBagLayout GBL = new GridBagLayout();
+
+  Color background = new Color(200,200,230);
+  Color foreground = new Color(80,80,133);
 
   /**
    *  Hashmap that maps picklist imr string names to the real fully qualified
@@ -64,16 +75,42 @@ public class EqkForecastApplet extends JApplet
    */
   protected static HashMap imrNames = new HashMap();
   private JPanel jEqkForecastPanel = new JPanel();
+
+  // combobox to show all the IMTs supported
   private JComboBox jIMTComboBox = new JComboBox();
   private JLabel jIMTLabel = new JLabel();
+
+  // combo box to show the supported Earthforecast Types
   private JComboBox jEqkForeType = new JComboBox();
+
+  // text field where time span(in yrs.) is filled up
   private JTextField jTimeField = new JTextField();
   private JLabel jForecastLabel = new JLabel();
   private JLabel jTimeSpan = new JLabel();
   private JLabel jYears = new JLabel();
   private Border border1;
   private JLabel jIMR = new JLabel();
+
+  // array of checkboxes. One check box for each supported IMR
   private JCheckBox[] jIMRNum;
+
+
+  /**
+   *  This is the paramater list editor. The site parameters will be made
+   *  removed . This is done through this editor.
+   */
+  protected ParameterListEditor siteEditor = null;
+
+   /**
+    *  Parameters for site related to each IMR
+    */
+  protected ParameterList siteParamList = new ParameterList();
+
+  /**
+   * Longitude and Latitude paramerts to be added to the site params list
+   */
+  private DoubleParameter longitude = new DoubleParameter("Longitude");
+  private DoubleParameter latitude = new DoubleParameter("Latitude");
 
 
   /**
@@ -102,6 +139,11 @@ public class EqkForecastApplet extends JApplet
   private JPanel jIMRList = new JPanel();
   private GridLayout gridLayout1 = new GridLayout();
   private Border border2;
+  private JPanel sitePanel = new JPanel();
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private Border border3;
+  private JPanel jPanel1 = new JPanel();
+  private Border border4;
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -126,6 +168,8 @@ public class EqkForecastApplet extends JApplet
   private void jbInit() throws Exception {
     border1 = BorderFactory.createEtchedBorder(new Color(200, 200, 230),new Color(80, 80, 133));
     border2 = BorderFactory.createEtchedBorder(new Color(200, 200, 230),new Color(80, 80, 133));
+    border3 = BorderFactory.createLineBorder(new Color(80, 80, 133),1);
+    border4 = BorderFactory.createLineBorder(new Color(80, 80, 133),1);
     jForecastLabel.setBackground(new Color(200, 200, 230));
     jForecastLabel.setForeground(new Color(80, 80, 133));
     jTimeSpan.setBackground(new Color(200, 200, 230));
@@ -135,8 +179,8 @@ public class EqkForecastApplet extends JApplet
     jYears.setFont(new java.awt.Font("Dialog", 1, 11));
     jYears.setForeground(new Color(80, 80, 133));
     jYears.setText("# yrs");
-    jYears.setBounds(new Rectangle(631, 24, 38, 25));
-    jTimeField.setBackground(new Color(200, 200, 230));
+    jYears.setBounds(new Rectangle(605, 18, 38, 25));
+    jTimeField.setBackground(Color.white);
     jTimeField.setFont(new java.awt.Font("SansSerif", 1, 11));
     jTimeField.setForeground(new Color(80, 80, 133));
     jEqkForeType.setBackground(new Color(200, 200, 230));
@@ -154,48 +198,59 @@ public class EqkForecastApplet extends JApplet
     jIMR.setFont(new java.awt.Font("Dialog", 1, 11));
     jIMR.setForeground(new Color(80, 80, 133));
     jIMR.setText("Select IMR :");
-    jIMR.setBounds(new Rectangle(12, 70, 137, 25));
-    jIMRList.setBackground(new Color(200, 200, 230));
+    jIMR.setBounds(new Rectangle(10, 56, 137, 25));
+    jIMRList.setBackground(Color.white);
     jIMRList.setFont(new java.awt.Font("Dialog", 1, 11));
-    jIMRList.setForeground(new Color(80, 80, 133));
+    jIMRList.setForeground(Color.white);
     jIMRList.setBorder(border2);
-    jIMRList.setBounds(new Rectangle(10, 92, 205, 174));
+    jIMRList.setBounds(new Rectangle(7, 80, 227, 174));
     jIMRList.setLayout(gridLayout1);
     gridLayout1.setColumns(1);
     gridLayout1.setRows(0);
     gridLayout1.setVgap(1);
-    jEqkForecastPanel.add(jIMTLabel, null);
-    jEqkForecastPanel.add(jIMTComboBox, null);
-    jEqkForecastPanel.add(jForecastLabel, null);
-    jEqkForecastPanel.add(jEqkForeType, null);
-    jEqkForecastPanel.add(jTimeSpan, null);
+    sitePanel.setBackground(Color.white);
+    sitePanel.setFont(new java.awt.Font("Dialog", 1, 11));
+    sitePanel.setForeground(new Color(200, 200, 230));
+    sitePanel.setBorder(border3);
+    sitePanel.setBounds(new Rectangle(6, 266, 225, 265));
+    sitePanel.setLayout(borderLayout1);
     jEqkForecastPanel.setBackground(Color.white);
     jEqkForecastPanel.setForeground(new Color(80, 80, 133));
     this.getContentPane().setBackground(Color.white);
     this.setForeground(new Color(80, 80, 133));
-    jEqkForeType.setBounds(new Rectangle(336, 25, 103, 21));
-    jTimeField.setBounds(new Rectangle(528, 23, 101, 25));
+    jEqkForeType.setBounds(new Rectangle(317, 23, 103, 21));
+    jTimeField.setBounds(new Rectangle(500, 22, 101, 22));
     jForecastLabel.setFont(new java.awt.Font("Dialog", 1, 11));
     jForecastLabel.setText("Select Eqk Forecast :");
-    jForecastLabel.setBounds(new Rectangle(219, 26, 112, 20));
+    jForecastLabel.setBounds(new Rectangle(203, 24, 112, 20));
     jTimeSpan.setText("Time Span :");
-    jTimeSpan.setBounds(new Rectangle(456, 24, 66, 24));
-    this.setSize(new Dimension(934, 567));
+    jTimeSpan.setBounds(new Rectangle(434, 22, 66, 22));
+    this.setSize(new Dimension(874, 561));
     this.getContentPane().setLayout(null);
     jEqkForecastPanel.setBorder(border1);
-    jEqkForecastPanel.setBounds(new Rectangle(14, 7, 865, 532));
+    jEqkForecastPanel.setBounds(new Rectangle(5, 4, 863, 550));
     jEqkForecastPanel.setLayout(null);
     jIMTComboBox.setBounds(new Rectangle(78, 26, 103, 20));
     jIMTLabel.setBackground(new Color(200, 200, 230));
     jIMTLabel.setFont(new java.awt.Font("Dialog", 1, 11));
     jIMTLabel.setForeground(new Color(80, 80, 133));
     jIMTLabel.setText("Select IMT:");
-    jIMTLabel.setBounds(new Rectangle(14, 21, 79, 31));
-    this.getContentPane().add(jEqkForecastPanel, null);
-    jEqkForecastPanel.add(jTimeField, null);
+    jIMTLabel.setBounds(new Rectangle(11, 25, 68, 23));
+    jPanel1.setBackground(Color.white);
+    jPanel1.setBorder(border4);
+    jPanel1.setBounds(new Rectangle(250, 55, 602, 478));
+    jEqkForecastPanel.add(jIMTComboBox, null);
+    jEqkForecastPanel.add(jForecastLabel, null);
+    jEqkForecastPanel.add(jEqkForeType, null);
     jEqkForecastPanel.add(jYears, null);
+    jEqkForecastPanel.add(jIMTLabel, null);
+    jEqkForecastPanel.add(jTimeSpan, null);
+    jEqkForecastPanel.add(jTimeField, null);
+    jEqkForecastPanel.add(jPanel1, null);
     jEqkForecastPanel.add(jIMR, null);
     jEqkForecastPanel.add(jIMRList, null);
+    jEqkForecastPanel.add(sitePanel, null);
+    this.getContentPane().add(jEqkForecastPanel, null);
   }
 
 
@@ -221,23 +276,67 @@ public class EqkForecastApplet extends JApplet
    Iterator it = this.imrNames.keySet().iterator();
    ClassicIMRAPI imr;
    String className;
+
+   // hashmap used so that we do not get duplicate IMTs
    HashMap imt = new HashMap();
+
+   // number of IMRs
    int imtSize =imrNames.size();
-   if(D)System.out.println(S+":imtSize::"+imtSize);
+
+   // imtMap mantains mapping of each IMR with its supported IMT
    imtMap =new ArrayList[imtSize];
+
+   // siteMap mantains mapping of each IMR with its supported sites
+   siteMap =new ArrayList[imtSize];
+
+
+   //jIMRNum is the array of check boxes. There is one check box for each IMR
    this.jIMRNum=new JCheckBox[imtSize];
+
    int numOfIMT=0;
+
+   //jIMRList is the panel in which checkboxes are drawn
    jIMRList.setLayout(GBL);
+
    while (it.hasNext()) {
+
+     // imtMap mantains mapping of each IMR with its supported IMT
     imtMap[numOfIMT] = new ArrayList();
+
+    // sitemap mantains the mapping of each IMR with its supported sites
+    siteMap[numOfIMT] = new ArrayList();
+
     className = it.next().toString(); // class Name to create the object
-     imtMap[numOfIMT].add(className);
-     jIMRNum[numOfIMT]=new JCheckBox(className);
-     jIMRList.add(jIMRNum[numOfIMT],new GridBagConstraints( 0, numOfIMT, 1, 1, 1.0, 1.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    imtMap[numOfIMT].add(className);
+    jIMRNum[numOfIMT]=new JCheckBox((String)imrNames.get(className));
+    jIMRList.add(jIMRNum[numOfIMT],new GridBagConstraints( 0, numOfIMT, 1, 1, 1.0, 1.0
+                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    jIMRNum[numOfIMT].setBackground(background);
+    jIMRNum[numOfIMT].setForeground(foreground);
+
+
+     // this adds listener for events on the check box
+     // whenever a check box is selectdee or deselected we have to change the site params
+     jIMRNum[numOfIMT].addItemListener(new java.awt.event.ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        jCheckBox_itemStateChanged(e);
+      }
+    });
+
+
      // create the imr instance
      imr = ( ClassicIMRAPI ) createIMRClassInstance(className ,this);
-     if(D)System.out.println(S+":numOfIMT::"+numOfIMT);
+
+     // get the list of sites supported by this IMR
+     ListIterator listIt = imr.getSiteParamsIterator();
+
+     // save the Sit Types supported by this IMR in a list
+     Parameter tempParam;
+     while(listIt.hasNext()) {
+       tempParam = (Parameter)listIt.next();
+       siteMap[numOfIMT].add(tempParam.clone());
+     }
+
      // get the supported IMTs for this IMR
      Iterator it1 = imr.getSupportedIntensityMeasuresIterator();
      while ( it1.hasNext() ) {
@@ -249,23 +348,22 @@ public class EqkForecastApplet extends JApplet
         }
 
         // get SA peiod paramter
-        ListIterator it2 = param.getIndependentParametersIterator();
-        while ( it2.hasNext() ) {
-           DependentParameterAPI param2 = ( DependentParameterAPI ) it2.next();
+     ListIterator it2 = param.getIndependentParametersIterator();
+     while ( it2.hasNext() ) {
+        DependentParameterAPI param2 = ( DependentParameterAPI ) it2.next();
+        // if it is not SA Period then  get next parameter
+        if(!param2.getName().equalsIgnoreCase(SA_PERIOD))
+          continue;
 
-           // if it is not SA Period then  get next parameter
-           if(!param2.getName().equalsIgnoreCase(SA_PERIOD))
-             continue;
-
-           //if it is SA period, get the allowed period values
-           DoubleDiscreteConstraint  values = (DoubleDiscreteConstraint) param2.getConstraint();
-           ListIterator it3 = values.listIterator();
-           while(it3.hasNext())  {// add all the periods realting to the SA
-             String  temp = SA+" "+it3.next().toString();
-             imt.put(new String(temp),new String(temp));
-             imtMap[numOfIMT].add(temp);
-           }
+       //if it is SA period, get the allowed period values
+        DoubleDiscreteConstraint  values = (DoubleDiscreteConstraint) param2.getConstraint();
+        ListIterator it3 = values.listIterator();
+        while(it3.hasNext())  {// add all the periods realting to the SA
+          String  temp = SA+" "+it3.next().toString();
+          imt.put(new String(temp),new String(temp));
+          imtMap[numOfIMT].add(temp);
         }
+      }
      }
      ++numOfIMT;
    }
@@ -368,6 +466,48 @@ public class EqkForecastApplet extends JApplet
   }
 
 
+  /**
+      *  Shown when a Constraint error is thrown on a ParameterEditor
+      *
+      * @param  e  Description of the Parameter
+      */
+     public void parameterChangeFailed( ParameterChangeFailEvent e ) {
+
+         String S = C + " : parameterChangeWarning(): ";
+         if(D) System.out.println(S + "Starting");
+
+
+         StringBuffer b = new StringBuffer();
+
+         ParameterAPI param = ( ParameterAPI ) e.getSource();
+
+
+         ParameterConstraintAPI constraint = param.getConstraint();
+         String oldValueStr = e.getOldValue().toString();
+         String badValueStr = e.getBadValue().toString();
+         String name = param.getName();
+
+
+         b.append( "The value ");
+         b.append( badValueStr );
+         b.append( " is not permitted for '");
+         b.append( name );
+         b.append( "'.\n" );
+         b.append( "Resetting to ");
+         b.append( oldValueStr );
+         b.append( ". The constraints are: \n");
+         b.append( constraint.toString() );
+
+         JOptionPane.showMessageDialog(
+             this, b.toString(),
+             "Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
+             );
+
+         if(D) System.out.println(S + "Ending");
+
+    }
+
+
 /**
  *  Function that must be implemented by all Listeners for
  *  ParameterChangeWarnEvents.
@@ -443,6 +583,30 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     if(D) System.out.println(S + "Ending");
 
     }
+
+
+/**
+ *  This is the main function of this interface. Any time a control
+ *  paramater or independent paramater is changed by the user in a GUI this
+ *  function is called, and a paramater change event is passed in. This
+ *  function then determines what to do with the information ie. show some
+ *  paramaters, set some as invisible, basically control the paramater
+ *  lists.
+ *
+ * @param  event
+ */
+ public void parameterChange( ParameterChangeEvent event ) {
+
+   String S = C + ": parameterChange(): ";
+   if ( D )
+      System.out.println( "\n" + S + "starting: " );
+   String name1 = event.getParameterName();
+ }
+
+
+
+
+
  /**
   *  Sets the frame attribute of the EqkForecast object
   *
@@ -452,19 +616,76 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       frame = newFrame;
   }
 
+
+
+  /**
+   * When we select the IMT, disable the IMRs name based on whether they support that IMT or not
+   *
+   * @param e : ActionEvent object
+   */
   void jIMTComboBox_actionPerformed(ActionEvent e) {
-    if(D)System.out.println(C+":Handling Event for the List");
-     for(int i=0;i<imtMap.length;++i){
-      this.jIMRNum=new JCheckBox[imtMap.length];
-      for(int j=0;j<imtMap[i].size();++j){
-        if(imtMap[i].get(j) ==jIMTComboBox.getSelectedItem()){
-          jIMRNum[i] = new JCheckBox();
-          jIMRList.add((String)imtMap[i].get(0),jIMRNum[i]);
-          //jPanel1.add(jIMRNum[i]);
-          }
+
+
+    // check to see whther the selecetd IMT is supported by this IMR
+    for(int i=0;i<imtMap.length;++i) {
+
+      //initially disable the check box
+      jIMRNum[i].setSelected(false);
+      jIMRNum[i].setEnabled(false);
+      for(int j=0;j<imtMap[i].size();++j) {
+        String str = (String)imtMap[i].get(j);
+        if(str.equalsIgnoreCase((String)jIMTComboBox.getSelectedItem())){
+          // if it is supported then enable the checkbox
+          jIMRNum[i].setSelected(true);
+          jIMRNum[i].setEnabled(true);
+         }
       }
     }
-    validate();
-    repaint();
   }
+
+
+  /**
+   * This method is called whenever any check box is selected or deselected
+   * We have to change the site params accordingly
+   *
+   * @param e
+   */
+  void jCheckBox_itemStateChanged(ItemEvent e) {
+    this.siteParamList.clear();
+    sitePanel.removeAll();
+    // make a paramter variable as it is used frequently in this function
+    Parameter paramTemp;
+
+    // get the number of IMRs
+    int numOfIMRs = imrNames.size();
+
+   // add the longitude and latitude paramters
+    siteParamList.addParameter(longitude);
+    siteParamList.addParameter(latitude);
+
+    // check which IMR has been selected
+    for(int i=0; i <numOfIMRs ; ++i) {
+
+      //if ith IMR is selected then add its site params
+      if(this.jIMRNum[i].isSelected()) {
+          // number of sites for this IMR
+          int numSites = siteMap[i].size();
+          for(int j=0; j < numSites; ++j) {
+            paramTemp = (Parameter)siteMap[i].get(j);
+
+            //if this paramter has not been added till now
+            if(!siteParamList.containsParameter(paramTemp.getName()))
+               siteParamList.addParameter(paramTemp);
+          }
+      }
+
+    }
+
+  this.siteEditor = new ParameterListEditor(siteParamList, this, this);
+  siteEditor.setTitle("Site Params");
+  sitePanel.add(siteEditor,BorderLayout.CENTER);
+  validate();
+  repaint();
+ }
+
 }
