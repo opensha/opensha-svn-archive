@@ -5,11 +5,12 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import gov.usgs.util.GlobalConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import gov.usgs.sha.gui.beans.AnalysisOptionsGuiBeanAPI;
+import gov.usgs.sha.gui.beans.*;
 
 /**
  * <p>Title:ProbabilisticHazardApplication </p>
@@ -47,7 +48,7 @@ public class ProbabilisticHazardApplication
 
   // height and width of the applet
   private final static int W = 1100;
-  private final static int H = 750;
+  private final static int H = 850;
   JPanel jPanel1 = new JPanel();
   JSplitPane mainSplitPane = new JSplitPane();
   JLabel analysisOptionLabel = new JLabel();
@@ -61,7 +62,6 @@ public class ProbabilisticHazardApplication
   BorderLayout borderLayout1 = new BorderLayout();
   BorderLayout borderLayout2 = new BorderLayout();
   BorderLayout borderLayout3 = new BorderLayout();
-  GridBagLayout gridBagLayout2 = new GridBagLayout();
   JButton clearDataButton = new JButton();
   JButton viewMapsButton = new JButton();
   FlowLayout flowLayout1 = new FlowLayout();
@@ -77,10 +77,18 @@ public class ProbabilisticHazardApplication
   //instance of the gui bean for the selected analysis option
   private AnalysisOptionsGuiBeanAPI guiBeanAPI;
 
+  //This HashMap adds Guibeans for the selected Analysis options
+  private HashMap analysisOptionHash = new HashMap();
+  //saves which was the last selected analysis option
+  private String previousSelectedAnalysisOption;
+  BorderLayout borderLayout4 = new BorderLayout();
+
   public ProbabilisticHazardApplication() {
     try {
       setDefaultCloseOperation(EXIT_ON_CLOSE);
       jbInit();
+      setExplainationForSelectedAnalysisOption(previousSelectedAnalysisOption);
+      createGuiBeanInstance();
     }
     catch (Exception exception) {
       exception.printStackTrace();
@@ -114,7 +122,7 @@ public class ProbabilisticHazardApplication
     analysisOptionLabel.setText("Select Analysis Option:");
     analysisOptionSelectionCombo.setFont(new java.awt.Font("Arial", Font.BOLD,
         20));
-    analysisOptionSelectionCombo.setForeground(new Color(200, 200, 230));
+    analysisOptionSelectionCombo.setForeground(new Color(200, 200, 240));
 
     //adding the supported Analysis option to the combo selection
     ArrayList supportAnalysisOptions = GlobalConstants.getSupportedAnalysisOptions();
@@ -122,7 +130,7 @@ public class ProbabilisticHazardApplication
 
     for(int i=0;i<size;++i)
       analysisOptionSelectionCombo.addItem(supportAnalysisOptions.get(i));
-
+    previousSelectedAnalysisOption = (String)supportAnalysisOptions.get(0);
 
     analysisOptionSelectionCombo.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent itemEvent) {
@@ -137,7 +145,7 @@ public class ProbabilisticHazardApplication
     dataTextArea.setText("");
     dataScrollPane.setBounds(new Rectangle(10, 10, 484, 548));
     dataPanel.setBounds(new Rectangle(0, 0, 484, 548));
-    parametersPanel.setLayout(gridBagLayout2);
+    parametersPanel.setLayout(borderLayout4);
     buttonPanel.setLayout(flowLayout1);
     clearDataButton.setText("Clear Data");
     viewMapsButton.setText("View Maps");
@@ -150,13 +158,14 @@ public class ProbabilisticHazardApplication
     jMenuFile.add(jMenuFileSave);
     jMenuFile.add(jMenuFilePrint);
     jMenuFile.add(jMenuFileExit);
-    mainSplitPane.add(dataSplitPane, JSplitPane.BOTTOM);
-    mainSplitPane.add(parametersPanel, JSplitPane.TOP);
-    dataSplitPane.add(dataScrollPane, JSplitPane.LEFT);
-    dataSplitPane.add(buttonPanel, JSplitPane.RIGHT);
+    mainSplitPane.add(dataSplitPane, JSplitPane.RIGHT);
+    mainSplitPane.add(parametersPanel, JSplitPane.LEFT);
+    dataSplitPane.add(dataScrollPane, JSplitPane.TOP);
+    dataSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     contentPane.add(jPanel1, java.awt.BorderLayout.CENTER);
     ExplainButton.setText("Explain");
-
+    explainationText = new JTextPane();
+    explainationText.setEditable(false);
     dataScrollPane.add(dataPanel, null);
     dataPanel.add(dataTextArea, java.awt.BorderLayout.CENTER);
     buttonPanel.add(clearDataButton, null);
@@ -177,7 +186,12 @@ public class ProbabilisticHazardApplication
     jPanel1.add(mainSplitPane, new GridBagConstraints(0, 1, 3, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(10, 8, 5, 10), 777, 597));
-    setJMenuBar(jMenuBar1);}
+    setJMenuBar(jMenuBar1);
+    Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+    this.setLocation((d.width - this.getSize().width) / 2, (d.height - this.getSize().height) / 2);
+    mainSplitPane.setDividerLocation(550);
+    dataSplitPane.setDividerLocation(600);
+  }
 
   /**
    * File | Exit action performed.
@@ -191,11 +205,49 @@ public class ProbabilisticHazardApplication
   private void analysisOptionSelectionCombo_itemStateChanged(ItemEvent
       itemEvent) {
     showAnalysisOptionInWindow();
-    createGuiBeanInstance();
+    analysisOptionHash.put(previousSelectedAnalysisOption,guiBeanAPI);
+    String selectedAnalysisOption = (String)analysisOptionSelectionCombo.getSelectedItem();
+    guiBeanAPI = (AnalysisOptionsGuiBeanAPI)analysisOptionHash.get(selectedAnalysisOption);
+    parametersPanel.removeAll();
+    if(guiBeanAPI == null)
+      createGuiBeanInstance();
+    else{
+      parametersPanel.add(guiBeanAPI.getGuiBean(), java.awt.BorderLayout.CENTER);
+      parametersPanel.updateUI();
+    }
+    previousSelectedAnalysisOption = selectedAnalysisOption;
   }
 
   private void createGuiBeanInstance(){
+    String selectedAnalysisOption = (String)(String)analysisOptionSelectionCombo.getSelectedItem();
+    if (selectedAnalysisOption.equals(GlobalConstants.PROB_HAZ_CURVES)) {
+    }
+    else if (selectedAnalysisOption.equals(GlobalConstants.PROB_UNIFORM_HAZ_RES)) {
+    }
+    else if (selectedAnalysisOption.equals(GlobalConstants.NEHRP)) {
+      guiBeanAPI = new NEHRP_GuiBean();
+    }
+    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_273)) {
+    }
+    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_356)) {
+    }
+    else if (selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE)) {
+    }
+    else if (selectedAnalysisOption.equals(GlobalConstants.INTL_RESIDENTIAL_CODE)) {
+     }
+    else if (selectedAnalysisOption.equals(GlobalConstants.INTL_EXIST_CODE)) {
+    }
+    else if (selectedAnalysisOption.equals(GlobalConstants.NFPA_5000)) {
 
+    }
+    else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_7)) {
+
+    }
+
+    if(guiBeanAPI !=null)
+      parametersPanel.add(guiBeanAPI.getGuiBean(),java.awt.BorderLayout.CENTER);
+
+    parametersPanel.updateUI();
   }
 
   private void showAnalysisOptionInWindow(){
@@ -214,7 +266,7 @@ public class ProbabilisticHazardApplication
   private void ExplainButton_actionPerformed(ActionEvent actionEvent) {
     if(frame == null)
       showSelectedAnalysisExplaination();
-    frame.pack();
+
     frame.show();
   }
 
@@ -224,7 +276,7 @@ public class ProbabilisticHazardApplication
    */
   private void showSelectedAnalysisExplaination() {
 
-    this.explainationText = new JTextPane();
+
 
     //Panel Parent
     Container parent = this;
@@ -235,37 +287,16 @@ public class ProbabilisticHazardApplication
       parent = parent.getParent();
     frame = new JDialog( (JFrame) parent);
     frame.setModal(true);
-    frame.setSize(300, 300);
+    frame.setSize(400, 200);
     frame.getContentPane().setLayout(new GridBagLayout());
     frame.getContentPane().add(explainationText,
                                new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(4, 4, 4, 4), 0, 0));
-
-    //Adding Button to update the forecast
-    JButton button = new JButton();
-    button.setText("OK");
-    button.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        button_actionPerformed(e);
-      }
-    });
-    frame.getContentPane().add(button,
-                               new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(4, 4, 4, 4), 0, 0));
-    frame.show();
-    frame.pack();
-
+    frame.setLocation(getSize().width/ 2,this.getSize().height/2);
   }
 
-  /**
-   *
-   * @param actionEvent ActionEvent
-   */
-  private void button_actionPerformed(ActionEvent actionEvent) {
-    frame.dispose();
-  }
+
   /**
    *
    * @param frameTitle String

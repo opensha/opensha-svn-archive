@@ -8,6 +8,7 @@ import org.scec.param.event.*;
 import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
+import javax.swing.border.*;
 
 /**
  * <p>Title: LocationGuiBean</p>
@@ -19,7 +20,6 @@ import java.util.ArrayList;
  */
 public class LocationGuiBean
     extends  JPanel implements ParameterChangeListener,ParameterChangeFailListener{
-  BorderLayout borderLayout1 = new BorderLayout();
 
 
   public static final String LOCATION_SELECTION_MODE_PARAM_NAME = "Set Location";
@@ -33,6 +33,10 @@ public class LocationGuiBean
   public static final String LON_PARAM_NAME = "Enter Longitude";
 
   private StringParameter locationSelectionModeParam;
+
+  Border border9 = BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+      Color.white, Color.white, new Color(98, 98, 98), new Color(140, 140, 140));
+  TitledBorder locationBorder = new TitledBorder(border9, "Select Site Location");
 
 
   private ParameterList parameterList;
@@ -71,14 +75,20 @@ public class LocationGuiBean
 
     StringParameter zipParam = null;
     if (isZipCodeSupported) {
-      zipParam = new StringParameter(ZIP_CODE);
+      zipParam = new StringParameter(ZIP_CODE_PARAM_NAME,"");
       zipParam.addParameterChangeListener(this);
-      parameterList.addParameter(locationSelectionModeParam);
+      parameterList.addParameter(zipParam);
     }
 
     editor = new ParameterListEditor(parameterList);
-    editor.setTitle("Set Location");
+    editor.setTitle("");
     setVisibleParameters();
+    this.removeAll();
+    this.add(editor,
+             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(4, 4, 4, 4), 0, 0));
   }
 
   /**
@@ -93,8 +103,7 @@ public class LocationGuiBean
 
     locationSelectionModeParam = new StringParameter(LOCATION_SELECTION_MODE_PARAM_NAME,
         locationModeChoices,(String)locationModeChoices.get(0));
-
-    setVisibleParameters();
+    locationSelectionModeParam.addParameterChangeListener(this);
   }
 
 
@@ -121,6 +130,7 @@ public class LocationGuiBean
         JOptionPane.showMessageDialog(this,e.getMessage(),"Zip Code Error",JOptionPane.ERROR_MESSAGE);
       }
     }
+    this.updateUI();
   }
 
 
@@ -161,12 +171,14 @@ public class LocationGuiBean
     String locationMode = (String)locationSelectionModeParam.getValue();
 
     if(locationMode.equals(ZIP_CODE)){
-      editor.getParameterEditor(ZIP_CODE_PARAM_NAME).setVisible(true);
+      if(parameterList.containsParameter(ZIP_CODE_PARAM_NAME))
+         editor.getParameterEditor(ZIP_CODE_PARAM_NAME).setVisible(true);
       editor.getParameterEditor(LAT_PARAM_NAME).setVisible(false);
       editor.getParameterEditor(LON_PARAM_NAME).setVisible(false);
     }
     else{
-      editor.getParameterEditor(ZIP_CODE_PARAM_NAME).setVisible(false);
+      if(parameterList.containsParameter(ZIP_CODE_PARAM_NAME))
+        editor.getParameterEditor(ZIP_CODE_PARAM_NAME).setVisible(false);
       editor.getParameterEditor(LAT_PARAM_NAME).setVisible(true);
       editor.getParameterEditor(LON_PARAM_NAME).setVisible(true);
     }
@@ -177,11 +189,8 @@ public class LocationGuiBean
 
   private void jbInit() throws Exception {
     this.setLayout(gridBagLayout1);
-    this.add(editor,
-             new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-                                    , GridBagConstraints.CENTER,
-                                    GridBagConstraints.BOTH,
-                                    new Insets(4, 4, 4, 4), 0, 0));
+    this.setBorder(locationBorder);
+    locationBorder.setTitleColor(Color.RED);
   }
 
 }

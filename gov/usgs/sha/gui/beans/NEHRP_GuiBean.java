@@ -35,7 +35,6 @@ public class NEHRP_GuiBean
   JSplitPane locationSplitPane = new JSplitPane();
   JSplitPane buttonsSplitPane = new JSplitPane();
   JPanel regionPanel = new JPanel();
-  JPanel locationPanel = new JPanel();
   JPanel basicParamsPanel = new JPanel();
   JPanel responseSpectraButtonPanel = new JPanel();
   JButton ssButton = new JButton();
@@ -58,7 +57,7 @@ public class NEHRP_GuiBean
   GridBagLayout gridBagLayout2 = new GridBagLayout();
   GridBagLayout gridBagLayout3 = new GridBagLayout();
 
-  TitledBorder locationBorder = new TitledBorder(border9, "Select Site Location");
+
   GridBagLayout gridBagLayout4 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
 
@@ -86,22 +85,18 @@ public class NEHRP_GuiBean
     datasetGui.createDataSetEditor();
     createLocation();
     basicParamsPanel.add(groundMotionParamEditor,
-                         new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-                                                , GridBagConstraints.WEST,
-                                                GridBagConstraints.BOTH,
-                                                new Insets(4, 4, 4, 4), 0, 0));
-
-    regionPanel.add(datasetGui,
-                         new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+                         new GridBagConstraints(0, 0, 3, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.BOTH,
                                                 new Insets(4, 4, 4, 4), 0, 0));
 
-    locationPanel.add(locGuiBean,
-                         new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-                                                , GridBagConstraints.CENTER,
-                                                GridBagConstraints.BOTH,
-                                                new Insets(4, 4, 4, 4), 0, 0));
+    regionPanel.add(datasetGui.getDatasetSelectionEditor(),
+                    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                           , GridBagConstraints.CENTER,
+                                           GridBagConstraints.BOTH,
+                                           new Insets(4, 4, 4, 4), 0, 0));
+
+    this.updateUI();
 
   }
 
@@ -204,56 +199,55 @@ public class NEHRP_GuiBean
     regionPanel.setBorder(regionBorder);
     regionBorder.setTitleColor(Color.RED);
     regionPanel.setLayout(gridBagLayout2);
-    locationPanel.setBorder(locationBorder);
-    locationBorder.setTitleColor(Color.RED);
-    locationPanel.setLayout(gridBagLayout1);
-    mainSplitPane.add(locationSplitPane, JSplitPane.LEFT);
-    mainSplitPane.add(buttonsSplitPane, JSplitPane.RIGHT);
-    locationSplitPane.add(regionPanel, JSplitPane.LEFT);
-    locationSplitPane.add(locationPanel, JSplitPane.RIGHT);
-    buttonsSplitPane.add(basicParamsPanel, JSplitPane.LEFT);
-    buttonsSplitPane.add(responseSpectraButtonPanel, JSplitPane.RIGHT);
+
+
+    mainSplitPane.add(locationSplitPane, JSplitPane.TOP);
+    mainSplitPane.add(buttonsSplitPane, JSplitPane.BOTTOM);
+    locationSplitPane.add(regionPanel, JSplitPane.TOP);
+
+    buttonsSplitPane.add(basicParamsPanel, JSplitPane.TOP);
+    buttonsSplitPane.add(responseSpectraButtonPanel, JSplitPane.BOTTOM);
     responseSpectraButtonPanel.add(viewSDSpecButton,
-                                   new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+                                   new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(0, 34, 0, 39), 15, 6));
     responseSpectraButtonPanel.add(viewMapSpectrumButton,
-                                   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+                                   new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(0, 42, 0, 0), 8, 6));
     responseSpectraButtonPanel.add(mapSpecButton,
-                                   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+                                   new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( -1, 42, 0, 0), 8, 6));
     responseSpectraButtonPanel.add(smSpecButton,
-                                   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+                                   new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( -1, 27, 0, 0), 13, 6));
     responseSpectraButtonPanel.add(viewSMSpecButton,
-                                   new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+                                   new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(0, 27, 0, 0), 13, 6));
     responseSpectraButtonPanel.add(sdSpecButton,
-                                   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+                                   new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( -1, 34, 0, 39), 15, 6));
-    basicParamsPanel.add(ssButton, new GridBagConstraints(0,1, 1, 1, 0.0, 0.0
+    basicParamsPanel.add(ssButton, new GridBagConstraints(0,1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(76, 13, 7, 0), 52, 8));
+        new Insets(10, 13, 7, 0), 52, 8));
     basicParamsPanel.add(smSDButton,
-                         new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+                         new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(76, 27, 7, 18), 1, 8));
+                                                new Insets(10, 27, 7, 18), 1, 8));
     basicParamsPanel.add(siteCoeffButton,
-                         new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+                         new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(76, 27, 7, 0), 22, 8));
+                                                new Insets(10, 27, 7, 0), 22, 8));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
-    mainSplitPane.setDividerLocation(430);
-    locationSplitPane.setDividerLocation(160);
-    buttonsSplitPane.setDividerLocation(160);
+    mainSplitPane.setDividerLocation(380);
+    locationSplitPane.setDividerLocation(170);
+    buttonsSplitPane.setDividerLocation(180);
   }
 
   /**
@@ -283,15 +277,17 @@ public class NEHRP_GuiBean
    */
   private void createLocation() {
     RectangularGeographicRegion region = getRegionConstraint();
-    if (region == null) {
-      //remove the Location gui bean object
-    }
-    else{
+    Component comp = locationSplitPane.getBottomComponent();
+    if(comp != null)
+      locationSplitPane.remove(locationSplitPane.getBottomComponent());
+    if (region != null) {
       //checking if Zip code is supported by the selected choice
       boolean zipCodeSupported = isZipCodeSupportedBySelectedEdition();
       locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
                                    region.getMinLon(), region.getMaxLon(),
                                    zipCodeSupported);
+      locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
+      locationSplitPane.setDividerLocation(170);
     }
   }
 
@@ -303,7 +299,7 @@ public class NEHRP_GuiBean
     String selectedGeographicRegion = datasetGui.getSelectedGeographicRegion();
     String editionDataset = datasetGui.getSelectedDataSetEdition();
     if (selectedGeographicRegion.equals(GlobalConstants.CONTER_48_STATES)) {
-      return new RectangularGeographicRegion(24.6, 50, -125, -6);
+      return new RectangularGeographicRegion(24.6, 50, -125, -65);
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.ALASKA)) {
       return new RectangularGeographicRegion(48, 72, -200, -125);
@@ -340,7 +336,6 @@ public class NEHRP_GuiBean
    */
   private boolean isZipCodeSupportedBySelectedEdition() {
     String selectedGeographicRegion = datasetGui.getSelectedGeographicRegion();
-    String editionDataset = datasetGui.getSelectedDataSetEdition();
     if (selectedGeographicRegion.equals(GlobalConstants.CONTER_48_STATES)) {
       return true;
     }
@@ -348,10 +343,6 @@ public class NEHRP_GuiBean
       return true;
     }
     else if (selectedGeographicRegion.equals(GlobalConstants.HAWAII)) {
-      return true;
-    }
-
-    if (editionDataset.equals(GlobalConstants.NEHRP_2003)) {
       return true;
     }
 
@@ -365,9 +356,10 @@ public class NEHRP_GuiBean
   private void createEditionSelectionParameter() {
 
     ArrayList supportedEditionList = new ArrayList();
-    supportedEditionList.add(GlobalConstants.NEHRP_1997);
-    supportedEditionList.add(GlobalConstants.NEHRP_2000);
+
     supportedEditionList.add(GlobalConstants.NEHRP_2003);
+    supportedEditionList.add(GlobalConstants.NEHRP_2000);
+    supportedEditionList.add(GlobalConstants.NEHRP_1997);
     datasetGui.createEditionSelectionParameter(supportedEditionList);
     datasetGui.getEditionSelectionParameter().addParameterChangeListener(this);
   }

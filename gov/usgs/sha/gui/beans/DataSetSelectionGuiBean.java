@@ -1,10 +1,6 @@
 package gov.usgs.sha.gui.beans;
 
-import java.awt.*;
-import javax.swing.*;
 import java.util.ArrayList;
-import javax.swing.border.TitledBorder;
-import javax.swing.border.Border;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -21,7 +17,7 @@ import org.scec.param.event.ParameterChangeEvent;
  * @version 1.0
  */
 public class DataSetSelectionGuiBean
-    extends JPanel {
+    {
 
 
   //Parameters that allows for the selection for the choices of edition.
@@ -38,22 +34,11 @@ public class DataSetSelectionGuiBean
   private ParameterListEditor editor;
 
 
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 
   public DataSetSelectionGuiBean() {
-    try {
-      jbInit();
-    }
-    catch (Exception exception) {
-      exception.printStackTrace();
-    }
   }
 
-
-  private void jbInit() throws Exception {
-    this.setLayout(gridBagLayout1);
-  }
 
 
 
@@ -69,11 +54,16 @@ public class DataSetSelectionGuiBean
 
     editor = new ParameterListEditor(paramList);
     editor.setTitle("");
-    this.add(editor,
-             new GridBagConstraints(0, 1, 1, 1, 0, 0.0
-                                    , GridBagConstraints.CENTER,
-                                    GridBagConstraints.BOTH,
-                                    new Insets(4, 4, 4, 4), 0, 0));
+  }
+
+
+
+  /**
+   * Returns the parameter list editor that holds the Parameter List
+   * @return ParameterListEditor
+   */
+  public ParameterListEditor getDatasetSelectionEditor(){
+    return editor;
   }
 
   /**
