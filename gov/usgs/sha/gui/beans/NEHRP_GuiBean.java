@@ -5,8 +5,6 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 import gov.usgs.util.GlobalConstants;
-import gov.usgs.sha.io.NEHRP_FileReader;
-
 import org.scec.param.event.*;
 
 import org.scec.data.region.RectangularGeographicRegion;
@@ -67,8 +65,6 @@ public class NEHRP_GuiBean
 
   GridBagLayout gridBagLayout4 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
-
-  private NEHRP_FileReader fileReader = new NEHRP_FileReader();
 
 
   private boolean locationVisible;

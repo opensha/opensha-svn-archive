@@ -4,7 +4,8 @@ import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
 import java.util.ArrayList;
 import gov.usgs.exceptions.ZipCodeErrorException;
 import org.scec.data.function.DiscretizedFuncList;
-import gov.usgs.sha.calc.SsS1Calculator;
+
+import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: DataGenerator_NEHRP</p>
@@ -74,12 +75,10 @@ public class DataGenerator_NEHRP
    */
   public void calculateSsS1() {
     //creates the instance of the Ss and S1
-    SsS1Calculator calc = new SsS1Calculator();
-    DiscretizedFuncList functions = calc.getSsS1(geographicRegion);
-    addDataInfo(functions.getInfo());
-    int numFunctions = functions.size();
-    for (int i = 0; i < numFunctions; ++i)
-      functionsList.add(functions.get(i));
+    HazardDataMiner miner = new HazardDataMiner();
+    ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion);
+    addDataInfo(function.getInfo());
+    functionsList.add(function);
 
   }
 
@@ -89,13 +88,11 @@ public class DataGenerator_NEHRP
    */
   public void calculateSsS1(double lat, double lon) {
     //creates the instance of the Ss and S1
-    SsS1Calculator calc = new SsS1Calculator();
-    DiscretizedFuncList functions = calc.getSsS1(geographicRegion, dataEdition,
+    HazardDataMiner miner = new HazardDataMiner();
+    ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion, dataEdition,
                                                  lat, lon);
-    addDataInfo(functions.getInfo());
-    int numFunctions = functions.size();
-    for (int i = 0; i < numFunctions; ++i)
-      functionsList.add(functions.get(i));
+    addDataInfo(function.getInfo());
+    functionsList.add(function);
 
   }
 
@@ -105,8 +102,8 @@ public class DataGenerator_NEHRP
    */
   public void calculateSsS1(String zipCode) throws ZipCodeErrorException {
     //creates the instance of the Ss and S1
-    SsS1Calculator calc = new SsS1Calculator();
-    DiscretizedFuncList functions = calc.getSsS1(geographicRegion, dataEdition,
+    HazardDataMiner miner = new HazardDataMiner();
+    DiscretizedFuncList functions = miner.getSsS1(geographicRegion, dataEdition,
                                                  zipCode);
     addDataInfo(functions.getInfo());
     int numFunctions = functions.size();
@@ -114,6 +111,32 @@ public class DataGenerator_NEHRP
       functionsList.add(functions.get(i));
 
   }
+
+
+  /**
+   *
+   */
+  public void calculateSMSsS1(){
+    ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
+
+  }
+
+
+  /**
+   *
+   */
+  public void calculatedSDSsS1(){
+    ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
+  }
+
+
+  /**
+   *
+   */
+  public void approxSaSd(){
+    ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
+  }
+
 
   /**
    * Sets the selected geographic region.

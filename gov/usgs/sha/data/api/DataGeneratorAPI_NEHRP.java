@@ -3,6 +3,7 @@ package gov.usgs.sha.data.api;
 import java.util.*;
 
 import gov.usgs.exceptions.*;
+import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: DataGeneratorAPI_NEHRP</p>
@@ -50,6 +51,23 @@ public interface DataGeneratorAPI_NEHRP {
    * specifies zip code for the location.
    */
   public void calculateSsS1(String zipCode) throws ZipCodeErrorException;
+
+
+  /**
+   *
+   */
+  public void calculateSMSsS1();
+
+  /**
+   *
+   */
+  public void calculatedSDSsS1();
+
+  /**
+   *
+   */
+  public void approxSaSd() ;
+
 
   /**
    * Sets the selected geographic region.
