@@ -27,7 +27,7 @@ import org.scec.util.FaultUtils;
 public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
 
     protected final static String C = "SimpleListricGriddedFaultFactory";
-    protected final static boolean D = false;
+    protected final static boolean D = true;
 
     protected final static double PI_RADIANS = Math.PI / 180;
 
@@ -67,6 +67,17 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
             this.dips = dips;
             this.depths = depths;
             this.gridSpacing = gridSpacing;
+            if(D){
+              System.out.println("FaultTrace: "+faultTrace.toString()+"\n"+
+                                 "gridSpacing :"+gridSpacing);
+
+              System.out.println("Depths :");
+              for(int i=0;i<depths.size();++i)
+                System.out.println(i+1+": "+depths.get(i) );
+              System.out.println("\nDips :");
+              for(int i=0;i<dips.size();++i)
+                System.out.println(i+1+": "+dips.get(i) );
+            }
 
     }
 
@@ -296,17 +307,18 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
     public static void main(String[] args) {
 
          FaultTrace faultTrace = new FaultTrace("test");
-         faultTrace.addLocation(new Location(38,-122,0.));
-         faultTrace.addLocation(new Location(38.2248,-122,0.));
+         faultTrace.addLocation(new Location(38.22480,-122,0.0));
+         faultTrace.addLocation(new Location(38,-122,0.0));
+         faultTrace.addLocation(new Location(37.8, -122.2,0.0));
 
          Vector dips = new Vector();
-         dips.add(new Double(50.0));
-         dips.add(new Double(20.0));
+         dips.add(new Double(60.0));
+         dips.add(new Double(45.0));
 
          Vector depths = new Vector();
          depths.add(new Double(0.0));
-         depths.add(new Double(6.0));
-         depths.add(new Double(12.0));
+         depths.add(new Double(5.0));
+         depths.add(new Double(10.0));
 
          SimpleListricGriddedFaultFactory test = new SimpleListricGriddedFaultFactory(
                                         faultTrace,

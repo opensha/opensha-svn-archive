@@ -94,7 +94,7 @@ public class SimpleFaultParameter extends Parameter
   }
 
   /**
-   * Returns the type(full path with the classname) of the MagDist Classes
+   * Returns the name of the parameter class
    */
   public String getType() {
     String type = C;

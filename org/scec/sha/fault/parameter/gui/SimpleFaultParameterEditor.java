@@ -267,7 +267,8 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     IntegerParameter dip = new IntegerParameter(NUM_DIPS,new Integer(this.DEFAULT_DIPS));
     dip.addParameterChangeListener(this);
     try{
-      numDipsEditor = new IntegerParameterEditor(dip);
+      numDipsEditor = new IntegerParameterEditor();
+      numDipsEditor.setParameter(dip);
     }catch(Exception ee){
       ee.printStackTrace();
     }
@@ -285,7 +286,8 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     StringParameter faultTypeParam = new StringParameter(this.FAULT_TYPE_TITLE,fltType,(String)fltType.get(0));
     faultTypeParam.addParameterChangeListener(this);
     try{
-    faultTypeEditor = new ConstrainedStringParameterEditor(faultTypeParam);
+    faultTypeEditor = new ConstrainedStringParameterEditor();
+    faultTypeEditor.setParameter(faultTypeParam);
     }catch(Exception ee){
       ee.printStackTrace();
     }
@@ -295,7 +297,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
    * Sets the Lat and Lon for the faultTrace
    */
   private void setLatLon(){
-    System.out.println("Set Lat Lon called");
+    //System.out.println("Set Lat Lon called");
     int numFltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
     DoubleParameter[] lat = new DoubleParameter[numFltTracePoints];
     DoubleParameter[] lon = new DoubleParameter[numFltTracePoints];
@@ -306,7 +308,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
 
     //creating the editor for the lons
     for(int i=0;i<numFltTracePoints;++i){
-      System.out.println("i: "+i +"; Lat size: "+prevLats.size());
+      //System.out.println("i: "+i +"; Lat size: "+prevLats.size());
       //checks if any value exists in the vector for that lats parameter else just fill it up with a blank.
       if(prevLats.size()<(i+1))
         lat[i] = new DoubleParameter(LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees");
@@ -516,6 +518,8 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     if ( D )
       System.out.println( "\n" + S + "starting: " );
 
+    //System.out.println("Parameter Channged: "+event.getParameterName());
+
     //System.out.println("param change");
     String name1 = event.getParameterName();
 
@@ -544,7 +548,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
       //removing the lats and Lons editor from the Applet
       remove(editorForLats);
       remove(editorForLons);
-      System.out.println("Calling the set LAt lon from Parameter change");
+      //System.out.println("Calling the set LAt lon from Parameter change");
       //if the user has changed the values for the Number of the fault trace
       this.setLatLon();
 
@@ -691,6 +695,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
       //getting the number of dips
       int numDips = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue();
 
+        //System.out.println("Number of Dips: "+numDips);
       //adding the latitudes to the Vector
       for(int i=0;i<fltTracePoints;++i){
         Double latLocation =(Double)this.editorForLats.getParameterList().getParameter(this.LAT_PARAM_NAME+(i+1)).getValue();
@@ -747,6 +752,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
         this.avgDip =dip;
         //gets the fault type
         String fltType = (String)this.faultTypeEditor.getParameter().getValue();
+        //System.out.println("Fault-type: "+fltType);
         //gets the upperSiesDepth and LowerSiesDepth
         double upperSiesDepth =((Double)depths.get(0)).doubleValue();
         double lowerSiesDepth =((Double)depths.get(1)).doubleValue();
