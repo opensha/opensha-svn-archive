@@ -70,7 +70,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      this.erfClasses = erfClassNames;
 
     // create the instance of ERFs
-    init_erf_IndParamListAndEditor(erfClasses);
+    init_erf_IndParamListAndEditor();
     // forecast 1  is selected initially
     setParamsInForecast((String)erfNamesVector.get(0));
   }
@@ -131,13 +131,13 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    /**
     * init erf_IndParamList. List of all available forecasts at this time
     */
-   protected void init_erf_IndParamListAndEditor(ArrayList erfClassNames) throws InvocationTargetException{
+   protected void init_erf_IndParamListAndEditor() throws InvocationTargetException{
 
      this.parameterList = new ParameterList();
 
 
      //Name of the first ERF class that is to be shown as the default ERF in the ERF Pick List
-     String erfClassName = (String)erfClassNames.get(0);
+     String erfClassName = (String)erfClasses.get(0);
 
      // make the ERF objects to get their adjustable parameters
      eqkRupForecast = (EqkRupForecastAPI ) createERFClassInstance(erfClassName);
@@ -152,10 +152,8 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      while(it.hasNext()){
        String erfClass = (String)it.next();
        String name = getERFName(erfClass);
-       if(name !=null)
-         erfNamesVector.add(name);
-       else
-         erfFailed.add(erfClass);
+       if(name !=null) erfNamesVector.add(name);
+       else erfFailed.add(erfClass);
      }
 
      //removing the erf's from the erfClasses ArrayList which could not be instantiated
@@ -303,7 +301,10 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      }
      // update the forecast
      eqkRupForecast.updateForecast();
-     if (this.showProgressBar) progress.dispose();
+     if (this.showProgressBar) {
+       progress.dispose();
+       progress = null;
+     }
      return eqkRupForecast;
 
    }
@@ -465,7 +466,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
          erfClasses.add(erfList.get(i));
      // create the instance of ERFs
      erfNamesVector.clear();
-     init_erf_IndParamListAndEditor(erfClasses);
+     init_erf_IndParamListAndEditor();
      setParamsInForecast(getSelectedERF_Name());
    }
 
@@ -485,7 +486,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
         erfClasses.remove(erfList.get(i));
     // create the instance of ERFs
     erfNamesVector.clear();
-    init_erf_IndParamListAndEditor(erfClasses);
+    init_erf_IndParamListAndEditor();
     setParamsInForecast(getSelectedERF_Name());
    }
 }
