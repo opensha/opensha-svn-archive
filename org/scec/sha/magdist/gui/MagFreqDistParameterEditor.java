@@ -342,9 +342,9 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          vStrings.add(NONE);
          vStrings.add(TRUNCATE_UPPER_ONLY);
          vStrings.add(TRUNCATE_ON_BOTH_SIDES);
-         StringParameter truncType=new StringParameter(TRUNCATION_REQ,vStrings,NONE);
+         StringParameter truncType=new StringParameter(TRUNCATION_REQ,vStrings,TRUNCATE_UPPER_ONLY);
          truncType.addParameterChangeListener(this);
-         DoubleParameter truncLevel = new DoubleParameter(TRUNCATE_NUM_OF_STD_DEV, 0, Double.POSITIVE_INFINITY, new Double (3));
+         DoubleParameter truncLevel = new DoubleParameter(TRUNCATE_NUM_OF_STD_DEV, 0, Double.POSITIVE_INFINITY, new Double (1));
          truncLevel.addParameterChangeFailListener(this);
          truncLevel.addParameterChangeListener(this);
 

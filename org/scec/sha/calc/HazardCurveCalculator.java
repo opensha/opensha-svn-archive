@@ -133,10 +133,7 @@ public class HazardCurveCalculator {
         } catch (Exception ex) {
           System.out.println("Parameter change warning caught");
         }
-        // get the exceed probabillties for this IMR
-        //if(n==1877)
-        // condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
-        //else
+
           condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
 
         // calculate the hazard function
