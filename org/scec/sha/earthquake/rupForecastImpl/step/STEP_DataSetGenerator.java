@@ -45,7 +45,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private static final String STEP_ADDON_FILE_SUFFIX = "_addon.txt";
   private static final String STEP_COMBINED_FILE_SUFFIX = "_both.txt";
   private static final String METADATA_FILE_SUFFIX = "_metadata.dat";
-  private static final double IML_VALUE = 0.126;
+  private static final double IML_VALUE = Math.log(0.126);
   private Vector latVals = new Vector();
   private Vector lonVals = new Vector();
   DecimalFormat format = new DecimalFormat("0.00##");
