@@ -33,18 +33,12 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
   //definition for the Siet Object
   Site site = new Site();
 
-  //flag to check if the site Params needs to be set from the WILLS VS30 site type,
-  //basin depth is null in this case
-  private boolean setSiteParamsUsing_WILLS_VS30= false;
-
-  //flag to set the site Params from the WILLS VS30 site type servlet and scec basin depth servlet.
-  private boolean setSiteParamsUsingVs30AndBasinDepth = false;
 
   //set the same site type for each site
   private boolean setSameSiteParams = true;
 
-  //Vs30 and basinDepth ArrayList
-  ArrayList vs30,basinDepth;
+  //wills site class and basinDepth ArrayList
+  ArrayList willsSiteClassList,basinDepth;
 
   //ArrayList that contains the default Values for the Site parameters if CVM do not cover that site
   private ArrayList defaultSiteParams;
@@ -87,9 +81,9 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
        //if wills site class vlaues are not null then fill their values
        if(willsSiteClass !=null){
          int size = willsSiteClass.length;
-         vs30 = new ArrayList();
+         willsSiteClassList = new ArrayList();
          for(int i=0;i<size;++i)
-           vs30.add(new String(willsSiteClass[i]));
+           willsSiteClassList.add(new String(willsSiteClass[i]));
        }
        //If basin depth Values are not null, then fill in their values
        if(bd !=null){
@@ -99,13 +93,64 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
            basinDepth.add(new Double(bd[i]));
        }
        else{ //if basin depth is null then fill the array with double NaN vals.
-         int size = vs30.size();
+         int size = willsSiteClassList.size();
          basinDepth = new ArrayList();
          for(int i=0;i<size;++i)
            basinDepth.add(new Double(Double.NaN));
        }
     }
   }
+
+
+
+  /**
+   * Gets the list for Site Params for region from servlet hosted at web server.
+   *
+   * After calling this function one should also call setDefaultSiteParams() , in
+   * order to the default value for the site parameters, in case we don't get
+   * any value from servlet.
+   *
+   * @param connectForBasinDepth : boolean to know if basin depth also required along with
+   * Wills Site class values to the Site Parameters for each location in the region.
+   */
+  public void setSiteParamsForRegionFromServlet(boolean connectForBasinDepth){
+    setSameSiteParams = false;
+    //getting the list of Locations in the region
+    LocationList locList = getGridLocationsList();
+    try{
+      //getting the wills site class values from servlet
+      willsSiteClassList = ConnectToCVM.getWillsSiteTypeFromCVM(locList);
+    }catch(Exception e){
+      /*willsSiteClassList = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
+          getGridSpacing(),WILLS_SITE_CLASS_FILE);*/
+      //throw new RuntimeException(e.getMessage());
+    }
+
+    if(!connectForBasinDepth){ //if we don't need to get the basin depth values
+      //to set the site parameters.So setting all Values to be Double.NaN
+      int size = willsSiteClassList.size();
+      basinDepth = new ArrayList();
+      for(int i=0;i<size;++i)
+        basinDepth.add(new Double(Double.NaN));
+    }
+    else if(connectForBasinDepth){ //if we need to get the Basin depth values to
+      // set the site parameters for each location in the region.
+      try{
+        willsSiteClassList = ConnectToCVM.getWillsSiteTypeFromCVM(locList);
+        basinDepth = ConnectToCVM.getBasinDepthFromCVM(locList);
+      }catch(Exception e){
+        /*willsSiteClassList = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
+        getGridSpacing(),WILLS_SITE_CLASS_FILE);
+        basinDepth = ConnectToCVM.getBasinDepth(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
+        getGridSpacing(),BASIN_DEPTH_FILE);*/
+        //throw new RuntimeException(e.getMessage());
+      }
+    }
+
+  }
+
+
+
 
   /**
    * Gets the site at specified index.
@@ -118,16 +163,16 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
      if(!setSameSiteParams){
        //getting the Site Parameters Iterator
        Iterator it = site.getParametersIterator();
-       //checking to see if we are getting the correct value for vs30 and basin depth.
+       //checking to see if we are getting the correct value for willsSiteClassList and basin depth.
        if(D){
-         System.out.println(site.getLocation().toString()+"\t"+vs30.get(index)+
+         System.out.println(site.getLocation().toString()+"\t"+willsSiteClassList.get(index)+
                             "\t\t"+((Double)basinDepth.get(index)).doubleValue());
        }
        while(it.hasNext()){
          ParameterAPI tempParam = (ParameterAPI)it.next();
 
          //Setting the value of each site Parameter from the CVM and translating them into the Attenuation related site
-         boolean flag = siteTranslator.setParameterValue(tempParam,(String)vs30.get(index),
+         boolean flag = siteTranslator.setParameterValue(tempParam,(String)willsSiteClassList.get(index),
                                                          ((Double)basinDepth.get(index)).doubleValue());
          //If the value was outside the bounds of CVM
          //and site has no value from CVM then set its value to the default Site Params shown in the application.
@@ -197,58 +242,19 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
  }
 
 
- /**
-  * This function is called if the site Params need to be set using WILLS site type.
-  * As Wills Site type provide no value for the Basin depth so we set it to Double.Nan
-  */
- public void setSiteParamsUsing_WILLS_VS30(){
-   setSiteParamsUsing_WILLS_VS30 = true;
-   setSiteParamsUsingVs30AndBasinDepth = false;
-   setSameSiteParams = false;
-   try{
-     vs30 = ConnectToCVM.getWillsSiteTypeFromCVM(getGridLocationsList());
-   }catch(Exception e){
-     /*vs30 = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
-         getGridSpacing(),WILLS_SITE_CLASS_FILE);*/
-     //throw new RuntimeException(e.getMessage());
-   }
-   int size = getNumGridLocs();
-   basinDepth = new ArrayList();
-   for(int i=0;i<size;++i)
-     basinDepth.add(new Double(Double.NaN));
-
- }
-
 
  /**
   * This function is called if the site Params need to be set using WILLS site type
   * and basin depth from the SCEC basin depth values.
   */
- public void setSiteParamsUsing_WILLS_VS30_AndBasinDepth(){
-   setSiteParamsUsing_WILLS_VS30 = false;
-   setSiteParamsUsingVs30AndBasinDepth = true;
-   setSameSiteParams = false;
-   try{
-     LocationList locList = getGridLocationsList();
-     vs30 = ConnectToCVM.getWillsSiteTypeFromCVM(locList);
-     basinDepth = ConnectToCVM.getBasinDepthFromCVM(locList);
-   }catch(Exception e){
-     /*vs30 = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
-         getGridSpacing(),WILLS_SITE_CLASS_FILE);
-     basinDepth = ConnectToCVM.getBasinDepth(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
-         getGridSpacing(),BASIN_DEPTH_FILE);*/
-     throw new RuntimeException(e.getMessage());
-   }
- }
 
  /**
-  * This function is called if same type has to be applied to all sites in the gridded region.
+  * Calling this function will set the Site Params to whatever their value is currently.
+  * All sites will be having the same value for those Site Parameters.
   */
  public void setSameSiteParams(){
-   setSiteParamsUsing_WILLS_VS30 = false;
-   setSiteParamsUsingVs30AndBasinDepth = false;
    setSameSiteParams = true;
-   vs30 = null;
+   willsSiteClassList = null;
    basinDepth = null;
  }
 
@@ -266,7 +272,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
   * @returns the Wills Class Values for each site
   */
  public ArrayList getWillsClassVector(){
-   return this.vs30;
+   return this.willsSiteClassList;
  }
 
  /**

@@ -455,10 +455,10 @@ public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor 
     CalcProgressBar calcProgress = new CalcProgressBar("Setting Gridded Region sites","Getting the site paramters from the CVM");
     if(((String)siteParam.getValue()).equals(SET_SITES_USING_SCEC_CVM))
       //if we are setting the each site type using Wills site type and SCEC basin depth
-      gridRectRegion.setSiteParamsUsing_WILLS_VS30_AndBasinDepth();
+      gridRectRegion.setSiteParamsForRegionFromServlet(true);
     else if(((String)siteParam.getValue()).equals(SET_SITE_USING_WILLS_SITE_TYPE))
       //if we are setting each site using the Wills site type. basin depth is taken as default.
-      gridRectRegion.setSiteParamsUsing_WILLS_VS30();
+      gridRectRegion.setSiteParamsForRegionFromServlet(false);
     calcProgress.dispose();
   }
 

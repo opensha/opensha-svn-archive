@@ -133,10 +133,10 @@ public class GriddedRegionServlet extends HttpServlet {
 
     if(siteParamVal.equals(SitesInGriddedRectangularRegionGuiBean.SET_SITES_USING_SCEC_CVM))
       //if we are setting the each site type using Wills site type and SCEC basin depth
-      gridRectRegion.setSiteParamsUsing_WILLS_VS30_AndBasinDepth();
+      gridRectRegion.setSiteParamsForRegionFromServlet(true);
     else if(siteParamVal.equals(SitesInGriddedRectangularRegionGuiBean.SET_SITE_USING_WILLS_SITE_TYPE))
       //if we are setting each site using the Wills site type. basin depth is taken as default.
-      gridRectRegion.setSiteParamsUsing_WILLS_VS30();
+      gridRectRegion.setSiteParamsForRegionFromServlet(false);
   }
 
 

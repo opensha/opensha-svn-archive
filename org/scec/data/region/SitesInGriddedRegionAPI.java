@@ -60,17 +60,6 @@ public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAP
   */
  public Iterator getSitesIterator();
 
- /**
-  * This function is called if the site Params need to be set using WILLS site type.
-  * As Wills Site type provide no value for the Basin depth so we set it to Double.Nan
-  */
- public void setSiteParamsUsing_WILLS_VS30();
-
- /**
-  * This function is called if the site Params need to be set using WILLS site type
-  * and basin depth from the SCEC basin depth values.
-  */
- public void setSiteParamsUsing_WILLS_VS30_AndBasinDepth();
 
  /**
   * This function is called if same type has to be applied to all sites in the gridded region.
@@ -83,6 +72,25 @@ public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAP
   * @param defaultSiteParamsIt : Iterator for the Site Params and their Values
   */
  public void setDefaultSiteParams(ArrayList defaultSiteParams);
+
+ /**
+  * Gets the list for Site Params for region from servlet hosted at web server.
+  *
+  * After calling this function one should also call setDefaultSiteParams() , in
+  * order to the default value for the site parameters, in case we don't get
+  * any value from servlet.
+  *
+  * @param connectForBasinDepth : boolean to know if basin depth also required along with
+  * Wills Site class values to the Site Parameters for each location in the region.
+  */
+  public void setSiteParamsForRegionFromServlet(boolean connectForBasinDepth);
+
+  /**
+   * Gets the list for Site Params for region from application called this function.
+   * @param willsSiteClass : String Array of Wills Site Class Values
+   * @param bd : double Array of Basin Depth Values
+   */
+  public void setSiteParamsForRegion(String[] willsSiteClass, double[] bd);
 
 
  /**
