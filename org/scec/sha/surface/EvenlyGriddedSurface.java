@@ -65,7 +65,7 @@ public class EvenlyGriddedSurface extends GriddedSurface {
         numSubSurfaceCols = numCols;
       }
 
-      // nnmber of subSurfaces along fault width
+      // number of subSurfaces down fault width
       int nSubSurfaceDown =  (int)Math.floor((numRows-numSubSurfaceRows)/numSubSurfaceOffset +1);
 
       // one subSurface along width

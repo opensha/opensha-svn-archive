@@ -1880,12 +1880,11 @@ public class GriddedFaultApplet
      if(surface instanceof EvenlyGriddedSurface){
          EvenlyGriddedSurface  evenlyGriddedSurface =(EvenlyGriddedSurface)surface;
 
-         // get the iterator over all the subset surfaces
-         Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(ruptureLength ,ruptureWidth, ruptureOffset);
-         //Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(3,2,3);
-         while(it.hasNext()) {
+         // loop over all the subset surfaces
+         int numRups = evenlyGriddedSurface.getNumSubsetSurfaces(ruptureLength ,ruptureWidth, ruptureOffset);
+         for(int r = 0; r<numRups; r++) {
             // get next subset surface
-             GriddedSubsetSurface griddedSubsetSurface = (GriddedSubsetSurface)it.next();
+             GriddedSubsetSurface griddedSubsetSurface = evenlyGriddedSurface.getNthSubsetSurface(ruptureLength ,ruptureWidth, ruptureOffset,r);
              //add it to plotter
              GriddedSurfaceXYDataSet functions10 = new GriddedSurfaceXYDataSet(griddedSubsetSurface);
              plotter.clear();
