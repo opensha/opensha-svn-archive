@@ -1,0 +1,278 @@
+SADIGH ET AL. (1997)
+X-Axis = SA Period
+
+
+Set-1
+Y-Axis = Median
+DistanceRup = 10
+Magnitude = 7.0
+Fault Type = Reverse
+Sadigh Site Type = Rock
+
+#start of result values for this test set
+0.447043	
+0.699651	
+0.851380	
+1.031982	
+0.969696	
+0.845407	
+0.717382	
+0.497934	
+0.375836	
+0.236125	
+0.165132	
+0.093317	
+0.059865	
+#end of result values for this test set
+
+Set-2
+Y-Axis = Median
+DistanceRup = 10
+Magnitude = 7.0
+Fault Type = Other
+Sadigh Site Type = Rock
+
+#start of result values for this test set
+0.223793	
+0.368195	
+0.450355	
+0.499522	
+0.422156	
+0.336985	
+0.259494	
+0.164308	
+0.117692	
+0.067539	
+0.044939	
+0.023286	
+0.012822	
+#end of result values for this test set
+
+Set-3
+Y-Axis = Median
+DistanceRup = 10
+Magnitude = 6.0
+Fault Type = Other
+Sadigh Site Type = Rock
+
+#start of result values for this test set
+0.223793	
+0.368195	
+0.450355	
+0.499522	
+0.422156	
+0.336985	
+0.259494	
+0.164308	
+0.117692	
+0.067539	
+0.044939	
+0.023286	
+0.012822	
+#end of result values for this test set
+
+Set-4
+Y-Axis = Std. Dev.
+DistanceRup = 10
+Magnitude = 7.5
+Std Dev Type = Total
+Sadigh Site Type = Rock
+
+#start of result values for this test set
+0.380000	
+0.390000	
+0.400000	
+0.420000	
+0.440000	
+0.470000	
+0.490000	
+0.510000	
+0.520000	
+0.520000	
+0.520000	
+0.520000	
+0.520000	
+#end of result values for this test set
+
+Set-5
+Y-Axis = Std. Dev.
+DistanceRup = 10
+Magnitude = 7.21
+Std Dev Type = Total
+Sadigh Site Type = Rock
+
+#start of result values for this test set
+0.380000	
+0.390000	
+0.400000	
+0.420000	
+0.440000	
+0.470000	
+0.490000	
+0.510000	
+0.520000	
+0.520000	
+0.520000	
+0.520000	
+0.520000	
+#end of result values for this test set
+
+Set-6
+Y-Axis = Std. Dev.
+DistanceRup = 10
+Magnitude = 6.0
+Std Dev Type = Total
+Sadigh Site Type = Rock
+
+#start of result values for this test set
+0.550000	
+0.560000	
+0.570000	
+0.590000	
+0.610000	
+0.640000	
+0.660000	
+0.680000	
+0.690000	
+0.690000	
+0.690000	
+0.690000	
+0.690000	
+#end of result values for this test set
+
+Set-7
+Y-Axis = Median
+Magnitude = 7.0
+DistanceRup = 10
+Fault Type = Reverse
+Sadigh Site Type = Deep Soil
+
+#start of result values for this test set
+0.411116	
+0.658427	
+0.790096	
+1.018976	
+1.027615	
+0.946944	
+0.859575	
+0.705239	
+0.570924	
+0.400360	
+0.289647	
+0.171629	
+0.108556	
+#end of result values for this test set
+
+Set-8
+Y-Axis = Median
+Magnitude = 7.0
+DistanceRup = 10
+Fault Type = Other
+Sadigh Site Type = Deep Soil
+
+#start of result values for this test set
+0.320178	
+0.512784	
+0.615327	
+0.793579	
+0.800308	
+0.755847	
+0.683576	
+0.560784	
+0.471659	
+0.345283	
+0.262792	
+0.164966	
+0.110010	
+#end of result values for this test set
+
+Set-9
+Y-Axis = Median
+Magnitude = 6.0
+DistanceRup = 10
+Fault Type = Other
+Sadigh Site Type = Deep Soil
+
+#start of result values for this test set
+0.194730	
+0.323185	
+0.387814	
+0.469087	
+0.440525	
+0.387434	
+0.328621	
+0.237135	
+0.180509	
+0.110578	
+0.074028	
+0.037259	
+0.021393	
+#end of result values for this test set
+
+Set-10
+Y-Axis = Std. Dev.
+Magnitude = 7.5
+Std Dev Type = Total
+Site Type = Deep Soil
+
+#start of result values for this test set
+0.400000	
+0.420000	
+0.420000	
+0.445000	
+0.460000	
+0.475000	
+0.490000	
+0.515000	
+0.540000	
+0.570000	
+0.580000	
+0.590000	
+0.590000	
+#end of result values for this test set
+
+Set-11
+Y-Axis = Std. Dev.
+Magnitude = 7.0
+DistanceRup = 10.0
+Std Dev Type = Total
+Sadigh Site Type = Deep Soil
+
+#start of result values for this test set
+0.400000	
+0.420000	
+0.420000	
+0.445000	
+0.460000	
+0.475000	
+0.490000	
+0.515000	
+0.540000	
+0.570000	
+0.580000	
+0.590000	
+0.590000	
+#end of result values for this test set
+
+Set-12
+Y-Axis = Std. Dev.
+Magnitude = 6
+DistanceRup = 10.0
+Std Dev Type = Total
+Sadigh Site Type = Deep Soil
+
+#start of result values for this test set
+0.560000	
+0.580000	
+0.580000	
+0.605000	
+0.620000	
+0.635000	
+0.650000	
+0.675000	
+0.700000	
+0.730000	
+0.740000	
+0.750000	
+0.750000
+#end of result values for this test set

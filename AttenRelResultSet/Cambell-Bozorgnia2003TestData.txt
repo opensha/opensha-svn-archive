@@ -1,0 +1,757 @@
+CAMPBELL & BOZORGNIA (2003)
+
+X-Axis = SA Period
+
+Set-1
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 0
+
+#start of result values for this test set
+0.457227
+0.512628
+0.592328
+0.671073
+0.905368
+0.922897
+0.900955
+0.782992
+0.698841
+0.517496
+0.410230
+0.257545
+0.165708
+0.086631
+0.053975
+#end of result values for this test set
+
+Set-2
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Thrust (dip<45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 0	
+
+#start of result values for this test set
+0.460899
+0.544327
+0.648110
+0.733537
+0.929216
+0.966341
+0.924687
+0.830579
+0.751764
+0.556129
+0.413939
+0.250184
+0.166372
+0.095742
+0.060735
+#end of result values for this test set
+
+Set-3
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse or Thrust
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 0
+
+#start of result values for this test set
+0.459059
+0.528240
+0.619592
+0.701610
+0.917215
+0.944369
+0.912744
+0.806435
+0.724820
+0.536465
+0.412080
+0.253838
+0.166040
+0.091072
+0.057255
+#end of result values for this test set
+
+Set-4
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Strike Slip or Normal
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 0
+
+#start of result values for this test set
+0.324466
+0.379006
+0.464546
+0.536399
+0.658748
+0.686439
+0.629204
+0.535994
+0.465645
+0.365769
+0.295219
+0.207306
+0.156058
+0.093752
+0.057370
+#end of result values for this test set
+
+Set-5
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Unknown
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 0
+
+#start of result values for this test set
+0.385939
+0.447444
+0.536497
+0.613468
+0.777312
+0.805141
+0.757827
+0.657453
+0.580955
+0.442969
+0.348790
+0.229395
+0.160971
+0.092403
+0.057312
+#end of result values for this test set
+
+Set-6
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 6.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 0
+
+#start of result values for this test set
+0.268554
+0.305748
+0.399940
+0.486013
+0.644188
+0.601791
+0.511126
+0.384673
+0.313145
+0.195926
+0.136251
+0.069095
+0.039016
+0.019285
+0.011559
+#end of result values for this test set
+
+Set-7
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 0.5
+
+#start of result values for this test set
+0.550144
+0.616804
+0.712700
+0.807448
+1.089355
+1.110446
+1.084046
+0.942111
+0.840858
+0.610636
+0.472113
+0.286058
+0.179509
+0.090573
+0.055037
+#end of result values for this test set
+
+Set-8
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 1.0
+
+#start of result values for this test set
+0.661943
+0.742150
+0.857534
+0.971536
+1.310732
+1.336109
+1.304344
+1.133565
+1.011736
+0.720540
+0.543331
+0.317728
+0.194460
+0.094694
+0.056121
+#end of result values for this test set
+
+Set-9
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 6.5
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 1.0
+
+#start of result values for this test set
+0.512120
+0.578957
+0.710940
+0.832387
+1.121375
+1.100110
+1.008751
+0.819983
+0.702634
+0.463745
+0.330045
+0.175443
+0.101235
+0.048064
+0.027991
+#end of result values for this test set
+
+Set-10
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 6.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 1.0
+
+#start of result values for this test set
+0.323129
+0.367882
+0.481215
+0.584780
+0.775099
+0.724086
+0.614996
+0.462846
+0.376782
+0.231190
+0.156805
+0.076744
+0.042266
+0.020163
+0.011786
+#end of result values for this test set
+
+Set-11
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 5.5
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 1.0
+
+#start of result values for this test set
+0.203103
+0.232440
+0.323981
+0.409870
+0.525857
+0.465026
+0.362663
+0.251723
+0.193071
+0.108663
+0.069359
+0.030629
+0.015902
+0.007580
+0.004431
+#end of result values for this test set
+
+Set-12
+Y-Axis = Median
+DistanceSeis = 3
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 1.0
+
+#start of result values for this test set
+0.881295
+0.985659
+1.022894
+1.094658
+1.409160
+1.467518
+1.531769
+1.400214
+1.293951
+1.012793
+0.816975
+0.529351
+0.346771
+0.179147
+0.110657
+#end of result values for this test set
+
+Set-13
+Y-Axis = Median
+DistanceSeis = 6
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 1.0
+
+#start of result values for this test set
+0.819346
+0.920558
+1.010704
+1.109928
+1.456869
+1.499982
+1.516959
+1.346473
+1.221873
+0.906880
+0.703125
+0.428377
+0.269172
+0.134140
+0.080791
+#end of result values for this test set
+
+Set-14
+Y-Axis = Median
+DistanceSeis = 8
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Rock
+Hanging Wall Param = 1.0
+
+#start of result values for this test set
+0.769152
+0.864133
+0.977927
+1.092415
+1.454569
+1.488142
+1.475535
+1.291951
+1.161202
+0.837746
+0.635572
+0.375041
+0.230743
+0.112589
+0.066817
+#end of result values for this test set
+
+Set-15
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Firm Soil
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.493740
+0.528778
+0.606830
+0.702477
+0.904352
+0.977290
+1.120189
+1.042043
+1.011397
+0.798388
+0.653092
+0.426749
+0.277612
+0.142118
+0.095920
+#end of result values for this test set
+
+Set-16
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Very Firm Soil
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.463845
+0.477611
+0.538956
+0.636821
+0.886984
+0.944062
+1.025716
+0.996143
+0.923229
+0.735831
+0.607115
+0.394333
+0.245237
+0.121834
+0.090878
+#end of result values for this test set
+
+Set-17
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Soft Rock
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.456939
+0.469091
+0.514726
+0.572200
+0.809832
+0.911592
+1.030857
+0.946614
+0.915873
+0.724152
+0.607723
+0.403508
+0.247207
+0.126426
+0.073885
+#end of result values for this test set
+
+Set-18
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Firm Rock
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.454738
+0.554463
+0.679997
+0.789242
+1.015717
+0.935059
+0.785958
+0.647288
+0.533087
+0.369814
+0.276917
+0.164382
+0.111077
+0.059362
+0.039429
+#end of result values for this test set
+
+Set-19
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Soil
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.486130
+0.515499
+0.589086
+0.685400
+0.899078
+0.968424
+1.095695
+1.030431
+0.988670
+0.782353
+0.641282
+0.418403
+0.269138
+0.136750
+0.094634
+#end of result values for this test set
+
+Set-20
+Y-Axis = Median
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = BC Boundary
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.423962
+0.481862
+0.562933
+0.642724
+0.862543
+0.869629
+0.830321
+0.709081
+0.624426
+0.453072
+0.355885
+0.223154
+0.145020
+0.075815
+0.047236
+#end of result values for this test set
+
+Set-21
+Y-Axis = Std. Dev.
+DistanceSeis = 10
+Magnitude = 7.5
+Std Dev Type = Total (Mag Dependent)
+
+#start of result values for this test set
+0.446000
+0.402000
+0.422000
+0.434000
+0.440000
+0.456000
+0.463000
+0.466000
+0.469000
+0.472000
+0.503000
+0.503000
+0.503000
+0.503000
+0.503000
+#end of result values for this test set
+
+Set-22
+Y-Axis = Std. Dev.
+DistanceSeis = 10
+Magnitude = 7.4
+Std Dev Type = Total (Mag Dependent)
+
+#start of result values for this test set
+0.446000
+0.402000
+0.422000
+0.434000
+0.440000
+0.456000
+0.463000
+0.466000
+0.469000
+0.472000
+0.503000
+0.503000
+0.503000
+0.503000
+0.503000
+#end of result values for this test set
+
+Set-23
+Y-Axis = Std. Dev.
+DistanceSeis = 10
+Magnitude = 6.0
+Std Dev Type = Total (Mag Dependent)
+
+#start of result values for this test set
+0.544000
+0.500000
+0.520000
+0.532000
+0.538000
+0.554000
+0.561000
+0.564000
+0.567000
+0.570000
+0.601000
+0.601000
+0.601000
+0.601000
+0.601000
+#end of result values for this test set
+
+Set-24
+Y-Axis = Std. Dev.
+DistanceSeis = 3
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Soil
+Std Dev Type = Total (PGA Dependent)
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.446000
+0.402000
+0.422000
+0.434000
+0.440000
+0.456000
+0.463000
+0.466000
+0.469000
+0.472000
+0.503000
+0.503000
+0.503000
+0.503000
+0.503000
+#end of result values for this test set
+
+Set-25
+Y-Axis = Std. Dev.
+DistanceSeis = 10
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Soil
+Std Dev Type = Total (PGA Dependent)
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.446000
+0.402000
+0.422000
+0.434000
+0.440000
+0.456000
+0.463000
+0.466000
+0.469000
+0.472000
+0.503000
+0.503000
+0.503000
+0.503000
+0.503000
+#end of result values for this test set
+
+Set-26
+Y-Axis = Std. Dev.
+DistanceSeis = 20
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Soil
+Std Dev Type = Total (PGA Dependent)
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.446000
+0.402000
+0.422000
+0.434000
+0.440000
+0.456000
+0.463000
+0.466000
+0.469000
+0.472000
+0.503000
+0.503000
+0.503000
+0.503000
+0.503000
+#end of result values for this test set
+
+Set-27
+Y-Axis = Std. Dev.
+DistanceSeis = 30
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Soil
+Std Dev Type = Total (PGA Dependent)
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.497123
+0.453123
+0.473123
+0.485123
+0.491123
+0.507123
+0.514123
+0.517123
+0.520123
+0.523123
+0.554123
+0.554123
+0.554123
+0.554123
+0.554123
+#end of result values for this test set
+
+Set-28
+Y-Axis = Std. Dev.
+DistanceSeis = 50
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Soil
+Std Dev Type = Total (PGA Dependent)
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.566447
+0.522447
+0.542447
+0.554447
+0.560447
+0.576447
+0.583447
+0.586447
+0.589447
+0.592447
+0.623447
+0.623447
+0.623447
+0.623447
+0.623447
+#end of result values for this test set
+
+Set-29
+Y-Axis = Std. Dev.
+DistanceSeis = 100
+Magnitude = 7.0
+Fault Type = Reverse (dip>45)
+Campbell-2003 Site Type = Generic Soil
+Std Dev Type = Total (PGA Dependent)
+Hanging Wall Param = 0.0
+
+#start of result values for this test set
+0.614000
+0.570000
+0.590000
+0.602000
+0.608000
+0.624000
+0.631000
+0.634000
+0.637000
+0.640000
+0.671000
+0.671000
+0.671000
+0.671000
+0.671000
+#end of result values for this test set
