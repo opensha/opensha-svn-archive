@@ -24,28 +24,28 @@ public abstract class MagAreaRelationship extends MagScalingRelationship {
 
     public double getMeanMag(double area, double rake) {
       setRake(rake);
-      getMeanMag(area);
+      return getMeanMag(area);
     }
 
     public abstract double getMagStdDev(double area);
 
     public double getMagStdDev(double area, double rake) {
       setRake(rake);
-      getMagStdDev(area);
+      return getMagStdDev(area);
     }
 
     public abstract double getMeanArea(double mag);
 
     public double getMeanArea(double mag, double rake) {
       setRake(rake);
-      getMeanArea(mag);
+      return getMeanArea(mag);
     }
 
     public abstract double getMeanAreaStdDev(double mag);
 
     public double getMeanAreaStdDev(double mag, double rake) {
       setRake(rake);
-      getMeanAreaStdDev(mag);
+      return getMeanAreaStdDev(mag);
     }
 
 

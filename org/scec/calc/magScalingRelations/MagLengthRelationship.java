@@ -24,28 +24,28 @@ public abstract class MagLengthRelationship extends MagScalingRelationship {
 
     public double getMeanMag(double length, double rake) {
       setRake(rake);
-      getMeanMag(length);
+      return getMeanMag(length);
     }
 
     public abstract double getMagStdDev(double length);
 
     public double getMagStdDev(double length, double rake) {
       setRake(rake);
-      getMagStdDev(length);
+      return getMagStdDev(length);
     }
 
     public abstract double getMeanLength(double mag);
 
     public double getMeanLength(double mag, double rake) {
       setRake(rake);
-      getMeanLength(mag);
+      return getMeanLength(mag);
     }
 
     public abstract double getMeanLengthStdDev(double mag);
 
     public double getMeanLengthStdDev(double mag, double rake) {
       setRake(rake);
-      getMeanLengthStdDev(mag);
+      return getMeanLengthStdDev(mag);
     }
 
 
