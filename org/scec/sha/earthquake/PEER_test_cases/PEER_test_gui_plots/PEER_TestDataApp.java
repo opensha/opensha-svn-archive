@@ -68,8 +68,7 @@ public class PEER_TestDataApp extends JApplet {
   private JScrollPane jScrollPane2 = new JScrollPane();
   private JTextArea yTextArea = new JTextArea();
   private BorderLayout borderLayout1 = new BorderLayout();
-  private JButton ResultButton = new JButton();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  GridBagLayout gridBagLayout1 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -95,7 +94,7 @@ public class PEER_TestDataApp extends JApplet {
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     border2 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
-    this.setSize(new Dimension(402, 606));
+    this.setSize(new Dimension(374, 607));
     this.getContentPane().setLayout(borderLayout1);
     dataPanel.setBackground(Color.white);
     dataPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -143,48 +142,33 @@ public class PEER_TestDataApp extends JApplet {
     xTextArea.setBackground(new Color(200, 200, 230));
     xTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
     xTextArea.setForeground(new Color(80, 80, 133));
-    ResultButton.setBackground(new Color(200, 200, 230));
-    ResultButton.setFont(new java.awt.Font("Dialog", 1, 12));
-    ResultButton.setForeground(new Color(80, 80, 133));
-    ResultButton.setMaximumSize(new Dimension(71, 37));
-    ResultButton.setMinimumSize(new Dimension(71, 37));
-    ResultButton.setPreferredSize(new Dimension(71, 37));
-    ResultButton.setMnemonic('0');
-    ResultButton.setText("View Result");
-    ResultButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        ResultButton_actionPerformed(e);
-      }
-    });
     this.getContentPane().add(dataPanel, BorderLayout.CENTER);
-    dataPanel.add(testComboBox,  new GridBagConstraints(2, 1, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 17, 0, 5), 95, 7));
+    dataPanel.add(testComboBox,  new GridBagConstraints(2, 1, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 17, 0, 4), 76, 7));
     dataPanel.add(jLabel1,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 12, 0, 15), 10, 14));
-    dataPanel.add(fileNameText,  new GridBagConstraints(2, 2, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(17, 17, 0, 5), 221, 8));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 12, 0, 19), 10, 14));
+    dataPanel.add(fileNameText,  new GridBagConstraints(2, 2, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(18, 17, 0, 4), 202, 8));
     dataPanel.add(jLabel3,  new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(17, 12, 0, 17), 13, 12));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(18, 12, 0, 21), 13, 12));
     dataPanel.add(xLabel,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(16, 24, 0, 20), 11, 3));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(16, 24, 0, 22), 11, 3));
     dataPanel.add(jLabel2,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 27, 0, 23), 8, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 27, 0, 25), 8, 7));
     dataPanel.add(jScrollPane1,  new GridBagConstraints(0, 4, 1, 2, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 12, 28, 0), 54, 387));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 12, 28, 0), 56, 389));
     dataPanel.add(jScrollPane2,  new GridBagConstraints(1, 4, 1, 2, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 15, 28, 0), 54, 387));
-    dataPanel.add(messageTextArea,  new GridBagConstraints(2, 4, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 9, 0, 5), 0, 206));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 15, 28, 0), 56, 389));
+    dataPanel.add(messageTextArea,  new GridBagConstraints(2, 4, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 9, 0, 4), 0, 207));
     dataPanel.add(jLabel4,  new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 19, 0, 0), 44, 5));
-    dataPanel.add(appletLabel,  new GridBagConstraints(1, 0, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 18, 0, 112), 48, 16));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 19, 0, 110), 44, 5));
+    dataPanel.add(appletLabel,  new GridBagConstraints(1, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 18, 0, 111), 31, 16));
+    dataPanel.add(submitButton,  new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(133, 52, 28, 68), 36, 10));
     jScrollPane2.getViewport().add(yTextArea, null);
     jScrollPane1.getViewport().add(xTextArea, null);
-    dataPanel.add(submitButton,  new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(135, 11, 28, 0), 36, 10));
-    dataPanel.add(ResultButton,  new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(135, 0, 28, 17), 37, 9));
   }
   //Start the applet
   public void start() {
@@ -475,21 +459,5 @@ public class PEER_TestDataApp extends JApplet {
       System.out.println("Exception in connection with servlet:" +e);
       e.printStackTrace();
     }
-  }
-
-  void ResultButton_actionPerformed(ActionEvent e) {
-    int confirm = JOptionPane.showConfirmDialog(this,new String("View Results for the PEER Test Files"),
-                                  "View PEER Results",JOptionPane.OK_CANCEL_OPTION);
-
-     //opens the new webpage to show the plots for the added PEER Testfiles
-      if(confirm == JOptionPane.OK_OPTION){
-        try{
-        this.getAppletContext().showDocument(new URL("http://scec.usc.edu/OpenSHA/applications/PEER_TestGuiPlotter.html"));
-        }catch(Exception ee){
-          JOptionPane.showMessageDialog(this,new String(ee.getMessage()),
-                                        "Unable to make Connection",JOptionPane.OK_OPTION);
-        }
-      }
-
   }
 }
