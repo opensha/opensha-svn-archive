@@ -1,35 +1,27 @@
-package org.scec.sha.earthquake;
+package org.scec.sha.earthquake.rupForecastImpl.remote;
 
 import java.util.ArrayList;
-import org.scec.sha.earthquake.ProbEqkSource;
-import org.scec.sha.earthquake.ProbEqkRupture;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
 import org.scec.sha.earthquake.*;
 
 /**
- * <p>Title: ERF_ListAPI</p>
- * <p>Description: </p>
+ * <p>Title: RemoteERF_ListAPI</p>
+ * <p>Description: This class provides the interface to remote ERF List.</p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
- * @created June 19,2003
+ * @created : Aug 05, 2004
  * @version 1.0
  */
 
-public interface ERF_ListAPI extends ForecastAPI{
-
-
-
-  /**
-   * add a new Eqk Rup forecast to the list
-   * @param eqkRupForecast
-   */
-  public void addERF(EqkRupForecast eqkRupForecast, double relWeight);
-
+public interface  RemoteERF_ListAPI extends RemoteEqkRupForecastAPI {
 
   /**
    * get the ERF in the list with the specified index
    * @param index : index of Eqk Rup forecast to return
    * @return
    */
-  public ERF_API getERF(int index);
+  public ERF_API getERF(int index) throws RemoteException;
 
 
   /**
@@ -37,7 +29,7 @@ public interface ERF_ListAPI extends ForecastAPI{
    * @param index : index of ERF
    * @return : relative weight of ERF
    */
-  public double getERF_RelativeWeight(int index)  ;
+  public double getERF_RelativeWeight(int index)  throws RemoteException;
 
 
   /**
@@ -45,13 +37,13 @@ public interface ERF_ListAPI extends ForecastAPI{
    * relative weights for each ERF
    * @return : ArrayList of Double values
    */
-  public ArrayList getRelativeWeightsList();
+  public ArrayList getRelativeWeightsList() throws RemoteException;
 
 
   /**
    * get the number of Eqk Rup Forecasts in this list
    * @return : number of eqk rup forecasts in this list
    */
-  public int getNumERFs();
+  public int getNumERFs() throws RemoteException;
 
 }

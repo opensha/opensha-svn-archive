@@ -967,11 +967,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
       // add the source
       frankelBackgrSeisSources.add(src);
-
-      inputGridFileLines1 = null;
-      inputGridFileLines2 = null;
     }
-
+    inputGridFileLines1 = null;
+    inputGridFileLines2 = null;
 //System.out.println("tot rate = "+tempRate);
   }
 

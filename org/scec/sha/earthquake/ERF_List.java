@@ -9,6 +9,7 @@ import org.scec.param.event.TimeSpanChangeListener;
 import org.scec.data.Location;
 import org.scec.data.TimeSpan;
 import org.scec.param.ParameterList;
+import org.scec.param.ParameterAPI;
 import org.scec.data.region.GeographicRegion;
 /**
  * <p>Title: ERF_List </p>
@@ -39,7 +40,7 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
    * add a new Eqk Rup forecast to the list
    * @param eqkRupForecast
    */
-  protected void addERF(EqkRupForecast eqkRupForecast, double relWeight) {
+  public void addERF(EqkRupForecast eqkRupForecast, double relWeight) {
     erf_List.add(eqkRupForecast);
     this.relativeWeight.add(new Double(relWeight));
   }
@@ -184,6 +185,14 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
     throw new UnsupportedOperationException("updateAndSaveForecast() not supported");
   }
 
+  /**
+   * This function returns the parameter with specified name from adjustable param list
+   * @param paramName : Name of the parameter needed from adjustable param list
+   * @return : ParamterAPI instance
+   */
+  public ParameterAPI getParameter(String paramName) {
+    return adjustableParams.getParameter(paramName);
+  }
 
 }
 
