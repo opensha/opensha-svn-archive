@@ -457,7 +457,7 @@ public class GraphWindow
    * @throws IOException if there is an I/O error.
    */
   public void save() throws IOException {
-    graphPanel.getChartPanel().doSaveAs();
+    graphPanel.save();
   }
 
 
@@ -465,7 +465,7 @@ public class GraphWindow
    * Creates a print job for the chart.
    */
   public void print(){
-    graphPanel.getChartPanel().createChartPrintJob();
+    graphPanel.print(this);
   }
 
 

@@ -74,7 +74,7 @@
  * 14-Feb-2003 : Removed deprecated setGenerateTooltips method (DG);
  * 12-Mar-2003 : Added option to enforce filename extension (see bug id 643173) (DG);
  * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL);
- * 18-Sep-2003 : Added getScaleX() and getScaleY() methods (protected) as requested by 
+ * 18-Sep-2003 : Added getScaleX() and getScaleY() methods (protected) as requested by
  *               Irv Thomae (DG);
  */
 
@@ -251,7 +251,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
     private boolean enforceFileExtensions;
 
     /** The resourceBundle for the localization. */
-    static protected ResourceBundle localizationResources = 
+    static protected ResourceBundle localizationResources =
                                     ResourceBundle.getBundle("org.jfree.chart.LocalizationBundle");
 
     /**
@@ -546,22 +546,22 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
 
     /**
      * Returns the X scale factor for the chart.
-     * 
+     *
      * @return The scale factor.
      */
     protected double getScaleX() {
         return this.scaleX;
     }
-    
+
     /**
      * Returns the Y scale factory for the chart.
-     * 
+     *
      * @return The scale factor.
      */
     protected double getScaleY() {
         return this.scaleY;
     }
-    
+
     /**
      * Returns the popup menu.
      *
@@ -772,7 +772,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
             double x = (viewX - insets.left) / scaleX;
             double y = (viewY - insets.top) / scaleY;
             EntityCollection entities = this.info.getEntityCollection();
-            result = entities != null ? entities.getEntity(x, y) : null; 
+            result = entities != null ? entities.getEntity(x, y) : null;
         }
         return result;
 
@@ -1409,7 +1409,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
         double hUpper = 0.0;
         double vLower = 0.0;
         double vUpper = 0.0;
-        
+
         if ((selection.getHeight() > 0) && (selection.getWidth() > 0)) {
 
             Rectangle2D scaledDataArea = getScaledDataArea();
@@ -1537,8 +1537,8 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
     private void attemptEditChartProperties() {
 
         ChartPropertyEditPanel panel = new ChartPropertyEditPanel(chart);
-        int result = 
-            JOptionPane.showConfirmDialog(this, panel, 
+        int result =
+            JOptionPane.showConfirmDialog(this, panel,
                                           localizationResources.getString("Chart_Properties"),
                                           JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
@@ -1556,7 +1556,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
     public void doSaveAs() throws IOException {
 
         JFileChooser fileChooser = new JFileChooser();
-        ExtensionFileFilter filter = 
+        ExtensionFileFilter filter =
             new ExtensionFileFilter(localizationResources.getString("PNG_Image_Files"), ".png");
         fileChooser.addChoosableFileFilter(filter);
         fileChooser.addChoosableFileFilter(new ExtensionFileFilter("All files", ""));
@@ -1655,7 +1655,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
         boolean separator = false;
 
         if (properties) {
-            JMenuItem propertiesItem = 
+            JMenuItem propertiesItem =
                                 new JMenuItem(localizationResources.getString("Properties..."));
             propertiesItem.setActionCommand(PROPERTIES_ACTION_COMMAND);
             propertiesItem.addActionListener(this);
@@ -1702,13 +1702,13 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
 
             zoomInMenu.addSeparator();
 
-            zoomInHorizontalMenuItem = 
+            zoomInHorizontalMenuItem =
                                 new JMenuItem(localizationResources.getString("Horizontal_Axis"));
             zoomInHorizontalMenuItem.setActionCommand(ZOOM_IN_HORIZONTAL_ACTION_COMMAND);
             zoomInHorizontalMenuItem.addActionListener(this);
             zoomInMenu.add(zoomInHorizontalMenuItem);
 
-            zoomInVerticalMenuItem = 
+            zoomInVerticalMenuItem =
                                 new JMenuItem(localizationResources.getString("Vertical_Axis"));
             zoomInVerticalMenuItem.setActionCommand(ZOOM_IN_VERTICAL_ACTION_COMMAND);
             zoomInVerticalMenuItem.addActionListener(this);
@@ -1725,13 +1725,13 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
 
             zoomOutMenu.addSeparator();
 
-            zoomOutHorizontalMenuItem = 
+            zoomOutHorizontalMenuItem =
                                 new JMenuItem(localizationResources.getString("Horizontal_Axis"));
             zoomOutHorizontalMenuItem.setActionCommand(ZOOM_OUT_HORIZONTAL_ACTION_COMMAND);
             zoomOutHorizontalMenuItem.addActionListener(this);
             zoomOutMenu.add(zoomOutHorizontalMenuItem);
 
-            zoomOutVerticalMenuItem = 
+            zoomOutVerticalMenuItem =
                                 new JMenuItem(localizationResources.getString("Vertical_Axis"));
             zoomOutVerticalMenuItem.setActionCommand(ZOOM_OUT_VERTICAL_ACTION_COMMAND);
             zoomOutVerticalMenuItem.addActionListener(this);
@@ -1747,13 +1747,13 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
             autoRangeMenu.add(autoRangeBothMenuItem);
 
             autoRangeMenu.addSeparator();
-            autoRangeHorizontalMenuItem = 
+            autoRangeHorizontalMenuItem =
                                 new JMenuItem(localizationResources.getString("Horizontal_Axis"));
             autoRangeHorizontalMenuItem.setActionCommand(AUTO_RANGE_HORIZONTAL_ACTION_COMMAND);
             autoRangeHorizontalMenuItem.addActionListener(this);
             autoRangeMenu.add(autoRangeHorizontalMenuItem);
 
-            autoRangeVerticalMenuItem = 
+            autoRangeVerticalMenuItem =
                                 new JMenuItem(localizationResources.getString("Vertical_Axis"));
             autoRangeVerticalMenuItem.setActionCommand(AUTO_RANGE_VERTICAL_ACTION_COMMAND);
             autoRangeVerticalMenuItem.addActionListener(this);

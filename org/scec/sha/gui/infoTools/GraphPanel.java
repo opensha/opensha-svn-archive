@@ -22,6 +22,9 @@ import org.scec.sha.gui.infoTools.ButtonControlPanel;
 import org.scec.util.*;
 import org.scec.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.scec.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+import java.io.IOException;
+import java.util.Properties;
+
 
 
 /**
@@ -926,15 +929,6 @@ public class GraphPanel extends JPanel {
 
 
   /**
-   * Returns the chartPanel for the graph
-   * @return ChartPanel
-   */
-  public ChartPanel getChartPanel(){
-    return chartPanel;
-  }
-
-
-  /**
    * This method extracts all the functions from the ArrayList and add that
    * to the DiscretizedFunction List. This method also creates the color scheme
    * depending on the different types of DiscretizedFunc added to the list.
@@ -1000,6 +994,47 @@ public class GraphPanel extends JPanel {
             defaultColor[defaultColorIndex],1.0,val));
     }
   }
+
+
+
+  /**
+   * Opens a file chooser and gives the user an opportunity to save the chart
+   * in PNG format if plot is visible.
+   * If data window is visible then saves the data to a file on users machine.
+   *
+   * @throws IOException if there is an I/O error.
+   */
+  public void save() throws IOException {
+    if(graphOn)
+      chartPanel.doSaveAs();
+    else
+      DataUtil.save(this,pointsTextArea.getText());
+  }
+
+
+  /**
+   * Creates a print job for the chart if plot is being shown, else print
+   * the chart data if data window is visible.
+   * @param frame JFrame Instance of the Frame using this GraphPanel class
+   */
+  public void print(JFrame frame){
+    if(graphOn)
+      chartPanel.createChartPrintJob();
+    else{
+      Properties p = new Properties();
+      PrintJob pjob = this.getToolkit().getPrintJob(frame,"Printing" , p);
+      if (pjob != null) {
+        Graphics pg = pjob.getGraphics();
+        if (pg != null) {
+          DataUtil.print(pjob, pg, pointsTextArea.getText());
+          pg.dispose();
+        }
+        pjob.end();
+      }
+
+    }
+  }
+
 
   /**
    *

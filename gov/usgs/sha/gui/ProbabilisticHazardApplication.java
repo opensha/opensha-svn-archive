@@ -3,17 +3,19 @@ package gov.usgs.sha.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import gov.usgs.util.GlobalConstants;
-import gov.usgs.util.PrintData;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import gov.usgs.sha.gui.beans.*;
 import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
+import java.util.Properties;
+import org.scec.util.DataUtil;
+import java.io.*;
+
 /**
  * <p>Title:ProbabilisticHazardApplication </p>
  *
@@ -240,8 +242,7 @@ public class ProbabilisticHazardApplication
    * @param actionEvent ActionEvent
    */
   void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
-
-
+    save();
   }
 
 
@@ -255,13 +256,26 @@ public class ProbabilisticHazardApplication
   }
 
 
-  private void print(){
-    PrintData print = new PrintData();
-    print.print(guiBeanAPI.getData());
+  private void save(){
+    DataUtil.save(this,guiBeanAPI.getData());
   }
 
 
-
+  /**
+   * Method to print the Data
+   */
+  private void print(){
+    Properties p = new Properties();
+    PrintJob pjob = getToolkit().getPrintJob(this,"Printing" , p);
+      if (pjob != null) {
+        Graphics pg = pjob.getGraphics();
+        if (pg != null) {
+          DataUtil.print(pjob, pg, guiBeanAPI.getData());
+          pg.dispose();
+        }
+        pjob.end();
+      }
+  }
 
 
 
