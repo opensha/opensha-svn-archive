@@ -22,7 +22,7 @@ import org.scec.util.*;
 import org.scec.data.*;
 import org.scec.data.region.*;
 import org.scec.param.ParameterAPI;
-
+import org.scec.sha.util.SiteTranslator;
 
 /**
  * <p>Title: STEP_DataSetGenerator</p>
@@ -89,8 +89,6 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       ShakeMap_2003_AttenRel attenRel = new ShakeMap_2003_AttenRel(this);
             // set the im as PGA
       attenRel.setIntensityMeasure(attenRel.PGA_NAME);
-      // set the vs30
-      attenRel.getParameter(attenRel.WILLS_SITE_NAME).setValue(attenRel.WILLS_SITE_D);
       currentTime = System.currentTimeMillis();
       fw.write("Time to instantiate ShakeMap attenuationRelationship :"+(currentTime - startTime)+"\n");
       //make the Gridded Region object
@@ -98,7 +96,22 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       SitesInGriddedRegion region = new SitesInGriddedRegion(locList,GRID_SPACING);
       //SitesInGriddedRectangularRegion region = new SitesInGriddedRectangularRegion(this.MIN_LAT,this.MAX_LAT,
       //  this.MIN_LON,this.MAX_LON,this.GRID_SPACING);
+
       region.addSiteParams(attenRel.getSiteParamsIterator());
+      //getting the Attenuation Site Parameters Liat
+      ListIterator it = attenRel.getSiteParamsIterator();
+      //creating the list of default Site Parameters, so that site parameter values can be filled in
+      //if Site params file does not provide any value to us for it.
+      ArrayList defaultSiteParams = new ArrayList();
+      SiteTranslator siteTrans= new SiteTranslator();
+      while(it.hasNext()){
+        //adding the clone of the site parameters to the list
+        ParameterAPI tempParam = (ParameterAPI)((ParameterAPI)it.next()).clone();
+        //getting the Site Param Value corresponding to the Will Site Class "DE" for the seleted IMR  from the SiteTranslator
+        siteTrans.setParameterValue(tempParam,siteTrans.WILLS_DE,Double.NaN);
+        defaultSiteParams.add(tempParam);
+      }
+      region.setDefaultSiteParams(defaultSiteParams);
       currentTime = System.currentTimeMillis();
       fw.write("Time to create Region Object :"+(currentTime - startTime)+"\n");
 
