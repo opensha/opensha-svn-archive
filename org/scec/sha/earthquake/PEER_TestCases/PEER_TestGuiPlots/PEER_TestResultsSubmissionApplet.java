@@ -40,32 +40,34 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   // Strings for various messages to be shown
   private static String MSG_INSTRUCTIONS = "1) Select the test case you would like to submit data for.\n\n"+
                         "2) Enter your identifier (this is used to label your "+
-                        "result in the comparison plot).\n"+
-                        "NOTE: your identifier cannot have any spaces, dots(.)"+
-                        " or a underscore (_) in it.\n\n"+
-                        "3) Paste your y-axis data in the right-hand box on the right "+
+                        "result in the comparison plot).  NOTE: your identifier"+
+                        " cannot have any spaces, dots (.) or an underscore (_) in it.\n\n"+
+                        "3) Paste your y-axis data in the right-hand box to the right "+
                         "according to the x-values shown in the left-hand box.\n\n"+
                         "4) Hit the submit button.";
   private static String MSG_ALREADY_EXISTS = "Identifier already exists, Want to overwrite? ";
   private static String TITLE_INFORMATION = "Information Message ";
   private static String MSG_ENTER_Y_VALUES = "Must Enter Y Values";
   private static String TITLE_INPUT_ERROR = "Input Error";
-  private static String MSG_INCORRECT_Y_VALUES = "Incorrect number of Y Values";
-  private static String MSG_MISSING_IDENTIFIER = "Must enter Identifier name";
+  private static String MSG_INCORRECT_Y_VALUES = "Incorrect Number of Y Values";
+  private static String MSG_MISSING_IDENTIFIER = "Must Enter Identifier Name";
   private static String MSG_SPACES_IDENTIFIER = "Indentifier name cannot have spaces";
-  private static String MSG_UNDERSCORE_IDENTIFIER = "Indentifier name cannot have UnderScore('_')";
-  private static String MSG_DOT_IDENTIFIER = "Indentifier name cannot have Dot('.')";
-  private static String MSG_ADDING_FILE = "  Adding new file; please be patient...";
-  private static String MSG_FILE_ADDED = "File Added Successfully.\n\n " +
-      "NOTE: To see this change in the  web-based plotter you'll"+
-      "need to quit and restart your browser (or download a new"+
+  private static String MSG_UNDERSCORE_IDENTIFIER = "Indentifier name cannot have an underscore ('_')";
+  private static String MSG_DOT_IDENTIFIER = "Indentifier name cannot have dot ('.')";
+  private static String MSG_ADDING_FILE = "  Adding new file; please be patient ...";
+  private static String MSG_FILE_ADDED = "File was added successfully\n\n " +
+      "NOTE: To see this change in the  web-based plotter you'll "+
+      "need to quit and restart your browser (or download a new "+
       "stand-alone version)";
   private static String TITLE_ADD_CONFIRMATION = "Add Confirmation";
-  private static String MSG_DELETING_FILE ="  Deletion being performed; please be patient...";
+  private static String MSG_DELETING_FILE ="  Deletion being performed; please be patient ...";
   private static String MSG_FILE_DELETED =new String("File deleted successfully");
   private static String TITLE_DELETE_CONFIRMATION ="Delete Confirmation";
-  private static String MSG_FILE_OVERWRITE ="  Overwriting file, Please be patient......";
-  private static String MSG_FILE_OVERWRITTEN = "File Overwritten Successfully.....";
+  private static String MSG_FILE_OVERWRITE ="  Overwriting file; please be patient ...";
+  private static String MSG_FILE_OVERWRITTEN = "File was overwritten successfully\n\n " +
+      "NOTE: To see this change in the  web-based plotter you might "+
+      "need to quit and restart your browser (or download a new "+
+      "stand-alone version)";
   private static String TITLE_OERWRITE_CONFIRMATION = "Overwrite Confirmation";
   private static String MSG_NO_INTERNET_CONNECTION= "No Internet Connection Available";
   private static String TITLE_NO_INTERNET_CONNECTION=  "Error Connecting to Internet";
@@ -809,7 +811,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
         System.out.println("Receiving the Input from the Servlet:"+temp);
       inputToServlet.close();
       //displaying the user the deletion  has ended
-      JOptionPane.showMessageDialog(this,this.MSG_DELETING_FILE,
+      JOptionPane.showMessageDialog(this,this.MSG_FILE_OVERWRITTEN,
                                    this.TITLE_DELETE_CONFIRMATION,
                                    JOptionPane.OK_OPTION);
 
