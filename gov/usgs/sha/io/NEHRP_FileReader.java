@@ -2,9 +2,12 @@ package gov.usgs.sha.io;
 
 import org.scec.data.region.EvenlyGriddedRectangularGeographicRegion;
 import java.io.*;
+import java.util.StringTokenizer;
 import gov.usgs.util.GlobalConstants;
 import java.text.DecimalFormat;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import org.scec.data.function.DiscretizedFuncList;
+
 
 /**
  * <p>Title: NEHRP_FileReader</p>
@@ -30,7 +33,6 @@ public class NEHRP_FileReader {
 
   }
 
-
   public void setFileName(String fileName){
     this.fileName = fileName;
   }
@@ -40,7 +42,7 @@ public class NEHRP_FileReader {
    * @param fileName String
    * @return EvenlyGriddedRectangularGeographicRegion
    */
-  private void getRegionEndPoints(String fileName) {
+  private void getRegionEndPoints() {
 
     MCE_Record nwRecord = getRecord(1);
     MCE_Record seRecord = getRecord(2);
@@ -93,6 +95,63 @@ public class NEHRP_FileReader {
     return periodsVal;
   }
 
+  /**
+   *
+   * @param zipCode
+   * @return
+   */
+   public DiscretizedFuncList getSsS1(String zipCode) {
+     DiscretizedFuncList funcList= null;
+     try {
+       FileReader fin = new FileReader(this.fileName);
+       BufferedReader bin = new BufferedReader(fin);
+       // ignore the first 5 lines in the files
+       for(int i= 0 ; i<5; ++i) bin.readLine();
+
+       // read the number of periods  and value of those periods
+       String str = bin.readLine();
+       StringTokenizer tokenizer = new StringTokenizer(str);
+       this.numPeriods = Integer.parseInt(tokenizer.nextToken());
+       this.saPeriods = new float[numPeriods];
+       for(int i=0;i<numPeriods; ++i)
+         saPeriods[i] = Float.parseFloat(tokenizer.nextToken());
+
+      // skip the next 2 lines
+       bin.readLine();
+       bin.readLine();
+
+       // now read line by line until the zip code is found in file
+       str = bin.readLine();
+       while(str!=null) {
+         tokenizer = new StringTokenizer(str);
+         String lineZipCode =  tokenizer.nextToken();
+         if(lineZipCode.equalsIgnoreCase(zipCode)) {
+           funcList = new DiscretizedFuncList();
+           ArbitrarilyDiscretizedFunc func1 = new ArbitrarilyDiscretizedFunc();
+           ArbitrarilyDiscretizedFunc func2 = new ArbitrarilyDiscretizedFunc();
+           ArbitrarilyDiscretizedFunc func3 = new ArbitrarilyDiscretizedFunc();
+           func1.set(saPeriods[0], Double.parseDouble(tokenizer.nextToken()));
+           func1.set(saPeriods[1], Double.parseDouble(tokenizer.nextToken()));
+           func2.set(saPeriods[0], Double.parseDouble(tokenizer.nextToken()));
+           func2.set(saPeriods[1], Double.parseDouble(tokenizer.nextToken()));
+           func3.set(saPeriods[0], Double.parseDouble(tokenizer.nextToken()));
+           func3.set(saPeriods[1], Double.parseDouble(tokenizer.nextToken()));
+           funcList.add(func1);
+           funcList.add(func2);
+           funcList.add(func3);
+           break;
+         }
+         str = bin.readLine();
+       }
+
+
+       bin.close();
+       fin.close();
+     }catch(IOException e) {
+       e.printStackTrace();
+     }
+     return funcList;
+   }
 
   /**
    *
@@ -103,6 +162,7 @@ public class NEHRP_FileReader {
     float lat = 0;
     float lon = 0;
     float[] saArray=null;
+    getRegionEndPoints();
     if ( (latitude == minLat && longitude == minLon) ||
         (latitude == maxLat && longitude == minLon) ||
         (latitude == minLat && longitude == maxLon) ||
@@ -187,7 +247,9 @@ public class NEHRP_FileReader {
 
   public static void main(String[] args) {
     NEHRP_FileReader NEHRP_FileReader1 =new NEHRP_FileReader();
-    NEHRP_FileReader1.getRegionEndPoints("/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/1997-CANV-MCE-R2.rnd");
+    NEHRP_FileReader1.setFileName("D:\\2004CD-MasterDataFiles-Files2\\1997-ZipCode-MCEdata-SsS1.txt");
+    //NEHRP_FileReader1.getRegionEndPoints("/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/1997-CANV-MCE-R2.rnd");
+
   }
 
   private MCE_Record getRecord(long recordNum){
