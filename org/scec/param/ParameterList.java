@@ -223,19 +223,7 @@ public class ParameterList implements Serializable {
     /** Removes parameter if it exists, else throws exception. */
     public void removeParameter(ParameterAPI param) throws ParameterException {
         String name = param.getName();
-        int index = getIndexOf(name);
-        if( index!=-1 ) {
-            if( params.contains( param ) ) params.remove(param);
-            else{
-                String S = C + ": removeParameter(): ";
-                throw new ParameterException(S + "The Parameter with the name " + name +
-                    " in the list is not the same as the passed in Parameter, unable to remove");
-            }
-        }
-        else{
-            String S = C + ": removeParameter(): ";
-            throw new ParameterException(S + "No Parameter exist named " + name + ", unable to remove");
-        }
+        removeParameter(name);
     }
 
     /** Removes parameter if it exists, else throws exception. */

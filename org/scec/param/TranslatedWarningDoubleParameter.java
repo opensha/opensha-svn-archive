@@ -601,6 +601,12 @@ public class TranslatedWarningDoubleParameter
      */
     public void setNonEditable(){ param.setNonEditable();}
 
+    /**
+     * Makes the Parameter Editable, so that we can change the name and other set
+     * methods for the Parameter, after it is made once.
+     */
+    public void setEditable() { param.setEditable(); }
+
     public boolean isNullAllowed(){ return param.isNullAllowed();}
     public TranslatorAPI getTrans() {
         return trans;

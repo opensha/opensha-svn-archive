@@ -211,6 +211,11 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable {
      */
     public void setNonEditable();
 
+    /**
+     * Makes the Parameter Editable, so that we can change the name and other set
+     * methods for the Parameter, after it is made once.
+     */
+    public void setEditable();
 
     /** Returns a copy so you can't edit or damage the origial. */
     public Object clone();
