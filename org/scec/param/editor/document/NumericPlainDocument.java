@@ -6,10 +6,38 @@ import javax.swing.text.*;
 /**
  * <b>Title:</b> NumericPlainDocument<p>
  *
- * <b>Description:</b> Model ( or data) associated with an Numeric Text Field. The insertString() function
- * is called whenever data is being entered into the text field. This is where the text field is checked
+ * <b>Description:</b> Model ( or data) associated with an Numeric Text Field.
+ * The insertString() function is called whenever data is being entered
+ * into the text field. This is where the text field is checked
  * to make sure only numeric valid charachters are being added.<p>
  *
+ * This is an extention of the Model View Controller (MVC) design pattern that
+ * all Java Swing elements are built upon. For example, the Java class JTextField
+ * contains a PlainDocument model that actually contains the text of the
+ * JTextField. This class simply replaces the JTextField PlainDocument with
+ * this document. Then as a user types in text into the textfield, this class
+ * instance is consulted to see if they are valid characters the user is
+ * typing. <p>
+ *
+ * You don't have to know the details on how this class works in order to
+ * use it. To make  text field that uses this document model simply extend
+ * JTextField and overide the method createDefaultModel() by creating
+ * an instance of you subclass of Plain Document.
+ *
+ * <code>
+ * protected Document createDefaultModel() {
+ *      return new NumericPlainDocument();
+ * }
+ * </code><p>
+ *
+ * Note: SWR: This class was implemented with java JDK 1.3. In the new
+ * java JDK 1.4 there is a much simpler way to do this. Now you can
+ * create a Formatter (Decimal, Date, etc. ) and simply pass the formatter
+ * to a Standard JTextField. No subclasses to make. <p>
+ *
+ * @see NumericTextField
+ * @see IntegerPlainDocument
+ * @see IntegerTextField
  * @author Steven W. Rock
  * @version 1.0
  */
@@ -17,15 +45,25 @@ import javax.swing.text.*;
 
 public class NumericPlainDocument extends PlainDocument
 {
-    protected static final String C = "NumericPlainDocument";
-    protected static final boolean D = false;
 
+    /** Class name for debugging. */
+    protected final static String C = "NumericPlainDocument";
+    /** If true print out debug statements. */
+    protected final static boolean D = false;
+
+    /** Listener to be notified of insert errors, typically the text field */
     protected InsertErrorListener errorListener;
 
+    /** Format of this Decimal. Determines what are valid non-digit characters such as decimal point. */
     protected static DecimalFormat defaultFormat = new DecimalFormat();
+
+    /** Format of this Decimal. Determines what are valid non-digit characters such as decimal point. */
     protected DecimalFormat format;
 
+    /** valid char for decimal point */
     protected char decimalSeparator;
+
+    /** valid char for thousands seperator */
     protected char groupingSeparator;
 
     protected String positivePrefix;
@@ -40,6 +78,10 @@ public class NumericPlainDocument extends PlainDocument
 
     protected ParsePosition parsePos;
 
+    /**
+     * Local interface definition that listeners must implement to be notified
+     * when isert fails occur due to invalid chars, etc.
+     */
     public interface InsertErrorListener{
 
         public void insertFailed(
@@ -51,16 +93,21 @@ public class NumericPlainDocument extends PlainDocument
 
     }
 
+    /** Default constructor, sets a null format */
     public NumericPlainDocument() {
     	parsePos = new ParsePosition(0);
 	    setFormat(null);
     }
 
+
+    /** Constructor that lets you set the decimal format. */
     public NumericPlainDocument(DecimalFormat format) {
 	    parsePos = new ParsePosition(0);
 	    setFormat(format);
     }
 
+
+    /** Constructor that lets you set the content and the decimal format. */
     public NumericPlainDocument(
         AbstractDocument.Content content,
         DecimalFormat format
@@ -81,8 +128,18 @@ public class NumericPlainDocument extends PlainDocument
     }
 
 
+    /**
+     * Returns the Deciaml format. Decimal strings can have different format, which
+     * in effect determines what are the valid characters for thousands
+     * seperator char, decimal char, etc.
+     */
     public DecimalFormat getFormat() { return format; }
 
+    /**
+     * Sets the Deciaml format. Decimal strings can have different format, which
+     * in effect determines what are the valid characters for thousands
+     * seperator char, decimal char, etc.
+     */
     public void setFormat(DecimalFormat fmt) {
         format = fmt != null ? fmt : (DecimalFormat) defaultFormat.clone();
 
@@ -102,6 +159,10 @@ public class NumericPlainDocument extends PlainDocument
     }
 
 
+    /**
+     * Helper function that converts the String representation model data
+     * into a Number, the superclass of a Double.
+     */
     public Number getNumberValue() throws ParseException {
 
         String S = "NumericPlainDocument: getNumberValue(): ";
@@ -122,6 +183,10 @@ public class NumericPlainDocument extends PlainDocument
 
     }
 
+    /**
+     * Helper function that converts the String
+     * representation model data into an Long.
+     */
     public Long getLongValue() throws ParseException {
 
         Number result = getNumberValue();
@@ -133,6 +198,10 @@ public class NumericPlainDocument extends PlainDocument
 
     }
 
+    /**
+     * Helper function that converts the String representation model data into
+     * an Double, i.e. what the model represents
+     */
     public Double getDoubleValue() throws ParseException {
 
         Number result = getNumberValue();
@@ -144,7 +213,11 @@ public class NumericPlainDocument extends PlainDocument
     }
 
 
-
+    /**
+     * Method called to add data to the text field. Typically used when
+     * users type in text, but may be called by back end process if needed.
+     * Throws errors if the string is not valid decimal characters.
+     */
     public void insertString(int offset, String str, AttributeSet a)
 	    throws BadLocationException
     {
@@ -251,12 +324,14 @@ public class NumericPlainDocument extends PlainDocument
 
 
 
+    /** Adds a listener that is notified when insertString() fails because text is not a decimal number */
     public void addInsertErrorListener(InsertErrorListener l) {
         if (errorListener == null) errorListener = l;
         else throw new IllegalArgumentException
                   ("NumericPlainDocument: addInsertErrorListener(): InsertErrorListener already registered");
     }
 
+    /** Removes a listener that was notified when insertString() fails because text is not a decimal number */
     public void removeInsertErrorListener(InsertErrorListener l) {
         if (errorListener == l) errorListener = null;
     }

@@ -184,10 +184,12 @@ public class NumericTextField extends JTextField
         AttributeSet a
     ) { Toolkit.getDefaultToolkit().beep(); }
 
+    /** Function that must be overidded to return the PlainDocument subclass */
     protected Document createDefaultModel() {
 	    return new NumericPlainDocument();
     }
 
+    /** Tester main function that shows how to use this class. */
     public static void main(String[] args) {
         DecimalFormat format = new DecimalFormat("#,###.###");
         format.setGroupingUsed(true);

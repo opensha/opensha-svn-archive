@@ -10,10 +10,38 @@ import javax.swing.text.PlainDocument;
 /**
  * <b>Title:</b> IntegerPlainDocument<p>
  *
- * <b>Description:</b> Model ( or data) associated with an Integer Text Field. The insertString() function
- * is called whenever data is being entered into the text field. This is where the text field is checked
- * to make sure only integer valid charachters are being added.<p>
+ * <b>Description:</b> Model ( or data ) associated with an Integer Text Field.
+ * The insertString() function is called whenever data is being entered into
+ * the text field. This is where the text field is checked to make sure only
+ * integer valid charachters are being added.<p>
  *
+ * This is an extention of the Model View Controller (MVC) design pattern that
+ * all Java Swing elements are built upon. For example, the Java class JTextField
+ * contains a PlainDocument model that actually contains the text of the
+ * JTextField. This class simply replaces the JTextField PlainDocument with
+ * this document. Then as a user types in text into the textfield, this class
+ * instance is consulted to see if they are valid characters the user is
+ * typing. <p>
+ *
+ * You don't have to know the details on how this class works in order to
+ * use it. To make  text field that uses this document model simply extend
+ * JTextField and overide the method createDefaultModel() by creating
+ * an instance of you subclass of Plain Document.
+ *
+ * <code>
+ * protected Document createDefaultModel() {
+ *      return new IntegerPlainDocument();
+ * }
+ * </code><p>
+ *
+ * Note: SWR: This class was implemented with java JDK 1.3. In the new
+ * java JDK 1.4 there is a much simpler way to do this. Now you can
+ * instantiate a Formatter ( Decimal, Date, etc. ) and simply pass the formatter
+ * to a Standard JTextField. No subclasses to make. <p>
+ *
+ * @see NumericTextField
+ * @see NumericPlainDocument
+ * @see IntegerTextField
  * @author Steven W. Rock
  * @version 1.0
  */
@@ -21,15 +49,25 @@ import javax.swing.text.PlainDocument;
 
 public class IntegerPlainDocument extends PlainDocument{
 
-    protected static final String C = "IntegerPlainDocument";
-    protected static final boolean D = false;
+    /** Class name for debugging. */
+    protected final static String C = "IntegerPlainDocument";
+    /** If true print out debug statements. */
+    protected final static boolean D = false;
 
+    /** Smallest allowed integer value by JVM. These can be changed to be more restrictive. */
     protected int min = Integer.MIN_VALUE;
+    /** Largest allowed integer value by JVM. These can be changed to be more restrictive.  */
     protected int max = Integer.MAX_VALUE;
 
     protected ParsePosition parsePos = new ParsePosition(0);
+
+    /** Listener to be notified of insert errors, typically the text field */
     protected InsertErrorListener errorListener;
 
+    /**
+     * Local interface definition that listeners must implement to be notified
+     * when isert fails occur due to invalid chars, etc.
+     */
     public static interface InsertErrorListener {
 	    public void insertFailed(
             IntegerPlainDocument integerplaindocument,
@@ -38,6 +76,11 @@ public class IntegerPlainDocument extends PlainDocument{
         );
     }
 
+    /**
+     * Method called to add data to the text field. Typically used when
+     * users type in text, but may be called by back end process if needed.
+     * Throws errors if the string is not valid integer characters.
+     */
     public void insertString(int offset, String str, AttributeSet a)
 	    throws BadLocationException
     {
@@ -69,15 +112,18 @@ public class IntegerPlainDocument extends PlainDocument{
         }
     }
 
+    /** Adds a listener that is notified when insertString() fails because text is not an integer */
     public void addInsertErrorListener(InsertErrorListener l) {
 	    if (errorListener == null) errorListener = l;
 	    else throw new IllegalArgumentException (C + "addInsertErrorListenerInsert(): ErrorListener already registered");
     }
 
+    /** Removes a listener that was notified when insertString() fails because text is not an integer */
     public void removeInsertErrorListener(InsertErrorListener l) {
 	    if (errorListener == l) errorListener = null;
     }
 
+    /** Helper function that converts the String model data into an Integer, what the model represents */
     public Integer getIntegerValue() throws ParseException {
 
         String S = "IntegerPlainDocument: getIntegerValue(): ";
