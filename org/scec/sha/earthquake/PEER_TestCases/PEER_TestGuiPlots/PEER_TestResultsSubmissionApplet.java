@@ -459,7 +459,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
    * Provides Error checking to se that user has entered all the valid
    * values in the parameters
    */
-  private boolean submitButton() throws RuntimeException{
+  private void submitButton() throws RuntimeException{
 
     //creating the new file name in which function data has to be stored.
     String fileName =new  String(testComboBox.getSelectedItem().toString());
@@ -472,7 +472,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
     //checking for the Y-values input by the user
     boolean yValFlag = getYValues();
-    if(!yValFlag) return false;
+    if(!yValFlag) return ;
 
     //checking if the fileName already exists, if so then ask user to input another fileName
     for(int i=0;i<size;++i){
@@ -514,9 +514,6 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
             overwriteFlag=true;
         }
       }
-    //if the user has input correct Y values and unique Identifier name
-    if(yValFlag && flag)  return true;
-    else  return false;
   }
 
   /**
@@ -618,15 +615,14 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
           fileNameText.setText("");
           throw new RuntimeException("Indentifier name cannot have Dot('.')");
         }
-        flag = submitButton();
+        submitButton();
       }
     }catch(RuntimeException ee){
-      flag=false;
       JOptionPane.showMessageDialog(this,new String(ee.getMessage()),
                                     "Input Error",JOptionPane.ERROR_MESSAGE);
     }
 
-    if(flag && !overwriteFlag){
+    /*if(flag && !overwriteFlag){
       int confirm=JOptionPane.showConfirmDialog(this,new String("Want to continue with the file Submission??"),
           "Confirmation",JOptionPane.OK_CANCEL_OPTION,JOptionPane.INFORMATION_MESSAGE);
 
@@ -636,7 +632,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
          found=1;
       if(found==1)
          openConnection();
-    }
+    }*/
   }
 
 
