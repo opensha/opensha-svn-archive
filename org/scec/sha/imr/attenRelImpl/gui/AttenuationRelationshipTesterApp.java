@@ -138,6 +138,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
     protected final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
     protected final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
+    protected final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
 
     /**
      *  Temp until figure out way to dynamically load classes during runtime
@@ -149,6 +150,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected final static String F_NAME = "Field (2000)";
     protected final static String A_NAME = "Abrahamson (2000)";
     protected final static String CB_NAME = "Campbell & Bozorgnia (2003)";
+    protected final static String SM_NAME = "ShakeMap (2003)";
 
 
     /**
@@ -174,6 +176,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         imrNames.put( F_NAME, F_CLASS_NAME );
         imrNames.put( A_NAME, A_CLASS_NAME );
         imrNames.put( CB_NAME, CB_CLASS_NAME );
+        imrNames.put( SM_NAME, SM_CLASS_NAME );
 
         try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }
         catch ( Exception e ) {}
