@@ -53,8 +53,6 @@ public class HazardMapViewerServlet  extends HttpServlet {
       if(functionDesired.equalsIgnoreCase(GET_DATA)) {
         // if USER WANTS TO LOAD EXISTING DATA SETS
         loadDataSets(new ObjectOutputStream(response.getOutputStream()));
-
-
       }else if(functionDesired.equalsIgnoreCase(MAKE_MAP)){ // IF USER WANTS TO MAKE MAP
         // get the set selected by the user
         String selectedSet = (String)inputFromApplet.readObject();
@@ -122,8 +120,10 @@ public class HazardMapViewerServlet  extends HttpServlet {
          // READ THE METADATA FILE
          String dataSetDescription= new String();
          try {
-           FileReader dataReader = new FileReader(HazardMapCalcServlet.PARENT_DIR+
+           File f = new File(HazardMapCalcServlet.PARENT_DIR+
                dirList[i].getName()+"/"+HazardMapCalcServlet.METADATA_FILE_NAME);
+           if (!f.exists()) continue;
+           FileReader dataReader = new FileReader(f);
            BufferedReader in = new BufferedReader(dataReader);
            dataSetDescription = "";
            String str=in.readLine();
