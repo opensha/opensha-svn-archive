@@ -129,7 +129,7 @@ public class CalcProgressBar extends JProgressBar {
     }
     // update the progress bar
     if(update == true)
-      updateProgressBar(val,Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
+      updateProgressBar(val,Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Done");
   }
 
   public void showProgress(boolean flag){
