@@ -29,18 +29,33 @@ public interface IncrementalMagFreqDistAPI {
   public double getIncrRate(int index) ;
 
      /**
-      * This function find the cumulative Rate till a specified magnitude
+      * This function finds the cumulative Rate at a specified magnitude
       * @param mag
       * @return
       */
   public double getCumRate(double mag) ;
 
     /**
-     * This function find the cumulative Rate till a specified magnitude
-     * @param mag
+     * This function finds the cumulative Rate at a specified index
+     * @param index
      * @return
      */
   public double getCumRate(int index) ;
+
+
+    /**
+      * This function finds the moment Rate at a specified magnitude
+      * @param mag
+      * @return
+      */
+  public double getMomentRate(double mag) ;
+
+    /**
+     * This function finds the moment Rate at a specified index
+     * @param index
+     * @return
+     */
+  public double getMomentRate(int index) ;
 
    /**
     * This function return the sum of all the moment rates as a double variable
