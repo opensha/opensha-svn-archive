@@ -32,16 +32,16 @@ public class RunAll_PuenteHillsScenariosControlPanel {
     application = api;
     //adding the magnitudes to the Vector List
     magnitudes.add(new Double(7.1));
-    magnitudes.add(new Double(7.2));
-    magnitudes.add(new Double(7.4));
+    //magnitudes.add(new Double(7.2));
+    //magnitudes.add(new Double(7.4));
     magnitudes.add(new Double(7.5));
 
     //adding the supported AttenuationRelationshipsName to the Vector List
     attenuationRelationships.add(AS_1997_AttenRel.NAME);
-    attenuationRelationships.add(BJF_1997_AttenRel.NAME);
-    attenuationRelationships.add(CB_2003_AttenRel.NAME);
-    attenuationRelationships.add(Field_2000_AttenRel.NAME);
-    attenuationRelationships.add(SCEMY_1997_AttenRel.NAME);
+    //attenuationRelationships.add(BJF_1997_AttenRel.NAME);
+    //attenuationRelationships.add(CB_2003_AttenRel.NAME);
+    //attenuationRelationships.add(Field_2000_AttenRel.NAME);
+    //attenuationRelationships.add(SCEMY_1997_AttenRel.NAME);
     attenuationRelationships.add(ShakeMap_2003_AttenRel.NAME);
   }
 
@@ -49,17 +49,23 @@ public class RunAll_PuenteHillsScenariosControlPanel {
   /**
    * Runs all the cases for the Puente Hill Scenarios
    * @param puenteHillsControl
+   * @param hazusControl: Handle to the class to generate the shape files for input to Hazus
    * @param imrGuiBean
    */
-  public void runAllScenarios(PuenteHillsScenarioControlPanel puenteHillsControl,IMR_GuiBean imrGuiBean){
+  public void runAllScenarios(PuenteHillsScenarioControlPanel puenteHillsControl,
+                              GenerateHazusFilesControlPanel hazusControl,IMR_GuiBean imrGuiBean){
     String COMMAND_PATH = "/bin/";
     int magSize = magnitudes.size();
     int attenRelSize = attenuationRelationships.size();
     String[] command ={"sh","-c",""};
+    hazusControl.getRegionAndMapType();
     for(int i=0;i<magSize;++i){
       puenteHillsControl.setMagnitude(((Double)magnitudes.get(i)).doubleValue());
       for(int j=0;j<attenRelSize;++j){
         imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).setValue(attenuationRelationships.get(j));
+        //calls the Hazus Control method to generate the XYZ datset for generating shapefiles
+        //for hazus.
+        hazusControl.generateShapeFilesForHazus();
         application.addButton();
         // Make a directory and move all the files into it
         StringTokenizer st = new StringTokenizer((String)attenuationRelationships.get(j));

@@ -9,7 +9,8 @@ import org.scec.sha.gui.controls.GenerateHazusFilesConrolPanelAPI;
 import org.scec.sha.imr.AttenuationRelationship;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
-
+import java.awt.event.*;
+import org.scec.sha.gui.infoTools.CalcProgressBar;
 
 /**
  * <p>Title: GenerateHazusFilesControlPanel</p>
@@ -21,9 +22,7 @@ import org.scec.data.ArbDiscretizedXYZ_DataSet;
 
 public class GenerateHazusFilesControlPanel extends JFrame {
   private JPanel jPanel1 = new JPanel();
-  private JCheckBox hazusFilesCheck = new JCheckBox();
   private JTextPane infoPanel = new JTextPane();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
 
 
@@ -38,6 +37,16 @@ public class GenerateHazusFilesControlPanel extends JFrame {
 
   //metadata string for the different IMT required to generate the shapefiles for Hazus.
   private String metadata;
+  private JButton generateHazusShapeFilesButton = new JButton();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  //Object to get the handle to the IMT Gui Bean
+  private IMT_GuiBean imtGuiBean;
+  //records if the user has pressed the button to generate the XYZ data to produce
+  //the shapefiles for inout to Hazus
+  boolean generatingXYZDataForShapeFiles= false;
+
+  //progress bar
+  CalcProgressBar calcProgress;
 
   /**
    * Class constructor.
@@ -45,8 +54,9 @@ public class GenerateHazusFilesControlPanel extends JFrame {
    * @param parent : parent frame on which to show this control panel
    * @param imrGuiBean :object of IMT_GuiBean to set the imt.
    */
-  public GenerateHazusFilesControlPanel(Component parent,
+  public GenerateHazusFilesControlPanel(Component parent,IMT_GuiBean imtGui,
                                         GenerateHazusFilesConrolPanelAPI api) {
+    imtGuiBean = imtGui;
     // show the window at center of the parent component
     this.setLocation(parent.getX()+parent.getWidth()/2,
                      parent.getY()+parent.getHeight()/2);
@@ -63,7 +73,6 @@ public class GenerateHazusFilesControlPanel extends JFrame {
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
     this.setTitle("Hazus Shapefiles Control");
-    hazusFilesCheck.setText("Generate ShapeFiles for Hazus");
     infoPanel.setBackground(SystemColor.menu);
     infoPanel.setEnabled(false);
     String info = new String("This generates the Hazus shapefiles (sa-0.3sec,"+
@@ -73,20 +82,28 @@ public class GenerateHazusFilesControlPanel extends JFrame {
     infoPanel.setText(info);
     jPanel1.setMinimumSize(new Dimension(350, 70));
     jPanel1.setPreferredSize(new Dimension(350, 125));
+    generateHazusShapeFilesButton.setText("Generate Hazus Shape Files");
+    generateHazusShapeFilesButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        generateHazusShapeFilesButton_actionPerformed(e);
+      }
+    });
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    jPanel1.add(infoPanel,   new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(16, 42, 19, 41), -557, 3));
-    jPanel1.add(hazusFilesCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(18, 42, 0, 83), 52, 5));
+    jPanel1.add(infoPanel,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 42, 19, 41), 0, 0));
+    jPanel1.add(generateHazusShapeFilesButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(14, 49, 6, 54), 87, 8));
   }
 
 
   /**
-   *
+   * Generate the dataset to make shapefiles that goes as input to Hazus.
+   * For that it iterates over all the following IMT(SA-1sec, SA-0.3sec, PGA and PGV) to
+   * create the dataset for them.
    * @param imtGuiBean : instance of the selected IMT
    * @param imr : instance of the selected IMR
    */
-  public void generateHazusFiles(IMT_GuiBean imtGuiBean,AttenuationRelationship imr){
+  private void generateHazusFiles(AttenuationRelationship imr){
 
       String sa = AttenuationRelationship.SA_NAME;
       String pga = AttenuationRelationship.PGA_NAME;
@@ -130,6 +147,9 @@ public class GenerateHazusFilesControlPanel extends JFrame {
       imtGuiBean.getParameterList().getParameter(imtGuiBean.IMT_PARAM_NAME).setValue(pga);
       pga_xyzdata = application.generateShakeMap();
       metadata += imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"<br>\n";
+      calcProgress.showProgress(false);
+      calcProgress.dispose();
+      imtGuiBean.refreshParamEditor();
   }
 
   /**
@@ -139,22 +159,7 @@ public class GenerateHazusFilesControlPanel extends JFrame {
   public String getIMT_Metadata(){
     return metadata;
   }
-  /**
-   *
-   * @returns if the ShapeFiles for Hazus have to be generated
-   */
-  public boolean isHazusShapeFilesControlSelected(){
-    return hazusFilesCheck.isSelected();
-  }
 
-
-  /**
-   * Sets the value for checkbox for shape files for Hazus
-   * @param flag
-   */
-  public void setHazusShapeFilesControlSelected(boolean flag){
-    hazusFilesCheck.setSelected(flag);
-  }
 
   /**
    *
@@ -187,6 +192,40 @@ public class GenerateHazusFilesControlPanel extends JFrame {
    */
   public XYZ_DataSetAPI getXYZ_DataForPGV(){
     return pgv_xyzdata;
+  }
+
+  void generateHazusShapeFilesButton_actionPerformed(ActionEvent e) {
+    getRegionAndMapType();
+    generateShapeFilesForHazus();
+  }
+
+  /**
+   * Creates the dataset to generate the shape files that goes as input to Hazus.
+   */
+  public void generateShapeFilesForHazus(){
+    calcProgress = new CalcProgressBar("Hazus Shape file data","Starting Calculation...");
+    calcProgress.setProgressMessage("Doing Calculation for the Hazus ShapeFile Data...");
+    generateHazusFiles(application.getSelectedAttenuationRelationship());
+    //keeps tracks if the user has pressed the button to generate the xyz dataset
+    //for prodcing the shapefiles for Hazus.
+    generatingXYZDataForShapeFiles = true;
+  }
+
+  /**
+   * This function sets the Gridded region Sites and the type of plot user wants to see
+   * IML@Prob or Prob@IML and it value.
+   */
+  public void getRegionAndMapType(){
+    application.getGriddedSitesAndMapType();
+  }
+
+  /**
+   *
+   * @returns if the user has pressed the button to generate the xyz dataset
+   * for prodcing the shapefiles for Hazus
+   */
+  public boolean isHazusShapeFilesButtonPressed(){
+    return generatingXYZDataForShapeFiles;
   }
 
 }
