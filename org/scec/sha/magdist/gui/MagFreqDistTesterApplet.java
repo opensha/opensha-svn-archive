@@ -37,8 +37,6 @@ import org.scec.sha.magdist.parameter.*;
 
 public class MagFreqDistTesterApplet extends JApplet
             implements ItemListener,
-                      ParameterChangeFailListener,
-                      ParameterChangeWarningListener,
                       LogPlotAPI {
 
 
@@ -618,107 +616,6 @@ public class MagFreqDistTesterApplet extends JApplet
         mainSplitPane.setDividerLocation( newLoc );
     }
 
-    /**
-     *  Shown when a Constraint error is thrown on a ParameterEditor
-     *
-     * @param  e  Description of the Parameter
-     */
-    public void parameterChangeFailed( ParameterChangeFailEvent e ) {
-
-        String S = C + " : parameterChangeWarning(): ";
-        if(D) System.out.println(S + "Starting");
-
-        inParameterChangeWarning = true;
-
-        StringBuffer b = new StringBuffer();
-
-        ParameterAPI param = ( ParameterAPI ) e.getSource();
-        ParameterConstraintAPI constraint = param.getConstraint();
-        String oldValueStr = e.getOldValue().toString();
-        String badValueStr = e.getBadValue().toString();
-        String name = param.getName();
-
-
-        b.append( "The value ");
-        b.append( badValueStr );
-        b.append( " is not permitted for '");
-        b.append( name );
-        b.append( "'.\n" );
-        b.append( "Resetting to ");
-        b.append( oldValueStr );
-        b.append( ". The constraints are: \n");
-        b.append( constraint.toString() );
-
-        JOptionPane.showMessageDialog(
-            this, b.toString(),
-            "Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
-            );
-
-        if(D) System.out.println(S + "Ending");
-
-  }
-
-  /**
-   *  Function that must be implemented by all Listeners for
-   *  ParameterChangeWarnEvents.
-   *
-   * @param  event  The Event which triggered this function call
-   */
-    public void parameterChangeWarning( ParameterChangeWarningEvent e ){
-
-        String S = C + " : parameterChangeWarning(): ";
-        if(D) System.out.println(S + "Starting");
-
-        inParameterChangeWarning = true;
-
-        StringBuffer b = new StringBuffer();
-
-        WarningParameterAPI param = e.getWarningParameter();
-        DoubleConstraint constraint = param.getWarningConstraint();
-        Double min = constraint.getMin();
-        Double max = constraint.getMax();
-        String name = param.getName();
-
-        b.append( "You have exceeded the recommended range\n");
-        b.append( name );
-        b.append( ": (" );
-        b.append( min.toString() );
-
-        b.append( " - " );
-        b.append( max.toString() );
-        b.append( ")\n" );
-        b.append( "Click Yes to accept the new value: " );
-        b.append( e.getNewValue().toString() );
-
-        if(D) System.out.println(S + b.toString());
-
-        int result = 0;
-
-        if(D) System.out.println(S + "Showing Dialog");
-
-        result = JOptionPane.showConfirmDialog( this, b.toString(),
-            "Exceeded Recommended Values", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-        if(D) System.out.println(S + "You choose " + result);
-
-        switch (result) {
-            case JOptionPane.YES_OPTION:
-                if(D) System.out.println(S + "You choose yes, changing value to " + e.getNewValue().toString() );
-                param.setValueIgnoreWarning( e.getNewValue() );
-                break;
-            case JOptionPane.NO_OPTION:
-                if(D) System.out.println(S + "You choose no, keeping value = " + e.getOldValue().toString() );
-                param.setValueIgnoreWarning( e.getOldValue() );
-                break;
-            default:
-                param.setValueIgnoreWarning( e.getOldValue() );
-                if(D) System.out.println(S + "Not sure what you choose, not changing value.");
-                break;
-        }
-
-        if(D) System.out.println(S + "Ending");
-
-    }
 
    /**
     *  Get Applet information

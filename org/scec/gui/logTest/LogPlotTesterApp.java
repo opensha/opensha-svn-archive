@@ -178,11 +178,6 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
     jLabel1.setFont(new java.awt.Font("Dialog", 1, 12));
     jLabel1.setForeground(new Color(80, 80, 133));
     jLabel1.setText("Test Case:");
-    rangeCombo.addItemListener(new java.awt.event.ItemListener() {
-      public void itemStateChanged(ItemEvent e) {
-        rangeCombo_itemStateChanged(e);
-      }
-    });
     jLabel2.setFont(new java.awt.Font("Dialog", 1, 12));
     jLabel2.setForeground(new Color(80, 80, 133));
     jLabel2.setText("Min X:");
@@ -218,7 +213,32 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
     jPanel2.setBackground(Color.white);
     rangeCombo.setBackground(new Color(200, 200, 230));
     rangeCombo.setForeground(new Color(80, 80, 133));
+    rangeCombo.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        rangeCombo_actionPerformed(e);
+      }
+    });
     innerPlotPanel.setBackground(Color.white);
+    minXText.addKeyListener(new java.awt.event.KeyAdapter() {
+      public void keyTyped(KeyEvent e) {
+        minXText_keyTyped(e);
+      }
+    });
+    maxXText.addKeyListener(new java.awt.event.KeyAdapter() {
+      public void keyTyped(KeyEvent e) {
+        maxXText_keyTyped(e);
+      }
+    });
+    minYText.addKeyListener(new java.awt.event.KeyAdapter() {
+      public void keyTyped(KeyEvent e) {
+        minYText_keyTyped(e);
+      }
+    });
+    maxYText.addKeyListener(new java.awt.event.KeyAdapter() {
+      public void keyTyped(KeyEvent e) {
+        maxYText_keyTyped(e);
+      }
+    });
     this.getContentPane().add(jSplitPane1, BorderLayout.CENTER);
     jSplitPane1.add(innerPlotPanel, JSplitPane.LEFT);
     jSplitPane1.add(jPanel2, JSplitPane.RIGHT);
@@ -320,13 +340,13 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
 
 
        if(!autoScale){
-       // get the min and max Y values
-       minYValue=Double.parseDouble(minYText.getText());
-       maxYValue=Double.parseDouble(maxYText.getText());
+         // get the min and max Y values
+         minYValue=Double.parseDouble(minYText.getText());
+         maxYValue=Double.parseDouble(maxYText.getText());
 
-       //get the min and max Y values
-       minXValue=Double.parseDouble(minXText.getText());
-       maxXValue=Double.parseDouble(maxXText.getText());
+         //get the min and max Y values
+         minXValue=Double.parseDouble(minXText.getText());
+         maxXValue=Double.parseDouble(maxXText.getText());
        }
 
        //create the standard ticks so that smaller values too can plotted on the chart
@@ -463,82 +483,8 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
    repaint();
   }
 
-  //sets the default range for the log Plots
-  void rangeCombo_itemStateChanged(ItemEvent e) {
-    if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_0)){
-      autoScale=true;
-      addButton();
-      Range rX = xAxis.getRange();
-      Range rY= yAxis.getRange();
-      this.minXText.setText(""+rX.getLowerBound());
-      this.maxXText.setText(""+rX.getUpperBound());
-      this.minYText.setText(""+rY.getLowerBound());
-      this.maxYText.setText(""+rY.getUpperBound());
-    }
-    else {
-      autoScale=false;
-      if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_1)){
-        setXRange(.5e-20,1e-20);
-        setYRange(.5e-20,1e-20);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_2)){
-        setXRange(1e-20,1e-19);
-        setYRange(1e-20,1e-19);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_3)){
-        setXRange(1e-20,1e-17);
-        setYRange(1e-20,1e-17);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_4)){
-        setXRange(1e-20,1e-16);
-        setYRange(1e-20,1e-16);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_5)){
-        setXRange(1e-20,1e-15);
-        setYRange(1e-20,1e-15);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_6)){
-        setXRange(1e-11,1e-7);
-        setYRange(1e-11,1e-7);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_7)){
-        setXRange(1e-2,10);
-        setYRange(1e-2,10);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_8)){
-        setXRange(1e-2,100);
-        setYRange(1e-2,100);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_9)){
-        setXRange(1e-2,1000);
-        setYRange(1e-2,1000);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_10)){
-        setXRange(10,10000);
-        setYRange(10,10000);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_11)){
-        setXRange(10,100000);
-        setYRange(10,100000);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_12)){
-        setXRange(2,2);
-        setYRange(2,2);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_13)){
-        setXRange(1,1);
-        setYRange(1,1);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_14)){
-        setXRange(10e4,10e6);
-        setYRange(10e4,10e6);
-      }
-      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_15)){
-        setXRange(2,8);
-        setYRange(2,8);
-      }
-    }
-  }
+
+
 
   /**
    * this function sets the initial X and Y values for which log plot has to be generated.
@@ -649,6 +595,116 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
 
    return function;
   }
+
+  /**
+   * if user types by hand in any of the fields, then do not autoscale
+   * @param e
+   */
+  void minXText_keyTyped(KeyEvent e) {
+    this.autoScale = false;
+  }
+
+  /**
+   * if user types by hand in any of the fields, then do not autoscale
+   * @param e
+   */
+  void maxXText_keyTyped(KeyEvent e) {
+    this.autoScale = false;
+  }
+
+  /**
+   * if user types by hand in any of the fields, then do not autoscale
+   * @param e
+   */
+  void minYText_keyTyped(KeyEvent e) {
+    this.autoScale = false;
+  }
+
+  /**
+   * if user types by hand in any of the fields, then do not autoscale
+   * @param e
+   */
+  void maxYText_keyTyped(KeyEvent e) {
+    this.autoScale = false;
+  }
+
+  //sets the default range for the log Plots
+  void rangeCombo_actionPerformed(ActionEvent e) {
+    if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_0)){
+      autoScale=true;
+      addButton();
+      Range rX = xAxis.getRange();
+      Range rY= yAxis.getRange();
+      this.minXText.setText(""+rX.getLowerBound());
+      this.maxXText.setText(""+rX.getUpperBound());
+      this.minYText.setText(""+rY.getLowerBound());
+      this.maxYText.setText(""+rY.getUpperBound());
+    }
+    else {
+      autoScale=false;
+      if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_1)){
+        setXRange(.5e-20,1e-20);
+        setYRange(.5e-20,1e-20);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_2)){
+        setXRange(1e-20,1e-19);
+        setYRange(1e-20,1e-19);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_3)){
+        setXRange(1e-20,1e-17);
+        setYRange(1e-20,1e-17);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_4)){
+        setXRange(1e-20,1e-16);
+        setYRange(1e-20,1e-16);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_5)){
+        setXRange(1e-20,1e-15);
+        setYRange(1e-20,1e-15);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_6)){
+        setXRange(1e-11,1e-7);
+        setYRange(1e-11,1e-7);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_7)){
+        setXRange(1e-2,10);
+        setYRange(1e-2,10);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_8)){
+        setXRange(1e-2,100);
+        setYRange(1e-2,100);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_9)){
+        setXRange(1e-2,1000);
+        setYRange(1e-2,1000);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_10)){
+        setXRange(10,10000);
+        setYRange(10,10000);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_11)){
+        setXRange(10,100000);
+        setYRange(10,100000);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_12)){
+        setXRange(2,2);
+        setYRange(2,2);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_13)){
+        setXRange(1,1);
+        setYRange(1,1);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_14)){
+        setXRange(10e4,10e6);
+        setYRange(10e4,10e6);
+      }
+      else if(rangeCombo.getSelectedItem().toString().equalsIgnoreCase(TEST_15)){
+        setXRange(2,8);
+        setYRange(2,8);
+      }
+    }
+  }
+
 
 
 }

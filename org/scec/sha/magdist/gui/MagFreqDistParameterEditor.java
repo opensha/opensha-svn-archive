@@ -941,7 +941,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
   }
 
 
-  /**
+    /**
       *  Shown when a Constraint error is thrown on a ParameterEditor
       *
       * @param  e  Description of the Parameter
