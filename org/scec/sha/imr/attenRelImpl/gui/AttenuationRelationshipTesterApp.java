@@ -985,9 +985,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
                 return;
         }
 
-        /*StandardLegend legend = (StandardLegend)chart.getLegend();
-        legend.setItemFont(LEGEND_FONT);*/
-
         // Put into a panel
         panel = new ChartPanel(chart, true, true, true, true, false);
         panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );

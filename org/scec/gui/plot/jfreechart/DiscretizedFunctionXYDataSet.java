@@ -222,7 +222,8 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
 
         // if xlog and first x value = 0 increment index, even if y first value not zero,
         // and vice versa fro yLog. This call used by both getXValue and getYValue
-        if( ( xLog && func.getX(0) == 0 ) || ( yLog && func.getY(0) == 0 ) ) return true;
+        if( ( xLog && (func.getX(0) == 0 || func.getX(0)==Double.MIN_VALUE))
+            || ( yLog && func.getY(0) == 0 )) return true;
         else return false;
     }
 
