@@ -872,7 +872,7 @@ public class LogarithmicAxis extends NumberAxis {
       //double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
       //xx = (float)this.translateValueToJava2D(logval, plotArea);
       if(eIndex!=-1) // for major axis
-        g2.setFont(this.getTickLabelFont());
+        g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()+1));
       else  // show minor axis in smaller font
         g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-1));
 
@@ -886,10 +886,8 @@ public class LogarithmicAxis extends NumberAxis {
           if(eIndex==-1)
             g2.drawString(tick.getText(), tick.getX(), tick.getY());
           else {
-            g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()+1));
-            g2.drawString("10", tick.getX(), tick.getY());
-            g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-1));
-            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+13,tick.getY()-4);
+            g2.drawString("10", tick.getX()+3, tick.getY());
+            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+14,tick.getY()-4);
           }
         }
       }
