@@ -47,8 +47,6 @@ public class AttenRelResultsChecker {
 
   //stores the parameters settings for the
   private String failedParamsSetting =null;
-  //checks to see if we need Log for IMT
-  private boolean translateAttenRel = true;
 
   //checks if the resulted values lies within the this tolerence range
   private double tolerence = .0001; //default value for the tolerence
@@ -162,21 +160,13 @@ public class AttenRelResultsChecker {
             //Adding the independent Parameters to the param List
             while ( supportedIntensityMeasureIterator.hasNext() ) {
               DependentParameterAPI param = ( DependentParameterAPI ) supportedIntensityMeasureIterator.next();
-              //removing the intensity measure that are not required for the test case
-              if(list.containsParameter(param)){
-                list.removeParameter(param.getName());
-                Iterator it=param.getIndependentParametersIterator();
-                while(it.hasNext()){
-                  ParameterAPI  tempParam =(ParameterAPI)it.next();
-                  if(list.containsParameter(tempParam))
-                    this.list.removeParameter(tempParam.getName());
-                }
-              }
               //System.out.println("Intensity Measure Param Name:"+param.getName());
               if(param.getName().equalsIgnoreCase(intensityMeasureName)){
                 //adding the intensity measure parameter
-                list.addParameter(param);
+                if(!list.containsParameter(param))
+                  list.addParameter(param);
                 Iterator it=param.getIndependentParametersIterator();
+                //adding the independent Params for the intensity Measure Param
                 while(it.hasNext()){
                   ParameterAPI  tempParam =(ParameterAPI)it.next();
                   if(!list.containsParameter(tempParam))
@@ -313,18 +303,27 @@ public class AttenRelResultsChecker {
    */
   private double getCalculation( int type ) {
       double result =  0.0;
+      /**
+       * @todo FIX - Legend AttenRel translation done here.
+       * may be poor design, what if AttenRel types change to another type in future.
+       * Translated parameters should deal directly with ParameterAPI, not specific subclass
+       * types.
+       */
+
+      ParameterAPI imParam = (ParameterAPI)imr.getIntensityMeasure();
+      if( imParam instanceof WarningDoubleParameter){
+        WarningDoubleParameter warnParam = (WarningDoubleParameter)imParam;
+        if(((Double)imParam.getValue()).doubleValue() >0)
+          warnParam.setValueIgnoreWarning(new Double(Math.log(((Double)imParam.getValue()).doubleValue())));
+      }
+
       switch ( type ) {
           case MEAN:
               result = Math.exp( imr.getMean() );
               break;
           case EXCEED_PROB:
-            ListIterator it  = list.getParametersIterator();
-            while(it.hasNext()){
-              ParameterAPI tempParam = (ParameterAPI)it.next();
-              System.out.println(tempParam.getName()+": "+tempParam.getValue());
-            }
-              result = imr.getExceedProbability();
-              break;
+            result = imr.getExceedProbability();
+            break;
           case STD_DEV:
               result = imr.getStdDev();
               break;
