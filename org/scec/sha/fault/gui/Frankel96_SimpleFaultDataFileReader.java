@@ -44,7 +44,7 @@ public class Frankel96_SimpleFaultDataFileReader {
 
             // Load in from file the data
             if( D ) System.out.println(S + "Loading file = " + fileNames.get(j).toString());
-            try{ rawFaultTraceData = FileUtils.loadInCharFile( fileNames.get(j).toString() ); }
+            try{ rawFaultTraceData = FileUtils.loadFile( fileNames.get(j).toString() ); }
             catch( FileNotFoundException e){ System.out.println(S + e.toString()); }
             catch( IOException e){ System.out.println(S + e.toString());}
 

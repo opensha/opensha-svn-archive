@@ -38,10 +38,6 @@ import org.scec.data.TimeSpan;
 
 public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
-  /**
-   * @todo variables
-   */
-
   //for Debug purposes
   private static String  C = new String("Frankel96_EqkRupForecast");
   private boolean D = false;
@@ -51,155 +47,138 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
   private double MAG_LOWER = 6.5;
   private double DELTA_MAG = 0.1;
 
+  private String FAULT_CLASS_A = "A";
+  private String FAULT_CLASS_B = "B";
+  private String FAULTING_STYLE_SS = "SS";
+  private String FAULTING_STYLE_R = "R";
+  private String FAULTING_STYLE_N = "N";
+
+
   /**
    * used for error checking
    */
   protected final static FaultException ERR = new FaultException(
-           C + ": loadFaultTraces(): Missing metadata from trace, file bad format."
-    );
+           C + ": loadFaultTraces(): Missing metadata from trace, file bad format.");
 
   /**
-   * These are the decelaration of the static varibles to determine the type
-   * and name of the file to be read
+   * Static variable for input file name
    */
-  private final static int TYPE_A_CHAR_FLT = 0;
-  private final static int TYPE_B_CHAR_GR_FLT = 1;
-  private final static String FILE_PATH = "org/scec/sha/earthquake/rupForecastImpl/Frankel96/";
-  private final static String FILE_A_CHAR_EQK=FILE_PATH + "Frankel96_CALA.char";
-  private final static String FILE_B_CHAR_GR_EQK=FILE_PATH + "Frankel96_CALB.both";
+  private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/Frankel96/Frankel96_CAL_all.txt";
 
   /**
-   * definition of the vectors for storing the data corresponding to the file type
+   * Vectors for holding the various forecast types
    */
   private Vector FrankelA_CharEqkSources = new Vector();
   private Vector FrankelB_CharEqkSources = new Vector();
   private Vector FrankelB_GR_EqkSources = new Vector();
 
   /**
-   * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
+   * timespan field in yrs for now (but have to ultimately make it a TimeSpan class variable)
    */
   private double timeSpan;
   private TimeSpan time;
 
   /**
-   * This constructor reads 3 files and saves the soures in the respective vectors of sources
+   * This constructor reads the input file and creates all the soures
    *
    * No argument constructor
    */
   public Frankel96_EqkRupForecast() {
-    readFrankel96_File(TYPE_A_CHAR_FLT);
-    readFrankel96_File(TYPE_B_CHAR_GR_FLT);
+    readFrankel96_File();
   }
 
   /**
-   * Read the Characteristic files
+   * Read the file and make the sources
    *
-   * @param faultType : It can be TYPE_A_CHAR_FLT or TYPE_B_CHAR_FLT or TYPE_B_GR_FLT
    * @throws FaultException
    */
-  private  void readFrankel96_File(int faultType) throws FaultException{
+  private  void readFrankel96_File() throws FaultException{
 
     // Debug
     String S = C + ": readFrankel96: ";
     if( D ) System.out.println(S + "Starting");
-    String fileName="";
     GriddedFaultFactory factory;
     GutenbergRichterMagFreqDist gutenbergRichter;
-    //file to be read based on the flag that is received as the parameter
-    // variable declaration
-    ArrayList rawFaultTraceData = null;
-    String  faultName="", temp;
-    int i ;
+    ArrayList inputFileLines = null;
+    String  faultClass="", faultingStyle, faultName="", temp;
+    int i;
     double   lowerSeismoDepth, upperSeismoDepth;
     double lat, lon;
     int rake=0;
-    double mag=0,rate=0,dip=0,downDipWidth=0,depthToTop=0;
-    double bValue=0,magLower=0,magUpper=0,deltaMag=0;
+    double mag=0;  // used for magChar and magUpper (latter for the GR distributions)
+    double charRate=0, dip=0, downDipWidth=0, depthToTop=0;
+    double bValue=0.9, magLower=6.5, deltaMag=0.1;
 
     // Load in from file the data
-    if(faultType == TYPE_A_CHAR_FLT)
-      fileName = new String (FILE_A_CHAR_EQK);
-    else if(faultType == TYPE_B_CHAR_GR_FLT)
-      fileName = new String(FILE_B_CHAR_GR_EQK);
-
-
-    if( D ) System.out.println(S + "Loading file = " + fileName );
-    try{ rawFaultTraceData = FileUtils.loadInCharFile( fileName ); }
+    if( D ) System.out.println(S + "Loading file = " + INPUT_FILE_NAME );
+    try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(S + e.toString()); }
     catch( IOException e){ System.out.println(S + e.toString());}
 
-        // Exit if no data found in list
-        if( rawFaultTraceData == null) throw new
-            FaultException(S + "No data loaded from file. File may be empty or doesn't exist.");
+    // Exit if no data found in list
+    if( inputFileLines == null) throw new
+           FaultException(S + "No data loaded from file. File may be empty or doesn't exist.");
 
-        // Loop over data parsing and building traces, then add to list
-        ListIterator it = rawFaultTraceData.listIterator();
-        //reading the first line from the file
-        while( it.hasNext() ){
+    // Loop over lines of input file and create each source in the process
+    ListIterator it = inputFileLines.listIterator();
+
+    // loope over all lines of the input file
+    while( it.hasNext() ){
           StringTokenizer st = new StringTokenizer(it.next().toString());
+
+          // WHILE LOOP REALLY NEEDED HERE?
           while(st.hasMoreTokens()){
-            //skipping the first word(that tells that it is char type faults)
-            st.nextToken();
-            //taking the 2nd word that tells that it is what fault type
-            String token= new String(st.nextToken());
+
+            //first word of first line is the fault class (A or B)
+            faultClass = new String(st.nextToken());
+
+            // 2nd word is the faulting style; set rake accordingly
+            faultingStyle = new String(st.nextToken());
 
             //for Strike slip fault
-            if(Integer.parseInt(token) == 1)
+            if(faultingStyle.equalsIgnoreCase(FAULTING_STYLE_SS))
               rake =0;
 
             //for reverse fault
-            if(Integer.parseInt(token) == 2)
+            if(faultingStyle.equalsIgnoreCase(FAULTING_STYLE_R))
               rake =90;
 
             //for normal fault
-            if(Integer.parseInt(token) == 3)
+            if(faultingStyle.equalsIgnoreCase(FAULTING_STYLE_N))
               rake =-90;
 
             //reading the fault name
             faultName = new String(st.nextToken());
+
             if(D) System.out.println(C+":FaultName::"+faultName);
           }
 
-          //reading the next line from the file
+          // get the 2nd line from the file
           st = new StringTokenizer(it.next().toString());
 
-          // if we are reading the characteristic file
-          if(faultType==TYPE_A_CHAR_FLT || faultType==TYPE_B_CHAR_GR_FLT) {
-            while(st.hasMoreTokens()){
-            //reading the mag
-             mag=Double.parseDouble(st.nextToken());
-             //reading the rate
-             rate=Double.parseDouble(st.nextToken());
-             if(faultType==TYPE_B_CHAR_GR_FLT && (mag>6.5)) {
-               //reading the b-value
-               bValue=B_VALUE;
-               //reading the MagLower
-               magLower=MAG_LOWER;
-               //reading the MagUpper
-               magUpper=mag;
-               //reading the DeltaMag
-               deltaMag=DELTA_MAG;
+          // 1st word is magnitude
+          mag=Double.parseDouble(st.nextToken());
 
-             }
-            }
-           }
+          // 2nd word is charRate
+          charRate=Double.parseDouble(st.nextToken());
 
-          //reading the third line from  the file
+
+          // get the third line from the file
           st=new StringTokenizer(it.next().toString());
-          while(st.hasMoreTokens()){
-            // reading the dip
-            dip=Double.parseDouble(st.nextToken());
-            //reading the downDipWidth
-            downDipWidth=Double.parseDouble(st.nextToken());
-            //reading the Depth to top
-            depthToTop=Double.parseDouble(st.nextToken());
-          }
 
-          //reading the 4 line from the file that tells about the data points for faults
-          int numOfDataLines=Integer.parseInt(it.next().toString().trim());
-          // Calculate derived variables
+          // 1st word is dip
+          dip=Double.parseDouble(st.nextToken());
+          // 2nd word is down dip width
+          downDipWidth=Double.parseDouble(st.nextToken());
+          // 3rd word is the depth to top of fault
+          depthToTop=Double.parseDouble(st.nextToken());
+
+          // Calculate upper and lower seismogenic depths
           upperSeismoDepth = depthToTop;
           lowerSeismoDepth = depthToTop + downDipWidth*Math.sin((Math.toRadians(Math.abs(dip))));
+
+          // get the 4th line from the file that gives the number of points on the fault trace
+          int numOfDataLines = Integer.parseInt(it.next().toString().trim());
 
           FaultTrace faultTrace= new FaultTrace(faultName);
 
@@ -217,6 +196,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
               faultTrace.addLocation( (Location)loc.clone());
               if( D ) System.out.println(S + "Location" + loc.toString());
           }
+
          // reverse data ordering if dip negative, make positive and reverse trace order
           if( dip < 0 ) {
              faultTrace.reverse();
@@ -225,9 +205,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
           if( D ) System.out.println(C+":faultTrace::"+faultTrace.toString());
 
-
-
-          // value of gridspacing has been set to 1 km
+          // Make the fault surface
           factory = new FrankelGriddedFaultFactory(faultTrace,
                                                    dip,
                                                    upperSeismoDepth,
@@ -236,28 +214,35 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
           GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
-          if(faultType == TYPE_B_CHAR_GR_FLT && mag>6.5){
+          // Now make the source(s)
+          if(faultClass == FAULT_CLASS_B && mag>6.5){
+            // divide the rate in half for the GR and Char parts, respectively
+            double rate = 0.5*charRate;
             double moRate = rate*MomentMagCalc.getMoment(mag);
-            Frankel96_GR_EqkSource frankel96_GRF = new Frankel96_GR_EqkSource(rake,bValue,magLower,
-                                                   magUpper,moRate,deltaMag,(EvenlyGriddedSurface)surface);
-            this.FrankelB_GR_EqkSources.add(frankel96_GRF);
-          }
-
-          if( faultType==TYPE_A_CHAR_FLT || (faultType==TYPE_B_CHAR_GR_FLT && mag<=6.5)) {
-            Frankel96_CharEqkSource frankel96_CharF = new  Frankel96_CharEqkSource(rake,mag,rate,
+            // make the GR source
+            Frankel96_GR_EqkSource frankel96_GR_src = new Frankel96_GR_EqkSource(rake,bValue,magLower,
+                                                   mag,moRate,deltaMag,(EvenlyGriddedSurface)surface);
+            FrankelB_GR_EqkSources.add(frankel96_GR_src);
+            // now make the Char source
+            Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,rate,
                                                       (EvenlyGriddedSurface)surface);
-
-            if(faultType ==  TYPE_A_CHAR_FLT)
-              this.FrankelA_CharEqkSources.add(frankel96_CharF);
-            if(faultType ==  TYPE_B_CHAR_GR_FLT  && mag<=6.5)
-              this.FrankelB_CharEqkSources.add(frankel96_CharF);
+            FrankelB_CharEqkSources.add(frankel96_Char_src);
           }
+          else if (faultClass == FAULT_CLASS_B) {    // if class B and mag<=6.5, it's all characteristic
+            Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,charRate,
+                                                      (EvenlyGriddedSurface)surface);
+            FrankelB_CharEqkSources.add(frankel96_Char_src);
 
-        }
+          }
+          else {   // it must be a class A fault
+            Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,charRate,
+                                                      (EvenlyGriddedSurface)surface);
+            FrankelA_CharEqkSources.add(frankel96_Char_src);
+          }
+    }  // bottom of loop over linse
 
     // Done
-    if( D ) System.out.println(S + "Ending");
-
+    if( D ) System.out.println(S + "readFrankel96_file() is done");
   }
 
   /**
@@ -422,7 +407,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
     /**
      * This method helps in finding the object stored in the vector for char and gr
-     * faultsthat corresponds to that parameter source.
+     * faults that corresponds to that parameter source.
      *
      * first source starts from 0
      *
@@ -470,11 +455,12 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
    }
 
    /**
-    * this function is needed to prepare for the forecast
+    * this function is needed to prepare for the forecast; nothing needs to be done here because
+    * the constructor does it all
     **/
 
    public void updateForecast() {
-     throw new UnsupportedOperationException(C+"::updateForecast() Not implemented.");
+     if(D) System.out.println(C+" updateForecast() is done");
 
    }
 

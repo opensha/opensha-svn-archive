@@ -98,7 +98,7 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
 
     if( D ) System.out.println(S + "Loading file = " + FILE );
 
-    try{ rawData = FileUtils.loadInCharFile( FILE ); }
+    try{ rawData = FileUtils.loadFile( FILE ); }
     catch( FileNotFoundException e){ System.out.println(S + e.toString()); }
     catch( IOException e){ System.out.println(S + e.toString());}
 

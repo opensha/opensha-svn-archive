@@ -30,14 +30,14 @@ public class FileUtils {
      * @throws FileNotFoundException    If the filename doesn't exist
      * @throws IOException              Unable to read from the file
      */
-    public static ArrayList loadInCharFile(String fileName)
+    public static ArrayList loadFile(String fileName)
         throws
             FileNotFoundException,
             IOException
     {
 
         // Debugging
-        String S = C + ": loadInCharFile(): ";
+        String S = C + ": loadFile(): ";
         if( D ) System.out.println(S + "Starting");
 
         // Allocate variables
