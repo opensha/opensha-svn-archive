@@ -44,6 +44,9 @@ public class ScenarioShakeMapApp extends JApplet implements
   //variables that determine the width and height of the frame
   private static final int W=550;
   private static final int H=760;
+
+  //name of the XYZ text file that given to GMT to generate the .grd file
+  private final static String XYZ_FILENAME="xyz.dat";
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
@@ -100,7 +103,6 @@ public class ScenarioShakeMapApp extends JApplet implements
   private GridBagLayout gridBagLayout9 = new GridBagLayout();
   private GridBagLayout gridBagLayout8 = new GridBagLayout();
   private JButton addButton = new JButton();
-  private JComboBox controlPanelCombo = new JComboBox();
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
@@ -163,8 +165,6 @@ public class ScenarioShakeMapApp extends JApplet implements
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 430, 528));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(controlPanelCombo,             new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 16, 3));
     buttonPanel.add(addButton,      new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 7, 0, 0), 78, 18));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
@@ -402,6 +402,12 @@ public class ScenarioShakeMapApp extends JApplet implements
    }
   }
 
+
+  /**
+   * This method calculates the probablity or the IML for the selected Gridded Region
+   * and stores the value in each vectors(lat-Vector, Lon-Vector and IML or Prob Vector)
+   * The IML or prob vector contains value based on what the user has selected in the Map type
+   */
   private void generateShakeMap(){
     boolean imlAtProb=false;
     boolean probAtIML=false;
@@ -455,10 +461,18 @@ public class ScenarioShakeMapApp extends JApplet implements
     mapGuiBean.makeMap("temp.txt");
   }
 
+
+  /**
+   * It generates ans XYZ file and gives it to the MapGuiBean to give it to the
+   * GMT parameters and generate the .grd file.
+   * @param lat
+   * @param lon
+   * @param siteValue
+   */
   private void makeFile(Vector lat,Vector lon,Vector siteValue){
     try{
          int size=lat.size();
-         FileWriter fr = new FileWriter("temp.txt");
+         FileWriter fr = new FileWriter(XYZ_FILENAME);
          for(int i=0;i<size;++i)
            fr.write(lat.get(i)+" "+lon.get(i)+" "+siteValue.get(i)+"\n");
          fr.close();

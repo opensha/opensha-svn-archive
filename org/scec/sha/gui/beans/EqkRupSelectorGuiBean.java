@@ -128,7 +128,7 @@ public class EqkRupSelectorGuiBean extends ERF_GuiBean  {
      first = false;
      setParamsInForecast(selectedForecast,sourceIndex);
    }
-
+   progress.dispose();
  }
 
  /**
