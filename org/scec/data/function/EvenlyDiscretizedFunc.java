@@ -6,12 +6,10 @@ import org.scec.exceptions.*;
 import org.scec.data.*;
 
 /**
- * <b>Title:</b> EvenlyDiscretizedFunction2D<br>
+ * <b>Title:</b> EvenlyDiscretizedFunc<br>
  * <b>Description:</b> Assumes even spacing between the x points represented by
- * the delta distance. Y Values are stored in a fixed size linked list. This
- * allows replacement of values at specified indexes, and permits null values.
- * In fact the LinkedList is initialized to have all null values, fixed to
- * the size of num.<br>
+ * the delta distance. Y Values are stored as doubles in an array of primitives. This
+ * allows replacement of values at specified indexes.<br>
  * <b>Copyright:</b> Copyright (c) 2001<br>
  * <b>Company:</b> <br>
  * @author Steven W. Rock

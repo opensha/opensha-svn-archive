@@ -6,11 +6,34 @@ import java.util.*;
 
 /**
  *  <b>Title:</b> ContainerSubset2D<br>
- *  <b>Description:</b> Small read only window into larger 2 dimensinal data set
- *  <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  <b>Description:</b> Small read only window into larger
+ *  Container2d. This class takes a Container2D as a variable,
+ *  then becomes a "window" into the larger grid. Since this
+ *  class implements Container2DAPI it "looks" like a Container2D.<p>
  *
+ * All this class does is provide convinience methods to zoom into a
+ * smaller section of the referenced Container2D. It translates the
+ * window x and y coordinate indices into the real indices of the
+ * referenced container.<p>
+ *
+ * The key to understanding this class is the Window2D that contains
+ * a minX, maxX, minY and maxY values. These are the translation indices
+ * to go between this subset coordinate system to the referencing
+ * container's coordinate system. For example the 0th index along x axis
+ * in this subset container maps to minX index in the main container.<p>
+ *
+ * Another trick used in this class is useful to understand. Basically
+ * the API allows translation, modifications of the Window2D around
+ * the larger referenced container. Because there are four variables
+ * to the Window2D, this could take four method calls to change the
+ * data. Because there is more than one step involved, and any one step
+ * can potentially fail, I needed to provide a rollback mechanism to the
+ * last know good state. This is the purpose of the oldWindow variable
+ * and the commit and rollback functions. These will be explained below.
+ *
+ * This class was designed with the purpose of examining rupture locals
+ * in a fault gridded surface, but has been generalized to work with
+ * any Container2DAPI.
  *
  * @author     Steven W. Rock
  * @created    February 25, 2002
@@ -19,41 +42,54 @@ import java.util.*;
 
 public class ContainerSubset2D implements Container2DAPI, Serializable {
 
-    /**
-     *  Description of the Field
-     */
+    /** Class name used for debbuging */
     protected final static String C = "ContainerSubset2D";
-    /**
-     *  Description of the Field
-     */
+
+    /** if true print out debugging statements */
     protected final static boolean D = false;
 
+    /**
+     * Every container has a name associated with it to distinguish
+     * it from other container instances. SUbsets can also have
+     * names different from the referenced container. Also useful
+     * for displaying in a GUI.
+     */
     protected String name = "";
 
     /**
-     *  Data containing indexing information into larger dataset
+     *  Data containing indexing information into larger dataset.
+     *  Contains xMin, xMax, yMin, and yMax indexes. This allows
+     *  translation from this subset container coordinate system
+     *  into the lerger referenced container. For example the 0th
+     *  index along the x axis in this subset container maps to
+     *  minX index in the main container.
      */
     protected Window2D window = new Window2D();
 
     /**
-     *  Description of the Field
+     * The API allows translation, modifications of the Window2D around
+     * the larger referenced container. Because there are four variables
+     * to the Window2D, this could take four method calls to change the
+     * data. Because there is more than one step involved, and any one step
+     * can potentially fail, I needed to provide a rollback mechanism to the
+     * last know good state. This is the purpose of the oldWindow variable
+     * and the commit and rollback functions. .
      */
     protected Window2D oldWindow = null;
 
-    /**
-     *  pointer to gridded data
-     */
+    /** Reference to real data container. */
     protected Container2DAPI data = null;
 
 
     /**
-     *  Constructor for the ContainerSubset2D object
+     *  Constructor for the ContainerSubset2D object. Provides specifications
+     *  that allows the Window2D to be fully specified
      *
-     * @param  numRows                             Description of the Parameter
-     * @param  numCols                             Description of the Parameter
-     * @param  startRow                            Description of the Parameter
-     * @param  startCol                            Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  numRows                             number of index points along the x-axis
+     * @param  numCols                             number of index points along the y-axis
+     * @param  startRow                            Staring row of this subset, put in Window2D
+     * @param  startCol                            Staring col of this subset, put in Window2D
+     * @exception  ArrayIndexOutOfBoundsException  Thown if any of the idices go beyond the range of the referencing container
      */
     public ContainerSubset2D( int numRows, int numCols, int startRow, int startCol )
              throws ArrayIndexOutOfBoundsException {
@@ -72,16 +108,17 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Constructor for the ContainerSubset2D object
+     *  Constructor for the ContainerSubset2D object. Provides specifications
+     *  that allows the Window2D to be fully specified. Also sets the
+     *  reference to the real data in the main Container2D
      *
-     * @param  numRows                             Description of the Parameter
-     * @param  numCols                             Description of the Parameter
-     * @param  startRow                            Description of the Parameter
-     * @param  startCol                            Description of the Parameter
-     * @param  data                                Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  numRows                             number of index points along the x-axis
+     * @param  numCols                             number of index points along the y-axis
+     * @param  startRow                            Staring row of this subset, put in Window2D
+     * @param  startCol                            Staring col of this subset, put in Window2D
+     * @exception  ArrayIndexOutOfBoundsException  Thown if any of the idices go beyond the range of the referencing container
      */
-    public ContainerSubset2D( int numRows, int numCols, int startRow, int startCol, Container2DAPI data )
+    ublic ContainerSubset2D( int numRows, int numCols, int startRow, int startCol, Container2DAPI data )
              throws ArrayIndexOutOfBoundsException {
 
         String S = C + ": Constructor2():";
@@ -99,12 +136,12 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  this is the data set that this class provides a window into. All indexes
-     *  must have been set already. If invalid data, the window is rolled back
-     *  to the old one.
+     *  Allows setting the reference to a new Container2D.  All indexes
+     *  must have been set already i the Window2D before calling this function.
+     *  If invalid data, the window is rolled back to the old one.
      *
      * @param  data                                The new container2D value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @exception  ArrayIndexOutOfBoundsException  Thown if any of the idices go beyond the range of the referencing container
      */
     public void setContainer2D( Container2DAPI data ) throws ArrayIndexOutOfBoundsException {
         String S = C + ": setContainer2D():";
@@ -126,11 +163,11 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  used to initialize the start row pointer to the main dataset. If invalid
+     *  Used to update the starting row index in the Window2D. If invalid
      *  data, the window is rolled back to the old one.
      *
      * @param  startRow                            The new startRow value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if this start row is an invalid index in the main container, i.e. too large or negative.
      */
     public void setStartRow( int startRow ) throws ArrayIndexOutOfBoundsException {
 
@@ -148,6 +185,12 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
         commit();
     }
 
+    /**
+     * Internal helper function that performs various validation
+     * checks between the Window2D values and the referenced container
+     * domain and range values
+     * @throws ArrayIndexOutOfBoundsException   Thrown if any of the values are invalid, such as negative indices.
+     */
     protected void validate() throws ArrayIndexOutOfBoundsException {
 
         String S = C + ": validate():";
@@ -163,11 +206,11 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
     }
 
     /**
-     *  used to initialize the start row pointer to the main dataset. If invalid
+     *  Used to update the starting cal index in the Window2D. If invalid
      *  data, the window is rolled back to the old one.
      *
-     * @param  startCol                            The new startCol value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  startRow                            The new startCal value in Window2D
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if this start cal is an invalid index in the main container, i.e. too large or negative.
      */
     public void setStartCol( int startCol ) throws ArrayIndexOutOfBoundsException {
         String S = C + ": setStartCol():";
@@ -186,12 +229,13 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Sublcass not allowed to modify data, i.e. read only
+     *  This method is required of the Contianer2dAPI. This subclass was designed
+     *  as read-only so throws an exception if you try to use this.
      *
-     * @param  row                                 Description of the Parameter
-     * @param  column                              Description of the Parameter
-     * @param  obj                                 Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  row                                 x-coord
+     * @param  column                              y-coord
+     * @param  obj                                 new object to place in the container cell
+     * @exception  ArrayIndexOutOfBoundsException  Never thrown, function disabled.
      */
     public void set( int row, int column, Object obj ) throws ArrayIndexOutOfBoundsException {
         throw new java.lang.UnsupportedOperationException( "This function is not implemented in this subclass" );
@@ -199,9 +243,9 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Gets the container2D attribute of the ContainerSubset2D object
+     *  Returns the container2D pointer contained in the subset window.
      *
-     * @return    The container2D value
+     * @return    The container2D pointer
      */
     public Container2DAPI getContainer2D() {
         return data;
@@ -209,7 +253,7 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Gets the startRow attribute of the ContainerSubset2D object
+     *  Gets the startRow index of the Window2D object
      *
      * @return    The startRow value
      */
@@ -219,7 +263,7 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Gets the startCol attribute of the ContainerSubset2D object
+     *  Gets the startColindex of the Window2D object
      *
      * @return    The startCol value
      */
@@ -229,9 +273,9 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  used to initialize the number of rows
+     *  Returns number of rows in the Window2D.
      *
-     * @return    The numRows value
+     * @return    The num rows
      */
     public int getNumRows() {
         return window.numRows;
@@ -239,43 +283,38 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  used to initialize the number of columns
+     *  Returns number of cols in the Window2D.
      *
-     * @return    The numCols value
+     * @return    The num cols
      */
-    public int getNumCols() {
-        return window.numCols;
-    }
+    public int getNumCols() { return window.numCols; }
 
 
     /**
-     *  used to initialize the number of rows
+     *  Returns the last row index on the Window2D
      *
      * @return    The numRows value
      */
-    public int getEndRow() {
-        return window.endRow;
-    }
+    public int getEndRow() { return window.endRow; }
 
 
     /**
-     *  used to initialize the number of columns
+     *  Returns the last col index on the Window2D
      *
      * @return    The numCols value
      */
-    public int getEndCol() {
-        return window.endCol;
-    }
+    public int getEndCol() { return window.endCol; }
 
 
     /**
-     *  Description of the Method
+     *  Returns the object stored in the Container2D at the subset's
+     *  window coordinates. These are translated to the real coordinates
+     *  using the Window2D
      *
-     * @param  row                                 Description of the Parameter
-     * @param  column                              Description of the Parameter
-     * @return                                     Description of the Return
-     *      Value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  row                                 x-coord
+     * @param  column                              y-coord
+     * @return                                     The java objectg stored in the container.
+     * @exception  ArrayIndexOutOfBoundsException  If the indices value are invalid for the container2D
      */
     public Object get( int row, int column ) throws ArrayIndexOutOfBoundsException {
 
@@ -299,11 +338,12 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  iterate over all columns in one row of the surface
+     *  Iterate over all columns values in one row of the surface. Note this only
+     *  returns the column values in this subset window, not the full container.
      *
-     * @param  row                                 Description of the Parameter
+     * @param  row                                 Row to get all column points from
      * @return                                     The columnIterator value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @exception  ArrayIndexOutOfBoundsException  If the x-coord index value are invalid for the container2D
      */
     public ListIterator getColumnIterator( int row ) throws ArrayIndexOutOfBoundsException {
 
@@ -321,11 +361,12 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  iterate over all rows in one column in the surface
+     *  Iterate over all row values in one column of the surface. Note this only
+     *  returns the row values in this subset window, not the full container.
      *
-     * @param  column                              Description of the Parameter
+     * @param  row                                 Column to get all row points from
      * @return                                     The rowIterator value
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @exception  ArrayIndexOutOfBoundsException  If the y-coord index value are invalid for the container2D
      */
     public ListIterator getRowIterator( int column ) throws ArrayIndexOutOfBoundsException {
 
@@ -341,7 +382,11 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  iterate over all points, all rows per column, iterating over all columns
+     *  Iterate over all cells in the subset window. This iterator starts with the first
+     *  column and returns all row elements, then moves to the next column, and so on.<p>
+     *
+     * Note: This iterates only over the subset indices, not over the full container.
+     * The iterator implementation is contained as an inner class in this clas file.
      *
      * @return    The allByColumnsIterator value
      */
@@ -353,7 +398,11 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  iterate over all points, all columns per row, iterating over all rows
+     *  Iterate over all cells in the subset window. This iterator starts with the first
+     *  row and returns all column elements, then moves to the next row, and so on.<p>
+     *
+     * Note: This iterates only over the subset indices, not over the full container.
+     * The iterator implementation is contained as an inner class in this clas file.
      *
      * @return    The allByRowsIterator value
      */
@@ -365,10 +414,13 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Description of the Method
+     *  Shifts the Window2D "window" into the main Container2D by the
+     *  specified number of index points. This allows the window to be moved
+     *  over various points of interest without construction of a brand
+     *  new object.
      *
-     * @param  delta                               Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  delta                               Number of points to shift the Window2D along the x-axis
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if the shift moves the window outside the main container boundaries.
      */
     public void shiftRows( int delta ) throws ArrayIndexOutOfBoundsException {
 
@@ -386,7 +438,7 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Description of the Method
+     *  Start of a transaction - simply clones the Window2D into the old Window
      */
     protected void initTransaction() {
         oldWindow = ( Window2D ) window.clone();
@@ -394,7 +446,8 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Description of the Method
+     *  Copies the oldWindow back into the Window2D, restoring the window
+     *  to it's repvious size.
      */
     protected void rollback() {
         window = oldWindow;
@@ -402,7 +455,8 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
     }
 
     /**
-     *  Description of the Method
+     *  Completes a transaction. All actions completed successfully so the
+     *  old window is deleted and the changes kept in the primary Window2D.
      */
     protected void commit() {
         oldWindow = null;
@@ -410,10 +464,13 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Description of the Method
+     *  Shifts the Window2D "window" into the main Container2D by the
+     *  specified number of index points. This allows the window to be moved
+     *  over various points of interest without construction of a brand
+     *  new object.
      *
-     * @param  delta                               Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Description of the Exception
+     * @param  delta                               Number of points to shift the Window2D along the y-axis
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if the shift moves the window outside the main container boundaries.
      */
     public void shiftCols( int delta ) throws ArrayIndexOutOfBoundsException {
 
@@ -432,7 +489,7 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Description of the Method
+     *  Returns the size of the window, numRows * numCols.
      *
      * @return    Description of the Return Value
      */
@@ -442,11 +499,11 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Description of the Method
+     *  Returns true if a non-null java object resides at the specified cell.
      *
-     * @param  row     Description of the Parameter
-     * @param  column  Description of the Parameter
-     * @return         Description of the Return Value
+     * @param  row     x-coord
+     * @param  column  y-coord
+     * @return         true or false if the object exits.
      */
     public boolean exist( int row, int column ) {
 

@@ -1,22 +1,15 @@
 package org.scec.data;
 
 /**
- *  <b>Title:</b> DataPoint2D<br>
- *  <b>Description:</b> Represents a 2 dimensional point in function space. Each
- *  coordinate is represented by a Double.<p>
+ *  <b>Title:</b> DataPoint2D<p>
+ *
+ *  <b>Description:</b> Represents a 2 dimensional point (x,y) in function space. Each
+ *  coordinate is represented by a double.<p>
  *
  *  The x value is the independent value, and the y value is the dependent
  *  value. Therefore this class is sorted on the x-value. Two DataPoint2D are
  *  equal if there x-values are equal, whatever the y value is. This will be
  *  useful in DiscretizedDFunctions.<p>
- *
- *  Note: This class needs to be enhanced to use Number instead of Double. Then
- *  the values can be a Byte, Double, Float, Integer, Long, or Short, i.e. any
- *  suibclass of Number.<p>
- *
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002
@@ -27,32 +20,25 @@ package org.scec.data;
 public class DataPoint2D implements Comparable {
 
 
-    /*
-     *  The name of this class, used for debug statements
-     */
+    /* The name of this class, used for debug statements */
     protected final static String C = "IntegerConstraint";
-    /**
-     *  Static boolean whether to print out debugging statements
-     */
+
+    /** Static boolean whether to print out debugging statements  */
     protected final static boolean D = false;
 
-    /**
-     *  X coordinate
-     */
+    /**  X coordinate value */
     private double x= Double.NaN;
 
-    /**
-     *  Y coordinate
-     */
+    /** Y coordinate value */
     private double y = Double.NaN;
 
 
 
     /**
-     *  Constructor sets point in x/y space
+     *  Constructor sets point data in x/y space
      *
-     * @param  x  Description of the Parameter
-     * @param  y  Description of the Parameter
+     * @param  x  x corrdinate value
+     * @param  y  y corrdinate value
      */
     public DataPoint2D( double x, double y ) {
         this.x = x;
@@ -60,28 +46,22 @@ public class DataPoint2D implements Comparable {
     }
 
 
-    /**
-     *  Set the X coordinate
-     *
-     * @param  newX  The new x value
-     */
-    public void setX( double newX ) {
-        x = newX;
-    }
+    /** Get the X coordinate */
+    public double getX() { return x; }
+
+    /** Set the X coordinate value. No validation checks are done on new value */
+    public void setX( double newX ) { x = newX; }
+
+    /** Get the Y coordinate */
+    public double getY() { return y; }
+
+    /** Set the Y coordinate. No validation checks are done on new value */
+    public void setY( double newY ) { y = newY; }
 
 
     /**
-     *  Set the Y coordinate
-     *
-     * @param  newY  The new y value
-     */
-    public void setY( double newY ) {
-        y = newY;
-    }
-
-
-    /**
-     *  Set both coordinates at once
+     *  Set both coordinates at once.
+     *  No validation checks are done on new values.
      *
      * @param  x  The x coordinate
      * @param  y  The y coordinate
@@ -93,7 +73,9 @@ public class DataPoint2D implements Comparable {
 
 
     /**
-     *  Set both coordinates at once
+     *  Set both coordinates at once from the passed in DataPoint2D.
+     *  In other words performs a copy. No validation checks are
+     *  done on new values.
      *
      * @param  point  Copies x and y value from this point
      */
@@ -103,29 +85,8 @@ public class DataPoint2D implements Comparable {
     }
 
 
-    /**
-     * @return    The x value
-     * @todo      Getters / Setters
-     */
-
-    /**
-     *  Get X coordinate
-     *
-     * @return    The x value
-     */
-    public double getX() {
-        return x;
-    }
 
 
-    /**
-     *  Get the Y coordinate
-     *
-     * @return    The y value
-     */
-    public double getY() {
-        return y;
-    }
 
 
 

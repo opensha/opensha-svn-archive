@@ -9,16 +9,16 @@ import org.scec.sha.surface.*;
 
 /**
  *  <b>Title:</b> Container2D<br>
- *  <b>Description:</b> Implementation class for a 2D grid. This class actually
+ *  <b>Description:</b> Default implementation class for a 2D grid. This class actually
  *  determines the storage mechanism and access to the data. This implementation
- *  doesn't allow the internal data structure to resize. Can make subclass to do
- *  this if needed in the future. The internal storage is a one dimensional
- *  array which is actually accessed by two coordinates x and y or row and
- *  column. The two dimensional indices are translated to a one dimensional by
- *  the index = the number of columns per row times row plus column. <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  doesn't allow the internal data structure to resize. Can design a subclass to do
+ *  this if needed in the future. <p>
  *
+ *  The internal storage is a one dimensional
+ *  array which is actually accessed by two coordinates x and y or row and
+ *  column. The two dimensional indices are translated to a one dimensional index by:<p>
+ *
+ *  index = (the number of columns per row * row) + column.
  *
  * @author     Steven W. Rock
  * @created    February 25, 2002
@@ -27,38 +27,29 @@ import org.scec.sha.surface.*;
 
 public class Container2D implements Container2DAPI, Serializable {
 
-    /**
-     *  Class name used for debbuging
-     */
+    /** Class name used for debbuging */
     protected final static String C = "Container2D";
-    /**
-     *  if true print out debugging statements
-     */
+
+    /** if true print out debugging statements */
     protected final static boolean D = false;
 
-    /**
-     *  Array of data elements - 2D flattened into 1D Array
-     */
+    /** Array of data elements - 2D flattened into 1D Array */
     protected Object[] data;
 
-    /**
-     * The number of rows in this two dimensional matrix.
-     */
+    /** The number of rows in this two dimensional matrix. */
     protected int numRows = 0;
-    /**
-     * The number of columns in this two dimensional matrix.
-     */
+
+    /** The number of columns in this two dimensional matrix. */
     protected int numCols = 0;
 
-    /**
-     *  The number of rows times the number of columns.
-     */
+    /** The number of rows times the number of columns. */
     protected long size = 0L;
 
 
 
     /**
-     *  Constructor for the Container2D object
+     *  No Argument Constructor for the Container2D object. Set's
+     *  a default row and column size to = 100.
      */
     public Container2D() {
 
@@ -72,12 +63,14 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Constructor for the Container2D object
+     *  Constructor for the Container2D object that allows setting the grid
+     *  dimensions of row and column.
      *
-     * @param  numRows                         Description of the Parameter
-     * @param  numCols                         Description of the Parameter
-     * @exception  InvalidArrayShapeException  Description of the Exception
-     * @exception  OutOfMemoryError            Description of the Exception
+     * @param  numRows                         Number of rows for the grid
+     * @param  numCols                         Number of columsn for the grid
+     * @exception  InvalidArrayShapeException  Thrown if rows or columns < 0
+     * @exception  OutOfMemoryError            Thrown if rows * cols > maximum long value
+     * allowed by java JVM.
      */
     public Container2D( int numRows, int numCols ) throws InvalidArrayShapeException, OutOfMemoryError {
 
@@ -157,7 +150,8 @@ public class Container2D implements Container2DAPI, Serializable {
 
     /**
      *  Returns an ordered list iterator over all columns associated with one
-     *  row. This returns all the objects in that row.
+     *  row. This returns all the objects in that row. The results are returned
+     *  from lowest index to highest along the interating row.
      *
      * @param  row                                 The x coordinate of the cell.
      * @return                                     The columnIterator value
@@ -178,7 +172,8 @@ public class Container2D implements Container2DAPI, Serializable {
 
     /**
      *  Returns an ordered list iterator over all rows associated with one
-     *  column. This returns all the objects in that column.
+     *  column. This returns all the objects in that column. The results are returned
+     *  from lowest index to highest along the interating column.
      *
      * @param  column                              The y coordinate of the cell.
      * @return                                     The rowIterator value
@@ -227,12 +222,12 @@ public class Container2D implements Container2DAPI, Serializable {
 
     /**
      *  Checks that the specified row and column are valid indices into the 2D
-     *  array.
+     *  array. Internal helper function used only by this class.
      *
      * @param  preffix                             Debugging string
-     * @param  row                                 Description of the Parameter
-     * @param  column                              Description of the Parameter
-     * @exception  ArrayIndexOutOfBoundsException  Thrown if invalid indices
+     * @param  row                                 check row value less that max row index
+     * @param  column                              check col value less that max col index
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if row or column < 0 or > max row or max col.
      */
     protected void checkBounds( int row, int column, String preffix )
              throws ArrayIndexOutOfBoundsException {
@@ -254,7 +249,10 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  deletes all data
+     *  Removes all object reference stored in this container and
+     *  resets all grid metics back to 0. Doesn't delete the actual
+     *  objects, only removes the pointer references stored at each
+     *  grid cell location.
      */
     public void clear() {
 
@@ -267,7 +265,9 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  set's an object in the 2D grid
+     *  Removes the object's reference stored in the grid cell.
+     *  Doesn't delete the actual object, only removes the pointer
+     *  reference.
      *
      * @param  row     The x coordinate of the cell.
      * @param  column  The y coordinate of the cell.
@@ -304,7 +304,8 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  returns the number of cells in this two dimensional matrix.
+     *  returns the number of cells in this two dimensional matrix, i.e.
+     *  numwRows * numCols.
      *
      * @return    The number of cells.
      */
@@ -328,9 +329,9 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  Converts our internal data structure to the Java 2 dimensional array
+     *  Converts our internal data structure to the Java 2 dimensional array.
      *
-     * @return    Description of the Return Value
+     * @return    2D Object array - Object[][]
      */
     public Object[][] toJava2D() {
 
@@ -345,68 +346,11 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
 
-    /*
-     *  used to initialize the number of rows
-     *  public void setNumRows(int numRows) throws NotResizableException, InvalidArrayShapeException{
-     *  String S = C + ": setNumRows(): ";
-     *  if(!resizable) throw new NotResizableException("This Container2D has been flagged not resizable. Unable to complete resize operation.");
-     *  if (numRows <= 0) throw new InvalidArrayShapeException(S + "Number of rows cannot be negative or zero");
-     *  if (numRows <= this.numRows) throw new InvalidArrayShapeException(S + "New number of rows must be greater than currently");
-     *  / Copy the data here
-     *  Object[] d = new Object[numRows * this.numCols];
-     *  for (int i = 0; i < this.numRows; i++) {
-     *  for (int j = 0; j < this.numCols; j++)
-     *  d[i * this.numCols + j] = data[i * this.numCols + j];
-     *  }
-     *  this.numRows = numRows;
-     *  size = (long) this.numRows * (long) this.numCols;
-     *  data = d;
-     *  }
-     */
-    /*
-     *  used to initialize the number of columns
-     *  public void setNumCols(int numCols) throws NotResizableException, InvalidArrayShapeException{
-     *  String S = C + ": setNumCols(): ";
-     *  if(!resizable) throw new NotResizableException("This Container2D has been flagged not resizable. Unable to complete resize operation.");
-     *  if (numCols <= 0) throw new InvalidArrayShapeException(S + "Number of columns cannot be negative or zero");
-     *  if (numCols <= this.numCols) throw new InvalidArrayShapeException(S + "New number of columns must be greater than currently");
-     *  / Copy the data here
-     *  Object[] d = new Object[this.numRows * numCols];
-     *  for (int i = 0; i < this.numRows; i++) {
-     *  for (int j = 0; j < this.numCols; j++)
-     *  d[i * this.numCols + j] = data[i * this.numCols + j];
-     *  }
-     *  this.numCols = numCols;
-     *  size = (long) this.numRows * (long) this.numCols;
-     *  data = d;
-     *  }
-     */
-    /*
-     *  used to grow the grid as needed, may be an expensive operation
-     *  if arrays are used. Use 0 for either row or column to indicate
-     *  not to resize that dimension
-     *  / public boolean isResizable(){ return resizable; }
-     *  public void resize(int numRows, int numCols) throws NotResizableException, InvalidArrayShapeException{
-     *  String S = C + ": resize(): ";
-     *  if(!resizable) throw new NotResizableException("This Container2D has been flagged not resizable. Unable to complete resize operation.");
-     *  if (numRows <= 0) throw new InvalidArrayShapeException(S + "Number of rows cannot be negative or zero");
-     *  if (numRows <= this.numRows) throw new InvalidArrayShapeException(S + "New number of rows must be greater than currently");
-     *  if (numCols <= 0) throw new InvalidArrayShapeException(S + "Number of columns cannot be negative or zero");
-     *  if (numCols <= this.numCols) throw new InvalidArrayShapeException(S + "New number of columns must be greater than currently");
-     *  / Copy the data here
-     *  Object[] d = new Object[numRows * numCols];
-     *  for (int i = 0; i < this.numRows; i++) {
-     *  for (int j = 0; j < this.numCols; j++)
-     *  d[i * this.numCols + j] = data[i * this.numCols + j];
-     *  }
-     *  this.numRows = numRows;
-     *  this.numCols = numCols;
-     *  size = (long) this.numRows * (long) this.numCols;
-     *  data = d;
-     *  }
-     */
+
     /**
-     *  The main program for the Container2D class
+     *  The main program for the Container2D class. Simple tester application
+     *  that verifies the container class is working as expected. Not a unit
+     *  test case harness, just simple and quick user verification by eye,
      *
      * @param  args  The command line arguments
      */
@@ -514,21 +458,24 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  <b>Title:</b> Container2DListIterator<br>
+     *  <b>Title:</b> Container2DListIterator<p>
+     *
      *  <b>Description:</b> Base abstract class for all iterators. Stores the
      *  indexes, etc, and implements nextIndex() and hasNext(). All unsupported
-     *  methods throws Exceptions. <br>
+     *  methods throws Exceptions. <p>
+     *
      *  This is how iterators should be handled, i.e. the class should be an
-     *  inner class so that the outside world only ever sees a ListIterator.
-     *  <br>
+     *  inner class so that the outside world only ever sees a ListIterator.<p>
+     *
      *  The iterator shouldn't be in a seperate class file because it needs
      *  intimate knowledge to the data structure (in this case a java array)
      *  which is usually hidden to the outside world. By making it an inner
      *  class, the iterator has full access to the private variables of the data
-     *  class.<br>
-     *  <b>Copyright:</b> Copyright (c) 2001<br>
-     *  <b>Company:</b> <br>
+     *  class.<p>
      *
+     * This implementation allows read only access to the collection as iterating
+     * over it, in other words, several write functions are not implemented ere,
+     * just throws UnsupportedException.
      *
      * @author     Steven W. Rock
      * @created    February 25, 2002
@@ -537,75 +484,58 @@ public class Container2D implements Container2DAPI, Serializable {
 
     abstract class Container2DListIterator implements ListIterator {
 
-        /**
-         *  Description of the Field
-         */
+        /** Current index into the collection */
         int cursor = 0;
-        /**
-         *  Description of the Field
-         */
+
+        /**  */
         int lastRet = -1;
-        /**
-         *  Description of the Field
-         */
+
+        /**  */
         int lastIndex = 0;
 
 
         /**
-         *  returns full column to iterate over, pinned to one row
+         *  No arg constructgor - returns full column to iterate over, pinned to one row
          */
         public Container2DListIterator() { }
 
 
         /**
-         *  Description of the Method
+         *  Not implemented, but part of the ListIterator API
          *
-         * @param  obj                                Description of the
-         *      Parameter
-         * @exception  UnsupportedOperationException  Description of the
-         *      Exception
+         * @param  obj                                New value at current iteration index
+         * @exception  UnsupportedOperationException  Funciton not currently implemented .
          */
         public void set( Object obj ) throws UnsupportedOperationException {
             throw new UnsupportedOperationException( "set(Object obj) Not implemented." );
         }
 
 
-        /**
-         *  Description of the Method
-         *
-         * @return    Description of the Return Value
-         */
-        public boolean hasNext() {
-            return cursor != lastIndex;
-        }
+        /** Returns true if there are more elements in this container, else returns false. */
+        public boolean hasNext() { return cursor != lastIndex; }
 
 
-        /**
-         *  Description of the Method
-         *
-         * @return    Description of the Return Value
-         */
+        /** Returns the index value of the next iteration. */
         public int nextIndex() {
             return cursor;
         }
 
 
         /**
-         *  Description of the Method
+         *  Returns the next object from this collection container.
          *
-         * @return                             Description of the Return Value
-         * @exception  NoSuchElementException  Description of the Exception
+         * @return                             The object stored at the next index
+         * @exception  NoSuchElementException  No more elements available, at end of list.
          */
         public abstract Object next() throws NoSuchElementException;
 
 
         /**
-         *  Description of the Method
+         *  Rolls back the iterator to the previous index, returning the previous object
+         *  stored at that index.
          *
-         * @return                                    Description of the Return
-         *      Value
-         * @exception  UnsupportedOperationException  Description of the
-         *      Exception
+         * @return                                    The object stored at the previous index
+         * @exception  UnsupportedOperationException  Function currently not implemented.
          */
         public Object previous() throws UnsupportedOperationException {
             throw new UnsupportedOperationException( "hasPrevious() Not implemented." );
@@ -613,12 +543,9 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
         /**
-         *  Description of the Method
+         * Returns the index value of the next iteration.
          *
-         * @return                                    Description of the Return
-         *      Value
-         * @exception  UnsupportedOperationException  Description of the
-         *      Exception
+         * @exception  UnsupportedOperationException  Function currently not implemented.
          */
         public int previousIndex() throws UnsupportedOperationException {
             throw new UnsupportedOperationException( "hasPrevious() Not implemented." );
@@ -626,12 +553,10 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
         /**
-         *  Description of the Method
+         *  Checks if not at begining of iteration.
          *
-         * @return                                    Description of the Return
-         *      Value
-         * @exception  UnsupportedOperationException  Description of the
-         *      Exception
+         * @return                                    True if previous, false otherwise.
+         * @exception  UnsupportedOperationException  Function currently not implemented.
          */
         public boolean hasPrevious() throws UnsupportedOperationException {
             throw new UnsupportedOperationException( "hasPrevious() Not implemented." );
@@ -639,12 +564,10 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
         /**
-         *  Description of the Method
+         *  Allows updating object in the container as iteration over elements
          *
-         * @param  obj                                Description of the
-         *      Parameter
-         * @exception  UnsupportedOperationException  Description of the
-         *      Exception
+         * @param  obj                                New value at iteration point.
+         * @exception  UnsupportedOperationException  Function currently not implemented.
          */
         public void add( Object obj ) throws UnsupportedOperationException {
             throw new UnsupportedOperationException( "add(Object obj) Not implemented." );
@@ -652,10 +575,9 @@ public class Container2D implements Container2DAPI, Serializable {
 
 
         /**
-         *  Description of the Method
+         *  Deletes the next object in the iteration
          *
-         * @exception  UnsupportedOperationException  Description of the
-         *      Exception
+         * @exception  UnsupportedOperationException  Function currently not implemented.
          */
         public void remove() throws UnsupportedOperationException {
             throw new UnsupportedOperationException( "remove() Not implemented." );
@@ -912,3 +834,65 @@ public class Container2D implements Container2DAPI, Serializable {
     }
 
 }
+
+
+/*
+     *  used to initialize the number of rows
+     *  public void setNumRows(int numRows) throws NotResizableException, InvalidArrayShapeException{
+     *  String S = C + ": setNumRows(): ";
+     *  if(!resizable) throw new NotResizableException("This Container2D has been flagged not resizable. Unable to complete resize operation.");
+     *  if (numRows <= 0) throw new InvalidArrayShapeException(S + "Number of rows cannot be negative or zero");
+     *  if (numRows <= this.numRows) throw new InvalidArrayShapeException(S + "New number of rows must be greater than currently");
+     *  / Copy the data here
+     *  Object[] d = new Object[numRows * this.numCols];
+     *  for (int i = 0; i < this.numRows; i++) {
+     *  for (int j = 0; j < this.numCols; j++)
+     *  d[i * this.numCols + j] = data[i * this.numCols + j];
+     *  }
+     *  this.numRows = numRows;
+     *  size = (long) this.numRows * (long) this.numCols;
+     *  data = d;
+     *  }
+     */
+    /*
+     *  used to initialize the number of columns
+     *  public void setNumCols(int numCols) throws NotResizableException, InvalidArrayShapeException{
+     *  String S = C + ": setNumCols(): ";
+     *  if(!resizable) throw new NotResizableException("This Container2D has been flagged not resizable. Unable to complete resize operation.");
+     *  if (numCols <= 0) throw new InvalidArrayShapeException(S + "Number of columns cannot be negative or zero");
+     *  if (numCols <= this.numCols) throw new InvalidArrayShapeException(S + "New number of columns must be greater than currently");
+     *  / Copy the data here
+     *  Object[] d = new Object[this.numRows * numCols];
+     *  for (int i = 0; i < this.numRows; i++) {
+     *  for (int j = 0; j < this.numCols; j++)
+     *  d[i * this.numCols + j] = data[i * this.numCols + j];
+     *  }
+     *  this.numCols = numCols;
+     *  size = (long) this.numRows * (long) this.numCols;
+     *  data = d;
+     *  }
+     */
+    /*
+     *  used to grow the grid as needed, may be an expensive operation
+     *  if arrays are used. Use 0 for either row or column to indicate
+     *  not to resize that dimension
+     *  / public boolean isResizable(){ return resizable; }
+     *  public void resize(int numRows, int numCols) throws NotResizableException, InvalidArrayShapeException{
+     *  String S = C + ": resize(): ";
+     *  if(!resizable) throw new NotResizableException("This Container2D has been flagged not resizable. Unable to complete resize operation.");
+     *  if (numRows <= 0) throw new InvalidArrayShapeException(S + "Number of rows cannot be negative or zero");
+     *  if (numRows <= this.numRows) throw new InvalidArrayShapeException(S + "New number of rows must be greater than currently");
+     *  if (numCols <= 0) throw new InvalidArrayShapeException(S + "Number of columns cannot be negative or zero");
+     *  if (numCols <= this.numCols) throw new InvalidArrayShapeException(S + "New number of columns must be greater than currently");
+     *  / Copy the data here
+     *  Object[] d = new Object[numRows * numCols];
+     *  for (int i = 0; i < this.numRows; i++) {
+     *  for (int j = 0; j < this.numCols; j++)
+     *  d[i * this.numCols + j] = data[i * this.numCols + j];
+     *  }
+     *  this.numRows = numRows;
+     *  this.numCols = numCols;
+     *  size = (long) this.numRows * (long) this.numCols;
+     *  data = d;
+     *  }
+     */
