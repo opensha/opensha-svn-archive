@@ -226,7 +226,9 @@ public class SiteTranslator implements java.io.Serializable{
         else if (vs30 == 464)  tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_C);
         else if (vs30 == 724)  tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_BC);
         else if (vs30 == 686)  tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_B);
-        else tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_B);
+        else {
+          throw new RuntimeException(" That Vs30 is not allowed for "+ShakeMap_2003_AttenRel.WILLS_SITE_NAME);
+        }
       }
 
       else {

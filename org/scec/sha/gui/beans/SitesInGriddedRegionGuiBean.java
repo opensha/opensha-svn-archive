@@ -53,7 +53,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   private static final double MAX_CVM_LAT = 36.0;
   private static final double MIN_CVM_LON = -121.0;
   private static final double MAX_CVM_LON = -114.0;
-  private static final double VS30_DEFAULT_VALUE = 200.00;
+  private static final double VS30_DEFAULT_VALUE = 301;
 
   //Vs30 vector: the values that return from the CVM
   private Vector vs30Vector;
