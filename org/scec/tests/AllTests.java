@@ -16,11 +16,15 @@ public class AllTests extends TestCase {
 
   public static Test suite() {
     TestSuite suite = new TestSuite();
-    // Example of how to add an individual test class into this method
-    // suite.addTest(new TestSuite(org.scec.util.tests.FaultUtilsTests.class));
+   
     suite.addTest(org.scec.util.tests.UtilSuite.suite());
     suite.addTest(org.scec.data.tests.DataSuite.suite());
     suite.addTest(org.scec.data.region.tests.RegionSuite.suite());
+    suite.addTest(new TestSuite(org.scec.sha.earthquake.rupForecastImpl.step.tests.STEPTests.class));
     return suite;
+    
+    // Example of how to add a testSuite and an individual test class into this method
+    // suite.addTest(org.scec.util.tests.UtilSuite.suite());
+    // suite.addTest(new TestSuite(org.scec.util.tests.FaultUtilsTests.class));
   }
 }
