@@ -16,6 +16,7 @@ import org.scec.param.WarningDoubleParameter;
 import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.sha.earthquake.*;
+import org.scec.sha.gui.infoTools.ConnectToCVM;
 import org.scec.util.*;
 
 
@@ -46,12 +47,12 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private static final String STEP_ADDON_FILE_SUFFIX = "_addon.txt";
   private static final String STEP_COMBINED_FILE_SUFFIX = "_both.txt";
   private static final String METADATA_FILE_SUFFIX = "_metadata.dat";
-  private static final String VS30_FILE_NAME = "vs30.txt";
+  private static final String WILLS_SITE_CLASS_FILE_NAME = "wills_class.txt";
   private static final double IML_VALUE = Math.log(0.126);
   private ArrayList latVals = new ArrayList();
   private ArrayList lonVals = new ArrayList();
-  //vector to store the vs30 values
-  private ArrayList vs30Vals = new ArrayList();
+  //list to store the Wills Site Class Value
+  private ArrayList willSiteClassVals = new ArrayList();
   DecimalFormat format = new DecimalFormat("0.00##");
 
   public STEP_DataSetGenerator() {
@@ -65,15 +66,15 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     }
 
     // make the imr
-    ShakeMap_2003_AttenRel imr = new ShakeMap_2003_AttenRel(this);
+    ShakeMap_2003_AttenRel attenRel = new ShakeMap_2003_AttenRel(this);
     // set the im as PGA
-    imr.setIntensityMeasure(imr.PGA_NAME);
+    attenRel.setIntensityMeasure(attenRel.PGA_NAME);
     // set the vs30
-    imr.getParameter(imr.VS30_NAME).setValue(VS_30);
+    attenRel.getParameter(attenRel.WILLS_SITE_NAME).setValue(attenRel.WILLS_SITE_D);
     //make the Gridded Region object
     SitesInGriddedRegion region = new SitesInGriddedRegion(MIN_LAT, MAX_LAT, MIN_LON,
         MAX_LON, GRID_SPACING);
-    region.addSiteParams(imr.getSiteParamsIterator());
+    region.addSiteParams(attenRel.getSiteParamsIterator());
 
     int numSites = region.getNumGridLocs();
 
@@ -92,20 +93,24 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     }
 
     //generating the file for the VS30 Values if it already not exists
-    File vs30File = new File(this.STEP_DIR+this.VS30_FILE_NAME);
+    File vs30File = new File(this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
     //if already exists then just read the file and get the vs30 values
     if(vs30File.exists())
-      getValForLatLon(this.vs30Vals,this.STEP_DIR+this.VS30_FILE_NAME);
+      getValForLatLon(this.willSiteClassVals,this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
     //if file does not already exists then create it.
     else{
-      vs30Vals = getVS30FromCVM(new Double(MIN_LON),new Double(MAX_LON),new Double(MIN_LAT),
-                                new Double(MAX_LAT),new Double(GRID_SPACING));
-      this.createFile(vs30Vals,this.STEP_DIR+this.VS30_FILE_NAME);
+      try{
+        willSiteClassVals = ConnectToCVM.getWillsSiteTypeFromCVM(MIN_LON,MAX_LON,MIN_LAT,MAX_LAT,GRID_SPACING);
+      }catch(Exception e){
+        System.out.println("could not connect with wills site class servlet");
+        e.printStackTrace();
+      }
+      this.createFile(willSiteClassVals,this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
     }
     //MetaData String
     String metadata = "IMR Info: \n"+
-                      "\t"+"Name: "+imr.getName()+"\n"+
-                      "\t"+"Intensity Measure Type: "+ imr.getIntensityMeasure().getName()+"\n"+
+                      "\t"+"Name: "+attenRel.getName()+"\n"+
+                      "\t"+"Intensity Measure Type: "+ attenRel.getIntensityMeasure().getName()+"\n"+
                       "\n\n"+
                       "Region Info: \n"+
                       "\t"+"MinLat: "+region.getMinLat()+"\n"+
@@ -113,7 +118,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
                       "\t"+"MinLon: "+region.getMinLon()+"\n"+
                       "\t"+"MaxLon: "+region.getMaxLon()+"\n"+
                       "\t"+"GridSpacing: "+region.getGridSpacing()+"\n"+
-                      "\t"+"Site Params: "+imr.getParameter(imr.VS30_NAME).getName()+ " = "+imr.getParameter(imr.VS30_NAME).getValue().toString()+"\n"+
+                      "\t"+"Site Params: "+attenRel.getParameter(attenRel.WILLS_SITE_NAME).getName()+ " = "+attenRel.getParameter(attenRel.WILLS_SITE_NAME).getValue().toString()+"\n"+
                       "\n\n"+
                       "Forecast Info: \n"+
                       "\t"+"Name: "+forecast.getName()+"\n";
@@ -131,7 +136,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       getValForLatLon(backSiesProbVals,this.STEP_DIR+this.STEP_BACKGROUND_FILE);
     //if the backGround file does not already exist then create it
     else{
-      backSiesProbVals = getProbVals(imr,region,(EqkRupForecast)forecast);
+      backSiesProbVals = getProbVals(attenRel,region,(EqkRupForecast)forecast);
       createFile(backSiesProbVals,this.STEP_DIR+this.STEP_BACKGROUND_FILE);
       //creting the metadata file for the backGround
       String backFile = this.STEP_BACKGROUND_FILE.substring(0,STEP_BACKGROUND_FILE.indexOf("."));
@@ -157,7 +162,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       getValForLatLon(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
     //if the file does not exists then create it.
     else{
-      stepAddonProbVals = getProbVals(imr,region,(EqkRupForecast)forecast);
+      stepAddonProbVals = getProbVals(attenRel,region,(EqkRupForecast)forecast);
       createFile(stepAddonProbVals,this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
       //creating the metadata file for the STEP addon probabilities
       String stepFile = this.STEP_ADDON_FILE_SUFFIX.substring(0,STEP_ADDON_FILE_SUFFIX.indexOf("."));
@@ -271,15 +276,12 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       double hazVal =1;
       double condProb =0;
       imr.setSite(region.getSite(j));
-      //adding the VS30 value for each site
-      double vs30 = ((Double)vs30Vals.get(j)).doubleValue();
-      //only add the vs30 value if it not a Double.NaN otherwise the default value which is 760m/s .
-      if(!(Double.isNaN(vs30)))
-        ((WarningDoubleParameter)imr.getSite().getParameter(imr.VS30_NAME)).setValueIgnoreWarning(vs30Vals.get(j));
-      //if Vs30 is in water then it's value is zero, so we take a small value for it as 301.00
-      if(vs30 == 0) //make default D for Wills class for ShakeMap AttenRel.
-        ((WarningDoubleParameter)imr.getSite().getParameter(imr.VS30_NAME)).setValueIgnoreWarning(new Double(301.00));
-      //System.out.println("Vs30 Value:"+((Double)imr.getParameter(imr.VS30_NAME).getValue()).doubleValue());
+      //adding the wills site class value for each site
+      String willSiteClass = (String)this.willSiteClassVals.get(j);
+      //only add the wills value if we have a value available for that site else leave default "D"
+      if(!willSiteClass.equals("NA"))
+        imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(willSiteClass);
+
       // loop over sources
       for(i=0;i < numSources ;i++) {
 
@@ -364,56 +366,6 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     }
     return null;
   }
-
-
-  /**
-   * Gets the VS30 from the CVM servlet
-   */
-  private ArrayList getVS30FromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax,
-                              Double gridSpacing) {
-
-    // if we want to the paramter from the servlet
-    try{
-
-      // make connection with servlet
-      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/Vs30BasinDepthCalcServlet");
-      URLConnection servletConnection = cvmServlet.openConnection();
-
-      servletConnection.setDoOutput(true);
-
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
-
-      // send the student object to the servlet using serialization
-      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-
-      outputToServlet.writeObject("Vs30");
-      outputToServlet.writeObject(lonMin);
-      outputToServlet.writeObject(lonMax);
-      outputToServlet.writeObject(latMin);
-      outputToServlet.writeObject(latMax);
-      outputToServlet.writeObject(gridSpacing);
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // now read the connection again to get the vs30 as sent by the servlet
-      ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-      //vectors of lat and lon for the Vs30
-      ArrayList vs30Vector=(ArrayList)ois.readObject();
-      ois.close();
-      return vs30Vector;
-    }catch (Exception exception) {
-      System.out.println("Exception in connection with servlet:" +exception);
-    }
-    return null;
-  }
-
-
 
   /**
    *  Function that must be implemented by all Listeners for
