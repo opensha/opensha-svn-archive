@@ -258,5 +258,11 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      */
     public double getFirstInterpolatedX_inLogXLogYDomain(double y);
 
+    /**
+     * prints out the state of the list, such as number of points,
+     * the value of each point, etc.
+     * @returns value of each point in the function in String format
+     */
+    public String getMetadataString();
 
 }

@@ -534,14 +534,28 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
         b.append("X, Y\n");
         Iterator it = getPointsIterator();
-        while( it.hasNext() ){
-
-            DataPoint2D point = (DataPoint2D)it.next();
-            b.append(point.getX() + ", " + point.getY()+ '\n');
-        }
-
+        b.append(getMetadataString()+ '\n');
         return b.toString();
 
+    }
+
+
+    /**
+      *
+      * @returns value of each point in the function in String format
+      */
+     public String getMetadataString(){
+       StringBuffer b = new StringBuffer();
+       Iterator it2 = this.getPointsIterator();
+
+       while(it2.hasNext()){
+
+         DataPoint2D point = (DataPoint2D)it2.next();
+         double x = point.getX();
+         double y = point.getY();
+         b.append((float) x + " , " + (float) y + '\n');
+       }
+       return b.toString();
     }
 
     /**

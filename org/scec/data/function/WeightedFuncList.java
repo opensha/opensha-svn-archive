@@ -100,13 +100,18 @@ public class WeightedFuncList {
    * this function sets the info in the Discretized Weighted Function List
    */
   private void setInfoForWeightedFunctionList(){
-    String funcListInfo = "Total number of weighted function list are: "+functionList.size()+
-                          " with following relative weights: \n";
+    String funcListInfo = functionList.size()+
+                          " functions with relative weights: \n";
     for(int i=0;i<relativeWts.size();++i)
       funcListInfo +=(Double)relativeWts.get(i)+", ";
 
     funcListInfo = funcListInfo.substring(0,funcListInfo.length()-2)+"\n";
     functionList.setInfo(funcListInfo);
+    int size = functionList.size();
+    //setting the info for each function in the list
+    //for(int i=0;i<size;++i)
+      //functionList.get(i).setInfo("Dataset-"+(i+1)+" of "+size+"  with relative wt: "+
+        //                          (Double)relativeWts.get(i));
   }
 
   /**
@@ -207,15 +212,8 @@ public class WeightedFuncList {
       double fraction = ((Double)list.get(i)).doubleValue();
       fractileList.add(fractileCalc.getFractile(fraction));
     }
-
-    //creating and setting the info for the fractileList
-    String fractileInfo = "Total Number of fractile calculated: "+fractileList.size()+" for "+
-                            "following fractions: \n";
-    for(int i=0;i<fractionList.size();++i)
-      fractileInfo +=(Double)fractionList.get(i)+", ";
-
-    fractileInfo = fractileInfo.substring(0,fractileInfo.length()-2)+"\n";
-    fractileList.setInfo(fractileInfo);
+    //setting the fractiles info.
+    setFractilesInfo();
   }
 
 
@@ -349,4 +347,47 @@ public class WeightedFuncList {
     return info;
   }
 
+  /**
+   * Sets the metadata for fractiles in the Weighted function list
+   */
+  private void setFractilesInfo(){
+    //creating and setting the info for the fractileList
+    String fractileInfo = "Fractiles Calculated: \n";
+    for(int i=0;i<fractionList.size();++i)
+      fractileInfo +=(Double)fractionList.get(i)+", ";
+
+    fractileInfo = fractileInfo.substring(0,fractileInfo.length()-2)+"\n";
+    fractileList.setInfo(fractileInfo);
+
+    int size = fractileList.size();
+    //setting the info for each function in the list
+   // for(int i=0;i<size;++i)
+     // fractileList.get(i).setInfo("Fractile: "+(Double)fractionList.get(i));
+  }
+
+  /**
+   * Gets the metadata for fractiles in the Weighted function list
+   * @return
+   */
+  public String getFractileInfo(){
+    return fractileList.getInfo();
+  }
+
+
+  /**
+   *
+   * @returns the info about number of functions in
+   * weighted function list and their weights.
+   */
+  public String getFunctionTraceInfo(){
+    return functionList.getInfo();
+  }
+
+  /**
+   *
+   * @returns the info about the mean function in weighted function list.
+   */
+  public String getMeanFunctionInfo(){
+    return meanFunction.getInfo();
+  }
 }

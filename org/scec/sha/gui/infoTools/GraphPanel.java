@@ -274,42 +274,161 @@ public class GraphPanel extends JPanel {
        * Curves. So now curves and metadata will be displayed in the same color.
        */
       doc.remove(0,doc.getLength());
-      //keeps track of function number
-      int count =0;
-      for(int i=0,j=0;i<numOfColors;++i,++j){
-          if(j==legendColor.length)
-            j=0;
-          String name = totalProbFuncs.get(i).getName();
-          String functionInfo = totalProbFuncs.get(i).getInfo();
-          if(functionInfo !=null && !functionInfo.trim().equals("")){
+      //total number of elements in the list containing individual functions and
+      //weighted function list.
+      int totalNumofFunctions = funcList.size();
+      //getting the metadata associated with each function in the list
+      for(int i=0,j=0;i<totalNumofFunctions;++i){
+
+        //checking if element in the list is weighted function list object
+        Object obj = funcList.get(i);
+        if(obj instanceof WeightedFuncListforPlotting){
+          //getting the metadata for weighted functionlist
+          WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
+          //checking if individual curves need to be plotted
+          if(weightedList.areIndividualCurvesToPlot()){
+            //getting the metadata for each individual curves and creating the legend string
+            String listInfo = weightedList.getInfo()+"\n\n"+"(a)"+weightedList.getFunctionTraceInfo();
             String legend=null;
-            if(!functionInfo.startsWith("(")){ //if printing the legend for different individual curves
-              ++count;
-              legend = new String(count+")  "+name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
-                                  functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
-            }
-            else{ //if printing the legend info weighted functionlist with fractiles
-              legend = new String(SystemPropertiesUtils.getSystemLineSeparator()+
-                                  functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
-            }
+            //setting the font style for the legend
             setLegend =new SimpleAttributeSet();
             StyleConstants.setFontSize(setLegend,12);
+
+            legend = new String("DATASET #"+(i+1)+"\n\n"+
+                                listInfo+SystemPropertiesUtils.getSystemLineSeparator());
+
+            StyleConstants.setForeground(setLegend,legendColor[j]);
+            doc.insertString(doc.getLength(),legend,setLegend);
+            j=j+weightedList.getNumWeightedFunctions();
+          }
+          //checking if fractiles need to be plotted
+          if(weightedList.areFractilesToPlot()){
+
+            //getting the fractile info for the weighted function list and adding that to the legend
+            String fractileListInfo = "(b)"+weightedList.getFractileInfo();
+            String legend=null;
+            //setting the font style for the legend
+            setLegend =new SimpleAttributeSet();
+            StyleConstants.setFontSize(setLegend,12);
+            legend = new String(SystemPropertiesUtils.getSystemLineSeparator()+
+                                fractileListInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            StyleConstants.setForeground(setLegend,legendColor[j]);
+            doc.insertString(doc.getLength(),legend,setLegend);
+            j = j+weightedList.getNumFractileFunctions();
+          }
+          //checking if mean fractile need to be plotted
+          if(weightedList.isMeanToPlot()){
+            //getting the fractileinfo and showing it as legend
+            String meanInfo = "(c)"+weightedList.getMeanFunctionInfo();
+            String legend=null;
+            //setting the font style for the legend
+            setLegend =new SimpleAttributeSet();
+            StyleConstants.setFontSize(setLegend,12);
+            legend = new String(SystemPropertiesUtils.getSystemLineSeparator()+
+                                meanInfo+SystemPropertiesUtils.getSystemLineSeparator());
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
           }
         }
-      } catch (BadLocationException e) {
-        return;
+        else{ //if element in the list are individual function then get their info and show as legend
+          DiscretizedFuncAPI func = (DiscretizedFuncAPI)funcList.get(i);
+          String functionInfo = func.getInfo();
+          String name = func.getName();
+          String legend=null;
+          //setting the font style for the legend
+          setLegend =new SimpleAttributeSet();
+          StyleConstants.setFontSize(setLegend,12);
+          legend = new String("DATASET #"+(i+1)+"\n\n"+
+                              name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
+                              functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
+          StyleConstants.setForeground(setLegend,legendColor[j]);
+          doc.insertString(doc.getLength(),legend,setLegend);
+          ++j;
+        }
       }
-      graphOn=false;
+    } catch (BadLocationException e) {
+      return;
+    }
+    graphOn=false;
 
-      //Check to see if there is no log Error and only  xLog or yLog are selected
-      if(!logErrorFlag && !xLog)
-        xAxis1 = xAxis;
-      if(!logErrorFlag && !yLog)
-        yAxis1 = yAxis;
-      pointsTextArea.setText(totalProbFuncs.toString());
-       return ;
+    //Check to see if there is no log Error and only  xLog or yLog are selected
+    if(!logErrorFlag && !xLog)
+      xAxis1 = xAxis;
+    if(!logErrorFlag && !yLog)
+      yAxis1 = yAxis;
+
+    //setting the info in the
+    pointsTextArea.setText(this.showDataInWindow(funcList,xAxisName,yAxisName));
+    return ;
+  }
+
+
+  /**
+   *
+   * @param funcList
+   * @param xAxisName
+   * @param yAxisName
+   * @returns data to be shown in the data window
+   */
+  private String showDataInWindow(ArrayList funcList,String xAxisName,String yAxisName){
+
+    int size = funcList.size();
+
+    StringBuffer b = new StringBuffer();
+    b.append("\n");
+    b.append("X-Axis: " + xAxisName + '\n');
+    b.append("Y-Axis: " + yAxisName + '\n');
+    b.append("Number of Data Sets: " + size + "\n\n");
+
+
+    for(int i=0;i<size;++i){
+      Object obj = funcList.get(i);
+
+      if(!(obj instanceof WeightedFuncListforPlotting)){ //showing data for the individual function
+        DiscretizedFuncAPI function = (DiscretizedFuncAPI)obj;
+        b.append("\nDATASET #" + (i+1) + "\n\n");
+        b.append(function.toString()+ '\n');
+      }
+      else{ //showing data for weighted function list
+        WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
+        b.append("\nDATASET #" + (i+1) + "   Weighted Function List"+'\n');
+        b.append(weightedList.getInfo()+"\n\n");
+        //checking if individual curves need to be plotted
+        if(weightedList.areIndividualCurvesToPlot()){
+          //getting the metadata for each individual curves and creating the legend string
+          DiscretizedFuncList list = weightedList.getWeightedFunctionList();
+          ArrayList wtList = weightedList.getRelativeWtList();
+          int listSize = list.size();
+          for(int j=0;j<listSize;++j){
+            b.append("\nFunction #"+(j+1)+" of "+listSize+" from Data Set #"+(i+1)+
+            " with relative wt # "+(Double)wtList.get(j)+"\n");
+            DiscretizedFuncAPI function = (DiscretizedFuncAPI)list.get(j);
+            b.append(function.getMetadataString()+ '\n');
+          }
+        }
+        //checking if fractiles need to be plotted
+        if(weightedList.areFractilesToPlot()){
+
+          //getting the fractile info for the weighted function list and adding that to the legend
+          DiscretizedFuncList list = weightedList.getFractileList();
+          int listSize = list.size();
+          for(int j=0;j<listSize;++j){
+            b.append("\nFractile #"+(j+1)+" of "+listSize+" from Data Set #"+(i+1)+"\n");
+            DiscretizedFuncAPI function = (DiscretizedFuncAPI)list.get(j);
+            b.append(function.getMetadataString()+ '\n');
+          }
+        }
+
+        //checking if mean fractile need to be plotted
+        if(weightedList.isMeanToPlot()){
+          //getting the fractileinfo and showing it as legend
+          b.append("\nMean for Data Set #"+(i+1)+"\n");
+          b.append(weightedList.getMean().getMetadataString()+"\n");
+        }
+      }
+    }
+
+    return b.toString();
   }
 
 
@@ -446,20 +565,20 @@ public class GraphPanel extends JPanel {
         WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
         if(weightedList.areIndividualCurvesToPlot()){
          DiscretizedFuncList list= weightedList.getWeightedFunctionList();
-         list.get(0).setInfo(weightedList.getInfo()+"\n"+"(a)"+list.getInfo());
+         //list.get(0).setInfo(weightedList.getInfo()+"\n"+"(a)"+list.getInfo());
          numColorArray.add(new Integer(list.size()));
          totalProbFuncs.addAll(list);
         }
         if(weightedList.areFractilesToPlot()){
           DiscretizedFuncList list= weightedList.getFractileList();
-          list.get(0).setInfo("(b)"+list.getInfo());
+         // list.get(0).setInfo("(b)"+list.getInfo());
           totalProbFuncs.addAll(list);
           numColorArray.add(new Integer(list.size()));
         }
         if(weightedList.isMeanToPlot()){
           DiscretizedFuncAPI meanFunc = weightedList.getMean();
-          String info = meanFunc.getInfo();
-          meanFunc.setInfo("(c)"+info);
+          //String info = meanFunc.getInfo();
+          //meanFunc.setInfo("(c)"+info);
           totalProbFuncs.add(meanFunc);
           numColorArray.add(new Integer(1));
         }

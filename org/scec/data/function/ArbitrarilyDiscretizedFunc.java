@@ -505,6 +505,17 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
       b.append("Num Points: " + getNum() + '\n');
       b.append("Info: " + getInfo() + "\n\n");
       b.append("X, Y Data:" + '\n');
+      b.append(getMetadataString()+ '\n');
+      return b.toString();
+    }
+
+    /**
+     *
+     * @returns value of each point in the function in String format
+     */
+    public String getMetadataString(){
+      StringBuffer b = new StringBuffer();
+      Iterator it2 = this.getPointsIterator();
 
       while(it2.hasNext()){
 
