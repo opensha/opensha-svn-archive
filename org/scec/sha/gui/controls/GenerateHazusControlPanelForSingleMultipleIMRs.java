@@ -13,8 +13,7 @@ import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
-import org.scec.param.editor.ParameterListEditor;
-import org.scec.param.ParameterAPI;
+import org.scec.param.*;
 import org.scec.sha.gui.ScenarioShakeMapAttenRelApp_Temp;
 
 /**
@@ -34,10 +33,6 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
   //instance of the application calling this control panel.
   private ScenarioShakeMapAttenRelApp_Temp application;
 
-  private final static String sa = AttenuationRelationship.SA_NAME;
-  private final static String pga = AttenuationRelationship.PGA_NAME;
-  private final static String pgv = AttenuationRelationship.PGV_NAME;
-
 
   //Stores the XYZ data set for the SA-0.3, SA-1.0, PGA and PGV
   private XYZ_DataSetAPI sa03_xyzdata;
@@ -49,8 +44,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
   private String metadata;
   private JButton generateHazusShapeFilesButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  //Object to get the handle to the IMT Parameter editor List.
-  private ParameterListEditor imtParamEditor;
+
   //records if the user has pressed the button to generate the XYZ data to produce
   //the shapefiles for inout to Hazus
   boolean generatingXYZDataForShapeFiles= false;
@@ -62,11 +56,12 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
    * Class constructor.
    * This will generate the shapefiles for the input to the Hazus
    * @param parent : parent frame on which to show this control panel
-   * @param editor : IMT Paramter List editor.
+   * @param api : Instance of the application using this control panel
    */
-  public GenerateHazusControlPanelForSingleMultipleIMRs(Component parent,ParameterListEditor editor,
+  public GenerateHazusControlPanelForSingleMultipleIMRs(Component parent,
                                         ScenarioShakeMapAttenRelApp_Temp api) {
-    imtParamEditor = editor;
+
+
     // show the window at center of the parent component
     this.setLocation(parent.getX()+parent.getWidth()/2,
                      parent.getY()+parent.getHeight()/2);
@@ -126,7 +121,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i){
       AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
-      if(attenRel.isIntensityMeasureSupported(pgv))
+      if(attenRel.isIntensityMeasureSupported(AttenuationRelationship.PGV_NAME))
         attenRelListSupportingPGV.add(attenRel);
       else
         attenRelListNotSupportingPGV.add(attenRel);
@@ -185,7 +180,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
 
     calcProgress.showProgress(false);
     calcProgress.dispose();
-    imtParamEditor.refreshParamEditor();
+    //imtParamEditor.refreshParamEditor();
   }
 
   /**
@@ -193,10 +188,13 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
    * @param selectedAttenRels: List of AttenuationRelation models
    */
   private void hazusCalcForPGA(ArrayList selectedAttenRels){
-    imtParamEditor.getParameterList().getParameter(MultipleAttenuationRelationsGuiBean.IMT_PARAM_NAME).setValue(pga);
-    setIntensityMeasureForSelectedIMRs(selectedAttenRels);
+
+    int size = selectedAttenRels.size();
+    for(int i=0;i<size;++i)
+      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(AttenuationRelationship.PGA_NAME);
+
     pga_xyzdata = application.generateShakeMap(selectedAttenRels);
-    metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
+    //metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
   }
 
 
@@ -206,18 +204,19 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
    */
   private void hazusCalcForSA(ArrayList selectedAttenRels){
     //Doing for SA
-    imtParamEditor.getParameterList().getParameter(MultipleAttenuationRelationsGuiBean.IMT_PARAM_NAME).setValue(sa);
+    int size = selectedAttenRels.size();
+    for(int i=0;i<size;++i)
+      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(AttenuationRelationship.SA_NAME);
+
     //Doing for SA-0.3sec
-    imtParamEditor.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(0.3));
-    setIntensityMeasureForSelectedIMRs(selectedAttenRels);
+    setSA_PeriodForSelectedIMRs(selectedAttenRels,0.3);
     sa03_xyzdata = application.generateShakeMap(selectedAttenRels);
-    metadata = imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
+    //metadata = imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
 
     //Doing for SA-1.0sec
-    imtParamEditor.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
-    setIntensityMeasureForSelectedIMRs(selectedAttenRels);
+    setSA_PeriodForSelectedIMRs(selectedAttenRels,1.0);
     sa10_xyzdata = application.generateShakeMap(selectedAttenRels);
-    metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
+    //metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
   }
 
   /**
@@ -229,22 +228,25 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
   private XYZ_DataSetAPI hazusCalcForPGV(ArrayList attenRelList, boolean pgvSupported){
     //if the PGV is supportd by the AttenuationRelationships
     XYZ_DataSetAPI pgvDataSet = null;
+    int size = attenRelList.size();
     if(pgvSupported){
-      imtParamEditor.getParameterList().getParameter(MultipleAttenuationRelationsGuiBean.IMT_PARAM_NAME).setValue(pgv);
-      setIntensityMeasureForSelectedIMRs(attenRelList);
+      for(int i=0;i<size;++i)
+        ((AttenuationRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(AttenuationRelationship.PGV_NAME);
+
       pgvDataSet = application.generateShakeMap(attenRelList);
-      metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
+      //metadata += imtParamEditor.getVisibleParameters().getParameterListMetadataString()+"<br>\n";
     }
     else{ //if the List of the attenRels does not support IMT then use SA at 1sec for PGV
-      imtParamEditor.getParameterList().getParameter(MultipleAttenuationRelationsGuiBean.IMT_PARAM_NAME).setValue(sa);
-      imtParamEditor.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(1.0));
-      setIntensityMeasureForSelectedIMRs(attenRelList);
+      for(int i=0;i<size;++i)
+        ((AttenuationRelationshipAPI)attenRelList.get(i)).setIntensityMeasure(AttenuationRelationship.SA_NAME);
+      this.setSA_PeriodForSelectedIMRs(attenRelList,1.0);
+
       pgvDataSet = application.generateShakeMap(attenRelList);
 
       //if PGV is not supported by the attenuation then use the SA-1sec pd
       //and multiply the value by scaler 37.24*2.54
       ArrayList zVals = pgvDataSet.getZ_DataSet();
-      int size = zVals.size();
+      size = zVals.size();
       ArrayList newZVals = new ArrayList();
       for(int i=0;i<size;++i){
         double val = ((Double)zVals.get(i)).doubleValue()*37.24*2.54;
@@ -259,13 +261,12 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
 
 
   /**
-   * set the IMT parameter in selected IMR's
+   * sets the SA Period in selected IMR's with the argument period
    */
-  private void setIntensityMeasureForSelectedIMRs(ArrayList selectedAttenRels) {
-    ParameterAPI param = application.getSelectedIntensityMeasure();
+  private void setSA_PeriodForSelectedIMRs(ArrayList selectedAttenRels, double period) {
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i)
-      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).setIntensityMeasure(param);
+      ((AttenuationRelationshipAPI)selectedAttenRels.get(i)).getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(period));
   }
 
 

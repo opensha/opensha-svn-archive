@@ -707,7 +707,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
    */
   private void initHazusScenarioControl(){
     if(hazusControl == null)
-      hazusControl = new GenerateHazusControlPanelForSingleMultipleIMRs(this,imrGuiBean.getIntensityMeasureParamEditor(),this);
+      hazusControl = new GenerateHazusControlPanelForSingleMultipleIMRs(this,this);
     hazusControl.show();
     hazusControl.pack();
  }
