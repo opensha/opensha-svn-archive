@@ -699,7 +699,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
                 continue;
               if(yy<plotArea.getMinY())
                  return;
-              if((y>y0 || upperBound-lowerBound>=3) && j!=1)
+              if((y>y0 || (upperBound-lowerBound>=3)) && j!=1)
                 tickLabel="";
 
               else {
@@ -758,7 +758,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
    private int powerOf10(double num) {
 
        int i=lowest;
-       while(num > Math.pow(10,i)){
+       while(num >= Math.pow(10,i)){
           if(num>=Math.pow(10,i) && num<Math.pow(10,i+1))
              return i;
           ++i;
