@@ -31,6 +31,9 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   // for debug purposes
   protected final static String C = "SiteParamList";
 
+  //static string for the Predefined Regions
+  private final static String  SF_Bay_Area = new String("SF Bay Area");
+
   /**
    * Latitude and longitude are added to the site paraattenRelImplmeters
    */
@@ -39,9 +42,11 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   public final static String MIN_LATITUDE =  "Min  Latitude";
   public final static String MAX_LATITUDE =  "Max  Latitude";
   public final static String GRID_SPACING =  "Grid Spacing";
+  public final static String INTERESTING_REGIONS =  "Predefined Interesting Regions";
 
   // title for site paramter panel
   protected final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
+
 
   /**
    * Longitude and Latitude paramerts to be added to the site params list
@@ -56,6 +61,9 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
       new Double(-90), new Double(90), new Double(39.0));
   private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,
       new Double(.01),new Double(100.0),new String("Degrees"),new Double(.1));
+
+  //interesting regions param
+  private StringParameter interestingRegions;
 
 
 
@@ -77,6 +85,10 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
     parameterList.addParameter(minLat);
     parameterList.addParameter(maxLat);
     parameterList.addParameter(gridSpacing);
+    Vector v= new Vector();
+    v.add(SF_Bay_Area);
+    interestingRegions = new StringParameter(this.SF_Bay_Area,v,v.get(0).toString());
+    parameterList.addParameter(interestingRegions);
     minLat.addParameterChangeListener(this);
     minLon.addParameterChangeListener(this);
     maxLat.addParameterChangeListener(this);
@@ -87,9 +99,10 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
     maxLat.addParameterChangeFailListener(this);
     maxLon.addParameterChangeFailListener(this);
     gridSpacing.addParameterChangeFailListener(this);
+    interestingRegions.addParameterChangeListener(this);
 
-
-    createAndUpdateSites();
+    //sets the min-max lat and Lon based on the selected predefined region
+    this.setMinMaxLatLon();
     addParameters();
     setTitle(GRIDDED_SITE_PARAMS);
 
@@ -162,7 +175,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
  public void replaceSiteParams(Iterator it) {
 
 
-   createAndUpdateSites();
+   this.setMinMaxLatLon();
    // first remove all the parameters except latitude and longitude
    Iterator siteIt = parameterList.getParameterNamesIterator();
    while(siteIt.hasNext()) { // remove all the parameters except latitude and longitude and gridSpacing
@@ -171,7 +184,8 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
         !paramName.equalsIgnoreCase(MIN_LONGITUDE) &&
         !paramName.equalsIgnoreCase(MAX_LATITUDE) &&
         !paramName.equalsIgnoreCase(MAX_LONGITUDE) &&
-        !paramName.equalsIgnoreCase(GRID_SPACING))
+        !paramName.equalsIgnoreCase(GRID_SPACING) &&
+        !paramName.equalsIgnoreCase(INTERESTING_REGIONS))
        parameterList.removeParameter(paramName);
    }
    //removing the existing sites Params from the gridded Region sites
@@ -244,7 +258,6 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
 
     Vector v= new Vector();
     createAndUpdateSites();
-    //adding the siteParams to the temp Vector
     //getting the site params for the first element of the siteVector
     //becuase all the sites will be having the same site Parameter
     ListIterator it1=parameterList.getParametersIterator();
@@ -253,10 +266,31 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
       if(!tempParam.getName().equalsIgnoreCase(MIN_LONGITUDE) &&
          !tempParam.getName().equalsIgnoreCase(MAX_LATITUDE) &&
          !tempParam.getName().equalsIgnoreCase(MAX_LONGITUDE) &&
-         !tempParam.getName().equalsIgnoreCase(GRID_SPACING))
+         !tempParam.getName().equalsIgnoreCase(GRID_SPACING) &&
+         !tempParam.getName().equalsIgnoreCase(INTERESTING_REGIONS))
         v.add(tempParam);
+      //interesting region parameter has been selected
+      if(tempParam.getName().equalsIgnoreCase(INTERESTING_REGIONS)){
+        setMinMaxLatLon();
+      }
     }
     gridRectRegion.addSiteParams(v.iterator());
+  }
+
+  /**
+   * This function sets the values of the Min-Man Lat and Lon based on the
+   * selected Predefined Region
+   */
+  private void setMinMaxLatLon(){
+    String preRegionNewValue= interestingRegions.getValue().toString();
+    if(preRegionNewValue.equalsIgnoreCase(this.SF_Bay_Area)){
+      minLat.setValue(37);
+      maxLat.setValue(39);
+      minLon.setValue(-123);
+      maxLon.setValue(-121);
+    }
+    createAndUpdateSites();
+
   }
 
   /**
