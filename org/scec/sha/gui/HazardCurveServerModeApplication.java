@@ -174,7 +174,7 @@ public class HazardCurveServerModeApplication extends JApplet
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
   private final static String DISAGGREGATION_CONTROL = "Disaggregation";
-  private final static String EPISTEMIC_CONTROL = "ERF Epistemic Control";
+  private final static String EPISTEMIC_CONTROL = "Epistemic List Control";
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
   private final static String CVM_CONTROL = "Set Site Params from Web Services";
@@ -1376,7 +1376,7 @@ public class HazardCurveServerModeApplication extends JApplet
 
   /**
     * Initialize the Epistemic list control.
-    * This function is called when user selects "ERF Epistemic Control"
+    * This function is called when user selects "Epistemic List Control"
     * from controls pick list
     */
    private void initEpistemicControl() {
