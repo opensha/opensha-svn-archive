@@ -19,8 +19,9 @@ Make OpenSHA CME Poster
 
 
 
--------------- before meeting ------------------------
+-------------- before meeting above ------------------------
 
+Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings.
 
 move the Fortran-Wrapped version of the WG02 ERF to
 the org.scec.sha.earthquake.rupForecastImpl.WG02 directory  (this way I can
