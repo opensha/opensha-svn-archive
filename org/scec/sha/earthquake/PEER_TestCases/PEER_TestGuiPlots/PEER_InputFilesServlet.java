@@ -250,10 +250,13 @@ public class PEER_InputFilesServlet extends HttpServlet {
                                    "com/");
      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar "+
                                    "GroupTestDataFiles/");
+     RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar "+
+                                   "img/");
      // remove the files created by the above
      RunScript.runScript("rm -rf com/");
      RunScript.runScript("rm -rf org/");
      RunScript.runScript("rm -rf META-INF/");
+     RunScript.runScript("rm -rf img/");
      for(int i =0; i< size; ++i)
        RunScript.runScript("rm GroupTestDataFiles/"+(String)fileNamesVector.get(i));
 
@@ -275,8 +278,11 @@ public class PEER_InputFilesServlet extends HttpServlet {
                                     "org/");
      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar "+
                                     "GroupTestDataFiles/");
+     RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar "+
+                                    "img/");
      // remove the files created by above
      RunScript.runScript("rm -rf org/");
+     RunScript.runScript("rm -rf img/");
      for(int i =0; i< size; ++i)
        RunScript.runScript("rm GroupTestDataFiles/"+(String)fileNamesVector.get(i));
 
