@@ -11,6 +11,7 @@ import java.util.*;
 
 import java.math.BigDecimal;
 import javax.swing.*;
+import org.scec.sha.imr.gui.IMRTesterApplet;
 
 /**
  * <p>Title: PSHALogXYPlot</p>
@@ -46,7 +47,7 @@ public class PSHALogXYPlot
     protected boolean xlogplot = false;;
     protected boolean ylogplot = false;;
     private boolean returnNoLabels = false;
-
+    private IMRTesterApplet imrTesterApplet;
 
     /**
      * Constructs an XYPlot with the specified axes (other attributes take default values).
@@ -54,8 +55,9 @@ public class PSHALogXYPlot
      * @param domainAxis The domain axis.
      * @param rangeAxis The range axis.
      */
-    public PSHALogXYPlot(XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
+    public PSHALogXYPlot(IMRTesterApplet imr,XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
         super(data, domainAxis, rangeAxis);
+        this.imrTesterApplet=imr;
         this.xlogplot=xlog;
         this.ylogplot=ylog;
     }
@@ -266,4 +268,80 @@ public class PSHALogXYPlot
 
     }
 
+    /**
+     * Draws the XY plot on a Java 2D graphics device (such as the screen or a printer).
+     * <P>
+     * PSHAXYPlot relies on an LogXYItemRenderer to draw each item in the plot.  This allows the visual
+     * representation of the data to be changed easily.
+     * <P>
+     * The optional info argument collects information about the rendering of the plot (dimensions,
+     * tooltip information etc).  Just pass in null if you do not need this information.
+     *
+     * @param g2 The graphics device.
+     * @param plotArea The area within which the plot (including axis labels) should be drawn.
+     * @param info Collects chart drawing information (null permitted).
+     */
+    public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
+       try{
+        // set up info collection...
+        if (info!=null) {
+            info.setPlotArea(plotArea);
+
+        }
+
+        // adjust the drawing area for plot insets (if any)...
+        if (insets!=null) {
+            plotArea.setRect(plotArea.getX()+insets.left,
+                             plotArea.getY()+insets.top,
+                             plotArea.getWidth()-insets.left-insets.right,
+                             plotArea.getHeight()-insets.top-insets.bottom);
+        }
+
+        // estimate the area required for drawing the axes...
+        double hAxisAreaHeight = 0;
+
+        if (this.domainAxis!=null) {
+            HorizontalAxis hAxis = (HorizontalAxis)this.domainAxis;
+            hAxisAreaHeight = hAxis.reserveHeight(g2, this, plotArea);
+        }
+
+        double vAxisWidth = 0;
+        if (this.rangeAxis!=null) {
+            VerticalAxis vAxis = (VerticalAxis)this.rangeAxis;
+            vAxisWidth = vAxis.reserveAxisArea(g2, this, plotArea, hAxisAreaHeight).getWidth();
+        }
+
+        // ...and therefore what is left for the plot itself...
+        Rectangle2D dataArea = new Rectangle2D.Double(plotArea.getX()+vAxisWidth,
+                                                      plotArea.getY(),
+                                                      plotArea.getWidth()-vAxisWidth,
+                                                      plotArea.getHeight()-hAxisAreaHeight);
+
+        if (info!=null) {
+            info.setDataArea(dataArea);
+        }
+
+        CrosshairInfo crosshairInfo = new CrosshairInfo();
+
+        crosshairInfo.setCrosshairDistance(Double.POSITIVE_INFINITY);
+        crosshairInfo.setAnchorX(this.getDomainAxis().getAnchorValue());
+        crosshairInfo.setAnchorY(this.getRangeAxis().getAnchorValue());
+
+        // draw the plot background and axes...
+
+        drawOutlineAndBackground(g2, dataArea);
+        if (this.domainAxis!=null) {
+            this.domainAxis.draw(g2, plotArea, dataArea);
+        }
+        if (this.rangeAxis!=null) {
+            this.rangeAxis.draw(g2, plotArea, dataArea);
+        }
+
+        render(g2, dataArea, info, crosshairInfo);
+
+     }catch(java.lang.ArithmeticException ae){
+       imrTesterApplet.invalidLogPlot();
+    }
+
+    }
 }

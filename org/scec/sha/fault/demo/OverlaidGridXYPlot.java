@@ -125,16 +125,18 @@ public class OverlaidGridXYPlot extends OverlaidXYPlot {
     Range rv=  this.rangeAxis.getRange();
    // System.out.println("OverlaidGridXYPlot::draw::horizontalrange:"+rh.getLowerBound()+","+rh.getUpperBound());
     //System.out.println("OverlaidGridXYPlot::draw::verticalrange:"+rv.getLowerBound()+","+rv.getUpperBound());
-    double verticaldiff = (dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound());
-    double upperh= ((dataArea.getMaxX()-dataArea.getMinX())+(verticaldiff*rh.getLowerBound()))/verticaldiff;
-    if(upperh < rh.getUpperBound()) {
-       double horizontaldiff=(dataArea.getMaxX()-dataArea.getMinX())/(rh.getUpperBound()-rh.getLowerBound());
-       double upperv = ((dataArea.getMaxY()-dataArea.getMinY())+(horizontaldiff*rv.getLowerBound()))/horizontaldiff;
-       rangeAxis.setRange(rv.getLowerBound(), upperv);
-    }
-    else
-       domainAxis.setRange(rh.getLowerBound(), upperh);
-
+    //double verticaldiff = (dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound());
+    //double upperh= ((dataArea.getMaxX()-dataArea.getMinX())+(verticaldiff*rh.getLowerBound()))/verticaldiff;
+    //if(upperh < rh.getUpperBound()) {
+      // double horizontaldiff=(dataArea.getMaxX()-dataArea.getMinX())/(rh.getUpperBound()-rh.getLowerBound());
+       //double upperv = ((dataArea.getMaxY()-dataArea.getMinY())+(horizontaldiff*rv.getLowerBound()))/horizontaldiff;
+       //rangeAxis.setRange(rv.getLowerBound(), upperv);
+       domainAxis.setRange(rh.getLowerBound(),Math.cos((rv.getLowerBound()+rv.getUpperBound())/2)*rh.getUpperBound());
+    //}
+    //else {
+     //  domainAxis.setRange(rh.getLowerBound(), upperh);
+     //  domainAxis.setRange(rh.getLowerBound(),Math.cos((rv.getLowerBound()+rv.getUpperBound())/2));
+   // }
 
      // draw the plot background and axes...
     //System.out.println("OverlaidGridXYPlot::draw::horizontalrange:"+domainAxis.getRange().getLowerBound()+","+domainAxis.getRange().getUpperBound());

@@ -845,9 +845,7 @@ public class IMRTesterApplet
         // Starting
         String S = C + ": addGraphPanel(): ";
         if ( D ) System.out.println( S + "Starting: Last xy axis name = " + lastXYAxisName );
-        this.jCheckxlog.enable();
-        this.jCheckylog.enable();
-        // ImageIcon icon  = new ImageIcon(this.imagePath + File.separator + "z_splash.jpg");
+         // ImageIcon icon  = new ImageIcon(this.imagePath + File.separator + "z_splash.jpg");
         // Image image = icon.getImage();
 
         String newXYAxisName = functions.getXYAxesName();
@@ -907,8 +905,8 @@ public class IMRTesterApplet
         }
 
         // build the plot
-        try{
-        org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(data, xAxis, yAxis, xLog, yLog);
+
+        org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this,data, xAxis, yAxis, xLog, yLog);
 
 
 
@@ -935,20 +933,13 @@ public class IMRTesterApplet
         panel.setGenerateToolTips(true);
         panel.setHorizontalAxisTrace(false);
         panel.setVerticalAxisTrace(false);
-        }catch(ArithmeticException ae){
-          if(xLog)
-            this.jCheckxlog.setSelected(false);
-          if(yLog)
-            this.jCheckylog.setSelected(false);
-         JOptionPane.showMessageDialog(this,new String("Data Contains Zero values, so no log Plot"),new String("Log Plot"),JOptionPane.INFORMATION_MESSAGE);
-         addGraphPanel();
-        }
+
 
         if ( D ) System.out.println( S + "Toggling plot on" );
         graphOn = false;
         togglePlot();
         if ( D ) System.out.println( S + "Done" );
-    }
+     }
 
 
     /**
@@ -1429,6 +1420,7 @@ public class IMRTesterApplet
                 String funcStr = functions.toString();
                 pointsTextArea.setText( currentIMRName + ": " + title + '\n' + funcStr );
                 addGraphPanel();
+
             }
 
         }
@@ -1449,6 +1441,7 @@ public class IMRTesterApplet
                 addGraphPanel();
             }
         }
+
         else if( e.getSource().equals( plotColorCheckBox ) ){
 
             if( isWhite ) {
@@ -1514,6 +1507,18 @@ public class IMRTesterApplet
      addGraphPanel();
   }
 
+  /**
+   * This function handles the Zero values in the X and Y data set when exception is thrown,
+   * it reverts back to the linear scale displaying a message box to the user.
+   */
+ public void invalidLogPlot() {
+     if(this.xLog)
+       this.jCheckxlog.setSelected(false);
+     if(this.yLog)
+       this.jCheckylog.setSelected(false);
+     JOptionPane.showMessageDialog(this,new String("Cannot display the Log Plot for this data set as they contain zero values"),new String("Check Axis Range"),JOptionPane.INFORMATION_MESSAGE);
+     addGraphPanel();
+ }
 
 
 
