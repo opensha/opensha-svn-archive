@@ -370,7 +370,7 @@ public class LogarithmicAxis extends NumberAxis {
       }
 
       double upper = r.getUpperBound();
-      if (upper < 1.0 && upper > 0.0 && lower > 0.0) {
+      /*if (upper < 1.0 && upper > 0.0 && lower > 0.0) {
         //negatives not allowed and upper bound between 0 & 1
         //round up to nearest significant digit for bound:
         //get negative exponent:
@@ -379,11 +379,11 @@ public class LogarithmicAxis extends NumberAxis {
         expVal = Math.pow(10, expVal);      //create multiplier value
         //multiply, round up, and divide for bound value:
         upper = (expVal > 0.0) ? Math.ceil(upper * expVal) / expVal : Math.ceil(upper);
-      }
-      else {
+      }*/
+      //else {
         //negatives allowed or upper bound not between 0 & 1
         upper = computeLogCeil(upper);  //use nearest log value
-      }
+      //}
       // ensure the autorange is at least <minRange> in size...
       double minRange = getAutoRangeMinimumSize();
       if (upper - lower < minRange) {
