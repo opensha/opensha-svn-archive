@@ -17,6 +17,7 @@ import org.scec.data.Site;
 import org.scec.data.Location;
 import org.scec.param.ParameterAPI;
 import org.scec.sha.gui.infoTools.ConnectToCVM;
+import org.scec.util.SystemPropertiesUtils;
 
 /**
  * <p>Title:SetSiteParamsFromCVMControlPanel </p>
@@ -45,7 +46,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
   // save the imr gui bean  and  site gui bean
   private IMR_GuiBean imrGuiBean;
   private Site_GuiBean siteGuiBean;
-  private JLabel jLabel1 = new JLabel();
+  private JTextPane siteInfoPane = new JTextPane();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
@@ -81,17 +82,25 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
         setButton_actionPerformed(e);
       }
     });
-    jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
-    String info = new String("This uses both the CGS Preliminary Site\n"+
-                             "Conditions Map of CA (Wills et al., 2000)\n"+
+
+
+    String info = new String("This uses both the CGS Preliminary Site "+
+                             "Conditions Map of CA (Wills et al., 2000) "+
                              "and basin depth from the SCEC CVM.");
-    jLabel1.setText(info);
-    this.getContentPane().add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(3, 2, 0, 0), 4, 4));
-    this.getContentPane().add(imrComboBox,   new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 16, 0, 98), 4, 4));
-    this.getContentPane().add(setButton,   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(9, 20, 12, 95), 4, 4));
+
+
+    siteInfoPane.setBackground(SystemColor.menu);
+    siteInfoPane.setEnabled(false);
+    siteInfoPane.setPreferredSize(new Dimension(812, 64));
+    siteInfoPane.setEditable(false);
+    siteInfoPane.setText(info);
+    this.getContentPane().add(imrComboBox,   new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(11, 25, 0, 29), 4, 4));
+    this.getContentPane().add(setButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 25, 0, 29), 1, 4));
+    this.getContentPane().add(siteInfoPane,     new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(23, 31, 4, 29), -557, 4));
+
   }
 
 
