@@ -213,6 +213,7 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
       inputToServlet.close();
       return xyzData;
     }catch (Exception e) {
+      e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
     }
   }

@@ -12,6 +12,7 @@ import org.scec.param.event.*;
 import org.scec.sha.imr.*;
 import org.scec.sha.calc.ScenarioShakeMapCalculatorWithPropagationEffect;
 import org.scec.sha.earthquake.*;
+import org.scec.data.XYZ_DataSetAPI;
 
 /**
  * <p>Title: ScenarioShakeMapCalcServlet  </p>
@@ -72,9 +73,11 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
       //sending the output in the form of the arrayList back to the calling application.
       ObjectOutputStream output = new ObjectOutputStream(response.getOutputStream());
 
+      //XYZ data for the scenarioshake as computed
+      XYZ_DataSetAPI xyzData = calc.getScenarioShakeMapData(selectedAttenRels,selectedAttenRelWts,
+          griddedRegion,rupture,isProbAtIML,value);
       //calculates the XYZ data for the ScenarioShakeMap and returns it back to the application.
-      output.writeObject(calc.getScenarioShakeMapData(selectedAttenRels,selectedAttenRelWts,
-          griddedRegion,rupture,isProbAtIML,value));
+      output.writeObject(xyzData);
 
       output.close();
     }catch(Exception e) {
