@@ -210,6 +210,9 @@ public class IMRTesterApplet extends JApplet
     //setting the legend string
     protected String legend=null;
 
+    //variable to check whether to clear the existing plot or not
+    boolean newGraph = false;
+
     private final static String AUTO_SCALE = "Auto Scale";
     private final static String CUSTOM_SCALE = "Custom Scale";
     final static Dimension COMBO_DIM = new Dimension( 180, 20 );
@@ -659,8 +662,11 @@ public class IMRTesterApplet extends JApplet
         outerPanel.add( mainPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
 
-        /* titlePanel.add( imrComboBox, new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+       /*titlePanel.add( imrComboBox, new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );*/
+
+       /* innerPlotPanel.add( imrComboBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );*/
 
         mainPanel.add( mainSplitPane, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 2, 4, 4, 4 ), 0, 0 ) );
@@ -681,9 +687,9 @@ public class IMRTesterApplet extends JApplet
         /*plotPanel.add( titlePanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
                 ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 2, 4 ), 0, 0 ) );*/
 
-        //panel for the legend
-        innerPlotPanel.add(titlePanel, new GridBagConstraints( 0,0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+        /*innerPlotPanel.add(titlePanel, new GridBagConstraints( 0,0, 1, 1, 1.0, 1.0
+                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );*/
 
         plotPanel.add( innerPlotPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ) );
@@ -835,7 +841,10 @@ public class IMRTesterApplet extends JApplet
             System.out.println( S + "Starting: New IMR = " + choice );
 
         // Clear the current traces
-        clearPlot( true );
+        //Plot needs to be cleared only if X or Y axis are changed, not otherwise
+        if(newGraph)
+            clearPlot(true);
+
 
         /*if ( titleLabel != null ) {
             titleLabel.setText( currentIMRName );
@@ -1120,11 +1129,11 @@ public class IMRTesterApplet extends JApplet
                 }
 
                 // panel added here
-                innerPlotPanel.add( panel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+                innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 10.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                 //panel for the legend
-                  innerPlotPanel.add(legendScrollPane, new GridBagConstraints( 1,0, 1, 1, 1.0, 1.0
+                  innerPlotPanel.add(legendScrollPane, new GridBagConstraints( 0,1, 1, 1, 1.0, 1.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
             }
             else {
@@ -1384,7 +1393,7 @@ public class IMRTesterApplet extends JApplet
         String xNew = imr.getGraphXAxisLabel();
         String yNew = imr.getGraphIMYAxisLabel();
 
-        boolean newGraph = false;
+        newGraph = false;
         if( !xOld.equals(xNew) ) newGraph = true;
         if( !yOld.equals(yNew) ) newGraph = true;
 
@@ -1394,6 +1403,8 @@ public class IMRTesterApplet extends JApplet
             functions.setYAxisName( imr.getGraphIMYAxisLabel() );
             functions.setXAxisName( imr.getGraphXAxisLabel() );
         }
+
+        newGraph = false;
 
 
         /** @todo may have to be switched when different x/y axis choosen */
