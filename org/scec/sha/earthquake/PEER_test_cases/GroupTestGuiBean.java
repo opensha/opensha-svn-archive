@@ -68,6 +68,7 @@ public class GroupTestGuiBean implements
   private final static String TRUNCTYPE_PARAM_NAME =  "Trunc-Type";
   private final static String TRUNCLEVEL_PARAM_NAME =  "Trunc-Level";
   private final static String IMT_PARAM_NAME =  "Select IMT";
+  private final static String STD_DEV_TYPE_NAME = "Std Dev Type";
 
   private final static String MAG_DIST_PARAM_NAME = "Mag Dist";
 
@@ -331,9 +332,14 @@ public class GroupTestGuiBean implements
     imrParamList.addParameter(typeParam);
     typeParam.addParameterChangeListener(this);
 
+
     // add trunc level
     ParameterAPI levelParam = imr.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME);
     imrParamList.addParameter(levelParam);
+
+    //add the sigma param for IMR
+    ParameterAPI sigmaParam = imr.getParameter(STD_DEV_TYPE_NAME);
+    imrParamList.addParameter(sigmaParam);
 
     imrEditor = new ParameterListEditor(imrParamList,searchPaths);
 
@@ -672,14 +678,12 @@ public class GroupTestGuiBean implements
     // check which forecast has been selected by the user
     if(selectedForecast.equalsIgnoreCase(this.SOURCE_FAULT_ONE)) {
       //if fault forecast is selected
-      faultcase1.updateGUI();
       eqkRupForecast = this.faultcase1;
     } else if(selectedForecast.equalsIgnoreCase(this.SOURCE_FAULT_AREA)) {
       // if Area forecast is selected
-      faultcase2_area.updateGUI();
       eqkRupForecast = this.faultcase2_area;
     }
-
+    eqkRupForecast.updateForecast();
     // intialize the condProbFunction for each IMR
     ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
     ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -713,6 +717,9 @@ public class GroupTestGuiBean implements
         initDiscretizeValues(hazFunction);
         hazFunction.setInfo(selectedIMR);
 
+        // set the std dev
+        String stdDev = (String)imrParamList.getValue(this.STD_DEV_TYPE_NAME);
+        imr.getParameter(this.STD_DEV_TYPE_NAME).setValue(stdDev);
         // pass the site object to each IMR
         try {
           if(D) System.out.println("siteString:::"+site.toString());
