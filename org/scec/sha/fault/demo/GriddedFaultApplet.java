@@ -384,7 +384,7 @@ public class GriddedFaultApplet
         String S = C + ": addGraphPanel(): ";
         if ( D ) System.out.println( S + "Starting: Last xy axis name = " + lastXYAxisName );
 
-        panel = plotter.addGraphPanel(currentGriddedSurfaceName);
+        panel = plotter.addGraphPanel(currentGriddedSurfaceName,((Double)gridSpacingParam.getValue()).doubleValue());
 
 
         if ( D ) System.out.println( S + "Toggling plot on" );

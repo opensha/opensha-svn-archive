@@ -229,7 +229,7 @@ public class IMRGuiBean
 
 
     /**
-     *  Sets the paramsInIteratorVisible attribute of the IMRGuiBean object
+     * Sets the paramsInIteratorVisible attribute of the IMRGuiBean object
      *
      * @param  it  The new paramsInIteratorVisible value
      */

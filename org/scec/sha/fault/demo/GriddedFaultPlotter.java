@@ -33,8 +33,8 @@ public class GriddedFaultPlotter extends ArrayList{
     public final static String X_AXIS_LABEL = "Longitude (deg.)";
     public final static String Y_AXIS_LABEL = "Latitude (deg.)";
 
-    private final static int NUM_OF_COLOR_DIFF=13;
-    private final static int RED_BLUE_DIFF=30;
+    protected static int NUM_OF_COLOR_DIFF=65;
+    protected static int RED_BLUE_DIFF=4;
 
     protected com.jrefinery.chart.NumberAxis xAxis =  new com.jrefinery.chart.HorizontalNumberAxis( X_AXIS_LABEL );
     protected com.jrefinery.chart.NumberAxis yAxis =  new com.jrefinery.chart.VerticalNumberAxis( Y_AXIS_LABEL );
@@ -141,17 +141,17 @@ public class GriddedFaultPlotter extends ArrayList{
     /**
      *  Adds a feature to the GraphPanel attribute of the IMRTesterApplet object
      */
-    protected ChartPanel addGraphPanel(String griddedSurfaceName) {
+    protected ChartPanel addGraphPanel(String griddedSurfaceName,double gridSpacing) {
 
         // Starting
         String S = C + ": addGraphPanel(): ";
         if ( D ) System.out.println( S + "Starting: ");
         if( this.size() < 1 ) return null;
-        else if ( this.size() == 1 ) return createChartWithSingleDataset(griddedSurfaceName);
-        else return createOverlaidChart(griddedSurfaceName);
+        else if ( this.size() == 1 ) return createChartWithSingleDataset(griddedSurfaceName,gridSpacing);
+        else return createOverlaidChart(griddedSurfaceName, gridSpacing);
     }
 
-    private ChartPanel createChartWithSingleDataset(String griddedSurfaceName){
+    private ChartPanel createChartWithSingleDataset(String griddedSurfaceName,double gridSpacing ){
 
         // update axis
         xAxis.setCrosshairVisible( true );
@@ -171,6 +171,43 @@ public class GriddedFaultPlotter extends ArrayList{
            being generated  in the Plot.java class constructor*/
         //Smooth Colors transition from Red to Blue
 
+
+        if(gridSpacing >15 && gridSpacing<=20) {
+          NUM_OF_COLOR_DIFF=4;
+          RED_BLUE_DIFF=130;
+        }
+        if(gridSpacing >10 && gridSpacing<=15) {
+          NUM_OF_COLOR_DIFF=4;
+          RED_BLUE_DIFF=110;
+        }
+        if(gridSpacing >5 && gridSpacing<=10) {
+          NUM_OF_COLOR_DIFF=6;
+          RED_BLUE_DIFF=90;
+        }
+        if(gridSpacing >2 && gridSpacing<=5) {
+          NUM_OF_COLOR_DIFF=14;
+          RED_BLUE_DIFF=45;
+        }
+        if(gridSpacing >1 && gridSpacing<=2) {
+          NUM_OF_COLOR_DIFF=25;
+          RED_BLUE_DIFF=30;
+        }
+        if(gridSpacing >.5 && gridSpacing<=1) {
+          NUM_OF_COLOR_DIFF=35;
+          RED_BLUE_DIFF=13;
+        }
+        if(gridSpacing >.3 && gridSpacing<=.5) {
+          NUM_OF_COLOR_DIFF=50;
+          RED_BLUE_DIFF=8;
+        }
+        if(gridSpacing >.2 && gridSpacing<=.3) {
+          NUM_OF_COLOR_DIFF=70;
+          RED_BLUE_DIFF=5;
+        }
+        if(gridSpacing ==.2) {
+          NUM_OF_COLOR_DIFF=90;
+          RED_BLUE_DIFF=3;
+        }
         Paint[] seriesPaint = new Paint[NUM_OF_COLOR_DIFF];
         for(int i=255,j=0;i>=0;i-=RED_BLUE_DIFF,j++) {
             seriesPaint[j]=new Color(i,0,255-i);
@@ -195,7 +232,7 @@ public class GriddedFaultPlotter extends ArrayList{
 
 
 
-    private ChartPanel createOverlaidChart( String griddedSurfaceName) {
+    private ChartPanel createOverlaidChart( String griddedSurfaceName, double gridSpacing) {
 
         // axis
         xAxis.setCrosshairVisible( false );
@@ -210,6 +247,43 @@ public class GriddedFaultPlotter extends ArrayList{
            being generated  in the Plot.java class constructor*/
         //Smooth Colors transition from Red to Blue
 
+        if(gridSpacing >15 && gridSpacing<=20) {
+          NUM_OF_COLOR_DIFF=4;
+          RED_BLUE_DIFF=130;
+        }
+        if(gridSpacing >10 && gridSpacing<=15) {
+          NUM_OF_COLOR_DIFF=4;
+          RED_BLUE_DIFF=110;
+        }
+        if(gridSpacing >5 && gridSpacing<=10) {
+          NUM_OF_COLOR_DIFF=6;
+          RED_BLUE_DIFF=90;
+        }
+        if(gridSpacing >2 && gridSpacing<=5) {
+          NUM_OF_COLOR_DIFF=14;
+          RED_BLUE_DIFF=45;
+        }
+        if(gridSpacing >1 && gridSpacing<=2) {
+          NUM_OF_COLOR_DIFF=25;
+          RED_BLUE_DIFF=30;
+        }
+
+        if(gridSpacing >.5 && gridSpacing<=1) {
+          NUM_OF_COLOR_DIFF=35;
+          RED_BLUE_DIFF=13;
+        }
+        if(gridSpacing >.3 && gridSpacing<=.5) {
+          NUM_OF_COLOR_DIFF=50;
+          RED_BLUE_DIFF=8;
+        }
+        if(gridSpacing >.2 && gridSpacing<=.3) {
+          NUM_OF_COLOR_DIFF=70;
+          RED_BLUE_DIFF=5;
+        }
+        if(gridSpacing ==.2) {
+          NUM_OF_COLOR_DIFF=90;
+          RED_BLUE_DIFF=3;
+        }
         Paint[] seriesPaint = new Paint[NUM_OF_COLOR_DIFF];
         for(int i=255,j=0;i>=0;i-=RED_BLUE_DIFF,j++) {
             seriesPaint[j]=new Color(i,0,255-i);
