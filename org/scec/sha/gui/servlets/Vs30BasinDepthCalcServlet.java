@@ -126,8 +126,6 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           double valLatNext = Double.parseDouble(stNext.nextToken());
           // add vs30 for new location
           if((lat>=valLat || lat<=valLatNext)&&(lon>=val || lon<=valNext)){
-            st.nextToken();
-            stNext.nextToken();
             double vs30_Curr =Double.parseDouble(st.nextToken());
             double vs30_Next = Double.parseDouble(stNext.nextToken());
             //returns the actual value for the vs30
@@ -189,7 +187,7 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
         }
       }
 
-      System.out.println("size of vs30 vector:"+basinDepth.size());
+      System.out.println("size of basinDepth vector:"+basinDepth.size());
       output.writeObject(basinDepth);
       output.close();
     }catch (Exception e) {
