@@ -40,6 +40,19 @@ public class Location implements java.io.Serializable {
     protected double longitude=Double.NaN;
 
 
+
+    //maximum Latitude
+    private static final double MAX_LAT = 90.0;
+    //minimum latitude
+    private static final double MIN_LAT = -90.0;
+    //maximum longitude
+    private static final double MAX_LON = 360.0;
+    //manimum longitude
+    private static final double MIN_LON = -360.0;
+    //minimum depth
+    private static final double MIN_DEPTH =0.0;
+
+
     /** No-Arg Constructor for the Location object. Currently does nothing. */
     public Location() { }
 
@@ -114,8 +127,8 @@ public class Location implements java.io.Serializable {
      */
     protected void validateLatitude( double lat, String S ) throws InvalidRangeException {
 
-        if ( lat < -90 ) throw new InvalidRangeException( S + "Latitude cannot be less than -90" );
-        else if ( lat > 90 ) throw new InvalidRangeException( S + "Latitude cannot be greater than 90" );
+        if ( lat < MIN_LAT ) throw new InvalidRangeException( S + "Latitude cannot be less than -90" );
+        else if ( lat > MAX_LAT ) throw new InvalidRangeException( S + "Latitude cannot be greater than 90" );
     }
 
 
@@ -127,8 +140,8 @@ public class Location implements java.io.Serializable {
      * @exception  InvalidRangeException  Thrown if longitude not in the appropiate range.
      */
     protected void validateLongitude( double lon, String S ) throws InvalidRangeException {
-        if ( lon < -180 )  throw new InvalidRangeException( S + "Longitude cannot be less than -180" );
-        if ( lon > 180 ) throw new InvalidRangeException( S + "Longitude cannot be greater than 180" );
+        if ( lon < MIN_LON )  throw new InvalidRangeException( S + "Longitude cannot be less than -180" );
+        if ( lon > MAX_LON ) throw new InvalidRangeException( S + "Longitude cannot be greater than 180" );
     }
 
 
@@ -140,7 +153,7 @@ public class Location implements java.io.Serializable {
      * @exception  InvalidRangeException  Thrown if depth is negative.
      */
     protected void validateDepth( double depth, String S ) throws InvalidRangeException {
-        if ( depth < 0 ) throw new InvalidRangeException( S + "Depth is a negative number" );
+        if ( depth < MIN_DEPTH ) throw new InvalidRangeException( S + "Depth is a negative number" );
     }
 
 
