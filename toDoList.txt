@@ -22,13 +22,7 @@ EarthquakeRuptureGuiBean:
 	There are still problems with the hypocenter picking (e.g., list not refreshed if fault surface changed)
 	& metadata problems.
 	
-
-ScenarioShakeMapApp
-
-	In reproducing the figs in the PuenteHillsPaper for the Field_2000 IMR, I notice a discrepancy 
-	that results from the "Default Basin-Depth-2.5" not being set in the calculation (rather, it 
-	appears to use the last value set).  The very first point in the Map_data.txt file (33.2 -119.5)
-	uses this default, and the mean-IML value doesn't change with changes of this basin depth default.
+Set up registration for HazMapDataGenerator - Phil has good ideas about this.
 	
 Ned needs to document WG02_EqkRupForecast (Java docs).
 
@@ -38,11 +32,7 @@ Implement color schemes at (including option for the visually impaired):
 
 Add faults to GMT plotting options.
 
-In all apps - can we have a bug-reporting via email utility?
-
 add site translation for SEA_1999_AttenRel
-
-Set up registration for HazMapDataGenerator - Phil has good ideas about this.
 
 Install JBuilder-2005.
 
@@ -82,14 +72,6 @@ Make email lists for the following (with on-line archives):
 	developers@OpenSHA.org
 	leaders@OpenSHA.org
 	advisors@OpenSHA.org
-
-Work on following papers:
-
-	Hazus for Puente Hills
-
-	So. Cal. Hazard maps using GRID (and other approaches)
-
-	Announce applications available?
 
 Figure out how to add the OpenSHA logo to shakeMaps.
 
