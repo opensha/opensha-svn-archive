@@ -436,7 +436,7 @@ public class IMRGuiBean
 
 
         setIgnoreWarnings(true);
-        imr.setIntensityMeasure( (ParameterAPI)imr.getParameter( getGraphControlsParamValue( IM ) ).clone() );
+        imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
         setIgnoreWarnings(false);
 
         // Get choosen graph controls values
@@ -567,7 +567,7 @@ public class IMRGuiBean
                 // new period constraint value (SA and Period have same constraints. Then the SA
                 // will be passed into the IMR which will set the new coefficients because the SA period
                 // has been changed. Recall the coefficients are stored in a hash table "IM Name/Period" as the key
-                imr.setIntensityMeasure( imr.getParameter( getGraphControlsParamValue( IM ) ));
+                imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
 
                 DataPoint2D point = new DataPoint2D( val.doubleValue(), getCalculation( type ));
                 function.set( point );
@@ -576,7 +576,7 @@ public class IMRGuiBean
 
             // return to original state
             period.setValue( oldVal );
-            imr.setIntensityMeasure( imr.getParameter( getGraphControlsParamValue( IM ) ) );
+            imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
 
         }
         // Constraint contains a min and a max
@@ -888,7 +888,7 @@ public class IMRGuiBean
         controlsEditor.setTitle( "Graph Controls" );
 
         // update the im choice in the imr
-        imr.setIntensityMeasure( imr.getParameter( getGraphControlsParamValue( IM ) ) );
+        imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
 
         // All done
         if ( D )
