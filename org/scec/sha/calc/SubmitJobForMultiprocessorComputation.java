@@ -8,6 +8,7 @@ import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.util.RunScript;
 import org.scec.cme.SRBDrop.SRBDrop;
 import org.scec.sha.gui.servlets.HazardMapCalcServlet;
+import org.scec.util.FileUtils;
 
 /**
  * <p>Title: SubmitJobForMultiprocessorComputation</p>
@@ -49,6 +50,8 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
   private final static String FINISH_JOB_NAME = "FINISH";
 
 
+
+
   /**
    *
    * @param imrFileName FileName in which IMR is saved as a serialized object
@@ -64,10 +67,11 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
                                      double maxDistance,
                                      String outputDir,
                                      long remoteMachineSubdirName,
-                                     SitesInGriddedRegion griddedSites,
                                      String emailAddr) {
     if (!outputDir.endsWith("/"))
       outputDir = outputDir + "/";
+
+    SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(outputDir+regionFileName);
 
     //creating the directory for arranging the hazard map data files in a
     //organized manner.
@@ -119,11 +123,10 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
 
 
       // make the submit files to submit the jobs
-      getSubmitFileNames(imrFileName, erfFileName,
+      getSubmitFileName(imrFileName, erfFileName,
                          regionFileName, xValuesFileName,
                          maxDistance,
-                         outputDir+SUBMIT_FILES_DIR, remoteDir, outputDir,
-                         griddedSites);
+                         outputDir+SUBMIT_FILES_DIR, remoteDir, outputDir);
 
       // close the DAG files
       frmap.close();
@@ -156,13 +159,12 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
    * @param griddedSites
    * @return
    */
-  protected void getSubmitFileNames(String imrFileName, String erfFileName,
+  protected void getSubmitFileName(String imrFileName, String erfFileName,
                                      String regionFileName,
                                      String xValuesFileName,
                                      double maxDistance,
                                      String submitFilesDir, String remoteDir,
-                                     String outputDir,
-                                     SitesInGriddedRegion griddedSites) {
+                                     String outputDir) {
 
 
     // some lines needed in the condor submit file
@@ -199,5 +201,24 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
     catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+
+  /**
+   * It takes the following argument
+   * args[0] = imrFileName
+   * args[1] = erfFileName
+   * args[2] = regionFileName
+   * args[3] = xValuesFileName
+   * args[4] = maxDistance
+   * args[5] = outputDir with absolute path where the directory is to be created
+   * args[6] = remoteMachineSubdirName (outoutDir without absolute path)
+   * args[7] = emailAddr
+   * @param args
+   */
+  public final static void main(String args[]){
+    SubmitJobForMultiprocessorComputation submitJob =
+        new SubmitJobForMultiprocessorComputation(args[0],args[1],args[2],args[3],
+        Double.parseDouble(args[4]),args[5],Long.parseLong(args[6]),args[7]);
   }
 }

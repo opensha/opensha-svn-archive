@@ -92,12 +92,14 @@ public class HazardMapApplet extends JApplet
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
   private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
+  private final static String MAP_CALC_CONTROL = "Select Map Calculation option";
 
 
   // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
   private X_ValuesInCurveControlPanel xValuesPanel;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
+  private HazardMapSubmissionMethods mapSubmissionMethods;
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -134,11 +136,11 @@ public class HazardMapApplet extends JApplet
   private int step;
   JLabel emailLabel = new JLabel();
   JTextField emailText = new JTextField();
-  GridBagLayout gridBagLayout4 = new GridBagLayout();
   //holds the ArbitrarilyDiscretizedFunc
   private ArbitrarilyDiscretizedFunc function;
   //instance to get the default IMT X values for the hazard Curve
   private IMT_Info imtInfo = new IMT_Info();
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
 
 
@@ -214,17 +216,17 @@ public class HazardMapApplet extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 431));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     buttonPanel.add(addButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(28, 115, 24, 109), 26, 9));
-    buttonPanel.add(controlComboBox,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(19, 0, 0, 0), 153, 2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(25, 115, 18, 109), 26, 9));
     buttonPanel.add(emailLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(26, 5, 33, 0), 11, 12));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(23, 5, 27, 0), 11, 12));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
     imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
     imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
     buttonPanel.add(emailText,  new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(25, 0, 36, 0), 176, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(23, 0, 32, 0), 134, 4));
+    buttonPanel.add(controlComboBox,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(17, 0, 0, 0), -1, 2));
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab( "Earthquake Rupture Forecast", eqkRupPanel );
@@ -451,6 +453,7 @@ public class HazardMapApplet extends JApplet
     controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
     controlComboBox.addItem(X_VALUES_CONTROL);
     controlComboBox.addItem(DISTANCE_CONTROL);
+    controlComboBox.addItem(MAP_CALC_CONTROL);
   }
 
 
@@ -492,6 +495,17 @@ public class HazardMapApplet extends JApplet
      distanceControlPanel.show();
    }
 
+   /**
+    * Initialize the MapSubmission Calculation option .By default the option is
+    * Grid Based mode of generating the Hazard Map Calculation but this control
+    * panel allows user to choose from other options too.
+    */
+   private void initMapCalculationModeControl() {
+     if (mapSubmissionMethods == null)
+       mapSubmissionMethods = new HazardMapSubmissionMethods();
+     mapSubmissionMethods.pack();
+     mapSubmissionMethods.show();
+   }
 
    /**
     *
@@ -534,17 +548,19 @@ public class HazardMapApplet extends JApplet
   * This function is called when controls pick list is chosen
   * @param e
   */
- void controlComboBox_actionPerformed(ActionEvent e) {
-   if(controlComboBox.getItemCount()<=0) return;
-   String selectedControl = controlComboBox.getSelectedItem().toString();
-   if(selectedControl.equalsIgnoreCase(this.REGIONS_OF_INTEREST_CONTROL))
-     initRegionsOfInterestControl();
-   else if(selectedControl.equalsIgnoreCase(this.X_VALUES_CONTROL))
+  void controlComboBox_actionPerformed(ActionEvent e) {
+    if(controlComboBox.getItemCount()<=0) return;
+    String selectedControl = controlComboBox.getSelectedItem().toString();
+    if(selectedControl.equalsIgnoreCase(this.REGIONS_OF_INTEREST_CONTROL))
+      initRegionsOfInterestControl();
+    else if(selectedControl.equalsIgnoreCase(this.X_VALUES_CONTROL))
       initX_ValuesControl();
-   else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
+    else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
       initDistanceControl();
-   controlComboBox.setSelectedItem(this.CONTROL_PANELS);
- }
+    else if(selectedControl.equalsIgnoreCase(this.MAP_CALC_CONTROL))
+      initMapCalculationModeControl();
+    controlComboBox.setSelectedItem(this.CONTROL_PANELS);
+  }
 
 
  /**

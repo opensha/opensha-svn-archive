@@ -65,31 +65,32 @@ public class ThreadHazardMapCalculator {
   }
 
 
-/**
- * this method generates the threads that run 100 sites at a time
- * and each thread will create the Hazard Curve for that site.
- * @param args :Command Line arguments for the ERF, IMR and Region
- */
-public void getHazardMapCurves(String[] args) {
-  try{
+  /**
+   * This method generates the threads that run HazardCurveCalculator for
+   * each site on the multiprocessor machine at a time and each thread will
+   * create the Hazard Curve for that site.
+   * @param args :Command Line arguments for the ERF, IMR and Region
+   */
+  public void getHazardMapCurves(String[] args) {
+    try{
 
-    SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
-    hazCurveCalc.setMaxSourceDistance(this.MAX_DISTANCE);
-    int numSites = griddedSites.getNumGridLocs();
-    //dividing the number of sites on each processor based on the number of processor
-    //requested from the server.
-    int sitesPerProcessor = (int)(numSites/SubmitJobForMultiprocessorComputation.NUM_OF_PROCESSORS_AVAILABLE+1);
-    for(int j=0;j<numSites;j+=sitesPerProcessor){
-      int endIndex = j+sitesPerProcessor;
-      if(endIndex >=numSites)
-        endIndex = numSites;
-      Thread t = new Thread(new HazardCurvesGenerator(args,j,endIndex));
-      t.start();
+      SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
+      hazCurveCalc.setMaxSourceDistance(this.MAX_DISTANCE);
+      int numSites = griddedSites.getNumGridLocs();
+      //dividing the number of sites on each processor based on the number of processor
+      //requested from the server.
+      int sitesPerProcessor = (int)(numSites/SubmitJobForMultiprocessorComputation.NUM_OF_PROCESSORS_AVAILABLE+1);
+      for(int j=0;j<numSites;j+=sitesPerProcessor){
+        int endIndex = j+sitesPerProcessor;
+        if(endIndex >=numSites)
+          endIndex = numSites;
+        Thread t = new Thread(new HazardCurvesGenerator(args,j,endIndex));
+        t.start();
+      }
+    }catch(Exception e){
+      e.printStackTrace();
     }
-  }catch(Exception e){
-    e.printStackTrace();
   }
-}
 
 
 

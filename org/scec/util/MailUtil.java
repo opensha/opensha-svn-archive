@@ -13,7 +13,7 @@ import sun.net.smtp.SmtpClient;
  * @version 1.0
  */
 
-public class MailUtil {
+public final class MailUtil {
 
   /**
    *
