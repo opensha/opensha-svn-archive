@@ -104,22 +104,21 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
   /**
    * List to store the Lats
    */
-  ParameterList parameterListForLats = new ParameterList();
+  ParameterList parameterListForLats ;
 
   /**
    * List to store the Lons
    */
-  ParameterList parameterListForLons = new ParameterList();
-
+  ParameterList parameterListForLons ;
   /**
    * ParameterList for the Dips
    */
-  ParameterList parameterListForDips = new ParameterList();
+  ParameterList parameterListForDips ;
 
   /**
    * ParameterList for the Depths
    */
-  ParameterList parameterListForDepths = new ParameterList();
+  ParameterList parameterListForDepths ;
 
 
 
@@ -159,6 +158,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
   StringParameterEditor faultTypeEditor;
 
   public EvenlyGriddedSurfaceParameterEditor() {
+    button.addActionListener(this);
   }
 
   /**
@@ -291,14 +291,15 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     DoubleParameter[] lat = new DoubleParameter[numFltTracePoints];
     DoubleParameter[] lon = new DoubleParameter[numFltTracePoints];
 
+    //making the parameterList for the Lat and Lons
+    this.parameterListForLats = new ParameterList();
+    this.parameterListForLons = new ParameterList();
+
     //creating the editor for the lons
     for(int i=0;i<numFltTracePoints;++i){
       lat[i] = new DoubleParameter(this.LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees", new Double(37.00));
-      //if the parameter does not exist then add to the list, else don't
-      if(!parameterListForLats.containsParameter(lat[i])){
         this.parameterListForLats.addParameter(lat[i]);
         lat[i].addParameterChangeListener(this);
-      }
     }
     editorForLats = new ParameterListEditor(parameterListForLats,searchPaths);
     editorForLats.setTitle(this.LAT_EDITOR_TITLE);
@@ -309,11 +310,8 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     //creating the editor for the Lons
     for(int i=0;i<numFltTracePoints;++i){
       lon[i] = new DoubleParameter(this.LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees", new Double(-112.00));
-      //if the parameter does not exist then add to the list, else don't
-      if(!parameterListForLons.containsParameter(lon[i])){
-        lon[i].addParameterChangeListener(this);
-        this.parameterListForLons.addParameter(lon[i]);
-      }
+      lon[i].addParameterChangeListener(this);
+      this.parameterListForLons.addParameter(lon[i]);
     }
     editorForLons = new ParameterListEditor(parameterListForLons,searchPaths);
     editorForLons.setTitle(this.LON_EDITOR_TITLE);
@@ -326,15 +324,15 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
    */
   public void setDips(){
     int numDips = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue();
+
     DoubleParameter[] dip = new DoubleParameter[numDips];
 
+    //making the parameterList for the Dips
+    this.parameterListForDips = new ParameterList();
     for(int i=0;i<numDips;++i){
       dip[i] = new DoubleParameter(DIP_PARAM_NAME+(i+1),0.0,90.0,"Degrees",new Double(0.0));
-      //if the parameter does not exist then add to the list, else don't
-      if(!this.parameterListForDips.containsParameter(dip[i])){
-        dip[i].addParameterChangeListener(this);
-        this.parameterListForDips.addParameter(dip[i]);
-      }
+      dip[i].addParameterChangeListener(this);
+      this.parameterListForDips.addParameter(dip[i]);
     }
     editorForDips = new ParameterListEditor(parameterListForDips,searchPaths);
     editorForDips.setTitle(this.DIP_EDITOR_TITLE);
@@ -349,13 +347,13 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     int numDepths = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue()+1;
     DoubleParameter[] depth = new DoubleParameter[numDepths];
 
+    //making the parameterList for the Dips
+    this.parameterListForDepths = new ParameterList();
+
     for(int i=0;i<numDepths;++i){
       depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms", new Double(0.0));
-      //if the parameter does not exist then add to the list, else don't
-      if(!this.parameterListForDepths.containsParameter(depth[i])){
-        depth[i].addParameterChangeListener(this);
-        this.parameterListForDepths.addParameter(depth[i]);
-      }
+      depth[i].addParameterChangeListener(this);
+      this.parameterListForDepths.addParameter(depth[i]);
     }
     editorForDepths = new ParameterListEditor(parameterListForDepths,searchPaths);
     editorForDepths.setTitle(this.DEPTH_EDITOR_TITLE);
@@ -438,25 +436,57 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     if ( D )
       System.out.println( "\n" + S + "starting: " );
 
-
+    //System.out.println("param change");
     String name1 = event.getParameterName();
 
     /**
      * If the changed parameter is the number of the fault trace param
      */
-    if(name1.equalsIgnoreCase(this.NUMBER_OF_FAULT_TRACE))
-       //if the user has changed the values for the Number of the fault trace
-        this.setLatLon();
+    if(name1.equalsIgnoreCase(this.NUMBER_OF_FAULT_TRACE)){
+      //System.out.println("Inside the Fault Trace param change");
+
+      //removing the lats and Lons editor from the Applet
+      remove(editorForLats);
+      remove(editorForLons);
+
+      //if the user has changed the values for the Number of the fault trace
+      this.setLatLon();
+
+      /**
+       * showing the Lats and Lons in the tabular format
+       * Adding the lats and lons editor to the Parameter editor
+       */
+      add(this.editorForLats,new GridBagConstraints( 0, 1, 0, 1, 1.0, 0.0
+          , GridBagConstraints.WEST, GridBagConstraints.WEST, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+      add(this.editorForLons,new GridBagConstraints( 0, 1, 0, 1, 1.0, 0.0
+          , GridBagConstraints.EAST, GridBagConstraints.EAST, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+      this.validate();
+      this.repaint();
+    }
 
     /**
      * If the changed parameter is the number of the Dips
      */
     if(name1.equalsIgnoreCase(this.NUM_DIPS)) {
-      System.out.println("Changing the number of Dips");
+      //System.out.println("Inside the Num dips param change");
+      //removing the dips and depth editor from the applet
+      remove(editorForDips);
+      remove(editorForDepths);
       this.setDips();
       this.setDepths();
+
+      //Adding the dips and depth editor to the parameter editor
+      add(this.editorForDips,new GridBagConstraints( 0, 3, 1, 1, 1.0, 0.0
+          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+      add(this.editorForDepths,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
+          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
       if(((Integer)numDipsEditor.getParameter().getValue()).intValue() !=1)
         this.faultTypeEditor.setVisible(false);
+      this.validate();
+      this.repaint();
     }
 
     evenlyGriddedParamChange = true;
