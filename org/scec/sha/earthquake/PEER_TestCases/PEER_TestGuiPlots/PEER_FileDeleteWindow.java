@@ -87,6 +87,7 @@ public class PEER_FileDeleteWindow extends JFrame {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 7, 29, 41), 20, 13));
     this.getContentPane().add(okButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 0, 29, 0), 46, 13));
+    this.setTitle("PEER Data File Deletion Window");
   }
 
   /**
