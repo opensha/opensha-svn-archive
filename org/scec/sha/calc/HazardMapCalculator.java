@@ -148,33 +148,37 @@ public class HazardMapCalculator {
                                  String mapParametersInfo) {
     Site site;
     this.xLogFlag = imtLogFlag;
-    HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
-    //hazCurveCalc.showProgressBar(false);
+    try{
+      HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
+      //hazCurveCalc.showProgressBar(false);
 
-    int numSites = griddedSites.getNumGridLocs();
+      int numSites = griddedSites.getNumGridLocs();
 
-    int numPoints = xValues.length;
-    for(int j=0;j<numSites;++j){
-      site = griddedSites.getSite(j);
-      // make and initialize the haz function
-      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-      this.initX_Values(hazFunction,xValues);
-      hazCurveCalc.getHazardCurve(hazFunction,site,imr,eqkRupForecast);
-      String lat = decimalFormat.format(site.getLocation().getLatitude());
-      String lon = decimalFormat.format(site.getLocation().getLongitude());
+      int numPoints = xValues.length;
+      for(int j=0;j<numSites;++j){
+        site = griddedSites.getSite(j);
+        // make and initialize the haz function
+        ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+        this.initX_Values(hazFunction,xValues);
+        hazCurveCalc.getHazardCurve(hazFunction,site,imr,eqkRupForecast);
+        String lat = decimalFormat.format(site.getLocation().getLatitude());
+        String lon = decimalFormat.format(site.getLocation().getLongitude());
 
-      hazFunction = this.toggleHazFuncLogValues(hazFunction, xValues);
-      try{
-         FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
+        hazFunction = this.toggleHazFuncLogValues(hazFunction, xValues);
+        try{
+          FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
           for(int i=0;i<numPoints;++i)
             fr.write(hazFunction.getX(i)+" "+hazFunction.getY(i)+"\n");
           fr.close();
-       }catch(IOException e){
-        e.printStackTrace();
+        }catch(IOException e){
+          e.printStackTrace();
+        }
       }
+    }catch(Exception e){
+      e.printStackTrace();
     }
 
-   // make the metadata.data and sites.data files
+    // make the metadata.data and sites.data files
     try{
       FileWriter fr = new FileWriter(newDir+"/metadata.dat");
       fr.write(mapParametersInfo+"\n");

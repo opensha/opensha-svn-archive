@@ -46,8 +46,8 @@ import org.scec.sha.earthquake.rupForecastImpl.PointPoissonEqkSource;
 
   // Input file names
   private final static String DELTA_RATES_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
-  //private final static String BACKGROUND_RATES_FILE_NAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/DailyRates96Model.txt";
-  private final static String BACKGROUND_RATES_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/DailyRates96Model.txt";
+  private final static String BACKGROUND_RATES_FILE_NAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/DailyRates96Model.txt";
+  //private final static String BACKGROUND_RATES_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/DailyRates96Model.txt";
   // ArrayLists of input file lines
   private ArrayList deltaRateFileLines;
   private ArrayList backgroundRateFileLines;

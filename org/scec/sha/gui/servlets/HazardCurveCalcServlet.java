@@ -5,6 +5,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.rmi.RemoteException;
 
 import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.util.FileUtils;
@@ -80,12 +81,23 @@ public class HazardCurveCalcServlet extends HttpServlet {
     }
   }
 
-
+  /**
+   *
+   * @param imr
+   * @param eqkRupForecast
+   * @param site
+   * @param function
+   * @param maxDistance
+   */
   private void getHazardCurve(AttenuationRelationshipAPI imr,EqkRupForecastAPI eqkRupForecast,
                                    Site site,ArbitrarilyDiscretizedFunc function,double maxDistance){
-    HazardCurveCalculator calc = new HazardCurveCalculator();
-    calc.setMaxSourceDistance(maxDistance);
-    calc.getHazardCurve((DiscretizedFuncAPI)function,site,imr,(ERF_API)eqkRupForecast);
+    try{
+      HazardCurveCalculator calc = new HazardCurveCalculator();
+      calc.setMaxSourceDistance(maxDistance);
+      calc.getHazardCurve((DiscretizedFuncAPI)function,site,imr,(ERF_API)eqkRupForecast);
+    }catch(RemoteException e){
+      e.printStackTrace();
+    }
   }
 
 

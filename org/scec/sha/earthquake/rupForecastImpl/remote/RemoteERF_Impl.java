@@ -51,6 +51,7 @@ public class RemoteERF_Impl
     */
    public void updateForecast(ParameterList list, TimeSpan timeSpan) throws
        RemoteException {
+     eqkRupForecast.setParameterChangeFlag(true);
      Iterator it = list.getParametersIterator();
      while (it.hasNext()) {
        ParameterAPI param = (ParameterAPI) it.next();

@@ -180,31 +180,32 @@ public class HazusMapCalculator {
                                   EqkRupForecast eqkRupForecast) {
     Site site;
     this.xLogFlag = imtLogFlag;
-    HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
-    //hazCurveCalc.showProgressBar(false);
+    try{
+      HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
+      //hazCurveCalc.showProgressBar(false);
 
-    if(this.showProgressBar) { // show the progress bar
-      progressClass = new CalcProgressBar("Hazard-Map Calc Status", "Beginning Calculation ");
-      progressClass.displayProgressBar();
-    }
-    int numSites = griddedSites.getNumGridLocs();
+      if(this.showProgressBar) { // show the progress bar
+        progressClass = new CalcProgressBar("Hazard-Map Calc Status", "Beginning Calculation ");
+        progressClass.displayProgressBar();
+      }
+      int numSites = griddedSites.getNumGridLocs();
 
-    if (this.showProgressBar)  progressClass.updateProgress(0, numSites);
-    int numPoints = xValues.length;
-    decimalFormat.setMaximumFractionDigits(6);
-    for(int j=0;j<numSites;++j){
-      if(this.showProgressBar) progressClass.updateProgress(j, numSites);
-      site = griddedSites.getSite(j);
-      // make and initialize the haz function
-      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-      this.initX_Values(hazFunction,xValues);
-      hazCurveCalc.getHazardCurve(hazFunction,site,imr,eqkRupForecast);
-      String lat = decimalFormat.format(site.getLocation().getLatitude());
-      String lon = decimalFormat.format(site.getLocation().getLongitude());
+      if (this.showProgressBar)  progressClass.updateProgress(0, numSites);
+      int numPoints = xValues.length;
+      decimalFormat.setMaximumFractionDigits(6);
+      for(int j=0;j<numSites;++j){
+        if(this.showProgressBar) progressClass.updateProgress(j, numSites);
+        site = griddedSites.getSite(j);
+        // make and initialize the haz function
+        ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+        this.initX_Values(hazFunction,xValues);
+        hazCurveCalc.getHazardCurve(hazFunction,site,imr,eqkRupForecast);
+        String lat = decimalFormat.format(site.getLocation().getLatitude());
+        String lon = decimalFormat.format(site.getLocation().getLongitude());
 
-      hazFunction = this.toggleHazFuncLogValues(hazFunction, xValues);
-      try{
-         FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
+        hazFunction = this.toggleHazFuncLogValues(hazFunction, xValues);
+        try{
+          FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
           for(int i=0;i<numPoints;++i){
             double temp = 1-hazFunction.getY(i);
             if(temp == 0.0)
@@ -213,11 +214,13 @@ public class HazusMapCalculator {
             fr.write(hazFunction.getX(i)+" "+decimalFormat.format(rate)+"\n");
           }
           fr.close();
-       }catch(IOException e){
-        e.printStackTrace();
+        }catch(IOException e){
+          e.printStackTrace();
+        }
       }
+    }catch(Exception e){
+      e.printStackTrace();
     }
-
     if(this.showProgressBar) progressClass.dispose();
   }
 

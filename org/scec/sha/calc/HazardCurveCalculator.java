@@ -9,12 +9,15 @@ import javax.swing.JLabel;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.io.IOException;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 
 import org.scec.data.function.*;
 import org.scec.data.Site;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.*;
-
+import org.scec.util.FileUtils;
 import org.scec.sha.earthquake.ERF_API;
 /**
  * <p>Title: HazardCurveCalculator </p>
@@ -27,7 +30,8 @@ import org.scec.sha.earthquake.ERF_API;
  * @version 1.0
  */
 
-public class HazardCurveCalculator {
+public class HazardCurveCalculator extends UnicastRemoteObject
+    implements HazardCurveCalculatorAPI{
 
   protected final static String C = "HazardCurveCalculator";
   protected final static boolean D = false;
@@ -44,6 +48,17 @@ public class HazardCurveCalculator {
   private int totRuptures=0;
   private int numForecasts=0;
 
+
+  /**
+   * creates the HazardCurveCalculator object
+   *
+   * @throws java.rmi.RemoteException
+   * @throws IOException
+   */
+  public HazardCurveCalculator()
+      throws java.rmi.RemoteException {}
+
+
   /**
    * This sets the maximum distance of sources to be considered in the calculation
    * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
@@ -52,13 +67,15 @@ public class HazardCurveCalculator {
    *
    * @param distance: the maximum distance in km
    */
-  public void setMaxSourceDistance(double distance) {
+  public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
     MAX_DISTANCE = distance;
   }
 
-  public void setNumForecasts(int num) {
+  public void setNumForecasts(int num) throws java.rmi.RemoteException{
     this.numForecasts = num;
   }
+
+
 
   /**
    * This function computes a hazard curve for the given Site, IMR, and ERF.  The curve
@@ -71,7 +88,8 @@ public class HazardCurveCalculator {
    * @return
    */
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
-                             Site site, AttenuationRelationshipAPI imr, ERF_API eqkRupForecast) {
+                             Site site, AttenuationRelationshipAPI imr, ERF_API eqkRupForecast)
+  throws java.rmi.RemoteException{
 
     this.currRuptures = -1;
 
@@ -83,6 +101,8 @@ public class HazardCurveCalculator {
 
     ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
     ArbitrarilyDiscretizedFunc sourceHazFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
+
+    //System.out.println("hazFunction: "+hazFunction.toString());
 
     // declare some varibles used in the calculation
     double qkProb, distance;
@@ -97,11 +117,15 @@ public class HazardCurveCalculator {
 
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
-
+    //System.out.println("Number of Sources: "+numSources);
+    //System.out.println("ERF info: "+ eqkRupForecast.getClass().getName());
     // compute the total number of ruptures for updating the progress bar
     totRuptures = 0;
     for(i=0;i<numSources;++i)
       totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
+
+    //System.out.println("Total number of ruptures:"+ totRuptures);
+
 
     // init the current rupture number (also for progress bar)
     currRuptures = 0;
@@ -193,15 +217,15 @@ public class HazardCurveCalculator {
   }
 
 
-  public int getCurrRuptures() {
+  public int getCurrRuptures() throws java.rmi.RemoteException{
     return this.currRuptures;
   }
 
-  public int getTotRuptures() {
+  public int getTotRuptures() throws java.rmi.RemoteException{
     return this.totRuptures;
   }
 
-  public boolean done() {
+  public boolean done() throws java.rmi.RemoteException{
     return (currRuptures==totRuptures && (numForecasts==0));
   }
 

@@ -17,6 +17,7 @@ import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.rmi.RemoteException;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -696,7 +697,11 @@ public class HazardCurveApplet extends JApplet
       // do not show warning messages in IMR gui bean. this is needed
       // so that warning messages for site parameters are not shown when Add graph is clicked
       imrGuiBean.showWarningMessages(false);
-      calc = new HazardCurveCalculator();
+      try{
+        calc = new HazardCurveCalculator();
+      }catch(RemoteException e){
+        e.printStackTrace();
+      }
 
       // check if progress bar is desired and set it up if so
       if(this.progressCheckBox.isSelected())  {
@@ -705,17 +710,21 @@ public class HazardCurveApplet extends JApplet
 
         timer = new Timer(500, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
-            if(calc.getCurrRuptures()!=-1)
-              progressClass.updateProgress(calc.getCurrRuptures(), calc.getTotRuptures());
-            if(isIndividualCurves) {
-              drawGraph();
-              //isIndividualCurves = false;
-            }
-            if (calc.done()) {
-              // Toolkit.getDefaultToolkit().beep();
-              timer.stop();
-              progressClass.dispose();
-              drawGraph();
+            try{
+              if(calc.getCurrRuptures()!=-1)
+                progressClass.updateProgress(calc.getCurrRuptures(), calc.getTotRuptures());
+              if(isIndividualCurves) {
+                drawGraph();
+                //isIndividualCurves = false;
+              }
+              if (calc.done()) {
+                // Toolkit.getDefaultToolkit().beep();
+                timer.stop();
+                progressClass.dispose();
+                drawGraph();
+              }
+            }catch(RemoteException e){
+              e.printStackTrace();
             }
           }
         });
@@ -964,14 +973,22 @@ public class HazardCurveApplet extends JApplet
       handleForecastList(site, imr, eqkRupForecast);
       return;
     }
-    calc.setNumForecasts(1);
+    try{
+      calc.setNumForecasts(1);
+    }catch(RemoteException e){
+      e.printStackTrace();
+    }
     // this is not a eqk list
    this.isEqkList = false;
     // calculate the hazard curve
    //HazardCurveCalculator calc = new HazardCurveCalculator();
    // do not show progress bar if not desired by user
    //calc.showProgressBar(this.progressCheckBox.isSelected());
-   if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+   try{
+     if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+   }catch(RemoteException e){
+     e.printStackTrace();
+   }
    // initialize the values in condProbfunc with log values as passed in hazFunction
    // intialize the hazard function
    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -979,7 +996,11 @@ public class HazardCurveApplet extends JApplet
    try {
      // calculate the hazard curve
      //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
-     calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
+     try{
+       calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
+     }catch(RemoteException e){
+       e.printStackTrace();
+     }
      hazFunction = toggleHazFuncLogValues(hazFunction);
      hazFunction.setInfo(getParametersInfo());
    }catch (RuntimeException e) {
@@ -1047,11 +1068,19 @@ public class HazardCurveApplet extends JApplet
                                   EqkRupForecastAPI eqkRupForecast) {
    ERF_List erfList  = (ERF_List)eqkRupForecast;
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
-   calc.setNumForecasts(numERFs);
+   try{
+     calc.setNumForecasts(numERFs);
+   }catch(RemoteException e){
+     e.printStackTrace();
+   }
    // clear the function list
    totalProbFuncs.clear();
    // calculate the hazard curve
-   if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+   try{
+     if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+   }catch(RemoteException e){
+     e.printStackTrace();
+   }
    // do not show progress bar if not desired by user
    //calc.showProgressBar(this.progressCheckBox.isSelected());
    //check if the curves are to shown in the same black color for each erf.
@@ -1064,8 +1093,12 @@ public class HazardCurveApplet extends JApplet
      // intialize the hazard function
      initX_Values(hazFunction);
      try {
+       try{
        // calculate the hazard curve
-       calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+         calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+       }catch(RemoteException e){
+         e.printStackTrace();
+       }
        hazFunction = toggleHazFuncLogValues(hazFunction);
        hazFunction.setInfo(getParametersInfo());
      }catch (RuntimeException e) {

@@ -17,6 +17,7 @@ import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.rmi.RemoteException;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -705,7 +706,11 @@ public class Temp_HazardCurveApplication extends JApplet
       // do not show warning messages in IMR gui bean. this is needed
       // so that warning messages for site parameters are not shown when Add graph is clicked
       imrGuiBean.showWarningMessages(false);
-      calc = new HazardCurveCalculator();
+      try{
+        calc = new HazardCurveCalculator();
+      }catch(RemoteException e){
+        e.printStackTrace();
+      }
 
       // check if progress bar is desired and set it up if so
       if(this.progressCheckBox.isSelected())  {
@@ -714,17 +719,21 @@ public class Temp_HazardCurveApplication extends JApplet
 
         timer = new Timer(500, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
-            if(calc.getCurrRuptures()!=-1)
-              progressClass.updateProgress(calc.getCurrRuptures(), calc.getTotRuptures());
-            if(isIndividualCurves) {
-              drawGraph();
-              //isIndividualCurves = false;
-            }
-            if (calc.done()) {
-              // Toolkit.getDefaultToolkit().beep();
-              timer.stop();
-              progressClass.dispose();
-              drawGraph();
+            try{
+              if(calc.getCurrRuptures()!=-1)
+                progressClass.updateProgress(calc.getCurrRuptures(), calc.getTotRuptures());
+              if(isIndividualCurves) {
+                drawGraph();
+                //isIndividualCurves = false;
+              }
+              if (calc.done()) {
+                // Toolkit.getDefaultToolkit().beep();
+                timer.stop();
+                progressClass.dispose();
+                drawGraph();
+              }
+            }catch(RemoteException e){
+              e.printStackTrace();
             }
           }
         });
@@ -925,24 +934,22 @@ public class Temp_HazardCurveApplication extends JApplet
    */
   private void computeHazardCurve() {
 
-
-    String eqkRupForecastLocation=null;
-
+    EqkRupForecastAPI forecast = null;
     // whwther to show progress bar in case of update forecast
     erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
     // get the selected forecast model
     try{
       //get the selected ERF instance
-      eqkRupForecastLocation = erfGuiBean.saveSelectedERF();
+      forecast = erfGuiBean.getSelectedERF();
     }catch(Exception e){
       e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
       return;
     }
     if(this.progressCheckBox.isSelected())  {
-        progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
-        progressClass.displayProgressBar();
-        timer.start();
+      progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+      progressClass.displayProgressBar();
+      timer.start();
     }
 
     // get the selected IMR
@@ -965,40 +972,51 @@ public class Temp_HazardCurveApplication extends JApplet
     //boolean isEqkForecastList = false;
     /*if(eqkRupForecast instanceof ERF_List)  {
       this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
-      //checks to see if we are dealing with the ERF_List, if so then show the earlier plots
-      //in a seperate window.
+    //checks to see if we are dealing with the ERF_List, if so then show the earlier plots
+    //in a seperate window.
       if(isEqkList && (totalProbFuncs.size()>0))
-        //shows the curves for the ERF List in a seperate window
+    //shows the curves for the ERF List in a seperate window
         peelOffCurves();
       handleForecastList(site, imr, eqkRupForecast);
       return;
     }*/
-    //calc.setNumForecasts(1);
-    // this is not a eqk list
-   //this.isEqkList = false;
-    // calculate the hazard curve
-   //HazardCurveCalculator calc = new HazardCurveCalculator();
-   // do not show progress bar if not desired by user
-   //calc.showProgressBar(this.progressCheckBox.isSelected());
-   //if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-   // initialize the values in condProbfunc with log values as passed in hazFunction
-   // intialize the hazard function
-   ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-   initX_Values(hazFunction);
-   //System.out.println("22222222HazFunction: "+hazFunction.toString());
-   try {
-     // calculate the hazard curve
-     //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
-     //calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
-     hazFunction = sendParametersToServlet(site,imr,eqkRupForecastLocation,hazFunction);
-     hazFunction = toggleHazFuncLogValues(hazFunction);
-     hazFunction.setInfo(getParametersInfo());
-   }catch (RuntimeException e) {
-     JOptionPane.showMessageDialog(this, e.getMessage(),
-                                   "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-     e.printStackTrace();
-     return;
-   }
+
+    try{
+        calc.setNumForecasts(1);
+      }catch(RemoteException e){
+        e.printStackTrace();
+      }
+
+      // this is not a eqk list
+      //this.isEqkList = false;
+      // calculate the hazard curve
+      try{
+        if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+      }catch(RemoteException e){
+        e.printStackTrace();
+      }
+      // initialize the values in condProbfunc with log values as passed in hazFunction
+      // intialize the hazard function
+      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+      initX_Values(hazFunction);
+      //System.out.println("22222222HazFunction: "+hazFunction.toString());
+      try {
+        // calculate the hazard curve
+        //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
+        try{
+          calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)forecast);
+        }catch(RemoteException e){
+          e.printStackTrace();
+        }
+        //hazFunction = sendParametersToServlet(site,imr,eqkRupForecastLocation,hazFunction);
+        hazFunction = toggleHazFuncLogValues(hazFunction);
+        hazFunction.setInfo(getParametersInfo());
+      }catch (RuntimeException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(),
+                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+        e.printStackTrace();
+        return;
+      }
 
 
    // add the function to the function list
@@ -1365,9 +1383,9 @@ public class Temp_HazardCurveApplication extends JApplet
   }
 
   /**
-  * Initialize the Interesting sites control panel
-  * It will provide a pick list of interesting sites
-  */
+   * Initialize the Interesting sites control panel
+   * It will provide a pick list of interesting sites
+   */
   private void initCVMControl() {
     if(this.cvmControlPanel==null)
       cvmControlPanel = new SetSiteParamsFromWebServicesControlPanel(this, this.imrGuiBean, this.siteGuiBean);

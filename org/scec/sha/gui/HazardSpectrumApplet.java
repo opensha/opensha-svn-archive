@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.net.*;
 import java.lang.reflect.InvocationTargetException;
-
+import java.rmi.RemoteException;
 
 
 import org.jfree.chart.*;
@@ -736,50 +736,57 @@ public class HazardSpectrumApplet extends JApplet
       // do not show warning messages in IMR gui bean. this is needed
       // so that warning messages for site parameters are not shown when Add graph is clicked
       imrGuiBean.showWarningMessages(false);
-      calc = new HazardCurveCalculator();
+      try{
+        calc = new HazardCurveCalculator();
+      }catch(Exception e){
+        e.printStackTrace();
+      }
+        // check if progress bar is desired and set it up if so
+        if(this.progressCheckBox.isSelected())  {
+          //progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+          //progressClass.displayProgressBar();
 
-      // check if progress bar is desired and set it up if so
-      if(this.progressCheckBox.isSelected())  {
-        //progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
-        //progressClass.displayProgressBar();
+          timer = new Timer(500, new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+              try{
+                if(calc.getCurrRuptures()!=-1){
+                  progressClass.updateProgress(numSA_PeriodValDone,numSA_PeriodVals);
+                }
+              }catch(Exception e){
+                e.printStackTrace();
+              }
+              if(isIndividualCurves) {
+                drawGraph();
+                //isIndividualCurves = false;
+              }
+              if (hazCalcDone) {
+                timer.stop();
+                progressClass.dispose();
+                drawGraph();
+              }
+            }
+          });
 
-        timer = new Timer(500, new ActionListener() {
-          public void actionPerformed(ActionEvent evt) {
-            if(calc.getCurrRuptures()!=-1){
-              progressClass.updateProgress(numSA_PeriodValDone,numSA_PeriodVals);
-            }
-            if(isIndividualCurves) {
-              drawGraph();
-              //isIndividualCurves = false;
-            }
-            if (hazCalcDone) {
-              timer.stop();
-              progressClass.dispose();
-              drawGraph();
-            }
-          }
-        });
-
-        // timer for disaggregation progress bar
+          // timer for disaggregation progress bar
         /*disaggTimer = new Timer(500, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
             if(disaggCalc.getCurrRuptures()!=-1)
               disaggProgressClass.updateProgress(disaggCalc.getCurrRuptures(), disaggCalc.getTotRuptures());
             if (disaggCalc.done()) {
-              // Toolkit.getDefaultToolkit().beep();
+          // Toolkit.getDefaultToolkit().beep();
               disaggTimer.stop();
               disaggProgressClass.dispose();
             }
           }
         });*/
 
-        Thread t = new Thread(this);
-        t.start();
-      }
-      else {
-        this.computeHazardCurve();
-        this.drawGraph();
-      }
+          Thread t = new Thread(this);
+            t.start();
+        }
+        else {
+          this.computeHazardCurve();
+          this.drawGraph();
+        }
     }
 
     /**
@@ -1044,12 +1051,20 @@ public class HazardSpectrumApplet extends JApplet
         handleForecastList(site, imr, eqkRupForecast,imlProbValue,imlAtProb,probAtIML);
         return;
       }
-      calc.setNumForecasts(1);
+      try{
+        calc.setNumForecasts(1);
+      }catch(RemoteException e){
+        e.printStackTrace();
+      }
       // this is not a eqk list
       this.isEqkList = false;
 
+      try{
        // set the value for the distance from the distance control panel
-      if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+        if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+      }catch(RemoteException e){
+        e.printStackTrace();
+      }
       // initialize the values in condProbfunc with log values as passed in hazFunction
       initX_Values(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
 
@@ -1058,9 +1073,13 @@ public class HazardSpectrumApplet extends JApplet
         for(int i=0;i< numSA_PeriodVals;++i){
           double saPeriodVal = ((Double)this.saPeriodVector.get(i)).doubleValue();
           imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(i));
-          // calculate the hazard curve for each SA Period
-          calc.getHazardCurve(tempHazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
-          //number of SA Periods for which we have ran the Hazard Curve
+          try{
+            // calculate the hazard curve for each SA Period
+            calc.getHazardCurve(tempHazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
+          }catch(RemoteException e){
+            e.printStackTrace();
+          }
+        //number of SA Periods for which we have ran the Hazard Curve
           this.numSA_PeriodValDone =i;
           hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
           double val = getHazFuncIML_ProbValues(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
@@ -1212,11 +1231,19 @@ public class HazardSpectrumApplet extends JApplet
    this.numSA_PeriodValDone =0;
 
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
-   calc.setNumForecasts(numERFs);
+   try{
+     calc.setNumForecasts(numERFs);
+   }catch(RemoteException e){
+     e.printStackTrace();
+   }
    // clear the function list
    totalProbFuncs.clear();
    // calculate the hazard curve
-   if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+   try{
+     if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+   }catch(RemoteException e){
+     e.printStackTrace();
+   }
    // do not show progress bar if not desired by user
    //calc.showProgressBar(this.progressCheckBox.isSelected());
    //check if the curves are to shown in the same black color for each erf.
@@ -1242,8 +1269,12 @@ public class HazardSpectrumApplet extends JApplet
        for(int j=0;j< this.numSA_PeriodVals;++j){
          double saPeriodVal = ((Double)this.saPeriodVector.get(j)).doubleValue();
          imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(j));
-          // calculate the hazard curve for each SA Period
-         calc.getHazardCurve(tempHazFunction, site, imr, erfList.getERF(i));
+         try{
+           // calculate the hazard curve for each SA Period
+           calc.getHazardCurve(tempHazFunction, site, imr, erfList.getERF(i));
+         }catch(RemoteException e){
+           e.printStackTrace();
+         }
          //number of SA Periods for which we have ran the Hazard Curve
           this.numSA_PeriodValDone =j;
          hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
