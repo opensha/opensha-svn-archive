@@ -60,7 +60,10 @@ public class WG02_EqkRupForecast extends EqkRupForecast
   String name;
 
   /**
-   * This constructs a single forecast using the first realization
+   * This constructs a single forecast for a single-iteration run of the WG02 fortran code,
+   * where the modal values at each branch tip were given unit weight and all other branches
+   * were given a weight of zero.  This no-argument constuctor only supports a duration of
+   * 30 years (this can easily be relaxed later is there is demand).
    */
   public WG02_EqkRupForecast() {
 
@@ -68,7 +71,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
-    String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/WG02_WRAPPER_INPUT.DAT";
+    String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/singleIterationWithModes.OpenSHA.30yr.txt";
 
     ArrayList inputFileLines=null;
 
@@ -79,7 +82,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
     ListIterator it = inputFileLines.listIterator();
     StringTokenizer st;
-
+/*
     // Find the end of the first iteration
     int endIndex = 3;
     st = new StringTokenizer((String) inputFileLines.get(endIndex));
@@ -97,6 +100,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     if (D) System.out.println(C+" line(endIndex) ="+inputFileLines.get(endIndex));
 
     inputFileStrings = inputFileLines.subList(2,endIndex);
+*/
+    inputFileStrings = inputFileLines.subList(2,inputFileLines.size());
 
     if (D) System.out.println(C+" firstLineOfStrings ="+inputFileStrings.get(0));
     if (D) System.out.println(C+" LastLineOfStrings ="+inputFileStrings.get(inputFileStrings.size()-1));
