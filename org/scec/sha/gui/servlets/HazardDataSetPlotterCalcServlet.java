@@ -108,23 +108,41 @@ public class HazardDataSetPlotterCalcServlet  extends HttpServlet {
      boolean lonFlag = false;
      double latForFile =0;
      double lonForFile =0;
-     double matchingGridSpacing = gridSpacing/2 + .001;
-     for(double lat = minLat; lat<=maxLat; lat=Double.parseDouble(d.format(lat+gridSpacing))){
-       for(double lon = minLon; lon<=maxLon; lon=Double.parseDouble(d.format(lon+gridSpacing))) {
-         if(Math.abs(selectedLat-lat) <= (matchingGridSpacing)){
-           latFlag=true;
-           latForFile =lat;
-         }
-         //iterating over lon's for each lat
-         if(((Math.abs(selectedLon - lon)) <= matchingGridSpacing) && latFlag){
-           lonForFile = lon;
-           break;
-         }
+     double matchingGridSpacing = gridSpacing/2 + .0001;
+     double lat = minLat;
+     double lon = minLon;
+     for(; lat<=maxLat; lat=Double.parseDouble(d.format(lat+gridSpacing))){
+       System.out.println("Latitude: "+lat);
+       if(Math.abs(selectedLat-lat) <= (matchingGridSpacing)){
+         latFlag=true;
+         latForFile =lat;
        }
      }
+     //it might that sites.txt has different latitude but calculations
+     //for the Hazard data set are done for larger region becuase in  our
+     //current framework we do calculation for rectangular region.
+     if(lat >maxLat && !latFlag){
+       latFlag=true;
+       latForFile =lat;
+     }
+     for(; lon<=maxLon && latFlag; lon=Double.parseDouble(d.format(lon+gridSpacing))) {
+       //iterating over lon's for each lat
+       if(((Math.abs(selectedLon - lon)) <= matchingGridSpacing)){
+         lonFlag = true;
+         lonForFile = lon;
+         break;
+       }
+     }
+     //it might that sites.txt has different longitude but calculations
+     //for the Hazard data set are done for larger region becuase in  our
+     //current framework we do calculation for rectangular region.
+     if(lon >maxLon && latFlag && !lonFlag)
+       lonForFile = lon;
+
      try{
        System.out.println("Selected Lat and Lon:"+latForFile+" , "+lonForFile);
-       ArrayList listfiles = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+d.format(latForFile)+"_"+d.format(lonForFile)+".txt");
+       String fileName =  d.format(latForFile)+"_"+d.format(lonForFile)+".txt";
+       ArrayList listfiles = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+fileName);
        return listfiles;
      }catch(Exception e){
        System.out.println("Error reading the lat lon file");

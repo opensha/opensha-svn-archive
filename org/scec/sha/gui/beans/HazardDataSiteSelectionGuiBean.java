@@ -192,9 +192,10 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
      double maxLon = Double.parseDouble(tokenizer.nextToken());
      double intervalLon = Double.parseDouble(tokenizer.nextToken());
 
+
      // make the min and max lat param
      latParam = new DoubleParameter(LAT_PARAM_NAME,minLat,maxLat,new Double(minLat));
-     lonParam = new DoubleParameter(LON_PARAM_NAME,minLon,maxLon,new Double(maxLon));
+     lonParam = new DoubleParameter(LON_PARAM_NAME,minLon,maxLon,new Double(minLon));
      if(parameterList !=null){
        parameterList = new ParameterList();
        parameterList.addParameter(dataSetParam);

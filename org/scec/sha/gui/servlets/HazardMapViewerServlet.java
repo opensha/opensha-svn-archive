@@ -215,7 +215,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
     File dir = new File(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/");
     String[] fileList=dir.list();
     //formatting of the text double Decimal numbers for 2 places of decimal.
-    DecimalFormat d= new DecimalFormat("0.00##");
+    DecimalFormat d= new DecimalFormat("0.00######");
 
     double interpolatedVal=0;
     ArrayList fileLines;
