@@ -209,4 +209,16 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
   public void setYLog(boolean flag){
     jCheckylog.setSelected(flag);
   }
+
+  /**
+   * Makes all the component of this button control panel to be disabled or enable
+   * based on the boolean value of the flag
+   * @param flag
+   */
+  public void setEnabled(boolean flag){
+    jCheckxlog.setEnabled(flag);
+    jCheckylog.setEnabled(flag);
+    setAxisButton.setEnabled(flag);
+    toggleButton.setEnabled(flag);
+  }
 }
