@@ -35,6 +35,8 @@ GMT_MapGenerator:
 
 Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.  Ned did it; it's a huge savings (time for BJF97 w/ USGS/CGS2002 ERF was 20 to 10 seconds).  Before making a permanent change we now need to consider if using the approximation will ever be bad.
 
+The Log Plot tester App does not work for the Linear Scale.
+
 
 
 Make email lists for the following (with on-line archives):
