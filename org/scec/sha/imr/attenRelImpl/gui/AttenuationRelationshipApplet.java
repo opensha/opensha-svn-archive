@@ -128,6 +128,8 @@ public class AttenuationRelationshipApplet extends JApplet
     protected final static int MIN_NUMBER_POINTS = 15;
 
 
+    //boolean to check if the plot preferences to be used to draw the curves
+    private boolean drawCurvesUsingPlotPrefs;
 
     /**
      *  Temp until figure out way to dynamically load classes during runtime
@@ -1217,4 +1219,12 @@ public class AttenuationRelationshipApplet extends JApplet
     return graphPanel.getCurvePlottingCharactersticInfo();
   }
 
+  /**
+   *
+   * @param usePlotPrefs: boolean for checking if curves
+   * need to be plotted using the plotting preferences.
+   */
+  public void setCurvesToUsePlotPrefs(boolean usePlotPrefs){
+    drawCurvesUsingPlotPrefs = usePlotPrefs;
+  }
 }

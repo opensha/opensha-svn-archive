@@ -448,9 +448,9 @@ public class GraphPanel extends JPanel {
             String listFunctionsInfo = weightedList.getFunctionTraceInfo();
 
             legend = new String(listFunctionsInfo+SystemPropertiesUtils.getSystemLineSeparator());
-            System.out.println("Color for legend:"+plotCharacterstics[j].getCurveColor());
-            if(setLegend  == null)
-              System.out.println("setLegend is null");
+            //System.out.println("Color for legend:"+plotCharacterstics[j].getCurveColor());
+            //if(setLegend  == null)
+              //System.out.println("setLegend is null");
             StyleConstants.setForeground(setLegend,plotCharacterstics[j].getCurveColor());
             doc.insertString(doc.getLength(),legend,setLegend);
             ++j;

@@ -62,6 +62,8 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   private String xAxisName;
   private String yAxisName;
 
+  //boolean to check if the plot preferences to be used to draw the curves
+  private boolean drawCurvesUsingPlotPrefs;
 
   /**
    * for Y-log, 0 values will be converted to this small value
@@ -193,7 +195,10 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     * to draw the graph
     */
    private void drawGraph() {
-     graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE+"-"+windowNumber,buttonControlPanel);
+     if(drawCurvesUsingPlotPrefs)
+       graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE+"-"+windowNumber,buttonControlPanel,getPlottingFeatures());
+     else
+       graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE+"-"+windowNumber,buttonControlPanel);
      togglePlot();
    }
 
@@ -258,5 +263,15 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
    */
   public PlotCurveCharacterstics[] getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharactersticInfo();
+  }
+
+
+  /**
+   *
+   * @param usePlotPrefs: boolean for checking if curves
+   * need to be plotted using the plotting preferences.
+   */
+  public void setCurvesToUsePlotPrefs(boolean usePlotPrefs){
+    drawCurvesUsingPlotPrefs = usePlotPrefs;
   }
 }

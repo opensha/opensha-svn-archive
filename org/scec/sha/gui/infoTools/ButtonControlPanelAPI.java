@@ -59,4 +59,11 @@ public interface ButtonControlPanelAPI extends AxisLimitsControlPanelAPI{
     * @param plotFeatures
     */
    public void drawGraph(PlotCurveCharacterstics[] plotFeatures);
+
+   /**
+    *
+    * @param usePlotPrefs: boolean for checking if curves
+    * need to be plotted using the plotting preferences.
+    */
+   public void setCurvesToUsePlotPrefs(boolean usePlotPrefs);
 }

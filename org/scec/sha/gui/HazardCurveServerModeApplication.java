@@ -235,6 +235,10 @@ public class HazardCurveServerModeApplication extends JApplet
   // whether avg is selected by the user
   private boolean avgSelected = false;
 
+
+  //boolean to check if the plot preferences to be used to draw the curves
+  private boolean drawCurvesUsingPlotPrefs;
+
   /**
    * these four values save the custom axis scale specified by user
    */
@@ -1783,4 +1787,12 @@ public class HazardCurveServerModeApplication extends JApplet
     return graphPanel.getCurvePlottingCharactersticInfo();
   }
 
+  /**
+   *
+   * @param usePlotPrefs: boolean for checking if curves
+   * need to be plotted using the plotting preferences.
+   */
+  public void setCurvesToUsePlotPrefs(boolean usePlotPrefs){
+    drawCurvesUsingPlotPrefs = usePlotPrefs;
+  }
 }

@@ -98,7 +98,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     toggleButton.setPreferredSize(new Dimension(106, 26));
     toggleButton.setToolTipText("");*/
 
-    colorLineTypeButton.setText("Plot Pref.");
+    colorLineTypeButton.setText("Plot Prefs");
     colorLineTypeButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         colorLineTypeButton_actionPerformed(e);
@@ -261,6 +261,8 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
       plotControl.setPlotColorAndLineType(plotFeatures);
       plotControl.show();
       //plotControl.pack();
+      //use plot preferences to plot the curves.
+      application.setCurvesToUsePlotPrefs(true);
   }
 
 
