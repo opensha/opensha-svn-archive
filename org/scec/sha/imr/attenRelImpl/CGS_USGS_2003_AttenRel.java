@@ -9,6 +9,7 @@ import org.scec.param.event.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.imr.*;
 import org.scec.sha.imr.attenRelImpl.*;
+import org.scec.sha.imr.attenRelImpl.calc.*;
 import org.scec.sha.param.*;
 import org.scec.util.*;
 
@@ -73,31 +74,24 @@ public class CGS_USGS_2003_AttenRel
     private final SCEMY_1997_AttenRel scemy_1997_attenRel;
     private final BJF_1997_AttenRel bjf_1997_attenRel;
 
+    // this is a separate im for use in the calculations
+    ParameterAPI im_forCalc;
+
+    // The Borcherdt (2004) site amplification calculator
+    Borcherdt2004_SiteAmpCalc borcherdtAmpCalc = new Borcherdt2004_SiteAmpCalc();
+
     // the site object for the BC boundary
     private Site site_BC;
 
-    // PGA thresholds for computing amp factors (convert from gals to g)
-    private final static double pga_low  = -1.87692; // Math.log(150/980);
-    private final static double pga_mid  = -1.36609; // Math.log(250/980);
-    private final static double pga_high = -1.02962; // Math.log(350/980);
+    private double vs30_ref = 760;
+
+    protected final static Double VS30_WARN_MIN = new Double(180.0);
+    protected final static Double VS30_WARN_MAX = new Double(3500.0);
 
     /**
      * Thier maximum horizontal component option.
      */
     public final static String COMPONENT_GREATER_OF_TWO_HORZ = "Greater of Two Horz.";
-
-    private StringParameter willsSiteParam = null;
-    public final static String WILLS_SITE_NAME = "Wills Site Class";
-    public final static String WILLS_SITE_INFO = "Site classification defined by Wills et al. (2000, BSSA)";
-    public final static String WILLS_SITE_B = "B";
-    public final static String WILLS_SITE_BC = "BC";
-    public final static String WILLS_SITE_C = "C";
-    public final static String WILLS_SITE_CD = "CD";
-    public final static String WILLS_SITE_D = "D";
-    public final static String WILLS_SITE_DE = "DE";
-    public final static String WILLS_SITE_E = "E";
-    public final static String WILLS_SITE_DEFAULT = WILLS_SITE_BC;
-
 
     /**
      * MMI parameter, the natural log of the "Modified Mercalli Intensity" IMT.
@@ -189,6 +183,12 @@ public class CGS_USGS_2003_AttenRel
         // Set the probEqkRupture
         this.probEqkRupture = probEqkRupture;
 
+        // set the EqkRup in the atten relations
+        as_1997_attenRel.setProbEqkRupture(probEqkRupture);
+        bjf_1997_attenRel.setProbEqkRupture(probEqkRupture);
+        scemy_1997_attenRel.setProbEqkRupture(probEqkRupture);
+        cb_2003_attenRel.setProbEqkRupture(probEqkRupture);
+
     }
 
 
@@ -208,10 +208,10 @@ public class CGS_USGS_2003_AttenRel
         // This will throw a parameter exception if the Wills Param doesn't exist
         // in the Site object
 
-        ParameterAPI willsClass = site.getParameter( this.WILLS_SITE_NAME );
+        ParameterAPI vs30 = site.getParameter( this.VS30_NAME );
        // This may throw a constraint exception
         try{
-          this.willsSiteParam.setValue( willsClass.getValue() );
+          this.vs30Param.setValue( vs30.getValue() );
         } catch (WarningException e){
           if(D) System.out.println(C+"Warning Exception:"+e);
         }
@@ -222,7 +222,13 @@ public class CGS_USGS_2003_AttenRel
         // set the location of the BC bounday site object
         site_BC.setLocation(site.getLocation());
 
-    }
+        // set the  BC Site in the attenuation relations
+        as_1997_attenRel.setSite(site_BC);
+        bjf_1997_attenRel.setSite(site_BC);
+        scemy_1997_attenRel.setSite(site_BC);
+        cb_2003_attenRel.setSite(site_BC);
+
+   }
 
 
 
@@ -234,320 +240,65 @@ public class CGS_USGS_2003_AttenRel
     public double getMean() throws IMRException{
 
       String imt = im.getName();
-      if(!imt.equals(MMI_NAME)) {
-        return 0.0;
+      double ave_bc, pga_bc, amp, vs30=0.0;
+
+      vs30 = ((Double) vs30Param.getValue()).doubleValue();
+
+      if(imt.equals(PGA_NAME)) {
+        im_forCalc = im;
+        pga_bc = getBC_Mean();
+        amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,vs30_ref,pga_bc);
+        return pga_bc + Math.log(amp);
       }
-      else
-        return 0.0;  // return the log for now (until I figure a better way)
-
-    }
-
-    /**
-     * This computes the nonlinear amplification factor according to the Wills site class,
-     * IMT, and BC_PGA.
-     * @return
-     */
-    private double getAmpFactor(String imt) {
-
-      String S = ".getAmpFactor()";
-
-      // get the PGA for B category
-
-      // ??????????????????????????
-      // set the imt to PGA
-      double b_pga = getBC_Mean();
-
-      if(D) {
-        System.out.println(C+S+" b_pag (gals) = "+Math.exp(b_pga)*980.0);
-//        System.out.println(C+"pga_low = "+pga_low);
-//        System.out.println(C+"pga_mid = "+pga_mid);
-//        System.out.println(C+"pga_high = "+pga_high);
-      }
-
-      // figure out whether we need short-period or mid-period amps
-      boolean shortPeriod;
-      if(imt.equals(PGA_NAME))
-         shortPeriod = true;
-      else if(imt.equals(PGV_NAME))
-         shortPeriod = false;
-      else if(imt.equals(SA_NAME)) {
-        double per = ((Double)periodParam.getValue()).doubleValue();
-        if(per <= 0.45)
-          shortPeriod = true;
+      else if (imt.equals(SA_NAME)) {
+        im_forCalc = im;
+        ave_bc = getBC_Mean();
+        im_forCalc = pgaParam;
+        pga_bc = getBC_Mean();
+        double per = ((Double) periodParam.getValue()).doubleValue();
+        if(per <= 0.5)
+          amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,vs30_ref,pga_bc);
         else
-          shortPeriod = false;
+          amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,vs30_ref,pga_bc);
+        return ave_bc + Math.log(amp);
       }
-      else
-        throw new RuntimeException(C+"IMT not supported");
-
-      if(D) {
-        System.out.println(C+S+" shortPeriod = "+shortPeriod);
+      else if (imt.equals(PGV_NAME)) {
+        im_forCalc = saParam;
+        periodParam.setValue(new Double(1.0));
+        ave_bc = getBC_Mean();
+        im_forCalc = pgaParam;
+        pga_bc = getBC_Mean();
+        amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,vs30_ref,pga_bc);
+        return ave_bc + Math.log(amp) + Math.log(37.27*2.54);
       }
-
-      //now get the amp factor
-      // These are from an email from Bruce Worden on 12/04/03
-      // (also sent by Vince in an email earlier)
-      String sType = (String) willsSiteParam.getValue();
-      double amp=0;
-      if(shortPeriod) {
-        if(b_pga <= pga_low) {
-          if     (sType.equals(WILLS_SITE_E))
-             amp = 1.65;
-          else if(sType.equals(WILLS_SITE_DE))
-             amp = 1.34;
-          else if(sType.equals(WILLS_SITE_D))
-             amp = 1.33;
-          else if(sType.equals(WILLS_SITE_CD))
-             amp = 1.24;
-          else if(sType.equals(WILLS_SITE_C))
-             amp = 1.15;
-          else if(sType.equals(WILLS_SITE_BC))
-             amp = 0.98;
-          else if(sType.equals(WILLS_SITE_B))
-             amp = 1.00;
-        }
-        else if(b_pga <= pga_mid) {
-          if     (sType.equals(WILLS_SITE_E))
-             amp = 1.43;
-          else if(sType.equals(WILLS_SITE_DE))
-             amp = 1.23;
-          else if(sType.equals(WILLS_SITE_D))
-             amp = 1.23;
-          else if(sType.equals(WILLS_SITE_CD))
-             amp = 1.17;
-          else if(sType.equals(WILLS_SITE_C))
-             amp = 1.10;
-          else if(sType.equals(WILLS_SITE_BC))
-             amp = 0.99;
-          else if(sType.equals(WILLS_SITE_B))
-             amp = 1.00;
-        }
-        else if(b_pga <= pga_high) {
-          if     (sType.equals(WILLS_SITE_E))
-             amp = 1.15;
-          else if(sType.equals(WILLS_SITE_DE))
-             amp = 1.09;
-          else if(sType.equals(WILLS_SITE_D))
-             amp = 1.09;
-          else if(sType.equals(WILLS_SITE_CD))
-             amp = 1.06;
-          else if(sType.equals(WILLS_SITE_C))
-             amp = 1.04;
-          else if(sType.equals(WILLS_SITE_BC))
-             amp = 0.99;
-          else if(sType.equals(WILLS_SITE_B))
-             amp = 1.00;
-        }
-        else {
-          if     (sType.equals(WILLS_SITE_E))
-             amp = 0.93;
-          else if(sType.equals(WILLS_SITE_DE))
-             amp = 0.96;
-          else if(sType.equals(WILLS_SITE_D))
-             amp = 0.96;
-          else if(sType.equals(WILLS_SITE_CD))
-             amp = 0.97;
-          else if(sType.equals(WILLS_SITE_C))
-             amp = 0.98;
-          else if(sType.equals(WILLS_SITE_BC))
-             amp = 1.00;
-          else if(sType.equals(WILLS_SITE_B))
-             amp = 1.00;
-        }
+      else { // it must be MMI
+        im_forCalc = saParam;
+        periodParam.setValue(new Double(1.0));
+        ave_bc = getBC_Mean();
+        im_forCalc = pgaParam;
+        pga_bc = getBC_Mean();
+        amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,vs30_ref,pga_bc);
+        double pgv = ave_bc + Math.log(amp) + Math.log(37.27*2.54);
+        amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,vs30_ref,pga_bc);
+        double pga = pga_bc + Math.log(amp);
+        double mmi = Wald_MMI_Calc.getMMI(Math.exp(pga),Math.exp(pgv));
+        return Math.log(mmi);
       }
-      else {
-        if(b_pga <= pga_low) {
-          if     (sType.equals(WILLS_SITE_E))
-             amp = 2.55;
-          else if(sType.equals(WILLS_SITE_DE))
-             amp = 1.72;
-          else if(sType.equals(WILLS_SITE_D))
-             amp = 1.71;
-          else if(sType.equals(WILLS_SITE_CD))
-             amp = 1.49;
-          else if(sType.equals(WILLS_SITE_C))
-             amp = 1.29;
-          else if(sType.equals(WILLS_SITE_BC))
-             amp = 0.97;
-          else if(sType.equals(WILLS_SITE_B))
-             amp = 1.00;
-        }
-        else if(b_pga <= pga_mid) {
-          if     (sType.equals(WILLS_SITE_E))
-             amp = 2.37;
-          else if(sType.equals(WILLS_SITE_DE))
-             amp = 1.65;
-          else if(sType.equals(WILLS_SITE_D))
-             amp = 1.64;
-          else if(sType.equals(WILLS_SITE_CD))
-             amp = 1.44;
-          else if(sType.equals(WILLS_SITE_C))
-             amp = 1.26;
-          else if(sType.equals(WILLS_SITE_BC))
-             amp = 0.97;
-          else if(sType.equals(WILLS_SITE_B))
-             amp = 1.00;
-        }
-        else if(b_pga <= pga_high) {
-          if     (sType.equals(WILLS_SITE_E))
-             amp = 2.14;
-          else if(sType.equals(WILLS_SITE_DE))
-             amp = 1.56;
-          else if(sType.equals(WILLS_SITE_D))
-             amp = 1.55;
-          else if(sType.equals(WILLS_SITE_CD))
-             amp = 1.38;
-          else if(sType.equals(WILLS_SITE_C))
-             amp = 1.23;
-          else if(sType.equals(WILLS_SITE_BC))
-             amp = 0.97;
-          else if(sType.equals(WILLS_SITE_B))
-             amp = 1.00;
-        }
-        else {
-          if     (sType.equals(WILLS_SITE_E))
-             amp = 1.91;
-          else if(sType.equals(WILLS_SITE_DE))
-             amp = 1.46;
-          else if(sType.equals(WILLS_SITE_D))
-             amp = 1.45;
-          else if(sType.equals(WILLS_SITE_CD))
-             amp = 1.32;
-          else if(sType.equals(WILLS_SITE_C))
-             amp = 1.19;
-          else if(sType.equals(WILLS_SITE_BC))
-             amp = 0.98;
-          else if(sType.equals(WILLS_SITE_B))
-             amp = 1.00;
-        }
-      }
-
-      if(D) {
-        System.out.println(C+S+"amp = "+amp);
-      }
-
-      // return the value
-      return amp;
-
     }
 
-    /**
-     * This computes MMI (from PGA and PGV) using the relationship given by
-     * Wald et al. (1999, Earthquake Spectra).  The code is a modified version
-     * of what Bruce Worden sent me (Ned) on 12/04/03.  This could be a separate
-     * utility (that takes pgv and pga as arguments) since others might want to use it.
-     * @return
-     */
-    private double getMMI(){
-      double pgv, pga;
-      String S = ".getMMI()";
-
-      // get PGA
-      //coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGA_NAME );
-      //coeffSM = ( BJF_1997_AttenRelCoefficients )coefficientsSM.get( PGA_NAME );
-      double b_pga = getBC_Mean();
-      pga = b_pga + Math.log(getAmpFactor(PGA_NAME));
-      // Convert to linear domain in gals (what's needed below)
-      pga = Math.exp(pga)*980.0;
-
-      if(D) System.out.println(C+S+" pga = "+(float) pga);
-
-      // get PGV
-      double b_pgv = getBC_Mean();
-      pgv = b_pgv + Math.log(getAmpFactor(PGV_NAME));
-      // Convert to linear domain (what's needed below)
-      pgv = Math.exp(pgv);
-
-      if(D) System.out.println(" pgv = "+(float) pgv);
-
-      // now compute MMI
-      double a_scale, v_scale;
-      double sma     =  3.6598;
-      double ba      = -1.6582;
-      double sma_low =  2.1987;
-      double ba_low  =  1;
-
-      double smv     =  3.4709;
-      double bv      =  2.3478;
-      double smv_low =  2.0951;
-      double bv_low  =  3.3991;
-
-      double ammi; // Intensity from acceleration
-      double vmmi; // Intensity from velocity
-
-      ammi = (0.43429*Math.log(pga) * sma) + ba;
-      if (ammi <= 5.0)
-        ammi = (0.43429*Math.log(pga) * sma_low) + ba_low;
-
-      vmmi = (0.43429*Math.log(pgv) * smv) + bv;
-      if (vmmi <= 5.0)
-        vmmi = (0.43429*Math.log(pgv) * smv_low) + bv_low;
-
-      if (ammi < 1) ammi = 1;
-      if (vmmi < 1) vmmi = 1;
-
-      // use linear ramp between MMI 5 & 7 (ammi below and vmmi above, respectively)
-      a_scale = (ammi - 5) / 2; // ramp
-      if (a_scale > 1);
-        a_scale = 1;
-      if (a_scale < 0);
-        a_scale = 0;
-
-      a_scale = 1 - a_scale;
-
-      v_scale = 1 - a_scale;
-
-      double mmi = (a_scale * ammi) + (v_scale * vmmi);
-      if (mmi < 1) mmi = 1 ;
-      if (mmi > 10) mmi = 10;
-//      return ((int) (mmi * 100)) / 100;
-      return mmi;
-    }
-
-
-    private void setupAttenRels() {
-
-      // set the stdDevTypes
-      String stdTyp = (String) stdDevTypeParam.getValue();
-      as_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
-      scemy_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
-      bjf_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
-      if(stdTyp.equals(STD_DEV_TYPE_TOTAL)) {
-         cb_2003_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(cb_2003_attenRel.STD_DEV_TYPE_TOTAL_MAG_DEP);
-      }
-      else {
-        cb_2003_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_NONE);
-
-      }
-
-      // set the EqkRup
-      as_1997_attenRel.setProbEqkRupture(probEqkRupture);
-      bjf_1997_attenRel.setProbEqkRupture(probEqkRupture);
-      scemy_1997_attenRel.setProbEqkRupture(probEqkRupture);
-      cb_2003_attenRel.setProbEqkRupture(probEqkRupture);
-
-      // set the Site
-      as_1997_attenRel.setSite(site_BC);
-      bjf_1997_attenRel.setSite(site_BC);
-      scemy_1997_attenRel.setSite(site_BC);
-      cb_2003_attenRel.setSite(site_BC);
-
-      // set the IMT
-      as_1997_attenRel.setIntensityMeasure(im);
-      bjf_1997_attenRel.setIntensityMeasure(im);
-      scemy_1997_attenRel.setIntensityMeasure(im);
-      cb_2003_attenRel.setIntensityMeasure(im);
-
-    }
 
     /**
      * @return    The mean value
      */
     private double getBC_Mean(){
 
-      setupAttenRels();
+      // set the IMT in the attenuation relations
+      as_1997_attenRel.setIntensityMeasure(im_forCalc);
+      bjf_1997_attenRel.setIntensityMeasure(im_forCalc);
+      scemy_1997_attenRel.setIntensityMeasure(im_forCalc);
+      cb_2003_attenRel.setIntensityMeasure(im_forCalc);
 
-      String imt = (String) im.getValue();
+      String imt = (String) im_forCalc.getValue();
       double per = ((Double) periodParam.getValue()).doubleValue();
       double mean = 0;
       if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
@@ -562,6 +313,27 @@ public class CGS_USGS_2003_AttenRel
         mean += bjf_1997_attenRel.getMean();
         mean += scemy_1997_attenRel.getMean();
         return mean/4.0;
+      }
+    }
+
+
+
+
+    /**
+     * This sets the standard deviation type for all the attenuation relations.  Note that
+     */
+    private void setAttenRelsStdDevTypes() {
+
+      // set the stdDevTypes
+      String stdTyp = (String) stdDevTypeParam.getValue();
+      as_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
+      scemy_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
+      bjf_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
+      if(stdTyp.equals(STD_DEV_TYPE_TOTAL)) {
+         cb_2003_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(cb_2003_attenRel.STD_DEV_TYPE_TOTAL_MAG_DEP);
+      }
+      else {
+        cb_2003_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_NONE);
       }
     }
 
@@ -601,7 +373,7 @@ public class CGS_USGS_2003_AttenRel
        if(im.getName().equals(MMI_NAME))
          throw new RuntimeException(MMI_ERROR_STRING);
 
-       setupAttenRels();
+       //setupAttenRels();
 
        String imt = (String) im.getValue();
        double per = ((Double) periodParam.getValue()).doubleValue();
@@ -625,7 +397,7 @@ public class CGS_USGS_2003_AttenRel
     public void setParamDefaults(){
 
         //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
-        willsSiteParam.setValue( WILLS_SITE_DEFAULT );
+        vs30Param.setValue( VS30_DEFAULT );
         magParam.setValue( MAG_DEFAULT );
         saParam.setValue( SA_DEFAULT );
         periodParam.setValue( PERIOD_DEFAULT );
@@ -650,7 +422,7 @@ public class CGS_USGS_2003_AttenRel
 
         // params that the mean depends upon
         meanIndependentParams.clear();
-        meanIndependentParams.addParameter( willsSiteParam );
+        meanIndependentParams.addParameter( vs30Param );
         meanIndependentParams.addParameter( magParam );
         meanIndependentParams.addParameter( componentParam );
 
@@ -662,7 +434,7 @@ public class CGS_USGS_2003_AttenRel
 
         // params that the exceed. prob. depends upon
         exceedProbIndependentParams.clear();
-        exceedProbIndependentParams.addParameter( willsSiteParam );
+        exceedProbIndependentParams.addParameter( vs30Param );
         exceedProbIndependentParams.addParameter( magParam );
         exceedProbIndependentParams.addParameter( componentParam );
         exceedProbIndependentParams.addParameter(stdDevTypeParam);
@@ -684,7 +456,7 @@ public class CGS_USGS_2003_AttenRel
 
         // create willsSiteType Parameter:
         super.initSiteParams();
-
+/*
         // create and add the warning constraint:
         ArrayList willsSiteTypes = new ArrayList();
         willsSiteTypes.add(WILLS_SITE_B);
@@ -698,10 +470,19 @@ public class CGS_USGS_2003_AttenRel
         willsSiteParam = new StringParameter(WILLS_SITE_NAME,willsSiteTypes,WILLS_SITE_DEFAULT);
         willsSiteParam.setInfo( WILLS_SITE_INFO );
         willsSiteParam.setNonEditable();
+*/
+        // create vs30 Parameter:
+        DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
+        warn.setNonEditable();
+        vs30Param.setWarningConstraint(warn);
+        vs30Param.addParameterChangeWarningListener( warningListener );
+        vs30Param.setNonEditable();
+
+
 
         // add it to the siteParams list:
         siteParams.clear();
-        siteParams.addParameter( willsSiteParam );
+        siteParams.addParameter( vs30Param );
 
     }
 
