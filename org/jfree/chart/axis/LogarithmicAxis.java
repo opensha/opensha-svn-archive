@@ -65,7 +65,7 @@
 * 15-Nov-2003 : Removed the Plotting of the Negative Axis and Zero. Also removed the
 *               ("10^n")-style labelling and added the ("10"Power"n" in the superscript form)-
 *               style labelling and it is the default style of labelling. Also functionality
-*               has been that minimum 2 major axis will always be included in the range.
+*               has been that minimum 1 major axis will always be included in the range.
 *               If one uses the ("10"Power"n" in the superscript form) labeling then
 *               user has the capabilty to label the minor axis ticks. A flag has been
 *               added to label the minor axis ticks. But if the user is using the
@@ -78,6 +78,8 @@
 *               There will be atleast 2 major axis tick labels included in all Log plots.
 *               If the difference in power of 10 of any range is greater than 3
 *               then minor axis won't be labelled. (EF and NG).
+*               Definition for Major Axis: The number with Absolute power of 10, eg: .1,1,10,100......
+*               Definition for Minor Axis: Eg: .2,.3...,2,3,...30....,200,300,.......
 *
  */
 
@@ -534,20 +536,18 @@ public class LogarithmicAxis extends NumberAxis {
     //get log10 version of upper bound and round to integer:
     int iEndCount = (int) StrictMath.ceil(switchedLog10(upperBoundVal));
 
-    if (iBegCount == iEndCount && iBegCount > 0 && Math.pow(10, iBegCount) > lowerBoundVal) {
-      //only 1 power of 10 value, it's > 0 and its resulting
-      // tick value will be larger than lower bound of data
-      --iBegCount;       //decrement to generate more ticks
-    }
-
     double tickVal;
     String tickLabel;
-    boolean zeroTickFlag = false;
-    if((iEndCount - iBegCount < 2)){
-      if(iEndCount == iBegCount)
-        ++iEndCount;
-      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
-    }
+
+    //if both iBegCount and iEndCount are absolute power of 10 and are equal
+    //reduce the lowerdBound to one major Axis below
+    if(iBegCount == iEndCount)
+      --iBegCount;
+
+    //Add one major Axis in ther range if there is none in the range.
+    //The one major Axis added is the one below the lowerBoundVal.
+    if(iEndCount - iBegCount ==1)
+      setRange(Double.parseDouble("1e"+iBegCount),upperBoundVal);
 
 
 
@@ -684,29 +684,29 @@ public class LogarithmicAxis extends NumberAxis {
     if (lowerBoundVal < SMALL_LOG_VALUE) {
       lowerBoundVal = SMALL_LOG_VALUE;
     }
+
     //get upper bound value
-    final double upperBoundVal = getRange().getUpperBound();
+    double upperBoundVal = getRange().getUpperBound();
 
     //get log10 version of lower bound and round to integer:
     int iBegCount = (int) StrictMath.floor(switchedLog10(lowerBoundVal));
     //get log10 version of upper bound and round to integer:
     int iEndCount = (int) StrictMath.ceil(switchedLog10(upperBoundVal));
 
-    if (iBegCount == iEndCount && iBegCount > 0 && Math.pow(10, iBegCount) > lowerBoundVal) {
-      //only 1 power of 10 value, it's > 0 and its resulting
-      // tick value will be larger than lower bound of data
-      --iBegCount;       //decrement to generate more ticks
-    }
+
+    //if both iBegCount and iEndCount are absolute power of 10 and are equal
+    //reduce the lowerdBound to one major Axis below
+    if(iBegCount == iEndCount)
+      --iBegCount;
+
+    //Add one major Axis in ther range if there is none in the range.
+    //The one major Axis added is the one below the lowerBoundVal.
+    if(iEndCount - iBegCount ==1)
+      setRange(Double.parseDouble("1e"+iBegCount),upperBoundVal);
+
 
     double tickVal;
     String tickLabel;
-    boolean zeroTickFlag = false;
-
-    if((iEndCount - iBegCount < 2)){
-      if(iEndCount == iBegCount)
-        ++iEndCount;
-      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
-    }
 
     for (int i = iBegCount; i <= iEndCount; i++) {
       //for each tick with a label to be displayed
