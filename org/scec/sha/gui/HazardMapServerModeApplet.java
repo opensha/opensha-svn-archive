@@ -532,7 +532,7 @@ public class HazardMapServerModeApplet extends JApplet implements
     // create the ERF Gui Bean object
   Vector erf_Classes = new Vector();
   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-  erf_Classes.add(this.STEP_FORECAST_CLASS_NAME);
+  //erf_Classes.add(this.STEP_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);

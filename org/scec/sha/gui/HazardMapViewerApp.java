@@ -251,19 +251,22 @@ public class HazardMapViewerApp extends JApplet {
             ee.printStackTrace();
           }
           metaDataHash.put(dirList[i].getName(),dataSetDescription);
-
-          // read the sites file
-          FileReader dataReader =
-              new FileReader(HazardMapCalculator.DATASETS_PATH+dirList[i].getName()+
-              "/sites.dat");
-          BufferedReader in = new BufferedReader(dataReader);
-          // first line in the file contains the min lat, max lat, discretization interval
-          String latitude = in.readLine();
-          latHash.put(dirList[i].getName(),latitude);
-          // Second line in the file contains the min lon, max lon, discretization interval
-          String longitude = in.readLine();
-          lonHash.put(dirList[i].getName(),longitude);
+          try {
+            // read the sites file
+            FileReader dataReader =
+                new FileReader(HazardMapCalculator.DATASETS_PATH+dirList[i].getName()+
+                "/sites.dat");
+            BufferedReader in = new BufferedReader(dataReader);
+            // first line in the file contains the min lat, max lat, discretization interval
+            String latitude = in.readLine();
+            latHash.put(dirList[i].getName(),latitude);
+            // Second line in the file contains the min lon, max lon, discretization interval
+            String longitude = in.readLine();
+            lonHash.put(dirList[i].getName(),longitude);
+          } catch(Exception e) {
+            e.printStackTrace();
         }
+      }
       }
     }catch(Exception e) {
       e.printStackTrace();
