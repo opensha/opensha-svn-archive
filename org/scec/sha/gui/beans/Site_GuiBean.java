@@ -57,9 +57,9 @@ public class Site_GuiBean extends JPanel implements
    * Longitude and Latitude paramerts to be added to the site params list
    */
   private DoubleParameter longitude = new DoubleParameter(LONGITUDE,
-      new Double(-360), new Double(360),new Double(-118));
+      new Double(-360), new Double(360),new Double(-118.243));
   private DoubleParameter latitude = new DoubleParameter(LATITUDE,
-      new Double(-90), new Double(90), new Double(34.0));
+      new Double(-90), new Double(90), new Double(34.053));
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
