@@ -77,7 +77,8 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
           (String)attenRelChecker.getIndependentParamsValueForAllTests().get(failedTestNumber -1),result);
         }
       }
-      else{
+      //if the user wants to see all the tests param values
+      else if( this.showParamsForTests.equalsIgnoreCase("both")){
         Vector controlParams = attenRelChecker.getControlParamsValueForAllTests();
         Vector independentParams = attenRelChecker.getIndependentParamsValueForAllTests();
         int size = controlParams.size();
@@ -86,6 +87,10 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
           " with following set of params :\n"+(String)controlParams.get(i)+
           (String)independentParams.get(i),new Boolean(result));
         }
+      }
+      //if the all the succeeds and their is no fail for any test
+      else {
+        this.assertTrue("BJF-1997 Test succeeded for all the test cases",result);
       }
   }
 
