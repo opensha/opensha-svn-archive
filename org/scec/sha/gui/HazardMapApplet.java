@@ -96,6 +96,9 @@ public class HazardMapApplet extends JApplet implements
   protected final static int W = 600;
   protected final static int H = 750;
 
+  //boolean to check whether the selcetd IMT is PGS, PGV or SA
+  private boolean imtLogFlag=true;
+
   // PEER Test Cases
   public final static String TITLE = new String("Map DataSet Generator");
 
@@ -426,13 +429,12 @@ public class HazardMapApplet extends JApplet implements
    HazardMapCalculator calc = new HazardMapCalculator();
 
    // initialize the values in condProbfunc with log values as passed in hazFunction
-   ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
-   initCondProbFunc(hazFunction, condProbFunc);
+   initIMTLogFunc(hazFunction);
    try {
 
      SitesInGriddedRegion griddedRegionSites = griddedRegionGuiBean.getGriddedRegionSite();
      // calculate the hazard curve for each site
-     calc.getHazardMapCurves(condProbFunc,hazFunction,griddedRegionSites ,
+     calc.getHazardMapCurves(imtLogFlag,hazFunction,griddedRegionSites ,
                              imr, eqkRupForecast, this.getMapParametersInfo());
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
@@ -455,28 +457,7 @@ public class HazardMapApplet extends JApplet implements
         "Forecast Param List: "+erfGuiBean.getParameterList().toString();
   }
 
-  /**
-   * set x values in log space for condition Prob function to be passed to IMR
-   * It accepts 2 parameters
-   *
-   * @param originalFunc :  this is the function with X values set
-   * @param logFunc : this is the functin in which log X values are set
-   */
-  private void initCondProbFunc(DiscretizedFuncAPI originalFunc,
-                                DiscretizedFuncAPI logFunc){
 
-    int numPoints = originalFunc.getNum();
-    String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
-
-    // take log only if it is PGA, PGV or SA
-    if (selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
-        selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
-        selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME)) {
-      for(int i=0; i<numPoints; ++i)
-        logFunc.set(Math.log(originalFunc.getX(i)), 1);
-    } else
-      throw new RuntimeException("Unsupported IMT");
-  }
 
   /**
   * Initialize the IMR Gui Bean
@@ -571,5 +552,38 @@ public class HazardMapApplet extends JApplet implements
 
  }
 
+ /**
+  * set x values in log space for Hazard Function to be passed to IMR
+  * if the selected IMT are SA , PGA or PGV
+  * It accepts 1 parameters
+  *
+  * @param originalFunc :  this is the function with X values set
+  */
+ private void initIMTLogFunc(DiscretizedFuncAPI originalFunc){
+   int numPoints = originalFunc.getNum();
+   // take log only if it is PGA, PGV or SA
+   isIMTLogEnabled();
+   if (imtLogFlag) {
+     for(int i=0; i<numPoints; ++i)
+       originalFunc.set(Math.log(originalFunc.getX(i)), 1);
+   } else
+     throw new RuntimeException("Unsupported IMT");
+ }
+
+
+
+
+ /**
+  * @return true if the selected IMT is PGA, PGV or SA
+  * else returns false
+  */
+ private void isIMTLogEnabled(){
+   String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
+   if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
+      selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
+      selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
+     imtLogFlag = true;
+   else imtLogFlag=false;
+ }
 
 }

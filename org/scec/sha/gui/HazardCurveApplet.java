@@ -955,12 +955,12 @@ public class HazardCurveApplet extends JApplet
     // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
    // initialize the values in condProbfunc with log values as passed in hazFunction
-   ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
-   initCondProbFunc(hazFunction, condProbFunc);
+   initIMTLogFunc(hazFunction);
    try {
      // calculate the hazard curve
-     calc.getHazardCurve(condProbFunc,hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
+     calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
      hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+     toggleHazFuncLogValues(hazFunction);
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1018,19 +1018,18 @@ public class HazardCurveApplet extends JApplet
    // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
 
-   // initialize the values in condProbfunc with log values as passed in hazFunction
-   ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
 
    // calculate hazard curve for each ERF within the list
    for(int i=0; i<numERFs; ++i) {
      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
      // intialize the hazard function
      initDiscretizeValues(hazFunction);
-     initCondProbFunc(hazFunction, condProbFunc);
+     initIMTLogFunc(hazFunction);
      try {
        // calculate the hazard curve
-       calc.getHazardCurve(condProbFunc,hazFunction, site, imr, erfList.getERF(i));
+       calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
        hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+       toggleHazFuncLogValues(hazFunction);
      }catch (RuntimeException e) {
        JOptionPane.showMessageDialog(this, e.getMessage(),
                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1280,27 +1279,41 @@ public class HazardCurveApplet extends JApplet
 
 
   /**
-   * set x values in log space for condition Prob function to be passed to IMR
-   * It accepts 2 parameters
+   * set x values in log space for Hazard Function to be passed to IMR
+   * if the selected IMT are SA , PGA or PGV
+   * It accepts 1 parameters
    *
    * @param originalFunc :  this is the function with X values set
-   * @param logFunc : this is the functin in which log X values are set
    */
-  private void initCondProbFunc(DiscretizedFuncAPI originalFunc,
-                                DiscretizedFuncAPI logFunc){
-
+  private void initIMTLogFunc(DiscretizedFuncAPI originalFunc){
     int numPoints = originalFunc.getNum();
-    String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
-
     // take log only if it is PGA, PGV or SA
-    if (selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
-        selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
-        selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME)) {
+    if (isIMTLogEnabled()) {
       for(int i=0; i<numPoints; ++i)
-        logFunc.set(Math.log(originalFunc.getX(i)), 1);
+        originalFunc.set(Math.log(originalFunc.getX(i)), 1);
     } else
       throw new RuntimeException("Unsupported IMT");
   }
+
+  /**
+     * set x values back from the log space to the original linear values
+     * for Hazard Function after completion of the Hazard Calculations
+     * if the selected IMT are SA , PGA or PGV
+     * It accepts 1 parameters
+     *
+     * @param hazFunction :  this is the function with X values set
+   */
+  private void toggleHazFuncLogValues(DiscretizedFuncAPI hazFunc){
+    int numPoints = hazFunc.getNum();
+    // take log only if it is PGA, PGV or SA
+    if (isIMTLogEnabled()) {
+      for(int i=0; i<numPoints; ++i)
+        hazFunc.set(Math.exp(hazFunc.getX(i)), 1);
+    } else
+      throw new RuntimeException("Unsupported IMT");
+  }
+
+
 
   /**
    * This function sets whether all curves are to drawn or only fractiles are to drawn
@@ -1320,6 +1333,19 @@ public class HazardCurveApplet extends JApplet
    */
   public void setPercentileOption(String percentileOption) {
     this.percentileOption = percentileOption;
+  }
+
+  /**
+   * @return true if the selected IMT is PGA, PGV or SA
+   * else returns false
+   */
+  private boolean isIMTLogEnabled(){
+   String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
+    if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
+       selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
+       selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
+     return true;
+    return false;
   }
 
 }

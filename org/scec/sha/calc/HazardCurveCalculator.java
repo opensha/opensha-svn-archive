@@ -21,7 +21,7 @@ import org.scec.sha.gui.infoTools.*;
  * input parameters imr, site and eqkRupforecast</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author Nitin Gupta & Vipin Gupta
+ * @author : Ned Field & Nitin Gupta & Vipin Gupta
  * @date Oct 28, 2002
  * @version 1.0
  */
@@ -84,10 +84,10 @@ public class HazardCurveCalculator {
    * @param eqkRupForecast: selected Earthquake rup forecast
    * @return
    */
-  public void getHazardCurve(ArbitrarilyDiscretizedFunc condProbFunc,DiscretizedFuncAPI hazFunction,
+  public void getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
-    ArbitrarilyDiscretizedFunc test = (ArbitrarilyDiscretizedFunc) condProbFunc.deepClone();
+    ArbitrarilyDiscretizedFunc test = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
 
 
     // declare some varibles used in the calculation
@@ -174,12 +174,12 @@ public class HazardCurveCalculator {
         }
 
         // get the conditional probability of exceedance from the IMR
-        condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
+        test=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(test);
 
         // calculate the hazard function
-        numPoints = condProbFunc.getNum();
+        numPoints = test.getNum();
         for(k=0;k<numPoints;k++)
-          hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
+          hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,test.getY(k)));
       }
     }
 

@@ -64,8 +64,9 @@ public class HazardMapCalculator {
   /**
      * this function determines the hazard curve based on the parameters
      *
-     * @param condProbFunc: it has the X values in log becuase IMR takes the input of X values in Log
-     * to calculate the Probablity of Exceedance
+     * @param imtLogFlag: Checks if the selected IMT is SA, PGA pr PGV, so that we can revert the
+     * the Log X values of the Hazard func values back to the original values, before writing to the file
+     * for each site.
      * @param hazFunction : it has X values set and result will be returned in this function
      * @param site  : site parameter
      * @param imr  :selected IMR object
@@ -73,8 +74,7 @@ public class HazardMapCalculator {
      * @param mapParametersInfo  : Parameters in String form used to generate the map
      * @return
    */
-  public void getHazardMapCurves(ArbitrarilyDiscretizedFunc condProbFunc,
-                                 DiscretizedFuncAPI hazFunction,
+  public void getHazardMapCurves(boolean imtLogFlag,DiscretizedFuncAPI hazFunction,
                                  SitesInGriddedRegion griddedSites,
                                  AttenuationRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
@@ -105,12 +105,18 @@ public class HazardMapCalculator {
     for(int j=0;j<numSites;++j){
       site = griddedSites.getSite(j);
       int numPoints=hazFunction.getNum();
+
+     /*set x values back from the log space to the original linear values
+       for Hazard Function after completion of the Hazard Calculations
+       if the selected IMT are SA , PGA or PGV*/
       for(int i=0;i<numPoints;i++)
         hazFunction.set(i,1.0);
-      hazCurveCalc.getHazardCurve(condProbFunc,hazFunction,site,imr,eqkRupForecast);
+      hazCurveCalc.getHazardCurve(hazFunction,site,imr,eqkRupForecast);
       String lat = decimalFormat.format(site.getLocation().getLatitude());
       String lon = decimalFormat.format(site.getLocation().getLongitude());
-
+      if(imtLogFlag)
+        for(int i=0;i<hazFunction.getNum();++i)
+          Math.exp(hazFunction.getX(i));
       try{
         if(success){
           FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
