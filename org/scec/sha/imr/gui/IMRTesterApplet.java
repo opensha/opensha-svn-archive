@@ -10,6 +10,8 @@ import javax.swing.border.*;
 
 import com.jrefinery.chart.*;
 import com.jrefinery.chart.tooltips.*;
+import com.jrefinery.data.*;
+
 import org.scec.data.function.*;
 import org.scec.gui.*;
 import org.scec.gui.plot.jfreechart.*;
@@ -54,12 +56,17 @@ public class IMRTesterApplet extends JApplet
   /**
    * these four values save the custom axis scale specified by user
    */
-    protected float minXValue;
-    protected float maxXValue;
-    protected float minYValue;
-    protected float maxYValue;
+    protected double minXValue;
+    protected double maxXValue;
+    protected double minYValue;
+    protected double maxYValue;
     protected boolean customAxis = false;
 
+
+
+    // Create the x-axis and y-axis - either normal or log
+    com.jrefinery.chart.NumberAxis xAxis = null;
+    com.jrefinery.chart.NumberAxis yAxis = null;
 
     protected Object lock = new Object();
 
@@ -194,7 +201,8 @@ public class IMRTesterApplet extends JApplet
      *  Used to determine if shoudl switch to new IMR, and for display purposes
      */
     public String currentIMRName = "";
-
+    private final static String AUTO_SCALE = "Auto Scale";
+    private final static String CUSTOM_SCALE = "Custom Scale";
     final static Dimension COMBO_DIM = new Dimension( 180, 20 );
     final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
     final static String NO_PLOT_MSG = "No Plot Data Available";
@@ -246,12 +254,15 @@ public class IMRTesterApplet extends JApplet
 
     DiscretizedFuncList functions = new DiscretizedFuncList();
     DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
-  private JLabel jAxisScale = new JLabel();
+    private JLabel jAxisScale = new JLabel();
 
     /**
      *  Construct the applet
      */
-    public IMRTesterApplet() { data.setFunctions(functions); }
+    public IMRTesterApplet() {
+      data.setFunctions(functions);
+      data.setConvertZeroToMin(true);
+    }
 
 
     /**
@@ -594,8 +605,8 @@ public class IMRTesterApplet extends JApplet
         plotColorCheckBox.setForeground(new Color(80, 80, 133));
         plotColorCheckBox.setText("Black Background");
         plotColorCheckBox.addItemListener( this );
-        rangeComboBox.addItem(new String("Auto Scale"));
-        rangeComboBox.addItem(new String("Custom Scale"));
+        rangeComboBox.addItem(new String(AUTO_SCALE));
+        rangeComboBox.addItem(new String(CUSTOM_SCALE));
         rangeComboBox.setBackground(new Color(200, 200, 230));
     rangeComboBox.setForeground(new Color(80, 80, 133));
     rangeComboBox.setMaximumSize(new Dimension(115, 19));
@@ -865,8 +876,7 @@ public class IMRTesterApplet extends JApplet
         String title = this.getCurrentIMRName();
 
 
-        // Create the x-axis - either normal or log
-        com.jrefinery.chart.NumberAxis xAxis = null;
+
         if (xLog)
             xAxis = new com.jrefinery.chart.HorizontalLogarithmicAxis( xAxisLabel );
         else
@@ -876,10 +886,7 @@ public class IMRTesterApplet extends JApplet
         xAxis.setCrosshairLockedOnData( false );
         xAxis.setCrosshairVisible(false);
 
-        //xAxis.setGridPaint(Color.blue);
 
-        //boolean loglog = false;
-        com.jrefinery.chart.NumberAxis yAxis = null;
 
         if (yLog) yAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(yAxisLabel);
         else yAxis = new SHAVerticalNumberAxis( yAxisLabel );
@@ -888,16 +895,10 @@ public class IMRTesterApplet extends JApplet
         yAxis.setAutoRangeIncludesZero( false );
         yAxis.setCrosshairLockedOnData( false );
         yAxis.setCrosshairVisible( false);
-        //yAxis.setGridPaint(Color.red);
-
-
-        //GradientPaint paint = new GradientPaint( 10, 10, new Color( 220, 220, 254 ), 800, 1000, new Color( 254, 220, 220 ) );
-        //GradientPaint white = new GradientPaint( 10, 10, background, 800, 1000, background );
 
 
         int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
-        //if ( functions. < MIN_NUMBER_POINTS )
-            //type = com.jrefinery.chart.StandardXYItemRenderer.SHAPES_AND_LINES;
+
 
         LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
         //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
@@ -1515,14 +1516,22 @@ public class IMRTesterApplet extends JApplet
   void rangeComboBox_actionPerformed(ActionEvent e) {
 
     String str=(String)rangeComboBox.getSelectedItem();
-    if(str.equalsIgnoreCase("Auto Scale")){
+    if(str.equalsIgnoreCase(AUTO_SCALE)){
       customAxis=false;
       addGraphPanel();
     }
-    if(str.equalsIgnoreCase("custom Scale"))  {
+    if(str.equalsIgnoreCase(CUSTOM_SCALE))  {
+       Range rX = xAxis.getRange();
+       Range rY= yAxis.getRange();
+       double minX=rX.getLowerBound();
+       double maxX=rX.getUpperBound();
+       double minY=rY.getLowerBound();
+       double maxY=rY.getUpperBound();
+
+
        int xCenter=getAppletXAxisCenterCoor();
        int yCenter=getAppletYAxisCenterCoor();
-       IMRAxisScale axisScale=new IMRAxisScale(this);
+       IMRAxisScale axisScale=new IMRAxisScale(this,minX,maxX,minY,maxY);
        axisScale.setBounds(xCenter-60,yCenter-50,375,148);
        axisScale.pack();
        axisScale.show();
@@ -1534,7 +1543,7 @@ public class IMRTesterApplet extends JApplet
    * @param xMin : minimum value for X-axis
    * @param xMax : maximum value for X-axis
    */
-  public void setXRange(float xMin,float xMax) {
+  public void setXRange(double xMin,double xMax) {
      minXValue=xMin;
      maxXValue=xMax;
      this.customAxis=true;
@@ -1546,7 +1555,7 @@ public class IMRTesterApplet extends JApplet
    * @param yMin : minimum value for Y-axis
    * @param yMax : maximum value for Y-axis
    */
-  public void setYRange(float yMin,float yMax) {
+  public void setYRange(double yMin,double yMax) {
      minYValue=yMin;
      maxYValue=yMax;
      this.customAxis=true;

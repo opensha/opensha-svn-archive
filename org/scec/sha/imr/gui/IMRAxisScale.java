@@ -15,6 +15,13 @@ import java.awt.event.*;
  */
 
 public class IMRAxisScale extends JFrame {
+
+  /**
+   * @todo variables
+   */
+  private double minX,maxX;
+  private double minY,maxY;
+
   JPanel panel1 = new JPanel();
   JLabel jLabel1 = new JLabel();
   JTextField jTextMinX = new JTextField();
@@ -31,8 +38,12 @@ public class IMRAxisScale extends JFrame {
   private IMRTesterApplet imrTesterApplet;
 
 
-  public IMRAxisScale(IMRTesterApplet imrTestApplet) {
+  public IMRAxisScale(IMRTesterApplet imrTestApplet,double minX,double maxX,double minY,double maxY) {
     this.imrTesterApplet= imrTestApplet;
+    this.minX=minX;
+    this.minY=minY;
+    this.maxX=maxX;
+    this.maxY=maxY;
     try{
       jbInit();
     }catch(Exception e){
@@ -70,6 +81,11 @@ public class IMRAxisScale extends JFrame {
     panel1.setMaximumSize(new Dimension(348, 143));
     this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     this.setResizable(false);
+    this.jTextMinX.setText(""+this.minX);
+    this.jTextMaxX.setText(""+this.maxX);
+    this.jTextMinY.setText(""+this.minY);
+    this.jTextMaxY.setText(""+this.maxY);
+
     getContentPane().add(panel1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), -11, -2));
     panel1.add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
@@ -101,16 +117,17 @@ public class IMRAxisScale extends JFrame {
  */
   void ok_actionPerformed(ActionEvent e) {
     try {
-      float xMin=Float.parseFloat(this.jTextMinX.getText());
-      float xMax=Float.parseFloat(this.jTextMaxX.getText());
+      double xMin=Double.parseDouble(this.jTextMinX.getText());
+      double xMax=Double.parseDouble(this.jTextMaxX.getText());
       if(xMin>=xMax){
         JOptionPane.showMessageDialog(this,new String("Max X must be greater than Min X"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
         return;
       }
       else
         this.imrTesterApplet.setXRange(xMin,xMax);
-      float yMin=Float.parseFloat(this.jTextMinY.getText());
-      float yMax=Float.parseFloat(this.jTextMaxY.getText());
+      double yMin=Double.parseDouble(this.jTextMinY.getText());
+      double yMax=Double.parseDouble(this.jTextMaxY.getText());
+
       if(yMin>=yMax){
         JOptionPane.showMessageDialog(this,new String("Max Y must be greater than Min Y"),new String("Check Axis Range"),JOptionPane.ERROR_MESSAGE);
         return;

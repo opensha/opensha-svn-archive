@@ -14,7 +14,7 @@ import com.jrefinery.data.*;
 
 
 import org.scec.gui.*;
-import org.scec.gui.plot.jfreechart.MagFreqDistDiscretizedFunctionXYDataSet;
+import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 
 import org.scec.param.*;
 import org.scec.param.editor.*;
@@ -50,7 +50,10 @@ public class MagFreqDistTesterApplet extends JApplet
   protected float maxXValue;
   protected float minYValue;
   protected float maxYValue;
-  protected boolean customAxis = false;
+
+  protected boolean incrCustomAxis = false;
+  protected boolean cumCustomAxis = false;
+  protected boolean moCustomAxis = false;
 
   protected String legend=null;
   protected final static int W = 850;
@@ -66,6 +69,13 @@ public class MagFreqDistTesterApplet extends JApplet
   private final static String CUM_RATE = new  String("Cumulative Rate");
   private final static String MO_RATE = new  String("Moment Rate");
   private SummedMagFreqDist summedMagFreqDist;
+
+  private final static String AUTO_SCALE_ALL = new String("Auto Scale All");
+  private final static String INCR_AUTO_SCALE = new String("Incr Auto Scale");
+  private final static String CUM_AUTO_SCALE = new String("Cum Auto Scale");
+  private final static String MO_AUTO_SCALE = new String("Mo Auto Scale");
+  private final static String CUSTOM_SCALE = new String("Custom Scale");
+
 
   // Create the x-axis - either normal or log
    com.jrefinery.chart.NumberAxis incrXAxis = null;
@@ -172,9 +182,9 @@ public class MagFreqDistTesterApplet extends JApplet
   DiscretizedFuncList toCumFunctions = new DiscretizedFuncList();
   DiscretizedFuncList toMoFunctions = new DiscretizedFuncList();
 
-  MagFreqDistDiscretizedFunctionXYDataSet incrData = new MagFreqDistDiscretizedFunctionXYDataSet();
-  MagFreqDistDiscretizedFunctionXYDataSet toCumData = new MagFreqDistDiscretizedFunctionXYDataSet();
-  MagFreqDistDiscretizedFunctionXYDataSet toMoData = new MagFreqDistDiscretizedFunctionXYDataSet();
+  DiscretizedFunctionXYDataSet incrData = new DiscretizedFunctionXYDataSet();
+  DiscretizedFunctionXYDataSet toCumData = new DiscretizedFunctionXYDataSet();
+  DiscretizedFunctionXYDataSet toMoData = new DiscretizedFunctionXYDataSet();
 
 
    private boolean yLog = false;
@@ -201,6 +211,9 @@ public class MagFreqDistTesterApplet extends JApplet
       incrFunctions.setYAxisName(INCR_RATE);
       toCumFunctions.setYAxisName(CUM_RATE);
       toMoFunctions.setYAxisName(MO_RATE);
+      incrData.setConvertZeroToMin(true,.0000001);
+      toCumData.setConvertZeroToMin(true,.0000001);
+      toMoData.setConvertZeroToMin(true,.0000000001);
   }
 
   /**
@@ -232,9 +245,9 @@ public class MagFreqDistTesterApplet extends JApplet
     this.getContentPane().setLayout(GBL);
     rangeComboBox.setBackground(new Color(200, 200, 230));
     rangeComboBox.setForeground(new Color(80, 80, 133));
-    rangeComboBox.setMaximumSize(new Dimension(105, 19));
-    rangeComboBox.setMinimumSize(new Dimension(105, 19));
-    rangeComboBox.setPreferredSize(new Dimension(105, 19));
+    rangeComboBox.setMaximumSize(new Dimension(125, 19));
+    rangeComboBox.setMinimumSize(new Dimension(125, 19));
+    rangeComboBox.setPreferredSize(new Dimension(125, 19));
     rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         rangeComboBox_actionPerformed(e);
@@ -261,7 +274,7 @@ public class MagFreqDistTesterApplet extends JApplet
     jIncrAxisScale.setFont(new java.awt.Font("Dialog", 1, 12));
     jIncrAxisScale.setForeground(new Color(80, 80, 133));
     jIncrAxisScale.setToolTipText("");
-    jIncrAxisScale.setText("Set  Incr Axis Scale: ");
+    jIncrAxisScale.setText("Axis Scales: ");
     jCheckylog.setBackground(Color.white);
     jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
     jCheckylog.setForeground(new Color(80, 80, 133));
@@ -501,11 +514,11 @@ public class MagFreqDistTesterApplet extends JApplet
 
         // starting
         String S = C + ": initMagDistGui(): ";
-
-        rangeComboBox.addItem(new String("IncrRate Auto Scale"));
-        rangeComboBox.addItem(new String("CumRate Auto Scale"));
-        rangeComboBox.addItem(new String("MoRate Auto Scale"));
-        rangeComboBox.addItem(new String("Custom Scale"));
+        rangeComboBox.addItem(AUTO_SCALE_ALL);
+        rangeComboBox.addItem(INCR_AUTO_SCALE);
+        rangeComboBox.addItem(CUM_AUTO_SCALE);
+        rangeComboBox.addItem(MO_AUTO_SCALE);
+        rangeComboBox.addItem(CUSTOM_SCALE);
   }
 
 
@@ -886,9 +899,10 @@ public class MagFreqDistTesterApplet extends JApplet
         }
        }catch(NumberFormatException e){
           JOptionPane.showMessageDialog(this,new String("Enter a Valid Numerical Value"),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
+        }catch(NullPointerException e) {
+          JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Data Not Entered",JOptionPane.ERROR_MESSAGE);
         }catch(Exception e) {
           JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
-          e.printStackTrace();
         }
 
         if ( D ) System.out.println( S + "Ending" );
@@ -920,9 +934,6 @@ public class MagFreqDistTesterApplet extends JApplet
 
         String title = this.getCurrentMagDistName();
 
-        incrData.setConvertZeroToMin(true,.0000001);
-        toCumData.setConvertZeroToMin(true,.0000001);
-        toMoData.setConvertZeroToMin(true,.0000000001);
 
 
         TickUnits units = MyTickUnits.createStandardTickUnits();
@@ -990,14 +1001,17 @@ public class MagFreqDistTesterApplet extends JApplet
         //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
-        if(this.customAxis) {
+        if(this.incrCustomAxis) {
           incrXAxis.setRange(this.xIncrMin,this.xIncrMax);
-          cumXAxis.setRange(this.xCumMin,this.xCumMax);
-          moXAxis.setRange(this.xMoMin,this.xMoMax);
           incrYAxis.setRange(this.yIncrMin,this.yIncrMax);
+        }
+        if(this.cumCustomAxis) {
+          cumXAxis.setRange(this.xCumMin,this.xCumMax);
           cumYAxis.setRange(this.yCumMin,this.yCumMax);
+        }
+        if(this.moCustomAxis) {
+          moXAxis.setRange(this.xMoMin,this.xMoMax);
           moYAxis.setRange(this.yMoMin,this.yMoMax);
-          customAxis=false;
         }
 
 
@@ -1262,12 +1276,18 @@ public class MagFreqDistTesterApplet extends JApplet
   void rangeComboBox_actionPerformed(ActionEvent e) {
 
     String str=(String)rangeComboBox.getSelectedItem();
-    if(str.equalsIgnoreCase("IncrRate Auto Scale") || str.equalsIgnoreCase("CumRate Auto Scale")
-       || str.equalsIgnoreCase("MoRate Auto Scale")){
-      customAxis=false;
-      addGraphPanel();
+    if(str.equalsIgnoreCase(INCR_AUTO_SCALE))  incrCustomAxis = false;
+    else if(str.equalsIgnoreCase(CUM_AUTO_SCALE)) cumCustomAxis = false;
+    else if(str.equalsIgnoreCase(MO_AUTO_SCALE)) moCustomAxis = false;
+    else if(str.equalsIgnoreCase(AUTO_SCALE_ALL)) {
+      incrCustomAxis = false;
+      cumCustomAxis = false;
+      moCustomAxis = false;
     }
-    if(str.equalsIgnoreCase("custom Scale"))  {
+
+   if(!str.equalsIgnoreCase(CUSTOM_SCALE)) addGraphPanel();
+
+    if(str.equalsIgnoreCase(CUSTOM_SCALE) && incrXAxis!=null && incrYAxis!=null)  {
        Range rIncrX=incrXAxis.getRange();
        double xIncrMin=rIncrX.getLowerBound();
        double xIncrMax=rIncrX.getUpperBound();
@@ -1297,7 +1317,7 @@ public class MagFreqDistTesterApplet extends JApplet
        MagFreqDistAxisScale axisScale=new MagFreqDistAxisScale(this,xIncrMin,xIncrMax,
                                       yIncrMin,yIncrMax,xCumMin, xCumMax,yCumMin,yCumMax,
                                       xMoMin,xMoMax,yMoMin,yMoMax);
-       axisScale.setBounds(xCenter-60,yCenter-50,400,400);
+       axisScale.setBounds(xCenter-60,yCenter-50,150,400);
        axisScale.pack();
        axisScale.show();
     }
@@ -1317,9 +1337,10 @@ public class MagFreqDistTesterApplet extends JApplet
      this.xCumMax = xCumMax;
      this.xMoMin = xMoMin;
      this.xMoMax = xMoMax;
-     this.customAxis=true;
-
-  }
+     this.incrCustomAxis = true;
+     this.moCustomAxis = true;
+     this.cumCustomAxis = true;
+ }
 
   /**
    * sets the range for Y-axis
@@ -1335,7 +1356,9 @@ public class MagFreqDistTesterApplet extends JApplet
      this.yCumMax = yCumMax;
      this.yMoMin = yMoMin;
      this.yMoMax = yMoMax;
-     this.customAxis=true;
+     this.incrCustomAxis = true;
+     this.moCustomAxis = true;
+     this.cumCustomAxis = true;
      addGraphPanel();
   }
 

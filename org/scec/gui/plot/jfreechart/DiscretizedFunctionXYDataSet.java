@@ -190,8 +190,7 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
                 // get the value
                 double y = ( ( DiscretizedFuncAPI ) obj ).getY(item);
 
-                if(convertZeroToMin)
-                  if(y==0)
+                if(convertZeroToMin && y==0 && yLog)
                      return (Number)(new Double(minVal));
                 // return if not NaN
                 if( y != Double.NaN ) return (Number)(new Double(y));
@@ -296,10 +295,22 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         this.functions = functions;
     }
 
+    /**
+     * In case of Y-log, whther ypou want to convert 0 value to min value
+     *
+     * @param zeroToMin  true if you want to convert 0 values in Y-log to very small value
+     */
     public void setConvertZeroToMin(boolean zeroToMin) {
        convertZeroToMin = zeroToMin;
     }
 
+    /**
+     * In case of Y-log, you can specify the minValue so that 0 values on y - axis
+     * will be converted to this value
+     *
+     * @param zeroMin true if you want to convert 0 values in Y-log to small value
+     * @param minVal  value which will be returned if we have 0 on Y-axis in case of log
+     */
     public void setConvertZeroToMin(boolean zeroMin,double minVal){
        convertZeroToMin = zeroMin;
        this.minVal = minVal;

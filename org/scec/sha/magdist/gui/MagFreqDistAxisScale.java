@@ -121,6 +121,7 @@ public class MagFreqDistAxisScale extends JFrame{
         jButtonOk_actionPerformed(e);
       }
     });
+    this.setResizable(false);
     jLabel4.setText("Max Y:");
     jLabel3.setText("Max X:");
     jLabel2.setText("Min Y:");
@@ -154,20 +155,20 @@ public class MagFreqDistAxisScale extends JFrame{
     jTextCumMaxY.setText(""+yCumMax);
     jTextMoMinY.setText(""+yMoMin);
     jTextMoMaxY.setText(""+yMoMax);
-    jPanel3.add(jLabel10, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-3, 40, 0, 0), 6, 5));
-    jPanel3.add(jLabel12, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 37, 8, 0), 9, 3));
-    jPanel3.add(jTextMoMaxY, new GridBagConstraints(2, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 8, 3), 72, 4));
-    jPanel3.add(jTextMoMinX, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(-3, 59, 0, 0), 72, 4));
-    jPanel3.add(jTextMoMinY, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(10, 59, 8, 0), 72, 4));
+    jPanel3.add(jLabel10,    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-3, 25, 0, 0), 6, 5));
+    jPanel3.add(jLabel12,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 25, 8, 0), 9, 3));
+    jPanel3.add(jTextMoMaxY,  new GridBagConstraints(2, 1, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 8, 12), 72, 4));
+    jPanel3.add(jTextMoMinX,          new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(-3, 48, 0, 7), 55, 4));
+    jPanel3.add(jTextMoMinY,   new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(10, 48, 8, 7), 72, 4));
     jPanel3.add(jLabel9, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-3, 8, 0, 68), 18, 6));
-    jPanel3.add(jTextMoMaxX, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(-3, 0, 0, 3), 72, 4));
+    jPanel3.add(jTextMoMaxX,   new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(-3, 0, 0, 12), 72, 4));
     jPanel3.add(jLabel11, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 8, 8, 72), 13, 5));
     jPanel1.add(jButtonOk,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
@@ -176,14 +177,14 @@ public class MagFreqDistAxisScale extends JFrame{
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 7, 15, 18), 3, -1));
     jPanel2.add(jTextCumMinY, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(19, 0, 6, 0), 79, 4));
-    jPanel2.add(jLabel7, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, 30, 0, 0), 4, 3));
-    jPanel2.add(jTextCumMaxX, new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(-1, 9, 0, 6), 74, 4));
-    jPanel2.add(jLabel8, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 32, 6, 0), 5, 8));
-    jPanel2.add(jTextCumMaxY, new GridBagConstraints(3, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(20, 9, 6, 6), 74, 4));
+    jPanel2.add(jLabel7,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, 34, 0, 0), 4, 3));
+    jPanel2.add(jTextCumMaxX,    new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(-1, 0, 0, 12), 74, 4));
+    jPanel2.add(jLabel8,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 34, 6, 0), 5, 8));
+    jPanel2.add(jTextCumMaxY,    new GridBagConstraints(3, 1, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(20, 0, 6, 12), 74, 4));
     jPanel2.add(jLabel5, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, 10, 0, 62), 25, 6));
     jPanel2.add(jTextCumMinX, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0

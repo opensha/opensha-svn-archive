@@ -721,6 +721,9 @@ public class MagDistGuiBean implements ParameterChangeListener {
        }catch(java.lang.NumberFormatException e){
           throw new NumberFormatException("Value entered must be a valid Numerical Value");
         }
+        catch(java.lang.NullPointerException e){
+          throw new NullPointerException("Enter All values");
+        }
 
      return magDist;
   }
