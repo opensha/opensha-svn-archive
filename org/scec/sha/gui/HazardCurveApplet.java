@@ -361,6 +361,7 @@ public class HazardCurveApplet extends JApplet
     panel.setLayout(gridBagLayout9);
     panel.setBackground(Color.white);
     panel.setBorder(border5);
+    panel.setMinimumSize(new Dimension(0, 0));
     clearButton.setBackground(new Color(200, 200, 230));
     clearButton.setFont(new java.awt.Font("Dialog", 1, 11));
     clearButton.setForeground(new Color(80, 80, 133));
@@ -398,9 +399,7 @@ public class HazardCurveApplet extends JApplet
       }
     });
     buttonPanel.setBackground(Color.white);
-    buttonPanel.setMaximumSize(new Dimension(2147483647, 0));
-    buttonPanel.setMinimumSize(new Dimension(726, 0));
-    buttonPanel.setPreferredSize(new Dimension(726, 0));
+    buttonPanel.setMinimumSize(new Dimension(568, 20));
     buttonPanel.setLayout(gridBagLayout10);
     progressCheckBox.setBackground(Color.white);
     progressCheckBox.setFont(new java.awt.Font("Dialog", 1, 12));
@@ -438,8 +437,7 @@ public class HazardCurveApplet extends JApplet
     });
     buttonSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     buttonSplitPane.setBottomComponent(buttonPanel);
-    buttonSplitPane.setLeftComponent(panel);
-    buttonSplitPane.setRightComponent(panel);
+    buttonSplitPane.setTopComponent(panel);
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     buttonPanel.add(imgLabel,  new GridBagConstraints(0, 2, 0, 0, 0.0, 0.0
@@ -458,20 +456,20 @@ public class HazardCurveApplet extends JApplet
     chartSplit.add(buttonSplitPane, JSplitPane.LEFT);
     buttonSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     buttonSplitPane.add(panel, JSplitPane.TOP);
-    buttonPanel.add(toggleButton,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 21, 0, 25), 0, 0));
-    buttonPanel.add(jCheckylog,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(9, 10, 23, 0), 1, 3));
-    buttonPanel.add(controlComboBox,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(17, 17, 0, 0), 40, 0));
-    buttonPanel.add(addButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 36, 0, 0), 0, 0));
-    buttonPanel.add(clearButton,  new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 12, 0, 0), 0, 0));
-    buttonPanel.add(jCheckxlog,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 58, 23, 14), 1, 7));
-    buttonPanel.add(progressCheckBox,  new GridBagConstraints(3, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 20, 23, 7), 14, 0));
+    buttonPanel.add(toggleButton,   new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+    buttonPanel.add(jCheckylog,   new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 1, 3));
+    buttonPanel.add(controlComboBox,   new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(4, 4, 4, 4), 40, 0));
+    buttonPanel.add(addButton,   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+    buttonPanel.add(clearButton,   new GridBagConstraints(2, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+    buttonPanel.add(jCheckxlog,   new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 1, 7));
+    buttonPanel.add(progressCheckBox,   new GridBagConstraints(3, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 14, 0));
     siteSplitPane.setDividerLocation(200);
     chartSplit.setDividerLocation(575);
     controlsSplit.setDividerLocation(200);
