@@ -51,7 +51,12 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
   /**
    * Static variable for input file name
    */
-  private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/WG02_WRAPPER_INPUT.DAT";
+  private final static String INPUT_FILE_NAME_30yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_1K.OpenSHA.30yr.txt";
+  private final static String INPUT_FILE_NAME_20yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_1K.OpenSHA.20yr.txt";
+  private final static String INPUT_FILE_NAME_10yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_1K.OpenSHA.10yr.txt";
+  private final static String INPUT_FILE_NAME_5yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_1K.OpenSHA.5yr.txt";
+  private final static String INPUT_FILE_NAME_1yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_1K.OpenSHA.1yr.txt";
+  private String INPUT_FILE_NAME;
 
   // vector to hold the line numbers where each iteration starts
   private Vector iterationLineNumbers;
@@ -106,6 +111,8 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
   // For num realizations parameter
   private final static String NUM_REALIZATIONS_PARAM_NAME ="Num Realizations";
   private Integer DEFAULT_NUM_REALIZATIONS_VAL= new Integer(10);
+  private int NUM_REALIZATIONS_MIN = 1;
+  private int NUM_REALIZATIONS_MAX = 1000;
   private final static String NUM_REALIZATIONS_PARAM_INFO = "Number of Monte Carlo ERF realizations";
   IntegerParameter numRealizationsParam;
 
@@ -118,6 +125,17 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
 
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    // set the duration constraint as a list of Doubles
+    Vector durationOptions = new Vector();
+    durationOptions.add(new Double(1));
+    durationOptions.add(new Double(5));
+    durationOptions.add(new Double(10));
+    durationOptions.add(new Double(20));
+    durationOptions.add(new Double(30));
+    timeSpan.setDurationConstraint(durationOptions);
+    // set the start year - hard coded for now
+    timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,2002,2002);
+    timeSpan.setStartTime(2002);
     timeSpan.addParameterChangeListener(this);
 
     // create and add adj params to list
@@ -132,50 +150,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
     grTailParam.addParameterChangeListener(this);
     numRealizationsParam.addParameterChangeListener(this);
 
-    // read the lines of the input files into a list
-    try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
-    catch( FileNotFoundException e){ System.out.println(e.toString()); }
-    catch( IOException e){ System.out.println(e.toString());}
 
-    // Exit if no data found in list
-    if( inputFileLines == null) throw new
-           FaultException(C + "No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
-
-    // find the line numbers for the beginning of each iteration
-    iterationLineNumbers = new Vector();
-    StringTokenizer st;
-    String test=null;
-    for(int lineNum=0; lineNum < inputFileLines.size(); lineNum++) {
-      st = new StringTokenizer((String) inputFileLines.get(lineNum));
-      st.nextToken(); // skip the first token
-      if(st.hasMoreTokens()) {
-        test = st.nextToken();
-        if(test.equals("ITERATIONS"))
-          iterationLineNumbers.add(new Integer(lineNum));
-      }
-    }
-
-    if(D) System.out.println(C+": number of iterations read = "+iterationLineNumbers.size());
-    if(D)
-      for(int i=0;i<iterationLineNumbers.size();i++)
-        System.out.print("   "+ (Integer)iterationLineNumbers.get(i));
-
-    // set the constraint on the number of realizations now that we know the total number
-    numRealizationsParam.setConstraint(new IntegerConstraint(1,iterationLineNumbers.size()));
-
-    // set the timespan from the 2nd line of the file
-    st = new StringTokenizer((String) inputFileLines.get(1));
-    st.nextToken(); // skip first four tokens
-    st.nextToken();
-    st.nextToken();
-    st.nextToken();
-    int year = new Double(st.nextToken()).intValue();
-    double duration = new Double(st.nextToken()).doubleValue();
-    if (D) System.out.println("\nyear="+year+"; duration="+duration);
-    timeSpan.setDuractionConstraint(duration,duration);
-    timeSpan.setDuration(duration);
-    timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,year,year);
-    timeSpan.setStartTime(year);
   }
 
 
@@ -203,7 +178,8 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
         DELTA_MAG_PARAM_MAX,null,DEFAULT_DELTA_MAG_VAL);
     deltaMag_Param.setInfo(DELTA_MAG_PARAM_INFO);
 
-    numRealizationsParam = new IntegerParameter(NUM_REALIZATIONS_PARAM_NAME,DEFAULT_NUM_REALIZATIONS_VAL);
+    numRealizationsParam = new IntegerParameter(NUM_REALIZATIONS_PARAM_NAME,NUM_REALIZATIONS_MIN,
+                                                NUM_REALIZATIONS_MAX, DEFAULT_NUM_REALIZATIONS_VAL);
     numRealizationsParam.setInfo(NUM_REALIZATIONS_PARAM_INFO);
 
     // add adjustable parameters to the list
@@ -235,6 +211,52 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
 
      // make sure something has changed
      if(parameterChangeFlag) {
+
+       double duration = timeSpan.getDuration();
+
+       // set the input filename according to duration
+       if(duration == 1) {
+         INPUT_FILE_NAME = INPUT_FILE_NAME_1yr;
+       } else if (duration == 5) {
+         INPUT_FILE_NAME = INPUT_FILE_NAME_5yr;;
+       } else if (duration == 10) {
+         INPUT_FILE_NAME = INPUT_FILE_NAME_10yr;
+       } else if (duration == 20) {
+         INPUT_FILE_NAME = INPUT_FILE_NAME_20yr;
+       } else {
+         INPUT_FILE_NAME = INPUT_FILE_NAME_30yr;
+       }
+
+
+       // read the lines of the input files into a list
+       try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
+       catch( FileNotFoundException e){ System.out.println(e.toString()); }
+       catch( IOException e){ System.out.println(e.toString());}
+
+       // Exit if no data found in list
+       if( inputFileLines == null) throw new
+         FaultException(C + "No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
+
+       // find the line numbers for the beginning of each iteration
+       iterationLineNumbers = new Vector();
+       StringTokenizer st;
+       String test=null;
+       for(int lineNum=0; lineNum < inputFileLines.size(); lineNum++) {
+         st = new StringTokenizer((String) inputFileLines.get(lineNum));
+         st.nextToken(); // skip the first token
+         if(st.hasMoreTokens()) {
+           test = st.nextToken();
+           if(test.equals("ITERATIONS"))
+             iterationLineNumbers.add(new Integer(lineNum));
+         }
+       }
+
+       if(D) System.out.println(C+": number of iterations read = "+iterationLineNumbers.size());
+       if(D)
+         for(int i=0;i<iterationLineNumbers.size();i++)
+           System.out.print("   "+ (Integer)iterationLineNumbers.get(i));
+
+       // now set values for each parameter
        numIterations = ((Integer) numRealizationsParam.getValue()).intValue();
        rupOffset = ((Double)rupOffset_Param.getValue()).doubleValue();
        deltaMag = ((Double)deltaMag_Param.getValue()).doubleValue();
