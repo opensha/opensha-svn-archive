@@ -3,13 +3,19 @@ package org.scec.sha.fault.demo;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.StringTokenizer;
+
+import org.scec.sha.fault.FaultTrace;
+import org.scec.data.Location;
+import org.scec.sha.fault.SimpleFaultData;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Title: CustomSimpleFault</p>
+ * <p>Description: This is the GUI for Custom Simple Fault </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author Nitin Gupta and Vipin Gupta
+ * @date :Nov 18, 2002
  * @version 1.0
  */
 
@@ -97,10 +103,65 @@ public class CustomSimpleFault extends JFrame {
     jPanel1.add(addButton,  new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 45, 14, 0), 4, -3));
   }
-  void cancelButton_actionPerformed(ActionEvent e) {
 
+  /**
+   * When cancel button is selected
+   * @param e
+   */
+  void cancelButton_actionPerformed(ActionEvent e) {
+    this.dispose();
   }
+
+  /**
+   * When add fault is selected
+   *
+   * @param e
+   */
   void addButton_actionPerformed(ActionEvent e) {
+    try {
+
+
+      double dip= Double.parseDouble(this.dipText.getText());
+      double upperSeismoDepth = Double.parseDouble(this.upperSeismoText.getText());
+      double lowerSeismoDepth = Double.parseDouble(this.lowerSeismoText.getText()) ;
+
+      //check for the fault Trace
+      String faultName = this.faultNameText.getText().trim();
+      if(faultName.equalsIgnoreCase(""))
+        throw new RuntimeException("Select the fault Name");
+
+      FaultTrace faultTrace = new FaultTrace(faultName);
+
+       // first check the depths. Check that there are only 3 values in 1 row
+       // also only numbers are allowed
+       String traceText= this.traceTextArea.getText();
+       // first read each line and then check that there are only 3 values in it
+       StringTokenizer lineToken = new StringTokenizer(traceText,"\n", false);
+       double lat, lon, depth;
+       while(lineToken.hasMoreTokens()) {
+         String line = lineToken.nextToken();
+         StringTokenizer token = new StringTokenizer(line,"\t ");
+         if(token.countTokens() !=3 )
+           throw new RuntimeException("Only 3 values in each row are allowed in fault trace");
+         // get latitude, longitude and depth
+         lat = (new Double(token.nextToken())).doubleValue();
+         lon = (new Double(token.nextToken())).doubleValue();
+         depth = (new Double(token.nextToken())).doubleValue();
+         faultTrace.addLocation(new Location(lat, lon, depth));
+      }
+
+      // make simple data object and pass it to fault applet to be displayed
+      SimpleFaultData simpleFaultData = new SimpleFaultData(dip,
+          lowerSeismoDepth, upperSeismoDepth, faultTrace);
+      applet.setCustomSimpleFault(simpleFaultData);
+      this.dispose();
+    }catch (RuntimeException ex) {
+      String message = ex.getMessage();
+      // show the message if user entered invalid data
+      if(message!=null) JOptionPane.showMessageDialog(this, message);
+      else JOptionPane.showMessageDialog(this, e.toString());
+      return;
+    }
 
   }
 }

@@ -1166,25 +1166,25 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
    * @param arb
    */
   private void initLogDiscretizeValues(ArbitrarilyDiscretizedFunc arb){
-                arb.set(Math.log(.001),1);
-                arb.set(Math.log(.01),1);
-                arb.set(Math.log(.05),1);
-                arb.set(Math.log(.15),1);
-                arb.set(Math.log(.2),1);
-                arb.set(Math.log(.25),1);
-                arb.set(Math.log(.3),1);
-                arb.set(Math.log(.4),1);
-                arb.set(Math.log(.5),1);
-                arb.set(Math.log(.6),1);
-                arb.set(Math.log(.7),1);
-                arb.set(Math.log(.8),1);
-                arb.set(Math.log(.9),1);
-                arb.set(Math.log(1.0),1);
-                arb.set(Math.log(1.1),1);
-                arb.set(Math.log(1.2),1);
-                arb.set(Math.log(1.3),1);
-                arb.set(Math.log(1.4),1);
-                arb.set(Math.log(1.5),1);
+    arb.set(Math.log(.001),1);
+    arb.set(Math.log(.01),1);
+    arb.set(Math.log(.05),1);
+    arb.set(Math.log(.15),1);
+    arb.set(Math.log(.2),1);
+    arb.set(Math.log(.25),1);
+    arb.set(Math.log(.3),1);
+    arb.set(Math.log(.4),1);
+    arb.set(Math.log(.5),1);
+    arb.set(Math.log(.6),1);
+    arb.set(Math.log(.7),1);
+    arb.set(Math.log(.8),1);
+    arb.set(Math.log(.9),1);
+    arb.set(Math.log(1.0),1);
+    arb.set(Math.log(1.1),1);
+    arb.set(Math.log(1.2),1);
+    arb.set(Math.log(1.3),1);
+    arb.set(Math.log(1.4),1);
+    arb.set(Math.log(1.5),1);
     }
 
 

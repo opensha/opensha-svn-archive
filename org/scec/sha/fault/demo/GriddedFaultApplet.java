@@ -59,7 +59,7 @@ public class GriddedFaultApplet
     protected Insets emptyInsets = new Insets( 0, 0, 0, 0 );
 
 
-    protected final static int W = 880;
+    protected final static int W = 925;
     protected final static int H = 670;
     protected final static int A1 = 360;
     protected final static int A2 = 430;
@@ -194,7 +194,7 @@ public class GriddedFaultApplet
     JRadioButton subAndSurfaceRadioButton = new JRadioButton();
     //JRadioButton threeDRadioButton = new JRadioButton();
     JRadioButton rupturesRadioButton= new JRadioButton();
-    JLabel customFrankelLabel = new JLabel("Fault Type: ");
+    JLabel customFrankelLabel = new JLabel("Fault Source: ");
     JComboBox customFrankelComboBox = new JComboBox();
 
 
@@ -380,34 +380,31 @@ public class GriddedFaultApplet
       String S = C + " ; getFaultGriddedSurface(): ";
       if( D ) System.out.println(S + "Starting");
       currentGriddedFaultType = (String)frankel_StirlingComboBox.getSelectedItem();
+      String selectedFaultSource = (String)this.customFrankelComboBox.getSelectedItem();
+
       SimpleFaultData faultData = null;
 
-      if(!this.isCustomFault ) {
-        // for Frankel 1996 faults
-        faultData = simpleFaultDataList.getSimpleFaultData(faultName);
+
+      // get the factory based on the selected Fault source
+      if(!selectedFaultSource.equalsIgnoreCase(this.CUSTOM_LISTRIC_FAULT) ) {
+        // for Frankel 1996 faults or Simple Custom Faults
+        if (selectedFaultSource.equalsIgnoreCase(this.CUSTOM_SIMPLE_FAULT))
+          // for custom simple fault
+          faultData = this.customSimpleFaultData;
+        else // for Frankel 1996 faults
+          faultData = simpleFaultDataList.getSimpleFaultData(faultName);
         if(currentGriddedFaultType.equalsIgnoreCase(this.STIRLING))
           factory = new StirlingGriddedFaultFactory(faultData,
               ((Double)gridSpacingEditor.getValue()).doubleValue());
         else
           factory = new FrankelGriddedFaultFactory(faultData,
               ((Double)gridSpacingEditor.getValue()).doubleValue());
-      } else {
-        // for custom faults
-        int numDips = this.customDips.size();
 
-        if(numDips==1) { // for custom simple fault
-          if(currentGriddedFaultType.equalsIgnoreCase(this.STIRLING))
-          factory = new StirlingGriddedFaultFactory(customSimpleFaultData,
-              ((Double)gridSpacingEditor.getValue()).doubleValue());
-        else
-          factory = new FrankelGriddedFaultFactory(customSimpleFaultData,
-              ((Double)gridSpacingEditor.getValue()).doubleValue());
-        } else { // for custom listric fault
-
-          factory = new SimpleListricGriddedFaultFactory(this.customFaultTrace,
+      } else {   // for custom listric fault
+        factory = new SimpleListricGriddedFaultFactory(this.customFaultTrace,
               customDips, customDepths, ((Double)gridSpacingEditor.getValue()).doubleValue());
-        }
       }
+
 
 
       GriddedSurfaceAPI surface = factory.getGriddedSurface();
@@ -471,28 +468,7 @@ public class GriddedFaultApplet
                   && faultTracePlot!=GRIDDED_RUPTURE_PLOT_TYPE) {
           // refresh on selection of fault model only if it is not grid rupture plot
            addPlot();
-        }  else if(src.equals(this.customFrankelComboBox)) {
-           // whether user has chosen Frankel / Custom Fault
-            String selected = (String)customFrankelComboBox.getSelectedItem();
-
-            // if custom fault is selected
-            if(selected.equalsIgnoreCase(CUSTOM_SIMPLE_FAULT)) {
-              // custom simple fault
-              CustomSimpleFault custom = new CustomSimpleFault(this);
-              custom.pack();
-              custom.show();
-            } else if(selected.equalsIgnoreCase(CUSTOM_LISTRIC_FAULT)) {
-              //custom listric fault
-              CustomListricFault custom = new CustomListricFault(this);
-              custom.pack();
-              custom.show();
-            } else {
-              // put the Frankel 1996 Faults
-              this.initFaults();
-              isCustomFault = false;
-            }
-
-        } else  {
+        }  else  {
 
             ItemSelectable selectable = e.getItemSelectable();
             if( selectable instanceof AbstractButton){
@@ -1495,9 +1471,15 @@ public class GriddedFaultApplet
         customFrankelComboBox.setForeground( darkBlue );
         customFrankelComboBox.setFont( new java.awt.Font( "Dialog", 0, 11 ) );
         customFrankelComboBox.setBorder( null );
-        customFrankelComboBox.setPreferredSize( SMALL_COMBO_DIM );
-        customFrankelComboBox.addItemListener( this );
-        customFrankelComboBox.setMinimumSize( SMALL_COMBO_DIM );
+        customFrankelComboBox.setPreferredSize( COMBO_DIM );
+        customFrankelComboBox.setMinimumSize( COMBO_DIM );
+
+        customFrankelComboBox.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            customFrankel_actionPerformed(e);
+          }
+        });
+
 
 
         this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -1775,6 +1757,8 @@ public class GriddedFaultApplet
 
   }
 
+
+
   /**
    * Set the parameters for the custom fault
    *
@@ -1787,26 +1771,57 @@ public class GriddedFaultApplet
     this.customDepths = depths;
     this.customFaultTrace = faultTrace;
 
-    // if there is only 1 dip, then it is simple fault
-   if(dips.size()==1) {
-     double dip = ((Double)customDips.get(0)).doubleValue();
-     double upperSeismoDepth = ((Double)customDepths.get(0)).doubleValue();
-     double lowerSeismoDepth = ((Double)customDepths.get(1)).doubleValue();
-     customSimpleFaultData = new SimpleFaultData(dip, lowerSeismoDepth, upperSeismoDepth, this.customFaultTrace);
-    }
-
-    // add this custom fault name to fault combo box
-    faultComboBox.removeItemListener(this);
-    this.faultComboBox.removeAllItems();
-    faultComboBox.addItemListener(this);
-    faultComboBox.addItem(faultTrace.getName());
     this.isCustomFault = true;
-
-
     // draw the custom fault
     this.addPlot();
   }
 
+  /**
+   * This function is called from CustomSimpleFault
+   *
+   * @param simpleFaultData : SimpleFaultData object
+   */
+  public void setCustomSimpleFault(SimpleFaultData simpleFaultData) {
+    customSimpleFaultData = simpleFaultData;
+    this.isCustomFault = true;
+    // draw the custom fault
+    this.addPlot();
+  }
+
+
+
+
+  /**
+   * This method is called when we select Custom/Frankel
+   * @param e
+   */
+  public void customFrankel_actionPerformed(ActionEvent e) {
+
+    // whether user has chosen Frankel / Custom Fault
+    String selected = (String)customFrankelComboBox.getSelectedItem();
+    // if custom fault is selected
+    if(selected.equalsIgnoreCase(CUSTOM_SIMPLE_FAULT)) {
+
+      // custom simple fault
+      this.faultComboBox.setVisible(false);
+      this.faultLabel.setVisible(false);
+      CustomSimpleFault custom = new CustomSimpleFault(this);
+      custom.pack();
+      custom.show();
+    } else if(selected.equalsIgnoreCase(CUSTOM_LISTRIC_FAULT)) {
+      //custom listric fault
+      this.faultComboBox.setVisible(false);
+      this.faultLabel.setVisible(false);
+      CustomListricFault custom = new CustomListricFault(this);
+      custom.pack();
+      custom.show();
+    } else {
+      // put the Frankel 1996 Faults
+      this.faultComboBox.setVisible(true);
+      this.faultLabel.setVisible(true);
+      isCustomFault = false;
+    }
+}
 
     /**
      * This method is for animation of ruptures
