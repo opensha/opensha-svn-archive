@@ -74,6 +74,7 @@ public class PEER_InputFilesServlet extends HttpServlet {
    * @return
    */
   private boolean checkPassword(String password) {
+    System.out.println("Password check desired");
     if(password.equals("PEER"))
       return true;
     return false;
@@ -87,10 +88,10 @@ public class PEER_InputFilesServlet extends HttpServlet {
    */
   private void addFile(ObjectInputStream inputFromApplet, String fileName) {
     try {
+      System.out.println("Addition of a file desired");
       // read the data
       Vector data  = (Vector) inputFromApplet.readObject();
       inputFromApplet.close();
-
 
       // create the file
       createFile(fileName, data);
@@ -103,10 +104,14 @@ public class PEER_InputFilesServlet extends HttpServlet {
 
       // add this file to the JAR also
       RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/"+fileName);
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/files.log");
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/data.version");
       System.out.println("::PEER_TestResultsPlotterApp.jar updated");
 
       // add this file to the JAR also
       RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/"+fileName);
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/files.log");
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/data.version");
       System.out.println("::PEER_TestResultsSubmApp.jar updated");
 
       //Runtime.getRuntime().exec("rm GroupTestDataFiles/"+fileName);
@@ -124,29 +129,36 @@ public class PEER_InputFilesServlet extends HttpServlet {
    */
   private void overwriteFile(ObjectInputStream inputFromApplet, String fileName) {
     try {
-    // read the data
-    Vector data  = (Vector) inputFromApplet.readObject();
-    inputFromApplet.close();
+      System.out.println("Overwrite of file desired");
+      // read the data
+      Vector data  = (Vector) inputFromApplet.readObject();
+      inputFromApplet.close();
 
 
-    // create the file
-    createFile(fileName, data);
+      // create the file
+      createFile(fileName, data);
 
-    // now update the data.version file to reflect the new data version
-    updateDataVersion();
+      // now update the data.version file to reflect the new data version
+      updateDataVersion();
 
-    // add this file to the JAR also
-    RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/"+fileName);
-    System.out.println("::PEER_TestResultsPlotterApp.jar updated");
+      // add this file to the JAR also
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/"+fileName);
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/files.log");
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/data.version");
 
-    // add this file to the JAR also
-    RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/"+fileName);
-    System.out.println("::PEER_TestResultsSubmApp.jar updated");
+      System.out.println("::PEER_TestResultsPlotterApp.jar updated");
 
-    //Runtime.getRuntime().exec("rm GroupTestDataFiles/"+fileName);
-  } catch(Exception e) {
-    e.printStackTrace();
-    return;
+      // add this file to the JAR also
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/"+fileName);
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/files.log");
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/data.version");
+
+      System.out.println("::PEER_TestResultsSubmApp.jar updated");
+
+      //Runtime.getRuntime().exec("rm GroupTestDataFiles/"+fileName);
+    } catch(Exception e) {
+      e.printStackTrace();
+      return;
     }
   }
 
@@ -168,6 +180,7 @@ public class PEER_InputFilesServlet extends HttpServlet {
       for(int i=0;i<num;++i)
         oBuf.write(data.get(i)+"\n");
       oBuf.close();
+      file.close();
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -218,6 +231,7 @@ public class PEER_InputFilesServlet extends HttpServlet {
    */
   private void deleteFile(String fileName) {
    try {
+     System.out.println("Deletion of a file desired");
      // now update the files.log file to reflect the removed file
      FileReader logFile = new FileReader("GroupTestDataFiles/files.log");
      LineNumberReader lin = new LineNumberReader(logFile);
