@@ -11,6 +11,8 @@ import org.scec.data.region.GeographicRegion;
 import org.scec.param.ParameterAPI;
 import org.scec.param.ParameterList;
 import org.scec.param.event.TimeSpanChangeListener;
+import org.scec.param.event.ParameterChangeListener;
+import org.scec.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: </p>
@@ -22,7 +24,7 @@ import org.scec.param.event.TimeSpanChangeListener;
  */
 
 public abstract class EqkRupForecast implements EqkRupForecastAPI, ERF_API,
-    TimeSpanChangeListener {
+    TimeSpanChangeListener,ParameterChangeListener {
 
   // adjustable params for each forecast
   protected ParameterList adjustableParams = new ParameterList();
@@ -101,6 +103,19 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI, ERF_API,
     */
    public void parameterChange( EventObject event ) {
      this.parameterChangeFlag = true;
+   }
+
+   /**
+    *  This is the main function of this interface. Any time a control
+    *  paramater or independent paramater is changed by the user in a GUI this
+    *  function is called, and a paramater change event is passed in.
+    *
+    *  This sets the flag to indicate that the sources need to be updated
+    *
+    * @param  event
+    */
+   public void parameterChange( ParameterChangeEvent event ) {
+     parameterChangeFlag=true;
    }
 
 
@@ -199,6 +214,8 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI, ERF_API,
   public ProbEqkSource getSourceClone(int iSource) {
     return null;
    }
+
+
 
 
    /**

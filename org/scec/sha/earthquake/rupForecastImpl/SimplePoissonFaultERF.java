@@ -8,7 +8,6 @@ import org.scec.param.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.param.*;
 import org.scec.sha.magdist.*;
-import org.scec.param.event.*;
 import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
 import org.scec.calc.magScalingRelations.*;
 import org.scec.sha.param.SimpleFaultParameter;
@@ -24,8 +23,7 @@ import org.scec.sha.earthquake.*;
  * @version 1.0
  */
 
-public class SimplePoissonFaultERF extends EqkRupForecast
-    implements ParameterChangeListener {
+public class SimplePoissonFaultERF extends EqkRupForecast{
 
   //for Debug purposes
   private static String  C = new String("Poisson Fault ERF");
@@ -171,15 +169,6 @@ public class SimplePoissonFaultERF extends EqkRupForecast
     magDistParam.addParameterChangeListener(this);
   }
 
-
-  /**
-    *  This is the method called by any parameter whose value has been changed
-    *
-    * @param  event
-    */
-   public void parameterChange( ParameterChangeEvent event ) {
-      parameterChangeFlag=true;
-   }
 
 
    /**

@@ -7,7 +7,6 @@ import org.scec.data.TimeSpan;
 import org.scec.param.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.param.*;
-import org.scec.param.event.*;
 import org.scec.sha.magdist.*;
 import org.scec.sha.param.SimpleFaultParameter;
 import org.scec.sha.earthquake.*;
@@ -30,8 +29,7 @@ import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
  * @version 1.0
  */
 
-public class SimpleFaultRuptureERF extends EqkRupForecast
-    implements ParameterChangeListener {
+public class SimpleFaultRuptureERF extends EqkRupForecast{
 
   //for Debug purposes
   private static String  C = new String("Simple Fault Rupture ERF");
@@ -98,14 +96,6 @@ public class SimpleFaultRuptureERF extends EqkRupForecast
   }
 
 
-  /**
-    *  This is the method called by any parameter whose value has been changed
-    *
-    * @param  event
-    */
-   public void parameterChange( ParameterChangeEvent event ) {
-      parameterChangeFlag=true;
-   }
 
 
    /**

@@ -19,8 +19,6 @@ import org.scec.sha.magdist.*;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
-import org.scec.param.event.ParameterChangeListener;
-import org.scec.param.event.ParameterChangeEvent;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.earthquake.rupForecastImpl.Frankel02.*;
 import org.scec.sha.earthquake.rupForecastImpl.*;
@@ -39,8 +37,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
  * @version 1.0
  */
 
-public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
-    implements ParameterChangeListener{
+public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
   //for Debug purposes
   private static String  C = new String("Frankel02_EqkRupForecast");
@@ -1066,18 +1063,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
    }
 
-   /**
-    *  This is the main function of this interface. Any time a control
-    *  paramater or independent paramater is changed by the user in a GUI this
-    *  function is called, and a paramater change event is passed in.
-    *
-    *  This sets the flag to indicate that the sources need to be updated
-    *
-    * @param  event
-    */
-   public void parameterChange( ParameterChangeEvent event ) {
-     parameterChangeFlag=true;
-   }
+
 
 
    /**

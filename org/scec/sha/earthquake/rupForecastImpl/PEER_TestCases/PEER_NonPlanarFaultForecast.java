@@ -15,7 +15,6 @@ import org.scec.sha.surface.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.*;
-import org.scec.param.event.*;
 import org.scec.sha.earthquake.rupForecastImpl.*;
 
 
@@ -29,8 +28,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
  * @version 1.0
  */
 
-public class PEER_NonPlanarFaultForecast extends EqkRupForecast
-    implements ParameterChangeListener {
+public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
   /**
    * @todo variables
@@ -239,20 +237,6 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
 
 
-  /**
-    *  This is the main function of this interface. Any time a control
-    *  paramater or independent paramater is changed by the user in a GUI this
-    *  function is called, and a paramater change event is passed in. This
-    *  function then determines what to do with the information ie. show some
-    *  paramaters, set some as invisible, basically control the paramater
-    *  lists.
-    *
-    * @param  event
-    */
-   public void parameterChange( ParameterChangeEvent event ) {
-
-      parameterChangeFlag=true;
-   }
 
   /**
    * update the sources based on the user paramters, only when user has changed any parameter

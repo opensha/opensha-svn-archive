@@ -36,12 +36,10 @@ public interface RemoteEqkRupForecastAPI extends Remote {
          public void updateForecast(ParameterList list, TimeSpan timeSpan) throws RemoteException ;
 
          /**
-          * update the forecast and save it in a file
-          * @param list
-          * @param timeSpan
+          * save the forecast in a file
           * @throws RemoteException
           */
-         public String updateAndSaveForecast(ParameterList list, TimeSpan timeSpan) throws RemoteException ;
+         public String saveForecast() throws RemoteException ;
 
         /**
          * Return the name for this class

@@ -21,7 +21,7 @@ public interface  RemoteERF_ListAPI extends RemoteEqkRupForecastAPI {
    * @param index : index of Eqk Rup forecast to return
    * @return
    */
-  public ERF_API getERF(int index) throws RemoteException;
+  public RemoteERF_API getRemoteERF(int index) throws RemoteException;
 
 
   /**

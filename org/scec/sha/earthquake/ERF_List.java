@@ -5,12 +5,15 @@ import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.EventObject;
 
-import org.scec.param.event.TimeSpanChangeListener;
+import org.scec.param.event.*;
 import org.scec.data.Location;
 import org.scec.data.TimeSpan;
 import org.scec.param.ParameterList;
 import org.scec.param.ParameterAPI;
 import org.scec.data.region.GeographicRegion;
+import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_API;
+
+
 /**
  * <p>Title: ERF_List </p>
  * <p>Description: This class holds the list of Eqk Rup Forecast </p>
@@ -21,7 +24,7 @@ import org.scec.data.region.GeographicRegion;
  */
 
 public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
-    TimeSpanChangeListener {
+    TimeSpanChangeListener,ParameterChangeListener {
 
   // vector to hold the instances of Eqk Rup Forecasts
   private ArrayList erf_List = new ArrayList();
@@ -170,6 +173,17 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
 
 
  /**
+  * this function is called whenever any parameter changes in the
+  * adjustable parameter list
+  * @param e
+  */
+ public void parameterChange(ParameterChangeEvent e) {
+   // set the parameter change flag to indicate that forecast needs to be updated
+   this.parameterChangeFlag = true;
+ }
+
+
+ /**
   * sets the value for the parameter change flag
   * @param flag
   */
@@ -193,6 +207,26 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
   public ParameterAPI getParameter(String paramName) {
     return adjustableParams.getParameter(paramName);
   }
+
+  /**
+   *
+   * @param index
+   * @returns the instance of the remotely existing ERF in the ERF List
+   * on the server given the index.
+   * **NOTE: All the functionality in this functionlity remains same as that of getERF but only differs
+   * when returning each ERF from the ERF List. getERF() return the instance of the
+   * ERF_API which is transferring the whole object on to the user's machine, but this functin
+   * return back the RemoteERF_API. This is useful becuase whole ERF object does not
+   * get transfer to the users machine, just a stub of the remotely existing ERF gets
+   * transferred.
+   *
+   * This function returns null, but if anyone needs to host his ERF as the remote
+   * then he will have to implement this method.
+   */
+  public RemoteERF_API getRemoteERF(int index){
+    return null;
+  }
+
 
 }
 

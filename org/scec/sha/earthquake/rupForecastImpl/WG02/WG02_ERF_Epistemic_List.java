@@ -23,9 +23,6 @@ import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
-import org.scec.param.event.ParameterChangeListener;
-import org.scec.param.event.ParameterChangeEvent;
-
 
 /**
  * <p>Title: WG02_ERF_Epistemic_List</p>
@@ -39,8 +36,7 @@ import org.scec.param.event.ParameterChangeEvent;
  * @version 1.0
  */
 
-public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
-    implements ParameterChangeListener{
+public class WG02_ERF_Epistemic_List extends ERF_EpistemicList{
 
   //for Debug purposes
   private static final String  C = new String("WG02 ERF List");
@@ -273,18 +269,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
 
    }
 
-   /**
-    *  This is the main function of this interface. Any time a control
-    *  paramater or independent paramater is changed by the user in a GUI this
-    *  function is called, and a paramater change event is passed in.
-    *
-    *  This sets the flag to indicate that the sources need to be updated
-    *
-    * @param  event
-    */
-   public void parameterChange( ParameterChangeEvent event ) {
-     parameterChangeFlag=true;
-   }
+
 
 
    /**
@@ -306,8 +291,9 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
     // get the sublist from the inputFileLines
     int firstLine = ((Integer) iterationLineNumbers.get(index)).intValue();
     int lastLine = ((Integer) iterationLineNumbers.get(index+1)).intValue();
-    List inputFileStrings = inputFileLines.subList(firstLine,lastLine);
-
+    ArrayList inputFileStrings = new ArrayList();
+    for(int i=firstLine;i<lastLine;++i)
+      inputFileStrings.add(inputFileLines.get(i));
     return new WG02_EqkRupForecast(inputFileStrings, rupOffset, gridSpacing,
                              deltaMag, backSeis, grTail, "no name", timeSpan);
 

@@ -10,7 +10,6 @@ import org.scec.sha.surface.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.param.*;
 import org.scec.sha.magdist.*;
-import org.scec.param.event.*;
 import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
 import org.scec.calc.magScalingRelations.*;
 import org.scec.sha.param.SimpleFaultParameter;
@@ -27,8 +26,7 @@ import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
  * @version 1.0
  */
 
-public class PuenteHillsFaultERF extends EqkRupForecast
-    implements ParameterChangeListener {
+public class PuenteHillsFaultERF extends EqkRupForecast{
 
   //for Debug purposes
   private static String  C = new String("Puente Hills Fault ERF");
@@ -115,15 +113,6 @@ public class PuenteHillsFaultERF extends EqkRupForecast
 
   }
 
-
-  /**
-    *  This is the method called by any parameter whose value has been changed
-    *
-    * @param  event
-    */
-   public void parameterChange( ParameterChangeEvent event ) {
-      parameterChangeFlag=true;
-   }
 
 
    /**

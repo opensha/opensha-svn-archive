@@ -22,9 +22,9 @@ import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
-import org.scec.param.event.ParameterChangeListener;
-import org.scec.param.event.ParameterChangeEvent;
-
+import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_ListClient;
+import org.scec.sha.earthquake.rupForecastImpl.remote.*;
+import org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient;
 
 /**
  * <p>Title: WG02_FortranWrappedERF_EpistemicList</p>
@@ -39,8 +39,7 @@ import org.scec.param.event.ParameterChangeEvent;
  * @version 1.0
  */
 
-public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
-    implements ParameterChangeListener{
+public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
 
   //for Debug purposes
   private static final String  C = new String("WG02 ERF List");
@@ -65,18 +64,18 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
 
   // vector to hold the line numbers where each iteration starts
-  private ArrayList iterationLineNumbers;
+  protected ArrayList iterationLineNumbers;
 
   // adjustable parameter primitives
-  private int numIterations;
-  private double rupOffset;
-  private double deltaMag;
-  private double gridSpacing;
-  private String backSeis;
-  private String grTail;
+  protected int numIterations;
+  protected double rupOffset;
+  protected double deltaMag;
+  protected double gridSpacing;
+  protected String backSeis;
+  protected String grTail;
 
   // This is an array holding each line of the input file
-  private ArrayList inputFileLines = null;
+  protected ArrayList inputFileLines = null;
 
   // Stuff for background & GR tail seismicity params
   public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
@@ -146,7 +145,6 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
    */
   public WG02_FortranWrappedERF_EpistemicList() {
 
-
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
     // set the duration constraint as a list of Doubles
@@ -165,9 +163,6 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
     // create and add adj params to list
     initAdjParams();
-
-    parameterChangeFlag = false;
-
   }
 
 
@@ -302,7 +297,6 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
   // make the adjustable parameters & the list
   private void initAdjParams() {
-
 
     backSeisOptionsStrings.add(SEIS_EXCLUDE);
     //  backSeisOptionsStrings.add(SEIS_INCLUDE);
@@ -502,7 +496,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
            }
          }
        }catch(Exception e){
-
+         e.printStackTrace();
        }
 
        if(D) System.out.println(C+": number of iterations read = "+iterationLineNumbers.size());
@@ -516,18 +510,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
    }
 
-   /**
-    *  This is the main function of this interface. Any time a control
-    *  paramater or independent paramater is changed by the user in a GUI this
-    *  function is called, and a paramater change event is passed in.
-    *
-    *  This sets the flag to indicate that the sources need to be updated
-    *
-    * @param  event
-    */
-   public void parameterChange( ParameterChangeEvent event ) {
-     parameterChangeFlag=true;
-   }
+
 
 
    /**
@@ -546,6 +529,43 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
    */
   public ERF_API getERF(int index) {
 
+    ArrayList inputFileStrings = getDataForERF(index);
+
+    return new WG02_EqkRupForecast(inputFileStrings, rupOffset, gridSpacing,
+    deltaMag, backSeis, grTail, "no name", timeSpan);
+  }
+
+
+  /**
+   * get the remote ERF in the list with the specified index
+   * @param index : index of Eqk rup forecast to return
+   * @return
+   *
+   * Note:
+   * This function remains same as that of getERF() but only differs
+   * when returning each ERF from the ERF List. In getERF() instance of the
+   * ERF_API which is transferring the whole object on to the user's machine, but this function
+   * return back the RemoteERF_API. This is useful becuase whole ERF object does not
+   * get transfer to the users machine, just a stub of the remotely existing ERF gets
+   * transferred.
+   *
+   */
+  public RemoteERF_API getRemoteERF(int index) {
+
+    ArrayList inputFileStrings = getDataForERF(index);
+
+    WG02_EqkRupForecastClient wg02 =new WG02_EqkRupForecastClient(inputFileStrings, rupOffset, gridSpacing,
+        deltaMag, backSeis, grTail, "no name", timeSpan);
+
+    return wg02.getERF_Server();
+  }
+
+  /**
+   * gets the data for the ERF at specified index
+   * @param index : index of the data that needs to be read from the file
+   * @return
+   */
+  protected ArrayList getDataForERF(int index){
     // get the sublist from the inputFileLines
     int firstLine = ((Integer) iterationLineNumbers.get(index)).intValue();
     int lastLine =0;
@@ -553,11 +573,12 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
       lastLine = ((Integer) iterationLineNumbers.get(index+1)).intValue();
     else
       lastLine = inputFileLines.size();
-    List inputFileStrings = inputFileLines.subList(firstLine,lastLine);
 
-    return new WG02_EqkRupForecast(inputFileStrings, rupOffset, gridSpacing,
-                             deltaMag, backSeis, grTail, "no name", timeSpan);
+    ArrayList inputFileStrings = new ArrayList();
+    for(int i=firstLine;i<lastLine;++i)
+      inputFileStrings.add(inputFileLines.get(i));
 
+    return inputFileStrings;
   }
 
   /**

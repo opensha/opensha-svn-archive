@@ -46,6 +46,18 @@ public class RemoteERF_Impl
      eqkRupForecast = (EqkRupForecast)org.scec.util.ClassUtils.createNoArgConstructorClassInstance(className);;
    }
 
+   /**
+    * Creates the EqkRupForecast object with arguments
+    * @param params : object array to create the constructor for the ERF
+    * @param className : ERF object class name.
+    * @throws java.rmi.RemoteException
+    * @throws IOException
+    */
+   public RemoteERF_Impl(ArrayList params,ArrayList paramTypes,String className)
+       throws java.rmi.RemoteException, IOException {
+     eqkRupForecast = (EqkRupForecast)org.scec.util.ClassUtils.createNoArgConstructorClassInstance(params,paramTypes,className);;
+   }
+
    /* (non-Javadoc)
     * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#updateForecast()
     */
@@ -66,9 +78,8 @@ public class RemoteERF_Impl
    /* (non-Javadoc)
     * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#updateForecast()
     */
-   public String updateAndSaveForecast(ParameterList list, TimeSpan timeSpan) throws
+   public String saveForecast() throws
        RemoteException {
-     this.updateForecast(list, timeSpan);
      String urlPrefix = "http://gravity.usc.edu/";
      String parentDir = "/opt/install/jakarta-tomcat-4.1.24/webapps/";
      String subDir = "OpenSHA/HazardMapDatasets/savedERFs/";

@@ -14,6 +14,7 @@ import org.scec.data.Location;
 import org.scec.data.TimeSpan;
 import org.scec.data.region.GeographicRegion;
 import org.scec.param.ParameterList;
+import org.scec.sha.earthquake.ERF_ListForServerAPI;
 
 /**
  * <p>Title: RemoteERF_ListImpl</p>
@@ -37,7 +38,7 @@ public class RemoteERF_ListImpl extends UnicastRemoteObject implements RemoteERF
    */
   public RemoteERF_ListImpl(String className)
       throws java.rmi.RemoteException, IOException {
-    erfList = (ERF_List)org.scec.util.ClassUtils.createNoArgConstructorClassInstance(className);;
+    erfList = (ERF_List)org.scec.util.ClassUtils.createNoArgConstructorClassInstance(className);
   }
 
 
@@ -55,8 +56,8 @@ public class RemoteERF_ListImpl extends UnicastRemoteObject implements RemoteERF
    * @param index : index of Eqk rup forecast to return
    * @return
    */
-  public ERF_API getERF(int index) {
-    return (ERF_API)erfList.getERF(index);
+  public RemoteERF_API getRemoteERF(int index) {
+    return erfList.getRemoteERF(index);
   }
 
   /**
@@ -91,7 +92,7 @@ public class RemoteERF_ListImpl extends UnicastRemoteObject implements RemoteERF
    * @return
    */
   public String getName() {
-    return "List of Earthquake Rupture Forecasts";
+    return erfList.getName();
   }
 
 
@@ -170,9 +171,8 @@ public class RemoteERF_ListImpl extends UnicastRemoteObject implements RemoteERF
    * Update the forecast and save it in serialized mode into a file
    * @return
    */
- public String updateAndSaveForecast(ParameterList list, TimeSpan timeSpan) throws
+ public String saveForecast() throws
  RemoteException {
-   this.updateForecast(list, timeSpan);
    String urlPrefix = "http://gravity.usc.edu/";
    String parentDir = "/opt/install/jakarta-tomcat-4.1.24/webapps/";
    String subDir = "OpenSHA/HazardMapDatasets/savedERFs/";

@@ -16,7 +16,7 @@ import org.scec.sha.surface.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.*;
-import org.scec.param.event.*;
+
 import org.scec.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.scec.sha.earthquake.rupForecastImpl.*;
 
@@ -30,8 +30,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
  * @version 1.0
  */
 
-public class PEER_MultiSourceForecast extends EqkRupForecast
-    implements ParameterChangeListener{
+public class PEER_MultiSourceForecast extends EqkRupForecast{
 
   /**
    * @todo variables
@@ -190,24 +189,6 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
     faultTraceC.addLocation(faultC_loc1);
     faultTraceC.addLocation(faultC_loc2);
   }
-
-
-
-
-  /**
-   *  This is the main function of this interface. Any time a control
-   *  paramater or independent paramater is changed by the user in a GUI this
-   *  function is called, and a paramater change event is passed in.
-   *
-   *  This sets the flag to indicate that the sources need to be updated
-   *
-   * @param  event
-   */
-  public void parameterChange( ParameterChangeEvent event ) {
-
-    parameterChangeFlag=true;
-  }
-
 
   /**
    * update the sources based on the user paramters, only when user has changed a parameter

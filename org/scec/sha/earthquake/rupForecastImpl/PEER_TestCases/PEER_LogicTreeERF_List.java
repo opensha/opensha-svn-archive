@@ -8,8 +8,7 @@ import org.scec.data.*;
 import org.scec.param.ParameterList;
 import org.scec.param.DoubleParameter;
 import org.scec.param.StringParameter;
-import org.scec.param.event.ParameterChangeListener;
-import org.scec.param.event.ParameterChangeEvent;
+
 /**
  * <p>Title: PEER_LogicTreeERF_List </p>
  * <p>Description: This class is needed for Logic Tree for Set 2 Case 5 </p>
@@ -19,8 +18,7 @@ import org.scec.param.event.ParameterChangeEvent;
  * @version 1.0
  */
 
-public class PEER_LogicTreeERF_List extends ERF_EpistemicList
-    implements ParameterChangeListener{
+public class PEER_LogicTreeERF_List extends ERF_EpistemicList{
 
   /**
    * @todo variables
@@ -152,15 +150,6 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
      return NAME;
    }
 
-   /**
-    * this function is called whenever any parameter changes in the
-    * adjustable parameter list
-    * @param e
-    */
-  public void parameterChange(ParameterChangeEvent e) {
-    // set the parameter change flag to indicate that forecast needs to be updated
-    this.parameterChangeFlag = true;
-  }
 
   /**
    * Update the EqkRupForecasts with the new set of parameters

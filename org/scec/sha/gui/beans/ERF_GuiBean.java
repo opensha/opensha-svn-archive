@@ -20,7 +20,7 @@ import org.scec.param.StringParameter;
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.param.event.ParameterChangeFailEvent;
-import org.scec.sha.earthquake.ERF_EpistemicList;
+import org.scec.sha.earthquake.ERF_List;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.sha.param.MagFreqDistParameter;
@@ -124,6 +124,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
        obj = null;
        return name;
      }catch(Exception e){
+       //e.printStackTrace();
        return null;
      }
    }
@@ -191,7 +192,9 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      // get the selected forecast
      getSelectedERF_Instance();
 
-     Iterator it = eqkRupForecast.getAdjustableParameterList().getParametersIterator();
+     //getting the EqkRupForecast param List and its iterator
+     ParameterList paramList = eqkRupForecast.getAdjustableParameterList();
+     Iterator it = paramList.getParametersIterator();
 
     // make the parameters visible based on selected forecast
      while(it.hasNext()){
@@ -321,7 +324,8 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
        progress = new CalcProgressBar("Forecast","Updating Forecast");
        //progress.displayProgressBar();
      }
-     // update the forecast
+
+     //save the updated forecast in the file as the binary object.
      String location = eqkRupForecast.updateAndSaveForecast();
      if (this.showProgressBar) progress.dispose();
      return location;
@@ -334,7 +338,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    public boolean isEpistemicList() {
      try{
        EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();
-       if(eqkRupForecast instanceof ERF_EpistemicList)
+       if(eqkRupForecast instanceof ERF_List)
          return true;
      }catch(Exception e){
        e.printStackTrace();

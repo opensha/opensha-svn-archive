@@ -15,19 +15,15 @@ import org.scec.util.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.earthquake.rupForecastImpl.*;
 import org.scec.sha.fault.FaultTrace;
-import org.scec.data.Location;
+import org.scec.data.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.GriddedSurfaceAPI;
 import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
-import org.scec.param.event.ParameterChangeListener;
-import org.scec.param.event.ParameterChangeEvent;
-import org.scec.data.LocationList;
-import org.scec.data.region.EvenlyGriddedGeographicRegion;
-import org.scec.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelationship;
-
+import org.scec.data.region.*;
+import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
 
 /**
  * <p>Title: WG02_EqkRupForecast</p>
@@ -40,8 +36,7 @@ import org.scec.calc.magScalingRelations.magScalingRelImpl.WC1994_MagAreaRelatio
  * @version 1.0
  */
 
-public class WG02_EqkRupForecast extends EqkRupForecast
-    implements ParameterChangeListener{
+public class WG02_EqkRupForecast extends EqkRupForecast{
 
   //for Debug purposes
   private final static String  C = new String("WG02 Eqk Rup Forecast");
@@ -121,7 +116,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
 
 
-  public WG02_EqkRupForecast(List inputFileStrings, double rupOffset, double gridSpacing,
+  public WG02_EqkRupForecast(ArrayList inputFileStrings, double rupOffset, double gridSpacing,
                              double deltaMag, String backSeisValue, String grTailValue, String name,
                              TimeSpan timespan) {
 
@@ -402,18 +397,6 @@ System.out.println("Char_momentRate="+tempMoRate);
      }
    }
 
-   /**
-    *  This is the main function of this interface. Any time a control
-    *  paramater or independent paramater is changed by the user in a GUI this
-    *  function is called, and a paramater change event is passed in.
-    *
-    *  This sets the flag to indicate that the sources need to be updated
-    *
-    * @param  event
-    */
-   public void parameterChange( ParameterChangeEvent event ) {
-     parameterChangeFlag=true;
-   }
 
 
    /**

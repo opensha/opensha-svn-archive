@@ -123,6 +123,7 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String RMI_PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_AreaForecastClient";
   public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
   public final static String RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient";
+  public final static String RMI_WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient";
   public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
@@ -130,7 +131,6 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-  //public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
   public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF";
   public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureERF";
@@ -980,17 +980,17 @@ public class Temp_HazardCurveApplication extends JApplet
 
     // check whether this forecast is a Forecast List
     // if this is forecast list , handle it differently
-    //boolean isEqkForecastList = false;
-    /*if(eqkRupForecast instanceof ERF_List)  {
+    boolean isEqkForecastList = false;
+    if(forecast instanceof ERF_List)  {
       this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
-    //checks to see if we are dealing with the ERF_List, if so then show the earlier plots
-    //in a seperate window.
+      //checks to see if we are dealing with the ERF_List, if so then show the earlier plots
+      //in a seperate window.
       if(isEqkList && (totalProbFuncs.size()>0))
-    //shows the curves for the ERF List in a seperate window
+        //shows the curves for the ERF List in a seperate window
         peelOffCurves();
-      handleForecastList(site, imr, eqkRupForecast);
+      handleForecastList(site, imr, forecast);
       return;
-    }*/
+    }
 
     try{
         calc.setNumForecasts(1);
@@ -999,7 +999,7 @@ public class Temp_HazardCurveApplication extends JApplet
       }
 
       // this is not a eqk list
-      //this.isEqkList = false;
+      this.isEqkList = false;
       // calculate the hazard curve
       try{
         if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
@@ -1082,16 +1082,25 @@ public class Temp_HazardCurveApplication extends JApplet
    * @param imr : selected IMR
    * @param eqkRupForecast : List of Eqk Rup forecasts
    */
-  /*private void handleForecastList(Site site,
+  private void handleForecastList(Site site,
                                   AttenuationRelationshipAPI imr,
                                   EqkRupForecastAPI eqkRupForecast) {
    ERF_List erfList  = (ERF_List)eqkRupForecast;
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
-   calc.setNumForecasts(numERFs);
+   try{
+     calc.setNumForecasts(numERFs);
+   }catch(RemoteException e){
+     e.printStackTrace();
+   }
    // clear the function list
    totalProbFuncs.clear();
-   // calculate the hazard curve
-   if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+
+   try{
+     // calculate the hazard curve
+     if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+   }catch(RemoteException e){
+     e.printStackTrace();
+   }
    // do not show progress bar if not desired by user
    //calc.showProgressBar(this.progressCheckBox.isSelected());
    //check if the curves are to shown in the same black color for each erf.
@@ -1104,14 +1113,18 @@ public class Temp_HazardCurveApplication extends JApplet
      // intialize the hazard function
      initX_Values(hazFunction);
      try {
-       // calculate the hazard curve
-       calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+       try{
+         // calculate the hazard curve
+         calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+       }catch(RemoteException e){
+         e.printStackTrace();
+       }
        hazFunction = toggleHazFuncLogValues(hazFunction);
        hazFunction.setInfo(getParametersInfo());
      }catch (RuntimeException e) {
        JOptionPane.showMessageDialog(this, e.getMessage(),
                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-       //e.printStackTrace();
+       e.printStackTrace();
        return;
      }
      totalProbFuncs.add(hazFunction);
@@ -1153,7 +1166,7 @@ public class Temp_HazardCurveApplication extends JApplet
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
    totalProbFuncs.setYAxisName("Probability of Exceedance");
    isIndividualCurves = false;
-  }*/
+  }
 
 
   /**
@@ -1215,7 +1228,7 @@ public class Temp_HazardCurveApplication extends JApplet
    erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-
+   erf_Classes.add(RMI_WG02_ERF_LIST_CLASS_NAME);
    //adding the client based ERF's to the application
    erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
@@ -1224,7 +1237,6 @@ public class Temp_HazardCurveApplication extends JApplet
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-   //erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
    erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);

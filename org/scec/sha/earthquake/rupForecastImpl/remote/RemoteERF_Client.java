@@ -12,11 +12,12 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.ListIterator;
+import java.util.EventObject;
 
 import org.scec.data.TimeSpan;
 import org.scec.param.ParameterList;
-import org.scec.param.event.ParameterChangeEvent;
-import org.scec.param.event.ParameterChangeListener;
+import org.scec.param.ParameterAPI;
+import org.scec.param.event.*;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.ProbEqkSource;
 import org.scec.sha.earthquake.rupForecastImpl.remote.*;
@@ -27,9 +28,11 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.*;
  * To change the template for this generated type comment go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-public abstract class RemoteERF_Client extends EqkRupForecast implements ParameterChangeListener {
+public class RemoteERF_Client extends EqkRupForecast implements
+    ParameterChangeListener,TimeSpanChangeListener {
 
   private RemoteERF_API erfServer = null;
+
 
   /**
    * Get the reference to the remote ERF
@@ -38,6 +41,10 @@ public abstract class RemoteERF_Client extends EqkRupForecast implements Paramet
     try {
       RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(RegisterRemoteERF_Factory.registrationName);
       erfServer = remoteERF_Factory.getRemoteERF(className);
+      adjustableParams = erfServer.getAdjustableParameterList();
+      ListIterator it = adjustableParams.getParametersIterator();
+      while(it.hasNext())
+        ((ParameterAPI)it.next()).addParameterChangeListener(this);
     }
     catch (NotBoundException n) {
       n.printStackTrace();
@@ -49,6 +56,34 @@ public abstract class RemoteERF_Client extends EqkRupForecast implements Paramet
       u.printStackTrace();
     }
   }
+
+
+  /**
+   * @param paramArrays: Object array of the arguments used to create the argument
+   * constructor for the server based ERF's.
+   * @param paramTypes
+   * @param className
+   * @throws RemoteException
+   */
+  protected void getRemoteERF(ArrayList paramArrays,ArrayList paramTypes,String className) throws RemoteException{
+    try {
+      RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(RegisterRemoteERF_Factory.registrationName);
+      erfServer = remoteERF_Factory.getRemoteERF(paramArrays,paramTypes,className);
+      ListIterator it = erfServer.getAdjustableParamsIterator();
+      while(it.hasNext())
+        ((ParameterAPI)it.next()).addParameterChangeListener(this);
+    }
+    catch (NotBoundException n) {
+      n.printStackTrace();
+    }
+    catch (MalformedURLException m) {
+      m.printStackTrace();
+    }
+    catch (java.rmi.UnmarshalException u) {
+      u.printStackTrace();
+    }
+  }
+
 
 
   /* (non-Javadoc)
@@ -94,18 +129,19 @@ public abstract class RemoteERF_Client extends EqkRupForecast implements Paramet
   /* (non-Javadoc)
    * @see org.scec.param.event.ParameterChangeListener#parameterChange(org.scec.param.event.ParameterChangeEvent)
    */
-  public void parameterChange(ParameterChangeEvent event) {
-    // TODO Auto-generated method stub
-
+  public void parameterChange(EventObject event) {
+    setParameterChangeFlag(true);
   }
 
   /* (non-Javadoc)
    * @see org.scec.sha.earthquake.EqkRupForecastAPI#updateForecast()
    */
   public void updateForecast() {
-    // TODO Auto-generated method stub
     try {
-      erfServer.updateForecast(adjustableParams, timeSpan);
+      if(parameterChangeFlag){
+        erfServer.updateForecast(adjustableParams, timeSpan);
+        setParameterChangeFlag(false);
+      }
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -116,10 +152,9 @@ public abstract class RemoteERF_Client extends EqkRupForecast implements Paramet
    * @see org.scec.sha.earthquake.EqkRupForecastAPI#updateForecast()
    */
   public String updateAndSaveForecast() {
-    // TODO Auto-generated method stub
     try {
-      return erfServer.updateAndSaveForecast(adjustableParams,
-                                             timeSpan);
+      updateForecast();
+      return erfServer.saveForecast();
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -148,7 +183,7 @@ public abstract class RemoteERF_Client extends EqkRupForecast implements Paramet
    */
   public TimeSpan getTimeSpan() {
     try {
-      this.timeSpan = erfServer.getTimeSpan();
+      timeSpan = erfServer.getTimeSpan();
       return timeSpan;
     }
     catch (Exception e) {
@@ -177,13 +212,25 @@ public abstract class RemoteERF_Client extends EqkRupForecast implements Paramet
   public ParameterList getAdjustableParameterList() {
     // TODO Auto-generated method stub
     try {
-      adjustableParams = erfServer.getAdjustableParameterList();
       return adjustableParams;
     }
     catch (Exception e) {
       e.printStackTrace();
     }
     return null;
+  }
+
+  /**
+   *
+   * @returns the instance to the remote ERF on the server
+   */
+  public RemoteERF_API getERF_Server(){
+    return this.erfServer;
+  }
+
+
+  public void setERF_Server(RemoteERF_API remoteERF_API){
+    this.erfServer = remoteERF_API;
   }
 
 }

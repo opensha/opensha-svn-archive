@@ -1,5 +1,7 @@
 package org.scec.sha.earthquake.rupForecastImpl.remote;
 
+
+import java.util.ArrayList;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -24,5 +26,15 @@ public interface RemoteERF_FactoryAPI extends Remote {
    * @throws java.rmi.RemoteException
    */
   public RemoteERF_API getRemoteERF(String className) throws java.rmi.RemoteException;
+
+
+  /**
+   * Gets the reference to the remote ERF
+   * @param params : List of arguments required to create the ERF
+   * @param className
+   * @return
+   * @throws java.rmi.RemoteException
+   */
+  public RemoteERF_API getRemoteERF(ArrayList params,ArrayList paramTypes,String className) throws java.rmi.RemoteException;
 
 }
