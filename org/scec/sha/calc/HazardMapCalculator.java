@@ -45,7 +45,7 @@ public class HazardMapCalculator {
   private CalcProgressBar progressClass ;
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   // directory where all the hazard map data sets will be saved
-  public static final String DATASETS_PATH = "HazardMapDataSets";
+  public static final String DATASETS_PATH = "HazardMapDataSets/";
   // flag to indicate whether this IMT requires X values to be in log
   boolean xLogFlag = true;
 
@@ -91,14 +91,14 @@ public class HazardMapCalculator {
 
     if(!mainDir.isDirectory()) { // if main directory does not exist
       boolean success = (new File(DATASETS_PATH)).mkdir();
-      newDir=  DATASETS_PATH+"/1";
+      newDir=  DATASETS_PATH+"1";
     }
     else {
       if(mainDir.list()!=null) { // if there are various data sets in directory
         int numDataSets = mainDir.list().length;
-        newDir=  DATASETS_PATH+"/"+(numDataSets+1);
+        newDir=  DATASETS_PATH+(numDataSets+1);
       } else {// if main directory is there but it is empty
-        newDir=  DATASETS_PATH+"/1";
+        newDir=  DATASETS_PATH+"1";
       }
     }
 

@@ -31,7 +31,7 @@ import org.scec.sha.gui.beans.MapGuiBean;
  * @version 1.0
  */
 
-public class HazardMapViewerApp extends Applet {
+public class HazardMapViewerApp extends JApplet {
   private boolean isStandalone = false;
   JSplitPane mainSplitPane = new JSplitPane();
   JSplitPane gmtSplitPane = new JSplitPane();
@@ -72,6 +72,15 @@ public class HazardMapViewerApp extends Applet {
   private final static String GRIDSPACING_PARAM_NAME = "GridSpacing";
   private final static String SITES_TITLE = "Choose Region";
 
+   // message to display if no data exits
+  private static final String NO_DATA_EXISTS = "No Hazard Map Data Exists";
+  // title of the window
+  private static final String TITLE = "Hazard Map Viewer";
+
+  // width and height
+  private static final int W = 800;
+  private static final int H = 800;
+
   // gui beans used here
   private IMLorProbSelectorGuiBean imlProbGuiBean;
   private MapGuiBean mapGuiBean;
@@ -94,8 +103,12 @@ public class HazardMapViewerApp extends Applet {
   //Initialize the applet
   public void init() {
     try {
-      jbInit();
       loadDataSets();
+      jbInit();
+      this.initIML_ProbGuiBean();
+      this.initMapGuiBean();
+      addDataInfo();
+      fillLatLonAndGridSpacing();
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -105,7 +118,7 @@ public class HazardMapViewerApp extends Applet {
   //Component initialization
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
-    this.setLayout(gridBagLayout5);
+    this.getContentPane().setLayout(gridBagLayout5);
     mainSplitPane.setBottomComponent(gmtSplitPane);
     mainSplitPane.setLeftComponent(null);
     sitePanel.setLayout(gridBagLayout3);
@@ -120,6 +133,7 @@ public class HazardMapViewerApp extends Applet {
       }
     });
     dataSetText.setBorder(border1);
+    dataSetText.setLineWrap(true);
     jLabel2.setForeground(new Color(80, 80, 133));
     jLabel2.setText("Data Set Info:");
     mapButton.setBackground(new Color(200, 200, 230));
@@ -132,7 +146,7 @@ public class HazardMapViewerApp extends Applet {
     dataSetPanel.setLayout(gridBagLayout1);
     gmtPanel.setLayout(gridBagLayout2);
     siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    this.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    this.getContentPane().add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -5, 22, 4), 274, 3));
     mainSplitPane.add(dataSetPanel, JSplitPane.TOP);
     gmtSplitPane.add(gmtPanel, JSplitPane.RIGHT);
@@ -187,11 +201,11 @@ public class HazardMapViewerApp extends Applet {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
       }
     };
-    frame.setTitle("Applet Frame");
+    frame.setTitle(TITLE);
     frame.add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
-    frame.setSize(400,320);
+    frame.setSize(W,H);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);
     frame.setVisible(true);
@@ -205,6 +219,10 @@ public class HazardMapViewerApp extends Applet {
     try {
       File dirs =new File(HazardMapCalculator.DATASETS_PATH);
       File[] dirList=dirs.listFiles(); // get the list of all the data in the parent directory
+      if(dirList==null) {
+        JOptionPane.showMessageDialog(this,NO_DATA_EXISTS);
+        System.exit(0);
+      }
       // for each data set, read the meta data and sites info
       for(int i=0;i<dirList.length;++i){
         if(dirList[i].isDirectory()){
@@ -213,6 +231,7 @@ public class HazardMapViewerApp extends Applet {
           try {
             FileReader dataReader = new FileReader(HazardMapCalculator.DATASETS_PATH+
                 dirList[i].getName()+"/metadata.dat");
+            this.dataSetCombo.addItem(dirList[i].getName());
             BufferedReader in = new BufferedReader(dataReader);
             dataSetDescription = "";
             String str=in.readLine();
@@ -331,6 +350,14 @@ public class HazardMapViewerApp extends Applet {
    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
    this.sitesEditor = new ParameterListEditor(sitesParamList, searchPaths);
    sitesEditor.setTitle(SITES_TITLE);
+
+   // show this gui bean the JPanel
+   sitePanel.removeAll();
+   this.sitePanel.add(sitesEditor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+       GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+
+
   }
 
 
@@ -361,7 +388,7 @@ public class HazardMapViewerApp extends Applet {
   private void initMapGuiBean() {
     mapGuiBean = new MapGuiBean();
     // show this gui bean the JPanel
-    this.gmtPanel.add(this.imlProbGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+    this.gmtPanel.add(this.mapGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 
   }
