@@ -31,7 +31,7 @@ import org.scec.param.event.ParameterChangeEvent;
 public class MagDistGuiBean implements ParameterChangeListener {
 
   protected final static String C = "MagDistGuiBean";
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
 
 

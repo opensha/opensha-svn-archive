@@ -295,7 +295,8 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         f.maxX = maxX;
         f.name = name;
         f.tolerance = tolerance;
-
+        f.setInfo(this.getInfo());
+        f.setName(this.getName());
         for(int i = 0; i<num; i++)
             f.set(i, points[i]);
 

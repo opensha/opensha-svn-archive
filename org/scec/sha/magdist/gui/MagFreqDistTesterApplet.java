@@ -673,6 +673,7 @@ public class MagFreqDistTesterApplet extends JApplet
            incrFunctions.clear();
            toCumFunctions.clear();
            toMoFunctions.clear();
+           this.jCheckSumDist.setSelected(false);
         }
 
 
@@ -832,21 +833,15 @@ public class MagFreqDistTesterApplet extends JApplet
           IncrementalMagFreqDist function= magDist.getChoosenFunction();
           EvenlyDiscretizedFunc cumRate;
           EvenlyDiscretizedFunc moRate;
-          if(this.jCheckSumDist.isSelected()) {
-             summedMagFreqDist.addIncrementalMagFreqDist(function);
-             cumRate=(EvenlyDiscretizedFunc)summedMagFreqDist.getCumRateDist();
-             moRate=(EvenlyDiscretizedFunc)summedMagFreqDist.getMomentRateDist();
-          }
-          else {
-             cumRate=(EvenlyDiscretizedFunc)function.getCumRateDist();
-             moRate=(EvenlyDiscretizedFunc)function.getMomentRateDist();
-          }
 
+          // get the cumulative rate and moment rate distributions for this function
+          cumRate=(EvenlyDiscretizedFunc)function.getCumRateDist();
+          moRate=(EvenlyDiscretizedFunc)function.getMomentRateDist();
+
+          // set the log values
           incrData.setYLog(yLog);
           toMoData.setYLog(yLog);
           toCumData.setYLog(yLog);
-
-
 
 
           /** @todo may have to be switched when different x/y axis choosen */
@@ -858,43 +853,46 @@ public class MagFreqDistTesterApplet extends JApplet
           }
           if ( !toMoFunctions.isFuncAllowed(moRate)) {
               toMoFunctions.clear();
-         }
+          }
+
+          // add the functions to the functionlist
+          incrFunctions.add((EvenlyDiscretizedFunc)function);
+          toCumFunctions.add(cumRate);
+          toMoFunctions.add(moRate);
 
 
-              incrFunctions.add((EvenlyDiscretizedFunc)function);
-              if(this.jCheckSumDist.isSelected()){
-                incrFunctions.clear();
-                incrFunctions.add((EvenlyDiscretizedFunc)summedMagFreqDist);
-                toCumFunctions.clear();
-                toMoFunctions.clear();
-              }
-              toCumFunctions.add(cumRate);
-              toMoFunctions.add(moRate);
+          magDist.synchToModel();
 
-         //   return;
-       // }
+          // if summed distribution is selected, add to summed distribution
+          if(this.jCheckSumDist.isSelected()) {
+             // previous sum is invalid in the function lists. so remove that
+             incrFunctions.remove(0);
+             toCumFunctions.remove(0);
+             toMoFunctions.remove(0);
 
-        //if(D) System.out.println(S + "\n\nFunction = " + functions.toString() + "\n\n");
-
-        magDist.synchToModel();
+             // add this distribution to summed distribution
+             summedMagFreqDist.addIncrementalMagFreqDist(function);
+             // this function will insert summed distribution at top of function list
+             insertSummedDistribution();
+          }
 
         // Add points data to text area, people can see
+          pointsTextArea.setText( currentMagDistName + ": " + INCR_RATE +" vs. "+ MAG + '\n' + incrFunctions.toString());
+          pointsTextArea.append(currentMagDistName + ": " + CUM_RATE +" vs. "+ MAG + '\n' + toCumFunctions.toString());
+          pointsTextArea.append(currentMagDistName + ": " + MO_RATE +" vs. "+ MAG + '\n' + toMoFunctions.toString());
 
-        pointsTextArea.setText( currentMagDistName + ": " + INCR_RATE +" vs. "+ MAG + '\n' + incrFunctions.toString());
-        pointsTextArea.append(currentMagDistName + ": " + CUM_RATE +" vs. "+ MAG + '\n' + toCumFunctions.toString());
-        pointsTextArea.append(currentMagDistName + ": " + MO_RATE +" vs. "+ MAG + '\n' + toMoFunctions.toString());
-        //if ( D ) System.out.println( S + "Graphing function:" + function.toString() );
+          // draw the graph
+          addGraphPanel();
 
-
-        addGraphPanel();
-
-        if ( titleLabel != null ) {
-            // titleLabel.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() );
+          // set the title label
+          if ( titleLabel != null ) {
             titleLabel.setText( currentMagDistName );
             titleLabel.validate();
             titleLabel.repaint();
-        }
-       }catch(NumberFormatException e){
+          }
+
+        // catch the error and display messages in case of input error
+        }catch(NumberFormatException e){
           JOptionPane.showMessageDialog(this,new String("Enter a Valid Numerical Value"),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
         }catch(NullPointerException e) {
           JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Data Not Entered",JOptionPane.ERROR_MESSAGE);
@@ -902,7 +900,7 @@ public class MagFreqDistTesterApplet extends JApplet
           JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
         }
 
-        if ( D ) System.out.println( S + "Ending" );
+       if ( D ) System.out.println( S + "Ending" );
 
     }
 
@@ -1359,13 +1357,83 @@ public class MagFreqDistTesterApplet extends JApplet
      addGraphPanel();
   }
 
+  /**
+   * This function is called when Summed distribution box is clicked
+   *
+   * @param e
+   */
   void jCheckSumDist_actionPerformed(ActionEvent e) {
+
     if(jCheckSumDist.isSelected()) {
-      clearPlot(true);
+      // if user wants a summed distribution
       double min=magDist.getMin();
       double max=magDist.getMax();
       int num=magDist.getNum();
+
+      // make the new object of summed distribution
       summedMagFreqDist = new  SummedMagFreqDist(min,max,num);
+
+      // add all the existing distributions to the summed distribution
+      int size = incrFunctions.size();
+      for(int i=0; i < size; ++i)
+        summedMagFreqDist.addIncrementalMagFreqDist((IncrementalMagFreqDist)incrFunctions.get(i));
+
+      // now we will do work so that we can put summed distribuiton to top of functionlist
+      insertSummedDistribution();
+
     }
+    // if summed distribution needs to be removed
+   else {
+     // remove the summed distribution and related moment rate and cumulative rate
+     incrFunctions.remove(0);
+     toCumFunctions.remove(0);
+     toMoFunctions.remove(0);
+   }
+
+   // Add points data to text area, people can see
+    pointsTextArea.setText( currentMagDistName + ": " + INCR_RATE +" vs. "+ MAG + '\n' + incrFunctions.toString());
+    pointsTextArea.append(currentMagDistName + ": " + CUM_RATE +" vs. "+ MAG + '\n' + toCumFunctions.toString());
+    pointsTextArea.append(currentMagDistName + ": " + MO_RATE +" vs. "+ MAG + '\n' + toMoFunctions.toString());
+
+    addGraphPanel();
+
   }
+
+
+
+  /**
+   * private function to insert the summed distribtuion to function list
+   * It first makes the clone of the original function list
+   * Then clears the original function list and then adds summed distribtuion to
+   * the top of the original function list and then adds other distributions
+   *
+   */
+  private void insertSummedDistribution() {
+
+    // clone the function lists
+     DiscretizedFuncList cloneIncrFunctions = incrFunctions.deepClone();
+     DiscretizedFuncList cloneCumFunctions = toCumFunctions.deepClone();
+     DiscretizedFuncList cloneMoFunctions = toMoFunctions.deepClone();
+
+     // now clear the function lists
+     incrFunctions.clear();
+     toCumFunctions.clear();
+     toMoFunctions.clear();
+
+     // add the summed distribution to the list
+     incrFunctions.add(summedMagFreqDist);
+     toCumFunctions.add(summedMagFreqDist.getCumRateDist());
+     toMoFunctions.add(summedMagFreqDist.getMomentRateDist());
+
+     int size = cloneIncrFunctions.size();
+
+     //now add the other distributions
+     for(int i=0; i<size; ++i) {
+       incrFunctions.add(cloneIncrFunctions.get(i));
+       toCumFunctions.add(cloneCumFunctions.get(i));
+       toMoFunctions.add(cloneMoFunctions.get(i));
+     }
+
+  }
+
 }
