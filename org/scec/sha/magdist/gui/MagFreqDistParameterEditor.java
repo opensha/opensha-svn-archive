@@ -100,7 +100,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      public static final String GR_MAG_LOWER=new String("Mag Lower");
      public static final String GR_MAG_LOWER_INFO=new String("Magnitude of the first non-zero rate");
      public static final String GR_BVALUE=new String("b Value");
-     public static final String BVALUE_INFO=new String("b in ralationship: log(rate) = a-b*magnitude");
+     public static final String BVALUE_INFO=new String("b in: log(rate) = a-b*magnitude");
      // Set all params but
      public final static String SET_ALL_PARAMS_BUT=new String("Set All Params But");
 
@@ -120,7 +120,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
    * Gutenberg-Richter Magnitude Frequency Distribution Parameter names
    */
     public static final String GR_FIX=new String("fix");
-    public static final String GR_FIX_INFO=new String("Only one of these can be matched exactly");
+    public static final String GR_FIX_INFO=new String("Only one of these can be matched exactly due to discretization");
     public static final String GR_FIX_TO_MORATE=new String("Fix Total Moment Rate");
     public static final String GR_FIX_TO_CUM_RATE=new String("Fix Total CUM Rate");
     StringConstraint grOptions;
@@ -272,25 +272,27 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         numParameter.setInfo(NUM_INFO);
 
          // Make the other common parameters (used by more than one distribution)
-         DoubleParameter totMoRate=new DoubleParameter(TOT_MO_RATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS);
+         DoubleParameter totMoRate=new DoubleParameter(TOT_MO_RATE, 0, Double.POSITIVE_INFINITY,
+                                                       MO_RATE_UNITS, new Double(1e19));
          totMoRate.addParameterChangeFailListener(this);
-         DoubleParameter magLower = new DoubleParameter(GR_MAG_LOWER);
+         DoubleParameter magLower = new DoubleParameter(GR_MAG_LOWER, new Double(5));
          magLower.setInfo(GR_MAG_LOWER_INFO);
-         DoubleParameter magUpper = new DoubleParameter(GR_MAG_UPPER);
+         DoubleParameter magUpper = new DoubleParameter(GR_MAG_UPPER, new Double(8));
          magUpper.setInfo(GR_MAG_UPPER_INFO);
-         DoubleParameter bValue = new DoubleParameter(GR_BVALUE,0, Double.POSITIVE_INFINITY);
+         DoubleParameter bValue = new DoubleParameter(GR_BVALUE,0, Double.POSITIVE_INFINITY, new Double(1));
          bValue.addParameterChangeFailListener(this);
          bValue.setInfo(BVALUE_INFO);
-         DoubleParameter totCumRate = new DoubleParameter(TOT_CUM_RATE, 0, Double.POSITIVE_INFINITY, RATE_UNITS);
+         DoubleParameter totCumRate = new DoubleParameter(TOT_CUM_RATE, 0, Double.POSITIVE_INFINITY,
+                                                          RATE_UNITS, new Double(3.33));
          totCumRate.addParameterChangeFailListener(this);
 
 
          // add Parameters for single Mag freq dist
-         DoubleParameter rate=new DoubleParameter(RATE, 0, Double.POSITIVE_INFINITY, RATE_UNITS);
+         DoubleParameter rate=new DoubleParameter(RATE, 0, Double.POSITIVE_INFINITY, RATE_UNITS, new Double(0.005));
          rate.addParameterChangeFailListener(this);
-         DoubleParameter moRate=new DoubleParameter(MO_RATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS);
+         DoubleParameter moRate=new DoubleParameter(MO_RATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS, new Double(1e19));
          moRate.addParameterChangeFailListener(this);
-         DoubleParameter mag = new DoubleParameter(MAG);
+         DoubleParameter mag = new DoubleParameter(MAG, new Double(8));
          Vector vStrings=new Vector();
          vStrings.add(RATE_AND_MAG);
          vStrings.add(MAG_AND_MORATE);
@@ -303,8 +305,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          /**
           * Make parameters for Gaussian distribution
           */
-         DoubleParameter mean = new DoubleParameter(MEAN);
-         DoubleParameter stdDev = new DoubleParameter(STD_DEV, 0, Double.POSITIVE_INFINITY);
+         DoubleParameter mean = new DoubleParameter(MEAN, new Double(8));
+         DoubleParameter stdDev = new DoubleParameter(STD_DEV, 0, Double.POSITIVE_INFINITY, new Double(0.25));
          stdDev.addParameterChangeFailListener(this);
          vStrings=new Vector();
          vStrings.add(TOT_CUM_RATE);
@@ -316,7 +318,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          vStrings.add(TRUNCATE_ON_BOTH_SIDES);
          StringParameter truncType=new StringParameter(TRUNCATION_REQ,vStrings,NONE);
          truncType.addParameterChangeListener(this);
-         DoubleParameter truncLevel = new DoubleParameter(TRUNCATE_NUM_OF_STD_DEV, 0, Double.POSITIVE_INFINITY, new Double (2));
+         DoubleParameter truncLevel = new DoubleParameter(TRUNCATE_NUM_OF_STD_DEV, 0, Double.POSITIVE_INFINITY, new Double (3));
          truncLevel.addParameterChangeFailListener(this);
           /**
            * Make parameters for Gutenberg-Richter distribution
@@ -336,15 +338,16 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          /**
           * Make paramters for Youngs and Coppersmith 1985 char distribution
           */
-         DoubleParameter deltaMagChar = new DoubleParameter(YC_DELTA_MAG_CHAR, 0, Double.POSITIVE_INFINITY);
+         DoubleParameter deltaMagChar = new DoubleParameter(YC_DELTA_MAG_CHAR, 0,
+                                                            Double.POSITIVE_INFINITY, new Double(1));
          deltaMagChar.setInfo(YC_DELTA_MAG_CHAR_INFO);
          deltaMagChar.addParameterChangeFailListener(this);
-         DoubleParameter magPrime = new DoubleParameter(YC_MAG_PRIME);
+         DoubleParameter magPrime = new DoubleParameter(YC_MAG_PRIME, new Double(7));
          magPrime.setInfo(YC_MAG_PRIME_INFO);
-         DoubleParameter deltaMagPrime = new DoubleParameter(YC_DELTA_MAG_PRIME, 0, Double.POSITIVE_INFINITY);
+         DoubleParameter deltaMagPrime = new DoubleParameter(YC_DELTA_MAG_PRIME, 0, Double.POSITIVE_INFINITY, new Double(1));
          deltaMagPrime.setInfo(YC_DELTA_MAG_PRIME_INFO);
          deltaMagPrime.addParameterChangeFailListener(this);
-         DoubleParameter totCharRate = new DoubleParameter(YC_TOT_CHAR_RATE, 0, Double.POSITIVE_INFINITY);
+         DoubleParameter totCharRate = new DoubleParameter(YC_TOT_CHAR_RATE, 0, Double.POSITIVE_INFINITY, new Double(0.01));
          totCharRate.setInfo(YC_TOT_CHAR_RATE_INFO);
          totCharRate.addParameterChangeFailListener(this);
          vStrings=new Vector();
