@@ -585,7 +585,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    * It will provide a pick list of interesting regions
    */
   private void initPuenteHillScenarioControl() {
-    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to the Params to Puente Hills Scenario?",
+    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to Puente Hills Scenario?",
                                     "Puete Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
       if(this.puenteHillControl==null)

@@ -112,8 +112,12 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
  /**
   * this function is called to add the paramters based on the forecast
-  *  selected by the user
-  * @param forecast
+  *  selected by the user.
+  * This updates the selecetd forecast and sets the sourceIndex and RuptureIndex
+  * for the ScenarioMap.
+  *
+  * @param sourceIndex : "0" as the default
+  * @param ruptureIndex : "0" as the default
   */
  public void setParamsInForecast(int sourceIndex,int ruptureIndex) {
 
@@ -208,6 +212,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
    this.validate();
    this.repaint();
+   showAllAdjustableParamForERF= true;
  }
 
  /**
