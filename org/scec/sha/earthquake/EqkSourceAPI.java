@@ -41,7 +41,7 @@ public interface EqkSourceAPI {
    *
    * @param i  ith rupture
    */
-  public EqkRupture getRupture(int nRupture);
+  public ProbEqkRupture getRupture(int nRupture);
 
 
   /**
@@ -52,7 +52,7 @@ public interface EqkSourceAPI {
    * @param i
    * @return
    */
-  public EqkRupture getRuptureClone(int nRupture);
+  public ProbEqkRupture getRuptureClone(int nRupture);
 
   /**
    * Returns the Vector consisting of all ruptures for this source

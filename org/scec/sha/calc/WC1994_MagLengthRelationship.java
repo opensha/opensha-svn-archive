@@ -13,10 +13,10 @@ import org.scec.exceptions.InvalidRangeException;
  * @version 1.0
  */
 
-public final class WC1994_MagLengthRelationship implements MagLengthRelationshipAPI{
+public class WC1994_MagLengthRelationship {
 
     // to convert natural to log base 10
-    private double lnToLog = 0.434294;
+    private final static double lnToLog = 0.434294;
 
     public WC1994_MagLengthRelationship() {
 
@@ -27,7 +27,7 @@ public final class WC1994_MagLengthRelationship implements MagLengthRelationship
      * @param length in km
      * @return mag
      */
-    public double getMeanMag(double length) {
+    public static double getMeanMag(double length) {
 
         return  5.08 +1.16*Math.log(length)*lnToLog;
     }
@@ -35,7 +35,7 @@ public final class WC1994_MagLengthRelationship implements MagLengthRelationship
     /**
      * This method is for all fault types (all rakes)
      */
-    public double getMagStdev() {
+    public static double getMagStdev() {
         return 0.28;
     }
 
@@ -45,7 +45,7 @@ public final class WC1994_MagLengthRelationship implements MagLengthRelationship
      * @param mag
      * @return length in km
      */
-    public double getMeanLength(double mag)  {
+    public static double getMeanLength(double mag)  {
         return Math.pow(10.0,-3.22+0.69*mag);
     }
 
@@ -53,7 +53,7 @@ public final class WC1994_MagLengthRelationship implements MagLengthRelationship
     /**
      * This method is for all fault types (all rakes)
      */
-    public double getLengthStdev() {
+    public static double getLengthStdev() {
         return 0.22;
     }
 
@@ -64,7 +64,7 @@ public final class WC1994_MagLengthRelationship implements MagLengthRelationship
      * @param rake in degrees (-180 to 180)
      * @return mag
      */
-    public double getMeanMag(double length, double rake) throws InvalidRangeException {
+    public static double getMeanMag(double length, double rake) throws InvalidRangeException {
 
         FaultUtils.assertValidRake(rake);
 
@@ -82,7 +82,7 @@ public final class WC1994_MagLengthRelationship implements MagLengthRelationship
     /**
      * This method is for rake dependent values
      */
-    public double getMagStdev(double rake) throws InvalidRangeException {
+    public static double getMagStdev(double rake) throws InvalidRangeException {
 
         FaultUtils.assertValidRake(rake);
 
@@ -104,7 +104,7 @@ public final class WC1994_MagLengthRelationship implements MagLengthRelationship
      * @param rake in degrees (-180 to 180)
      * @return length in km
      */
-    public double getMeanLength(double mag, double rake) throws InvalidRangeException {
+    public static double getMeanLength(double mag, double rake) throws InvalidRangeException {
 
         FaultUtils.assertValidRake(rake);
 
@@ -123,7 +123,7 @@ public final class WC1994_MagLengthRelationship implements MagLengthRelationship
     /**
      * This method is for rake dependent values
      */
-    public double getLengthStdev(double rake)throws InvalidRangeException {
+    public static double getLengthStdev(double rake)throws InvalidRangeException {
 
         FaultUtils.assertValidRake(rake);
 

@@ -3,17 +3,19 @@ package org.scec.sha.earthquake;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
 
+import java.util.Vector;
+
 /**
  * <p>Title: Frankel96CharEqkSource</p>
  * <p>Description: Frankel 1996 Characteristic type A earthquake sources </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author nitin Gupta & Vipin Gupta
+ * @author Nitin Gupta & Vipin Gupta
  * @date Sep 2, 2002
  * @version 1.0
  */
 
-public class Frankel96CharEqkSource extends ProbEqkSource {
+public class Frankel96_CharEqkSource extends ProbEqkSource {
 
 
   // rate for this source.
@@ -32,7 +34,7 @@ public class Frankel96CharEqkSource extends ProbEqkSource {
    * @param rate : Rate at this mag
    * @param surface : Fault Surface
    */
-  public Frankel96CharEqkSource(double rake,
+  public Frankel96_CharEqkSource(double rake,
                                 double mag,
                                 double rate,
                                 EvenlyGriddedSurface surface) {
@@ -68,6 +70,34 @@ public class Frankel96CharEqkSource extends ProbEqkSource {
 
   }
 
+ /**
+  * @return the total num of rutures for the mag which is 1 for the char type fault
+  */
+  public int getNumRuptures() {
+   return 1;
+ }
+
+ /**
+  * @param nRupture
+  * @return the object for the ProbEqkRupture
+  */
+  public ProbEqkRupture getRupture(int nRupture){
+    return probEqkRupture;
+  }
+
+
+ /**
+  * Returns the Vector consisting of all ruptures for this source
+  * all the objects are cloned. so this vector can be saved by the user
+  * It will only be cloning the first value becuase char type fault contain only
+  * 1 probEqkSource object.
+  * @return Vector consisting of
+  */
+  public Vector getRuptureList(){
+    Vector v= new Vector();
+    v.add(getRuptureClone(0));
+    return v;
+  }
 
 
 }

@@ -765,7 +765,7 @@ public class IMRGuiBean
         }
         else if( name1.equals(ClassicIMR.SIGMA_TRUNC_TYPE_NAME) ){  // special case hardcoded. Not the best way to do it, but need framework to handle it.
 
-            System.out.println(S + ClassicIMR.SIGMA_TRUNC_TYPE_NAME + " has changed");
+        //    System.out.println(S + ClassicIMR.SIGMA_TRUNC_TYPE_NAME + " has changed");
             String value = event.getNewValue().toString();
             toggleSigmaLevelBasedOnTypeValue(value);
 
@@ -950,6 +950,7 @@ public class IMRGuiBean
         it = imr.getSupportedIntensityMeasuresIterator();
         while ( it.hasNext() ) {
             DependentParameterAPI param = ( DependentParameterAPI ) it.next();
+           // System.out.println(param.getName());
             if ( !( independentParams.containsParameter( param.getName() ) ) ){
 
                 /** @todo Log Translated Params goes here */
@@ -966,6 +967,7 @@ public class IMRGuiBean
             ListIterator it2 = param.getIndependentParametersIterator();
             while ( it2.hasNext() ) {
                 ParameterAPI param2 = ( ParameterAPI ) it2.next();
+            //    System.out.println(param2.getName());
                 if ( !( independentParams.containsParameter( param2.getName() ) ) )
                     independentParams.addParameter( param2 );
 

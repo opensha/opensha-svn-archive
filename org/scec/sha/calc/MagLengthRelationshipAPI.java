@@ -17,8 +17,8 @@ package org.scec.sha.calc;
 
 public interface MagLengthRelationshipAPI{
 
-    public double getMeanLength(double mag);
-    public double getLengthStdev(double mag);
+    public  double getMeanLength(double mag);
+    public  double getLengthStdev(double mag);
 
     public double getMeanMag(double length);
     public double getMagStdev(double length);

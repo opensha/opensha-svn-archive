@@ -33,11 +33,12 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 
   /**
    * Get the iterator over all ruptures
-   *
-   * @return Iterator on vector for all ruptures
+   * This function returns the iterator for the rupturelist after calling the method getRuptureList()
+   * @return the iterator object for the RuptureList
    */
   public Iterator getRupturesIterator() {
-    return null;
+   Vector v= getRuptureList();
+   return v.iterator();
   }
 
 
@@ -46,9 +47,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    *
    * @return returns an integer value specifying the number of ruptures for this source
    */
-  public int getNumRuptures() {
-    return 0;
-  }
+  public abstract int getNumRuptures() ;
 
   /**
    * Get the ith rupture for this source
@@ -59,9 +58,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    *
    * @param i  ith rupture
    */
-  public EqkRupture getRupture(int nRupture) {
-     return probEqkRupture;
-  }
+  public abstract ProbEqkRupture getRupture(int nRupture);
 
 
   /**
@@ -69,11 +66,21 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * Subsequent calls to this function will not affect the result got previously.
    * This is in contrast with the getRupture(int i) function
    *
-   * @param i
-   * @return
+   * @param nRupture
+   * @return the clone of the probEqkRupture
    */
-  public EqkRupture getRuptureClone(int nRupture) {
-    return null;
+  public ProbEqkRupture getRuptureClone(int nRupture){
+    ProbEqkRupture eqkRupture =getRupture(nRupture);
+
+    ProbEqkRupture eqkRuptureClone=new ProbEqkRupture();
+    eqkRuptureClone.setAveRake(eqkRupture.getAveRake());
+    eqkRuptureClone.setMag(eqkRupture.getMag());
+    eqkRuptureClone.setRuptureSurface(eqkRupture.getRuptureSurface());
+    eqkRuptureClone.setHypocenterLocation(eqkRupture.getHypocenterLocation());
+    eqkRuptureClone.setProbability(eqkRupture.getProbability());
+    eqkRuptureClone.setTimeSpan(eqkRupture.getTimeSpan());
+
+    return eqkRuptureClone;
   }
 
   /**
@@ -82,9 +89,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    *
    * @return Vector consisting of
    */
-  public Vector getRuptureList() {
-    return null;
-  }
+  public abstract Vector getRuptureList();
 
   /**
    * get the name of this class

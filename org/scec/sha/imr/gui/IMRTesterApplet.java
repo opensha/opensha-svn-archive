@@ -1336,7 +1336,7 @@ public class IMRTesterApplet extends JApplet
             //data.prepForXLog();
         }
         if( !functions.contains( function ) ){
-            if ( D ) System.out.println( S + "Adding new function" );
+            if ( D ) System.out.println( S + "AddjIMRListing new function" );
             functions.add(function);
             //data.prepForXLog();
         }
