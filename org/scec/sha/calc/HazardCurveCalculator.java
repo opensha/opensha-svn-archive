@@ -58,7 +58,8 @@ public class HazardCurveCalculator {
 
     JProgressBar progress = new JProgressBar(0,100);
     progress.setStringPainted(true); // display the percentage completed also
-    frame.getContentPane().add(progress);
+    JLabel label = new JLabel("Updating Forecast......");
+    frame.getContentPane().add(label);
     frame.show();
     frame.validate();
     frame.repaint();
@@ -66,7 +67,14 @@ public class HazardCurveCalculator {
 
     // update the forecast. any constraint exception is caught by the GuiBean
     eqkRupForecast.updateForecast();
-    this.updateProgress(progress,2); // assign 2% for updating forecast
+
+    // now add the  progress bar
+    frame.getContentPane().remove(label);
+    frame.getContentPane().add(progress);
+    frame.getContentPane().validate();
+    frame.getContentPane().repaint();
+    this.updateProgress(progress,1);
+
 
     try {
       // set the site in IMR
