@@ -55,6 +55,7 @@ public class Borcherdt2004_SiteAmpCalc implements java.io.Serializable{
     else
       ma = ma_func.getInterpolatedY(pga);
 
+//System.out.println("shPer"+"\t"+vs30+"\t"+pga+"\t"+ma+"\t"+Math.pow(vs30_ref/vs30,ma));
     return Math.pow(vs30_ref/vs30,ma);
  }
 
@@ -78,6 +79,7 @@ public class Borcherdt2004_SiteAmpCalc implements java.io.Serializable{
    else
      mv = mv_func.getInterpolatedY(pga);
 
+//System.out.println("midPer"+"\t"+vs30+"\t"+pga+"\t"+mv+"\t"+Math.pow(vs30_ref/vs30,mv));
    return Math.pow(vs30_ref/vs30,mv);
 }
 

@@ -103,7 +103,14 @@ import org.scec.util.*;
 * scaling factor. <p>
 * I confirmed that the "Greater of Two Horz." component is just 1.15* the average horizontal. <p>
 * MMI calculations generally look correct, and the object that does the actual calucation
-* (Wald_MMI_Calc) was independently validated.
+* (Wald_MMI_Calc) was independently validated. <p>
+* I checked that the amplification factors being applied are correct in two ways: 1) I divided map
+* data with site effects by a rock-site map (vs30=760), and then divided the log of this amp factor
+* by log(760/vs30), and confirmed that the result plotted versus rock-pga is close to the functional form
+* of ma (or mv for periods ³ 0.5) versus rock-pga in the Borcherdt2004_SiteAmpCalc (the match
+* is not exact because amp factors are applied to each relationship before taking the average);
+* 2) I wrote out the ma (or mv) and amp values in the Borcherdt2004_SiteAmpCalc to make sure they
+* are correct.  Everything looked good.
 *
 *
 * @author     Edward H. Field
@@ -383,7 +390,7 @@ public class USGS_Combined_2004_AttenRel
 
      if(imt.equals(PGA_NAME)) {
        pga_bc = attenRel.getMean();
-       amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
+       amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,Math.exp(pga_bc));
        mean = pga_bc + Math.log(amp);
      }
      else if (imt.equals(SA_NAME)) {
@@ -394,9 +401,9 @@ public class USGS_Combined_2004_AttenRel
        attenRel.setIntensityMeasure(SA_NAME); // revert back
        double per = ((Double) periodParam.getValue()).doubleValue();
        if(per <= 0.5)
-         amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
+         amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,Math.exp(pga_bc));
        else
-         amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
+         amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,Math.exp(pga_bc));
        mean = ave_bc + Math.log(amp);
      }
      else if (imt.equals(PGV_NAME)) {
@@ -405,7 +412,7 @@ public class USGS_Combined_2004_AttenRel
        attenRel.setIntensityMeasure(PGA_NAME);
        pga_bc = attenRel.getMean();
        attenRel.setIntensityMeasure(SA_NAME); // revert back
-       amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
+       amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,Math.exp(pga_bc));
        mean = ave_bc + Math.log(amp) + SA10toPGV;  // last term is the PGV conversion
      }
      else { // it must be MMI
@@ -417,7 +424,7 @@ public class USGS_Combined_2004_AttenRel
        pga_bc = attenRel.getMean();
        amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
        double pgv = ave_bc + Math.log(amp) + Math.log(37.27*2.54);
-       amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
+       amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,Math.exp(pga_bc));
        double pga = pga_bc + Math.log(amp);
        double mmi = Wald_MMI_Calc.getMMI(Math.exp(pga),Math.exp(pgv));
        mean = Math.log(mmi);
@@ -512,7 +519,6 @@ public class USGS_Combined_2004_AttenRel
        double exceedProb = ( ( Double ) ( ( ParameterAPI ) exceedProbParam ).getValue() ).doubleValue();
        double stRndVar;
        String sigTrType = (String) sigmaTruncTypeParam.getValue();
-
 
        // compute the iml from exceed probability based on truncation type:
 
