@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.text.DecimalFormat;
 
+
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.param.ParameterList;
 import org.scec.param.StringParameter;
@@ -22,6 +23,7 @@ import org.scec.param.DoubleParameter;
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.scec.sha.gui.beans.MapGuiBean;
+import org.scec.data.*;
 
 /**
  * <p>Title: HazardMapViewerApp </p>
@@ -89,9 +91,6 @@ public class HazardMapViewerApp extends JApplet {
   DecimalFormat d= new DecimalFormat("0.00##");
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
-  JLabel jLabel3 = new JLabel();
-  JTextField fileNameTextField = new JTextField();
-  JLabel jLabel4 = new JLabel();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   GridBagLayout gridBagLayout5 = new GridBagLayout();
 
@@ -149,13 +148,6 @@ public class HazardMapViewerApp extends JApplet {
         mapButton_actionPerformed(e);
       }
     });
-    jLabel3.setForeground(new Color(80, 80, 133));
-    jLabel3.setText("Choose File Name:");
-    fileNameTextField.setBackground(new Color(200, 200, 230));
-    fileNameTextField.setForeground(new Color(80, 80, 133));
-    fileNameTextField.setText("test");
-    jLabel4.setForeground(new Color(80, 80, 133));
-    jLabel4.setText("(This is filename used for generating xyz, ps and jpg file)");
     mainSplitPane.add(gmtSplitPane, JSplitPane.BOTTOM);
     mainSplitPane.setRightComponent(gmtSplitPane);
     gmtSplitPane.setLeftComponent(siteSplitPane);
@@ -170,22 +162,16 @@ public class HazardMapViewerApp extends JApplet {
     gmtSplitPane.add(siteSplitPane, JSplitPane.LEFT);
     siteSplitPane.add(sitePanel, JSplitPane.LEFT);
     siteSplitPane.add(imlProbPanel, JSplitPane.RIGHT);
-    dataSetPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+    dataSetPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(24, 8, 0, 0), 22, 4));
-    dataSetPanel.add(dataSetCombo,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+    dataSetPanel.add(dataSetCombo,   new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(24, 7, 0, 66), 12, 1));
-    dataSetPanel.add(dataSetText,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
+    dataSetPanel.add(dataSetText,   new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 8, 0, 11), 0, 369));
-    dataSetPanel.add(jLabel2,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
+    dataSetPanel.add(jLabel2,   new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 16, 0, 170), 82, 1));
-    dataSetPanel.add(mapButton,  new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0
+    dataSetPanel.add(mapButton,   new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 95, 10, 119), 50, 11));
-    dataSetPanel.add(jLabel3,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 8, 0, 0), 11, 9));
-    dataSetPanel.add(fileNameTextField,  new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 0, 0, 42), 144, 4));
-    dataSetPanel.add(jLabel4,  new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 8, 0, 3), 17, 5));
     mainSplitPane.setDividerLocation(350);
     gmtSplitPane.setDividerLocation(150);
     siteSplitPane.setDividerLocation(300);
@@ -442,11 +428,7 @@ public class HazardMapViewerApp extends JApplet {
       isProbAt_IML = false;
     double val = this.imlProbGuiBean.getIML_Prob();
 
-    // check thatuser has entered a valid filename
-    if(fileNameTextField.getText().trim().equalsIgnoreCase("")) {
-      JOptionPane.showMessageDialog(this, "Please enter the file name");
-      return;
-    }
+
 
     // make the xyz file and pass the name of xyz file to mapguibean
     mapGuiBean.makeMap(this.readAndWriteFile(minLat, maxLat, minLon, maxLon,
@@ -466,19 +448,16 @@ public class HazardMapViewerApp extends JApplet {
    * @param minLon
    * @param maxLon
    */
-   private String readAndWriteFile(double minLat,double maxLat,double minLon,
+   private XYZ_DataSetAPI readAndWriteFile(double minLat,double maxLat,double minLon,
                                  double maxLon,double gridSpacing,
                                  String selectedSet, boolean isProbAt_IML, double val){
-     String finalFile = null;
-     try {
-       finalFile=this.fileNameTextField.getText().trim()+".xyz";
-       FileWriter fw1= new FileWriter(finalFile);
-       fw1.close();
-     }catch(Exception e) {
-       e.printStackTrace();
-     }
+
      //searching the directory for the list of the files.
      File dir = new File(HazardMapCalculator.DATASETS_PATH+selectedSet+"/");
+     XYZ_DataSetAPI xyzData;
+     Vector xVals = new Vector();
+     Vector yVals = new Vector();
+     Vector zVals = new Vector();
      String[] fileList=dir.list();
      //formatting of the text double Decimal numbers for 2 places of decimal.
      DecimalFormat d= new DecimalFormat("0.00##");
@@ -534,12 +513,11 @@ public class HazardMapViewerApp extends JApplet {
 
                      //final iml value returned after interpolation
                      double finalProb=interpolateProb(val, prevIML,currentIML,prevProb,currentProb);
-                     String curveResult=lon+" "+lat+" "+Math.log(finalProb)+"\n";
+                     //String curveResult=lon+" "+lat+" "+Math.log(finalProb)+"\n";
                      //appending the iml result to the final output file.
-
-                     FileWriter fw= new FileWriter(finalFile,true);
-                     fw.write(curveResult);
-                     fw.close();
+                     xVals.add(lat);
+                     yVals.add(lon);
+                     zVals.add(new Double(Math.log(finalProb)));
                      break;
                    }
                  }
@@ -548,10 +526,10 @@ public class HazardMapViewerApp extends JApplet {
                    //interpolating the iml value entered by the user to get the final iml for the
                    //corresponding prob.
                    double finalIML=interpolateIML(val, prevProb,currentProb,prevIML,currentIML);
-                   String curveResult=lon+" "+lat+" "+Math.log(finalIML)+"\n";
-                   FileWriter fw= new FileWriter(finalFile,true);
-                   fw.write(curveResult);
-                   fw.close();
+                   //String curveResult=lon+" "+lat+" "+Math.log(finalIML)+"\n";
+                   xVals.add(lat);
+                   yVals.add(lon);
+                   zVals.add(new Double(Math.log(finalIML)));
                    break;
                  }
                  prevIML=currentIML;
@@ -568,7 +546,8 @@ public class HazardMapViewerApp extends JApplet {
          }
        }
      }
-     return finalFile;
+     xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
+     return xyzData;
    }
 
 

@@ -17,6 +17,8 @@ import org.scec.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.param.ParameterList;
 import org.scec.mapping.gmtWrapper.RunScript;
+import org.scec.data.XYZ_DataSetAPI;
+import org.scec.data.ArbDiscretizedXYZ_DataSet;
 
 /**
  * <p>Title: HazardMapViewerServlet</p>
@@ -66,11 +68,11 @@ public class HazardMapViewerServlet  extends HttpServlet {
         if(optionSelected.equalsIgnoreCase(IMLorProbSelectorGuiBean.IML_AT_PROB))
           isProbAt_IML = false;
         // xyzfilename
-        String xyzFileName = this.readAndWriteFile(selectedSet, new String(outputFilePrefix),
-                                                    isProbAt_IML, val, map);
+        XYZ_DataSetAPI xyzData = this.readAndWriteFile(selectedSet, isProbAt_IML, val, map);
         // jpg file name
-        String jpgFileName  = map.makeMapUsingServer(xyzFileName);
+        String jpgFileName  = map.makeMapUsingServer(xyzData);
 
+        String xyzFileName  = map.getXYZ_FileName();
         // make the html file
         makeHTML_File(outputFilePrefix, jpgFileName);
         // now move the xyz file, ps file and jpg file to webpage directory
@@ -188,8 +190,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
   * @param minLon
   * @param maxLon
   */
-  private String readAndWriteFile(String selectedSet,
-                                  String outputFilePrefix,
+  private XYZ_DataSetAPI readAndWriteFile(String selectedSet,
                                   boolean isProbAt_IML,
                                   double val, GMT_MapGenerator map ){
 
@@ -201,14 +202,12 @@ public class HazardMapViewerServlet  extends HttpServlet {
     double maxLon =((Double) paramList.getValue(GMT_MapGenerator.MAX_LON_PARAM_NAME)).doubleValue();
     double gridSpacing =((Double) paramList.getValue(GMT_MapGenerator.GRID_SPACING_PARAM_NAME)).doubleValue();
 
-    String finalFile = null;;
-    try {
-      finalFile=outputFilePrefix+".xyz";
-      FileWriter fw1= new FileWriter(finalFile);
-      fw1.close();
-    }catch(Exception e) {
-      e.printStackTrace();
-    }
+    //adding the xyz data set to the object of XYZ_DataSetAPI
+    XYZ_DataSetAPI xyzData;
+    Vector xVals= new Vector();
+    Vector yVals= new Vector();
+    Vector zVals= new Vector();
+
     //searching the directory for the list of the files.
     File dir = new File(HazardMapCalculator.DATASETS_PATH+selectedSet+"/");
     String[] fileList=dir.list();
@@ -266,11 +265,11 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
                     //final iml value returned after interpolation
                     double finalProb=interpolateProb(val, prevIML,currentIML,prevProb,currentProb);
-                    String curveResult=lon+" "+lat+" "+Math.log(finalProb)+"\n";
+                    //String curveResult=lon+" "+lat+" "+Math.log(finalProb)+"\n";
                     //appending the iml result to the final output file.
-                    FileWriter fw= new FileWriter(finalFile,true);
-                    fw.write(curveResult);
-                    fw.close();
+                    xVals.add(lon);
+                    yVals.add(lat);
+                    zVals.add(new Double(Math.log(finalProb)));
                     break;
                   }
                 }
@@ -279,10 +278,10 @@ public class HazardMapViewerServlet  extends HttpServlet {
                   //interpolating the iml value entered by the user to get the final iml for the
                   //corresponding prob.
                   double finalIML=interpolateIML(val, prevProb,currentProb,prevIML,currentIML);
-                  String curveResult=lon+" "+lat+" "+Math.log(finalIML)+"\n";
-                  FileWriter fw= new FileWriter(finalFile,true);
-                  fw.write(curveResult);
-                  fw.close();
+                  //String curveResult=lon+" "+lat+" "+Math.log(finalIML)+"\n";
+                  xVals.add(lon);
+                  yVals.add(lat);
+                  zVals.add(new Double(Math.log(finalIML)));
                   break;
                 }
                 prevIML=currentIML;
@@ -299,7 +298,8 @@ public class HazardMapViewerServlet  extends HttpServlet {
         }
       }
     }
-    return finalFile;
+    xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
+    return xyzData;
   }
 
 

@@ -20,6 +20,8 @@ import org.scec.data.Site;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.gui.controls.RegionsOfInterestControlPanel;
 import org.scec.sha.gui.infoTools.*;
+import org.scec.data.ArbDiscretizedXYZ_DataSet;
+import org.scec.data.XYZ_DataSetAPI;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -51,9 +53,9 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
-  private static final String DEFAULT_FILE_NAME ="test.txt";
 
-
+  //reference to the  XYZ dataSet
+  XYZ_DataSetAPI xyzDataSet;
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
@@ -321,6 +323,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
      // show this IMRgui bean the Panel
     imrSelectionPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
          GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
   }
 
   /**
@@ -493,49 +496,21 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
       }
     }
 
-    try {
-      makeFile(siteLat,siteLon,siteValue);
-    }catch(Exception e) {
-      e.printStackTrace();
-    }
-    ++step;
-    calcProgress.setProgressMessage("  Generating the Map ...");
-    double minLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
-    double maxLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
-    double minLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
-    double maxLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
-    double gridSpacing=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
-    mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
+
+      xyzDataSet = new ArbDiscretizedXYZ_DataSet(siteLat,siteLon,siteValue);
+
+      ++step;
+      calcProgress.setProgressMessage("  Generating the Map ...");
+      double minLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
+      double maxLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
+      double minLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
+      double maxLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
+      double gridSpacing=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
+      mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
   }
 
 
-  /**
-   * It generates ans XYZ file and gives it to the MapGuiBean to give it to the
-   * GMT parameters and generate the .grd file.
-   * @param lat
-   * @param lon
-   * @param siteValue
-   */
-  private void makeFile(Vector lat,Vector lon,Vector siteValue){
-    try{
 
-      FileWriter fr = new FileWriter(this.DEFAULT_FILE_NAME);
-      int size=0;
-      if(this.mapGuiBean.isGMT_FromServer()){
-        size=lon.size();
-        for(int i=0;i<size;++i)
-          fr.write(lon.get(i)+" "+lat.get(i)+" "+siteValue.get(i)+"\n");
-      }
-      else{
-        size=lat.size();
-        for(int i=0;i<size;++i)
-          fr.write(lat.get(i)+" "+lon.get(i)+" "+siteValue.get(i)+"\n");
-      }
-      fr.close();
-    }catch(IOException e){
-      e.printStackTrace();
-    }
-  }
 
   void addButton_actionPerformed(ActionEvent e) {
     addButton();
@@ -552,7 +527,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
         if(step==1)
           calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
         if(step==2) {
-          mapGuiBean.makeMap(ScenarioShakeMapApp.DEFAULT_FILE_NAME,getMapParametersInfo());
+          mapGuiBean.makeMap(xyzDataSet,getMapParametersInfo());
           calcProgress.dispose();
           timer.stop();
         }

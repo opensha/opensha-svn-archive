@@ -6,6 +6,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.net.*;
 import java.io.*;
+import java.awt.event.*;
+import javax.activation.*;
+
 
 import org.scec.mapping.gmtWrapper.*;
 import org.scec.param.*;
@@ -14,8 +17,8 @@ import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.sha.gui.infoTools.ImageViewerWindow;
 import org.scec.util.FileUtils;
-import java.awt.event.*;
-
+import org.scec.webservices.client.*;
+import org.scec.data.*;
 
 /**
  * <p>Title: GMT_MapGenerator</p>
@@ -141,13 +144,19 @@ public class MapGuiBean extends JPanel implements
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeMap(String fileName,String paramsInfo){
+  public void makeMap(XYZ_DataSetAPI xyzVals,String paramsInfo){
     String imgName=null;
-    if(this.gmtServerCheck.isSelected())
-      imgName = openConnection(fileName);
+    if(this.gmtServerCheck.isSelected()){
+      //imgName = openConnection(xyzVals);
+      gmtMap.makeMapUsingWebServer(xyzVals);
+      String[] fileName = new String[2];
+      fileName[0] = gmtMap.getGMT_FileName();
+      fileName[1] = gmtMap.getXYZ_FileName();
+      imgName=openWebServiceConnection(fileName);
+    }
     else{
       try{
-        imgName = gmtMap.makeMap(fileName);
+        imgName = gmtMap.makeMap(xyzVals);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;
@@ -186,12 +195,12 @@ public class MapGuiBean extends JPanel implements
   /**
    * sets up the connection with the servlet on the server (scec.usc.edu)
    */
-  String openConnection(String fileName) {
+  String openConnection(XYZ_DataSetAPI xyzDataVals) {
 
     String imgURL=null;
 
     try{
-      ArrayList fileLines= FileUtils.loadFile(fileName);
+
       if(D) System.out.println("starting to make connection with servlet");
       URL hazardMapServlet = new
                              URL("http://scec.usc.edu:9999/examples/servlet/GMT_MapGeneratorServlet");
@@ -218,11 +227,8 @@ public class MapGuiBean extends JPanel implements
       outputToServlet.writeObject(this.gmtMap);
 
 
-      //sending the contents of the file to the servlet
-      outputToServlet.writeObject(fileLines);
-
-      //sending the name of the XYZ that user had wanted to craete
-      outputToServlet.writeObject(fileName);
+      //sending the contents of the XYZ data set to the servlet
+      outputToServlet.writeObject(xyzDataVals);
 
       outputToServlet.flush();
       outputToServlet.close();
@@ -235,9 +241,6 @@ public class MapGuiBean extends JPanel implements
       if(D) System.out.println("Receiving the Input from the Servlet:"+imgURL);
       inputToServlet.close();
 
-    }catch(FileNotFoundException ee){
-      System.out.println("XYZ file not found");
-      ee.printStackTrace();
     }
     catch (Exception e) {
       System.out.println("Exception in connection with servlet:" +e);
@@ -246,6 +249,32 @@ public class MapGuiBean extends JPanel implements
     return imgURL;
   }
 
+
+
+ //For the webservices Implementation
+ private String openWebServiceConnection(String[] fileName){
+   int size=fileName.length;
+   String imgWebAddr=null;
+   FileDataSource[] fs = new FileDataSource[size+2];
+   DataHandler dh[] = new DataHandler[size+2];
+   System.out.println("File-0: "+fileName[0]);
+   fs[0] =new FileDataSource(fileName[0]);
+   dh[0] = new DataHandler(fs[0]);
+
+   System.out.println("File-1: "+fileName[1]);
+   fs[1] =new FileDataSource(fileName[1]);
+   dh[1] = new DataHandler(fs[1]);
+
+   GMT_WebService_Impl client = new GMT_WebService_Impl();
+   GMT_WebServiceAPI gmt = client.getGMT_WebServiceAPIPort();
+   try{
+     imgWebAddr = gmt.runGMT_Script(fileName,dh);
+     System.out.println("imgWebAddr: "+imgWebAddr);
+   }catch(Exception e){
+     e.printStackTrace();
+   }
+   return imgWebAddr;
+ }
 
   /**
    *

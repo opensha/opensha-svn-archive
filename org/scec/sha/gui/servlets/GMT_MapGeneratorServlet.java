@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import org.scec.mapping.gmtWrapper.RunScript;
 import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
+import org.scec.data.XYZ_DataSetAPI;
 
 /**
  * <p>Title: GMT_MapGeneratorServlet </p>
@@ -33,24 +34,15 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
      //gets the object for the GMT_MapGenerator script
      GMT_MapGenerator gmtMapInfo = (GMT_MapGenerator) inputFromApplet.readObject();
 
-     //ArrayList that contains the contents of xyz file required by the  GMT
-     ArrayList fileLines = (ArrayList)inputFromApplet.readObject();
+     //XYZ dataset object being received from the applet
+     XYZ_DataSetAPI xyzData = (XYZ_DataSetAPI)inputFromApplet.readObject();
 
-     //name of the XYZ file that user had wanted to create
-     String fileName = request.getRemoteHost();
 
-     //creating the xyz file from the contents in the ArrayList
-     FileWriter fileWriter = new FileWriter(fileName);
-     for(int i=0;i<fileLines.size();++i){
-       fileWriter.write((String)fileLines.get(i));
-       fileWriter.write("\n");
-     }
 
-     fileWriter.close();
 
      //jpg image name returned back by the gmt
-     String imgName=gmtMapInfo.makeMapUsingServer(fileName);
-
+     String imgName=gmtMapInfo.makeMapUsingServer(xyzData);
+     String fileName = gmtMapInfo.getXYZ_FileName();
 
      //moving the .jpg , .ps and .xyz
      String command[] = {"sh","-c","mv "+fileName+" webpages/scenariomapimagefiles/"};
