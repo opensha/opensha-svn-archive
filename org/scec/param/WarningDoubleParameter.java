@@ -549,6 +549,10 @@ public class WarningDoubleParameter
             WarningDoubleParameter param = ( WarningDoubleParameter ) obj;
             n2 = ( Double ) param.getValue();
         }
+        //if we have set a null value in the Parameter like in the basin depth
+        //then compareTo function fails so we retun true is both are null
+        if(n1 == null && n2 == null)
+          return 0;
 
         return n1.compareTo( n2 );
     }
