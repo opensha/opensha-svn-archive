@@ -187,6 +187,7 @@ public class ShakeMap_2004_AttenRel
 
        // init the BC boundary site object, and set it in the attenuation relationships:
        site_BC = new Site();
+       this.propEffect = new PropagationEffect();
 
        as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(as_1997_attenRel.SITE_TYPE_ROCK);
        site_BC.addParameter(as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME));
@@ -219,13 +220,14 @@ public class ShakeMap_2004_AttenRel
 
        // Set the probEqkRupture
        this.probEqkRupture = probEqkRupture;
-
+/*
        // set the EqkRup in the atten relations
        as_1997_attenRel.setProbEqkRupture(probEqkRupture);
        bjf_1997_attenRel.setProbEqkRupture(probEqkRupture);
        scemy_1997_attenRel.setProbEqkRupture(probEqkRupture);
        cb_2003_attenRel.setProbEqkRupture(probEqkRupture);
-/*
+*/
+
        this.propEffect.setProbEqkRupture(probEqkRupture);
        if(this.site_BC != null) {
          as_1997_attenRel.setPropagationEffect(propEffect);
@@ -233,7 +235,7 @@ public class ShakeMap_2004_AttenRel
          scemy_1997_attenRel.setPropagationEffect(propEffect);
          cb_2003_attenRel.setPropagationEffect(propEffect);
        }
-*/
+
 
    }
 
@@ -266,13 +268,13 @@ public class ShakeMap_2004_AttenRel
 
        // set the location of the BC bounday site object
        site_BC.setLocation(site.getLocation());
-
+/*
        // set the  BC Site in the attenuation relations
        as_1997_attenRel.setSite(site_BC);
        bjf_1997_attenRel.setSite(site_BC);
        scemy_1997_attenRel.setSite(site_BC);
        cb_2003_attenRel.setSite(site_BC);
-/*
+*/
        this.propEffect.setSite(site_BC);
        if(this.probEqkRupture != null) {
          as_1997_attenRel.setPropagationEffect(propEffect);
@@ -280,7 +282,7 @@ public class ShakeMap_2004_AttenRel
          scemy_1997_attenRel.setPropagationEffect(propEffect);
          cb_2003_attenRel.setPropagationEffect(propEffect);
        }
-*/
+
 
   }
 

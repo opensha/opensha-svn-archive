@@ -233,6 +233,56 @@ public class CB_2003_AttenRel
 
     }
 
+    /**
+     * This sets the site and probEqkRupture from the propEffect object passed in
+     * @param propEffect
+     */
+    public void setPropagationEffect(PropagationEffect propEffect) {
+
+      this.site = propEffect.getSite();
+      this.probEqkRupture = propEffect.getProbEqkRupture();
+
+      if( site == null || probEqkRupture == null)
+        throw new RuntimeException ("Site or ProbEqkRupture is null");
+
+      // set the site-type param
+      this.siteTypeParam.setValue(site.getParameter( SITE_TYPE_NAME ).getValue());
+      Double magOld = (Double)magParam.getValue( );
+      try {
+          // constraints get checked
+          magParam.setValue( probEqkRupture.getMag() );
+      } catch (WarningException e){
+          if(D) System.out.println(C+"Warning Exception:"+e);
+      }
+      // If fail, rollback to all old values
+      try{
+          setFaultType( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
+      }
+      catch( ConstraintException e ){
+          magParam.setValue( (Double)magOld );
+          throw e;
+      }
+      // set the distance param
+      propEffect.setParamValue(distanceSeisParam);
+      // set the hanging-wall parameter
+      int numPts = probEqkRupture.getRuptureSurface().getNumCols();
+      double dip = probEqkRupture.getRuptureSurface().getAveDip();
+      String fltType = (String) fltTypeParam.getValue();
+
+      if(dip <= 70.0 && (fltType != FLT_TYPE_OTHER) && numPts > 1) {
+//          double jbDist = ( (Double) distanceJBParam.getValue( probEqkRupture, site ) ).doubleValue();
+        double jbDist = ((Double)propEffect.getParamValue(distanceJBParam.NAME)).doubleValue();
+        if ( jbDist < 1.0 )
+          hangingWallParam.setValue(1.0);
+        else if  ( jbDist < 5.0 )
+          hangingWallParam.setValue((5.0-jbDist)/5.0);
+        else
+          hangingWallParam.setValue(0.0);
+      }
+      else // turn it off for normal, strike-slip, or vertically dipping faults
+          hangingWallParam.setValue(0.0);
+    }
+
 
     /**
         * get the name of this IMR

@@ -7,6 +7,7 @@ import org.scec.exceptions.*;
 import org.scec.param.*;
 import org.scec.sha.earthquake.*;
 import org.scec.calc.RelativeLocation;
+import org.scec.sha.param.WarningDoublePropagationEffectParameter;
 
 
 /**
@@ -14,16 +15,14 @@ import org.scec.calc.RelativeLocation;
  *
  * <b>Description:</b>
  *
- * <br><br>
- * <br>     Rrup	\
- * <br>     Rjb	 > (km; these are three common distance
- * <br>                 measures used by the Rseis	/
- * <br>                 various IntensityMeasureRelationships)
  *
  * @author Ned Field
  * @version 1.0
  */
 public class PropagationEffect {
+
+    private final static String C = "PropagationEffect";
+    private final static boolean D = false;
 
 
     /** The Site used for calculating the PropagationEffect parameter values. */
@@ -31,7 +30,6 @@ public class PropagationEffect {
 
     /** The ProbEqkRupture used for calculating the PropagationEffect parameter values.*/
     protected ProbEqkRupture probEqkRupture = null;
-
 
     /** this distance measure for the DistanceRupParameter */
     protected double distanceRup;
@@ -81,12 +79,16 @@ public class PropagationEffect {
 
 
     /**
+     * This returns the value for the parameter-name given
      */
     public Object getParamValue(String paramName) {
+
+      if (D) System.out.println(C+": getting Param Value for "+paramName);
 
       if(STALE == true)
         computeParamValues();
 
+      //QUESTION - IS CREATING A NEW DOUBLE OBJECT WITH EACH CALL INEFFICIENT/UNNECESSARY?
       if(paramName.equals(DistanceRupParameter.NAME))
     	return new Double(distanceRup);
       else if(paramName.equals(DistanceJBParameter.NAME))
@@ -99,9 +101,15 @@ public class PropagationEffect {
 
 
     /**
+     * This sets the value of the passed in parameter with that computed internally
      */
     public void setParamValue( ParameterAPI param ) {
-      param.setValue(getParamValue(param.getName()));
+
+      if(param instanceof WarningDoublePropagationEffectParameter)
+       ((WarningDoublePropagationEffectParameter)param).setValueIgnoreWarning(getParamValue(param.getName()));
+      else
+        param.setValue(getParamValue(param.getName()));
+
     }
 
 
@@ -141,9 +149,9 @@ public class PropagationEffect {
       if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 
           Location loc1 = site.getLocation();
-          distanceJB = 9999999;
-          distanceSeis = 9999999;
-          distanceRup = 9999999;
+          distanceJB = Double.MAX_VALUE;
+          distanceSeis = Double.MAX_VALUE;
+          distanceRup = Double.MAX_VALUE;
 
           double horzDist, vertDist, rupDist, jbDist, seisDist;
 
@@ -168,10 +176,16 @@ public class PropagationEffect {
           distanceRup = Math.pow(distanceRup,0.5);
           distanceSeis = Math.pow(distanceSeis,0.5);
 
-          STALE = true;
-      }
+          if(D) {
+            System.out.println(C+": distanceRup = " + distanceRup);
+            System.out.println(C+": distanceSeis = " + distanceSeis);
+            System.out.println(C+": distanceJB = " + distanceJB);
+          }
 
-      throw new RuntimeException ("Site or ProbEqkRupture is null");
+          STALE = false;
+      }
+      else
+        throw new RuntimeException ("Site or ProbEqkRupture is null");
 
     }
 }

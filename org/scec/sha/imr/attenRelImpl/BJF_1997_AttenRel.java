@@ -184,6 +184,44 @@ public class BJF_1997_AttenRel
 
     }
 
+
+    /**
+     * This sets the site and probEqkRupture from the propEffect object passed in
+     * @param propEffect
+     */
+    public void setPropagationEffect(PropagationEffect propEffect) {
+
+      this.site = propEffect.getSite();
+      this.probEqkRupture = propEffect.getProbEqkRupture();
+
+      if( site == null || probEqkRupture == null)
+        throw new RuntimeException ("Site or ProbEqkRupture is null");
+
+
+      // set the locat site-type param
+      this.vs30Param.setValue(site.getParameter( VS30_NAME ).getValue());
+
+      Double magOld = (Double)magParam.getValue( );
+      try {
+      // constraints get checked
+        magParam.setValue( probEqkRupture.getMag() );
+      } catch (WarningException e){
+        if(D) System.out.println(C+"Warning Exception:"+e);
+      }
+        // If fail, rollback to all old values
+      try{
+          setFaultTypeFromRake( probEqkRupture.getAveRake() );
+      }
+      catch( ConstraintException e ){
+          magParam.setValue( (Double)magOld );
+          throw e;
+      }
+
+      // set the distance param
+      propEffect.setParamValue(distanceJBParam);
+
+    }
+
     /**
      * This calculates the Distance JB propagation effect parameter based
      * on the current site and probEqkRupture. <P>

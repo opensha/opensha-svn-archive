@@ -6,6 +6,7 @@ import org.scec.data.*;
 import org.scec.exceptions.*;
 import org.scec.param.*;
 import org.scec.sha.earthquake.*;
+import org.scec.sha.param.PropagationEffect;
 
 
 /**
@@ -89,6 +90,8 @@ public abstract class IntensityMeasureRelationship
      */
     protected ProbEqkRupture probEqkRupture;
 
+    protected PropagationEffect propEffect;
+
     /**
      *  Intensity Measure.  This is a specification of the type of shaking one
      *  is concered about.  Its representation as a Parameter makes the
@@ -129,6 +132,17 @@ public abstract class IntensityMeasureRelationship
      * @param  site  The new site object
      */
     public void setSite( Site site ) { this.site = site; }
+
+
+    /**
+     * This sets the site and probEqkRupture from the propEffect object passed in
+     * @param propEffect
+     */
+    public void setPropagationEffect(PropagationEffect propEffect) {
+      setSite(propEffect.getSite());
+      setProbEqkRupture(propEffect.getProbEqkRupture());
+    }
+
 
     /**
      *  Returns a reference to the current Site object of the IMR

@@ -7,6 +7,8 @@ import org.scec.exceptions.*;
 import org.scec.param.*;
 import org.scec.sha.earthquake.*;
 import org.scec.util.*;
+import org.scec.sha.param.PropagationEffect;
+
 
 /**
  *  <b>Title:</b> IntensityMeasureRelationshipAPI<br>
@@ -38,6 +40,12 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      */
     public void setSite( Site site );
 
+
+    /**
+     * This sets the site and probEqkRupture from the propEffect object passed in
+     * @param propEffect
+     */
+    public void setPropagationEffect(PropagationEffect propEffect);
 
 
     /**

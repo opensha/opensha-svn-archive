@@ -253,6 +253,52 @@ public class AS_1997_AttenRel
 
     }
 
+
+    /**
+     * This sets the site and probEqkRupture from the propEffect object passed in
+     * @param propEffect
+     */
+    public void setPropagationEffect(PropagationEffect propEffect) {
+
+      this.site = propEffect.getSite();
+      this.probEqkRupture = propEffect.getProbEqkRupture();
+
+      if( site == null || probEqkRupture == null)
+        throw new RuntimeException ("Site or ProbEqkRupture is null");
+
+      // set the locat site-type param
+      this.siteTypeParam.setValue(site.getParameter( SITE_TYPE_NAME ).getValue());
+
+      Double magOld = (Double)magParam.getValue( );
+      try {
+          // constraints get checked
+          magParam.setValue( probEqkRupture.getMag() );
+      } catch (WarningException e){
+          if(D) System.out.println(C+"Warning Exception:"+e);
+      }
+        // If fail, rollback to all old values
+      try{
+          setFaultTypeFromRake( probEqkRupture.getAveRake() );
+      }
+      catch( ConstraintException e ){
+          magParam.setValue( (Double)magOld );
+        throw e;
+      }
+
+//System.out.println("got here --2");
+
+      // set the distance param
+      propEffect.setParamValue(distanceRupParam);
+//System.out.println("got here --3");
+      // now the hanging wall param
+      int numPts = probEqkRupture.getRuptureSurface().getNumCols();
+      if(probEqkRupture.getRuptureSurface().getAveDip() <= 70 && isOnHangingWall() && numPts > 1)
+          isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
+      else
+          isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
+    }
+
+
     /**
      * This sets the two propagation-effect parameters (distanceRupParam and
      * isOnHangingWallParam) based on the current site and probEqkRupture.  The

@@ -166,7 +166,7 @@ System.out.println("rejected "+
         try {
           imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
         } catch (Exception ex) {
-          System.out.println("Parameter change warning caught");
+          System.out.println("Parameter change warning caught for IMR: "+ imr.getName());
         }
 
         // get the conditional probability of exceedance from the IMR
