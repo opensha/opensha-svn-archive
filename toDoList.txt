@@ -1,6 +1,8 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Change HazardCurveServerModeApp to do the calculations on the server.
+
 Finish getting Frankel's 2002 code running on the Mac.
 
 MultipleIMR_GuiBean:
