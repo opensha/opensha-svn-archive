@@ -13,9 +13,8 @@ import org.scec.data.Location;
 
 /**
  * <p>Title:SiteParamListEditor </p>
- * <p>Description: this class will make the site parameter editor based on selected
- * IMRs. Here duplicate site params in multiple IMRs are removed.
- * Also parameters are the cloned parameters. </p>
+ * <p>Description: this class will make the site parameter editor.
+ * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta & Vipin Gupta

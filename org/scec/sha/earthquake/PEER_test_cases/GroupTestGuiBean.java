@@ -83,8 +83,7 @@ public class GroupTestGuiBean implements
 
 
     // Site Gui Editor
-    private ParameterListEditor siteEditor = null;
-    private SiteParamList siteParams;
+    private SiteParamListEditor siteParamEditor;
 
     /**
      *  The object class names for all the supported Eqk Rup Forecasts
@@ -181,7 +180,7 @@ public class GroupTestGuiBean implements
     init_erf_IndParamListAndEditor();
 
     // make the site gui bean
-    siteParams = new SiteParamList(this, this, this);
+    siteParamEditor = new SiteParamListEditor();
 
     // Create site parameters
     updateSiteParamListAndEditor( );
@@ -569,11 +568,17 @@ public class GroupTestGuiBean implements
 
    // get the selected IMR
    String value = (String)imrParamList.getParameter(this.IMR_PARAM_NAME).getValue();
-   Vector imrNames = new Vector();
-   imrNames.add(value);
-   // now make the editor based on the parameter list
-   siteEditor = siteParams.replaceSiteParamsWithIMRs(imrNames);
-
+   AttenuationRelationshipAPI imr;
+   int size = imrObject.size();
+   // loop over each IMR
+   for(int i=0; i < size ; ++i) {
+     imr = (AttenuationRelationshipAPI)imrObject.get(i);
+     // if this is not the selected IMR then continue
+     if(imr.getName().equalsIgnoreCase(value)) {
+        siteParamEditor.replaceSiteParams(imr.getSiteParamsIterator());
+        break;
+     }
+   }
  }
 
 
@@ -621,7 +626,7 @@ public class GroupTestGuiBean implements
   * @return    The siteEditor value
   */
   public ParameterListEditor getSiteEditor() {
-        return siteEditor;
+        return siteParamEditor;
  }
 
 
@@ -760,17 +765,20 @@ public class GroupTestGuiBean implements
 
   private void updateIML(String imlName) {
     Iterator it= imtParamList.getParametersIterator();
+
     //making all the IMT parameters invisible
     while(it.hasNext())
       imtEditor.setParameterInvisible(((ParameterAPI)it.next()).getName(),false);
-      //making the Dependent parameter visible
-      imtEditor.setParameterInvisible(IMT_PARAM_NAME,true);
-      it=imtParam.iterator();
-      //for the selected IMT making its independent parameters visible
-      while(it.hasNext()){
-        DependentParameterAPI param=(DependentParameterAPI)it.next();
-        if(param.getName().equalsIgnoreCase(imlName)){
-          Iterator it1=param.getIndependentParametersIterator();
+
+    //making the choose IMT parameter visible
+    imtEditor.setParameterInvisible(IMT_PARAM_NAME,true);
+
+    it=imtParam.iterator();
+    //for the selected IMT making its independent parameters visible
+    while(it.hasNext()){
+      DependentParameterAPI param=(DependentParameterAPI)it.next();
+      if(param.getName().equalsIgnoreCase(imlName)){
+        Iterator it1=param.getIndependentParametersIterator();
         while(it1.hasNext())
           imtEditor.setParameterInvisible(((ParameterAPI)it1.next()).getName(),true);
       }
@@ -821,7 +829,7 @@ public class GroupTestGuiBean implements
     AttenuationRelationshipAPI imr = null;
 
     // make a site object to pass to each IMR
-    Site site = siteParams.getSite();
+    Site site = siteParamEditor.getSite();
 
 
     // do for each IMR
@@ -1087,12 +1095,12 @@ public class GroupTestGuiBean implements
       if(D) System.out.println(S+"::entering");
       String value = (String)testCasesParamList.getParameter(TEST_PARAM_NAME).getValue();
 
-
-
       // set the mag dist params based on test case
       setMagDistParams(value);
 
       String selectedFault= new String(FAULT_ONE);
+
+      ParameterList siteParams = siteParamEditor.getParameterList();
 
       //if selected test case is number 1
       if(value.equals(TEST_CASE_ONE)){
@@ -1226,7 +1234,7 @@ public class GroupTestGuiBean implements
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(Campbell_1997_AttenRel.STD_DEV_TYPE_MAG_DEP);
         imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-        siteParams.getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
+        siteParamEditor.getParameterList().getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
         siteParams.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
         selectedFault = new String(FAULT_TWO);
       }
@@ -1276,71 +1284,71 @@ public class GroupTestGuiBean implements
 
         // for fault site 1
         if(siteNumber.equals(SITE_ONE)) {
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.113));
-          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.0));
+          siteParamEditor.getParameterList().getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.113));
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
         }
         // for fault site 2
         if(siteNumber.equals(SITE_TWO)) {
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.113));
-          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.114));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.113));
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.114));
 
         }
         // for fault site 3
         if(siteNumber.equals(SITE_THREE)) {
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.111));
-          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.570));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.111));
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.570));
 
         }
         // for fault site 4
         if(siteNumber.equals(SITE_FOUR)) {
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.000));
-          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.000));
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
 
         }
         // for fault site 5
         if(siteNumber.equals(SITE_FIVE)) {
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(37.910));
-          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.910));
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
 
         }
         // for fault site 6
         if(siteNumber.equals(SITE_SIX)) {
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.225));
-          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.225));
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
 
         }
         // for fault site 7
         if(siteNumber.equals(SITE_SEVEN)) {
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.113));
-          siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-121.886));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.113));
+          siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-121.886));
         }
       } else { // for area sites
 
         // it is area test case
         erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(this.set1_Area_ERF.getName());
 
-        siteParams.getParameter(siteParams.LONGITUDE).setValue(new Double(-122.0));
+        siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
         // for area site 1
         if(siteNumber.equals(SITE_ONE))
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(38.0));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.0));
 
         // for area site 2
         if(siteNumber.equals(SITE_TWO))
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(37.550));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.550));
 
         // for area site 3
         if(siteNumber.equals(SITE_THREE))
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(37.099));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.099));
 
         // for area site 4
         if(siteNumber.equals(SITE_FOUR))
-          siteParams.getParameter(siteParams.LATITUDE).setValue(new Double(36.874));
+          siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(36.874));
       }
 
       // refresh the editor according to parameter values
       imrEditor.synchToModel();
       imtEditor.synchToModel();
-      siteEditor.synchToModel();
+      siteParamEditor.synchToModel();
       erf_Editor.synchToModel();
     }
 
