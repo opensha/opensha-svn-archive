@@ -28,7 +28,9 @@ import org.scec.param.event.ParameterChangeEvent;
 /**
  * <p>Title: Frankel96_EqkRupForecast</p>
  * <p>Description:Frankel 1996 Earthquake Rupture Forecast. This class
- * reads a single file and then creates the USGS/CGS 1996 California ERF.
+ * reads a single file for the fault sources, and another file for the
+ * background seismicity, and then creates the USGS/CGS 1996 California ERF.
+ * This does not yet include any C zones.
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -62,9 +64,10 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
            C + ": loadFaultTraces(): Missing metadata from trace, file bad format.");
 
   /**
-   * Static variable for input file name
+   * Static variable for input file names
    */
-  private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/Frankel96/Frankel96_CAL_all.txt";
+  private final static String INPUT_FAULT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/Frankel96/Frankel96_CAL_all.txt";
+  private final static String INPUT_BACK_SEIS_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/Frankel96/CAagrid.asc";
 
   /**
    * Vectors for holding the various sources, separated by type
@@ -72,14 +75,13 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
   private Vector FrankelA_CharEqkSources;
   private Vector FrankelB_CharEqkSources;
   private Vector FrankelB_GR_EqkSources;
+  private Vector FrankelBackgrSeisSources;
+  private Vector allSources;
+
 
   // This is an array holding each line of the input file
-  private ArrayList inputFileLines = null;
-
-  // the number of sources of each type
-  private int numA_Char_srcs;
-  private int numB_Char_srcs;
-  private int numB_GR_srcs;
+  private ArrayList inputFaultFileLines = null;
+  private ArrayList inputBackSeisFileLines = null;
 
   /**
    * timespan field in yrs for now (but have to ultimately make it a TimeSpan class variable)
@@ -103,6 +105,16 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
     // make the fault-model parameter
     Vector faultModelNamesStrings = new Vector();
     StringParameter faultModelParam;
+
+    // fault-model parameter stuff
+    public final static String BACK_SEIS_NAME = new String ("Background Seismicity");
+    public final static String BACK_SEIS_INCLUDE = new String ("Include");
+    public final static String BACK_SEIS_EXCLUDE = new String ("Exclude");
+    public final static String BACK_SEIS_ONLY = new String ("Only Background");
+    // make the fault-model parameter
+    Vector backSeisOptionsStrings = new Vector();
+    StringParameter backSeisParam;
+
 
     // For fraction of moment rate on GR parameter
     private final static String FRAC_GR_PARAM_NAME ="GR Fraction on B Faults";
@@ -133,28 +145,9 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
    */
   public Frankel96_EqkRupForecast() {
 
-    // make the adjustable parameters
-    faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
-    faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
-    faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,(String)faultModelNamesStrings.get(0));
+    // create and add adj params to list
+    intiAdjParams();
 
-    timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
-                                             TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
-
-    fracGR_Param = new DoubleParameter(FRAC_GR_PARAM_NAME,FRAC_GR_PARAM_MIN,
-                                         FRAC_GR_PARAM_MAX,FRAC_GR_PARAM_UNITS,DEFAULT_FRAC_GR_VAL);
-    fracGR_Param.setInfo(FRAC_GR_PARAM_INFO);
-
-    rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
-                                     RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
-    rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
-
-
-    // add adjustable parameters to the list
-    adjustableParams.addParameter(timeSpanParam);
-    adjustableParams.addParameter(faultModelParam);
-    adjustableParams.addParameter(fracGR_Param);
-    adjustableParams.addParameter(rupOffset_Param);
 
     // add the change listener to parameters so that forecast can be updated
     // whenever any paramater changes
@@ -162,25 +155,68 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
     faultModelParam.addParameterChangeListener(this);
     fracGR_Param.addParameterChangeListener(this);
     rupOffset_Param.addParameterChangeListener(this);
+    backSeisParam.addParameterChangeListener(this);
 
+    // read the lines of the input files into a list
+    try{ inputFaultFileLines = FileUtils.loadFile( INPUT_FAULT_FILE_NAME ); }
+    catch( FileNotFoundException e){ System.out.println(e.toString()); }
+    catch( IOException e){ System.out.println(e.toString());}
 
-    // read the lines of the input file into a list
-    try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
+    try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
     // Exit if no data found in list
-    if( inputFileLines == null) throw new
-           FaultException(C + "No data loaded from file. File may be empty or doesn't exist.");
+    if( inputFaultFileLines == null) throw new
+           FaultException(C + "No data loaded from "+INPUT_FAULT_FILE_NAME+". File may be empty or doesn't exist.");
+
+    // Exit if no data found in list
+    if( inputBackSeisFileLines == null) throw new
+           FaultException(C + "No data loaded from "+INPUT_BACK_SEIS_FILE_NAME+". File may be empty or doesn't exist.");
 
   }
 
+// make the adjustable parameters & the list
+private void intiAdjParams() {
+
+  faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
+  faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
+  faultModelParam = new StringParameter(FAULT_MODEL_NAME, faultModelNamesStrings,(String)faultModelNamesStrings.get(0));
+
+  backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
+  backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
+  backSeisOptionsStrings.add(BACK_SEIS_ONLY);
+  backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_EXCLUDE);
+
+  timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
+                                      TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
+
+  fracGR_Param = new DoubleParameter(FRAC_GR_PARAM_NAME,FRAC_GR_PARAM_MIN,
+                                     FRAC_GR_PARAM_MAX,FRAC_GR_PARAM_UNITS,DEFAULT_FRAC_GR_VAL);
+  fracGR_Param.setInfo(FRAC_GR_PARAM_INFO);
+
+  rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
+                                        RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
+  rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
+
+
+// add adjustable parameters to the list
+  adjustableParams.addParameter(timeSpanParam);
+  adjustableParams.addParameter(faultModelParam);
+  adjustableParams.addParameter(fracGR_Param);
+  adjustableParams.addParameter(rupOffset_Param);
+  adjustableParams.addParameter(backSeisParam);
+
+
+}
+
+
   /**
-   * Read the file and make the sources
+   * Read the Fault file and make the sources
    *
    * @throws FaultException
    */
-  private  void makeSources() throws FaultException{
+  private  void makeFaultSources() throws FaultException{
 
     FrankelA_CharEqkSources = new Vector();
     FrankelB_CharEqkSources = new Vector();
@@ -201,10 +237,11 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
     double fracGR = ((Double) fracGR_Param.getValue()).doubleValue();
     String faultModel = (String) faultModelParam.getValue();
     double rupOffset = ((Double) rupOffset_Param.getValue()).doubleValue();
+
     timeSpan = ((Double) timeSpanParam.getValue()).doubleValue();
 
     // Loop over lines of input file and create each source in the process
-    ListIterator it = inputFileLines.listIterator();
+    ListIterator it = inputFaultFileLines.listIterator();
     while( it.hasNext() ){
           StringTokenizer st = new StringTokenizer(it.next().toString());
 
@@ -332,29 +369,101 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
 
     }  // bottom of loop over input-file lines
 
-    numA_Char_srcs = FrankelA_CharEqkSources.size();
-    numB_Char_srcs = FrankelB_CharEqkSources.size();
-    numB_GR_srcs   = FrankelB_GR_EqkSources.size();
-
   }
+
+
+
+
+
+
+
+
+
+  /**
+  * Read the Background Seismicity file and make the sources
+  *
+  */
+  private  void makeBackSeisSources() {
+
+    // Debug
+    String S = C + ": makeBackSeisSources(): ";
+    if( D ) System.out.println(S + "Starting");
+
+    FrankelBackgrSeisSources = new Vector();
+
+    double lat, lon, rate, rateAtMag5;
+
+    double aveRake=0.0;
+    double aveDip=90;
+    double tempMoRate = 1.0;
+    double bValue = B_VALUE;
+    double magUpper=7.0;
+    double magDelta=0.2;
+    double magLower1=0.0;
+    int    numMag1=36;
+    double magLower2=5.0;
+    int    numMag2=11;
+
+    // GR dist between mag 0 and 7, delta=0.2
+    GutenbergRichterMagFreqDist grDist1 = new GutenbergRichterMagFreqDist(magLower1,numMag1,magDelta,
+                                                                          tempMoRate,bValue);
+    // GR dist between mag 5 and 7, delta=0.2
+    GutenbergRichterMagFreqDist grDist2 = new GutenbergRichterMagFreqDist(magLower2,numMag2,magDelta,
+                                                                          tempMoRate,bValue);
+    PointGR_EqkSource grSource;
+
+    // set timespan
+    timeSpan = ((Double) timeSpanParam.getValue()).doubleValue();
+
+    // Get iterator over input-file lines
+    ListIterator it = inputBackSeisFileLines.listIterator();
+
+    // skip first five header lines
+    StringTokenizer st = new StringTokenizer(it.next().toString());
+    st = new StringTokenizer(it.next().toString());
+    st = new StringTokenizer(it.next().toString());
+    st = new StringTokenizer(it.next().toString());
+    st = new StringTokenizer(it.next().toString());
+
+    while( it.hasNext() ){
+
+      // get next line
+      st = new StringTokenizer(it.next().toString());
+
+      lon =  Double.parseDouble(st.nextToken());
+      lat =  Double.parseDouble(st.nextToken());
+      rate = Double.parseDouble(st.nextToken());
+
+      if (rate > 0.0) {  // ignore locations with a zero rate
+
+        // scale all so the incremental rate at mag=0 index equals rate
+        grDist1.scaleToIncrRate((int) 0,rate);
+
+        // now get the rate at the mag=5 index
+        rateAtMag5 = grDist1.getIncrRate((int) 25);
+
+        // now scale all in the dist we want by rateAtMag5 (index 0 here)
+        grDist2.scaleToIncrRate((int) (0),rateAtMag5);
+
+        // now make the source
+        grSource = new PointGR_EqkSource(new Location(lat,lon),grDist2,aveRake,aveDip);
+
+        // set the timespan
+        grSource.setTimeSpan(timeSpan);
+
+        // add the source
+        FrankelBackgrSeisSources.add(grSource);
+      }
+    }
+  }
+
 
   /**
    * sets the timeSpan field
-   * @param yrs : have to be modfied from the double varible to the timeSpan field variable
+   * @param yrs : does not do anything yet (timespan is an adjustable
+   * DoubleParameter for now)
    */
   public void setTimeSpan(double yrs){
-    timeSpan =yrs;
-    int size = this.FrankelA_CharEqkSources.size();
-    for( int i =0; i<size; ++i)
-      ((Frankel96_CharEqkSource)FrankelA_CharEqkSources.get(i)).setTimeSpan(yrs);
-
-    size = this.FrankelB_CharEqkSources.size();
-    for( int i =0; i<size; ++i)
-      ((Frankel96_CharEqkSource)FrankelB_CharEqkSources.get(i)).setTimeSpan(yrs);
-
-    size = this.FrankelB_GR_EqkSources.size();
-    for( int i =0; i<size; ++i)
-      ((Frankel96_GR_EqkSource)FrankelB_GR_EqkSources.get(i)).setTimeSpan(yrs);
 
   }
 
@@ -407,15 +516,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
     */
     public ProbEqkSource getSource(int iSource) {
 
-      if(iSource >= 0 && iSource < numA_Char_srcs) {
-        return (Frankel96_CharEqkSource) FrankelA_CharEqkSources.get(iSource);
-      }
-      else if (iSource >= numA_Char_srcs && iSource < (numA_Char_srcs + numB_Char_srcs)) {
-        return (Frankel96_CharEqkSource) FrankelB_CharEqkSources.get(iSource-numA_Char_srcs);
-      }
-      else {
-        return (Frankel96_GR_EqkSource) FrankelB_GR_EqkSources.get(iSource-numA_Char_srcs-numB_Char_srcs);
-      }
+      return (ProbEqkSource) allSources.get(iSource);
     }
 
     /**
@@ -424,7 +525,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
      * @return integer
      */
     public int getNumSources(){
-      return (FrankelA_CharEqkSources.size() + FrankelB_CharEqkSources.size() + FrankelB_GR_EqkSources.size());
+      return allSources.size();
     }
 
     /**
@@ -463,25 +564,13 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
     }
 
      /**
-      * Get the list of all earthquake sources. Clone is returned.
-      * All the 3 different Vector source List are combined into the one Vector list
-      * So, list can be save in Vector and this object subsequently destroyed
+      * Get the list of all earthquake sources.
       *
       * @return Vector of Prob Earthquake sources
       */
      public Vector  getSourceList(){
-       Vector v =new Vector();
-       int charASize = FrankelA_CharEqkSources.size();
-       int charBSize = FrankelB_CharEqkSources.size();
-       int grBSize = FrankelB_GR_EqkSources.size();
-       for(int i=0;i<numA_Char_srcs;++i)
-         v.add(FrankelA_CharEqkSources.get(i));
-       for(int i=0;i<numB_Char_srcs;++i)
-         v.add(FrankelB_CharEqkSources.get(i));
-       for(int i=0;i<numB_GR_srcs;++i)
-         v.add(FrankelB_GR_EqkSources.get(i));
 
-       return v;
+       return allSources;
      }
 
 
@@ -496,15 +585,44 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
 
 
    /**
-    * update the forecast (nothing needed here).
+    * update the forecast
     **/
 
    public void updateForecast() {
-     // make the sources
+
+     // make sure something has changed
      if(parameterChangeFlag) {
-       makeSources();
+
+       // get value of background seismicity paramter
+       String backSeis = (String) backSeisParam.getValue();
+
+       allSources = new Vector();
+
+       if (backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE)) {
+         makeFaultSources();
+         makeBackSeisSources();
+         // now create the allSources list:
+         allSources.addAll(FrankelA_CharEqkSources);
+         allSources.addAll(FrankelB_CharEqkSources);
+         allSources.addAll(FrankelB_GR_EqkSources);
+         allSources.addAll(FrankelBackgrSeisSources);
+       }
+       else if (backSeis.equalsIgnoreCase(BACK_SEIS_EXCLUDE)) {
+         makeFaultSources();
+         // now create the allSources list:
+         allSources.addAll(FrankelA_CharEqkSources);
+         allSources.addAll(FrankelB_CharEqkSources);
+         allSources.addAll(FrankelB_GR_EqkSources);
+       }
+       else {// only background sources
+        makeBackSeisSources();
+        // now create the allSources list:
+        allSources.addAll(FrankelBackgrSeisSources);
+       }
+
        parameterChangeFlag = false;
      }
+
    }
 
    /**
