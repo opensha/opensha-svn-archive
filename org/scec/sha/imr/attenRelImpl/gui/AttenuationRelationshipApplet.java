@@ -48,7 +48,7 @@ public class AttenuationRelationshipApplet extends JApplet
         XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    private final static String version = "0.7.14";
+    private final static String version = "0.8.14";
     protected final static boolean D = false;
   /**
    * these four values save the custom axis scale specified by user
@@ -273,7 +273,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
     //XY new Dataset control
     private XY_ValuesControlPanel xyNewDatasetControl;
-  private JButton peelOffButton = new JButton();
+    private JButton peelOffButton = new JButton();
 
 
     /**
