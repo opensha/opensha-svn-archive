@@ -118,7 +118,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
 
   public WG02_EqkRupForecast(ArrayList inputFileStrings, double rupOffset, double gridSpacing,
                              double deltaMag, String backSeisValue, String grTailValue, String name,
-                             TimeSpan timespan) {
+                             TimeSpan timeSpan) {
 
     this.inputFileStrings = inputFileStrings;
     this.rupOffset=rupOffset;
@@ -398,6 +398,29 @@ System.out.println("Char_momentRate="+tempMoRate);
    }
 
 
+   public void listTotalSourceProbs() {
+     double p_char, p_tail, p_both, p_tot=1.00;
+     int num = getNumSources(), i1, i2;
+     for(i1=0; i1 < (num-1)/2; i1++) {
+       i2 = i1+(num-1)/2;
+       p_char = getSource(i1).computeTotalProb();
+       p_tail = getSource(i2).computeTotalProb();
+       p_both =  1 - (1-p_char)*(1-p_tail);
+       p_both = (double)Math.round(p_both*1000000)/1000000;
+       p_tot *= (1-p_both);
+       System.out.println((float)p_both+"\t"+getSource(i1).getName()+ "   ("+ (float)p_char+" for char,  and "+(float)p_tail+
+                          " for "+getSource(i2).getName()+")");
+     }
+     // add the background source
+     p_both = getSource(num-1).computeTotalProb();
+     p_both = (double)Math.round(p_both*1000000)/1000000;
+     System.out.println((float)p_both+"\t"+getSource(num-1).getName());
+     p_tot *= (1-p_both);
+
+     p_tot = 1.0-p_tot;
+     System.out.println((float)p_tot+"\tTotal Probability");
+
+   }
 
    /**
     * This main method tests the forecast for the singleIterationWithModes case.
@@ -416,25 +439,7 @@ System.out.println("Char_momentRate="+tempMoRate);
      WG02_EqkRupForecast qkCast = new WG02_EqkRupForecast();
      System.out.println("num_sources="+qkCast.getNumSources());
      System.out.println("num_rups(lastSrc)="+qkCast.getNumRuptures(qkCast.getNumSources()-1));
-     double p_char, p_tail, p_both, p_tot=1.00;
-     int num = qkCast.getNumSources(), i1, i2;
-     for(i1=0; i1 < (num-1)/2; i1++) {
-       i2 = i1+(num-1)/2;
-       p_char = qkCast.getSource(i1).computeTotalProb();
-       p_tail = qkCast.getSource(i2).computeTotalProb();
-       p_both =  1 - (1-p_char)*(1-p_tail);
-       p_tot *= (1-p_both);
-       System.out.println(qkCast.getSource(i1).getName()+"  "+qkCast.getSource(i2).getName()+
-                          "; p_char="+(float)p_char+"; p_tail="+(float)p_tail+"; p_both="+(float)p_both);
-     }
-     // add the background source
-     p_both = qkCast.getSource(num-1).computeTotalProb();
-     System.out.println(qkCast.getSource(num-1).getName()+"; p_both="+(float)p_both+
-                        "; isPoiss="+qkCast.getSource(num-1).isSourcePoissonian());
-     p_tot *= (1-p_both);
-
-     p_tot = 1.0-p_tot;
-     System.out.println("p_tot="+p_tot);
+     qkCast.listTotalSourceProbs();
   }
 
 }

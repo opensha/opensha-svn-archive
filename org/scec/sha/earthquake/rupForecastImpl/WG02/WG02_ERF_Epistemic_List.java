@@ -324,7 +324,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList{
    public static void main(String[] args) {
      WG02_ERF_Epistemic_List list = new WG02_ERF_Epistemic_List();
      list.updateForecast();
-     ERF_API fcast = list.getERF(1);
+     ERF_API fcast = list.getERF(4);
   }
 
 }
