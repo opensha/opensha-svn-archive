@@ -30,7 +30,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = "Simple Poisson Fault Source";
+  protected String  NAME = C;
 
   // private fields
   private int totNumRups;
@@ -38,15 +38,22 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
   private Vector faultCornerLocations;   // used for the getMinDistance(Site) method
   private double timeSpan;
 
+  /* Note that none of the input objects are saved after the ruptureList is created
+     by the constructor.  This is deliberate to save memory.  A setName() method was
+     added here to enable users to give a unique identifier once created.
+  */
+
   /**
    * This creates a Simple Poisson Fault Source using a minMag of 5.0 (magnitudes
    * lower than this are ignored in building the ruptures).
    * @param magDist - any incremental mag. freq. dist. object
-   * @param rake - average rake of the fault
-   * @param offsetSpacing - amount of offset for floating ruptures
-   * @param faultSurface - EvenlyGriddedSurface representation of the fault surface
+   * @param faultSurface - any EvenlyGriddedSurface representation of the fault
+   * @param magScalingRel - any magAreaRelationship or magLengthRelationthip
+   * @param magScalingSigma - uncertainty of the length(mag) or area(mag) relationship
+   * @param rupAspectRatio - ratio of rupture length to rupture width
+   * @param rupOffset - amount of offset for floating ruptures
+   * @param rake - average rake of the ruptures
    * @param timeSpan - the timeSpan of interest in years (this is a Poissonian source)
-   * @param magLenSigme - uncertainty of the magnitude-length relationship
    */
   public SimplePoissonFaultSource(IncrementalMagFreqDist magDist,
                                   EvenlyGriddedSurface faultSurface,
@@ -58,19 +65,23 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
                                   double timeSpan) {
 
       this.timeSpan = timeSpan;
+
+      // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
       makeFaultCornerLocs(faultSurface);
 
       // make the rupture list
       ruptureList = new Vector();
-
       if(magScalingSigma == 0.0)
         addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, 0.0, 1.0);
       else {
-//        The branch-tip weights (0.6, 0.2, and 0.2) for the mean, -1.64sigma, and +1.64sigma
-//       (respectively) are from WG99's Table 1.1
-        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, 0.0, 0.6);
-        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, 1.64, 0.2);
-        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, -1.64, 0.2);
+//        The branch-tip weights (0.6, 0.2, and 0.2) for the mean, -1.64sigma, and +1.64sigma,
+//       respectively, are from WG99's Table 1.1
+        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma,
+                          rupAspectRatio, rupOffset, rake, 5.0, 0.0, 0.6);
+        addRupturesToList(magDist, faultSurface, magScalingRel,
+                          magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, 1.64, 0.2);
+        addRupturesToList(magDist, faultSurface, magScalingRel,
+                          magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, -1.64, 0.2);
       }
   }
 
@@ -78,7 +89,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
   /**
    * This computes the rupture length from the information supplied
    * @param magScalingRel - a MagLengthRelationship or a MagAreaRelationship
-   * @param magScalingSigma - the standard deviation of the Mag or Length estimate
+   * @param magScalingSigma - the standard deviation of the Area or Length estimate
    * @param numSigma - the number of sigmas from the mean for which the estimate is for
    * @param rupAspectRatio
    * @param mag
@@ -104,7 +115,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
 
 
   /**
-   * This method makes the list of rupture for this source
+   * This method makes and adds ruptures to the list
    */
   private void addRupturesToList(IncrementalMagFreqDist magDist,
                              EvenlyGriddedSurface faultSurface,
@@ -126,7 +137,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
     double rate;
     double prob=Double.NaN;
 
-    if( D ) System.out.println(C+": magLenSigma="+magScalingSigma);
+    if( D ) System.out.println(C+": magScalingSigma="+magScalingSigma);
 
     for(int i=0;i<numMags;++i){
       mag = magDist.getX(i);
@@ -166,7 +177,6 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
   public ProbEqkRupture getRupture(int nthRupture){ return (ProbEqkRupture) ruptureList.get(nthRupture); }
 
 
-
    /**
    * This returns the shortest dist to either end of the fault trace, or to the
    * mid point of the fault trace (done also for the bottom edge of the fault).
@@ -178,7 +188,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
       double min = Double.MAX_VALUE;
       double tempMin;
 
-      Iterator it = this.faultCornerLocations.iterator();
+      Iterator it = faultCornerLocations.iterator();
 
       while(it.hasNext()) {
         tempMin = RelativeLocation.getHorzDistance(site.getLocation(),(Location)it.next());
@@ -200,13 +210,22 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
       int nCols = faultSurface.getNumCols();
       faultCornerLocations.add(faultSurface.get(0,0));
       faultCornerLocations.add(faultSurface.get(0,(int)(nCols/2)));
-      faultCornerLocations.add(faultSurface.get(0,nCols));
-      faultCornerLocations.add(faultSurface.get(nRows,0));
-      faultCornerLocations.add(faultSurface.get(nRows,(int)(nCols/2)));
-      faultCornerLocations.add(faultSurface.get(nRows,nCols));
+      faultCornerLocations.add(faultSurface.get(0,nCols-1));
+      faultCornerLocations.add(faultSurface.get(nRows-1,0));
+      faultCornerLocations.add(faultSurface.get(nRows-1,(int)(nCols/2)));
+      faultCornerLocations.add(faultSurface.get(nRows-1,nCols-1));
+
 
     }
 
+    /**
+     * set the name of this class
+     *
+     * @return
+     */
+    public void setName(String name) {
+      NAME=name;
+     }
 
  /**
   * get the name of this class
@@ -214,6 +233,6 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
   * @return
   */
  public String getName() {
-   return C;
+   return NAME;
   }
 }
