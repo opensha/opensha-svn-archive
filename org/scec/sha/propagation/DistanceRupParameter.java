@@ -87,15 +87,17 @@ public class DistanceRupParameter
 
             Location loc1 = site.getLocation();
             double minDistance = 999999;
-            double totalDist;
+            double horzDist, vertDist, totalDist;
 
             ListIterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
             while( it.hasNext() ){
 
-                Object obj = it.next();
-                Location loc2 = (Location)obj;
-                Direction dir = RelativeLocation.getDirection(loc1, loc2);
-                totalDist = dir.getHorzDistance() * dir.getHorzDistance() + dir.getVertDistance() * dir.getVertDistance();
+                Location loc2 = (Location) it.next();
+
+                horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
+                vertDist = RelativeLocation.getVertDistance(loc1, loc2);
+
+                totalDist = horzDist * horzDist + vertDist * vertDist;
                 if( totalDist < minDistance ) minDistance = totalDist;
 
             }

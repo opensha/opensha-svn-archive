@@ -85,7 +85,7 @@ public final class RelativeLocation {
         double lat2 = location2.getLatitude();
         double lon2 = location2.getLongitude();
 
-        double horzDistance = getLatLonDistance(lat1, lon1, lat2, lon2);
+        double horzDistance = getHorzDistance(lat1, lon1, lat2, lon2);
         double azimuth = getAzimuth(lat1, lon1, lat2, lon2);
         double backAzimuth = getBackAzimuth(lat1, lon1, lat2, lon2);
         double vertDistance = -1 * ( location1.getDepth() - location2.getDepth() );
@@ -96,6 +96,12 @@ public final class RelativeLocation {
         dir.setVertDistance(vertDistance);
 
         return dir;
+    }
+
+
+    public static double getVertDistance(Location loc1, Location loc2) {
+
+        return  -1 * ( loc1.getDepth() - loc2.getDepth() );
     }
 
 
@@ -255,7 +261,7 @@ public final class RelativeLocation {
      *
      * Note: This function is currently not used, only for testing<p>
      */
-    public static double getLatLonDistance( double lat1, double lon1, double lat2, double lon2 ){
+    public static double getHorzDistance( double lat1, double lon1, double lat2, double lon2 ){
 
         //
         double xlat = lat1 * RADIANS_CONVERSION;
@@ -294,6 +300,13 @@ public final class RelativeLocation {
 
     }
 
+
+
+    public static double getHorzDistance( Location loc1, Location loc2 ) {
+
+        return getHorzDistance(loc1.getLatitude(), loc1.getLongitude(), loc2.getLatitude(), loc2.getLongitude());
+
+    }
 
     /**
      * Helper method that calculates the angle between two locations
@@ -449,19 +462,19 @@ public final class RelativeLocation {
         l5.setDepth(5);
 
         System.out.println( S + "A(l1,l2): " + latLonDistance( l1.getLatitude(), l1.getLongitude(), l2.getLatitude(), l2.getLongitude() ) );
-        System.out.println( S + "B(l1,l2): " + getLatLonDistance( l1.getLatitude(), l1.getLongitude(), l2.getLatitude(), l2.getLongitude() ) );
+        System.out.println( S + "B(l1,l2): " + getHorzDistance( l1.getLatitude(), l1.getLongitude(), l2.getLatitude(), l2.getLongitude() ) );
 
 
         System.out.println( S + "A(l1,l3): " + latLonDistance( l1.getLatitude(), l1.getLongitude(), l3.getLatitude(), l3.getLongitude() ) );
-        System.out.println( S + "B(l1,l3): " + getLatLonDistance( l1.getLatitude(), l1.getLongitude(), l3.getLatitude(), l3.getLongitude() ) );
+        System.out.println( S + "B(l1,l3): " + getHorzDistance( l1.getLatitude(), l1.getLongitude(), l3.getLatitude(), l3.getLongitude() ) );
 
 
         System.out.println( S + "A(l1,l4): " + latLonDistance( l1.getLatitude(), l4.getLongitude(), l4.getLatitude(), l1.getLongitude() ) );
-        System.out.println( S + "B(l1,l4): " + getLatLonDistance( l1.getLatitude(), l4.getLongitude(), l4.getLatitude(), l1.getLongitude() ) );
+        System.out.println( S + "B(l1,l4): " + getHorzDistance( l1.getLatitude(), l4.getLongitude(), l4.getLatitude(), l1.getLongitude() ) );
 
 
         System.out.println( S + "A(l1,l5): " + latLonDistance( l1.getLatitude(), l5.getLongitude(), l5.getLatitude(), l5.getLongitude() ) );
-        System.out.println( S + "B(l1,l5): " + getLatLonDistance( l1.getLatitude(), l5.getLongitude(), l5.getLatitude(), l5.getLongitude() ) );
+        System.out.println( S + "B(l1,l5): " + getHorzDistance( l1.getLatitude(), l5.getLongitude(), l5.getLatitude(), l5.getLongitude() ) );
 
 
         if(SPEED_TEST){
@@ -476,15 +489,15 @@ public final class RelativeLocation {
             }
             //System.out.println( S + DateUtils.getDisplayTimeStamp() + ": latLonDistanceDone");
 
-            //System.out.println( S + DateUtils.getDisplayTimeStamp() + ": getLatLonDistance");
+            //System.out.println( S + DateUtils.getDisplayTimeStamp() + ": getHorzDistance");
             for(int k = 0; k < 2; k++){
                 for(int j = -180; j < 180; j++){
                     for(int i = -90; i < 90; i++){
-                        getLatLonDistance(i, j, i+1, j+1);
+                        getHorzDistance(i, j, i+1, j+1);
                     }
                 }
             }
-            //System.out.println( S + DateUtils.getDisplayTimeStamp() + ": getLatLonDistance");
+            //System.out.println( S + DateUtils.getDisplayTimeStamp() + ": getHorzDistance");
         }
 
         System.out.println( S );

@@ -95,10 +95,8 @@ public class DistanceJBParameter
             ListIterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
             while( it.hasNext() ){
 
-                Object obj = it.next();
-                Location loc2 = (Location)obj;
-                Direction dir = RelativeLocation.getDirection(loc1, loc2);
-                currentDistance = dir.getHorzDistance();
+                Location loc2 = (Location) it.next();
+                currentDistance = RelativeLocation.getHorzDistance(loc1, loc2);
                 if( currentDistance < minDistance ) minDistance = currentDistance;
 
             }

@@ -96,18 +96,17 @@ public class DistanceSeisParameter
 
             Location loc1 = site.getLocation();
             double minDistance = 999999;
-            double totalDist;
+            double totalDist, horzDist, vertDist;
 
             ListIterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
             while( it.hasNext() ){
 
-                Object obj = it.next();
-                Location loc2 = (Location)obj;
+                Location loc2 = (Location)it.next();
                 // ignore locations with depth less than siesDepth:
                 if (loc2.getDepth() >= seisDepth) {
-                    Direction dir = RelativeLocation.getDirection(loc1, loc2);
-                    totalDist = dir.getHorzDistance() * dir.getHorzDistance() +
-                                dir.getVertDistance() * dir.getVertDistance();
+                    horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
+                    vertDist = RelativeLocation.getVertDistance(loc1, loc2);
+                    totalDist = horzDist * horzDist + vertDist * vertDist;
                     if( totalDist < minDistance )  minDistance = totalDist;
                 }
             }

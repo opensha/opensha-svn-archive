@@ -213,7 +213,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
       locationList = new LocationList();
       for(double lat=LAT_TOP;lat >=LAT_BOTTOM; lat-=latDiff)
         for(double lon=LONG_LEFT;lon <=LONG_RIGHT; lon+=longDiff)
-          if(RelativeLocation.getLatLonDistance(LAT_CENTER,LONG_CENTER,lat,lon) <= MAX_DISTANCE)
+          if(RelativeLocation.getHorzDistance(LAT_CENTER,LONG_CENTER,lat,lon) <= MAX_DISTANCE)
             for(double depth=depthUpper;depth<=depthLower;depth+=gridSpacing)
                 locationList.addLocation(new Location(lat,lon,depth));
 

@@ -561,6 +561,14 @@ public abstract class AttenuationRelationship
         double stdDev = getStdDev();
         double mean = getMean();
 
+        return getExceedProbability(mean, stdDev, iml);
+    }
+
+
+
+    protected double getExceedProbability(double mean, double stdDev, double iml)
+                                throws ParameterException, IMRException {
+
         if( stdDev != 0) {
            double stRndVar = (iml-mean)/stdDev;
             // compute exceedance probability based on truncation type
@@ -596,20 +604,14 @@ public abstract class AttenuationRelationship
             DiscretizedFuncAPI intensityMeasureLevels
              ) throws ParameterException {
 
-        if ( im == null )
-            throw new ParameterException( C +
-                    ": getExceedProbabilities(): " +
-                    "No Intensity Measure has been set yet, unable to calculate the Exceedence Probability."
-                     );
+        double stdDev = getStdDev();
+        double mean = getMean();
 
-        Double iml;
         Iterator it = intensityMeasureLevels.getPointsIterator();
         while ( it.hasNext() ) {
 
             DataPoint2D point = ( DataPoint2D ) it.next();
-            iml = new Double(point.getX());
-            this.im.setValue( iml );
-            point.setY(getExceedProbability());
+            point.setY(getExceedProbability(mean, stdDev, point.getX()));
 
         }
 
