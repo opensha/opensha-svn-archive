@@ -7,12 +7,10 @@ Change app names as follows:
 	HazardMapApplet --> HazardDataSetCalcCondorApp
 	HazardMapViewerApp --> PlotMapFromHazardDataSetApp
 
-Change all occurrnaces of 
+Change all occurrances of 
 
 	calcValueFromSiteAndPE()   to
 	calcValueFromSiteAndEqkRup()
-
-Add faults to GMT plotting options.
 
 Make new "EarthquakeRuptureGuiBean" that toggles between choosing a EarthquakeRupture from an ERF (exactly as presently done in the EarthquakeRuptureFromERF_GUI_Bean) and creating a custom earthquake rupture.  If the latter is chosen the following parameters should be given to choose set:
 
@@ -25,10 +23,21 @@ Make new "EarthquakeRuptureGuiBean" that toggles between choosing a EarthquakeRu
 
 	also add the "Set Hypocenter Location" option as w/ ERF case
 
+	update "Set Params for Puente Hills Scenario" (validate against old)
+
+	make version of above that uses the EqkRup (not ERF) & validate
+
+	make sure metadata is good
+
+combine TimeSpanGuiBean with ERF_GuiBean & validate.  Make sure the timeSpan elements are distinguishable from the ERF adjustable parameters.
+
+Add ability to add custom, observed data points to the AttenuationRelationshipApp.  Ned will explain how when ready.
 
 Implement color schemes at (including option for the visually impaired):
 
 	http://geography.uoregon.edu/datagraphics/color_scales.htm
+
+Add faults to GMT plotting options.
 
 In all apps - can we have a bug-reporting via email utility?
 
