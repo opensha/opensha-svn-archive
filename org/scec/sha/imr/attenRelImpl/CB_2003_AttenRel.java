@@ -270,7 +270,7 @@ public class CB_2003_AttenRel
           double dip = probEqkRupture.getRuptureSurface().getAveDip();
           String fltType = (String) fltTypeParam.getValue();
 
-          if(dip < 70.0 && (fltType != FLT_TYPE_OTHER) && numPts > 1) {
+          if(dip <= 70.0 && (fltType != FLT_TYPE_OTHER) && numPts > 1) {
                 double jbDist = ( (Double) distanceJBParam.getValue( probEqkRupture, site ) ).doubleValue();
                 if ( jbDist < 1.0 )
                     hangingWallParam.setValue(1.0);

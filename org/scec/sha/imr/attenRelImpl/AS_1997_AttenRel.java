@@ -295,7 +295,7 @@ public class AS_1997_AttenRel
         // formal propagation-effect parameter.
             int numPts = probEqkRupture.getRuptureSurface().getNumCols();
 
-            if(probEqkRupture.getRuptureSurface().getAveDip() < 70 && isOnHangingWall() && numPts > 1)
+            if(probEqkRupture.getRuptureSurface().getAveDip() <= 70 && isOnHangingWall() && numPts > 1)
                 isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
             else
                 isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
