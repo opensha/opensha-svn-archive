@@ -873,7 +873,6 @@ public class MagFreqDistTesterApplet extends JApplet
         moXAxis.setCrosshairVisible(false);
         moXAxis.setStandardTickUnits(units);
 
-
         if (yLog)  {
           incrYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(incrYAxisLabel);
           cumYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(cumYAxisLabel);
@@ -886,23 +885,29 @@ public class MagFreqDistTesterApplet extends JApplet
        }
 
        // set properties for mag vs incremental rate Y- axis
-        incrYAxis.setAutoRangeIncludesZero( false );
+        incrYAxis.setAutoRangeIncludesZero( true );
         incrYAxis.setCrosshairLockedOnData( false );
         incrYAxis.setCrosshairVisible( false);
         incrYAxis.setStandardTickUnits(units);
-
+        incrYAxis.setAutoRangeIncludesZero(false);
+        incrYAxis.setAutoRangeStickyZero(true);
 
         // set properties for mag vs incremental rate Y- axis
-        cumYAxis.setAutoRangeIncludesZero( false );
+        cumYAxis.setAutoRangeIncludesZero( true );
         cumYAxis.setCrosshairLockedOnData( false );
         cumYAxis.setCrosshairVisible( false);
         cumYAxis.setStandardTickUnits(units);
+        cumYAxis.setAutoRangeIncludesZero(false);
+        cumYAxis.setAutoRangeStickyZero(true);
 
         // set properties for mag vs incremental rate Y- axis
-        moYAxis.setAutoRangeIncludesZero( false );
+        moYAxis.setAutoRangeIncludesZero( true );
         moYAxis.setCrosshairLockedOnData( false );
         moYAxis.setCrosshairVisible( false);
         moYAxis.setStandardTickUnits(units);
+        moYAxis.setAutoRangeIncludesZero(false);
+        moYAxis.setAutoRangeStickyZero(true);
+
 
         int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
 
@@ -950,9 +955,9 @@ public class MagFreqDistTesterApplet extends JApplet
         }
 
 
-        incrPlot.setXYItemRenderer( renderer );
-        cumPlot.setXYItemRenderer( renderer );
-        moPlot.setXYItemRenderer( renderer );
+        incrPlot.setRenderer( renderer );
+        cumPlot.setRenderer( renderer );
+        moPlot.setRenderer( renderer );
 
 
         JFreeChart incrChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, incrPlot,false);
