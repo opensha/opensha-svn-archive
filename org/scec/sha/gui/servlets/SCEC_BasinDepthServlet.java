@@ -9,7 +9,7 @@ import org.scec.data.region.*;
 import org.scec.data.Location;
 
 /**
- * <p>Title: Vs30BasinDepthServlet  </p>
+ * <p>Title: SCEC_BasinDepthServlet  </p>
  * <p>Description: This Servlet finds the VS30 and Basin Depth for the given
  * region. this needs to be fixed with the implementation of the Appliacble Region
  * Object.
@@ -17,18 +17,16 @@ import org.scec.data.Location;
  * @version 1.0
  */
 
-public class Vs30BasinDepthCalcServlet  extends HttpServlet {
+public class SCEC_BasinDepthServlet  extends HttpServlet {
 
-  public static String VS_30 = "Vs30";
-  public static String BASIN_DEPTH = "BasinDepth";
 
-  //File from which we get the Vs30
-  private final String VS_30_INPUT_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/vs30_120s_class.xy";
+
+  //Basin depth file
   private final String BASIN_DEPTH_FILENAME = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/fine_depth_25.xy";
 
 
   /**
-   * method to get the basin depth/vs30  as desired by the user
+   * method to get the basin depth as desired by the user
    *
    * @param request
    * @param response
@@ -51,16 +49,9 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
       double maxLat = ((Double)inputFromApplication.readObject()).doubleValue();
       double gridSpacing = ((Double)inputFromApplication.readObject()).doubleValue();
       inputFromApplication.close();
-      //System.out.println(""+minLon+","+maxLon+","+minLat+","+maxLat+","+gridSpacing);
-       prepareSitesInput(locationVector,minLon, maxLon, minLat, maxLat, gridSpacing);
-      // make input and output file name based on IP address of user
-      //String inputfilename=new String(request.getRemoteHost()+".in");
-      //String outputfilename=new String(request.getRemoteHost()+".out");
-      // check the funcion desired by the useer
-      if(functionDesired.equalsIgnoreCase(VS_30))
-        getVs30(locationVector,new ObjectOutputStream(response.getOutputStream()));
-      else if(functionDesired.equalsIgnoreCase(this.BASIN_DEPTH))
-        getBasinDepth(locationVector,new ObjectOutputStream(response.getOutputStream()));
+      prepareSitesInput(locationVector,minLon, maxLon, minLat, maxLat, gridSpacing);
+
+      getBasinDepth(locationVector,new ObjectOutputStream(response.getOutputStream()));
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -69,7 +60,7 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
 
   /**
    * Prepare the input of the all the location in the gridded region and provide that input
-   * to compute the Vs30 ro BasinDepth
+   * to compute BasinDepth
    * @param locationVector : stores the locations
    * @param minLon
    * @param maxLon
@@ -89,83 +80,6 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
     System.out.println("Location size:"+locationVector.size());
   }
 
-
-
-  /**
-   *calculate the Vs30
-   * @param locationVector: Stores all the gridded locations
-   * @param output : returns the vector of the VS30 for the gridded region
-   */
-  private void getVs30(Vector locationVector,ObjectOutputStream output) {
-
-    //gridSpacing for the VS30 file and adding a small value to it.
-    double gridSpacingForVs30InFile = .03334 +.001;
-    try {
-
-      //open the File Input Stream to read the file
-      FileReader input = new FileReader(this.VS_30_INPUT_FILENAME);
-      BufferedReader iBuf= new BufferedReader(input);
-      String str;
-      // parsing the file line by line
-      //reading the first line from the file
-      str=iBuf.readLine();
-
-      int size= locationVector.size();
-
-      Vector vs30= new Vector();
-
-      //initialising the vs30 vector with the Double.NaN values
-      for(int i=0;i<size;++i)
-        vs30.add(new Double(Double.NaN));
-
-      double prevLat=Double.NaN;
-      for(int i=0;i<size;++i){
-        double lat = ((Location)locationVector.get(i)).getLatitude();
-        double lon = ((Location)locationVector.get(i)).getLongitude();
-        boolean latFlag= false;
-        while(str!=null) {
-          StringTokenizer st = new StringTokenizer(str);
-
-          // parse this line from the file
-          //reading the Lons from the file
-          double valLon = Double.parseDouble(st.nextToken());
-          //reading the Lat from the file
-          double valLat = Double.parseDouble(st.nextToken());
-
-          if((valLat -lat) > gridSpacingForVs30InFile/2)
-            // if this lat does not exist in file. Lat is always increasing in the file and the location vector
-            break;
-
-          // add Vs30 for new location
-          if(Math.abs(lat-valLat) <= (gridSpacingForVs30InFile/2))
-            //System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
-            latFlag=true;
-
-          //iterating over lon's for each lat
-          if(((Math.abs(lon-valLon)) <= gridSpacingForVs30InFile/2) && latFlag){
-            //if we found the desired lon in the file ,
-            //we get the value of the VS30 for the nearest point
-            //returns the actual value for the vs30
-            vs30.set(i,new Double(st.nextToken()));
-            break;
-
-          }
-
-           //this condition checks if the lat exists but lon does not exist
-          if((valLon-lon) > (gridSpacingForVs30InFile/2 ) && latFlag)
-            // if this location does not exist in this file
-            break;
-
-          // read next line
-          str=iBuf.readLine();
-        }
-      }
-      output.writeObject(vs30);
-      output.close();
-    }catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
 
   /**
    *calculate the Basin Depth
