@@ -269,63 +269,129 @@ public class PSHALogXYPlot
      */
     public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
        try{
-        // set up info collection...
-        if (info!=null) {
+
+        // if the plot area is too small, just return...
+        boolean b1 = (plotArea.getWidth() <= MINIMUM_WIDTH_TO_DRAW);
+        boolean b2 = (plotArea.getHeight() <= MINIMUM_HEIGHT_TO_DRAW);
+        if (b1 || b2) {
+            return;
+        }
+
+        // record the plot area...
+        if (info != null) {
             info.setPlotArea(plotArea);
-
         }
 
-        // adjust the drawing area for plot insets (if any)...
-        if (getInsets()!=null) {
-            plotArea.setRect(plotArea.getX()+getInsets().left,
-                             plotArea.getY()+getInsets().top,
-                             plotArea.getWidth()-getInsets().left-getInsets().right,
-                             plotArea.getHeight()-getInsets().top-getInsets().bottom);
+        // adjust the drawing area for the plot insets (if any)...
+        Insets insets = getInsets();
+        if (insets != null) {
+            plotArea.setRect(plotArea.getX() + insets.left,
+                             plotArea.getY() + insets.top,
+                             plotArea.getWidth() - insets.left - insets.right,
+                             plotArea.getHeight() - insets.top - insets.bottom);
         }
 
-        // estimate the area required for drawing the axes...
-        double hAxisAreaHeight = 0;
-
-        if (getDomainAxis()!=null) {
-            HorizontalAxis hAxis = (HorizontalAxis)getDomainAxis();
-            hAxisAreaHeight = hAxis.reserveHeight(g2, this, plotArea, this.getDomainAxisLocation());
+        // estimate the height of the horizontal axis...
+        double hAxisHeight = 0.0;
+        ValueAxis domainAxis = this.getDomainAxis();
+        if (domainAxis != null) {
+            HorizontalAxis hAxis = (HorizontalAxis) domainAxis;
+            hAxisHeight = hAxis.reserveHeight(g2, this, plotArea, this.getDomainAxisLocation());
         }
 
-        double vAxisWidth = 0;
-        if (getRangeAxis()!=null) {
-            VerticalAxis vAxis = (VerticalAxis)getRangeAxis();
-            vAxisWidth = vAxis.reserveWidth(g2, this, plotArea, getRangeAxisLocation(),
-                                             hAxisAreaHeight,
+        // estimate the width of the vertical axis...
+        double vAxis1Width = 0.0;
+        ValueAxis rangeAxis = this.getRangeAxis();
+        if (rangeAxis != null) {
+            VerticalAxis vAxis1 = (VerticalAxis) rangeAxis;
+            vAxis1Width = vAxis1.reserveWidth(g2, this, plotArea, getRangeAxisLocation(),
+                                              hAxisHeight,
                                               getDomainAxisLocation());
         }
 
-        // ...and therefore what is left for the plot itself...
-        Rectangle2D dataArea = new Rectangle2D.Double(plotArea.getX()+vAxisWidth,
-                                                      plotArea.getY(),
-                                                      plotArea.getWidth()-vAxisWidth,
-                                                      plotArea.getHeight()-hAxisAreaHeight);
+        // estimate the width of the secondary range axis (if any)...
+        double vAxis2Width = 0.0;
+        int secondaryAxisLocation = getOppositeAxisLocation(getRangeAxisLocation());
+        VerticalAxis vAxis2 = (VerticalAxis) this.getSecondaryRangeAxis();
+        if (vAxis2 != null) {
+            vAxis2Width = vAxis2.reserveWidth(g2, this, plotArea, secondaryAxisLocation,
+                                              hAxisHeight, getDomainAxisLocation());
+        }
 
-        if (info!=null) {
+        // ...and therefore what is left for the plot itself...
+        double x1 = getRectX(plotArea.getX(), vAxis1Width, vAxis2Width, getRangeAxisLocation());
+        double y1 = getRectY(plotArea.getY(), hAxisHeight, 0.0, getDomainAxisLocation());
+        Rectangle2D dataArea = new Rectangle2D.Double(x1, y1,
+                                                  plotArea.getWidth() - vAxis1Width - vAxis2Width,
+                                                  plotArea.getHeight() - hAxisHeight);
+
+        if (info != null) {
             info.setDataArea(dataArea);
         }
 
         CrosshairInfo crosshairInfo = new CrosshairInfo();
-
         crosshairInfo.setCrosshairDistance(Double.POSITIVE_INFINITY);
-        crosshairInfo.setAnchorX(this.getDomainAxis().getAnchorValue());
-        crosshairInfo.setAnchorY(this.getRangeAxis().getAnchorValue());
+        crosshairInfo.setAnchorX(getDomainAxis().getAnchorValue());
+        crosshairInfo.setAnchorY(getRangeAxis().getAnchorValue());
 
         // draw the plot background and axes...
-
         drawBackground(g2, dataArea);
-        if (getDomainAxis()!=null) {
-            getDomainAxis().draw(g2, plotArea, dataArea, this.getDomainAxisLocation());
+        if (domainAxis != null) {
+            domainAxis.draw(g2, plotArea, dataArea, this.getDomainAxisLocation());
         }
-        if (this.getRangeAxis()!=null) {
-            this.getRangeAxis().draw(g2, plotArea, dataArea, this.getRangeAxisLocation());
+        if (rangeAxis != null) {
+            rangeAxis.draw(g2, plotArea, dataArea, this.getRangeAxisLocation());
         }
+        if (this.getSecondaryRangeAxis() != null) {
+            this.getSecondaryRangeAxis().draw(g2, plotArea, dataArea, secondaryAxisLocation);
+        }
+        XYItemRenderer renderer = this.getRenderer();
+        if (renderer != null) {
+            Shape originalClip = g2.getClip();
+            Composite originalComposite = g2.getComposite();
 
-        render(g2, dataArea, info, crosshairInfo);
+            g2.clip(dataArea);
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                                                       getForegroundAlpha()));
+            // draw the domain grid lines, if any...
+            if (isDomainGridlinesVisible()) {
+                Stroke gridStroke = getDomainGridlineStroke();
+                Paint gridPaint = getDomainGridlinePaint();
+                if ((gridStroke != null) && (gridPaint != null)) {
+                    Iterator iterator = getDomainAxis().getTicks().iterator();
+                    while (iterator.hasNext()) {
+                        Tick tick = (Tick) iterator.next();
+                        renderer.drawDomainGridLine(g2, this, getDomainAxis(), dataArea,
+                                                    tick.getNumericalValue());
+                    }
+                }
+            }
+
+            // draw the range grid lines, if any...
+            if (isRangeGridlinesVisible()) {
+                Stroke gridStroke = getRangeGridlineStroke();
+                Paint gridPaint = getRangeGridlinePaint();
+                if ((gridStroke != null) && (gridPaint != null)) {
+                    Iterator iterator = getRangeAxis().getTicks().iterator();
+                    while (iterator.hasNext()) {
+                        Tick tick = (Tick) iterator.next();
+                        renderer.drawRangeGridLine(g2, this, getRangeAxis(), dataArea,
+                                                   tick.getNumericalValue());
+                    }
+                }
+            }
+
+
+
+
+            render(g2, dataArea, info, crosshairInfo);
+            render2(g2, dataArea, info, crosshairInfo);
+
+
+            g2.setClip(originalClip);
+            g2.setComposite(originalComposite);
+        }
+        drawOutline(g2, dataArea);
 
      }catch(java.lang.ArithmeticException ae){
        String message=new String(ae.getMessage());

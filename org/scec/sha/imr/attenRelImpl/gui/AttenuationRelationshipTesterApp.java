@@ -946,6 +946,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         xAxis.setStandardTickUnits(units);
 
 
+
         if (yLog) yAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis(yAxisLabel);
         else yAxis = new VerticalNumberAxis( yAxisLabel );
 
@@ -973,9 +974,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         if( isWhite ) plot.setBackgroundPaint( Color.white );
         else plot.setBackgroundPaint( Color.black );
 
-
         plot.setRenderer( renderer );
-
 
         JFreeChart chart = new JFreeChart(" ",new Font("Arial",Font.PLAIN,7),plot,false);
         chart.setBackgroundPaint( lightBlue );
