@@ -22,7 +22,7 @@ import org.scec.sha.earthquake.EqkRupForecastAPI;
  * @version 1.0
  */
 
-public class ScenarioShakeMapApp extends Applet {
+public class ScenarioShakeMapApp extends JApplet {
 
 
   //variables that determine the width and height of the frame
@@ -118,7 +118,7 @@ public class ScenarioShakeMapApp extends Applet {
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     this.setSize(new Dimension(1074, 714));
-    this.setLayout(borderLayout1);
+    this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(border1);
     mainPanel.setLayout(gridBagLayout6);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -133,7 +133,7 @@ public class ScenarioShakeMapApp extends Applet {
     imrSelectionPanel.setLayout(gridBagLayout5);
     siteRegionPanel.setLayout(gridBagLayout7);
     imtPanel.setLayout(gridBagLayout8);
-    this.add(mainPanel, BorderLayout.CENTER);
+    this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 5, 2), 0, 492));
     mainSplitPane.add(chartSplitPane, JSplitPane.LEFT);
