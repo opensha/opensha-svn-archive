@@ -49,8 +49,6 @@ import org.scec.sha.gui.infoTools.ExceptionWindow;
  * 5) The wted-averages in multi-attenuation-relationship mode were checked, as well as the fact that
  * log-averages are taken over probabilities and IMLs where appropriate. <p>
  * 6) That the HAZUS files are generated correctly was checked.
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
  * @author : Edward (Ned) Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
