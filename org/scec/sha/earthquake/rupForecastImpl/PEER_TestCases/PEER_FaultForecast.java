@@ -17,6 +17,8 @@ import org.scec.sha.magdist.parameter.MagFreqDistParameter;
 import org.scec.sha.magdist.*;
 import org.scec.param.event.*;
 
+import org.scec.sha.fault.parameter.SimpleFaultParameter;
+
 
 /**
  * <p>Title: PEER_FaultForecast</p>
@@ -110,6 +112,12 @@ public class PEER_FaultForecast extends EqkRupForecast
   //Mag Freq Dist Parameter
   MagFreqDistParameter magDistParam;
 
+
+  // TEST make SimpleFaultParameter
+  SimpleFaultParameter testParam;
+
+
+
   // Fault trace
   FaultTrace faultTrace;
 
@@ -138,6 +146,9 @@ public class PEER_FaultForecast extends EqkRupForecast
     magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
     //add the magdist parameter
     adjustableParams.addParameter(this.magDistParam);
+
+    testParam = new SimpleFaultParameter("TEST Fault Param");
+    adjustableParams.addParameter(this.testParam);
 
 
     // register the parameters that need to be listened to

@@ -119,9 +119,10 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      this.parameterList = new ParameterList();
 
      // search path needed for making editors
-     searchPaths = new String[2];
+     searchPaths = new String[3];
      searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
      searchPaths[1] = "org.scec.sha.magdist.gui" ;
+     searchPaths[2] = "org.scec.sha.fault.parameter.gui" ;
 
      //Name of the first ERF class that is to be shown as the default ERF in the ERF Pick List
      String erfClassName = (String)erfClassNames.get(0);
