@@ -1,9 +1,9 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-1) See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
+See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
 
-2) Change Vs30 servlet to return "A", "B", "BC", ... rather than the numberical value.  So, in the data file that we read change each of the numerical values as follows (actually make a new file):
+1) Change Vs30 servlet to return "A", "B", "BC", ... rather than the numberical value.  So, in the data file that we read change each of the numerical values as follows (actually make a new file):
 
 	E  163 
 	DE 298 
@@ -21,39 +21,67 @@
 	(a member of the USGS ShakeMap group) to me on 6/18/03. Please put this latter info
 	in the readme file as well.
 
-	Once you get the servlet revised, then we can change the site-type translator together.
+	Name the new servlet: WillsSiteClassServlet
 
-3) Somehow test the WG02 ERF servlet (now that more than one user can use it at any given time), and let net know how you tested it.
+	Rename old sevlet: SCEC_BasinDepthServlet
 
-4) Get Bruce's code running on Mac OS X.
+	Once you get the servlet revised, then we can change the site-type translator together (Ned will do this).
 
-5) ScenarioShakeMapApp
+Get Bruce's code running on Mac OS X.
 
-	a) make image scalable with window size (although keep aspect ratio fixed)
+ScenarioShakeMapApp
 
-	b) save matadata for each run in "map_info.txt" file
+	make image scalable with window size (although keep aspect ratio fixed)
 
-	c) make URLs in info window live links (download when clicked)?
+	3) save matadata for each run in "map_info[milisecond stamp].txt" file
 
-	(the following Ned and Nitin need to think about together)
+	make URLs in info window live links (download when clicked)?
 
-	b) fix blank-map problem (grdcut gets messed up)
+	fix blank-map problem (grdcut gets messed up) - Ned will fix
 
-	c) add ability to plot ruptures
+	2) change set sites from CVM list options:
 
-	d) add option to make Hazus shape files
+		"Apply same ..."
+		"Use the Wills et al. (2000) Map Web Service"
+		"Use both Wills Map and SCEC Basin Depth Web Service"
 
-Make it so scenario shakemaps can be calculated in stand-alone mode.
+	4) make checkbox options in MapGuiBean boolean parameters and put them in the GMT_MapGenerator 
+	(which means take the log values in the latter as well).  Also move everything out of the MapGuiBean
+	so the latter is simply a wrapper around the GMT_MapGenerator (make the map and show the map and
+	metadata from the main app).
 
-We need to somehow metadata in the HazardCurveCalculator; also make the ability to "peel off" the plot/metadata window (Ned and Nitin need to discuss this)?
+	move "set site params" JCombo in  Region&SiteGuiBean a StringParameter and add it to the list.
+
+	5) set the scaleLabel argument (added to GMT_MapGenerator as described below) according to chosen IMT
+	(the GMT_MapGenerator will wrap it with "log(*)" is that option was chosen.
+
+	6) after all the above are done, subclass the GMT_MapGenerator as GMT_MapGeneratorForShakeMaps 
+	in the sha package so it can take an EarthquakeRupture and optionally a hypocenter for the map 
+	(make the MapGuiBean wrap this new class rather than the parent).  
+
+	7) add option to make Hazus shape files to the GMT_MapGeneratorForShakeMaps class (add this to the script).  
+	Also include the URL for these.  Figure out how to handle the metadata on this.
+
+GMT_MapGenerator:
+
+	add a "scaleLabel" string to all of the makeMap*(*) methods and use this in 
+	place of the the hard-coded "tempLabel" String presently being used.  Also
+	wrap it with log(*) in necessary.
+
+
+Make a BooleanParameter where the editor is a checkbox (only show name since there are no units).  Make sure the editor shows the info when moused over.
+
+Access site-type servlets from the SitesInGriddedRegion rather than the GuiBean (so servlets can be accessed without having to have a GUI).
+
+Finish making it so scenario shakemaps can be calculated in stand-alone mode.  Make getScenarioShakeMapData(*) method take an EarthquakeRupture (not a ProbEarthquakeRupture) rather than an ERF, source, and rupture index.  Also make sure that value is between 0 and 1 if isProbAtIML=false.  Have the above method return xyzData rather than taking it as an argument (it's not needed as input since the sitesInGriddedRegion has the lats and lons for the calc).
+
+We need to somehow metadata in the HazardCurveCalculator; also make the ability to "peel off" the plot/metadata window (Ned and Nitin will discuss this more later)?
 
 Finish PEER Set 2 problems (Ned).
 
 Finish PEER results plotter & data submission tool (when they give us the final files).
 
 Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x). Ned needs to double check these.
-
-HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  Implement the "X-values control panel" - the IMT is always "SA".  Nitin thinks this is a bad idea.  Ned will discuss this with him later.
 
 Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.
 
@@ -62,6 +90,8 @@ Fix horizontal streaking due to setting site effects in gridded region from CVM 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
 *****************************************************************
+
+HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  This will take some thought because the present implementation of the GuiBeans are a subclass of ParameterEditor which leads to even worse memory problems for the first attempted solution.  Solve this once we have a better idea of exactly what Caltrans wants.  Perhaps we should merge the two GuiBeans into one?
 
 Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done.
 

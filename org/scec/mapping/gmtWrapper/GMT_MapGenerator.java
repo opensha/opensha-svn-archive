@@ -261,7 +261,7 @@ public class GMT_MapGenerator implements Serializable{
       out_ps = fileName + ".ps";
       out_jpg = fileName+"-"+imageCounter+ ".jpg";
 
-      this.runMapScript(GMT_PATH,br,xyzDataSet);
+      this.makeMapScript(GMT_PATH,br,xyzDataSet);
       String gmtCommandLine = GMT_PATH+"convert " + out_ps + " " + out_jpg;
       //RunScript.runScript(command);
       br.write(gmtCommandLine+"\n");
@@ -308,7 +308,7 @@ public class GMT_MapGenerator implements Serializable{
       out_ps = fileName + ".ps";
       out_jpg = fileName+ ".jpg";
 
-      runMapScript(GMT_PATH,br,xyzDataSet);
+      makeMapScript(GMT_PATH,br,xyzDataSet);
       String gmtCommandLine=COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
       //RunScript.runScript(command);
       br.write(gmtCommandLine+"\n");
@@ -364,7 +364,7 @@ public class GMT_MapGenerator implements Serializable{
       out_ps = fileName + ".ps";
       out_jpg = fileName + ".jpg";
 
-      runMapScript(GMT_PATH,br,xyzDataSet);
+      makeMapScript(GMT_PATH,br,xyzDataSet);
       String gmtCommandLine=COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
       //RunScript.runScript(command);
       br.write(gmtCommandLine+"\n");
@@ -376,9 +376,9 @@ public class GMT_MapGenerator implements Serializable{
     //putting files in String array which are to be sent to the server as the attachment
     String[] fileNames = new String[2];
     //getting the GMT script file name
-    fileNames[0] = getGMT_FileName();
+    fileNames[0] = gmtFileName;
     //getting the XYZ file Name
-    fileNames[1] = getXYZ_FileName();
+    fileNames[1] = XYZ_FILE_NAME;
     this.openWebServiceConnection(fileNames);
     return this.imgWebAddr+out_jpg;
   }
@@ -390,7 +390,7 @@ public class GMT_MapGenerator implements Serializable{
    * @param xyzFileName
    * @param command= command to run on the command-prompt
    */
-  private void runMapScript(String GMT_PATH,BufferedWriter br,
+  private void makeMapScript(String GMT_PATH,BufferedWriter br,
                             XYZ_DataSetAPI xyzData) throws Exception{
 
     double minLat = ((Double) minLatParam.getValue()).doubleValue();
@@ -446,10 +446,6 @@ public class GMT_MapGenerator implements Serializable{
       colorScaleMax = ((Double) this.colorScaleMaxParam.getValue()).doubleValue();
     }
     else {
-      /*GRD_InfoFromFile grdInfo = new GRD_InfoFromFile("temp"+grdFileName, this.getGMT_PATH());
-      colorScaleMin = grdInfo.get_z_min();
-      colorScaleMax = grdInfo.get_z_max();*/
-
       colorScaleMin = xyzData.getMinZ();
       colorScaleMax = xyzData.getMaxZ();
     }
@@ -502,7 +498,8 @@ public class GMT_MapGenerator implements Serializable{
     DecimalFormat df2 = new DecimalFormat("0.E0");
     Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
     inc = tickInc.floatValue();
-    gmtCommandLine=GMT_PATH+"psscale -Ba"+inc+":IML: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
+    String tempLabel = "IML";
+    gmtCommandLine=GMT_PATH+"psscale -Ba"+inc+":"+tempLabel+": -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
     //RunScript.runScript(command);
     br.write(gmtCommandLine+"\n");
 
@@ -534,31 +531,6 @@ public class GMT_MapGenerator implements Serializable{
    */
   public String getImageFileName(){
     return this.out_jpg;
-  }
-
-  /**
-   *
-   * @returns the GMT path
-   */
-  public String getGMT_PATH(){
-    return this.gmtPath;
-  }
-
-
-  /**
-   *
-   * @returns the name of the GMT script file
-   */
-  public String getGMT_FileName(){
-    return this.gmtFileName;
-  }
-
-  /**
-   *
-   * @returns the name of the XYZ file
-   */
-  public String getXYZ_FileName(){
-    return this.XYZ_FILE_NAME;
   }
 
   //For the webservices Implementation
@@ -706,7 +678,7 @@ public class GMT_MapGenerator implements Serializable{
       br = new BufferedWriter(fw);
       out_ps = psFileName;
       out_jpg = jpgFileName;
-      this.runMapScript(GMT_PATH,br,xyzDataSet);
+      makeMapScript(GMT_PATH,br,xyzDataSet);
       String gmtCommandLine = COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
       //RunScript.runScript(command);
       br.write(gmtCommandLine+"\n");

@@ -45,17 +45,15 @@ public class ScenarioShakeMapCalculator {
    * @param griddedRegionSites : Gridded Region Object
    * @param imr : selected IMR object
    * @param eqkRupForecast :selected Earthquake rup forecast
-   * @param imlProbToggle : Its value can be true or false, based on selction made by the user.
-   * If the user has selected Prob@IML then its value is true, else if the user
-   * has selected IML@Prob then its value is false, based on which we generate the required Map.
-   * @param imlProbValue: It is either IML or Prob value based on what user has selected.
-   * If it is IML@Prob then it is Prob. value else if it is Prob@IML then it is IML value.
+   * @param isProbAtIML : if true the prob at the specified IML value (next param) will
+   * be computed; if false the IML at the specified Prob value (next param) will be computed.
+   * @param value : the IML or Prob to compute the map for.
    */
   public void getScenarioShakeMapData(XYZ_DataSetAPI xyzData,
                                       int sourceIndex, int ruptureIndex,
                                       SitesInGriddedRegion griddedRegionSites,
                                       AttenuationRelationship imr, ERF_API eqkRupForecast,
-                                      boolean imlProbToggle,double imlProbValue) {
+                                      boolean isProbAtIML,double value) {
 
     Site site;
     Vector siteLat= new Vector();
@@ -74,10 +72,10 @@ public class ScenarioShakeMapCalculator {
       } catch (Exception ex) {
         throw new RuntimeException("Rupture not allowed for the chosen IMR: "+ex.getMessage());
       }
-      if(imlProbToggle)
-        siteValue.add( new Double(imr.getExceedProbability(Math.log(imlProbValue))));
+      if(isProbAtIML)
+        siteValue.add( new Double(imr.getExceedProbability(Math.log(value))));
       else{
-        imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(imlProbValue));
+        imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(value));
         try{
           siteValue.add(new Double(StrictMath.exp(imr.getIML_AtExceedProb())));
         }catch(RuntimeException e){
