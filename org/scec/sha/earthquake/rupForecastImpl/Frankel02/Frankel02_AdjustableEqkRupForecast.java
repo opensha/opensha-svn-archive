@@ -185,7 +185,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     charFaultSources = new Vector();
     grFaultSources = new Vector();
 
-    makeFaultSources("test_ca-b-fullwt-ss-ell-gr", 1.0,null,0);
+    makeFaultSources("test1",1.0,null,0);
 
 //    this.makeAllFaultSources();
 
