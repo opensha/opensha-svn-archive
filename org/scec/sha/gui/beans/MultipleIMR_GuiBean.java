@@ -125,7 +125,7 @@ public class MultipleIMR_GuiBean extends JPanel  implements
     for(int i=0;i<numSupportedAttenRels;++i){
       attenRelCheckBox[i] = new JCheckBox(((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName());
       attenRelCheckBox[i].addItemListener(this);
-      wtsParameter[i] = new DoubleParameter(wtsParamName+i,new Double(1.0));
+      wtsParameter[i] = new DoubleParameter(wtsParamName+(i+1),new Double(1.0));
       wtsParameterEditor[i] = new DoubleParameterEditor(wtsParameter[i]);
       imrPanel.add(attenRelCheckBox[i],new GridBagConstraints(0, i, 1, 1, 1.0, 1.0
             ,GridBagConstraints.WEST, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
@@ -138,7 +138,7 @@ public class MultipleIMR_GuiBean extends JPanel  implements
     }
 
     imrPanel.add(setAllParamButtons,new GridBagConstraints(0, numSupportedAttenRels, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.CENTER, new Insets(4, 3, 5, 5), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.EAST, new Insets(7, 200, 5, 5), 15, 5));
 
     setIMR_Params();
     setAllParamButtons.addActionListener(new java.awt.event.ActionListener() {
@@ -490,7 +490,7 @@ public class MultipleIMR_GuiBean extends JPanel  implements
     */
    public void setIMR_Selected(String attenRelName){
      for(int i=0;i < numSupportedAttenRels;++i){
-       if(attenRelCheckBox[i].getName().equals(attenRelName)){
+       if(attenRelCheckBox[i].getText().equals(attenRelName)){
          if(attenRelCheckBox[i].isEnabled() && !attenRelCheckBox[i].isSelected()){
            attenRelCheckBox[i].setSelected(true);
          }
