@@ -191,14 +191,15 @@ public class GraphPanel extends JPanel {
     // Starting
     String S = "drawGraphPanel(): ";
 
-    //setting X and Y axis name in the function list.
-    totalProbFuncs.setXAxisName(xAxisName);
-    totalProbFuncs.setYAxisName(yAxisName);
 
 
     //flags to check if the exception was thrown on selection of the x-log or y-log.
     boolean logErrorFlag = false;
 
+    //getting the axis font size
+    int axisFontSize = buttonControlPanel.getAxisLabelFontSize();
+    //getting the tick label font size
+    int tickFontSize = buttonControlPanel.getTickLabelFontSize();
 
     //create the standard ticks so that smaller values too can plotted on the chart
     TickUnits units = MyTickUnits.createStandardTickUnits();
@@ -215,6 +216,14 @@ public class GraphPanel extends JPanel {
         xAxis.setAutoRangeIncludesZero( false );
       xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
+      //Axis label font
+      Font axisLabelFont = xAxis.getLabelFont();
+      xAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
+
+      //tick label font
+      Font axisTickFont = xAxis.getTickLabelFont();
+      xAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
+
       //added to have the minimum range within the Upper and Lower Bound of the Axis
       //xAxis.setAutoRangeMinimumSize(.1);
 
@@ -243,6 +252,14 @@ public class GraphPanel extends JPanel {
 
       yAxis.setStandardTickUnits(units);
       yAxis.setTickMarksVisible(false);
+
+      //Axis label font
+      Font axisLabelFont = yAxis.getLabelFont();
+      yAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
+
+      //tick label font
+      Font axisTickFont = yAxis.getTickLabelFont();
+      yAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
       //added to have the minimum range within the Upper and Lower Bound of the Axis
       //yAxis.setAutoRangeMinimumSize(.1);
 
@@ -270,7 +287,8 @@ public class GraphPanel extends JPanel {
     plot.setDomainCrosshairVisible(false);
     plot.setRangeCrosshairLockedOnData(false);
     plot.setRangeCrosshairVisible(false);
-    plot.setInsets(new Insets(10, 0, 0, 20));
+    plot.setInsets(new Insets(10, 0, 0, tickFontSize+15));
+
 
 
     //total number of funtions that need to be plotted differently using different characterstics
@@ -308,8 +326,9 @@ public class GraphPanel extends JPanel {
 
 
       //creating the secondary dataset to show it in different color and shapes
-      for(int i=datasetIndex;i<(datasetIndex+numCurves);++i)
+      for(int i=datasetIndex;i<(datasetIndex+numCurves);++i){
         dataFunctions.add(totalProbFuncs.get(i));
+      }
       datasetIndex +=numCurves;
 
       //making the first funtion in the list to be primary dataset and all others
@@ -422,6 +441,9 @@ public class GraphPanel extends JPanel {
           legend = new String("DATASET #"+(i+1)+"\n\n"+
                               name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
                               functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
+          System.out.println("Curve color:"+plotCharacterstics[j].getCurveColor());
+          if(setLegend == null)
+            System.out.println("SetLegend is null");
           StyleConstants.setForeground(setLegend,plotCharacterstics[j].getCurveColor());
           doc.insertString(doc.getLength(),legend,setLegend);
           ++j;
@@ -758,6 +780,10 @@ public class GraphPanel extends JPanel {
     data.setXLog(xLog);
     data.setYLog(yLog);
 
+    //getting the axis font size
+    int axisFontSize = buttonControlPanel.getAxisLabelFontSize();
+    //getting the tick label font size
+    int tickFontSize = buttonControlPanel.getTickLabelFontSize();
 
     //flags to check if the exception was thrown on selection of the x-log or y-log.
     boolean logErrorFlag = false;
@@ -778,6 +804,15 @@ public class GraphPanel extends JPanel {
         xAxis.setAutoRangeIncludesZero( false );
       xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
+
+      //Axis label font
+      Font axisLabelFont = xAxis.getLabelFont();
+      xAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
+
+      //tick label font
+      Font axisTickFont = xAxis.getTickLabelFont();
+      xAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
+
       //added to have the minimum range within the Upper and Lower Bound of the Axis
       //xAxis.setAutoRangeMinimumSize(.1);
 
@@ -806,6 +841,14 @@ public class GraphPanel extends JPanel {
 
       yAxis.setStandardTickUnits(units);
       yAxis.setTickMarksVisible(false);
+
+      //Axis label font
+      Font axisLabelFont = yAxis.getLabelFont();
+      yAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
+
+      //tick label font
+      Font axisTickFont = yAxis.getTickLabelFont();
+      yAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
       //added to have the minimum range within the Upper and Lower Bound of the Axis
       //yAxis.setAutoRangeMinimumSize(.1);
 
@@ -837,7 +880,7 @@ public class GraphPanel extends JPanel {
     plot.setDomainCrosshairVisible(false);
     plot.setRangeCrosshairLockedOnData(false);
     plot.setRangeCrosshairVisible(false);
-    plot.setInsets(new Insets(10, 0, 0, 20));
+    plot.setInsets(new Insets(10, 0, 0, tickFontSize+15));
 
     float lineWidth = ((BasicStroke)LINE_RENDERER.getBaseStroke()).getLineWidth();
     String plotType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;

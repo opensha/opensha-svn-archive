@@ -762,7 +762,7 @@ public class LogarithmicAxis extends NumberAxis {
                   y0 =  tempTick.getY()-3;
                 }
               }
-              y0 = y - tickLabelBounds.getWidth() -3;
+              y0 = y - tickLabelBounds.getHeight() -3;
             }
           }
           //create tick object and add to list:
@@ -831,9 +831,9 @@ public class LogarithmicAxis extends NumberAxis {
 
 
       if(eIndex!=-1) // for major axis
-        g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()+1));
+        g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()+(int)(this.getTickLabelFont().getSize()*(0.2))));
       else  // show minor axis in smaller font
-        g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-1));
+        g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()));
 
       if (isTickLabelsVisible()) {
         g2.setPaint(getTickLabelPaint());
@@ -846,9 +846,11 @@ public class LogarithmicAxis extends NumberAxis {
             g2.drawString(tick.getText(), tick.getX(), tick.getY());
           else {
             g2.drawString("10", tick.getX()+6, tick.getY());
-            //setting the font propeeties to show the power of 10
-            g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-2));
-            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+22,tick.getY()-4);
+            //setting the font properties to show the power of 10
+            g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),
+                                this.getTickLabelFont().getSize()-(int)(this.getTickLabelFont().getSize()*(0.2))));
+            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+6+(int)(1.5*getTickLabelFont().getSize()),
+                          tick.getY()-(int)(0.4*this.getTickLabelFont().getSize()));
           }
         }
       }

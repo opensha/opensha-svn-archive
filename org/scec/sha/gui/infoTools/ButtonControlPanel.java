@@ -267,6 +267,31 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
       application.setCurvesToUsePlotPrefs(true);
   }
 
+  /**
+   *
+   * @returns the axis label font size
+   * Default is 12
+   */
+  public int getAxisLabelFontSize(){
+    if(plotControl != null)
+      return plotControl.getAxisLabelFontSize();
+    else
+      return 12;
+  }
+
+  /**
+   *
+   * @returns the tick label font
+   * Default is 10
+   */
+  public int getTickLabelFontSize(){
+    if(plotControl !=null)
+      return plotControl.getTickLabelFontSize();
+    else
+      return 10;
+  }
+
+
 
   /**
    * Sets the Plot Preference, button that allows users to set the color codes
