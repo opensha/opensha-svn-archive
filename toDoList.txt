@@ -11,31 +11,32 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 
 We obviously want as much of a common solution to these three cases as possible. The goal seems to be achievable by simply saving the settings for all the parameters in the working environment (GUI or batch mode), and for each ParameterListEditor, or its GuiBean subclass, to be able to recreate the previous state when the metaData is fed back in.
 
-The solution seems to be for each type of parameter to support a getMetaData() method (which returns either an ascii or XML string) (note that we are using the toString() inappropriately and should probably revert to convention on this method).  For primitive parameter types this will simply give:
+The solution seems to be for each type of parameter to support a getMetaDataSring() method (we could also make a getMetaDataXML() method if need be) (note that we are using the toString() inappropriately and should probably revert to convention on this method).  For primitive parameter types this will simply give:
 
-	parameterType
 	name
 	value
 
-(I don't think the units or constraints are needed because other entities that create the parameters decide these things; all the metaData is going to be used for is for setting values)
+(I don't think the type, units or constraints are needed because other entities that create the parameters decide these things; all the metaData is going to be used for is for setting values)
 
 Also, if a parameter has any dependent parameters these should get saved as well (as well as dependent parameters of dependent parameters, etc., but hopefully developers won't get carried away with numerous sub levels).
 
 Using the "SA" IMT as an example (it has two dependent parameters: "Period" and "Damping"), the short, plot-label representation might look like:
 
-	IMT = SA [Period = 1.0, Damping = 5.0]
+	IMT = SA [Period = 1.0; Damping = 5.0]
 
-This raises issues with respect to allowed characters in a parameter name; are white spaces allowed? The above formate would imply that "[", "]", ",", and "=" might need to be off limits as well.  It would really help if others had come up with some standards here.  Perhaps XML allows us to avoid such complications?  Things might get more complicated if we decide to add units as well.
+This raises issues with respect to allowed characters in a parameter name.  Why don't we reserve the following special characters for writing the string-representation of metadata (meaning these can't be used in parameter names):
+
+	=	- separate name/value pairs
+	;	- to separate parameters
+	[	- to encapsulate dependent params
+	]	- to encapsulate dependent params
+	:	- for writing out parameterList (or GuiBean) values (also "----" under these?)
+
+Can we avoid such special character issues using XML representation (for the case where we read values back in to redo a calculation)?
 
 With respect to GuiBeans we have discussed two approaches.  Let's take the ERF_GuiBean as an example.  One mode (mentioned above) is to read back in the parameter settings (from XML), set the parameter values accordingly, and then recreate the ERF.  If the ERF is very time consuming to create, then the second mode would be to read back in the serialized version of the object, and since all the parameter are already set, the GuiBean would not have to do anything.  
 
-The only problem here is with our non-primitive parameter types, such as MagFreqDistParam and SimpleFaultParam (and others surely to come), which don't necessarily contain any information on how the value was created.  Such parameters could be given all required info in their dependentParameterList, so the associated editor could compute the parameter value accordingly and/or show the current dependentParam values to the user.  But if the dependent parameter settings are obtained from an XML file, the GuiBean can't make the dependent parameters (e.g., doesn't know the constraint), so the GUI bean must be able to get a the dependent parameters elsewhere.  That elsewhere could be the  editor, but then an editor (a subclass of Jpanel) would have to be used in batch mode as well (where no GUI is involved).  Perhaps we need an intermediate class:
-
-	MagFreqDistParam --> MagFreqDistCalculator --> MagFreqDistParamEditor
-
-The intermediate class would contain all the dependent parameters needed to build any MagFreqDist, and would be able to build it.  MagFreqDistParamEditor would then represent a GUI interface to the MagFreqDistParam (utilizing the MagFreqDistCalculator as well, and knowing what parameters to hide for the various options).
-
-Now the question is whether this will work for the SimpleFaultParameter (which depends on a list of lats and lons).  One will have to set the number of fault trace points before being able to get the trace lat/lon params.  Comments Nitin?
+Note that all non primitive parameter types (e.g., MagFreqDistParam and SimpleFaultParam) must contain all info needed by their respective editor to recreate the object; this info is stored in their dependent parameter list.
 
 ===================================
 
