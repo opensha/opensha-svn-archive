@@ -1,8 +1,5 @@
 package org.scec.sha.fault.gui;
 
-
-
-
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
