@@ -8,6 +8,8 @@ import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.sha.earthquake.*;
 import org.scec.util.*;
+import org.scec.sha.gui.infoTools.*;
+import org.scec.data.function.*;
 
 /**
  * <p>Title: HazusDataGenerator</p>
@@ -25,12 +27,13 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
   private final double MIN_LON = -118.943793 ;
   private final double MAX_LON= -117.644716;
   private final double GRID_SPACING= .05;
-  private final static String DIR_NAME = "hazus/";
-  // make a array for saving the X values
-  private  double [] xValues = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 2.0,2.5,3.0,3.5,4.0,4.5,5.0}  ;
-  private double [] pgvXValues = { 1, 15, 30, 45, 60, 75, 90, 105, 120, 135,
-    150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300} ;
+  private final static String PGA_DIR_NAME = "pga/";
+  private final static String SA_1_DIR_NAME = "sa_1/";
+  private final static String SA_DIR_NAME = "sa_.3/";
+  private final static String PGV_DIR_NAME = "pgv/";
+
+  private DefaultHazardCurveForIMTs defaultXVals = new DefaultHazardCurveForIMTs();
+
   public HazusDataGenerator() {
 
     Campbell_1997_AttenRel attenRel = new Campbell_1997_AttenRel(this);
@@ -40,20 +43,43 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     //make the Gridded Region object
     SitesInGriddedRegion region = new SitesInGriddedRegion(MIN_LAT, MAX_LAT, MIN_LON,
         MAX_LON, GRID_SPACING);
-    attenRel.getParameter(attenRel.SITE_TYPE_NAME).setValue(attenRel.SITE_TYPE_GEN_SOIL);
+    attenRel.getParameter(attenRel.SITE_TYPE_NAME).setValue(attenRel.SITE_TYPE_GEN_ROCK);
     region.addSiteParams(attenRel.getSiteParamsIterator());
     forecast.updateForecast();
 
     HazardMapCalculator calc = new HazardMapCalculator();
     calc.showProgressBar(false);
-    String metaData = "For PGA Values\n\n"+
+    String metaData = "For Hazus Values\n\n"+
                       "ERF: "+forecast.getName()+"\n"+
                       "IMR Name: "+attenRel.getName()+"\n"+
                       "\t"+"Site Name: "+ attenRel.SITE_TYPE_GEN_ROCK+"\n"+
-                      "Region Info: "+region.toString()+"\n";
+                      "Region Info: "+
+                      "\t MIN LAT: "+region.getMinLat()+" MAX LAT:"+region.getMaxLat()+
+                      " MIN LON: "+region.getMinLon()+" MAX LON: "+region.getMaxLon()+
+                      " Grid Spacing: "+region.getGridSpacing()+"\n";
+    //doing ofr PGA
+    ArbitrarilyDiscretizedFunc function = defaultXVals.getHazardCurve(attenRel.PGA_NAME);
+    double[] xValues =null;
+    for(int i=0;i<function.getNum();++i)
+      xValues[i] = function.getX(i);
+    calc.getHazardMapCurves(PGA_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
 
-    calc.getHazardMapCurves(DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
+    //Doing for SA
+    function = defaultXVals.getHazardCurve(attenRel.SA_NAME);
+    for(int i=0;i<function.getNum();++i)
+      xValues[i] = function.getX(i);
+    attenRel.setIntensityMeasure(attenRel.SA_NAME);
+    ((DoubleDiscreteParameter)attenRel.getParameter(attenRel.PERIOD_NAME)).setValue(new Double(0.3));
+    calc.getHazardMapCurves(SA_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
+    ((DoubleDiscreteParameter)attenRel.getParameter(attenRel.PERIOD_NAME)).setValue(new Double(1.0));
+    calc.getHazardMapCurves(SA_1_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
 
+    //Doing for PGV
+    function = defaultXVals.getHazardCurve(attenRel.PGV_NAME);
+    for(int i=0;i<function.getNum();++i)
+      xValues[i] = function.getX(i);
+    attenRel.setIntensityMeasure(attenRel.PGV_NAME);
+    calc.getHazardMapCurves(PGV_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
   }
   public static void main(String[] args) {
     HazusDataGenerator hazusDataGenerator1 = new HazusDataGenerator();
