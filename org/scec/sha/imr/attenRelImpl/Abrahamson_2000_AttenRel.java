@@ -274,7 +274,7 @@ public class Abrahamson_2000_AttenRel
           Location siteLoc = site.getLocation();
           Location hypLoc = probEqkRupture.getHypocenterLocation();
           if(hypLoc == null)
-            throw new RuntimeException("Error: The hypocenter has not been set for the earthquake rupture");
+            throw new RuntimeException("The hypocenter has not been set for the earthquake rupture!");
           int numTrPts = surface.getNumCols();
 
           // find the closest point on rupture trace

@@ -57,7 +57,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   public final static String RUPTURE_PARAM_NAME = "Rupture Index";
 
   //Rupture Hypocenterlocation Param
-  public final static String RUPTURE_HYPOLOCATIONS_PARAM_NAME="Rupture HypoCentre Locations";
+  public final static String RUPTURE_HYPOLOCATIONS_PARAM_NAME="Hypocentre Locations";
 
   //Object of ProbEqkRupture
   ProbEqkRupture probEqkRupture;
@@ -180,7 +180,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      double lon= Double.parseDouble(token.nextElement().toString().trim());
      double depth= Double.parseDouble(token.nextElement().toString().trim());
      loc= new Location(lat,lon,depth);
-     System.out.println("Hypo Center Location:"+ loc.toString());
+     System.out.println("Hypocenter Location:"+ loc.toString());
      probEqkRupture.setHypocenterLocation(loc);
    }
 
@@ -251,13 +251,13 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      double lon= Double.parseDouble(token.nextElement().toString().trim());
      double depth= Double.parseDouble(token.nextElement().toString().trim());
      Location loc= new Location(lat,lon,depth);
-     System.out.println("Hypo Center Location:"+ loc.toString());
+     System.out.println("Hypocenter Location:"+ loc.toString());
      probEqkRupture.setHypocenterLocation(loc);
    }
  }
 
    private void jbInit() throws Exception {
-    erfAdjParamButton.setText("Get All EqkRup Forecast Params");
+    erfAdjParamButton.setText("Set Eqk Rup Forecast Params");
     erfAdjParamButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         erfAdjParamButton_actionPerformed(e);
@@ -267,7 +267,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     erfAdjParamButton.setBackground(new Color(200,200,230));
     this.setLayout(gridBagLayout1);
     sourceRupInfoText.setEditable(false);
-    hypoCentreCheck.setText("Set Hypocentre Location");
+    hypoCentreCheck.setText("Set Hypocenter Location");
     hypoCentreCheck.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         hypoCentreCheck_actionPerformed(e);

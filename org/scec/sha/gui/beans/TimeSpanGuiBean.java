@@ -19,7 +19,7 @@ import java.util.Iterator;
 public class TimeSpanGuiBean extends ParameterListEditor{
 
   // timespan Panel title
-  public final static String TIMESPAN_EDITOR_TITLE =  "TimeSpan";
+  public final static String TIMESPAN_EDITOR_TITLE =  "Time Span";
   // save the TimeSpan instance
   private TimeSpan timeSpan;
 

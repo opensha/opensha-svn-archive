@@ -53,7 +53,7 @@ public class RegionsOfInterestControlPanel extends JFrame {
       minLatVector.add(new Double(33.5));
       maxLatVector.add(new Double(34.7));
       minLonVector.add(new Double(-119.5));
-      maxLonVector.add(new Double(-116.898));
+      maxLonVector.add(new Double(-117.0));
 
 
 
