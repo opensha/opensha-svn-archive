@@ -22,7 +22,7 @@ import org.scec.param.event.*;
 
 /**
  * <p>Title: PEER_AreaForecast</p>
- * <p>Description: Area Equake rupture forecast. The Peer Group Test cases </p>
+ * <p>Description: PEER's Area earthquake-rupture forecast. The Peer Group Test cases </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta & Vipin Gupta

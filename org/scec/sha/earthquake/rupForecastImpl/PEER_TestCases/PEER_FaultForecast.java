@@ -20,10 +20,10 @@ import org.scec.param.event.*;
 
 /**
  * <p>Title: PEER_FaultForecast</p>
- * <p>Description: Fault 1 Equake rupture forecast. The Peer Group Test cases </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author Nitin Gupta & Vipin Gupta
+ * <p>Description: This forecast implements "Fault1" or "Fault2" defined in Set-1 of the PEER test
+ * cases (used also for Set-2, cases 3 & 4)  </p>
+ *
+ * @author Nitin & Vipin Gupta, & Ned Field
  * Date : Oct 24 , 2002
  * @version 1.0
  */
@@ -31,9 +31,6 @@ import org.scec.param.event.*;
 public class PEER_FaultForecast extends EqkRupForecast
     implements ParameterChangeListener {
 
-  /**
-   * @todo variables
-   */
   //for Debug purposes
   private static String  C = new String("PEER Fault");
   private boolean D = false;
@@ -42,86 +39,83 @@ public class PEER_FaultForecast extends EqkRupForecast
   public final static String  NAME = C;
 
 
-  // save the source. Fault1 has only 1 source
+  // this is the source (only 1 for this ERF)
   private PEER_FaultSource source;
-
 
   //Parameter Names
   public final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
   public final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
   public final static String OFFSET_PARAM_NAME =  "Offset";
-  public final static String MAG_DIST_PARAM_NAME = "Mag Dist";
+  public final static String MAG_DIST_PARAM_NAME = "Mag Dist";  // this is never shown by the MagFreqDistParameterEditor?
   public final static String RAKE_PARAM_NAME ="Rake";
   public final static String DIP_PARAM_NAME = "Dip";
 
-  // default grid spacing is 1km
+  // grid spacing parameter stuff
   private Double DEFAULT_GRID_VAL = new Double(1);
   public final static String GRID_PARAM_UNITS = "kms";
   private final static double GRID_PARAM_MIN = .001;
   private final static double GRID_PARAM_MAX = 1000;
 
 
-  //default rupture offset is 1km
+  // rupture offset parameter stuff
   private Double DEFAULT_OFFSET_VAL = new Double(1);
   public final static String OFFSET_PARAM_UNITS = "kms";
   private final static double OFFSET_PARAM_MIN = .01;
   private final static double OFFSET_PARAM_MAX = 10000;
 
-  // values for Mag length sigma
+  // Mag-length sigma parameter stuff
   private Double SIGMA_PARAM_MIN = new Double(0);
   private Double SIGMA_PARAM_MAX = new Double(1);
   public Double DEFAULT_SIGMA_VAL = new Double(0.0);
 
-  private double LOWER_SEISMO_DEPTH = 12.0;
+  // Default dip and rake-parameter values
+  private Double DEFAULT_DIP_VAL = new Double(90);
+  private Double DEFAULT_RAKE_VAL = new Double(0);
 
-  // fault-1 name
+  // stuff for fault-1 (vertically dipping fault)
   private String FAULT1_NAME = new String("Fault 1");
-  private Location fault1_LOCATION1 = new Location(38.22480, -122, 0);
-  private Location fault1_LOCATION2 = new Location(38.0, -122, 0);
   private double UPPER_SEISMO_DEPTH1 = 0.0;
 
-  //fault-2 name
+  // stuff for fault-2 (60-degree dipping fault)
   private String FAULT2_NAME = new String("Fault 2");
-  private Location fault2_LOCATION1 = new Location(38.22480, -122, 1);
-  private Location fault2_LOCATION2 = new Location(38.0, -122, 1);
   private double UPPER_SEISMO_DEPTH2 = 1.0;
 
+  // stuff for both faults
+  private Location fault_LOCATION1 = new Location(38.22480, -122, 0);
+  private Location fault_LOCATION2 = new Location(38.0, -122, 0);
+  private double LOWER_SEISMO_DEPTH = 12.0;
 
-  // add the grid spacing field
+  // create the grid spacing param
   DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
                                                GRID_PARAM_MAX,GRID_PARAM_UNITS,DEFAULT_GRID_VAL);
 
-  // add the rupOffset spacing field
+  // create the rupOffset spacing param
   DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM_MIN,
                                                OFFSET_PARAM_MAX,OFFSET_PARAM_UNITS,DEFAULT_OFFSET_VAL);
 
-  // add sigma for maglength(0-1)
+  // create the mag-length sigma param
   DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
                          SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
 
-  // add rake param
-  private Double DEFAULT_RAKE_VAL = new Double(0);
+  // create the rake param
   DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME, DEFAULT_RAKE_VAL);
 
 
-  //add the dip parameter
-  private Double DEFAULT_DIP_VAL = new Double(90);
+  //create the dip parameter
   DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME, DEFAULT_DIP_VAL);
 
-  //adding the supported MagDists
+  // list for the supported MagDists
   Vector supportedMagDists=new Vector();
 
   //Mag Freq Dist Parameter
-  MagFreqDistParameter magDistParam ;
+  MagFreqDistParameter magDistParam;
 
   // Fault trace
   FaultTrace faultTrace;
 
 
   /**
-   * This constructor constructs the source
-   *
-   * No argument constructor
+   * Constructor for this source (no arguments)
    */
   public PEER_FaultForecast() {
 
@@ -129,14 +123,14 @@ public class PEER_FaultForecast extends EqkRupForecast
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
-    /* Now make the source in Fault 1 */
+    // add the adjustable parameters to the list
     adjustableParams.addParameter(gridParam);
     adjustableParams.addParameter(offsetParam);
     adjustableParams.addParameter(lengthSigmaParam);
     adjustableParams.addParameter(dipParam);
     adjustableParams.addParameter(rakeParam);
 
-    // adding the supported MagDistclasses
+    // add the supported Mag-Freq Dist classes & make the associated parameter
     supportedMagDists.add(GaussianMagFreqDist.NAME);
     supportedMagDists.add(SingleMagFreqDist.NAME);
     supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
@@ -146,7 +140,7 @@ public class PEER_FaultForecast extends EqkRupForecast
     adjustableParams.addParameter(this.magDistParam);
 
 
-    // listen for change in the parameters
+    // register the parameters that need to be listened to
     gridParam.addParameterChangeListener(this);
     offsetParam.addParameterChangeListener(this);
     lengthSigmaParam.addParameterChangeListener(this);
@@ -157,12 +151,7 @@ public class PEER_FaultForecast extends EqkRupForecast
 
 
   /**
-    *  This is the main function of this interface. Any time a control
-    *  paramater or independent paramater is changed by the user in a GUI this
-    *  function is called, and a paramater change event is passed in. This
-    *  function then determines what to do with the information ie. show some
-    *  paramaters, set some as invisible, basically control the paramater
-    *  lists.
+    *  This is the method called by any parameter whose value has been changed
     *
     * @param  event
     */
@@ -172,7 +161,7 @@ public class PEER_FaultForecast extends EqkRupForecast
    }
 
   /**
-   * update the sources based on the user paramters, only when user has changed any parameter
+   * update the source based on the paramters (only if a parameter value has changed)
    */
    public void updateForecast(){
      String S = C + "updateForecast::";
@@ -185,15 +174,14 @@ public class PEER_FaultForecast extends EqkRupForecast
 
        // dip param value
        double dipValue = ((Double)dipParam.getValue()).doubleValue();
-       // first build the fault trace, then add
-       // add the location to the trace
+       // first build the fault trace, then add add the location to the trace
 
        SimpleFaultData faultData;
        if(dipValue == 90){
          // fault1
          faultTrace = new FaultTrace(FAULT1_NAME);
-         faultTrace.addLocation((Location)fault1_LOCATION1.clone());
-         faultTrace.addLocation((Location)fault1_LOCATION2.clone());
+         faultTrace.addLocation((Location)fault_LOCATION1.clone());
+         faultTrace.addLocation((Location)fault_LOCATION2.clone());
          //make the fault data
          faultData= new SimpleFaultData(dipValue,
               LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH1,faultTrace);
@@ -203,8 +191,8 @@ public class PEER_FaultForecast extends EqkRupForecast
        else {
          //fault2
          faultTrace = new FaultTrace(FAULT2_NAME);
-         faultTrace.addLocation((Location)fault2_LOCATION1.clone());
-         faultTrace.addLocation((Location)fault2_LOCATION2.clone());
+         faultTrace.addLocation((Location)fault_LOCATION1.clone());
+         faultTrace.addLocation((Location)fault_LOCATION2.clone());
          //make the fault data
          faultData= new SimpleFaultData(dipValue,
               LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH2,faultTrace);
@@ -219,10 +207,11 @@ public class PEER_FaultForecast extends EqkRupForecast
 
        GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
-       if(D) System.out.println(S+"Columns in surface:"+surface.getNumCols());
-       if(D) System.out.println(S+"Rows in surface:"+surface.getNumRows());
-
-       if(D) System.out.println(S+"MagLenthSIgma:"+lengthSigmaParam.getValue());
+       if(D) {
+         System.out.println(S+"Columns in surface:"+surface.getNumCols());
+         System.out.println(S+"Rows in surface:"+surface.getNumRows());
+         System.out.println(S+"MagLenthSIgma:"+lengthSigmaParam.getValue());
+       }
 
        // Now make the source
        source = new  PEER_FaultSource((IncrementalMagFreqDist)magDistParam.getValue(),
@@ -233,18 +222,19 @@ public class PEER_FaultForecast extends EqkRupForecast
                                         ((Double)lengthSigmaParam.getValue()).doubleValue() );
      }
      parameterChangeFlag = false;
+
    }
 
 
 
 
    /**
-    * Return the earhthquake source at index i. This methos returns the reference to
-    * the class variable. So, when you call this method again, result from previous
-    * method call is no longer valid.
-    * this is  fast but dangerous method
+    * Return the earhthquake source at index i.   Note that this returns a
+    * pointer to the source held internally, so that if any parameters
+    * are changed, and this method is called again, the source obtained
+    * by any previous call to this method will no longer be valid.
     *
-    * @param iSource : index of the source needed
+    * @param iSource : index of the desired source (only "0" allowed here).
     *
     * @return Returns the ProbEqkSource at index i
     *
@@ -252,15 +242,15 @@ public class PEER_FaultForecast extends EqkRupForecast
    public ProbEqkSource getSource(int iSource) {
 
      // we have only one source
-   if(iSource!=0)
-     throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
+    if(iSource!=0)
+      throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
 
     return source;
    }
 
 
    /**
-    * Get the number of earthquake sources
+    * Returns the number of earthquake sources (always "1" here)
     *
     * @return integer value specifying the number of earthquake sources
     */
@@ -270,9 +260,7 @@ public class PEER_FaultForecast extends EqkRupForecast
 
 
     /**
-     *  Clone is returned.
-     * All the 3 different Vector source List are combined into the one Vector list
-     * So, list can be save in Vector and this object subsequently destroyed
+     *  This returns a list of sources (contains only one here)
      *
      * @return Vector of Prob Earthquake sources
      */

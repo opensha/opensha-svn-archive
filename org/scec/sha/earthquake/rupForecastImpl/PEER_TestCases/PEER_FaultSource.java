@@ -31,9 +31,11 @@ public class PEER_FaultSource extends ProbEqkSource {
   //for Debug purposes
   private static String  C = new String("PEER Fault Source");
   private boolean D = false;
+
   //name for this classs
   public final static String  NAME = C;
 
+  // private variables
   private double rake;
   private double timeSpan;
   private double rupOffset;
@@ -47,10 +49,12 @@ public class PEER_FaultSource extends ProbEqkSource {
 
   /**
    *
-   * @param magDist= It the object of the selected MagDist class
-   * @param rake
-   * @param offsetSpacing
-   * @param faultSurface := Fault Surface
+   * @param magDist - any incremental mag. freq. dist. object
+   * @param rake - average rake of the fault
+   * @param offsetSpacing - amount of offset for floating ruptures
+   * @param faultSurface - EvenlyGriddedSurface representation of the fault surface
+   * @param timeSpan - the timeSpan of interest in years (this is a Poissonian source)
+   * @param magLenSigme - uncertainty of the magnitude-length relationship
    */
   public PEER_FaultSource(IncrementalMagFreqDist magDist,double rake,
                            double offsetSpacing,
@@ -70,7 +74,7 @@ public class PEER_FaultSource extends ProbEqkSource {
 
 
   /**
-   * This method makes the rupture list
+   * This method makes the list of rupture for this souce
    */
   private void mkRuptureList() {
 
@@ -91,7 +95,9 @@ public class PEER_FaultSource extends ProbEqkSource {
     // The magLenSigma=0 case:
     if(magLenSigma == 0.0) {
         for(int i=0;i<numMags;++i){
+            // get the magnitude
             mag = magDist.getX(i);
+
             // make sure it has a non-zero rate & the mag is >= 5.0
             if(magDist.getY(i) > 0 && mag >= 5.0) {
               rupLen = Math.pow(10,mag/2-1.85);
@@ -202,16 +208,13 @@ public class PEER_FaultSource extends ProbEqkSource {
   }
 
   /**
-   * this functions sums up all the ruptures for all magnitudes
    * @return the total num of rutures for all magnitudes
    */
   public int getNumRuptures() { return ruptureList.size(); }
 
 
   /**
-   * This method sets the probability of the different rupture surface for different mag
-   * @param nthRupture : it is to find the mag and rate to which that rupture number correspond
-   * @return the object of the ProbEqkRupture class after setting the probability
+   * This method returns the nth Rupture in the list
    */
   public ProbEqkRupture getRupture(int nthRupture){ return (ProbEqkRupture) ruptureList.get(nthRupture); }
 

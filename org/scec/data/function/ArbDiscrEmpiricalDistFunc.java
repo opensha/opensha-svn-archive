@@ -187,11 +187,12 @@ public static void main( String[] args ) {
   System.out.println("0.75: " + cumFunc.getFirstInterpolatedX(0.75));
 
   System.out.println("\nFractiles from method:");
+  System.out.println("0.0: " + func.getFractile(0.0));
   System.out.println("0.05: " + func.getFractile(0.05));
   System.out.println("0.25: " + func.getFractile(0.25));
   System.out.println("0.5: " + func.getFractile(0.5));
   System.out.println("0.75: " + func.getFractile(0.75));
-  System.out.println("0.0: " + func.getFractile(0.0));
+  System.out.println("1.0: " + func.getFractile(1.0));
 
 }
 
