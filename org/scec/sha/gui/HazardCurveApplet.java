@@ -844,6 +844,7 @@ public class HazardCurveApplet extends JApplet
    * @param arb
    */
   private void initDiscretizeValues(ArbitrarilyDiscretizedFunc arb){
+
     arb.set(.001,1);
     arb.set(.01,1);
     arb.set(.05,1);
@@ -905,9 +906,12 @@ public class HazardCurveApplet extends JApplet
 
     // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
+   // initialize the values in condProbfunc with log values as passed in hazFunction
+   ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
+   initCondProbFunc(hazFunction, condProbFunc);
    try {
      // calculate the hazard curve
-     calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
+     calc.getHazardCurve(condProbFunc,hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
      hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
@@ -965,13 +969,18 @@ public class HazardCurveApplet extends JApplet
    totalProbFuncs.clear();
    // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
+
+   // intialize the hazard function
+   initDiscretizeValues(hazFunction);
+   // initialize the values in condProbfunc with log values as passed in hazFunction
+   ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
+   initCondProbFunc(hazFunction, condProbFunc);
+
    // calculate hazard curve for each ERF within the list
    for(int i=0; i<numERFs; ++i) {
-      // intialize the hazard function
-     initDiscretizeValues(hazFunction);
      try {
        // calculate the hazard curve
-       calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+       calc.getHazardCurve(condProbFunc,hazFunction, site, imr, erfList.getERF(i));
        hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
      }catch (RuntimeException e) {
        JOptionPane.showMessageDialog(this, e.getMessage(),
@@ -1170,6 +1179,25 @@ public class HazardCurveApplet extends JApplet
     axisControlPanel.pack();
     axisControlPanel.show();
   }
+
+
+
+  /**
+   * set x values in log space for condition Prob function to be passed to IMR
+   * It accepts 2 parameters
+   *
+   * @param originalFunc :  this is the function with X values set
+   * @param logFunc : this is the functin in which log X values are set
+   */
+  private void initCondProbFunc(DiscretizedFuncAPI originalFunc,
+                                DiscretizedFuncAPI logFunc){
+
+    int numPoints = originalFunc.getNum();
+    for(int i=0; i<numPoints; ++i)
+      logFunc.set(Math.log(originalFunc.getX(i)), 1);
+  }
+
+
 
 }
 

@@ -7,11 +7,10 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <p>Title: CalcProgressBar</p>
+ * <p>Description:Shows the Progrss Bar for the calculations</p>
+ * @author: Nitin Gupta & Vipin Gupta
+ * @created: March 10, 2003
  * @version 1.0
  */
 
@@ -38,6 +37,8 @@ public class CalcProgressBar extends JProgressBar {
     //progress frame title
     frameMessage=frameMsg;
     this.labelMsg=labelMsg;
+     // initiliaze the progress bar frame in which to show progress bar
+    initProgressFrame();
   }
 
   /**
@@ -129,6 +130,12 @@ public class CalcProgressBar extends JProgressBar {
     // update the progress bar
     if(update == true)
       updateProgressBar(val,Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
+  }
+
+  public void showProgress(boolean flag){
+    this.setVisible(flag);
+    if(flag==false)
+      this.frame.dispose();
   }
 
 

@@ -55,22 +55,22 @@ public class HazardCurveCalculator {
   /**
    * this function determines the hazard curve based on the parameters
    *
-   * @param func : it has X values set and result will be returned in this function
+   * @param condProbFunc: it has the X values in log becuase IMR takes the input of X values in Log
+   * to calculate the Probablity of Exceedance
+   * @param hazFunction : it has X values set and result will be returned in this function
    * @param site  : site parameter
    * @param imr  :selected IMR object
    * @param eqkRupForecast  : selected Earthquake rup forecast
    * @return
    */
-  public void getHazardCurve(DiscretizedFuncAPI hazFunction,
+  public void getHazardCurve(ArbitrarilyDiscretizedFunc condProbFunc,DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
     progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
-    // initiliaze the progress bar frame in which to show progress bar
-    progressClass.initProgressFrame();
 
     // now show the progress bar
     progressClass.displayProgressBar();
-
+    this.initDiscretizeValues(hazFunction);
 
     try {
       // set the site in IMR
@@ -82,7 +82,7 @@ public class HazardCurveCalculator {
 
     // get total sources
     int numSources = eqkRupForecast.getNumSources();
-    ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
+
 
     // totRuptures holds the total ruptures for all sources
     int totRuptures = 0;
@@ -126,8 +126,7 @@ public class HazardCurveCalculator {
         // for each rupture, set in IMR and do computation
         double qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
 
-        // initialize the values in condProbfunc with log values as passed in hazFunction
-        initCondProbFunc(hazFunction, condProbFunc);
+
         try {
           imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
         } catch (Exception ex) {
@@ -159,25 +158,17 @@ public class HazardCurveCalculator {
   }
 
 
-
-
-
-
-
   /**
-   * set x values in log space for condition Prob function to be passed to IMR
-   * It accepts 2 parameters
+   * Initialize the prob as 1 for the Hazard function
    *
-   * @param originalFunc :  this is the function with X values set
-   * @param logFunc : this is the functin in which log X values are set
+   * @param arb
    */
-  private void initCondProbFunc(DiscretizedFuncAPI originalFunc,
-                                DiscretizedFuncAPI logFunc){
-
-    int numPoints = originalFunc.getNum();
-    for(int i=0; i<numPoints; ++i)
-      logFunc.set(Math.log(originalFunc.getX(i)), 1);
+  private void initDiscretizeValues(DiscretizedFuncAPI arb){
+    for(int i=0;i<arb.getNum();++i)
+      arb.set(i,1);
   }
+
+
 
 }
 

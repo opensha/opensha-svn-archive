@@ -62,16 +62,19 @@ public class HazardMapCalculator {
   }
 
   /**
-   * this function determines the hazard curve based on the parameters
-   *
-   * @param func : it has X values set and result will be returned in this function
-   * @param griddedSites  : Sites in the Gridded Region
-   * @param imr  :selected IMR object
-   * @param eqkRupForecast  : selected Earthquake rup forecast
-   * @return
+     * this function determines the hazard curve based on the parameters
+     *
+     * @param condProbFunc: it has the X values in log becuase IMR takes the input of X values in Log
+     * to calculate the Probablity of Exceedance
+     * @param hazFunction : it has X values set and result will be returned in this function
+     * @param site  : site parameter
+     * @param imr  :selected IMR object
+     * @param eqkRupForecast  : selected Earthquake rup forecast
+     * @return
    */
-  public void getHazardMapCurves(DiscretizedFuncAPI hazFunction,
-                                 SitesInGriddedRegion griddedSites, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
+  public void getHazardMapCurves(ArbitrarilyDiscretizedFunc condProbFunc,DiscretizedFuncAPI hazFunction,
+                                 SitesInGriddedRegion griddedSites, AttenuationRelationshipAPI imr,
+                                 EqkRupForecast eqkRupForecast) {
 
     Site site;
     HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
@@ -83,7 +86,7 @@ public class HazardMapCalculator {
       int numPoints=hazFunction.getNum();
       for(int i=0;i<numPoints;i++)
         hazFunction.set(i,1.0);
-      hazCurveCalc.getHazardCurve(hazFunction,site,imr,eqkRupForecast);
+      hazCurveCalc.getHazardCurve(condProbFunc,hazFunction,site,imr,eqkRupForecast);
       String lat = decimalFormat.format(site.getLocation().getLatitude());
       String lon = decimalFormat.format(site.getLocation().getLongitude());
 

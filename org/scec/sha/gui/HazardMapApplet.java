@@ -574,14 +574,16 @@ public class HazardMapApplet extends JApplet implements
 
     // calculate the hazard curve
    HazardMapCalculator calc = new HazardMapCalculator();
+
+   // initialize the values in condProbfunc with log values as passed in hazFunction
+   ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
+   initCondProbFunc(hazFunction, condProbFunc);
    try {
 
      SitesInGriddedRegion griddedRegionSites = griddedRegionGuiBean.getGriddedRegionSite();
      // calculate the hazard curve for each site
-
-
-       calc.getHazardMapCurves(hazFunction,griddedRegionSites , imr, eqkRupForecast);
-       //hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+     calc.getHazardMapCurves(condProbFunc,hazFunction,griddedRegionSites , imr, eqkRupForecast);
+     //hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -608,5 +610,21 @@ public class HazardMapApplet extends JApplet implements
         "IMT Param List: "+imtGuiBean.getParameterList().toString()+"\n"+
         "Forecast Param List: "+erfGuiBean.getParameterList().toString();
   }
+
+  /**
+   * set x values in log space for condition Prob function to be passed to IMR
+   * It accepts 2 parameters
+   *
+   * @param originalFunc :  this is the function with X values set
+   * @param logFunc : this is the functin in which log X values are set
+   */
+  private void initCondProbFunc(DiscretizedFuncAPI originalFunc,
+                                DiscretizedFuncAPI logFunc){
+
+    int numPoints = originalFunc.getNum();
+    for(int i=0; i<numPoints; ++i)
+      logFunc.set(Math.log(originalFunc.getX(i)), 1);
+  }
+
 
 }

@@ -192,7 +192,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
 
 
   /**
-   * get the site object from the site params
+   * gets the iterator of all the sites
    *
    * @return
    */
@@ -301,7 +301,9 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
 
 
    /**
-    * This method returns the Vector of the gridded region sites
+    * This method creates the gridded region with the min -max Lat and Lon
+    * It also checks if the Max Lat is less than Min Lat and
+    * Max Lat is Less than Min Lonb then it throws an exception.
     * @return
     */
    private void createAndUpdateSites(){
