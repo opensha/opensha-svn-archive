@@ -471,12 +471,11 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
        latMin.doubleValue()<this.MIN_CVM_LAT ||
        latMax.doubleValue()>this.MAX_CVM_LAT) {
 
-      JOptionPane.showMessageDialog(this, "CVM can not get params for this site\n"+
+        throw new RuntimeException("CVM can not get params for this site\n"+
                                     "Constraints are:\n "+
                                     MIN_CVM_LON+" < Longitude < "+MAX_CVM_LON +"\n"+
                                     MIN_CVM_LAT+" < Latitude < "+MAX_CVM_LAT);
 
-      return;
     }
 
     // if values in longitude and latitude are invalid
@@ -486,7 +485,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     }
     getVS30FromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
     getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
-
   }
 
 
@@ -530,7 +528,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
       //vectors of lat and lon for the Vs30
       vs30Vector=(Vector)ois.readObject();
       ois.close();
-      JOptionPane.showMessageDialog(this,"We have got the Basin Depth from SCEC CVM");
+      JOptionPane.showMessageDialog(this,"We have got the Vs30 from SCEC CVM");
 
     }catch (NumberFormatException ex) {
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
@@ -583,7 +581,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
       Vector bdlonVector=(Vector)ois.readObject();
       basinDepthVector=(Vector)ois.readObject();
       ois.close();
-      JOptionPane.showMessageDialog(this,"We have got the Vs30 from SCEC CVM");
+      JOptionPane.showMessageDialog(this,"We have got the BasinDepth from SCEC CVM");
 
     }catch (NumberFormatException ex) {
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");

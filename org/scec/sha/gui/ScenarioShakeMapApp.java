@@ -433,7 +433,13 @@ public class ScenarioShakeMapApp extends JApplet implements
     boolean probAtIML=false;
     double imlProbValue=imlProbGuiBean.getIML_Prob();
     Site site;
-    SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+    SitesInGriddedRegion griddedRegionSites;
+    try {
+      griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+    }catch(Exception e) {
+      JOptionPane.showMessageDialog(this,e.getMessage());
+      return;
+    }
     int numSites = griddedRegionSites.getNumGridLocs();
     String imlOrProb=imlProbGuiBean.getSelectedOption();
     if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
@@ -456,6 +462,7 @@ public class ScenarioShakeMapApp extends JApplet implements
     Vector siteValue = new Vector();
     for(int i=0;i<numSites;++i){
       site = griddedRegionSites.getSite(i);
+
       siteLat.add(new Double(site.getLocation().getLatitude()));
       siteLon.add(new Double(site.getLocation().getLongitude()));
       imr.setSite(site);
