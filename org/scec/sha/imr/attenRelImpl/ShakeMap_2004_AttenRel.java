@@ -16,30 +16,59 @@ import org.scec.calc.GaussianDistCalc;
 import org.scec.util.*;
 
 /**
- * <b>Title:</b> ShakeMap_2003_AttenRel<p>
+ * <b>Title:</b> ShakeMap_2004_AttenRel<p>
  *
- * <b>Description:</b> This implements the Attenuation Relationship used
- * by . <p>
+ * <b>Description:</b> This attenuation relationship computes a mean IML, exceedance
+ * probabilty at IML, or IML at exceedance probability that represents an average over
+ * 3-4 previously published relationships (the ones used for California in the 2002
+ * National Seismic Hazard Maps; these are listed below).  For each relationship,
+ * the predicted rock-site mean is multiplied by Borcherdt's nonlinear amplification
+ * factor (1994, Earthquake Spectra, Vol. 10, No. 4, 617-653) as given in equation
+ * 7a or 7b of the appendix with a reference velocity of 760 m/sec ( and with the
+ * mv and ma coefficients linearly interpolated at intermediate input ground motions).
+ * That is, the original site effect model of each relationship is not used.  The
+ * averaging is performed after the site-depenent value for each relationship is
+ * computed.  The exceedance probabilities are log-averaged, whereas the other two
+ * (mean and IML at prob.) are linearly averaged because they are already in log domain.<p>
  *
  * Supported Intensity-Measure Parameters:
  * <UL>
- * <LI>pgaParam - Peak Ground Acceleration
- * <LI>SAParam  - Spectral Acceleration at 0.0, 0.1, 0.2 0.3, 0.4, 0.5, 0.75 1.0, 1.5, 2.0, 3.0, and 4.0 second periods
- * <LI>pgvParam - Peak Ground Velocity (computed from 1-sec SA using the Newmark-Hall (1982) scalar)
- * <LI>mmiParam - Modified Mercalli Intensity computed from PGA and PGV as in Wald et al. (1999, Earthquake Spectra)
+ * <LI>Peak Ground Acceleration (PGA)
+ * <LI>Spectral Acceleration (SA) at the following periods (seconds): 0.0, 0.1, 0.2 0.3, 0.4, 0.5, 0.75 1.0, 1.5, 2.0, 3.0, and 4.0
+ * <LI>Peak Ground Velocity (PGV) - computed from 1-sec SA using the Newmark-Hall (1982) scalar
+ * <LI>Modified Mercalli Intensity (MMI) computed from PGA and PGV as in Wald et al. (1999, Earthquake Spectra)
  * </UL><p>
- * Other Independent Parameters:
+ *
+ * Attenuation Relationships used for the average:
  * <UL>
- * <LI>vs30Param - The site classes used in the Wills et al. (2000) map
- * <LI>componentParam - Component of shaking
- * <LI>stdDevTypeParam - The type of standard deviation
+ * <LI>Abrahamson & Silva (1997) with site type "Rock/Shallow-Soil"
+ * <LI>Boore, Joyner & Fumal (1997) with Vs30 = 760 m/sec
+ * <LI>Sadigh et al (1997) with site type "Rock"
+ * <LI>Campbell and Bozorgnia (2003) with site type "BC_Boundary"
+ * </UL><p>
+ * Independent Parameters:
+ * <UL>
+ * <LI>vs30Param - The average 30-meter shear-wave velocity (m/sec)
+ * <LI>componentParam - Component of shaking (either "Average Horizontal" or "Greater of Two Horz.")
+ * <LI>stdDevTypeParam - The type of standard deviation (either "Total" or "None (zero)")
  * </UL><p>
  * Important Notes:
  * <UL>
+ * For the one relationship that has a site-type dependent standard deviation
+ * (Sadigh et al., 1997) only the rock-site value is used (the difference is minor). <p>
+ * The Boore, Joyner & Fumal (1997) relationship is not included in the average for SA periods
+ * above 2.0 seconds. <p>
+ * For Boore, Joyner & Fumal (1997) the component is set as "Random Horizontal"
+ * (rather than "Average Horizontal") to be consistent with how this was set in the
+ * 2002 National Seismic Hazard Maps.  All others were set as "Average Horizontal". <p>
+ * For Campbell and Bozorgnia (2003) the magnitude dependent standard deviation is used. <p>
  * This class supports a "Greater of Two Horz." component by multiplying the average horizontal
  * component  median by a factor of 1.15.  This value was taken directly from the official ShakeMap
  * documentation.  The standard deviation for this component is set the same as the average
  * horizontal (not sure if this is correct).  <p>
+ * </UL><p>
+ * Developer Notes:
+ * <UL>
  * Regarding the Modified Mercalli Intensity (MMI) IMT, note that what is returned by
  * the getMean() method is the natural-log of MMI.  Although this is not technically
  * correct (since MMI is not log-normally distributed), it was the easiest way to implement
@@ -49,9 +78,21 @@ import org.scec.util.*;
  * is thrown if one tries any of these when the chosen IMT is MMI.  We can relax this when
  * someone comes up with the probability distribution (which can't be Gaussian because
  * MMI values below 1 and above 10 are not allowed).<p>
+ * Several methods for this class have been overridden to throw Runtime Exceptions, either because
+ * it was not clear what to return or because the info is complicated and not necessarily useful.
+ * For example, it's not clear what to return from getStdDev(); one could return the
+ * average but nothing actually uses such an average (the probability of exceedance calculation
+ * uses the mean/stdDev for each relationship separately).  Another example is what to return
+ * from the getPropagationEffectParamsIterator - all of the three distance measures
+ * used by the relationships? - this would lead to confusion and possible inconsistencies
+ * in the AttenuationRelationshipApplet.  The bottom line is we've maintained the
+ * IntensityMeasureRelationshipAPI, but not the AttenuationRelationshipAPI (so this
+ * relationship cannot be added to the AttenuationRelationshipApplet).  This class could
+ * simply be a subclass of IntensityMeasureRelationship.  however, it's not because it
+ * uses some of the private methods of AttenuationRelationship. <p>
  *
  * @author     Edward H. Field
- * @created    April, 2003
+ * @created    May, 2004
  * @version    1.0
  */
 
@@ -184,7 +225,7 @@ public class ShakeMap_2004_AttenRel
 
 
     /**
-     *  This sets the site-related parameter (willsSiteParam) based on what is in
+     *  This sets the site-related parameter (vs30Param) based on what is in
      *  the Site object passed in (the Site object must have a parameter with
      *  the same name as that in willsSiteParam).  This also sets the internally held
      *  Site object as that passed in.
@@ -196,7 +237,7 @@ public class ShakeMap_2004_AttenRel
     public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
 
 
-        // This will throw a parameter exception if the Wills Param doesn't exist
+        // This will throw a parameter exception if the Param doesn't exist
         // in the Site object
 
         ParameterAPI vs30 = site.getParameter( this.VS30_NAME );
@@ -232,7 +273,7 @@ public class ShakeMap_2004_AttenRel
 
       vs30 = ((Double) vs30Param.getValue()).doubleValue();
 
-      String imt = (String) im.getValue();
+      String imt = (String) im.getName();
       double per = ((Double) periodParam.getValue()).doubleValue();
       double mean = 0;
       if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
@@ -248,7 +289,6 @@ public class ShakeMap_2004_AttenRel
         mean += getMean(scemy_1997_attenRel);
         return mean/4.0;
       }
-
     }
 
     /**
@@ -259,6 +299,12 @@ public class ShakeMap_2004_AttenRel
      */
     private double getExceedProbability(AttenuationRelationship attenRel) {
 
+      double mean = getMean(attenRel);
+      double stdDev = getStdDev(attenRel);
+      double iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
+      return getExceedProbability(mean, stdDev, iml);
+
+/*
       double ave_bc, pga_bc, amp, stdDev, mean;
       double as_prob, sa_prob, bjf_prob, cb_prob;
 
@@ -300,6 +346,7 @@ public class ShakeMap_2004_AttenRel
       }
 
       return getExceedProbability(mean, stdDev, iml);
+*/
     }
 
     /**
@@ -312,7 +359,19 @@ public class ShakeMap_2004_AttenRel
      * @return
      */
     private double getStdDev(AttenuationRelationship attenRel) {
-      attenRel.setIntensityMeasure(im);
+
+      String imt = im.getName();
+      if(imt.equals(MMI_NAME)) {
+        throw new RuntimeException(MMI_ERROR_STRING);
+      }
+      else if (imt.equals(PGV_NAME)) {
+        periodParam.setValue(new Double(1.0));
+        attenRel.setIntensityMeasure(saParam);
+      }
+      else {
+        attenRel.setIntensityMeasure(im);
+      }
+
       return attenRel.getStdDev();
     }
 
@@ -334,7 +393,7 @@ public class ShakeMap_2004_AttenRel
         attenRel.setIntensityMeasure(im);
         pga_bc = attenRel.getMean();
         amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
-        return pga_bc + Math.log(amp);
+        mean = pga_bc + Math.log(amp);
       }
       else if (imt.equals(SA_NAME)) {
         attenRel.setIntensityMeasure(im);
@@ -346,7 +405,7 @@ public class ShakeMap_2004_AttenRel
           amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
         else
           amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
-        return ave_bc + Math.log(amp);
+        mean = ave_bc + Math.log(amp);
       }
       else if (imt.equals(PGV_NAME)) {
         periodParam.setValue(new Double(1.0));
@@ -355,7 +414,7 @@ public class ShakeMap_2004_AttenRel
         attenRel.setIntensityMeasure(pgaParam);
         pga_bc = attenRel.getMean();
         amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
-        return ave_bc + Math.log(amp) + Math.log(37.27*2.54);  // last term is the PGV conversion
+        mean = ave_bc + Math.log(amp) + Math.log(37.27*2.54);  // last term is the PGV conversion
       }
       else { // it must be MMI
         periodParam.setValue(new Double(1.0));
@@ -368,8 +427,16 @@ public class ShakeMap_2004_AttenRel
         amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
         double pga = pga_bc + Math.log(amp);
         double mmi = Wald_MMI_Calc.getMMI(Math.exp(pga),Math.exp(pgv));
-        return Math.log(mmi);
+        mean = Math.log(mmi);
       }
+
+      // correct for component if necessary
+      String comp = (String) componentParam.getValue();
+      if(comp.equals(COMPONENT_GREATER_OF_TWO_HORZ))
+        mean += 0.139762;        // add ln(1.15)
+
+      return mean;
+
     }
 
 
@@ -380,6 +447,7 @@ public class ShakeMap_2004_AttenRel
 
       // set the stdDevTypes
       String stdTyp = (String) stdDevTypeParam.getValue();
+
       as_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
       scemy_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
       bjf_1997_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(stdTyp);
@@ -436,14 +504,14 @@ public class ShakeMap_2004_AttenRel
             ave_iml += getMean(as_1997_attenRel)+stRndVar*getStdDev(as_1997_attenRel);
             ave_iml += getMean(scemy_1997_attenRel)+stRndVar*getStdDev(scemy_1997_attenRel);
             ave_iml += getMean(cb_2003_attenRel)+stRndVar*getStdDev(cb_2003_attenRel);
-            return Math.exp(ave_iml/3.0);
+            return ave_iml/3.0;
           }
           else {
             ave_iml += getMean(as_1997_attenRel)+stRndVar*getStdDev(as_1997_attenRel);
             ave_iml += getMean(scemy_1997_attenRel)+stRndVar*getStdDev(scemy_1997_attenRel);
             ave_iml += getMean(bjf_1997_attenRel)+stRndVar*getStdDev(bjf_1997_attenRel);
             ave_iml += getMean(cb_2003_attenRel)+stRndVar*getStdDev(cb_2003_attenRel);
-            return Math.exp(ave_iml/4.0);
+            return ave_iml/4.0;
           }
         }
     }
@@ -478,7 +546,7 @@ public class ShakeMap_2004_AttenRel
       // set the standard deviation types
       setAttenRelsStdDevTypes();
 
-      String imt = (String) im.getValue();
+      String imt = (String) im.getName();
       double per = ((Double) periodParam.getValue()).doubleValue();
       double prob = 0;
       if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
@@ -565,8 +633,8 @@ public class ShakeMap_2004_AttenRel
         exceedProbIndependentParams.addParameter( vs30Param );
         exceedProbIndependentParams.addParameter( componentParam );
         exceedProbIndependentParams.addParameter(stdDevTypeParam);
-        exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
-        exceedProbIndependentParams.addParameter(this.sigmaTruncLevelParam);
+        exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
+        exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
 
         // params that the IML at exceed. prob. depends upon
         imlAtExceedProbIndependentParams.addParameterList(exceedProbIndependentParams);
@@ -583,21 +651,7 @@ public class ShakeMap_2004_AttenRel
 
         // create willsSiteType Parameter:
         super.initSiteParams();
-/*
-        // create and add the warning constraint:
-        ArrayList willsSiteTypes = new ArrayList();
-        willsSiteTypes.add(WILLS_SITE_B);
-        willsSiteTypes.add(WILLS_SITE_BC);
-        willsSiteTypes.add(WILLS_SITE_C);
-        willsSiteTypes.add(WILLS_SITE_CD);
-        willsSiteTypes.add(WILLS_SITE_D);
-        willsSiteTypes.add(WILLS_SITE_DE);
-        willsSiteTypes.add(WILLS_SITE_E);
 
-        willsSiteParam = new StringParameter(WILLS_SITE_NAME,willsSiteTypes,WILLS_SITE_DEFAULT);
-        willsSiteParam.setInfo( WILLS_SITE_INFO );
-        willsSiteParam.setNonEditable();
-*/
         // create vs30 Parameter:
         DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
         warn.setNonEditable();
@@ -605,12 +659,9 @@ public class ShakeMap_2004_AttenRel
         vs30Param.addParameterChangeWarningListener( warningListener );
         vs30Param.setNonEditable();
 
-
-
         // add it to the siteParams list:
         siteParams.clear();
         siteParams.addParameter( vs30Param );
-
     }
 
 
@@ -621,15 +672,14 @@ public class ShakeMap_2004_AttenRel
     }
 
     /**
-     *  Creates the single Propagation Effect parameter and adds it to the
-     *  propagationEffectParams list. Makes the parameters noneditable.
+     *  This does nothing
      */
     protected void initPropagationEffectParams( ) {
     }
 
 
     /**
-     *  Creates the two supported IM parameters (PGA and SA), as well as the
+     *  Creates the supported IM parameters (PGA, PGV, MMI and SA), as well as the
      *  independenParameters of SA (periodParam and dampingParam) and adds
      *  them to the supportedIMParams list. Makes the parameters noneditable.
      */
@@ -742,24 +792,6 @@ public class ShakeMap_2004_AttenRel
     public String getName() {
        return NAME;
     }
-
-
-
-
-    /**
-     *  <b>Title:</b> BJF_1997_AttenRelCoefficients<br>
-     *  <b>Description:</b> This class encapsulates all the
-     *  coefficients needed to calculate the Mean and StdDev for
-     *  the BJF_1997_AttenRel.  One instance of this class holds the set of
-     *  coefficients for each period (one row of their table 8).<br>
-     *  <b>Copyright:</b> Copyright (c) 2001 <br>
-     *  <b>Company:</b> <br>
-     *
-     *
-     * @author     Steven W Rock
-     * @created    February 27, 2002
-     * @version    1.0
-     */
 
 
     // this method, required by the API, does nothing here (it's not needed).

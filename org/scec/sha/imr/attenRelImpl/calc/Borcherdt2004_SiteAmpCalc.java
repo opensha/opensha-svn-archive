@@ -3,10 +3,11 @@
  import org.scec.data.function.EvenlyDiscretizedFunc;
 
 /**
- * <p>Title: Wald_MMI_Calc </p>
+ * <p>Title: Borcherdt2004_SiteAmpCalc </p>
  * <b>Description:</b> This computes amplification factors using equations
  * 7a and 7b in the Appendix of Borecherdt (1994, Earthquake Spectra, Vol. 10,
- * No. 4, 617-653).
+ * No. 4, 617-653).  Note that the ma and mv coefficients are linearly interpolated
+ * at intermediate input ground motions (PGA).
  *
  * @author Ned Field
  * @created    May, 2004
