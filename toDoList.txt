@@ -1,58 +1,21 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-
-For the SCEC-ITR CME:
----------------------
-
-Implement retrieval of Primary Key in DAO Insert metdhods as a JDBC Transaction.
-
-CVS Cleanup
-  Make CMEDB module accessible on SunOne Module List by
-    - backup up directory
-    - export files
-    - using CVS command line interface
-         add module to repository
-         import CMEDB file
-
-Create a SCEC-URI generator function.
-
-Create User Main Screen that says"
-  "Create Resource"
-  "View Resource"
-  "Status of Resource"
-
-Construct "Create Resource" Input Pages
-  - Create "Construct Gridded Region" Page.
-  - Create "Construct IMR" Page.
-  - Create "Construct ERM" Page.
-
-Create Server Version of HazardMapCalculator that accepts as inputs
-   String URL's to "resources" only, and URI to ResourceInstanceID.
-   - Write JUnit test to show this version of HazardMapCalculator runs.
-
-Create WebService Interface to this HazardMapCalculator program.
-  - Use One-Way RPC to implement non-blocking calls to the HazardMapCalculator Program.
-  - Talk with Deepak about deploying this service. He has made good progress on Web Service
-     deployment.
-
-GMT_MapGenerator - implement this as a webService so we one doesn't need GMT installed (also implement as a web service and compare performance). NOTE: this is already implemented as a servlet.
-
-SHA ProjectTestSuite : 24 Tests
-
-GMT Web service:
-
-	Takes script and data and generates ps and jpg files that can be accessed.
-
-	Figure out how to get the data into the service.
+Implement following ERFs as web services: WG02 (wrapped), USGS/CGS1996, and STEP.
 
 
+Implement STEP-map maker (adds USGS/CGS1995 hazard map dataset to the STEP hazard map dataset).  This will use Shakemap IMR w/ IMT=PGA; will use site type from CVM, and will plot prob@IML=0.126 g.  Duration is 1 day (0.002738 years).
 
-For OpenSHA:
-------------
 
-Ned - review GMT web service implementation.
+Update the makeMapUsingServer() method of the GMT_MapGenerator:
 
+	(we want this for applet based map making where local files can't be created)
+
+	change name to makeMapUsingServlet()
+
+	make functionality consistent with web service
+
+SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
 
 Develop HazardSpectrumApplet for Caltrans.  This is like the hazard curve calculator except:
 
