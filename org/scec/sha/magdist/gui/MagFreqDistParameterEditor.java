@@ -222,10 +222,11 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
 
         // Build package names search path
-       searchPaths = new String[3];
+       searchPaths = new String[4];
        searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
        searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
        searchPaths[2] = "org.scec.sha.magdist.gui" ;
+       searchPaths[3] = "org.scec.sha.fault.parameter.gui" ;
     }
 
     /**
