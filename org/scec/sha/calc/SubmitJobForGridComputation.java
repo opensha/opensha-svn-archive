@@ -262,7 +262,7 @@ public class SubmitJobForGridComputation {
       String localPathtoMetadataFile = dataFiles+HazardMapCalcServlet.METADATA_FILE_NAME;
       String remotePathToMetadataFile = DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName+
                                         DATA_DIR+HazardMapCalcServlet.METADATA_FILE_NAME;
-      //srb.addMDToCollection(localPathtoMetadataFile,remotePathToMetadataFile,"=");
+      srb.addMDToCollection(localPathtoMetadataFile,remotePathToMetadataFile,"=");
     }
     catch (Exception ex) {
       ex.printStackTrace();
