@@ -170,11 +170,7 @@ public class MagFreqDistTesterApplet extends JApplet
   MagFreqDistParameter magDist = null;
   MagFreqDistParameterEditor magDistEditor;
 
-    /**
-     *  List that contains the lazy instantiation of imrs via reflection and the
-     *  imr full class names
-     */
- // protected MagDistGuiList magDists = new MagDistGuiList();
+  // protected MagDistGuiList magDists = new MagDistGuiList();
 
   /**
    * For 3 different plots we are using the different objects to refer for incrRate Data,
@@ -426,12 +422,11 @@ public class MagFreqDistTesterApplet extends JApplet
     magDist =  new MagFreqDistParameter(MAG_DIST_PARAM_NAME, distNames);
     magDistEditor = new MagFreqDistParameterEditor();
     magDistEditor.setParameter(magDist);
+    // make the magdist param button invisible instead display it as the panel in the window
+    magDistEditor.setMagFreqDistParamButtonVisible(false);
+    ParameterListEditor magDistPanel =  magDistEditor.getMagFreDistParameterEditor();
 
-       // make the update magdist button as invisible
-    magDistEditor.setUpdateButtonVisible(false);
-
-
-    mainSplitPane.setBottomComponent( magDistEditor );
+    mainSplitPane.setBottomComponent( magDistPanel );
     mainSplitPane.setTopComponent( plotPanel );
     mainSplitPane.setDividerLocation(600);
 

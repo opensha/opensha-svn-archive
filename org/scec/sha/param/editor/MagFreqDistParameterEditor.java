@@ -3,7 +3,7 @@ package org.scec.sha.param.editor;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import javax.swing.JButton;
+import javax.swing.*;
 import javax.swing.JOptionPane;
 import javax.swing.BorderFactory;
 import javax.swing.border.*;
@@ -59,8 +59,12 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     private ParameterListEditor editor;
 
      // title of Parameter List Editor
-     public static final String MAG_DIST_TITLE = new String("Mag Dist Params");
-    private JButton button = new JButton("Update MagDist");
+    public static final String MAG_DIST_TITLE = new String("Mag Dist Params");
+
+    //Instance for the framee to show the all parameters in this editor
+    protected JDialog frame;
+
+
     // String Constraints
     private StringConstraint sdFixOptions,  grSetAllButOptions, grFixOptions,
         ycSetAllButOptions, gdSetAllButOptions;
@@ -71,7 +75,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      * Constructor
      */
     public MagFreqDistParameterEditor()  {
-      button.addActionListener(this);
+
     }
 
     public MagFreqDistParameterEditor(ParameterAPI model){
@@ -86,22 +90,19 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
         String S = C + ": Constructor(): ";
         if ( D ) System.out.println( S + "Starting:" );
+
+        valueEditor = new JButton("Set "+param.getName());
+        ((JButton)valueEditor).addActionListener(this);
+        add(valueEditor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
+            , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
         // remove the previous editor
-        removeAll();
+        //removeAll();
         magDistParam = (MagFreqDistParameter) param;
 
         // make the params editor
         initParamListAndEditor();
         editor = new ParameterListEditor(parameterList);
         editor.setTitle(MAG_DIST_TITLE);
-        add(editor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-              , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-        button.setForeground(new Color(80,80,133));
-        button.setBackground(new Color(200,200,230));
-        //Border border = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
-        //button.setBorder(border);
-        add(button,  new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
-                      , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
         // Update which parameters should be invisible
         synchRequiredVisibleParameters();
@@ -111,13 +112,55 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
 
     /**
-     * whether you want the update button to be visible or not
+     * This function is called when the user click for the ParameterListParameterEditor Button
      *
-     * @param visible : If it it true, update button is visible else not visible
-     *   By default it is visible
+     * @param ae
      */
-    public void setUpdateButtonVisible(boolean visible) {
-      button.setVisible(visible);
+    public void actionPerformed(ActionEvent ae ) {
+
+        frame = new JDialog();
+        frame.setModal(true);
+        frame.setSize(300,400);
+        frame.setTitle("Set "+magDistParam.getName());
+        frame.getContentPane().setLayout(new GridBagLayout());
+        frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+
+        //Adding Button to update the forecast
+        JButton button = new JButton();
+        button.setText("Update "+magDistParam.getName());
+        button.setForeground(new Color(80,80,133));
+        button.setBackground(new Color(200,200,230));
+        button.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            button_actionPerformed(e);
+          }
+        });
+        frame.getContentPane().add(button,new GridBagConstraints(0, 2, 1, 1, 0.0,0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+        frame.show();
+        frame.pack();
+  }
+
+    /**
+     * Checks whether you want to show the Mag Freq Dist Param Editor as button or a panel
+     * This function mostly come in handy if instead of displaying this parameter
+     * as the button user wants to show it as the Parameterlist in the panel.
+     * @param visible : If it it true, button is visible else not visible
+     * By default it is visible
+     */
+    public void setMagFreqDistParamButtonVisible(boolean visible) {
+      valueEditor.setVisible(visible);
+    }
+
+    /**
+     * Function that returns the magFreDist Param as a parameterListeditor
+     * so that user can display it as the panel in window rather then
+     * button.
+     * @return
+     */
+    public ParameterListEditor getMagFreDistParameterEditor(){
+      return editor;
     }
 
     /**
@@ -135,11 +178,12 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      *
      * @param ae
      */
-    public void actionPerformed(ActionEvent ae ) {
+    public void button_actionPerformed(ActionEvent e) {
       try{
         setMagDistFromParams();
-      }catch(RuntimeException e){
-        JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
+        frame.dispose();
+      }catch(RuntimeException ee){
+        JOptionPane.showMessageDialog(this,ee.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
       }
     }
 

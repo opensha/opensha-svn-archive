@@ -384,8 +384,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
     //calls the method to make the update MagDist button invisible
     erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setVisible(false);
-    MagFreqDistParameterEditor magDistEditor=erfGuiBean.getMagDistEditor();
-    if(magDistEditor !=null)  magDistEditor.setUpdateButtonVisible(false);
+
     //Panel Parent
     Container parent = this;
     /*This loops over all the parent of this class until the parent is Frame(applet)

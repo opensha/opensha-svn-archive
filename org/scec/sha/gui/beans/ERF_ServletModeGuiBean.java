@@ -148,13 +148,6 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     titledBorder1.setTitle(ERF_PARAM_NAME);
     Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
     panel.setBorder(border1);
-
-    //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
-    //calls the method to make the update MagDist button invisible
-
-    MagFreqDistParameterEditor magDistEditor=getMagDistEditor();
-    if(magDistEditor !=null)  magDistEditor.setUpdateButtonVisible(false);
-
   }
 
 
