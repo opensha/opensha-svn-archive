@@ -6,6 +6,7 @@ import java.util.*;
 import org.scec.sha.gui.servlets.erf.ERF_API;
 import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultSource;
 import org.scec.sha.earthquake.*;
+import org.scec.data.TimeSpan;
 
 
 /**
@@ -24,6 +25,10 @@ public class PEER_FaultERFObject implements ERF_API,java.io.Serializable{
 
   //default class constructor
   public PEER_FaultERFObject() {}
+
+  //timeSpan Object
+
+  private TimeSpan timeSpan;
 
   /**
    * Returns the number of earthquake sources (always "1" here)
@@ -98,6 +103,14 @@ public class PEER_FaultERFObject implements ERF_API,java.io.Serializable{
    */
   public void setSource(PEER_FaultSource src){
     this.source = src;
+  }
+
+  /**
+   * set the TimeSpan in the ERF
+   * @param timeSpan : TimeSpan object
+   */
+  public void setTimeSpan(TimeSpan time) {
+    this.timeSpan=time;
   }
 
 }

@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><!--JBuilder QuickDoc-->
+<HEAD>
+<TITLE>Class org.scec.sha.gui.servlets.erf.WG02_EqkRupForecastServlet</TITLE><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+</HEAD>
+<BODY>
+
+<H2>
+<FONT SIZE="-1">org.scec.sha.gui.servlets.erf</FONT>
+<BR>Class WG02_EqkRupForecastServlet</H2>
+<DL>
+<DT>public class <B>WG02_EqkRupForecastServlet</B><DT>extends HttpServlet<DT>implements ERF_WebServiceAPI
+</DL>
+<DL><DD><p>Title: WG02_EqkRupForecastServlet </p> <p>Description:This servlet generates the fault forecast for the WG02 Eqk Rup Forecast Model </p><DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Version:</B><DD>1.0</DD>
+<DT><B>Author:</B><DD>:Nitin Gupta and Vipin Gupta</DD>
+</DL>
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Field Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>INPUT_FILE_NAME</H3>
+<PRE>
+private static final String <B>INPUT_FILE_NAME</B></PRE>
+<DL><DD>Static variable for input file name<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Method Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>getName</H3>
+<PRE>
+public String <B>getName</B>()</PRE>
+<DL><DD>Return the name for this class<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>: return the name for this class</DD>
+</DL>
+<HR>
+
+<H3>getApplicableRegion</H3>
+<PRE>
+public GeographicRegion <B>getApplicableRegion</B>()</PRE>
+<DL><DD>Get the region for which this forecast is applicable<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>: Geographic region object specifying the applicable region of forecast</DD>
+</DL>
+<HR>
+
+<H3>getAdjustableParams</H3>
+<PRE>
+public ParameterList <B>getAdjustableParams</B>()</PRE>
+<DL><DD>get the adjustable parameters for this forecast<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>null for now</DD>
+</DL>
+<HR>
+
+<H3>isLocWithinApplicableRegion</H3>
+<PRE>
+public boolean <B>isLocWithinApplicableRegion</B>(Location&nbsp;loc)</PRE>
+<DL><DD>This function finds whether a particular location lies in applicable region of the forecast<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>loc</CODE> - : location</DD>
+<DT><B>Returns:</B><DD>True if this location is within forecast's applicable region, else false</DD>
+</DL>
+<HR>
+
+<H3>getERF_API</H3>
+<PRE>
+public ERF_API <B>getERF_API</B>(TimeSpan&nbsp;time,
+                          ParameterList&nbsp;param)</PRE>
+<DL><DD><DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>time</CODE> - : TimeSpan Param</DD>
+<DD><CODE>param</CODE> - :ParameterList param</DD>
+<DT><B>Returns:</B><DD>the object for the EqkRupForecast with updated sources</DD>
+</DL>
+<HR>
+
+<H3>getTimeSpan</H3>
+<PRE>
+public TimeSpan <B>getTimeSpan</B>()</PRE>
+<DL><DD>return the time span object<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>: time span object is returned which contains start time and duration</DD>
+</DL>
+<HR>
+
+</BODY>
+</HTML>

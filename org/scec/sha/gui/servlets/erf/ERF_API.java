@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.earthquake.ProbEqkSource;
+import org.scec.data.TimeSpan;
 
 
 /**
@@ -59,4 +60,10 @@ public interface ERF_API {
    * @returns the ProbEqkRupture object for the ithSource and nth rupture
    */
   public ProbEqkRupture getRupture(int iSource,int nRupture);
+
+  /**
+   * set the TimeSpan in the ERF
+   * @param timeSpan : TimeSpan object
+   */
+  public void setTimeSpan(TimeSpan time);
 }

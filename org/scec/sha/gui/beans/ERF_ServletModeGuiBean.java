@@ -33,7 +33,7 @@ import org.scec.data.TimeSpan;
  */
 
 public class ERF_ServletModeGuiBean extends ParameterListEditor
-    implements ERF_GuiBeanAPI {
+    implements ERF_GuiBeanAPI,TimeSpanChangeListener {
   //this vector saves the names of all the supported Eqk Rup Forecasts
   protected Vector erfNamesVector=new Vector();
 
@@ -47,6 +47,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   public final static String getAdjParams="Forecast Adj Params";
   public final static String getTimeSpan ="TimeSpan";
   public final static String getERF_API= "EqkRupForecast Object";
+  public final static String getERF_ListAPI= "EqkRupForecast List Object";
 
   // boolean for telling whether to show a progress bar
   boolean showProgressBar = true;
@@ -56,6 +57,10 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
 
   //Hashtable where keys corresponds to being as the keys and timeSpan as their Values
   private Hashtable timespanListForAllERF = new Hashtable();
+
+  //Hashtable where keys corresponds to the name of the forecast and value tell if any parameter
+  //for that forecast has been changed
+  private Hashtable parameterChangeFlagsForAllERF = new Hashtable();
 
   /**
    * default constructor
@@ -212,13 +217,18 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     // get the selected forecast model
     String selectedForecast = getSelectedERF_Name();
     ERF_API eqkRupForecast=null;
+
+    //checks if any parameter for the forecast has been changed only then get the
+    //new forecast object from the server
+    if(((Boolean)parameterChangeFlagsForAllERF.get(selectedForecast)).booleanValue()){
     //Based on the selected ERF model it connects to the srevlet for that ERF
     // and gets it ERF Object
-
     //if the selected forecast is PEER_Fault Forecast
     if(selectedForecast.equalsIgnoreCase(PEER_FaultForecast.NAME))
       eqkRupForecast=(ERF_API)this.openPEERFaultConnection(this.getERF_API);
-
+    //changing the paramterChangeFlag for the selected forecast to false
+    parameterChangeFlagsForAllERF.put(selectedForecast,new Boolean(false));
+    }
     if (this.showProgressBar) progress.dispose();
     return eqkRupForecast;
   }
@@ -226,8 +236,8 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   /**
    * It sees whether selected ERF is a Epistemic list.
    * @return : true if selected ERF is a epistemic list, else false
-   */
-  /*public boolean isEpistemicList() {
+
+  public boolean isEpistemicList() {
     EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();
     if(eqkRupForecast instanceof ERF_EpistemicList)
       return true;
@@ -307,7 +317,20 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
       this.repaint();
       //       applet.updateChosenERF();
     }
+    //make the parameter change flag to be true
+    this.parameterChangeFlagsForAllERF.put(this.getSelectedERF_Name(),new Boolean(true));
   }
+
+  /**
+   *  Function that must be implemented by all Timespan Listeners for
+   *  ParameterChangeEvents.
+   *
+   * @param  event  The Event which triggered this function call
+   */
+  public void parameterChange( EventObject event ) {
+    //make the parameter change flag to be true
+    this.parameterChangeFlagsForAllERF.put(this.getSelectedERF_Name(),new Boolean(true));
+   }
 
   /**
    * This allows tuning on or off the showing of a progress bar
@@ -317,13 +340,22 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     this.showProgressBar=show;
   }
 
+  /**
+   * This function initially makes connection to all the supported Forecast models
+   * get their parameterList and timespan and stores them in a Hashtable with the key
+   * being thename of the Forecast for all the forecast model
+   * This is done to improve the efficency of the Applet, so that it does not need
+   * to make the connection with the servlet to get timeSpan and paramList
+   */
   private void openConnectionToAllERF_Servlets(){
     //open the connection with the PEER_FaultForecastServlet.
     String forecastName =(String)openPEERFaultConnection(getName);
     ParameterList paramList =(ParameterList)openPEERFaultConnection(getAdjParams);
     TimeSpan timeSpan =(TimeSpan)openPEERFaultConnection(getTimeSpan);
+    timeSpan.addParameterChangeListener(this);
     paramListForAllERF.put(forecastName,paramList);
     timespanListForAllERF.put(forecastName,timeSpan);
+    parameterChangeFlagsForAllERF.put(forecastName,new Boolean(true));
   }
 
 

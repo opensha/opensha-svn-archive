@@ -119,7 +119,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
     timeSpan.addParameterChangeListener(this);
 
     // create and add adj params to list
-    intiAdjParams();
+    initAdjParams();
 
     // add the change listener to parameters so that forecast can be updated
     // whenever any paramater changes
@@ -178,7 +178,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
 
 
   // make the adjustable parameters & the list
-  private void intiAdjParams() {
+  private void initAdjParams() {
 
 
     backSeisOptionsStrings.add(SEIS_EXCLUDE);
@@ -310,8 +310,6 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
      WG02_ERF_Epistemic_List list = new WG02_ERF_Epistemic_List();
      list.updateForecast();
      EqkRupForecast fcast = list.getERF(1);
-
-
   }
 
 }

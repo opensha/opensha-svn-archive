@@ -1,13 +1,7 @@
-package org.scec.sha.earthquake.rupForecastImpl.WG02;
+package org.scec.sha.gui.servlets.erf;
 
-import java.util.Vector;
-import java.util.ListIterator;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
-import java.util.List;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Iterator;
+import java.io.*;
+import java.util.*;
 
 import org.scec.param.*;
 import org.scec.calc.MomentMagCalc;
@@ -22,34 +16,30 @@ import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
-import org.scec.param.event.ParameterChangeListener;
-import org.scec.param.event.ParameterChangeEvent;
+import org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_CharEqkSource;
 
 
 /**
- * <p>Title: WG02_EqkRupForecast</p>
- * <p>Description: Working Group 2002 Earthquake Rupture Forecast. This class
- * reads a single file and constructs the forecast.
- * </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author : Edward Field
- * @Date : April, 2003
+ * <p>Title: WG02_ERFObject</p>
+ * <p>Description: This class implements the ERF_API to return the PEER Forecast object
+ * back to the user.</p>
+ * @author: Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
-public class WG02_EqkRupForecast extends EqkRupForecast
-    implements ParameterChangeListener{
+public class WG02_ERFObject implements ERF_API,java.io.Serializable{
 
-  //for Debug purposes
-  private final static String  C = new String("WG02 Eqk Rup Forecast");
-  private boolean D = false;
+  //TimeSpan Object
+  TimeSpan timeSpan;
+
+
 
   /**
    * Vectors for holding the various sources, separated by type
    */
   private Vector allSources;
 
+  public final static String SEIS_EXCLUDE = new String ("Exclude");
  // This is an array holding the relevant lines of the input file
   private List inputFileStrings = null;
 
@@ -61,12 +51,10 @@ public class WG02_EqkRupForecast extends EqkRupForecast
   /**
    * This constructs a single forecast using the first realization
    */
-  public WG02_EqkRupForecast() {
+  public WG02_ERFObject() {
 
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
-    timeSpan.addParameterChangeListener(this);
-
     String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/WG02_WRAPPER_INPUT.DAT";
 
     ArrayList inputFileLines=null;
@@ -92,13 +80,9 @@ public class WG02_EqkRupForecast extends EqkRupForecast
         test = st.nextToken();
     }
 
-    if (D) System.out.println(C+" endIndex="+endIndex);
-    if (D) System.out.println(C+" line(endIndex) ="+inputFileLines.get(endIndex));
 
     inputFileStrings = inputFileLines.subList(2,endIndex);
 
-    if (D) System.out.println(C+" firstLineOfStrings ="+inputFileStrings.get(0));
-    if (D) System.out.println(C+" LastLineOfStrings ="+inputFileStrings.get(inputFileStrings.size()-1));
 
     // get the line with the timeSpan info on it
     st = new StringTokenizer((String) inputFileLines.get(1));
@@ -110,7 +94,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     int year = new Double(st.nextToken()).intValue();
     double duration = new Double(st.nextToken()).doubleValue();
     int numIterations = new Double(st.nextToken()).intValue();
-    if (D) System.out.println("year="+year+"; duration="+duration+"; numIterations="+numIterations);
+
     timeSpan.setDuractionConstraint(duration,duration);
     timeSpan.setDuration(duration);
     timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,year,year);
@@ -120,8 +104,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     rupOffset = 2;
     gridSpacing = 1;
     deltaMag = 0.1;
-    backSeisValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
-    grTailValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
+    backSeisValue = this.SEIS_EXCLUDE;
+    grTailValue = this.SEIS_EXCLUDE;
     name = "noName";
 
     // now make the sources
@@ -129,8 +113,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
   }
 
 
-
-  public WG02_EqkRupForecast(List inputFileStrings, double rupOffset, double gridSpacing,
+  public WG02_ERFObject(List inputFileStrings, double rupOffset, double gridSpacing,
                              double deltaMag, String backSeisValue, String grTailValue, String name,
                              TimeSpan timespan) {
 
@@ -155,7 +138,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
    */
   private  void makeSources() throws FaultException{
 
-    if(D) System.out.println(C+": last line of inputFileStrings = "+inputFileStrings.get(inputFileStrings.size()-1));
+
     allSources = new Vector();
 
     FaultTrace faultTrace;
@@ -258,75 +241,65 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
 
 
-
-    /**
-     * Returns the  ith earthquake source
-     *
-     * @param iSource : index of the source needed
-    */
-    public ProbEqkSource getSource(int iSource) {
-
-      return (ProbEqkSource) allSources.get(iSource);
-    }
-
-    /**
-     * Get the number of earthquake sources
-     *
-     * @return integer
-     */
-    public int getNumSources(){
-      return allSources.size();
-    }
-
-     /**
-      * Get the list of all earthquake sources.
-      *
-      * @return Vector of Prob Earthquake sources
-      */
-     public Vector  getSourceList(){
-       return null;
-     }
-
-
-    /**
-     * Return the name for this class
-     *
-     * @return : return the name for this class
-     */
-   public String getName(){
-     return C;
-   }
-
-
-   /**
-    * update the forecast
-    **/
-
-   public void updateForecast() {
-
-     // does nothing for now
-     if(parameterChangeFlag) {
-       parameterChangeFlag = false;
-     }
-   }
-
-   /**
-    *  This is the main function of this interface. Any time a control
-    *  paramater or independent paramater is changed by the user in a GUI this
-    *  function is called, and a paramater change event is passed in.
-    *
-    *  This sets the flag to indicate that the sources need to be updated
-    *
-    * @param  event
-    */
-   public void parameterChange( ParameterChangeEvent event ) {
-     parameterChangeFlag=true;
-   }
-
-
-   // this is temporary for testing purposes
-   public static void main(String[] args) {
-     WG02_EqkRupForecast qkCast = new WG02_EqkRupForecast();
+  /**
+   * set the TimeSpan in the ERF
+   * @param timeSpan : TimeSpan object
+   */
+  public void setTimeSpan(TimeSpan time) {
+    this.timeSpan=time;
   }
+
+  /**
+   * Get the number of earthquake sources
+   *
+   * @return integer
+   */
+  public int getNumSources(){
+    return allSources.size();
+  }
+
+  /**
+   * Get the ith rupture of the source. this method DOES NOT return reference
+   * to the object. So, when you call this method again, result from previous
+   * method call is valid. This behavior is in contrast with
+   * getRupture(int source, int i) method
+   *
+   * @param source
+   * @param i
+   * @return
+   */
+  public ProbEqkRupture getRupture(int iSource, int nRupture) {
+    return getSource(iSource).getRupture(nRupture);
+  }
+
+  /**
+   * Returns the  ith earthquake source
+   *
+   * @param iSource : index of the source needed
+   */
+  public ProbEqkSource getSource(int iSource) {
+
+    return (ProbEqkSource) allSources.get(iSource);
+  }
+
+  /**
+   * Get number of ruptures for source at index iSource
+   * This method iterates through the list of 3 vectors for charA , charB and grB
+   * to find the the element in the vector to which the source corresponds
+   * @param iSource index of source whose ruptures need to be found
+   */
+  public int getNumRuptures(int iSource){
+    return getSource(iSource).getNumRuptures();
+  }
+
+  /**
+   * Get the list of all earthquake sources.
+   *
+   * @return Vector of Prob Earthquake sources
+   */
+  public Vector  getSourceList(){
+    return null;
+  }
+
 
 }
