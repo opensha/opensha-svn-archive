@@ -68,7 +68,7 @@
 
 
 
-package com.jrefinery.chart;
+package com.jrefinery.chart.axis;
 
 
 
@@ -95,6 +95,7 @@ import com.jrefinery.chart.event.AxisChangeEvent;
 import com.jrefinery.data.Range;
 
 import com.jrefinery.ui.RefineryUtilities;
+import com.jrefinery.chart.plot.*;
 
 
 
@@ -124,7 +125,15 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
     public static final double LOG10_VALUE = Math.log(10);
 
+    /** Smallest arbitrarily-close-to-zero value allowed. */
+    public static final double SMALL_LOG_VALUE = 1e-100;
+
+    private boolean allowNegativesFlag = false;
+
     private int lowest=-30; // lowest power of ten allowed
+
+    /** Helper flag for log axis processing. */
+    private boolean smallLogFlag = false;
 
     private int counter=0;
 
@@ -147,285 +156,27 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
      */
 
     public VerticalLogarithmicAxis(String label) {
-
-
-
-	this(label,
-
-             Axis.DEFAULT_AXIS_LABEL_FONT,
-
-             ValueAxis.DEFAULT_LOWER_BOUND,
-
-             ValueAxis.DEFAULT_UPPER_BOUND);
-
-
-
-        setAutoRange(true);
-
-
-
+	super(label);
     }
-
-
-
-       /**
-
-        * Constructs a vertical logarithmic axis.
-
-        *
-
-        * @param label The axis label (null permitted).
-
-        * @param labelFont The font for displaying the axis label.
-
-        * @param minimumAxisValue The lowest value shown on the axis.
-
-        * @param maximumAxisValue The highest value shown on the axis.
-
-        */
-
-       public VerticalLogarithmicAxis(String label,
-
-                                      Font labelFont,
-
-                                      double minimumAxisValue,
-
-                                      double maximumAxisValue) {
-
-
-
-           this(label,
-
-                labelFont,
-
-                Axis.DEFAULT_AXIS_LABEL_PAINT,
-
-                Axis.DEFAULT_AXIS_LABEL_INSETS,
-
-                true, // tick labels visible
-
-                true,  // tick labels drawn vertically
-
-                Axis.DEFAULT_TICK_LABEL_FONT,
-
-                Axis.DEFAULT_TICK_LABEL_PAINT,
-
-                Axis.DEFAULT_TICK_LABEL_INSETS,
-
-                false, // tick marks visible
-
-                Axis.DEFAULT_TICK_STROKE,
-
-                Axis.DEFAULT_TICK_PAINT,
-
-                false, // no auto range selection, since the caller specified a range in the arguments
-
-                NumberAxis.DEFAULT_AUTO_RANGE_MINIMUM_SIZE,
-
-                NumberAxis.DEFAULT_AUTO_RANGE_INCLUDES_ZERO,
-
-                NumberAxis.DEFAULT_AUTO_RANGE_STICKY_ZERO,
-
-                minimumAxisValue,
-
-                maximumAxisValue,
-
-                false, // inverted
-
-                true, // auto tick unit selection
-
-                NumberAxis.DEFAULT_TICK_UNIT,
-
-                true, // grid lines visible
-
-                ValueAxis.DEFAULT_GRID_LINE_STROKE,
-
-                ValueAxis.DEFAULT_GRID_LINE_PAINT,
-
-                0.0, //anchorValue
-
-                ValueAxis.DEFAULT_CROSSHAIR_VISIBLE,
-
-                0.0,
-
-                ValueAxis.DEFAULT_CROSSHAIR_STROKE,
-
-                ValueAxis.DEFAULT_CROSSHAIR_PAINT);
-
-
-
-       }
-
-
-
-       /**
-
-        * Constructs a vertical number axis.
-
-        *
-
-        * @param label The axis label.
-
-        * @param labelFont The font for displaying the axis label.
-
-        * @param labelPaint The paint used to draw the axis label.
-
-        * @param labelInsets Determines the amount of blank space around the label.
-
-        * @param tickMarksVisible Flag indicating whether or not tick labels are visible.
-
-        * @param tickLabelFont The font used to display tick labels.
-
-        * @param tickLabelPaint The paint used to draw tick labels.
-
-        * @param tickLabelInsets Determines the amount of blank space around tick labels.
-
-        * @param showTickMarks Flag indicating whether or not tick marks are visible.
-
-        * @param tickMarkStroke The stroke used to draw tick marks (if visible).
-
-        * @param autoRange Flag indicating whether or not the axis is automatically scaled to fit the
-
-        *                  data.
-
-        * @param autoRangeIncludesZero A flag indicating whether or not zero *must* be displayed on
-
-        *                              axis.
-
-        * @param autoRangeMinimum The smallest automatic range allowed.
-
-        * @param minimumAxisValue The lowest value shown on the axis.
-
-        * @param maximumAxisValue The highest value shown on the axis.
-
-        * @param inverted A flag indicating whether the axis is normal or inverted (inverted means
-
-        *                 running from positive to negative).
-
-        * @param autoTickUnitSelection A flag indicating whether or not the tick units are
-
-        *                              selected automatically.
-
-        * @param tickUnit The tick unit.
-
-        * @param showGridLines Flag indicating whether or not grid lines are visible for this axis.
-
-        * @param gridStroke The pen/brush used to display grid lines (if visible).
-
-        * @param gridPaint The color used to display grid lines (if visible).
-
-        * @param crosshairValue The value at which to draw an optional crosshair (null permitted).
-
-        * @param crosshairStroke The pen/brush used to draw the crosshair.
-
-        * @param crosshairPaint The color used to draw the crosshair.
-
-        */
-
-       public VerticalLogarithmicAxis(String label,
-
-                                      Font labelFont, Paint labelPaint, Insets labelInsets,
-
-                                      boolean tickLabelsVisible,boolean verticalTickLabels,
-
-                                      Font tickLabelFont, Paint tickLabelPaint,
-
-                                      Insets tickLabelInsets,
-
-                                      boolean tickMarksVisible, Stroke tickMarkStroke,Paint tickMarkPaint,
-
-                                      boolean autoRange,Number autoRangeMinimumSize,
-
-                                      boolean autoRangeIncludesZero,
-
-                                      boolean autoRangeStickyZero,
-
-                                      double minimumAxisValue, double maximumAxisValue,
-
-                                      boolean inverted,
-
-                                      boolean autoTickUnitSelection,
-
-                                      NumberTickUnit tickUnit,
-
-                                      boolean gridLinesVisible, Stroke gridStroke, Paint gridPaint,
-
-                                      double anchorValue, boolean crosshairVisible, double crosshairValue,
-
-                                      Stroke crosshairStroke, Paint crosshairPaint) {
-
-
-
-           super(label,
-
-                 labelFont, labelPaint, labelInsets,
-
-                 tickLabelsVisible,verticalTickLabels,
-
-                 tickLabelFont, tickLabelPaint, tickLabelInsets,
-
-                 tickMarksVisible,
-
-                 tickMarkStroke,tickMarkPaint,
-
-                 autoRange, autoRangeMinimumSize,autoRangeIncludesZero, autoRangeStickyZero,
-
-                 minimumAxisValue, maximumAxisValue,
-
-                 inverted,
-
-                 autoTickUnitSelection, tickUnit,
-
-                 gridLinesVisible, gridStroke, gridPaint,anchorValue,
-
-                 crosshairVisible, crosshairValue, crosshairStroke, crosshairPaint);
-
-            this.verticalLabel = verticalTickLabels;
-
-
-
-
-
-    }
-
 
 
     /**
-
      * Returns a flag indicating whether or not the axis label is drawn vertically.
-
      */
-
     public boolean isVerticalLabel() {
-
         return this.verticalLabel;
-
     }
 
-
-
     /**
-
      * Sets a flag indicating whether or not the axis label is drawn vertically.  If the setting
-
      * is changed, registered listeners are notified that the axis has changed.
-
      */
 
     public void setVerticalLabel(boolean flag) {
-
-
-
     	if (this.verticalLabel!=flag) {
-
 	    this.verticalLabel = flag;
-
 	    notifyListeners(new AxisChangeEvent(this));
-
 	}
-
-
-
     }
 
 
@@ -642,86 +393,6 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
 
 
-    /**
-
-     * Returns the smallest (closest to negative infinity) double value that is
-
-     * not less than the argument, is equal to a mathematical integer and
-
-     * satisfying the condition that log base 10 of the value is an integer
-
-     * (i.e., the value returned will be a power of 10: 1, 10, 100, 1000, etc.).
-
-     *
-
-     * @param lower  a double value above which a ceiling will be calcualted.
-
-     */
-
-    private double computeLogCeil(double upper) {
-
-
-
-        // The Math.log() funtion is based on e not 10.
-
-        double logCeil = Math.log(upper)/LOG10_VALUE;
-
-
-
-        logCeil = Math.ceil(logCeil);
-
-
-
-        logCeil = Math.pow(10, logCeil);
-
-
-
-        return logCeil;
-
-    }
-
-
-
-    /**
-
-     * Returns the largest (closest to positive infinity) double value that is
-
-     * not greater than the argument, is equal to a mathematical integer and
-
-     * satisfying the condition that log base 10 of the value is an integer
-
-     * (i.e., the value returned will be a power of 10: 1, 10, 100, 1000, etc.).
-
-     *
-
-     * @param lower  a double value below which a floor will be calcualted.
-
-     */
-
-    private double computeLogFloor(double lower) {
-
-
-
-        // The Math.log() funtion is based on e not 10.
-
-        double logFloor = Math.log(lower)/LOG10_VALUE;
-
-
-
-        logFloor = Math.floor(logFloor);
-
-
-
-        logFloor = Math.pow(10, logFloor);
-
-
-
-        return logFloor;
-
-    }
-
-
-
      /**
 
      * Sets the axis minimum and maximum values so that all the data is visible.
@@ -743,64 +414,31 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
      */
 
     public void autoAdjustRange() {
-
-
-
-
-
-    if (plot==null) return;  // no plot, no data
-
-
-
-        if (plot instanceof VerticalValuePlot) {
-
-            VerticalValuePlot vvp = (VerticalValuePlot)plot;
-
-
-
-            Range r = vvp.getVerticalDataRange();
-
-            if (r==null) r = new Range(DEFAULT_LOWER_BOUND, DEFAULT_UPPER_BOUND);
-
-
-
-            double lower = r.getLowerBound();
-
-            double upper = r.getUpperBound();
-
-
-
-            // make the upper a little higher so that it does not overlap with  axis lines
-
-            boolean found = false;
-
-            double val;
-
-            for(int i = lowest;!found;++i) {
-
-              val = Math.pow(10,i);
-
-              for(int j=1;j<10;++j)
-
-                 if((j*val)>upper){
-
-                   upper = j*val;
-
-                   found = true;
-
-                   break;
-
-                 }
-
+      Plot plot = this.getPlot();
+      if (plot==null) return;  // no plot, no data
+      if (plot instanceof VerticalValuePlot) {
+        VerticalValuePlot vvp = (VerticalValuePlot)plot;
+        Range r = vvp.getVerticalDataRange(this);
+        if (r==null) r = new Range(DEFAULT_LOWER_BOUND, DEFAULT_UPPER_BOUND);
+        double lower = r.getLowerBound();
+        double upper = r.getUpperBound();
+        // make the upper a little higher so that it does not overlap with  axis lines
+        boolean found = false;
+        double val;
+        for(int i = lowest;!found;++i) {
+          val = Math.pow(10,i);
+          for(int j=1;j<10;++j) {
+            if((j*val)>upper){
+              upper = j*val;
+              found = true;
+              break;
             }
-
-
-
-            // set the range
-
-            setRange(new Range(lower, upper));
-
+          }
         }
+        // set the range
+        setRange(new Range(lower, upper));
+
+      }
 
     }
 
@@ -822,31 +460,22 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
     public void draw(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea) {
 
+       String label = this.getLabel();
+       Font tickLabelFont = this.getLabelFont();
 
+        if (!isVisible()) return;
 
-        if (!visible) return;
+        if (label!=null) {
 
+            g2.setFont(tickLabelFont);
 
+            g2.setPaint(this.getLabelPaint());
 
-        //System.out.println("VerticalNumberAxis:draw method called");
-
-
-
-        // draw the axis label
-
-        if (this.label!=null) {
-
-            g2.setFont(labelFont);
-
-            g2.setPaint(labelPaint);
-
-
-
-            Rectangle2D labelBounds = labelFont.getStringBounds(label, g2.getFontRenderContext());
+            Rectangle2D labelBounds = tickLabelFont.getStringBounds(label, g2.getFontRenderContext());
 
             if (verticalLabel) {
 
-                double xx = drawArea.getX()+labelInsets.left+labelBounds.getHeight();
+                double xx = drawArea.getX()+this.getLabelInsets().left+labelBounds.getHeight();
 
                 double yy = plotArea.getY()+plotArea.getHeight()/2+(labelBounds.getWidth()/2);
 
@@ -858,7 +487,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
             else {
 
-                double xx = drawArea.getX()+labelInsets.left;
+                double xx = drawArea.getX()+this.getLabelInsets().left;
 
                 double yy = drawArea.getY()+drawArea.getHeight()/2-labelBounds.getHeight()/2;
 
@@ -880,7 +509,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
 
 
-        Iterator iterator = ticks.iterator();
+        Iterator iterator = this.getTicks().iterator();
 
         while (iterator.hasNext()) {
 
@@ -916,9 +545,9 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
 
 
-           if (tickLabelsVisible) {
+           if (this.isTickLabelsVisible()) {
 
-              g2.setPaint(this.tickLabelPaint);
+              g2.setPaint(this.getTickLabelPaint());
 
               if(eIndex==-1)
 
@@ -936,39 +565,16 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
            }
 
-           if (tickMarksVisible) {
-
-              g2.setStroke(this.getTickMarkStroke());
-
-              Line2D mark = new Line2D.Double(plotArea.getX()-2, yy,
-
+           if (this.isTickMarksVisible()) {
+             g2.setStroke(this.getTickMarkStroke());
+             g2.setPaint(this.getTickMarkPaint());
+             Line2D mark = new Line2D.Double(plotArea.getX()-2, yy,
                             plotArea.getX()+2, yy);
-
               g2.draw(mark);
-
            }
 
-           if (this.isGridLinesVisible()) {
-
-              g2.setStroke(this.getGridStroke());
-
-              g2.setPaint(getGridPaint());
-
-              Line2D gridline = new Line2D.Double(xx, yy,
-
-                               plotArea.getMaxX(), yy);
-
-              g2.draw(gridline);
-
-
-
-           }
-
-       }
-
-
-
-   }
+        }
+    }
 
 
 
@@ -985,48 +591,46 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
      */
 
     public double reserveWidth(Graphics2D g2, Plot plot, Rectangle2D drawArea) {
-
-
-
-	// calculate the width of the axis label...
-
-	double labelWidth = 0.0;
+      // calculate the width of the axis label...
+      String label = this.getLabel();
+      Font labelFont = this.getTickLabelFont();
+      double labelWidth = 0.0;
 
 	if (label!=null) {
 
-	    Rectangle2D labelBounds = labelFont.getStringBounds(label, g2.getFontRenderContext());
+          Rectangle2D labelBounds = labelFont.getStringBounds(label, g2.getFontRenderContext());
 
-	    labelWidth = labelInsets.left+labelInsets.right;
+          labelWidth = this.getLabelInsets().left+this.getLabelInsets().right;
 
-	    if (this.verticalLabel) {
+          if (this.verticalLabel) {
 
-		labelWidth = labelWidth + labelBounds.getHeight();  // assume width == height before rotation
+            labelWidth = labelWidth + labelBounds.getHeight();  // assume width == height before rotation
 
-	    }
+          }
 
-	    else {
+          else {
 
-		labelWidth = labelWidth + labelBounds.getWidth();
+            labelWidth = labelWidth + labelBounds.getWidth();
 
-	    }
+          }
 
-	}
+        }
 
 
 
-	// calculate the width required for the tick labels (if visible);
+        // calculate the width required for the tick labels (if visible);
 
-	double tickLabelWidth = tickLabelInsets.left+tickLabelInsets.right;
+        double tickLabelWidth = this.getTickLabelInsets().left+this.getTickLabelInsets().right;
 
-	if (tickLabelsVisible) {
+        if (this.isTickLabelsVisible()) {
 
-	    this.refreshTicks(g2, drawArea, drawArea);
+          this.refreshTicks(g2, drawArea, drawArea);
 
-	    tickLabelWidth = tickLabelWidth+getMaxTickLabelWidth(g2, drawArea);
+          tickLabelWidth = tickLabelWidth+getMaxTickLabelWidth(g2, drawArea);
 
-	}
+        }
 
-	return labelWidth+tickLabelWidth;
+        return labelWidth+tickLabelWidth;
 
 
 
@@ -1058,11 +662,11 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
 	double labelWidth = 0.0;
 
-	if (label!=null) {
+	if (this.getLabel()!=null) {
 
-	    Rectangle2D labelBounds = labelFont.getStringBounds(label, g2.getFontRenderContext());
+	    Rectangle2D labelBounds = this.getLabelFont().getStringBounds(this.getLabel(), g2.getFontRenderContext());
 
-	    labelWidth = labelInsets.left+labelInsets.right;
+	    labelWidth = this.getLabelInsets().left+this.getLabelInsets().right;
 
 	    if (this.verticalLabel) {
 
@@ -1082,9 +686,9 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
 	// calculate the width of the tick labels
 
-	double tickLabelWidth = tickLabelInsets.left+tickLabelInsets.right;
+	double tickLabelWidth = this.getTickLabelInsets().left+this.getTickLabelInsets().right;
 
-	if (tickLabelsVisible) {
+	if (this.isTickLabelsVisible()) {
 
 	    Rectangle2D approximatePlotArea = new Rectangle2D.Double(drawArea.getX(), drawArea.getY(),
 
@@ -1132,9 +736,9 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
         FontRenderContext frc = g2.getFontRenderContext();
 
-        double tickLabelHeight = tickLabelFont.getLineMetrics("123", frc).getHeight()
+        double tickLabelHeight = this.getTickLabelFont().getLineMetrics("123", frc).getHeight()
 
-                                 +this.tickLabelInsets.top+this.tickLabelInsets.bottom;
+                                 +this.getTickLabelInsets().top+this.getTickLabelInsets().bottom;
 
 
 
@@ -1196,11 +800,11 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
 
 
-	this.ticks.clear();
+	this.getTicks().clear();
 
         ++counter;
 
-	g2.setFont(tickLabelFont);
+	g2.setFont(this.getTickLabelFont());
 
 
 
@@ -1390,7 +994,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
 
 
-              Rectangle2D tickLabelBounds = tickLabelFont.getStringBounds(tickLabel,
+              Rectangle2D tickLabelBounds = this.getTickLabelFont().getStringBounds(tickLabel,
 
                                                                         g2.getFontRenderContext());
 
@@ -1398,18 +1002,13 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
                               -tickLabelBounds.getWidth()
 
-                              -tickLabelInsets.left-tickLabelInsets.right);
+                              -this.getTickLabelInsets().left-this.getTickLabelInsets().right);
 
               float y = (float)(yy+(tickLabelBounds.getHeight()/2));
 
-
-
               if(sum==getRange().getLowerBound())
-
                 y=(float)plotArea.getMaxY();
-
               if(sum==getRange().getUpperBound())
-
                 y=y+3;
 
 
@@ -1440,7 +1039,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
               Tick tick = new Tick(new Double(currentTickValue), tickLabel, x, y);
 
-	      ticks.add(tick);
+	      this.getTicks().add(tick);
 
 	}
 
@@ -1464,7 +1063,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
     private void removePreviousTick() {
 
-      int size = ticks.size();
+      int size = this.getTicks().size();
 
       if(size==0)
 
@@ -1472,15 +1071,15 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 
       for(int i=size-1;i>0;--i) {
 
-        Tick tick = (Tick)ticks.get(i);
+        Tick tick = (Tick)this.getTicks().get(i);
 
         if(tick.getText().trim().equalsIgnoreCase(""))
 
           continue;
 
-        ticks.remove(i);
+        this.getTicks().remove(i);
 
-        ticks.add(new Tick(new Double(tick.getNumericalValue()),"",tick.getX(),tick.getY()));
+        this.getTicks().add(new Tick(new Double(tick.getNumericalValue()),"",tick.getX(),tick.getY()));
 
         return;
 
@@ -1571,17 +1170,137 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
      */
 
     protected boolean isCompatiblePlot(Plot plot) {
-
-
-
         if (plot instanceof VerticalValuePlot) return true;
-
         else return false;
+    }
 
 
+    /**
+     * Returns the smallest (closest to negative infinity) double value that is
+     * not less than the argument, is equal to a mathematical integer and
+     * satisfying the condition that log base 10 of the value is an integer
+     * (i.e., the value returned will be a power of 10: 1, 10, 100, 1000, etc.).
+     *
+     * @param upper a double value above which a ceiling will be calcualted.
+     *
+     * @return 10<sup>N</sup> with N .. { 1 ... }
+     */
+    protected double computeLogCeil(double upper) {
+
+        double logCeil;
+        if (allowNegativesFlag) {
+            //negative values are allowed
+            if (upper > 10.0) {
+                //parameter value is > 10
+                // The Math.log() function is based on e not 10.
+                logCeil = Math.log(upper) / LOG10_VALUE;
+                logCeil = Math.ceil(logCeil);
+                logCeil = Math.pow(10, logCeil);
+            }
+            else if (upper < -10.0) {
+                //parameter value is < -10
+                //calculate log using positive value:
+                logCeil = Math.log(-upper) / LOG10_VALUE;
+                //calculate ceil using negative value:
+                logCeil = Math.ceil(-logCeil);
+                //calculate power using positive value; then negate
+                logCeil = -Math.pow(10, -logCeil);
+            }
+            else {
+               //parameter value is -10 > val < 10
+               logCeil = Math.ceil(upper);     //use as-is
+            }
+        }
+        else {
+            //negative values not allowed
+            if (upper > 0.0) {
+                //parameter value is > 0
+                // The Math.log() function is based on e not 10.
+                logCeil = Math.log(upper) / LOG10_VALUE;
+                logCeil = Math.ceil(logCeil);
+                logCeil = Math.pow(10, logCeil);
+            }
+            else {
+                //parameter value is <= 0
+                logCeil = Math.ceil(upper);     //use as-is
+            }
+        }
+        return logCeil;
 
     }
 
+    /**
+     * Returns the largest (closest to positive infinity) double value that is
+     * not greater than the argument, is equal to a mathematical integer and
+     * satisfying the condition that log base 10 of the value is an integer
+     * (i.e., the value returned will be a power of 10: 1, 10, 100, 1000, etc.).
+     *
+     * @param lower a double value below which a floor will be calcualted.
+     *
+     * @return 10<sup>N</sup> with N .. { 1 ... }
+     */
+    protected double computeLogFloor(double lower) {
+
+        double logFloor;
+        if (allowNegativesFlag) {
+            //negative values are allowed
+            if (lower > 10.0) {   //parameter value is > 10
+                // The Math.log() function is based on e not 10.
+                logFloor = Math.log(lower) / LOG10_VALUE;
+                logFloor = Math.floor(logFloor);
+                logFloor = Math.pow(10, logFloor);
+            }
+            else if (lower < -10.0) {   //parameter value is < -10
+                //calculate log using positive value:
+                logFloor = Math.log(-lower) / LOG10_VALUE;
+                //calculate floor using negative value:
+                logFloor = Math.floor(-logFloor);
+                //calculate power using positive value; then negate
+                logFloor = -Math.pow(10, -logFloor);
+            }
+            else {
+                //parameter value is -10 > val < 10
+                logFloor = Math.floor(lower);   //use as-is
+            }
+        }
+        else {
+            //negative values not allowed
+            if (lower > 0.0) {   //parameter value is > 0
+                // The Math.log() function is based on e not 10.
+                logFloor = Math.log(lower) / LOG10_VALUE;
+                logFloor = Math.floor(logFloor);
+                logFloor = Math.pow(10, logFloor);
+            }
+            else {
+                //parameter value is <= 0
+                logFloor = Math.floor(lower);   //use as-is
+            }
+        }
+        return logFloor;
+
+    }
+
+    /**
+     * Sets up flag for log axis processing.
+     */
+    protected void setupSmallLogFlag() {
+      //set flag true if negative values not allowed and the
+      // lower bound is between 0 and 10:
+      final double lowerVal = getRange().getLowerBound();
+      smallLogFlag = (!allowNegativesFlag && lowerVal < 10.0 && lowerVal > 0.0);
+    }
+
+
+    /**
+     * Returns the 'allowNegativesFlag' flag; true to allow negative values
+     * in data, false to be able to plot positive values arbitrarily close
+     * to zero.
+     *
+     * @return the flag.
+     */
+    public boolean getAllowNegativesFlag() {
+        return allowNegativesFlag;
+    }
 
 
 }

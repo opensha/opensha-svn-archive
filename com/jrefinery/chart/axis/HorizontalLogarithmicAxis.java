@@ -62,7 +62,7 @@
 
 
 
-package com.jrefinery.chart;
+package com.jrefinery.chart.axis;
 
 
 
@@ -91,7 +91,7 @@ import com.jrefinery.data.Range;
 import java.util.Iterator;
 
 import com.jrefinery.ui.RefineryUtilities;
-
+import com.jrefinery.chart.plot.*;
 
 
 /**
@@ -110,13 +110,15 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
     public static final double LOG10_VALUE = Math.log(10);
 
-    protected final boolean allowNegativesFlag;
+    protected final boolean allowNegativesFlag = false;
 
     protected boolean smallLogFlag = false;
 
     protected final DecimalFormat numberFormatterObj =
 
                                                new DecimalFormat("0.00000");
+    /** Smallest arbitrarily-close-to-zero value allowed. */
+    public static final double SMALL_LOG_VALUE = 1e-25;
 
 
 
@@ -131,281 +133,20 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
      */
 
     public HorizontalLogarithmicAxis() {
-
-
-
-        this(null);
-
-
-
+      this(null);
     }
 
 
-
     /**
-
      * Constructs a horizontal logarithmic axis, using default values where necessary.
-
      *
-
      * @param label The axis label (null permitted).
-
      */
 
     public HorizontalLogarithmicAxis(String label) {
-
-
-
-        // Set the default min/max axis values for a logaritmic scale.
-
-        this(label,
-
-             Axis.DEFAULT_AXIS_LABEL_FONT,
-
-             1,
-
-             10);
-
-
-
-        this.setAutoRange(true);
-
-
-
-    }
-
-
-
-    /**
-
-     * Constructs a horizontal logarithmic axis.
-
-     *
-
-     * @param label The axis label (null permitted).
-
-     * @param labelFont The font for displaying the axis label.
-
-     * @param minimumAxisValue The lowest value shown on the axis.
-
-     * @param maximumAxisValue The highest value shown on the axis.
-
-     */
-
-    public HorizontalLogarithmicAxis(String label,
-
-                                   Font labelFont,
-
-                                   double minimumAxisValue,
-
-                                   double maximumAxisValue) {
-
-
-
-        this(label,
-
-             labelFont,
-
-             Axis.DEFAULT_AXIS_LABEL_PAINT,
-
-             Axis.DEFAULT_AXIS_LABEL_INSETS,
-
-             true, // tick labels visible
-
-             Axis.DEFAULT_TICK_LABEL_FONT,
-
-             Axis.DEFAULT_TICK_LABEL_PAINT,
-
-             Axis.DEFAULT_TICK_LABEL_INSETS,
-
-             false,  // tick labels drawn vertically
-
-             false, // tick marks visible
-
-             Axis.DEFAULT_TICK_STROKE,
-
-             Axis.DEFAULT_TICK_PAINT,
-
-             false, // no auto range selection, since the caller specified a range in the arguments
-
-             NumberAxis.DEFAULT_AUTO_RANGE_MINIMUM_SIZE,
-
-             NumberAxis.DEFAULT_AUTO_RANGE_INCLUDES_ZERO,
-
-             NumberAxis.DEFAULT_AUTO_RANGE_STICKY_ZERO,
-
-             minimumAxisValue,
-
-             maximumAxisValue,
-
-             false, // inverted
-
-             true, // auto tick unit selection
-
-             NumberAxis.DEFAULT_TICK_UNIT,
-
-             true, // grid lines visible
-
-             ValueAxis.DEFAULT_GRID_LINE_STROKE,
-
-             ValueAxis.DEFAULT_GRID_LINE_PAINT,
-
-             0.0, //anchorValue
-
-             ValueAxis.DEFAULT_CROSSHAIR_VISIBLE,
-
-             0.0,
-
-             ValueAxis.DEFAULT_CROSSHAIR_STROKE,
-
-             ValueAxis.DEFAULT_CROSSHAIR_PAINT,
-
-             false);  //'allowNegativesFlag' set false for no values < 0
-
-    }
-
-
-
-    /**
-
-     * Constructs a horizontal number axis.
-
-     *
-
-     * @param label The axis label.
-
-     * @param labelFont The font for displaying the axis label.
-
-     * @param labelPaint The paint used to draw the axis label.
-
-     * @param labelInsets Determines the amount of blank space around the label.
-
-     * @param tickMarksVisible Flag indicating whether or not tick labels are visible.
-
-     * @param tickLabelFont The font used to display tick labels.
-
-     * @param tickLabelPaint The paint used to draw tick labels.
-
-     * @param tickLabelInsets Determines the amount of blank space around tick labels.
-
-     * @param showTickMarks Flag indicating whether or not tick marks are visible.
-
-     * @param tickMarkStroke The stroke used to draw tick marks (if visible).
-
-     * @param autoRange Flag indicating whether or not the axis is automatically scaled to fit the
-
-     *                  data.
-
-     * @param autoRangeIncludesZero A flag indicating whether or not zero *must* be displayed on
-
-     *                              axis.
-
-     * @param autoRangeMinimum The smallest automatic range allowed.
-
-     * @param minimumAxisValue The lowest value shown on the axis.
-
-     * @param maximumAxisValue The highest value shown on the axis.
-
-     * @param inverted A flag indicating whether the axis is normal or inverted (inverted means
-
-     *                 running from positive to negative).
-
-     * @param autoTickUnitSelection A flag indicating whether or not the tick units are
-
-     *                              selected automatically.
-
-     * @param tickUnit The tick unit.
-
-     * @param showGridLines Flag indicating whether or not grid lines are visible for this axis.
-
-     * @param gridStroke The pen/brush used to display grid lines (if visible).
-
-     * @param gridPaint The color used to display grid lines (if visible).
-
-     * @param crosshairValue The value at which to draw an optional crosshair (null permitted).
-
-     * @param crosshairStroke The pen/brush used to draw the crosshair.
-
-     * @param crosshairPaint The color used to draw the crosshair.
-
-     * @param allowNegativesFlag true to allow plotting of negative values;
-
-     * false if all positive values, thus allowing values less than 1.0 and
-
-     * arbitrarily close to zero to be plotted correctly.
-
-     */
-
-    public HorizontalLogarithmicAxis(String label,
-
-                                   Font labelFont, Paint labelPaint, Insets labelInsets,
-
-                                   boolean tickLabelsVisible, Font tickLabelFont, Paint tickLabelPaint,
-
-                                   Insets tickLabelInsets,
-
-                                   boolean verticalTickLabels,
-
-                                   boolean tickMarksVisible, Stroke tickMarkStroke,Paint tickMarkPaint,
-
-                                   boolean autoRange,Number autoRangeMinimumSize,
-
-                                   boolean autoRangeIncludesZero,
-
-                                   boolean autoRangeStickyZero,
-
-                                   double minimumAxisValue, double maximumAxisValue,
-
-                                   boolean inverted,
-
-                                   boolean autoTickUnitSelection,
-
-                                   NumberTickUnit tickUnit,
-
-                                   boolean gridLinesVisible, Stroke gridStroke, Paint gridPaint,
-
-                                   double anchorValue, boolean crosshairVisible, double crosshairValue,
-
-                                   Stroke crosshairStroke, Paint crosshairPaint,
-
-                                   boolean allowNegativesFlag) {
-
-
-
-        super(label,
-
-              labelFont, labelPaint, labelInsets,
-
-              tickLabelsVisible,
-
-              tickLabelFont, tickLabelPaint, tickLabelInsets,
-
-              verticalTickLabels,
-
-              tickMarksVisible,
-
-              tickMarkStroke,tickMarkPaint,
-
-              autoRange, autoRangeMinimumSize,autoRangeIncludesZero, autoRangeStickyZero,
-
-              minimumAxisValue, maximumAxisValue,
-
-              inverted,
-
-              autoTickUnitSelection, tickUnit,
-
-              gridLinesVisible, gridStroke, gridPaint,anchorValue,
-
-              crosshairVisible, crosshairValue, crosshairStroke, crosshairPaint);
-
-
-
-      this.allowNegativesFlag = allowNegativesFlag;        //save flag
-
-      if(!autoRange)              //if not auto-ranging then
-
-        setupSmallLogFlag();      //setup flag based on bounds values
-
+      // Set the default min/max axis values for a logaritmic scale.
+      super(label);
+      this.setAutoRange(true);
     }
 
 
@@ -418,103 +159,55 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
      */
 
-    public void setRange(Range range)
-
-    {
-
+    public void setRange(Range range)  {
       super.setRange(range);      //call parent mathod
-
       setupSmallLogFlag();        //setup flag based on bounds values
-
     }
 
 
-
     /**
-
      * Sets up flag for log axis processing.
-
      */
+    protected void setupSmallLogFlag()  {
 
-    protected void setupSmallLogFlag()
+      //set flag true if negative values not allowed and the
 
-    {
-
-              //set flag true if negative values not allowed and the
-
-              // lower bound is between 0 and 10:
-
+      // lower bound is between 0 and 10:
       final double lowerVal = getRange().getLowerBound();
-
       smallLogFlag = (!allowNegativesFlag && lowerVal < 10.0 &&
-
-                                                            lowerVal > 0.0);
+                                                      lowerVal > 0.0);
 
     }
 
-
-
-
-
     /**
-
      * Converts a data value to a coordinate in Java2D space, assuming that
-
      * the axis runs along one edge of the specified plotArea.
-
      * Note that it is possible for the coordinate to fall outside the
-
      * plotArea.
-
+     *
      * @param dataValue the data value.
-
      * @param plotArea the area for plotting the data.
-
      * @return The Java2D coordinate.
-
      */
 
     public double translateValueToJava2D(double value, Rectangle2D plotArea) {
 
-
-
-
-
-
-
-        double axisMin = getRange().getLowerBound();
-
-        double axisMax = getRange().getUpperBound();
-
-
-
-
-
-        double maxX = plotArea.getMaxX();
-
-        double minX = plotArea.getMinX();
-
-
-
-
-
-        if (isInverted())
-
-        {
-
-          return maxX - (((value - axisMin)/(axisMax - axisMin)) *
-
+      double axisMin = getRange().getLowerBound();
+      double axisMax = getRange().getUpperBound();
+      double maxX = plotArea.getMaxX();
+      double minX = plotArea.getMinX();
+      if (isInverted()) {
+         return maxX - (((value - axisMin)/(axisMax - axisMin)) *
                                                              (maxX - minX));
+      }
 
-        }
+      else
 
-        else
+      {
 
-        {
+        return minX + (((value - axisMin)/(axisMax - axisMin)) *
 
-          return minX + (((value - axisMin)/(axisMax - axisMin)) *
-
-                                                             (maxX - minX));
+                       (maxX - minX));
 
         }
 
@@ -768,7 +461,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
     protected void autoAdjustRange() {
 
-
+      Plot plot = this.getPlot();
 
         if (plot==null) return;  // no plot, no data
 
@@ -780,7 +473,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
 
 
-            Range r = hvp.getHorizontalDataRange();
+            Range r = hvp.getHorizontalDataRange(this);
 
             if (r==null) r = new Range(this.DEFAULT_LOWER_BOUND,this.DEFAULT_UPPER_BOUND);
 
@@ -861,80 +554,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
     }
 
 
-
-    /**
-
-     * Returns the largest (closest to positive infinity) double value that is
-
-     * not greater than the argument, is equal to a mathematical integer and
-
-     * satisfying the condition that log base 10 of the value is an integer
-
-     * (i.e., the value returned will be a power of 10: 1, 10, 100, 1000, etc.).
-
-     *
-
-     * @param lower  a double value below which a floor will be calcualted.
-
-     */
-
-    private double computeLogFloor(double lower) {
-
-
-
-        double logFloor;
-
-        if(lower > 10.0)
-
-        {     //parameter value is > 10
-
-          // The Math.log() function is based on e not 10.
-
-          logFloor = Math.log(lower) / LOG10_VALUE;
-
-          logFloor = Math.floor(logFloor);
-
-          logFloor = Math.pow(10, logFloor);
-
-        }
-
-        else if(lower < -10.0)
-
-        {     //parameter value is < -10
-
-                   //calculate log using positive value:
-
-          logFloor = Math.log(-lower) / LOG10_VALUE;
-
-                   //calculate floor using negative value:
-
-          logFloor = Math.floor(-logFloor);
-
-                   //calculate power using positive value; then negate
-
-          logFloor = -Math.pow(10, -logFloor);
-
-        }
-
-        else       //parameter value is -10 > val < 10
-
-          logFloor = Math.floor(lower);     //use as-is
-
-        return logFloor;          //return zero
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-    /**
+   /**
 
      * Calculates the positions of the tick labels for the axis, storing the results in the
 
@@ -951,116 +571,73 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
      */
 
     public void refreshTicks(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea)throws java.lang.ArithmeticException {
+      ++counter;
 
+      this.getTicks().clear();
+      g2.setFont(this.getTickLabelFont());
+      if (this.isAutoTickUnitSelection()) {
+        selectAutoTickUnit(g2, drawArea, plotArea);
+      }
+      double size = this.getTickUnit().getSize();
+      int count = this.calculateVisibleTickCount();
+      double x0=0.0;
+      double sum=0.0f;
+      int i=lowest;
+      // see whther there exists any major axis in data
+      double lower = getRange().getLowerBound();
+      double upper = getRange().getUpperBound();
+      if(lower==0.0 || upper==0.0)
+        throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
+      for( i=lowest;;++i) {
+        double val1=Double.parseDouble("1e"+i);
+        double val2=Double.parseDouble("1e"+(i+1));
+        if(lower==val1 || upper==val1)
+          break;
+        if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
 
+          // no major axis exixts in dat so you have to add the major axis
 
+          this.setRange(val1,val2);
 
-
-       ++counter;
-
-      	this.ticks.clear();
-
-
-
-        g2.setFont(tickLabelFont);
-
-
-
-	if (this.isAutoTickUnitSelection()) {
-
-	    selectAutoTickUnit(g2, drawArea, plotArea);
-
-	}
-
-        double size = this.getTickUnit().getSize();
-
-	int count = this.calculateVisibleTickCount();
-
-	double x0=0.0;
-
-        double sum=0.0f;
-
-        int i=lowest;
-
-
-
-
-
-
-
-        // see whther there exists any major axis in data
-
-        double lower = getRange().getLowerBound();
-
-        double upper = getRange().getUpperBound();
-
-        if(lower==0.0 || upper==0.0)
-
-               throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
-
-        for( i=lowest;;++i) {
-
-          double val1=Double.parseDouble("1e"+i);
-
-          double val2=Double.parseDouble("1e"+(i+1));
-
-
-
-          if(lower==val1 || upper==val1)
-
-            break;
-
-
-
-          if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
-
-            // no major axis exixts in dat so you have to add the major axis
-
-            this.setRange(val1,val2);
-
-            break;
-
-          }
-
-          if(lower < val2 && upper > val2) // we have found 1 major axis
-
-            break;
+          break;
 
         }
 
+        if(lower < val2 && upper > val2) // we have found 1 major axis
 
+          break;
 
-         // check whether we want to show in superscript form
-
-        int upperBound =powerOf10(getRange().getUpperBound());
-
-        int lowerBound=powerOf10(getRange().getLowerBound());
-
-        boolean superscript=false;
+      }
 
 
 
-        // whether you want to show in superscript form or not
+      // check whether we want to show in superscript form
 
-        if((upperBound-lowerBound) >= 4)
+      int upperBound =powerOf10(getRange().getUpperBound());
 
-          superscript=true;
+      int lowerBound=powerOf10(getRange().getLowerBound());
 
-
-
-        if(getRange().getLowerBound()<0.001 || getRange().getUpperBound()>1000.0)
-
-          superscript=true;
+      boolean superscript=false;
 
 
 
+      // whether you want to show in superscript form or not
+
+      if((upperBound-lowerBound) >= 4)
+
+        superscript=true;
 
 
-         /**
 
-          * For Loop - Drawing the ticks which corresponds to the  power of 10
+      if(getRange().getLowerBound()<0.001 || getRange().getUpperBound()>1000.0)
 
-          */
+        superscript=true;
+
+      /**
+
+       * For Loop - Drawing the ticks which corresponds to the  power of 10
+
+       */
 
 
 
@@ -1172,7 +749,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
 
 
-            Rectangle2D tickLabelBounds = tickLabelFont.getStringBounds(tickLabel,
+            Rectangle2D tickLabelBounds = this.getTickLabelFont().getStringBounds(tickLabel,
 
 									g2.getFontRenderContext());
 
@@ -1180,11 +757,11 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
 	    float y = 0.0f;
 
-	    if (this.getVerticalTickLabels()) {
+	    if (this.isVerticalTickLabels()) {
 
 		x = (float)(xx+tickLabelBounds.getHeight()/2);
 
-		y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getWidth());
+		y = (float)(plotArea.getMaxY()+this.getTickLabelInsets().top+tickLabelBounds.getWidth());
 
 	    }
 
@@ -1192,7 +769,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
               x = (float)(xx-tickLabelBounds.getWidth()/2);
 
-              y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getHeight());
+              y = (float)(plotArea.getMaxY()+this.getTickLabelInsets().top+tickLabelBounds.getHeight());
 
 	    }
 
@@ -1230,7 +807,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
              Tick tick = new Tick(new Double(currentTickValue), tickLabel, x, y);
 
-             ticks.add(tick);
+             this.getTicks().add(tick);
 
 	}
 
@@ -1283,25 +860,15 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
    */
 
   private void removePreviousTick() {
-
-    int size = ticks.size();
-
+    int size = this.getTicks().size();
     if(size==0)
-
        return;
-
     for(int i=size-1;i>0;--i) {
-
-      Tick tick = (Tick)ticks.get(i);
-
+      Tick tick = (Tick)this.getTicks().get(i);
       if(tick.getText().trim().equalsIgnoreCase(""))
-
         continue;
-
-      ticks.remove(i);
-
-      ticks.add(new Tick(new Double(tick.getNumericalValue()),"",tick.getX(),tick.getY()));
-
+      this.getTicks().remove(i);
+      this.getTicks().add(new Tick(new Double(tick.getNumericalValue()),"",tick.getX(),tick.getY()));
       return;
 
     }
@@ -1368,33 +935,31 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
 
 
-        if (!visible) return;
-
-
+        if (!this.isVisible()) return;
 
         // draw the axis label...
 
-        if (label!=null) {
+        if (this.getLabel()!=null) {
 
-            g2.setFont(labelFont);
+            g2.setFont(this.getLabelFont());
 
-            g2.setPaint(labelPaint);
+            g2.setPaint(this.getLabelPaint());
 
             FontRenderContext frc = g2.getFontRenderContext();
 
-            Rectangle2D labelBounds = labelFont.getStringBounds(label, frc);
+            Rectangle2D labelBounds = this.getLabelFont().getStringBounds(this.getLabel(), frc);
 
-            LineMetrics lm = labelFont.getLineMetrics(label, frc);
+            LineMetrics lm = this.getLabelFont().getLineMetrics(this.getLabel(), frc);
 
             float labelx = (float)(plotArea.getX()+plotArea.getWidth()/2-labelBounds.getWidth()/2);
 
-            float labely = (float)(drawArea.getMaxY()-labelInsets.bottom
+            float labely = (float)(drawArea.getMaxY()-this.getTickLabelInsets().bottom
 
                                                      -lm.getDescent()
 
                                                      -lm.getLeading());
 
-            g2.drawString(label, labelx, labely);
+            g2.drawString(this.getLabel(), labelx, labely);
 
         }
 
@@ -1410,7 +975,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
         g2.setFont(getTickLabelFont());
 
-        Iterator iterator = ticks.iterator();
+        Iterator iterator = this.getTicks().iterator();
 
          while (iterator.hasNext()) {
 
@@ -1438,17 +1003,17 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
              if(!isPowerOfTen(val)) // for major axis
 
-               g2.setFont(tickLabelFont);
+               g2.setFont(this.getTickLabelFont());
 
              else  // show minor axis in smaller font
 
-               g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()+3));
+               g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()+3));
 
-             if (tickLabelsVisible) {
+             if (this.isTickLabelsVisible()) {
 
-                 g2.setPaint(this.tickLabelPaint);
+                 g2.setPaint(this.getTickLabelPaint());
 
-                 if (this.getVerticalTickLabels()) {
+                 if (this.isVerticalTickLabels()) {
 
                      RefineryUtilities.drawRotatedString(tick.getText(), g2,
 
@@ -1468,7 +1033,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
                              g2.drawString("10", tick.getX(), tick.getY());
 
-                             g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()-2));
+                             g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-2));
 
                              g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+16,tick.getY()-6);
 
@@ -1479,12 +1044,8 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
              }
 
 
-
-
-
-
-
-             if (tickMarksVisible) {
+             if (this.isTickMarksVisible()) {
+                g2.setPaint(this.getTickMarkPaint());
 
                  g2.setStroke(this.getTickMarkStroke());
 
@@ -1493,21 +1054,6 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
                  g2.draw(mark);
 
              }
-
-             if (isGridLinesVisible()) {
-
-                 g2.setStroke(getGridStroke());
-
-                 g2.setPaint(getGridPaint());
-
-                 Line2D gridline = new Line2D.Float(xx, (float)plotArea.getMaxY(), xx,
-
-                                                    (float)plotArea.getMinY());
-
-                 g2.draw(gridline);
-
-             }
-
 
 
          }
@@ -1656,15 +1202,15 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
 
 
-        double result = this.tickLabelInsets.left+this.tickLabelInsets.right;
+        double result = this.getTickLabelInsets().left+this.getTickLabelInsets().right;
 
 
 
         FontRenderContext frc = g2.getFontRenderContext();
 
-        if (getVerticalTickLabels()) {
+        if (this.isVerticalTickLabels()) {
 
-            result += tickLabelFont.getStringBounds("0", frc).getHeight();
+            result += this.getTickLabelFont().getStringBounds("0", frc).getHeight();
 
         }
 
@@ -1684,9 +1230,9 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
             String upperStr = tickUnit.valueToString(upper);
 
-            double w1 = tickLabelFont.getStringBounds(lowerStr, frc).getWidth();
+            double w1 = this.getTickLabelFont().getStringBounds(lowerStr, frc).getWidth();
 
-            double w2 = tickLabelFont.getStringBounds(upperStr, frc).getWidth();
+            double w2 = this.getTickLabelFont().getStringBounds(upperStr, frc).getWidth();
 
             result += Math.max(w1, w2);
 
@@ -1703,10 +1249,54 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
     }
 
 
+    /**
+        * Returns the largest (closest to positive infinity) double value that is
+        * not greater than the argument, is equal to a mathematical integer and
+        * satisfying the condition that log base 10 of the value is an integer
+        * (i.e., the value returned will be a power of 10: 1, 10, 100, 1000, etc.).
+        *
+        * @param lower a double value below which a floor will be calcualted.
+        *
+        * @return 10<sup>N</sup> with N ... { 1 .. MAX_LONG }.
+        */
+       protected double computeLogFloor(double lower) {
+
+           double logFloor;
+           if (lower > 10.0) {     //parameter value is > 10
+               // The Math.log() function is based on e not 10.
+               logFloor = Math.log(lower) / LOG10_VALUE;
+               logFloor = Math.floor(logFloor);
+               logFloor = Math.pow(10, logFloor);
+           }
+           else {
+               if (lower < -10.0) {     //parameter value is < -10
+                      //calculate log using positive value:
+                   logFloor = Math.log(-lower) / LOG10_VALUE;
+                      //calculate floor using negative value:
+                   logFloor = Math.floor(-logFloor);
+                      //calculate power using positive value; then negate
+                   logFloor = -Math.pow(10, -logFloor);
+               }
+               else {
+                    //parameter value is -10 > val < 10
+                   logFloor = Math.floor(lower);     //use as-is
+               }
+           }
+           return logFloor;          //return zero
+       }
 
 
 
-
+       /**
+        * Returns the 'allowNegativesFlag' flag; true to allow negative values
+        * in data, false to be able to plot positive values arbitrarily close
+        * to zero.
+        *
+        * @return the flag.
+        */
+       public boolean getAllowNegativesFlag() {
+         return allowNegativesFlag;
+       }
 
 
 
