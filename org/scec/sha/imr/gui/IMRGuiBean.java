@@ -110,7 +110,7 @@ public class IMRGuiBean
      *  picklist, the Y-Values picklist, and the X-Values picklist. Some of
      *  these are dynamically generated from particular independent parameters.
      */
-    protected ParameterList controlsParamList = new ParameterList();
+    protected ParameterList controlsParamList = null;
 
     /**
      *  Placeholder for currently selected IM
