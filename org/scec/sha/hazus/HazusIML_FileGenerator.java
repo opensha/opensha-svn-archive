@@ -1,5 +1,7 @@
 package org.scec.sha.hazus;
 
+import java.io.*;
+import java.util.*;
 /**
  * <p>Title: </p>
  * <p>Description: </p>
@@ -11,46 +13,109 @@ package org.scec.sha.hazus;
 
 public class HazusIML_FileGenerator {
 
+  private final String Hazus ="hazus/";
   public HazusIML_FileGenerator() {
     /**
      *using the equation provided for the Ned to get the Prob. for the Hazus.
      */
     double prob =0;
     double time = 50;
+    Vector imlVector = new Vector();
+    File dirs =new File(Hazus);
+    String[] dirList=dirs.list();
+    // for each data set, read the meta data and sites info
 
-    double returnPd = 100;
-    prob = -1*(1- Math.exp((1/returnPd)*50));
-    System.out.println("Prob for 100: "+prob);
+    try{
+      FileWriter fw = new FileWriter(Hazus+"final.txt");
+      fw.write("#Column Info: Lat Lon IML values for the return period: 100, 250,"+
+               "500,750,1000,1500,2000,2500");
+      for(int i=0;i<dirList.length;++i){
+        imlVector.removeAllElements();
+        if(dirList[i].endsWith(".txt")){
+          double returnPd = 100;
+          prob = -1*(1- Math.exp((1/returnPd)*50));
+          System.out.println("Prob for 100: "+prob);
+          imlVector.add(new Double(getIML(dirList[i],prob)));
 
-    returnPd = 250;
-    prob = -1*(1- Math.exp((1/returnPd)*50));
-    System.out.println("Prob for 250: "+prob);
+          returnPd = 250;
+          prob = -1*(1- Math.exp((1/returnPd)*50));
+          System.out.println("Prob for 250: "+prob);
+          imlVector.add(new Double(getIML(dirList[i],prob)));
 
-    returnPd = 500;
-    prob = -1*(1- Math.exp((1/returnPd)*50));
-    System.out.println("Prob for 500: "+prob);
+          returnPd = 500;
+          prob = -1*(1- Math.exp((1/returnPd)*50));
+          System.out.println("Prob for 500: "+prob);
+          imlVector.add(new Double(getIML(dirList[i],prob)));
 
-    returnPd = 750;
-    prob = -1*(1- Math.exp((1/returnPd)*50));
-    System.out.println("Prob for 750: "+prob);
+          returnPd = 750;
+          prob = -1*(1- Math.exp((1/returnPd)*50));
+          System.out.println("Prob for 750: "+prob);
+          imlVector.add(new Double(getIML(dirList[i],prob)));
 
-    returnPd = 1000;
-    prob = -1*(1- Math.exp((1/returnPd)*50));
-    System.out.println("Prob for 1000: "+prob);
+          returnPd = 1000;
+          prob = -1*(1- Math.exp((1/returnPd)*50));
+          System.out.println("Prob for 1000: "+prob);
+          imlVector.add(new Double(getIML(dirList[i],prob)));
 
-    returnPd = 1500;
-    prob = -1*(1- Math.exp((1/returnPd)*50));
-    System.out.println("Prob for 1500: "+prob);
+          returnPd = 1500;
+          prob = -1*(1- Math.exp((1/returnPd)*50));
+          System.out.println("Prob for 1500: "+prob);
+          imlVector.add(new Double(getIML(dirList[i],prob)));
 
-    returnPd = 2000;
-    prob = -1*(1- Math.exp((1/returnPd)*50));
-    System.out.println("Prob for 2000: "+prob);
+          returnPd = 2000;
+          prob = -1*(1- Math.exp((1/returnPd)*50));
+          System.out.println("Prob for 2000: "+prob);
+          imlVector.add(new Double(getIML(dirList[i],prob)));
 
-    returnPd = 2500;
-    prob = -1*(1- Math.exp((1/returnPd)*50));
-    System.out.println("Prob for 2500: "+prob);
+          returnPd = 2500;
+          prob = -1*(1- Math.exp((1/returnPd)*50));
+          System.out.println("Prob for 2500: "+prob);
+          imlVector.add(new Double(getIML(dirList[i],prob)));
+          String lat = dirList[i].substring(0,dirList[i].indexOf("_"));
+          String lon = dirList[i].substring(dirList[i].indexOf("_")+1,dirList[i].indexOf(".txt"));
+          fw.write(lat+"  "+lon+"  ");
+          for(int j=0;j<imlVector.size()-1;++i)
+            fw.write(""+((Double)imlVector.get(j)).doubleValue()+",");
+          fw.write(""+((Double)imlVector.get(imlVector.size()-1)).doubleValue()+"\n");
+        }
+      }
+      fw.close();
+    }catch(Exception e){
+    }
   }
+
+
   public static void main(String[] args) {
     HazusIML_FileGenerator hazusIML_FileGenerator1 = new HazusIML_FileGenerator();
   }
+
+  private double getIML(String filename , double prob){
+    try{
+      FileReader fr = new FileReader(filename);
+      BufferedReader br = new BufferedReader(fr);
+      String line = br.readLine();
+      StringTokenizer st = new StringTokenizer(line);
+      double prevIML = new Double(st.nextToken()).doubleValue();
+      double prevProb = new Double(st.nextToken()).doubleValue();
+      while(line!=null){
+        line= br.readLine();
+        st = new StringTokenizer(line);
+        double currIML = new Double(st.nextToken()).doubleValue();
+        double currProb = new Double(st.nextToken()).doubleValue();
+        if(prob <=currProb && prob >=prevProb){
+          double logCurrProb = Math.log(currProb);
+          double logPrevProb = Math.log(prevProb);
+          double logCurrIML = Math.log(currIML);
+          double logPrevIML = Math.log(prevIML);
+          double iml = (((prob-logPrevProb)/(logCurrProb- logPrevProb)) *
+                        (logCurrIML - logPrevIML)) + logPrevIML;
+          return Math.exp(iml);
+        }
+      }
+    }catch(Exception e){
+      System.out.println(filename+" file not found");
+    }
+    return 0;
+  }
 }
+
