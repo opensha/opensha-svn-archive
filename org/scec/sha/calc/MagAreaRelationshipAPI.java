@@ -19,9 +19,9 @@ package org.scec.sha.calc;
 public interface MagAreaRelationshipAPI{
 
     public double getMeanArea(double mag);
-    public double getAreaStdev(double mag);
+    public double getAreaStdev();
 
     public double getMeanMag(double area);
-    public double getMagStdev(double area);
+    public double getMagStdev();
 
 }
