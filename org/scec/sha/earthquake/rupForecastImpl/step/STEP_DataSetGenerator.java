@@ -21,6 +21,8 @@ import org.scec.sha.gui.infoTools.ConnectToCVM;
 import org.scec.util.*;
 import org.scec.data.*;
 import org.scec.data.region.*;
+
+
 /**
  * <p>Title: STEP_DataSetGenerator</p>
  * <p>Description: This class generates the Dataset for the STEP Map which includes the
@@ -36,13 +38,13 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private final static String DELTA_RATES_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
 
    //private final double MIN_LAT= 32.5;
-  private final double MIN_LAT= 32;
+  //private final double MIN_LAT= 32;
   //private final double MAX_LAT= 36.6;
-  private final double MAX_LAT= 42.2;
+  //private final double MAX_LAT= 42.2;
   //private final double MIN_LON = -121.5 ;
-  private final double MIN_LON = -124.6;
+  //private final double MIN_LON = -124.6;
   //private final double MAX_LON= -114.50;
-   private final double MAX_LON= -112;
+  // private final double MAX_LON= -112;
   private final double GRID_SPACING= 0.1;
   private static final String STEP_DIR = "step/";
   private static final String STEP_BACKGROUND_FILE = "backGround.txt";
@@ -60,6 +62,12 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   public STEP_DataSetGenerator() {
     try{
       long startTime = System.currentTimeMillis();
+      //creating the step directory in which we put all the step related files
+      File stepDir = new File(this.STEP_DIR);
+      if(!stepDir.isDirectory()) { // if main directory does not exist
+        boolean success = (new File(STEP_DIR)).mkdir();
+      }
+
       FileWriter fw = new FileWriter(STEP_DIR+"time.txt");
       fw.write("Starting with STEP calculation at:"+startTime+"\n");
       // make the forecast
@@ -104,13 +112,6 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       }
       currentTime = System.currentTimeMillis();
       fw.write("Time to create Lat and Lon ArrayList :"+(currentTime - startTime)+"\n");
-      //creating the step directory in which we put all the step related files
-      File stepDir = new File(this.STEP_DIR);
-      if(!stepDir.isDirectory()) { // if main directory does not exist
-        boolean success = (new File(STEP_DIR)).mkdir();
-        currentTime = System.currentTimeMillis();
-        fw.write("Time to create STEP directory :"+(currentTime - startTime)+"\n");
-      }
 
       //generating the file for the VS30 Values if it already not exists
       File vs30File = new File(this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
@@ -1402,14 +1403,15 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       for(int j=0;j<numSites;++j){
         double hazVal =1;
         double condProb =0;
-        imr.setSite(region.getSite(j));
+        Site site = region.getSite(j);
+        imr.setSite(site);
         //adding the wills site class value for each site
         String willSiteClass = (String)this.willSiteClassVals.get(j);
         //only add the wills value if we have a value available for that site else leave default "D"
         if(!willSiteClass.equals("NA"))
-          imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(willSiteClass);
+          site.getParameter(imr.WILLS_SITE_NAME).setValue(willSiteClass);
         else
-          imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(imr.WILLS_SITE_D);
+          site.getParameter(imr.WILLS_SITE_NAME).setValue(imr.WILLS_SITE_D);
 
         // loop over sources
         for(i=0;i < numSources ;i++) {
