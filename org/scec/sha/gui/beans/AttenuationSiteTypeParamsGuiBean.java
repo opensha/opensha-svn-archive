@@ -241,6 +241,74 @@ public class AttenuationSiteTypeParamsGuiBean extends ParameterListEditor implem
    * reads the file for SA
    */
   private void readFileForSA(){
+    EqkRuptureFromNGA rupture = application.getSelectedRupture();
+    String imlSelected = application.getSelectedSAPeriod();
+    double iml = Double.parseDouble(imlSelected.trim());
+
+    String eqkId = rupture.getEqkId();
+    try{
+      FileReader fr_sites =  new FileReader(SA_FILE);
+      boolean readIMvalues = true;
+      //reading all the sites data for the earthquake id
+      //reading the file that provides the site specific about the rupture
+      BufferedReader br_sites = new BufferedReader(fr_sites);
+      String lineFromSiteFile = br_sites.readLine();
+      //tells the index of the SA value that needs to be read
+      int tokenNumber = 1;
+      if(lineFromSiteFile.startsWith("#")){
+        StringTokenizer st = new StringTokenizer(lineFromSiteFile,",");
+        st.nextToken();
+        while(st.hasMoreTokens()){
+          double saFromFile = Double.parseDouble(st.nextToken());
+          if(iml == saFromFile){
+            lineFromSiteFile = br_sites.readLine();
+            break;
+          }
+          else
+            ++tokenNumber;
+        }
+      }
+      //reading each line of the file to get all the sites info.
+      //corresponding to the earthquake.
+      while(lineFromSiteFile !=null && readIMvalues){
+        if(lineFromSiteFile.equals("\n") || lineFromSiteFile.equals("")){
+          lineFromSiteFile = br_sites.readLine();
+          continue;
+        }
+        StringTokenizer st_sites = new StringTokenizer(lineFromSiteFile,",");
+        String id =st_sites.nextToken().trim();
+        //Id is the first thing in the line that we read from the site info file.
+        if(id.equals(eqkId)){//if both id matches then create get the sites info for that quake
+          ArrayList saList = new ArrayList();
+          while(id.equals(eqkId)){
+            int i=0;
+            while(i<tokenNumber){
+              st_sites.nextToken();
+              ++i;
+            }
+            //getting the SA observed by the site, if not null
+            String saString = st_sites.nextToken().trim();
+            if(saString !=null && !saString.equals(""))
+              saList.add(new Double(Double.parseDouble(saString)));
+            else
+              saList.add(new Double(0.0));
+            lineFromSiteFile = br_sites.readLine();
+            st_sites = new StringTokenizer(lineFromSiteFile,",");
+            id =st_sites.nextToken().trim();
+          }
+          rupture.addIM_Values(saList);
+          readIMvalues = false;
+        }
+        else{ //if is doesn't match the read the next line.
+          lineFromSiteFile = br_sites.readLine();
+          continue;
+        }
+      }
+      br_sites.close();
+      fr_sites.close();
+    }catch(Exception e){
+      e.printStackTrace();
+    }
 
   }
 

@@ -864,12 +864,10 @@ public class ObservedVsPredictedApplet extends JApplet
 
   /**
    *
-   * @returns the selected IM level
+   * @returns the selected Sa Period
    */
-  public String getSelectedIM_Level(){
-    // get the selected IMR
-     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-     return (String)imr.getIntensityMeasureLevel();
+  public String getSelectedSAPeriod(){
+    return imtGuiBean.getParameterEditor(AttenuationRelationship.PERIOD_NAME).getValue().toString();
   }
 
 
