@@ -389,7 +389,7 @@ public class SiteTranslator implements java.io.Serializable{
     ar = new ShakeMap_2003_AttenRel(null);
     siteTrans.test(ar.getParameter(ShakeMap_2003_AttenRel.WILLS_SITE_NAME));
 
-    ar = new ShakeMap_2004_AttenRel(null);
+    ar = new USGS_Combined_2004_AttenRel(null);
     siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));
 
 //  ar = new SEA_1999_AttenRel(null);

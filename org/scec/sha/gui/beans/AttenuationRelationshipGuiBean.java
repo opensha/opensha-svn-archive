@@ -110,8 +110,8 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
 
 
   //static string declaration
-  private static String MULTIPLE_ATTEN_REL = "Show Multiple AttenRel";
-  private static String SINGLE_ATTEN_REL = "Show Single AttenRel";
+  private static String MULTIPLE_ATTEN_REL = "Show Multiple IMRs";
+  private static String SINGLE_ATTEN_REL = "Show Single IMR";
   // IMR GUI Editor & Parameter names
   public final static String IMR_PARAM_NAME = "IMR";
   public final static String IMR_EDITOR_TITLE =  "Set IMR";
@@ -1202,7 +1202,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
     if(!this.singleAttenRelSelected){
       for(int i=0;i<numSupportedAttenRels;++i){
         if(attenRelCheckBox[i].isSelected()){
-          metadata += "AttenuationRelationship = "+((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName()+
+          metadata += "IMR = "+((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName()+
                 " ; "+ wtsParameter[i].getName()+" = "+wtsParameter[i].getValue()+" ; "+
                 "Non Identical Param: "+editor[i].getVisibleParameters().toString()+"<br>\n";
         }

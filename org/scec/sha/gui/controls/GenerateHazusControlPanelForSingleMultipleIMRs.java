@@ -229,13 +229,13 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     //Doing for SA-0.3sec
     setSA_PeriodForSelectedIMRs(selectedAttenRels,0.3);
     sa03_xyzdata = application.generateShakeMap(selectedAttenRels);
-    metadata += "IMT = SA[  SA Damping = 5.0 ; SA Period = 0.3 ]"+"<br>\n";
+    metadata += "IMT = SA [ SA Damping = 5.0 ; SA Period = 0.3 ]"+"<br>\n";
 
     step =3;
     //Doing for SA-1.0sec
     setSA_PeriodForSelectedIMRs(selectedAttenRels,1.0);
     sa10_xyzdata = application.generateShakeMap(selectedAttenRels);
-    metadata += "IMT = SA[  SA Damping = 5.0 ; SA Period = 1.0 ]"+"<br>\n";
+    metadata += "IMT = SA [ SA Damping = 5.0 ; SA Period = 1.0 ]"+"<br>\n";
   }
 
   /**

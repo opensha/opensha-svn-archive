@@ -29,7 +29,7 @@ public class AttenuationRelationshipsInstance {
   public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
   public final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
-  public final static String SM04_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2004_AttenRel";
+  public final static String USGS04_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel";
 
   //arrayList to store the supported AttenRel Class Names with their full package structure.
   ArrayList supportedAttenRelClasses = new ArrayList();
@@ -48,7 +48,7 @@ public class AttenuationRelationshipsInstance {
     supportedAttenRelClasses.add(A_CLASS_NAME);
     supportedAttenRelClasses.add(CB_CLASS_NAME);
     supportedAttenRelClasses.add(SM_CLASS_NAME);
-    supportedAttenRelClasses.add(SM04_CLASS_NAME);
+    supportedAttenRelClasses.add(USGS04_CLASS_NAME);
   }
 
   /**
