@@ -74,11 +74,13 @@ public class IMT_GuiBeanSupportingMultipleAttenuationRelationships
         //check to see if the IMT param already exists in the vector list,
         //if so the get that parameter, else create new instance of the imt
         //parameter.
-        WarningDoubleParameter param1;
-        if(imt.contains(param.getName()))
-          param1 = (WarningDoubleParameter)imtParam.get(imtParam.indexOf(param));
+        DoubleParameter param1;
+        if(imt.contains(param.getName())){
+          int index = imtParam.indexOf(param);
+          param1 = (DoubleParameter)imtParam.get(index);
+        }
         else{
-          param1=new WarningDoubleParameter(param.getName());
+          param1=new DoubleParameter(param.getName(),(Double)param.getValue());
           //add the dependent parameter only if it has not ben added before
           imtParam.add(param1);
           imt.add(param.getName());

@@ -87,7 +87,13 @@ public class MultipleIMR_GuiBean extends JPanel  implements
     application = api;
     //initializing all the array of the GUI elements to be the number of the supported AtrtenuationRelationships.
     attenRelsSupported = attenRelInstances.createIMRClassInstance(this);
+
     numSupportedAttenRels = attenRelsSupported.size();
+
+    //setting the default parameters value for all the attenuationRelationship object.
+    for(int i=0;i<numSupportedAttenRels;++i)
+      ((AttenuationRelationshipAPI)attenRelsSupported.get(i)).setParamDefaults();
+
     attenRelCheckBox = new JCheckBox[numSupportedAttenRels];
     paramButtons = new JButton[numSupportedAttenRels];
     wtsParameter = new DoubleParameter[numSupportedAttenRels];

@@ -157,7 +157,7 @@ public abstract class DependentParameter
     ListIterator it = list.getParametersIterator();
     while( it.hasNext() ){
       ParameterAPI param = (ParameterAPI)it.next();
-      addIndependentParameter(param);
+      independentParameters.add(param);
     }
 
   }

@@ -479,7 +479,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
         //iterating over all the added siteParams to check if we have added that
         //site param before.
         for(int j=0;j<siteParams.size();++j)
-          if(tempParam.getName().equals((ParameterAPI)siteParams.get(j)))
+          if(tempParam.getName().equals(((ParameterAPI)siteParams.get(j)).getName()))
             flag= false;
         if(flag)
           siteParams.add(tempParam.clone());
