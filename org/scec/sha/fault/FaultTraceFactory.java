@@ -152,7 +152,12 @@ public class FaultTraceFactory {
                     if( D ) System.out.println(S + "Location" + loc.toString());
 
                 }
-                trace.normalize();
+
+                // reverse data ordering if dip negative, make positive and reverse trace order
+                if( dip < 0 ) {
+                    trace.setAveDip(-dip);
+                    trace.reverse();
+                }
 
                 // All done processing trace, add
                 list.addFaultTrace( trace );
@@ -164,7 +169,6 @@ public class FaultTraceFactory {
         if( D ) System.out.println(S + "Ending");
         return list;
     }
-
 
 
     public static FaultTrace getSierraMadre(){

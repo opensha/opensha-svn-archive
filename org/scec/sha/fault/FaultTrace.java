@@ -51,14 +51,6 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
 
     public int getNumLocations() { return size(); }
 
-    /**
-     * If dip is negative reverse all points and make dip positive
-     */
-    public void normalize(){
-        if( aveDip > 0 ) return;
-        aveDip *= -1;
-        reverse();
-    }
 
     private final static String TAB = "  ";
     public String toString(){
