@@ -7,6 +7,10 @@ import java.awt.Rectangle;
 import javax.swing.JOptionPane;
 import javax.swing.JLabel;
 
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+
 import org.scec.data.function.*;
 import org.scec.data.Site;
 import org.scec.sha.imr.*;
@@ -26,7 +30,8 @@ import org.scec.sha.gui.infoTools.*;
  * @version 1.0
  */
 
-public class DisaggregationCalculator {
+public class DisaggregationCalculator extends UnicastRemoteObject
+ implements DisaggregationCalculatorAPI{
 
   protected final static String C = "DisaggregationCalculator";
   protected final static boolean D = false;
@@ -69,6 +74,14 @@ public class DisaggregationCalculator {
 
 
   /**
+   * creates the DisaggregationCalculator object
+   *
+   * @throws java.rmi.RemoteException
+   * @throws IOException
+   */
+  public DisaggregationCalculator()throws java.rmi.RemoteException {}
+
+  /**
    * This sets the maximum distance of sources to be considered in the calculation
    * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
    * Sources more than this distance away are ignored.
@@ -76,7 +89,7 @@ public class DisaggregationCalculator {
    *
    * @param distance: the maximum distance in km
    */
-  public void setMaxSourceDistance(double distance) {
+  public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
     MAX_DISTANCE = distance;
   }
 
@@ -91,7 +104,7 @@ public class DisaggregationCalculator {
    * @return
    */
   public void disaggregate(double iml, Site site,
-        AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
+        AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) throws java.rmi.RemoteException{
 
     double rate, mean, stdDev, condProb;
 
@@ -255,19 +268,37 @@ public class DisaggregationCalculator {
 
   }
 
-  public int getCurrRuptures() {
+  /**
+   * gets the number of current rupture being processed
+   * @return
+   */
+  public int getCurrRuptures() throws java.rmi.RemoteException{
     return this.currRuptures;
   }
 
-  public int getTotRuptures() {
+  /**
+   * gets the total number of ruptures
+   * @return
+   */
+  public int getTotRuptures() throws java.rmi.RemoteException{
     return this.totRuptures;
   }
 
-  public boolean done() {
+  /**
+   * Checks to see if disaggregation calculation for the selected site
+   * have been completed.
+   * @return
+   */
+  public boolean done() throws java.rmi.RemoteException{
     return (currRuptures==totRuptures);
   }
 
-  public String getResultsString() {
+  /**
+   *
+   * @returns resultant disaggregation in a String format.
+   * @throws java.rmi.RemoteException
+   */
+  public String getResultsString() throws java.rmi.RemoteException{
 
     String results;
 

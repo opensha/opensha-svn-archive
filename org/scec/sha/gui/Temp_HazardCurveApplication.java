@@ -85,11 +85,14 @@ import org.scec.util.ImageUtils;
 import org.scec.util.SystemPropertiesUtils;
 import org.scec.util.FileUtils;
 import org.scec.sha.gui.controls.CalcOptionControl;
-import org.scec.sha.calc.remoteHazardCalc.RemoteHazardCurveClient;
+import org.scec.sha.calc.remoteCalc.RemoteHazardCurveClient;
+import org.scec.sha.calc.remoteCalc.RemoteDisaggregationCalcClient;
 import org.scec.sha.calc.HazardCurveCalculatorAPI;
+import org.scec.sha.calc.DisaggregationCalculatorAPI;
 import org.scec.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.scec.sha.earthquake.ERF_API;
 import ch.randelshofer.quaqua.QuaquaManager;
+
 
 /**
  * <p>Title: Temp_HazardCurveApplication</p>
@@ -305,7 +308,7 @@ public class Temp_HazardCurveApplication extends JApplet
 
   //instances of various calculators
   HazardCurveCalculatorAPI calc;
-  DisaggregationCalculator disaggCalc;
+  DisaggregationCalculatorAPI disaggCalc;
   CalcProgressBar progressClass;
   CalcProgressBar disaggProgressClass;
   Timer timer;
@@ -658,6 +661,8 @@ public class Temp_HazardCurveApplication extends JApplet
      */
     protected void createCalcInstance(){
       calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
+      if(disaggregationFlag)
+        disaggCalc = (new RemoteDisaggregationCalcClient()).getRemoteDisaggregationCalc();
     }
 
     /**
@@ -681,8 +686,6 @@ public class Temp_HazardCurveApplication extends JApplet
 
       // check if progress bar is desired and set it up if so
       if(this.progressCheckBox.isSelected())  {
-        //progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
-        //progressClass.displayProgressBar();
 
         timer = new Timer(500, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
@@ -692,7 +695,6 @@ public class Temp_HazardCurveApplication extends JApplet
               if(currRupture!=-1)
                 progressClass.updateProgress(currRupture, totRupture);
               if (isHazardCalcDone) {
-                // Toolkit.getDefaultToolkit().beep();
                 timer.stop();
                 progressClass.dispose();
                 drawGraph();
@@ -706,12 +708,17 @@ public class Temp_HazardCurveApplication extends JApplet
         // timer for disaggregation progress bar
         disaggTimer = new Timer(500, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
-            if(disaggCalc.getCurrRuptures()!=-1)
-              disaggProgressClass.updateProgress(disaggCalc.getCurrRuptures(), disaggCalc.getTotRuptures());
-            if (disaggCalc.done()) {
-              // Toolkit.getDefaultToolkit().beep();
-              disaggTimer.stop();
-              disaggProgressClass.dispose();
+            try{
+              int totalRupture = disaggCalc.getTotRuptures();
+              int currRupture = disaggCalc.getCurrRuptures();
+              if(currRupture!=-1)
+                disaggProgressClass.updateProgress(currRupture, totalRupture);
+              if(disaggCalc.done()){
+                disaggTimer.stop();
+                disaggProgressClass.dispose();
+              }
+            }catch(RemoteException e){
+              e.printStackTrace();
             }
           }
         });

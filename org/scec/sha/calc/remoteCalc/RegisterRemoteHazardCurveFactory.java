@@ -1,7 +1,7 @@
-package org.scec.sha.calc.remoteHazardCalc;
+package org.scec.sha.calc.remoteCalc;
 
-import org.scec.sha.calc.remoteHazardCalc.RemoteHazardCurveFactoryAPI;
-import org.scec.sha.calc.remoteHazardCalc.RemoteHazardCurveFactoryImpl;
+import org.scec.sha.calc.remoteCalc.RemoteHazardCurveFactoryAPI;
+import org.scec.sha.calc.remoteCalc.RemoteHazardCurveFactoryImpl;
 import java.rmi.Naming;
 
 /**

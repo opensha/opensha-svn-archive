@@ -1,4 +1,4 @@
-package org.scec.sha.calc.remoteHazardCalc;
+package org.scec.sha.calc.remoteCalc;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
