@@ -2,10 +2,6 @@ package org.scec.sha.gui.infoTools;
 
 import java.util.*;
 import java.lang.reflect.*;
-import javax.swing.JOptionPane;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
 
 /**
  * <p>Title: AtteuationRelationshipsInstance </p>

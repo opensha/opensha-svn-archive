@@ -241,7 +241,6 @@ public class IMT_GuiBeanSupportingMultipleAttenuationRelationships
  }
 
 
-
  /**
   *
   * @returns the Metadata string for the IMT Gui Bean
