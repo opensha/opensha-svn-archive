@@ -69,21 +69,21 @@ public class PointPoissonERF extends EqkRupForecast
   private final static String SRC_LAT_PARAM_UNITS = "Degrees";
   private Double SRC_LAT_PARAM_MIN = new Double (-90.0);
   private Double SRC_LAT_PARAM_MAX = new Double (90.0);
-  private Double SRC_LAT_PARAM_DEFAULT = new Double (34.053);
+  private Double SRC_LAT_PARAM_DEFAULT = new Double (35.71);
 
   public final static String SRC_LON_PARAM_NAME = "Source Longitude";
   private final static String SRC_LON_PARAM_INFO = "Longitude of the point source";
   private final static String SRC_LON_PARAM_UNITS = "Degrees";
   private Double SRC_LON_PARAM_MIN = new Double (-360);
   private Double SRC_LON_PARAM_MAX = new Double (360);
-  private Double SRC_LON_PARAM_DEFAULT = new Double (-118.243);
+  private Double SRC_LON_PARAM_DEFAULT = new Double (-121.1);
 
   public final static String SRC_DEPTH_PARAM_NAME = "Source Depth";
   private final static String SRC_DEPTH_PARAM_INFO = "Depth of the point source";
   private final static String SRC_DEPTH_PARAM_UNITS = "km";
   private Double SRC_DEPTH_PARAM_MIN = new Double (0);
   private Double SRC_DEPTH_PARAM_MAX = new Double (50);
-  private Double SRC_DEPTH_PARAM_DEFAULT = new Double (10);
+  private Double SRC_DEPTH_PARAM_DEFAULT = new Double (7.6);
 
 
   // parameter declarations

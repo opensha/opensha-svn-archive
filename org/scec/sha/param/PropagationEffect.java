@@ -26,7 +26,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
     private final static boolean D = false;
 
     private boolean APPROX_HORZ_DIST = false;
-    private boolean POINT_SRC_CORR = true;
+    private boolean POINT_SRC_CORR = false;
 
     // Approx Horz Dist Parameter
     public final static String APPROX_DIST_PARAM_NAME = "Use Approximate Distance";
@@ -61,11 +61,11 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
     /** No Argument consructor */
     public PropagationEffect() {
 
-      approxDistParam = new BooleanParameter(APPROX_DIST_PARAM_NAME, new Boolean(false));
+      approxDistParam = new BooleanParameter(APPROX_DIST_PARAM_NAME, new Boolean(APPROX_HORZ_DIST));
       approxDistParam.setInfo(APPROX_DIST_PARAM_INFO);
       approxDistParam.addParameterChangeListener(this);
 
-      pointSrcCorrParam = new BooleanParameter(POINT_SRC_CORR_PARAM_NAME, new Boolean(false));
+      pointSrcCorrParam = new BooleanParameter(POINT_SRC_CORR_PARAM_NAME, new Boolean(POINT_SRC_CORR));
       pointSrcCorrParam.setInfo(POINT_SRC_CORR_PARAM_INFO);
       pointSrcCorrParam.addParameterChangeListener(this);
 
@@ -196,9 +196,9 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
             // get the horizontal dist depending on desired accuracy
             if(APPROX_HORZ_DIST)
-              horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
+              horzDist = RelativeLocation.getApproxHorzDistance(loc1, loc2);
             else
-              horzDist = RelativeLocation.getApproxHorzDistance(loc1,loc2);
+              horzDist = RelativeLocation.getHorzDistance(loc1,loc2);
 
             // make point source correction if desired
             if(eqkRupture.getRuptureSurface().getNumCols() == 1 &&

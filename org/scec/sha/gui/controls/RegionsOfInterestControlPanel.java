@@ -55,7 +55,12 @@ public class RegionsOfInterestControlPanel extends JFrame {
       minLonVector.add(new Double(-119.5));
       maxLonVector.add(new Double(-117.0));
 
-
+      //CVM region
+      regionsComboBox.addItem("San Simeon Region");
+      minLatVector.add(new Double(34.872466));
+      maxLatVector.add(new Double(36.539133));
+      minLonVector.add(new Double(-121.844633));
+      maxLonVector.add(new Double(-119.361300));
 
       jbInit();
       // show the window at center of the parent component
