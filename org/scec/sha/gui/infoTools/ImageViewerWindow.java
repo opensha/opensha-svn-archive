@@ -14,7 +14,7 @@ import java.net.*;
 
 public class ImageViewerWindow extends JFrame {
   private final static int W=650;
-  private final static int H=900;
+  private final static int H=800;
 
   private JSplitPane mapSplitPane = new JSplitPane();
   private JScrollPane mapScrollPane = new JScrollPane();
