@@ -42,9 +42,9 @@ Move progress bar in HazardCurveCalculator (and Disagg calculator) to a separate
 
 	sha/gui/infoTools/calcProgressBar.java
 
-Add Frankel96_ERF to hazard curve applet.
-
 Define TimeSpan object.
+
+HazardMapCalculator - move iteration over sites inside, add progress bar for sites, and turn off progress bar in HazardCurveCalculator.
 
 Frankel96_ERF - make it update only if an adjustable parameter has changed.  Add background seismicity.
 
@@ -59,6 +59,10 @@ Create an object that will compute fractiles from a list of hazard curves - Ned 
 Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g., try it in the LogPlotTesterApp).
 
 Mail JFreechart to include our log-log implementation into the official JFreeChart framework.
+
+GriddedFaultApplet - fix plotting symbols (make all circles)
+
+AttenRelApp - make "Set Axes" button (rather than JcomoBox)
 
 
 For the SCEC-ITR CME:
@@ -83,6 +87,8 @@ Think about meta data structure for haz map calcs.
 Build ScenarioShakeMapApplet (with HazardMapApplet in mind).  Then do this on server side.
 
 Get site params from Vs30 and basin depth translator, and get Vs30 and basin depth for lat/lon.
+
+
 
 
 **************** LONG TERM (LOWER PRIORITY): ****************
