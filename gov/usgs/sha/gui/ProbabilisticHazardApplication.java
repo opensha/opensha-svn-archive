@@ -364,6 +364,7 @@ public class ProbabilisticHazardApplication
    */
   private void clearDataButton_actionPerformed(ActionEvent actionEvent) {
     guiBeanAPI.clearData();
+    setDataInWindow("");
   }
 
 
