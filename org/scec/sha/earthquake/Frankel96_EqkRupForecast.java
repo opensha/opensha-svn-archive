@@ -43,7 +43,7 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
 
   //for Debug purposes
   private static String  C = new String("Frankel96_EqkRupForecast");
-  private boolean D = true;
+  private boolean D = false;
 
   private double GRID_SPACING = 1.0;
   private double B_VALUE =0.9;

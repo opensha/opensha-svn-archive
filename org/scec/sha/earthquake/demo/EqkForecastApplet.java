@@ -55,7 +55,7 @@ public class EqkForecastApplet extends JApplet
   protected final static String C_CLASS_NAME = "org.scec.sha.imr.classicImpl.Campbell_1997_IMR";
   protected final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.classicImpl.SCEMY_1997_IMR";
   protected final static String F_CLASS_NAME = "org.scec.sha.imr.classicImpl.Field_2000_IMR";
-  protected final static String A_CLASS_NAME = "org.scec.sha.imr.classicImpl.Abrahamson_2000_IMR";
+
 
   /**
    *  Temp until figure out way to dynamically load classes during runtime
@@ -65,7 +65,6 @@ public class EqkForecastApplet extends JApplet
   protected final static String C_NAME = "Cambell (1997) w/ erratum (2000) changes";
   protected final static String SCEMY_NAME = "Sadigh et al. (1997)";
   protected final static String F_NAME = "Field (2000)";
-  protected final static String A_NAME = "Abrahamson (2000)";
 
   protected final static String SA = "SA";
   protected final static String SA_PERIOD = "SA Period";
@@ -138,6 +137,10 @@ public class EqkForecastApplet extends JApplet
   // array of checkboxes. One check box for each supported IMR
   private JCheckBox[] jIMRNum;
 
+  // name of current IMR in processing
+  private String currIMR_Name;
+
+
   protected boolean graphOn = false;
   /**
    *  This is the paramater list editor. The site parameters will be made
@@ -175,6 +178,9 @@ public class EqkForecastApplet extends JApplet
 
   // generic forecast API
   EqkRupForecastAPI eqkRupForecast ;
+
+  // whther Add Graph button is clicked or not
+  private boolean buttonClicked =  false;
 
   Color lightBlue = new Color( 200, 200, 230 );
 
@@ -668,10 +674,18 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     if(D) System.out.println(S + "Starting");
 
 
+
+
+    // only display messages if paramters are set at back
     StringBuffer b = new StringBuffer();
 
     WarningParameterAPI param = e.getWarningParameter();
 
+    // do not display messages for focus lost
+    if(!this.buttonClicked) {
+       param.setValueIgnoreWarning( e.getNewValue() );
+       return;
+    }
 
     try{
         Double min = param.getWarningMin();
@@ -683,7 +697,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
         if(this.siteParamList.getParameter(name)==null)
           return;
 
-        b.append( "You have exceeded the recommended range\n");
+        b.append( "You have exceeded the recommended range for "+currIMR_Name+"\n");
         b.append( name );
         b.append( ": (" );
         b.append( min.toString() );
@@ -721,12 +735,12 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     result = JOptionPane.showConfirmDialog( this, b.toString(),
         "Exceeded Recommended Values", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
-    if(D) System.out.println(S + "You choose " + result);
+    if(D) System.out.println(S + "You choose" + result);
 
     switch (result) {
         case JOptionPane.YES_OPTION:
             if(D) System.out.println(S + "You choose yes, changing value to " + e.getNewValue().toString() );
-            param.setValueIgnoreWarning( e.getNewValue() );
+            param.setValueIgnoreWarning( e.getNewValue());
             break;
         case JOptionPane.NO_OPTION:
             if(D) System.out.println(S + "You choose no, keeping value = " + e.getOldValue().toString() );
@@ -949,6 +963,8 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
                                     ,"Wrong Data Entered",JOptionPane.ERROR_MESSAGE);
     else{
 
+      buttonClicked = true;
+
       // get the selected forecast model
       String selectedForecast = (String)jEqkForeType.getSelectedItem();
 
@@ -1013,6 +1029,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
           hazFunction[i] = new ArbitrarilyDiscretizedFunc();
           initDiscretizeValues(hazFunction[i]);
           hazFunction[i].setInfo(jIMRNum[i].getText());
+          if (D) System.out.println("selected IMR:"+jIMRNum[i].getText());
           // add the function of each IMR to the function list
           totalProbFuncs.add(hazFunction[i]);
 
@@ -1030,12 +1047,14 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
            }
           // pass the site object to each IMR
           try {
+             if(D) System.out.println("siteString:::"+site.toString());
+              currIMR_Name = new String(jIMRNum[i].getText());
              ((ClassicIMRAPI)imrObject.get(i)).setSite(site);
           } catch (Exception ex) {
                  if(D) System.out.println(C + ":Param warning caught"+ex);
                  ex.printStackTrace();
 
-          }
+           }
          }
        }
       // get total sources
@@ -1062,11 +1081,13 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
                 // initialize the values in condProbfunc
                 initLogDiscretizeValues(condProbFunc);
                 try {
-                  ((ClassicIMRAPI)imrObject.get(imr)).setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(i,n));
+                  if(D) System.out.println("imr:::"+imr);
+                   ((ClassicIMRAPI)imrObject.get(imr)).setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(i,n));
                 } catch (Exception ex) {
-                    if(D) System.out.println(C + ":Param warning caught");
+                   if(D) System.out.println(C + ":Param warning caught");
                 }
-                condProbFunc=(ArbitrarilyDiscretizedFunc)((ClassicIMRAPI)imrObject.get(imr)).getExceedProbabilities(condProbFunc);
+                   condProbFunc=(ArbitrarilyDiscretizedFunc)((ClassicIMRAPI)imrObject.get(imr)).getExceedProbabilities(condProbFunc);
+
                 for(int k=0;k<condProbFunc.getNum();k++){
                     hazFunction[imr].set(k,hazFunction[imr].getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
                     if (D) System.out.println("k="+k+",hazfunction[k] for imr="+hazFunction[imr].getY(k));

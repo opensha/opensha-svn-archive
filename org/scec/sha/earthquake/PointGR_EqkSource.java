@@ -22,7 +22,7 @@ public class PointGR_EqkSource extends ProbEqkSource {
 
   //for Debug purposes
   private static String  C = new String("PointGR_EqkSource");
-  private boolean D =false;
+  private boolean D = false;
 
   private GuttenbergRichterMagFreqDist gR;
   private double timeSpan = Double.NaN;

@@ -27,7 +27,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
 
   //for Debug purposes
   private static String  C = new String("Frankel96_GR_EqkSource");
-  private boolean D =true;
+  private boolean D = false;
 
   private GuttenbergRichterMagFreqDist gR;
   private double rake;

@@ -28,7 +28,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
    */
   private String name = new String("Frankel96_CharEqkSource");
 
-  boolean D = true;
+  boolean D = false;
 
 
   /**
@@ -45,7 +45,6 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
                                 EvenlyGriddedSurface surface) {
 
       this.rate = rate;
-
       probEqkRupture = new ProbEqkRupture();
       this.rate  = rate;
       probEqkRupture.setAveRake(rake);
