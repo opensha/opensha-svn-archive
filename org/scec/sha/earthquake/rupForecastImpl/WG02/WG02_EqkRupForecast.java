@@ -398,7 +398,7 @@ System.out.println("Char_momentRate="+tempMoRate);
    }
 
 
-   public void listTotalSourceProbs() {
+   public void listSourceTotalProbs() {
      double p_char, p_tail, p_both, p_tot=1.00;
      int num = getNumSources(), i1, i2;
      for(i1=0; i1 < (num-1)/2; i1++) {
@@ -439,7 +439,7 @@ System.out.println("Char_momentRate="+tempMoRate);
      WG02_EqkRupForecast qkCast = new WG02_EqkRupForecast();
      System.out.println("num_sources="+qkCast.getNumSources());
      System.out.println("num_rups(lastSrc)="+qkCast.getNumRuptures(qkCast.getNumSources()-1));
-     qkCast.listTotalSourceProbs();
+     qkCast.listSourceTotalProbs();
   }
 
 }
