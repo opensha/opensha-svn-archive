@@ -106,8 +106,8 @@ import org.scec.util.*;
  * <i>Constraint will be created and added in subclass</i><p>
  *
  * <b>vs30Param</b> - A WarningDoubleParameter representing the <b>average 30-meter shear-
- * wave velocity at the surface of a site.  This parameter is created in the initSiteParams()
- * method here, but the warning constraint must be created and added in subclasses.</b><br>
+ * wave velocity at the surface of a site</b>.  This parameter is created in the initSiteParams()
+ * method here, but the warning constraint must be created and added in subclasses.<br>
  * VS30_NAME = "Vs30"<br>
  * VS30_UNITS = "m/sec"<br>
  * VS30_INFO = "Average 30 meter shear wave velocity at surface"<br>
@@ -117,7 +117,7 @@ import org.scec.util.*;
  *
  * <b>stdDevTypeParam</b> - A StringParameter representing the various <b>types of standard
  * deviations</b> that an IMR might support; "Total" is the most common (see description
- * below for more details)<br>
+ * below for more details).<br>
  * STD_DEV_TYPE_NAME = "Std Dev Type"<br>
  * STD_DEV_TYPE_INFO = "Type of Standard Deviation"<br>
  * STD_DEV_TYPE_DEFAULT = "Total"<br>
@@ -126,10 +126,33 @@ import org.scec.util.*;
  * STD_DEV_TYPE_INTRA = "Intra-Event"<p>
  *
  * <b>fltTypeParam</b> - A StringParameter representing <b>different styles of faulting</b>;
- * options are specified in subclasses because nomenclature varies<br>
+ * options are specified in subclasses because nomenclature varies.<br>
  * FLT_TYPE_NAME = "Fault Type"<br>
  * <i>No units for this one</i><br>
  * FLT_TYPE_INFO = "Style of faulting"<p>
+ *
+ * <b>sigmaTruncTypeParam</b> - A StringParameter representing the <b>various types of truncation
+ * available for the Gaussian probability distribution</b>; "1 Sided" is an upper
+ * truncation (zero probabilities above); see <i>sigmaTruncLevelParam</i> below for more info.<br>
+ * SIGMA_TRUNC_TYPE_NAME = "Gaussian Distribution Truncation"<br>
+ * SIGMA_TRUNC_TYPE_INFO = "Type of distribution truncation to apply when computing exceedance probabilities"<br>
+ * SIGMA_TRUNC_TYPE_NONE = "None"<br>
+ * SIGMA_TRUNC_TYPE_1SIDED = "1 Sided"<br>
+ * SIGMA_TRUNC_TYPE_2SIDED = "2 Sided"<br>
+ * SIGMA_TRUNC_TYPE_DEFAULT = "None"<p>
+ *
+ * <b>sigmaTruncLevelParam</b> - A DoubleParameter defining <b>where the Gaussian
+ * distribution is truncated </b> (this is ignored if sigmaTruncTypeParam is "None");
+ * This level is defined in terms of some number of standard deviations above
+ * (and perhaps below) the mean.<br>
+ * SIGMA_TRUNC_LEVEL_NAME = "Truncation Level"<br>
+ * SIGMA_TRUNC_LEVEL_UNITS = "Std Dev"<br>
+ * SIGMA_TRUNC_LEVEL_INFO = "The number of standard deviations, from the mean, where truncation occurs"<br>
+ * SIGMA_TRUNC_LEVEL_DEFAULT = 2.0 <br>
+ * SIGMA_TRUNC_LEVEL_MIN = Double.MIN_VALUE<br>
+ * SIGMA_TRUNC_LEVEL_MAX = Double.MAX_VALUE<p>
+ *
+ *
  *
  *  </p> Note: SWR - SetAll() is not truly robust in case of error. <p>
  *
@@ -348,10 +371,35 @@ public abstract class ClassicIMR
     // No units for this one
     protected final static String FLT_TYPE_INFO = "Style of faulting";
 
+    /**
+     * SigmaTruncTypeParam, a StringParameter that represents the type of
+     * probability distribution truncation.
+     */
+    protected StringParameter sigmaTruncTypeParam = null;
+    protected final static String SIGMA_TRUNC_TYPE_NAME = "Gaussian Distribution Truncation";
+    protected final static String SIGMA_TRUNC_TYPE_INFO = "Type of distribution truncation to apply when computing exceedance probabilities";
+    protected final static String SIGMA_TRUNC_TYPE_NONE = "None";
+    protected final static String SIGMA_TRUNC_TYPE_1SIDED = "1 Sided";
+    protected final static String SIGMA_TRUNC_TYPE_2SIDED = "2 Sided";
+    protected final static String SIGMA_TRUNC_TYPE_DEFAULT = "None";
+
+    /**
+     * SigmaTruncLevelParam, a DoubleParameter that represents where truncation occurs
+     * on the Gaussian distribution (in units of standard deviation, relative to the mean).
+     */
+    protected DoubleParameter sigmaTruncLevelParam = null;
+    protected final static String SIGMA_TRUNC_LEVEL_NAME = "Truncation Level";
+    protected final static String SIGMA_TRUNC_LEVEL_UNITS = "Std Dev";
+    protected final static String SIGMA_TRUNC_LEVEL_INFO = "The number of standard deviations, from the mean, where truncation occurs";
+    protected final static Double SIGMA_TRUNC_LEVEL_DEFAULT = new Double(2.0);
+    protected final static Double SIGMA_TRUNC_LEVEL_MIN = new Double(Double.MIN_VALUE);
+    protected final static Double SIGMA_TRUNC_LEVEL_MAX = new Double(Double.MAX_VALUE);
 
 
     // defined to prevent taking the log of zero when calculating exceed Prob
-    protected final double IML_MIN = 0.00000001;
+    protected final double IML_MIN = Double.MIN_VALUE;
+
+
 
     /**
      *  Common error message = "Not all parameters have been set"
@@ -479,18 +527,47 @@ public abstract class ClassicIMR
                      );
 
         // Calculate the NormalDistribution
-        double mean = getMean().doubleValue();
+        double mean = Math.log( getMean().doubleValue() );
         double stdDev = getStdDev().doubleValue();
-        NormalDistribution gauss = new NormalDistribution( Math.log( mean ), stdDev );
+        NormalDistribution gauss = new NormalDistribution( mean, stdDev );
 
         // Calculate the probability of exceeding the iml value
-        double imlValue;
-        imlValue = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
-        if ( imlValue < IML_MIN ) imlValue = IML_MIN;
-        double prob = 1 - gauss.getCDF( Math.log( imlValue ) );
+        double iml;
+        iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
+        if ( iml < IML_MIN ) iml = IML_MIN;
+        iml = Math.log( iml );
+
+        double prob = gauss.getCDF( iml );
+
+        // compute probability based on truncation type
+        if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_NONE ) ) {
+            return new Double( 1.0 - prob );
+        }
+        else if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) ) {
+            double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
+            if (iml > mean + numSig*stdDev)
+                return new Double( 0.0 );
+            else {
+                double pUp = gauss.getCDF( mean + numSig*stdDev );
+                return new Double( 1.0 - prob/pUp );
+            }
+        }
+        else {  // the two sided case
+            double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
+            if (iml > mean + numSig*stdDev)
+                return new Double( 0.0 );
+            else if (iml < mean - numSig*stdDev)
+                return new Double( 1.0 );
+            else {
+                double pUp = gauss.getCDF( mean + numSig*stdDev );
+                double pLow = gauss.getCDF( mean - numSig*stdDev );
+                return new Double( (pUp-prob)/(pUp-pLow) );
+            }
+        }
+
 
         // All done
-        return new Double( prob );
+        //return new Double( prob );
     }
 
 
@@ -650,7 +727,26 @@ public abstract class ClassicIMR
      *  such as the Component or StdDevType parameters.
      *
      */
-    protected abstract void initOtherParams();
+    protected void initOtherParams() {
+
+        // Sigma truncation type parameter:
+        StringConstraint sigmaTruncTypeConstraint = new StringConstraint();
+        sigmaTruncTypeConstraint.addString( SIGMA_TRUNC_TYPE_NONE );
+        sigmaTruncTypeConstraint.addString( SIGMA_TRUNC_TYPE_1SIDED );
+        sigmaTruncTypeConstraint.addString( SIGMA_TRUNC_TYPE_2SIDED );
+        sigmaTruncTypeConstraint.setNonEditable();
+        sigmaTruncTypeParam = new StringParameter( SIGMA_TRUNC_TYPE_NAME, sigmaTruncTypeConstraint, SIGMA_TRUNC_TYPE_DEFAULT);
+        sigmaTruncTypeParam.setInfo( SIGMA_TRUNC_TYPE_INFO );
+        sigmaTruncTypeParam.setNonEditable();
+
+        // Sigma truncation level parameter:
+        DoubleConstraint sigmaTruncLevelConstraint = new DoubleConstraint(SIGMA_TRUNC_LEVEL_MIN, SIGMA_TRUNC_LEVEL_MAX);
+        sigmaTruncLevelConstraint.setNonEditable();
+        sigmaTruncLevelParam = new DoubleParameter( SIGMA_TRUNC_LEVEL_NAME, sigmaTruncLevelConstraint, SIGMA_TRUNC_LEVEL_UNITS, SIGMA_TRUNC_LEVEL_DEFAULT);
+        sigmaTruncLevelParam.setInfo( SIGMA_TRUNC_LEVEL_INFO );
+        sigmaTruncLevelParam.setNonEditable();
+
+    }
 
     /**
      * Adds all parameters that StdDev depends upon to the

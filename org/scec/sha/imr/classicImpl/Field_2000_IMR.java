@@ -254,6 +254,8 @@ public class Field_2000_IMR
      */
     public Field_2000_IMR( ParameterChangeWarningListener warningListener ) {
 
+        super();
+
         this.warningListener = warningListener;
 
         initCoefficients( );  // This must be called before the next one
@@ -447,7 +449,7 @@ public class Field_2000_IMR
      */
     protected void initProbEqkRuptureParams(  ) {
 
-        // create magParam
+        // Create magParam
         super.initProbEqkRuptureParams();
 
         //  Create and add warning constraint to magParam:
@@ -537,6 +539,9 @@ public class Field_2000_IMR
      *  such as the Component or StdDevType parameters.
      */
     protected void initOtherParams( ) {
+
+        // init other params defined in parent class
+        super.initOtherParams();
 
         // the Component Parameter
         StringConstraint constraint = new StringConstraint();

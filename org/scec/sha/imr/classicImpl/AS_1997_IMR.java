@@ -133,6 +133,8 @@ public class AS_1997_IMR
      */
     public AS_1997_IMR(ParameterChangeWarningListener warningListener) {
 
+        super();
+
         this.warningListener = warningListener;
 
         initCoefficients( );  // This must be called before the next one
@@ -537,10 +539,10 @@ System.out.println( a13 );
      */
     protected void initProbEqkRuptureParams(  ) {
 
-        // create magParam
+        // Create magParam
         super.initProbEqkRuptureParams();
 
-        //  Create and add warning constraint to magParam:
+       //  Create and add warning constraint to magParam:
         DoubleConstraint warn = new DoubleConstraint(MAG_WARN_MIN, MAG_WARN_MAX);
         warn.setNonEditable();
         magParam.setWarningConstraint(warn);
@@ -644,6 +646,9 @@ System.out.println( a13 );
      *  such as the Component or StdDevType parameters.
      */
     protected void initOtherParams( ) {
+
+        // init other params defined in parent class
+        super.initOtherParams();
 
         // the Component Parameter
         StringConstraint constraint = new StringConstraint();
