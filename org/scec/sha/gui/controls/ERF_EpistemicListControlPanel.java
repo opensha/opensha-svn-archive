@@ -182,7 +182,7 @@ public class ERF_EpistemicListControlPanel extends JFrame
   public void setCustomPercentileValue(double value) {
     percentileComboBox.setSelectedItem(CUSTOM_PERCENTILE);
     percentileParam.setValue(value);
-    percentileEditor.synchToModel();
+    percentileEditor.refreshParamEditor();
   }
 
   /**

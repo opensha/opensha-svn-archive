@@ -106,6 +106,6 @@ public class SitesOfInterestControlPanel extends JFrame {
     // set the lat and lon in the editor
     siteGuiBean.getParameterListEditor().getParameterList().getParameter(Site_GuiBean.LATITUDE).setValue(latVector.get(index));
     siteGuiBean.getParameterListEditor().getParameterList().getParameter(Site_GuiBean.LONGITUDE).setValue(lonVector.get(index));
-    siteGuiBean.getParameterListEditor().synchToModel();
+    siteGuiBean.getParameterListEditor().refreshParamEditor();
   }
 }

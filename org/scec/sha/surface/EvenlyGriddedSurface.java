@@ -51,8 +51,6 @@ public class EvenlyGriddedSurface extends GriddedSurface {
      * @param numSubSurfaceOffset Number of grid poits for offset
      * @param n The index of the desired surface (from 0 to (getNumSubsetSurfaces - 1))
      *
-     * This can be made more efficient
-     *
      */
     public GriddedSubsetSurface getNthSubsetSurface(int numSubSurfaceCols,
                                                     int numSubSurfaceRows,

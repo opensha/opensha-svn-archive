@@ -313,7 +313,7 @@ public class ParameterEditor
      * the GUI component ( text field, picklsit, etc. ) with
      * the new parameter value. Implemented in subclasses.
      */
-    public void synchToModel() { }
+    public void refreshParamEditor() { }
 
     /**
      * Needs to be called by subclasses when editable widget field change fails

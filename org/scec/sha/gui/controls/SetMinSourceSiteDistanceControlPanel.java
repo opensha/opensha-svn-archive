@@ -62,7 +62,7 @@ public class SetMinSourceSiteDistanceControlPanel extends JFrame {
    */
   public void setDistance(double distance) {
     distanceParam.setValue(new Double(distance));
-    distanceEditor.synchToModel();
+    distanceEditor.refreshParamEditor();
   }
 }
 

@@ -130,13 +130,13 @@ public class SimpleFaultParameterGUI extends JDialog{
   }
 
   /**
-   * Intermediate step to call the SynchToModel for the SimpleFaultEditorPanel
+   * Intermediate step to call the refreshParamEditor for the SimpleFaultEditorPanel
    * becuase the SimpleFaultEditorPanel is just a simple Editor that shows the
    * button in the window. But when you click the button only then the actual
    * parameter values comes up
    */
-  public void synchToModel(){
-    faultEditorPanel.synchToModel();
+  public void refreshParamEditor(){
+    faultEditorPanel.refreshParamEditor();
   }
 
   /**

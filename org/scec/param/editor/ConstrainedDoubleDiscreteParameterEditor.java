@@ -207,7 +207,7 @@ public class ConstrainedDoubleDiscreteParameterEditor
      * process independently of the GUI. This could occur with a ParameterChangeFail
      * event.
      */
-     public void synchToModel(){
+     public void refreshParamEditor(){
 
         if( valueEditor instanceof JComboBox ){
 

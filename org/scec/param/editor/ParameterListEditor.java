@@ -198,14 +198,14 @@ public class ParameterListEditor extends LabeledBoxPanel {
      * process independently of the GUI. This could occur with a ParameterChangeFail
      * event.
      */
-    public void synchToModel() {
+    public void refreshParamEditor() {
 
         Set keys = parameterEditors.keySet();
         Iterator it = keys.iterator();
         while ( it.hasNext() ) {
             Object key = it.next();
             ParameterEditorAPI editor = ( ParameterEditorAPI ) parameterEditors.get( key );
-            editor.synchToModel();
+            editor.refreshParamEditor();
         }
     }
 

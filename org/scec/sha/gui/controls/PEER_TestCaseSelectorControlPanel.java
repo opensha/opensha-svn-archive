@@ -271,11 +271,11 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
       set_Set2Params(siteParams);
 
     // refresh the editor according to parameter values
-    imrGuiBean.synchToModel();
-    imtGuiBean.synchToModel();
-    siteGuiBean.getParameterListEditor().synchToModel();
-    erfGuiBean.synchToModel();
-    timeSpanGuiBean.synchToModel();
+    imrGuiBean.refreshParamEditor();
+    imtGuiBean.refreshParamEditor();
+    siteGuiBean.getParameterListEditor().refreshParamEditor();
+    erfGuiBean.refreshParamEditor();
+    timeSpanGuiBean.refreshParamEditor();
   }
 
   /**

@@ -68,9 +68,9 @@ public class SimpleFaultParameterEditor extends ParameterEditor
    * the GUI component ( text field, picklist, etc. ) with
    * the new parameter value.
    */
-  public void synchToModel() {
+  public void refreshParamEditor() {
     if(surfaceGUI!=null)
-      surfaceGUI.synchToModel();
+      surfaceGUI.refreshParamEditor();
   }
 
 

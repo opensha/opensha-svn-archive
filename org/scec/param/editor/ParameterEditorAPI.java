@@ -47,7 +47,7 @@ public interface ParameterEditorAPI {
      * the GUI component ( text field, picklsit, etc. ) with
      * the new parameter value.
      */
-    public void synchToModel();
+    public void refreshParamEditor();
 
     /** Returns the value of the parameer as a String, regardless of it's true data type */
     public String getAsText();

@@ -220,14 +220,14 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    * the GUI component ( text field, picklist, etc. ) with
    * the new parameter value.
    */
-  public void synchToModel() {
-    editor.synchToModel();
-    editorForLats.synchToModel();
-    editorForLons.synchToModel();
-    numDipsEditor.synchToModel();
-    editorForDips.synchToModel();
-    editorForDepths.synchToModel();
-    faultTypeEditor.synchToModel();
+  public void refreshParamEditor() {
+    editor.refreshParamEditor();
+    editorForLats.refreshParamEditor();
+    editorForLons.refreshParamEditor();
+    numDipsEditor.refreshParamEditor();
+    editorForDips.refreshParamEditor();
+    editorForDepths.refreshParamEditor();
+    faultTypeEditor.refreshParamEditor();
   }
 
   /**
@@ -378,7 +378,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
 
     faultTypeEditor.getParameter().setValue(faultType);
 
-    synchToModel();
+    refreshParamEditor();
   }
 
 

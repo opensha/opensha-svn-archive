@@ -150,8 +150,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      * the GUI component ( text field, picklist, etc. ) with
      * the new parameter value.
      */
-    public void synchToModel() {
-      editor.synchToModel();
+    public void refreshParamEditor() {
+      editor.refreshParamEditor();
     }
 
 

@@ -1604,7 +1604,7 @@ public class GriddedFaultApplet
         gridSpacingParam = new DoubleParameter("Grid Spacing",.01,20,null, GRID_SPACING );
         gridSpacingEditor = new ConstrainedDoubleParameterEditor(gridSpacingParam);
         // gridSpacingEditor.setValue(GRID_SPACING);
-        // gridSpacingEditor.synchToModel();
+        // gridSpacingEditor.refreshParamEditor();
         gridSpacingEditor.setWidgetBorder(BorderFactory.createLoweredBevelBorder());
         gridSpacingEditor.validate();
 
@@ -1852,7 +1852,7 @@ public class GriddedFaultApplet
         customFaultEditor.setLongitudes(lons);
         customFaultEditor.setDepths(depths);
         customFaultEditor.setDips(dips);
-        customFaultEditor.synchToModel();
+        customFaultEditor.refreshParamEditor();
 */
 
         createSimpleFault = false;

@@ -134,7 +134,7 @@ public class DoubleParameterEditor extends ParameterEditor
                 Double d = null;
                  if( !value.equals( "" ) ) d = new Double(value);
                 setValue(d);
-                synchToModel();
+                refreshParamEditor();
                 valueEditor.validate();
                 valueEditor.repaint();
             }
@@ -162,7 +162,7 @@ public class DoubleParameterEditor extends ParameterEditor
             }
             catch (WarningException ee){
                 keyTypeProcessing = false;
-                synchToModel();
+                refreshParamEditor();
                 valueEditor.validate();
                 valueEditor.repaint();
             }
@@ -192,7 +192,7 @@ public class DoubleParameterEditor extends ParameterEditor
             Double d = null;
             if( !value.equals( "" ) ) d = new Double(value);
             setValue(d);
-            synchToModel();
+            refreshParamEditor();
             valueEditor.validate();
             valueEditor.repaint();
         }
@@ -220,7 +220,7 @@ public class DoubleParameterEditor extends ParameterEditor
             }
         catch (WarningException ee){
             focusLostProcessing = false;
-            synchToModel();
+            refreshParamEditor();
             valueEditor.validate();
             valueEditor.repaint();
         }
@@ -252,7 +252,7 @@ public class DoubleParameterEditor extends ParameterEditor
      * process independently of the GUI. This could occur with a ParameterChangeFail
      * event.
      */
-    public void synchToModel(){
+    public void refreshParamEditor(){
 
         Object obj = model.getValue();
         if( obj != null )

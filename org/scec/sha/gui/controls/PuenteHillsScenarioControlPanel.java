@@ -56,7 +56,7 @@ public class PuenteHillsScenarioControlPanel {
     erfGuiBean.showAllParamsForForecast(false);
     //changing the ERF ro SimpleFaultERF
     erfGuiBean.getParameterListEditor().getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setValue(SimplePoissonFaultERF.NAME);
-    erfGuiBean.getParameterListEditor().synchToModel();
+    erfGuiBean.getParameterListEditor().refreshParamEditor();
 
     //Getting the instance for the editor that holds all the adjustable params for the selcetd ERF
     ERF_GuiBean erfParamGuiBean =erfGuiBean.getERF_ParamEditor();
@@ -89,7 +89,7 @@ public class PuenteHillsScenarioControlPanel {
 
     //setting the FaultParameterEditor with the default values for Puente Hills Scenario
     faultPanel.setAll(faultPanel.DEFAULT_GRID_SPACING,lats,lons,dips,depths,faultPanel.STIRLING);
-    faultPanel.synchToModel();
+    faultPanel.refreshParamEditor();
     //updaing the faultParameter to update the faultSurface
     faultPanel.setEvenlyGriddedSurfaceFromParams();
 
@@ -98,7 +98,7 @@ public class PuenteHillsScenarioControlPanel {
     magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
     magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
     magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(7.5));
-    erfParamGuiBean.synchToModel();
+    erfParamGuiBean.refreshParamEditor();
     // now have the editor create the magFreqDist
     magEditor.setMagDistFromParams();
 
@@ -107,7 +107,7 @@ public class PuenteHillsScenarioControlPanel {
 
     //Updating the IMR Gui Bean with the Field-2000 attenuation relationship.
     imrGuiBean.getParameterList().getParameter(imrGuiBean.IMR_PARAM_NAME).setValue(Field_2000_AttenRel.NAME);
-    imrGuiBean.synchToModel();
+    imrGuiBean.refreshParamEditor();
 
     //Updating the SitesInGriddedRegionGuiBean with the Puente Hills resion setting
     regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(regionGuiBean.MIN_LATITUDE).setValue(new Double(33.5));

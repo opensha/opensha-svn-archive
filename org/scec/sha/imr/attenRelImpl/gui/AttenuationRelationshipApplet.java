@@ -949,7 +949,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
     private void clearButton(){
         clearPlot( true );
-        attenRel.synchToModel();
+        attenRel.refreshParamEditor();
     }
 
     /**
@@ -1417,7 +1417,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
           //if(D) System.out.println(S + "\n\nFunction = " + functions.toString() + "\n\n");
 
-          attenRel.synchToModel();
+          attenRel.refreshParamEditor();
 
           // Add points data to text area, people can see
 

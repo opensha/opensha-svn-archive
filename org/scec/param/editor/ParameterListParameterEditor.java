@@ -113,7 +113,7 @@ ActionListener{
    * the new parameter value.
    */
   public void syncToModel(){
-    editor.synchToModel();
+    editor.refreshParamEditor();
   }
 
   /**

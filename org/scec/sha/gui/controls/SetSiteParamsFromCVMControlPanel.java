@@ -135,7 +135,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
                             vs30, basinDepth);
     }
     // reflect the new parameter value in GUI
-    this.siteGuiBean.getParameterListEditor().synchToModel();
+    this.siteGuiBean.getParameterListEditor().refreshParamEditor();
   }
 
 

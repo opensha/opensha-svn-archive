@@ -823,8 +823,8 @@ public class AttenuationRelationshipGuiBean
      *  changed when iterating over an independent variable. This function
      *  ensures these changes are reflected in the independent parameter list.
      */
-    public void synchToModel() {
-        independentsEditor.synchToModel();
+    public void refreshParamEditor() {
+        independentsEditor.refreshParamEditor();
     }
 
 

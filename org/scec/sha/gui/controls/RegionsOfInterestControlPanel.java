@@ -105,7 +105,7 @@ public class RegionsOfInterestControlPanel extends JFrame {
     regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(SitesInGriddedRegionGuiBean.MAX_LATITUDE).setValue(maxLatVector.get(index));
     regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(SitesInGriddedRegionGuiBean.MIN_LONGITUDE).setValue(minLonVector.get(index));
     regionGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(SitesInGriddedRegionGuiBean.MAX_LONGITUDE).setValue(maxLonVector.get(index));
-    regionGuiBean.getGriddedRegionParameterListEditor().synchToModel();
+    regionGuiBean.getGriddedRegionParameterListEditor().refreshParamEditor();
   }
 
 
