@@ -98,6 +98,12 @@ public class HazardCurveApplet extends JApplet
   private AxisLimitsControlPanel axisControlPanel;
   private ERF_EpistemicListControlPanel epistemicControlPanel;
 
+  // message string to be dispalayed if user chooses Axis Scale
+   // without first clicking on "Add Graph"
+  private final static String AXIS_RANGE_NOT_ALLOWED =
+      new String("First Choose Add Graph. Then choose Axis Scale option");
+
+
 
   // mesage needed in case of show data if plot is not available
   private final static String NO_PLOT_MSG = "No Plot Data Available";
@@ -1136,6 +1142,10 @@ public class HazardCurveApplet extends JApplet
    * from controls pick list
    */
   private void initAxisControl() {
+    if(xAxis==null || yAxis==null) {
+      JOptionPane.showMessageDialog(this,AXIS_RANGE_NOT_ALLOWED);
+      return;
+    }
     Range rX = xAxis.getRange();
     Range rY= yAxis.getRange();
     double minX=rX.getLowerBound();

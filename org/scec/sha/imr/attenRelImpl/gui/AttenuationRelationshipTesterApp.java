@@ -64,6 +64,10 @@ public class AttenuationRelationshipTesterApp extends JApplet
     protected double maxYValue;
     protected boolean customAxis = false;
 
+    // message string to be dispalayed if user chooses Axis Scale
+    // without first clicking on "Add Graph"
+    private final static String AXIS_RANGE_NOT_ALLOWED =
+        new String("First Choose Add Graph. Then choose Axis Scale option");
 
 
 

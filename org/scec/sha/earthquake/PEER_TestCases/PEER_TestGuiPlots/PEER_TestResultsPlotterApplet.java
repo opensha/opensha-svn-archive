@@ -74,6 +74,12 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private String dataVersion ;
   private String dataLastUpdated;
 
+  // message string to be dispalayed if user chooses Axis Scale
+  // without first clicking on "Add Graph"
+  private final static String AXIS_RANGE_NOT_ALLOWED =
+      new String("First Choose Add Graph. Then choose Axis Scale option");
+
+
   //variables that determine the window size
   protected final static int W = 850;
   protected final static int H = 700;
@@ -163,8 +169,6 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private Border border3;
   private JCheckBox xLogCheckBox = new JCheckBox();
   private JCheckBox yLogCheckBox = new JCheckBox();
-  private JLabel rangeLabel = new JLabel();
-  private JComboBox rangeComboBox = new JComboBox();
   private Border border4;
   private Border border5;
 
@@ -210,10 +214,11 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private JButton toggleButton = new JButton();
   private JLabel guiLabel = new JLabel();
   private JLabel dataVersionLabel = new JLabel();
-  private BorderLayout borderLayout1 = new BorderLayout();
   JLabel powerLabel = new JLabel();
-  GridBagLayout gridBagLayout7 = new GridBagLayout();
+  private JButton axisScaleButton = new JButton();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private GridBagLayout gridBagLayout7 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
 
   //Construct the applet
   public PEER_TestResultsPlotterApplet() {
@@ -316,7 +321,6 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     yLogCheckBox.setMaximumSize(new Dimension(59, 17));
     yLogCheckBox.setMinimumSize(new Dimension(59, 17));
     yLogCheckBox.setPreferredSize(new Dimension(59, 17));
-    rangeLabel.setForeground(new Color(80, 80, 133));
     toggleButton.setMaximumSize(new Dimension(87, 27));
     toggleButton.setMinimumSize(new Dimension(87, 27));
     toggleButton.setPreferredSize(new Dimension(87, 27));
@@ -345,22 +349,18 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     });
     powerLabel.setToolTipText("");
     powerLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
-    rangeComboBox.setPreferredSize(new Dimension(130, 17));
+    axisScaleButton.setText("Set Axis Scale");
+    axisScaleButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        axisScaleButton_actionPerformed(e);
+      }
+    });
     dataScrollPane.getViewport().add( pointsTextArea, null );
     xLogCheckBox.setText("XLog");
     yLogCheckBox.setText("YLog");
-    rangeLabel.setText("SetAxisRange:");
-    rangeComboBox.addItem(new String(AUTO_SCALE));
-    rangeComboBox.addItem(new String(CUSTOM_SCALE));
-    rangeComboBox.setForeground(new Color(80,80,133));
-    rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        rangeComboBox_actionPerformed(e);
-      }
-    });
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), -48, -61));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -2, 7, 0), -48, 16));
     plotSplitPane.add(topPlotPanel, JSplitPane.LEFT);
 
     topPlotPanel.add(testCaseLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -377,24 +377,22 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     avgCasesPanel.add(avgLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    buttonPanel.add(toggleButton,     new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 16, 3, 20), 30, 0));
-    buttonPanel.add(rangeLabel,      new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(3, 32, 3, 0), 8, 0));
-    buttonPanel.add(yLogCheckBox,      new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 0, 3, 0), 15, 0));
-    buttonPanel.add(xLogCheckBox,       new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 16, 3, 0), 22, 0));
-    buttonPanel.add(averageCheck,      new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 10, 3, 0), 1, 0));
-    buttonPanel.add(rangeComboBox,           new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(3, 0, 3, 0), 0, 0));
-    mainPanel.add(guiLabel,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(1, 267, 0, 190), 37, 10));
-    mainPanel.add(dataVersionLabel,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 139, 0, 171), 394, 3));
-    mainPanel.add(powerLabel,   new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 329, 0, 206), 70, 0));
+    buttonPanel.add(yLogCheckBox,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    buttonPanel.add(xLogCheckBox,    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 16, 0, 0), 0, 0));
+    buttonPanel.add(averageCheck,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 10, 0, 0), 0, 0));
+    buttonPanel.add(axisScaleButton,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 86, 0, 0), 44, -6));
+    buttonPanel.add(toggleButton,   new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 49, 0, 40), 0, 0));
+    mainPanel.add(guiLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-2, 267, 0, 190), 37, 10));
+    mainPanel.add(dataVersionLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 139, 0, 171), 394, 3));
+    mainPanel.add(powerLabel,  new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-2, -2, 0, 0), 0, 0));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     mainSplitPane.setDividerLocation(420);
     plotSplitPane.setDividerLocation(475);
@@ -849,41 +847,36 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     * whenever selection is made in the combo box
     * @param e
    */
-  void rangeComboBox_actionPerformed(ActionEvent e) {
+  void axisScaleButton_actionPerformed(ActionEvent e) {
 
-    String str=(String)rangeComboBox.getSelectedItem();
-    if(str.equalsIgnoreCase(AUTO_SCALE)){
-      customAxis=false;
-      addGraphPanel();
+    if(xAxis==null || yAxis==null) {
+      JOptionPane.showMessageDialog(this,AXIS_RANGE_NOT_ALLOWED);
+      return;
     }
-    if(str.equalsIgnoreCase(CUSTOM_SCALE))  {
-      Range rX = xAxis.getRange();
-      Range rY= yAxis.getRange();
-      double minX=rX.getLowerBound();
-      double maxX=rX.getUpperBound();
-      double minY=rY.getLowerBound();
-      double maxY=rY.getUpperBound();
 
-      if(this.customAxis) { // select the custom scale in the control window
-       if(axisLimits==null)
-         axisLimits=new AxisLimitsControlPanel(this, this,
-           AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
-       else
-         axisLimits.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
-                              minX,maxX,minY,maxY);
+    Range rX = xAxis.getRange();
+    Range rY= yAxis.getRange();
+    double minX=rX.getLowerBound();
+    double maxX=rX.getUpperBound();
+    double minY=rY.getLowerBound();
+    double maxY=rY.getUpperBound();
+    if(this.customAxis) { // select the custom scale in the control window
+      if(axisLimits == null)
+        axisLimits=new AxisLimitsControlPanel(this, this,
+            AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
+      else  axisLimits.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
+                                 minX,maxX,minY,maxY);
 
-     }
-     else { // select the auto scale in the control window
-       if(axisLimits==null)
-         axisLimits=new AxisLimitsControlPanel(this, this,
-             AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
-       else
-         axisLimits.setParams(AxisLimitsControlPanel.AUTO_SCALE,
-                              minX,maxX,minY,maxY);
-       }
-      axisLimits.pack();
-      axisLimits.show();
     }
+    else { // select the auto scale in the control window
+      if(axisLimits == null)
+        axisLimits=new AxisLimitsControlPanel(this, this,
+            AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
+      else  axisLimits.setParams(AxisLimitsControlPanel.AUTO_SCALE,
+                                 minX,maxX,minY,maxY);
+    }
+    axisLimits.pack();
+    axisLimits.show();
   }
 
   /**
@@ -1022,5 +1015,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   void powerLabel_mouseExited(MouseEvent e) {
 
   }
+
+
 
 }
