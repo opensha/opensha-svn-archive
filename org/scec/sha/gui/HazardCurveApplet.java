@@ -876,7 +876,7 @@ public class HazardCurveApplet extends JApplet
         /* get the selected ERF
         NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
         erfGuiBean.getSelectedERF.
-        Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
+        Difference is that erfGuiBean.getSelectedERF_Instance() does not update
         the forecast while erfGuiBean.getSelectedERF updates the
         */
         this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());

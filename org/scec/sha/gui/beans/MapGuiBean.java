@@ -72,15 +72,13 @@ public class MapGuiBean extends JPanel {
    *
    * @param regionParamsFlag: boolean flag to check if the region params are to be shown in the
    */
-  public ParameterListEditor showGMTParams(boolean regionParamsFlag,double minLat,
-                   double maxLat,double minLon,double maxLon,double gridSpacing){
+  public ParameterListEditor showGMTParams(boolean regionParamsFlag){
     if(regionParamsFlag){
       listEditor.getParameterEditor(gmtMap.MAX_LAT_PARAM_NAME).setVisible(false);
       listEditor.getParameterEditor(gmtMap.MIN_LAT_PARAM_NAME).setVisible(false);
       listEditor.getParameterEditor(gmtMap.MAX_LON_PARAM_NAME).setVisible(false);
       listEditor.getParameterEditor(gmtMap.MIN_LON_PARAM_NAME).setVisible(false);
       listEditor.getParameterEditor(gmtMap.GRID_SPACING_PARAM_NAME).setVisible(false);
-      setRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
     }
     return listEditor;
   }
@@ -93,7 +91,7 @@ public class MapGuiBean extends JPanel {
    * @param maxLon
    * @param gridSpacing
    */
-  private void setRegionParams(double minLat,double maxLat,double minLon,double maxLon,
+  public void setGMTRegionParams(double minLat,double maxLat,double minLon,double maxLon,
                                double gridSpacing){
     paramList.getParameter(gmtMap.MIN_LAT_PARAM_NAME).setValue(new Double(minLat));
     paramList.getParameter(gmtMap.MAX_LAT_PARAM_NAME).setValue(new Double(maxLat));
