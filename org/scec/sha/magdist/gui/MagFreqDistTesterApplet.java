@@ -778,29 +778,34 @@ public class MagFreqDistTesterApplet extends JApplet
               toMoFunctions.clear();
           }
 
+
+        if(!this.jCheckSumDist.isSelected()) {
           // add the functions to the functionlist
           incrFunctions.add((EvenlyDiscretizedFunc)function);
           toCumFunctions.add(cumRate);
           toMoFunctions.add(moRate);
-
-
-          // if summed distribution is selected, add to summed distribution
-          if(this.jCheckSumDist.isSelected()) {
-             // previous sum is invalid in the function lists. so remove that
-             incrFunctions.remove(0);
-             toCumFunctions.remove(0);
-             toMoFunctions.remove(0);
-
+        } else { // if summed distribution is selected, add to summed distribution
              try {
                // add this distribution to summed distribution
                summedMagFreqDist.addIncrementalMagFreqDist(function);
+
+               // previous sum is invalid in the function lists. so remove that
+               incrFunctions.remove(0);
+               toCumFunctions.remove(0);
+               toMoFunctions.remove(0);
+
+               // add the functions to the functionlist
+               incrFunctions.add((EvenlyDiscretizedFunc)function);
+               toCumFunctions.add(cumRate);
+               toMoFunctions.add(moRate);
                // this function will insert summed distribution at top of function list
                insertSummedDistribution();
              }catch(Exception ex) {
                JOptionPane.showMessageDialog(this,
                                      "min, max, and num must be the same to sum the distributions."+
-                                     "\n Removing the summed distribution from the list"
+                                     "\n To add this distribution first deselct the summed distribution"
                                      );
+               return;
              }
           }
 
