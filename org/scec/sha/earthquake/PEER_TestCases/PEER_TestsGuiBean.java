@@ -164,6 +164,9 @@ public class PEER_TestsGuiBean implements
 
     // make the site gui bean
     siteParamEditor = new SiteParamListEditor();
+    // add fail listener for Latitude and Longitude parameters
+    siteParamEditor.getParameterEditor(SiteParamListEditor.LATITUDE).getParameter().addParameterChangeFailListener(this);
+    siteParamEditor.getParameterEditor(SiteParamListEditor.LONGITUDE).getParameter().addParameterChangeFailListener(this);
 
     // Create site parameters
     updateSiteParamListAndEditor( );

@@ -46,9 +46,10 @@ public class SiteParamListEditor extends ParameterListEditor implements Paramete
   /**
    * Longitude and Latitude paramerts to be added to the site params list
    */
-  private DoubleParameter longitude = new DoubleParameter(LONGITUDE,new Double(-118));
-  private DoubleParameter latitude = new DoubleParameter(LATITUDE,new Double(34.0));
-
+  private DoubleParameter longitude = new DoubleParameter(LONGITUDE,
+      new Double(-360), new Double(360),new Double(-118));
+  private DoubleParameter latitude = new DoubleParameter(LATITUDE,
+      new Double(-90), new Double(90), new Double(34.0));
 
   /**
    * constuctor which builds up mapping between IMRs and their related sites
