@@ -56,7 +56,6 @@ public class ProbabilisticHazardApplication
   JComboBox analysisOptionSelectionCombo = new JComboBox();
   JSplitPane dataSplitPane = new JSplitPane();
   JScrollPane dataScrollPane = new JScrollPane();
-  JPanel dataPanel = new JPanel();
   JPanel parametersPanel = new JPanel();
   JPanel buttonPanel = new JPanel();
   JTextArea dataTextArea = new JTextArea();
@@ -139,13 +138,11 @@ public class ProbabilisticHazardApplication
       }
     });
 
-    dataPanel.setLayout(borderLayout3);
     dataSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     dataSplitPane.setBorder(outputBorder);
     outputBorder.setTitleColor(Color.RED);
     dataTextArea.setText("");
     dataScrollPane.setBounds(new Rectangle(10, 10, 484, 548));
-    dataPanel.setBounds(new Rectangle(0, 0, 484, 548));
     parametersPanel.setLayout(borderLayout4);
     buttonPanel.setLayout(flowLayout1);
     clearDataButton.setText("Clear Data");
@@ -167,8 +164,8 @@ public class ProbabilisticHazardApplication
     ExplainButton.setText("Explain");
     explainationText = new JTextPane();
     explainationText.setEditable(false);
-    dataScrollPane.add(dataPanel, null);
-    dataPanel.add(dataTextArea, java.awt.BorderLayout.CENTER);
+
+    dataScrollPane.getViewport().add(dataTextArea, java.awt.BorderLayout.CENTER);
     buttonPanel.add(clearDataButton, null);
     buttonPanel.add(viewMapsButton, null);
     jPanel1.add(analysisOptionLabel,

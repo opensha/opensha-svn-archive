@@ -5,11 +5,10 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 import gov.usgs.util.GlobalConstants;
-import gov.usgs.sha.io.DataFileNameSelector;
 import gov.usgs.sha.io.NEHRP_FileReader;
 
 import org.scec.param.event.*;
-import org.scec.param.ParameterAPI;
+
 import org.scec.data.region.RectangularGeographicRegion;
 import org.scec.param.StringParameter;
 import org.scec.param.editor.ConstrainedStringParameterEditor;
@@ -19,10 +18,11 @@ import org.scec.data.function.DiscretizedFuncList;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import javax.swing.border.EtchedBorder;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
+import gov.usgs.exceptions.ZipCodeErrorException;
 
 
 /**
@@ -69,6 +69,9 @@ public class NEHRP_GuiBean
 
   private NEHRP_FileReader fileReader = new NEHRP_FileReader();
   private ArrayList functionsList = new ArrayList();
+
+
+  private boolean locationVisible;
 
   //gets the datainfo for the calculated data
   private String dataInfo ="";
@@ -297,6 +300,7 @@ public class NEHRP_GuiBean
     if(comp != null)
       locationSplitPane.remove(locationSplitPane.getBottomComponent());
     if (region != null) {
+      locationVisible = true;
       //checking if Zip code is supported by the selected choice
       boolean zipCodeSupported = isZipCodeSupportedBySelectedEdition();
       locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
@@ -305,6 +309,9 @@ public class NEHRP_GuiBean
       locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
       locationSplitPane.setDividerLocation(170);
     }
+    else if(region == null)
+      locationVisible = false;
+
   }
 
   /**
@@ -404,43 +411,57 @@ public class NEHRP_GuiBean
         addParameterChangeListener(this);
   }
 
+  /**
+   * Gets the SA Period and Values from datafiles
+   */
+  private void getDataForSA_Period() {
 
-  private void getDataForSA_Period(){
-    String fileName = null;
-    DataFileNameSelector dataFileSelector = new DataFileNameSelector();
     String selectedGeographicRegion = datasetGui.getSelectedGeographicRegion();
     String selectedDataEdition = datasetGui.getSelectedDataSetEdition();
-    String locationMode = locGuiBean.getLocationMode();
-    if(locationMode.equals(locGuiBean.LAT_LON)){
-      Location loc= locGuiBean.getSelectedLocation();
-      double lat = loc.getLatitude();
-      double lon = loc.getLongitude();
+    dataInfo += selectedGeographicRegion + "\n\n";
+    dataInfo += selectedDataEdition + "\n\n";
+    //doing the calculation if not territory and Location GUI is visible
+    if (locationVisible) {
+      String locationMode = locGuiBean.getLocationMode();
+      if (locationMode.equals(locGuiBean.LAT_LON)) {
+        Location loc = locGuiBean.getSelectedLocation();
+        double lat = loc.getLatitude();
+        double lon = loc.getLongitude();
 
-      fileName = dataFileSelector.getFileName(selectedGeographicRegion,
-          selectedDataEdition,lat,lon);
-      fileReader.setFileName(fileName);
-      DiscretizedFuncList functions =fileReader.getSsS1(lat,lon);
-      int numFunctions = functions.size();
-      for(int i=0;i<numFunctions;++i)
-        functionsList.add(functions.get(i));
-    }
-    else if(locationMode.equals(locGuiBean.ZIP_CODE)){
-      String zipCode = locGuiBean.getZipCode();
-      fileName = dataFileSelector.getFileName(selectedGeographicRegion,
-          selectedDataEdition);
-      try{
-
-        fileReader.setFileName(fileName);
-        DiscretizedFuncList functions = fileReader.getSsS1(zipCode);
+        DiscretizedFuncList functions = fileReader.getSsS1(
+            selectedGeographicRegion, selectedDataEdition, lat, lon);
+        dataInfo += functions.getInfo();
         int numFunctions = functions.size();
         for (int i = 0; i < numFunctions; ++i)
           functionsList.add(functions.get(i));
-
-      }catch(Exception e){
-        JOptionPane.showMessageDialog(this,e.getMessage(),"Zip Code Error",JOptionPane.OK_OPTION);
-        e.printStackTrace();
-        return;
       }
+      else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
+        String zipCode = locGuiBean.getZipCode();
+        try {
+
+          DiscretizedFuncList functions = fileReader.getSsS1(
+              selectedGeographicRegion, selectedDataEdition, zipCode);
+          dataInfo += functions.getInfo();
+          int numFunctions = functions.size();
+          for (int i = 0; i < numFunctions; ++i)
+            functionsList.add(functions.get(i));
+
+        }
+        catch (ZipCodeErrorException e) {
+          JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
+                                        JOptionPane.OK_OPTION);
+          e.printStackTrace();
+          return;
+        }
+      }
+    }
+    else { // if territory and location Gui is not visible
+      DiscretizedFuncList functions = fileReader.getSsS1ForTerritory(
+          selectedGeographicRegion);
+      dataInfo += functions.getInfo();
+      int numFunctions = functions.size();
+      for (int i = 0; i < numFunctions; ++i)
+        functionsList.add(functions.get(i));
     }
   }
 
@@ -452,19 +473,10 @@ public class NEHRP_GuiBean
     return functionsList;
   }
 
-  /**
-   * Returns the data info for the computed data.
-   * @return String
-   */
-  public String getDataInfo(){
-    dataInfo = fileReader.getDataInfo();
-    return dataInfo;
-  }
-
 
   private void ssButton_actionPerformed(ActionEvent actionEvent) {
     getDataForSA_Period();
-    application.setDataInWindow(getDataInfo());
+    application.setDataInWindow(dataInfo);
   }
 
 

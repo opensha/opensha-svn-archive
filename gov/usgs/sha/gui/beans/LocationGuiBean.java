@@ -122,6 +122,8 @@ public class LocationGuiBean
                                     new Insets(4, 4, 4, 4), 0, 0));
   }
 
+
+
   /**
    * Creates the LocationMode selection parameter by checking if
    * Zip code is supported by selected geographic region for the selected data edition.
