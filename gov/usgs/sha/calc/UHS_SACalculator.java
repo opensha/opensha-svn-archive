@@ -11,6 +11,7 @@ import gov.usgs.exceptions.ZipCodeErrorException;
 
 import org.scec.data.Location;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import org.scec.data.function.DiscretizedFuncList;
 import gov.usgs.util.ui.DataDisplayFormatter;
 
 
@@ -34,20 +35,21 @@ public class UHS_SACalculator {
   /**
    * Some static String for the data printing
    */
-  protected static final String SsS1_TITLE =
-      "Spectral Response Accelerations Ss and S1\n\n";
-  protected static final String SsS1_SubTitle =
-      "Ss and S1 = Mapped Spectral Acceleration Values";
+  protected static final String SA_TITLE =
+      "Uniform Hazard Spectrum (UHS) for ";
 
-  protected static final String Ss_Text = "Ss";
-  protected static final String S1_Text = "S1";
-  protected static final String SA = "Sa";
-  protected static final float Fa = 1;
-  protected static final float Fv = 1;
+  private static final String BC_BOUNDARY_STRING = "B/C Boundary";
 
   protected DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
 
-
+  /*
+   * Computes the Std Displacement function using the SA function.
+   */
+  private ArbitrarilyDiscretizedFunc calcSDTFunction(ArbitrarilyDiscretizedFunc saFunction){
+    StdDisplacementCalc calc = new StdDisplacementCalc();
+    ArbitrarilyDiscretizedFunc sdTFunction = calc.getStdDisplacement(saFunction);
+    return sdTFunction;
+  }
 
 
   /**
@@ -56,51 +58,78 @@ public class UHS_SACalculator {
    * @param longitude double
    * @return ArbitrarilyDiscretizedFunc
    */
-  public ArbitrarilyDiscretizedFunc getSA(String selectedRegion,
-                                            String selectedEdition,
-                                            double latitude, double longitude,String spectraType) {
+  public DiscretizedFuncList getSA(String selectedRegion,
+                                          String selectedEdition,
+                                          double latitude, double longitude,
+                                          String spectraType) {
 
     UHS_Record record = new UHS_Record();
     DataFileNameSelectorForUHS dataFileSelector = new
         DataFileNameSelectorForUHS();
     String fileName = dataFileSelector.getFileName(selectedRegion,
-                                                   selectedEdition, latitude,
-                                                   longitude, spectraType);
+        selectedEdition, latitude,
+        longitude, spectraType);
     SiteInterpolation siteSaVals = new SiteInterpolation();
     ArbitrarilyDiscretizedFunc function = siteSaVals.getPeriodValuesForLocation(
         fileName, record,
         latitude, longitude);
-
+    function.setName(GlobalConstants.UNIFORM_HAZARD_SPECTRUM_NAME + " of " +
+                     GlobalConstants.SA_Vs_T_GRAPH_NAME);
+    ArbitrarilyDiscretizedFunc sdTFunction = calcSDTFunction(function);
     gridSpacing = siteSaVals.getGridSpacing();
 
+
+    DiscretizedFuncList funcList = new DiscretizedFuncList();
+    funcList.add(sdTFunction);
+    funcList.add(function);
+    funcList.setInfo(setInfo(funcList,latitude,longitude,spectraType));
+    return funcList;
+  }
+
+  private String setInfo(DiscretizedFuncList funcList,
+      double latitude,double longitude, String spectraType){
     //set the info for the function being added
     String info = "";
-    info += SsS1_TITLE + "\n";
+    info += SA_TITLE+spectraType+ "\n\n";
 
     info += "Latitude = " + latLonFormat.format(latitude) + "\n";
     info += "Longitude = " + latLonFormat.format(longitude) + "\n";
-    info +=
-        DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
-                                                  GlobalConstants.SITE_CLASS_B,
-                                                  Fa, Fv);
+    info +=  BC_BOUNDARY_STRING+"\n";
+
     info += "Data are based on a " + gridSpacing + " deg grid spacing";
     info +=
-        DataDisplayFormatter.createFunctionInfoString(function, SA, Ss_Text, S1_Text,
-        GlobalConstants.SITE_CLASS_B);
-    function.setInfo(info);
-    return function;
+        DataDisplayFormatter.createFunctionInfoString(funcList,GlobalConstants.SITE_CLASS_B);
+
+    return info;
   }
 
 
+  private String setInfoForZipCode(DiscretizedFuncList funcList, String zipCode,
+                                   double lat, double lon, String spectraType) {
+    //adding the info for each function
+    //set the info for the function being added
+    String info = "";
+    info += SA_TITLE + spectraType + "\n\n";
 
+    info += "Zip Code - " + zipCode + "\n";
+    info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
+    info += "Zip Code Longitude = " + latLonFormat.format(lon) + "\n";
+    info += BC_BOUNDARY_STRING + "\n";
 
+    info += "Data are based on a " + gridSpacing + " deg grid spacing";
+    info +=
+        DataDisplayFormatter.createFunctionInfoString(funcList,
+        GlobalConstants.SITE_CLASS_B);
+    return info;
+
+  }
 
   /**
    *
    * @param zipCode
    * @return
    */
-  public ArbitrarilyDiscretizedFunc getSA(String selectedRegion,
+  public DiscretizedFuncList getSA(String selectedRegion,
                                             String selectedEdition,
                                             String zipCode,String spectraType) throws
       ZipCodeErrorException {
@@ -109,26 +138,10 @@ public class UHS_SACalculator {
     double lat = loc.getLatitude();
     double lon = loc.getLongitude();
     //getting the SA Period values for the lat lon for the selected Zip code.
-    ArbitrarilyDiscretizedFunc function = getSA(selectedRegion,
+    DiscretizedFuncList funcList = getSA(selectedRegion,
                                                   selectedEdition, lat, lon,spectraType);
-
-    //adding the info for each function
-    String info = "";
-    info += SsS1_TITLE + "\n";
-    info += "Zip Code - " + zipCode + "\n";
-    info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
-    info += "Zip Code Longitude = " + latLonFormat.format(lon) + "\n";
-    info +=
-        DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
-                                                  GlobalConstants.SITE_CLASS_B,
-                                                  Fa, Fv);
-    info += "Data are based on a " + gridSpacing + " deg grid spacing";
-    info +=
-        DataDisplayFormatter.createFunctionInfoString(function, SA,
-        Ss_Text, S1_Text, GlobalConstants.SITE_CLASS_B);
-    function.setInfo(info);
-
-    return function;
+    funcList.setInfo(setInfoForZipCode(funcList,zipCode,lat, lon,spectraType));
+    return funcList;
   }
 
 }

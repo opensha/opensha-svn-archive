@@ -2,11 +2,10 @@ package gov.usgs.sha.data;
 
 import java.util.*;
 
+import org.scec.data.function.*;
 import gov.usgs.exceptions.*;
 import gov.usgs.sha.data.api.*;
-import org.scec.data.function.DiscretizedFuncList;
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import gov.usgs.util.GlobalConstants;
+import gov.usgs.util.*;
 
 /**
  * <p>Title: DataGenerator_UHS</p>
@@ -18,43 +17,42 @@ import gov.usgs.util.GlobalConstants;
 public class DataGenerator_UHS
     implements DataGeneratorAPI_UHS {
 
-    //gets the selected region
-    protected String geographicRegion;
-    //gets the selected edition
-    protected String dataEdition;
+  //gets the selected region
+  protected String geographicRegion;
+  //gets the selected edition
+  protected String dataEdition;
 
-    protected ArbitrarilyDiscretizedFunc saFunction;
+  protected ArbitrarilyDiscretizedFunc saFunction;
+  protected ArbitrarilyDiscretizedFunc saSdFunction;
+  protected ArbitrarilyDiscretizedFunc sdTFunction;
 
+  protected float faVal = 1.0f;
+  protected float fvVal = 1.0f;
+  protected String siteClass = GlobalConstants.SITE_CLASS_B;
+  protected ArbitrarilyDiscretizedFunc sdSpectrumSaSdFunction;
+  protected ArbitrarilyDiscretizedFunc smSpectrumSaSdFunction;
 
-    protected float faVal;
-    protected float fvVal;
-    protected String siteClass = GlobalConstants.SITE_CLASS_B;
-    protected ArbitrarilyDiscretizedFunc sdSpectrumSaSdFunction;
-    protected ArbitrarilyDiscretizedFunc smSpectrumSaSdFunction;
-    protected ArbitrarilyDiscretizedFunc mapSpectrumSaSdFunction;
-    protected ArbitrarilyDiscretizedFunc sdSpectrumSaTFunction;
-    protected ArbitrarilyDiscretizedFunc smSpectrumSaTFunction;
-    protected ArbitrarilyDiscretizedFunc mapSpectrumSaTFunction;
+  protected ArbitrarilyDiscretizedFunc sdSpectrumSaTFunction;
+  protected ArbitrarilyDiscretizedFunc smSpectrumSaTFunction;
 
+  private ArbitrarilyDiscretizedFunc pgaFunction;
 
-    //holds all the data and its info in a String format.
-    protected String dataInfo = "";
+  //holds all the data and its info in a String format.
+  protected String dataInfo = "";
 
-    //metadata to be shown when plotting the curves
-    protected String metadataForPlots;
+  //metadata to be shown when plotting the curves
+  protected String metadataForPlots;
 
-    //sets the selected spectra type
-    protected String selectedSpectraType;
-
+  //sets the selected spectra type
+  protected String selectedSpectraType;
 
   /**
    *
    * @default class constructor
    */
-  public void calculateApproxUHS(){
+  public void calculateApproxUHS() {
 
   }
-
 
   /**
    *
@@ -122,15 +120,14 @@ public class DataGenerator_UHS
     sdSpectrumSaTFunction.setXAxisName(GlobalConstants.PERIOD_NAME);
   }
 
-
   /**
    *
    *
    */
-  public void calculateSMSpectrum(){
+  public void calculateSMSpectrum() {
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSMSpectrum(saFunction, faVal,
-        fvVal,siteClass);
+        fvVal, siteClass);
     addDataInfo(functions.getInfo());
     getFunctionsForSMSpectrum(functions);
   }
@@ -138,13 +135,48 @@ public class DataGenerator_UHS
   /**
    *
    */
-  public void calculateSDSpectrum(){
+  public void calculateSDSpectrum() {
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSDSpectrum(saFunction, faVal,
-        fvVal,siteClass);
+        fvVal, siteClass);
     addDataInfo(functions.getInfo());
     getFunctionsForSDSpectrum(functions);
   }
+
+  /**
+   *
+   * @param sdSpectrumFunctions DiscretizedFuncList
+   */
+  private void getFunctionsForSDT(DiscretizedFuncList functions) {
+
+    int numFunctions = functions.size();
+    int i = 0;
+    for (; i < numFunctions; ++i) {
+      ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)
+          functions.get(i);
+      if (tempFunction.getName().equals(GlobalConstants.
+                                        UNIFORM_HAZARD_SPECTRUM_NAME + " of " +
+                                        GlobalConstants.SA_Vs_T_GRAPH_NAME)) {
+        saFunction = tempFunction;
+        break;
+      }
+    }
+
+    sdTFunction = (ArbitrarilyDiscretizedFunc)
+        functions.get(1 - i);
+
+    saSdFunction = sdTFunction.getYY_Function(
+        saFunction);
+    saSdFunction.setName(GlobalConstants.UNIFORM_HAZARD_SPECTRUM_NAME + " of " +
+                         GlobalConstants.SA_Vs_SD_GRAPH_NAME);
+    saSdFunction.setInfo(metadataForPlots);
+    saFunction.setInfo(metadataForPlots);
+    saSdFunction.setYAxisName(GlobalConstants.SA);
+    saSdFunction.setXAxisName(GlobalConstants.SD);
+    saFunction.setYAxisName(GlobalConstants.SA);
+    saFunction.setXAxisName(GlobalConstants.PERIOD_NAME);
+  }
+
   /**
    * Gets the data for SsS1 in case region specified is not a Territory and
    * user specifies zip code for the location.
@@ -155,12 +187,13 @@ public class DataGenerator_UHS
    */
   public void calculateUHS(String zipCode) throws ZipCodeErrorException {
     HazardDataMiner miner = new HazardDataMiner();
-    ArbitrarilyDiscretizedFunc function = miner.getSA(geographicRegion, dataEdition,
-        zipCode,selectedSpectraType);
-    String location = "ZipCode - "+zipCode;
+    DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,
+                                               zipCode, selectedSpectraType);
+    String location = "ZipCode - " + zipCode;
     createMetadataForPlots(location);
-    addDataInfo(function.getInfo());
-    saFunction = function;
+    addDataInfo(funcList.getInfo());
+    getFunctionsForSDT(funcList);
+
   }
 
   /**
@@ -174,25 +207,22 @@ public class DataGenerator_UHS
   public void calculateUHS(double lat, double lon) {
 
     HazardDataMiner miner = new HazardDataMiner();
-    ArbitrarilyDiscretizedFunc function = miner.getSA(geographicRegion, dataEdition,
-                                                 lat, lon,selectedSpectraType);
-    String location = "Lat - "+lat+"  Lon - "+lon;
+    DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,
+                                               lat, lon, selectedSpectraType);
+    String location = "Lat - " + lat + "  Lon - " + lon;
     createMetadataForPlots(location);
-    addDataInfo(function.getInfo());
-    saFunction = function;
-
+    addDataInfo(funcList.getInfo());
+    getFunctionsForSDT(funcList);
   }
 
-
-  protected void createMetadataForPlots(String location){
-    metadataForPlots = GlobalConstants.SA_DAMPING +"\n";
+  protected void createMetadataForPlots(String location) {
+    metadataForPlots = GlobalConstants.SA_DAMPING + "\n";
     metadataForPlots += geographicRegion + "\n";
     metadataForPlots += dataEdition + "\n";
-    metadataForPlots += location +"\n";
-    metadataForPlots += "Site Class -"+siteClass+"\n";
-    metadataForPlots += "Fa = "+faVal+" Fv = "+fvVal+"\n";
+    metadataForPlots += location + "\n";
+    metadataForPlots += "Site Class -" + siteClass + "\n";
+    metadataForPlots += "Fa = " + faVal + " Fv = " + fvVal + "\n";
   }
-
 
   /**
    * Removes all the calculated data.
@@ -215,28 +245,10 @@ public class DataGenerator_UHS
     dataInfo += data + "\n\n";
   }
 
-  /**
-   * Returns the SA at .2sec
-   * @return double
-   */
-  public double getSs() {
-    return saFunction.getY(0);
-  }
-
-  /**
-   * Returns the SA at 1 sec
-   * @return double
-   */
-  public double getSa() {
-    return saFunction.getY(1);
-  }
 
 
   /**
    * Returns the list of functions for plotting.
-   *
-   * @param isMapSpectrumFunctionNeeded boolean true if user has clicked the
-   *   map spectrum button
    * @param isSDSpectrumFunctionNeeded boolean true if user has clicked the SD
    *   spectrum button
    * @param isSMSpectrumFunctionNeeded boolean true if user has clicked the SM
@@ -244,8 +256,7 @@ public class DataGenerator_UHS
    * @return ArrayList
    * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_UHS method
    */
-  public ArrayList getFunctionsToPlotForSA(boolean isMapSpectrumFunctionNeeded,
-                                           boolean isSDSpectrumFunctionNeeded,
+  public ArrayList getFunctionsToPlotForSA(boolean isSDSpectrumFunctionNeeded,
                                            boolean isSMSpectrumFunctionNeeded) {
     return null;
   }
@@ -259,11 +270,18 @@ public class DataGenerator_UHS
    */
   public ArrayList getFunctionsToPlotForUHS(boolean isUHSFunctionNeeded,
                                             boolean isApproxUHSFunctionNeeded) {
-    return null;
+    ArrayList functions = new ArrayList();
+    if(isUHSFunctionNeeded && isApproxUHSFunctionNeeded){
+      functions.add(saFunction);
+      functions.add(saSdFunction);
+    }
+    else if(isUHSFunctionNeeded && !isApproxUHSFunctionNeeded){
+      functions.add(saFunction);
+      functions.add(saSdFunction);
+    }
+
+    return functions;
   }
-
-
-
 
   /**
    * Sets the selected geographic region.
@@ -297,12 +315,11 @@ public class DataGenerator_UHS
     fvVal = fv;
   }
 
-
   /**
    * Sets the selected site class
    * @param siteClass String
    */
-  public void setSiteClass(String siteClass){
+  public void setSiteClass(String siteClass) {
     this.siteClass = siteClass;
   }
 
@@ -310,7 +327,7 @@ public class DataGenerator_UHS
    * Returns the site class
    * @return String
    */
-  public String getSelectedSiteClass(){
+  public String getSelectedSiteClass() {
     return siteClass;
   }
 
@@ -318,7 +335,7 @@ public class DataGenerator_UHS
    * Sets the Spectra type
    * @param spectraType String
    */
-  public void setSpectraType(String spectraType){
+  public void setSpectraType(String spectraType) {
     selectedSpectraType = spectraType;
   }
 }

@@ -280,6 +280,8 @@ public class NEHRP_GuiBean
     smSpecButton.setEnabled(disableButtons);
     sdSpecButton.setEnabled(disableButtons);
     viewButton.setEnabled(false);
+    if(disableButtons == false)
+      mapSpectrumCalculated=smSpectrumCalculated=sdSpectrumCalculated=false;
   }
 
 

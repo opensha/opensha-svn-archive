@@ -130,9 +130,9 @@ public class HazardDataMiner {
    * @param lat double
    * @param lon double
    * @param selectedSpectraType String
-   * @return ArbitrarilyDiscretizedFunc
+   * @return DiscretizedFuncList
    */
-  public ArbitrarilyDiscretizedFunc getSA(String geographicRegion,
+  public DiscretizedFuncList getSA(String geographicRegion,
                                             String dataEdition, double lat,
                                             double lon,String selectedSpectraType) {
 
@@ -148,7 +148,7 @@ public class HazardDataMiner {
    * @return DiscretizedFuncList
    * @throws ZipCodeErrorException
    */
-  public ArbitrarilyDiscretizedFunc getSA(String geographicRegion,
+  public DiscretizedFuncList getSA(String geographicRegion,
                                      String dataEdition, String zipCode,String spectraType) throws
       ZipCodeErrorException {
 

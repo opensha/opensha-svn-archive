@@ -69,7 +69,7 @@ public class UHS_GuiBean
   protected ConstrainedStringParameterEditor groundMotionParamEditor;
   protected static final String GROUND_MOTION_PARAM_NAME = "Ground Motion";
 
-  protected DataGeneratorAPI_NEHRP dataGenerator = new DataGenerator_NEHRP();
+  protected DataGeneratorAPI_UHS dataGenerator = new DataGenerator_UHS();
 
   //site coeffiecient window instance
   SiteCoefficientInfoWindow siteCoefficientWindow;
@@ -192,7 +192,7 @@ public class UHS_GuiBean
     viewUHSButton.setText("<html>View <br>UHS</br></html>");
     viewUHSButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
-        smSDButton_actionPerformed(actionEvent);
+        viewUHSButton_actionPerformed(actionEvent);
       }
     });
     responseSpectraButtonPanel.setBorder(responseSpecBorder);
@@ -425,7 +425,7 @@ public class UHS_GuiBean
         Location loc = locGuiBean.getSelectedLocation();
         double lat = loc.getLatitude();
         double lon = loc.getLongitude();
-        dataGenerator.calculateSsS1(lat, lon);
+        dataGenerator.calculateUHS(lat, lon);
       }
       catch (LocationErrorException e) {
         JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
@@ -437,7 +437,7 @@ public class UHS_GuiBean
     else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
       try {
         String zipCode = locGuiBean.getZipCode();
-        dataGenerator.calculateSsS1(zipCode);
+        dataGenerator.calculateUHS(zipCode);
       }
       catch (ZipCodeErrorException e) {
         JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
@@ -456,7 +456,9 @@ public class UHS_GuiBean
     getDataForSA_Period();
     application.setDataInWindow(getData());
     approxUHSButton.setEnabled(true);
+    viewUHSButton.setEnabled(true);
     siteCoeffButton.setEnabled(true);
+    uhsCalculated = true;
   }
 
   /**
@@ -468,10 +470,10 @@ public class UHS_GuiBean
   }
 
   protected void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-    if (siteCoefficientWindow == null) {
+    /*if (siteCoefficientWindow == null) {
       siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.getSs(),
           dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
-    }
+    }*/
     siteCoefficientWindow.pack();
     siteCoefficientWindow.show();
 
@@ -482,14 +484,15 @@ public class UHS_GuiBean
     setButtonsEnabled(true);
   }
 
-  protected void smSDButton_actionPerformed(ActionEvent actionEvent) {
-    dataGenerator.calculateSMSsS1();
-    dataGenerator.calculatedSDSsS1();
-    application.setDataInWindow(getData());
+  protected void viewUHSButton_actionPerformed(ActionEvent actionEvent) {
+    ArrayList functions = dataGenerator.getFunctionsToPlotForUHS(uhsCalculated,approxUHS_Calculated);
+
+   GraphWindow window = new GraphWindow(functions);
+   window.show();
   }
 
   protected void approxUHSButton_actionPerformed(ActionEvent actionEvent) {
-    dataGenerator.calculateMapSpectrum();
+    dataGenerator.calculateApproxUHS();
     application.setDataInWindow(getData());
     if (!viewButton.isEnabled()) {
       viewButton.setEnabled(true);

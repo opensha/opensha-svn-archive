@@ -56,15 +56,12 @@ public interface DataGeneratorAPI_UHS {
 
   /**
    * Returns the list of functions for plotting.
-   * @param isMapSpectrumFunctionNeeded boolean true if user has clicked the map spectrum button
    * @param isSDSpectrumFunctionNeeded boolean true if user has clicked the SD spectrum button
    * @param isSMSpectrumFunctionNeeded boolean true if user has clicked the SM spectrum button
    * @return ArrayList
    */
-  public ArrayList getFunctionsToPlotForSA(boolean
-                                        isMapSpectrumFunctionNeeded,
-                                        boolean isSDSpectrumFunctionNeeded,
-                                        boolean isSMSpectrumFunctionNeeded);
+  public ArrayList getFunctionsToPlotForSA(boolean isSDSpectrumFunctionNeeded,
+                                           boolean isSMSpectrumFunctionNeeded);
 
 
   /**
@@ -75,18 +72,6 @@ public interface DataGeneratorAPI_UHS {
    */
   public ArrayList getFunctionsToPlotForUHS(boolean isUHSFunctionNeeded,
                                             boolean isApproxUHSFunctionNeeded);
-
-  /**
-   * Returns the SA at .2sec
-   * @return double
-   */
-  public double getSs();
-
-  /**
-   * Returns the SA at 1 sec
-   * @return double
-   */
-  public double getSa();
 
 
   /**

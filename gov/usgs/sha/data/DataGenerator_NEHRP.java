@@ -25,8 +25,8 @@ public class DataGenerator_NEHRP
   protected ArbitrarilyDiscretizedFunc saFunction;
 
 
-  protected float faVal;
-  protected float fvVal;
+  protected float faVal =1.0f;
+  protected float fvVal = 1.0f;
   protected String siteClass = GlobalConstants.SITE_CLASS_B;
   protected ArbitrarilyDiscretizedFunc sdSpectrumSaSdFunction;
   protected ArbitrarilyDiscretizedFunc smSpectrumSaSdFunction;

@@ -117,9 +117,9 @@ public class HazardDataCalc {
    * @param latitude double
    * @param longitude double
    * @param spectraType String
-   * @return ArbitrarilyDiscretizedFunc
+   * @return DiscretizedFuncList
    */
-  public ArbitrarilyDiscretizedFunc computeSA(String selectedRegion,
+  public DiscretizedFuncList computeSA(String selectedRegion,
                                               String selectedEdition,
                                               double latitude,
                                               double longitude,
@@ -136,9 +136,9 @@ public class HazardDataCalc {
    * @param latitude double
    * @param longitude double
    * @param spectraType String
-   * @return ArbitrarilyDiscretizedFunc
+   * @return DiscretizedFuncList
    */
-  public ArbitrarilyDiscretizedFunc computeSA(String selectedRegion,
+  public DiscretizedFuncList computeSA(String selectedRegion,
                                               String selectedEdition,
                                               String zipCode,
                                               String spectraType)throws

@@ -129,11 +129,11 @@ public class DataFileNameSelectorForUHS {
     } //End for the 48 states and data edition to be 1996
     else if (selectedEdition.equals(GlobalConstants.data_2002)) { //reading the data for 2002
       if (spectraType.equals(GlobalConstants.PE_2)) {
-        String fileName = "2002-US-UHS-02-050-R2a.rnd";
+        String fileName = "2002-US-UHS-02-050-R1a.rnd";
         return filePath + fileName;
       }
       else if (spectraType.equals(GlobalConstants.PE_10)) {
-        String fileName = "2002-US-UHS-10-050-R2a.rnd";
+        String fileName = "2002-US-UHS-10-050-R1a.rnd";
         return filePath + fileName;
       }
     }
