@@ -89,7 +89,8 @@ public class RunAll_PuenteHillsScenariosControlPanel {
         Vector scriptLines = new Vector();
         command[2] = COMMAND_PATH+"mkdir "+dirName;
         RunScript.runScript(command);
-        command[2] = COMMAND_PATH+"mv *.txt *.ps *.jpg *.shx *.shp *.dbf  "+dirName;
+//        command[2] = COMMAND_PATH+"mv *.txt *.ps *.jpg *.shx *.shp *.dbf  "+dirName;
+        command[2] = COMMAND_PATH+"mv *map*  "+dirName;
         RunScript.runScript(command);
       }
     }
