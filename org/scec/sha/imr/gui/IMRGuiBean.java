@@ -879,8 +879,9 @@ public class IMRGuiBean
         // At this point all values have been set for the IM type, xaxis, and the yaxis
         controlsParamList = new ParameterList();
         controlsParamList.addParameter( im );
-        controlsParamList.addParameter( xaxis );
         controlsParamList.addParameter( yaxis );
+        controlsParamList.addParameter( xaxis );
+
 
         // Now make the Editor for the list
         controlsEditor = new ParameterListEditor( controlsParamList, this, applet );

@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Vector;
 /**
  * <p>Title:EvenlyGriddedSurface </p>
- * <p>Description: </p>
+ * <p>Description: This class gives the list of ruptures on the fault</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author : Nitin Gupta & Vipin Gupta    Date: Aug,23,2002
@@ -38,52 +38,55 @@ public class EvenlyGriddedSurface extends GriddedSurface {
       return this.gridSpacing;
     }
 
+
     /**
+     * Get the ruptures on this fault
      *
-     * @param length
-     * @param width
-     * @param offset
+     * @param numRupCols  Number of grid points according to length
+     * @param numRupRows  Number of grid points according to width
+     * @param numRupOffset Number of grid poits for offset
+     *
      */
-    public Iterator getSubsetSurfacesIterator(double length, double width, int offset) {
-        int nRupAlong = (int)Math.floor((numCols-length)/offset +1);
+    public Iterator getSubsetSurfacesIterator(int numRupCols, int numRupRows, int numRupOffset) {
+
+        // number of ruptures along the length of fault
+        int nRupAlong = (int)Math.floor((numCols-numRupCols)/numRupOffset +1);
         if(nRupAlong <1) nRupAlong=1;
-        int nRupDown =  (int)Math.floor((numRows-width)/offset +1);
+
+        // nnmber of ruptures along fault width
+        int nRupDown =  (int)Math.floor((numRows-numRupRows)/numRupOffset +1);
         if(nRupDown <1) nRupDown=1;
+
+        // save the ruptures in a vector
         int col = 0;
         int row =0;
         v.clear();
-        for(int j=0; j < nRupDown; ++j, row=row+offset) {
+        for(int j=0; j < nRupDown; ++j, row=row+numRupOffset) {
           col = 0;
-          for(int i=0;i < nRupAlong ; ++i, col=col+offset) {
+          for(int i=0;i < nRupAlong ; ++i, col=col+numRupOffset) {
              GriddedSubsetSurface subsetSurfaces =
-                  new GriddedSubsetSurface((int)width,(int)length,row,col,this);
+                  new GriddedSubsetSurface((int)numRupRows,(int)numRupCols,row,col,this);
              v.add(subsetSurfaces);
           }
        }
-
        return v.iterator();
    }
 
 
    /**
+    * Get the ruptures on this fault
     *
-    * @param numCols
-    * @param numRows
-    * @param offset
-    * @return
+    * @param rupLength  Rupture length in km
+    * @param rupWidth   Rupture width in km
+    * @param rupOffset  Rupture offset
+    * @return           Iterator over all ruptures
+    */
+    public Iterator getSubsetSurfacesIterator(double rupLength,double rupWidth,double rupOffset) {
+       return getSubsetSurfacesIterator(Math.rint(rupLength/gridSpacing),
+                                        Math.rint(rupWidth/gridSpacing),
+                                        Math.rint(rupOffset/gridSpacing));
 
-    public Iterator getSubsetSurfacesIterator(int numCols,int numRows,int offset) {
-
-        int nRupAlong = (int)Math.floor((numCols-this.numCols)/offset +1);
-        if(nRupAlong <1) nRupAlong=1;
-        int nRupDown =  (int)Math.floor((numRows-this.numRows)/offset +1);
-        if(nRupDown <1) nRupDown=1;
-
-        GriddedSubsetSurface subsetSurfaces =
-              new GriddedSubsetSurface(nRupDown,nRupAlong,0,0,this);
-
-        return subsetSurfaces.listIterator();
-    }*/
+    }
 
 
 }

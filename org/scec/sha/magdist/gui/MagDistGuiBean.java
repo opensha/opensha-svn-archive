@@ -331,8 +331,8 @@ public class MagDistGuiBean implements ParameterChangeListener {
            StringParameter setParamsBut=new StringParameter(SET_ALL_PARAMS_BUT,vStrings,TO_MORATE);
            independentParams.addParameter(setParamsBut);
            independentParams.addParameter(magLower);
-           independentParams.addParameter(bValue);
            independentParams.addParameter(magUpper);
+           independentParams.addParameter(bValue);
            independentParams.addParameter(toCumRate);
            independentParams.addParameter(toMoRate);
            Vector vStrings1 = new Vector ();
@@ -704,7 +704,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
                throw new java.lang.RuntimeException("Value of MagLower must be less than or equal to MagUpper");
              }
            }
-           // if set all parameters except total moment rate
+           // if set all parameters except mag upper
            if(setAllParamsBut.equalsIgnoreCase(MAG_UPPER)) {
              Double toCumRate = (Double)independentParams.getParameter(TO_CUM_RATE).getValue();
              Double toMoRate = (Double)independentParams.getParameter(TO_MORATE).getValue();

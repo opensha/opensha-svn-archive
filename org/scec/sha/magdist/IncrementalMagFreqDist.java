@@ -72,10 +72,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
        */
     public double getCumRate(double mag) {
         int index=getXIndex(mag);
-        double sum=0.0;
-        for(int i=index;i>=0;--i)
-            sum+=getIncrRate(i);
-        return sum;
+        return getCumRate(index);
     }
 
 
@@ -87,7 +84,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
 
     public double getCumRate(int index) {
         double sum=0.0;
-        for(int i=index;i>=0;--i)
+        for(int i=index;i<num;--i)
             sum+=getIncrRate(i);
         return sum;
     }
@@ -161,7 +158,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
 
      /**
       * This returns the object of the class EvenlyDiscretizedFunc which contains all the points
-      * with Incr Rate Distribution
+      * with Cum Rate Distribution
       * @return
       */
 
@@ -172,9 +169,9 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
          sum+=getIncrRate(i);
          cumRateDist.set(i,sum);
       }
-        cumRateDist.setInfo(this.getInfo());
-        cumRateDist.setName(this.getName());
-        return cumRateDist;
+      cumRateDist.setInfo(this.getInfo());
+      cumRateDist.setName(this.getName());
+      return cumRateDist;
     }
 
 

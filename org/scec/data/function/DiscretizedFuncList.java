@@ -383,8 +383,7 @@ public class DiscretizedFuncList implements NamedObjectAPI{
                 DataPoint2D point = (DataPoint2D)it2.next();
                 double x = point.getX();
                 double y = point.getY();
-
-                b.append(TAB + x + ", " + y + '\n');
+                b.append(TAB + x + "      " + y + '\n');
             }
 
         }

@@ -190,7 +190,7 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
                 // get the value
                 double y = ( ( DiscretizedFuncAPI ) obj ).getY(item);
 
-                if(convertZeroToMin && y==0 && yLog)
+                if(convertZeroToMin && y<=minVal && yLog)
                      return (Number)(new Double(minVal));
                 // return if not NaN
                 if( y != Double.NaN ) return (Number)(new Double(y));

@@ -257,11 +257,18 @@ public class IMRTesterApplet extends JApplet
     private JLabel jAxisScale = new JLabel();
 
     /**
+     * for Y-log, 0 values will be converted to this small value
+     */
+    private double Y_MIN_VAL = 1e-8;
+
+    /**
      *  Construct the applet
      */
     public IMRTesterApplet() {
       data.setFunctions(functions);
-      data.setConvertZeroToMin(true);
+
+      // for Y-log, convert 0 values in Y axis to this small value
+      data.setConvertZeroToMin(true,Y_MIN_VAL);
     }
 
 
