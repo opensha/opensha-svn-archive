@@ -70,6 +70,21 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
   DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
 
+  // Create the x-axis and y-axis - either normal or log
+  com.jrefinery.chart.NumberAxis xAxis = null;
+  com.jrefinery.chart.NumberAxis yAxis = null;
+
+
+  /**
+   * these four values save the custom axis scale specified by user
+   */
+   protected double minXValue;
+   protected double maxXValue;
+   protected double minYValue;
+   protected double maxYValue;
+   protected boolean customAxis = false;
+
+
   // make the GroupTestGUIBean instance
   GroupTestGuiBean groupTestBean;
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
@@ -132,6 +147,14 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
   private Border border2;
   private BorderLayout borderLayout1 = new BorderLayout();
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
+  private JLabel jCustomAxisLabel = new JLabel();
+  private JComboBox rangeComboBox = new JComboBox();
+  private final static String AUTO_SCALE = "Auto Scale";
+  private final static String CUSTOM_SCALE = "Custom Scale";
+  private final static Dimension COMBO_DIM = new Dimension( 180, 30 );
+  private final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
+
+
 
 
   //Get a parameter value
@@ -146,7 +169,6 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
   data.setFunctions(this.totalProbFuncs);
   // for Y-log, convert 0 values in Y axis to this small value
   data.setConvertZeroToMin(true,Y_MIN_VAL);
-
   }
   //Initialize the applet
   public void init() {
@@ -212,6 +234,21 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
         jCheckylog_actionPerformed(e);
       }
     });
+
+    rangeComboBox.addItem(new String(AUTO_SCALE));
+    rangeComboBox.addItem(new String(CUSTOM_SCALE));
+    rangeComboBox.setBackground(new Color(200, 200, 230));
+    rangeComboBox.setForeground(new Color(80, 80, 133));
+    rangeComboBox.setMaximumSize(new Dimension(115, 19));
+    rangeComboBox.setMinimumSize(new Dimension(115, 19));
+    rangeComboBox.setPreferredSize(new Dimension(115, 19));
+    rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        rangeComboBox_actionPerformed(e);
+      }
+    });
+
+
     sitePanel.setLayout(gridBagLayout13);
     testCasesPanel.setLayout(gridBagLayout14);
     imrPanel.setLayout(gridBagLayout15);
@@ -223,18 +260,20 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
     chartSplit.setMaximumSize(new Dimension(2147483647, 300));
     chartSplit.setMinimumSize(new Dimension(44, 300));
     chartSplit.setPreferredSize(new Dimension(44, 300));
+    jCustomAxisLabel.setText("Custom Axis Label");
+    rangeComboBox.setBackground(Color.white);
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.add(jPanel1, BorderLayout.CENTER);
-    buttonPanel.add(toggleButton,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+    buttonPanel.add(toggleButton,       new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 3), 2, -2));
-    buttonPanel.add(clearButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
-    buttonPanel.add(addButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 25, 10, 0), 3, -2));
-    buttonPanel.add(jCheckxlog, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
-    buttonPanel.add(jCheckylog, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 337), 22, 2));
+    buttonPanel.add(clearButton,     new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
+    buttonPanel.add(addButton,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 25, 10, 0), 3, -2));
+    buttonPanel.add(jCheckxlog,     new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
+    buttonPanel.add(jCheckylog,     new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 0), 22, 2));
     jPanel1.add(sourcePanel,  new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 0, 0, 14), 192, 181));
     jPanel1.add(buttonPanel,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
@@ -285,6 +324,10 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
     sourcePanel.add(groupTestBean.getEqkSourceEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                     GridBagConstraints.CENTER,
                     GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    buttonPanel.add(jCustomAxisLabel,                  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 11), 0, 0));
+    buttonPanel.add(rangeComboBox,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
     sourcePanel.validate();
     sourcePanel.repaint();
 
@@ -426,7 +469,7 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
       //create the standard ticks so that smaller values too can plotted on the chart
       TickUnits units = MyTickUnits.createStandardTickUnits();
 
-      NumberAxis xAxis, yAxis;
+
 
       /// check if x log is selected or not
       if(xLog) xAxis = new HorizontalLogarithmicAxis(xAxisLabel);
@@ -451,6 +494,12 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
 
       LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
+
+      /* to set the range of the axis on the input from the user if the range combo box is selected*/
+      if(this.customAxis) {
+          xAxis.setRange(this.minXValue,this.maxXValue);
+          yAxis.setRange(this.minYValue,this.maxYValue);
+        }
 
       // build the plot
       org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this,data,
@@ -581,6 +630,7 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
      */
     void jCheckxlog_actionPerformed(ActionEvent e) {
       xLog  = this.jCheckxlog.isSelected();
+      data.setXLog(xLog);
       addGraphPanel();
     }
 
@@ -590,6 +640,7 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
      */
     void jCheckylog_actionPerformed(ActionEvent e) {
       yLog  = this.jCheckylog.isSelected();
+      data.setYLog(yLog);
       addGraphPanel();
   }
 
@@ -674,4 +725,58 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
     repaint();
     chartSplit.setDividerLocation( newLoc );
   }
+
+  /**
+  * whenever selection is made in the combo box
+  * @param e
+  */
+  void rangeComboBox_actionPerformed(ActionEvent e) {
+
+    String str=(String)rangeComboBox.getSelectedItem();
+    if(str.equalsIgnoreCase(AUTO_SCALE)){
+      customAxis=false;
+      addGraphPanel();
+    }
+    if(str.equalsIgnoreCase(CUSTOM_SCALE))  {
+       Range rX = xAxis.getRange();
+       Range rY= yAxis.getRange();
+       double minX=rX.getLowerBound();
+       double maxX=rX.getUpperBound();
+       double minY=rY.getLowerBound();
+       double maxY=rY.getUpperBound();
+
+
+       int xCenter=getAppletXAxisCenterCoor();
+       int yCenter=getAppletYAxisCenterCoor();
+       PEER_Test_Cases_AxisScale axisScale=new PEER_Test_Cases_AxisScale(this,minX,maxX,minY,maxY);
+       axisScale.setBounds(xCenter-60,yCenter-50,375,148);
+       axisScale.pack();
+       axisScale.show();
+    }
+  }
+
+  /**
+   * sets the range for X-axis
+   * @param xMin : minimum value for X-axis
+   * @param xMax : maximum value for X-axis
+   */
+  public void setXRange(double xMin,double xMax) {
+     minXValue=xMin;
+     maxXValue=xMax;
+     this.customAxis=true;
+
+  }
+
+  /**
+   * sets the range for Y-axis
+   * @param yMin : minimum value for Y-axis
+   * @param yMax : maximum value for Y-axis
+   */
+  public void setYRange(double yMin,double yMax) {
+     minYValue=yMin;
+     maxYValue=yMax;
+     this.customAxis=true;
+     addGraphPanel();
+  }
+
 }
