@@ -1,6 +1,6 @@
 package org.scec.sha.magdist;
 
-import org.scec.data.function.EvenlyDiscretizedFunc;
+import org.scec.data.function.*;
 import org.scec.data.DataPoint2D;
 import org.scec.exceptions.MagFreqDistException;
 import org.scec.exceptions.DataPoint2DException;
@@ -265,4 +265,26 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
         for(int i=0;i<num;++i)
             super.set(i,scaleIncrRate*getIncrRate(i));
     }
+
+
+    /** Returns a copy of this and all points in this DiscretizedFunction */
+   public DiscretizedFuncAPI deepClone(){
+
+       IncrementalMagFreqDist f = new IncrementalMagFreqDist(
+           minX, num, delta
+       );
+
+       f.info = info;
+       f.minX = minX;
+       f.maxX = maxX;
+       f.name = name;
+       f.tolerance = tolerance;
+       f.setInfo(this.getInfo());
+       f.setName(this.getName());
+       for(int i = 0; i<num; i++)
+           f.set(i, points[i]);
+
+       return f;
+   }
+
 }
