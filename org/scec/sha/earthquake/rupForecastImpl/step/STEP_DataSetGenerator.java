@@ -36,7 +36,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private final double MAX_LAT= 36.60;
   private final double MIN_LON = -121.45 ;
   private final double MAX_LON= -114.50;
-  private final double GRID_SPACING= .1;
+  private final double GRID_SPACING= .5;
   private static final String STEP_DIR = "step/";
   private static final String STEP_BACKGROUND_FILE = "backGround.txt";
   private static final String STEP_ADDON_FILE_SUFFIX = "_addon.txt";
@@ -75,6 +75,11 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     }
 
 
+    //creating the step directory in which we put all the step related files
+    File stepDir = new File(this.STEP_DIR);
+    if(!stepDir.isDirectory()) { // if main directory does not exist
+      boolean success = (new File(STEP_DIR)).mkdir();
+    }
 
     //MetaData String
     String metadata = "IMR Info: \n"+
@@ -158,7 +163,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private void createFile(Vector probVals, String fileName){
     int size = probVals.size();
     try{
-      FileWriter fr = new FileWriter(this.STEP_DIR+this.getStepDirName());
+      FileWriter fr = new FileWriter(fileName);
       for(int i=0;i<size;++i)
         fr.write(latVals.get(i)+"  "+lonVals.get(i)+"  "+probVals.get(i)+"\n");
     }catch(IOException ee){
