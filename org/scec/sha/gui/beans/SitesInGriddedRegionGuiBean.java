@@ -354,7 +354,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
    *
    * @return the object for the SitesInGriddedRegion class
    */
-  public SitesInGriddedRegion getGriddedRegionSite(){
+  public SitesInGriddedRegion getGriddedRegionSite() throws RuntimeException{
 
     updateGriddedSiteParams();
     if(((String)siteParam.getValue()).equals(SET_ALL_SITES))
@@ -363,7 +363,11 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
 
     //if the site Params needs to be set from the WILLS Site type and SCEC basin depth
     else{
-      setSiteParamsFromCVM();
+      try{
+        setSiteParamsFromCVM();
+      }catch(Exception e){
+        throw new RuntimeException("Server is down for maintenance, please try again later");
+      }
       Vector defaultSiteParams = new Vector();
       for(int i=0;i<siteParams.size();++i){
         ParameterAPI tempParam = (ParameterAPI)siteParams.get(i);

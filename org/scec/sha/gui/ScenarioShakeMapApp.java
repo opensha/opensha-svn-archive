@@ -9,6 +9,8 @@ import java.util.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 
+import ch.randelshofer.quaqua.QuaquaManager;
+
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
@@ -133,7 +135,12 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   BorderLayout borderLayout1 = new BorderLayout();
   private CalcProgressBar calcProgress;
   private int step;
+
+  //thread  to show status Progress Bar
   private javax.swing.Timer timer;
+  //thread to execute the ShakeMap Calulation
+  private Thread t;
+
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -217,12 +224,9 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     buttonPanel.add(addButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(48, 88, 39, 139), 26, 9));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
-
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
     imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
     imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
-    //parameterTabbedPanel.setLayout(JTabbedPane.);
-    //parameterTabbedPanel.setTabLayoutPolicy(0);
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab("Earthquake Rupture from Forecast", eqkRupPanel );
@@ -268,9 +272,12 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
 
   //static initializer for setting look & feel
   static {
+    String osName = System.getProperty("os.name");
     try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+      if(osName.startsWith("Mac OS"))
+        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
+      else
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch(Exception e) {
     }
@@ -455,9 +462,10 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     try {
       griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
     }catch(Exception e) {
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
       calcProgress.showProgress(false);
-      JOptionPane.showMessageDialog(this,e.getMessage());
-       timer.stop();
+      calcProgress.dispose();
+      timer.stop();
       return;
     }
 
@@ -485,8 +493,9 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
                                         probAtIML,imlProbValue);
     }catch(RuntimeException e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
-      timer.stop();
       calcProgress.showProgress(false);
+      calcProgress.dispose();
+      timer.stop();
       return;
     }
 
@@ -522,9 +531,15 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
             label="Prob";
           else
             label=imtGuiBean.getSelectedIMT();
-
-          mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),erfGuiBean.getHypocenterLocation(),
-                             label,getMapParametersInfo());
+          try{
+            mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),erfGuiBean.getHypocenterLocation(),
+                               label,getMapParametersInfo());
+          }catch(Exception e){
+            calcProgress.showProgress(false);
+            calcProgress.dispose();
+            timer.stop();
+            return;
+          }
           calcProgress.dispose();
           timer.stop();
         }
@@ -532,12 +547,13 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     });
 
     timer.start();
-    Thread t = new Thread(this);
+    t = new Thread(this);
     t.run();
   }
 
   public void run() {
     this.generateShakeMap();
+    t.destroy();
   }
 
   /**

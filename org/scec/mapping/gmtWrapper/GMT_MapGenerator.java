@@ -8,7 +8,7 @@ import java.net.*;
 
 import org.scec.param.*;
 import org.scec.data.XYZ_DataSetAPI;
-import org.scec.webservices.client.*;
+//import org.scec.webservices.client.*;
 import org.scec.util.RunScript;
 
 /**
@@ -329,7 +329,11 @@ public class GMT_MapGenerator implements Serializable{
 
     //get the metadata lines
     Vector metaDataLines = getMapInfoLines();
-    imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metaDataLines);
+    try{
+      imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metaDataLines);
+    }catch(Exception e){
+      throw new RuntimeException("Server is down for maintenance, please try again later");
+    }
 
     return imgWebAddr+JPG_FILE_NAME;
   }
@@ -375,7 +379,7 @@ public class GMT_MapGenerator implements Serializable{
 
     //metadata file
     fileNames[2] = METADATA_FILE_NAME;
-    openWebServiceConnection(fileNames);
+  //  openWebServiceConnection(fileNames);
     return imgWebAddr+JPG_FILE_NAME;
   }
 
@@ -485,7 +489,7 @@ public class GMT_MapGenerator implements Serializable{
 
 
   //For the webservices Implementation
-  private void openWebServiceConnection(String[] fileName){
+/*  private void openWebServiceConnection(String[] fileName){
     int size=fileName.length;
 
     FileDataSource[] fs = new FileDataSource[size+2];
@@ -512,7 +516,7 @@ public class GMT_MapGenerator implements Serializable{
       e.printStackTrace();
     }
   }
-
+*/
 
 
   /**
