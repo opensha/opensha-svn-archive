@@ -7,31 +7,16 @@ For the SCEC-ITR CME:
 
 Implement retrieval of Primary Key in insert as a JDBC Transaction.
 
-Create a JSP/Struts based web application that display the following
-  web pages. These web pages should show dynamic information from the
-  database. Pages should use the cmetestbed pages look and feel.
- 
-  Add ResourceType
-  Remove Resource Type
-  Add PredicateType
-  Remove Predicate Type
-  
-  When User selects Add Resource Type (or add Predicate Type), 
-  another page is displayed that contains a form with ResourceType 
-  Information Tempolate, with blank fields for Name, Description.
-  When User "Saves", the form is validated (using struts) and if valid
-  is saved in the database.
+Create Admin Page JSP that lists the following Selections
+  - Add/View/Delete Predicate Type
+  - Add/View/Delete Resource Type
+  - Add/View/Delete Predidate Instance
+  - Add/View/Delete Resource Instance
+  - Add/View/Delete Predicate Inputs
+  - Add/View/Delete Predicate Outputs
 
-  When User selects Remove Resource Type (or remove Predicate Type)
-  another page is displayed that contains a form with a List of
-  ResourceTypes in the system. The user selects one, click delete,
-  and the resourceType is removed from the database.
-
-  Create JSPs pages that do the following:
-   - Associate the Inputs and Outputs with a Predicate Type:
-     Select a Predicate Type
-       - Select a list of inputs Resource Types.
-       - Select a list of output Resource Types.
+Write JSP, FormBeans, Validation Methods, and Action Methods to 
+  implement the Add/View/Delete Predicate Type pages.
 
 
 For OpenSHA:
