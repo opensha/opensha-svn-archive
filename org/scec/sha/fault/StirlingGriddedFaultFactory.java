@@ -188,6 +188,7 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
         }
 
         if( D ) System.out.println(S + "Ending");
+        surface.setAveDip(aveDip);
         return surface;
     }
 

@@ -19,9 +19,7 @@ public interface MagLengthRelationshipAPI{
 
     public double getMeanLength(double mag);
     public double getLengthStdev(double mag);
-    //public GaussianStatistics getLengthStats(double mag);
 
-    public double getMeanMag(double area);
-    public double getMagStdev(double area);
-    //public GaussianStatistics getMagStats(double area);
+    public double getMeanMag(double length);
+    public double getMagStdev(double length);
 }

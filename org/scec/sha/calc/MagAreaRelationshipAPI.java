@@ -20,10 +20,8 @@ public interface MagAreaRelationshipAPI{
 
     public double getMeanArea(double mag);
     public double getAreaStdev(double mag);
-    //public GaussianStatistics getAreaStats(double mag);
 
     public double getMeanMag(double area);
     public double getMagStdev(double area);
-    //public GaussianStatistics getMagStats(double area);
 
 }

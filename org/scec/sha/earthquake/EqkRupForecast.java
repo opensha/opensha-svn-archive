@@ -62,7 +62,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      * @return Returns the ProbEqkSource at index i
      *
      */
-    public ProbEqkSource getSource(int i) {
+    public ProbEqkSource getSource(int iSource) {
       return null;
     }
 
@@ -79,7 +79,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      * @return Returns the ProbEqkSource at index i
      *
      */
-    public ProbEqkSource getSourceClone(int i) {
+    public ProbEqkSource getSourceClone(int iSource) {
       return null;
     }
 
@@ -105,7 +105,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      * @param i
      * @return
      */
-    public EqkRupture getRupture(int source, int i) {
+    public EqkRupture getRupture(int iSource, int nRupture) {
       return null;
     }
 
@@ -119,7 +119,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      * @param i
      * @return
      */
-    public EqkRupture getRuptureClone(int source, int i) {
+    public EqkRupture getRuptureClone(int iSource, int nRupture) {
       return null;
     }
 

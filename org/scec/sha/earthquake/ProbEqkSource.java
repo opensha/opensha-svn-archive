@@ -14,7 +14,7 @@ import org.scec.data.NamedObjectAPI;
  * @version 1.0
  */
 
-public class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
+public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 
   /**
    * Name of this class
@@ -59,7 +59,7 @@ public class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    *
    * @param i  ith rupture
    */
-  public EqkRupture getRupture(int i) {
+  public EqkRupture getRupture(int nRupture) {
      return probEqkRupture;
   }
 
@@ -72,7 +72,7 @@ public class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * @param i
    * @return
    */
-  public EqkRupture getRuptureClone(int i) {
+  public EqkRupture getRuptureClone(int nRupture) {
     return null;
   }
 

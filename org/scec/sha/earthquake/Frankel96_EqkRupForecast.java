@@ -103,6 +103,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
     else if(eqkType == TYPE_B_CHAR_EQK)
       fileName = new String(FILE_B_CHAR_EQK);
     else if(eqkType == TYPE_B_GR_EQK)
+
       fileName = new String(FILE_B_GR_EQK);
 
     if( D ) System.out.println(S + "Loading file = " + fileName );
@@ -139,6 +140,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
             //reading the fault name
             faultName = new String(st.nextToken());
+            if(D) System.out.println(C+":FaultName::"+faultName);
           }
 
           //reading the next line from the file
@@ -244,6 +246,6 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
   public static  void main(String args[]){
     Frankel96_EqkRupForecast f= new Frankel96_EqkRupForecast();
-    f.readFrankel96_Char(2);
+    f.readFrankel96_Char(1);
   }
 }
