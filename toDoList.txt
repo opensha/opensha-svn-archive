@@ -4,12 +4,11 @@
 For OpenSHA:
 ------------
 
+Applets - resizing problems on Mac (revisit now that Java 1.4 is used?)
 
 ProbEqkRupture -  add a clone() method and use this in getRuptureClone(*) methods of ProbEqkSource and ProbEqkForecast objects.
 
 ProbEqkRupture - does this need a TimeSpan field (some of our sources do not have a timespan object, and so will not be capable of setting this)?  Lets take it out for now.
-
-Ned - Check changes from PointGR_EqkSource to PointPoissonEqkSource (and remove the former?).
 
 Look over FractileCurveCalculator (Ned)
 
