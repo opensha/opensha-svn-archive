@@ -312,6 +312,8 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     if(flag==0){
       if(!xValuesSelectionCombo.getSelectedItem().equals(this.DEFAULT))
         api.setX_ValuesForHazardCurve(function);
+      else
+        api.setX_ValuesForHazardCurve();
       dispose();
     }
   }
