@@ -57,7 +57,7 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
      fileName = fileName.substring(0,fileName.indexOf("."));
      command[2] = "mv "+fileName+".ps webpages/scenariomapimagefiles/";
      RunScript.runScript(command);
-     command[2] = "mv "+fileName+".jpg webpages/scenariomapimagefiles/";
+     command[2] = "mv "+imgName+" webpages/scenariomapimagefiles/";
      RunScript.runScript(command);
      // remove the temporary files created
      command[2]="rm "+fileName+".grd";
