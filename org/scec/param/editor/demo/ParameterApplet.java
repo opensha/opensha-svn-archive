@@ -151,10 +151,11 @@ public class ParameterApplet
 
         ParameterList list = makeParameterList( 5 );
         // Build package names search path
-        searchPaths = new String[3];
+        searchPaths = new String[4];
         searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
         searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
         searchPaths[2] = "org.scec.sha.surface.gui" ;
+        searchPaths[3] = "org.scec.sha.fault.parameter.gui";
         ParameterListEditor editor = new ParameterListEditor( list,searchPaths );
 
         jPanel1.add( editor,
@@ -225,6 +226,7 @@ public class ParameterApplet
 
     /** Makes the parameter example of type EvenlyGriddedSurface **/
     private ParameterAPI makeEvenlyGriddedsurfaceParameter(){
+
       String name = "Name " + paramCount;
       ParameterAPI param = new SimpleFaultParameter(name,null);
       paramCount++;
