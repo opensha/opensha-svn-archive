@@ -30,11 +30,11 @@ public class ProbabilisticHazardGui
   JLabel jLabel1 = new JLabel();
   JLabel jLabel2 = new JLabel();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
-  BorderLayout borderLayout1 = new BorderLayout();
-  GridBagLayout gridBagLayout2 = new GridBagLayout();
 
   private final static String HTML_START = "<html><body>";
   private final static String HTML_END = "</body></html>";
+  GridBagLayout gridBagLayout2 = new GridBagLayout();
+  BorderLayout borderLayout1 = new BorderLayout();
 
   public ProbabilisticHazardGui() {
     try {
@@ -49,7 +49,7 @@ public class ProbabilisticHazardGui
     getContentPane().setLayout(borderLayout1);
     screenPanel.setLayout(gridBagLayout2);
     applicationInfoText.setBackground(UIManager.getColor("Panel.background"));
-    applicationInfoText.setFont(new java.awt.Font("Arial", Font.PLAIN, 16));
+    applicationInfoText.setFont(new java.awt.Font("Serif", 0, 14));
     applicationInfoText.setEditable(false);
     exitButton.setText("Exit");
     exitButton.addActionListener(new java.awt.event.ActionListener() {
@@ -64,37 +64,30 @@ public class ProbabilisticHazardGui
       }
     });
 
-    jLabel1.setFont(new java.awt.Font("Arial", Font.BOLD, 24));
+    jLabel1.setFont(new java.awt.Font("Dialog", 1, 20));
     jLabel1.setForeground(Color.red);
     jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel1.setHorizontalTextPosition(SwingConstants.CENTER);
     jLabel1.setText(
         "Seismic Hazard Curves, Response Parameters");
-    jLabel2.setFont(new java.awt.Font("Arial", Font.BOLD, 24));
+    jLabel2.setFont(new java.awt.Font("Dialog", 1, 20));
     jLabel2.setForeground(Color.red);
     jLabel2.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel2.setHorizontalTextPosition(SwingConstants.CENTER);
     jLabel2.setText("and Design Parameters           ");
     applicationInfoText.setBorder(null);
     screenPanel.setMaximumSize(new Dimension(600, 500));
-    screenPanel.add(jLabel1, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE,
-        new Insets(11, 11, 45, 13), 63, 28));
-    screenPanel.add(jLabel2, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE,
-        new Insets(53, 97, 0, 104), 58, 31));
-    screenPanel.add(applicationInfoText,
-                    new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
-                                           , GridBagConstraints.CENTER,
-                                           GridBagConstraints.BOTH,
-                                           new Insets(0, 35, 0, 41), -1863, 7));
-    screenPanel.add(okButton, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(24, 220, 139, 0), 38, 15));
-    screenPanel.add(exitButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(24, 33, 139, 106), 38, 15));
-    this.getContentPane().add(screenPanel, java.awt.BorderLayout.CENTER);
+    screenPanel.add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(9, 6, 20, 51), 81, 13));
+    screenPanel.add(jLabel2,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(41, 89, 0, 124), 77, 1));
+    screenPanel.add(applicationInfoText,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(7, 14, 0, 3), -1354, 28));
+    screenPanel.add(exitButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 34, 67, 38), 63, 3));
+    screenPanel.add(okButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 291, 67, 0), 50, 4));
+    this.getContentPane().add(screenPanel, BorderLayout.CENTER);
     applicationInfoText.setText("This application can be used for obtaining hazard"+
                                 "curves,uniform hazard response spectra "+
                                 "and design parameters for the design documents.\n\n"+
@@ -104,7 +97,7 @@ public class ProbabilisticHazardGui
       "latitude and longitude or zip code to locate a site. Correct application of the"+
       "data obtained from the use of this program and/or maps is the responsibility of the user.");
   this.setTitle("Seismic Hazard Curves and Uniform Hazard Response Spectra");
-  this.setSize(new Dimension(600, 500));
+  this.setSize(new Dimension(576, 345));
   screenPanel.setSize(new Dimension(600, 500));
   Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
   this.setLocation((d.width - this.getSize().width) / 2, (d.height - this.getSize().height) / 2);
@@ -126,5 +119,15 @@ public class ProbabilisticHazardGui
     app.show();
 
   }
+
+  //static initializer for setting look & feel
+  static {
+    try {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    }
+    catch(Exception e) {
+    }
+  }
+
 }
 

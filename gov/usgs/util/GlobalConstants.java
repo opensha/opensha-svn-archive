@@ -84,12 +84,12 @@ public final class GlobalConstants {
 
 
     //SITE CLASS VARIABLES
-    public static final String SITE_CLASS_A = "Site Class B";
+    public static final String SITE_CLASS_A = "Site Class A";
     public static final String SITE_CLASS_B = "Site Class B";
-    public static final String SITE_CLASS_C = "Site Class B";
-    public static final String SITE_CLASS_D = "Site Class B";
-    public static final String SITE_CLASS_E = "Site Class B";
-    public static final String SITE_CLASS_F = "Site Class B";
+    public static final String SITE_CLASS_C = "Site Class C";
+    public static final String SITE_CLASS_D = "Site Class D";
+    public static final String SITE_CLASS_E = "Site Class E";
+    public static final String SITE_CLASS_F = "Site Class F";
 
     // Fa table data for site coefficient window
     public final static String[] faColumnNames = {
