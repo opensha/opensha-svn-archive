@@ -200,6 +200,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     // update the mag dist param
     if(this.getMagDistEditor()!=null)
       this.updateMagDistParam();
+    //System.out.println("MagDist Value:"+this.getMagDistEditor().getParameter("Mag Dist").getValue().toString());
 
     CalcProgressBar progress= null;
 
@@ -366,6 +367,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
       if(function.equalsIgnoreCase(this.getERF_API)){
         //gives the Adjustable Params  object to the Servelet
         outputToServlet.writeObject(this.getAdjParamList());
+        System.out.println("MagDist Value:"+this.getAdjParamList().getParameter("Mag Dist").getValue().toString());
         //gives the timeSpan object to the servlet
         outputToServlet.writeObject(this.getTimeSpan());
       }

@@ -16,7 +16,7 @@ import org.scec.sha.earthquake.*;
  * @version 1.0
  */
 
-public class PEER_FaultERFObject implements ERF_API{
+public class PEER_FaultERFObject implements ERF_API,java.io.Serializable{
 
 
   // this is the source (only 1 for this ERF)

@@ -1002,7 +1002,7 @@ public class HazardCurveServerModeApp extends JApplet
    initX_Values(hazFunction);
    try {
      // calculate the hazard curve
-     calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
+     calc.getHazardCurve(hazFunction, site, imr, (ERF_API)eqkRupForecast);
      hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
      hazFunction = toggleHazFuncLogValues(hazFunction);
    }catch (RuntimeException e) {

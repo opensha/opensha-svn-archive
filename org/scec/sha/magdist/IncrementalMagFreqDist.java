@@ -10,11 +10,12 @@ import org.scec.exceptions.*;
  * <p>Title:IncrementalMagFreqDist </p>
  * <p>Description:This class give the rate of earthquakes (number per year) in succesion</p>
  *
- * @author : Nitin Gupta Date:July,26,2002
+ * @author : Nitin Gupta Date:July 26,2002
  * @version 1.0
  */
 
-public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements IncrementalMagFreqDistAPI {
+public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
+    implements IncrementalMagFreqDistAPI,java.io.Serializable {
 
     //for Debug purposes
     private boolean D = false;

@@ -107,61 +107,44 @@ public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebSer
   FaultTrace faultTrace;
 
   // adjustable params for each forecast
-  protected ParameterList adjustableParams = new ParameterList();
+  protected ParameterList adjustableParams = null;
   // timespan object for each forecast
   protected TimeSpan timeSpan;
 
-  public void PEER_FaultForecast() {
-
-    // create the timespan object with start time and duration in years
-    timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
-
-
-    // add the adjustable parameters to the list
-    adjustableParams.addParameter(gridParam);
-    adjustableParams.addParameter(offsetParam);
-    adjustableParams.addParameter(lengthSigmaParam);
-    adjustableParams.addParameter(dipParam);
-    adjustableParams.addParameter(rakeParam);
-
-    // add the supported Mag-Freq Dist classes & make the associated parameter
-    supportedMagDists.add(GaussianMagFreqDist.NAME);
-    supportedMagDists.add(SingleMagFreqDist.NAME);
-    supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
-    supportedMagDists.add(YC_1985_CharMagFreqDist.NAME);
-    magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
-    //add the magdist parameter
-    adjustableParams.addParameter(this.magDistParam);
-  }
-
-
   //Process the HTTP Get request
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    this.PEER_FaultForecast();
+
     try{
       // get an input stream from the applet
       ObjectInputStream inputFromApplet = new ObjectInputStream(request.getInputStream());
       //gets the object for the ERF Gui Bean
       String funcToCall = (String) inputFromApplet.readObject();
+      System.out.println("Function to call:"+funcToCall);
+
+      // return the  output stream back to the ERFGUI bean
+      // It returns whatever the Gui asked it for
+      ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
 
       //gets the Name of the ERF
       if(funcToCall.equalsIgnoreCase(ERF_ServletModeGuiBean.getName))
-        this.getName();
+        outputToApplet.writeObject(this.getName());
 
       //gets the Adjustable Params for the ERF
       if(funcToCall.equalsIgnoreCase(ERF_ServletModeGuiBean.getAdjParams))
-        this.getAdjustableParams();
+        outputToApplet.writeObject(this.getAdjustableParams());
 
       //gets the TimeSpan object for the ERF
       else if(funcToCall.equalsIgnoreCase(ERF_ServletModeGuiBean.getTimeSpan))
-        this.getTimeSpan();
+        outputToApplet.writeObject(this.getTimeSpan());
 
       //gets the EqkRupForecast object for the selected ERF model
       else if(funcToCall.equalsIgnoreCase(ERF_ServletModeGuiBean.getERF_API)){
         ParameterList paramList=(ParameterList)inputFromApplet.readObject();
         TimeSpan time=(TimeSpan)inputFromApplet.readObject();
-        this.getERF_API(time,paramList);
+        outputToApplet.writeObject(this.getERF_API(time,paramList));
       }
+      outputToApplet.close();
+
     } catch (Exception e) {
       // report to the user whether the operation was successful or not
       e.printStackTrace();
@@ -199,6 +182,24 @@ public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebSer
     * @return
     */
     public ParameterList getAdjustableParams() {
+      if(this.adjustableParams == null){
+        adjustableParams= new ParameterList();
+        // add the adjustable parameters to the list
+        adjustableParams.addParameter(gridParam);
+        adjustableParams.addParameter(offsetParam);
+        adjustableParams.addParameter(lengthSigmaParam);
+        adjustableParams.addParameter(dipParam);
+        adjustableParams.addParameter(rakeParam);
+
+        // add the supported Mag-Freq Dist classes & make the associated parameter
+        supportedMagDists.add(GaussianMagFreqDist.NAME);
+        supportedMagDists.add(SingleMagFreqDist.NAME);
+        supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
+        supportedMagDists.add(YC_1985_CharMagFreqDist.NAME);
+        magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
+        //add the magdist parameter
+        adjustableParams.addParameter(this.magDistParam);
+      }
       return adjustableParams;
    }
 
@@ -213,58 +214,63 @@ public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebSer
      return true;
    }
 
+   /**
+    *
+    * @param time : TimeSpan Param
+    * @param param :ParameterList param
+    * @returns the object for the EqkRupForecast with updated sources
+    */
+   public ERF_API getERF_API(TimeSpan time, ParameterList param){
 
- public ERF_API getERF_API(TimeSpan time, ParameterList param){
+     //object for the PEER_Fault that implements the ERF_API
+     PEER_FaultERFObject peerFaultObject = new PEER_FaultERFObject();
+     // check if magDist is null
+     if(param.getParameter(this.MAG_DIST_PARAM_NAME).getValue()==null)
+       throw new RuntimeException("Mag Dist is null");
 
-   //object for the PEER_Fault that implements the ERF_API
-   PEER_FaultERFObject peerFaultObject = new PEER_FaultERFObject();
-   // check if magDist is null
-   if(this.magDistParam.getValue()==null)
-     throw new RuntimeException("Mag Dist is null");
+     // dip param value
+     double dipValue = ((Double)param.getParameter(this.DIP_PARAM_NAME).getValue()).doubleValue();
+     // first build the fault trace, then add add the location to the trace
 
-   // dip param value
-   double dipValue = ((Double)dipParam.getValue()).doubleValue();
-   // first build the fault trace, then add add the location to the trace
+     SimpleFaultData faultData;
+     if(dipValue == 90){
+       // fault1
+       faultTrace = new FaultTrace(FAULT1_NAME);
+       faultTrace.addLocation((Location)fault_LOCATION1.clone());
+       faultTrace.addLocation((Location)fault_LOCATION2.clone());
+       //make the fault data
+       faultData= new SimpleFaultData(dipValue,
+                                      LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH1,faultTrace);
+     }
 
-   SimpleFaultData faultData;
-   if(dipValue == 90){
-     // fault1
-     faultTrace = new FaultTrace(FAULT1_NAME);
-     faultTrace.addLocation((Location)fault_LOCATION1.clone());
-     faultTrace.addLocation((Location)fault_LOCATION2.clone());
-     //make the fault data
-     faultData= new SimpleFaultData(dipValue,
-                                    LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH1,faultTrace);
+     else {
+       //fault2
+       faultTrace = new FaultTrace(FAULT2_NAME);
+       faultTrace.addLocation((Location)fault_LOCATION1.clone());
+       faultTrace.addLocation((Location)fault_LOCATION2.clone());
+       //make the fault data
+       faultData= new SimpleFaultData(dipValue,
+                                      LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH2,faultTrace);
+
+     }
+
+     //  create a fault factory and make the surface
+     FrankelGriddedFaultFactory factory =
+         new FrankelGriddedFaultFactory(faultData,
+         ((Double)param.getParameter(this.GRID_PARAM_NAME).getValue()).doubleValue());
+
+     GriddedSurfaceAPI surface = factory.getGriddedSurface();
+
+     // Now make the source and set it as the PEER Forecats source object
+     peerFaultObject.setSource(new PEER_FaultSource((IncrementalMagFreqDist)param.getParameter(this.MAG_DIST_PARAM_NAME).getValue(),
+         ((Double)param.getParameter(this.RAKE_PARAM_NAME).getValue()).doubleValue() ,
+         ((Double)param.getParameter(this.OFFSET_PARAM_NAME).getValue()).doubleValue(),
+         (EvenlyGriddedSurface)surface,
+         timeSpan.getDuration(),
+         ((Double)param.getParameter(this.SIGMA_PARAM_NAME).getValue()).doubleValue() ));
+
+     return peerFaultObject;
    }
-
-   else {
-     //fault2
-     faultTrace = new FaultTrace(FAULT2_NAME);
-     faultTrace.addLocation((Location)fault_LOCATION1.clone());
-     faultTrace.addLocation((Location)fault_LOCATION2.clone());
-     //make the fault data
-     faultData= new SimpleFaultData(dipValue,
-                                    LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH2,faultTrace);
-
-   }
-
-   //  create a fault factory and make the surface
-   FrankelGriddedFaultFactory factory =
-       new FrankelGriddedFaultFactory(faultData,
-       ((Double)gridParam.getValue()).doubleValue());
-
-   GriddedSurfaceAPI surface = factory.getGriddedSurface();
-
-   // Now make the source and set it as the PEER Forecats source object
-   peerFaultObject.setSource(new PEER_FaultSource((IncrementalMagFreqDist)magDistParam.getValue(),
-                                  ((Double)rakeParam.getValue()).doubleValue() ,
-                                  ((Double)offsetParam.getValue()).doubleValue(),
-                                  (EvenlyGriddedSurface)surface,
-                                  timeSpan.getDuration(),
-                                  ((Double)lengthSigmaParam.getValue()).doubleValue() ));
-
-   return peerFaultObject;
- }
 
  /**
   * return the time span object
@@ -272,6 +278,8 @@ public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebSer
   * @return : time span object is returned which contains start time and duration
   */
  public TimeSpan getTimeSpan() {
+   // create the timespan object with start time and duration in years
+   timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
    return this.timeSpan;
  }
 

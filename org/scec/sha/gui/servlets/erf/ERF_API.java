@@ -3,6 +3,8 @@ package org.scec.sha.gui.servlets.erf;
 import java.util.Vector;
 
 import org.scec.sha.earthquake.ProbEqkRupture;
+import org.scec.sha.earthquake.ProbEqkSource;
+
 
 /**
  * <p>Title: ERF_API</p>
@@ -28,11 +30,27 @@ public interface ERF_API {
   public Vector getSourceList();
 
   /**
+   * Return the earhthquake source at index i.   Note that this returns a
+   * pointer to the source held internally, so that if any parameters
+   * are changed, and this method is called again, the source obtained
+   * by any previous call to this method will no longer be valid.
+   *
+   * @param iSource : index of the desired source (only "0" allowed here).
+   *
+   * @return Returns the ProbEqkSource at index i
+   *
+   */
+  public ProbEqkSource getSource(int iSource);
+
+
+  /**
    *
    * @param iSource
    * @returns the number of ruptures for the ithSource
    */
   public int getNumRuptures(int iSource);
+
+
 
   /**
    *

@@ -30,7 +30,8 @@ import org.scec.data.NamedObjectAPI;
  * @version 1.0
  */
 
-public abstract class DiscretizedFunc implements DiscretizedFuncAPI, NamedObjectAPI{
+public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
+    NamedObjectAPI,java.io.Serializable{
 
 
     /** Class name used for debbuging */

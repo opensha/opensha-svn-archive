@@ -34,7 +34,7 @@ import org.scec.param.event.*;
  */
 public abstract class Parameter
     implements
-        ParameterAPI
+        ParameterAPI, java.io.Serializable
 {
 
     /** Class name used for debug statements and building the parameter type for getType(). */
