@@ -929,9 +929,11 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
       //displays the disaggregation string in the pop-up window
       String disaggregationString= peerTestGuiBean.getDisaggregationString();
       if(disaggregationString !=null) {
+
         PEER_TestsDisaggregationWindow disaggregation=new PEER_TestsDisaggregationWindow(disaggregationString);
         disaggregation.setBounds(xCenter-50,yCenter-60,320, 250);
         disaggregation.show();
+
       }
       disaggregationString=null;
     }
