@@ -13,58 +13,43 @@ import org.scec.data.function.EvenlyDiscretizedFunc;
 
 public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc {
 
-
     EvenlyDiscretizedFunc  cumRateDist;
     EvenlyDiscretizedFunc momentRateDist;
 
-    protected double min=Double.NaN;
-    protected double max=Double.NaN;
-    protected int num;
-    protected double delta=Double.NaN;
 
 
     public IncrementalMagFreqDist(double min,int num,double delta){
-      this.min=min;
-      this.num=num;
-      this.delta=delta;
+     super(min,num,delta);
+     momentRateDist=new EvenlyDiscretizedFunc(min,num,delta);
+     cumRateDist =new EvenlyDiscretizedFunc(min,num,delta);
+     setMomentRateDist();
+     setCumRateDist();
     }
 
     public IncrementalMagFreqDist(double min,double max,int num) {
-      this.min=min;
-      this.num=num;
-      this.max=max;
-    }
+      super(min,num,(max-min)/num);
+      double delta= (max-min)/num;
+      momentRateDist=new EvenlyDiscretizedFunc(min,num,delta);
+      cumRateDist =new EvenlyDiscretizedFunc(min,num,delta);
+      setMomentRateDist();
+      setCumRateDist();
+   }
 
     private void setMomentRateDist() {
-      momentRateDist=new EvenlyDiscretizedFunc(this.min,this.num,this.delta);
+
       for(int i=0;i<num;++i) {
         double x=momentRateDist.getX(i);
-      /*  Object obj=points.get(i);
-        if(obj==null) {
-          double y=Double.NaN;
-        }
-        else {
-          double y=((Double)obj).doubleValue();
-        }*/
-         double y=getIncrRate(x) *(Math.pow(10,1.5*x+9.05));
-         points.set(i,new Double(y));
+        double y=getIncrRate(x) *(Math.pow(10,1.5*x+9.05));
+        momentRateDist.set(i,y);
       }
     }
 
     private void setCumRateDist() {
-      cumRateDist =new EvenlyDiscretizedFunc(this.min,this.num,this.delta);
+
       for(int i=0;i<num;++i){
          double x= cumRateDist.getX(i);
-       /*  Object obj=points.get(i);
-         if(obj==null) {
-           double y=Double.NaN;
-         }
-         else {
-           double y=((Double)obj).doubleValue();
-         } */
-
-         double y=getIncrRate(x);
-         points.set(i,new Double(y));
+         double y=getCumRate(x);
+         cumRateDist.set(i,y);
       }
     }
 
@@ -105,17 +90,18 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc {
     public double getTotalIncrRate() {
       double sum=0.0;
       for(int i=0;i<num;++i) {
-          double x=getX(i);
-          double rate=getIncrRate(x);
+          double rate=getY(i);
           sum+=rate;
       }
       return sum;
     }
 
     public void normalizeByTotalRate() {
+      double totalIncrRate=getTotalIncrRate();
       for(int i=0;i<num;++i) {
           double y = getIncrRate(i);
-          double yy= y/getTotalIncrRate();
+          double yy= y/totalIncrRate;
+          points.set(i,new Double(yy));
       }
       return;
     }
