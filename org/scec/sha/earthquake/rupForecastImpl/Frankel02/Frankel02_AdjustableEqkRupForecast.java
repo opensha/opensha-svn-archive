@@ -185,7 +185,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     charFaultSources = new Vector();
     grFaultSources = new Vector();
 
-    this.makeAllFaultSources();
+    makeFaultSources("test_ca-b-fullwt-ss-ell-gr", 1.0,null,0);
+
+//    this.makeAllFaultSources();
 
 /*
     try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
@@ -235,6 +237,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
    */
   private void makeAllFaultSources() {
 
+/**/
     makeFaultSources("ca-a-other-fixed-char", 1.0,null,0);
     makeFaultSources("ca-a-other-norm-char", 1.0,null,0);
     makeFaultSources("ca-amod1-char", 0.5,null,0);
@@ -763,12 +766,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     }  // bottom of loop over input-file lines
 
   }
-
-
-
-
-
-
 
 
 
