@@ -33,8 +33,8 @@ public class GriddedFaultPlotter extends ArrayList{
     public final static String X_AXIS_LABEL = "Longitude (deg.)";
     public final static String Y_AXIS_LABEL = "Latitude (deg.)";
 
-    protected com.jrefinery.chart.NumberAxis xAxis =  new com.jrefinery.chart.HorizontalNumberAxis( X_AXIS_LABEL );
-    protected com.jrefinery.chart.NumberAxis yAxis =  new com.jrefinery.chart.VerticalNumberAxis( Y_AXIS_LABEL );
+    //protected com.jrefinery.chart.NumberAxis xAxis =  new com.jrefinery.chart.HorizontalNumberAxis( X_AXIS_LABEL );
+    //protected com.jrefinery.chart.NumberAxis yAxis =  new com.jrefinery.chart.VerticalNumberAxis( Y_AXIS_LABEL );
 
     protected ChartPanel singleChartPanel = null;
     protected ChartPanel multiChartPanel = null;
@@ -69,14 +69,14 @@ public class GriddedFaultPlotter extends ArrayList{
 
     public GriddedFaultPlotter(){
         // X - Axis
-        xAxis.setAutoRangeIncludesZero( false );
-        xAxis.setCrosshairLockedOnData( false );
-        xAxis.setCrosshairVisible( false );
+       // xAxis.setAutoRangeIncludesZero( false );
+       // xAxis.setCrosshairLockedOnData( false );
+       // xAxis.setCrosshairVisible( false );
 
         // Y axis
-        yAxis.setAutoRangeIncludesZero( false );
-        yAxis.setCrosshairLockedOnData( false );
-        yAxis.setCrosshairVisible( false );
+        //yAxis.setAutoRangeIncludesZero( false );
+        //yAxis.setCrosshairLockedOnData( false );
+        //yAxis.setCrosshairVisible( false );
 
 
         int blue = 255 - plotColor.getBlue();
@@ -151,6 +151,19 @@ public class GriddedFaultPlotter extends ArrayList{
 
     private ChartPanel createChartWithSingleDataset(String griddedSurfaceName,double gridSpacing ){
 
+        com.jrefinery.chart.NumberAxis xAxis =  new com.jrefinery.chart.HorizontalNumberAxis( X_AXIS_LABEL );
+        com.jrefinery.chart.NumberAxis yAxis =  new com.jrefinery.chart.VerticalNumberAxis( Y_AXIS_LABEL );
+       // X - Axis
+        xAxis.setAutoRangeIncludesZero( false );
+        xAxis.setCrosshairLockedOnData( false );
+        xAxis.setCrosshairVisible( false );
+
+        // Y axis
+        yAxis.setAutoRangeIncludesZero( false );
+        yAxis.setCrosshairLockedOnData( false );
+        yAxis.setCrosshairVisible( false );
+
+
         // update axis
         xAxis.setCrosshairVisible( true );
         yAxis.setCrosshairVisible( true );
@@ -190,6 +203,19 @@ public class GriddedFaultPlotter extends ArrayList{
 
 
     private ChartPanel createOverlaidChart( String griddedSurfaceName, double gridSpacing) {
+
+
+        com.jrefinery.chart.NumberAxis xAxis =  new com.jrefinery.chart.HorizontalNumberAxis( X_AXIS_LABEL );
+        com.jrefinery.chart.NumberAxis yAxis =  new com.jrefinery.chart.VerticalNumberAxis( Y_AXIS_LABEL );
+      // X - Axis
+        xAxis.setAutoRangeIncludesZero( false );
+        xAxis.setCrosshairLockedOnData( false );
+        xAxis.setCrosshairVisible( false );
+
+      // Y axis
+        yAxis.setAutoRangeIncludesZero( false );
+        yAxis.setCrosshairLockedOnData( false );
+        yAxis.setCrosshairVisible( false );
 
         // axis
         xAxis.setCrosshairVisible( false );
