@@ -90,7 +90,9 @@ public class GroupTestGuiBean implements
      */
     public final static String SET1_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set1_Fault_Forecast";
     public final static String SET1_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set1_Area_Forecast";
-    public final static String SET2_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set2_NonPlanarFault_Forecast";
+    public final static String SET2_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set2_ListricFault_Forecast";
+    public final static String SET2_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set2_NonPlanarFault_Forecast";
+    public final static String SET2_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_test_cases.Set2_MultiSource_Forecast";
 
     //this vector saves the names of all the supported Eqk Rup Forecasts
     private Vector erfNamesVector=new Vector();
@@ -522,7 +524,11 @@ public class GroupTestGuiBean implements
       erfClasses = new Vector();
       erfClasses.add( SET1_FAULT_FORECAST_CLASS_NAME );
       erfClasses.add( SET1_AREA_FORECAST_CLASS_NAME );
-      erfClasses.add(SET2_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+      erfClasses.add( SET2_NON_PLANAR_FAULT_FORECAST_CLASS_NAME );
+      erfClasses.add( SET2_LISTRIC_FAULT_FORECAST_CLASS_NAME );
+      erfClasses.add( SET2_MULTI_SOURCE_FORECAST_CLASS_NAME );
+
+
       Iterator it= erfClasses.iterator();
 
       while(it.hasNext()){

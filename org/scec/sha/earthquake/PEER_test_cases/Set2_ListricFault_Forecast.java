@@ -35,7 +35,7 @@ public class Set2_ListricFault_Forecast extends EqkRupForecast
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("Test Set1 Fault");
+  private static String  C = new String("Set2 Listric Fault");
   private boolean D = false;
 
   /**

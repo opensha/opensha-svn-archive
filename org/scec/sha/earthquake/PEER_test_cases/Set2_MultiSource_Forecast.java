@@ -37,7 +37,7 @@ public class Set2_MultiSource_Forecast extends EqkRupForecast
    * @todo variables
    */
   //for Debug purposes
-  private static String  C = new String("Set2 Multi-Source Forecast");
+  private static String  C = new String("Set2 Multi-Source");
   private boolean D = false;
 
   /**
