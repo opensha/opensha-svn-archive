@@ -51,6 +51,9 @@ GMT Web service:
 For OpenSHA:
 ------------
 
+Ned - review GMT web service implementation.
+
+
 Develop HazardSpectrumApplet for Caltrans.  This is like the hazard curve calculator except:
 
 	X axis will be SA period.  We won't need the X_ValuesInCurveControlPanel here because 
