@@ -16,7 +16,7 @@ import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
 
 /**
- * <p>Title: Temp_HazardCurveAppForStandalone</p>
+ * <p>Title: HazardCurveLocalModeApplication</p>
  * <p>Description: This application is extension of HazardCurveApplication, where
  * everything take place on the user's own machine. This version of application
  * does not require any internet connection, the only difference between this
@@ -27,7 +27,7 @@ import org.scec.sha.calc.DisaggregationCalculator;
  * @version 1.0
  */
 
-public class Temp_HazardCurveAppForStandalone extends Temp_HazardCurveApplication {
+public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplication {
 
   public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
@@ -99,7 +99,7 @@ public class Temp_HazardCurveAppForStandalone extends Temp_HazardCurveApplicatio
   }
 
   public static void main(String[] args) {
-    Temp_HazardCurveAppForStandalone applet = new Temp_HazardCurveAppForStandalone();
+    HazardCurveLocalModeApplication applet = new HazardCurveLocalModeApplication();
 
     applet.isStandalone = true;
     JFrame frame = new JFrame();

@@ -95,7 +95,7 @@ import ch.randelshofer.quaqua.QuaquaManager;
 
 
 /**
- * <p>Title: Temp_HazardCurveApplication</p>
+ * <p>Title: HazardCurveServerModeApplication</p>
  * <p>Description: This application computes Hazard Curve for selected
  * AttenuationRelationship model , Site and Earthquake Rupture Forecast (ERF)model.
  * This computed Hazard curve is shown in a panel using JFreechart.
@@ -114,7 +114,7 @@ import ch.randelshofer.quaqua.QuaquaManager;
  * @version 1.0
  */
 
-public class Temp_HazardCurveApplication extends JApplet
+public class HazardCurveServerModeApplication extends JApplet
     implements Runnable,  ParameterChangeListener,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
     X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
@@ -123,7 +123,7 @@ public class Temp_HazardCurveApplication extends JApplet
   /**
    * Name of the class
    */
-  private final static String C = "Temp_HazardCurveApplication";
+  private final static String C = "HazardCurveServerModeApplication";
   // for debug purpose
   private final static boolean D = false;
 
@@ -354,7 +354,7 @@ public class Temp_HazardCurveApplication extends JApplet
   }
 
   //Construct the applet
-  public Temp_HazardCurveApplication() {
+  public HazardCurveServerModeApplication() {
     data.setFunctions(this.totalProbFuncs);
     // for Y-log, convert 0 values in Y axis to this small value
     data.setConvertZeroToMin(true,Y_MIN_VAL);
@@ -547,7 +547,7 @@ public class Temp_HazardCurveApplication extends JApplet
 
   //Main method
   public static void main(String[] args) {
-    Temp_HazardCurveApplication applet = new Temp_HazardCurveApplication();
+    HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
