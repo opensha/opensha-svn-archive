@@ -21,6 +21,7 @@ import org.scec.sha.gui.infoTools.ConnectToCVM;
 import org.scec.util.*;
 import org.scec.data.*;
 import org.scec.data.region.*;
+import org.scec.param.ParameterAPI;
 
 
 /**
@@ -35,7 +36,7 @@ import org.scec.data.region.*;
 public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
 
-  private final static String DELTA_RATES_FILE_NAME = "http://www.relm.org/models/step/SoCalDeltaRates.txt";
+  private final static String DELTA_RATES_FILE_NAME = "http://www.relm.org/models/step/AllCalDeltaRates.txt";
 
    //private final double MIN_LAT= 32.5;
   //private final double MIN_LAT= 32;
@@ -1381,7 +1382,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
                                      EqkRupForecast eqkRupForecast){
 
     ArrayList probVals = new ArrayList();
-    double MAX_DISTANCE = 200;
+    double MAX_DISTANCE = 100;
 
     // declare some varibles used in the calculation
     double qkProb, distance;
@@ -1400,6 +1401,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       int numSourcesSkipped =0;
       long startCalcTime = System.currentTimeMillis();
       fw.write("start step hazard calculation:"+startCalcTime);
+      ParameterAPI siteParam =region.getSite(0).getParameter(imr.WILLS_SITE_NAME);
       for(int j=0;j<numSites;++j){
         double hazVal =1;
         double condProb =0;
@@ -1409,9 +1411,9 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
         String willSiteClass = (String)this.willSiteClassVals.get(j);
         //only add the wills value if we have a value available for that site else leave default "D"
         if(!willSiteClass.equals("NA"))
-          site.getParameter(imr.WILLS_SITE_NAME).setValue(willSiteClass);
+          siteParam.setValue(willSiteClass);
         else
-          site.getParameter(imr.WILLS_SITE_NAME).setValue(imr.WILLS_SITE_D);
+          siteParam.setValue(imr.WILLS_SITE_D);
 
         // loop over sources
         for(i=0;i < numSources ;i++) {
