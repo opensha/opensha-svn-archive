@@ -688,7 +688,7 @@ public class GroupTestGuiBean implements
    try {
       eqkRupForecast.updateForecast();
     }catch (RuntimeException e) {
-      JOptionPane.showMessageDialog(applet, e.toString(),
+      JOptionPane.showMessageDialog(applet, e.getMessage(),
         "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
       return;
     }

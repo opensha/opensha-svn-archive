@@ -183,7 +183,7 @@ public class Set1_Fault_Forecast extends EqkRupForecast
      if(parameterChangeFlag) {
 
        // check if magDist is null
-       if(this.magDistParam==null)
+       if(this.magDistParam.getValue()==null)
           throw new RuntimeException("Click on update MagDist button and then choose Add Plot");
 
        // dip param value
