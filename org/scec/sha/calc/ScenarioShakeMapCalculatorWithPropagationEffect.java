@@ -15,6 +15,7 @@ import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.imr.AttenuationRelationship;
 import org.scec.exceptions.ParameterException;
 import org.scec.sha.param.PropagationEffect;
+import org.scec.param.ParameterList;
 
 /**
  * <p>Title: ScenarioShakeMapCalculatorWithPropagationEffect</p>
@@ -344,6 +345,13 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
    return false;
   }
 
-
+  /**
+   *
+   * @returns the ParameterList for the Propagation Effect.
+   * But later we will be creating a adjustable parameterlist for the calculator.
+   */
+  public ParameterList getAdjustableParams(){
+    return propagationEffect.getAdjustableParameterList();
+  }
 
 }
