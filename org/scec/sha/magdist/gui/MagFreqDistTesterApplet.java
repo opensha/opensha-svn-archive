@@ -14,6 +14,7 @@ import com.jrefinery.data.*;
 
 
 import org.scec.gui.*;
+import org.scec.gui.plot.LogPlotAPI;
 import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 
 import org.scec.param.*;
@@ -35,7 +36,8 @@ import org.scec.sha.magdist.*;
 public class MagFreqDistTesterApplet extends JApplet
             implements ItemListener,
                       ParameterChangeFailListener,
-                      ParameterChangeWarningListener {
+                      ParameterChangeWarningListener,
+                      LogPlotAPI {
 
 
   protected final static String C = "MagFreqDistTesterApplet";

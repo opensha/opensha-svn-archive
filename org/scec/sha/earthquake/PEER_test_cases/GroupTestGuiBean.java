@@ -119,6 +119,16 @@ public class GroupTestGuiBean implements
   private ParameterListEditor imrEditor = null;
 
   /**
+   * editor for site parameters. It contains a list of sites for the IMr
+   */
+  private ParameterListEditor siteEditor = null;
+
+  /**
+   * site gui bean is needed for making the site editor
+   */
+  private SiteGuiBean siteBean;
+
+  /**
    * editor for imr parameters. It contains a list of IMRs
    */
   private ParameterListEditor eqkSourceEditor = null;
@@ -169,6 +179,8 @@ public class GroupTestGuiBean implements
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
     searchPaths[2] = "org.scec.sha.magdist" ;
+    // make the site gui bean
+    siteBean = new SiteGuiBean(this, this, this);
 
     //MAKE changes in this function for any change in test cases
     initTestCasesParamListAndEditor();
@@ -323,6 +335,12 @@ public class GroupTestGuiBean implements
     ParameterAPI levelParam = imr.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME);
     imrParamList.addParameter(levelParam);
 
+    imrEditor = new ParameterListEditor(imrParamList,searchPaths);
+
+    // set the trunc level based on trunc type
+    String value = (String)imrParamList.getValue(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
+    toggleSigmaLevelBasedOnTypeValue(value);
+
   }
 
   /**
@@ -443,45 +461,14 @@ public class GroupTestGuiBean implements
    //starting
    String S = C + ": updateSiteParamListAndEditor(): ";
 
-   // make all the parameters as invisible
-   Iterator it = imrParamList.getParameterNamesIterator();
-   while(it.hasNext()) {
-     name = (String)it.next();
-     // remove site parameters related to previous IMR
-     if(!name.equalsIgnoreCase(IMR_PARAM_NAME) &&
-        !name.equalsIgnoreCase(ClassicIMR.SIGMA_TRUNC_TYPE_NAME) &&
-        !name.equalsIgnoreCase(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME))
-
-     imrParamList.removeParameter(name);
-   }
-
-
 
    // get the selected IMR
    String value = (String)imrParamList.getParameter(this.IMR_PARAM_NAME).getValue();
+   Vector imrNames = new Vector();
+   imrNames.add(value);
+   // now make the editor based on the parameter list
+   siteEditor = this.siteBean.updateSite(imrNames);
 
-   // now find the object corresponding to the selected IMR
-   int numIMRs = imrObject.size();
-   for(int i=0; i<numIMRs; ++i) {
-     ClassicIMRAPI imr = (ClassicIMRAPI)imrObject.get(i);
-
-     // if this is the selected IMR
-     if(imr.getName().equalsIgnoreCase(value)) {
-       imrParamList.addParameter(imr.getParameter("Std Dev Type"));
-       it = imr.getSiteParamsIterator();
-       while(it.hasNext())
-         imrParamList.addParameter((ParameterAPI)it.next());
-       break;
-     }
-   }
-
-   // now make the editor based on the paramter list
-  imrEditor = new ParameterListEditor( imrParamList, searchPaths);
-  imrEditor.setTitle( "Select IMR" );
-
-  // set level visible/invisible based on trunc level
-   ParameterAPI typeParam = imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
-   toggleSigmaLevelBasedOnTypeValue(typeParam.getValue().toString());
  }
 
 
@@ -521,6 +508,15 @@ public class GroupTestGuiBean implements
   */
   public ParameterListEditor getImrEditor() {
         return imrEditor;
+ }
+
+ /**
+  *  Gets the siteEditor attribute
+  *
+  * @return    The siteEditor value
+  */
+  public ParameterListEditor getSiteEditor() {
+        return siteEditor;
  }
 
 
@@ -667,7 +663,7 @@ public class GroupTestGuiBean implements
    * Gets the probabilities functiion based on selected parameters
    * this function is called when add Graph is clicked
    */
-  public DiscretizedFuncAPI getChoosenFunction() {
+  public void getChoosenFunction(DiscretizedFuncList funcs) {
     EqkRupForecast eqkRupForecast = null;
 
     // get the selected forecast model
@@ -688,9 +684,6 @@ public class GroupTestGuiBean implements
     ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
     ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
 
-    // FIX FIX . set the values according to test cases. get the longitude and latitude values
-    double longVal= -122;
-    double latVal = 38.113;
 
     //set the X-axis label based on selected IMT
     // get the selected IMT, if it is SA, get the period as well
@@ -706,8 +699,11 @@ public class GroupTestGuiBean implements
     ClassicIMRAPI imr = null;
 
     // make a site object to pass to each IMR
+    ParameterList siteParams = siteBean.getSiteParamList();
+    double longVal= siteBean.getLongitude();
+    double latVal = siteBean.getLatitude();
     Site site = new Site(new Location(latVal,longVal));
-    site.addParameterList(imrParamList);
+    site.addParameterList(siteParams);
 
 
     // do for each IMR
@@ -722,6 +718,19 @@ public class GroupTestGuiBean implements
           if(D) System.out.println("siteString:::"+site.toString());
           imr = (ClassicIMRAPI)imrObject.get(i);
           imr.setIntensityMeasure(imt);
+
+          //set all the independent parameters related to this IMT
+          ListIterator it = this.imtParamList.getParameterNamesIterator();
+          while(it.hasNext()) {
+            String name = (String)it.next();
+            if(name.equalsIgnoreCase(this.IMT_PARAM_NAME))
+              continue;
+            //set independent paramerts  for selected IMT in IMR
+            ParameterAPI param = imr.getParameter(name);
+            param.setValue(new Double((String)imtParamList.getValue(name)));
+          }
+
+
           break;
         } catch (Exception ex) {
           if(D) System.out.println(C + ":Param warning caught"+ex);
@@ -735,7 +744,12 @@ public class GroupTestGuiBean implements
     HazardCurveCalculator calc = new HazardCurveCalculator();
     calc.getHazardCurve(hazFunction, site, imr, eqkRupForecast);
 
-    return hazFunction;
+    // add the function to the function list
+    funcs.add(hazFunction);
+
+    // set the X-axis label
+    funcs.setXAxisName(imt);
+    funcs.setYAxisName("Probability of Exceedance");
   }
 
 

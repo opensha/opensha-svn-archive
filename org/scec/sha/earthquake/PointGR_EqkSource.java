@@ -30,6 +30,20 @@ public class PointGR_EqkSource extends ProbEqkSource {
 
   private Location location;
 
+
+  public PointGR_EqkSource(Location loc, GutenbergRichterMagFreqDist gr,double rake){
+    this.location =location;
+    this.gR=gr;
+    // Determine number of ruptures
+    totNumRups = gR.getNum();
+
+    // make the prob qk rupture
+    probEqkRupture = new ProbEqkRupture();
+    probEqkRupture.setPointSurface(location);
+    probEqkRupture.setAveRake(rake);
+   // if( D ) System.out.println("PointGR_EqkSource:momentRate::"+gR.getTotalMomentRate());
+  }
+
   /**
    * constructor specifying the values needed for Gutenberg Richter
    * and also for constructing the rupture

@@ -15,6 +15,7 @@ import com.jrefinery.data.*;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
+import org.scec.gui.plot.LogPlotAPI;
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
@@ -32,7 +33,7 @@ import org.scec.param.event.*;
  * @version 1.0
  */
 
-public class GroupTestApplet extends Applet {
+public class GroupTestApplet extends Applet implements LogPlotAPI {
 
   /**
    * Name of the class
@@ -40,6 +41,9 @@ public class GroupTestApplet extends Applet {
   protected final static String C = "GroupTestApplet";
   // for debug purpose
   protected final static boolean D = true;
+
+  // mesage needed in case of show data if plot is not available
+  final static String NO_PLOT_MSG = "No Plot Data Available";
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
@@ -73,7 +77,7 @@ public class GroupTestApplet extends Applet {
 
   // make the GroupTestGUIBean instance
   GroupTestGuiBean groupTestBean;
-  private JSplitPane imtSplitPane = new JSplitPane();
+  private JSplitPane testSplitPane = new JSplitPane();
   private JPanel testCasesPanel = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
@@ -87,9 +91,7 @@ public class GroupTestApplet extends Applet {
   private GridBagLayout gridBagLayout12 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private JPanel imrPanel = new JPanel();
-  private JPanel imtPanel = new JPanel();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private GridBagLayout gridBagLayout8 = new GridBagLayout();
   private JPanel sourcePanel = new JPanel();
   private JPanel magDistControlPanel = new JPanel();
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
@@ -99,6 +101,9 @@ public class GroupTestApplet extends Applet {
    * adding scroll pane for showing data
    */
   JScrollPane dataScrollPane = new JScrollPane();
+
+  // text area to show the data values
+  JTextArea pointsTextArea = new JTextArea();
 
   /**
    * chart panel
@@ -118,6 +123,11 @@ public class GroupTestApplet extends Applet {
 
   protected boolean graphOn = false;
   private GridBagLayout gridBagLayout9 = new GridBagLayout();
+  private JSplitPane siteSplitPane = new JSplitPane();
+  private JPanel sitePanel = new JPanel();
+  private JPanel imtPanel = new JPanel();
+  private GridBagLayout gridBagLayout8 = new GridBagLayout();
+  private GridBagLayout gridBagLayout11 = new GridBagLayout();
 
 
   //Get a parameter value
@@ -158,7 +168,7 @@ public class GroupTestApplet extends Applet {
     controlsSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     magDistSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     magDistSplit.setBounds(new Rectangle(753, 9, 167, 513));
-    imtSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    testSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     testCasesPanel.setLayout(gridBagLayout1);
     addButton.setText("Add Graph");
     addButton.addActionListener(new java.awt.event.ActionListener() {
@@ -167,15 +177,38 @@ public class GroupTestApplet extends Applet {
       }
     });
     clearButton.setText("Clear Plot");
+    clearButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        clearButton_actionPerformed(e);
+      }
+    });
     toggleButton.setMaximumSize(new Dimension(83, 39));
     toggleButton.setToolTipText("");
     toggleButton.setText("Show Data");
+    toggleButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        toggleButton_actionPerformed(e);
+      }
+    });
     jCheckxlog.setText("X Log");
+    jCheckxlog.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        jCheckxlog_actionPerformed(e);
+      }
+    });
     jCheckylog.setText("Y Log");
+    jCheckylog.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        jCheckylog_actionPerformed(e);
+      }
+    });
     imrPanel.setLayout(gridBagLayout2);
     magDistControlPanel.setLayout(gridBagLayout10);
     sourcePanel.setLayout(gridBagLayout5);
     panel.setLayout(gridBagLayout9);
+    siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    sitePanel.setLayout(gridBagLayout8);
+    imtPanel.setLayout(gridBagLayout11);
     buttonPanel.add(toggleButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), -9, -2));
     buttonPanel.add(clearButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
@@ -183,13 +216,15 @@ public class GroupTestApplet extends Applet {
     this.add(chartSplit, null);
     chartSplit.add(panel, JSplitPane.TOP);
     chartSplit.add(controlsSplit, JSplitPane.BOTTOM);
-    controlsSplit.add(imtSplitPane, JSplitPane.TOP);
+    controlsSplit.add(testSplitPane, JSplitPane.TOP);
     this.add(buttonPanel, null);
     buttonPanel.add(addButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 25, 10, 0), 3, -2));
-    imtSplitPane.add(testCasesPanel, JSplitPane.TOP);
-    imtSplitPane.add(imrPanel, JSplitPane.BOTTOM);
-    controlsSplit.add(imtPanel, JSplitPane.BOTTOM);
+    testSplitPane.add(testCasesPanel, JSplitPane.TOP);
+    testSplitPane.add(imrPanel, JSplitPane.BOTTOM);
+    controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
+    siteSplitPane.add(sitePanel, JSplitPane.TOP);
+    siteSplitPane.add(imtPanel, JSplitPane.BOTTOM);
     buttonPanel.add(jCheckxlog,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
     buttonPanel.add(jCheckylog,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
@@ -198,21 +233,25 @@ public class GroupTestApplet extends Applet {
     magDistSplit.add(sourcePanel, JSplitPane.TOP);
     magDistSplit.add(magDistControlPanel, JSplitPane.BOTTOM);
     chartSplit.setDividerLocation(525);
-    controlsSplit.setDividerLocation(350);
+    controlsSplit.setDividerLocation(235);
     magDistSplit.setDividerLocation(500);
 
-    imtSplitPane.setDividerLocation(90);
+    testSplitPane.setDividerLocation(90);
+
+    // for showing the data on click of "show data" button
+    pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
+    pointsTextArea.setText( NO_PLOT_MSG );
+    dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
+    dataScrollPane.getViewport().add( pointsTextArea, null );
+
 
     updateChoosenTestCase();
     updateChoosenIMT();
     updateChoosenIMR();
     updateChoosenEqkSource();
-    imrPanel.removeAll();
-    imrPanel.add(groupTestBean.getImrEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                 GridBagConstraints.CENTER,
-                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    imrPanel.validate();
-    imrPanel.repaint();
+
+    siteSplitPane.setDividerLocation(125);
+
 
   }
   //Start the applet
@@ -272,6 +311,8 @@ public class GroupTestApplet extends Applet {
 
   }
 
+
+
   /**
    *  update the GUI with the IMT choosen
    */
@@ -291,14 +332,24 @@ public class GroupTestApplet extends Applet {
    *  refresh the sites params as well
    */
   public void updateChoosenIMR() {
-    // update the IMR panel
+    // update the IMR and site panel
     imrPanel.removeAll();
+    sitePanel.removeAll();
+    // update the imr editor
     imrPanel.add(groupTestBean.getImrEditor(),
                  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                  GridBagConstraints.CENTER,
                  GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    // update the site editor
+    sitePanel.add(groupTestBean.getSiteEditor(),
+                 new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                 GridBagConstraints.CENTER,
+                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
     imrPanel.validate();
     imrPanel.repaint();
+    sitePanel.validate();
+    sitePanel.repaint();
   }
 
   /**
@@ -338,15 +389,20 @@ public class GroupTestApplet extends Applet {
       //create the standard ticks so that smaller values too can plotted on the chart
       TickUnits units = MyTickUnits.createStandardTickUnits();
 
-      HorizontalNumberAxis xAxis = new HorizontalNumberAxis( xAxisLabel );
+      NumberAxis xAxis, yAxis;
+
+      /// check if x log is selected or not
+      if(xLog) xAxis = new HorizontalLogarithmicAxis(xAxisLabel);
+      else xAxis = new HorizontalNumberAxis( xAxisLabel );
 
       xAxis.setAutoRangeIncludesZero( false );
       xAxis.setCrosshairLockedOnData( false );
       xAxis.setCrosshairVisible(false);
       xAxis.setStandardTickUnits(units);
 
-
-      VerticalNumberAxis yAxis = new VerticalNumberAxis( yAxisLabel );
+      /// check if y log is selected or not
+      if(yLog) yAxis = new VerticalLogarithmicAxis(yAxisLabel);
+      else yAxis = new VerticalNumberAxis( yAxisLabel );
 
       yAxis.setAutoRangeIncludesZero( false );
       yAxis.setCrosshairLockedOnData( false );
@@ -357,12 +413,11 @@ public class GroupTestApplet extends Applet {
 
 
       LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
-      //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
 
       // build the plot
-
-      org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(data, xAxis, yAxis, renderer);
+      org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this,data,
+                                       xAxis, yAxis, xLog, yLog);
 
 
       plot.setBackgroundAlpha( .8f );
@@ -460,20 +515,126 @@ public class GroupTestApplet extends Applet {
      */
     private void addButton() {
 
-      DiscretizedFuncAPI function = this.groupTestBean.getChoosenFunction();
 
       // clear the function list
       this.totalProbFuncs.clear();
+
+      groupTestBean.getChoosenFunction(totalProbFuncs);
+
+
 
       // set the log values
       data.setXLog(xLog);
       data.setYLog(yLog);
 
-      //add this function to the function list
-      totalProbFuncs.add(function);
+      // set the data in the text area
+      String xAxisTitle =  totalProbFuncs.getXAxisName();
+      String yAxisTitle =  totalProbFuncs.getYAxisName();
 
+      this.pointsTextArea.setText("X Axis:"+ xAxisTitle + "\n" +
+                                  "Y Axis:" + yAxisTitle +"\n" +
+                                  totalProbFuncs.toString());
       addGraphPanel();
 
     }
 
+    /**
+     * if we select or deselect x log
+     * @param e
+     */
+    void jCheckxlog_actionPerformed(ActionEvent e) {
+      xLog  = this.jCheckxlog.isSelected();
+      addGraphPanel();
+    }
+
+    /**
+     * if we select or deselect x log
+     * @param e
+     */
+    void jCheckylog_actionPerformed(ActionEvent e) {
+      yLog  = this.jCheckylog.isSelected();
+      addGraphPanel();
+  }
+
+  /**
+   * This function handles the Zero values in the X and Y data set when exception is thrown,
+   * it reverts back to the linear scale displaying a message box to the user.
+   */
+  public void invalidLogPlot(String message) {
+
+     int xCenter=getAppletXAxisCenterCoor();
+     int yCenter=getAppletYAxisCenterCoor();
+     if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
+       this.jCheckxlog.setSelected(false);
+       ShowMessage showMessage=new ShowMessage("      X-Log Plot Error as it contains Zero Values");
+       showMessage.setBounds(xCenter-60,yCenter-50,370,145);
+       showMessage.pack();
+       showMessage.show();
+     }
+     if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
+       this.jCheckylog.setSelected(false);
+       ShowMessage showMessage=new ShowMessage("      Y-Log Plot Error as it contains Zero Values");
+       showMessage.setBounds(xCenter-60,yCenter-50,375,148);
+       showMessage.pack();
+       showMessage.show();
+     }
+  }
+
+  /**
+   * gets the Applets X-axis center coordinates
+   * @return
+   */
+  private int getAppletXAxisCenterCoor() {
+    return (this.getX()+this.getWidth())/2;
+  }
+
+  /**
+   * gets the Applets Y-axis center coordinates
+   * @return
+   */
+  private int getAppletYAxisCenterCoor() {
+    return (this.getY() + this.getHeight())/2;
+  }
+
+  /**
+   * when "show data" button is clicked
+   *
+   * @param e
+   */
+  void toggleButton_actionPerformed(ActionEvent e) {
+    this.togglePlot();
+  }
+
+  /**
+   * this function is called when "clear plot" is selected
+   *
+   * @param e
+   */
+  void clearButton_actionPerformed(ActionEvent e) {
+    clearPlot(true);
+  }
+
+  /**
+   *  Clears the plot screen of all traces
+   */
+  void clearPlot(boolean clearFunctions) {
+
+    if ( D )
+      System.out.println( "Clearing plot area" );
+
+    int loc = this.chartSplit.getDividerLocation();
+    int newLoc = loc;
+
+    panel.removeAll();
+    panel = null;
+
+    pointsTextArea.setText( NO_PLOT_MSG );
+    if( clearFunctions) {
+      this.totalProbFuncs.clear();
+    }
+
+    validate();
+    repaint();
+    chartSplit.setDividerLocation( newLoc );
+  }
 }

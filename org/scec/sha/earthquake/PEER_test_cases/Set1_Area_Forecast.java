@@ -7,7 +7,8 @@ import java.util.Iterator;
 
 import org.scec.data.TimeSpan;
 import org.scec.data.Location;
-
+import org.scec.data.Direction;
+import org.scec.calc.RelativeLocation;
 import org.scec.param.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
@@ -43,6 +44,26 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private double timeSpan;
   private TimeSpan time;
 
+  /**
+   * Radius of the earth in Kms at the equator
+   */
+  private static final double EARTH_RADIUS= 6367;
+
+  /**
+   * Declaration for the static lat and longs for the Area
+   */
+  private static final double LAT_TOP= 38.901;
+  private static final double LAT_BOTTOM = 37.099;
+  private static final double LONG_LEFT= -123.138;
+  private static final double LONG_RIGHT= -120.862;
+
+  /**
+   * Definition for the Center location , to compare for the sites within 100 kms of this location
+   */
+
+  Location centerLoc = new Location(38.00,-122.00,0);
+
+  private static final double SITE_DISTANCE =100;
   /**
    * definition of the vectors for storing the sources
    */
@@ -158,24 +179,47 @@ public class Set1_Area_Forecast extends EqkRupForecast
       // first build the fault trace, then add
       // add the location to the trace
 
-      faultTrace = new FaultTrace(FAULT1_NAME);
-      for(int i=0;i<NUM_LOCATIONS;++i)
-        faultTrace.addLocation((Location)this.area_Location[i].clone());
+      double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
 
+      double depthLower =((Double)this.depthLowerParam.getValue()).doubleValue();
+      double depthUpper =((Double)this.depthUpperParam.getValue()).doubleValue();
 
-      /*** FIX  FIX FIX FIX TO BE DONE **********/
+      //gets the change in latitude for grid spacing specified
+      double latDiff=latConversion(gridSpacing);
 
-      // value of gridspacing has been set to 1 km
-     /*  SimpleFaultData faultData= new SimpleFaultData(dipValue,LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH,faultTrace);
+      //number of locations withing the distance of 100kms from the radius
+      int numLocs=0;
+      for(double lat=LAT_TOP;lat >=LAT_BOTTOM; lat-=latDiff){
+        double longDiff=longConversion(lat,gridSpacing);
+        for(double longitude=LONG_LEFT;longitude <=LONG_RIGHT; longitude+=longDiff)
+          for(double depth=depthLower;depth<=depthUpper;depth+=gridSpacing){
+                Location loc =new Location(lat,longitude,depth);
+                Direction dir =RelativeLocation.getDirection(loc,centerLoc);
+                double horzDistance = dir.getHorzDistance();
+                double vertDistance = dir.getVertDistance();
+                double locDiff = Math.sqrt(Math.pow(horzDistance,2)+Math.pow(vertDistance,2));
+                if(locDiff <=SITE_DISTANCE){
+                   area_Location[numLocs++] =loc;
+                }
+          }
+       }
 
-       FrankelGriddedFaultFactory factory =
-           new FrankelGriddedFaultFactory(faultData,((Double)gridParam.getValue()).doubleValue());
+      /* getting the Gutenberg magnitude distribution and scaling its cumRate to the original cumRate
+       * divided by the number of the locations
+       */
 
-           // get the gridded surface
-       GriddedSurfaceAPI surface = factory.getGriddedSurface();
-       source = new  Set2_Area_Source((IncrementalMagFreqDist)magDistParam.getValue(),((Double)rakeParam.getValue()).doubleValue() ,
-                                       ((Double)offsetParam.getValue()).doubleValue(),(EvenlyGriddedSurface)surface);
-                                       */
+      GutenbergRichterMagFreqDist gR =(GutenbergRichterMagFreqDist)magDistParam.getValue();
+      double cumRate = gR.getCumRate(0);
+      cumRate /=numLocs;
+      gR.scaleToCumRate(0,cumRate);
+
+      //creating the PointGR sources  and adding the objects for sources in the vector.
+      //FIX FIX have to replace the 90 by rake;
+      for(int i=0;i<numLocs;++i){
+        PointGR_EqkSource pointGR_EqkSource = new PointGR_EqkSource(area_Location[i],gR,90);
+        this.area_EqkSources.add(pointGR_EqkSource);
+      }
+      setTimeSpan(((Double)this.timespanParam.getValue()).doubleValue());
     }
     parameterChangeFlag = false;
   }
@@ -434,5 +478,31 @@ public class Set1_Area_Forecast extends EqkRupForecast
     area_Location[count++] = new Location(38.881,-122.240);
     area_Location[count++] = new Location(38.892,-122.160);
     area_Location[count++] = new Location(38.899,-122.080);
+  }
+
+  /**
+   * Converts the latitudes in Kms based on the gridSpacing
+   * @return
+   */
+
+  private double latConversion(double gridVal) {
+
+    gridVal = ((Double)gridParam.getValue()).doubleValue();
+
+    //1 degree of Latitude is equal to 111.14kms.
+    return gridVal/111.14;
+  }
+
+  /**
+   * As the earth is sperical, and does not have a constant radius for each longitude,
+   * so we calculate the longitude spacing (in Kms) for ever latitude
+   * @param lat= value of long for every lat according to gridSpacing
+   * @return
+   */
+  private double longConversion(double lat,double gridVal){
+
+    double radius = EARTH_RADIUS * Math.cos(Math.toRadians(lat));
+    double longDistVal = 2*Math.PI *radius /360;
+    return gridVal/longDistVal;
   }
 }

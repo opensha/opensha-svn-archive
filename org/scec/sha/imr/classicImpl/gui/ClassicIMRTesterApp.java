@@ -15,6 +15,7 @@ import com.jrefinery.data.*;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
+import org.scec.gui.plot.LogPlotAPI;
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
@@ -43,7 +44,7 @@ public class ClassicIMRTesterApp extends JApplet
     implements
         ParameterChangeFailListener,
         ParameterChangeWarningListener,
-        ItemListener
+        ItemListener, LogPlotAPI
 {
 
     protected final static String C = "IMRTesterApplet";
@@ -967,7 +968,6 @@ public class ClassicIMRTesterApp extends JApplet
 
 
         LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
-        //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
         if(this.customAxis) {
@@ -1473,7 +1473,7 @@ public class ClassicIMRTesterApp extends JApplet
         // Add points data to text area, people can see
 
        // pointsTextArea.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
-          pointsTextArea.setText(imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
+       pointsTextArea.setText(imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
         //if ( D ) System.out.println( S + "Graphing function:" + function.toString() );
 
         addGraphPanel();

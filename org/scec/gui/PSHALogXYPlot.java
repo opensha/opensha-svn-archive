@@ -11,9 +11,8 @@ import java.util.*;
 
 import java.math.BigDecimal;
 import javax.swing.*;
-import org.scec.sha.imr.classicImpl.gui.ClassicIMRTesterApp;
-import org.scec.sha.magdist.gui.MagFreqDistTesterApplet;
 
+import org.scec.gui.plot.LogPlotAPI;
 
 /**
  * <p>Title: PSHALogXYPlot</p>
@@ -48,35 +47,26 @@ public class PSHALogXYPlot
     protected boolean xlogplot = false;;
     protected boolean ylogplot = false;;
     private boolean returnNoLabels = false;
-    private ClassicIMRTesterApp imrTesterApplet=null;
-    private MagFreqDistTesterApplet magFreqDistTesterApplet=null;
+    private LogPlotAPI  logPlot=null;
 
     /**
      * Constructs an XYPlot with the specified axes (other attributes take default values).
      *
-     * @param domainAxis The domain axis.
-     * @param rangeAxis The range axis.
-     */
-    public PSHALogXYPlot(ClassicIMRTesterApp imr,XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
-        super(data, domainAxis, rangeAxis);
-        this.xlogplot=xlog;
-        this.ylogplot=ylog;
-        this.imrTesterApplet=imr;
-    }
-
-
-     /**
-     * Constructs an XYPlot with the specified axes (other attributes take default values).
+     * @param LogPlotAPI : whichever applet needs log-log plotting capapbility
+     * needs to implement this interface. It is needed so as to disaply message
+     * if log-log plotting is not allowed in case of invalid data values
      *
      * @param domainAxis The domain axis.
      * @param rangeAxis The range axis.
      */
-    public PSHALogXYPlot(MagFreqDistTesterApplet magFreq,XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
+    public PSHALogXYPlot(LogPlotAPI logPlot,XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
         super(data, domainAxis, rangeAxis);
         this.xlogplot=xlog;
         this.ylogplot=ylog;
-        this.magFreqDistTesterApplet=magFreq;
+        this.logPlot= logPlot;
     }
+
+
 
 
     /**
@@ -358,10 +348,8 @@ public class PSHALogXYPlot
 
      }catch(java.lang.ArithmeticException ae){
        String message=new String(ae.getMessage());
-       if(imrTesterApplet!=null)
-         imrTesterApplet.invalidLogPlot(message);
-       if(magFreqDistTesterApplet!=null)
-         magFreqDistTesterApplet.invalidLogPlot(message);
+       if(logPlot!=null)
+         logPlot.invalidLogPlot(message);
     }
    }
 }
