@@ -8,7 +8,7 @@ import org.scec.data.*;
 /**
  * <b>Title:</b>MagLengthRelationship<br>
  *
- * <b>Description:  This is an abstract class that gives the mean and standard
+ * <b>Description:  This is an abstract class that gives the median and standard
  * deviation of magnitude as a function of length (km-squared) or visa versa.  The
  * values can also be a function of rake</b>  <p>
  *
@@ -20,11 +20,11 @@ public abstract class MagLengthRelationship extends MagScalingRelationship {
 
     final static String C = "MagLengthRelationship";
 
-    public abstract double getMeanMag(double length);
+    public abstract double getMedianMag(double length);
 
-    public double getMeanMag(double length, double rake) {
+    public double getMedianMag(double length, double rake) {
       setRake(rake);
-      return getMeanMag(length);
+      return getMedianMag(length);
     }
 
     public abstract double getMagStdDev(double length);
@@ -34,18 +34,18 @@ public abstract class MagLengthRelationship extends MagScalingRelationship {
       return getMagStdDev(length);
     }
 
-    public abstract double getMeanLength(double mag);
+    public abstract double getMedianLength(double mag);
 
-    public double getMeanLength(double mag, double rake) {
+    public double getMedianLength(double mag, double rake) {
       setRake(rake);
-      return getMeanLength(mag);
+      return getMedianLength(mag);
     }
 
-    public abstract double getMeanLengthStdDev(double mag);
+    public abstract double getMedianLengthStdDev(double mag);
 
-    public double getMeanLengthStdDev(double mag, double rake) {
+    public double getMedianLengthStdDev(double mag, double rake) {
       setRake(rake);
-      return getMeanLengthStdDev(mag);
+      return getMedianLengthStdDev(mag);
     }
 
 

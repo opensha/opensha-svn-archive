@@ -8,8 +8,8 @@ import org.scec.data.*;
 /**
  * <b>Title:</b>MagScalingRelationship<br>
  *
- * <b>Description:  This is an abstract class that gives the mean and standard
- * deviation of magnitude as a function of some scalar value (or the mean and
+ * <b>Description:  This is an abstract class that gives the median and standard
+ * deviation of magnitude as a function of some scalar value (or the median and
  * standard deviation of the scalar value as a function of magnitude).  The values
  * can also be a function of rake</b>  <p>
  *
@@ -22,15 +22,15 @@ public abstract class MagScalingRelationship implements NamedObjectAPI  {
     final static String C = "MagScalingRelationship";
 
     /**
-     * The rupture rake.  The default is Double.NaN
+     * The rupture rake in degrees.  The default is Double.NaN
      */
     protected double rake = Double.NaN;
 
-    public abstract double getMeanMag(double scale);
+    public abstract double getMedianMag(double scale);
 
-    public double getMeanMag(double scale, double rake) {
+    public double getMedianMag(double scale, double rake) {
       setRake(rake);
-      return getMeanMag(scale);
+      return getMedianMag(scale);
     }
 
     public abstract double getMagStdDev(double scale);
@@ -40,18 +40,18 @@ public abstract class MagScalingRelationship implements NamedObjectAPI  {
       return getMagStdDev(scale);
     }
 
-    public abstract double getMeanScale(double mag);
+    public abstract double getMedianScale(double mag);
 
     public double getScale(double mag, double rake) {
       setRake(rake);
-      return getMeanScale(mag);
+      return getMedianScale(mag);
     }
 
-    public abstract double getMeanScaleStdDev(double mag);
+    public abstract double getMedianScaleStdDev(double mag);
 
-    public double getMeanScaleStdDev(double mag, double rake) {
+    public double getMedianScaleStdDev(double mag, double rake) {
       setRake(rake);
-      return getMeanScaleStdDev(mag);
+      return getMedianScaleStdDev(mag);
     }
 
     public void setRake(double rake) {

@@ -7,6 +7,10 @@ priority).  Includes map viewing GUI.
 3) We might want to add other adjustable parameters to the wrapped WG02
 ERF before the meeting; let's discuss that when we have some time.
 
+Move all parameters and parameter editors anywhere in org.scec.sha.* into org.scec.sha.param.* so that there is only one additional search directory for parameter list editor (update all GUI beans accordingly).
+
+Change SimpleFaultParameterEditor from what it is now to a button that pops up what's shown now in a separate window (but still can be edited from outside like in the PEER test-case selector control panel).  Focus should not leave the popup window until a user is done (& closing the window is the same as punching the button at the bottom).  Make it so the ERF_GuiBean (or any other similar bean) does not need to know anything about this parameter (it's automatically created by the ParameterListEditor).
+
 GRID Benchmarks:
 
 	1) gravity (2 cpu server)

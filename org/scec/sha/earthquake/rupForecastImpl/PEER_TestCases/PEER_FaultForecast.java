@@ -114,7 +114,7 @@ public class PEER_FaultForecast extends EqkRupForecast
 
 
   // TEST make SimpleFaultParameter
-  SimpleFaultParameter testParam;
+//  SimpleFaultParameter testParam;
 
 
 
@@ -146,10 +146,6 @@ public class PEER_FaultForecast extends EqkRupForecast
     magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
     //add the magdist parameter
     adjustableParams.addParameter(this.magDistParam);
-
-    testParam = new SimpleFaultParameter("TEST Fault Param");
-    adjustableParams.addParameter(this.testParam);
-
 
     // register the parameters that need to be listened to
     gridParam.addParameterChangeListener(this);
