@@ -102,14 +102,14 @@ public class PEER_InputFilesServlet extends HttpServlet {
       updateDataVersion();
 
       // add this file to the JAR also
-      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles");
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/"+fileName);
       System.out.println("::PEER_TestResultsPlotterApp.jar updated");
 
       // add this file to the JAR also
-      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles");
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/"+fileName);
       System.out.println("::PEER_TestResultsSubmApp.jar updated");
 
-      Runtime.getRuntime().exec("rm GroupTestDataFiles/"+fileName);
+      //Runtime.getRuntime().exec("rm GroupTestDataFiles/"+fileName);
     } catch(Exception e) {
       e.printStackTrace();
       return;
@@ -136,14 +136,14 @@ public class PEER_InputFilesServlet extends HttpServlet {
     updateDataVersion();
 
     // add this file to the JAR also
-    RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles");
+    RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles/"+fileName);
     System.out.println("::PEER_TestResultsPlotterApp.jar updated");
 
     // add this file to the JAR also
-    RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles");
+    RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles/"+fileName);
     System.out.println("::PEER_TestResultsSubmApp.jar updated");
 
-    Runtime.getRuntime().exec("rm GroupTestDataFiles/"+fileName);
+    //Runtime.getRuntime().exec("rm GroupTestDataFiles/"+fileName);
   } catch(Exception e) {
     e.printStackTrace();
     return;
@@ -232,7 +232,10 @@ public class PEER_InputFilesServlet extends HttpServlet {
 
 
      // remove this file from the GUI Plotter JAR also
-     RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar");
+     RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar org/");
+      RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar com/");
+       RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar META-INF/");
+        RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar img/");
      // rewrite the log file after removing the name of the removed file
      FileWriter newLogFile = new FileWriter("GroupTestDataFiles/files.log");
      int size = fileNamesVector.size();
@@ -256,23 +259,23 @@ public class PEER_InputFilesServlet extends HttpServlet {
      RunScript.runScript("rm -rf com/");
      RunScript.runScript("rm -rf org/");
      RunScript.runScript("rm -rf META-INF/");
-     RunScript.runScript("rm -rf img/");
-     for(int i =0; i< size; ++i)
+     //RunScript.runScript("rm -rf img/");
+     /*for(int i =0; i< size; ++i)
        RunScript.runScript("rm GroupTestDataFiles/"+(String)fileNamesVector.get(i));
-
+     */
 
      // remove this file from the Data Submission JAR also
-     RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsSubmApp.jar");
+     RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsSubmApp.jar org/");
 
      // rewrite the log file after removing the name of the removed file
-     newLogFile = new FileWriter("GroupTestDataFiles/files.log");
+     /*newLogFile = new FileWriter("GroupTestDataFiles/files.log");
      for(int i =0; i< size; ++i)
        newLogFile.write((String)fileNamesVector.get(i)+"\n");
      newLogFile.close();
      // update the version in the version file
      this.updateDataVersion();
 
-     RunScript.runScript("rm GroupTestDataFiles/"+fileName);
+     RunScript.runScript("rm GroupTestDataFiles/"+fileName);*/
      RunScript.runScript("rm "+JAR_PATH+"PEER_TestResultsSubmApp.jar");
      RunScript.runScript("jar cf "+JAR_PATH+"PEER_TestResultsSubmApp.jar "+
                                     "org/");
@@ -283,10 +286,11 @@ public class PEER_InputFilesServlet extends HttpServlet {
      // remove the files created by above
      RunScript.runScript("rm -rf org/");
      RunScript.runScript("rm -rf img/");
-     for(int i =0; i< size; ++i)
-       RunScript.runScript("rm GroupTestDataFiles/"+(String)fileNamesVector.get(i));
 
+    //for(int i =0; i< size; ++i)
+     //RunScript.runScript("rm GroupTestDataFiles/"+(String)fileNamesVector.get(i));
 
+    //RunScript.runScript("rm -rf GroupTestDataFiles/*.dat");
     System.out.println("::PEER_TestResultsPlotterApp.jar updated after file deletion");
     System.out.println("::PEER_TestResultsSubmApp.jar updated after file deletion");
    } catch(Exception e) {

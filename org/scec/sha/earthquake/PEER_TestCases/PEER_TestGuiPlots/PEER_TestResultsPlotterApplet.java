@@ -353,20 +353,20 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     avgCasesPanel.add(avgLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    buttonPanel.add(yLogCheckBox,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 0, 0, 0), 15, 3));
-    buttonPanel.add(rangeLabel,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(29, 16, 0, 0), 8, 7));
-    buttonPanel.add(rangeComboBox,  new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(29, 0, 0, 0), -2, -1));
-    buttonPanel.add(toggleButton,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 16, 0, 92), 30, 7));
+    buttonPanel.add(yLogCheckBox,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 0, 0, 0), 15, 3));
+    buttonPanel.add(rangeLabel,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 16, 0, 0), 8, 7));
+    buttonPanel.add(rangeComboBox,     new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(15, 0, 0, 0), 33, -1));
+    buttonPanel.add(toggleButton,   new GridBagConstraints(5, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 16, 41, 92), 30, 7));
     buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 10, 0, 0), 1, 4));
-    buttonPanel.add(xLogCheckBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 0, 0, 0), 22, 1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 10, 0, 0), 1, 4));
+    buttonPanel.add(xLogCheckBox,   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 0, 0, 0), 22, 1));
     buttonPanel.add(powerLabel,  new GridBagConstraints(3, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 45, 8, 0), 210, 34));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 45, 13, 17), 210, 34));
     mainPanel.add(guiLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 267, 0, 190), 37, 10));
     mainPanel.add(dataVersionLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
@@ -713,7 +713,9 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     * and stores their name in Vector
     */
    private  void searchTestFiles(){
-
+     // ArrayList is needed for the sorted list
+     ArrayList testCaseList1 = new ArrayList(); // this list saves test case from 1 to 9
+     ArrayList testCaseList2 = new ArrayList(); // this list saves test case 10 and 11
      try{
        // files.log contains all the files uploaded so far
        InputStream input = PEER_TestResultsPlotterApplet.class.getResourceAsStream("/"+DIR+"files.log");
@@ -724,17 +726,48 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
          else continue;
          int index=line.indexOf("_");
          String testCases = line.substring(0,index);
-         int count = testCaseCombo.getItemCount();
+         boolean isTenOrEleven = false;
          boolean flag = false;
-         // check whether this set has already been added to combo box
-         for(int i=0; i<count; ++i) {
-           if(testCaseCombo.getItemAt(i).toString().equalsIgnoreCase(testCases)) {
-             flag = true;
-             break;
+         // check wther this is test case 10 or 11
+         if((testCases.indexOf("10")>-1) || (testCases.indexOf("11")>-1))
+           isTenOrEleven = true;
+         // check in list 1
+         if(!isTenOrEleven) { // if this is case from 1 through 9
+           Iterator it = testCaseList1.iterator();
+           while(it.hasNext()) {
+             // check whether this set has already been added to list
+             if(((String)it.next()).equalsIgnoreCase(testCases)) {
+               flag = true;
+               break;
+             }
            }
+           if(!flag) testCaseList1.add(testCases);
          }
-         if(!flag) testCaseCombo.addItem(testCases);
+
+
+         // check in list 2 whether the case exists
+        if(isTenOrEleven) { // if this is case 10 or 11
+          Iterator it = testCaseList2.iterator();
+          while(it.hasNext()) {
+            // check whether this set has already been added to list
+            if(((String)it.next()).equalsIgnoreCase(testCases)) {
+              flag = true;
+              break;
+            }
+          }
+          if(!flag) testCaseList2.add(testCases);
+         }
+
        }
+       Collections.sort(testCaseList1);
+       Collections.sort(testCaseList2);
+
+       // add to the combo box
+       Iterator it =  testCaseList1.iterator();
+       while(it.hasNext()) testCaseCombo.addItem(it.next());
+       it =  testCaseList2.iterator();
+       while(it.hasNext()) testCaseCombo.addItem(it.next());
+
      }catch(Exception e) {
        e.printStackTrace();
      }
@@ -926,7 +959,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
   void powerLabel_mouseClicked(MouseEvent e) {
    try{
-   this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE));
+   this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE),"_blank");
    }catch(java.net.MalformedURLException ee){
      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
