@@ -1129,5 +1129,10 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     return parameterList.getParameter(name);
   }
 
+  /** returns the parameterlist */
+  public ParameterList getParameterList() {
+    return this.parameterList;
+  }
+
 }
 
