@@ -1,4 +1,4 @@
-package org.scec.sha.imr.gui;
+package org.scec.gui;
 
 import java.awt.*;
 import javax.swing.*;

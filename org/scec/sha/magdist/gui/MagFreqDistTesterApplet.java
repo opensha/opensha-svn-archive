@@ -20,7 +20,6 @@ import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.data.function.*;
 import org.scec.gui.plot.jfreechart.*;
-import org.scec.sha.imr.gui.ShowMessage;
 
 
 import org.scec.sha.magdist.*;
@@ -1171,8 +1170,8 @@ static {
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                 // panel for mag vs moment-rate graph
-                innerPlotPanel.add( moPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
-                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+                //innerPlotPanel.add( moPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+                //       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
             }
             else {

@@ -33,6 +33,9 @@ public class GriddedFaultPlotter extends ArrayList{
     public final static String X_AXIS_LABEL = "Longitude (deg.)";
     public final static String Y_AXIS_LABEL = "Latitude (deg.)";
 
+    private final static int NUM_OF_COLOR_DIFF=13;
+    private final static int RED_BLUE_DIFF=30;
+
     protected com.jrefinery.chart.NumberAxis xAxis =  new com.jrefinery.chart.HorizontalNumberAxis( X_AXIS_LABEL );
     protected com.jrefinery.chart.NumberAxis yAxis =  new com.jrefinery.chart.VerticalNumberAxis( Y_AXIS_LABEL );
 
@@ -166,9 +169,15 @@ public class GriddedFaultPlotter extends ArrayList{
 
         /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
            being generated  in the Plot.java class constructor*/
-        //Colors are Red, orange,yellow,green,blue,indigo,violet
-        Paint[] seriesPaint = new Paint[] {Color.red, Color.orange, Color.yellow, Color.green,
-                               Color.blue , new Color(0.294118f, 0f, 0.509804f),new Color(238,130,238)};
+        //Smooth Colors transition from Red to Blue
+
+        Paint[] seriesPaint = new Paint[NUM_OF_COLOR_DIFF];
+        for(int i=255,j=0;i>=0;i-=RED_BLUE_DIFF,j++) {
+            seriesPaint[j]=new Color(i,0,255-i);
+            //{new Color(i,0,i-255), Color.or, Color.yellow, Color.green,
+              //                 Color.blue , new Color(0.294118f, 0f, 0.509804f),new Color(238,130,238)};
+        }
+
         plot.setSeriesPaint(seriesPaint);
         plot.setBackgroundPaint( plotColor );
         setRenderer(plot);
@@ -199,9 +208,15 @@ public class GriddedFaultPlotter extends ArrayList{
 
         /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
            being generated  in the Plot.java class constructor*/
-        //Colors are Red, orange,yellow,green,blue,indigo,violet
-        Paint[] seriesPaint = new Paint[] {Color.magenta,Color.red, Color.orange, Color.yellow, Color.green,
-                               Color.blue , new Color(0.294118f, 0f, 0.509804f),new Color(238,130,238)};
+        //Smooth Colors transition from Red to Blue
+
+        Paint[] seriesPaint = new Paint[NUM_OF_COLOR_DIFF];
+        for(int i=255,j=0;i>=0;i-=RED_BLUE_DIFF,j++) {
+            seriesPaint[j]=new Color(i,0,255-i);
+            //{new Color(i,0,i-255), Color.or, Color.yellow, Color.green,
+              //                 Color.blue , new Color(0.294118f, 0f, 0.509804f),new Color(238,130,238)};
+        }
+
         plot.setSeriesPaint(seriesPaint);
         plot.setBackgroundPaint( plotColor );
 
