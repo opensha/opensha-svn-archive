@@ -80,17 +80,18 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
         double aveDipDirection;
 
        // Find ave dip direction (defined by end locations):
-        if(aveDipDir == Double.NaN) {
+        if( Double.isNaN(aveDipDir) ) {
           firstLoc = faultTrace.getLocationAt(0);
           lastLoc = faultTrace.getLocationAt(faultTrace.getNumLocations() - 1);;
           Direction aveDir = RelativeLocation.getDirection(firstLoc, lastLoc);
-          if(D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
+          if (D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
           aveDipDirection = ( aveDir.getAzimuth() + 90 );
         }
         else {
           aveDipDirection = aveDipDir;
         }
 
+        if (D) System.out.println("aveDipDirection = " + aveDipDirection);
 
 
         // Iterate over each Location in Fault Trace

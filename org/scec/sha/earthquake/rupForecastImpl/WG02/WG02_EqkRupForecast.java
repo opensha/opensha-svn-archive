@@ -338,8 +338,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast
      WG02_EqkRupForecast qkCast = new WG02_EqkRupForecast();
 
      // write out source names
-     for(int i=0;i<qkCast.getNumSources();i++)
-       System.out.println(i+"th source name = "+qkCast.getSource(i).getName());
+//     for(int i=0;i<qkCast.getNumSources();i++)
+//       System.out.println(i+"th source name = "+qkCast.getSource(i).getName());
   }
 
 }
