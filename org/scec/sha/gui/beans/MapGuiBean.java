@@ -105,6 +105,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
                       XYZ_DataSetAPI pga_xyzVals, XYZ_DataSetAPI pgv_pgvVals,
                       EqkRupture eqkRupture,String imt,String metadata){
     String[] imgNames = null;
+
     //checking if hazus file generator param is selected, if not then make it selected and the deselect it again
     boolean hazusFileGeneratorCheck = ((Boolean)gmtMap.getAdjustableParamsList().
                                        getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).getValue()).booleanValue();

@@ -88,16 +88,19 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
     this.setTitle("Hazus Shapefiles Control");
     infoPanel.setBackground(SystemColor.menu);
     infoPanel.setEnabled(false);
-    String info = new String("Clicking the above generates a set of Hazus shapefiles (0.3- and 1.0-sec SA,"+
+    String info = new String("Info:\n\nClicking the above generates a set of Hazus shapefiles (0.3- and 1.0-sec SA,"+
                              " pga, and pgv) for the selected Earthquake "+
-                             "Rupture and IMR.  Be sure to have selected "+
-                             "Average-Horizontal component, and note that PGV "+
-                             "is in units of inches/sec in these files (as assumed by Hazus)");
+                             "Rupture and IMR.  Be sure to have selected the "+
+                             "\"Average-Horizontal\" component, and note that PGV "+
+                             "is in units of inches/sec in these files (as assumed by Hazus)." +
+                             "  Note also that the following Map Attributes are temporarliy set for the calculation:"+
+                             " \"Plot Log\" is deselected); \"Color Scale Limits\" is \"Manually\"; and "+
+                             "\"Generate Hazus Shape Files\" is selected.");
     infoPanel.setPreferredSize(new Dimension(812, 24));
     infoPanel.setEditable(false);
     infoPanel.setText(info);
-    jPanel1.setMinimumSize(new Dimension(350, 130));
-    jPanel1.setPreferredSize(new Dimension(350, 180));
+    jPanel1.setMinimumSize(new Dimension(350, 220));
+    jPanel1.setPreferredSize(new Dimension(350, 300));
     generateHazusShapeFilesButton.setText("Generate Hazus Shape Files");
     generateHazusShapeFilesButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -353,9 +356,9 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
         if(step == 1)
           calcProgress.setProgressMessage("Doing Calculation for the Hazus ShapeFile Data...");
         else if(step == 2)
-          calcProgress.setProgressMessage("Doing Calculation for SA-0.3sec (1 of 4)");
+          calcProgress.setProgressMessage("Doing Calculation for 0.3-sec SA (1 of 4)");
         else if(step == 3)
-          calcProgress.setProgressMessage("Doing Calculation for SA-1.0sec (2 of 4)");
+          calcProgress.setProgressMessage("Doing Calculation for 1.0-sec SA (2 of 4)");
         else if(step == 4)
           calcProgress.setProgressMessage("Doing Calculation for PGV (3 of 4)");
         else if(step == 5)
