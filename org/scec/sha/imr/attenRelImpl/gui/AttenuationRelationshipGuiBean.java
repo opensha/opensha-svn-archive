@@ -41,7 +41,7 @@ public class AttenuationRelationshipGuiBean
     protected final static String C = "IMRGuiBean";
     protected final static boolean D = false;
 
-    public final static String IM_NAME = "Intensity Measure";
+    public final static String IM_NAME = "Intensity Measure Type";
     public final static String IM_V1 = "PGA";
     public final static String IM_V2 = "SA";
     public final static String X_AXIS_NAME = "X-Axis";
@@ -49,7 +49,7 @@ public class AttenuationRelationshipGuiBean
     public final static String Y_AXIS_V1 = "Median";
     public final static String Y_AXIS_V2 = "Std. Dev.";
     public final static String Y_AXIS_V3 = "Exceed Prob.";
-    public final static String Y_AXIS_V4 = "Get IML at Exceed Prob.";
+    public final static String Y_AXIS_V4 = "IML at Exceed Prob.";
 
     public final static int MEAN = 1;
     public final static int STD_DEV = 2;

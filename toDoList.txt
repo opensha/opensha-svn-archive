@@ -4,13 +4,37 @@
 For OpenSHA:
 ------------
 
-SimpleGriddedFaultFactory
+AttenRelApp:
 
-	we create a new instance of this object every time we create 
-	a new surface; it would be more efficient to use the set methods
-	before getting a new surface (use the setAll() method added by Ned).
+	The "Get IML at Exceed Prob" option for Y axis should read "IML at Exceed Prob"
+
+	Problem: when you've violated an absolute constrain by hitting return 
+	(rather than hitting "Add Trace"), subsequent warning constraint violations 
+	are not handled properly.  Example:  Choose BJF, set Mag=8 and add trace 
+	(after accepting violation), now set Vs30=-10 and hit return (not add trace),
+	now set Mag=8.1 and try to add (it defaults back to previous value).
+
+Solve problem with look and feel of *.jar applications for Java 1.4 on Mac 
+(using Java 1.3 for these requires launching from the command line).
 
 
+Fix titles of web pages
+
+Fix GriddedFaultApplet - colors (red to blue) and horz/vert scaling.
+
+HazardCurveApplet:
+
+	- fix the OpenSHA logo
+
+	- add tabs for better parameter visibility? (e.g., one tab for "IMR, 
+	  IMT, & Site" and one for "ERF & Time Span"; timeSpan guiBean can
+	  then be moved above, with one line of items below -wrapped if need
+	  be)
+
+	-epistemic list control panal - only redo hazard calculations if needed 
+	(delay solving this until we figure out exactly what we need)
+
+	
 
 ScenarioShakeMapApp
 
@@ -23,25 +47,18 @@ ScenarioShakeMapApp
 
 Finish implementing WG99/02 ERF
 
-Applets 
-
-	- resizing problems on Mac (revisit now that Java 1.4 is used?)
-
-	- why do applications look funny using Java 1.4 on Mac (including Safari)
-
-
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
 
-HazardCurveApplet:
-
-	-epistemic list control panal - only redo hazard calculations if needed 
-	(delay solving this until we figure out exactly what we need)
 
 Submit our log-log implementation formally to JFreeChart.
 
-AttenRelApp - update web site apps - wait until Ned has added another IMR.
 
-Fix GriddedFaultApplet - colors (red to blue) and horz/vert scaling.
+SimpleGriddedFaultFactory
+
+	we create a new instance of this object every time we create 
+	a new surface; it would be more efficient to use the set methods
+	before getting a new surface (use the setAll() method added by Ned).
+
 
 
 
