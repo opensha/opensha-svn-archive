@@ -182,6 +182,10 @@ public class Set1_Fault_Forecast extends EqkRupForecast
 
      if(parameterChangeFlag) {
 
+       // check if magDist is null
+       if(this.magDistParam==null)
+          throw new RuntimeException("Click on update MagDist button and then choose Add Plot");
+
        // dip param value
        double dipValue = ((Double)dipParam.getValue()).doubleValue();
        // first build the fault trace, then add

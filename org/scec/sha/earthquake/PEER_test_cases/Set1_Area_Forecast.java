@@ -185,6 +185,10 @@ public class Set1_Area_Forecast extends EqkRupForecast
 
     if(parameterChangeFlag) {
 
+      // check if magDist is null
+      if(this.magDistParam==null)
+          throw new RuntimeException("Click on update MagDist button and then choose Add Plot");
+
       double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
 
       double depthLower =((Double)this.depthLowerParam.getValue()).doubleValue();

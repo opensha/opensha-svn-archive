@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.JButton;
+import javax.swing.BorderFactory;
+import javax.swing.border.*;
 
 
 import org.scec.param.editor.*;
@@ -167,7 +169,10 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         editor.setTitle(MAG_DIST_TITLE);
         this.add(editor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
               , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-
+        button.setForeground(new Color(80,80,133));
+        button.setBackground(new Color(200,200,230));
+        Border border = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
+        button.setBorder(border);
         this.add(button,  new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
                       , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 

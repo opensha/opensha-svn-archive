@@ -66,6 +66,7 @@ public class EvenlyGriddedSurface extends GriddedSurface {
           // if this is the desired surface
           if(count==n)
             return (GriddedSubsetSurface)it.next();
+          it.next();
           ++count;
         }
 
