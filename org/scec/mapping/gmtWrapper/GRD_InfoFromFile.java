@@ -76,6 +76,9 @@ public class GRD_InfoFromFile {
   public void setFilename(String filename) {
 
     this.filename = filename;
+    //line 6,7 and 8 strings declaration
+    String line6=null,line7=null,line8=null;
+
     String tempFileName = "temp_" + filename + "_info";
     String[] command ={"sh","-c",GMT_PATH + "grdinfo " + filename + " > " + tempFileName};
     RunScript.runScript(command);
@@ -85,29 +88,70 @@ public class GRD_InfoFromFile {
 
     // Now we have to read that file, put it into a string, and parse each line to set the
     // following info parameters
+    try{
+      //reading the output file
+      BufferedReader reader = new BufferedReader(new FileReader(tempFileName));
+      int count=0;
+
+     //reads the first 5 lines of the output file and discards them
+      while(count<5){
+        String temp=reader.readLine();
+        ++count;
+      }
+       //reads the line 6,7 and 8 from the output file
+       line6 = reader.readLine();
+       line7 = reader.readLine();
+       line8 = reader.readLine();
+    }catch(Exception ee){
+      ee.printStackTrace();
+    }
+
+    if(D){
+      System.out.println("Line-6:"+line6);
+      System.out.println("Line-7:"+line7);
+      System.out.println("Line-8:"+line8);
+    }
 
     // set from line 6 of output file
-    x_min = 1;
-    x_max = 1;
-    x_inc = 1;  // the discretization interval (increment)
-    x_units = "testX";
-    nx = 1;
+    StringTokenizer st= new StringTokenizer(line6);
+    int count=0;
+    while(st.hasMoreTokens()){
+      st.nextToken(); // reading the non-required elements from the line
+      ++count; // to get the required elements from the file
+      if(count==2) x_min = (new Double(st.nextToken())).doubleValue();
+      else if(count==3) x_max = (new Double(st.nextToken())).doubleValue();
+      else if(count==4) x_inc = (new Double(st.nextToken())).doubleValue();  // the discretization interval (increment)
+      else if(count==5) x_units = new String(st.nextToken());
+      else if(count==6) nx = Integer.parseInt(st.nextToken().toString());
+    }
 
     if (D) System.out.println(x_min + "  " + x_max + "  " + x_inc + "  " + x_units + "  " + nx);
 
     // set from line 7 of the output file
-    y_min = 2;
-    y_max = 2;
-    y_inc = 2;  // the discretization interval (increment)
-    y_units = "testY";
-    ny = 2;
+    st= new StringTokenizer(line7);
+    count=0;
+    while(st.hasMoreTokens()){
+      st.nextToken(); // reading the non-required elements from the line
+      ++count; // to get the required elements from the file
+      if(count==2) y_min = (new Double(st.nextToken())).doubleValue();
+      else if(count==3) y_max = (new Double(st.nextToken())).doubleValue();
+      else if(count==4) y_inc = (new Double(st.nextToken())).doubleValue();  // the discretization interval (increment)
+      else if(count==5) y_units = new String(st.nextToken());
+      else if(count==6) ny = Integer.parseInt(st.nextToken().toString());
+    }
 
     if (D) System.out.println(y_min + "  " + y_max + "  " + y_inc + "  " + y_units + "  " + ny);
 
     // set from line 8 of the output file
-    z_min = 3;
-    z_max = 3;
-    z_units = "testZ";
+    st= new StringTokenizer(line8);
+    count=0;
+    while(st.hasMoreTokens()){
+      st.nextToken(); // reading the non-required elements from the line
+      ++count; // to get the required elements from the file
+      if(count==2) z_min = (new Double(st.nextToken())).doubleValue();
+      else if(count==3) z_max = (new Double(st.nextToken())).doubleValue();
+      else if(count==4) z_units = new String(st.nextToken());
+    }
 
     if (D) System.out.println(z_min + "  " + z_max + "  " +  z_units);
 
