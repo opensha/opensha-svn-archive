@@ -39,7 +39,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  private final static String  NAME = C;
 
 
   // the prob eqk source (only one)
@@ -350,7 +350,8 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
    * @return : return the name for this class
    */
    public String getName(){
-     return C;
+     ERF_NAME = NAME;
+     return ERF_NAME;
    }
 
 }

@@ -33,6 +33,7 @@ public abstract class ERF_List implements EqkRupForecastAPI,
   // time span param
   protected TimeSpan timeSpan;
 
+  public static String ERF_NAME;
 
   /**
    * add a new Eqk Rup forecast to the list

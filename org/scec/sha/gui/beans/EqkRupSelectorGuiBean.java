@@ -119,7 +119,13 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
 
    // get the selected forecast
-   EqkRupForecast erf = (EqkRupForecast)erfGuiBean.getSelectedERF();
+   EqkRupForecast erf = null;
+   try{
+     //gets the instance of the selected ERF
+     erf = (EqkRupForecast)erfGuiBean.getSelectedERF();
+   }catch(Exception e){
+     e.printStackTrace();
+   }
 
    // add the select forecast parameter
    ParameterAPI chooseERF_Param = erfGuiBean.getParameterList().getParameter(erfGuiBean.ERF_PARAM_NAME);
@@ -356,7 +362,13 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     * @returns the EqkRupforecast model
     */
    public EqkRupForecastAPI getSelectedERF_Instance() {
-     return erfGuiBean.getSelectedERF_Instance();
+     EqkRupForecastAPI erfAPI=null;
+     try{
+       erfAPI = erfGuiBean.getSelectedERF_Instance();
+     }catch(Exception e){
+       e.printStackTrace();
+     }
+     return erfAPI;
   }
 
   /**

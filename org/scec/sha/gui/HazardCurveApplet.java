@@ -945,7 +945,13 @@ public class HazardCurveApplet extends JApplet
         Difference is that erfGuiBean.getSelectedERF_Instance() does not update
         the forecast while erfGuiBean.getSelectedERF updates the
         */
-        this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
+        try{
+          EqkRupForecastAPI erfAPI = erfGuiBean.getSelectedERF_Instance();
+          this.timeSpanGuiBean.setTimeSpan(erfAPI.getTimeSpan());
+        }catch(Exception ee){
+          ee.printStackTrace();
+        }
+
         controlComboBox.removeAllItems();
         this.initControlList();
         // add the Epistemic control panel option if Epistemic ERF is selected
@@ -966,12 +972,17 @@ public class HazardCurveApplet extends JApplet
   private void computeHazardCurve() {
     this.isEqkList = false;
 
-
+    EqkRupForecastAPI eqkRupForecast=null;
 
     // whwther to show progress bar in case of update forecast
     erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
     // get the selected forecast model
-    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
+    try{
+      //get the selected ERF instance
+      eqkRupForecast = erfGuiBean.getSelectedERF();
+    }catch(Exception e){
+      e.printStackTrace();
+    }
     if(this.progressCheckBox.isSelected())  {
         progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
         progressClass.displayProgressBar();
@@ -1256,9 +1267,13 @@ public class HazardCurveApplet extends JApplet
     Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
     the forecast while erfGuiBean.getSelectedERF updates the forecast
     */
-    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
-    // create the TimeSpan Gui Bean object
-    timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
+    try{
+      EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
+      // create the TimeSpan Gui Bean object
+      timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
+    }catch(Exception e){
+      e.printStackTrace();
+    }
     // show the sitebean in JPanel
     this.timeSpanPanel.add(this.timeSpanGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));

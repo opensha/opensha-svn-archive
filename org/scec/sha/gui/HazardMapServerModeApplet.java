@@ -372,7 +372,12 @@ public class HazardMapServerModeApplet extends JApplet implements
         Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
         the forecast while erfGuiBean.getSelectedERF updates the
         */
-        this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
+        try{
+          EqkRupForecastAPI erfAPI = erfGuiBean.getSelectedERF_Instance();
+          this.timeSpanGuiBean.setTimeSpan(erfAPI.getTimeSpan());
+        }catch(Exception ee){
+          ee.printStackTrace();
+        }
         this.timeSpanGuiBean.validate();
         this.timeSpanGuiBean.repaint();
       }
@@ -417,7 +422,13 @@ public class HazardMapServerModeApplet extends JApplet implements
     initDiscretizeValues(hazFunction);
 
     // get the selected forecast model
-    EqkRupForecast eqkRupForecast = (EqkRupForecast)erfGuiBean.getSelectedERF();
+    EqkRupForecast eqkRupForecast = null;
+    try{
+      //gets the instance of the selected ERF
+      eqkRupForecast =(EqkRupForecast)erfGuiBean.getSelectedERF();
+    }catch(Exception e){
+      e.printStackTrace();
+    }
 
     // get the selected IMR
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
@@ -585,9 +596,13 @@ public class HazardMapServerModeApplet extends JApplet implements
    Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
    the forecast while erfGuiBean.getSelectedERF updates the forecast
    */
-   EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
-   // create the TimeSpan Gui Bean object
-   timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
+   try{
+     EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
+     // create the TimeSpan Gui Bean object
+     timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
+   }catch(Exception e){
+     e.printStackTrace();
+   }
    // show the sitebean in JPanel
    this.timeSpanPanel.add(this.timeSpanGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));

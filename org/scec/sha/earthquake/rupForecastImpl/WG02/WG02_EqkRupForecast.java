@@ -43,6 +43,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
   //for Debug purposes
   private final static String  C = new String("WG02 Eqk Rup Forecast");
+  private final static String NAME =C;
   private boolean D = false;
 
   /**
@@ -294,7 +295,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast
      * @return : return the name for this class
      */
    public String getName(){
-     return C;
+     this.ERF_NAME = NAME;
+     return ERF_NAME;
    }
 
 

@@ -36,7 +36,7 @@ public class PEER_FaultForecast extends EqkRupForecast
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  private final static String  NAME = C;
 
 
   // this is the source (only 1 for this ERF)
@@ -277,7 +277,8 @@ public class PEER_FaultForecast extends EqkRupForecast
    * @return : return the name for this class
    */
    public String getName(){
-     return C;
+     ERF_NAME = NAME;
+     return ERF_NAME;
    }
 
 }

@@ -26,7 +26,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
    * @todo variables
    */
   //for Debug purposes
-  public static String  NAME = new String("PEER Logic Tree");
+  private static String  NAME = new String("PEER Logic Tree");
 
   // declare the slip rates
   private double SLIP_RATE_1 = 0.1;
@@ -171,7 +171,8 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
    * @return : return the name for this class
    */
    public String getName(){
-     return NAME;
+     ERF_NAME = NAME;
+     return ERF_NAME;
    }
 
    /**

@@ -41,7 +41,7 @@ public class PEER_MultiSourceForecast extends EqkRupForecast
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  private final static String  NAME = C;
 
   // the GR distribution used for the area source
   private GutenbergRichterMagFreqDist dist_gr_A_orig;
@@ -333,7 +333,8 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
    * @return : return the name for this class
    */
   public String getName(){
-    return C;
+    ERF_NAME = NAME;
+    return ERF_NAME;
   }
 
 

@@ -32,14 +32,16 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
   protected Vector erfNamesVector=new Vector();
   //this vector holds the full class names of all the supported Eqk Rup Forecasts
   private Vector erfClasses;
-  //saves the erf objects
-  private Vector erfObject = new Vector();
+
   // ERF Editor stuff
   public final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
   // these are to store the list of independ params for chosen ERF
   public final static String ERF_EDITOR_TITLE =  "Set Forecast";
   // boolean for telling whether to show a progress bar
   boolean showProgressBar = true;
+
+  //instance of the selected ERF
+  EqkRupForecastAPI eqkRupForecast = null;
 
   /**
    * default constructor
@@ -53,8 +55,11 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    * @param erfClassNames
    */
   public ERF_GuiBean(Vector erfClassNames) throws InvocationTargetException{
+    // save the classs names of ERFs to be shown
+     this.erfClasses = erfClassNames;
+
     // create the instance of ERFs
-    init_erf_IndParamListAndEditor(erfClassNames);
+    init_erf_IndParamListAndEditor(erfClasses);
     // forecast 1  is selected initially
     setParamsInForecast((String)erfNamesVector.get(0));
   }
@@ -91,7 +96,19 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
        System.out.println(S + e.toString());
        throw new RuntimeException( S + e.toString() );
      }
+   }
 
+   /**
+    * Gets the name of the ERF and show in the PickList for the ERF's
+    * As the ERF_NAME is defined as the static variable inside the EqkRupForecast class
+    * so it gets the vale for this clas field. Generate the object of the ERF only if the
+    * user chooses it from the pick list.
+    * @param className
+    * @return
+    */
+   private String getERFName(String className) throws InvocationTargetException{
+     Object obj = this.createERFClassInstance(className);
+     return ((EqkRupForecastAPI)obj).getName();
    }
 
    /**
@@ -99,29 +116,33 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     */
    protected void init_erf_IndParamListAndEditor(Vector erfClassNames) throws InvocationTargetException{
 
-     EqkRupForecastAPI erf;
      this.parameterList = new ParameterList();
-     // save the classs names of ERFs to be shown
-     this.erfClasses = erfClassNames;
+
      // search path needed for making editors
      searchPaths = new String[2];
      searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
      searchPaths[1] = "org.scec.sha.magdist.gui" ;
-     Iterator it= erfClasses.iterator();
 
-     while(it.hasNext()){
-       // make the ERF objects to get their adjustable parameters
-       erf = (EqkRupForecastAPI ) createERFClassInstance((String)it.next());
-       if(D)  System.out.println("Iterator Class:"+erf.getName());
-       erfObject.add(erf);
-       erfNamesVector.add(erf.getName());
-       Iterator it1 = erf.getAdjustableParamsIterator();
+     //Name of the first ERF class that is to be shown as the default ERF in the ERF Pick List
+     String erfClassName = (String)erfClassNames.get(0);
 
-       // add the listener for the paramters in the forecast
-       while(it1.hasNext()) {
-         ParameterAPI param = (ParameterAPI)it1.next();
-         param.addParameterChangeFailListener(this);
-       }
+     // make the ERF objects to get their adjustable parameters
+     eqkRupForecast = (EqkRupForecastAPI ) createERFClassInstance(erfClassName);
+     if(D)  System.out.println("Iterator Class:"+eqkRupForecast.getName());
+
+     //gets the iterator for the class names of all the ERF's
+     Iterator it = erfClasses.iterator();
+
+     //adding the names of all the ERF's to the erfNamesVector- Pick List for the ERF's
+     while(it.hasNext())
+     erfNamesVector.add(this.getERFName((String)it.next()));
+
+     Iterator it1 = eqkRupForecast.getAdjustableParamsIterator();
+
+     // add the listener for the paramters in the forecast
+     while(it1.hasNext()) {
+       ParameterAPI param = (ParameterAPI)it1.next();
+       param.addParameterChangeFailListener(this);
      }
 
      // make the forecast selection parameter
@@ -137,16 +158,16 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     *  selected by the user
     * @param forecast
     */
-   private void setParamsInForecast(String selectedForecast) {
+   private void setParamsInForecast(String selectedForecast) throws InvocationTargetException{
 
      ParameterAPI chooseERF_Param = parameterList.getParameter(this.ERF_PARAM_NAME);
      parameterList = new ParameterList();
      parameterList.addParameter(chooseERF_Param);
 
      // get the selected forecast
-     EqkRupForecastAPI erf = this.getSelectedERF_Instance();
+     getSelectedERF_Instance();
 
-     Iterator it = erf.getAdjustableParamsIterator();
+     Iterator it = eqkRupForecast.getAdjustableParamsIterator();
 
     // make the parameters visible based on selected forecast
      while(it.hasNext()) parameterList.addParameter((ParameterAPI)it.next());
@@ -212,21 +233,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     * It returns the forecast without updating the forecast
     * @return
     */
-   public EqkRupForecastAPI getSelectedERF_Instance() {
-     EqkRupForecastAPI eqkRupForecast = null;
-     // get the selected forecast model
-     String selectedForecast = getSelectedERF_Name();
-
-     // check which forecast has been selected by the user
-     int size = this.erfNamesVector.size();
-     String erfName;
-     for(int i=0; i<size; ++i) {
-       erfName = (String)erfNamesVector.get(i);
-       if(selectedForecast.equalsIgnoreCase(erfName)) { // we found selected forecast in the list
-         eqkRupForecast = (EqkRupForecastAPI)this.erfObject.get(i);
-         break;
-       }
-     }
+   public EqkRupForecastAPI getSelectedERF_Instance() throws InvocationTargetException{
      // update the mag dist param
      if(this.getMagDistEditor()!=null)
        this.updateMagDistParam();
@@ -239,8 +246,8 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     * It returns the ERF after updating its forecast
     * @return
     */
-   public EqkRupForecastAPI getSelectedERF() {
-     EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();
+   public EqkRupForecastAPI getSelectedERF() throws InvocationTargetException{
+     getSelectedERF_Instance();
      CalcProgressBar progress= null;
      if(this.showProgressBar) {
        // also show the progress bar while the forecast is being updated
@@ -259,10 +266,14 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     * @return : true if selected ERF is a epistemic list, else false
     */
    public boolean isEpistemicList() {
-     EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();
-     if(eqkRupForecast instanceof ERF_EpistemicList)
-       return true;
-     else return false;
+     try{
+       EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();
+       if(eqkRupForecast instanceof ERF_EpistemicList)
+         return true;
+     }catch(Exception e){
+       e.printStackTrace();
+     }
+     return false;
    }
 
 
@@ -336,7 +347,18 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      // if ERF selected by the user  changes
      if( name1.equals(this.ERF_PARAM_NAME) ){
        String value = event.getNewValue().toString();
-       setParamsInForecast(value);
+       int size = this.erfNamesVector.size();
+       try{
+         for(int i=0;i<size;++i){
+           if(value.equalsIgnoreCase((String)erfNamesVector.get(i))){
+             eqkRupForecast = (EqkRupForecastAPI)this.createERFClassInstance((String)erfClasses.get(i));
+             break;
+           }
+         }
+         setParamsInForecast(value);
+       }catch(Exception e){
+         e.printStackTrace();
+       }
        this.validate();
        this.repaint();
        //       applet.updateChosenERF();

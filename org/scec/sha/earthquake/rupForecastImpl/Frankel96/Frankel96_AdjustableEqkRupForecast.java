@@ -47,7 +47,7 @@ public class Frankel96_AdjustableEqkRupForecast extends EqkRupForecast
   private boolean D = false;
 
   // name of this ERF
-  private static String NAME = new String("USGS/CGS 1996 Adj. Cal. ERF");
+  private final static String NAME = new String("USGS/CGS 1996 Adj. Cal. ERF");
 
   private double GRID_SPACING = 1.0;
   private double B_VALUE =0.9;
@@ -479,7 +479,8 @@ private void intiAdjParams() {
      * @return : return the name for this class
      */
    public String getName(){
-     return NAME;
+     ERF_NAME = NAME;
+     return ERF_NAME;
    }
 
 

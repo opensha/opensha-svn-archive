@@ -39,7 +39,7 @@ import org.scec.param.event.ParameterChangeEvent;
   private boolean D = true;
 
   // name of this ERF
-  private static String  name = new String("STEP Alaskan Pipeline ERF");
+  private static String  NAME = new String("STEP Alaskan Pipeline ERF");
 
   // Input file name
   private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/PipelineGrid.txt";
@@ -228,7 +228,8 @@ import org.scec.param.event.ParameterChangeEvent;
      * @return : return the name for this class
      */
    public String getName(){
-     return name;
+     ERF_NAME = NAME;
+     return ERF_NAME;
    }
 
 

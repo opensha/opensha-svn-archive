@@ -46,7 +46,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
   private static final String  C = new String("WG02 ERF List");
   private boolean D = false;
 
-  public static final String  NAME = new String("WG02 ERF List");
+  private static final String  NAME = new String("WG02 ERF List");
 
   /**
    * Static variable for input file name
@@ -223,7 +223,8 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
    * @return : return the name for this class
    */
    public String getName(){
-     return C;
+     ERF_NAME = NAME;
+     return ERF_NAME;
    }
 
 

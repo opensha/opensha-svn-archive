@@ -972,7 +972,11 @@ public class HazardSpectrumApplet extends JApplet
       the forecast while erfGuiBean.getSelectedERF updates the
       */
       if(erfGuiBean !=null){
-        this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
+        try{
+          this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
+        }catch(Exception e){
+          e.printStackTrace();
+        }
         controlComboBox.removeAllItems();
         this.initControlList();
         // add the Epistemic control panel option if Epistemic ERF is selected
@@ -1046,7 +1050,13 @@ public class HazardSpectrumApplet extends JApplet
       // whwther to show progress bar in case of update forecast
       erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
       // get the selected forecast model
-      EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
+      EqkRupForecastAPI eqkRupForecast = null;
+      try{
+        //gets the instance of the selected ERF
+        eqkRupForecast = erfGuiBean.getSelectedERF();
+      }catch(Exception e){
+        e.printStackTrace();
+      }
       if(this.progressCheckBox.isSelected())  {
         progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
         progressClass.displayProgressBar();
@@ -1267,7 +1277,6 @@ public class HazardSpectrumApplet extends JApplet
           this.numSA_PeriodValDone =j;
          hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
          double val= getHazFuncIML_ProbValues(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
-         System.out.println("Val:"+val);
          hazFunction.set(saPeriodVal,val);
        }
      }catch (RuntimeException e) {
@@ -1520,10 +1529,14 @@ public class HazardSpectrumApplet extends JApplet
     the forecast while erfGuiBean.getSelectedERF updates the forecast
     */
     EqkRupForecastAPI eqkRupForecast =null;
-    if(erfGuiBean !=null)
-      eqkRupForecast= erfGuiBean.getSelectedERF_Instance();
-    else
-      eqkRupForecast=this.erfRupSelectorGuiBean.getSelectedERF_Instance();
+    try{
+      if(erfGuiBean !=null)
+        eqkRupForecast= erfGuiBean.getSelectedERF_Instance();
+      else
+        eqkRupForecast=this.erfRupSelectorGuiBean.getSelectedERF_Instance();
+    }catch(Exception e){
+      e.printStackTrace();
+    }
     // create the TimeSpan Gui Bean object
     timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
     // show the sitebean in JPanel

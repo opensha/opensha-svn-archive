@@ -228,7 +228,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     //Based on the selected ERF model it connects to the servlet for that ERF
     //and gets it ERF Object.
     //if the selected forecast is PEER_Fault Forecast
-    if(selectedForecast.equalsIgnoreCase(PEER_FaultForecast.NAME)){
+    if(selectedForecast.equalsIgnoreCase(PEER_FaultForecast.ERF_NAME)){
       try{
       eqkRupForecast=(ForecastAPI)this.openPEERFaultConnection(this.getERF_API);
       }catch(Exception e){
@@ -236,7 +236,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
       }
     }
     //if the selected forecast is WG02_List Forecast
-    else if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME)){
+    else if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.ERF_NAME)){
       try{
         eqkRupForecast=(ForecastAPI)this.openWG02_ERFConnection(this.getERF_ListAPI);
       }catch(Exception e){
@@ -258,7 +258,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   public boolean isEpistemicList() {
     //This needed to fix , to remove the hard codeing
     //it is being used to pop up the control panel for the Epistemic List
-    if(this.getSelectedERF_Name().equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME))
+    if(this.getSelectedERF_Name().equalsIgnoreCase(WG02_ERF_Epistemic_List.ERF_NAME))
       return true;
     else return false;
   }
