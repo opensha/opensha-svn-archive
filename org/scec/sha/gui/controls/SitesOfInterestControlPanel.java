@@ -50,7 +50,10 @@ public class SitesOfInterestControlPanel extends JFrame {
       latVector.add(new Double(37.75));
       lonVector.add(new Double(-122.68));
 
-
+      // Sierra Madre Fault Gap
+      this.sitesComboBox.addItem("Sierra Madre Fault Gap");
+      latVector.add(new Double(34.225));
+      lonVector.add(new Double(-117.835));
 
 
       jbInit();

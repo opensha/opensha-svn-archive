@@ -273,6 +273,8 @@ public class Abrahamson_2000_AttenRel
           GriddedSurfaceAPI surface = probEqkRupture.getRuptureSurface();
           Location siteLoc = site.getLocation();
           Location hypLoc = probEqkRupture.getHypocenterLocation();
+          if(hypLoc == null)
+            throw new RuntimeException("Error: The hypocenter has not been set for the earthquake rupture");
           int numTrPts = surface.getNumCols();
 
           // find the closest point on rupture trace
@@ -286,8 +288,6 @@ public class Abrahamson_2000_AttenRel
             }
           }
           // compute the distance between the closest point on the trace and the hypocenter
-          // hard code a location until we have setting it another way implemented
-          hypLoc = surface.getLocation(0,0);
           double s = RelativeLocation.getHorzDistance(closestLoc,hypLoc);
           // get total length of rupture
           double L = RelativeLocation.getHorzDistance(surface.getLocation(0,0),surface.getLocation(0,numTrPts-1));
@@ -320,8 +320,7 @@ public class Abrahamson_2000_AttenRel
           }
           else angleDiff = 90;  // set as anything since s = 0
 
-//          if(angleDiff >90 || angleDiff <90) angleDiff=90;
-          // now set the theta parameter
+//        // now set the theta parameter
           thetaDirParam.setValue(angleDiff);
 
 

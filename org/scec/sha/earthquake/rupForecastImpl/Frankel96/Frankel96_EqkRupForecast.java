@@ -584,6 +584,12 @@ private void intiAdjParams() {
 
        parameterChangeFlag = false;
 
+String tempName;
+for(int i=0;i<allSources.size();i++) {
+  tempName = ((ProbEqkSource) allSources.get(i)).getName();
+  System.out.println("source "+ i +"is "+tempName);
+}
+
 /* TEMP STUFF
        double totRate=0, totProb=1, prob;
        int i,j, totRup;

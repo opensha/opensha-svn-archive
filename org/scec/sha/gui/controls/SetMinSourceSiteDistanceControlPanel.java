@@ -21,7 +21,7 @@ public class SetMinSourceSiteDistanceControlPanel extends JFrame {
 
   // distance Parameter
    private DoubleParameter distanceParam =
-       new DoubleParameter("Distance", 0, Double.MAX_VALUE, new Double(250));
+       new DoubleParameter("Distance", 0, Double.MAX_VALUE, new Double(200));
    // double param editor
   private DoubleParameterEditor distanceEditor=new DoubleParameterEditor();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
