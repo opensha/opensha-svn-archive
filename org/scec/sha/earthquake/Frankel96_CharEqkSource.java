@@ -1,7 +1,8 @@
 package org.scec.sha.earthquake;
 
 import org.scec.sha.surface.EvenlyGriddedSurface;
-import org.scec.data.TimeSpan;
+import org.scec.data.*;
+import org.scec.calc.RelativeLocation;
 
 import java.util.Vector;
 
@@ -105,6 +106,34 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
     v.add(getRuptureClone(1));
     return v;
   }
+
+  /**
+   * This returns the shortest dist to either end of the fault trace, or to the
+   * mid point of the fault trace.
+   * @param site
+   * @return minimum distance
+   */
+   public  double getMinDistance(Site site) {
+
+      double min;
+      EvenlyGriddedSurface surface = (EvenlyGriddedSurface) probEqkRupture.getRuptureSurface();
+
+      // get first location on fault trace
+      Direction dir = RelativeLocation.getDirection(site.getLocation(),(Location) surface.get(0,0));
+      min = dir.getHorzDistance();
+
+      // get last location on fault trace
+      dir = RelativeLocation.getDirection(site.getLocation(), (Location) surface.get(0,surface.getNumCols()-1));
+      if (min > dir.getHorzDistance())
+          min = dir.getHorzDistance();
+
+      // get mid location on fault trace
+      dir = RelativeLocation.getDirection(site.getLocation(), (Location) surface.get(0,(int) surface.getNumCols()/2));
+      if (min > dir.getHorzDistance())
+          min = dir.getHorzDistance();
+
+      return min;
+    }
 
   /**
     * get the name of this class

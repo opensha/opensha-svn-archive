@@ -1,8 +1,8 @@
 package org.scec.sha.earthquake;
 
 import org.scec.sha.magdist.GuttenbergRichterMagFreqDist;
-import org.scec.data.TimeSpan;
-import org.scec.data.Location;
+import org.scec.data.*;
+import org.scec.calc.RelativeLocation;
 
 import java.util.Vector;
 import java.util.Iterator;
@@ -25,10 +25,11 @@ public class PointGR_EqkSource extends ProbEqkSource {
   private boolean D =false;
 
   private GuttenbergRichterMagFreqDist gR;
-  private double timeSpan;
+  private double timeSpan = Double.NaN;
   //these are the static static defined varibles to be used to find the number of ruptures.
   private int totNumRups;
-//  private EvenlyGriddedSurface surface;
+
+  private Location location;
 
   /**
    * constructor specifying the values needed for Guttenberg Richter
@@ -59,16 +60,19 @@ public class PointGR_EqkSource extends ProbEqkSource {
     if( D ) System.out.println("PointGR_EqkSource:delta::"+delta);
     if( D ) System.out.println("PointGR_EqkSource:num::"+num);
 
-    probEqkRupture = new ProbEqkRupture();
-    probEqkRupture.setPointSurface(new Location(lat,lon,depth));
-    probEqkRupture.setAveRake(rake);
-
     //Setting the GuttenbergDistribution
     gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,num);
     gR.setAllButTotMoRate(magLower,magUpper,cumRate,bValue );
 
     // Determine number of ruptures
     totNumRups = gR.getNum();
+
+    // make the prob qk rupture
+    probEqkRupture = new ProbEqkRupture();
+    location = new Location(lat,lon,depth);
+    probEqkRupture.setPointSurface(location);
+    probEqkRupture.setAveRake(rake);
+
 
 
     if( D ) System.out.println("PointGR_EqkSource:momentRate::"+gR.getTotalMomentRate());
@@ -132,6 +136,19 @@ public class PointGR_EqkSource extends ProbEqkSource {
     return v;
   }
 
+     /**
+   * This returns the shortest dist to either end of the fault trace, or to the
+   * mid point of the fault trace.
+   * @param site
+   * @return minimum distance
+   */
+   public  double getMinDistance(Site site) {
+
+      // get first location on fault trace
+      Direction dir = RelativeLocation.getDirection(site.getLocation(), location);
+      return dir.getHorzDistance();
+
+    }
 
  /**
   * get the name of this class

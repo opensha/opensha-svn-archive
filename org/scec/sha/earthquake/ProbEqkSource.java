@@ -3,7 +3,9 @@ package org.scec.sha.earthquake;
 import java.util.Vector;
 import java.util.Iterator;
 
+import org.scec.data.Site;
 import org.scec.data.NamedObjectAPI;
+
 /**
  * <p>Title: ProbEqkSource</p>
  * <p>Description: Class for Probabilistic earthquake source</p>
@@ -41,6 +43,15 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    return v.iterator();
   }
 
+
+  /**
+   * This computes some measure of the minimum distance between the source and
+   * the site passed in.  This is useful for ignoring sources that are at great
+   * distanced from a site of interest.  Actual implementation depend on subclass.
+   * @param site
+   * @return minimum distance
+   */
+  public abstract double getMinDistance(Site site);
 
   /**
    * Get the number of ruptures for this source
