@@ -228,7 +228,7 @@ public class LogarithmicAxis extends NumberAxis {
    */
   public void setLog10TickLabelsInPowerFlag() {
     log10TickLabelsInPowerFlag = true;
-    this.smallLogFlag = true;
+    smallLogFlag = true;
     expTickLabelsFlag = false;
     log10TickLabelsFlag = false;
   }
@@ -720,7 +720,7 @@ public class LogarithmicAxis extends NumberAxis {
             }
           }
           else {   //not first tick to be displayed
-            if(log10TickLabelsInPowerFlag)
+            if(log10TickLabelsInPowerFlag && minorAxisTickLabelFlag)
               tickLabel = ""+(j+1);     //no tick label
             else
               tickLabel = "";
@@ -809,7 +809,7 @@ public class LogarithmicAxis extends NumberAxis {
             /* also if the difference in the powers of the smallest major axis
              * and largest major axis is larger than 3 then don't label the minor axis
              **/
-            if((x<x0 || (iEndCount-iBegCount>3)) && j!=0)
+            if((x<x0 || (iEndCount-iBegCount>3)) && j!=0 && minorAxisTickLabelFlag)
               tickLabel="";
             else{
               //removing the previous minor tickLabels if the major axis overlaps any tickLabels
@@ -937,7 +937,7 @@ public class LogarithmicAxis extends NumberAxis {
             }
           }
           else {   //not first tick to be displayed
-            if(log10TickLabelsInPowerFlag)
+            if(log10TickLabelsInPowerFlag && minorAxisTickLabelFlag)
               tickLabel = ""+(j+1);     //no tick label
             else
               tickLabel = "";
@@ -1017,7 +1017,7 @@ public class LogarithmicAxis extends NumberAxis {
             /* also if the difference in the powers of the smallest major axis
             * and largest major axis is larger than 3 then don't label the minor axis
             **/
-            if((y>y0 || (iEndCount-iBegCount>3)) && j!=0)
+            if((y>y0 || (iEndCount-iBegCount>3)) && j!=0 && minorAxisTickLabelFlag)
               tickLabel="";
             else{
               //removing the previous minor tickLabels if the major axis overlaps any tickLabels
@@ -1080,7 +1080,7 @@ public class LogarithmicAxis extends NumberAxis {
       Rectangle2D dataArea, RectangleEdge edge) {
 
     if(!log10TickLabelsInPowerFlag)
-      return drawTickMarksAndLabels(g2, cursor,plotArea, dataArea, edge);
+      return super.drawTickMarksAndLabels(g2, cursor,plotArea, dataArea, edge);
 
     if (isAxisLineVisible()) {
       drawAxisLine(g2, cursor, dataArea, edge);

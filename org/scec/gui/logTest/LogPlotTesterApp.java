@@ -341,7 +341,7 @@ public class LogPlotTesterApp extends JApplet  {
     group.add(log10AsECheck);
     group.add(log10CaretCheck);
     group.add(log10PowerCheck);
-    log10PowerCheck.setSelected(true);
+    group.setSelected(log10PowerCheck.getModel(),true);
   }
   //Get Applet information
   public String getAppletInfo() {
@@ -430,6 +430,7 @@ public class LogPlotTesterApp extends JApplet  {
        //TickUnits units = MyTickUnits.createStandardTickUnits();
 
        xAxis = new org.jfree.chart.axis.LogarithmicAxis("X-Axis");
+
        xAxis.setAutoRangeIncludesZero( false );
        //xAxis.setStandardTickUnits(units);
        xAxis.setTickMarksVisible(false);
@@ -441,6 +442,7 @@ public class LogPlotTesterApp extends JApplet  {
        //yAxis.setStandardTickUnits(units);
        yAxis.setTickMarksVisible(false);
        //yAxis.setS
+
 
 
        int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
@@ -455,7 +457,11 @@ public class LogPlotTesterApp extends JApplet  {
          yAxis.setRange(minYValue,maxYValue);
        }
 
+       if(this.log10AsECheck.isSelected()) setLog10AsEFlag();
+       else if(this.log10CaretCheck.isSelected()) setLog10AsCaretFlag();
+       else if(this.log10PowerCheck.isSelected()) setLog10AsPowerFlag();
 
+       setMinorAxisFlag();
        // build the plot
        org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(functions, xAxis, yAxis,renderer);
 
@@ -777,21 +783,47 @@ public class LogPlotTesterApp extends JApplet  {
   }
 
   void log10CaretCheck_actionPerformed(ActionEvent e) {
-    ((LogarithmicAxis)xAxis).setLog10TickLabelsFlag();
-    ((LogarithmicAxis)yAxis).setLog10TickLabelsFlag();
+   setLog10AsCaretFlag();
+   this.addGraphPanel();
+  }
+
+  private void setLog10AsCaretFlag(){
+    if(log10CaretCheck.isSelected()){
+      ((LogarithmicAxis)xAxis).setLog10TickLabelsFlag();
+      ((LogarithmicAxis)yAxis).setLog10TickLabelsFlag();
+    }
   }
 
   void log10PowerCheck_actionPerformed(ActionEvent e) {
-    ((LogarithmicAxis)xAxis).setLog10TickLabelsInPowerFlag();
-    ((LogarithmicAxis)yAxis).setLog10TickLabelsInPowerFlag();
+    setLog10AsPowerFlag();
+    this.addGraphPanel();
+  }
+
+  private void setLog10AsPowerFlag(){
+    if(log10PowerCheck.isSelected()){
+      ((LogarithmicAxis)xAxis).setLog10TickLabelsInPowerFlag();
+      ((LogarithmicAxis)yAxis).setLog10TickLabelsInPowerFlag();
+    }
   }
 
   void log10AsECheck_actionPerformed(ActionEvent e) {
-    ((LogarithmicAxis)xAxis).setExpTickLabelsFlag();
-    ((LogarithmicAxis)yAxis).setExpTickLabelsFlag();
+    setLog10AsEFlag();
+    this.addGraphPanel();
+  }
+
+  private void setLog10AsEFlag(){
+    if(log10AsECheck.isSelected()){
+      ((LogarithmicAxis)xAxis).setExpTickLabelsFlag();
+      ((LogarithmicAxis)yAxis).setExpTickLabelsFlag();
+    }
   }
 
   void minorAxisCheck_actionPerformed(ActionEvent e) {
+    setMinorAxisFlag();
+    this.addGraphPanel();
+  }
+
+  private void setMinorAxisFlag(){
     if(minorAxisCheck.isSelected()){
       ((LogarithmicAxis)xAxis).setMinorAxisTickLabelFlag(true);
       ((LogarithmicAxis)yAxis).setMinorAxisTickLabelFlag(true);
@@ -801,7 +833,5 @@ public class LogPlotTesterApp extends JApplet  {
       ((LogarithmicAxis)yAxis).setMinorAxisTickLabelFlag(false);
     }
   }
-
-
 
 }
