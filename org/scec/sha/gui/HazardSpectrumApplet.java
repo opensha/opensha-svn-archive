@@ -78,15 +78,14 @@ public class HazardSpectrumApplet extends JApplet
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
-  public final static String PEER_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultForecast";
+  public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.SimplePoissonFaultERF";
   public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
-  public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_ListricFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
   public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
-  //public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
+  public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
   public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String WG02_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
@@ -120,9 +119,10 @@ public class HazardSpectrumApplet extends JApplet
   private static String SA_PERIOD = "SA Period";
 
 
-  //Y-Axis Labels
-  private static final String IML = "IML";
+  //Axis Labels
+  private static final String IML = "SA (g)";
   private static final String PROB_AT_EXCEED = "Probability of Exceedance";
+  private static final String X_AXIS_LABEL = "Period (sec)";
 
   //Vector that stores the SA Period values for the IMR
   private Vector saPeriodVector ;
@@ -233,7 +233,7 @@ public class HazardSpectrumApplet extends JApplet
   private String disaggregationString;
 
   // PEER Test Cases
-  private String TITLE = new String("Hazard Curves");
+  private String TITLE = new String("Hazard Spectra");
 
   // light blue color
   private Color lightBlue = new Color( 200, 200, 230 );
@@ -491,7 +491,7 @@ public class HazardSpectrumApplet extends JApplet
     imrSplitPane.add(imrPanel, JSplitPane.TOP);
     imrSplitPane.add(imtPanel, JSplitPane.BOTTOM);
     controlsSplit.add(imrSplitPane, JSplitPane.LEFT);
-    paramsTabbedPane.add(controlsSplit, "IMR, IMT & Site");
+    paramsTabbedPane.add(controlsSplit, "IMR, IML/Prob, & Site");
     controlsSplit.add(sitePanel, JSplitPane.RIGHT);
     paramsTabbedPane.add(erfSplitPane, "ERF & Time Span");
     erfSplitPane.add(erfPanel, JSplitPane.LEFT);
@@ -1191,9 +1191,7 @@ public class HazardSpectrumApplet extends JApplet
     //checks whether the Hazard Curve Calculation are complete
     hazCalcDone = true;
     // set the X-axis label
-    //only supported IMT for this Application
-    String imt = this.SA_NAME;
-    totalProbFuncs.setXAxisName(imt + " ("+imr.getParameter(imt).getUnits()+")");
+    totalProbFuncs.setXAxisName(X_AXIS_LABEL);
 
   }
 
@@ -1322,7 +1320,7 @@ public class HazardSpectrumApplet extends JApplet
    if(this.avgSelected) totalProbFuncs.add(fractileCalc.getMeanCurve());
    this.hazCalcDone = true;
    // set the X-axis label
-   totalProbFuncs.setXAxisName(this.SA_NAME);
+   totalProbFuncs.setXAxisName(X_AXIS_LABEL);
 
    isIndividualCurves = false;
   }
@@ -1459,17 +1457,16 @@ public class HazardSpectrumApplet extends JApplet
   private void initERF_GuiBean() {
      // create the ERF Gui Bean object
    Vector erf_Classes = new Vector();
-   erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
+  erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
+   erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
    try{
      if(erfGuiBean == null)
        erfGuiBean = new ERF_GuiBean(erf_Classes);
@@ -1491,16 +1488,15 @@ public class HazardSpectrumApplet extends JApplet
   private void initERFSelector_GuiBean() {
      // create the ERF Gui Bean object
    Vector erf_Classes = new Vector();
-   erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   //erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
+   erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
    try{
      if(erfRupSelectorGuiBean == null)
        erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf_Classes);

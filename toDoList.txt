@@ -1,12 +1,9 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-HazardSpectrumApplet
+HazardSpectrumApplet - make it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances?
 
-	X-axis label should be "Period (sec)"
-
-	Y-axis label should be:		"SA (g)"      if IML@Prob is chosen or 
-					"Probability" if Prob@IML is chosen
+Finish implementing Set2-Case5 (Nitin knows it's incorrectly implemented).
 
 HazardCurveApplet:
 
