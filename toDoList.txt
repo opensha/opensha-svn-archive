@@ -3,19 +3,9 @@
 
 Change HazardCurveServerModeApp to do the calculations on the server.
 
-Finish getting Frankel's 2002 code running on the Mac.
-
 MultipleIMR_GuiBean:
 
-	1) combine this with the IMTGuiBean (no reason to have the two separate)
-
 	2) test it
-
-	3) Implement the "Generate Jazus Shape files for Scenario" control panel
-
-	4) Move averaging of XYZ datasets to the scenario shakeMap calculator 
-	   (created a method that takes the list of IMRs and their associated weights).
-	   This will later be optimized using the PropagationEffect object.
 
 	5) check how averaging is done (e.g., on log values?); ned will do this.
 
