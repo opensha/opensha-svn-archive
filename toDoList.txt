@@ -3,15 +3,6 @@
 
 Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
 
-Change the following in the GeographicRegion class:
-
-    getLocationList()      --> getRegionOutline()
-    getLocationsIterator() --> getRegionOutlineIterator()
-    getLocation(int)       --> REMOVE
-    getNumLocation()       --> getNumRegionOutlineLocations()
-
-Put calTopoInten03.grd on usc.gravity.edu (Ned has this on his computer)
-
 Access site-type servlets from the SitesInGriddedRegion rather than the GuiBean (so servlets can be accessed without having to have a GUI).  Make sure this is graceful if internet connection fails.
 
 Subclass the GMT_MapGenerator as GMT_MapGeneratorForShakeMaps in the sha package, and change the makeMap* methods in this sublcalss like the follow:

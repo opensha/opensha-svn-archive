@@ -157,7 +157,7 @@ public class MapGuiBean extends ParameterListEditor implements
     }
     else{
       try{
-        imgName = gmtMap.makeMapLocally(xyzVals,eqkRupture,hypLoc,imt);
+        imgName = gmtMap.makeMapLocally(xyzVals,eqkRupture,imt);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;

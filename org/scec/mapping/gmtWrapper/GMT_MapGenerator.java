@@ -5,7 +5,6 @@ import java.util.*;
 import javax.activation.*;
 import java.text.DecimalFormat;
 import java.net.*;
-import java.io.*;
 
 import org.scec.param.*;
 import org.scec.data.XYZ_DataSetAPI;
@@ -35,7 +34,7 @@ public class GMT_MapGenerator implements Serializable{
   private String DEFAULT_XYZ_FILE_NAME = "xyz_data.txt";
   private String XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
   private String METADATA_FILE_NAME = "map_info.txt";
-  private String PS_FILE_NAME = "map.ps";
+  protected String PS_FILE_NAME = "map.ps";
   private String DEFAULT_PS_FILE_NAME = PS_FILE_NAME;
   private String JPG_FILE_NAME = "map.jpg";
   private String DEFAULT_JPG_FILE_NAME = JPG_FILE_NAME;
@@ -43,15 +42,21 @@ public class GMT_MapGenerator implements Serializable{
   private int DPI = 70;
 
   // paths to needed code
-  private String GMT_PATH;
-  private String GS_PATH;
-  private String CONVERT_PATH;
-  private static String COMMAND_PATH = "/bin/";
+  protected String GMT_PATH;
+  protected String GS_PATH;
+  protected String CONVERT_PATH;
+  protected static String COMMAND_PATH = "/bin/";
 
   // this is the path where general data (e.g., topography) are found:
   private static String SCEC_GMT_DATA_PATH = "/usr/scec/data/gmt/";
 
   XYZ_DataSetAPI xyzDataSet;
+
+  // common GMT command-line strings
+  protected String xOff;
+  protected String yOff;
+  protected String region;
+  protected String projWdth;
 
   int counter=0;
 
@@ -466,7 +471,7 @@ public class GMT_MapGenerator implements Serializable{
 
 
   // make a local file from a vector of strings
-  private void makeFileFromLines(Vector lines, String fileName) {
+  protected void makeFileFromLines(Vector lines, String fileName) {
     try{
         FileWriter fw = new FileWriter(fileName);
         BufferedWriter br = new BufferedWriter(fw);
@@ -722,7 +727,7 @@ public class GMT_MapGenerator implements Serializable{
     double maxLat = Math.rint(((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
     double maxLon = Math.rint(((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
 
-    String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
+    region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat+" ";
     if(D) System.out.println(C+" region = "+region);
 
     // this is the prefixed used for temporary files
@@ -745,17 +750,17 @@ public class GMT_MapGenerator implements Serializable{
 
     // plot size parameter
     double plotWdth = 6.5;
-    String projWdth = "-JM"+plotWdth+"i";
+    projWdth = " -JM"+plotWdth+"i ";
     double plotHght = ((maxLat-minLat)/(maxLon-minLon))*plotWdth/Math.cos(Math.PI*(maxLat+minLat)/(2*180));
 
     double yOffset = 11 - plotHght - 0.5;
-    String yOff = " -Y" + yOffset + "i";
+    yOff = " -Y" + yOffset + "i ";
 
     // set x-axis offset to 1 inch
-    String xOff = " -X1.0i";
+    xOff = " -X1.0i ";
 
     // command line to convert xyz file to grd file
-    commandLine =GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
+    commandLine =GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
     gmtCommandLines.add(commandLine+"\n");
 
     // get color scale limits
@@ -780,7 +785,7 @@ public class GMT_MapGenerator implements Serializable{
 
     // generate the image depending on whether topo relief is desired
     if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-      commandLine=GMT_PATH+"grdimage "+ grdFileName + xOff + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E"+DPI+" "+ region + " > " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"grdimage "+ grdFileName + xOff + yOff + projWdth + " -C"+fileName+".cpt -K -E"+DPI+ region + " > " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
     else {
@@ -792,31 +797,37 @@ public class GMT_MapGenerator implements Serializable{
       minLon = tempNum*gridSpacing+(-126);
       maxLat = Math.floor(((maxLat-minLat)/gridSpacing))*gridSpacing +minLat;
       maxLon = Math.floor(((maxLon-minLon)/gridSpacing))*gridSpacing +minLon;
-      region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
+      region = " -R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat + " ";
 
-      commandLine=GMT_PATH+"grdsample "+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q "+region;
+      commandLine=GMT_PATH+"grdsample "+grdFileName+" -G"+fileName+"HiResData.grd -I" +
+                 resolution + "c -Q "+region;
       gmtCommandLines.add(commandLine+"\n");
       commandLine=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
       gmtCommandLines.add(commandLine+"\n");
-      commandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd "+xOff + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E"+DPI+" "+ region + " > " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd " + xOff + yOff + projWdth +
+                  " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E"+DPI+ region + " > " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
 
     // add highways if desired
     if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
-      commandLine=GMT_PATH+"psxy  "+region+" " + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"psxy  "+region + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
 
     // add coast and fill if desired
     if(coast.equals(COAST_FILL)) {
-      commandLine=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"pscoast "+region + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
     else if(coast.equals(COAST_DRAW)) {
-      commandLine=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"pscoast "+region + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
+
+
+    // This add intermediate commands
+//    addIntermediateGMT_ScriptLines(gmtCommandLines);
 
     // set some defaults
     commandLine=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 5 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
@@ -833,7 +844,7 @@ public class GMT_MapGenerator implements Serializable{
     double niceKmLength = getNiceKmScaleLength(minLat, minLon, maxLon);
     double kmScaleXoffset = plotWdth/2;
     double niceTick = getNiceMapTickInterval(minLat, maxLat, minLon, maxLon);
-    commandLine=GMT_PATH+"psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth + " "+region+
+    commandLine=GMT_PATH+"psbasemap -B"+niceTick+"/"+niceTick+"eWNs " + projWdth +region+
                 " -Lfx"+kmScaleXoffset+"i/0.5i/"+minLat+"/"+niceKmLength+" -O >> " + PS_FILE_NAME;
     gmtCommandLines.add(commandLine+"\n");
 
@@ -868,6 +879,20 @@ public class GMT_MapGenerator implements Serializable{
 
     return gmtCommandLines;
   }
+
+
+  /**
+   * This method allows subclasses to add intemediate lines the the GMT script.  For
+   * example, for Scenario ShakeMaps one might want to plot the Earthuake Rupture Surface.
+   * These lines have to be added at an intermediate step because the last layer in GMT
+   * has to have the "-O" but not "-K" option.
+   */
+  protected void addIntermediateGMT_ScriptLines(Vector gmtLines) {
+
+  }
+
+
+
 
   /**
    * If log-plot has been chosen, this replaces the z-values in the xyzDataSet
