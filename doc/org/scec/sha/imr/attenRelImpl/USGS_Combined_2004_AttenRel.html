@@ -1,0 +1,290 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><!--JBuilder QuickDoc-->
+<HEAD>
+<TITLE>Class org.scec.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel</TITLE><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+</HEAD>
+<BODY>
+
+<H2>
+<FONT SIZE="-1">org.scec.sha.imr.attenRelImpl</FONT>
+<BR>Class USGS_Combined_2004_AttenRel</H2>
+<DL>
+<DT>public class <B>USGS_Combined_2004_AttenRel</B><DT>extends AttenuationRelationship<DT>implements AttenuationRelationshipAPI, NamedObjectAPI
+</DL>
+<DL><DD><b>Title:</b> USGS_Combined_2004_AttenRel<p> <b>Description:</b> This attenuation relationship computes a mean IML, exceedance probabilty at IML, or IML at exceedance probability that represents an average of 3-4 previously published relationships (the ones used for California in the 2002 National Seismic Hazard Maps; these are listed below). For each relationship, the predicted rock-site mean is multiplied by Borcherdt's nonlinear amplification factor (1994, Earthquake Spectra, Vol. 10, No. 4, 617-653) as described below. That is, the original site effect model of each relationship is not used. The averaging is performed after the site-depenent value for each relationship is computed. The exceedance probabilities are log-averaged, whereas the other two (mean and IML at prob.) are linearly averaged because they are already in log domain.<p> Supported Intensity-Measure Parameters: <UL> <LI>Peak Ground Acceleration (PGA) <LI>Spectral Acceleration (SA) at the following periods: 0.0, 0.1, 0.2 0.3, 0.4, 0.5, 0.75 1.0, 1.5, 2.0, 3.0, and 4.0 seconds <LI>Peak Ground Velocity (PGV) - computed from 1-sec SA using the Newmark-Hall (1982) scalar (applied after the amplification) <LI>Modified Mercalli Intensity (MMI) computed from PGA and PGV as in Wald et al. (1999, Earthquake Spectra, Vol. 15, No. 3, 557-564)) </UL><p> Attenuation Relationships used for the average: <UL> <LI>Abrahamson & Silva (1997) with site type "Rock/Shallow-Soil" <LI>Boore, Joyner & Fumal (1997) with Vs30 = 760 m/sec <LI>Sadigh et al (1997) with site type "Rock" <LI>Campbell and Bozorgnia (2003) with site type "BC_Boundary" </UL><p> Independent Parameters: <UL> <LI>vs30Param - The average 30-meter shear-wave velocity (m/sec) <LI>componentParam - Component of shaking (either "Average Horizontal" or "Greater of Two Horz.") <LI>stdDevTypeParam - The type of standard deviation (either "Total" or "None (zero)") </UL><p> Important Notes: <UL> The Borcherdt (1994) nonlinear amplification factors are applied as given in appendix-equations 7a or 7b (for periods ≤ 0.5 and > 0.5 seconds, respectively) using a reference velocity of 760 m/sec (and with the mv and ma coefficients linearly interpolated at intermediate input ground motions). Applying the mid-period amplification factors above 2.0 seconds for SA may not be legitimate. <p> For the one relationship that has a site-type dependent standard deviation (Sadigh et al., 1997) only the rock-site value is used (the difference is minor). <p> The Boore, Joyner & Fumal (1997) relationship is not included in the average for SA periods above 2.0 seconds. <p> For Boore, Joyner & Fumal (1997) the component is set as "Random Horizontal" (rather than "Average Horizontal") to be consistent with how this was set in the 2002 National Seismic Hazard Maps. All others are set as "Average Horizontal". <p> For Campbell and Bozorgnia (2003) the magnitude dependent standard deviation is used. <p> This class supports a "Greater of Two Horz." component by multiplying the average horizontal component median by a factor of 1.15. This value was taken directly from the official ShakeMap documentation. The standard deviation for this component is set the same as the average horizontal (not sure if this is correct). <p> </UL><p> Developer Notes: <UL> Regarding the Modified Mercalli Intensity (MMI) IMT, note that what is returned by the getMean() method is the natural-log of MMI. Although this is not technically correct (since MMI is not log-normally distributed), it was the easiest way to implement it for now. Furthermore, because the probability distribution of MMI (computed from PGA or PGV) is presently unknown, we cannot compute the standard deviation, probability of exceedance, or the IML at any probability other than 0.5. Therefore, a RuntimeException is thrown if one tries any of these when the chosen IMT is MMI. We can relax this when someone comes up with the probability distribution (which can't be Gaussian because MMI values below 1 and above 10 are not allowed).<p> Several methods for this class have been overridden to throw Runtime Exceptions, either because it was not clear what to return or because the info is complicated and not necessarily useful. For example, it's not clear what to return from getStdDev(); one could return the average of the std. dev. of the four relationships, but nothing actually uses such an average (the probability of exceedance calculation uses the mean/stdDev for each relationship separately). Another example is what to return from the getPropagationEffectParamsIterator - all of the three distance measures used by the four relationships? - this would lead to confusion and possible inconsistencies in the AttenuationRelationshipApplet. The bottom line is we've maintained the IntensityMeasureRelationshipAPI, but not the AttenuationRelationshipAPI (so this relationship cannot be added to the AttenuationRelationshipApplet). This class could simply be a subclass of IntensityMeasureRelationship. however, it's not because it uses some of the private methods of AttenuationRelationship. <p> TESTS:<p> For pga, 0.3-sec SA, 1.0-sec SA, and 3.0-sec SA, I tested shakemaps with Vs30=760 at all sites against averaging rock-site maps for each attenuation relationship separately. <p> I made sure that pgv predictions are 1.0-sec SA predictions multiplied by the correct scaling factor. <p> I confirmed that the "Greater of Two Horz." component is just 1.15* the average horizontal. <p> MMI calculations generally look correct, and the object that does the actual calucation (Wald_MMI_Calc) was independently validated. <p> I checked that the amplification factors being applied are correct in two ways: 1) I divided map data with site effects by a rock-site map (vs30=760), and then divided the log of this amp factor by log(760/vs30), and confirmed that the result plotted versus rock-pga is close to the functional form of ma (or mv for periods ≥ 0.5) versus rock-pga in the Borcherdt2004_SiteAmpCalc (the match is not exact because amp factors are applied to each relationship before taking the average); 2) I wrote out the ma (or mv) and amp values in the Borcherdt2004_SiteAmpCalc to make sure they are correct. Everything looked good.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Version:</B><DD>1.0</DD>
+<DT><B>Author:</B><DD>Edward H. Field</DD>
+</DL>
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Field Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>COMPONENT_GREATER_OF_TWO_HORZ</H3>
+<PRE>
+public static final String <B>COMPONENT_GREATER_OF_TWO_HORZ</B></PRE>
+<DL><DD>Thier maximum horizontal component option.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>mmiParam</H3>
+<PRE>
+protected DoubleParameter <B>mmiParam</B></PRE>
+<DL><DD>MMI parameter, the natural log of the "Modified Mercalli Intensity" IMT.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Constructor Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>USGS_Combined_2004_AttenRel</H3>
+<PRE>
+public <B>USGS_Combined_2004_AttenRel</B>(ParameterChangeWarningListener&nbsp;warningListener)</PRE>
+<DL><DD>No-Arg constructor. This initializes several ParameterList objects.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Method Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>setPropagationEffect</H3>
+<PRE>
+public void <B>setPropagationEffect</B>(PropagationEffect&nbsp;propEffect)</PRE>
+<DL><DD>This sets the eqkRupture related parameters (magParam and fltTypeParam) based on the eqkRupture passed in. The internally held eqkRupture object is also set as that passed in. Warning constrains are ingored.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>eqkRupture</CODE> - The new eqkRupture value</DD>
+<DT><B>Throws:</B><DD><CODE>ParameterException</CODE> - Thrown if the Site object doesn't contain a Wills site parameter</DD>
+</DL>
+<HR>
+
+<H3>setEqkRupture</H3>
+<PRE>
+public void <B>setEqkRupture</B>(EqkRupture&nbsp;eqkRupture)</PRE>
+<DL><DD>This sets the eqkRupture.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>eqkRupture</CODE> - </DD>
+</DL>
+<HR>
+
+<H3>setSite</H3>
+<PRE>
+public void <B>setSite</B>(Site&nbsp;site)</PRE>
+<DL><DD>This sets the site-related parameter (vs30Param) based on what is in the Site object passed in (the Site object must have a parameter with the same name as that in willsSiteParam). This also sets the internally held Site object as that passed in. Warning constrains are ingored.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>site</CODE> - The new site value which contains a Wills site Param.</DD>
+<DT><B>Throws:</B><DD><CODE>ParameterException</CODE> - Thrown if the Site object doesn't contain a Wills site parameter</DD>
+</DL>
+<HR>
+
+<H3>getMean</H3>
+<PRE>
+public double <B>getMean</B>()</PRE>
+<DL><DD>Note that for MMI this returns the natural log of MMI (this should be changed later)<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DT><B>Throws:</B><DD><CODE>IMRException</CODE> - </DD>
+</DL>
+<HR>
+
+<H3>getExceedProbability</H3>
+<PRE>
+private double <B>getExceedProbability</B>(AttenuationRelationship&nbsp;attenRel,
+                                    double&nbsp;iml)</PRE>
+<DL><DD>This assumes that vs30 has been set, and that the setAttenRelsStdDevTypes() and setAttenRelsIMT() methods have already been called.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>attenRel</CODE> - </DD>
+<DD><CODE>iml</CODE> - </DD>
+<DT><B>Returns:</B></DL>
+<HR>
+
+<H3>getMean</H3>
+<PRE>
+private double <B>getMean</B>(AttenuationRelationship&nbsp;attenRel)</PRE>
+<DL><DD>This returns the mean for the given attenuation relationship after assigning the Borcherdt amplification factor. This assumes that vs30 has been set and that the setAttenRelsIMT(*) method has been called.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>attenRel</CODE> - </DD>
+<DT><B>Returns:</B></DL>
+<HR>
+
+<H3>setAttenRelsIMT</H3>
+<PRE>
+private void <B>setAttenRelsIMT</B>()</PRE>
+<DL><DD>This sets the intensity measure for each of the four relationships. This doesn nothing if imt = MMI.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>setAttenRelsStdDevTypes</H3>
+<PRE>
+private void <B>setAttenRelsStdDevTypes</B>()</PRE>
+<DL><DD>This sets the standard deviation type for all the attenuation relations.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>getIML_AtExceedProb</H3>
+<PRE>
+public double <B>getIML_AtExceedProb</B>()</PRE>
+<DL><DD>This overrides the parent class method.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The intensity-measure level</DD>
+<DT><B>Throws:</B><DD><CODE>ParameterException</CODE> - Description of the Exception</DD>
+</DL>
+<HR>
+
+<H3>getStdDev</H3>
+<PRE>
+public double <B>getStdDev</B>()</PRE>
+<DL><DD>This throws and exception because the method is not supported<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>getExceedProbability</H3>
+<PRE>
+private double <B>getExceedProbability</B>(double&nbsp;vs30,
+                                    double&nbsp;iml)</PRE>
+<DL><DD>This calculates the probability that the given iml will be exceeded. This assumes that vs30 has been set, and that the setAttenRelsStdDevTypes() and setAttenRelsIMT() methods have already been called.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The exceedProbability value</DD>
+<DT><B>Throws:</B><DD><CODE>ParameterException</CODE> - Description of the Exception</DD>
+<DD><CODE>IMRException</CODE> - Description of the Exception</DD>
+</DL>
+<HR>
+
+<H3>getExceedProbability</H3>
+<PRE>
+public double <B>getExceedProbability</B>()</PRE>
+<DL><DD>This calculates the probability that the intensity-measure level (the value in the Intensity-Measure Parameter) will be exceeded given the mean and stdDev computed from current independent parameter values. Note that the answer is not stored in the internally held exceedProbParam (this latter param is used only for the getIML_AtExceedProb() method).<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The exceedProbability value</DD>
+<DT><B>Throws:</B><DD><CODE>ParameterException</CODE> - Description of the Exception</DD>
+<DD><CODE>IMRException</CODE> - Description of the Exception</DD>
+</DL>
+<HR>
+
+<H3>getExceedProbabilities</H3>
+<PRE>
+public DiscretizedFuncAPI <B>getExceedProbabilities</B>(DiscretizedFuncAPI&nbsp;intensityMeasureLevels)</PRE>
+<DL><DD>This fills in the exceedance probability for multiple intensityMeasure levels (often called a "hazard curve"); the levels are obtained from the X values of the input function, and Y values are filled in with the asociated exceedance probabilities. NOTE: THE PRESENT IMPLEMENTATION IS STRANGE IN THAT WE DON'T NEED TO RETURN ANYTHING SINCE THE FUNCTION PASSED IN IS WHAT CHANGES (SHOULD RETURN NULL?).<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>intensityMeasureLevels</CODE> - The function to be filled in</DD>
+<DT><B>Returns:</B><DD>The function filled in</DD>
+<DT><B>Throws:</B><DD><CODE>ParameterException</CODE> - Description of the Exception</DD>
+</DL>
+<HR>
+
+<H3>initIndependentParamLists</H3>
+<PRE>
+protected void <B>initIndependentParamLists</B>()</PRE>
+<DL><DD>This creates the lists of independent parameters that the various dependent parameters (mean, standard deviation, exceedance probability, and IML at exceedance probability) depend upon. NOTE: these lists do not include anything about the intensity-measure parameters or any of thier internal independentParamaters.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>initSiteParams</H3>
+<PRE>
+protected void <B>initSiteParams</B>()</PRE>
+<DL><DD>Creates the willsSiteParam site parameter and adds it to the siteParams list. Makes the parameters noneditable.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>initEqkRuptureParams</H3>
+<PRE>
+protected void <B>initEqkRuptureParams</B>()</PRE>
+<DL><DD>This does nothing<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>initPropagationEffectParams</H3>
+<PRE>
+protected void <B>initPropagationEffectParams</B>()</PRE>
+<DL><DD>This does nothing<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>initSupportedIntensityMeasureParams</H3>
+<PRE>
+protected void <B>initSupportedIntensityMeasureParams</B>()</PRE>
+<DL><DD>Creates the supported IM parameters (PGA, PGV, MMI and SA), as well as the independenParameters of SA (periodParam and dampingParam) and adds them to the supportedIMParams list. Makes the parameters noneditable.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>initOtherParams</H3>
+<PRE>
+protected void <B>initOtherParams</B>()</PRE>
+<DL><DD>Creates other Parameters that the mean or stdDev depends upon, such as the Component or StdDevType parameters.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>getName</H3>
+<PRE>
+public String <B>getName</B>()</PRE>
+<DL><DD>get the name of this IMR<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>the name of this IMR</DD>
+</DL>
+<HR>
+
+<H3>getEqkRuptureParamsIterator</H3>
+<PRE>
+public ListIterator <B>getEqkRuptureParamsIterator</B>()</PRE>
+<DL><DD>This is overridden to throw a runtine exception (the method is not supported).<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>getPropagationEffectParamsIterator</H3>
+<PRE>
+public ListIterator <B>getPropagationEffectParamsIterator</B>()</PRE>
+<DL><DD>This is overridden to throw a runtine exception (the method is not supported).<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>getExceedProbIndependentParamsIterator</H3>
+<PRE>
+public ListIterator <B>getExceedProbIndependentParamsIterator</B>()</PRE>
+<DL><DD>This is overridden to throw a runtine exception (the method is not supported).<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>getMeanIndependentParamsIterator</H3>
+<PRE>
+public ListIterator <B>getMeanIndependentParamsIterator</B>()</PRE>
+<DL><DD>This is overridden to throw a runtine exception (the method is not supported).<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>getStdDevIndependentParamsIterator</H3>
+<PRE>
+public ListIterator <B>getStdDevIndependentParamsIterator</B>()</PRE>
+<DL><DD>This is overridden to throw a runtine exception (the method is not supported).<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>getIML_AtExceedProbIndependentParamsIterator</H3>
+<PRE>
+public ListIterator <B>getIML_AtExceedProbIndependentParamsIterator</B>()</PRE>
+<DL><DD>This is overridden to throw a runtine exception (the method is not supported).<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+</BODY>
+</HTML>
