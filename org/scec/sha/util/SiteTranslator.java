@@ -15,7 +15,9 @@ import org.scec.sha.imr.AttenuationRelationship;
  * Wills Site Type (Wills et al., 2000, BSSA, v. 90, S187-S208) and (optionally) from
  * Basin-Depth-2.5 (the depth in m where the shear-wave velocity equals 2.5 km/sec).
  * The conversions from the Wills Site Types (E, DE, D, CD, C, BC, B) and basin-depth
- * are as follows (NA means nothing is set):<p>
+ * are given below (NA means nothing is set).  All of these translations were authorized
+ * by the attenuation-rlationship authors (except for Sadigh, who used a dataset similar
+ * to Abrahamson & Silve (1997) so that translation is applied)<p>
  *
  *
  * AS_1997_AttenRel.SITE_TYPE_NAME (Abrahamson & Silva (1997) & Abrahamson (2000))<p>
