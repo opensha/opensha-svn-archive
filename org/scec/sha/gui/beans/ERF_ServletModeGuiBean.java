@@ -23,6 +23,7 @@ import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.sha.gui.servlets.erf.*;
 import org.scec.data.TimeSpan;
 import org.scec.sha.earthquake.rupForecastImpl.Frankel96.*;
+import org.scec.sha.earthquake.rupForecastImpl.step.*;
 
 
 /**
@@ -61,10 +62,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
 
   //Hashtable where keys corresponds to the name of the forecast and value tell if any parameter
   //for that forecast has been changed
-  private Hashtable parameterChangeFlagsForAllERF = new Hashtable();
-
-
-
+  //private Hashtable parameterChangeFlagsForAllERF = new Hashtable();
 
 
 
@@ -219,7 +217,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
 
     //checks if any parameter for the forecast has been changed only then get the
     //new forecast object from the server
-    if(((Boolean)parameterChangeFlagsForAllERF.get(selectedForecast)).booleanValue()){
+    //if(((Boolean)parameterChangeFlagsForAllERF.get(selectedForecast)).booleanValue()){
 
     //Based on the selected ERF model it connects to the servlet for that ERF
     //and gets it ERF Object.
@@ -240,6 +238,15 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
       }
     }
 
+    //if the selected ERF is the STEP ERF
+    else if(selectedForecast.equalsIgnoreCase(STEP_EqkRupForecast.NAME)){
+      try{
+      eqkRupForecast=(ForecastAPI)this.openSTEP_ERFConnection(this.getERF_API);
+      }catch(Exception e){
+        throw new RuntimeException("Connection to STEP ERF servlet failed");
+      }
+    }
+
     //if the selected forecast is WG02_List Forecast
     else if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME)){
       try{
@@ -250,8 +257,9 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
       }
     }
     //changing the paramterChangeFlag for the selected forecast to false
-    parameterChangeFlagsForAllERF.put(selectedForecast,new Boolean(false));
-    }
+    //parameterChangeFlagsForAllERF.put(selectedForecast,new Boolean(false));
+    //}
+
     if (this.showProgressBar) progress.dispose();
     return eqkRupForecast;
   }
@@ -342,7 +350,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
       //       applet.updateChosenERF();
     }
     //make the parameter change flag to be true
-    this.parameterChangeFlagsForAllERF.put(this.getSelectedERF_Name(),new Boolean(true));
+    //this.parameterChangeFlagsForAllERF.put(this.getSelectedERF_Name(),new Boolean(true));
   }
 
   /**
@@ -353,7 +361,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
    */
   public void parameterChange( EventObject event ) {
     //make the parameter change flag to be true
-    this.parameterChangeFlagsForAllERF.put(this.getSelectedERF_Name(),new Boolean(true));
+    //this.parameterChangeFlagsForAllERF.put(this.getSelectedERF_Name(),new Boolean(true));
    }
 
   /**
@@ -379,7 +387,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     peerTimeSpan.addParameterChangeListener(this);
     paramListForAllERF.put(peerForecastName,peerParamList);
     timespanListForAllERF.put(peerForecastName,peerTimeSpan);
-    parameterChangeFlagsForAllERF.put(peerForecastName,new Boolean(true));
+    //parameterChangeFlagsForAllERF.put(peerForecastName,new Boolean(true));
 
     //open the connection for the WG-02 ERF EpistemicList
     String wg02ForecastName =(String)openWG02_ERFConnection(getName);
@@ -388,7 +396,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     wg02TimeSpan.addParameterChangeListener(this);
     paramListForAllERF.put(wg02ForecastName,wg02ParamList);
     timespanListForAllERF.put(wg02ForecastName,wg02TimeSpan);
-    parameterChangeFlagsForAllERF.put(wg02ForecastName,new Boolean(true));
+    //parameterChangeFlagsForAllERF.put(wg02ForecastName,new Boolean(true));
 
     //open the connection with the USGS/CGS(1996) Forecast model
     String frankelForecastName =(String)openUSGS_CGS_1996FaultConnection(getName);
@@ -397,14 +405,89 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     frankelTimeSpan.addParameterChangeListener(this);
     paramListForAllERF.put(frankelForecastName,frankelParamList);
     timespanListForAllERF.put(frankelForecastName,frankelTimeSpan);
-    parameterChangeFlagsForAllERF.put(frankelForecastName,new Boolean(true));
+    //parameterChangeFlagsForAllERF.put(frankelForecastName,new Boolean(true));
+
+
+    //open the connection with the STEP Forecast model
+    String stepForecastName =(String)openSTEP_ERFConnection(getName);
+    ParameterList stepParamList =(ParameterList)openSTEP_ERFConnection(getAdjParams);
+    TimeSpan stepTimeSpan =(TimeSpan)openSTEP_ERFConnection(getTimeSpan);
+    stepTimeSpan.addParameterChangeListener(this);
+    paramListForAllERF.put(stepForecastName,stepParamList);
+    timespanListForAllERF.put(stepForecastName,stepTimeSpan);
+    //parameterChangeFlagsForAllERF.put(stepForecastName,new Boolean(true));
+
+
 
     // gets the Names of all the ERF from the Hashtable and adds them to the vector
     //this list of ERF names act as the selection list for user to choose the ERF of his desire.
     this.erfNamesVector.add(peerForecastName);
     this.erfNamesVector.add(wg02ForecastName);
     this.erfNamesVector.add(frankelForecastName);
+    this.erfNamesVector.add(stepForecastName);
   }
+
+
+  /**
+   * sets up the connection with the STEP Forecast Servlet on the server (gravity.usc.edu)
+   */
+  private  Object openSTEP_ERFConnection(String function) throws Exception{
+
+    Object outputFromServletFunction=null;
+
+    URL stepERF_Servlet = new
+                           URL("http://gravity.usc.edu/OpenSHA/servlet/STEP_EqkRupForecastServlet");
+
+
+    URLConnection servletConnection = stepERF_Servlet.openConnection();
+    System.out.println("connection established:"+servletConnection.toString());
+
+    // inform the connection that we will send output and accept input
+    servletConnection.setDoInput(true);
+    servletConnection.setDoOutput(true);
+
+    // Don't use a cached version of URL connection.
+    servletConnection.setUseCaches (false);
+    servletConnection.setDefaultUseCaches (false);
+    // Specify the content type that we will send binary data
+    servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+    ObjectOutputStream outputToServlet = new
+        ObjectOutputStream(servletConnection.getOutputStream());
+
+    System.out.println("Calling the function:"+function);
+
+    //tells the servlet which function to call
+    outputToServlet.writeObject(function);
+
+    /**
+     * if the function to be called is getERF_API
+     * then we need to passs the TimeSpan and Adjustable ParamList to the
+     * servlet.
+     */
+    if(function.equalsIgnoreCase(this.getERF_API)){
+      //gives the Adjustable Params  object to the Servelet
+      outputToServlet.writeObject(this.getAdjParamList());
+      System.out.println(this.getAdjParamList().toString());
+      //gives the timeSpan object to the servlet
+      outputToServlet.writeObject(this.getTimeSpan());
+    }
+
+    outputToServlet.flush();
+    outputToServlet.close();
+
+    // Receive the "object" from the servlet after it has received all the data
+    ObjectInputStream inputToServlet = new
+                                       ObjectInputStream(servletConnection.getInputStream());
+
+    outputFromServletFunction=inputToServlet.readObject();
+    System.out.println("Received the input from the servlet");
+    inputToServlet.close();
+    return outputFromServletFunction;
+  }
+
+
+
 
 
   /**
@@ -414,11 +497,11 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
 
     Object outputFromServletFunction=null;
 
-    URL peerFaultServlet = new
+    URL frankelFaultServlet = new
                            URL("http://gravity.usc.edu/OpenSHA/servlet/USGS_CGS_1996_ForecastServlet");
 
 
-    URLConnection servletConnection = peerFaultServlet.openConnection();
+    URLConnection servletConnection = frankelFaultServlet.openConnection();
     System.out.println("connection established:"+servletConnection.toString());
 
     // inform the connection that we will send output and accept input
