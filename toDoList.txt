@@ -1,6 +1,34 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+
+Deploy USGS/CGS 2002 ERF in Server-Mode Haz Curve App.
+
+Change HazardCurveServerModeApp to do the calculations on the server (done?).
+
+Make HazardCurveApps:
+
+	1) calcs occur on user's computer
+	2) calcs occur on server
+
+	(ERFs can e both local or distributed in both)
+
+Implement Spudich et al. (1999) relationship  **********
+
+Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x). We are presently using these with the hazard map data plotter - check that this is being done correctly.
+
+Make default values for FaultParameter
+
+Implement point source correction option in PropagationEffect.  ************
+
+GMT_MapGenerator:
+
+	If MMI chosen (and not log-plot) use unaltered shakemap pallet  **************
+
+	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service
+	
+
+
 Make email lists for the following (with on-line archives):
 
 	users@OpenSHA.org
@@ -22,25 +50,22 @@ Get usable scenario ShakeMap app to Wald and Reasonberg.
 
 Go over exception throwing in entire package to make sure it looks appropriate.
 
-Standardize source definition with pathway 1?
+Standardize source definition with pathway 2?
 
 Get e-access to SCEC 2005 Consensus Geologic Fault Parameters.
 
 Peter Powers' stress chance calculator (and Jeremy's work)?
 
-Formally test all applications before publication.
+Formally test all applications before publication (this will take planning).
 
 Write user's manuals for applications.
 
-Implement Spudich et al. (1999) relationship  **********
+Create capability to associate IMRs to specific source types in the calculations (this will take some thought and perhaps some communication with Golden).  Ned's intitial tests on adding such fields to EqkRupture does not significantly increase memory requirements.  Possibilities:
 
-Implement point source correction option in PropagationEffect.  ************
-
-Change HazardCurveServerModeApp to do the calculations on the server (done?).
-
-ERFs in distributed mode - problem solved?
-
-Create capability to associate IMRs to specific source types in the calculations (this will take some thought and perhaps some communication with Golden).  Ned's intial tests on adding such fields to EqkRupture does not significantly increase memory requirements.
+	Subduction Interface
+	Subduction IntraSlab
+	Shallow Crustal in Active Tectonic Regions
+	Shallow Crustal in Stable Tectonic Regions
 
 Make a library to represent t-surfaces (or look on internet to see if someone else has come up with a good object-oriented design).
 
@@ -48,17 +73,9 @@ Get our GriddedSurface object plottable in LA3D (so EqkRupture surfaces can be p
 
 Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
 
-GMT_MapGenerator:
-
-	If MMI chosen (and not log-plot) use unaltered shakemap pallet
-
-	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service
-	
 Look into how to save an application in its current state (and to an abitrary file name) so that a user can double click later to come back.
 
 Finish PEER results plotter & data submission tool (when they give us the final files).
-
-Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x). Ned needs to double check these.
 
 Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.  Make a web service?
 
@@ -71,6 +88,8 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 	[	- to encapsulate dependent params
 	]	- to encapsulate dependent params
 	:	- for writing out parameterList (or GuiBean) values (also "----" under these?)
+
+	Check for these in the setName() methods?
 
 	Can we avoid such special character issues using XML representation (for the case where 
 	we read values back in to redo a calculation)?
@@ -85,18 +104,9 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 	object; this info is stored in their dependent parameter list.
 
 
-*****************************************************************
-
 HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  This will take some thought because the present implementation of the GuiBeans are a subclass of ParameterEditor which leads to even worse memory problems for the first attempted solution.  Solve this once we have a better idea of exactly what Caltrans wants.  Perhaps we should merge the two GuiBeans into one?
 
 Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done. **************
-
-Ned needs to think about the following:
-
-	Subduction Interface
-	Subduction IntraSlab
-	Shallow Crustal in Active Tectonic Regions
-	Shallow Crustal in Stable Tectonic Regions
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use LA 3D?
 
@@ -152,5 +162,6 @@ AttenRelApp:
 	(rather than hitting return in the parameter editor) you need to hit add trace again
 	if you accept the value.  Nitin and Vipin say this is a problem with Java (focus at
 	time of exception throwing is lost).
+
 JFreechart problem: If the the upperBound and lowerBound of the axis are the same then JFreechart only adds a small increment to axis range, so because of this in our AttenuationRelaitonshipApp when we choose the BJF attenRel and on Y-Axis choose the Std. Dev. we get same values for all X-values. In other words, our lowerBound and upperBound are the same. JFrechart does provide a method to handle and specify minimum range between the Upperbound and LowerBound of the axis but we can't just add a number to specify the range.
 
