@@ -22,7 +22,7 @@ import org.jfree.data.*;
 import org.scec.data.function.*;
 import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.gui.*;
-import org.scec.gui.plot.LogPlotAPI;
+
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
