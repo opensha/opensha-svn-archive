@@ -966,15 +966,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
      Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
      frankCast.updateForecast();
-     System.out.println("num Sources = "+frankCast.getNumSources());
-     System.out.println("Num ruptures for 0th source = "+frankCast.getSource(0).getNumRuptures());
-
-/*
-     frankCast.updateForecast();
      System.out.println("num sources="+frankCast.getNumSources());
-//     for(int i=0; i<frankCast.getNumSources(); i++)
-//       System.out.println(frankCast.getSource(i).getName());
-
+     for(int i=0; i<frankCast.getNumSources(); i++)
+       System.out.println(frankCast.getSource(i).getName());
+/*
      double totRate=0, totProb=1, prob;
      int i,j, totRup;
      int totSrc= frankCast.getNumSources();
