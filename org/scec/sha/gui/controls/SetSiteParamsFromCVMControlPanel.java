@@ -154,6 +154,8 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
     while(it.hasNext()) {
       ParameterAPI tempParam = (ParameterAPI)it.next();
+      //adding the site Params from the CVM, if site is out the range of CVM then it
+      //sets the site with whatever site Parameter Value user has choosen in the application
       boolean flag = siteTranslator.setParameterValue(tempParam,vs30,basinDepth);
       site.addParameter(tempParam);
     }
