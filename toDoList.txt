@@ -8,7 +8,9 @@ HazardDataSetPlotter:
 
 In the "Plot Prefs" control panel add the ability to add/remove/change axis and plot labels.
 
+Implement color schemes at (including option for the visually impaired):
 
+	http://geography.uoregon.edu/datagraphics/color_scales.htm
 
 In all apps - can we have a bug-reporting via email utility?
 
