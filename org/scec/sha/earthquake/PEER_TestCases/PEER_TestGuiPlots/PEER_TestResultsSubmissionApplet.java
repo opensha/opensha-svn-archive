@@ -16,6 +16,7 @@ import java.lang.RuntimeException;
 import org.scec.data.function.*;
 import org.scec.gui.*;
 import org.scec.gui.plot.*;
+import org.scec.util.ImageUtils;
 
 
 
@@ -57,6 +58,10 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   //flag to check if the file is to be overwritten
   private boolean overwriteFlag=false;
 
+  //images for the OpenSHA
+  private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
+  private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
+
   private boolean isStandalone = false;
   private Border border1;
   private Border border2;
@@ -90,6 +95,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   private JButton deleteFileButton = new JButton();
   private JLabel jLabel7 = new JLabel();
   private JLabel jLabel8 = new JLabel();
+  private JLabel imgLabel = new JLabel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
@@ -131,7 +137,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     border7 = BorderFactory.createEtchedBorder(new Color(248, 254, 255),new Color(121, 124, 136));
     border8 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     border9 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
-    this.setSize(new Dimension(663, 551));
+    this.setSize(new Dimension(704, 550));
     this.getContentPane().setLayout(borderLayout1);
 
     String messageText ="1) Select the test case you would like to submit data for.\n\n"+
@@ -149,7 +155,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     titlePanel.setLayout(gridBagLayout3);
     dataPanel.setBackground(Color.white);
     dataPanel.setBorder(BorderFactory.createEtchedBorder());
-    dataPanel.setLayout(gridBagLayout1);
+    dataPanel.setLayout(gridBagLayout2);
     submitButton.setBackground(new Color(200, 200, 230));
     submitButton.setFont(new java.awt.Font("Dialog", 1, 12));
     submitButton.setForeground(new Color(80, 80, 133));
@@ -207,7 +213,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     jLabel2.setText("Y:");
     deletePanel.setBackground(Color.white);
     deletePanel.setBorder(border9);
-    deletePanel.setLayout(gridBagLayout2);
+    deletePanel.setLayout(gridBagLayout1);
     jLabel5.setFont(new java.awt.Font("Dialog", 1, 16));
     jLabel5.setForeground(new Color(80, 80, 133));
     jLabel5.setHorizontalAlignment(SwingConstants.CENTER);
@@ -235,47 +241,53 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     jLabel8.setFont(new java.awt.Font("Dialog", 1, 12));
     jLabel8.setForeground(new Color(80, 80, 133));
     jLabel8.setText("Select Test Case:");
-    this.getContentPane().add(mainPanel, BorderLayout.CENTER);
-    mainPanel.add(dataPanel,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 1), 0, -3));
+
+    //loading the OpenSHA Logo
+    imgLabel.setText("");
+    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     dataPanel.add(dataSubmLabel,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 33, 0, 23), 146, 16));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 32, 0, 23), 134, 16));
     dataPanel.add(messageTextArea,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 18, 0, 0), -32, 107));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 17, 0, 0), -44, 107));
     dataPanel.add(jLabel4,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 18, 0, 28), 55, 3));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 17, 0, 28), 55, 3));
     dataPanel.add(testComboBox,  new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(28, 11, 0, 0), 20, -1));
-    mainPanel.add(deletePanel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 1, 1), 0, 0));
-    deletePanel.add(jLabel6,   new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 235, 0, 147), 158, 16));
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(29, 11, 0, 0), 8, -1));
     dataPanel.add(submitButton,  new GridBagConstraints(4, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(21, 7, 10, 19), 12, 8));
-    deletePanel.add(jLabel7,      new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 0, 8, 70), 57, 6));
-    deletePanel.add(deleteFileButton,             new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(29, 250, 0, 4), 17, 0));
-    mainPanel.add(titlePanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 1), 0, 0));
-    titlePanel.add(jLabel5,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 40, 5, 88), 83, 16));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(22, 7, 10, 60), 12, 8));
     dataPanel.add(jLabel8,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 18, 0, 0), 50, 13));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 17, 0, 0), 50, 13));
     dataPanel.add(jLabel3,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(16, 18, 31, 0), 25, 12));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(17, 17, 31, 0), 25, 12));
     dataPanel.add(fileNameText,  new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(20, 12, 31, 0), 145, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(21, 12, 31, 0), 133, 4));
     dataPanel.add(jScrollPane2,  new GridBagConstraints(3, 2, 1, 3, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 38, 20, 0), 61, 317));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 38, 20, 0), 70, 316));
     dataPanel.add(jLabel2,  new GridBagConstraints(3, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(34, 39, 0, 25), 23, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(36, 39, 0, 34), 23, 7));
     dataPanel.add(xLabel,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 32, 0, 20), 31, 3));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 32, 0, 29), 31, 3));
     dataPanel.add(jScrollPane1,  new GridBagConstraints(2, 2, 1, 3, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 32, 20, 0), 63, 317));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 32, 20, 0), 72, 316));
+    dataPanel.add(imgLabel,   new GridBagConstraints(4, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(155, 8, 28, 10), 1, 1));
+    mainPanel.add(deletePanel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 1, 0), 0, 0));
     jScrollPane1.getViewport().add(xTextArea, null);
     jScrollPane2.getViewport().add(yTextArea, null);
+    mainPanel.add(dataPanel,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), 0, -1));
+    deletePanel.add(jLabel6,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 236, 0, 191), 158, 16));
+    deletePanel.add(jLabel7,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 0, 9, 178), 57, 6));
+    deletePanel.add(deleteFileButton,  new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(31, 251, 2, 0), 17, 0));
+    mainPanel.add(titlePanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), 0, 0));
+    titlePanel.add(jLabel5,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(3, 41, 1, 132), 83, 16));
+    this.getContentPane().add(mainPanel, BorderLayout.CENTER);
   }
   //Start the applet
   public void start() {
@@ -543,6 +555,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
          openConnection();
     }
   }
+
 
   /**
    * Frame added to show the user that data processing going on
