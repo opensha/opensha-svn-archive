@@ -38,7 +38,7 @@ import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.ERF_List;
 import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
-import org.scec.sha.calc.FractileCurveCalculator;
+import org.scec.calc.FractileCurveCalculator;
 import org.scec.data.Site;
 
 /**

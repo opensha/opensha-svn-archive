@@ -41,7 +41,7 @@ public class DiscretizedFuncList implements NamedObjectAPI{
 
 
     /** List of DiscretizedFuncAPI. This is the internal data storage for the functions. */
-    ArrayList functions = new ArrayList();
+    protected ArrayList functions = new ArrayList();
 
     /** Every function list has a information string that can be used in displays, etc. */
     protected String info = "";
@@ -171,7 +171,10 @@ public class DiscretizedFuncList implements NamedObjectAPI{
      * Removes the function at the specified index
      * @param index
      */
-    public void remove(int index){ functions.remove(index); }
+    public void remove(int index){
+      //System.out.println("Number in list:"+functions.size());
+      functions.remove(index);
+    }
 
     /**
      * Removes the specified function if it exists as determined by equals().

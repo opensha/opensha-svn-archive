@@ -1,4 +1,4 @@
-package org.scec.sha.calc;
+package org.scec.calc;
 
 import org.scec.data.function.DiscretizedFuncList;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
@@ -64,7 +64,6 @@ public class FractileCurveCalculator {
    */
   public void set(DiscretizedFuncList functionList,
                                  ArrayList relativeWts) {
-
 
     // check that number of weights are equal to number of curves give
     if(functionList.size()!=relativeWts.size()) throw new RuntimeException(ERROR_WEIGHTS);
