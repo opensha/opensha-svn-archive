@@ -487,9 +487,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     }
 
     calcProgress = new CalcProgressBar("Setting Gridded Region sites","Starting to get the siteParamters from the CVM");
-    calcProgress.setProgressMessage("Getting Vs30 from the SCEC CVM");
     getVS30FromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
-    calcProgress.setProgressMessage("Getting BasinDepth-2.5 from the SCEC CVM");
     getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
     calcProgress.dispose();
   }

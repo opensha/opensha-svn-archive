@@ -41,9 +41,9 @@ public class ImageViewerWindow extends JFrame {
     this.setTitle(imageFile+" ShakeMap");
     this.getContentPane().setLayout(borderLayout1);
     mapSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    System.out.println("MapInfo :"+mapInfo);
     mapText.setText(mapInfo);
     mapText.setForeground(Color.blue);
+    mapText.setMaximumSize(new Dimension(550, 100));
     mapText.setEditable(false);
     mapText.setSelectedTextColor(new Color(80, 80, 133));
     mapText.setSelectionColor(Color.blue);
