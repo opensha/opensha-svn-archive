@@ -69,7 +69,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
 
     // make the rupture surfaces
     Location loc1, loc2;
-    Iterator it =
+    //Iterator it =
 
     // make the prob qk rupture
     probEqkRupture = new ProbEqkRupture();

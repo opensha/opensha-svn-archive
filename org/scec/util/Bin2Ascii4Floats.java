@@ -21,6 +21,7 @@ public class Bin2Ascii4Floats {
     if(args.length <1)
       System.out.println("Usage : Binary2Ascii <filename>");
     else{
+      int i=0;
       FileWriter fw = null;
       FileInputStream fp =null;
       DataInputStream dis = null;
@@ -28,13 +29,16 @@ public class Bin2Ascii4Floats {
         fw = new FileWriter(args[0]+".asc");
         fp = new FileInputStream(args[0]);
         dis = new DataInputStream(fp);
-        while(dis!=null)
+        while(dis!=null){
           fw.write(dis.readFloat()+"\n");
+          ++i;
+        }
       }catch(IOException e){
         //e.printStackTrace();
         //System.out.println(args[0]);
       }
       finally{
+        System.out.println("Rows: "+i);
         try{
         dis.close();
         fp.close();

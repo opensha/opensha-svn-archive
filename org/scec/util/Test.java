@@ -29,7 +29,7 @@ public class Test {
     while(line !=null || line1 !=null){
       float one  = Float.parseFloat(line);
       float two = Float.parseFloat(line1);
-      if(Math.abs(one - two) > .001)
+      if(Math.abs(one - two) > .0001)
         System.out.println(one + ": "+two);
       line = br.readLine();
       line1 = br1.readLine();
