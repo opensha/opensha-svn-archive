@@ -160,7 +160,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
     double maxX = plotArea.getMaxX();
     double minX = plotArea.getMinX();
     if(axisMin==0.0)
-      axisMin=this.getTickUnit().getSize()/15;//.01;//this.tickUnit.getSize()/3.5;
+      axisMin=getTickUnit().getSize()/15;//.01;//this.tickUnit.getSize()/3.5;
     if(axisMin!=0)
       axisMin = Math.log(axisMin)/LOG10_VALUE;
     axisMax = Math.log(axisMax)/LOG10_VALUE;

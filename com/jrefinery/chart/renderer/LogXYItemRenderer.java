@@ -23,11 +23,7 @@
  * LogXYItemRenderer.java
  * ---------------------------
  *
- *Author : Nitin Gupta and Vipin Gupta
- *
- *
- * $Id$
- *
+ *Original Author : Ned Field, Nitin Gupta and Vipin Gupta
  **/
 
 package com.jrefinery.chart.renderer;
@@ -54,8 +50,14 @@ import com.jrefinery.data.Range;
 
 
 /**
- * Standard item renderer for an XYPlot.  This class can draw (a) shapes at each point, or (b) lines
- * between points, or (c) both shapes and lines.
+ *
+ * <p>Title: LogXYItemRenderer</p>
+ * <p>Description:  Standard item renderer for an XYPlot.  This class can draw
+ * (a) shapes at each point, or
+ * (b) lines between points, or
+ * (c) both shapes and lines.</p>
+ * @author: Ned Field, Nitin Gupta and Vipin Gupta
+ * @version 1.0
  */
 public class LogXYItemRenderer extends StandardXYItemRenderer{
 
