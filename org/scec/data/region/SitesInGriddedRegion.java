@@ -31,6 +31,9 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   //Vs30 and basinDepth Vector
   Vector vs30,basinDepth;
 
+  //Default Vs30( in case of region in water)
+  private double default_Vs30;
+
   //Instance of the site TransLator class
   SiteTranslator siteTranslator = new SiteTranslator();
 
@@ -55,12 +58,11 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    */
   public Site getSite(int index){
      site.setLocation(getGridLocation(index));
-     if(this.setSiteParamsFromCVM)
-       try{
+     if(this.setSiteParamsFromCVM){
+       siteTranslator.DEFAULT_VS30 = default_Vs30;
        siteTranslator.setSiteParams(site,((Double)vs30.get(index)).doubleValue(),
                                     ((Double)basinDepth.get(index)).doubleValue());
-       }catch(Exception e){
-         System.out.println(" Site was in water");
+
        }
      return site;
   }
@@ -125,5 +127,14 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
    this.setSiteParamsFromCVM=cvmFlag;
    this.basinDepth = basinDepth;
    this.vs30 = vs30;
+ }
+
+
+ /**
+  * sets the default vs30 if the site is in water
+  * @param vs30
+  */
+ public void setDefaultVs30(double vs30){
+   default_Vs30= vs30;
  }
 }

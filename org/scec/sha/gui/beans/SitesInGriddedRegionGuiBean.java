@@ -108,6 +108,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     parameterList.addParameter(minLat);
     parameterList.addParameter(maxLat);
     parameterList.addParameter(gridSpacing);
+    defaultVs30.setInfo(this.VS30_DEFAULT_INFO);
     parameterList.addParameter(defaultVs30);
     minLat.addParameterChangeFailListener(this);
     minLon.addParameterChangeFailListener(this);
