@@ -12,20 +12,20 @@
  */
 
 package org.scec.gui.plot.jfreechart;
-import com.jrefinery.data.Range;
+import org.jfree.data.Range;
 import java.awt.Graphics2D;
 import java.awt.geom.*;
 import java.awt.*;
 
-import com.jrefinery.chart.axis.ValueAxis;
-import com.jrefinery.chart.axis.HorizontalNumberAxis;
-import com.jrefinery.chart.axis.VerticalNumberAxis;
-import com.jrefinery.chart.axis.HorizontalAxis;
-import com.jrefinery.chart.axis.VerticalAxis;
-import com.jrefinery.chart.CrosshairInfo;
-import com.jrefinery.chart.ChartRenderingInfo;
-import com.jrefinery.chart.plot.OverlaidXYPlot;
-import com.jrefinery.chart.axis.NumberTickUnit;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.axis.HorizontalNumberAxis;
+import org.jfree.chart.axis.VerticalNumberAxis;
+import org.jfree.chart.axis.HorizontalAxis;
+import org.jfree.chart.axis.VerticalAxis;
+import org.jfree.chart.CrosshairInfo;
+import org.jfree.chart.ChartRenderingInfo;
+import org.jfree.chart.plot.OverlaidXYPlot;
+import org.jfree.chart.axis.NumberTickUnit;
 
 import java.text.DecimalFormat;
 

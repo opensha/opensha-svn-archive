@@ -83,7 +83,7 @@ public class PngEncoder extends Object {
     private int bytePos, maxPos;
 
     /** The header position. */
-    private int hdrPos, dataPos, endPos;
+    private int hdrPos, dataPos; //, endPos;
 
     /** CRC. */
     private CRC32 crc = new CRC32();
@@ -184,14 +184,12 @@ public class PngEncoder extends Object {
      */
     public byte[] pngEncode(boolean encodeAlpha) {
         byte[]  pngIdBytes = { -119, 80, 78, 71, 13, 10, 26, 10 };
-        int     i;
 
         if (image == null) {
             return null;
         }
         width = image.getWidth(null);
         height = image.getHeight(null);
-        this.image = image;
 
         /*
          * start with an array that is big enough to hold all the pixels
@@ -440,7 +438,6 @@ public class PngEncoder extends Object {
         int nBytes = width * bytesPerPixel;
         int leftInsert = offset;
         int leftExtract = 0;
-        byte currentByte;
 
         for (i = actualStart; i < startPos + nBytes; i++) {
             leftBytes[leftInsert] =  pixels[i];
@@ -492,7 +489,7 @@ public class PngEncoder extends Object {
         byte[] compressedLines; // the resultant compressed lines
         int nCompressed;        // how big is the compressed area?
 
-        int depth;              // color depth ( handle only 8 or 32 )
+        //int depth;              // color depth ( handle only 8 or 32 )
 
         PixelGrabber pg;
 

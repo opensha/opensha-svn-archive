@@ -9,10 +9,10 @@ import javax.swing.border.*;
 
 import org.scec.gui.*;
 import org.scec.gui.plot.jfreechart.*;
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.data.*;
-import com.jrefinery.chart.renderer.*;
+import org.jfree.chart.*;
+import org.jfree.chart.tooltips.*;
+import org.jfree.data.*;
+import org.jfree.chart.renderer.*;
 
 
 /**
@@ -35,29 +35,29 @@ public class GriddedFaultPlotter extends ArrayList{
     public final static String X_AXIS_LABEL = "Longitude (deg.)";
     public final static String Y_AXIS_LABEL = "Latitude (deg.)";
 
-    //protected com.jrefinery.chart.NumberAxis xAxis =  new com.jrefinery.chart.HorizontalNumberAxis( X_AXIS_LABEL );
-    //protected com.jrefinery.chart.NumberAxis yAxis =  new com.jrefinery.chart.VerticalNumberAxis( Y_AXIS_LABEL );
+    //protected org.jfree.chart.NumberAxis xAxis =  new org.jfree.chart.HorizontalNumberAxis( X_AXIS_LABEL );
+    //protected org.jfree.chart.NumberAxis yAxis =  new org.jfree.chart.VerticalNumberAxis( Y_AXIS_LABEL );
 
     protected ChartPanel singleChartPanel = null;
     protected ChartPanel multiChartPanel = null;
 
     protected GriddedSubsetXYItemRenderer SUB_SHAPE_RENDERER = new GriddedSubsetXYItemRenderer(
-                com.jrefinery.chart.renderer.StandardXYItemRenderer.SHAPES,
+                org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
                 new StandardXYToolTipGenerator()
     );
 
     protected AdjustableScaleXYItemRenderer SHAPE_RENDERER = new AdjustableScaleXYItemRenderer(
-                com.jrefinery.chart.renderer.StandardXYItemRenderer.SHAPES,
+                org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
                 new StandardXYToolTipGenerator()
     );
 
     protected AdjustableScaleXYItemRenderer SHAPES_AND_LINES_RENDERER = new AdjustableScaleXYItemRenderer(
-                com.jrefinery.chart.renderer.StandardXYItemRenderer.SHAPES_AND_LINES,
+                org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES_AND_LINES,
                 new StandardXYToolTipGenerator()
     );
 
     protected AdjustableScaleXYItemRenderer LINE_RENDERER = new AdjustableScaleXYItemRenderer(
-                com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES,
+                org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
                 new StandardXYToolTipGenerator()
     );
 
@@ -170,8 +170,8 @@ public class GriddedFaultPlotter extends ArrayList{
 
     private ChartPanel createChartWithSingleDataset(String griddedSurfaceName,double gridSpacing ){
 
-        com.jrefinery.chart.axis.NumberAxis xAxis =  new com.jrefinery.chart.axis.HorizontalNumberAxis( X_AXIS_LABEL );
-        com.jrefinery.chart.axis.NumberAxis yAxis =  new com.jrefinery.chart.axis.VerticalNumberAxis( Y_AXIS_LABEL );
+        org.jfree.chart.axis.NumberAxis xAxis =  new org.jfree.chart.axis.HorizontalNumberAxis( X_AXIS_LABEL );
+        org.jfree.chart.axis.NumberAxis yAxis =  new org.jfree.chart.axis.VerticalNumberAxis( Y_AXIS_LABEL );
        // X - Axis
         xAxis.setAutoRangeIncludesZero( false );
 
@@ -218,8 +218,8 @@ public class GriddedFaultPlotter extends ArrayList{
     private ChartPanel createOverlaidChart( String griddedSurfaceName, double gridSpacing) {
 
 
-        com.jrefinery.chart.axis.NumberAxis xAxis =  new com.jrefinery.chart.axis.HorizontalNumberAxis( X_AXIS_LABEL );
-        com.jrefinery.chart.axis.NumberAxis yAxis =  new com.jrefinery.chart.axis.VerticalNumberAxis( Y_AXIS_LABEL );
+        org.jfree.chart.axis.NumberAxis xAxis =  new org.jfree.chart.axis.HorizontalNumberAxis( X_AXIS_LABEL );
+        org.jfree.chart.axis.NumberAxis yAxis =  new org.jfree.chart.axis.VerticalNumberAxis( Y_AXIS_LABEL );
       // X - Axis
         xAxis.setAutoRangeIncludesZero( false );
 

@@ -1,8 +1,8 @@
 package org.scec.gui;
 
-import com.jrefinery.chart.renderer.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.chart.plot.Plot;
+import org.jfree.chart.renderer.*;
+import org.jfree.chart.tooltips.*;
+import org.jfree.chart.plot.Plot;
 
 /**
  * <p>Title: AdjustableScaleXYItemRenderer</p>

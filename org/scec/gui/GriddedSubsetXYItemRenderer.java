@@ -1,7 +1,7 @@
 package org.scec.gui;
 
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.tooltips.*;
+import org.jfree.chart.*;
+import org.jfree.chart.tooltips.*;
 
 
 import java.awt.Graphics2D;
@@ -14,14 +14,14 @@ import java.awt.image.ImageObserver;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
-import com.jrefinery.data.XYDataset;
-import com.jrefinery.chart.entity.EntityCollection;
-import com.jrefinery.chart.entity.XYItemEntity;
-import com.jrefinery.chart.tooltips.XYToolTipGenerator;
-import com.jrefinery.chart.tooltips.StandardXYToolTipGenerator;
-import com.jrefinery.chart.plot.Plot;
-import com.jrefinery.chart.plot.XYPlot;
-import com.jrefinery.chart.axis.ValueAxis;
+import org.jfree.data.XYDataset;
+import org.jfree.chart.entity.EntityCollection;
+import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.tooltips.XYToolTipGenerator;
+import org.jfree.chart.tooltips.StandardXYToolTipGenerator;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.axis.ValueAxis;
 
 /**
  * <p>Title: GriddedSubsetXYItemRenderer</p>

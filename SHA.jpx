@@ -60,7 +60,6 @@
   <property category="sys"
     name="uidesign.size.org.scec.sha.magdist.gui.MagFreqDistTesterApplet" value="690,320"/>
   <property category="sys" name="warn.auto.packages" value="false"/>
-  <property category="team" name="ignorePath.0" value="com"/>
   <property category="team" name="ignorePath.1" value="classes"/>
   <property category="team" name="ignorePath.10" value=".DS_Store"/>
   <property category="team" name="ignorePath.11" value="Psha.jpx"/>

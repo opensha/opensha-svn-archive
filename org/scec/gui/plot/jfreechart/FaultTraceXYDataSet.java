@@ -3,7 +3,7 @@ package org.scec.gui.plot.jfreechart;
 import java.text.*;
 import java.util.*;
 
-import com.jrefinery.data.*;
+import org.jfree.data.*;
 import org.scec.data.*;
 import org.scec.sha.fault.*;
 import org.scec.util.*;

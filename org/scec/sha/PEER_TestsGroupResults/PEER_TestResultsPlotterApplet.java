@@ -15,11 +15,11 @@ import java.io.*;
 
 
 
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.renderer.*;
-import com.jrefinery.chart.axis.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.data.*;
+import org.jfree.chart.*;
+import org.jfree.chart.renderer.*;
+import org.jfree.chart.axis.*;
+import org.jfree.chart.tooltips.*;
+import org.jfree.data.*;
 
 
 import org.scec.data.function.*;
@@ -100,8 +100,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
 
   // Create the x-axis and y-axis - either normal or log
-  com.jrefinery.chart.axis.NumberAxis xAxis = null;
-  com.jrefinery.chart.axis.NumberAxis yAxis = null;
+  org.jfree.chart.axis.NumberAxis xAxis = null;
+  org.jfree.chart.axis.NumberAxis yAxis = null;
 
 
   /**
@@ -622,7 +622,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       yAxis.setStandardTickUnits(units);
       yAxis.setTickMarksVisible(false);
 
-      int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
+      int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
 
       LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator());
@@ -635,8 +635,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
         }
       data.setFunctions(plotFunctions);
       // build the plot
-      com.jrefinery.chart.plot.LogXYPlot plot
-          = new com.jrefinery.chart.plot.LogXYPlot(this,data,
+      org.jfree.chart.plot.LogXYPlot plot
+          = new org.jfree.chart.plot.LogXYPlot(this,data,
                                        xAxis, yAxis, xLog, yLog);
 
 

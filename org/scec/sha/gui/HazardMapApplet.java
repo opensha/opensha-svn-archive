@@ -12,10 +12,10 @@ import java.io.*;
 
 
 
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.axis.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.data.*;
+import org.jfree.chart.*;
+import org.jfree.chart.axis.*;
+import org.jfree.chart.tooltips.*;
+import org.jfree.data.*;
 
 
 import org.scec.data.function.*;

@@ -11,11 +11,11 @@ import java.io.*;
 
 
 
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.axis.*;
-import com.jrefinery.chart.renderer.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.data.*;
+import org.jfree.chart.*;
+import org.jfree.chart.axis.*;
+import org.jfree.chart.renderer.*;
+import org.jfree.chart.tooltips.*;
+import org.jfree.data.*;
 
 import org.scec.param.event.*;
 import org.scec.param.*;
@@ -1222,7 +1222,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
 
 
-      int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
+      int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
 
       LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
@@ -1231,7 +1231,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
       // build the plot
 
-      com.jrefinery.chart.plot.LogXYPlot plot = new com.jrefinery.chart.plot.LogXYPlot(this.totalData, xAxis, yAxis, renderer);
+      org.jfree.chart.plot.LogXYPlot plot = new org.jfree.chart.plot.LogXYPlot(this.totalData, xAxis, yAxis, renderer);
       plot.setBackgroundAlpha( .8f );
       plot.setDomainCrosshairLockedOnData(false);
       plot.setDomainCrosshairVisible(false);

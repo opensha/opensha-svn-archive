@@ -11,10 +11,10 @@ import java.net.*;
 
 
 
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.axis.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.data.*;
+import org.jfree.chart.*;
+import org.jfree.chart.axis.*;
+import org.jfree.chart.tooltips.*;
+import org.jfree.data.*;
 
 
 import org.scec.data.function.*;
@@ -148,8 +148,8 @@ public class HazardCurveApplet extends JApplet
                                .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
 
   // Create the x-axis and y-axis - either normal or log
-  private com.jrefinery.chart.axis.NumberAxis xAxis = null;
-  private com.jrefinery.chart.axis.NumberAxis yAxis = null;
+  private org.jfree.chart.axis.NumberAxis xAxis = null;
+  private org.jfree.chart.axis.NumberAxis yAxis = null;
 
 
   // variable needed for plotting Epistemic list
@@ -544,11 +544,11 @@ public class HazardCurveApplet extends JApplet
       yAxis.setStandardTickUnits(units);
       yAxis.setTickMarksVisible(false);
 
-      int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
+      int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
 
-      com.jrefinery.chart.renderer.LogXYItemRenderer renderer
-          = new com.jrefinery.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+      org.jfree.chart.renderer.LogXYItemRenderer renderer
+          = new org.jfree.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
       // draw all plots in black color for Eqk List
       if(this.isEqkList) {
@@ -583,7 +583,7 @@ public class HazardCurveApplet extends JApplet
         }
 
       // build the plot
-      com.jrefinery.chart.plot.LogXYPlot plot = new com.jrefinery.chart.plot.LogXYPlot(this,data,
+      org.jfree.chart.plot.LogXYPlot plot = new org.jfree.chart.plot.LogXYPlot(this,data,
                                        xAxis, yAxis, xLog, yLog);
 
       plot.setDomainCrosshairLockedOnData(false);

@@ -1,12 +1,12 @@
 package org.scec.gui;
 
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.event.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.data.*;
-import com.jrefinery.chart.plot.*;
-import com.jrefinery.chart.axis.*;
-import com.jrefinery.chart.renderer.*;
+import org.jfree.chart.*;
+import org.jfree.chart.event.*;
+import org.jfree.chart.tooltips.*;
+import org.jfree.data.*;
+import org.jfree.chart.plot.*;
+import org.jfree.chart.axis.*;
+import org.jfree.chart.renderer.*;
 
 import java.awt.*;
 import java.awt.geom.*;

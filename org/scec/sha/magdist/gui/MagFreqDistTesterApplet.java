@@ -9,10 +9,10 @@ import javax.swing.border.*;
 import javax.swing.text.*;
 
 
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.axis.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.data.*;
+import org.jfree.chart.*;
+import org.jfree.chart.axis.*;
+import org.jfree.chart.tooltips.*;
+import org.jfree.data.*;
 
 
 import org.scec.gui.*;
@@ -86,15 +86,15 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
   // Create the x-axis - either normal or log
-   com.jrefinery.chart.axis.NumberAxis incrXAxis = null;
-   com.jrefinery.chart.axis.NumberAxis cumXAxis = null;
-   com.jrefinery.chart.axis.NumberAxis moXAxis = null;
+   org.jfree.chart.axis.NumberAxis incrXAxis = null;
+   org.jfree.chart.axis.NumberAxis cumXAxis = null;
+   org.jfree.chart.axis.NumberAxis moXAxis = null;
    private double AUTO_RANGE_MINIMUM_SIZE = 1e-100;
 
   //Create the y-axis - either normal or log
-   com.jrefinery.chart.axis.NumberAxis incrYAxis = null;
-   com.jrefinery.chart.axis.NumberAxis cumYAxis = null;
-   com.jrefinery.chart.axis.NumberAxis moYAxis = null;
+   org.jfree.chart.axis.NumberAxis incrYAxis = null;
+   org.jfree.chart.axis.NumberAxis cumYAxis = null;
+   org.jfree.chart.axis.NumberAxis moYAxis = null;
 
 
    private double xIncrMin,xIncrMax,yIncrMin,yIncrMax;
@@ -835,9 +835,9 @@ public class MagFreqDistTesterApplet extends JApplet
         moXAxis.setTickMarksVisible(false);
 
         if (yLog)  {
-          incrYAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis(incrYAxisLabel);
-          cumYAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis(cumYAxisLabel);
-          moYAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis(moYAxisLabel);
+          incrYAxis = new org.jfree.chart.axis.VerticalLogarithmicAxis(incrYAxisLabel);
+          cumYAxis = new org.jfree.chart.axis.VerticalLogarithmicAxis(cumYAxisLabel);
+          moYAxis = new org.jfree.chart.axis.VerticalLogarithmicAxis(moYAxisLabel);
         }
         else {
           incrYAxis = new VerticalNumberAxis(incrYAxisLabel);
@@ -871,10 +871,10 @@ public class MagFreqDistTesterApplet extends JApplet
         moYAxis.setTickMarksVisible(false);
 
 
-        int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
+        int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
-        com.jrefinery.chart.renderer.LogXYItemRenderer renderer =
-            new com.jrefinery.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+        org.jfree.chart.renderer.LogXYItemRenderer renderer =
+            new org.jfree.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
         if(this.incrCustomAxis) {
@@ -892,9 +892,9 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
         // build the plot
-        com.jrefinery.chart.plot.LogXYPlot incrPlot = new com.jrefinery.chart.plot.LogXYPlot(this,incrData, incrXAxis, incrYAxis, false, yLog);
-        com.jrefinery.chart.plot.LogXYPlot cumPlot = new com.jrefinery.chart.plot.LogXYPlot(this,toCumData, cumXAxis, cumYAxis, false, yLog);
-        com.jrefinery.chart.plot.LogXYPlot moPlot = new com.jrefinery.chart.plot.LogXYPlot(this,toMoData, moXAxis, moYAxis, false, yLog);
+        org.jfree.chart.plot.LogXYPlot incrPlot = new org.jfree.chart.plot.LogXYPlot(this,incrData, incrXAxis, incrYAxis, false, yLog);
+        org.jfree.chart.plot.LogXYPlot cumPlot = new org.jfree.chart.plot.LogXYPlot(this,toCumData, cumXAxis, cumYAxis, false, yLog);
+        org.jfree.chart.plot.LogXYPlot moPlot = new org.jfree.chart.plot.LogXYPlot(this,toMoData, moXAxis, moYAxis, false, yLog);
 
 
         incrPlot.setBackgroundAlpha( .8f );

@@ -5,8 +5,8 @@ import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.util.*;
 
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.tooltips.*;
+import org.jfree.chart.*;
+import org.jfree.chart.tooltips.*;
 
 import java.awt.*;
 import java.awt.event.*;
