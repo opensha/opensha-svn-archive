@@ -886,6 +886,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     sitePanel.add(siteEditor,BorderLayout.CENTER);
     validate();
     repaint();
+    JOptionPane.showMessageDialog(this,"We have got the Vs30 from server located at USC");
 
    }catch (NumberFormatException ex) {
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
@@ -1185,7 +1186,73 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     * @param e
     */
   void jCheckBasin_actionPerformed(ActionEvent e) {
+    // if the check box to get Vs30 from servlet is unselected
+    if(!this.jCheckBasin.isSelected())
+       return;
 
+    // if we want to the paramter from the servlet
+    try{
+
+    // make connection with servlet
+     URL velocityServlet = new URL("http://scec.usc.edu:9999/examples/servlet/BasinDepthServlet");
+     URLConnection servletConnection = velocityServlet.openConnection();
+
+     servletConnection.setDoOutput(true);
+
+     // Don't use a cached version of URL connection.
+     servletConnection.setUseCaches (false);
+     servletConnection.setDefaultUseCaches (false);
+
+     // Specify the content type that we will send binary data
+     servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
+
+     // send the student object to the servlet using serialization
+     ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
+
+   // give latitude and longitude to the servlet
+     Double longitude_value = (Double)siteParamList.getParameter(LONGITUDE).getValue();
+     Double latitude_value = (Double)siteParamList.getParameter(LATITUDE).getValue();
+
+     // if values in longitude and latitude are invalid
+     if(longitude_value == null || latitude_value == null) {
+       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
+       this.jCheckBasin.setSelected(false);
+       return;
+     }
+     outputToServlet.writeObject(longitude_value);
+     outputToServlet.writeObject(latitude_value);
+     outputToServlet.flush();
+     outputToServlet.close();
+
+  // now read the connection again to get the vs30 as sent by the servlet
+    ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
+    Double basinDepth=(Double)ois.readObject();
+    ois.close();
+
+    // print th basin depth
+    if (D) System.out.println("Basin Depth is:"+basinDepth.doubleValue());
+
+    //truncate the value got from servlet to 2 digits after decimal point
+    // also convert to kms
+    String strBasin = new String(""+basinDepth.doubleValue()/1000);
+    strBasin = strBasin.substring(0,4);
+
+    siteParamList.getParameter(this.BASIN_DEPTH_STRING).setValue(new Double(strBasin));
+
+    // refresh the panel with the value
+    sitePanel.removeAll();
+    this.siteEditor = new ParameterListEditor(siteParamList, this, this);
+    siteEditor.setTitle(SITE_PARAMS);
+    sitePanel.add(siteEditor,BorderLayout.CENTER);
+    validate();
+    repaint();
+    JOptionPane.showMessageDialog(this,"We have got the Basin Depth from server located at USC");
+
+   }catch (NumberFormatException ex) {
+      JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
+   }catch (Exception exception) {
+     System.out.println("Exception in connection with servlet:" +exception);
+   }
   }
 
 }
