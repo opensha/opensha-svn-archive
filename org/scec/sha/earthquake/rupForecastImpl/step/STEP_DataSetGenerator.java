@@ -187,7 +187,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    */
   private void createFile(Vector probVals, String fileName){
     int size = probVals.size();
-    System.out.println("Size of the Prob Vector is:"+size);
+   // System.out.println("Size of the Prob Vector is:"+size);
     try{
       FileWriter fr = new FileWriter(fileName);
       for(int i=0;i<size;++i)
@@ -273,10 +273,8 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       //adding the VS30 value for each site
       double vs30 = ((Double)vs30Vals.get(j)).doubleValue();
       //only add the vs30 value if it not a Double.NaN otherwise the default value which is 760m/s .
-      if(!(Double.isNaN(vs30))){
-        System.out.println("vs30: "+vs30);
+      if(!(Double.isNaN(vs30)))
         imr.getSite().getParameter(imr.VS30_NAME).setValue(vs30Vals.get(j));
-      }
       // loop over sources
       for(i=0;i < numSources ;i++) {
 
