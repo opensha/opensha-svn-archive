@@ -153,11 +153,11 @@ public class HazardMapApplet extends JApplet
   private JLabel emailLabel = new JLabel();
   private JLabel datasetLabel = new JLabel();
   private JTextField emailText = new JTextField();
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
 
   //Maximum source site Distance
   private Double maxDistance;
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
   //Construct the applet
   public HazardMapApplet() {
@@ -192,7 +192,7 @@ public class HazardMapApplet extends JApplet
   //Component initialization
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
-    this.setSize(new Dimension(564, 777));
+    this.setSize(new Dimension(564, 834));
     this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(border1);
     mainPanel.setLayout(gridBagLayout6);
@@ -224,23 +224,25 @@ public class HazardMapApplet extends JApplet
     emailLabel.setText("Email:");
     datasetLabel.setText("Dataset Id:");
     emailText.setText("");
+    dataPanel.setMinimumSize(new Dimension(548, 150));
+    dataPanel.setPreferredSize(new Dimension(549, 150));
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 431));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     buttonPanel.add(dataPanel, BorderLayout.CENTER);
-    dataPanel.add(controlComboBox,  new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(18, 48, 0, 24), 37, 2));
-    dataPanel.add(addButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 51, 30, 24), 80, 12));
-    dataPanel.add(emailText,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(24, 19, 0, 0), 160, 7));
-    dataPanel.add(emailLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(18, 7, 0, 14), 43, 12));
     dataPanel.add(datasetIdText,  new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(14, 19, 42, 0), 163, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(34, 19, 81, 0), 162, 7));
     dataPanel.add(datasetLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 7, 42, 0), 28, 10));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(34, 7, 81, 0), 28, 10));
+    dataPanel.add(emailText,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(43, 19, 0, 0), 162, 7));
+    dataPanel.add(controlComboBox,  new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(43, 48, 0, 24), 35, 2));
+    dataPanel.add(emailLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(43, 7, 0, 15), 43, 12));
+    dataPanel.add(addButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 51, 81, 24), 79, 12));
     buttonPanel.add(imgPanel, BorderLayout.SOUTH);
     imgPanel.add(imgLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 235, 3, 246), 57, 28));
@@ -252,7 +254,7 @@ public class HazardMapApplet extends JApplet
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab( "Earthquake Rupture Forecast", eqkRupPanel );
     parameterTabbedPanel.addTab("Time Span", timespanPanel);
-    mainSplitPane.setDividerLocation(580);
+    mainSplitPane.setDividerLocation(550);
     imr_IMTSplit.setDividerLocation(300);
     imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
