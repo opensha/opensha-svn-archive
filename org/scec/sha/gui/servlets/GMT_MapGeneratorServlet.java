@@ -6,7 +6,8 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.ArrayList;
 
-import org.scec.mapping.gmtWrapper.*;
+import org.scec.mapping.gmtWrapper.RunScript;
+import org.scec.mapping.gmtWrapper.GMT_MapGenerator;
 
 /**
  * <p>Title: GMT_MapGeneratorServlet </p>
@@ -20,7 +21,7 @@ import org.scec.mapping.gmtWrapper.*;
 
 public class GMT_MapGeneratorServlet extends HttpServlet {
 
-  private static final String IMAGE_URL_PATH="http://scec.usc.edu:9999/";
+  private static final String IMAGE_URL_PATH="http://scec.usc.edu:9999/scenariomapimagefiles/";
   //Process the HTTP Get request
  public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
@@ -45,6 +46,7 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
        fileWriter.write("\n");
      }
 
+     fileWriter.close();
      //jpg image name returned back by the gmt
      String imgName=gmtMapInfo.makeMap(fileName);
 
@@ -55,7 +57,7 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
      fileName = fileName.substring(0,fileName.indexOf("."));
      command[2] = "mv "+fileName+".ps webpages/scenariomapimagefiles/";
      RunScript.runScript(command);
-     command[2] = "mv "+fileName+" webpages/scenariomapimagefiles/";
+     command[2] = "mv "+fileName+".jpg webpages/scenariomapimagefiles/";
      RunScript.runScript(command);
      // remove the temporary files created
      command[2]="rm "+fileName+".grd";
@@ -70,7 +72,6 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
      RunScript.runScript(command);
      command[2]="rm "+fileName+"Inten.grd";
      RunScript.runScript(command);
-
 
 
      // report to the user whether the operation was successful or not
