@@ -130,6 +130,7 @@ public final class GaussianDistCalc {
         double prob = 100;
 
 	if( exceedProb <= 0.5 && exceedProb >= 0.0 ) {
+                oldNum = -2;    // less than zero in  case one sided with trunc-level=0
 		do {
 			testNum = oldNum;
 			do {
@@ -146,6 +147,7 @@ public final class GaussianDistCalc {
 	        return testNum;
         }
 	else if ( exceedProb <= 1.0 ) {
+                oldNum=0;
 		do {
 			testNum = oldNum;
 			do {
