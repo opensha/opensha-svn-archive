@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.net.URL;
+import java.lang.reflect.*;
 
 import org.scec.param.*;
 import org.scec.util.*;
@@ -68,12 +69,10 @@ import org.scec.param.event.ParameterChangeEvent;
    *
    * No argument constructor
    */
-  public STEP_EqkRupForecast() {
+  public STEP_EqkRupForecast() throws Exception{
 
     // read the lines of the input files into a list
-    try{ inputFileLines = FileUtils.loadFile( new URL(INPUT_FILE_NAME) ); }
-    catch( FileNotFoundException e){ System.out.println(e.toString()); }
-    catch( IOException e){ System.out.println(e.toString());}
+    inputFileLines = FileUtils.loadFile( new URL(INPUT_FILE_NAME) );
 
     // Create the timeSpan & set its constraints
     StringTokenizer st = new StringTokenizer(inputFileLines.get(0).toString());
@@ -247,7 +246,7 @@ import org.scec.param.event.ParameterChangeEvent;
 
 
    // this is temporary for testing purposes
-   public static void main(String[] args) {
+   public static void main(String[] args) throws Exception{
 
      STEP_EqkRupForecast forecast = new STEP_EqkRupForecast();
      System.out.println("startTimeFromCal:\n " + forecast.getTimeSpan().getStartTimeCalendar().toString());

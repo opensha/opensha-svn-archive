@@ -163,8 +163,14 @@ public class HazardMapApplet extends JApplet implements
       initIMR_GuiBean();
       initIMT_GuiBean();
       initSiteGuiBean();
-      initERF_GuiBean();
-      initTimeSpanGuiBean();
+      try{
+        initERF_GuiBean();
+        initTimeSpanGuiBean();
+      }catch(RuntimeException e){
+      JOptionPane.showMessageDialog(this,"Connection to ERF servlets failed","Internet Connection Problem",
+                                    JOptionPane.OK_OPTION);
+      System.exit(0);
+      }
 
     }
     catch(Exception e) {
@@ -527,7 +533,11 @@ public class HazardMapApplet extends JApplet implements
   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-  erfGuiBean = new ERF_GuiBean(erf_Classes);
+  try{
+    erfGuiBean = new ERF_GuiBean(erf_Classes);
+  }catch(Exception e){
+    throw new RuntimeException("Connection to ERF servlets failed");
+  }
   erfPanel.setLayout(gridBagLayout5);
   erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));

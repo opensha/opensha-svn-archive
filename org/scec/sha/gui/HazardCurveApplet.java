@@ -8,6 +8,7 @@ import javax.swing.border.*;
 import java.util.Vector;
 import java.util.Iterator;
 import java.net.*;
+import java.lang.reflect.InvocationTargetException;
 
 
 
@@ -315,9 +316,14 @@ public class HazardCurveApplet extends JApplet
       initIMR_GuiBean();
       initIMT_GuiBean();
       initSiteGuiBean();
-      initERF_GuiBean();
-      initTimeSpanGuiBean();
-
+      try{
+        initERF_GuiBean();
+        initTimeSpanGuiBean();
+      }catch(RuntimeException e){
+      JOptionPane.showMessageDialog(this,"Connection to ERF servlets failed","Internet Connection Problem",
+                                    JOptionPane.OK_OPTION);
+      System.exit(0);
+      }
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -1224,10 +1230,14 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-//   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
-   erfGuiBean = new ERF_GuiBean(erf_Classes);
+   try{
+     erfGuiBean = new ERF_GuiBean(erf_Classes);
+   }catch(InvocationTargetException e){
+     throw new RuntimeException("Connection to ERF servlets failed");
+   }
    erfPanel.setLayout(gridBagLayout5);
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));

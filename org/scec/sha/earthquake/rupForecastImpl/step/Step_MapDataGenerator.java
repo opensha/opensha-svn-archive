@@ -2,6 +2,7 @@ package org.scec.sha.earthquake.rupForecastImpl.step;
 
 import javax.swing.JOptionPane;
 import java.util.Calendar;
+import java.lang.reflect.*;
 
 import org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast;
 import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
@@ -42,7 +43,12 @@ public class Step_MapDataGenerator implements ParameterChangeWarningListener{
 
   public Step_MapDataGenerator() {
     // make the forecast
-    STEP_EqkRupForecast forecast = new STEP_EqkRupForecast();
+    STEP_EqkRupForecast forecast=null;
+    try{
+      forecast = new STEP_EqkRupForecast();
+    }catch(Exception e){
+      System.out.println("No internet connection available");
+    }
     forecast.updateForecast();
     // make the imr
     ShakeMap_2003_AttenRel imr = new ShakeMap_2003_AttenRel(this);

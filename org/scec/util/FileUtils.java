@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.lang.reflect.*;
 
 /**
  * <b>Title:</b>FileUtils<p>
@@ -92,9 +93,8 @@ public class FileUtils {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public static ArrayList loadFile(URL url)
-        throws  FileNotFoundException, IOException {
-      try {
+    public static ArrayList loadFile(URL url) throws Exception {
+
         URLConnection uc = url.openConnection();
         ArrayList list = new ArrayList();
         BufferedReader tis =
@@ -106,11 +106,6 @@ public class FileUtils {
         }
         tis.close();
         return list;
-      }
-      catch (Exception e) {
-        e.printStackTrace(System.err);
-      }
-     return null;
     }
 
 

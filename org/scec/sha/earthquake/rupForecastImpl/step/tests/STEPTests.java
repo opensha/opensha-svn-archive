@@ -30,11 +30,11 @@ import org.scec.data.*;
  * @version 1.0
  */
 
-public class STEPTests extends TestCase 
+public class STEPTests extends TestCase
 {
     public STEPTests(String s) {
     super(s);
- 
+
   }
 
   protected void setUp() {
@@ -43,13 +43,19 @@ public class STEPTests extends TestCase
   protected void tearDown() {
   }
 
-  public void testEqualsLocation() 
+  public void testEqualsLocation()
   {
 
-     STEP_EqkRupForecast forecast = new STEP_EqkRupForecast();
+    // make the forecast
+    STEP_EqkRupForecast forecast=null;
+    try{
+      forecast = new STEP_EqkRupForecast();
+    }catch(Exception e){
+      System.out.println("No internet connection available");
+    }
      String result = "java.util.GregorianCalendar[time=?,areFieldsSet=false,areAllFieldsSet=true,lenient=false,zone=sun.util.calendar.ZoneInfo[id=\"America/Los_Angeles\",offset=-28800000,dstSavings=3600000,useDaylight=true,transitions=185,lastRule=java.util.SimpleTimeZone[id=America/Los_Angeles,offset=-28800000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=3,startMonth=3,startDay=1,startDayOfWeek=1,startTime=7200000,startTimeMode=0,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=7200000,endTimeMode=0]],firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=1,YEAR=2003,MONTH=4,WEEK_OF_YEAR=19,WEEK_OF_MONTH=2,DAY_OF_MONTH=5,DAY_OF_YEAR=125,DAY_OF_WEEK=2,DAY_OF_WEEK_IN_MONTH=1,AM_PM=1,HOUR=4,HOUR_OF_DAY=16,MINUTE=2,SECOND=58,MILLISECOND=0,ZONE_OFFSET=-28800000,DST_OFFSET=3600000]";
      //
-     // Return value includes a current time value. Substring prior to that to test the non-changing portion of the result, 
+     // Return value includes a current time value. Substring prior to that to test the non-changing portion of the result,
      // arbitrarily identified as the first 100 characters.
      assertEquals("Time doesn't match:",result.substring(0,100),forecast.getTimeSpan().getStartTimeCalendar().toString().substring(0,100));
      assertTrue("Duration in Forecast:" + forecast.getTimeSpan().getDuration(),1.0==forecast.getTimeSpan().getDuration());
@@ -65,12 +71,12 @@ public class STEPTests extends TestCase
      assertEquals("Number of Ruptures",41,qkSrc.getNumRuptures());
 
      double duration = qkSrc.getDuration();
-     
-     for(int i=0;i<qkSrc.getNumRuptures();i++) 
+
+     for(int i=0;i<qkSrc.getNumRuptures();i++)
      {
        rup = qkSrc.getRupture(i);
        Location loc = (Location) rup.getRuptureSurface().get(0,0);
-       if(i==0) 
+       if(i==0)
        {
          assertTrue("First Rupture Lat/Long Check:" + loc.getLongitude() + " " +
            loc.getLatitude() ,(-116.325==loc.getLongitude()) && (36.525 == loc.getLatitude()));
@@ -87,11 +93,11 @@ public class STEPTests extends TestCase
      assertEquals("Known number of ruptures:",41,qkSrc.getNumRuptures());
      duration = qkSrc.getDuration();
      assertTrue("Know duration:" + duration,1.0==duration);
-     for(int i=0;i<qkSrc.getNumRuptures();i++) 
+     for(int i=0;i<qkSrc.getNumRuptures();i++)
      {
        rup = qkSrc.getRupture(i);
        Location loc = (Location) rup.getRuptureSurface().get(0,0);
-       if(i==0) 
+       if(i==0)
        {
          assertTrue("Last Source:\n" + loc.getLongitude()+"  "+loc.getLatitude(),((-116.825==loc.getLongitude()) && (34.275==loc.getLatitude())));
        }
@@ -102,10 +108,10 @@ public class STEPTests extends TestCase
        assertTrue("Mag greater than 1.0",(float)rup.getMag() > 0);
     }
   }
-  
-  
-  public static void main(String args[]) 
+
+
+  public static void main(String args[])
   {
         junit.swingui.TestRunner.run(STEPTests.class);
-  }  
+  }
 }
