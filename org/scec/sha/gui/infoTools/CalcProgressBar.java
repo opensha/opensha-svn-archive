@@ -36,7 +36,6 @@ public class CalcProgressBar extends JFrame {
    */
   public CalcProgressBar(String frameMsg,String labelMsg){
     progress= new JProgressBar(0,100);
-
     //progress frame title
     frameMessage=frameMsg;
     label = new JLabel(labelMsg);
