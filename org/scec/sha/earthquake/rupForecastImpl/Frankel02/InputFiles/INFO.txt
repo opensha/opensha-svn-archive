@@ -4,9 +4,11 @@ These input files came from the directory:
 
 on Ned Field's computer (these were originally sent from Cao of the CGS, and everything up through the attenuation relationship stuff was cut from the beginning of each file).  Some other minor changes were made as noted in the above directory.  Some extra blank lines at the end of some of the files also had to be removed.
 
-Only fault files are included so far (used in haxFXv3 and haxFXv3a)
 
-The elements of each fault file are as follows.
+FILES FOR: haxFXv3 (and haxFXv3a):
+----------------------------------
+
+The elements of each fault file are as follows:
 
 For each fault source:
 
@@ -57,6 +59,39 @@ NOTES:
 1) It would be better to list the actual rake rather than "SS", "R", and "N", but I didn't have time to hand edit whether "SS" was rake=0 or rake=180.
 
 2) It would be better (more physical; less model dependent) to list the momentRate rather than charRate.
+
+
+FILES FOR: hazgridXv3:
+----------------------
+
+Notes:
+
+	1) the files for cadeepAB and cadeepY are identical 
+	   (originals differed only in the attenuation relations applied).
+
+	2) All other pairs of similarly named files only differ in the max-mag (4th column).
+
+The format of these files is as follows:
+
+	line1: bval, magmin, magmax, dmag, magref
+
+	line2:
+
+		element1:	if = 0 treat fault as point source
+				if = 1 finite fault for M>6 and random strike
+				if = 2 finite fault with fixed strike (on next line)
+		element2:	if = 0 no location specific b-values
+				if = 1 location specific b-values (never occurs)
+		element3	if = 0 no location specific Mmax
+				if = 1 location specific Mmax (in column after a-value)
+
+	line3:  fixed strike if element1 above = 2 (otherwise this line is as below)
+
+	all other lines are:
+ 
+		lon	lat	aValue	Mmax(if used)
+
+aValues are all incremental rates (at zero mag?), although their input file can designate these as cumulative (this option is not used in any of the files I've seen).
 
 
 

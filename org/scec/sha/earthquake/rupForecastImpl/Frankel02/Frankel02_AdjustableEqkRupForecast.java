@@ -122,8 +122,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   ArrayList faultFileNamesStrings = new ArrayList();
   StringParameter faultFileParam;
 
-  ArrayList tempList = new ArrayList();
-
   /**
    *
    * No argument constructor
@@ -257,7 +255,19 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 //    String tempName = (String)faultFileParam.getValue();
 //    makeGridSources(tempName,1.0,null,0.0);
 
-/**/
+
+    makeGridSources("CAmapC_OpenSHA", 0.667, "CAmapG_OpenSHA", 0.333);
+    makeGridSources("EXTmapC_OpenSHA", 0.5, "EXTmapGW_OpenSHA", 0.5);
+    makeGridSources("WUSmapC_OpenSHA", 0.5, "WUSmapG_OpenSHA", 0.5);
+    makeGridSources("brawmap_OpenSHA", 1.0, null, 0.0);
+    makeGridSources("cadeepAB_OpenSHA", 1.0, null, 0.0); // this file is identical to cadeepY_OpenSHA"
+    makeGridSources("creepmap_OpenSHA", 1.0, null, 0.0);
+    makeGridSources("shear1_OpenSHA", 1.0, null, 0.0);
+    makeGridSources("shear2_OpenSHA", 1.0, null, 0.0);
+    makeGridSources("shear3_OpenSHA", 1.0, null, 0.0);
+    makeGridSources("shear4_OpenSHA", 1.0, null, 0.0);
+
+/*
     makeGridSources("CAmapC_OpenSHA", 0.667, null, 0.0);
     makeGridSources("CAmapG_OpenSHA", 0.333, null, 0.0);
     makeGridSources("EXTmapC_OpenSHA", 0.5, null, 0.0);
@@ -272,8 +282,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     makeGridSources("shear2_OpenSHA", 1.0, null, 1.0);
     makeGridSources("shear3_OpenSHA", 1.0, null, 1.0);
     makeGridSources("shear4_OpenSHA", 1.0, null, 1.0);
-
-
+*/
   }
 
 
@@ -828,36 +837,16 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   }
 
 
-  /**
-   *
-   */
-  private void makeGridSources2(String fileName1, double wt1, String fileName2, double wt2) {
-
-    // Debuggin stuff
-    String S = C + ": makeGridSources(): ";
-
-    // read the lines of the 1st input file into a list
-    ArrayList inputGridFileLines1=null;
-    try{ inputGridFileLines1 = FileUtils.loadFile(IN_FILE_PATH + fileName1 ); }
-    catch( FileNotFoundException e){ System.out.println(e.toString()); }
-    catch( IOException e){ System.out.println(e.toString());}
-    if( D ) System.out.println("fileName1 = " + IN_FILE_PATH + fileName1);
-
-    tempList.addAll(inputGridFileLines1);
-
-  }
-
-
 
   /**
-   *
+   *  This assumes the second file differs only in the max mag (third column)
    */
   private void makeGridSources(String fileName1, double wt1, String fileName2, double wt2) {
 
     // Debuggin stuff
     String S = C + ": makeGridSources(): ";
 
-    double bVal, magMin, magMax, deltaMag, magRef, siteMagMax;
+    double bVal, magMin, magMax, deltaMag, magRef, locMagMax1, locMagMax2=0;
     double strike = Double.NaN;
     int iflt, maxmat;
 
@@ -891,7 +880,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     deltaMag = Double.parseDouble(st.nextToken());
     magRef = Double.parseDouble(st.nextToken());  // this is ignored in Frankel's code
 
-System.out.println(fileName1);
+//System.out.println(fileName1);
 
     // get the 2nd line
     st = new StringTokenizer(it.next().toString());
@@ -920,12 +909,10 @@ System.out.println(fileName1);
     // make magMin bin centered
     if(magMin != magMax) magMin += deltaMag/2.0;
 
-    double tempRate=0;
-
     double lat,lon,aVal, moRate, rateAtZeroMag;
     Location loc;
     Point2Vert_SS_FaultPoisSource src;
-    GutenbergRichterMagFreqDist grDist1, grDist2;
+    IncrementalMagFreqDist magFreqDist;
     while( it.hasNext() ){
 
       // get next line
@@ -937,30 +924,53 @@ System.out.println(fileName1);
       aVal = 0.434294*Math.log(rateAtZeroMag);
 //System.out.print("lat="+lat+"  lon="+lon+"  rateAtZeroMag="+ rateAtZeroMag+"  aVal="+aVal);
       loc = new Location(lat,lon);
-      if(maxmat == 1)
-        siteMagMax = Double.parseDouble(st.nextToken());
-      else
-        siteMagMax = magMax;
+
+      // get max-mag element(s) if necessary
+      if(maxmat == 1) {
+        locMagMax1 = Double.parseDouble(st.nextToken());
+        magMax = locMagMax1;
+        if(fileName2 != null){
+          // get the same line from the second file
+          st = new StringTokenizer((String) inputGridFileLines2.get(it.nextIndex()-1));
+          st.nextToken();
+          st.nextToken();
+          st.nextToken();
+          locMagMax2 = Double.parseDouble(st.nextToken());
+          if(locMagMax2>magMax) magMax = locMagMax2;
+        }
+      }
+      else {
+        locMagMax1 = magMax;
+      }
 
       // Note - In Frankel's code there are some checks (and actions) if siteMaxMag < 0.0
       // I'm ignoring these because this is never the case for the CA input files
 
-      // move the max mag down to be bin centered
-      siteMagMax -= deltaMag/2.0;
 
-      int numMag = Math.round((float) ((siteMagMax-magMin)/deltaMag))+1;
-
-      moRate = getMomentRate(magMin, numMag, deltaMag, aVal, bVal);
-
-//System.out.print("  magMin="+magMin+"  numMag="+numMag+"  deltaMag="+ deltaMag+"  bVal="+bVal+"\n");
-
-      grDist1 = new GutenbergRichterMagFreqDist(magMin,numMag,deltaMag,moRate*wt1,bVal);
-//      double temp = Math.pow(10,aVal-bVal*magMin);
-//      grDist1.scaleToIncrRate(magMin,temp);
-//for(int n=0;n<grDist1.getNum();n++)
-//  System.out.println("\t"+grDist1.getX(n)+"\t"+grDist1.getY(n));
-
-//tempRate += grDist1.getTotCumRate();
+      if(fileName2 == null) {
+        locMagMax1 -= deltaMag/2.0;
+        int numMag = Math.round((float) ((locMagMax1-magMin)/deltaMag))+1;
+        moRate = getMomentRate(magMin, numMag, deltaMag, aVal, bVal);
+        magFreqDist = new GutenbergRichterMagFreqDist(magMin,numMag,deltaMag,moRate*wt1,bVal);
+      }
+      else {
+        magMax -= deltaMag/2.0;
+        int numMag = Math.round((float) ((magMax-magMin)/deltaMag))+1;
+        SummedMagFreqDist tempDist = new SummedMagFreqDist(magMin,numMag,deltaMag,false,false);
+        // do the first one
+        locMagMax1 -= deltaMag/2.0;
+        int numMag1 = Math.round((float) ((locMagMax1-magMin)/deltaMag))+1;
+        moRate = getMomentRate(magMin, numMag1, deltaMag, aVal, bVal);
+        tempDist.addIncrementalMagFreqDist(new GutenbergRichterMagFreqDist(magMin,numMag,deltaMag,magMin,
+                                                                           locMagMax1,moRate*wt1,bVal));
+        // do the second one
+        locMagMax2 -= deltaMag/2.0;
+        int numMag2 = Math.round((float) ((locMagMax2-magMin)/deltaMag))+1;
+        moRate = getMomentRate(magMin, numMag2, deltaMag, aVal, bVal);
+        tempDist.addIncrementalMagFreqDist(new GutenbergRichterMagFreqDist(magMin,numMag,deltaMag,magMin,
+                                                                           locMagMax2,moRate*wt2,bVal));
+        magFreqDist = tempDist;
+      }
 
       String backSeisRup = (String) backSeisRupParam.getValue();
       double magCutOff;
@@ -971,9 +981,9 @@ System.out.println(fileName1);
 
       // now make the source
       if(iflt == 2)
-        src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,strike,duration,magCutOff);
+        src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel,strike,duration,magCutOff);
       else
-        src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,duration,magCutOff);
+        src = new Point2Vert_SS_FaultPoisSource(loc,magFreqDist,magLenRel,duration,magCutOff);
 
       // add the source
       frankelBackgrSeisSources.add(src);
