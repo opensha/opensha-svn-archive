@@ -43,7 +43,8 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   public Frankel96_CharEqkSource(double rake,
                                 double mag,
                                 double rate,
-                                EvenlyGriddedSurface surface) {
+                                EvenlyGriddedSurface surface,
+                                String faultName) {
 
       this.rate = rate;
       probEqkRupture = new ProbEqkRupture();
@@ -51,6 +52,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
       probEqkRupture.setAveRake(rake);
       probEqkRupture.setMag(mag);
       probEqkRupture.setRuptureSurface(surface);
+      this.name = "Frankel96_CharEqkSource for "+faultName+" (charMag="+mag+"; charRate="+rate+")";
   }
 
 

@@ -20,7 +20,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
   /**
    * Name of this class
    */
-  private String name = new String("ProbEqkSource");
+  protected String name = new String("ProbEqkSource");
 
 
   /**

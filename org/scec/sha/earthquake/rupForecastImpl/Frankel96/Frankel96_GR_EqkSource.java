@@ -56,8 +56,10 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
                                 double magUpper,
                                 double moRate,
                                 double delta,
-                                EvenlyGriddedSurface surface) {
+                                EvenlyGriddedSurface surface,
+                                String faultName) {
 
+    this.name = "Frankel96_GR_EqkSource for "+faultName+" (magUpper="+magUpper+"; moRate="+moRate+")";
     this.rake=rake;
     this.surface=surface;
     // see here that we have rounded num to nearest integer value
@@ -216,6 +218,6 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
   * @return
   */
  public String getName() {
-   return C;
+   return name;
   }
 }

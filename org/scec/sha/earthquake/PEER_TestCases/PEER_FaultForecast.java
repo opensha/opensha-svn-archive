@@ -115,7 +115,7 @@ public class PEER_FaultForecast extends EqkRupForecast
   private Double DEFAULT_RAKE_VAL = new Double(0);
   DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME, DEFAULT_RAKE_VAL);
 
-  //add the dip parameter
+  //add the timeSpan parameter
   DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
                                                TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
 

@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.scec.param.*;
 import org.scec.calc.MomentMagCalc;
 import org.scec.util.*;
 import org.scec.sha.earthquake.*;
@@ -25,13 +26,11 @@ import org.scec.data.TimeSpan;
 /**
  * <p>Title: Frankel96_EqkRupForecast</p>
  * <p>Description:Frankel 1996 Earthquake Rupture Forecast. This class
- * reads the 3 given files namely Frankel96_CALA.char, Frankel96_CALA.char
- *  and Frankel96_CALB.gr .
- * Then it creates earthquake rupture objects according to the rates.
+ * reads a single file and then creates the USGS/CGS 1996 California ERF.
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author : Nitin Gupta and Vipin Gupta
+ * @author : Nitin Gupta, Vipin Gupta, and Edward Field
  * @Date : Aug 31, 2002
  * @version 1.0
  */
@@ -53,7 +52,6 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
   private String FAULTING_STYLE_R = "R";
   private String FAULTING_STYLE_N = "N";
 
-
   /**
    * used for error checking
    */
@@ -72,19 +70,51 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
   private Vector FrankelB_CharEqkSources = new Vector();
   private Vector FrankelB_GR_EqkSources = new Vector();
 
+  // This is an array holding each line of the input file
+  private ArrayList inputFileLines = null;
+
+  // the number of sources of each type
+  private int numA_Char_srcs;
+  private int numB_Char_srcs;
+  private int numB_GR_srcs;
+
   /**
    * timespan field in yrs for now (but have to ultimately make it a TimeSpan class variable)
    */
   private double timeSpan;
   private TimeSpan time;
 
+
+  // adjustable parameters stuff
+    public final static String TIMESPAN_PARAM_NAME ="Time Span";
+    private Double DEFAULT_TIMESPAN_VAL= new Double(50);
+    public final static String TIMESPAN_PARAM_UNITS = "yrs";
+    private final static double TIMESPAN_PARAM_MIN = 1e-10;
+    private final static double TIMESPAN_PARAM_MAX = 1e10;
+    //create the timeSpan parameter
+    DoubleParameter timeSpanParam = new DoubleParameter(TIMESPAN_PARAM_NAME,TIMESPAN_PARAM_MIN,
+                                             TIMESPAN_PARAM_MAX,TIMESPAN_PARAM_UNITS,DEFAULT_TIMESPAN_VAL);
+
+
   /**
-   * This constructor reads the input file and creates all the soures
    *
    * No argument constructor
    */
   public Frankel96_EqkRupForecast() {
-    readFrankel96_File();
+    // read the lines of the input file into a list
+    try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
+    catch( FileNotFoundException e){ System.out.println(e.toString()); }
+    catch( IOException e){ System.out.println(e.toString());}
+
+    // Exit if no data found in list
+    if( inputFileLines == null) throw new
+           FaultException(C + "No data loaded from file. File may be empty or doesn't exist.");
+
+    // add adjustable parameters to the list
+    adjustableParams.addParameter(timeSpanParam);
+
+    // make the sources
+    makeSources();
   }
 
   /**
@@ -92,42 +122,23 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
    *
    * @throws FaultException
    */
-  private  void readFrankel96_File() throws FaultException{
+  private  void makeSources() throws FaultException{
 
     // Debug
-    String S = C + ": readFrankel96: ";
+    String S = C + ": makeSoureces(): ";
     if( D ) System.out.println(S + "Starting");
     GriddedFaultFactory factory;
-    GutenbergRichterMagFreqDist gutenbergRichter;
-    ArrayList inputFileLines = null;
-    String  faultClass="", faultingStyle, faultName="", temp;
+    String  faultClass="", faultingStyle, faultName="";
     int i;
     double   lowerSeismoDepth, upperSeismoDepth;
-    double lat, lon;
-    int rake=0;
+    double lat, lon, rake=0;
     double mag=0;  // used for magChar and magUpper (latter for the GR distributions)
     double charRate=0, dip=0, downDipWidth=0, depthToTop=0;
-    double bValue=0.9, magLower=6.5, deltaMag=0.1;
-
-    // Load in from file the data
-    if( D ) System.out.println(S + "Loading file = " + INPUT_FILE_NAME );
-    try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
-    catch( FileNotFoundException e){ System.out.println(S + e.toString()); }
-    catch( IOException e){ System.out.println(S + e.toString());}
-
-    // Exit if no data found in list
-    if( inputFileLines == null) throw new
-           FaultException(S + "No data loaded from file. File may be empty or doesn't exist.");
 
     // Loop over lines of input file and create each source in the process
     ListIterator it = inputFileLines.listIterator();
-
-    // loope over all lines of the input file
     while( it.hasNext() ){
           StringTokenizer st = new StringTokenizer(it.next().toString());
-
-          // WHILE LOOP REALLY NEEDED HERE?
-          while(st.hasMoreTokens()){
 
             //first word of first line is the fault class (A or B)
             faultClass = new String(st.nextToken());
@@ -151,7 +162,6 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
             faultName = new String(st.nextToken());
 
             if(D) System.out.println(C+":FaultName::"+faultName);
-          }
 
           // get the 2nd line from the file
           st = new StringTokenizer(it.next().toString());
@@ -194,7 +204,6 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
               Location loc = new Location(lat, lon, upperSeismoDepth);
               faultTrace.addLocation( (Location)loc.clone());
-              if( D ) System.out.println(S + "Location" + loc.toString());
           }
 
          // reverse data ordering if dip negative, make positive and reverse trace order
@@ -215,34 +224,40 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
           GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
           // Now make the source(s)
-          if(faultClass == FAULT_CLASS_B && mag>6.5){
+          if(faultClass.equalsIgnoreCase(FAULT_CLASS_B) && mag>6.5){
             // divide the rate in half for the GR and Char parts, respectively
             double rate = 0.5*charRate;
             double moRate = rate*MomentMagCalc.getMoment(mag);
             // make the GR source
-            Frankel96_GR_EqkSource frankel96_GR_src = new Frankel96_GR_EqkSource(rake,bValue,magLower,
-                                                   mag,moRate,deltaMag,(EvenlyGriddedSurface)surface);
+            Frankel96_GR_EqkSource frankel96_GR_src = new Frankel96_GR_EqkSource(rake,B_VALUE,MAG_LOWER,
+                                                   mag,moRate,DELTA_MAG,(EvenlyGriddedSurface)surface, faultName);
             FrankelB_GR_EqkSources.add(frankel96_GR_src);
             // now make the Char source
             Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,rate,
-                                                      (EvenlyGriddedSurface)surface);
+                                                      (EvenlyGriddedSurface)surface, faultName);
             FrankelB_CharEqkSources.add(frankel96_Char_src);
           }
-          else if (faultClass == FAULT_CLASS_B) {    // if class B and mag<=6.5, it's all characteristic
+          else if (faultClass.equalsIgnoreCase(FAULT_CLASS_B)) {    // if class B and mag<=6.5, it's all characteristic
             Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,charRate,
-                                                      (EvenlyGriddedSurface)surface);
+                                                      (EvenlyGriddedSurface)surface, faultName);
             FrankelB_CharEqkSources.add(frankel96_Char_src);
 
           }
-          else {   // it must be a class A fault
+          else if (faultClass.equalsIgnoreCase(FAULT_CLASS_A)) {   // class A fault
             Frankel96_CharEqkSource frankel96_Char_src = new  Frankel96_CharEqkSource(rake,mag,charRate,
-                                                      (EvenlyGriddedSurface)surface);
+                                                      (EvenlyGriddedSurface)surface, faultName);
             FrankelA_CharEqkSources.add(frankel96_Char_src);
           }
-    }  // bottom of loop over linse
+          else {
+            throw new FaultException(C+" Error - Bad fault Class :"+faultClass);
+          }
 
-    // Done
-    if( D ) System.out.println(S + "readFrankel96_file() is done");
+    }  // bottom of loop over input-file lines
+
+    numA_Char_srcs = FrankelA_CharEqkSources.size();
+    numB_Char_srcs = FrankelB_CharEqkSources.size();
+    numB_GR_srcs   = FrankelB_GR_EqkSources.size();
+
   }
 
   /**
@@ -263,10 +278,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
     for( int i =0; i<size; ++i)
       ((Frankel96_GR_EqkSource)FrankelB_GR_EqkSources.get(i)).setTimeSpan(yrs);
 
-
   }
-
-
 
 
   /**
@@ -279,80 +291,72 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
   }
 
 
-
   /**
-   * Get number of ruptures for source at index iSource
-   * This method iterates through the list of 3 vectors for charA , charB and grB
-   * to find the the element in the vector to which the source corresponds
-   * @param iSource index of source whose ruptures need to be found
+   * Gets the number of ruptures for the source at index iSource
+   * @param iSource
    */
     public int getNumRuptures(int iSource){
-      return getSourceVector(iSource).getNumRuptures();
+      return getSource(iSource).getNumRuptures();
     }
 
     /**
-     * Get the ith rupture of the source. this method DOES NOT return reference
-     * to the object. So, when you call this method again, result from previous
-     * method call is valid. This behavior is in contrast with
-     * getRupture(int source, int i) method
+     * Returns a clone of (rather than a reference to) the nth rupture of the
+     * ith source.
      *
      * @param source
      * @param i
      * @return
      */
     public EqkRupture getRuptureClone(int iSource, int nRupture) {
-      return getSourceVector(iSource).getRuptureClone(nRupture);
+      return getSource(iSource).getRuptureClone(nRupture);
     }
 
     /**
-     * Get the ith rupture of the source. this method DOES NOT return reference
-     * to the object. So, when you call this method again, result from previous
-     * method call is valid. This behavior is in contrast with
-     * getRupture(int source, int i) method
+     * Get the nth rupture of the ith source.
      *
      * @param source
      * @param i
      * @return
      */
     public EqkRupture getRupture(int iSource, int nRupture) {
-       return getSourceVector(iSource).getRupture(nRupture);
+       return getSource(iSource).getRupture(nRupture);
     }
 
     /**
-     * Return the earhthquake source at index i. This methos returns the reference to
-     * the class variable. So, when you call this method again, result from previous
-     * method call is no longer valid.
-     * this is secret, fast but dangerous method
+     * Returns the  ith earthquake source
      *
      * @param iSource : index of the source needed
-     *
-     * @return Returns the ProbEqkSource at index i
-     *
-     */
+    */
     public ProbEqkSource getSource(int iSource) {
-      return getSourceVector(iSource);
+
+      if(iSource >= 0 && iSource < numA_Char_srcs) {
+        return (Frankel96_CharEqkSource) FrankelA_CharEqkSources.get(iSource);
+      }
+      else if (iSource >= numA_Char_srcs && iSource < (numA_Char_srcs + numB_Char_srcs)) {
+        return (Frankel96_CharEqkSource) FrankelB_CharEqkSources.get(iSource-numA_Char_srcs);
+      }
+      else {
+        return (Frankel96_GR_EqkSource) FrankelB_GR_EqkSources.get(iSource-numA_Char_srcs-numB_Char_srcs);
+      }
     }
 
     /**
      * Get the number of earthquake sources
      *
-     * @return integer value specifying the number of earthquake sources
+     * @return integer
      */
     public int getNumSources(){
       return (FrankelA_CharEqkSources.size() + FrankelB_CharEqkSources.size() + FrankelB_GR_EqkSources.size());
     }
 
     /**
-     * Return the earthquake source at index i. This methos DOES NOT return the
-     * reference to the class variable. So, when you call this method again,
-     * result from previous method call is still valid. This behavior is in contrast
-     * with the behavior of method getSource(int i)
+     * Return a clone of (rather than a reference to) the ith earthquake source
      *
      * @param iSource : index of the source needed
      *
      * @return Returns the ProbEqkSource at index i
      *
-     * FIX:FIX :: This function has not been implemented yet. Have to give a thought on that
+     * FIX:FIX :: This function has not been implemented yet. Have to give it thought
      *
      */
     public ProbEqkSource getSourceClone(int iSource) {
@@ -367,7 +371,6 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
       }*/
 
     }
-
 
 
 
@@ -393,56 +396,15 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
        int charASize = FrankelA_CharEqkSources.size();
        int charBSize = FrankelB_CharEqkSources.size();
        int grBSize = FrankelB_GR_EqkSources.size();
-       for(int i=0;i<charASize;++i)
+       for(int i=0;i<numA_Char_srcs;++i)
          v.add(FrankelA_CharEqkSources.get(i));
-       for(int i=0;i<charBSize;++i)
+       for(int i=0;i<numB_Char_srcs;++i)
          v.add(FrankelB_CharEqkSources.get(i));
-       for(int i=0;i<grBSize;++i)
+       for(int i=0;i<numB_GR_srcs;++i)
          v.add(FrankelB_GR_EqkSources.get(i));
 
        return v;
      }
-
-
-
-    /**
-     * This method helps in finding the object stored in the vector for char and gr
-     * faults that corresponds to that parameter source.
-     *
-     * first source starts from 0
-     *
-     * @param iSource
-     * @return the object of the char or gr type vector list depending to which list
-     * the source corresponds
-     */
-    private ProbEqkSource getSourceVector(int iSource){
-      int charASize = FrankelA_CharEqkSources.size();
-      int charBSize = FrankelB_CharEqkSources.size();
-      int grBSize = FrankelB_GR_EqkSources.size();
-      int i =0;
-      if(iSource < charASize){
-        while(i != iSource)
-           ++i;
-        Frankel96_CharEqkSource frankel96_CharEqkSource = (Frankel96_CharEqkSource)FrankelA_CharEqkSources.get(i) ;
-        return frankel96_CharEqkSource;
-      }
-      else if(iSource < (charASize + charBSize)){
-        i= charASize ;
-        while(i!=iSource)
-           ++i;
-        Frankel96_CharEqkSource frankel96_CharEqkSource = (Frankel96_CharEqkSource)FrankelB_CharEqkSources.get(i-charASize);
-        return frankel96_CharEqkSource;
-      }
-      else if(iSource <= (charASize + charBSize + grBSize)){
-        i=charASize + charBSize;
-        while(i!=iSource)
-          ++i;
-        Frankel96_GR_EqkSource frankel96_GR_EqkSource = (Frankel96_GR_EqkSource)FrankelB_GR_EqkSources.get(i - charASize - charBSize) ;
-        return frankel96_GR_EqkSource;
-      }
-
-      return null;
-    }
 
 
     /**
@@ -454,14 +416,30 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
      return C;
    }
 
+
    /**
-    * this function is needed to prepare for the forecast; nothing needs to be done here because
-    * the constructor does it all
+    * update the forecast (nothing needed here).
     **/
 
    public void updateForecast() {
-     if(D) System.out.println(C+" updateForecast() is done");
-
+     // set the timeSpan
+     timeSpan = ((Double) timeSpanParam.getValue()).doubleValue();
+     for(int i=0;i<numA_Char_srcs; i++)
+       ((Frankel96_CharEqkSource)FrankelA_CharEqkSources.get(i)).setTimeSpan(timeSpan);
+     for(int i=0;i<numB_Char_srcs; i++)
+       ((Frankel96_CharEqkSource)FrankelB_CharEqkSources.get(i)).setTimeSpan(timeSpan);
+     for(int i=0;i<numB_GR_srcs; i++)
+       ((Frankel96_GR_EqkSource)FrankelB_GR_EqkSources.get(i)).setTimeSpan(timeSpan);
    }
+
+
+   // this is temporary for testing purposes
+   public static void main(String[] args) {
+
+     Frankel96_EqkRupForecast frankCast = new Frankel96_EqkRupForecast();
+     System.out.println("num sources="+frankCast.getNumSources());
+     for(int i=0; i<frankCast.getNumSources(); i++)
+       System.out.println(frankCast.getSource(i).getName());
+  }
 
 }

@@ -5,12 +5,6 @@ For OpenSHA:
 ------------
 
 Split the HazardCurveGuiBean into the following GuiBeans (so they can be used by our ShakeMap and HazardMap Applets):
-
-	IMR_GuiBean
-	IMT_GuiBean
-	Site_GuiBean
-	ERF_GuiBean
-
 	
 	MapGuiBean  (Nitin does this)
 
@@ -24,15 +18,7 @@ Split the HazardCurveGuiBean into the following GuiBeans (so they can be used by
 		For 1st version, just list the site parameter for the chosen IMR, 
 		and apply the one value to all sites
  
-       IMLorProbSelectorGuiBean         (IML@Prom or Prob@IML to plot gui bean)
-
-		select "IML at Prob" of "Prob at IML"
-			if "IML at Prob" chosen
-				provide DaoubleParameterEditor to set Prob
-			else
-				provide DaoubleParameterEditor to set IML
-
-     For the ShakeMap Applet we'll also need the following GuiBean
+    For the ShakeMap Applet we'll also need the following GuiBean
 	
 	EqkRupSelectorGuiBean
 
@@ -56,13 +42,15 @@ Move progress bar in HazardCurveCalculator (and Disagg calculator) to a separate
 
 	sha/gui/infoTools/calcProgressBar.java
 
-PEER_TestResultsPlotterApplet - get participants to check their curves - Ned will do.
+Add Frankel96_ERF to hazard curve applet.
+
+Define TimeSpan object.
 
 Add getApplicableRegion and isLocWithinApplicableRegion methods to EqkRupForecastAPI.
 
-Move Frankel input files to where the forecast class is.
+Update GriddedFaultApplet with new Frankel file; remove un-need Frankel input files.
 
-Create ERF_List and its subclasses ERF_EpistemicList and ERF_AleatoryList, and then the PEER_LogicTreeERF_List
+Evaluate ERF_List and its subclasses ERF_EpistemicList and ERF_AleatoryList, and then the PEER_LogicTreeERF_List
 
 Create an object that will compute fractiles from a list of hazard curves - Ned will provide a detailed description.
 
@@ -70,13 +58,9 @@ Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g.
 
 Mail JFreechart to include our log-log implementation into the official JFreeChart framework.
 
-PEER_TestResultsPlotterApplet - make password protection more secure (if needed)?
-
 
 For the SCEC-ITR CME:
 ---------------------
-
-
 
 (0.0) Refine Hazard curve data storage so that each dataset resides in its own directory. Deliverable: Run MapGenerationApplet, and produce GMT map from datasets organized in their own directories.
 
@@ -92,13 +76,7 @@ For the SCEC-ITR CME:
 
 (5) Implement solver to createDataSet. Deliverable: Set of datafiles created by solver that matches dataset specified by user. Dataset is visible to MapGeneratorApplet.
 
-Think  about meta data structure for haz map calcs.
-
-EvenlyGriddedRectangularGeographicRegion - only create the list if they ask for the a list or an iterator
-
-EvenlyGriddedGeographicRegion - finish
-
-Add comments to classes in scec/data/region
+Think about meta data structure for haz map calcs.
 
 Build ScenarioShakeMapApplet (with HazardMapApplet in mind).  Then do this on server side.
 
