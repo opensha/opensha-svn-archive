@@ -567,6 +567,8 @@ public class HazardCurveApplet extends JApplet
         }
         graphPanel.setSeriesColor(color);
       }
+      else //sets the default series color for the curves
+        graphPanel.setDefaultSeriesColor();
 
       graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
       togglePlot();

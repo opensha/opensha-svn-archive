@@ -36,10 +36,10 @@ public class GraphPanel extends JPanel {
   *can be shown with the same color
   */
 
-  Color[] legendColor={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
+  Color [] defaultColor = {Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
     Color.cyan,Color.pink,Color.yellow,Color.lightGray,Color.gray,Color.darkGray};
-  Paint[] legendPaint={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
-    Color.cyan,Color.pink,Color.yellow,Color.lightGray,Color.gray,Color.darkGray};
+  Color[] legendColor = null;
+  Paint[] legendPaint = null;
 
   private SimpleAttributeSet setLegend;
 
@@ -54,7 +54,7 @@ public class GraphPanel extends JPanel {
   private ChartPanel chartPanel;
 
   // Create the x-axis and y-axis - either normal or log
-  //Xaxis1 and yAxis1 replica of the x-Axis and y-Axis object, in case error occurs
+  //xaxis1 and yAxis1 replica of the x-Axis and y-Axis object, in case error occurs
   //and we have revert back the Axis
   NumberAxis xAxis, xAxis1 ;
   NumberAxis yAxis, yAxis1;
@@ -93,6 +93,8 @@ public class GraphPanel extends JPanel {
     catch(Exception ex) {
       ex.printStackTrace();
     }
+    //sets the default series color range for the curves
+    setDefaultSeriesColor();
   }
   void jbInit() throws Exception {
     this.setLayout(borderLayout1);
@@ -343,7 +345,14 @@ public class GraphPanel extends JPanel {
       if(color[i] !=null)
         legendColor[i] = new Color(color[i].getRGB());
     }
+  }
 
+  /**
+   * Sets the default color scheme for the cureves drawn
+   */
+  public void setDefaultSeriesColor(){
+    legendPaint = defaultColor;
+    legendColor = defaultColor;
   }
 
   /**
