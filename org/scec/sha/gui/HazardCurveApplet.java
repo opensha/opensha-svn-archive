@@ -53,7 +53,7 @@ import org.scec.sha.gui.infoTools.ButtonControlPanel;
  */
 
 public class HazardCurveApplet extends JApplet
-    implements Runnable,  ParameterChangeListener, AxisLimitsControlPanelAPI,
+    implements Runnable,  ParameterChangeListener,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
     X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
     ButtonControlPanelAPI{
@@ -1625,6 +1625,8 @@ public class HazardCurveApplet extends JApplet
     data.setYLog(yLog);
     drawGraph();
   }
+
+
   void imgLabel_mousePressed(MouseEvent e) {
 
   }

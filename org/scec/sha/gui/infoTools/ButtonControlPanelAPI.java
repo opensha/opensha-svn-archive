@@ -1,7 +1,10 @@
 package org.scec.sha.gui.infoTools;
 
+import java.awt.Component;
+
 import org.scec.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.jfree.data.Range;
+
 
 /**
  * <p>Title: ButtonControlPanelAPI</p>
@@ -43,5 +46,6 @@ public interface ButtonControlPanelAPI extends AxisLimitsControlPanelAPI{
     * @return
     */
    public Range getY_AxisRange();
+
 
 }
