@@ -3,15 +3,17 @@
 
 Add the  revised version of the test results for AttenuationRelationhships by Ken Campbell to the JUnit test.
 
-Change has to be made in the ScenarioShakeMapCalculator so that we don't take the log before averaging the values for the Multiple Attenuation Relationships.
-
 add site translation for SEA_1999_AttenRel
 
-Change HazardCurveServerModeApp to do the calculations on the server.
+Make sure that averages over probabilities are not log averages (change ScenarioShakeMapCalculator & USGS_Combined accordingly).
 
-After the above, deploy USGS/CGS 2002 ERF in Server-Mode Haz Curve App.
+HazardCurveApps:
 
-Make one HazardCurveApps where calcs can be local or on server and ERFs can be local and/or distributed as servlets.
+	1) combine the two existing apps into one (that access both local or servlet ERFs),
+	   but calcs take place locally.
+
+	2) create a version where calcs are done on server (ERF is never on the local machine);
+	   IMRs will remain on local machine for now (until we need otherwise).
 
 Implement point source correction option in PropagationEffect.
 
@@ -97,8 +99,6 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  This will take some thought because the present implementation of the GuiBeans are a subclass of ParameterEditor which leads to even worse memory problems for the first attempted solution.  Solve this once we have a better idea of exactly what Caltrans wants.  Perhaps we should merge the two GuiBeans into one?
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use LA 3D?
-
-Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.  ned should look at.  Nitin says there are still important discrepancies.
 
 Finish STEP map making capability according to feedback from Matt and Lucy (and solve the Vs30 on water issue).
 

@@ -28,8 +28,7 @@ import org.scec.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: WG02_EqkRupForecast</p>
- * <p>Description: Working Group 2002 Earthquake Rupture Forecast. This class
- * reads a single file and constructs the forecast.
+ * <p>Description: Working Group 2002 Earthquake Rupture Forecast.
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -80,33 +79,13 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
-    ListIterator it = inputFileLines.listIterator();
-    StringTokenizer st;
-/*
-    // Find the end of the first iteration
-    int endIndex = 3;
-    st = new StringTokenizer((String) inputFileLines.get(endIndex));
-    st.nextToken();
-    String test = st.nextToken();
-    while(!test.equals("ITERATIONS")) {
-      endIndex+=1;
-      st = new StringTokenizer((String) inputFileLines.get(endIndex));
-      st.nextToken();
-      if (st.hasMoreTokens())
-        test = st.nextToken();
-    }
-
-    if (D) System.out.println(C+" endIndex="+endIndex);
-    if (D) System.out.println(C+" line(endIndex) ="+inputFileLines.get(endIndex));
-
-    inputFileStrings = inputFileLines.subList(2,endIndex);
-*/
     inputFileStrings = inputFileLines.subList(2,inputFileLines.size());
-
     if (D) System.out.println(C+" firstLineOfStrings ="+inputFileStrings.get(0));
     if (D) System.out.println(C+" LastLineOfStrings ="+inputFileStrings.get(inputFileStrings.size()-1));
 
     // get the line with the timeSpan info on it
+    ListIterator it = inputFileLines.listIterator();
+    StringTokenizer st;
     st = new StringTokenizer((String) inputFileLines.get(1));
 
     st.nextToken();
@@ -189,10 +168,10 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     String interation = st.nextToken().toString();
 
     // 2nd line is background seismicity stuff (Ignored for now)
+    // the vals are N(M³M1), b_val, M1, M2 -- Extrapolate this down to M = 5.0! (M1 > 5.0)
     st = new StringTokenizer(it.next().toString());
 
     // Now loop over ruptures within this iteration
-
     while(it.hasNext()) {
 
       faultTrace = new FaultTrace("noName");
@@ -223,8 +202,6 @@ public class WG02_EqkRupForecast extends EqkRupForecast
       if( fault.equals("7") )
         faultTrace.reverse();;
 
-
-
       // line with dip, seisUpper, ddw, and rupArea
       st = new StringTokenizer(it.next().toString());
       dip = new Double(st.nextToken()).doubleValue();
@@ -236,6 +213,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
       // line with the GR tail stuff
       st = new StringTokenizer(it.next().toString());
       // skipping for now
+      // vals are M1, M2, N(M³M1), b_val
 
       // line with prob, meanMag, magSigma, nSigmaTrunc
       st = new StringTokenizer(it.next().toString());
