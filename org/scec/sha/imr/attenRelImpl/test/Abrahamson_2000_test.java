@@ -30,7 +30,7 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
   Abrahamson_2000_AttenRel abrahamson_2000 = null;
 
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
-  private static final String ABRAHAMSON_SILVA_1997_RESULTS = RESULT_SET_PATH +"Abrahamson_Silva1997TestData.txt";
+  private static final String ABRAHAMSON_2000_RESULTS = RESULT_SET_PATH +"Abrahamson2000TestData.txt";
 
 
   public Abrahamson_2000_test(final String name) {
@@ -47,7 +47,7 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
   public void testAbrahamson2000_Creation() {
     // create the instance of the Abrahamson_2000
     abrahamson_2000 = new Abrahamson_2000_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(abrahamson_2000,this.ABRAHAMSON_SILVA_1997_RESULTS);
+    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(abrahamson_2000,ABRAHAMSON_2000_RESULTS);
     attenRelChecker.readResultFile();
   }
 

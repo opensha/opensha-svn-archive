@@ -113,7 +113,9 @@ public class AttenRelResultsChecker {
       //which file to read for the AttenREl testcase
       FileReader fr = new FileReader(resultFile);
       BufferedReader br = new BufferedReader(fr);
-
+      //read the first line in the file which is the name of the AttenuationRelationship and discard it
+      //becuase we do nothing with it currently
+      br.readLine();
       //Arbitrary function to store the target IMR values for that test result set
       ArbitrarilyDiscretizedFunc targetFunction = null;
       //contains the value for the X-Axis
@@ -124,6 +126,8 @@ public class AttenRelResultsChecker {
       String str = (br.readLine()).trim();
       //keep reading the file until file pointer reaches the end of file.
       while(str !=null){
+        str= str.trim();
+        System.out.println("For("+testNumber+")"+str);
         //stores the int value for the selected Y-axis param
         int yAxisValue =0;
         //if the line contains nothing, just skip that line and read next
@@ -162,12 +166,15 @@ public class AttenRelResultsChecker {
           with the result we will obtain with those parameter settings for that IMR.
           */
           else if(str.equalsIgnoreCase(this.START_RESULT_VALUES)){
+            if(testNumber == 19)
+              System.out.println("Hello");
             targetFunction =new ArbitrarilyDiscretizedFunc();
             str = (br.readLine()).trim();
+            System.out.println("For("+testNumber+"):"+str);
             int i=0;
             //if we have started reading the target result keep reading it
             //until we have reached the ending comments
-            while(str.equalsIgnoreCase(this.END_RESULT_VALUES)){
+            while(!str.equalsIgnoreCase(this.END_RESULT_VALUES)){
               targetFunction.set(i,(new Double(str)).doubleValue());
               ++i;
               str = (br.readLine()).trim();
@@ -195,9 +202,9 @@ public class AttenRelResultsChecker {
             if(tempParam instanceof IntegerParameter)
               tempParam.setValue(new Integer(st));
           }
+          //reads the next line in the file
+          str = br.readLine();
         }
-        //reads the next line in the file
-        str = (br.readLine()).trim();
       }
     }catch(Exception e){
       e.printStackTrace();

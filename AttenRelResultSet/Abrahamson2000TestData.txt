@@ -7,7 +7,7 @@ Y-Axis = Median
 DistanceRup = 10 
 Magnitude = 7.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 0
 theta = 90
 
@@ -46,8 +46,8 @@ Set-2
 Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
-Fault Type = Other
-AS Site Type = Deep Soil
+Fault Type = Strike Slip
+AS Site Type = Deep-Soil
 X = 0
 theta = 90
 
@@ -87,7 +87,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 0.2
 theta = 0
 
@@ -127,7 +127,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 0.4
 theta = 0
 
@@ -167,7 +167,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 0
 
@@ -207,7 +207,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 45
 
@@ -247,7 +247,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 7.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 90
 
@@ -435,7 +435,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 5.5
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 0
 
@@ -475,7 +475,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 6.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 0
 
@@ -515,7 +515,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 6.2
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 0
 
@@ -555,7 +555,7 @@ Y-Axis = Median
 DistanceRup = 10
 Magnitude = 6.5
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 0
 
@@ -595,7 +595,7 @@ Y-Axis = Median
 DistanceRup = 30
 Magnitude = 7.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 0
 
@@ -635,7 +635,7 @@ Y-Axis = Median
 DistanceRup = 45
 Magnitude = 7.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 0
 
@@ -675,7 +675,7 @@ Y-Axis = Median
 DistanceRup = 60
 Magnitude = 7.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 0
 
@@ -715,7 +715,7 @@ Y-Axis = Median
 DistanceRup = 75
 Magnitude = 7.0
 Fault Type = Strike Slip
-AS Site Type = Rock/Shallow Soil
+AS Site Type = Rock/Shallow-Soil
 X = 1.0
 theta = 0
 
