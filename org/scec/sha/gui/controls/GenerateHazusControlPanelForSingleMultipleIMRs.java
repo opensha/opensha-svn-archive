@@ -273,8 +273,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
       }
       pgvDataSet = new ArbDiscretizedXYZ_DataSet(pgvDataSet.getX_DataSet(),
           pgvDataSet.getY_DataSet(), newZVals);
-      metadata += "IMT = PGV"+"<br>\n";
     }
+    metadata += "IMT = PGV"+"<br>\n";
     return pgvDataSet;
   }
 
