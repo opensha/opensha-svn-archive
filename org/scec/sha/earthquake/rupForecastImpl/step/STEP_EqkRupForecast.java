@@ -35,7 +35,7 @@ import org.scec.param.event.ParameterChangeEvent;
 
   //for Debug purposes
   private static String  C = new String("STEP_EqkRupForecast");
-  private boolean D = true;
+  private boolean D = false;
 
   // Input file name
   private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/SoCalDeltaRates.txt";
@@ -46,7 +46,7 @@ import org.scec.param.event.ParameterChangeEvent;
   /**
    * timespan field in yrs for now (but have to ultimately make it a TimeSpan class variable)
    */
-  private TimeSpan timeSpan;
+//  private TimeSpan timeSpan;
 
   private static final double RAKE=0.0;
   private static final double DIP=90.0;
@@ -59,7 +59,7 @@ import org.scec.param.event.ParameterChangeEvent;
   Vector sources;
 
   // private declaration of the flag to check if any parameter has been changed.
-  private boolean  parameterChangeFlag = true;
+  private boolean  parameterChangeFlag = false;
 
 
   /**
@@ -89,7 +89,7 @@ import org.scec.param.event.ParameterChangeEvent;
     double duration = (new Double(st.nextToken())).doubleValue();
     if(D) System.out.println("duration="+duration);
 
-    this.timeSpan = new TimeSpan(TimeSpan.SECONDS,TimeSpan.HOURS);
+    this.timeSpan = new TimeSpan(TimeSpan.SECONDS,TimeSpan.DAYS);
     timeSpan.setStartTime(year,month,day,hour,minute,second);
     timeSpan.setDuration(duration);
     timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR, year,year);
@@ -151,6 +151,9 @@ import org.scec.param.event.ParameterChangeEvent;
 
       ptSource = new PointPoissonEqkSource(new Location(lat,lon,DEPTH),magFreqDist,duration,RAKE,DIP);
       sources.add(ptSource);
+
+      if(D) System.out.println(C+"makeSources(): numRups="+ptSource.getNumRuptures()+
+                               " for source "+sources.size());
     }
   }
 
@@ -211,7 +214,7 @@ import org.scec.param.event.ParameterChangeEvent;
     */
     public ProbEqkSource getSource(int iSource) {
 
-      return (ProbEqkSource) null;
+      return (ProbEqkSource) sources.get(iSource);
     }
 
     /**
@@ -299,16 +302,38 @@ import org.scec.param.event.ParameterChangeEvent;
    public static void main(String[] args) {
 
      STEP_EqkRupForecast forecast = new STEP_EqkRupForecast();
+     System.out.println("startTimeFromCal:\n " + forecast.getTimeSpan().getStartTimeCalendar().toString());
+     System.out.println("Duration: " + forecast.getTimeSpan().getDuration()+"  "+
+                        forecast.getTimeSpan().getDurationUnits());
      System.out.println("getNumSources(): "+forecast.getNumSources());
-     ProbEqkSource qkSrc = forecast.getSource(0);
+     ProbEqkRupture rup;
+     double rate;
+
+     // check first one
+     int index = 0;
+     PointPoissonEqkSource qkSrc = (PointPoissonEqkSource) forecast.getSource(index);
      System.out.println("getNumRuptures(): "+qkSrc.getNumRuptures());
-     EqkRupture rup;
+     double duration = qkSrc.getDuration();
      for(int i=0;i<qkSrc.getNumRuptures();i++) {
        rup = qkSrc.getRupture(i);
        Location loc = (Location) rup.getRuptureSurface().get(0,0);
-       if(i==0) System.out.print(loc.getLongitude()+"  "+loc.getLongitude()+"  ");
-       System.out.print(rup.getMag()+"  ");
+       if(i==0) System.out.println("First Source:\n" + loc.getLongitude()+"  "+loc.getLatitude());
+       rate = -Math.log(1-rup.getProbability())/duration;
+       System.out.println((float)rup.getMag()+"  "+rate);
      }
+     // check last one
+     index = forecast.getNumSources()-1;
+     qkSrc = (PointPoissonEqkSource) forecast.getSource(index);
+     System.out.println("getNumRuptures(): "+qkSrc.getNumRuptures());
+     duration = qkSrc.getDuration();
+     for(int i=0;i<qkSrc.getNumRuptures();i++) {
+       rup = qkSrc.getRupture(i);
+       Location loc = (Location) rup.getRuptureSurface().get(0,0);
+       if(i==0) System.out.println("Last Source:\n" + loc.getLongitude()+"  "+loc.getLatitude());
+       rate = -Math.log(1-rup.getProbability())/duration;
+       System.out.println((float)rup.getMag()+"  "+rate);
+     }
+
    }
 
 }

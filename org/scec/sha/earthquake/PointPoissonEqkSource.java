@@ -76,6 +76,7 @@ public class PointPoissonEqkSource extends ProbEqkSource {
         if(magFreqDist.getY(i) > 0)
             magsAndRates.set(magFreqDist.getX(i),magFreqDist.getY(i));
 
+    if (D) System.out.println(C+" numNonZeroMagDistPoints="+magsAndRates.getNum());
   }
 
 
@@ -116,7 +117,7 @@ public class PointPoissonEqkSource extends ProbEqkSource {
   * This gets the duration used in computing Poisson probabilities
   * @param duration
   */
-  public double getDuration(double duration) {
+  public double getDuration() {
     return duration;
   }
 
