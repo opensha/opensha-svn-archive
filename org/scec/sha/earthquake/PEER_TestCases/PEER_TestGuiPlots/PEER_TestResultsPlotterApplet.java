@@ -145,7 +145,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
 
   //static string for the OPENSHA website
-  private final static String OPENSHA_WEBSITE="www.OpenSHA.org";
+  private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
 
   private JPanel buttonPanel = new JPanel();

@@ -210,7 +210,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
 
   //static string for the OPENSHA website
-  private final static String OPENSHA_WEBSITE="www.OpenSHA.org";
+  private final static String OPENSHA_WEBSITE="http://www.OpenSHA.org";
 
   private JLabel imgLabel = new JLabel();
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
