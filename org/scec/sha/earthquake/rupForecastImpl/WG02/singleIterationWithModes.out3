@@ -13,10 +13,10 @@
 
   Probability model weights:
                        San_And Hayward Calaver Concord San_Gre Greenvi Mt_Diab
-  Poisson:             0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000
+  Poisson:             0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  1.0000
   BPT w/o Step:        0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000
-  BPT with Step:       0.0000  1.0000  0.0000  1.0000  1.0000  1.0000  0.0000
-  Empirical Interact:  0.0000  0.0000  1.0000  0.0000  0.0000  0.0000  1.0000
+  BPT with Step:       0.0000  1.0000  1.0000  1.0000  1.0000  1.0000  0.0000
+  Empirical Interact:  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000
   Time Predictable:    1.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000
   Log normal      :    0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000
   Log normal w/inter:  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000  0.0000
@@ -43,14 +43,14 @@ Hayward/RC    RC                    0.665257 0.000000 0.000000 0.000000
 Hayward/RC    HN  +RC               0.174792 0.000000 0.000000 0.000000
 Hayward/RC    HS  +HN  +RC          0.144702 0.000000 0.000000 0.000000
 Hayward/RC    floating              0.037177 0.000000 0.000000 0.000000
-Calaveras     CS                    0.291337 0.000000 0.000000 0.000000
-Calaveras     CC                    0.551952 0.000000 0.000000 0.000000
+Calaveras     CS                    0.535349 0.000000 0.000000 0.000000
+Calaveras     CC                    0.588414 0.000000 0.000000 0.000000
 Calaveras     CS  +CC               0.000000 0.000000 0.000000 0.000000
-Calaveras     CN                    0.783794 0.000000 0.000000 0.000000
+Calaveras     CN                    0.808542 0.000000 0.000000 0.000000
 Calaveras     CC  +CN               0.000000 0.000000 0.000000 0.000000
 Calaveras     CS  +CC  +CN          0.000000 0.000000 0.000000 0.000000
-Calaveras     floating              0.311417 0.000000 0.000000 0.000000
-Calaveras     floating CS  +CC      0.736144 0.000000 0.000000 0.000000
+Calaveras     floating              0.363881 0.000000 0.000000 0.000000
+Calaveras     floating CS  +CC      0.801178 0.000000 0.000000 0.000000
 Concord/GV    CON                   0.155321 0.000000 0.000000 0.000000
 Concord/GV    GVS                   0.074533 0.000000 0.000000 0.000000
 Concord/GV    CON +GVS              0.096803 0.000000 0.000000 0.000000
@@ -66,7 +66,7 @@ Greenville    GS                    0.112406 0.000000 0.000000 0.000000
 Greenville    GN                    0.125292 0.000000 0.000000 0.000000
 Greenville    GS  +GN               0.162090 0.000000 0.000000 0.000000
 Greenville    floating              0.007191 0.000000 0.000000 0.000000
-Mt_Diablo     MTD                   0.162026 0.000000 0.000000 0.000000
+Mt_Diablo     MTD                   0.183272 0.000000 0.000000 0.000000
 
 
   Segment Probabilities
@@ -79,9 +79,9 @@ San_Andreas   SAO       1.000    0.000    0.000    0.000
 Hayward/RC    HS        0.667    0.000    0.000    0.000
 Hayward/RC    HN        0.697    0.000    0.000    0.000
 Hayward/RC    RC        0.772    0.000    0.000    0.000
-Calaveras     CS        0.819    0.000    0.000    0.000
-Calaveras     CC        0.906    0.000    0.000    0.000
-Calaveras     CN        0.842    0.000    0.000    0.000
+Calaveras     CS        0.888    0.000    0.000    0.000
+Calaveras     CC        0.931    0.000    0.000    0.000
+Calaveras     CN        0.864    0.000    0.000    0.000
 Concord/GV    CON       0.429    0.000    0.000    0.000
 Concord/GV    GVS       0.471    0.000    0.000    0.000
 Concord/GV    GVN       0.458    0.000    0.000    0.000
@@ -89,7 +89,7 @@ San_Gregorio  SGS       0.581    0.000    0.000    0.000
 San_Gregorio  SGN       0.705    0.000    0.000    0.000
 Greenville    GS        0.260    0.000    0.000    0.000
 Greenville    GN        0.271    0.000    0.000    0.000
-Mt_Diablo     MTD       0.162    0.000    0.000    0.000
+Mt_Diablo     MTD       0.183    0.000    0.000    0.000
 
 
   Fault System Probabilities
@@ -97,11 +97,11 @@ Mt_Diablo     MTD       0.162    0.000    0.000    0.000
 Fault Name          Mean    0.025    0.500    0.975
 San_Andreas       1.000    0.000    0.000    0.000
 Hayward/RC        0.927    0.000    0.000    0.000
-Calaveras         0.988    0.000    0.000    0.000
+Calaveras         0.995    0.000    0.000    0.000
 Concord/GV        0.625    0.000    0.000    0.000
 San_Gregorio      0.735    0.000    0.000    0.000
 Greenville        0.354    0.000    0.000    0.000
-Mt_Diablo         0.162    0.000    0.000    0.000
+Mt_Diablo         0.183    0.000    0.000    0.000
 Background        0.994    0.000    0.000    0.000
 
 

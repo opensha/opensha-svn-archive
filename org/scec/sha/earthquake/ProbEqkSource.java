@@ -143,19 +143,43 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
     return new String(this.info);
   }
 
+
+  /**
+   * This computes the total probability for this source
+   * (a sum of the probabilities of all the ruptures)
+   * @return
+   */
   public double computeTotalProb() {
+    return computeTotalProbAbove(-10.0);
+  }
+
+
+  /**
+ * This computes the total probability of all rutures great than or equal to the
+ * given mangitude
+ * @return
+ */
+  public double computeTotalProbAbove(double mag) {
     double totProb=0;
+    ProbEqkRupture tempRup;
     if(isPoissonian) {
-      for(int i=0; i<getNumRuptures(); i++)
-        totProb += Math.log(1-getRupture(i).getProbability());
+      for(int i=0; i<getNumRuptures(); i++) {
+        tempRup = getRupture(i);
+        if(tempRup.getMag() >= mag)
+          totProb += Math.log(1-tempRup.getProbability());
+      }
       totProb = 1 - Math.exp(totProb);
     }
     else {
-      for(int i=0; i<getNumRuptures(); i++)
-        totProb += getRupture(i).getProbability();
+      for(int i=0; i<getNumRuptures(); i++) {
+        tempRup = getRupture(i);
+        if(tempRup.getMag() >= mag)
+          totProb += tempRup.getProbability();
+      }
     }
     return totProb;
   }
+
 
 /*
   public IncrementalMagFreqDist computeMagProbDist() {
