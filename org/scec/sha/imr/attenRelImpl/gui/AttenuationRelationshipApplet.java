@@ -47,7 +47,7 @@ public class AttenuationRelationshipApplet extends JApplet
         ItemListener, AxisLimitsControlPanelAPI,GraphPanelAPI,ButtonControlPanelAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
-    private final static String version = "0.6.14";
+    private final static String version = "0.7.14";
     protected final static boolean D = false;
   /**
    * these four values save the custom axis scale specified by user
@@ -560,7 +560,6 @@ public class AttenuationRelationshipApplet extends JApplet
         buttonPanel.add(clearButton, 1);
         buttonPanel.add(buttonControlPanel,2);
         buttonPanel.add(plotColorCheckBox, 3);
-        buttonControlPanel.setPlotPreferencesButtonVisible(false);
         outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
         outerPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -725,11 +724,10 @@ public class AttenuationRelationshipApplet extends JApplet
 
     /**
      * plots the curves with defined color,line width and shape.
-     * @param plotFeatures
+     *
      */
-    public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
-      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,null,buttonControlPanel,plotFeatures);
-      togglePlot();
+    public void plotGraphUsingPlotPreferences(){
+      addGraphPanel();
     }
 
 
@@ -1215,16 +1213,9 @@ public class AttenuationRelationshipApplet extends JApplet
    * @returns the plotting feature like width, color and shape type of each
    * curve in list.
    */
-  public PlotCurveCharacterstics[] getPlottingFeatures(){
+  public ArrayList getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharactersticInfo();
   }
 
-  /**
-   *
-   * @param usePlotPrefs: boolean for checking if curves
-   * need to be plotted using the plotting preferences.
-   */
-  public void setCurvesToUsePlotPrefs(boolean usePlotPrefs){
-    drawCurvesUsingPlotPrefs = usePlotPrefs;
-  }
+
 }

@@ -101,9 +101,9 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   private BorderLayout borderLayout1 = new BorderLayout();
 
   //Curve characterstic array
-  private PlotCurveCharacterstics[] plottingFeatures;
+  private ArrayList plottingFeatures;
   //default curve characterstics with values , when this control panel was called
-  private PlotCurveCharacterstics[] defaultPlottingFeatures;
+  private ArrayList defaultPlottingFeatures;
   private JButton RevertButton = new JButton();
   //instance of application using this control panel
   private PlotColorAndLineTypeSelectorControlPanelAPI application;
@@ -114,7 +114,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
 
 
   public PlotColorAndLineTypeSelectorControlPanel(PlotColorAndLineTypeSelectorControlPanelAPI api,
-      PlotCurveCharacterstics[] curveCharacterstics) {
+      ArrayList curveCharacterstics) {
     application = api;
     try {
       jbInit();
@@ -188,15 +188,17 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
    * for each curve in list ,so creates these gui components dynamically based on
    * number of functions in list.
    */
-  private void setPlotColorAndLineType(PlotCurveCharacterstics[] curveCharacterstics){
-    int numCurves = curveCharacterstics.length;
+  public void setPlotColorAndLineType(ArrayList curveCharacterstics){
+    int numCurves = curveCharacterstics.size();
     plottingFeatures = curveCharacterstics;
-    defaultPlottingFeatures = new PlotCurveCharacterstics[numCurves];
+    defaultPlottingFeatures = new ArrayList();
 
     //creating the defaultPlotting features with original color scheme.
-    for(int i=0;i<numCurves;++i)
-      defaultPlottingFeatures[i] =new PlotCurveCharacterstics(curveCharacterstics[i].getCurveType(),
-          curveCharacterstics[i].getCurveColor(),curveCharacterstics[i].getCurveWidth());
+    for(int i=0;i<numCurves;++i){
+      PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)plottingFeatures.get(i);
+      defaultPlottingFeatures.add(new PlotCurveCharacterstics(curvePlotPref.getCurveType(),
+          curvePlotPref.getCurveColor(),curvePlotPref.getCurveWidth()));
+    }
 
 
 
@@ -233,9 +235,10 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     lineWidthParameterEditor = new ConstrainedDoubleParameterEditor[numCurves];
     DoubleConstraint sizeConstraint = new DoubleConstraint(0,20);
     for(int i=0;i<numCurves;++i){
+      PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)plottingFeatures.get(i);
       //creating the dataset Labl with the color in which they are shown in plots.
-      datasetSelector[i] = new JLabel(plottingFeatures[i].getCurveName());
-      datasetSelector[i].setForeground(plottingFeatures[i].getCurveColor());
+      datasetSelector[i] = new JLabel(curvePlotPref.getCurveName());
+      datasetSelector[i].setForeground(curvePlotPref.getCurveColor());
       colorChooserButton[i] = new JButton(colorChooserString);
       colorChooserButton[i].addActionListener(this);
       lineTypeSelector[i] = new JComboBox();
@@ -259,13 +262,13 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       lineTypeSelector[i].addItem(LINE_AND_CIRCLES);
       lineTypeSelector[i].addItem(LINE_AND_TRIANGLES);
       //setting the selected plot type to be one currently selected.
-      lineTypeSelector[i].setSelectedItem(plottingFeatures[i].getCurveType());
+      lineTypeSelector[i].setSelectedItem(curvePlotPref.getCurveType());
       lineTypeSelector[i].addActionListener(this);
 
       try{
         //creating double parameter for size of each curve.
         lineWidthParameter[i] = new DoubleParameter(lineWidthParamName+(i+1),sizeConstraint,
-            new Double(plottingFeatures[i].getCurveWidth()));
+            new Double(curvePlotPref.getCurveWidth()));
 
         lineWidthParameterEditor[i] = new ConstrainedDoubleParameterEditor(lineWidthParameter[i]);
       }catch(Exception e){
@@ -273,7 +276,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       }
     }
 
-    //curveFeaturePanel.removeAll();
+    curveFeaturePanel.removeAll();
     //adding color chooser button,plot style and size to GUI.
     for(int i=0;i<numCurves;++i){
       curveFeaturePanel.add(datasetSelector[i],new GridBagConstraints(0, i+1, 1, 1, 1.0, 1.0
@@ -301,15 +304,16 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
    * @param e
    */
   public void actionPerformed(ActionEvent e){
-    int numCurves = plottingFeatures.length;
+    int numCurves = plottingFeatures.size();
     //checking if the source of the action was the button
     if(e.getSource() instanceof JButton){
       Object button = e.getSource();
       //if the source of the event was color button
       for(int i=0;i<numCurves;++i){
+        PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)plottingFeatures.get(i);
         if(button.equals(colorChooserButton[i])){
-          Color color = JColorChooser.showDialog(this,"Select Color",plottingFeatures[i].getCurveColor());
-          plottingFeatures[i].setCurveColor(color);
+          Color color = JColorChooser.showDialog(this,"Select Color",curvePlotPref.getCurveColor());
+          curvePlotPref.setCurveColor(color);
           datasetSelector[i].setForeground(color);
         }
       }
@@ -319,8 +323,9 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       //if the source of the event was color button
       int itemIndex=0;
       for(int i=0;i<numCurves;++i){
+        PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)plottingFeatures.get(i);
         if(comboBox.equals(lineTypeSelector[i])){
-          plottingFeatures[i].setCurveType((String)lineTypeSelector[i].getSelectedItem());
+          curvePlotPref.setCurveType((String)lineTypeSelector[i].getSelectedItem());
           itemIndex= i;
           break;
         }
@@ -359,11 +364,11 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   }
 
   private void applyChangesToPlot(){
-    int numCurves = plottingFeatures.length;
+    int numCurves = plottingFeatures.size();
     //getting the line width parameter
     for(int i=0;i<numCurves;++i)
-      plottingFeatures[i].setCurveWidth(((Double)lineWidthParameterEditor[i].getParameter().getValue()).doubleValue());
-    application.drawGraph(plottingFeatures);
+      ((PlotCurveCharacterstics)plottingFeatures.get(i)).setCurveWidth(((Double)lineWidthParameterEditor[i].getParameter().getValue()).doubleValue());
+    application.plotGraphUsingPlotPreferences();
   }
 
   /**
@@ -387,19 +392,20 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   }
 
   private void revertPlotToOriginal(){
-    int numCurves = defaultPlottingFeatures.length;
+    int numCurves = defaultPlottingFeatures.size();
     for(int i=0;i<numCurves;++i){
-      datasetSelector[i].setForeground(defaultPlottingFeatures[i].getCurveColor());
-      plottingFeatures[i].setCurveColor(defaultPlottingFeatures[i].getCurveColor());
+      PlotCurveCharacterstics curveCharacterstics = (PlotCurveCharacterstics)defaultPlottingFeatures.get(i);
+      datasetSelector[i].setForeground(curveCharacterstics.getCurveColor());
+      ((PlotCurveCharacterstics)plottingFeatures.get(i)).setCurveColor(curveCharacterstics.getCurveColor());
       //setting the selected plot type to be one currently selected.
-      lineTypeSelector[i].setSelectedItem(defaultPlottingFeatures[i].getCurveType());
-      plottingFeatures[i].setCurveType(defaultPlottingFeatures[i].getCurveType());
-      lineWidthParameterEditor[i].setValue(new Double(defaultPlottingFeatures[i].getCurveWidth()));
+      lineTypeSelector[i].setSelectedItem(curveCharacterstics.getCurveType());
+      ((PlotCurveCharacterstics)plottingFeatures.get(i)).setCurveType(curveCharacterstics.getCurveType());
+      lineWidthParameterEditor[i].setValue(new Double(curveCharacterstics.getCurveWidth()));
       lineWidthParameterEditor[i].refreshParamEditor();
-      plottingFeatures[i].setCurveWidth(defaultPlottingFeatures[i].getCurveWidth());
+      ((PlotCurveCharacterstics)plottingFeatures.get(i)).setCurveWidth(curveCharacterstics.getCurveWidth());
       curveFeaturePanel.repaint();
       curveFeaturePanel.validate();
-      application.drawGraph(plottingFeatures);
+      application.plotGraphUsingPlotPreferences();
     }
   }
 

@@ -19,7 +19,7 @@ public interface PlotColorAndLineTypeSelectorControlPanelAPI {
 
   /**
    * plots the curves with defined color,line width and shape.
-   * @param plotFeatures
+   *
    */
-   public void drawGraph(PlotCurveCharacterstics[] plotFeatures);
+   public void plotGraphUsingPlotPreferences();
 }

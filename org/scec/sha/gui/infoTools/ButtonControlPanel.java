@@ -3,6 +3,7 @@ package org.scec.sha.gui.infoTools;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 import org.jfree.data.Range;
 
@@ -197,10 +198,10 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
 
   /**
    * plots the curves with defined color,line width and shape.
-   * @param plotFeatures
+   *
    */
-  public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
-    application.drawGraph(plotFeatures);
+  public void plotGraphUsingPlotPreferences(){
+    application.plotGraphUsingPlotPreferences();
    }
 
   /**
@@ -258,13 +259,12 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
    * @param e
    */
   void colorLineTypeButton_actionPerformed(ActionEvent e) {
-    PlotCurveCharacterstics[] plotFeatures = application.getPlottingFeatures();
+    ArrayList plotFeatures = application.getPlottingFeatures();
     if(plotControl == null)
       plotControl = new PlotColorAndLineTypeSelectorControlPanel(this,plotFeatures);
+    else
+      plotControl.setPlotColorAndLineType(plotFeatures);
       plotControl.show();
-
-      //use plot preferences to plot the curves.
-      application.setCurvesToUsePlotPrefs(true);
   }
 
   /**

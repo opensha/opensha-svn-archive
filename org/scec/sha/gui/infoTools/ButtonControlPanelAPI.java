@@ -1,10 +1,11 @@
 package org.scec.sha.gui.infoTools;
 
 import java.awt.Component;
+import java.util.ArrayList;
 
 import org.scec.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.jfree.data.Range;
-import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
+
 
 /**
  * <p>Title: ButtonControlPanelAPI</p>
@@ -52,18 +53,11 @@ public interface ButtonControlPanelAPI extends AxisLimitsControlPanelAPI{
     * @returns the plotting feature like width, color and shape type of each
     * curve in list.
     */
-   public PlotCurveCharacterstics[] getPlottingFeatures();
+   public ArrayList getPlottingFeatures();
 
    /**
     * plots the curves with defined color,line width and shape.
-    * @param plotFeatures
-    */
-   public void drawGraph(PlotCurveCharacterstics[] plotFeatures);
-
-   /**
     *
-    * @param usePlotPrefs: boolean for checking if curves
-    * need to be plotted using the plotting preferences.
     */
-   public void setCurvesToUsePlotPrefs(boolean usePlotPrefs);
+   public void plotGraphUsingPlotPreferences();
 }

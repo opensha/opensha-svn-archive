@@ -110,8 +110,6 @@ public class HazardDataSetPlotter extends JApplet
   private String xAxisName = " ";
   private String yAxisName = " ";
 
-  //boolean to check if the plot preferences to be used to draw the curves
-  private boolean drawCurvesUsingPlotPrefs;
 
   /**
    * these four values save the custom axis scale specified by user
@@ -299,7 +297,6 @@ public class HazardDataSetPlotter extends JApplet
 
     //object for the ButtonControl Panel
     buttonControlPanel = new ButtonControlPanel(this);
-    buttonControlPanel.setPlotPreferencesButtonVisible(false);
     buttonPanel.add(addButton, 0);
     buttonPanel.add(clearButton, 1);
     buttonPanel.add(peelOffButton, 2);
@@ -657,12 +654,11 @@ public class HazardDataSetPlotter extends JApplet
 
   /**
    * plots the curves with defined color,line width and shape.
-   * @param plotFeatures
+   *
    */
-  public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
-    graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE,buttonControlPanel,plotFeatures);
-    togglePlot();
-  }
+  public void plotGraphUsingPlotPreferences(){
+    drawGraph();
+    }
 
 
   /**
@@ -691,16 +687,8 @@ public class HazardDataSetPlotter extends JApplet
    * @returns the plotting feature like width, color and shape type of each
    * curve in list.
    */
-  public PlotCurveCharacterstics[] getPlottingFeatures(){
+  public ArrayList getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharactersticInfo();
   }
 
-  /**
-   *
-   * @param usePlotPrefs: boolean for checking if curves
-   * need to be plotted using the plotting preferences.
-   */
-  public void setCurvesToUsePlotPrefs(boolean usePlotPrefs){
-    drawCurvesUsingPlotPrefs = usePlotPrefs;
-  }
 }

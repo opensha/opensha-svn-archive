@@ -106,9 +106,9 @@ public class GraphPanel extends JPanel {
 
   JTextPane metadataText = new JTextPane();
 
-  //characterstics for each curve that we plot which include the line color,line width,
-  //line type.
-  PlotCurveCharacterstics[] curvePlottingCharacterstics;
+  //List of PlotCurveCharacterstics for each curve
+  //that we plot which include the line color,line width.
+  private ArrayList curvePlottingCharacterstics = new ArrayList();
 
   /**
    * adding scroll pane for showing data
@@ -166,306 +166,6 @@ public class GraphPanel extends JPanel {
   }
 
 
-  /**
-   * Draws curves using the plot preferences which defines color,width and line type
-   * for each curve.
-   * @param xAxisName : X-Axis Label
-   * @param yAxisName : Y-Axis Label
-   * @param funcList  : ArrayList containing individual functions and weighted functionlist
-   * @param xLog      : boolean tell if xLog is selected
-   * @param yLog      : boolean tells if yLog is selected
-   * @param customAxis : boolean tells if graph needs to ne plotted using custom axis range
-   * @param title  : JFreechart window title
-   * @param buttonControlPanel : Instance of class which called this method
-   * @param plotCharacterstics : Array of class that contains plotting preference
-   * for each curve in the list.
-   */
-  public void drawGraphPanel(String xAxisName,String yAxisName,ArrayList funcList,
-                             boolean xLog,boolean yLog,boolean customAxis,String title,
-                             ButtonControlPanel buttonControlPanel,
-                             PlotCurveCharacterstics[] plotCharacterstics){
-
-    //curve characterstics list
-    curvePlottingCharacterstics = plotCharacterstics;
-
-    // Starting
-    String S = "drawGraphPanel(): ";
-
-
-
-    //flags to check if the exception was thrown on selection of the x-log or y-log.
-    boolean logErrorFlag = false;
-
-    //getting the axis font size
-    int axisFontSize = buttonControlPanel.getAxisLabelFontSize();
-    //getting the tick label font size
-    int tickFontSize = buttonControlPanel.getTickLabelFontSize();
-
-    //create the standard ticks so that smaller values too can plotted on the chart
-    TickUnits units = MyTickUnits.createStandardTickUnits();
-
-    try{
-
-      /// check if x log is selected or not
-      if(xLog) xAxis = new LogarithmicAxis(xAxisName);
-      else xAxis = new NumberAxis( xAxisName );
-
-      if (!xLog)
-        xAxis.setAutoRangeIncludesZero(true);
-      else
-        xAxis.setAutoRangeIncludesZero( false );
-      xAxis.setStandardTickUnits(units);
-      xAxis.setTickMarksVisible(false);
-      //Axis label font
-      Font axisLabelFont = xAxis.getLabelFont();
-      xAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
-
-      //tick label font
-      Font axisTickFont = xAxis.getTickLabelFont();
-      xAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
-
-      //added to have the minimum range within the Upper and Lower Bound of the Axis
-      //xAxis.setAutoRangeMinimumSize(.1);
-
-      /* to set the range of the axis on the input from the user if the range combo box is selected*/
-      if(customAxis)
-        xAxis.setRange(application.getMinX(),application.getMaxX());
-
-    }catch(Exception e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"X-Plot Error",JOptionPane.OK_OPTION);
-      graphOn=false;
-      xLog = false;
-      buttonControlPanel.setXLog(xLog);
-      xAxis = xAxis1;
-      logErrorFlag = true;
-    }
-
-    try{
-      /// check if y log is selected or not
-      if(yLog) yAxis = new LogarithmicAxis(yAxisName);
-      else yAxis = new NumberAxis( yAxisName );
-
-      if (!yLog)
-        yAxis.setAutoRangeIncludesZero(true);
-      else
-        yAxis.setAutoRangeIncludesZero( false );
-
-      yAxis.setStandardTickUnits(units);
-      yAxis.setTickMarksVisible(false);
-
-      //Axis label font
-      Font axisLabelFont = yAxis.getLabelFont();
-      yAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
-
-      //tick label font
-      Font axisTickFont = yAxis.getTickLabelFont();
-      yAxis.setTickLabelFont(new Font(axisTickFont.getFontName(),axisTickFont.getStyle(),tickFontSize));
-      //added to have the minimum range within the Upper and Lower Bound of the Axis
-      //yAxis.setAutoRangeMinimumSize(.1);
-
-      /* to set the range of the axis on the input from the user if the range combo box is selected*/
-      if(customAxis)
-        yAxis.setRange(application.getMinY(),application.getMaxY());
-
-    }catch(Exception e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Y-Plot Error",JOptionPane.OK_OPTION);
-      graphOn=false;
-      yLog = false;
-      buttonControlPanel.setYLog(yLog);
-      yAxis = yAxis1;
-      logErrorFlag = false;
-    }
-
-
-
-    plot = null;
-    // build the plot
-    plot = new XYPlot(null,xAxis, yAxis, null);
-
-    //setting the plot properties
-    plot.setDomainCrosshairLockedOnData(false);
-    plot.setDomainCrosshairVisible(false);
-    plot.setRangeCrosshairLockedOnData(false);
-    plot.setRangeCrosshairVisible(false);
-    plot.setInsets(new Insets(10, 0, 0, tickFontSize+15));
-
-
-
-    //total number of funtions that need to be plotted differently using different characterstics
-    int numFuncs = plotCharacterstics.length;
-    //index of dataset from total prob functionlist (list containing each curve as
-    //individual discretized function).
-    int datasetIndex = 0;
-    //secondarydataset index keeps track where do we have to add the seconadary data set in plot
-    for(int j=0,secondaryDatasetIndex=0; j < numFuncs; ++j,++secondaryDatasetIndex){
-      Color color = plotCharacterstics[j].getCurveColor();
-      double lineWidth = plotCharacterstics[j].getCurveWidth();
-      String lineType = plotCharacterstics[j].getCurveType();
-      //getting the number of consecutive curves that have same plotting characterstics.
-      int numCurves = plotCharacterstics[j].getNumContinuousCurvesWithSameCharacterstics();
-      //if size of that plot size then don't add it to the dataset
-      if(lineWidth ==0){
-        //adding the number of consecutive curves with same plotting characterstics to dataset index.
-        datasetIndex +=numCurves;
-        //decrement the secondary dataset index so that we seconday dataset is added to correct place.
-        --secondaryDatasetIndex;
-        continue;
-      }
-      //creating dataset for each curve and its consecutive curves which have same plotting
-      //characterstics. Eg: can be weighted functions in weighted functionlist  have same
-      //plotting characterstics, also fractiles in weighted function list share same
-      //plotting characterstics. So creating dataset for each list of curves with
-      //same plotting characterstics.
-      DiscretizedFuncList dataFunctions = new DiscretizedFuncList();
-      DiscretizedFunctionXYDataSet dataset = new DiscretizedFunctionXYDataSet();
-      dataset.setXLog(xLog);
-      dataset.setYLog(yLog);
-      //converting the zero in Y-axis to some minimum value.
-      dataset.setConvertZeroToMin(true,Y_MIN_VAL);
-      dataset.setFunctions(dataFunctions);
-
-
-      //creating the secondary dataset to show it in different color and shapes
-      for(int i=datasetIndex;i<(datasetIndex+numCurves);++i){
-        dataFunctions.add(totalProbFuncs.get(i));
-      }
-      datasetIndex +=numCurves;
-
-      //making the first funtion in the list to be primary dataset and all others
-      //to be secondary datasets.
-      if(secondaryDatasetIndex!=0)
-        //adding secondarydata set to the plot
-        plot.setSecondaryDataset(secondaryDatasetIndex-1,dataset);
-      else //adding the first dataset as primary dataset of the plot
-        plot.setDataset(dataset);
-      //based on plotting characterstics for each curve sending configuring plot object
-      //to be send to JFreechart for plotting.
-      drawCurvesUsingPlottingFeatures(lineType,color,lineWidth,secondaryDatasetIndex);
-    }
-
-    plot.setBackgroundAlpha( .8f );
-
-    //giving off all the data that needs to be plotted to JFreechart, which return backs
-    //a panel fo curves,
-    JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
-
-    chart.setBackgroundPaint( lightBlue );
-
-    // Put into a panel
-    chartPanel = new ChartPanel(chart, true, true, true, true, false);
-
-    chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-    chartPanel.setMouseZoomable(true);
-    chartPanel.setDisplayToolTips(true);
-    chartPanel.setHorizontalAxisTrace(false);
-    chartPanel.setVerticalAxisTrace(false);
-
-    // set the font of legend
-    int numOfColors = plot.getSeriesCount();
-
-    /**
-     * Adding the metadata text to the Window below the Chart
-     */
-    metadataText.removeAll();
-    metadataText.setEditable(false);
-    setLegend =new SimpleAttributeSet();
-    setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
-                           Boolean.TRUE);
-    Document doc = metadataText.getStyledDocument();
-    try {
-
-      /**
-       * formatting the metadata to be added , according to the colors of the
-       * Curves. So now curves and metadata will be displayed in the same color.
-       */
-      doc.remove(0,doc.getLength());
-      //total number of elements in the list containing individual functions and
-      //weighted function list.
-      int totalNumofFunctions = funcList.size();
-      //getting the metadata associated with each function in the list
-      for(int i=0,j=0;i<totalNumofFunctions;++i){
-        String legend=null;
-        //setting the font style for the legend
-        setLegend =new SimpleAttributeSet();
-        StyleConstants.setFontSize(setLegend,12);
-        //checking if element in the list is weighted function list object
-        Object obj = funcList.get(i);
-        if(obj instanceof WeightedFuncListforPlotting){
-          //getting the metadata for weighted functionlist
-          WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
-
-          String listInfo = weightedList.getInfo();
-          legend = new String("DATASET #"+(i+1)+"\n\n"+
-                              listInfo+SystemPropertiesUtils.getSystemLineSeparator());
-          StyleConstants.setForeground(setLegend,Color.black);
-          doc.insertString(doc.getLength(),legend,setLegend);
-          //checking if individual curves need to be plotted
-          if(weightedList.areIndividualCurvesToPlot()){
-            //getting the metadata for each individual curves and creating the legend string
-            String listFunctionsInfo = weightedList.getFunctionTraceInfo();
-
-            legend = new String(listFunctionsInfo+SystemPropertiesUtils.getSystemLineSeparator());
-            //System.out.println("Color for legend:"+plotCharacterstics[j].getCurveColor());
-            //if(setLegend  == null)
-              //System.out.println("setLegend is null");
-            StyleConstants.setForeground(setLegend,plotCharacterstics[j].getCurveColor());
-            doc.insertString(doc.getLength(),legend,setLegend);
-            ++j;
-          }
-          //checking if fractiles need to be plotted
-          if(weightedList.areFractilesToPlot()){
-            //getting the fractile info for the weighted function list and adding that to the legend
-            String fractileListInfo = weightedList.getFractileInfo();
-
-            legend = new String(fractileListInfo+SystemPropertiesUtils.getSystemLineSeparator());
-            StyleConstants.setForeground(setLegend,plotCharacterstics[j].getCurveColor());
-            doc.insertString(doc.getLength(),legend,setLegend);
-            ++j;
-          }
-          //checking if mean fractile need to be plotted
-          if(weightedList.isMeanToPlot()){
-            //getting the fractileinfo and showing it as legend
-            String meanInfo = weightedList.getMeanFunctionInfo();
-
-            legend = new String(meanInfo+SystemPropertiesUtils.getSystemLineSeparator());
-            StyleConstants.setForeground(setLegend,plotCharacterstics[j].getCurveColor());
-            doc.insertString(doc.getLength(),legend,setLegend);
-            ++j;
-           }
-        }
-        else{ //if element in the list are individual function then get their info and show as legend
-          DiscretizedFuncAPI func = (DiscretizedFuncAPI)funcList.get(i);
-          String functionInfo = func.getInfo();
-          String name = func.getName();
-
-          legend = new String("DATASET #"+(i+1)+"\n\n"+
-                              name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
-                              functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
-          System.out.println("Curve color:"+plotCharacterstics[j].getCurveColor());
-          if(setLegend == null)
-            System.out.println("SetLegend is null");
-          StyleConstants.setForeground(setLegend,plotCharacterstics[j].getCurveColor());
-          doc.insertString(doc.getLength(),legend,setLegend);
-          ++j;
-        }
-      }
-    } catch (BadLocationException e) {
-      return;
-    }
-    graphOn=false;
-
-    //Check to see if there is no log Error and only  xLog or yLog are selected
-    if(!logErrorFlag && !xLog)
-      xAxis1 = xAxis;
-    if(!logErrorFlag && !yLog)
-      yAxis1 = yAxis;
-
-    //setting the info for the plotted curves in data window.
-    pointsTextArea.setText(this.showDataInWindow(funcList,xAxisName,yAxisName));
-    return ;
-
-
-  }
 
   /**
    * For each function in the list it sets the plotting characeterstics of the curve
@@ -766,28 +466,18 @@ public class GraphPanel extends JPanel {
     // Starting
     String S = "drawGraphPanel(): ";
 
-    ArrayList plottingFeatures = new ArrayList();
 
     //if(legendColor == null)
     createColorSchemeAndFunctionList(funcList);
 
-    totalProbFuncs.setXAxisName(xAxisName);
-    totalProbFuncs.setYAxisName(yAxisName);
-    // create a default chart based on some sample data...
 
-
-    // set the log flag in the XY dataset
-    data.setXLog(xLog);
-    data.setYLog(yLog);
+    //flags to check if the exception was thrown on selection of the x-log or y-log.
+    boolean logErrorFlag = false;
 
     //getting the axis font size
     int axisFontSize = buttonControlPanel.getAxisLabelFontSize();
     //getting the tick label font size
     int tickFontSize = buttonControlPanel.getTickLabelFontSize();
-
-    //flags to check if the exception was thrown on selection of the x-log or y-log.
-    boolean logErrorFlag = false;
-
 
     //create the standard ticks so that smaller values too can plotted on the chart
     TickUnits units = MyTickUnits.createStandardTickUnits();
@@ -804,7 +494,6 @@ public class GraphPanel extends JPanel {
         xAxis.setAutoRangeIncludesZero( false );
       xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
-
       //Axis label font
       Font axisLabelFont = xAxis.getLabelFont();
       xAxis.setLabelFont(new Font(axisLabelFont.getFontName(),axisLabelFont.getStyle(),axisFontSize));
@@ -816,7 +505,7 @@ public class GraphPanel extends JPanel {
       //added to have the minimum range within the Upper and Lower Bound of the Axis
       //xAxis.setAutoRangeMinimumSize(.1);
 
-      /* to set the range of the axis on the input from the user if the range combo box is selected*/
+  /* to set the range of the axis on the input from the user if the range combo box is selected*/
       if(customAxis)
         xAxis.setRange(application.getMinX(),application.getMaxX());
 
@@ -852,7 +541,7 @@ public class GraphPanel extends JPanel {
       //added to have the minimum range within the Upper and Lower Bound of the Axis
       //yAxis.setAutoRangeMinimumSize(.1);
 
-      /* to set the range of the axis on the input from the user if the range combo box is selected*/
+  /* to set the range of the axis on the input from the user if the range combo box is selected*/
       if(customAxis)
         yAxis.setRange(application.getMinY(),application.getMaxY());
 
@@ -864,16 +553,12 @@ public class GraphPanel extends JPanel {
       yAxis = yAxis1;
       logErrorFlag = false;
     }
-    int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
-
-   StandardXYItemRenderer LINE_RENDERER = new StandardXYItemRenderer(
-            org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
-            new StandardXYToolTipGenerator()
-            );
 
 
+
+    plot = null;
     // build the plot
-    plot = new XYPlot(data,xAxis, yAxis, LINE_RENDERER);
+    plot = new XYPlot(null,xAxis, yAxis, null);
 
     //setting the plot properties
     plot.setDomainCrosshairLockedOnData(false);
@@ -882,15 +567,65 @@ public class GraphPanel extends JPanel {
     plot.setRangeCrosshairVisible(false);
     plot.setInsets(new Insets(10, 0, 0, tickFontSize+15));
 
-    float lineWidth = ((BasicStroke)LINE_RENDERER.getBaseStroke()).getLineWidth();
-    String plotType = PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE;
 
-    int numSeries = totalProbFuncs.size();
-    for(int i=0; i < numSeries; ++i) LINE_RENDERER.setSeriesPaint(i,legendPaint[i]);
 
-    plot.setRenderer( LINE_RENDERER );
+    //total number of funtions that need to be plotted differently using different characterstics
+    int numFuncs = curvePlottingCharacterstics.size();
+    //index of dataset from total prob functionlist (list containing each curve as
+    //individual discretized function).
+    int datasetIndex = 0;
+    //secondarydataset index keeps track where do we have to add the seconadary data set in plot
+    for(int j=0,secondaryDatasetIndex=0; j < numFuncs; ++j,++secondaryDatasetIndex){
+      PlotCurveCharacterstics curveCharaceterstic = (PlotCurveCharacterstics)curvePlottingCharacterstics.get(j);
+      Color color = curveCharaceterstic.getCurveColor();
+      double lineWidth = curveCharaceterstic.getCurveWidth();
+      String lineType = curveCharaceterstic.getCurveType();
+      //getting the number of consecutive curves that have same plotting characterstics.
+      int numCurves = curveCharaceterstic.getNumContinuousCurvesWithSameCharacterstics();
+      //if size of that plot size then don't add it to the dataset
+      if(lineWidth ==0){
+        //adding the number of consecutive curves with same plotting characterstics to dataset index.
+        datasetIndex +=numCurves;
+        //decrement the secondary dataset index so that we seconday dataset is added to correct place.
+        --secondaryDatasetIndex;
+        continue;
+      }
+      //creating dataset for each curve and its consecutive curves which have same plotting
+      //characterstics. Eg: can be weighted functions in weighted functionlist  have same
+      //plotting characterstics, also fractiles in weighted function list share same
+      //plotting characterstics. So creating dataset for each list of curves with
+      //same plotting characterstics.
+      DiscretizedFuncList dataFunctions = new DiscretizedFuncList();
+      DiscretizedFunctionXYDataSet dataset = new DiscretizedFunctionXYDataSet();
+      dataset.setXLog(xLog);
+      dataset.setYLog(yLog);
+      //converting the zero in Y-axis to some minimum value.
+      dataset.setConvertZeroToMin(true,Y_MIN_VAL);
+      dataset.setFunctions(dataFunctions);
+
+
+      //creating the secondary dataset to show it in different color and shapes
+      for(int i=datasetIndex;i<(datasetIndex+numCurves);++i){
+        dataFunctions.add(totalProbFuncs.get(i));
+      }
+      datasetIndex +=numCurves;
+
+      //making the first funtion in the list to be primary dataset and all others
+      //to be secondary datasets.
+      if(secondaryDatasetIndex!=0)
+        //adding secondarydata set to the plot
+        plot.setSecondaryDataset(secondaryDatasetIndex-1,dataset);
+      else //adding the first dataset as primary dataset of the plot
+        plot.setDataset(dataset);
+      //based on plotting characterstics for each curve sending configuring plot object
+      //to be send to JFreechart for plotting.
+      drawCurvesUsingPlottingFeatures(lineType,color,lineWidth,secondaryDatasetIndex);
+    }
+
     plot.setBackgroundAlpha( .8f );
 
+    //giving off all the data that needs to be plotted to JFreechart, which return backs
+    //a panel fo curves,
     JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
 
     chart.setBackgroundPaint( lightBlue );
@@ -927,7 +662,7 @@ public class GraphPanel extends JPanel {
       //weighted function list.
       int totalNumofFunctions = funcList.size();
       //getting the metadata associated with each function in the list
-      for(int i=0,j=0;i<totalNumofFunctions;++i){
+      for(int i=0,j=0,plotPrefIndex=0;i<totalNumofFunctions;++i){
         String legend=null;
         //setting the font style for the legend
         setLegend =new SimpleAttributeSet();
@@ -947,9 +682,8 @@ public class GraphPanel extends JPanel {
           doc.insertString(doc.getLength(),legend,setLegend);
           //checking if individual curves need to be plotted
           if(weightedList.areIndividualCurvesToPlot()){
-            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(datasetName+" Curves",
-                plotType,legendColor[j],lineWidth,weightedList.getNumWeightedFunctions());
-            plottingFeatures.add(plotChar);
+            ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(datasetName+" Curves");
+
             //getting the metadata for each individual curves and creating the legend string
             String listFunctionsInfo = weightedList.getFunctionTraceInfo();
 
@@ -958,13 +692,14 @@ public class GraphPanel extends JPanel {
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
             j=j+weightedList.getNumWeightedFunctions();
+            ++plotPrefIndex;
 
           }
           //checking if fractiles need to be plotted
           if(weightedList.areFractilesToPlot()){
-            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(datasetName+" Fractiles",
-                plotType,legendColor[j],lineWidth,weightedList.getNumFractileFunctions());
-            plottingFeatures.add(plotChar);
+            ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(
+                datasetName+" Fractiles");
+
              //getting the fractile info for the weighted function list and adding that to the legend
             String fractileListInfo = weightedList.getFractileInfo();
 
@@ -972,12 +707,12 @@ public class GraphPanel extends JPanel {
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
             j = j+weightedList.getNumFractileFunctions();
+            ++plotPrefIndex;
           }
           //checking if mean fractile need to be plotted
           if(weightedList.isMeanToPlot()){
-            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(datasetName+" Mean",
-                plotType,legendColor[j],lineWidth);
-            plottingFeatures.add(plotChar);
+            ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(
+                datasetName+" Mean");
             //getting the fractileinfo and showing it as legend
             String meanInfo = weightedList.getMeanFunctionInfo();
 
@@ -985,12 +720,12 @@ public class GraphPanel extends JPanel {
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
             ++j;
+            ++plotPrefIndex;
            }
         }
         else{ //if element in the list are individual function then get their info and show as legend
-          PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(datasetName,
-              plotType,legendColor[j],lineWidth);
-          plottingFeatures.add(plotChar);
+          ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(
+                datasetName);
           DiscretizedFuncAPI func = (DiscretizedFuncAPI)funcList.get(i);
           String functionInfo = func.getInfo();
           String name = func.getName();
@@ -1001,6 +736,7 @@ public class GraphPanel extends JPanel {
           StyleConstants.setForeground(setLegend,legendColor[j]);
           doc.insertString(doc.getLength(),legend,setLegend);
           ++j;
+          ++plotPrefIndex;
         }
       }
     } catch (BadLocationException e) {
@@ -1013,14 +749,6 @@ public class GraphPanel extends JPanel {
       xAxis1 = xAxis;
     if(!logErrorFlag && !yLog)
       yAxis1 = yAxis;
-
-    //creating the plotting feature array
-    int  numDiffPlots = plottingFeatures.size();
-    curvePlottingCharacterstics = new PlotCurveCharacterstics[numDiffPlots];
-    for(int i=0;i<numDiffPlots;++i)
-      curvePlottingCharacterstics[i] =(PlotCurveCharacterstics)plottingFeatures.get(i);
-
-    plottingFeatures =null;
 
     //setting the info in the
     pointsTextArea.setText(this.showDataInWindow(funcList,xAxisName,yAxisName));
@@ -1206,7 +934,7 @@ public class GraphPanel extends JPanel {
    * @returns the Array of PlotCurveCharacterstics[] that contain the info about
    * plotting the curve like plot line color , its width and line type.
    */
-  public PlotCurveCharacterstics[] getCurvePlottingCharactersticInfo(){
+  public ArrayList getCurvePlottingCharactersticInfo(){
     return curvePlottingCharacterstics;
   }
 
@@ -1232,7 +960,9 @@ public class GraphPanel extends JPanel {
     int numCurves  = functionList.size();
     ArrayList numColorArray = new ArrayList();
 
+
     for(int i=0;i<numCurves;++i){
+
       Object obj = functionList.get(i);
       if(obj instanceof WeightedFuncListforPlotting){
         WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
@@ -1265,13 +995,15 @@ public class GraphPanel extends JPanel {
     int size = totalProbFuncs.size();
     Color[] color = new Color[size];
 
+    //number of different curves with different plotting characterstics.
+    int existingCurvesWithPlotPrefs = this.curvePlottingCharacterstics.size();
 
     int numDiffColors = numColorArray.size();
 
     //sets the num of datset with differnt color scheme.
     this.numDataset = numDiffColors;
 
-    //int colorChoice = (int)255/numDiffColors;
+
     //creating the color array
     int index=0;
     //looping over all the default colors to add those to the color array
@@ -1282,6 +1014,11 @@ public class GraphPanel extends JPanel {
       int val = ((Integer)numColorArray.get(i)).intValue();
       for(int j=0;j<val;++j)
         color[index++] = defaultColor[defaultColorIndex];
+      //adding the new curves to the list for plot preferences.
+      if(i>=existingCurvesWithPlotPrefs)
+        curvePlottingCharacterstics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+            defaultColor[defaultColorIndex],1.0,val));
+
     }
     //setting the color scheme
     setSeriesColor(color);

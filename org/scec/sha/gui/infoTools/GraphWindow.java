@@ -62,9 +62,6 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   private String xAxisName;
   private String yAxisName;
 
-  //boolean to check if the plot preferences to be used to draw the curves
-  private boolean drawCurvesUsingPlotPrefs;
-
   /**
    * for Y-log, 0 values will be converted to this small value
    */
@@ -196,10 +193,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     * to draw the graph
     */
    private void drawGraph() {
-     if(drawCurvesUsingPlotPrefs)
-       graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,"",buttonControlPanel,getPlottingFeatures());
-     else
-       graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,"",buttonControlPanel);
+     graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,"",buttonControlPanel);
      togglePlot();
    }
 
@@ -207,10 +201,8 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     * plots the curves with defined color,line width and shape.
     * @param plotFeatures
     */
-   public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
-     graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,
-                               "",buttonControlPanel,plotFeatures);
-     togglePlot();
+   public void plotGraphUsingPlotPreferences(){
+     drawGraph();
    }
 
    //checks if the user has plot the data window or plot window
@@ -262,17 +254,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
    * @returns the plotting feature like width, color and shape type of each
    * curve in list.
    */
-  public PlotCurveCharacterstics[] getPlottingFeatures(){
+  public ArrayList getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharactersticInfo();
-  }
-
-
-  /**
-   *
-   * @param usePlotPrefs: boolean for checking if curves
-   * need to be plotted using the plotting preferences.
-   */
-  public void setCurvesToUsePlotPrefs(boolean usePlotPrefs){
-    drawCurvesUsingPlotPrefs = usePlotPrefs;
   }
 }

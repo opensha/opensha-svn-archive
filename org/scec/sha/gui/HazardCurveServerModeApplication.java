@@ -241,8 +241,6 @@ public class HazardCurveServerModeApplication extends JApplet
   //index number of ERF for which Hazard Curve is being calculated
   private int currentERFInEpistemicListForHazardCurve =0;
 
-  //boolean to check if the plot preferences to be used to draw the curves
-  private boolean drawCurvesUsingPlotPrefs;
 
   /**
    * these four values save the custom axis scale specified by user
@@ -510,8 +508,6 @@ public class HazardCurveServerModeApplication extends JApplet
     buttonPanel.add(progressCheckBox, 4);
     buttonPanel.add(buttonControlPanel,5);
     buttonPanel.add(imgLabel, 6);
-    buttonControlPanel.setPlotPreferencesButtonVisible(false);
-
 
     topSplitPane.add(chartSplit, JSplitPane.TOP);
     chartSplit.add(panel, JSplitPane.LEFT);
@@ -777,11 +773,10 @@ public class HazardCurveServerModeApplication extends JApplet
 
     /**
      * plots the curves with defined color,line width and shape.
-     * @param plotFeatures
+     *
      */
-    public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
-      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE,buttonControlPanel,plotFeatures);
-      togglePlot();
+    public void plotGraphUsingPlotPreferences(){
+      drawGraph();
     }
 
 
@@ -1799,16 +1794,7 @@ public class HazardCurveServerModeApplication extends JApplet
    * @returns the plotting feature like width, color and shape type of each
    * curve in list.
    */
-  public PlotCurveCharacterstics[] getPlottingFeatures(){
+  public ArrayList getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharactersticInfo();
-  }
-
-  /**
-   *
-   * @param usePlotPrefs: boolean for checking if curves
-   * need to be plotted using the plotting preferences.
-   */
-  public void setCurvesToUsePlotPrefs(boolean usePlotPrefs){
-    drawCurvesUsingPlotPrefs = usePlotPrefs;
   }
 }
