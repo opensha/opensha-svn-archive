@@ -61,7 +61,7 @@ public class MapGuiBean extends JPanel {
    * It is a wrapper function around GMT tool
    * @param fileName: name of the XYZ file
    */
-  public JPanel makeMap(String fileName){
+  public void makeMap(String fileName){
 
 
     ParameterList gmtParamList=gmtMap.getParameterList();
@@ -195,7 +195,5 @@ public class MapGuiBean extends JPanel {
 
     // increment jpg file index
       ++outputFilePrefixCounter;
-
-      return this;
   }
 }

@@ -21,6 +21,8 @@ import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.data.TimeSpan;
+import org.scec.param.event.ParameterChangeListener;
+import org.scec.param.event.ParameterChangeEvent;
 
 
 /**
@@ -35,7 +37,8 @@ import org.scec.data.TimeSpan;
  * @version 1.0
  */
 
-public class Frankel96_EqkRupForecast extends EqkRupForecast {
+public class Frankel96_EqkRupForecast extends EqkRupForecast
+    implements ParameterChangeListener{
 
   //for Debug purposes
   private static String  C = new String("Frankel96_EqkRupForecast");
@@ -119,6 +122,10 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
     private final static double RUP_OFFSET_PARAM_MAX = 100;
     DoubleParameter rupOffset_Param;
 
+    // private declaration of the flag to check if any parameter has been changed from its original value.
+    private boolean  parameterChangeFlag = true;
+
+
 
   /**
    *
@@ -149,6 +156,12 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
     adjustableParams.addParameter(fracGR_Param);
     adjustableParams.addParameter(rupOffset_Param);
 
+    // add the change listener to parameters so that forecast can be updated
+    // whenever any paramater changes
+    timeSpanParam.addParameterChangeListener(this);
+    faultModelParam.addParameterChangeListener(this);
+    fracGR_Param.addParameterChangeListener(this);
+    rupOffset_Param.addParameterChangeListener(this);
 
 
     // read the lines of the input file into a list
@@ -488,7 +501,23 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
    public void updateForecast() {
      // make the sources
-     makeSources();
+     if(parameterChangeFlag) {
+       makeSources();
+       parameterChangeFlag = false;
+     }
+   }
+
+   /**
+    *  This is the main function of this interface. Any time a control
+    *  paramater or independent paramater is changed by the user in a GUI this
+    *  function is called, and a paramater change event is passed in.
+    *
+    *  This sets the flag to indicate that the sources need to be updated
+    *
+    * @param  event
+    */
+   public void parameterChange( ParameterChangeEvent event ) {
+     parameterChangeFlag=true;
    }
 
 

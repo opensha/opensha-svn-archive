@@ -24,7 +24,6 @@ public class GMT_SettingsControlPanel extends JFrame {
   private Border border1;
   private JButton okButton = new JButton();
   private JButton cancelButton = new JButton();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
@@ -105,6 +104,7 @@ public class GMT_SettingsControlPanel extends JFrame {
   // GMT parameter list and parameter list editor
   private ParameterList gmtParamList = new ParameterList();
   private ParameterListEditor gmtParamListEditor;
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
 
 
@@ -136,12 +136,13 @@ public class GMT_SettingsControlPanel extends JFrame {
         cancelButton_actionPerformed(e);
       }
     });
+    this.setTitle("GMT Controls");
     this.getContentPane().add(gmtPanel,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 4, 0, 4), 210, 429));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 6, 0, 5), 315, 9));
     this.getContentPane().add(cancelButton,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 6, 7, 18), 20, 3));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 14, 5), 16, 3));
     this.getContentPane().add(okButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 25, 7, 0), 45, 1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(9, 122, 14, 0), 17, 1));
   }
 
 
