@@ -1111,10 +1111,12 @@ public class ShakeMap_2003_AttenRel
         // SA/3.00 - actually these are BJF's 2-second values
         BJF_1997_AttenRelCoefficients coeff4 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "3.00" ) ).doubleValue() ,
             3.00, -1.699, -1.801, -1.743, 1.085, -0.085, -0.812, -0.655, 1795, 5.85, 0.495, 0.362, 0.613, 0.276, 0.672 );
-        // PGV - these are actually from 1-sec SA using the Newmark & Hall (1982) amp factor of 37.27*2.54 to change B1
-        // That is, add 4.55 to the B1 coeffs (4.55 = ln(37.27*2.54)
+        // PGV - these are actually from 1-sec SA using the Newmark & Hall (1982).  According to the ShakeMap docs this
+        // scaling factor is PGV = (37.27*2.54)*SA1.0
+        // The following formula is slightly more accurate (from Ken Campbell)
+        double SA10toPGV = Math.log(981.0/(2.0*Math.PI*1.65));
         BJF_1997_AttenRelCoefficients coeff5 = new BJF_1997_AttenRelCoefficients( PGV_NAME,
-            -1, 3.217, 3.541, 3.470, 1.036, -0.032, -0.798, -0.698, 1406, 2.9, 0.474, 0.325, 0.575, 0.214, 0.613 );
+            -1, -1.133+SA10toPGV, -1.009+SA10toPGV, -1.08+SA10toPGV, 1.036, -0.032, -0.798, -0.698, 1406, 2.9, 0.474, 0.325, 0.575, 0.214, 0.613 );
 
         // add these to the list
         coefficientsBJF.put( coeff0.getName(), coeff0 );
