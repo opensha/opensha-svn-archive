@@ -1,16 +1,19 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-In the "Set Site Params from Web Services" control panel, change it to have two buttons.  One that says "Set Params For Chosen IMR", and one that says "Set Params For All IMRs".
+In HazardCurveCalculators (at least server mode):
 
-in the "ERF Epistemic Control" panel, please make the first two option align correctly.
+	a) if you accidentally hit compute twice quickly the app seems to crash after doing 
+	the computation once (or at least a second control panel pops up and nothing happens,
+	or something happens but the progress bar doesn't change).
+
+	b) change it so when you've clicked one of the buttons in the "Set Site Related Params" 
+	control panel, and it's succeeded, automatically close the window.
 
 
-
+In all apps - can we have a bug-reporting via email utility?
 
 Add the  revised version of the test results for AttenuationRelationhships by Ken Campbell to the JUnit test.
-
-
 
 The the name of HazardMapApplet to HazardMapDataApplet, and in this app. allow the user to set the name of the directory (if name already used give an error message, if name is null use timestamp?, don't allow white space in name?).
 
