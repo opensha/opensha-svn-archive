@@ -55,21 +55,21 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
 
 
     /**
-     *  Returns a reference to the current potentialEarthquake object in the IMR
+     *  Returns a reference to the current probEqkRupture object in the IMR
      *
-     * @return    The potentialEarthquake object
+     * @return    The probEqkRupture object
      */
     public ProbEqkRupture getProbEqkRupture();
 
 
     /**
-     *  Sets the potentialEarthquake object in the IMR as a reference
+     *  Sets the probEqkRupture object in the IMR as a reference
      *  to the one passed in, and sets any potential-earthquake related
      *  parameters that the IMR depends upon.
      *
-     * @param  potentialEarthquake  The new potentialEarthquake object
+     * @param  probEqkRupture  The new probEqkRupture object
      */
-    public void setProbEqkRupture( ProbEqkRupture potentialEarthquake );
+    public void setProbEqkRupture( ProbEqkRupture probEqkRupture );
 
 
 
@@ -117,15 +117,15 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
 
 
     /**
-     *  Sets the potentialEarthquake, site and intensityMeasure objects
+     *  Sets the probEqkRupture, site and intensityMeasure objects
      *  simultaneously.
      *
-     * @param  potentialEarthquake    The new PE value
+     * @param  probEqkRupture    The new PE value
      * @param  site                   The new Site value
      * @param  intensityMeasure       The new IM value
      */
     public void setAll(
-            ProbEqkRupture potentialEarthquake,
+            ProbEqkRupture probEqkRupture,
             Site site,
             ParameterAPI intensityMeasure
              );
@@ -216,10 +216,10 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      *  First sets the PE, then calculates the Exceedence Probability from all
      *  the variables of this IMR.
      *
-     * @param  potentialEarthquake  The new potential earthquake value
+     * @param  probEqkRupture  The new potential earthquake value
      * @return                      The exceed Probability value
      * /
-    public Double getExceedProbability( ProbEqkRupture potentialEarthquake );
+    public Double getExceedProbability( ProbEqkRupture probEqkRupture );
 
 
     /* *
@@ -256,14 +256,14 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      *  Sets all parameters, then calculates the Exceedence Probability from all
      *  the variables of this IMR.
      *
-     * @param  potentialEarthquake    The new potential earthquake value
+     * @param  probEqkRupture    The new potential earthquake value
      * @param  site                   The new site value
      * @param  intensityMeasureLevel  The new IML value
      * @param  intensityMeasureType   The new IMT value
      * @return                        The exceed Probability value
      * /
     public Double getExceedProbability(
-            ProbEqkRupture potentialEarthquake,
+            ProbEqkRupture probEqkRupture,
             Site site,
             Object intensityMeasureLevel,
             ParameterAPI intensityMeasureType
@@ -274,12 +274,12 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      *  First sets the PE, then calculates the Exceedence Probability from all
      *  the variables of this IMR, calcualting over a range of parameter values.
      *
-     * @param  potentialEarthquake  The new potential earthquake value
+     * @param  probEqkRupture  The new potential earthquake value
      * @return                      The exceed Probability values put in a
      *      DiscretizedFunction
      * /
     public DiscretizedFunction2DAPI getExceedProbabilities(
-        ProbEqkRupture potentialEarthquake ,
+        ProbEqkRupture probEqkRupture ,
         Object imtensityMeasureLevels
     );
 
@@ -315,7 +315,7 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      *  Sets all parameters, then calculates the Exceedence Probability from all
      *  the variables of this IMR, calcualting over a range of parameter values.
      *
-     * @param  potentialEarthquake    The new potential earthquake value
+     * @param  probEqkRupture    The new potential earthquake value
      * @param  site                   The new site value
      * @param  intensityMeasureLevel  The new IML value
      * @param  intensityMeasureType   The new IMT value
@@ -323,7 +323,7 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      *      DiscretizedFunction
      * /
     public DiscretizedFunction2DAPI getExceedProbabilities(
-            ProbEqkRupture potentialEarthquake,
+            ProbEqkRupture probEqkRupture,
             Site site,
             Object intensityMeasureLevels,
             ParameterAPI intensityMeasureType

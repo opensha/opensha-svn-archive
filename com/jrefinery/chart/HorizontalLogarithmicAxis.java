@@ -547,13 +547,13 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 	int count = this.calculateVisibleTickCount();
 	double x0=0.0;
         float sum=0.1f;
-        int i=-2;
+        int i=-20;
 
         if(counter==2)
           this.tickUnit.formatter.setMaximumFractionDigits(3);
 
 
-        i=-2;
+        i=-20;
         /**
         * For loop- finds the nearest power of 10 which corresponds to the tick size.
         */

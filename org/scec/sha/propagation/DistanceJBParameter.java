@@ -72,13 +72,13 @@ public class DistanceJBParameter
      * <code>Direction dir = RelativeLocation.getDirection(loc1, loc2)</code>
      */
     protected void calcValueFromSiteAndPE(){
-        if( ( this.site != null ) && ( this.potentialEarthquake != null ) ){
+        if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 
             Location loc1 = site.getLocation();
             double minDistance = 999999;
             double currentDistance;
 
-            ListIterator it = potentialEarthquake.getRuptureSurface().getLocationsIterator();
+            ListIterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
             while( it.hasNext() ){
 
                 Object obj = it.next();
@@ -142,7 +142,7 @@ public class DistanceJBParameter
         param.name = name;
         param.info = info;
         param.site = site;
-        param.potentialEarthquake = potentialEarthquake;
+        param.probEqkRupture = probEqkRupture;
         if( !this.editable ) param.setNonEditable();
 
         return param;

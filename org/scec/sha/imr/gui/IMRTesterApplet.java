@@ -1247,7 +1247,7 @@ public class IMRTesterApplet
 
 
         /** @todo may have to be switched when different x/y axis choosen */
-        if ( !functions.isFunctionAllowed( function ) ) {
+        if ( !functions.isFuncAllowed( function ) ) {
             functions.clear();
             data.prepForXLog();
         }

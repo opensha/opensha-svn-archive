@@ -102,7 +102,7 @@ public class DiscretizedFuncList implements NamedObjectAPI{
      * @param function
      * @return
      */
-    public boolean isFunctionAllowed(DiscretizedFuncAPI function){
+    public boolean isFuncAllowed(DiscretizedFuncAPI function){
         return true;
     }
 
@@ -208,7 +208,7 @@ public class DiscretizedFuncList implements NamedObjectAPI{
     /** adds the DiscretizedFuncAPI if it doesn't exist based on the equals() method, else throws exception */
     public void add(DiscretizedFuncAPI function) throws DiscretizedFunction2DException{
 
-        if( !isFunctionAllowed(function) ) throw new DiscretizedFunction2DException(C + ": add(): " + "This function is not allowed.");
+        if( !isFuncAllowed(function) ) throw new DiscretizedFunction2DException(C + ": add(): " + "This function is not allowed.");
         //if( contains(function) ) throw new DiscretizedFunction2DException(C + ": add(): " + "This function is already in the list.");
         functions.add( function );
 

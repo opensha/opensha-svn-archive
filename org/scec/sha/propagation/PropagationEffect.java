@@ -46,7 +46,7 @@ import org.scec.sha.earthquake.*;
 public class PropagationEffect extends ParameterList {
 
     protected Site site;
-	protected ProbEqkRupture potentialEarthquake;
+	protected ProbEqkRupture probEqkRupture;
 
     /** is held in object, and added to vector of PropagationEffectParameters
      * values - int 0 or 1
@@ -87,9 +87,9 @@ public class PropagationEffect extends ParameterList {
 	/** also update all calculators with new site? */
     public void setSite(Site site) { this.site = site; }
 
-	public ProbEqkRupture getProbEqkRupture() { return potentialEarthquake; }
+	public ProbEqkRupture getProbEqkRupture() { return probEqkRupture; }
 	/** also update all calculators with new ProbEqkRupture? */
-    public void setProbEqkRupture(ProbEqkRupture pe) { potentialEarthquake = pe; }
+    public void setProbEqkRupture(ProbEqkRupture pe) { probEqkRupture = pe; }
 
 
 
@@ -113,7 +113,7 @@ public class PropagationEffect extends ParameterList {
 
     /** update existing Earthquake */
     public Object getValue(String paramName,
-			   ProbEqkRupture potentialEarthquakeObj ) {
+			   ProbEqkRupture probEqkRuptureObj ) {
     	return null;
     }
 

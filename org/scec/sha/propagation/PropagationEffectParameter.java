@@ -36,7 +36,7 @@ public abstract class PropagationEffectParameter
     protected Site site = null;
 
     /** The ProbEqkRupture used for calculating the PropagationEffect */
-    protected ProbEqkRupture potentialEarthquake = null;
+    protected ProbEqkRupture probEqkRupture = null;
 
 
 
@@ -54,8 +54,8 @@ public abstract class PropagationEffectParameter
     /** @todo  Getters / Setters */
     /* ***************************/
 
-    public Object getValue(ProbEqkRupture potentialEarthquake, Site site){
-        this.potentialEarthquake = potentialEarthquake;
+    public Object getValue(ProbEqkRupture probEqkRupture, Site site){
+        this.probEqkRupture = probEqkRupture;
         this.site = site;
         calcValueFromSiteAndPE();
         return super.getValue();
@@ -69,8 +69,8 @@ public abstract class PropagationEffectParameter
     }
 
     /** The Site must have already been set */
-    public Object getValue(ProbEqkRupture potentialEarthquake){
-        this.potentialEarthquake = potentialEarthquake;
+    public Object getValue(ProbEqkRupture probEqkRupture){
+        this.probEqkRupture = probEqkRupture;
         calcValueFromSiteAndPE();
         return this.value;
     }
@@ -84,11 +84,11 @@ public abstract class PropagationEffectParameter
     }
     public Site getSite(){ return site; }
 
-    public void setProbEqkRupture(ProbEqkRupture potentialEarthquake){
-        this.potentialEarthquake = potentialEarthquake;
+    public void setProbEqkRupture(ProbEqkRupture probEqkRupture){
+        this.probEqkRupture = probEqkRupture;
         calcValueFromSiteAndPE();
     }
-    public ProbEqkRupture getProbEqkRupture(){ return potentialEarthquake; }
+    public ProbEqkRupture getProbEqkRupture(){ return probEqkRupture; }
 
     /** Special value setter that asks the constraint object if this value is allowed
      *  else it throws and exception

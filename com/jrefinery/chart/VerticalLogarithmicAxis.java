@@ -658,15 +658,15 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
 
 	double y0=plotArea.getMaxY();
         float sum=0.1f;
-        int i=-3;
-
+        int i=-20;
+        System.out.println("VerticalLogarithmicAxis:refreshTicks()::size="+size);
         if(counter==2)
          this.tickUnit.formatter.setMaximumFractionDigits(4);
 
         /**
          * For loop- finds the nearest power of 10 which corresponds to the tick size.
          */
-	for(;;++i) {
+     /* for(;;++i) {
          if(i==-1 &&  (size==Math.pow(10,i+1))) {
             --i;
             break;
@@ -675,18 +675,21 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             --i;
             break;
            }
-        }
+        }*/
 
 
         /**
          * For Loop - Drawing the ticks which corresponds to the  power of 10
          */
-        for (; ; i++) {
+        for (i=-20; ; i++) {
 	    for(int j=0;j<10;++j) {
               sum =j*(float)Math.pow(10,i);
+              System.out.println("VerticalLogarithmicAxis:refreshTicks()::range.getLowerBound()="+range.getLowerBound());
+              System.out.println("VerticalLogarithmicAxis:refreshTicks()::sum="+sum);
+              System.out.println("VerticalLogarithmicAxis:refreshTicks()::sum="+(sum<range.getLowerBound()));
               if(sum<range.getLowerBound())
                  continue;
-              double currentTickValue = sum;
+             double currentTickValue = sum;
               double val=currentTickValue;
               double logval;
               double yy;

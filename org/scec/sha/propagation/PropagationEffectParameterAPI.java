@@ -15,13 +15,13 @@ import org.scec.sha.earthquake.*;
 public interface PropagationEffectParameterAPI {
 
 
-    public Object getValue(ProbEqkRupture potentialEarthquake, Site site);
+    public Object getValue(ProbEqkRupture probEqkRupture, Site site);
 
     /** The ProbEqkRupture must have already been set */
     public Object getValue(Site site);
 
     /** The Site must have already been set */
-    public Object getValue(ProbEqkRupture potentialEarthquake);
+    public Object getValue(ProbEqkRupture probEqkRupture);
 
     /** The ProbEqkRupture and Site must have already been set */
     public Object getValue();
@@ -29,7 +29,7 @@ public interface PropagationEffectParameterAPI {
     public void setSite(Site site);
     public Site getSite();
 
-    public void setProbEqkRupture(ProbEqkRupture potentialEarthquake);
+    public void setProbEqkRupture(ProbEqkRupture probEqkRupture);
     public ProbEqkRupture getProbEqkRupture();
 
     public Object clone();
