@@ -26,7 +26,7 @@ public class FunctionListCalc {
     DiscretizedFunc meanFunc = new ArbitrarilyDiscretizedFunc();
     int numFunctions = funcList.size(); // number of functions in the list
     int numPoints; // number of x,y points
-    if(numFunctions > 1)  numPoints = funcList.get(0).getNum();
+    if(numFunctions >= 1)  numPoints = funcList.get(0).getNum();
     else throw new RuntimeException("No function exists in functionlist to calculate mean");
 
     // now we need to iterate over all the points
