@@ -493,6 +493,7 @@ public class IMRGuiBean
 
         if ( function != null ) {
             ((ArbDiscrFuncWithParams)function).setParameterList( clones );
+            function.setName(imr.getName());
         }
         return function;
     }

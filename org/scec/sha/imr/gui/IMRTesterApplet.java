@@ -207,6 +207,7 @@ public class IMRTesterApplet extends JApplet
      */
     public String currentIMRName = "";
 
+
     //setting the legend string
     protected String legend=null;
 
@@ -260,9 +261,9 @@ public class IMRTesterApplet extends JApplet
      */
 
     Color[] legendColor={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
-                       Color.cyan,Color.pink,Color.yellow,Color.darkGray};
+                       Color.cyan,Color.pink,Color.yellow,Color.gray};
     Paint[] legendPaint={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
-                       Color.cyan,Color.pink,Color.yellow,Color.darkGray};
+                       Color.cyan,Color.pink,Color.yellow,Color.gray};
 
 
 
@@ -472,8 +473,8 @@ public class IMRTesterApplet extends JApplet
 
         titlePanel.setBackground( background );
         titlePanel.setBorder( bottomBorder );
-    titlePanel.setMinimumSize(new Dimension(40, 40));
-    titlePanel.setPreferredSize(new Dimension(40, 40));
+        titlePanel.setMinimumSize(new Dimension(40, 40));
+        titlePanel.setPreferredSize(new Dimension(40, 40));
         titlePanel.setLayout( GBL );
 
         //titleLabel.setHorizontalAlignment( SwingConstants.CENTER );
@@ -525,6 +526,7 @@ public class IMRTesterApplet extends JApplet
         addButton.setForeground( darkBlue );
         addButton.setFont( BUTTON_FONT );
         addButton.setBorder( BorderFactory.createRaisedBevelBorder() );
+    addButton.setMaximumSize(new Dimension(55, 21));
         addButton.setFocusPainted( false );
         addButton.setText( "Add Trace" );
 
@@ -613,11 +615,12 @@ public class IMRTesterApplet extends JApplet
         //titleLabel.setForeground( darkBlue );
 
         imrLabel.setForeground( darkBlue );
+        imrLabel.setFont(new java.awt.Font( "Dialog", Font.BOLD, 14 ));
         imrLabel.setText( "Choose IMR: " );
 
         imrComboBox.setBackground( lightBlue );
         imrComboBox.setForeground( darkBlue );
-        imrComboBox.setFont( new java.awt.Font( "Dialog", Font.BOLD, 14 ) );
+        imrComboBox.setFont( new java.awt.Font( "Dialog", Font.BOLD, 17 ) );
         imrComboBox.setBorder( null );
         imrComboBox.setPreferredSize( COMBO_DIM );
 
@@ -647,8 +650,8 @@ public class IMRTesterApplet extends JApplet
         rangeComboBox.addItem(new String(AUTO_SCALE));
         rangeComboBox.addItem(new String(CUSTOM_SCALE));
         rangeComboBox.setBackground(new Color(200, 200, 230));
-    rangeComboBox.setForeground(new Color(80, 80, 133));
-    rangeComboBox.setMaximumSize(new Dimension(115, 19));
+        rangeComboBox.setForeground(new Color(80, 80, 133));
+        rangeComboBox.setMaximumSize(new Dimension(115, 19));
         rangeComboBox.setMinimumSize(new Dimension(115, 19));
         rangeComboBox.setPreferredSize(new Dimension(115, 19));
         rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -656,6 +659,7 @@ public class IMRTesterApplet extends JApplet
           rangeComboBox_actionPerformed(e);
         }
         });
+    jAxisScale.setFont(new java.awt.Font("Dialog", 1, 11));
     jAxisScale.setForeground(new Color(80, 80, 133));
     jAxisScale.setText("Set Axis Scale: ");
     this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -668,7 +672,7 @@ public class IMRTesterApplet extends JApplet
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
 
 
-    titlePanel.add( this.imrComboBox, new GridBagConstraints( 1, 0 , 1, 1, 1.0, 0.0
+    titlePanel.add( this.imrComboBox, new GridBagConstraints( 1, 0 , 1, 1, 18.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
 
 
@@ -697,13 +701,11 @@ public class IMRTesterApplet extends JApplet
 
    dataScrollPane.getViewport().add( pointsTextArea, null );
 
-   buttonPanel.add( addButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+
+   buttonPanel.add( clearButton,     new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 0, 0) );
 
-   buttonPanel.add( clearButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 0, 0) );
-
-   buttonPanel.add( toggleButton,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+   buttonPanel.add( toggleButton,     new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 1), 0, 0) );
 
    //buttonPanel.add( imrComboBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
@@ -712,18 +714,20 @@ public class IMRTesterApplet extends JApplet
    //buttonPanel.add( imrLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
      //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0) );
 
-   buttonPanel.add(jCheckylog,           new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
+   buttonPanel.add(jCheckylog,                new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 0), 0, 0));
 
-   buttonPanel.add(jCheckxlog,    new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
+   buttonPanel.add(jCheckxlog,         new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 0), 0, 0));
 
-        buttonPanel.add(plotColorCheckBox,      new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add(plotColorCheckBox,          new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 0), 0, 0));
+    buttonPanel.add(rangeComboBox,    new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
-    buttonPanel.add(rangeComboBox,            new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
-    buttonPanel.add(jAxisScale,         new GridBagConstraints(5, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    buttonPanel.add(jAxisScale,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(3, 0, 0, 0), 0, 0));
+    buttonPanel.add(addButton,     new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 0, 0));
 
 
         parametersSplitPane.setBottomComponent( sheetPanel );
@@ -975,6 +979,7 @@ public class IMRTesterApplet extends JApplet
 
         // set the font of legend
         int numOfColors = plot.getSeriesCount();
+
         legendPane.removeAll();
         legendPane.setEditable(false);
         setLegend =new SimpleAttributeSet();
@@ -1438,7 +1443,8 @@ public class IMRTesterApplet extends JApplet
 
         // Add points data to text area, people can see
 
-        pointsTextArea.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
+       // pointsTextArea.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
+          pointsTextArea.setText(imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
         //if ( D ) System.out.println( S + "Graphing function:" + function.toString() );
 
         addGraphPanel();
@@ -1529,7 +1535,7 @@ public class IMRTesterApplet extends JApplet
             if( functions != null && data != null) {
                 data.setXLog(xLog);
                 String funcStr = functions.toString();
-                pointsTextArea.setText( currentIMRName + ": " + title + '\n' + funcStr );
+                pointsTextArea.setText( imr.getGraphXYAxisTitle() + '\n' + funcStr );
                 addGraphPanel();
 
             }
@@ -1548,7 +1554,7 @@ public class IMRTesterApplet extends JApplet
 
             if( functions != null && data != null) {
                 data.setYLog(yLog);
-                pointsTextArea.setText( currentIMRName + ": " + title + '\n' + functions.toString() );
+                pointsTextArea.setText( imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
                 addGraphPanel();
             }
         }
