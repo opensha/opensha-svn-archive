@@ -487,7 +487,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         double size = this.tickUnit.getSize();
 	int count = this.calculateVisibleTickCount();
 	double x0=0.0;
-        float sum=0.1f;
+        double sum=0.0;
         int i=lowest;
 
         if(counter==2)
@@ -531,7 +531,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
         for (i=lowest;;i++) {
            for(int j=0;j<10;++j){
-              sum =j*(float)Math.pow(10,i);
+              sum =j*Math.pow(10,i);
               if(sum<range.getLowerBound())
                  continue;
               if(sum>range.getUpperBound())
@@ -556,7 +556,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
 	        String tickLabel = this.tickUnit.valueToString(currentTickValue);
                 if(j!=1) // for minor axis, just display 2 to 9
-                  tickLabel=this.tickUnit.valueToString(j);
+                  tickLabel=new String(""+j);
                 else if(superscript) // whether you want to show in superscript format
                   tickLabel=new String("10E"+i);
 

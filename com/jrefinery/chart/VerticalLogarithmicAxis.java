@@ -606,7 +606,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
 	int count = this.calculateVisibleTickCount();
 
 	double y0=plotArea.getMaxY();
-        float sum=0.0f;
+        double sum=0.0;
         if(counter==2)
            this.tickUnit.formatter.setMaximumFractionDigits(3);
         boolean superscript=false;
@@ -626,8 +626,8 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
         if(lower==0.0 || upper==0.0)
                throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for Y-Log Plot");
         for(int i=lowest;;++i) {
-          double val1=Math.pow(10,i);
-          double val2=Math.pow(10,i+1);
+          double val1=Math.pow(10.0,i);
+          double val2=Math.pow(10.0,i+1);
           if(lower==val1 || upper==val1)
             break;
           if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
@@ -635,7 +635,8 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             this.setRange(val1,val2);
             break;
           }
-          if(lower < val2 && upper > val2) // we have found 1 major axis
+          if(lower < val2  && upper > val2 )
+            // we have found 1 major axis
             break;
         }
 
@@ -644,7 +645,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
          */
         for (int i=lowest; ; i++){
 	    for(int j=0;j<10;++j) {
-              sum =j*(float)Math.pow(10,i);
+              sum =j*Math.pow(10,i);
               if(sum<range.getLowerBound())
                 continue;
               if(sum>range.getUpperBound())
@@ -666,7 +667,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
               String tickLabel = this.tickUnit.valueToString(currentTickValue);
 
               if(j!=1) // for minor axis, just display 2 to 9
-                 tickLabel=this.tickUnit.valueToString(j);
+                 tickLabel=new String(""+j);
               else if(superscript) // whether you want to show in superscript format
                 tickLabel=new String("10E"+i);
 
