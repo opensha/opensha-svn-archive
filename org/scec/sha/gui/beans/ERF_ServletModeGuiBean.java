@@ -241,12 +241,12 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
 
     //Based on the selected ERF model it connects to the servlet for that ERF
     //and gets it ERF Object.
-    //if the selected forecast is PEER_Fault Forecast
-    if(selectedForecast.equalsIgnoreCase(PEER_FaultForecast.NAME)){
+    //if the selected forecast is SimplePoisson Fault Forecast
+    if(selectedForecast.equalsIgnoreCase(SimplePoissonFaultERF.NAME)){
       try{
-      eqkRupForecast=(ForecastAPI)this.openPEERFaultConnection(this.getERF_API);
+      eqkRupForecast=(ForecastAPI)this.openSimplePoissonFaultConnection(this.getERF_API);
       }catch(Exception e){
-        throw new RuntimeException("Connection to PEER Fault ERF servlet failed");
+        throw new RuntimeException("Connection to SimpleFault ERF servlet failed");
       }
     }
     //if the selected ERF is the USGS/CGS frankel ERF
@@ -410,13 +410,13 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
    * to make the connection with the servlet to get timeSpan and paramList
    */
   private void openConnectionToAllERF_Servlets() throws Exception{
-    //open the connection with the PEER_FaultForecastServlet.
-    String peerForecastName =(String)openPEERFaultConnection(getName);
-    ParameterList peerParamList =(ParameterList)openPEERFaultConnection(getAdjParams);
-    TimeSpan peerTimeSpan =(TimeSpan)openPEERFaultConnection(getTimeSpan);
-    peerTimeSpan.addParameterChangeListener(this);
-    paramListForAllERF.put(peerForecastName,peerParamList);
-    timespanListForAllERF.put(peerForecastName,peerTimeSpan);
+    //open the connection with the SimplePoisson_FaultForecastServlet.
+    String spForecastName =(String)openSimplePoissonFaultConnection(getName);
+    ParameterList spParamList =(ParameterList)openSimplePoissonFaultConnection(getAdjParams);
+    TimeSpan spTimeSpan =(TimeSpan)openSimplePoissonFaultConnection(getTimeSpan);
+    spTimeSpan.addParameterChangeListener(this);
+    paramListForAllERF.put(spForecastName,spParamList);
+    timespanListForAllERF.put(spForecastName,spTimeSpan);
     //parameterChangeFlagsForAllERF.put(peerForecastName,new Boolean(true));
 
     //open the connection for the WG-02 ERF EpistemicList
@@ -463,7 +463,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
 
     // gets the Names of all the ERF from the Hashtable and adds them to the vector
     //this list of ERF names act as the selection list for user to choose the ERF of his desire.
-    this.erfNamesVector.add(peerForecastName);
+    this.erfNamesVector.add(spForecastName);
     this.erfNamesVector.add(wg02ForecastName);
     this.erfNamesVector.add(frankelForecastName);
     this.erfNamesVector.add(stepForecastName);
@@ -707,17 +707,17 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   }
 
   /**
-   * sets up the connection with the PEER Fault Forecast Servlet on the server (gravity.usc.edu)
+   * sets up the connection with the SimplePoisson Fault Forecast Servlet on the server (gravity.usc.edu)
    */
-  private  Object openPEERFaultConnection(String function) throws Exception{
+  private  Object openSimplePoissonFaultConnection(String function) throws Exception{
 
     Object outputFromServletFunction=null;
 
-    URL peerFaultServlet = new
-                           URL("http://gravity.usc.edu/OpenSHA/servlet/PEER_FaultForecastServlet");
+    URL simplePoissonFaultServlet = new
+                           URL("http://gravity.usc.edu/OpenSHA/servlet/SimplePoissonFault_ForecastServlet");
 
 
-    URLConnection servletConnection = peerFaultServlet.openConnection();
+    URLConnection servletConnection = simplePoissonFaultServlet.openConnection();
     System.out.println("connection established:"+servletConnection.toString());
 
     // inform the connection that we will send output and accept input

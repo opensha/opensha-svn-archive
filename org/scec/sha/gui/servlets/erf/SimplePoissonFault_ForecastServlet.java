@@ -8,32 +8,37 @@ import java.util.*;
 
 import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.gui.servlets.erf.ERF_WebServiceAPI;
+
 import org.scec.sha.gui.beans.ERF_ServletModeGuiBean;
 import org.scec.param.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultForecast;
+import org.scec.sha.earthquake.SimplePoissonFaultERF;
 import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.*;
 import org.scec.param.event.*;
 import org.scec.data.*;
 import org.scec.data.region.*;
-import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultSource;
+import org.scec.util.FileUtils;
+import org.scec.exceptions.FaultException;
+import org.scec.calc.MomentMagCalc;
 
 
 /**
- * <p>Title: PEER_FaultForecastServlet </p>
- * <p>Description:This servlet generates the fault forecast for the PEER_Fault </p>
- * @author :Nitin Gupta and Vipin Gupta
- * @created June 13,2003
+ * <p>Title: SimplePoissonFault_ForecastServlet</p>
+ * <p>Description: This is the Servlet mode implementation of the SimplePoissonERF
+ * Forecast model</p>
+ * @author : Nitin Gupta and Ned Field
+ * @created : Aug 21,2003
  * @version 1.0
  */
 
-public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebServiceAPI{
+public class SimplePoissonFault_ForecastServlet extends HttpServlet implements ERF_WebServiceAPI{
 
-  //creating the global instance for the PEER_FaultForecast
-  PEER_FaultForecast peerFault = new PEER_FaultForecast();
+
+  //object for the SimplePoisson Ekq Forecast
+  SimplePoissonFaultERF simplePoissonForecast = new SimplePoissonFaultERF();
 
   //Process the HTTP Get request
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -83,13 +88,24 @@ public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebSer
     doGet(request,response);
   }
 
+
+
   /**
    * Return the name for this class
    *
    * @return : return the name for this class
    */
   public String getName(){
-    return this.peerFault.getName();
+    return this.simplePoissonForecast.getName();
+  }
+
+  /**
+   * get the adjustable parameters for this forecast
+   *
+   * @return
+   */
+  public ParameterList getAdjustableParams(){
+    return simplePoissonForecast.getAdjustableParameterList();
   }
 
   /**
@@ -98,53 +114,46 @@ public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebSer
    */
  public GeographicRegion getApplicableRegion() {
    return null;
+ }
+
+
+
+ /**
+  * This function finds whether a particular location lies in applicable
+  * region of the forecast
+  *
+  * @param loc : location
+  * @return: True if this location is within forecast's applicable region, else false
+  */
+ public boolean isLocWithinApplicableRegion(Location loc) {
+   return true;
+
+ }
+
+ /**
+  *
+  * @param time : TimeSpan Param
+  * @param param :ParameterList param
+  * @returns the object for the EqkRupForecast with updated sources
+  */
+ public ERF_API getERF_API(TimeSpan time, ParameterList params){
+   SimplePoissonFaultERF simplePoissonERF = new SimplePoissonFaultERF();
+
+   //getting the parameterList for the SimplePoisson EQforecast
+   ParameterList paramList = simplePoissonERF.getAdjustableParameterList();
+   //getting the iterators for the parameter passed as the argument in thgis function, called from applet
+   ListIterator it = params.getParametersIterator();
+   //setting the updated values for the adjustable params from the applet
+   // in the parameterList.
+   while(it.hasNext()){
+     ParameterAPI tempParam = (ParameterAPI)it.next();
+     paramList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
    }
+   simplePoissonERF.setParameterChangeFlag(true);
+   simplePoissonERF.updateForecast();
+   return (ERF_API)simplePoissonERF;
+ }
 
-   /**
-    * get the adjustable parameters for this forecast
-    *
-    * @return
-    */
-    public ParameterList getAdjustableParams() {
-      return this.peerFault.getAdjustableParameterList();
-   }
-
-   /**
-    * This function finds whether a particular location lies in applicable
-    * region of the forecast
-    *
-    * @param loc : location
-    * @return: True if this location is within forecast's applicable region, else false
-    */
-   public boolean isLocWithinApplicableRegion(Location loc) {
-     return true;
-   }
-
-
-   /**
-    *
-    * @param time : TimeSpan Param
-    * @param param :ParameterList param
-    * @returns the object for the EqkRupForecast with updated sources
-    */
-   public ERF_API getERF_API(TimeSpan time, ParameterList params){
-     //creating the new instance for the PEER Fault foracst
-     PEER_FaultForecast peerFaultObject = new PEER_FaultForecast();
-
-     //getting the parameterList for the PEER Fault forecast
-     ParameterList paramList = peerFaultObject.getAdjustableParameterList();
-     //getting the iterators for the parameter passed as the argument in thgis function, called from applet
-     ListIterator it = params.getParametersIterator();
-     //setting the updated values for the adjustable params from the applet
-    // in the parameterList
-     while(it.hasNext()){
-       ParameterAPI tempParam = (ParameterAPI)it.next();
-       paramList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
-     }
-     peerFaultObject.setParameterChangeFlag(true);
-     peerFaultObject.updateForecast();
-     return (ERF_API)peerFaultObject;
-   }
 
 
  /**
@@ -153,7 +162,8 @@ public class PEER_FaultForecastServlet extends HttpServlet implements ERF_WebSer
   * @return : time span object is returned which contains start time and duration
   */
  public TimeSpan getTimeSpan() {
-   return peerFault.getTimeSpan();
+   return simplePoissonForecast.getTimeSpan();
  }
 
 }
+
