@@ -30,7 +30,7 @@ import org.scec.data.function.DiscretizedFuncAPI;
  * @version 1.0
  */
 
-public class CondorHazardMapCalculator
+public class GridHazardMapCalculator
 {
   private static boolean D = false;
   // make a array for saving the X values
@@ -55,7 +55,7 @@ public class CondorHazardMapCalculator
   */
   try {
     // make a array for saving the X values
-    CondorHazardMapCalculator calc = new CondorHazardMapCalculator();
+    GridHazardMapCalculator calc = new GridHazardMapCalculator();
     calc.getHazardMapCurves(args, Integer.parseInt(args[0]), Integer.parseInt(args[1]));
   } catch (Exception ex) {ex.printStackTrace(); }
 
