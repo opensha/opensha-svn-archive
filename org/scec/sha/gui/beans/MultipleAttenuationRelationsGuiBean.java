@@ -331,8 +331,6 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
      if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
        updateIMT((String)event.getNewValue());
        selectIMRsForChoosenIMT();
-       validate();
-       repaint();
      }
      // if Truncation type changes
      else if( name1.equals(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME) ){
@@ -776,37 +774,29 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
      return imtEditorParamListEditor;
    }
 
-  /**
-   * Checks to see if the Intensity Measure is supported by the AttenuationRelationship.
-   * If it is supported make its parameters and check box enabled and set the
-   * parameters default values, else disable the choice of that AttenuationRelationship.
-   */
-  public void selectIMRsForChoosenIMT(){
-    ParameterAPI param = getSelectedIntensityMeasure();
-    //Iterating over all the supported AttenRels to check if they support the selected IMT
-    String paramName = param.getName();
-    //currently as all the attenuationRelationship models support SA at 1sec so we can say
-    //all of them support PGV as well.
-    if(paramName.equals(AttenuationRelationship.PGV_NAME)){
-      for(int i=0;i < numSupportedAttenRels;++i){
-        attenRelCheckBox[i].setSelected(true);
-        attenRelCheckBox[i].setEnabled(true);
-      }
-    }
-    else{
-      for(int i=0;i < numSupportedAttenRels;++i){
-        AttenuationRelationship attenRel = (AttenuationRelationship)attenRelsSupported.get(i);
-        if(!attenRel.isIntensityMeasureSupported(param)){
-          attenRelCheckBox[i].setSelected(false);
-          attenRelCheckBox[i].setEnabled(false);
-        }
-        else{
-          attenRelCheckBox[i].setSelected(true);
-          attenRelCheckBox[i].setEnabled(true);
-        }
-      }
-    }
-  }
+   /**
+    * Checks to see if the Intensity Measure is supported by the AttenuationRelationship.
+    * If it is supported make its parameters and check box enabled and set the
+    * parameters default values, else disable the choice of that AttenuationRelationship.
+    */
+   public void selectIMRsForChoosenIMT(){
+     ParameterAPI param = getSelectedIntensityMeasure();
+     //Iterating over all the supported AttenRels to check if they support the selected IMT
+     String paramName = param.getName();
+
+     for(int i=0;i < numSupportedAttenRels;++i){
+       AttenuationRelationship attenRel = (AttenuationRelationship)attenRelsSupported.get(i);
+       if(!attenRel.isIntensityMeasureSupported(param)){
+         attenRelCheckBox[i].setSelected(false);
+         attenRelCheckBox[i].setEnabled(false);
+       }
+       else{
+         attenRelCheckBox[i].setSelected(true);
+         attenRelCheckBox[i].setEnabled(true);
+       }
+     }
+   }
+
 
   /**
    *

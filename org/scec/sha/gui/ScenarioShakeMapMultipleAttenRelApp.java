@@ -505,6 +505,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
    */
   public XYZ_DataSetAPI generateShakeMap(ArrayList attenRel) throws ParameterException,RuntimeException{
     try {
+
       // this function will get the selected IMT parameter and set it in IMT
       imrGuiBean.setIMT();
       xyzDataSet = shakeMapCalc.getScenarioShakeMapData(attenRel,attenRelWts,griddedRegionSites,erfGuiBean.getRupture(),probAtIML,imlProbValue);
@@ -538,6 +539,10 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     getIMLorProb();
     //get the site values for each site in the gridded region
     getGriddedRegionSites();
+    //selected IMRs Wts
+    attenRelWts = imrGuiBean.getSelectedIMR_Weights();
+    //selected IMR's
+    attenRel= imrGuiBean.getSelectedIMRs();
     calcProgress.dispose();
     calcProgress.showProgress(false);
   }
@@ -547,12 +552,6 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
    //IML@Prob or Prob@IML and it value.
     if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())
       getGriddedSitesAndMapType();
-
-    //selected IMR's
-    attenRel= imrGuiBean.getSelectedIMRs();
-    //selected IMR's normalised wts
-    attenRelWts = imrGuiBean.getSelectedIMR_Weights();
-
 
     try{
       addButton();
