@@ -46,11 +46,11 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     //set the number of grid points for lat and lon
     double latGridDiff= Double.parseDouble(format.format((getMaxLat()-getMinLat())/gridSpacing));
     double lonGridDiff= Double.parseDouble(format.format((getMaxLon()-getMinLon())/gridSpacing));
+    if (D) System.out.println("latGridDiff="+latGridDiff+"; lonGridDiff="+lonGridDiff);
     numLatGridPoints = (int)Math.ceil(latGridDiff)+1;
     numLonGridPoints = (int)Math.ceil(lonGridDiff)+1;
 
     if (D) System.out.println("numLatGridPoints="+numLatGridPoints+"; numLonGridPoints="+numLonGridPoints);
-
   }
 
 

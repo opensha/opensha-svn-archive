@@ -33,11 +33,11 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   // VS 30 value to be set in the IMR
   private final Double VS_30= new Double(760);
 
-  private final double MIN_LAT= 32.45;
-  private final double MAX_LAT= 36.6;
+  private final double MIN_LAT= 34.45;
+  private final double MAX_LAT= 36.60;
   private final double MIN_LON = -121.45 ;
-  private final double MAX_LON= -114.5;
-  private final double GRID_SPACING= .05;
+  private final double MAX_LON= -118.50;
+  private final double GRID_SPACING= .5;
   private static final String BACKGROUND_STEP_DIR ="backGround/";
   private static final String STEP_DIR = "step/";
 
@@ -84,6 +84,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
                       "\n\n"+
                       "Forecast Info: \n"+
                       "\t"+"Name: "+forecast.getName()+"\n";
+    //generating the background dataSet
     if(!backFile.isDirectory()){
       String dataInfo = "Step Back Ground DataSet\n\n"+metadata;
       forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_BACKGROUND);
@@ -95,14 +96,21 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     String dataInfo = "Step Addon Data Set for :\n"+
                "\t"+this.getSTEP_DateTimeInfo()+"\n\n"+
                metadata;
-    forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_ADD_ON);
-    forecast.updateForecast();
-    String stepAddonDirName = STEP_DIR+this.getStepDirName()+"_Addon";
-    calc.getHazardMapCurves(stepAddonDirName,
-                            true, xValues, region, imr, forecast, dataInfo );
+    String stepDirName = this.getStepDirName();
+    String stepAddonDirName = STEP_DIR+stepDirName+"_Addon";
+    File addonFile = new File(stepAddonDirName);
+    //generating the Addon DataSet
+    if(!addonFile.isDirectory()){
 
+      forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_ADD_ON);
+      forecast.updateForecast();
+
+      calc.getHazardMapCurves(stepAddonDirName,
+                              true, xValues, region, imr, forecast, dataInfo );
+    }
+    //combining the backgound and Addon dataSet
     STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
-    String stepBothDirName = STEP_DIR+this.getStepDirName()+"_Both";
+    String stepBothDirName = STEP_DIR+stepDirName+"_Both";
     addStepData.addDataSet(STEP_DIR+this.BACKGROUND_STEP_DIR,stepAddonDirName,stepBothDirName);
     try{
       FileWriter fr = new FileWriter(stepBothDirName+"/metadata.dat");

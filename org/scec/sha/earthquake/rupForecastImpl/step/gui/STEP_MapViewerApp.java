@@ -78,10 +78,7 @@ public class STEP_MapViewerApp extends JApplet {
   private static final String TITLE = "STEP Map Viewer";
 
   //directory where we put all our step related directories (backGround, Addon and Combined)
-  private static final String STEP_DIR = "http://www.gravity.usc.edu/OpenSHA/step/";
-  private static final String STEP_BACKGROUND ="Step BackGround DataSet";
-  private static final String STEP_ADDON= "Step Addon DataSet";
-  private static final String STEP_BOTH= "Step Combined DataSet";
+  private static final String STEP_DIR = "step/";
 
   // width and height
   private static final int W = 800;
@@ -115,9 +112,8 @@ public class STEP_MapViewerApp extends JApplet {
       jbInit();
       this.initIML_ProbGuiBean();
       this.initMapGuiBean();
-      String dirName = this.getSelectedDataSet();
-      addDataInfo(dirName);
-      fillLatLonAndGridSpacing(dirName);
+      addDataInfo();
+      fillLatLonAndGridSpacing();
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -230,57 +226,57 @@ public class STEP_MapViewerApp extends JApplet {
    * Load all the available data sets by checking the data sets directory
    */
   private void loadDataSets() {
-    this.dataSetCombo.addItem(this.STEP_BACKGROUND);
-    this.dataSetCombo.addItem(this.STEP_ADDON);
-    this.dataSetCombo.addItem(this.STEP_BOTH);
-    String dirName = this.getSelectedDataSet();
-
-    // read the meta data file
-    String dataSetDescription= new String();
     try {
-      FileReader dataReader = new FileReader(dirName+"metadata.dat");
-      BufferedReader in = new BufferedReader(dataReader);
-      dataSetDescription = "";
-      String str=in.readLine();
-      while(str!=null) {
-        dataSetDescription += str+"\n";
-        str=in.readLine();
+      File dirs =new File(this.STEP_DIR);
+      File[] dirList=dirs.listFiles(); // get the list of all the data in the parent directory
+      if(dirList==null) {
+        JOptionPane.showMessageDialog(this,NO_DATA_EXISTS);
+        System.exit(0);
       }
-      metaDataHash.put(dirName,dataSetDescription);
-      in.close();
-    }catch(Exception ee) {
-      ee.printStackTrace();
-    }
+      // for each data set, read the meta data and sites info
+      for(int i=0;i<dirList.length;++i){
+        if(dirList[i].isDirectory()){
+          // read the meta data file
+          String dataSetDescription= new String();
+          try {
+            FileReader dataReader = new FileReader(this.STEP_DIR+
+                dirList[i].getName()+"/metadata.dat");
+            this.dataSetCombo.addItem(dirList[i].getName());
+            BufferedReader in = new BufferedReader(dataReader);
+            dataSetDescription = "";
+            String str=in.readLine();
+            while(str!=null) {
+              dataSetDescription += str+"\n";
+              str=in.readLine();
+            }
+            metaDataHash.put(dirList[i].getName(),dataSetDescription);
+            in.close();
+          }catch(Exception ee) {
+            ee.printStackTrace();
+          }
 
-    try{
-      // read the sites file
-      FileReader dataReader = new FileReader(dirName+"sites.dat");
-      BufferedReader in = new BufferedReader(dataReader);
-      // first line in the file contains the min lat, max lat, discretization interval
-      String latitude = in.readLine();
-      latHash.put(dirName,latitude);
-      // Second line in the file contains the min lon, max lon, discretization interval
-      String longitude = in.readLine();
-      lonHash.put(dirName,longitude);
-    } catch(Exception e) {
+          try {
+            // read the sites file
+            FileReader dataReader =
+                new FileReader(this.STEP_DIR+dirList[i].getName()+
+                "/sites.dat");
+            BufferedReader in = new BufferedReader(dataReader);
+            // first line in the file contains the min lat, max lat, discretization interval
+            String latitude = in.readLine();
+            latHash.put(dirList[i].getName(),latitude);
+            // Second line in the file contains the min lon, max lon, discretization interval
+            String longitude = in.readLine();
+            lonHash.put(dirList[i].getName(),longitude);
+          } catch(Exception e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }catch(Exception e) {
       e.printStackTrace();
     }
   }
 
-
-
-
-
-  private String getSelectedDataSet(){
-    String selectedItem =(String)dataSetCombo.getSelectedItem();
-    if(selectedItem.equals(this.STEP_BACKGROUND))
-      return this.STEP_DIR+ "background/";
-    else if(selectedItem.equals(this.STEP_ADDON))
-      return this.STEP_DIR+ "2003_07_31_23_00_25_Addon/";
-    else if(selectedItem.equals(this.STEP_BACKGROUND))
-      return this.STEP_DIR+ "2003_07_31_23_00_25_Both/";
-    else return null;
-  }
 
   /**
    * Whenever user chooses a data set in the combo box,
@@ -289,18 +285,17 @@ public class STEP_MapViewerApp extends JApplet {
    * @param e
    */
   void dataSetCombo_actionPerformed(ActionEvent e) {
-    String dirName = this.getSelectedDataSet();
-    addDataInfo(dirName);
-    fillLatLonAndGridSpacing(dirName);
+    addDataInfo();
+    fillLatLonAndGridSpacing();
   }
 
   /**
    * It will read the sites.info file and fill the min and max Lat and Lon
    */
-  private void fillLatLonAndGridSpacing(String dirName) {
+  private void fillLatLonAndGridSpacing() {
 
     // get the min and max lat and lat spacing
-    String latitude=latHash.get(dirName).toString();
+    String latitude=latHash.get(dataSetCombo.getSelectedItem()).toString();
     StringTokenizer tokenizer = new StringTokenizer(latitude);
     double minLat = Double.parseDouble(tokenizer.nextToken());
     double maxLat = Double.parseDouble(tokenizer.nextToken());
@@ -324,7 +319,7 @@ public class STEP_MapViewerApp extends JApplet {
 
 
    // line in LonHashTable contains the min lon, max lon, discretization interval
-   String longitude = lonHash.get(dirName).toString();
+   String longitude = lonHash.get(dataSetCombo.getSelectedItem()).toString();
    tokenizer = new StringTokenizer(longitude);
    double minLon = Double.parseDouble(tokenizer.nextToken());
    double maxLon = Double.parseDouble(tokenizer.nextToken());
@@ -387,8 +382,8 @@ public class STEP_MapViewerApp extends JApplet {
    * reads the metadata file for each selected item in the combo box
    * and puts the info of the dataset in the textarea.
    */
-  private void addDataInfo(String dirName){
-    String dataSetDescription=metaDataHash.get(dirName).toString();
+  private void addDataInfo(){
+    String dataSetDescription=metaDataHash.get(dataSetCombo.getSelectedItem()).toString();
     this.dataSetText.setEditable(true);
     dataSetText.setText(dataSetDescription);
     dataSetText.setEditable(false);

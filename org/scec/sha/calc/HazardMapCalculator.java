@@ -160,6 +160,7 @@ public class HazardMapCalculator {
       progressClass.displayProgressBar();
     }
     int numSites = griddedSites.getNumGridLocs();
+
     if (this.showProgressBar)  progressClass.updateProgress(0, numSites);
     int numPoints = xValues.length;
     for(int j=0;j<numSites;++j){
@@ -171,6 +172,7 @@ public class HazardMapCalculator {
       hazCurveCalc.getHazardCurve(hazFunction,site,imr,eqkRupForecast);
       String lat = decimalFormat.format(site.getLocation().getLatitude());
       String lon = decimalFormat.format(site.getLocation().getLongitude());
+
       hazFunction = this.toggleHazFuncLogValues(hazFunction, xValues);
       try{
          FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
