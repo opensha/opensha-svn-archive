@@ -22,4 +22,40 @@ public interface PlotColorAndLineTypeSelectorControlPanelAPI {
    *
    */
    public void plotGraphUsingPlotPreferences();
+
+   /**
+    *
+    * @returns the X Axis Label
+    */
+   public String getXAxisLabel();
+
+   /**
+    *
+    * @returns Y Axis Label
+    */
+   public String getYAxisLabel();
+
+   /**
+    *
+    * @returns plot Title
+    */
+   public String getPlotLabel();
+
+   /**
+    *
+    * sets  X Axis Label
+    */
+   public void setXAxisLabel(String xAxisLabel);
+
+   /**
+    *
+    * sets Y Axis Label
+    */
+   public void setYAxisLabel(String yAxisLabel);
+
+   /**
+    *
+    * sets plot Title
+    */
+   public void setPlotLabel(String plotTitle);
 }

@@ -38,10 +38,10 @@ public interface GraphWindowAPI {
   public boolean getYLog();
 
   //get Y axis Label
-  public String getXAxisName();
+  public String getXAxisLabel();
 
   //gets X Axis Label
-  public String getYAxisName();
+  public String getYAxisLabel();
 
   /**
    *

@@ -8,7 +8,8 @@ import java.util.ArrayList;
 
 import org.scec.param.DoubleParameter;
 import org.scec.param.StringParameter;
-import org.scec.param.editor.ConstrainedStringParameterEditor;
+import org.scec.param.ParameterList;
+import org.scec.param.editor.ParameterListEditor;
 import org.scec.param.editor.ConstrainedDoubleParameterEditor;
 import org.scec.param.DoubleConstraint;
 import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
@@ -50,6 +51,25 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   private JLabel jLabel1 = new JLabel();
   private JScrollPane colorAndLineTypeSelectorPanel = new JScrollPane();
 
+  //X-Axis Label param name
+  private StringParameter xAxisLabelParam;
+  public final static String xAxisLabelParamName = "X-Axis Label";
+
+  //Y-Axis Label param name
+  private StringParameter yAxisLabelParam;
+  public final static String yAxisLabelParamName = "Y-Axis Label";
+
+
+  //Plot Label param name
+  private StringParameter plotLabelParam;
+  public final static String plotLabelParamName = "Plot Label";
+
+
+  //Axis and plot labels variables
+  private String xAxisLabel;
+  private String yAxisLabel;
+  private String plotLabel;
+
 
   //static String definitions
   private final static String colorChooserString = "Choose Color";
@@ -82,13 +102,16 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   //parameter for tick label font size
   private  StringParameter tickFontSizeParam;
   public static final String tickFontSizeParamName = "Set tick label size";
-  private ConstrainedStringParameterEditor tickFontSizeParamEditor;
+  //private ConstrainedStringParameterEditor tickFontSizeParamEditor;
 
   //parameter for axis label font size
   private StringParameter axisLabelsFontSizeParam;
-  public static final String axislabelsFontSizeParamName = "Set axis label size";
-  private ConstrainedStringParameterEditor axisLabelsFontSizeParamEditor;
+  public static final String axislabelsFontSizeParamName = "Set axis label ";
+  //private ConstrainedStringParameterEditor axisLabelsFontSizeParamEditor;
 
+  //parameterList and editor for axis and plot label parameters
+  private ParameterList plotParamList;
+  private ParameterListEditor plotParamEditor;
 
   //Dynamic Gui elements array to show the dataset color coding and line plot scheme
   private JLabel[] datasetSelector;
@@ -129,6 +152,12 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     }
 
     Component parent = (Component)api;
+
+    xAxisLabel = api.getXAxisLabel();
+    yAxisLabel = api.getYAxisLabel();
+    plotLabel = api.getPlotLabel();
+
+
     // show the window at center of the parent component
      this.setLocation(parent.getX()+parent.getWidth()/3,
                       parent.getY()+parent.getHeight()/2);
@@ -147,6 +176,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
      supportedFontSizes.add("22");
      supportedFontSizes.add("24");
 
+
      //creating the font size parameters
      tickFontSizeParam = new StringParameter(tickFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(1));
      axisLabelsFontSizeParam = new StringParameter(axislabelsFontSizeParamName,supportedFontSizes,(String)supportedFontSizes.get(2));
@@ -154,14 +184,28 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
      axisLabelsFontSizeParam.addParameterChangeListener(this);
      tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
      axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
-     //creating editors for these font size parameters
-     try{
-       tickFontSizeParamEditor = new ConstrainedStringParameterEditor(tickFontSizeParam);
-       axisLabelsFontSizeParamEditor = new ConstrainedStringParameterEditor(axisLabelsFontSizeParam);
-     }catch(Exception e){
-       e.printStackTrace();
-     }
 
+     //creating the axis and plot label params
+     xAxisLabelParam = new StringParameter(xAxisLabelParamName,xAxisLabel);
+     yAxisLabelParam = new StringParameter(yAxisLabelParamName,yAxisLabel);
+     plotLabelParam = new StringParameter(plotLabelParamName,plotLabel);
+
+     xAxisLabelParam.addParameterChangeListener(this);
+     yAxisLabelParam.addParameterChangeListener(this);
+     plotLabelParam.addParameterChangeListener(this);
+
+     //creating parameterlist and its corresponding parameter to hold the Axis and plot label parameter together.
+     plotParamList = new ParameterList();
+     plotParamList.addParameter(tickFontSizeParam);
+     plotParamList.addParameter(axisLabelsFontSizeParam);
+     plotParamList.addParameter(xAxisLabelParam);
+     plotParamList.addParameter(yAxisLabelParam);
+     plotParamList.addParameter(plotLabelParam);
+
+     plotParamEditor = new ParameterListEditor(plotParamList);
+     plotParamEditor.setTitle("Plot Label Prefs Setting");
+
+     //creating editors for these font size parameters
      setPlotColorAndLineType(curveCharacterstics);
   }
 
@@ -211,9 +255,9 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 2, 0), -6, 5));
     jPanel1.add(applyButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 99, 2, 0), -4, 5));
-    jPanel1.setSize(600,300);
+    jPanel1.setSize(600,500);
     //colorAndLineTypeSelectorPanel.setSize(500,250);
-    setSize(600,300);
+    setSize(600,500);
   }
 
 
@@ -296,10 +340,8 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       curveFeaturePanel.add(lineWidthParameterEditor[i],new GridBagConstraints(3, i+1, 1, 1, 1.0, 1.0
           ,GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
     }
-    curveFeaturePanel.add(tickFontSizeParamEditor,new GridBagConstraints(1, numCurves+1, 1, 1, 1.0, 1.0
-      ,GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
-    curveFeaturePanel.add(axisLabelsFontSizeParamEditor,new GridBagConstraints(2, numCurves+1, 1, 1, 1.0, 1.0
-      ,GridBagConstraints.CENTER, GridBagConstraints.WEST, new Insets(4, 3, 5, 5), 0, 0));
+    curveFeaturePanel.add(plotParamEditor,new GridBagConstraints(1, numCurves+1, 2, 1, 0.75, 1.0
+      ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(4, 3, 5, 5), 0, 0));
   }
 
   /**
@@ -311,14 +353,22 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     String paramName = event.getParameterName();
     if(paramName.equals(this.tickFontSizeParamName)){
       tickLabelWidth = Integer.parseInt((String)tickFontSizeParam.getValue());
-      tickFontSizeParamEditor.setValue(new String(""+tickLabelWidth));
-      tickFontSizeParamEditor.refreshParamEditor();
+      tickFontSizeParam.setValue(new String(""+tickLabelWidth));
+
     }
     else if(paramName.equals(this.axislabelsFontSizeParamName)){
       axisLabelWidth = Integer.parseInt((String)axisLabelsFontSizeParam.getValue());
-      axisLabelsFontSizeParamEditor.setValue(new String(""+axisLabelWidth));
-      axisLabelsFontSizeParamEditor.refreshParamEditor();
+      axisLabelsFontSizeParam.setValue(new String(""+axisLabelWidth));
     }
+    else if(paramName.equals(this.xAxisLabelParamName))
+      xAxisLabel = (String)this.xAxisLabelParam.getValue();
+    else if(paramName.equals(this.yAxisLabelParamName))
+      yAxisLabel = (String)this.yAxisLabelParam.getValue();
+    else if(paramName.equals(this.plotLabelParamName))
+      plotLabel = (String)this.plotLabelParam.getValue();
+
+    plotParamEditor.refreshParamEditor();
+
   }
 
   /**
@@ -396,6 +446,9 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     //getting the line width parameter
     for(int i=0;i<numCurves;++i)
       ((PlotCurveCharacterstics)plottingFeatures.get(i)).setCurveWidth(((Double)lineWidthParameterEditor[i].getParameter().getValue()).doubleValue());
+    application.setXAxisLabel(xAxisLabel);
+    application.setYAxisLabel(yAxisLabel);
+    application.setPlotLabel(plotLabel);
     application.plotGraphUsingPlotPreferences();
   }
 
@@ -461,4 +514,35 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     applyChangesToPlot();
     this.dispose();
   }
+
+  /**
+   *
+   * @returns the X Axis Label
+   */
+  public String getXAxisLabel(){
+    if(xAxisLabel !=null)
+      return xAxisLabel;
+    return "";
+  }
+
+  /**
+   *
+   * @returns Y Axis Label
+   */
+  public String getYAxisLabel(){
+    if(yAxisLabel !=null)
+      return yAxisLabel;
+    return "";
+  }
+
+  /**
+   *
+   * @returns plot Title
+   */
+   public String getPlotLabel(){
+     if(plotLabel !=null)
+      return plotLabel;
+    return "";
+   }
+
 }

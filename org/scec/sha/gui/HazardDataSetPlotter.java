@@ -132,7 +132,7 @@ public class HazardDataSetPlotter extends JApplet
   boolean useCustomX_Values = false;
 
 
-  // PEER Test Cases
+  // Plot title
   private String TITLE = new String("Hazard Curves");
 
   // light blue color
@@ -256,7 +256,7 @@ public class HazardDataSetPlotter extends JApplet
     buttonPanel.setLayout(flowLayout1);
 
 
-    addButton.setText("Compute");
+    addButton.setText("Add Plot");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);
@@ -382,7 +382,7 @@ public class HazardDataSetPlotter extends JApplet
 
       // Starting
       String S = C + ": addGraphPanel(): ";
-      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,null,buttonControlPanel);
+      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE,buttonControlPanel);
       togglePlot();
    }
 
@@ -579,21 +579,6 @@ public class HazardDataSetPlotter extends JApplet
     return graphPanel.getCurvePlottingCharacterstic();
   }
 
-   /**
-    *
-    * @returns X Axis Label
-    */
-   public String getXAxisName(){
-     return xAxisName;
-   }
-
-   /**
-    *
-    * @returns Y Axis Label
-    */
-   public String getYAxisName(){
-     return yAxisName;
-  }
 
 
   /**
@@ -691,5 +676,54 @@ public class HazardDataSetPlotter extends JApplet
   public ArrayList getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharacterstic();
   }
+
+  /**
+   *
+   * @returns the X Axis Label
+   */
+  public String getXAxisLabel(){
+    return xAxisName;
+  }
+
+  /**
+   *
+   * @returns Y Axis Label
+   */
+  public String getYAxisLabel(){
+    return yAxisName;
+  }
+
+  /**
+   *
+   * @returns plot Title
+   */
+  public String getPlotLabel(){
+    return TITLE;
+  }
+
+
+  /**
+   *
+   * sets  X Axis Label
+   */
+  public void setXAxisLabel(String xAxisLabel){
+    xAxisName = xAxisLabel;
+  }
+
+  /**
+   *
+   * sets Y Axis Label
+   */
+  public void setYAxisLabel(String yAxisLabel){
+    yAxisName = yAxisLabel;
+  }
+
+  /**
+   *
+   * sets plot Title
+   */
+   public void setPlotLabel(String plotTitle){
+     TITLE = plotTitle;
+   }
 
 }

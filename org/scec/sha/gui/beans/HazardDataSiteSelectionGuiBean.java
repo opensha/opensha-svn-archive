@@ -267,7 +267,7 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
        function.set(xVal,yVal);
      }
      function.setName(geSelectedDataSetName());
-     //function.setInfo(getMetadataForSelectedDataSet());
+     function.setInfo(getMetadataForSelectedDataSet());
      return function;
    }
 }

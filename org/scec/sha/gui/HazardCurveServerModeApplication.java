@@ -1675,9 +1675,9 @@ public class HazardCurveServerModeApplication extends JApplet
 
   /**
    *
-   * @returns X Axis Label
+   * @returns the X Axis Label
    */
-  public String getXAxisName(){
+  public String getXAxisLabel(){
     return xAxisName;
   }
 
@@ -1685,9 +1685,42 @@ public class HazardCurveServerModeApplication extends JApplet
    *
    * @returns Y Axis Label
    */
-  public String getYAxisName(){
+  public String getYAxisLabel(){
     return yAxisName;
   }
+
+  /**
+   *
+   * @returns plot Title
+   */
+  public String getPlotLabel(){
+    return TITLE;
+  }
+
+
+  /**
+   *
+   * sets  X Axis Label
+   */
+  public void setXAxisLabel(String xAxisLabel){
+    xAxisName = xAxisLabel;
+  }
+
+  /**
+   *
+   * sets Y Axis Label
+   */
+  public void setYAxisLabel(String yAxisLabel){
+    yAxisName = yAxisLabel;
+  }
+
+  /**
+   *
+   * sets plot Title
+   */
+   public void setPlotLabel(String plotTitle){
+     TITLE = plotTitle;
+   }
 
   /**
    *

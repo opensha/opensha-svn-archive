@@ -39,7 +39,9 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
 
   private static int windowNumber =1;
 
-  private static final String TITLE = "Plot Window - ";
+  private final static String TITLE = "Plot Window - ";
+
+  private String plotTitle = "Hazard Curves";
 
   private double minXValue, maxXValue, minYValue,maxYValue;
 
@@ -95,8 +97,8 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     for(int i=0;i<size;++i)
       functionList.add(applicationCurveList.get(i));
 
-    xAxisName = api.getXAxisName();
-    yAxisName  = api.getYAxisName();
+    xAxisName = api.getXAxisLabel();
+    yAxisName  = api.getYAxisLabel();
     try {
       jbInit();
     }
@@ -204,7 +206,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     * to draw the graph
     */
    private void drawGraph() {
-     graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,"",buttonControlPanel);
+     graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,plotTitle,buttonControlPanel);
      togglePlot();
    }
 
@@ -268,4 +270,53 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   public ArrayList getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharacterstic();
   }
+
+  /**
+   *
+   * @returns the X Axis Label
+   */
+  public String getXAxisLabel(){
+    return xAxisName;
+  }
+
+  /**
+   *
+   * @returns Y Axis Label
+   */
+  public String getYAxisLabel(){
+    return yAxisName;
+  }
+
+  /**
+   *
+   * @returns plot Title
+   */
+  public String getPlotLabel(){
+    return TITLE;
+  }
+
+
+  /**
+   *
+   * sets  X Axis Label
+   */
+  public void setXAxisLabel(String xAxisLabel){
+    xAxisName = xAxisLabel;
+  }
+
+  /**
+   *
+   * sets Y Axis Label
+   */
+  public void setYAxisLabel(String yAxisLabel){
+    yAxisName = yAxisLabel;
+  }
+
+  /**
+   *
+   * sets plot Title
+   */
+   public void setPlotLabel(String plotTitle){
+     plotTitle = plotTitle;
+   }
 }

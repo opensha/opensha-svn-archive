@@ -282,4 +282,54 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     plotPrefsButton.setVisible(false);
   }
 
+  /**
+   *
+   * @returns the X Axis Label
+   */
+  public String getXAxisLabel(){
+    return application.getXAxisLabel();
+  }
+
+  /**
+   *
+   * @returns Y Axis Label
+   */
+  public String getYAxisLabel(){
+    return application.getYAxisLabel();
+  }
+
+  /**
+   *
+   * @returns plot Title
+   */
+   public String getPlotLabel(){
+     return application.getPlotLabel();
+   }
+
+   /**
+    *
+    * sets  X Axis Label
+    */
+   public void setXAxisLabel(String xAxisLabel){
+     application.setXAxisLabel(xAxisLabel);
+   }
+
+   /**
+    *
+    * sets Y Axis Label
+    */
+   public void setYAxisLabel(String yAxisLabel){
+     application.setYAxisLabel(yAxisLabel);
+   }
+
+   /**
+    *
+    * sets plot Title
+    */
+    public void setPlotLabel(String plotTitle){
+      application.setPlotLabel(plotTitle);
+    }
+
+
+
 }

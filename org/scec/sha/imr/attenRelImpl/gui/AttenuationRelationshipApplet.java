@@ -1216,6 +1216,53 @@ public class AttenuationRelationshipApplet extends JApplet
   public ArrayList getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharacterstic();
   }
+  /**
+   *
+   * @returns the X Axis Label
+   */
+  public String getXAxisLabel(){
+    return xAxisName;
+  }
 
+  /**
+   *
+   * @returns Y Axis Label
+   */
+  public String getYAxisLabel(){
+    return yAxisName;
+  }
+
+  /**
+   *
+   * @returns plot Title
+   */
+  public String getPlotLabel(){
+    return "";
+  }
+
+
+  /**
+   *
+   * sets  X Axis Label
+   */
+  public void setXAxisLabel(String xAxisLabel){
+    xAxisName = xAxisLabel;
+  }
+
+  /**
+   *
+   * sets Y Axis Label
+   */
+  public void setYAxisLabel(String yAxisLabel){
+    yAxisName = yAxisLabel;
+  }
+
+  /**
+   *
+   * sets plot Title
+   */
+   public void setPlotLabel(String plotTitle){
+     String TITLE = plotTitle;
+   }
 
 }
