@@ -49,10 +49,10 @@ public class X_ValuesInCurveControlPanel extends JFrame {
 
   private DecimalFormat format = new DecimalFormat("0.000000##");
 
-  //Instance of the application using the X_ValueControlPanel
-  X_ValuesInCurveControlPanelAPI api;
+  //Stores the imt selected by the user
+  private String imt;
 
-  public X_ValuesInCurveControlPanel(Component parent,X_ValuesInCurveControlPanelAPI app) {
+  public X_ValuesInCurveControlPanel(Component parent) {
     try {
       jbInit();
       // show the window at center of the parent component
@@ -64,7 +64,6 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     catch(Exception e) {
       e.printStackTrace();
     }
-    api= app;
     format.setMaximumFractionDigits(6);
     //initialise the function with the PEER values
     generateXValues();
@@ -91,12 +90,15 @@ public class X_ValuesInCurveControlPanel extends JFrame {
         setButton_actionPerformed(e);
       }
     });
-    xValuesSelectionCombo.addItemListener(new java.awt.event.ItemListener() {
-      public void itemStateChanged(ItemEvent e) {
-        xValuesSelectionCombo_itemStateChanged(e);
+    xValuesSelectionCombo.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        xValuesSelectionCombo_actionPerformed(e);
       }
     });
     this.getContentPane().setLayout(borderLayout1);
+    jPanel1.setMinimumSize(new Dimension(300, 350));
+    jPanel1.setPreferredSize(new Dimension(340, 430));
+    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.setLayout(gridBagLayout1);
     jPanel1.add(xValuesLabel,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
@@ -116,7 +118,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     jPanel1.add(numText,  new GridBagConstraints(2, 4, 1, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 0, 0, 26), 84, 9));
     jPanel1.add(doneButton,     new GridBagConstraints(1, 6, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(172, 30, 20, 68), 12, 20));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(100, 30, 20, 68), 12, 20));
     jPanel1.add(maxLabel,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 35, 0, 0), 13, 9));
     jPanel1.add(setButton,  new GridBagConstraints(1, 5, 2, 1, 0.0, 0.0
@@ -124,13 +126,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     jPanel1.add(minLabel,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(56, 35, 0, 0), 13, 9));
 
-    this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     this.setTitle("X Values Control Panel");
-    this.addWindowListener(new java.awt.event.WindowAdapter() {
-      public void windowClosing(WindowEvent e) {
-        this_windowClosing(e);
-      }
-    });
     xValuesText.setBackground(new Color(200, 200, 230));
     xValuesText.setForeground(new Color(80, 80, 133));
     xValuesText.setLineWrap(false);
@@ -139,7 +135,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     xValuesLabel.setText("X-axis (IML) Values for Hazard Curves");
     doneButton.setForeground(new Color(80, 80, 133));
     doneButton.setText("Done");
-    this.setSize(new Dimension(250, 400));
+    this.setSize(new Dimension(400, 400));
     //adding the variuos choices to the Combo Selection for the X Values
     xValuesSelectionCombo.addItem(PEER_X_VALUES);
     xValuesSelectionCombo.addItem(CUSTOM_VALUES);
@@ -258,15 +254,6 @@ public class X_ValuesInCurveControlPanel extends JFrame {
 
 
 
-  /**
-   * Sets the ArbitrarilyDiscretizedFunc with the X values and provides all the
-   * checks to see if the X values rae correctly entered
-   * @param e
-   */
-  void  this_windowClosing(WindowEvent e) {
-    closeWindow();
-  }
-
   private void closeWindow(){
 
     int flag=0;
@@ -312,8 +299,16 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     closeWindow();
   }
 
+  //sets the imt selected by the user in the application
+  public  void setIMT(String imt){
+    this.imt = imt;
+    generateXValues();
+    repaint();
+    validate();
+  }
+
   //making the GUI visible or invisible based on the selection of "Type of X-Values"
-  void xValuesSelectionCombo_itemStateChanged(ItemEvent e) {
+  void xValuesSelectionCombo_actionPerformed(ActionEvent e) {
     String selectedItem = (String)xValuesSelectionCombo.getSelectedItem();
     if(selectedItem.equals(this.PEER_X_VALUES) || selectedItem.equals(this.CUSTOM_VALUES)){
       maxLabel.setVisible(false);
@@ -355,14 +350,13 @@ public class X_ValuesInCurveControlPanel extends JFrame {
    * This function initialises the ArbitrarilyDiscretizedFunction with the X Values
    * and Y Values based on the selection made by the user to choose the X Values.
    */
-  public void generateXValues(){
+  private void generateXValues(){
     String selectedItem = (String)xValuesSelectionCombo.getSelectedItem();
     if(selectedItem.equals(this.PEER_X_VALUES)){
       this.createPEER_Function();
       setX_Values();
     }
     else if(selectedItem.equals(this.DEFAULT)){
-      String imt = api.getSelectedIMT();
       minText.setText(""+DefaultHazardCurveForIMTs.getMinIMT_Val(imt));
       maxText.setText(""+DefaultHazardCurveForIMTs.getMaxIMT_Val(imt));
       numText.setText(""+DefaultHazardCurveForIMTs.getNumIMT_Val(imt));
@@ -379,7 +373,6 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     else if(selectedItem.equals(this.CUSTOM_VALUES)){
       xValuesText.setText("");
     }
-
   }
 
   void setButton_actionPerformed(ActionEvent e) {

@@ -51,8 +51,7 @@ import org.scec.data.Site;
 
 public class HazardCurveApplet extends JApplet
     implements Runnable,  ParameterChangeListener, AxisLimitsControlPanelAPI,
-    DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI,
-    X_ValuesInCurveControlPanelAPI {
+    DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI {
 
   /**
    * Name of the class
@@ -1450,7 +1449,8 @@ public class HazardCurveApplet extends JApplet
    */
   private void initX_ValuesControl(){
     if(xValuesPanel == null)
-      xValuesPanel = new X_ValuesInCurveControlPanel(this,this);
+      xValuesPanel = new X_ValuesInCurveControlPanel(this);
+    xValuesPanel.setIMT(imtGuiBean.getSelectedIMT());
     xValuesPanel.pack();
     xValuesPanel.show();
   }
@@ -1623,13 +1623,6 @@ public class HazardCurveApplet extends JApplet
   }
 
 
-  /**
-   *
-   * @returns the selected IMT.
-   */
-  public String getSelectedIMT(){
-    return imtGuiBean.getSelectedIMT();
-  }
 
   void imgLabel_mousePressed(MouseEvent e) {
 
