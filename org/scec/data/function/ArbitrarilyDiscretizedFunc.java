@@ -57,6 +57,8 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      */
     protected DataPoint2DTreeMap points = null;
 
+    private static String TAB = "\t";
+
 
     /**
      * Constructor that takes a DataPoint2D Comparator. The comparator is used
@@ -496,20 +498,23 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * @return
      */
     public String toString(){
+      StringBuffer b = new StringBuffer();
+      Iterator it2 = this.getPointsIterator();
 
-        StringBuffer b = new StringBuffer();
+      b.append("Name: " + getName() + '\n');
+      b.append("Num Points: " + getNum() + '\n');
+      b.append("Info: " + getInfo() + "\n\n");
+      b.append("X, Y Data:" + '\n');
 
-        Iterator it = this.getPointsIterator();
-        while(it.hasNext()) {
+      while(it2.hasNext()){
 
-            DataPoint2D point = (DataPoint2D)it.next();
-            b.append( point.toString() );
-
-        }
-
-        return b.toString();
+        DataPoint2D point = (DataPoint2D)it2.next();
+        double x = point.getX();
+        double y = point.getY();
+        b.append((float) x + TAB + (float) y + '\n');
+      }
+      return b.toString();
     }
-
 
     /**
      * Almost the same as toString() but used
