@@ -557,7 +557,7 @@ public class HazardMapApplet extends JApplet implements
     initDiscretizeValues(hazFunction);
 
     // get the selected forecast model
-    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
+    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
 
     // get the selected IMR
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
@@ -575,9 +575,7 @@ public class HazardMapApplet extends JApplet implements
     // calculate the hazard curve
    HazardMapCalculator calc = new HazardMapCalculator();
    try {
-     //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
-     //calls the method to update the magDistParams.
-     erfGuiBean.updateMagDistParam();
+
      // make a site object to pass to IMR
     Iterator it = griddedRegionGuiBean.getSites();
      // calculate the hazard curve for each site
