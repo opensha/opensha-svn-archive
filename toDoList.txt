@@ -25,14 +25,11 @@ Put calTopoInten03.grd on usc.gravity.edu (Ned has this on his computer)
 
 	Please let me know when I can check out the ASCII file
 
-Make a BooleanParameter where the editor is a checkbox (only show name since there are no units).  Make sure the editor shows the info when moused over.
+Change the BooleanParameterEditor to remove redundant wording.
 
 Access site-type servlets from the SitesInGriddedRegion rather than the GuiBean (so servlets can be accessed without having to have a GUI).  Make sure this is graceful if internet connection fails.
 
 ScenarioShakeMapApp
-
-	save matadata for each run in a "map_info.txt" file, 
-	and put a copy of this on the server in the directory for this run.
 
 	Remove the "We have obtained the site parameters from the CVM" message, 
 	but keep the "Getting site parameters ..."
@@ -50,9 +47,6 @@ ScenarioShakeMapApp
 
 	move "set site params" JCombo in  Region&SiteGuiBean to a StringParameter and add it to the list.
 
-	set the scaleLabel argument (added to GMT_MapGenerator as described below) according to chosen IMT
-	(the GMT_MapGenerator will wrap it with "log(*)" is that option was chosen.
-
 	after all the above are done, subclass the GMT_MapGenerator as GMT_MapGeneratorForShakeMaps 
 	in the sha package, and change the makeMap* methods in this sublcalss like the follow:
 
@@ -67,13 +61,9 @@ ScenarioShakeMapApp
 
 	add option to make Hazus shape files to the GMT_MapGeneratorForShakeMaps class (add this to the script).  
 	
-	if possible,make image scalable with window size (although keep aspect ratio fixed)
+	if possible, make image scalable with window size (although keep aspect ratio fixed)
 
 GMT_MapGenerator:
-
-	add a "scaleLabel" string to all of the makeMap*(*) methods and use this in 
-	place of the the hard-coded "tempLabel" String presently being used.  Also
-	wrap it with log(*) if necessary.
 
 	Figure out a way to get the following dynamically (can only do this on UNIX?):
 
