@@ -95,7 +95,7 @@ public class ShakeMap_2003_AttenRel
     protected final static Double MMI_MIN = new Double( Math.log(1.0) );
     protected final static Double MMI_MAX = new Double( Math.log(10.0) );
     public final static String MMI_ERROR_STRING = "Problem: "+
-        NAME + " cannot complete\n the requested computation for MMI!\n\n" +
+        NAME + " cannot complete\n the requested computation for MMI.\n\n" +
         "This has occurred because you attempted to compute a\n"+
         "probability of exceedance, the standard deviation, or\n"+
         "an IML at some probability other than 0.5.  The inability\n"+
@@ -556,7 +556,8 @@ public class ShakeMap_2003_AttenRel
       double mmi = (a_scale * ammi) + (v_scale * vmmi);
       if (mmi < 1) mmi = 1 ;
       if (mmi > 10) mmi = 10;
-      return ((int) (mmi * 100)) / 100;
+//      return ((int) (mmi * 100)) / 100;
+      return mmi;
     }
 
 
