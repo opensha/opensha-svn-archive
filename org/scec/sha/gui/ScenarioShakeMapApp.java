@@ -21,6 +21,7 @@ import org.scec.data.Site;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.gui.controls.RegionsOfInterestControlPanel;
 import org.scec.sha.gui.controls.PuenteHillsScenarioTestControlPanel;
+import org.scec.sha.gui.controls.PuenteHillsScenarioControlPanel;
 import org.scec.sha.gui.infoTools.*;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.data.XYZ_DataSetAPI;
@@ -83,6 +84,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF";
+  public final static String SIMPLE_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureERF";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_MultiSourceForecast";
   public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
@@ -96,10 +98,12 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
   private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
+  private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
   private PuenteHillsScenarioTestControlPanel puenteHillsTestControl;
+  private PuenteHillsScenarioControlPanel puenteHillsControl;
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -352,6 +356,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 //   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME);
+   erf_Classes.add(SIMPLE_FAULT_FORECAST_CLASS_NAME);
 //   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
 //   erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
@@ -558,6 +563,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     this.controlComboBox.addItem(CONTROL_PANELS);
     this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
+    this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
   }
 
   /**
@@ -570,6 +576,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     if(selectedControl.equalsIgnoreCase(this.REGIONS_OF_INTEREST_CONTROL))
       initRegionsOfInterestControl();
     else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_TEST_CONTROL))
+      initPuenteHillTestScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_CONTROL))
       initPuenteHillScenarioControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
@@ -589,14 +597,30 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * Initialize the Interesting regions control panel
    * It will provide a pick list of interesting regions
    */
-  private void initPuenteHillScenarioControl() {
-    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to Puente Hills Scenario?",
+  private void initPuenteHillTestScenarioControl() {
+    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to Puente Hills Test?",
                                     "Puente Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
       if(this.puenteHillsTestControl==null)
         puenteHillsTestControl = new PuenteHillsScenarioTestControlPanel(this.erfGuiBean, this.imrGuiBean,
                                                                 this.sitesGuiBean,this.mapGuiBean,this.imtGuiBean);
       puenteHillsTestControl.setParamsForPuenteHillsScenario();
+    }
+  }
+
+
+  /**
+   * Initialize the Interesting regions control panel
+   * It will provide a pick list of interesting regions
+   */
+  private void initPuenteHillScenarioControl() {
+    int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to Puente Hills Scenario?",
+                                    "Puente Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
+    if(selectedOption == JOptionPane.OK_OPTION){
+      if(this.puenteHillsTestControl==null)
+        puenteHillsControl = new PuenteHillsScenarioControlPanel(this.erfGuiBean, this.imrGuiBean,
+                                                                this.sitesGuiBean,this.mapGuiBean,this.imtGuiBean);
+      puenteHillsControl.setParamsForPuenteHillsScenario();
     }
   }
 
