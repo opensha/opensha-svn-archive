@@ -59,7 +59,9 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   public Site getSite(int index){
      site.setLocation(getGridLocation(index));
      if(this.setSiteParamsFromCVM){
-       siteTranslator.DEFAULT_VS30 = default_Vs30;
+       //sets the default VS30 for this site
+       siteTranslator.setDefault_VS30(default_Vs30);
+
        siteTranslator.setSiteParams(site,((Double)vs30.get(index)).doubleValue(),
                                     ((Double)basinDepth.get(index)).doubleValue());
 

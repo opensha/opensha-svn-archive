@@ -63,11 +63,20 @@ public class SiteTranslator implements java.io.Serializable{
 
 
 
-  public static double DEFAULT_VS30;
+  private double default_VS30;
 
   public SiteTranslator() {
   }
 
+  /**
+   * This function sets the default value for the vs30 at that site for the selected IMR
+   * if value is less than 180
+   * @param vs30
+   */
+
+  public void setDefault_VS30(double vs30){
+    this.default_VS30 = vs30;
+  }
 
   /**
    * @param s : site Object
@@ -79,19 +88,21 @@ public class SiteTranslator implements java.io.Serializable{
    */
   public boolean setSiteParams(Site s, double vs30,double basinDepth ){
     boolean isDefaultVs30Set = false;
-    if(vs30 <=180){
+    if(vs30 <=180 || vs30==Double.NaN){
       isDefaultVs30Set= true;
-      vs30=DEFAULT_VS30;
+      vs30=this.default_VS30;
     }
     ListIterator  it = s.getParametersIterator();
     while(it.hasNext()){
       ParameterAPI tempParam = (ParameterAPI)it.next();
       //Abrahamson site type
       if(tempParam.getName().equalsIgnoreCase(AS_1997_AttenRel.SITE_TYPE_NAME)){
-        if(vs30 <=400 && vs30>180 && basinDepth>=100)
-          tempParam.setValue(AS_1997_AttenRel.SITE_TYPE_SOIL);
-        else
-          tempParam.setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
+        if(basinDepth>=100 || basinDepth==Double.NaN){
+          if(vs30 <=400 && vs30>180)
+            tempParam.setValue(AS_1997_AttenRel.SITE_TYPE_SOIL);
+          else
+            tempParam.setValue(AS_1997_AttenRel.SITE_TYPE_ROCK);
+        }
       }
       //BJF site type
       else if(tempParam.getName().equalsIgnoreCase(BJF_1997_AttenRel.VS30_NAME)){
@@ -102,8 +113,12 @@ public class SiteTranslator implements java.io.Serializable{
       else if(tempParam.getName().equalsIgnoreCase(Campbell_1997_AttenRel.BASIN_DEPTH_NAME)){
         if(vs30>=400)
           tempParam.setValue(new Double(0));
-        else // set basin depth in kms
-          tempParam.setValue(new Double(basinDepth/1000));
+        else {
+          // set basin depth in kms
+          System.out.println("BasinDEpth:"+basinDepth);
+          if(Double.isNaN(basinDepth)) tempParam.setValue(null);
+          else  tempParam.setValue(new Double(basinDepth/1000));
+        }
       }
       //Cambell site type(Vs30)
       else if(tempParam.getName().equalsIgnoreCase(Campbell_1997_AttenRel.SITE_TYPE_NAME)){
@@ -127,22 +142,28 @@ public class SiteTranslator implements java.io.Serializable{
       }
       //Abrahamson site type
       else if(tempParam.getName().equalsIgnoreCase(Abrahamson_2000_AttenRel.SITE_TYPE_NAME)){
-        if(vs30 <=400 && vs30>180 && basinDepth>=100)
-          tempParam.setValue(Abrahamson_2000_AttenRel.SITE_TYPE_SOIL);
-        else
-          tempParam.setValue(Abrahamson_2000_AttenRel.SITE_TYPE_ROCK);
+        if(basinDepth>=100 || basinDepth==Double.NaN){
+          if(vs30 <=400 && vs30>180)
+            tempParam.setValue(Abrahamson_2000_AttenRel.SITE_TYPE_SOIL);
+          else
+            tempParam.setValue(Abrahamson_2000_AttenRel.SITE_TYPE_ROCK);
+        }
       }
       //SCEMY Site type
       else if(tempParam.getName().equalsIgnoreCase(SCEMY_1997_AttenRel.SITE_TYPE_NAME)){
-        if(vs30 <=400 && vs30>180 && basinDepth>=100)
-          tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_SOIL);
-        else
-          tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        if(basinDepth>=100 || basinDepth==Double.NaN){
+          if(vs30 <=400 && vs30>180)
+            tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_SOIL);
+          else
+            tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
+        }
       }
 
       //Field site type(Basin Depth)
       else if(tempParam.getName().equalsIgnoreCase(Field_2000_AttenRel.BASIN_DEPTH_NAME)){
-        tempParam.setValue(new Double(basinDepth/1000));
+        // set basin depth in kms
+          if(Double.isNaN(basinDepth)) tempParam.setValue(null);
+          else  tempParam.setValue(new Double(basinDepth/1000));
       }
       //Field site type (Vs30)
       else if(tempParam.getName().equalsIgnoreCase(Field_2000_AttenRel.VS30_NAME)){

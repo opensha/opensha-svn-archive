@@ -464,7 +464,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     Double latMax = (Double)parameterList.getParameter(MAX_LATITUDE).getValue();
     Double gridSpacing = (Double)parameterList.getParameter(GRID_SPACING).getValue();
 
-    if(lonMin.doubleValue()<this.MIN_CVM_LON ||
+   /* if(lonMin.doubleValue()<this.MIN_CVM_LON ||
        lonMax.doubleValue()>this.MAX_CVM_LON ||
        latMin.doubleValue()<this.MIN_CVM_LAT ||
        latMax.doubleValue()>this.MAX_CVM_LAT) {
@@ -474,7 +474,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
                                     MIN_CVM_LON+" < Longitude < "+MAX_CVM_LON +"\n"+
                                     MIN_CVM_LAT+" < Latitude < "+MAX_CVM_LAT);
 
-    }
+    }*/
 
     // if values in longitude and latitude are invalid
     if(lonMin == null || latMin == null) {

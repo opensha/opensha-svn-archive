@@ -18,11 +18,9 @@ import org.scec.data.Location;
 import org.scec.param.ParameterAPI;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <p>Title:SetSiteParamsFromCVMControlPanel </p>
+ * <p>Description: Get the Site Params from the CVM</p>
+ * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
@@ -105,6 +103,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
    Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
    Double latMax = new Double(latMin.doubleValue());
 
+   /*
    // check that it lies within the constraints of southern california
    if(lonMin.doubleValue()<this.MIN_CVM_LON ||
       lonMax.doubleValue()>this.MAX_CVM_LON ||
@@ -116,7 +115,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
                                    MIN_CVM_LON+" < Longitude < "+MAX_CVM_LON +"\n"+
                                    MIN_CVM_LAT+" < Latitude < "+MAX_CVM_LAT);
      return;
-   }
+   }*/
 
    // get the vs 30 and basin depth from cvm
    double vs30 = getVS30FromCVM(lonMin,lonMax,latMin,latMax);
@@ -186,7 +185,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       outputToServlet.writeObject(lonMax);
       outputToServlet.writeObject(latMin);
       outputToServlet.writeObject(latMax);
-      Double gridSpacing = new Double(0.0);
+      Double gridSpacing = new Double(0.5);
       outputToServlet.writeObject(gridSpacing);
 
       outputToServlet.flush();
@@ -232,7 +231,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
 
       // send the student object to the servlet using serialization
       ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-      Double gridSpacing = new Double(0.0);
+      Double gridSpacing = new Double(0.5);
       outputToServlet.writeObject("BasinDepth");
       outputToServlet.writeObject(lonMin);
       outputToServlet.writeObject(lonMax);

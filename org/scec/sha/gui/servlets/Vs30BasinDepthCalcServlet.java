@@ -10,10 +10,10 @@ import org.scec.data.Location;
 
 /**
  * <p>Title: Vs30BasinDepthServlet  </p>
- * <p>Author: </p>
- * <p>Version: SCVM-version 0.1</p>
- * <p>Company: </p>
- * @author unascribed
+ * <p>Description: This Servlet finds the VS30 and Basin Depth for the given
+ * region. this needs to be fixed with the implementation of the Appliacble Region
+ * Object.
+ * @author : Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
@@ -23,7 +23,7 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
   public static String BASIN_DEPTH = "BasinDepth";
 
   //File from which we get the Vs30
-  private final String VS_30_INPUT_FILENAME = "vs30class.xy";
+  private final String VS_30_INPUT_FILENAME = "vs30_120s_class.xy";
   private final String BASIN_DEPTH_FILENAME = "fine_depth_25.xy";
 
 
@@ -105,22 +105,28 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
    *
    * */
   private void getVs30(Vector locationVector,ObjectOutputStream output) {
-    Vector vs30= new Vector();
+
     try {
       double currLon=0;
       //open the File Input Stream to read the file
       FileReader input = new FileReader(this.VS_30_INPUT_FILENAME);
       BufferedReader iBuf= new BufferedReader(input);
       String str,strNext;
-      // pass the file line by line to the user end
+      // parsing the file line by line
+      //reading the first 2 lines from the file
       str=iBuf.readLine();
       strNext=iBuf.readLine();
       double total = 0;
       int lineCount = 0;
       int size= locationVector.size();
+      Vector vs30= new Vector(size);
+
+      //initialising the vs30 vector with the Double.NaN values
+      for(int i=0;i<size;++i)
+        vs30.add(new Double(Double.NaN));
+
       double prevLat=Double.NaN;
       for(int i=0;i<size;++i){
-
         double lat = ((Location)locationVector.get(i)).getLatitude();
         double lon = ((Location)locationVector.get(i)).getLongitude();
         boolean latFlag= false;
@@ -131,23 +137,29 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           StringTokenizer st = new StringTokenizer(str);
           StringTokenizer stNext = new StringTokenizer(strNext);
           // parse this line from the file
+          //reading the Lons from the file
           double val = Double.parseDouble(st.nextToken());
           double valNext = Double.parseDouble(stNext.nextToken());
+
+          //reading the Lat from the file
           double valLat = Double.parseDouble(st.nextToken());
           double valLatNext = Double.parseDouble(stNext.nextToken());
-          // add vs30 for new location
+          // add basinDepth for new location
+          //iterating over lon's for each lat
           if(lat>=valLat && lat<=valLatNext){
             System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
             latFlag=true;
           }
           if(lon>=val && lon<=valNext && latFlag){
+            //if we found the desired lon in the file ,
+            //we interpolate the value of the VS30
             double vs30_Curr =Double.parseDouble(st.nextToken());
             double vs30_Next = Double.parseDouble(stNext.nextToken());
 
             System.out.println("lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
             System.out.print(";vs30_Curr:"+vs30_Curr+";vs30_Next:"+vs30_Next);
             //returns the actual value for the vs30
-            vs30.add(new Double(this.interpolateVs30OrBasinDepth(lon,val,valNext,vs30_Curr,vs30_Next)));
+            vs30.add(i,new Double(this.interpolateVs30OrBasinDepth(lon,val,valNext,vs30_Curr,vs30_Next)));
             break;
           }
           // read next line
@@ -177,20 +189,29 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
     * calculate the BasinDepth
     */
    private void getBasinDepth(Vector locationVector,ObjectOutputStream output) {
-     Vector basinDepth= new Vector();
+
     try {
       double currLon=0;
       //open the File Input Stream to read the file
       FileReader input = new FileReader(this.BASIN_DEPTH_FILENAME);
       BufferedReader iBuf= new BufferedReader(input);
       String str,strNext;
-      // pass the file line by line to the user end
+      // parsing the file line by line
+      //reading the first 2 lines from the file
       str=iBuf.readLine();
       strNext=iBuf.readLine();
       double total = 0;
       int lineCount = 0;
+      //getting the loaction vector size
       int size= locationVector.size();
+      Vector basinDepth= new Vector(size);
+
+      //initialising the Basin Depth vector with the Double.NaN values
+      for(int i=0;i<size;++i)
+        basinDepth.add(new Double(Double.NaN));
+
       double prevLat=Double.NaN;
+      //iterating over the Location vector
       for(int i=0;i<size;++i){
         double lat = ((Location)locationVector.get(i)).getLatitude();
         double lon = ((Location)locationVector.get(i)).getLongitude();
@@ -202,22 +223,28 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           StringTokenizer st = new StringTokenizer(str);
           StringTokenizer stNext = new StringTokenizer(strNext);
           // parse this line from the file
+          //reading the Lons from the file
           double val = Double.parseDouble(st.nextToken());
           double valNext = Double.parseDouble(stNext.nextToken());
+
+          //reading the lat from the file
           double valLat = Double.parseDouble(st.nextToken());
           double valLatNext = Double.parseDouble(stNext.nextToken());
           // add basinDepth for new location
+          //iterating over lon's for each lat
           if(lat>=valLat && lat<=valLatNext){
             System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
             latFlag=true;
           }
           if(lon>=val && lon<=valNext && latFlag){
+            //if we found the desired lon in the file ,
+            //we interpolate the value of the basin depth
             double bd_Curr =Double.parseDouble(st.nextToken());
             double bd_Next = Double.parseDouble(stNext.nextToken());
             System.out.println("lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
             System.out.print(";bd_Curr:"+bd_Curr+";bd_Next:"+bd_Next);
             //returns the actual value for the basinDepth
-            basinDepth.add(new Double(this.interpolateVs30OrBasinDepth(lon,val,valNext,bd_Curr,bd_Next)));
+            basinDepth.add(i,new Double(this.interpolateVs30OrBasinDepth(lon,val,valNext,bd_Curr,bd_Next)));
             break;
           }
           // read next line
