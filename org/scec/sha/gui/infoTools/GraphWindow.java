@@ -79,10 +79,23 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     catch(Exception e) {
       e.printStackTrace();
     }
+
     //increasing the window number corresponding to the new window.
     ++windowNumber;
     drawGraph();
 
+    /**
+     * Recreating the chart with all the default settings that existed in the main application.
+     */
+    xLog = api.getXLog();
+    yLog = api.getYLog();
+    customAxis = api.isCustomAxis();
+    if(xLog)
+      buttonControlPanel.setXLog(xLog);
+    if(yLog)
+      buttonControlPanel.setYLog(yLog);
+    if(customAxis)
+      buttonControlPanel.setAxisRange(api.getMinX(),api.getMaxX(),api.getMinY(),api.getMaxY());
   }
 
   //function to create the GUI component.

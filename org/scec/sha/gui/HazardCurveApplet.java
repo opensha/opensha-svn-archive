@@ -1472,6 +1472,31 @@ public class HazardCurveApplet extends JApplet
     drawGraph();
   }
 
+
+  /**
+   *
+   * @returns the boolean: Log for X-Axis Selected
+   */
+  public boolean getXLog(){
+    return xLog;
+  }
+
+  /**
+   *
+   * @returns the boolean: Log for Y-Axis Selected
+   */
+  public boolean getYLog(){
+    return yLog;
+  }
+
+  /**
+   *
+   * @returns boolean: Checks if Custom Axis is selected
+   */
+  public boolean isCustomAxis(){
+    return customAxis;
+  }
+
   /**
    *
    * @returns the Min X-Axis Range Value, if custom Axis is choosen
