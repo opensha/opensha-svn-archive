@@ -1,10 +1,65 @@
-**************** SHORT TERM: ****************
+**************** SHORT TERM (HIGH PRIORITY): ****************
+-------------------------------------------------------------
 
-different change
+For OpenSHA:
+------------
+
+All downloadable apps at our website need to be updated.
+
+The labels for Set1-Case8-??? are incorrect in PEER_TestsApplet, PEER_TestResultsPlotterApplet, and PEER_TestResultsSubmissionApplet.  Please change "0sig", "1sig", and "2sig" to "noTrunc", "2sigTrunc", and "3sigTrunc", respectively.  This needs to be done for all three applications.  Ned tried to make this change himself in PEER_TestsApplet, but couldn't get it to work.
+
+PEER_TestsApplet - the label "Case9-SA97" should actually be "Case9-AS97" (it's correct in the other two apps).
+
+PEER_TestsApplet - presently the disaggregation window must be closed before one can return to the main app.  Can we relax this?
+
+PEER_TestsApplet - seems to throw a non-fatal exception at launch (or shortly thereafter)
+
+PEER_TestsApplet - Show any exceptions thrown by an ERF in a message window (presently nothing is reported).
+
+PEER_TestsApplet - Go through our implementation of the PEER test cases again (to make sure Ned didn't screw anything up since he last did it).  Perhaps this should wait until we can simultaneously show the true or target value in the plot.  Eventually we'll want to make Junit tests for the PEER test cases.
+
+PEER_TestsApplet - This represents are most advanced implementation of the community modeling environment or CME (with only setting parameter values for the various test cases being hard wired).  Double check that this implementation (including the PEER_TestsGuiBean) is as "clean" as possible, and that the hard coded elements can easily be remove to constitute our most advanced and general implementation of the CME.
+
+PEER_TestsApplet - In the IMT editor section the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
+
+PEER_TestResultsPlotterApplet - The horizontal split-pane divider is hard to move (seems too sensitive).
+
+PEER_TestResultsPlotterApplet - add other data and make password protection more secure.
+
+Add StirlyingFaultFactory as an option to PEER Set2-Case1 test problem (will be interesting).
+
+Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g., try it in the LogPlotTesterApp).
+
+Is the setParameterInvisible() method correct (looks like it might make parameters visible rather than invisible)?
+
+DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
+
+Find out status of getting out log-log implementation into the official JFreeChart framework.
+
+We need to define something like a WeightedERF_List in order to implement Set2-Case5 (the logic trees problem).  This will require making the GUI app know how to deal with this in addition to a normal ERF (shouldn't be a big deal).  Ned has already made some of the tools needed to pull this off.  This is a general capability that we will be implementing for other ERF models very soon.
 
 
+For the SCEC-ITR CME:
+---------------------
 
-**************** LONG TERM: ****************
+Define and implement a GeographicalRegion object (the most general being one represented with an arbitrary polygon, but we'll want a basic rectangular (& circular?) region as well).  This should have methods for determining wether an arbitrary Location object is within the Region.  This will be used by ERFs to define their region of applicability.  They will also be used to define a region for making a map.  We will also want to define methods (or subclasses) for creating a DiscretizedGeographicalRegion (again, for maps or for creating EarthquakeSource objects).  We need to think about these definitions together.
+
+We need to create an object that can write our discretized data to a GMT grd file, which we can then make a map from using our GMT_MapGenerator.  See http://gmt.soest.hawaii.edu/gmt/doc/html/GMT_Docs/node113.html for grd-format info.  GMT uses netCDF routines to read and write these files, so NetCDF for Java (http://www.unidata.ucar.edu/packages/netcdf-java/) will presumably be helpful?
+
+When we generate hazard maps, we need to develop a storage scheme for saving the hazard curves computed for each grid point (as well as the meta data about what models were used in the calculations).  This will enable us to quickly plot probs for different IMLs (or IMLs for different probs).
+
+
+**************** LONG TERM (LOWER PRIORITY): ****************
+-------------------------------------------------------------
+Move the Frankel96* data files to a better location (w/ a README or INFO file, or a header with an explanation.
+
+X vs Y scaling still seems to be incorrect in GriddedFaultApplet
+
+EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient, and have the getAveDip() method compute the dip explicitly (in case it's a subset of a listric fault)?
+
+Decide how to handle rake=NaN in each IMR (can rake-NaN in and EarthquakeRupture object?).
+
+Decide on and implement a licensing agreement.
 
 Figure out why applets don't resize with browser window size on Mac OS.
 
