@@ -207,7 +207,7 @@ public class Site_GuiBean extends ParameterListEditor implements
    */
   public void parameterChangeFailed( ParameterChangeFailEvent e ) {
 
-    String S = C + " : parameterChangeWarning(): ";
+    String S = C + " : parameterChangeFailed(): ";
     if(D) System.out.println(S + "Starting");
 
 

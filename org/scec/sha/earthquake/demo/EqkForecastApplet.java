@@ -628,7 +628,7 @@ public class EqkForecastApplet extends JApplet
       */
      public void parameterChangeFailed( ParameterChangeFailEvent e ) {
 
-         String S = C + " : parameterChangeWarning(): ";
+         String S = C + " : parameterChangeFailed(): ";
          if(D) System.out.println(S + "Starting");
 
 

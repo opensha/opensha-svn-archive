@@ -15,6 +15,8 @@ import org.scec.param.DoubleConstraint;
 import org.scec.param.DoubleDiscreteConstraint;
 import org.scec.param.DoubleDiscreteParameter;
 import org.scec.param.DoubleParameter;
+import org.scec.param.WarningIntegerParameter;
+import org.scec.param.WarningDoubleParameter;
 import org.scec.param.IntegerConstraint;
 import org.scec.param.IntegerParameter;
 import org.scec.param.ParameterAPI;
@@ -24,8 +26,11 @@ import org.scec.param.StringParameter;
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.param.event.ParameterChangeFailEvent;
+import org.scec.param.event.ParameterChangeWarningEvent;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
+import org.scec.param.event.ParameterChangeWarningListener;
+
 
 
 /**
@@ -46,7 +51,8 @@ public class ParameterApplet
          extends JApplet
          implements
         ParameterChangeListener,
-        ParameterChangeFailListener
+        ParameterChangeFailListener,
+        ParameterChangeWarningListener
 {
 
 
@@ -169,6 +175,8 @@ public class ParameterApplet
         list.addParameter( makeIntegerParameter() );
         list.addParameter( makeConstrainedIntegerParameter() );
         list.addParameter( makeConstrainedDoubleDiscreteParameter() );
+        list.addParameter( makeWarningDoubleParameter());
+        list.addParameter( makeWarningIntegerParameter());
         for ( int i = 3; i < number; i++ )
             list.addParameter( makeStringParameter() );
         return list;
@@ -215,6 +223,38 @@ public class ParameterApplet
         param.addParameterChangeListener(this);
 
         return param;
+    }
+
+    /** Makes a Parameter example for the Warning Integer Type */
+    private ParameterAPI makeWarningIntegerParameter(){
+      String name = "Name " + paramCount;
+      String value = "1" + paramCount;
+      paramCount++;
+      IntegerConstraint constraint = new IntegerConstraint( -200, 200 );
+      IntegerConstraint warnConstraint = new IntegerConstraint( -100, 100 );
+      WarningIntegerParameter param= new WarningIntegerParameter(name,constraint,"degrees",
+                                     new Integer ( value));
+      param.setWarningConstraint(warnConstraint);
+      param.addParameterChangeWarningListener(this);
+      param.addParameterChangeFailListener(this);
+      param.addParameterChangeListener(this);
+      return param;
+    }
+
+    /** Makes a Parameter example for the Warning Integer Type */
+    private ParameterAPI makeWarningDoubleParameter(){
+      String name = "Name " + paramCount;
+      String value = "1" + paramCount;
+      paramCount++;
+      DoubleConstraint constraint = new DoubleConstraint( -120, 120 );
+      DoubleConstraint warn = new DoubleConstraint(-60,60);
+      WarningDoubleParameter param= new WarningDoubleParameter(name,constraint,"degrees",
+          new Double( value));
+      param.setWarningConstraint(warn);
+      param.addParameterChangeWarningListener(this);
+      param.addParameterChangeFailListener(this);
+      param.addParameterChangeListener(this);
+      return param;
     }
 
     /** Makes a parameter example of this type */
@@ -335,4 +375,46 @@ public class ParameterApplet
                  );
 
     }
+
+    /**
+     *Shown when a Warning error is thrown on a ParameterEditor.
+     */
+    public void parameterChangeWarning( ParameterChangeWarningEvent e ){
+
+      StringBuffer b= new StringBuffer();
+      Object min,max;
+
+      try{
+        if(e.getWarningParameter().getWarningMin() instanceof Double){
+          min = (Double)e.getWarningParameter().getWarningMin();
+          max = (Double)e.getWarningParameter().getWarningMax();
+        }
+        else{
+          min = (Integer)e.getWarningParameter().getWarningMin();
+          max = (Integer)e.getWarningParameter().getWarningMax();
+        }
+
+
+        String name = e.getWarningParameter().getName();
+
+        b.append( "You have exceeded the recommended range for ");
+        b.append( name );
+        b.append( ": (" );
+        b.append( min.toString() );
+
+        b.append( " to " );
+        b.append( max.toString() );
+        b.append( ")\n" );
+        b.append( "Click Yes to accept the new value: " );
+        b.append( e.getNewValue().toString() );
+
+        JOptionPane.showMessageDialog( this, b.toString(),
+          "Exceeded Recommended Values", JOptionPane.OK_OPTION);
+        //e.getWarningParameter().setValue(e.getNewValue());
+      }catch(Exception ee){
+        ee.printStackTrace();
+      }
+
+    }
+
 }

@@ -1,7 +1,8 @@
 package org.scec.param.editor;
 
-import org.scec.param.IntegerConstraint;
-import org.scec.param.ParameterAPI;
+import org.scec.param.*;
+
+import org.scec.util.ParamUtils;
 import java.awt.*;
 
 
@@ -90,8 +91,14 @@ public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
      */
     protected IntegerConstraint getConstraint(){
       //Integer constraint declaration
-      IntegerConstraint constraint
-            = (IntegerConstraint) model.getConstraint();
+      IntegerConstraint constraint;
+
+      if( ParamUtils.isWarningParameterAPI( model ) ){
+        constraint = (IntegerConstraint)((WarningParameterAPI)model).getWarningConstraint();
+        if( constraint == null ) constraint = (IntegerConstraint) model.getConstraint();
+      }
+      else
+       constraint = (IntegerConstraint) model.getConstraint();
 
       return constraint;
     }

@@ -99,8 +99,6 @@ public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
         if( constraint == null ) constraint = (DoubleConstraint) model.getConstraint();
       }
       else constraint = (DoubleConstraint) model.getConstraint();
-
-
       return constraint;
     }
 
