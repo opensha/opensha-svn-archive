@@ -413,7 +413,6 @@ public class LogPlotTesterApp extends JApplet  {
         JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
         return;
       }
-      autoScale = true;
     }
     else
       fillValues(new XYSeries("Default Data"));
