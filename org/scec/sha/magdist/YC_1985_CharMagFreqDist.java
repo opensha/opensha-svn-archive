@@ -34,8 +34,11 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
   private double bValue;
 
 
-  /**
-    * constructor : this is same as parent class constructor
+   /**
+    * Constructor : this is the same as the parent class constructor
+    * @param min - minimum mag of distribution
+    * @param num - number of points in distribution
+    * @param delta - discretization interval
     */
    public YC_1985_CharMagFreqDist(double min,int num,double delta){
      super(min,num,delta);
@@ -43,17 +46,59 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
 
    /**
-    * constructor: this is sameas parent class constructor
+    * Constructor: this is the same as the parent class constructor
+    * @param min - minimum mag of distribution
+    * @param max - maximum mag of distribution
+    * @param num - number of points in distribution
     */
-
    public YC_1985_CharMagFreqDist(double min,double max,int num) {
      super(min,max,num);
    }
 
 
    /**
-    * constructor: this constructor assumes magLower is minX and
-    *               magUpper to be maxX
+    * Constructor: this is the full constructor
+    /**
+     * Constructor: this constructor assumes magLower is minX and magUpper to be maxX
+     * @param min - minimum mag of distribution
+     * @param num - number of points in distribution
+     * @param delta - discretization interval
+     * @param magLower - the lowest non-zero-rate magnitude
+     * @param magUpper - the highest non-zero-rate magnitude
+     * @param deltaMagChar - the width of the characteristic part (below magUpper)
+     * @param magPrime - the upper mag of the GR part
+     * @param deltaMagPrime - the distance below magPrime where the rate equals that over the char-rate part
+     * @param bValue - the b value
+     * @param totMoRate - the total moment rate
+     */
+   public YC_1985_CharMagFreqDist(double min,int num,double delta, double magLower,
+                              double magUpper, double deltaMagChar, double magPrime,
+                              double deltaMagPrime, double bValue, double totMoRate)
+                              throws DataPoint2DException {
+     super(min,num,delta);
+
+     this.magLower = magLower;
+     this.magUpper = magUpper;
+     this.deltaMagChar = deltaMagChar;
+     this.magPrime = magPrime;
+     this.deltaMagPrime = deltaMagPrime;
+     this.bValue = bValue;
+
+     calculateRelativeRates();
+     scaleToTotalMomentRate(totMoRate);
+   }
+
+
+   /**
+    * Constructor: this constructor assumes magLower is minX and magUpper to be maxX
+    * @param min - minimum mag of distribution
+    * @param num - number of points in distribution
+    * @param delta - discretization interval
+    * @param deltaMagChar - the width of the characteristic part (below magUpper)
+    * @param magPrime - the upper mag of the GR part
+    * @param deltaMagPrime - the distance below magPrime where the rate equals that over the char-rate part
+    * @param bValue - the b value
+    * @param totMoRate - the total moment rate
     */
    public YC_1985_CharMagFreqDist(double min,int num,double delta, double deltaMagChar, double magPrime,
                               double deltaMagPrime, double bValue, double totMoRate)
@@ -73,34 +118,19 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    }
 
 
-   /**
-    * constructor: this is the full constructor
-    */
-
-   public YC_1985_CharMagFreqDist(double min,int num,double delta, double magLower,
-                              double magUpper, double deltaMagChar, double magPrime,
-                              double deltaMagPrime, double bValue, double totMoRate)
-                              throws DataPoint2DException {
-     super(min,num,delta);
-
-     this.magLower = magLower;
-     this.magUpper = magUpper;
-     this.deltaMagChar = deltaMagChar;
-     this.magPrime = magPrime;
-     this.deltaMagPrime = deltaMagPrime;
-     this.bValue = bValue;
-
-     calculateRelativeRates();
-     scaleToTotalMomentRate(totMoRate);
-   }
-
-
 
    /**
-    * Set all values
+    * Update distribution (using total moment rate rather than the total rate of char events)
+    * @param magLower - the lowest non-zero-rate magnitude
+    * @param magUpper - the highest non-zero-rate magnitude
+    * @param deltaMagChar - the width of the characteristic part (below magUpper)
+    * @param magPrime - the upper mag of the GR part
+    * @param deltaMagPrime - the distance below magPrime where the rate equals that over the char-rate part
+    * @param bValue - the b value
+    * @param totMoRate - the total moment rate
     */
 
-   public void setAll(double magLower, double magUpper, double deltaMagChar,
+   public void setAllButTotCharRate(double magLower, double magUpper, double deltaMagChar,
                       double magPrime, double deltaMagPrime, double bValue,
                       double totMoRate) throws DataPoint2DException {
 
@@ -113,6 +143,33 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
         calculateRelativeRates();
         scaleToTotalMomentRate(totMoRate);
+   }
+
+
+   /**
+    * Update distribution (using total rate of char events rather than total moment rate)
+    * @param magLower - the lowest non-zero-rate magnitude
+    * @param magUpper - the highest non-zero-rate magnitude
+    * @param deltaMagChar - the width of the characteristic part (below magUpper)
+    * @param magPrime - the upper mag of the GR part
+    * @param deltaMagPrime - the distance below magPrime where the rate equals that over the char-rate part
+    * @param bValue - the b value
+    * @param totCharRate - the total rate of characteristic events (cum rate at magUpper-deltaMagChar).
+    */
+
+   public void setAllButTotMoRate(double magLower, double magUpper, double deltaMagChar,
+                      double magPrime, double deltaMagPrime, double bValue,
+                      double totCharRate) throws DataPoint2DException {
+
+        this.magLower = magLower;
+        this.magUpper = magUpper;
+        this.deltaMagChar = deltaMagChar;
+        this.magPrime = magPrime;
+        this.deltaMagPrime = deltaMagPrime;
+        this.bValue = bValue;
+
+        calculateRelativeRates();
+        this.scaleToCumRate(magUpper-deltaMagChar,totCharRate);
    }
 
 
@@ -286,7 +343,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
   }
 
   /**
-   * this function is for setting the name
+   * this method (defined in parent) is deactivated here (name is finalized)
    **/
 
   public void setName(String name) {
@@ -295,7 +352,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
   }
 
   /**
-   * this function is for setting the info
+   * this method (defined in parent) is deactivated here (info is generated internally)
    **/
   public void setInfo(String info) {
     throw new UnsupportedOperationException(C+"::::setInfo not allowed for MagFreqDist.");

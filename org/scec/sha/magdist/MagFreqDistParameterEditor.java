@@ -73,9 +73,22 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      public static final String PARAMS_TO_SET=new String("Params to Set");
      public static final String SET_ALL_PARAMS_BUT=new String("Set All Params BUT");
      public static final String MIN=new String("Min");
+     public static final String MIN_INFO=new String("Minimum magnitude of distribution");
      public static final String MAX=new String("Max");
+     public static final String MAX_INFO=new String("Maximum magnitude of distribution");
      public static final String NUM=new String("Num");
+     public static final String NUM_INFO=new String("Number of points in distribution");
 
+     /**
+      * strings for the units of all rate and moment-rate parameters
+      */
+     public static final String RATE_UNITS=new String("/yr");
+     public static final String MO_RATE_UNITS=new String("Nm/yr");
+
+     /**
+      * info string for all b-value parameters
+      */
+     public static final String BVALUE_INFO=new String("b in ralationship: log(rate) = a-b*magnitude");
 
    /**
     * Single Magnitude Frequency Distribution Parameter string list  constant
@@ -88,16 +101,18 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      public static final String MO_RATE=new String("Moment Rate");
 
 
-
   /**
    * GutenbergRichter Magnitude Frequency Distribution Parameter string list constant
    */
     public static final String GR_TO_MORATE=new String("GR Total Moment Rate");
     public static final String TO_CUM_RATE=new String("Total Cum Rate");
     public static final String GR_MAG_UPPER=new String("Mag Upper");
+    public static final String GR_MAG_UPPER_INFO=new String("Magnitude of the last non-zero rate");
     public static final String GR_MAG_LOWER=new String("Mag Lower");
+    public static final String GR_MAG_LOWER_INFO=new String("Magnitude of the first non-zero rate");
     public static final String GR_BVALUE=new String("b Value");
     public static final String FIX=new String("fix");
+    public static final String FIX_INFO=new String("Only one of these can be matched exactly");
     public static final String FIX_TO_MORATE=new String("Fix Total Moment Rate");
     public static final String FIX_TO_CUM_RATE=new String("Fix Total CUM Rate");
 
@@ -106,11 +121,16 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      * Young and Coppersmith, 1985 Char
      */
     public static final String YC_MAG_UPPER=new String("Mag Upper");
+    public static final String YC_MAG_UPPER_INFO=new String("The last magnitude with non-zero rate");
     public static final String YC_MAG_LOWER=new String("Mag Lower");
+    public static final String YC_MAG_LOWER_INFO=new String("The first magnitude with non-zero rate");
     public static final String YC_BVALUE=new String("b Value");
     public static final String YC_DELTA_MAG_CHAR = new String("Delta Mag Char");
+    public static final String YC_DELTA_MAG_CHAR_INFO = new String("Width of the characteristic part (below Mag Upper)");
     public static final String YC_MAG_PRIME = new String("Mag Prime");
+    public static final String YC_MAG_PRIME_INFO = new String("Last magnitude of the GR part");
     public static final String YC_DELTA_MAG_PRIME = new String("Delta Mag Prime");
+    public static final String YC_DELTA_MAG_PRIME_INFO = new String("Distance below Mag Prime where rate on GR equals that on the char. part");
     public static final String YC_TO_MORATE=new String("YC Total Moment Rate");
 
 
@@ -263,9 +283,11 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
         // make the min, delta and num Parametter
         DoubleParameter minParameter = new DoubleParameter(MIN,new Double(0));
+        minParameter.setInfo(MIN_INFO);
         DoubleParameter maxParameter = new DoubleParameter(MAX,new Double(10));
-        IntegerParameter numParameter = new IntegerParameter(NUM,new Integer(101));
-
+        maxParameter.setInfo(MAX_INFO);
+        IntegerParameter numParameter = new IntegerParameter(NUM, (int) 0, Integer.MAX_VALUE, new Integer(101));
+        numParameter.setInfo(NUM_INFO);
 
         // Now make the parameters list
         // At this point all values have been set for the IM type, xaxis, and the yaxis
@@ -274,9 +296,9 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          parameterList.addParameter( maxParameter );
 
          // add Parameters for single Mag freq dist
-         DoubleParameter rate=new DoubleParameter(RATE);
+         DoubleParameter rate=new DoubleParameter(RATE, 0, Double.POSITIVE_INFINITY, RATE_UNITS);
          DoubleParameter mag = new DoubleParameter(MAG);
-         DoubleParameter moRate=new DoubleParameter(MO_RATE);
+         DoubleParameter moRate=new DoubleParameter(MO_RATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS);
          Vector vStrings=new Vector();
          vStrings.add(RATE_AND_MAG);
          vStrings.add(MAG_AND_MORATE);
@@ -293,8 +315,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
           * Add parameters for Gaussian distribution
           */
          DoubleParameter mean = new DoubleParameter(MEAN);
-         DoubleParameter stdDev = new DoubleParameter(STD_DEV);
-         DoubleParameter toMoRate = new DoubleParameter(GAUSSIAN_TO_MORATE);
+         DoubleParameter stdDev = new DoubleParameter(STD_DEV, 0, Double.POSITIVE_INFINITY);
+         DoubleParameter toMoRate = new DoubleParameter(GAUSSIAN_TO_MORATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS);
          vStrings=new Vector();
          vStrings.add(NONE);
          vStrings.add(TRUNCATE_FROM_RIGHT);
@@ -313,10 +335,13 @@ public class MagFreqDistParameterEditor extends ParameterEditor
            * Add parameters for Gutenberg-Richter distribution
            */
          DoubleParameter magLower = new DoubleParameter(GR_MAG_LOWER);
+         magLower.setInfo(GR_MAG_LOWER_INFO);
          DoubleParameter magUpper = new DoubleParameter(GR_MAG_UPPER);
-         DoubleParameter bValue = new DoubleParameter(GR_BVALUE);
-         DoubleParameter toCumRate = new DoubleParameter(TO_CUM_RATE);
-         DoubleParameter gr_toMoRate = new DoubleParameter(GR_TO_MORATE);
+         magUpper.setInfo(GR_MAG_UPPER_INFO);
+         DoubleParameter bValue = new DoubleParameter(GR_BVALUE,0, Double.POSITIVE_INFINITY);
+         bValue.setInfo(BVALUE_INFO);
+         DoubleParameter toCumRate = new DoubleParameter(TO_CUM_RATE, 0, Double.POSITIVE_INFINITY, RATE_UNITS);
+         DoubleParameter gr_toMoRate = new DoubleParameter(GR_TO_MORATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS);
          vStrings=new Vector();
          vStrings.add(GR_TO_MORATE);
          vStrings.add(TO_CUM_RATE);
@@ -334,6 +359,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
          vStrings1.add(FIX_TO_CUM_RATE);
          vStrings1.add(FIX_TO_MORATE);
          StringParameter fix = new StringParameter(FIX,vStrings1,FIX_TO_CUM_RATE);
+         fix.setInfo(FIX_INFO);
          parameterList.addParameter(fix);
          fix.addParameterChangeListener(this);
 
@@ -343,12 +369,18 @@ public class MagFreqDistParameterEditor extends ParameterEditor
           * Add paramters for Youngs and Coppersmith 1985 char distribution
           */
          DoubleParameter yc_magLower = new DoubleParameter(YC_MAG_LOWER);
+         yc_magLower.setInfo(YC_MAG_LOWER_INFO);
          DoubleParameter yc_magUpper = new DoubleParameter(YC_MAG_UPPER);
-         DoubleParameter deltaMagChar = new DoubleParameter(YC_DELTA_MAG_CHAR);
+         yc_magUpper.setInfo(YC_MAG_UPPER_INFO);
+         DoubleParameter deltaMagChar = new DoubleParameter(YC_DELTA_MAG_CHAR, 0, Double.POSITIVE_INFINITY);
+         deltaMagChar.setInfo(YC_DELTA_MAG_CHAR_INFO);
          DoubleParameter magPrime = new DoubleParameter(YC_MAG_PRIME);
-         DoubleParameter deltaMagPrime = new DoubleParameter(YC_DELTA_MAG_PRIME);
-         DoubleParameter yc_bValue = new DoubleParameter(YC_BVALUE);
-         DoubleParameter yc_toMoRate = new DoubleParameter(YC_TO_MORATE);
+         magPrime.setInfo(YC_MAG_PRIME_INFO);
+         DoubleParameter deltaMagPrime = new DoubleParameter(YC_DELTA_MAG_PRIME, 0, Double.POSITIVE_INFINITY);
+         deltaMagPrime.setInfo(YC_DELTA_MAG_PRIME_INFO);
+         DoubleParameter yc_bValue = new DoubleParameter(YC_BVALUE, 0, Double.POSITIVE_INFINITY);
+         yc_bValue.setInfo(BVALUE_INFO);
+         DoubleParameter yc_toMoRate = new DoubleParameter(YC_TO_MORATE, 0, Double.POSITIVE_INFINITY, MO_RATE_UNITS);
          //parameterList.addParameter(yc_magLower);
          //parameterList.addParameter(yc_magUpper);
          parameterList.addParameter(deltaMagChar);
@@ -799,7 +831,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
            YC_1985_CharMagFreqDist yc =
                   new YC_1985_CharMagFreqDist(min.doubleValue(),max.doubleValue(),
                          num.intValue());
-           yc.setAll(magLower.doubleValue(), magUpper.doubleValue(),
+           yc.setAllButTotCharRate(magLower.doubleValue(), magUpper.doubleValue(),
                      deltaMagChar.doubleValue(), magPrime.doubleValue(),
                      deltaMagPrime.doubleValue(), bValue.doubleValue(),
                      toMoRate.doubleValue());

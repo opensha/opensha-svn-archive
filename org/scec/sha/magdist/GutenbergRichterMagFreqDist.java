@@ -347,7 +347,7 @@ public DiscretizedFuncAPI deepClone(){
    }
 
    /**
-    * this function is for setting the name
+    * this method (defined in parent) is deactivated here (name is finalized)
     **/
 
    public void setName(String name) {
@@ -356,7 +356,7 @@ public DiscretizedFuncAPI deepClone(){
    }
 
    /**
-    * this function is for setting the info
+    * this method (defined in parent) is deactivated here (info is generated internally)
     **/
    public void setInfo(String info) {
      throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");

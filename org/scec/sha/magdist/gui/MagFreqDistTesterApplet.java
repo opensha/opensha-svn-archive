@@ -1030,7 +1030,7 @@ public class MagFreqDistTesterApplet extends JApplet
           for(int i=0,j=0;i<numOfColors;++i,++j){
              if(j==legendColor.length)
               j=0;
-            legend = new String(i+1+"."+this.incrFunctions.get(i).getName()+"::"+this.incrFunctions.get(i).getInfo()+"\n\n");
+            legend = new String(i+1+") "+this.incrFunctions.get(i).getName()+":"+this.incrFunctions.get(i).getInfo()+"\n\n");
             setLegend =new SimpleAttributeSet();
             StyleConstants.setFontSize(setLegend,12);
             StyleConstants.setForeground(setLegend,legendColor[j]);

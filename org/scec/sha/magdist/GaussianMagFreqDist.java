@@ -15,8 +15,6 @@ import org.scec.exceptions.DataPoint2DException;
  * The trucation levels are rounded to the nearest point, and these are given non-zero rates (zeros
  * are above and below these points.  The mean can be any value (it doesn not have to exactly equal
  * one of the descrete x-axis values).
- * Note: applying thge scaleTo*() or normalizeBy*() methods of the parent class will not result in
- * totMoRate being updated</p>
  *
  * @author : Nitin Gupta (Aug,8,2002) & Ned Field (Nov, 21, 2002)
  * @version 1.0
@@ -24,24 +22,17 @@ import org.scec.exceptions.DataPoint2DException;
 
 public class GaussianMagFreqDist extends IncrementalMagFreqDist {
 
-
-
-  /**
-   * todo class fields
-   * Have been initialized to Double.NaN
-   */
   public  static String NAME = "Gaussian Dist.";
   private double mean= Double.NaN;
   private double stdDev= Double.NaN;
-  private double totMoRate = Double.NaN;
 
   /**
-   * The # of stdDev(from Mean) where dist. cut to zero
+   * The # of stdDev (from Mean) where truncation occurs
    */
   private double truncLevel = Double.NaN;
 
   /**
-    * none if=0;one-sided,upper if=1,two-sided if=
+    * truncType = 0 for none, = 1 for upper only, and = 2 for double sided
    */
   private int truncType =0  ;
 
@@ -53,54 +44,54 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
 
   /**
    * constructor
-   * @param min
-   * @param num
-   * @param delta
+   * @param min - minimum mag of distribution
+   * @param num - number of points in distribution
+   * @param delta - discretization interval
    */
   public GaussianMagFreqDist(double min,int num,double delta) throws DataPoint2DException{
     super(min,num,delta);
-    computeRates();
+
   }
 
   /**
    * Constructor
-   * @param min
-   * @param max
-   * @param num
+   * @param min - minimum mag of distribution
+   * @param max - maximum mag of distribution
+   * @param num - number of points in distribution
    */
   public GaussianMagFreqDist(double min,double max,int num) throws DataPoint2DException{
     super(min,max,num);
-    computeRates();
+
   }
 
 
   /**
-   * Constructor
-   * @param min
-   * @param max
-   * @param num
-   * @param mean
-   * @param stdDev
-   * @param totMoRate
+   * Constructor: This applies no trucation.
+   * @param min - minimum mag of distribution
+   * @param max - maximum mag of distribution
+   * @param num - number of points in distribution
+   * @param mean - the mean maginitude of the gaussian distribution
+   * @param stdDev - the standard deviation
+   * @param totMoRate - the total moment rate
    */
   public GaussianMagFreqDist(double min,double max,int num,double mean,double stdDev,
                              double totMoRate) throws DataPoint2DException{
     super(min,max,num);
     this.mean=mean;
     this.stdDev=stdDev;
-    this.totMoRate=totMoRate;
-    computeRates();
+    this.truncType = 0;
+    calculateRelativeRates();
+    scaleToTotalMomentRate(totMoRate);
   }
 
   /**
-   * Constructor
-   * @param min
-   * @param num
-   * @param delta
-   * @param mean
-   * @param stdDev
-   * @param totMoRate
-   * @throws DataPoint2DException
+   * Constructor: This applies no trucation.
+   * @param min - minimum mag of distribution
+   * @param num - number of points in distribution
+   * @param delta - discretization interval
+   * @param mean - the mean maginitude of the gaussian distribution
+   * @param stdDev - the standard deviation
+   * @param totMoRate - the total moment rate
    */
 
   public GaussianMagFreqDist(double min,int num,double delta,double mean,double stdDev,
@@ -108,53 +99,122 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
     super(min,num,delta);
     this.mean=mean;
     this.stdDev=stdDev;
-    this.totMoRate=totMoRate;
-    computeRates();
+    this.truncType = 0;
+    calculateRelativeRates();
+    scaleToTotalMomentRate(totMoRate);
   }
 
 
   /**
-   * Constructor
-   * @param min
-   * @param num
-   * @param delta
-   * @param mean
-   * @param stdDev
-   * @param totMoRate
-   * @param truncLevel
-   * @param truncType
+   * Constructor:  This applies whatever truncation is specified.
+   * @param min - minimum mag of distribution
+   * @param num - number of points in distribution
+   * @param delta - discretization interval
+   * @param mean - the mean maginitude of the gaussian distribution
+   * @param stdDev - the standard deviation
+   * @param totMoRate - the total moment rate
+   * @param truncLevel - in units of stdDev from the mean
+   * @param truncType - 0 for none; 1 for upper only; and 2 for upper and lower
    */
   public GaussianMagFreqDist(double min,int num,double delta,double mean,double stdDev,
                              double totMoRate,double truncLevel,int truncType) throws DataPoint2DException{
     super(min,num,delta);
     this.mean=mean;
     this.stdDev=stdDev;
-    this.totMoRate=totMoRate;
     this.truncLevel=truncLevel;
     this.truncType = truncType;
-    computeRates();
+    calculateRelativeRates();
+    scaleToTotalMomentRate(totMoRate);
   }
 
+
   /**
-   * Constructor
-   * @param min
-   * @param max
-   * @param num
-   * @param mean
-   * @param stdDev
-   * @param totMoRate
-   * @param truncLevel
-   * @param truncType
+   * Constructor:  This applies whatever truncation is specified.
+   * @param min - minimum mag of distribution
+   * @param max - maximum mag of distribution
+   * @param num - number of points in distribution
+   * @param mean - the mean maginitude of the gaussian distribution
+   * @param stdDev - the standard deviation
+   * @param totMoRate - the total moment rate
+   * @param truncLevel - in units of stdDev from the mean
+   * @param truncType - 0 for none; 1 for upper only; and 2 for upper and lower
    */
   public GaussianMagFreqDist(double min,double max,int num,double mean,double stdDev,
                              double totMoRate,double truncLevel,int truncType) throws DataPoint2DException{
     super(min,max,num);
     this.mean=mean;
     this.stdDev=stdDev;
-    this.totMoRate=totMoRate;
     this.truncLevel=truncLevel;
     this.truncType = truncType;
-    computeRates();
+    calculateRelativeRates();
+    scaleToTotalMomentRate(totMoRate);
+  }
+
+
+  /**
+   * This updates the distribution, applying no truncation (truncType set to 0)
+   * @param mean - the mean maginitude of the gaussian distribution
+   * @param stdDev - the standard deviation
+   * @param totMoRate - the total moment rate
+   */
+  public void setAllButCumRate(double mean,double stdDev, double totMoRate) {
+  this.mean=mean;
+  this.stdDev=stdDev;
+  this.truncType = 0;
+  calculateRelativeRates();
+  scaleToTotalMomentRate(totMoRate);
+  }
+
+
+  /**
+   * This updates the distribution, applying the truncation specified
+   * @param mean - the mean maginitude of the gaussian distribution
+   * @param stdDev - the standard deviation
+   * @param totMoRate - the total moment rate
+   * @param truncLevel - in units of stdDev from the mean
+   * @param truncType - 0 for none; 1 for upper only; and 2 for upper and lower
+   */
+  public void setAllButCumRate(double mean,double stdDev, double totMoRate,double truncLevel,int truncType) {
+    this.mean=mean;
+    this.stdDev=stdDev;
+    this.truncLevel=truncLevel;
+    this.truncType = truncType;
+    calculateRelativeRates();
+    scaleToTotalMomentRate(totMoRate);
+  }
+
+
+
+  /**
+   * This updates the distribution, applying no truncation (truncType set to 0)
+   * @param mean - the mean maginitude of the gaussian distribution
+   * @param stdDev - the standard deviation
+   * @param totCumRate - the total cumulative rate (at the lowest magnitude)
+   */
+  public void setAllButTotMoRate(double mean,double stdDev, double totCumRate) {
+  this.mean=mean;
+  this.stdDev=stdDev;
+  this.truncType = 0;
+  calculateRelativeRates();
+  scaleToCumRate(0,totCumRate);
+  }
+
+
+  /**
+   * This updates the distribution, applying the truncation specified
+   * @param mean - the mean maginitude of the gaussian distribution
+   * @param stdDev - the standard deviation
+   * @param totCumRate - the total cumulative rate (at the lowest magnitude)
+   * @param truncLevel - in units of stdDev from the mean
+   * @param truncType - 0 for none; 1 for upper only; and 2 for upper and lower
+  */
+  public void setAllButTotMoRate(double mean,double stdDev, double totCumRate,double truncLevel,int truncType) {
+    this.mean=mean;
+    this.stdDev=stdDev;
+    this.truncLevel=truncLevel;
+    this.truncType = truncType;
+    calculateRelativeRates();
+    scaleToCumRate(0,totCumRate);
   }
 
 
@@ -175,16 +235,6 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
     return this.stdDev;
   }
 
-
-  /**
-   * get the TotalMoRate of this distribution
-   * @return
-   */
-  public double getTotMoRate() {
-    return this.totMoRate;
-  }
-
-
   /**
    * get the truncLevel which specifies the # of stdDev(from Mean) where the dist. cuts to zero.
    * @return
@@ -203,7 +253,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
   }
 
   /**
-   * returns the name of the class invoked by the user
+   * returns the name of the class
    * @return
    */
   public String getName() {
@@ -217,100 +267,10 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    */
   public String getInfo() {
 
-    return "mean="+this.mean+";stdDev="+this.stdDev+";totMoRate="+(float)this.totMoRate+";truncType="+
-           this.truncType+";truncLevel="+this.truncLevel;
+    return "mean="+mean+";stdDev="+stdDev+";totMoRate="+(float)getTotalMomentRate()+
+           ";totCumRate="+(float)this.getCumRate(0)+";truncType="+
+           truncType+";truncLevel="+truncLevel;
 
-  }
-
-
-  /**
-   * All the set functions below call the computeRate() method to calulates the rates and set them
-   * as the Y-axis values based X-axis data provided by the user in form of mag.
-   */
-
-  /**
-   * sets the mean for this distribution
-   * @param mean
-   */
-  public void setMean(double mean) throws DataPoint2DException{
-    this.mean=mean;
-    computeRates();
-  }
-
-  /**
-   * set the StdDev for this distribution
-   * @param stdDev
-   */
-  public void setStdDev(double stdDev) throws DataPoint2DException{
-    this.stdDev=stdDev;
-    computeRates();
-  }
-
-  /**
-   * sets the totMoRate for this distribution
-   * @param totMoRate
-   */
-  public void setTotMoRate(double totMoRate) throws DataPoint2DException{
-    this.totMoRate=totMoRate;
-    computeRates();
-  }
-
-
-  /**
-   * sets the truncLevel(which is the number of the stdDev from mean where dist. cut to zero
-   * and truncType (which specifies no truncation,1 sided truncation or both side truncation)
-   * @param truncLevel
-   * @param truncType
-   */
-  public void setTruncLevelAndType(double truncLevel,int truncType) throws DataPoint2DException{
-    this.truncLevel=truncLevel;
-    this.truncType=truncType;
-    computeRates();
-  }
-
-
-  /**
-   * sets the mean and totMoRate for this distribution
-   * @param mean
-   * @param totMoRate
-   */
-  public void setMeanAndTotalMomentRate(double mean,double totMoRate) throws DataPoint2DException{
-    setMean(mean);
-    setTotMoRate(totMoRate);
-    computeRates();
-  }
-
-
-  /**
-   * set the mean ,stdDev,totMoRate for this distribution.
-   * if no truncType is specified then it takes default as zero.
-   * @param mean
-   * @param stdDev
-   * @param totMoRate
-   */
-  public void setAll(double mean,double stdDev,double totMoRate) throws DataPoint2DException{
-    setMean(mean);
-    setStdDev(stdDev);
-    setTotMoRate(totMoRate);
-    computeRates();
-  }
-
-
-  /**
-   * sets the mean,stdDev,totMoRate,TruncLevel and truncType for this distribution
-   * @param mean
-   * @param stdDev
-   * @param totMoRate
-   * @param truncLevel
-   * @param truncType
-   */
-  public void setAll(double mean,double stdDev,double totMoRate,double truncLevel,
-                     int truncType) throws DataPoint2DException{
-    setMean(mean);
-    setStdDev(stdDev);
-    setTotMoRate(totMoRate);
-    setTruncLevelAndType(truncLevel,truncType);
-    computeRates();
   }
 
 
@@ -356,7 +316,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * Based on the truncType it sets the rate to be zero after setting the
    * truncLevel(which specifies the # of stdDev from mean where dist. cut to zero
    */
-  private void computeRates()throws DataPoint2DException {
+  private void calculateRelativeRates()throws DataPoint2DException {
     for(int i=0;i<num;++i) {
       double mag=getX(i);
       double rate = Math.exp(-Math.pow((mag - mean),2)/(2*stdDev*stdDev));
@@ -379,12 +339,11 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
         super.set(i,0);
     }
 
-//    normalizeByTotalRate();
-    this.scaleToTotalMomentRate(this.totMoRate);
+
   }
 
   /**
-   * this function is for setting the name
+   * this method (defined in parent) is deactivated here (name is finalized)
    **/
 
   public void setName(String name) {
@@ -393,7 +352,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
   }
 
   /**
-   * this function is for setting the info
+   * this method (defined in parent) is deactivated here (name is finalized)
    **/
   public void setInfo(String info) {
     throw new UnsupportedOperationException(C+"::::setInfo not allowed for MagFreqDist.");
