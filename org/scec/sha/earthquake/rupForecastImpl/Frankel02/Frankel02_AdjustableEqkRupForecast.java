@@ -73,7 +73,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
   //private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
   private final static String IN_FILE_PATH = "org/scec/sha/earthquake/rupForecastImpl/Frankel02/InputFiles/";
-  ArrayList faultFiles, faultFileWts, areaGridFiles, areaGridFileWts;
 
   /**
    * Vectors for holding the various sources, separated by type
@@ -256,7 +255,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
    */
   private void makeAllGridSources() {
 
-    frankelBackgrSeisSources = new ArrayList();
+
 
 //    String tempName = (String)faultFileParam.getValue();
 //    makeGridSources(tempName,1.0,null,0.0);
@@ -279,9 +278,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
    * This makes the sources for the input files of hazFXv3 and hazFXv3a (and wts):
    */
   private void makeAllFaultSources() {
-
-    charFaultSources = new ArrayList();
-    grFaultSources = new ArrayList();
 
 // these were for testing
 //    makeFaultSources(test1,1.0,null,0.0);
@@ -1034,6 +1030,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
        String backSeis = (String) backSeisParam.getValue();
 
        allSources = new ArrayList();
+       charFaultSources = new ArrayList();
+       grFaultSources = new ArrayList();
+       frankelBackgrSeisSources = new ArrayList();
+
 
        if (backSeis.equalsIgnoreCase(BACK_SEIS_INCLUDE)) {
          makeAllFaultSources();
@@ -1047,11 +1047,14 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
        else if (backSeis.equalsIgnoreCase(BACK_SEIS_EXCLUDE)) {
          // now create the allSources list:
          makeAllFaultSources();
+         frankelBackgrSeisSources = null;
          allSources.addAll(charFaultSources);
          allSources.addAll(grFaultSources);
        }
        else {// only background sources
         makeAllGridSources();
+        charFaultSources = null;
+        grFaultSources = null;
         // now create the allSources list:
         allSources.addAll(frankelBackgrSeisSources);
        }
