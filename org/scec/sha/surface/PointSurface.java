@@ -65,6 +65,16 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
         super( lat, lon, depth );
     }
 
+    /**
+     *  Constructor for the PointSurface object. Sets all the fields
+     *  for a Location object.
+     *
+     * @param  loc    the Location object for this point source.
+     */
+    public PointSurface( Location loc ) {
+        super( loc.getLatitude(), loc.getLongitude(), loc.getDepth() );
+    }
+
 
     /**
      * Sets the average strike of this surface on the Earth. An InvalidRangeException

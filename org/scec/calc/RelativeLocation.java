@@ -121,8 +121,9 @@ public final class RelativeLocation {
 
 
     /**
-     *  Given a Location and a Distance object, this function calculates the
-     *  second Location the Direction points to. The fields calculated for the
+     *  Given a Location and a Direction object, this function calculates a
+     *  second Location the Direction points to (only the azimuth is used;
+     * backAzimuth is ignored). The fields calculated for the
      *  second Location are:
      *
      * <uL>
@@ -131,7 +132,7 @@ public final class RelativeLocation {
      * <li>Depth
      * </ul>
      *
-     * @param  location1                             First geographic location
+     * @param  location1                            First geographic location
      * @param  direction                            Direction object pointing to second Location
      * @return location2                            The second location
      * @exception  UnsupportedOperationException    Thrown if the Location or Direction contain bad data such as invalid latitudes
