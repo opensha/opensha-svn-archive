@@ -165,15 +165,15 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     // checks that magUpper, magLower, magPrime, deltaMagPrime, and deltaMagChar
     // are well posed.
     if(magLower < minX || magLower > maxX)
-        throw new DataPoint2DException(C+":calculateRelativeRates():"+"magLower should lie between minX and maxX");
+        throw new DataPoint2DException("magLower should lie between minX and maxX");
     if(magLower > magUpper)
-        throw new InvalidRangeException(C+":calculateRelativeRates():"+"magLower cannot be less than magUpper");
+        throw new InvalidRangeException("magLower cannot be less than magUpper");
     if(magPrime > magUpper || magPrime < magLower)
-        throw new InvalidRangeException(C+":calculateRelativeRates():"+"magPrime must be between magLower and magUpper");
+        throw new InvalidRangeException(C"magPrime must be between magLower and magUpper");
     if( (magPrime-deltaMagPrime) < magLower)
-        throw new InvalidRangeException(C+":calculateRelativeRates():"+"magPrime-deltaMagPrime must be greater than magLower");
+        throw new InvalidRangeException("magPrime-deltaMagPrime must be greater than magLower");
     if( deltaMagChar > (magUpper-magPrime+deltaMagPrime) )
-        throw new InvalidRangeException(C+":calculateRelativeRates():"+"deltaMagChar > (magUpper-magPrime+deltaMagPrime), which is not allowed");
+        throw new InvalidRangeException("deltaMagChar > (magUpper-magPrime+deltaMagPrime), which is not allowed");
 
     double magForRate = magPrime - deltaMagPrime;
 

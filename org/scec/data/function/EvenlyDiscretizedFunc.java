@@ -74,12 +74,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      */
     public EvenlyDiscretizedFunc(double min, int num, double delta) {
 
-        this.minX = min;
-        this.delta = delta;
-        this.num = num;
-        maxX = minX + (num-1)*delta;
-
-        points = new double[num];
+        this(min, min + (num-1)*delta, num);
     }
 
 
@@ -93,6 +88,11 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      */
     public EvenlyDiscretizedFunc(double min, double max, int num) {
 
+        if (num <= 0) throw new DiscretizedFuncException("num points must be >= 0");
+
+        if (num == 1 && min != max)
+            throw new DiscretizedFuncException("min must equal max if num points = 1");
+
         if (min > max) throw new DiscretizedFuncException("min must be less than max");
         else if (min < max)
             delta = (max-min)/(num-1);
@@ -100,7 +100,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
             if (num == 1)
                 delta = 0;
             else
-                throw new DiscretizedFuncException("num must = 1 if min==max");
+                throw new DiscretizedFuncException("num must = 1 if min = max");
         }
 
         this.minX = min;
