@@ -237,4 +237,13 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
    public String getName(){
      return NAME;
    }
+
+   /**
+    * This overides the parent method to ignore whatever is passed in
+    * (because timeSpan is always null in this class)
+    * @param timeSpan : TimeSpan object
+    */
+   public void setTimeSpan(TimeSpan time) {
+     // do nothing
+   }
 }

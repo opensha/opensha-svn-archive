@@ -45,7 +45,7 @@ public class OLD_Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements 
 
 
   //for Debug purposes
-  private static String  C = new String("PointPoissonEqkSource");
+  private static String  C = new String("OLD_Point2Vert_SS_FaultPoisSource");
   private boolean D = false;
 
   private IncrementalMagFreqDist magFreqDist;
