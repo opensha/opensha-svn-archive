@@ -41,7 +41,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   public final static String FILLED_UP_TRIANGLE = "Filled Up Triangle";
   public final static String FILLED_DIAMOND = "Filled Diamond";
   public final static String DIAGONAL_CROSS = "Diagonal Cross";
-  public final static String REGULAR_CROSS = "Regular Cross";
+  public final static String LINE_AND_SHAPE = "Line with Shapes";
 
   //Dynamic Gui elements array to show the dataset color coding and line plot scheme
   private JLabel[] datasetSelector;
@@ -161,7 +161,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       lineTypeSelector[i].addItem(FILLED_DOWN_TRIANGLE);
       lineTypeSelector[i].addItem(FILLED_DIAMOND);
       lineTypeSelector[i].addItem(DIAGONAL_CROSS);
-      lineTypeSelector[i].addItem(REGULAR_CROSS);
+      lineTypeSelector[i].addItem(LINE_AND_SHAPE);
       lineTypeSelector[i].addItem(DISCONTINUOUS_LINES);
       //setting the selected plot type to be one currently selected.
       lineTypeSelector[i].setSelectedItem(plottingFeatures[i].getCurveType());

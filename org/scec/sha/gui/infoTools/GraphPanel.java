@@ -358,19 +358,17 @@ public class GraphPanel extends JPanel {
         DIAMOND_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
         DIAMOND_SHAPE_RENDERER.setPaint(color);
       }
-      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.REGULAR_CROSS)){
-       StandardXYItemRenderer REGULAR_CROSS_SHAPE_RENDERER = new StandardXYItemRenderer(
-            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_SHAPE)){
+       StandardXYItemRenderer LINE_AND_SHAPE_RENDERER = new StandardXYItemRenderer(
+            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES_AND_LINES,
             new StandardXYToolTipGenerator()
             );
-        REGULAR_CROSS_SHAPE_RENDERER.setShape(ShapeUtils.createRegularCross((float)lineWidth/2,1.0f));
-        REGULAR_CROSS_SHAPE_RENDERER.setShapesFilled(false);
         if(j==0)
-          plot.setRenderer(REGULAR_CROSS_SHAPE_RENDERER);
+          plot.setRenderer(LINE_AND_SHAPE_RENDERER);
         else
-          plot.setSecondaryRenderer(j-1,REGULAR_CROSS_SHAPE_RENDERER);
-        REGULAR_CROSS_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
-        REGULAR_CROSS_SHAPE_RENDERER.setPaint(color);
+          plot.setSecondaryRenderer(j-1,LINE_AND_SHAPE_RENDERER);
+        LINE_AND_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
+        LINE_AND_SHAPE_RENDERER.setPaint(color);
       }
       else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DIAGONAL_CROSS)){
        StandardXYItemRenderer DIAGONAL_CROSS_SHAPE_RENDERER = new StandardXYItemRenderer(
