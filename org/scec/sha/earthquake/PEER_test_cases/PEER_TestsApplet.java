@@ -384,24 +384,24 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     parameterSplitPane.add(sourcePanel, JSplitPane.RIGHT);
     controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(rangeComboBox,  new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(14, 9, 13, 10), 0, 0));
-    buttonPanel.add(jCustomAxisLabel,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 0, 14, 0), 8, 0));
-    buttonPanel.add(jCheckylog,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 0, 7, 0), -4, -4));
-    buttonPanel.add(jCheckxlog,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 0, 7, 0), -4, 2));
-    buttonPanel.add(clearButton,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 0, 7, 86), 0, -5));
-    buttonPanel.add(addButton,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 0, 7, 0), 0, -3));
-    buttonPanel.add(toggleButton,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 82, 7, 0), 0, -4));
+    buttonPanel.add(rangeComboBox,  new GridBagConstraints(8, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(17, 0, 12, 10), 0, 0));
+    buttonPanel.add(jCustomAxisLabel,  new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(18, 0, 12, 0), 8, 4));
+    buttonPanel.add(jCheckylog,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 0, 12, 0), 10, 1));
+    buttonPanel.add(jCheckxlog,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 0, 12, 0), 7, 2));
+    buttonPanel.add(toggleButton,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 0, 12, 0), 0, 0));
+    buttonPanel.add(clearButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 0, 12, 0), 0, 0));
+    buttonPanel.add(addButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 0, 12, 0), 0, 0));
     buttonPanel.add(testCasesCombo,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(13, 6, 7, 0), -14, 1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(11, 6, 12, 0), 27, 1));
     buttonPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 7, 7, 0), 1, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 7, 12, 0), 1, 7));
     topSplitPane.setDividerLocation(575);
     chartSplit.setDividerLocation(575);
     rangeComboBox.addItem(new String(AUTO_SCALE));
