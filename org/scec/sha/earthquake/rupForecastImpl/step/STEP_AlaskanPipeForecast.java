@@ -109,6 +109,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
 
     // Make the sources
     makeSources();
+    inputFileLines = null;
   }
 
 

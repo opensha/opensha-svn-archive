@@ -482,6 +482,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
         else if(step ==0){
           timer.stop();
           calcProgress.dispose();
+          calcProgress = null;
         }
       }
     });

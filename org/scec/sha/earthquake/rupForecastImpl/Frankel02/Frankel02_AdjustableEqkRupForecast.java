@@ -811,6 +811,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
     }  // bottom of loop over input-file lines
 
+    inputFaultFileLines1 = null;
+    inputFaultFileLines2 = null;
   }
 
 
@@ -966,6 +968,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
       // add the source
       frankelBackgrSeisSources.add(src);
 
+      inputGridFileLines1 = null;
+      inputGridFileLines2 = null;
     }
 
 //System.out.println("tot rate = "+tempRate);

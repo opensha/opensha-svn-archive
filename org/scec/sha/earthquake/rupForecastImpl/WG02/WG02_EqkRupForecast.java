@@ -116,6 +116,9 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     int year = new Double(st.nextToken()).intValue();
     double duration = new Double(st.nextToken()).doubleValue();
     int numIterations = new Double(st.nextToken()).intValue();
+
+    inputFileLines =null ;
+
     if (D) System.out.println("year="+year+"; duration="+duration+"; numIterations="+numIterations);
     timeSpan.setDuractionConstraint(duration,duration);
     timeSpan.setDuration(duration);
