@@ -76,13 +76,13 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
    * Longitude and Latitude paramerts to be added to the site params list
    */
   private DoubleParameter minLon = new DoubleParameter(MIN_LONGITUDE,
-      new Double(-360), new Double(360),new Double(-119));
+      new Double(-360), new Double(360),new Double(-119.5));
   private DoubleParameter maxLon = new DoubleParameter(MAX_LONGITUDE,
       new Double(-360), new Double(360),new Double(-117));
   private DoubleParameter minLat = new DoubleParameter(MIN_LATITUDE,
-      new Double(-90), new Double(90), new Double(34.0));
+      new Double(-90), new Double(90), new Double(33.5));
   private DoubleParameter maxLat = new DoubleParameter(MAX_LATITUDE,
-      new Double(-90), new Double(90), new Double(35.0));
+      new Double(-90), new Double(90), new Double(34.7));
   private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,
       new Double(.01),new Double(100.0),new String("Degrees"),new Double(.1));
   private DoubleParameter defaultVs30 = new DoubleParameter(this.VS30_DEFAULT,181,4500,

@@ -512,7 +512,7 @@ public class HazardCurveServerModeApp extends JApplet
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle("Hazard Curve Calculator");
+    frame.setTitle("Hazard Curve Calculator with Web Services");
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
