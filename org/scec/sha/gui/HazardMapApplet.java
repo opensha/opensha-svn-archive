@@ -156,11 +156,8 @@ public class HazardMapApplet extends JApplet
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
 
-  //Get a parameter value
-  public String getParameter(String key, String def) {
-    return isStandalone ? System.getProperty(key, def) :
-      (getParameter(key) != null ? getParameter(key) : def);
-  }
+  //Maximum source site Distance
+  private Double maxDistance;
 
   //Construct the applet
   public HazardMapApplet() {
@@ -263,23 +260,8 @@ public class HazardMapApplet extends JApplet
       }
     });
   }
-  //Start the applet
-  public void start() {
-  }
-  //Stop the applet
-  public void stop() {
-  }
-  //Destroy the applet
-  public void destroy() {
-  }
-  //Get Applet information
-  public String getAppletInfo() {
-    return "Applet Information";
-  }
-  //Get parameter info
-  public String[][] getParameterInfo() {
-    return null;
-  }
+
+
   //Main method
   public static void main(String[] args) {
     HazardMapApplet applet = new HazardMapApplet();
@@ -759,7 +741,6 @@ public class HazardMapApplet extends JApplet
      for(int i = 0; i<function.getNum(); ++i) list.add(new String(""+function.getX(i)));
      toServlet.writeObject(list);
      // send the MAX DISTANCE
-     Double maxDistance;
      if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
      else maxDistance = new Double(distanceControlPanel.getDistance());
      toServlet.writeObject(maxDistance);
@@ -796,7 +777,7 @@ public class HazardMapApplet extends JApplet
   */
  public String getParametersInfo() {
    String systemSpecificLineSeparator = org.scec.util.SystemPropertiesUtils.getSystemLineSeparator();
-   return "IMR Param List:" + systemSpecificLineSeparator +
+   String metadata = "IMR Param List:" + systemSpecificLineSeparator +
        "---------------" + systemSpecificLineSeparator +
        this.imrGuiBean.getVisibleParametersCloned().
        getParameterListMetadataString() + systemSpecificLineSeparator +
@@ -818,7 +799,24 @@ public class HazardMapApplet extends JApplet
        systemSpecificLineSeparator + "TimeSpan Param List: " +
        systemSpecificLineSeparator +
        "--------------------" + systemSpecificLineSeparator +
-       timeSpanGuiBean.getParameterListMetadataString() + systemSpecificLineSeparator;
+       timeSpanGuiBean.getParameterListMetadataString() + systemSpecificLineSeparator+
+       systemSpecificLineSeparator + "Miscellaneous Metadata:"+
+       systemSpecificLineSeparator +
+       "--------------------" + systemSpecificLineSeparator+
+       "Maximum Site Source Distance = "+maxDistance+systemSpecificLineSeparator+
+       systemSpecificLineSeparator+
+       "X Values = ";
+
+   //getting the X values used to generate the metadata.
+   ListIterator it = function.getXValuesIterator();
+   String xVals="";
+   while(it.hasNext())
+     xVals +=(Double)it.next()+" , ";
+   xVals = xVals.substring(0,xVals.lastIndexOf(","));
+
+   //adding the X Vals used to the Metadata.
+   metadata +=xVals;
+   return metadata;
  }
 
  void imgLabel_mouseClicked(MouseEvent e) {
