@@ -347,7 +347,6 @@ public class CB_2003_AttenRel
      * @return    The mean value
      */
     public double getMean() throws IMRException{
-
         updateCoefficients();
         return calcMean();
     }
@@ -767,9 +766,11 @@ public class CB_2003_AttenRel
 
         horzCoefficients.clear();
 
-         // PGA - this is "Unc. PGA" (uncorrected, as he recommends for PGA) from his Table 4
+        // PGA - this is not "Unc. PGA" (which he recommends for PGA in his Table 4). but rather "Cor. PGA"
+        // which he said over the phone should actually be used
         CB_2003_AttenRelCoefficients coeffPGA = new CB_2003_AttenRelCoefficients( PGA_NAME,
-              -1, -2.896, 0.812, 0.000, -1.318, 0.187, -0.029, -0.064, 0.616, 0, 0.179, 0.307, -0.062, -0.195, -0.320, 0.370, 0.964, 0.263, -0.371);
+              -1, -4.033, 0.812, 0.036, -1.061, 0.041, -0.005, -0.018, 0.766, 0.034, 0.343, 0.351, -0.123, -0.138, -0.289, 0.370, 0.920, 0.219, -0.371);
+//              -1, -2.896, 0.812, 0.000, -1.318, 0.187, -0.029, -0.064, 0.616, 0, 0.179, 0.307, -0.062, -0.195, -0.320, 0.370, 0.964, 0.263, -0.371);
 
         // SA/0.0 - this is "Cor. PGA" (corrected, as he recommends for SA at zero period) from his Table 4
         CB_2003_AttenRelCoefficients coeff0 = new CB_2003_AttenRelCoefficients( SA_NAME + '/' +( new Double( "0.0" ) ).doubleValue() ,
@@ -850,9 +851,11 @@ public class CB_2003_AttenRel
 
         vertCoefficients.clear();
 
-         // PGA - this is "Unc. PGA" (uncorrected, as he recommends for PGA) from his Table 4
+        // PGA - this is not "Unc. PGA" (which he recommends for PGA in his Table 4). but rather "Cor. PGA"
+        // which he said over the phone should actually be used
         CB_2003_AttenRelCoefficients coeffPGA = new CB_2003_AttenRelCoefficients( PGA_NAME,
-              -1, -2.807, 0.756, 0, -1.391, 0.191, 0.044, -0.014, 0.544, 0, 0.091, 0.223, -0.096, -0.212, -0.199, 0.630, 1.003, 0.302, -0.371);
+            -1, -3.108, 0.756, 0, -1.287, 0.142, 0.046, -0.040, 0.587, 0, 0.253, 0.173, -0.135, -0.138, -0.256, 0.630, 0.975, 0.274, -0.371);
+//            -1, -2.807, 0.756, 0, -1.391, 0.191, 0.044, -0.014, 0.544, 0, 0.091, 0.223, -0.096, -0.212, -0.199, 0.630, 1.003, 0.302, -0.371);
 
         // SA/0.0 - this is "Cor. PGA" (corrected, as he recommends for SA at zero period) from his Table 4
         CB_2003_AttenRelCoefficients coeff0 = new CB_2003_AttenRelCoefficients( SA_NAME + '/' +( new Double( "0.0" ) ).doubleValue() ,
