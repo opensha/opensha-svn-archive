@@ -26,7 +26,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
     private final static boolean D = false;
 
     private boolean APPROX_HORZ_DIST = false;
-    private boolean POINT_SRC_CORR = false;
+    private boolean POINT_SRC_CORR = true;
 
     // Approx Horz Dist Parameter
     public final static String APPROX_DIST_PARAM_NAME = "Use Approximate Distance";
@@ -69,13 +69,15 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
       pointSrcCorrParam.setInfo(POINT_SRC_CORR_PARAM_INFO);
       pointSrcCorrParam.addParameterChangeListener(this);
 
+      adjustableParams = new ParameterList();
       adjustableParams.addParameter(approxDistParam);
-      adjustableParams.addParameter(approxDistParam);
+      adjustableParams.addParameter(pointSrcCorrParam);
 
     }
 
     /** Constructor that is give Site and EqkRupture objects */
     public PropagationEffect( Site site, EqkRupture eqkRupture) {
+      this();
       this.site = site;
       this.eqkRupture = eqkRupture;
     }
