@@ -32,16 +32,16 @@ public class RunAll_PuenteHillsScenariosControlPanel {
     application = api;
     //adding the magnitudes to the Vector List
     magnitudes.add(new Double(7.1));
-    //magnitudes.add(new Double(7.2));
-    //magnitudes.add(new Double(7.4));
-    //magnitudes.add(new Double(7.5));
+    magnitudes.add(new Double(7.2));
+    magnitudes.add(new Double(7.4));
+    magnitudes.add(new Double(7.5));
 
     //adding the supported AttenuationRelationshipsName to the Vector List
     attenuationRelationships.add(AS_1997_AttenRel.NAME);
-    //attenuationRelationships.add(BJF_1997_AttenRel.NAME);
-    //attenuationRelationships.add(CB_2003_AttenRel.NAME);
-    //attenuationRelationships.add(Field_2000_AttenRel.NAME);
-    //attenuationRelationships.add(SCEMY_1997_AttenRel.NAME);
+    attenuationRelationships.add(BJF_1997_AttenRel.NAME);
+    attenuationRelationships.add(CB_2003_AttenRel.NAME);
+    attenuationRelationships.add(Field_2000_AttenRel.NAME);
+    attenuationRelationships.add(SCEMY_1997_AttenRel.NAME);
     attenuationRelationships.add(ShakeMap_2003_AttenRel.NAME);
   }
 

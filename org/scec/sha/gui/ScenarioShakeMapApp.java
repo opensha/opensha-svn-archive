@@ -524,11 +524,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
 
   void addButton_actionPerformed(ActionEvent e) {
-    calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
-    step = 1;
     //get the site values for each site in the gridded region
     getGriddedRegionSites();
-
     if(puenteHillsScenariosControl !=null){
       puenteHillsScenariosControl.runAllScenarios(puenteHillsControl,imrGuiBean);
       puenteHillsScenariosControl = null;
@@ -541,7 +538,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * when the generate Map button is pressed
    */
   public void addButton(){
-
+    calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
+    step = 1;
     try{
       calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
       if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
