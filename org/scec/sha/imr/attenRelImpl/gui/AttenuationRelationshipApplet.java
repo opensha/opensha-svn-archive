@@ -130,6 +130,7 @@ public class AttenuationRelationshipApplet extends JApplet
     protected final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
     protected final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
     protected final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
+    protected final static String SEA_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SEA_1999_AttenRel";
     //protected final static String DAHLE_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel";
 
     /**
@@ -143,6 +144,7 @@ public class AttenuationRelationshipApplet extends JApplet
     protected final static String A_NAME = "Abrahamson (2000)";
     protected final static String CB_NAME = "Campbell & Bozorgnia (2003)";
     protected final static String SM_NAME = "ShakeMap (2003)";
+    protected final static String SEA_NAME = "SEA (Spudich et al., 1999)";
     //protected final static String DAHLE_NAME = "Dahle et al. (1995)";
 
 
@@ -170,6 +172,7 @@ public class AttenuationRelationshipApplet extends JApplet
         imNames.put( A_NAME, A_CLASS_NAME );
         imNames.put( CB_NAME, CB_CLASS_NAME );
         imNames.put( SM_NAME, SM_CLASS_NAME );
+        imNames.put( SEA_NAME, SEA_CLASS_NAME );
         //imNames.put( DAHLE_NAME, DAHLE_CLASS_NAME );
 
         try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }

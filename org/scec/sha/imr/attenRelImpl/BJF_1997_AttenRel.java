@@ -305,8 +305,7 @@ public class BJF_1997_AttenRel
         if(component.equals(COMPONENT_AVE_HORZ)) {
 
             if ( stdDevType.equals( STD_DEV_TYPE_TOTAL ) ) {           // "Total"
-              Double stdev = new Double( Math.pow( ( coeff.sigmaE * coeff.sigmaE + coeff.sigma1 * coeff.sigma1 ) , 0.5) );
-              return  stdev.doubleValue();
+              return  Math.pow( ( coeff.sigmaE * coeff.sigmaE + coeff.sigma1 * coeff.sigma1 ) , 0.5);
             }
             else if ( stdDevType.equals( STD_DEV_TYPE_INTER ) ) {    // "Inter-Event"
               return  coeff.sigmaE;
@@ -330,7 +329,8 @@ public class BJF_1997_AttenRel
               return  (coeff.sigmaE );
             }
             else if ( stdDevType.equals( STD_DEV_TYPE_INTRA ) ) {    // "Intra-Event"
-              return   (coeff.sigmaR );
+              return   Math.pow( ( coeff.sigmaLnY * coeff.sigmaLnY - coeff.sigmaE * coeff.sigmaE) , 0.5);
+              // return return  ( coeff.sigma1 );
             }
             else if ( stdDevType.equals( STD_DEV_TYPE_NONE ) ) {    // "None (zero)"
               return   0;
