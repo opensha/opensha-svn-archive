@@ -91,6 +91,24 @@ public class LocationListParameter extends DependentParameter
 
 
   /**
+   *
+   * @param locationParameters ParameterList
+   */
+  public void setAllLocations(ParameterList locationParameters){
+
+    //setting the independent Param List for this parameter
+    setIndependentParameters(locationParameters);
+    LocationList locList = new LocationList();
+    ListIterator it = locationParameters.getParametersIterator();
+    while(it.hasNext()){
+      LocationParameter locParam = (LocationParameter)it.next();
+      locList.addLocation((Location)locParam.getValue());
+    }
+    setValue(locList);
+  }
+
+
+  /**
    * Set's the parameter's value, which is basically a parameterList.
    *
    * @param  value                 The new value for this Parameter
@@ -100,20 +118,7 @@ public class LocationListParameter extends DependentParameter
   public void setValue( LocationList value ) throws ParameterException {
 
     setValue( (Object) value );
-    ParameterList paramList = new ParameterList();
-    int numLocs = value.size();
-    for(int i=0;i<numLocs;++i){
-      Location loc = value.getLocationAt(i);
-      LocationParameter locParam = new LocationParameter(LOCATION_PARAM_NAME +
-          (i + 1), LAT_PARAM_NAME,
-          LON_PARAM_NAME, DEPTH_PARAM_NAME, LAT_PARAM_UNITS, LON_PARAM_UNITS,
-          DEPTH_PARAM_UNITS, new Double(loc.getLatitude()),
-          new Double(loc.getLongitude()), new Double(loc.getDepth()));
-      paramList.addParameter(locParam);
-    }
 
-    //setting the independent Param List for this parameter
-    setIndependentParameters(paramList);
   }
 
   /**
