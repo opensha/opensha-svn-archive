@@ -65,6 +65,9 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   //ListEditor
   ParameterListEditor listEditor;
 
+  //Instance of the JDialog to show all the adjuatble params for the forecast model
+  JDialog frame;
+
   /**
   * Constructor : It accepts the classNames of the ERFs to be shown in the editor
   * @param erfClassNames
@@ -125,7 +128,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    parameterList.addParameter(ruptureParam);
 
 
-   Iterator it = erf.getAdjustableParamsIterator();
+
    // make the parameters visible based on selected forecast
    //   while(it.hasNext()) parameterList.addParameter((ParameterAPI)it.next());
 
@@ -219,22 +222,11 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    */
   private void getAllERFAdjustableParams(){
 
-    // search path needed for making editors
-     String[] searchPaths = new String[2];
-     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-     searchPaths[1] = "org.scec.sha.magdist.gui" ;
-
     // get the selected forecast
-    EqkRupForecast erf = (EqkRupForecast)erfGuiBean.getSelectedERF_Instance();
-    ParameterList paramList = new ParameterList();
-    ListIterator it = erf.getAdjustableParamsIterator();
-    while(it.hasNext()){
-      paramList.addParameter((ParameterAPI)it.next());
-    }
-    ParameterListEditor editor= new ParameterListEditor(paramList,searchPaths);
-    editor.setTitle("Select ERF Param");
+
     //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
     //calls the method to make the update MagDist button invisible
+    erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setVisible(false);
     MagFreqDistParameterEditor magDistEditor=erfGuiBean.getMagDistEditor();
     if(magDistEditor !=null)  magDistEditor.setUpdateButtonVisible(false);
     //Panel Parent
@@ -242,14 +234,15 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     /*This loops over all the parent of this class until the parent is Frame(applet)
     this is required for the passing in the JDialog to keep the focus on the adjustable params
     frame*/
+
     while(!(parent instanceof JFrame) && parent != null)
       parent = parent.getParent();
-    JDialog frame = new JDialog((JFrame)parent);
+    frame = new JDialog((JFrame)parent);
     frame.setModal(true);
     frame.setSize(300,600);
     frame.setTitle("ERF Adjustable Params");
     frame.getContentPane().setLayout(new GridBagLayout());
-    frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    frame.getContentPane().add(erfGuiBean,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
 
     //Adding Button to update the forecast
@@ -272,6 +265,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     // get the selected forecast
    EqkRupForecast erf = (EqkRupForecast)erfGuiBean.getSelectedERF_Instance();
    erf.updateForecast();
+   frame.dispose();
   }
 
 
