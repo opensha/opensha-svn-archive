@@ -823,7 +823,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
         if(hazusControl == null)
           hazusControl = new GenerateHazusControlPanelForSingleMultipleIMRs(this,this);
         bayAreaControl = new SF_BayAreaScenarioControlPanel(erfGuiBean,imrGuiBean,
-            sitesGuiBean,hazusControl);
+            sitesGuiBean,mapGuiBean,hazusControl);
       }
       bayAreaControl.setParamsForSF_BayAreaScenario();
     }
@@ -876,8 +876,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    calcControl.show();
    calcControl.pack();
  }
-
-
 
 
   /**

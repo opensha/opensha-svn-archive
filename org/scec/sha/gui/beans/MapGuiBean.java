@@ -90,6 +90,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
       //adding the image to the Panel and returning that to the applet
       ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,true);
     }
+    dirName = null;
   }
 
 
@@ -106,7 +107,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       try{
-        imgName =((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapUsingServlet(xyzVals,eqkRupture,imt,metadata);
+        imgName =((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapUsingServlet(xyzVals,eqkRupture,imt,metadata,dirName);
         metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
       }catch(RuntimeException e){
         e.printStackTrace();
@@ -116,7 +117,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     }
     else{
       try{
-        imgName = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapLocally(xyzVals,eqkRupture,imt,metadata);
+        imgName = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapLocally(xyzVals,eqkRupture,imt,metadata,dirName);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;
@@ -128,6 +129,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
       //adding the image to the Panel and returning that to the applet
       ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
     }
+    dirName = null;
   }
 
 
@@ -149,7 +151,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     //if(gmtServerCheck){
     try{
       imgNames =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
-          pgv_xyzVals,eqkRupture,metadata);
+          pgv_xyzVals,eqkRupture,metadata, dirName);
       metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
     }catch(RuntimeException e){
       e.printStackTrace();
@@ -172,7 +174,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
       //adding the image to the Panel and returning that to the applet
       ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,true);
     }
-
+    dirName = null;
     //gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(gmtServerCheck));
   }
 
@@ -207,6 +209,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
       ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,true);
     }
 
+    dirName = null;
   }
 
 
@@ -317,6 +320,9 @@ public class MapGuiBean extends GMT_MapGuiBean {
       //sending the metadata of the map to the server.
       outputToServlet.writeObject(metadata);
 
+      //sending the directory name to the servlet
+      outputToServlet.writeObject(dirName);
+
       outputToServlet.flush();
       outputToServlet.close();
 
@@ -393,6 +399,9 @@ public class MapGuiBean extends GMT_MapGuiBean {
 
       //sending the metadata of the map to the server.
       outputToServlet.writeObject(metadata);
+
+      //sending the directory name to the servlet
+      outputToServlet.writeObject(dirName);
 
       outputToServlet.flush();
       outputToServlet.close();

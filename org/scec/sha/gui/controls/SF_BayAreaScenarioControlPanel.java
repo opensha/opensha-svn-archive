@@ -30,6 +30,7 @@ public class SF_BayAreaScenarioControlPanel {
   private EqkRupSelectorGuiBean erfGuiBean;
   private AttenuationRelationshipGuiBean imrGuiBean;
   private SitesInGriddedRegionGuiBean regionGuiBean;
+  private MapGuiBean mapGuiBean;
   private GenerateHazusControlPanelForSingleMultipleIMRs hazusControlPanel;
 
 
@@ -45,13 +46,14 @@ public class SF_BayAreaScenarioControlPanel {
    * @param regionGuiBean
    */
   public SF_BayAreaScenarioControlPanel(EqkRupSelectorGuiBean erfGuiBean, AttenuationRelationshipGuiBean imrGuiBean,
-      SitesInGriddedRegionGuiBean regionGuiBean,
+      SitesInGriddedRegionGuiBean regionGuiBean,MapGuiBean mapGuiBean,
       GenerateHazusControlPanelForSingleMultipleIMRs hazusControl) {
     //getting the instance for variuos GuiBeans from the applet required to set the
     //default values for the Params for the SF Bay Area Scenarios.
     this.erfGuiBean = erfGuiBean;
     this.imrGuiBean = imrGuiBean;
     this.regionGuiBean = regionGuiBean;
+    this.mapGuiBean =  mapGuiBean;
     hazusControlPanel = hazusControl;
   }
 
@@ -110,20 +112,18 @@ public class SF_BayAreaScenarioControlPanel {
         //getting the rupture number
         int ruptureIndex =0;
         String rupIndex = st.nextToken().trim();
-        if(rupIndex !=null || !rupIndex.equals(""))
-          ruptureIndex = Integer.parseInt(rupIndex);
+        ruptureIndex = Integer.parseInt(rupIndex);
 
         //getting the rupture offset.
         String ruptureOffset = st.nextToken().trim();
         double rupOffset = 100;
-        if(ruptureOffset !=null || !ruptureOffset.equals(""))
-          rupOffset = Double.parseDouble(ruptureOffset);
+        rupOffset = Double.parseDouble(ruptureOffset);
 
         //discarding the magnitude that we are reading.
         st.nextToken();
 
         //getting the name of the directory
-        String directoryName = st.nextToken();
+        String directoryName = st.nextToken().trim();
 
         fileLines = br.readLine();
 
@@ -134,6 +134,7 @@ public class SF_BayAreaScenarioControlPanel {
 
         //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
         erfGuiBean.setParamsInForecast(sourceIndex,ruptureIndex);
+        mapGuiBean.setDirectoryName(directoryName);
         hazusControlPanel.runToGenerateShapeFilesAndMaps();
       }
     }catch(Exception e){

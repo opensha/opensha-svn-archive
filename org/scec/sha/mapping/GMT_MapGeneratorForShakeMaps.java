@@ -117,7 +117,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   public String[] makeHazusFileSetLocally(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
                                        XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
-                                       EqkRupture eqkRupture, String metadata) {
+                                       EqkRupture eqkRupture, String metadata, String dirName) {
 
     //creating the Metadata file in the GMT_MapGenerator
     createMapInfoFile(metadata);
@@ -198,7 +198,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   public String[] makeHazusFileSetUsingServlet(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
                                        XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
-                                       EqkRupture eqkRupture,String metadata) {
+                                       EqkRupture eqkRupture,String metadata,String dirName) {
     eqkRup = eqkRupture;
 
     GMT_PATH="/opt/install/gmt/bin/";
@@ -243,7 +243,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     String img[] = new String[4];
     try{
       imgWebAddr = this.openServletConnection(sa03DataSet, sa10DataSet, pgaDataSet,
-                                              pgvDataSet, gmtLines, metadata);
+                                              pgvDataSet, gmtLines, metadata, dirName);
       img[0] = new String(imgWebAddr + sa_03Image);
       img[1] = new String(imgWebAddr + sa_10Image);
       img[2] = new String(imgWebAddr + pgaImage);
@@ -273,7 +273,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   protected String openServletConnection(XYZ_DataSetAPI sa03_xyzDataVals,
       XYZ_DataSetAPI sa10_xyzDataVals, XYZ_DataSetAPI pga_xyzDataVals,
-      XYZ_DataSetAPI pgv_xyzDataVals, ArrayList gmtFileLines,String metadata) throws RuntimeException{
+      XYZ_DataSetAPI pgv_xyzDataVals, ArrayList gmtFileLines,String metadata,String dirName) throws RuntimeException{
 
     String webaddr=null;
     try{
@@ -300,6 +300,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       ObjectOutputStream outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
 
+      //sending the directory name to the servlet
+      outputToServlet.writeObject(dirName);
 
 
       //sending the ArrayList of the Script Lines to be executed on the server
@@ -383,7 +385,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @return
    */
   public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,
-                               String imtString, String metadata){
+                               String imtString, String metadata,String directoryName){
     eqkRup = eqkRupture;
     imt = imtString;
 
@@ -393,11 +395,27 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     // Add time stamp to script name (for when we want to save many scripts locally)
 //    GMT_SCRIPT_NAME=DEFAULT_GMT_SCRIPT_NAME.substring(0,DEFAULT_GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
 
-    String jpgFileName = super.makeMapLocally(xyzDataSet,imtString,metadata);
+    String jpgFileName = super.makeMapLocally(xyzDataSet,imtString,metadata,directoryName);
+    String dirName =null;
+    String tempScript = null;
 
     // Make a directory and move all the files into it
-    String dirName = "UserShakeMaps_"+System.currentTimeMillis();
-    String tempScript = "temp"+System.currentTimeMillis();
+    if(directoryName !=null){
+      File f = new File(directoryName);
+      int fileCounter =1;
+      //checking if the directory already exists then add
+      while(f.exists()){
+        String tempDirName = directoryName+fileCounter;
+        f = new File(tempDirName);
+        ++fileCounter;
+      }
+      dirName = "UserShakeMaps_"+f.getName();
+      tempScript = "temp"+f.getName();
+    }
+    else{
+      dirName = "UserShakeMaps_"+System.currentTimeMillis();
+      tempScript = "temp"+System.currentTimeMillis();
+    }
     ArrayList scriptLines = new ArrayList();
     String commandLine = COMMAND_PATH+"mkdir "+dirName;
     scriptLines.add(commandLine+"\n");
@@ -426,10 +444,10 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
                                     EqkRupture eqkRupture,
-                                    String imtString,String metadata) throws RuntimeException{
+                                    String imtString,String metadata, String dirName) throws RuntimeException{
     eqkRup = eqkRupture;
     imt = imtString;
-    return super.makeMapUsingServlet(xyzDataSet, imtString, metadata);
+    return super.makeMapUsingServlet(xyzDataSet, imtString, metadata, dirName);
   }
 
   /**

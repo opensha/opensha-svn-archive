@@ -47,12 +47,41 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       if(!mainDir.isDirectory()){
         boolean success = (new File(FILE_PATH+GMT_DATA_DIR)).mkdir();
       }
-      newDir = FILE_PATH+GMT_DATA_DIR+currentMilliSec;
-      //create a gmt directory for each user in which all his gmt files will be stored
-      boolean success =(new File(newDir)).mkdir();
+
 
       // get an input stream from the applet
       ObjectInputStream inputFromApplet = new ObjectInputStream(request.getInputStream());
+
+      //receiving the name of the input directory
+      String dirName = (String)inputFromApplet.readObject();
+      if(dirName != null){
+        File f = new File(dirName);
+        int fileCounter =1;
+        //checking if the directory already exists then add
+        while(f.exists()){
+          String tempDirName = dirName+fileCounter;
+          f = new File(tempDirName);
+          ++fileCounter;
+        }
+        newDir = FILE_PATH+GMT_DATA_DIR+f.getName();
+      }
+      else{
+        dirName = currentMilliSec;
+        newDir = FILE_PATH+GMT_DATA_DIR+currentMilliSec;
+      }
+
+
+
+      //create a gmt directory for each user in which all his gmt files will be stored
+      boolean success =(new File(newDir)).mkdir();
+      //reading the gmtScript file that user sent as the attachment and create
+      //a new gmt script inside the directory created for the user.
+      //The new gmt script file created also has one minor modification
+      //at the top of the gmt script file I am adding the "cd ... " command so
+      //that it should pick all the gmt related files from the directory cretade for the user.
+      //reading the gmt script file sent by user as te attchment
+
+      String gmtScriptFile = newDir+"/"+this.GMT_SCRIPT_FILE;
 
       //gets the object for the GMT_MapGenerator script
       ArrayList gmtMapScript = (ArrayList) inputFromApplet.readObject();
@@ -69,14 +98,6 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       //Name of the Metadata file
       String metadataFileName = (String)inputFromApplet.readObject();
 
-      //reading the gmtScript file that user sent as the attachment and create
-      //a new gmt script inside the directory created for the user.
-      //The new gmt script file created also has one minor modification
-      //at the top of the gmt script file I am adding the "cd ... " command so
-      //that it should pick all the gmt related files from the directory cretade for the user.
-      //reading the gmt script file sent by user as te attchment
-
-      String gmtScriptFile = newDir+"/"+this.GMT_SCRIPT_FILE;
       //creating a new gmt script for the user and writing it ot the directory created for the user
       FileWriter fw = new FileWriter(gmtScriptFile);
       BufferedWriter bw = new BufferedWriter(fw);
@@ -120,7 +141,7 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
       ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
 
       //name of the image file as the URL
-      outputToApplet.writeObject(this.GMT_URL_PATH+this.GMT_DATA_DIR+currentMilliSec+"/");
+      outputToApplet.writeObject(this.GMT_URL_PATH+this.GMT_DATA_DIR+dirName+"/");
       outputToApplet.close();
 
     } catch (Exception e) {

@@ -260,7 +260,8 @@ public class GMT_MapGenerator implements Serializable{
    * @param scaleLabel - a string for the label (with no spaces!)
    * @return - the name of the jpg file
    */
-  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, String scaleLabel,String metadata){
+  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, String scaleLabel,
+                               String metadata, String dirName){
 
     //creates the metadata file
     createMapInfoFile(metadata);
@@ -306,7 +307,7 @@ public class GMT_MapGenerator implements Serializable{
    * @return - the name of the jpg file
    */
   public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
-                                    String scaleLabel, String metadata) throws RuntimeException{
+                                    String scaleLabel, String metadata, String dirName) throws RuntimeException{
 
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
@@ -329,7 +330,7 @@ public class GMT_MapGenerator implements Serializable{
     ArrayList gmtLines = getGMT_ScriptLines();
 
     try{
-      imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metadata);
+      imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metadata, dirName);
     }catch(RuntimeException e){
       e.printStackTrace();
       throw new RuntimeException(e.getMessage());
@@ -532,7 +533,7 @@ public class GMT_MapGenerator implements Serializable{
    */
   protected String openServletConnection(XYZ_DataSetAPI xyzDataVals,
                                        ArrayList gmtFileLines,
-                                       String metadataLines) throws RuntimeException{
+                                       String metadataLines, String dirName) throws RuntimeException{
 
     String webaddr=null;
     try{
@@ -558,6 +559,8 @@ public class GMT_MapGenerator implements Serializable{
       ObjectOutputStream outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
 
+      //sending the directory name to the servlet
+      outputToServlet.writeObject(dirName);
 
       //sending the ArrayList of the gmt Script Lines
       outputToServlet.writeObject(gmtFileLines);
@@ -574,6 +577,7 @@ public class GMT_MapGenerator implements Serializable{
 
       //sending the name of the MetadataFile to the server.
       outputToServlet.writeObject(DEFAULT_METADATA_FILE_NAME);
+
 
       outputToServlet.flush();
       outputToServlet.close();

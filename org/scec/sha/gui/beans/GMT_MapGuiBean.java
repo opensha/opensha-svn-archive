@@ -56,6 +56,9 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
   //name of the image file( or else full URL to image file if using the webservice)
   protected String imgName=null;
 
+  //name of the directory in which to store all the map and its related data.
+  protected String dirName = null;
+
   private GMT_MapGuiBeanAPI application;
 
 
@@ -175,7 +178,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       try{
-        imgName =gmtMap.makeMapUsingServlet(xyzVals," ",metadata);
+        imgName =gmtMap.makeMapUsingServlet(xyzVals," ",metadata,dirName);
         metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
       }catch(RuntimeException e){
         e.printStackTrace();
@@ -185,7 +188,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     }
     else{
       try{
-        imgName = gmtMap.makeMapLocally(xyzVals," ",metadata);
+        imgName = gmtMap.makeMapLocally(xyzVals," ",metadata,dirName);
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;
@@ -197,6 +200,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
       //adding the image to the Panel and returning that to the applet
       ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
     }
+    dirName = null;
   }
 
 
@@ -216,5 +220,14 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
   public GMT_MapGenerator getGMTObject() {
     return this.gmtMap;
   }
+
+
+  /**
+   * sets the directory name to generate the maps and shakemap related data in this
+   * directory.
+   */
+  public void setDirectoryName(String dirName){
+    this.dirName = dirName;
+ }
 
 }

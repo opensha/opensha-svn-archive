@@ -55,6 +55,9 @@ public class ScenarioShakeMapForHazusGeneratorServlet extends HttpServlet {
       //gets the metadata for the map parameters
       String metadata = (String)inputFromApplet.readObject();
 
+      //receiving the name of the input directory
+      String dirName = (String)inputFromApplet.readObject();
+
       //reading the sa-0.3 XYZ dataset from the file
       XYZ_DataSetAPI sa_03xyzData = (XYZ_DataSetAPI)FileUtils.loadObject(sa_03xyzDataFileName);
 
@@ -70,7 +73,7 @@ public class ScenarioShakeMapForHazusGeneratorServlet extends HttpServlet {
 
       //creates and run the GMT Script on the server and return back the URL to all the images
       String[] webaddr = gmtMap.makeHazusFileSetUsingServlet(sa_03xyzData,sa_10xyzData,
-          pga_xyzData,pgvxyzData,rupture,metadata);
+          pga_xyzData,pgvxyzData,rupture,metadata,dirName);
 
       //making the XYZ dataset objects to be null.
       sa_03xyzData = null;

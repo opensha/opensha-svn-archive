@@ -48,11 +48,14 @@ public class ScenarioShakeMapGeneratorServlet extends HttpServlet {
       //gets the metadata for the map parameters
       String metadata = (String)inputFromApplet.readObject();
 
+      //receiving the name of the input directory
+      String dirName = (String)inputFromApplet.readObject();
+
       //reading the XYZ dataset from the file
       XYZ_DataSetAPI xyzData = (XYZ_DataSetAPI)FileUtils.loadObject(xyzDataFileName);
 
       //creates and run the GMT Script on the server
-      String webaddr = gmtMap.makeMapUsingServlet(xyzData,rupture,imt,metadata);
+      String webaddr = gmtMap.makeMapUsingServlet(xyzData,rupture,imt,metadata,dirName);
 
 
       // get an ouput stream from the applet
