@@ -10,6 +10,7 @@ import org.scec.param.event.ParameterChangeEvent;
 import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
+import org.scec.sha.gui.infoTools.CalcProgressBar;
 
 
 /**
@@ -55,6 +56,10 @@ public class EqkRupSelectorGuiBean extends ERF_GuiBean  {
 
    // get the selected forecast
    EqkRupForecast erf = (EqkRupForecast)this.getSelectedERF_Instance();
+
+   // also show the progress bar while the forecast is being updated
+   CalcProgressBar progress = new CalcProgressBar("Forecast","Updating Forecast");
+   progress.displayProgressBar();
 
    if(!first) {
      // update the Forecast to get the sources and ruptures

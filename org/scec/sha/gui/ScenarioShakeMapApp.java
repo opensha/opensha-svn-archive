@@ -42,7 +42,7 @@ public class ScenarioShakeMapApp extends JApplet implements
 
 
   //variables that determine the width and height of the frame
-  private static final int W=480;
+  private static final int W=550;
   private static final int H=760;
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
@@ -86,30 +86,29 @@ public class ScenarioShakeMapApp extends JApplet implements
   private Border border1;
   private JSplitPane mainSplitPane = new JSplitPane();
   private JPanel buttonPanel = new JPanel();
-  private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private JPanel eqkRupPanel = new JPanel();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private JPanel siteRegionPanel = new JPanel();
   private JPanel gmtPanel = new JPanel();
   private JSplitPane imr_IMTSplit = new JSplitPane();
-  private JSplitPane imr_RegionSplit = new JSplitPane();
   private JTabbedPane parameterTabbedPanel = new JTabbedPane();
   private JPanel timespanPanel = new JPanel();
-  private JPanel imrSelectionPanel = new JPanel();
   private JPanel imrPanel = new JPanel();
   private JPanel imtPanel = new JPanel();
   private JPanel prob_IMLPanel = new JPanel();
   private BorderLayout borderLayout2 = new BorderLayout();
   private GridBagLayout gridBagLayout9 = new GridBagLayout();
   private GridBagLayout gridBagLayout8 = new GridBagLayout();
-  private GridBagLayout gridBagLayout7 = new GridBagLayout();
   private JButton addButton = new JButton();
   private JComboBox controlPanelCombo = new JComboBox();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
+  private JPanel gridRegionSitePanel = new JPanel();
+  private GridLayout gridLayout1 = new GridLayout();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout5 = new GridBagLayout();
+  private JPanel imrSelectionPanel = new JPanel();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -127,7 +126,9 @@ public class ScenarioShakeMapApp extends JApplet implements
     catch(Exception e) {
       e.printStackTrace();
     }
-    this.initIMRPanel();
+    this.initIMRGuiBean();
+    this.initGriddedRegionGuiBean();
+    this.initIMTGuiBean();
     this.initERFSelector_GuiBean();
     this.initImlProb_GuiBean();
     this.initTimeSpanGuiBean();
@@ -136,19 +137,16 @@ public class ScenarioShakeMapApp extends JApplet implements
   //Component initialization
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
-    this.setSize(new Dimension(482, 721));
+    this.setSize(new Dimension(564, 721));
     this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(border1);
     mainPanel.setLayout(gridBagLayout4);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     buttonPanel.setLayout(gridBagLayout6);
     eqkRupPanel.setLayout(gridBagLayout1);
-    siteRegionPanel.setLayout(gridBagLayout7);
     gmtPanel.setLayout(gridBagLayout9);
     imr_IMTSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    imr_RegionSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     timespanPanel.setLayout(gridBagLayout3);
-    imrSelectionPanel.setLayout(gridBagLayout5);
     imrPanel.setLayout(borderLayout2);
     imtPanel.setLayout(gridBagLayout8);
     prob_IMLPanel.setLayout(gridBagLayout2);
@@ -159,6 +157,8 @@ public class ScenarioShakeMapApp extends JApplet implements
       }
     });
     buttonPanel.setMinimumSize(new Dimension(391, 50));
+    gridRegionSitePanel.setLayout(gridLayout1);
+    imrSelectionPanel.setLayout(gridBagLayout5);
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 430, 528));
@@ -168,19 +168,19 @@ public class ScenarioShakeMapApp extends JApplet implements
     buttonPanel.add(addButton,      new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 7, 0, 0), 78, 18));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
-    imr_RegionSplit.add(imrSelectionPanel, JSplitPane.TOP);
-    imr_RegionSplit.add(siteRegionPanel, JSplitPane.BOTTOM);
+
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
+    imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
+    parameterTabbedPanel.add(imrPanel, "IMR Model");
+    imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
+    parameterTabbedPanel.add(gridRegionSitePanel,  "Grid Region Site");
     parameterTabbedPanel.add(eqkRupPanel, "Forecast Model");
     parameterTabbedPanel.add(timespanPanel, "Time Span");
     parameterTabbedPanel.add(prob_IMLPanel, "MapType");
     parameterTabbedPanel.add(gmtPanel, "GMT Parameters");
-    imr_IMTSplit.add(imr_RegionSplit, JSplitPane.TOP);
-    parameterTabbedPanel.add(imrPanel, "IMR Model");
-    imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
+
     mainSplitPane.setDividerLocation(580);
-    imr_IMTSplit.setDividerLocation(400);
-    imr_RegionSplit.setDividerLocation(100);
+    imr_IMTSplit.setDividerLocation(300);
   }
   //Start the applet
   public void start() {
@@ -226,10 +226,48 @@ public class ScenarioShakeMapApp extends JApplet implements
     }
   }
 
+
+  /**
+   * Initialise the Gridded Region sites gui bean
+   *
+   */
+  private void initGriddedRegionGuiBean(){
+    // get the selected IMR
+     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     // create the Site Gui Bean object
+     sitesGuiBean = new SitesInGriddedRegionGuiBean();
+     sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+     // show the sitebean in JPanel
+     gridRegionSitePanel.add(this.sitesGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    sitesGuiBean.getParameterEditor(sitesGuiBean.MIN_LATITUDE).getParameter().addParameterChangeListener(this);
+    sitesGuiBean.getParameterEditor(sitesGuiBean.MAX_LATITUDE).getParameter().addParameterChangeListener(this);
+    sitesGuiBean.getParameterEditor(sitesGuiBean.MIN_LONGITUDE).getParameter().addParameterChangeListener(this);
+    sitesGuiBean.getParameterEditor(sitesGuiBean.MAX_LONGITUDE).getParameter().addParameterChangeListener(this);
+    sitesGuiBean.getParameterEditor(sitesGuiBean.GRID_SPACING).getParameter().addParameterChangeListener(this);
+  }
+
+  /**
+   * Initialise the IMT gui Bean
+   */
+  private void initIMTGuiBean(){
+    // get the selected IMR
+    AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+    /**
+     * Initialize the IMT Gui Bean
+     */
+
+    // create the IMT Gui Bean object
+    imtGuiBean = new IMT_GuiBean(imr);
+
+    imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+  }
+
   /**
    * Initialize the IMR Gui Bean
    */
-  private void initIMRPanel() {
+  private void initIMRGuiBean() {
     // create the IMR Gui Bean object
      // It accepts the vector of IMR class names
      Vector imrClasses = new Vector();
@@ -241,31 +279,11 @@ public class ScenarioShakeMapApp extends JApplet implements
      imrClasses.add(this.CB_CLASS_NAME);
      imrClasses.add(this.F_CLASS_NAME);
      imrGuiBean = new IMR_GuiBean(imrClasses);
-     //imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
+     imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
 
      // show this IMRgui bean the Panel
     imrSelectionPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
          GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-     // get the selected IMR
-     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-     // create the Site Gui Bean object
-     sitesGuiBean = new SitesInGriddedRegionGuiBean();
-     sitesGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
-     // show the sitebean in JPanel
-     siteRegionPanel.add(this.sitesGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-
-     /**
-      * Initialize the IMT Gui Bean
-      */
-
-     // create the IMT Gui Bean object
-     imtGuiBean = new IMT_GuiBean(imr);
-
-     imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-               GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
   }
 
   /**
@@ -286,7 +304,7 @@ public class ScenarioShakeMapApp extends JApplet implements
 
    eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-   //erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getParameter().addParameterChangeListener(this);
+   erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getParameter().addParameterChangeListener(this);
 
   }
 
@@ -418,7 +436,7 @@ public class ScenarioShakeMapApp extends JApplet implements
       siteLat.add(new Double(site.getLocation().getLatitude()));
       siteLon.add(new Double(site.getLocation().getLongitude()));
       imr.setSite(site);
-      // set the PQkRup in the IMR
+      // set the ProbEQkRup in the IMR
       try {
         int source = Integer.parseInt((String)erfGuiBean.getParameterList().getParameter(erfGuiBean.SOURCE_PARAM_NAME).getValue());
         int rupture = Integer.parseInt((String)erfGuiBean.getParameterList().getParameter(erfGuiBean.RUPTURE_PARAM_NAME).getValue());
