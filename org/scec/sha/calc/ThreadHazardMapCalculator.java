@@ -97,15 +97,15 @@ public void getHazardMapCurves(String[] args) {
   *
   * @param originalFunc :  this is the function with X values set
   */
- private void initX_Values(DiscretizedFuncAPI arb, double[] xValues) {
+ //private void initX_Values(DiscretizedFuncAPI arb, double[] xValues) {
    // take log only if it is PGA, PGV or SA
-   if (this.xLogFlag) {
-     for (int i = 0; i < xValues.length; ++i)
-       arb.set(Math.log(xValues[i]), 1);
-   }
-   else
-     throw new RuntimeException("Unsupported IMT");
- }
+   ///if (this.xLogFlag) {
+    // for (int i = 0; i < xValues.length; ++i)
+      // arb.set(Math.log(xValues[i]), 1);
+   //}
+   //else
+    // throw new RuntimeException("Unsupported IMT");
+ //}
 
  /**
   * set x values back from the log space to the original linear values
@@ -115,20 +115,20 @@ public void getHazardMapCurves(String[] args) {
   *
   * @param hazFunction :  this is the function with X values set
   */
- private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(
-     ArbitrarilyDiscretizedFunc hazFunc, double[] xValues) {
-   int numPoints = hazFunc.getNum();
-   DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
-   hazFunc = new ArbitrarilyDiscretizedFunc();
+ //private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(
+  //   ArbitrarilyDiscretizedFunc hazFunc, double[] xValues) {
+   //int numPoints = hazFunc.getNum();
+   //DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
+   //hazFunc = new ArbitrarilyDiscretizedFunc();
    // take log only if it is PGA, PGV or SA
-   if (this.xLogFlag) {
-     for (int i = 0; i < numPoints; ++i)
-       hazFunc.set(xValues[i], tempFunc.getY(i));
-     return hazFunc;
-   }
-   else
-     throw new RuntimeException("Unsupported IMT");
- }
+   //if (this.xLogFlag) {
+    // for (int i = 0; i < numPoints; ++i)
+      // hazFunc.set(xValues[i], tempFunc.getY(i));
+     //return hazFunc;
+  // }
+   //else
+    // throw new RuntimeException("Unsupported IMT");
+// }
 
  private class HazardCurvesGenerator implements Runnable{
 
