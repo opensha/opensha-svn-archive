@@ -45,7 +45,7 @@ public class AttenuationRelationshipApplet extends JApplet
     implements ParameterChangeFailListener,
         ParameterChangeWarningListener,
         ItemListener, AxisLimitsControlPanelAPI,GraphPanelAPI,ButtonControlPanelAPI,
-        XY_ValuesControlPanelAPI {
+        XY_ValuesControlPanelAPI,GraphWindowAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
     private final static String version = "0.7.14";
@@ -70,7 +70,10 @@ public class AttenuationRelationshipApplet extends JApplet
    ButtonControlPanel buttonControlPanel;
 
    //instance of the GraphPanel (window that shows all the plots)
-   GraphPanel graphPanel;
+   private GraphPanel graphPanel;
+
+   //instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
+   private GraphWindow graphWindow;
 
 
     //images for the OpenSHA
@@ -270,6 +273,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
     //XY new Dataset control
     private XY_ValuesControlPanel xyNewDatasetControl;
+  private JButton peelOffButton = new JButton();
 
 
     /**
@@ -471,7 +475,7 @@ public class AttenuationRelationshipApplet extends JApplet
             }
         );
 
-        addButton.setText( "Add Trace" );
+        addButton.setText( "Add Curve" );
 
         addButton.addActionListener(new java.awt.event.ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -519,10 +523,16 @@ public class AttenuationRelationshipApplet extends JApplet
         jLabel1.setFont(new java.awt.Font("Dialog", 0, 18));
         jLabel1.setForeground(new Color(80, 80, 133));
         jLabel1.setText("Attenuation Relationship Plotter");
-    xyDatasetButton.setText("Add new data");
+    xyDatasetButton.setText("Add Data Points");
     xyDatasetButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         xyDatasetButton_actionPerformed(e);
+      }
+    });
+    peelOffButton.setText("Peel-Off");
+    peelOffButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        peelOffButton_actionPerformed(e);
       }
     });
     this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -569,9 +579,10 @@ public class AttenuationRelationshipApplet extends JApplet
         buttonControlPanel = new ButtonControlPanel(this);
         buttonPanel.add(addButton, 0);
         buttonPanel.add(clearButton, 1);
-        buttonPanel.add(xyDatasetButton, 2);
-        buttonPanel.add(buttonControlPanel,3);
-        buttonPanel.add(plotColorCheckBox, 4);
+        buttonPanel.add(peelOffButton, 2);
+        buttonPanel.add(xyDatasetButton, 3);
+        buttonPanel.add(buttonControlPanel,4);
+        buttonPanel.add(plotColorCheckBox, 5);
 
         outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
@@ -1099,6 +1110,27 @@ public class AttenuationRelationshipApplet extends JApplet
     }
 
 
+    /**
+     * Actual method implementation of the "Peel-Off"
+     * This function peels off the window from the current plot and shows in a new
+     * window. The current plot just shows empty window.
+     */
+    private void peelOffCurves(){
+      graphWindow = new GraphWindow(this);
+      clearPlot(true);
+      graphWindow.show();
+  }
+
+
+  /**
+   *
+   * @returns the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
+   */
+   public ArrayList getCurveFunctionList(){
+     return functionList;
+   }
+
+
 
     /**
      *  Description of the Method
@@ -1223,11 +1255,38 @@ public class AttenuationRelationshipApplet extends JApplet
    * set the auto range for the axis. This function is called
    * from the AxisLimitControlPanel
    */
- public void setAutoRange() {
-   this.customAxis=false;
-   addGraphPanel();
+  public void setAutoRange() {
+    this.customAxis = false;
+    addGraphPanel();
+  }
+
+
+ /**
+  *
+  * @returns boolean: Checks if Custom Axis is selected
+  */
+ public boolean isCustomAxis(){
+   return customAxis;
  }
 
+
+
+ /**
+  *
+  * @returns the boolean: Log for X-Axis Selected
+  */
+ public boolean getXLog(){
+   return xLog;
+ }
+
+
+ /**
+  *
+  * @returns the boolean: Log for Y-Axis Selected
+  */
+ public boolean getYLog(){
+   return yLog;
+  }
 
 
   private void imgLabel_mouseClicked(MouseEvent e) {
@@ -1303,7 +1362,12 @@ public class AttenuationRelationshipApplet extends JApplet
    void xyDatasetButton_actionPerformed(ActionEvent e) {
     if(xyNewDatasetControl == null)
       xyNewDatasetControl = new XY_ValuesControlPanel(this,this);
+
     xyNewDatasetControl.show();
-    xyNewDatasetControl.pack();
+
+  }
+
+  void peelOffButton_actionPerformed(ActionEvent e) {
+    peelOffCurves();
   }
 }

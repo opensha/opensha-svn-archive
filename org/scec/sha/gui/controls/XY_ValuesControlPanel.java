@@ -41,8 +41,9 @@ public class XY_ValuesControlPanel
     catch (Exception exception) {
       exception.printStackTrace();
     }
+    this.pack();
     // show the window at center of the parent component
-      this.setLocation(parent.getX()+parent.getWidth()/2,
+    this.setLocation(parent.getX()+parent.getWidth()/2,
                        parent.getY());
 
   }
@@ -72,10 +73,10 @@ public class XY_ValuesControlPanel
     jPanel1.add(metadataScrollPane,  new GridBagConstraints(0, 3, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 38, 0, 20), 270, 136));
     jPanel1.add(cancelButton,  new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 34, 18, 31), 22, -1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 34, 18, 34), 19, 1));
     jPanel1.add(okButton,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 64, 18, 0), 19, 1));
-    this.setSize(new Dimension(338, 695));
+    this.setSize(new Dimension(250, 500));
     this.setTitle("New Dataset Control Panel");
   }
 
@@ -84,8 +85,17 @@ public class XY_ValuesControlPanel
   }
 
   public void okButton_actionPerformed(ActionEvent actionEvent) {
-    application.setArbitraryDiscretizedFuncInList(getX_Values());
-    this.dispose();
+    try{
+      application.setArbitraryDiscretizedFuncInList(getX_Values());
+      this.dispose();
+    }catch(NumberFormatException ex){
+      JOptionPane.showMessageDialog(this,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    catch(RuntimeException ex){
+      JOptionPane.showMessageDialog(this,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+      return;
+    }
   }
 
 
@@ -106,7 +116,7 @@ public class XY_ValuesControlPanel
         tempX_Val = Double.parseDouble(st1.nextToken());
         tempY_Val = Double.parseDouble(st1.nextToken());
       }catch(NumberFormatException e){
-        throw new NumberFormatException("X Values entered must be a valid number");
+        throw new NumberFormatException("X and Y Values entered must be valid numbers");
       }
       function.set(tempX_Val,tempY_Val);
     }
