@@ -626,7 +626,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
   /**
    * when the generate Map button is pressed
    */
-  public void addButton(){
+  private void addButton(){
     timer.start();
     step = 1;
     if(hazusControl == null || !hazusControl.isGenerateShapeFilesForHazus())
