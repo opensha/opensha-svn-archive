@@ -195,7 +195,7 @@ public class LabeledBoxPanel extends JPanel{
         jScrollPane1.setBorder( null );
 
         add( jScrollPane1, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 7, 3, 8 ), 0, 0 ) );
+                , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets( 5, 7, 3, 8 ), 0, 0 ) );
         add( headerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
                 , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 

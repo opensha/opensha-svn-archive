@@ -3,6 +3,7 @@ package org.scec.data;
 import java.util.*;
 import org.scec.exceptions.InvalidRangeException;
 import org.scec.param.*;
+import org.scec.param.event.*;
 
 /**
  *  <b>Title:</b> TimeSpan<p>
@@ -86,7 +87,7 @@ import org.scec.param.*;
  * @created    March, 2003
  * @version    1.0
  */
-public class TimeSpan {
+public class TimeSpan implements ParameterChangeListener {
 
     /** The name of this class, used for debug statements */
     protected final static String C = "TimeSpan";
@@ -154,6 +155,10 @@ public class TimeSpan {
     private String START_TIME_PRECISION_DEFAULT = YEARS;
     private StringParameter startTimePrecisionParam;
 
+    // this vector will hold all the listeners of this time span object
+    // whenver any change is made in this timespan object, all the listeners are notified
+    private Vector changeListeners;
+
     /**
      *  Constructor; this should actually take the start-time precision string since it
      *  cannot be set publically (do later or I'll have to change TimeSpan construction
@@ -174,7 +179,6 @@ public class TimeSpan {
     private void initParams() {
 
       // Start Time Parameters
-
       startYearParam = new IntegerParameter(START_YEAR,startYearConstraint,START_YEAR_DEFAULT);
       startMonthParam = new IntegerParameter(START_MONTH,startMonthConstraint,START_MONTH_DEFAULT);
       startDayParam = new IntegerParameter(START_DAY,startDayConstraint,START_DAY_DEFAULT);
@@ -210,6 +214,19 @@ public class TimeSpan {
       precisionConstraint.setNonEditable();
       startTimePrecisionParam = new StringParameter(START_TIME_PRECISION,precisionConstraint,
                                                     START_TIME_PRECISION_DEFAULT);
+
+      // add a listener to each of these parameter
+      // various other objects like ERFs can listen to Timespan
+      // whenever any parameter changes, it will notify to all the listeners
+      startYearParam.addParameterChangeListener(this);
+      startMonthParam.addParameterChangeListener(this);
+      startDayParam.addParameterChangeListener(this);
+      startHourParam.addParameterChangeListener(this);
+      startMinuteParam.addParameterChangeListener(this);
+      startSecondParam.addParameterChangeListener(this);
+      startMillisecondParam.addParameterChangeListener(this);
+      durationParam.addParameterChangeListener(this);
+      startTimePrecisionParam.addParameterChangeListener(this);
     }
 
     /**
@@ -940,6 +957,39 @@ public class TimeSpan {
       buildStartTimeCalendar();
       return startTimeCal;
     }
+
+
+
+    /**
+     * This method will be used by ERFs to listen for changes in Timespan object
+     * @param listener : Object that wants to listen to changes in Timespan object
+     * listener must implement the TimeSpanChangeListener interface
+     */
+    public void addParameterChangeListener(TimeSpanChangeListener listener) {
+      if ( changeListeners == null ) changeListeners = new Vector();
+      if ( !changeListeners.contains( listener ) ) changeListeners.add( listener );
+    }
+
+
+    /**
+     * this function is called whenenver any parameter changes in the params list
+     * This function then notifies all the listeners about this change
+     *
+     * @param e
+     */
+    public void parameterChange(ParameterChangeEvent e) {
+      // construct the new Event object
+      EventObject event = new EventObject(this);
+      if(changeListeners == null) return;
+      int numListeners = changeListeners.size();
+      // dispatch the time span change event to all the listeners
+      for ( int i = 0; i < numListeners; i++ ) {
+        TimeSpanChangeListener listener =
+                    ( TimeSpanChangeListener ) changeListeners.elementAt( i );
+        listener.parameterChange( event );
+      }
+    }
+
 
 
     // this is temporary for testing purposes
