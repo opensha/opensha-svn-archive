@@ -17,14 +17,7 @@ public class GRD_InfoFromFile {
 
   private boolean D = true;
 
-  // PATH where the gmt commands and some others exist.
-  private static String GMT_PATH = "/sw/bin/";
-
-  // this is the path to find the "cat" command
-  private static String COMMAND_PATH = "/bin/";
-
   private String filename;
-
 
   // to be set from line 6 of the file output from grdinfo
   private double x_min = Double.NaN;
@@ -81,7 +74,7 @@ public class GRD_InfoFromFile {
     String line6=null,line7=null,line8=null;
 
     String tempFileName = "temp_" + filename + "_info";
-    String[] command ={"sh","-c",GMT_PATH + "grdinfo " + filename + " > " + tempFileName};
+    String[] command ={"sh","-c",GMT_MapGenerator.GMT_PATH + "grdinfo " + filename + " > " + tempFileName};
     RunScript.runScript(command);
 
     /* What if multiple instances of this object are working doing this simultaneously with
