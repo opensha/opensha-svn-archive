@@ -8,6 +8,7 @@ import org.scec.param.*;
 import org.scec.param.event.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.imr.*;
+import org.scec.sha.imr.attenRelImpl.calc.Wald_MMI_Calc;
 import org.scec.sha.param.*;
 import org.scec.util.*;
 
@@ -547,8 +548,8 @@ while(it.hasNext()) {
       coeffSM = ( BJF_1997_AttenRelCoefficients )coefficientsSM.get( PGA_NAME );
       double b_pga = getRockMean();
       pga = b_pga + Math.log(getAmpFactor(PGA_NAME));
-      // Convert to linear domain in gals (what's needed below)
-      pga = Math.exp(pga)*980.0;
+      // Convert to linear domain
+      pga = Math.exp(pga);
 
       if(D) System.out.println(C+S+" pga = "+(float) pga);
 
@@ -562,48 +563,8 @@ while(it.hasNext()) {
 
       if(D) System.out.println(" pgv = "+(float) pgv);
 
-      // now compute MMI
-      double a_scale, v_scale;
-      double sma     =  3.6598;
-      double ba      = -1.6582;
-      double sma_low =  2.1987;
-      double ba_low  =  1;
+      return Wald_MMI_Calc.getMMI(pga,pgv);
 
-      double smv     =  3.4709;
-      double bv      =  2.3478;
-      double smv_low =  2.0951;
-      double bv_low  =  3.3991;
-
-      double ammi; // Intensity from acceleration
-      double vmmi; // Intensity from velocity
-
-      ammi = (0.43429*Math.log(pga) * sma) + ba;
-      if (ammi <= 5.0)
-        ammi = (0.43429*Math.log(pga) * sma_low) + ba_low;
-
-      vmmi = (0.43429*Math.log(pgv) * smv) + bv;
-      if (vmmi <= 5.0)
-        vmmi = (0.43429*Math.log(pgv) * smv_low) + bv_low;
-
-      if (ammi < 1) ammi = 1;
-      if (vmmi < 1) vmmi = 1;
-
-      // use linear ramp between MMI 5 & 7 (ammi below and vmmi above, respectively)
-      a_scale = (ammi - 5) / 2; // ramp
-      if (a_scale > 1);
-        a_scale = 1;
-      if (a_scale < 0);
-        a_scale = 0;
-
-      a_scale = 1 - a_scale;
-
-      v_scale = 1 - a_scale;
-
-      double mmi = (a_scale * ammi) + (v_scale * vmmi);
-      if (mmi < 1) mmi = 1 ;
-      if (mmi > 10) mmi = 10;
-//      return ((int) (mmi * 100)) / 100;
-      return mmi;
     }
 
 
