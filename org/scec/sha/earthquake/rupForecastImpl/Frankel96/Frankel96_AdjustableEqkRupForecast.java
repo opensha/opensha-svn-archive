@@ -39,7 +39,7 @@ import org.scec.param.event.ParameterChangeEvent;
  * @version 1.0
  */
 
-public class Frankel96_EqkRupForecast extends EqkRupForecast
+public class Frankel96_AdjustableEqkRupForecast extends EqkRupForecast
     implements ParameterChangeListener{
 
   //for Debug purposes
@@ -47,7 +47,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
   private boolean D = false;
 
   // name of this ERF
-  private static String NAME = new String("USGS/CGS 1996 Cal. ERF");
+  private static String NAME = new String("USGS/CGS 1996 Adj. Cal. ERF");
 
   private double GRID_SPACING = 1.0;
   private double B_VALUE =0.9;
@@ -127,7 +127,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
    *
    * No argument constructor
    */
-  public Frankel96_EqkRupForecast() {
+  public Frankel96_AdjustableEqkRupForecast() {
 
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
@@ -184,13 +184,13 @@ private void intiAdjParams() {
                                         RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
   rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
 
-/* COMMENTED OUT FOR THIS VERSION
+
 // add adjustable parameters to the list
   adjustableParams.addParameter(faultModelParam);
   adjustableParams.addParameter(fracGR_Param);
   adjustableParams.addParameter(rupOffset_Param);
   adjustableParams.addParameter(backSeisParam);
-*/
+
 
 }
 

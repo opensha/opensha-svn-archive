@@ -14,9 +14,10 @@ AttenRelApp:
 	(after accepting violation), now set Vs30=-10 and hit return (not add trace),
 	now set Mag=8.1 and try to add (it defaults back to previous value).
 
+	Update *.jar at web site when ready for Golden Demo
+
 Solve problem with look and feel of *.jar applications for Java 1.4 on Mac 
 (using Java 1.3 for these requires launching from the command line).
-
 
 Fix titles of web pages
 
@@ -31,8 +32,21 @@ HazardCurveApplet:
 	  then be moved above, with one line of items below -wrapped if need
 	  be)
 
+	Change "Source-Site Distance Control" to "Max Source-Site Distance"
+
+	- sometimes it only shows "Beginning Calculation" (no progress bar) when 
+	I know there are enough ruptures to make the bar visible).
+
+	We're getting out of memeory exceptions; can we kill old 
+	ERFs when a new one is selected?
+
+	For ERF lists, can we plot the individual curves as they are computed
+	(rather than waiting for all to end)?
+
 	-epistemic list control panal - only redo hazard calculations if needed 
 	(delay solving this until we figure out exactly what we need)
+
+
 
 	
 
@@ -44,6 +58,7 @@ ScenarioShakeMapApp
 
 	Add plotting of rupture surface as a dot at each point on the gridded surface
 
+EqkRupForecast - move methods in subclasses to parent where possible (a lot are identical)
 
 Finish implementing WG99/02 ERF
 
