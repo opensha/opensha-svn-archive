@@ -1626,7 +1626,7 @@ public class HazardCurveApplet extends JApplet
         erfGuiBean.getParameterList().getParameterListMetadataString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
-        timeSpanGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator;
+        timeSpanGuiBean.getParameterListMetadataString()+systemSpecificLineSeparator;
   }
 
   /**

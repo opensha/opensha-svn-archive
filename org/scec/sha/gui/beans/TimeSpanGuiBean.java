@@ -1,11 +1,17 @@
 package org.scec.sha.gui.beans;
 
+
+import java.util.Iterator;
+import java.awt.*;
+
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.param.ParameterAPI;
 import org.scec.data.TimeSpan;
 import org.scec.param.ParameterList;
+import javax.swing.*;
 
-import java.util.Iterator;
+
+
 
 /**
  * <p>Title: TimeSpanGuiBean</p>
@@ -16,18 +22,30 @@ import java.util.Iterator;
  * @version 1.0
  */
 
-public class TimeSpanGuiBean extends ParameterListEditor{
+public class TimeSpanGuiBean extends JPanel{
 
   // timespan Panel title
   public final static String TIMESPAN_EDITOR_TITLE =  "Set Time Span";
   // save the TimeSpan instance
   private TimeSpan timeSpan;
 
+  private ParameterListEditor editor;
+  private ParameterList parameterList;
+  private JEditorPane nullTimespanWindow = new JEditorPane();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+
+
   /**
    * default constructor
    */
   public TimeSpanGuiBean() {
     parameterList = new ParameterList();
+    try {
+      jbInit();
+    }
+    catch(Exception e) {
+      e.printStackTrace();
+    }
 
   }
 
@@ -38,7 +56,7 @@ public class TimeSpanGuiBean extends ParameterListEditor{
    * @param timeSpan
    */
   public TimeSpanGuiBean(TimeSpan timeSpan) {
-    parameterList = new ParameterList();
+    this();
     setTimeSpan(timeSpan);
   }
 
@@ -51,15 +69,28 @@ public class TimeSpanGuiBean extends ParameterListEditor{
   public void setTimeSpan(TimeSpan timeSpan) {
     this.parameterList.clear();
     this.timeSpan = timeSpan;
-    // get the adjutsbale params and add them to the list
-    Iterator it = timeSpan.getAdjustableParamsIterator();
-    while(it.hasNext()) {
-      ParameterAPI param = (ParameterAPI)it.next();
-      this.parameterList.addParameter(param);
+    if(editor !=null)
+      this.remove(editor);
+    if(timeSpan !=null){
+      // get the adjustable params and add them to the list
+      Iterator it = timeSpan.getAdjustableParamsIterator();
+      while(it.hasNext()) {
+        ParameterAPI param = (ParameterAPI)it.next();
+        this.parameterList.addParameter(param);
+      }
+      this.remove(nullTimespanWindow);
+      editor = new ParameterListEditor(parameterList);
+      editor.setTitle(TIMESPAN_EDITOR_TITLE);
+      this.add(editor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+          ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
+      this.validate();
+      this.repaint();
     }
-    this.editorPanel.removeAll();
-    addParameters();
-    this.setTitle(TIMESPAN_EDITOR_TITLE);
+    else{
+      this.add(nullTimespanWindow,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+          ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
+
+    }
   }
 
   /**
@@ -69,4 +100,37 @@ public class TimeSpanGuiBean extends ParameterListEditor{
   public TimeSpan getTimeSpan() {
     return this.timeSpan;
   }
+  private void jbInit() throws Exception {
+    String text = "This ERF does not have any Timespan\n";
+    this.setLayout(gridBagLayout1);
+
+    nullTimespanWindow.setEditable(false);
+    nullTimespanWindow.setText(text);
+    this.add(nullTimespanWindow,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH,  new Insets(4, 4, 4, 4), 0,0));
+  }
+
+  /**
+   *
+   * @returns the ParameterList
+   */
+  public ParameterList getParameterList(){
+    return this.parameterList;
+  }
+
+  /**
+   *
+   * @returns the ParameterListEditor
+   */
+  public ParameterListEditor getParameterListEditor(){
+    return this.editor;
+  }
+
+  public String getParameterListMetadataString(){
+    if(timeSpan !=null)
+      return parameterList.getParameterListMetadataString();
+    else
+      return "No Timespan";
+  }
+
 }

@@ -1451,7 +1451,7 @@ public class HazardCurveServerModeApp extends JApplet
         erfGuiBean.getParameterList().getParameterListMetadataString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
-        timeSpanGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator;
+        timeSpanGuiBean.getParameterListMetadataString()+systemSpecificLineSeparator;
   }
 
   void imgLabel_mousePressed(MouseEvent e) {
