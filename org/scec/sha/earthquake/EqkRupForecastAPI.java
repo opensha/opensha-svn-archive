@@ -3,6 +3,8 @@ package org.scec.sha.earthquake;
 import org.scec.data.NamedObjectAPI;
 import org.scec.data.TimeSpan;
 import org.scec.param.ParameterList;
+import org.scec.data.Location;
+import org.scec.data.region.GeographicRegion;
 
 import java.util.Iterator;
 import java.util.Vector;
@@ -145,5 +147,21 @@ public interface EqkRupForecastAPI extends NamedObjectAPI{
     * @return
     */
    public ListIterator getAdjustableParamsList();
+
+   /**
+    * This function finds whether a particular location lies in applicable
+    * region of the forecast
+    *
+    * @param loc : location
+    * @return: True if this location is within forecast's applicable region, else false
+    */
+   public boolean isLocWithinApplicableRegion(Location loc);
+
+
+   /**
+    * Get the region for which this forecast is applicable
+    * @return : Geographic region object specifying the applicable region of forecast
+    */
+   public GeographicRegion getApplicableRegion() ;
 
 }
