@@ -4,30 +4,19 @@
 For OpenSHA:
 ------------
 
-FractileCurveCalculator
+Implement WG99/02 ERF by reading the static file first (not adjustable parameters)
 
-	In here we deep clone funcList, so shouldn't we deep clone the weights as well?
+Check FractileCurveCalculator.getMeanCurve() (seems to be wrong)
 
 ERF_EpistemicListControlPanel
 
-	Add option to plot the average (which is different from the
-	50% fractile) using the FractileCurveCalculator.getMeanCurve() method
-	recently added by Ned.
-
-All XY plots:
-
-	applets crash if you set the X-axis minimum to zero and then 
-	later click the Ylog check box.
+	Fix so that mean selector is more visible
 
 Applets 
 
 	- resizing problems on Mac (revisit now that Java 1.4 is used?)
 
-	- why do applets look so bad with Safari
-
-ProbEqkRupture -  add a clone() method and use this in getRuptureClone(*) methods of ProbEqkSource and ProbEqkForecast objects.
-
-ProbEqkRupture - does this need a TimeSpan field (some of our sources do not have a timespan object, and so will not be capable of setting this)?  Lets take it out for now.
+	- why do applications look funny using Java 1.4 on Mac (including Safari)
 
 
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
@@ -37,56 +26,56 @@ HazardCurveApplet:
 	-put parameter editors at the top in the ParameterListEditor 
 	 (rather than centered in the vertical direction)
 
-	-epistemic list control panal; only redo hazard calculations if needed
+	-epistemic list control panal - only redo hazard calculations if needed 
+	(delay solving this until we figure out exactly what we need)
 
-create setMinSourceSiteDistanceControlPanel & implement (default = 250 km, but set at 300 or greater for all PEER tests)
+Figure out default for min source-site (USGS value) and set this to 300 or greater for all PEER tests.
 
 
-Evaluate:
-	
-	MapGuiBean  (Nitin does this)
+EqkRupSelectorGuiBean
 
-		takes a given XYZ file (or array) and uses GMT_MapGenerator to 
-		construct and display (in a different window) a map & its metadata 
-		(also shows adj params from GMT_MapGenerator)
-	
-	EqkRupSelectorGuiBean
+		- add checkbox option for setting hypocenter (default is un-checked)
 
-		- selection of src and rup index
-		- toggle adj params on and off?
-		- set hypocenter option (Finish Abrahamson2000 IMR.)?
+		- if checked, put all locations of the rupture surface's zeroth row 
+		  into a pick list (lat, lon, & depth)
+
+		- when one is chosen, set the hypocenter using: 
+
+			ProbEqkRupture.setHypocenterLocation(loc)
+
+		(this will require that the applet gets the rupture from 
+		the GuiBean rather than from the forecast)
 
 ProgressBars - 
 
-	-enable turning on and off in both HazardMapCalculator add  HazardCurveCalculator; 
-
-	- put toggle-switch option for this in all apps.
+	- put check-box option for this in HazardCurveApplet (others later).
 
 Submit our log-log implementation formally to JFreeChart.
 
-AttenRelApp - update web site app (and others?).
+AttenRelApp - update web site apps - wait until Ned has added another IMR.
 
 HazardCurveApplet 
 
-	- add "Interesting Sites" control panel that will set the lat and lon 
+	- add "Sites of Interest" control panel that will set the lat and lon 
 	  for some interesting locations
 
-Create SimpleFaultParameter and editor (so we can replace two PEER ERFs with one general ERF)
+		"Los Angeles"    -118.243     34.053
+		"San Francisco"    -122.68      37.75    
+
+SitesInGriddedRegionGuiBean
+
+	- add a pick list of "Predefined Regions"
+
+		"SF Bay Area" 37 to 39 and -123 to -121
 
 Fix GriddedFaultApplet - colors (red to blue) and horz/vert scaling.
 
-Create the following control panels in the future:
-
-	X_ValuesInCurveControlPanel
-	
 
 
 For the SCEC-ITR CME:
 ---------------------
 
 Port stand-alone applications to server mode.
-
-Build ScenarioShakeMapApplet (with HazardMapApplet in mind).  Then do this on server side?
 
 Get site params from Vs30 and basin depth translator, and get Vs30 and basin depth for lat/lon.
 
@@ -95,6 +84,12 @@ Get wg99/02 Fortran code compiling on our computers.
 
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
+
+Create the following control panels in the future:
+
+	X_ValuesInCurveControlPanel
+
+Create SimpleFaultParameter and editor (so we can replace two PEER ERFs with one general ERF)
 
 Implement getApplicableRegion() and isLocWithinApplicableRegion() methods in implemented ERFs.
 
