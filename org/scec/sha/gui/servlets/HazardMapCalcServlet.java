@@ -69,9 +69,15 @@ public class HazardMapCalcServlet extends HttpServlet {
      EqkRupForecast eqkRupForecast =
          (EqkRupForecast) inputFromApplet.readObject();
 
+     /**
+      * get the parameter values in String form needed to reproduce this
+      */
+     String mapParametersInfo = (String) inputFromApplet.readObject();
+
      // now run the calculation
      HazardMapCalculator calc = new HazardMapCalculator();
-     calc.getHazardMapCurves(condProbFunc, hazFunc, sites, imr, eqkRupForecast);
+     calc.getHazardMapCurves(condProbFunc, hazFunc, sites, imr,
+                             eqkRupForecast, mapParametersInfo );
 
 
      // report to the user whether the operation was successful or not

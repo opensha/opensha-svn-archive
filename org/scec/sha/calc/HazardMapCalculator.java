@@ -44,6 +44,8 @@ public class HazardMapCalculator {
   protected double MAX_DISTANCE = 2500;
   private CalcProgressBar progressClass ;
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
+  // directory where all the hazard map data sets will be saved
+  private static final String DATASETS_PATH = "HazardMapDataSets";
 
 
 
@@ -68,16 +70,37 @@ public class HazardMapCalculator {
      * @param site  : site parameter
      * @param imr  :selected IMR object
      * @param eqkRupForecast  : selected Earthquake rup forecast
+     * @param mapParametersInfo  : Parameters in String form used to generate the map
      * @return
    */
-  public void getHazardMapCurves(ArbitrarilyDiscretizedFunc condProbFunc,DiscretizedFuncAPI hazFunction,
-                                 SitesInGriddedRegion griddedSites, AttenuationRelationshipAPI imr,
-                                 EqkRupForecast eqkRupForecast) {
+  public void getHazardMapCurves(ArbitrarilyDiscretizedFunc condProbFunc,
+                                 DiscretizedFuncAPI hazFunction,
+                                 SitesInGriddedRegion griddedSites,
+                                 AttenuationRelationshipAPI imr,
+                                 EqkRupForecast eqkRupForecast,
+                                 String mapParametersInfo) {
 
     Site site;
+    String newDir;
     HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
-    //creating the directory that stores all the HazardCurves for that region
-    boolean success = (new File("tempData")).mkdir();
+    // get the number of data sets presently in directory
+    File mainDir = new File(this.DATASETS_PATH);
+
+    if(!mainDir.isDirectory()) { // if main directory does not exist
+      boolean success = (new File(DATASETS_PATH)).mkdir();
+      newDir=  DATASETS_PATH+"/1";
+    }
+    else {
+      if(mainDir.list()!=null) { // if there are various data sets in directory
+        int numDataSets = mainDir.list().length;
+        newDir=  DATASETS_PATH+"/"+(numDataSets+1);
+      } else {// if main directory is there but it is empty
+        newDir=  DATASETS_PATH+"/1";
+      }
+    }
+
+    //creating a new directory that stores all the HazardCurves for that region
+    boolean success = (new File(newDir)).mkdir();
     int numSites = griddedSites.getNumGridLocs();
     for(int j=0;j<numSites;++j){
       site = griddedSites.getSite(j);
@@ -90,19 +113,30 @@ public class HazardMapCalculator {
 
       try{
         if(success){
-          FileWriter fr = new FileWriter("tempData/"+lat+"_"+lon+".txt");
-          for(int i=0;i<numPoints;++i) {
-            //System.out.println(hazFunction.getY(i));
-            //System.out.println(hazFunction.getX(i)+" "+new Double(hazFunction.getY(i))+"\n");
+          FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
+          for(int i=0;i<numPoints;++i)
             fr.write(hazFunction.getX(i)+" "+hazFunction.getY(i)+"\n");
-          }
-
           fr.close();
         }
       }catch(IOException e){
         e.printStackTrace();
       }
     }
+
+   // make the metadata.data and sites.data files
+    try{
+      FileWriter fr = new FileWriter(newDir+"/metadata.dat");
+      fr.write(mapParametersInfo+"\n");
+      fr.close();
+      fr=new FileWriter(newDir+"/sites.dat");
+      fr.write(griddedSites.getMinLat()+" "+griddedSites.getMaxLat()+" "+
+               griddedSites.getGridSpacing()+"\n"+griddedSites.getMinLon()+" "+
+               griddedSites.getMaxLon()+" "+ griddedSites.getGridSpacing()+"\n");
+      fr.close();
+    }catch(IOException ee){
+      ee.printStackTrace();
+    }
+
   }
 
 }

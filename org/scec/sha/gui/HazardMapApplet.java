@@ -132,8 +132,9 @@ public class HazardMapApplet extends JApplet implements
   private JSplitPane jSplitPane1 = new JSplitPane();
   private JPanel timeSpanPanel = new JPanel();
   private GridBagLayout gridBagLayout12 = new GridBagLayout();
-  private GridBagLayout gridBagLayout13 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -176,9 +177,9 @@ public class HazardMapApplet extends JApplet implements
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     this.getContentPane().setBackground(Color.white);
     this.setSize(new Dimension(419, 657));
-    this.getContentPane().setLayout(gridBagLayout3);
+    this.getContentPane().setLayout(borderLayout1);
 
-    jPanel1.setLayout(gridBagLayout13);
+    jPanel1.setLayout(gridBagLayout4);
 
     jPanel1.setBackground(Color.white);
     jPanel1.setBorder(border4);
@@ -229,8 +230,8 @@ public class HazardMapApplet extends JApplet implements
     sitePanel.setBackground(Color.white);
     imrPanel.setLayout(gridBagLayout5);
     imrPanel.setBackground(Color.white);
-    this.getContentPane().add(jPanel1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    timeSpanPanel.setLayout(gridBagLayout3);
+    this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(-1, 9, 10, 4), -324, 288));
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
@@ -431,23 +432,8 @@ public class HazardMapApplet extends JApplet implements
 
      SitesInGriddedRegion griddedRegionSites = griddedRegionGuiBean.getGriddedRegionSite();
      // calculate the hazard curve for each site
-     calc.getHazardMapCurves(condProbFunc,hazFunction,griddedRegionSites , imr, eqkRupForecast);
-
-     try{
-       FileWriter fr = new FileWriter("tempData/metadata.dat");
-       fr.write(this.getCurveParametersInfo()+"\n");
-       fr.close();
-       fr=new FileWriter("tempData/sites.dat");
-       fr.write(griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.MIN_LATITUDE).getValue().toString()+
-                " "+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.MAX_LATITUDE).getValue().toString()+
-                " "+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.GRID_SPACING).getValue().toString()+
-                "\n"+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.MIN_LONGITUDE).getValue().toString()+
-                " "+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.MAX_LONGITUDE).getValue().toString()+
-                " "+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.GRID_SPACING).getValue().toString()+"\n");
-       fr.close();
-     }catch(IOException ee){
-
-     }
+     calc.getHazardMapCurves(condProbFunc,hazFunction,griddedRegionSites ,
+                             imr, eqkRupForecast, this.getMapParametersInfo());
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -462,7 +448,7 @@ public class HazardMapApplet extends JApplet implements
    *
    * @returns the String containing the values selected for different parameters
    */
-  public String getCurveParametersInfo(){
+  public String getMapParametersInfo(){
     return "IMR Param List: " +this.imrGuiBean.getParameterList().toString()+"\n"+
         "Site Param List: "+griddedRegionGuiBean.getParameterList().toString()+"\n"+
         "IMT Param List: "+imtGuiBean.getParameterList().toString()+"\n"+
