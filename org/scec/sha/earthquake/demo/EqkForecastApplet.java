@@ -55,8 +55,8 @@ public class EqkForecastApplet extends JApplet
   protected final static String SA = "SA";
   protected final static String SA_PERIOD = "SA Period";
   protected final static String FRANKEL_1996_FORECAST = "Frankel 1996";
-  protected final static int W = 880;
-  protected final static int H = 590;
+  protected final static int W = 915;
+  protected final static int H = 725;
 
   // it maps the IMR names and supported IMT for each IMR
   protected ArrayList[] imtMap;
@@ -81,13 +81,8 @@ public class EqkForecastApplet extends JApplet
   private JLabel jIMTLabel = new JLabel();
 
   // combo box to show the supported Earthforecast Types
-  private JComboBox jEqkForeType = new JComboBox();
 
   // text field where time span(in yrs.) is filled up
-  private JTextField jTimeField = new JTextField();
-  private JLabel jForecastLabel = new JLabel();
-  private JLabel jTimeSpan = new JLabel();
-  private JLabel jYears = new JLabel();
   private Border border1;
   private JLabel jIMR = new JLabel();
 
@@ -144,6 +139,13 @@ public class EqkForecastApplet extends JApplet
   private Border border3;
   private JPanel jPanel1 = new JPanel();
   private Border border4;
+  private JLabel jTimeSpan = new JLabel();
+  private JTextField jTimeField = new JTextField();
+  private JLabel jYears = new JLabel();
+  private JLabel jForecastLabel = new JLabel();
+  private JComboBox jEqkForeType = new JComboBox();
+  private JCheckBox jCheckCVM = new JCheckBox();
+  private JButton jBCalc = new JButton();
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -166,29 +168,31 @@ public class EqkForecastApplet extends JApplet
   }
   //Component initialization
   private void jbInit() throws Exception {
+    jBCalc.setBackground(new Color(200, 200, 230));
+    jBCalc.setBounds(new Rectangle(687, 614, 122, 33));
+    jBCalc.setForeground(new Color(80, 80, 133));
+    jBCalc.setText("Add Graph");
+    jEqkForecastPanel.add(jPanel1, null);
+    jEqkForecastPanel.add(jForecastLabel, null);
+    jEqkForecastPanel.add(jEqkForeType, null);
+    jEqkForecastPanel.add(jTimeSpan, null);
+    jEqkForecastPanel.add(jTimeField, null);
+    jEqkForecastPanel.add(jYears, null);
+    jEqkForecastPanel.add(jIMR, null);
+    jEqkForecastPanel.add(jIMRList, null);
+    jEqkForecastPanel.add(sitePanel, null);
+    jEqkForecastPanel.add(jCheckCVM, null);
+    jEqkForecastPanel.add(jIMTLabel, null);
+    jEqkForecastPanel.add(jIMTComboBox, null);
+    jEqkForecastPanel.add(jBCalc, null);
     border1 = BorderFactory.createEtchedBorder(new Color(200, 200, 230),new Color(80, 80, 133));
     border2 = BorderFactory.createEtchedBorder(new Color(200, 200, 230),new Color(80, 80, 133));
     border3 = BorderFactory.createLineBorder(new Color(80, 80, 133),1);
     border4 = BorderFactory.createLineBorder(new Color(80, 80, 133),1);
-    jForecastLabel.setBackground(new Color(200, 200, 230));
-    jForecastLabel.setForeground(new Color(80, 80, 133));
-    jTimeSpan.setBackground(new Color(200, 200, 230));
-    jTimeSpan.setFont(new java.awt.Font("Dialog", 1, 11));
-    jTimeSpan.setForeground(new Color(80, 80, 133));
-    jYears.setBackground(new Color(200, 200, 230));
-    jYears.setFont(new java.awt.Font("Dialog", 1, 11));
-    jYears.setForeground(new Color(80, 80, 133));
-    jYears.setText("# yrs");
-    jYears.setBounds(new Rectangle(605, 18, 38, 25));
-    jTimeField.setBackground(Color.white);
-    jTimeField.setFont(new java.awt.Font("SansSerif", 1, 11));
-    jTimeField.setForeground(new Color(80, 80, 133));
-    jEqkForeType.setBackground(new Color(200, 200, 230));
-    jEqkForeType.setFont(new java.awt.Font("Dialog", 1, 11));
-    jEqkForeType.setForeground(new Color(80, 80, 133));
     jIMTComboBox.setBackground(new Color(200, 200, 230));
     jIMTComboBox.setFont(new java.awt.Font("Dialog", 1, 11));
     jIMTComboBox.setForeground(new Color(80, 80, 133));
+    jIMTComboBox.setBounds(new Rectangle(702, 15, 138, 20));
     jIMTComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jIMTComboBox_actionPerformed(e);
@@ -198,12 +202,12 @@ public class EqkForecastApplet extends JApplet
     jIMR.setFont(new java.awt.Font("Dialog", 1, 11));
     jIMR.setForeground(new Color(80, 80, 133));
     jIMR.setText("Select IMR :");
-    jIMR.setBounds(new Rectangle(10, 56, 137, 25));
+    jIMR.setBounds(new Rectangle(637, 43, 76, 19));
     jIMRList.setBackground(Color.white);
     jIMRList.setFont(new java.awt.Font("Dialog", 1, 11));
     jIMRList.setForeground(Color.white);
     jIMRList.setBorder(border2);
-    jIMRList.setBounds(new Rectangle(7, 80, 227, 174));
+    jIMRList.setBounds(new Rectangle(638, 63, 244, 178));
     jIMRList.setLayout(gridLayout1);
     gridLayout1.setColumns(1);
     gridLayout1.setRows(0);
@@ -212,44 +216,53 @@ public class EqkForecastApplet extends JApplet
     sitePanel.setFont(new java.awt.Font("Dialog", 1, 11));
     sitePanel.setForeground(new Color(200, 200, 230));
     sitePanel.setBorder(border3);
-    sitePanel.setBounds(new Rectangle(6, 266, 225, 265));
+    sitePanel.setBounds(new Rectangle(640, 246, 240, 270));
     sitePanel.setLayout(borderLayout1);
     jEqkForecastPanel.setBackground(Color.white);
     jEqkForecastPanel.setForeground(new Color(80, 80, 133));
     this.getContentPane().setBackground(Color.white);
     this.setForeground(new Color(80, 80, 133));
-    jEqkForeType.setBounds(new Rectangle(317, 23, 103, 21));
-    jTimeField.setBounds(new Rectangle(500, 22, 101, 22));
-    jForecastLabel.setFont(new java.awt.Font("Dialog", 1, 11));
-    jForecastLabel.setText("Select Eqk Forecast :");
-    jForecastLabel.setBounds(new Rectangle(203, 24, 112, 20));
-    jTimeSpan.setText("Time Span :");
-    jTimeSpan.setBounds(new Rectangle(434, 22, 66, 22));
-    this.setSize(new Dimension(874, 561));
+    this.setSize(new Dimension(909, 693));
     this.getContentPane().setLayout(null);
     jEqkForecastPanel.setBorder(border1);
-    jEqkForecastPanel.setBounds(new Rectangle(5, 4, 863, 550));
+    jEqkForecastPanel.setBounds(new Rectangle(10, 9, 891, 671));
     jEqkForecastPanel.setLayout(null);
-    jIMTComboBox.setBounds(new Rectangle(78, 26, 103, 20));
     jIMTLabel.setBackground(new Color(200, 200, 230));
     jIMTLabel.setFont(new java.awt.Font("Dialog", 1, 11));
     jIMTLabel.setForeground(new Color(80, 80, 133));
     jIMTLabel.setText("Select IMT:");
-    jIMTLabel.setBounds(new Rectangle(11, 25, 68, 23));
+    jIMTLabel.setBounds(new Rectangle(636, 16, 68, 23));
     jPanel1.setBackground(Color.white);
     jPanel1.setBorder(border4);
-    jPanel1.setBounds(new Rectangle(250, 55, 602, 478));
-    jEqkForecastPanel.add(jIMTComboBox, null);
-    jEqkForecastPanel.add(jForecastLabel, null);
-    jEqkForecastPanel.add(jEqkForeType, null);
-    jEqkForecastPanel.add(jYears, null);
-    jEqkForecastPanel.add(jIMTLabel, null);
-    jEqkForecastPanel.add(jTimeSpan, null);
-    jEqkForecastPanel.add(jTimeField, null);
-    jEqkForecastPanel.add(jPanel1, null);
-    jEqkForecastPanel.add(jIMR, null);
-    jEqkForecastPanel.add(jIMRList, null);
-    jEqkForecastPanel.add(sitePanel, null);
+    jPanel1.setBounds(new Rectangle(6, 6, 625, 655));
+    jTimeSpan.setBackground(new Color(200, 200, 230));
+    jTimeSpan.setFont(new java.awt.Font("Dialog", 1, 11));
+    jTimeSpan.setForeground(new Color(80, 80, 133));
+    jTimeSpan.setText("Time Span :");
+    jTimeSpan.setBounds(new Rectangle(638, 578, 66, 22));
+    jTimeField.setBackground(Color.white);
+    jTimeField.setFont(new java.awt.Font("SansSerif", 1, 11));
+    jTimeField.setForeground(new Color(80, 80, 133));
+    jTimeField.setBounds(new Rectangle(752, 577, 99, 22));
+    jYears.setBackground(new Color(200, 200, 230));
+    jYears.setFont(new java.awt.Font("Dialog", 1, 11));
+    jYears.setForeground(new Color(80, 80, 133));
+    jYears.setText("# yrs");
+    jYears.setBounds(new Rectangle(857, 576, 31, 25));
+    jForecastLabel.setBackground(new Color(200, 200, 230));
+    jForecastLabel.setForeground(new Color(80, 80, 133));
+    jForecastLabel.setFont(new java.awt.Font("Dialog", 1, 11));
+    jForecastLabel.setText("Select Eqk Forecast :");
+    jForecastLabel.setBounds(new Rectangle(637, 552, 112, 20));
+    jEqkForeType.setBackground(new Color(200, 200, 230));
+    jEqkForeType.setFont(new java.awt.Font("Dialog", 1, 11));
+    jEqkForeType.setForeground(new Color(80, 80, 133));
+    jEqkForeType.setBounds(new Rectangle(752, 552, 127, 21));
+    jCheckCVM.setBackground(Color.white);
+    jCheckCVM.setFont(new java.awt.Font("Dialog", 1, 11));
+    jCheckCVM.setForeground(new Color(80, 80, 133));
+    jCheckCVM.setText("Set Parameters from CVM Servlet");
+    jCheckCVM.setBounds(new Rectangle(638, 520, 219, 22));
     this.getContentPane().add(jEqkForecastPanel, null);
   }
 
