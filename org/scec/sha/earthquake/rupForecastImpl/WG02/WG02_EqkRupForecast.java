@@ -4,6 +4,7 @@ import java.util.Vector;
 import java.util.ListIterator;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.List;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
@@ -50,38 +51,58 @@ public class WG02_EqkRupForecast extends EqkRupForecast
   private Vector charEqkSources;
   private Vector tail_GR_EqkSources;
 
- // This is an array holding each line of the input file
-  private ArrayList inputFileLines = null;
+ // This is an array holding the relevant lines of the input file
+  private List inputFileStrings = null;
 
-  // This is the start-line for this iteration
-  private int startLine;
-  double rupOffset;
+  double rupOffset, gridSpacing;
   String backSeisValue;
   String grTailValue;
   String name;
 
   /**
-   *
-   * No argument constructor
+   * This constructs a single forecast using the first iteration
    */
   public WG02_EqkRupForecast() {
 
+    // create the timespan object with start time and duration in years
+    timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    timeSpan.addParameterChangeListener(this);
+
     String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/WG02_WRAPPER_INPUT.DAT";
+
+    ArrayList inputFileLines=null;
 
     // read the lines of the input files into a list
     try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
-// Exit if no data found in list
-    if( inputFileLines == null) throw new
-      FaultException(C + "No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
-
-// set the timespan from the 2nd line of the file
     ListIterator it = inputFileLines.listIterator();
     StringTokenizer st;
-    st = new StringTokenizer(it.next().toString()); // skip first line
-    st = new StringTokenizer(it.next().toString());
+
+    // Find the end of the first iteration
+    int endIndex = 3;
+    st = new StringTokenizer((String) inputFileLines.get(endIndex));
+    st.nextToken();
+    String test = st.nextToken();
+    while(!test.equals("ITERATIONS")) {
+      endIndex+=1;
+      st = new StringTokenizer((String) inputFileLines.get(endIndex));
+      st.nextToken();
+      if (st.hasMoreTokens())
+        test = st.nextToken();
+    }
+
+    if (D) System.out.println(C+" endIndex="+endIndex);
+    if (D) System.out.println(C+" line(endIndex) ="+inputFileLines.get(endIndex));
+
+    inputFileStrings = inputFileLines.subList(2,endIndex);
+
+    if (D) System.out.println(C+" firstLineOfStrings ="+inputFileStrings.get(0));
+    if (D) System.out.println(C+" LastLineOfStrings ="+inputFileStrings.get(inputFileStrings.size()-1));
+
+    // get the line with the timeSpan info on it
+    st = new StringTokenizer((String) inputFileLines.get(1));
 
     st.nextToken();
     st.nextToken();
@@ -97,8 +118,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     timeSpan.setStartTime(year);
 
     // set the startLine to get the first iteration ERF (only)
-    startLine = 2;
     rupOffset = 2;
+    gridSpacing = 1;
     backSeisValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
     grTailValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
     name = "noName";
@@ -109,13 +130,13 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
 
 
-  public WG02_EqkRupForecast(ArrayList inputFileLines, int startLine, double rupOffset,
+  public WG02_EqkRupForecast(ArrayList inputFileStrings, double rupOffset, double gridSpacing,
                              String backSeisValue, String grTailValue, String name,
                              TimeSpan timespan) {
 
-    this.inputFileLines = inputFileLines;
-    this.startLine=startLine;
+    this.inputFileStrings = inputFileStrings;
     this.rupOffset=rupOffset;
+    this.rupOffset=gridSpacing;
     this.backSeisValue=backSeisValue;
     this.grTailValue=grTailValue;
     this.name = name;
@@ -146,34 +167,30 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     double lat, lon;
     double dip=0, downDipWidth=0, rupArea;
     double prob, meanMag, magSigma, nSigmaTrunc, rake=0;
-    String ruptureName;
-    int iFault, iRup, numPts, i;
+    String ruptureName, fault, rup, sourceName;
+    int numPts, i, lineIndex;
 
-    // Loop over lines of input file and create each source in the process
-    ListIterator it = inputFileLines.listIterator();
-
-
+    // Create iterator over inputFileStrings
+    ListIterator it = inputFileStrings.listIterator();
     StringTokenizer st;
 
-    // skip first two lines of the file
+    // 1st line has the iteration number
     st = new StringTokenizer(it.next().toString());
-    st = new StringTokenizer(it.next().toString());
+    String interation = st.nextToken().toString();
 
-
-    // here's the start of an iteration ************8
-
-    // first line is header
-    st = new StringTokenizer(it.next().toString());
-
-    // 2nd line is background seismicity stuff
+    // 2nd line is background seismicity stuff (Ignored for now)
     st = new StringTokenizer(it.next().toString());
 
     // Now loop over ruptures within this iteration
+    // **************** add the loop *******************
+
     faultTrace = new FaultTrace("noName");
+
     // line with fault/rupture index
     st = new StringTokenizer(it.next().toString());
-    iFault = new Integer(st.nextToken()).intValue();
-    iRup = new Integer(st.nextToken()).intValue();
+    fault = st.nextToken().toString();
+    rup = st.nextToken().toString();
+    sourceName = "fault "+fault+"; rupture "+rup;
 
     // line with number of fault-trace points
     st = new StringTokenizer(it.next().toString());
@@ -206,13 +223,15 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     magSigma = new Double(st.nextToken()).doubleValue();
     nSigmaTrunc = new Double(st.nextToken()).doubleValue();
 
-    // this should be an adjustable parameter
-    double gridSpacing = 1.0;
-
     faultFactory = new StirlingGriddedFaultFactory(faultTrace,dip,upperSeismoDepth,lowerSeismoDepth,gridSpacing);
     faultSurface = (EvenlyGriddedSurface) faultFactory.getGriddedSurface();
 
-    wg02_source = new WG02_CharEqkSource(prob,meanMag,magSigma,nSigmaTrunc,faultSurface,rupArea,rupOffset,"noName",rake);
+    // create the source
+    wg02_source = new WG02_CharEqkSource(prob,meanMag,magSigma,nSigmaTrunc,faultSurface,rupArea,rupOffset,sourceName,rake);
+
+    // add the source
+    charEqkSources.add(wg02_source);
+
   }
 
 

@@ -22,7 +22,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
 
   private double prob;
   private EvenlyGriddedSurface rupSurface;
-  private String ruptureName;
+  private String sourceName;
   private GaussianMagFreqDist gaussMagDist;
   private int numRupSurfaces, numMag;
   private double rupWidth, rupLength, rupOffset;
@@ -51,7 +51,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
    */
   public WG02_CharEqkSource(double prob, double meanMag, double magSigma,
                             double nSigmaTrunc, EvenlyGriddedSurface rupSurface,
-                            double rupArea, double rupOffset, String ruptureName,
+                            double rupArea, double rupOffset, String sourceName,
                             double rake) {
 
     // set as a non-poissonian source
@@ -67,7 +67,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
 
       if(D) System.out.println("prob="+prob+"; meanMag="+meanMag+"; =magSigma"+magSigma+
                                "; nSigmaTrunc="+nSigmaTrunc+"; rupArea="+rupArea+
-                               "; rupOffset="+rupOffset+"; ruptureName="+ruptureName+
+                               "; rupOffset="+rupOffset+"; sourceName="+sourceName+
                                "; rake="+rake);
 
       // compute upper and lower mag, rounding to the nearest 0.1 mag
@@ -83,7 +83,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
 
       if(D) System.out.println(gaussMagDist.toString());
       if(D) {
-        System.out.println(C+"mag  relative-prob:");
+        System.out.println(C+": mag  relative-prob:");
         for (int i=0;i<gaussMagDist.getNum();i++)
           System.out.println((float)gaussMagDist.getX(i)+"  "+(float)gaussMagDist.getY(i));
       }
@@ -109,10 +109,10 @@ public class WG02_CharEqkSource extends ProbEqkSource {
       if(D) {
         ProbEqkRupture rup;
         double totProb=0;
-        System.out.println(C+" ruptures: 0-"+(getNumRuptures()-1));
+//        System.out.println(C+" ruptures: 0-"+(getNumRuptures()-1));
         for (int i=0;i<getNumRuptures();i++) {
           rup = this.getRupture(i);
-          System.out.println(i+"  mag="+(float)rup.getMag()+"; prob="+(float)rup.getProbability());
+//          System.out.println(i+"  mag="+(float)rup.getMag()+"; prob="+(float)rup.getProbability());
           totProb += rup.getProbability();
         }
         System.out.println("  totProb="+(float)totProb);
