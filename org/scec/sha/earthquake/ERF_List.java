@@ -132,6 +132,7 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
    * @param time
    */
   public void setTimeSpan(TimeSpan time) {
+    timeSpan = time;
     int  numERFs = erf_List.size();
     for(int i=0; i<numERFs; ++i)
       ((EqkRupForecast)erf_List.get(i)).setTimeSpan(time);

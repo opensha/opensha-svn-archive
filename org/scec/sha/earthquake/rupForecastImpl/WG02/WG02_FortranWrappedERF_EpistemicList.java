@@ -60,7 +60,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
   private final static String TIME_PRED_FILE_05YRS = "time_pred_2002_5yr_n1000_rand.txt";
   private final static String TIME_PRED_FILE_10YRS = "time_pred_2002_10yr_n1000_rand.txt";
   private final static String TIME_PRED_FILE_20YRS = "time_pred_2002_20yr_n1000_rand.txt";
-  private final static String TIME_PRED_FILE_30YRS = "time_pred_2002_30yr_rand.txt";
+  private final static String TIME_PRED_FILE_30YRS = "time_pred_2002_30yr_rand.dat";
 
 
   // vector to hold the line numbers where each iteration starts

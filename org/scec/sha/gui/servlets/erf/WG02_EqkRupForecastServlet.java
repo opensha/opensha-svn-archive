@@ -144,6 +144,7 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
        ParameterAPI tempParam = (ParameterAPI)it.next();
        paramList.getParameter(tempParam.getName()).setValue(tempParam.getValue());
      }
+     wg02Object.setTimeSpan(time);
      wg02Object.setParameterChangeFlag(true);
      wg02Object.updateForecast();
      return (ERF_ListAPI)wg02Object;
