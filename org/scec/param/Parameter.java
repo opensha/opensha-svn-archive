@@ -8,9 +8,6 @@ import org.scec.exceptions.EditableException;
 import org.scec.param.event.*;
 
 /**
-/** @merge workspace: Changes in the Workspace */
- *  <b>Title: </b> Parameter<p>
-/** @merge repository: Changes from the Repository
  * <b>Title: </b> Parameter<p>
  *
  * <b>Description: </b> Partial (abstract)  base implementation for
@@ -19,15 +16,7 @@ import org.scec.param.event.*;
  * constructor that sets all these fields, and the setValue field that
  * always checks if the value is allowed before setting. The fields
  * with gettesr and setters are:
-*/
  *
-/** @merge workspace: Changes in the Workspace */
- *  <b>Description: </b> Base implementation for ParameterAPI of common
- *  functionality accross all parameter subclasses. The common fields with get
- *  and setters are here, as well as a default constructor that sets all these
- *  fields, and the setValue field that always checks if the value is allowed
- *  before setting.<p>
-/** @merge repository: Changes from the Repository
  * <ul>
  * <li>name
  * <li>units
@@ -35,16 +24,9 @@ import org.scec.param.event.*;
  * <li>editable
  * <li>value
  * </ul>
-*/
  *
-/** @merge workspace: Changes in the Workspace */
- *  <b>Change History:</b> 11/29/2001 - SWR - Added String units field with get
- *  and set methods<p>
- *
-/** @merge repository: Changes from the Repository
  * These fields are common to all parameters. <p>
  *
-*/
  * @author     Steve W. Rock
  * @created    February 21, 2002
  * @see        ParameterAPI
@@ -56,13 +38,6 @@ public abstract class Parameter
 {
 
 
-/** @merge workspace: Changes in the Workspace */
-    /**
-     *  Class name for debugging.
-     */
-/** @merge repository: Changes from the Repository
-    /** Class name for debugging. */
-*/
     protected final static String C = "Parameter";
     /** If true print out debug statements. */
     protected final static boolean D = false;
@@ -107,27 +82,7 @@ public abstract class Parameter
     /** Empty no-arg constructor. Does nothing but initialize object.  */
     public Parameter() { }
 
-    /**
-     *  Every parameter constraint has a name, this function gets that name.
-     *  Defaults to the name of the parameter but in a few cases may
-     * be different.
-     */
-    public String getConstraintName(  ){
-        if( constraint != null ) {
-            String name = constraint.getName( );
-            if( name == null ) return "";
-            return name;
-        }
-        return "";
-    }
 
-    /** Proxy function call to the constraint to see if null values are permitted */
-    public boolean isNullAllowed(){
-        if( constraint != null ) {
-            return constraint.isNullAllowed();
-        }
-        else return true;
-    }
 
     /**
      * If the editable boolean is set to true, the parameter value can
@@ -179,6 +134,22 @@ public abstract class Parameter
 
 
     /**
+       *  Uses the constraint object to determine if the new value being set is
+       *  allowed. If no Constraints are present all values are allowed. This
+       *  function is now available to all subclasses, since any type of
+       *  constraint object follows the same api.
+       *
+       * @param  obj  Object to check if allowed via constraints
+       * @return      True if the value is allowed
+       */
+      public boolean isAllowed( Object obj ) {
+          if ( constraint != null ) return constraint.isAllowed( obj );
+           else return true;
+
+      }
+
+
+    /**
      *  Set's the parameter's value.
      *
      * @param  value                 The new value for this Parameter
@@ -203,12 +174,7 @@ public abstract class Parameter
         firePropertyChange( event );
     }
 
-
-        /** Name of the parameter. */
-    protected String name = "";
-
     /**
-/** @merge workspace: Changes in the Workspace */
       *  Needs to be called by subclasses when field change fails
       *  due to constraint problems
       *
@@ -216,78 +182,42 @@ public abstract class Parameter
       * @exception  ConstraintException  Description of the Exception
       */
      public void unableToSetValue( Object value ) throws ConstraintException {
-/** @merge repository: Changes from the Repository
-     *  Information about this parameter. This is usually used to describe what
-     *  this object represents. May be used in gui tooltips.
-     */
-    protected String info = "";
-*/
 
-/** @merge workspace: Changes in the Workspace */
        String S = C + ": unableToSetValue():";
        org.scec.param.event.ParameterChangeFailEvent event =
            new org.scec.param.event.ParameterChangeFailEvent(this,
                          getName(), getValue(), value);
 
         firePropertyChangeFailed( event );
-/** @merge repository: Changes from the Repository
-    /** The units of this parameter represented as a String */
-    protected String units = "";
 
-    /** The constraint for this Parameter. This is consulted when setting values */
-    protected ParameterConstraintAPI constraint = null;
-
-    /**
-     * This value indicates if fields and constraint in this
-     * parameter are editable  after it is first initialized.
-     */
-    protected boolean editable = true;
-*/
-
-/** @merge workspace: Changes in the Workspace */
      }
-/** @merge repository: Changes from the Repository
-    /** The value object of this Parameter, subclasses will define the object type. */
-    protected Object value = null;
-*/
 
 
-/** @merge workspace: Changes in the Workspace */
-
-/** @merge repository: Changes from the Repository
-    /** Empty no-arg constructor. Does nothing but initialize object.  */
-    public Parameter() { }
-
-*/
     /**
-/** @merge workspace: Changes in the Workspace */
      *  Adds a feature to the ParameterChangeFailListener attribute of the
      *  ParameterEditor object
      *
      * @param  listener  The feature to be added to the
      *      ParameterChangeFailListener attribute
-/** @merge repository: Changes from the Repository
-     *  Every parameter constraint has a name, this function gets that name.
-     *  Defaults to the name of the parameter but in a few cases may
-     * be different.
-*/
      */
-/** @merge workspace: Changes in the Workspace */
     public synchronized void addParameterChangeFailListener( org.scec.param.event.ParameterChangeFailListener listener ) {
         if ( failListeners == null ) failListeners = new Vector();
         if ( !failListeners.contains( listener ) ) failListeners.addElement( listener );
-/** @merge repository: Changes from the Repository
-    public String getConstraintName(  ){
+     }
+
+    /**  Every parameter constraint has a name, this function gets that name.
+     *   Defaults to the name of the parameter but in a few cases may
+     *   be different.
+     */
+     public String getConstraintName(  ){
         if( constraint != null ) {
             String name = constraint.getName( );
             if( name == null ) return "";
             return name;
         }
         return "";
-*/
     }
 
-/** @merge workspace: Changes in the Workspace */
     /**
      *  Description of the Method
      *
@@ -297,27 +227,13 @@ public abstract class Parameter
         if ( failListeners != null && failListeners.contains( listener ) )
             failListeners.removeElement( listener );
     }
-/** @merge repository: Changes from the Repository
-    /** Proxy function call to the constraint to see if null values are permitted */
-    public boolean isNullAllowed(){
-        if( constraint != null ) {
-            return constraint.isNullAllowed();
-        }
-        else return true;
-    }
-*/
+
 
     /**
-/** @merge workspace: Changes in the Workspace */
      *  Description of the Method
      *
      * @param  event  Description of the Parameter
-/** @merge repository: Changes from the Repository
-     * If the editable boolean is set to true, the parameter value can
-     * be edited, else an EditableException is thrown.
-*/
      */
-/** @merge workspace: Changes in the Workspace */
     public void firePropertyChangeFailed( org.scec.param.event.ParameterChangeFailEvent event ) {
 
         String S = C + ": firePropertyChange(): ";
@@ -336,50 +252,19 @@ public abstract class Parameter
             org.scec.param.event.ParameterChangeFailListener listener = ( org.scec.param.event.ParameterChangeFailListener ) vector.elementAt( i );
             listener.parameterChangeFailed( event );
         }
-
-/** @merge repository: Changes from the Repository
-    protected void checkEditable(String S) throws EditableException{
-        if( !this.editable ) throw new EditableException( S +
-            "This parameter is currently not editable"
-        );
-*/
     }
 
-        /** Name of the parameter. */
-    protected String name = "";
 
-/** @merge workspace: Changes in the Workspace */
-/** @merge repository: Changes from the Repository
+
     /**
-     *  Information about this parameter. This is usually used to describe what
-     *  this object represents. May be used in gui tooltips.
-     */
-    protected String info = "";
-*/
-
-    /** The units of this parameter represented as a String */
-    protected String units = "";
-
-/** @merge workspace: Changes in the Workspace */
-
-/** @merge repository: Changes from the Repository
-    /** The constraint for this Parameter. This is consulted when setting values */
-    protected ParameterConstraintAPI constraint = null;
-
-*/
-    /**
-/** @merge workspace: Changes in the Workspace */
      *  Adds a feature to the ParameterChangeListener attribute of the
      *  ParameterEditor object
      *
      * @param  listener  The feature to be added to the ParameterChangeListener
      *      attribute
-/** @merge repository: Changes from the Repository
-     * This value indicates if fields and constraint in this
-     * parameter are editable  after it is first initialized.
-*/
+     *
      */
-/** @merge workspace: Changes in the Workspace */
+
     public synchronized void addParameterChangeListener( org.scec.param.event.ParameterChangeListener listener ) {
         if ( changeListeners == null ) changeListeners = new Vector();
         if ( !changeListeners.contains( listener ) ) changeListeners.addElement( listener );
@@ -394,33 +279,20 @@ public abstract class Parameter
         if ( changeListeners != null && changeListeners.contains( listener ) )
             changeListeners.removeElement( listener );
     }
-/** @merge repository: Changes from the Repository
-    protected boolean editable = true;
 
-    /** The value object of this Parameter, subclasses will define the object type. */
-    protected Object value = null;
 
-*/
 
-/** @merge workspace: Changes in the Workspace */
 
-/** @merge repository: Changes from the Repository
-    /** Empty no-arg constructor. Does nothing but initialize object.  */
-    public Parameter() { }
-
-*/
     /**
-/** @merge workspace: Changes in the Workspace */
+
      *  Description of the Method
      *
      * @param  event  Description of the Parameter
-/** @merge repository: Changes from the Repository
+
      *  Every parameter constraint has a name, this function gets that name.
      *  Defaults to the name of the parameter but in a few cases may
      * be different.
 */
-     */
-/** @merge workspace: Changes in the Workspace */
     public void firePropertyChange( ParameterChangeEvent event ) {
 
         String S = C + ": firePropertyChange(): ";
@@ -439,50 +311,24 @@ public abstract class Parameter
             org.scec.param.event.ParameterChangeListener listener = ( org.scec.param.event.ParameterChangeListener ) vector.elementAt( i );
             listener.parameterChange( event );
         }
-
-/** @merge repository: Changes from the Repository
-    public String getConstraintName(  ){
-        if( constraint != null ) {
-            String name = constraint.getName( );
-            if( name == null ) return "";
-            return name;
-        }
-        return "";
     }
 
-    /** Proxy function call to the constraint to see if null values are permitted */
+  /** Proxy function call to the constraint to see if null values are permitted */
     public boolean isNullAllowed(){
         if( constraint != null ) {
             return constraint.isNullAllowed();
         }
         else return true;
-*/
     }
 
-/** @merge workspace: Changes in the Workspace */
-/** @merge repository: Changes from the Repository
-    /**
-     * If the editable boolean is set to true, the parameter value can
-     * be edited, else an EditableException is thrown.
-     */
-    protected void checkEditable(String S) throws EditableException{
-        if( !this.editable ) throw new EditableException( S +
-            "This parameter is currently not editable"
-        );
-    }
-*/
+
 
     /**
-/** @merge workspace: Changes in the Workspace */
-     *  Sets the info attribute of the Parameter object. This is usually used to
-     *  describe what this object represents. May be used in gui tooltips.
-     *
      * @param  info  The new info value
-/** @merge repository: Changes from the Repository
+
      * Sets the info attribute of the Parameter object if editable. This is
      * usually used to describe what this object represents. May be used
      * in gui tooltips.
-*/
      */
     public void setInfo( String info ) throws EditableException{
 
@@ -490,171 +336,53 @@ public abstract class Parameter
         this.info = info;
     }
 
-/** @merge workspace: Changes in the Workspace */
-    /**
-     * Sets the units of this parameter
-     * @param units
-     */
-    public void setUnits(String units) throws EditableException {
-        checkEditable(C + ": setUnits(): ");
-        this.units = units;
-    }
 
-/** @merge repository: Changes from the Repository
+
     /** Sets the units of this parameter */
     public void setUnits(String units) throws EditableException {
         checkEditable(C + ": setUnits(): ");
         this.units = units;
     }
 
-*/
 
 
-    /**
-     *  Disables editing units, info, constraints, et. Basically all set()s disabled
-     *  except for setValue(). Once set non-editable, it cannot be set back.
-     */
-    public void setNonEditable() {
-        editable = false;
-    }
-
-/** @merge workspace: Changes in the Workspace */
 
 
-/** @merge repository: Changes from the Repository
-*/
     /**
      *  Returns the parameter's value. Each subclass defines what type of
      *  object. it returns
      *
      * @return    The value value
      */
-/** @merge workspace: Changes in the Workspace */
     public Object getValue() {
         return value;
     }
 
 
-    /**
-     *  Every parameter has a name, this function returns that name.
-     *
-     * @return    The name value
-     */
-    public String getName() {
-        return name;
-    }
 
 
-    /**
-     *  Every parameter has a name, this function returns that name.
-     *
-     * @return    The name value
-     */
-    public void setName(String name){
-        checkEditable(C + ": setName(): ");
-        this.name = name;
-/** @merge repository: Changes from the Repository
-    public Object getValue() { return value; }
-
-
-    /** Every parameter has a name, this function returns that name. */
-    public String getName() { return name; }
-    /** Every parameter has a name, this function sets that name, if editable. */
-    public void setName(String name){
-        checkEditable(C + ": setName(): ");
-        this.name = name;
-*/
-    }
-
-
-/** @merge workspace: Changes in the Workspace */
-    /**
-     *  Returns the units of this parameter, represented as a String.
-     *
-     * @return    The units value
-     */
-    public String getUnits() {
-        return units;
-    }
-
-    /**
-     *  Gets the constraints of this parameter.
-     *
-     * @return    The constraint value
-     */
-    public ParameterConstraintAPI getConstraint() {
-        return constraint;
-    }
-
-/** @merge repository: Changes from the Repository
     /** Returns the units of this parameter, represented as a String. */
     public String getUnits() { return units; }
 
     /** Gets the constraints of this parameter. */
     public ParameterConstraintAPI getConstraint() { return constraint; }
 
-*/
+
     /**
-/** @merge workspace: Changes in the Workspace */
      *  Gets the constraints of this parameter. Each subclass may implement any
      *  type of constraint it likes.
      *
      * @return    The constraint value
-/** @merge repository: Changes from the Repository
      * Gets the constraints of this parameter if editable. Each
      * subclass may implement any type of constraint it likes.
-*/
      */
     public void setConstraint(ParameterConstraintAPI constraint) throws EditableException{
         checkEditable(C + ": setConstraint(): ");
         this.constraint = constraint;
     }
 
-/** @merge workspace: Changes in the Workspace */
-
-
-    /**
-     *  Returns a description of this Parameter, typically used for tooltips.
-     *
-     * @return    The info value
-     */
-    public String getInfo() {
-        return info;
-    }
-
-
-    /**
-     *  Returns the short class name of this object.
-     *
-     * @return    The type value
-     */
-    public String getType() {
-        return C;
-    }
-
-/** @merge repository: Changes from the Repository
     /** Returns a description of this Parameter, typically used for tooltips. */
     public String getInfo() { return info; }
-
-    /** Returns the short class name of this object. */
-    public String getType() { return C; }
-
-
-    /** Determines if the value can be edited, i.e. changed once initialized. */
-    public boolean isEditable() { return editable; }
-
-
-*/
-
-    /**
-/** @merge workspace: Changes in the Workspace */
-     *  Determines if the value can be edited, i.e. changed once set.
-     *
-     * @return    The editable value
-     */
-    public boolean isEditable() {
-        return editable;
-    }
 
 
     /**
@@ -662,7 +390,6 @@ public abstract class Parameter
      *  allowed. If no Constraints are present all values are allowed. This
      *  function is now available to all subclasses, since any type of
      *  constraint object follows the same api.
-/** @merge repository: Changes from the Repository
      *  Disables editing units, info, constraints, et. Basically all set()s disabled
      *  except for setValue(). Once set non-editable, it cannot be set back.
      */
@@ -670,14 +397,6 @@ public abstract class Parameter
         editable = false;
     }
 
-    /**
-     *  Returns the parameter's value. Each subclass defines what type of
-     *  object. it returns
-*/
-     *
-     * @return    The value value
-     */
-    public Object getValue() { return value; }
 
 
     /** Every parameter has a name, this function returns that name. */
@@ -688,31 +407,17 @@ public abstract class Parameter
         this.name = name;
     }
 
-
-    /** Returns the units of this parameter, represented as a String. */
-    public String getUnits() { return units; }
-
-    /** Gets the constraints of this parameter. */
-    public ParameterConstraintAPI getConstraint() { return constraint; }
-
-    /**
-     * Gets the constraints of this parameter if editable. Each
-     * subclass may implement any type of constraint it likes.
-     */
-    public void setConstraint(ParameterConstraintAPI constraint) throws EditableException{
-        checkEditable(C + ": setConstraint(): ");
-        this.constraint = constraint;
-    }
-
-    /** Returns a description of this Parameter, typically used for tooltips. */
-    public String getInfo() { return info; }
-
-    /** Returns the short class name of this object. */
+      /** Returns the short class name of this object. */
     public String getType() { return C; }
 
 
     /** Determines if the value can be edited, i.e. changed once initialized. */
     public boolean isEditable() { return editable; }
+
+    /**
+     *  Returns a copy so you can't edit or damage the origial
+     */
+    public abstract Object clone();
 
 
 }

@@ -27,8 +27,6 @@ public abstract class ParameterConstraint implements ParameterConstraintAPI {
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    /** No arg constructor does nothing */
-    public ParameterConstraint() {}
 
     /** No arg constructor does nothing */
     public ParameterConstraint() {}

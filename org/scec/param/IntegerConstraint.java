@@ -101,27 +101,13 @@ public class IntegerConstraint extends ParameterConstraint  {
 
 
 
-    /** Returns the min allowed value of this constraint. */
-    public Integer getMin() { return min; }
-
-    /** Gets the max allowed value of this constraint */
-    public Integer getMax() { return max; }
-
-
-
 
     /** Returns the min allowed value of this constraint. */
     public Integer getMin() { return min; }
 
     /** Gets the max allowed value of this constraint */
     public Integer getMax() { return max; }
-    public boolean isAllowed( Object obj ) {
-        if( nullAllowed && ( obj == null ) ) return true;
-        else if ( !( obj instanceof Integer ) ) return false;
-        else  return isAllowed( ( Integer ) obj );
-    }
-
-    /**
+     /**
      * Checks if the passed in value is within the min and max, inclusive of
      * the end points. First the value is chekced if it's null and null values
      * are allowed. Then it checks the passed in object is an Integer. If the

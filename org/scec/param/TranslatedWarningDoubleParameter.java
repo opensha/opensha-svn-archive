@@ -432,7 +432,6 @@ public class TranslatedWarningDoubleParameter
    }
 
 
-/** @merge workspace: Changes in the Workspace */
     /**
      *  Description of the Method
      *
@@ -458,11 +457,9 @@ public class TranslatedWarningDoubleParameter
      *
      * @param  event  Description of the Parameter
      */
-/** @merge repository: Changes from the Repository
-    /** Direct proxy to wrapped parameter. See that class for documentation. */
-*/
     public void fireParameterChangeWarning( ParameterChangeWarningEvent event ){
-        param.fireParameterChangeWarning( event ) ;}
+        param.fireParameterChangeWarning( event ) ;
+    }
 
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
@@ -589,61 +586,23 @@ public class TranslatedWarningDoubleParameter
      */
     public int compareTo( Object parameter ) throws ClassCastException{ return param.compareTo( parameter );}
 
-
     /**
-     *  Compares value to see if equal.
+     *  Determines if the value can be edited, i.e. changed once set.
      *
-     * @param  parameter            the parameter to compare this object to.
-     * @return                      True if the values are identical
-     * @throws  ClassCastException  Thrown if the object type of the parameter
-     *      argument are not the same.
+     * @return    The editable value
      */
-    //public boolean equals( Object parameter ) throws ClassCastException{ return param.equals( parameter );}
-
-/** @merge workspace: Changes in the Workspace */
-/** @merge repository: Changes from the Repository
-    /** Direct proxy to wrapped parameter. See that class for documentation. */
-     public int compareTo( Object parameter ) throws ClassCastException{ return param.compareTo( parameter );}
-*/
-
-
-/** @merge workspace: Changes in the Workspace */
-/** @merge repository: Changes from the Repository
-    /** Direct proxy to wrapped parameter. See that class for documentation. */
-    public void setInfo( String info ){ param.setInfo( info );}
-*/
+    public boolean isEditable(){ return param.isEditable();}
 
 
     /**
-     *  Returns the data type of the value object. Used to determine which type
-     *  of Editor to use in a GUI.
-     *
-     * @return    The type value - i.e. the class name.
+     *  Disables editing the value once it is set.
      */
-/** @merge workspace: Changes in the Workspace */
     public void setNonEditable(){ param.setNonEditable();}
 
-/** @merge repository: Changes from the Repository
-    public String getType(){ return "TranslatedWarningDoubleParameter";}
-*/
-
-    /**
-     *  Returns a copy so you can't edit or damage the origial.
-     *
-     * @return    Description of the Return Value
-     * /
-    public Object clone(){
-        return param.clone();}
-    */
-
-/** @merge workspace: Changes in the Workspace */
     public boolean isNullAllowed(){ return param.isNullAllowed();}
     public TranslatorAPI getTrans() {
         return trans;
     }
-/** @merge repository: Changes from the Repository
-    /** Direct proxy to wrapped parameter. See that class for documentation. */
-     public int compareTo( Object parameter ) throws ClassCastException{ return param.compareTo( parameter );}
-*/
+
 
 }
