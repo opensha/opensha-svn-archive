@@ -23,7 +23,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
 import gov.usgs.exceptions.ZipCodeErrorException;
-
+import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
+import gov.usgs.sha.data.DataGenerator_NEHRP;
 
 /**
  * <p>Title:NEHRP_GuiBean</p>
@@ -68,13 +69,10 @@ public class NEHRP_GuiBean
   BorderLayout borderLayout1 = new BorderLayout();
 
   private NEHRP_FileReader fileReader = new NEHRP_FileReader();
-  private ArrayList functionsList = new ArrayList();
 
 
   private boolean locationVisible;
 
-  //gets the datainfo for the calculated data
-  private String dataInfo ="";
 
   //creating the Ground Motion selection parameter
   StringParameter groundMotionParam;
@@ -82,6 +80,8 @@ public class NEHRP_GuiBean
   private static final String GROUND_MOTION_PARAM_NAME = "Ground Motion";
   private static final String MCE_GROUND_MOTION = "MCE Ground Motion";
 
+
+  private DataGeneratorAPI_NEHRP dataGenerator = new DataGenerator_NEHRP();
 
   //instance of the application using this GUI bean
   private ProbabilisticHazardApplicationAPI application;
@@ -418,8 +418,9 @@ public class NEHRP_GuiBean
 
     String selectedGeographicRegion = datasetGui.getSelectedGeographicRegion();
     String selectedDataEdition = datasetGui.getSelectedDataSetEdition();
-    dataInfo += selectedGeographicRegion + "\n\n";
-    dataInfo += selectedDataEdition + "\n\n";
+    dataGenerator.setRegion(selectedGeographicRegion);
+    dataGenerator.setEdition(selectedDataEdition);
+
     //doing the calculation if not territory and Location GUI is visible
     if (locationVisible) {
       String locationMode = locGuiBean.getLocationMode();
@@ -427,25 +428,13 @@ public class NEHRP_GuiBean
         Location loc = locGuiBean.getSelectedLocation();
         double lat = loc.getLatitude();
         double lon = loc.getLongitude();
+        dataGenerator.calculateSsS1(lat,lon);
 
-        DiscretizedFuncList functions = fileReader.getSsS1(
-            selectedGeographicRegion, selectedDataEdition, lat, lon);
-        dataInfo += functions.getInfo();
-        int numFunctions = functions.size();
-        for (int i = 0; i < numFunctions; ++i)
-          functionsList.add(functions.get(i));
       }
       else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
         String zipCode = locGuiBean.getZipCode();
         try {
-
-          DiscretizedFuncList functions = fileReader.getSsS1(
-              selectedGeographicRegion, selectedDataEdition, zipCode);
-          dataInfo += functions.getInfo();
-          int numFunctions = functions.size();
-          for (int i = 0; i < numFunctions; ++i)
-            functionsList.add(functions.get(i));
-
+          dataGenerator.calculateSsS1(zipCode);
         }
         catch (ZipCodeErrorException e) {
           JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
@@ -456,12 +445,7 @@ public class NEHRP_GuiBean
       }
     }
     else { // if territory and location Gui is not visible
-      DiscretizedFuncList functions = fileReader.getSsS1ForTerritory(
-          selectedGeographicRegion);
-      dataInfo += functions.getInfo();
-      int numFunctions = functions.size();
-      for (int i = 0; i < numFunctions; ++i)
-        functionsList.add(functions.get(i));
+      dataGenerator.calculateSsS1();
     }
   }
 
@@ -470,13 +454,13 @@ public class NEHRP_GuiBean
    * @return ArrayList
    */
   public ArrayList getComputedFunctions(){
-    return functionsList;
+    return dataGenerator.getData();
   }
 
 
   private void ssButton_actionPerformed(ActionEvent actionEvent) {
     getDataForSA_Period();
-    application.setDataInWindow(dataInfo);
+    application.setDataInWindow(dataGenerator.getDataInfo());
   }
 
 
