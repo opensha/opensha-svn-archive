@@ -6,7 +6,6 @@ import java.util.Iterator;
 import org.scec.calc.magScalingRelations.*;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.sha.magdist.*;
-import org.scec.sha.magdist.SingleMagFreqDist;
 import org.scec.data.*;
 import org.scec.calc.RelativeLocation;
 import org.scec.sha.earthquake.*;
@@ -15,12 +14,22 @@ import org.scec.sha.surface.*;
 
 /**
  * <p>Title: SimplePoissonFaultSource </p>
- * <p>Description: This implements a basic Poisson fault source for arbitrary: magDist,
- * faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset,
- * rake, and timeSpan (see description of each of these in the constructor).
- * One can also specify the minMag (magnitudes below this in the mag-freq dist
- * (magDist) are ignored in making the ruptures; the default is 5.0).
- * Note that magScalingSigma can be either a MagAreaRelationship of a
+ * <p>Description: This implements a basic Poisson fault source for arbitrary: <p>
+ * <UL>
+ * <LI>magDist - any IncrementalMagFreqDist
+ * <LI>faultSurface - any EvenlyDiscretizedSurface
+ * <LI>magScalingRel- any magLenthRelationship or magAreaRelalationship
+ * <LI>magScalingSigma - the standard deviation of log(Lenth) or log(Area)
+ * <LI>rupAspectRatio - the ratio of rutpure length to rutpure width (down-dip)
+ * <LI>rupOffset - the amount by which ruptures are offset on the fault.
+ * <LI>rake - that rake (in degrees) assigned to all ruptures.
+ * <LI>timeSpan - the duration of the forecast (in same usints as in the magFreqDist)
+ * </UL><p>
+ * The ruptures are placed uniformly across the fault surface (at rupOffset spacing), which
+ * means there is a tapering of implied slip amounts at the ends of the fault.<p>
+ * All magnitudes below 5.0 in the magDist are ignored in building the ruptures (unless
+ * one uses the constructor that allows the "minMag" to be set by hand). <p>
+ * Note that magScalingSigma can be either a MagAreaRelationship or a
  * MagLengthRelationship.  If a MagAreaRelationship is being used, and the rupture
  * width implied for a given mangitude exceeds the down-dip width of the faultSurface,
  * then the rupture length is increased accordingly and the rupture width is set as
@@ -29,6 +38,10 @@ import org.scec.sha.surface.*;
  * the bottom edge of the fault is simply cut off (ignored).  Thus, with a
  * MagLengthRelationship you can force rupture of the entire down-dip width by giving
  * rupAspecRatio a very small value.</p>
+ * magScalingSigma is set by hand (rather than getting it from the magScalingRel) to
+ * allow maximum flexibility (e.g., some relationships do not even give a sigma value).<p>
+ * If magScalingSigma is non zero, then three branches are considered for the Area or Lengths
+ * values: median and +/-1.64sigma, with relative weights of 0.6, 0.2, and 0.2, respectively.<p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field
