@@ -380,7 +380,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
 
 
        // build the plot
-       org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this,data, xAxis, yAxis, true, true);
+       com.jrefinery.chart.plot.LogXYPlot plot = new com.jrefinery.chart.plot.LogXYPlot(this,data, xAxis, yAxis, true, true);
 
        plot.setBackgroundAlpha( .8f );
        plot.setRenderer( renderer );

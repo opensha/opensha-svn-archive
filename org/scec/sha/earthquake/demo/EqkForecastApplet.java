@@ -1231,7 +1231,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
       // build the plot
 
-      org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this.totalData, xAxis, yAxis, renderer);
+      com.jrefinery.chart.plot.LogXYPlot plot = new com.jrefinery.chart.plot.LogXYPlot(this.totalData, xAxis, yAxis, renderer);
       plot.setBackgroundAlpha( .8f );
       plot.setDomainCrosshairLockedOnData(false);
       plot.setDomainCrosshairVisible(false);

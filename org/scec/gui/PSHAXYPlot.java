@@ -22,7 +22,6 @@ import javax.swing.*;
  * purpose this class was required was so that mouse clicks could be tracked
  * showing the x and y values at the click point. <p>
  *
- * This plot class was then extended to store log information.<p>
  *
  * This is not a primary class of the SCEC framework so a full description
  * will not be provided here. More more information please consult the

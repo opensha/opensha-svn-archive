@@ -892,9 +892,9 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
         // build the plot
-        org.scec.gui.PSHALogXYPlot incrPlot = new org.scec.gui.PSHALogXYPlot(this,incrData, incrXAxis, incrYAxis, false, yLog);
-        org.scec.gui.PSHALogXYPlot cumPlot = new org.scec.gui.PSHALogXYPlot(this,toCumData, cumXAxis, cumYAxis, false, yLog);
-        org.scec.gui.PSHALogXYPlot moPlot = new org.scec.gui.PSHALogXYPlot(this,toMoData, moXAxis, moYAxis, false, yLog);
+        com.jrefinery.chart.plot.LogXYPlot incrPlot = new com.jrefinery.chart.plot.LogXYPlot(this,incrData, incrXAxis, incrYAxis, false, yLog);
+        com.jrefinery.chart.plot.LogXYPlot cumPlot = new com.jrefinery.chart.plot.LogXYPlot(this,toCumData, cumXAxis, cumYAxis, false, yLog);
+        com.jrefinery.chart.plot.LogXYPlot moPlot = new com.jrefinery.chart.plot.LogXYPlot(this,toMoData, moXAxis, moYAxis, false, yLog);
 
 
         incrPlot.setBackgroundAlpha( .8f );

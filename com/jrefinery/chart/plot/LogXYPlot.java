@@ -1,10 +1,9 @@
-package org.scec.gui;
+package com.jrefinery.chart.plot;
 
 import com.jrefinery.chart.*;
 import com.jrefinery.chart.event.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.data.*;
-import com.jrefinery.chart.plot.*;
 import com.jrefinery.chart.axis.*;
 import com.jrefinery.chart.renderer.*;
 
@@ -18,21 +17,21 @@ import javax.swing.*;
 import org.scec.gui.plot.LogPlotAPI;
 
 /**
- * <p>Title: PSHALogXYPlot</p>
- * <p>Description: </p>
- *
- * @author Nitin Gupta and Vipin Gupta
+ * <p>Title: LogXYPlot</p>
+ * <p>Description:This class provides the Log extension to the XYPlot class
+ * and make calls to the functions of the Log classes</p>
+ * @author Ned Field , Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
-public class PSHALogXYPlot
+public class LogXYPlot
          extends XYPlot
          implements
         HorizontalValuePlot,
         VerticalValuePlot {
 
 
-    protected final static String C = "PSHALogXYPlot";
+    protected final static String C = "LogXYPlot";
     protected final static boolean D = true;
 
     protected final static Color color = new Color(.9f, .9f, 1.0f, 1f);
@@ -62,7 +61,7 @@ public class PSHALogXYPlot
      * @param domainAxis The domain axis.
      * @param rangeAxis The range axis.
      */
-    public PSHALogXYPlot(LogPlotAPI logPlot,XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
+    public LogXYPlot(LogPlotAPI logPlot,XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis, boolean xlog,boolean ylog) {
         super(data, domainAxis, rangeAxis);
         this.xlogplot=xlog;
         this.ylogplot=ylog;
@@ -80,7 +79,7 @@ public class PSHALogXYPlot
      * @param rangeAxis The range axis.
      * @param renderer The renderer
      */
-    public PSHALogXYPlot(XYDataset data,
+    public LogXYPlot(XYDataset data,
                   ValueAxis domainAxis, ValueAxis rangeAxis, XYItemRenderer renderer) {
         super(data, domainAxis, rangeAxis, renderer);
     }
@@ -89,7 +88,7 @@ public class PSHALogXYPlot
 
 
     /**
-     *  Sets the component attribute of the PSHAXYPlot object
+     *  Sets the component attribute of the XYPlot object
      *
      * @param  comp  The new component value
      */
@@ -148,7 +147,8 @@ public class PSHALogXYPlot
 
     /**
      * Draws a representation of the data within the dataArea region, using the current renderer.
-     *
+     * This function has overloaded from the class XYPlot becuase it calls the drawItemRenderer()
+     * for the class LogXYItemRenderer
      * @param g2 The graphics device.
      * @param dataArea The region in which the data is to be drawn.
      * @param info An optional object for collection dimension information.
@@ -185,6 +185,7 @@ public class PSHALogXYPlot
             for (int series=0; series<seriesCount; series++) {
                 int itemCount = data.getItemCount(series);
                 for (int item=0; item<itemCount; item++) {
+                  //type casted to the LogXYItemRenderer call the drawItemRender for the Log result
                      ((LogXYItemRenderer)getRenderer()).drawItem(g2, dataArea, info, this,
                                       domainAxis,rangeAxis,
                                       data,0, series, item,
@@ -217,8 +218,12 @@ public class PSHALogXYPlot
 
     /**
      * Draws the XY plot on a Java 2D graphics device (such as the screen or a printer).
-     * <P>
-     * PSHAXYPlot relies on an LogXYItemRenderer to draw each item in the plot.  This allows the visual
+     * As the Log for the Zero is undefined, so this function provides the functionality of the
+     * handling the error thorn if the user tries to the Log for the Zero value.
+     * This function catches an exception if anyone tries to get the Log Value for zero.
+     * The Log Error Message is throm from the HorizontalLogarithmicAxix, VerticalLogarithmic and
+     * LogXYItemRenderer classes. This function handles that exception thrown.
+     * LogXYPlot relies on an LogXYItemRenderer to draw each item in the plot.  This allows the visual
      * representation of the data to be changed easily.
      * <P>
      * The optional info argument collects information about the rendering of the plot (dimensions,
@@ -229,136 +234,13 @@ public class PSHALogXYPlot
      * @param info Collects chart drawing information (null permitted).
      */
     public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
-       try{
-
-        // if the plot area is too small, just return...
-        boolean b1 = (plotArea.getWidth() <= MINIMUM_WIDTH_TO_DRAW);
-        boolean b2 = (plotArea.getHeight() <= MINIMUM_HEIGHT_TO_DRAW);
-        if (b1 || b2) {
-            return;
-        }
-
-        // record the plot area...
-        if (info != null) {
-            info.setPlotArea(plotArea);
-        }
-
-        // adjust the drawing area for the plot insets (if any)...
-        Insets insets = getInsets();
-        if (insets != null) {
-            plotArea.setRect(plotArea.getX() + insets.left,
-                             plotArea.getY() + insets.top,
-                             plotArea.getWidth() - insets.left - insets.right,
-                             plotArea.getHeight() - insets.top - insets.bottom);
-        }
-
-        // estimate the height of the horizontal axis...
-        double hAxisHeight = 0.0;
-        ValueAxis domainAxis = this.getDomainAxis();
-        if (domainAxis != null) {
-            HorizontalAxis hAxis = (HorizontalAxis) domainAxis;
-            hAxisHeight = hAxis.reserveHeight(g2, this, plotArea, this.getDomainAxisLocation());
-        }
-
-        // estimate the width of the vertical axis...
-        double vAxis1Width = 0.0;
-        ValueAxis rangeAxis = this.getRangeAxis();
-        if (rangeAxis != null) {
-            VerticalAxis vAxis1 = (VerticalAxis) rangeAxis;
-            vAxis1Width = vAxis1.reserveWidth(g2, this, plotArea, getRangeAxisLocation(),
-                                              hAxisHeight,
-                                              getDomainAxisLocation());
-        }
-
-        // estimate the width of the secondary range axis (if any)...
-        double vAxis2Width = 0.0;
-        int secondaryAxisLocation = getOppositeAxisLocation(getRangeAxisLocation());
-        VerticalAxis vAxis2 = (VerticalAxis) this.getSecondaryRangeAxis();
-        if (vAxis2 != null) {
-            vAxis2Width = vAxis2.reserveWidth(g2, this, plotArea, secondaryAxisLocation,
-                                              hAxisHeight, getDomainAxisLocation());
-        }
-
-        // ...and therefore what is left for the plot itself...
-        double x1 = getRectX(plotArea.getX(), vAxis1Width, vAxis2Width, getRangeAxisLocation());
-        double y1 = getRectY(plotArea.getY(), hAxisHeight, 0.0, getDomainAxisLocation());
-        Rectangle2D dataArea = new Rectangle2D.Double(x1, y1,
-                                                  plotArea.getWidth() - vAxis1Width - vAxis2Width,
-                                                  plotArea.getHeight() - hAxisHeight);
-
-        if (info != null) {
-            info.setDataArea(dataArea);
-        }
-
-        CrosshairInfo crosshairInfo = new CrosshairInfo();
-        crosshairInfo.setCrosshairDistance(Double.POSITIVE_INFINITY);
-        crosshairInfo.setAnchorX(getDomainAxis().getAnchorValue());
-        crosshairInfo.setAnchorY(getRangeAxis().getAnchorValue());
-
-        // draw the plot background and axes...
-        drawBackground(g2, dataArea);
-        if (domainAxis != null) {
-            domainAxis.draw(g2, plotArea, dataArea, this.getDomainAxisLocation());
-        }
-        if (rangeAxis != null) {
-            rangeAxis.draw(g2, plotArea, dataArea, this.getRangeAxisLocation());
-        }
-        if (this.getSecondaryRangeAxis() != null) {
-            this.getSecondaryRangeAxis().draw(g2, plotArea, dataArea, secondaryAxisLocation);
-        }
-        XYItemRenderer renderer = this.getRenderer();
-        if (renderer != null) {
-            Shape originalClip = g2.getClip();
-            Composite originalComposite = g2.getComposite();
-
-            g2.clip(dataArea);
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-                                                       getForegroundAlpha()));
-            // draw the domain grid lines, if any...
-            if (isDomainGridlinesVisible()) {
-                Stroke gridStroke = getDomainGridlineStroke();
-                Paint gridPaint = getDomainGridlinePaint();
-                if ((gridStroke != null) && (gridPaint != null)) {
-                    Iterator iterator = getDomainAxis().getTicks().iterator();
-                    while (iterator.hasNext()) {
-                        Tick tick = (Tick) iterator.next();
-                        renderer.drawDomainGridLine(g2, this, getDomainAxis(), dataArea,
-                                                    tick.getNumericalValue());
-                    }
-                }
-            }
-
-            // draw the range grid lines, if any...
-            if (isRangeGridlinesVisible()) {
-                Stroke gridStroke = getRangeGridlineStroke();
-                Paint gridPaint = getRangeGridlinePaint();
-                if ((gridStroke != null) && (gridPaint != null)) {
-                    Iterator iterator = getRangeAxis().getTicks().iterator();
-                    while (iterator.hasNext()) {
-                        Tick tick = (Tick) iterator.next();
-                        renderer.drawRangeGridLine(g2, this, getRangeAxis(), dataArea,
-                                                   tick.getNumericalValue());
-                    }
-                }
-            }
-
-
-
-
-            render(g2, dataArea, info, crosshairInfo);
-            render2(g2, dataArea, info, crosshairInfo);
-
-
-            g2.setClip(originalClip);
-            g2.setComposite(originalComposite);
-        }
-        drawOutline(g2, dataArea);
-
-     }catch(java.lang.ArithmeticException ae){
-       String message=new String(ae.getMessage());
-       if(logPlot!=null) logPlot.invalidLogPlot(message);
+      try{
+        super.draw(g2,plotArea,info);
+      }catch(java.lang.ArithmeticException ae){
+        String message=new String(ae.getMessage());
+        if(logPlot!=null) logPlot.invalidLogPlot(message);
+      }
     }
-   }
 
    /**
     * Utility method for drawing a crosshair on the chart (if required).

@@ -937,7 +937,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         }
 
         // build the plot
-        org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this,data, xAxis, yAxis, xLog, yLog);
+        com.jrefinery.chart.plot.LogXYPlot plot = new com.jrefinery.chart.plot.LogXYPlot(this,data, xAxis, yAxis, xLog, yLog);
         int numSeries = legendPaint.length;
         for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
         plot.setBackgroundAlpha( .8f );

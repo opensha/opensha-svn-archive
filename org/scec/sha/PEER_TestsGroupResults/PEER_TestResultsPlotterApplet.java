@@ -635,8 +635,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
         }
       data.setFunctions(plotFunctions);
       // build the plot
-      org.scec.gui.PSHALogXYPlot plot
-          = new org.scec.gui.PSHALogXYPlot(this,data,
+      com.jrefinery.chart.plot.LogXYPlot plot
+          = new com.jrefinery.chart.plot.LogXYPlot(this,data,
                                        xAxis, yAxis, xLog, yLog);
 
 
