@@ -317,8 +317,7 @@ public class DoubleDiscreteParameter
         DoubleDiscreteParameter param = null;
         if( value == null ) param = new DoubleDiscreteParameter( name, c1, units);
         else param = new DoubleDiscreteParameter( name, c1, units, new Double( this.value.toString() )  );
-
-        if( !editable ) param.setNonEditable();
+        param.editable = true;
         return param;
     }
 

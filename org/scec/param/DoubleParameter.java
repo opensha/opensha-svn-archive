@@ -446,7 +446,7 @@ public class DoubleParameter
         if( value == null ) param = new DoubleParameter( name, c1, units);
         else param = new DoubleParameter( name, c1, units, new Double( this.value.toString() )  );
         if( param == null ) return null;
-        if( !editable ) param.setNonEditable();
+        param.editable = true;
         return param;
     }
 }

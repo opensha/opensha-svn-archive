@@ -629,7 +629,7 @@ public class WarningIntegerParameter
         param.setIgnoreWarning(this.ignoreWarning);
 
 
-        if( !editable ) param.setNonEditable();
+        param.editable = true;
 
         if(D) System.out.println(S + "Ending");
         return param;

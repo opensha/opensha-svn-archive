@@ -377,12 +377,6 @@ public abstract class Parameter
      */
     public void setNonEditable() { editable = false; }
 
-    /**
-     * Makes the Parameter Editable, so that we can change the name and other set
-     * methods for the Parameter, after it is made once.
-     */
-    public void setEditable() { editable = true; }
-
 
     /** Every parameter has a name, this function returns that name. */
     public String getName() { return name; }

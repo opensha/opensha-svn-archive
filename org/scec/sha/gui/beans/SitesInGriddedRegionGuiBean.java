@@ -429,8 +429,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
           parameterList.removeParameter(tempParam.getName());
           //creating the new Site Param, with "Default " added to its name, with existing site Params
           ParameterAPI newParam = (ParameterAPI)tempParam.clone();
-          //making the new Param to editable, so that we can change its name
-          newParam.setEditable();
           newParam.setName(this.DEFAULT+newParam.getName());
           //making the new parameter to uneditable same as the earlier site Param, so that
           //only its value can be changed and not it properties

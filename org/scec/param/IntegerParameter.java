@@ -420,7 +420,7 @@ public class IntegerParameter
         if( value == null ) param = new IntegerParameter( name, c1, units);
         else param = new IntegerParameter( name, c1, units, new Integer( this.value.toString() )  );
         if( param == null ) return null;
-        if( !editable ) param.setNonEditable();
+        param.editable = true;
         return param;
     }
 
