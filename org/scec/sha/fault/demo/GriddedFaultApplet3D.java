@@ -431,6 +431,7 @@ public class GriddedFaultApplet3D
                     }
                     else if ( selectable.equals( subAndSurfaceRadioButton ) ) {
                         faultTracePlot = BOTH_SUB_SURFACE_PLOT_TYPE;
+                        rect.enable();
                     }
                     else if ( selectable.equals( this.threeDRadioButton) ) {
                         faultTracePlot = THREE_D_PLOT_TYPE;
