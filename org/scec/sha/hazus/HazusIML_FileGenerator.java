@@ -74,13 +74,13 @@ public class HazusIML_FileGenerator {
 
   private void createReturnPdFile(String fileName,double rate,String metaData){
     Vector imlVector = new Vector();
-    File dirsPGA =new File(Hazus+"pga");
+    File dirsPGA =new File(Hazus+"pga/");
     String[] dirListPGA=dirsPGA.list();
-    File dirsPGV =new File(Hazus+"pgv");
+    File dirsPGV =new File(Hazus+"pgv/");
     String[] dirListPGV=dirsPGV.list();
-    File dirsSA =new File(Hazus+"sa_.3");
+    File dirsSA =new File(Hazus+"sa_.3/");
     String[] dirListSA=dirsSA.list();
-    File dirsSA_1 =new File(Hazus+"sa_1");
+    File dirsSA_1 =new File(Hazus+"sa_1/");
     String[] dirListSA_1=dirsSA_1.list();
 
     //doing for the return Pd =100
@@ -91,10 +91,10 @@ public class HazusIML_FileGenerator {
     for(int i=0;i<dirListPGA.length;++i){
       imlVector.removeAllElements();
       if(dirListPGA[i].endsWith(".txt")){
-        imlVector.add(new Double(getIML(dirListPGA[i],rate)));
-        imlVector.add(new Double(getIML(dirListPGV[i],rate)/2.5));
-        imlVector.add(new Double(getIML(dirListSA[i],rate)));
-        imlVector.add(new Double(getIML(dirListSA_1[i],rate)));
+        imlVector.add(new Double(getIML(Hazus+"pga/"+dirListPGA[i],rate)));
+        imlVector.add(new Double(getIML(Hazus+"pgv/"+dirListPGV[i],rate)/2.5));
+        imlVector.add(new Double(getIML(Hazus+"sa_.3/"+dirListSA[i],rate)));
+        imlVector.add(new Double(getIML(Hazus+"sa_1/"+dirListSA_1[i],rate)));
       }
 
       String lat = dirListPGA[i].substring(0,dirListPGA[i].indexOf("_"));
@@ -113,7 +113,7 @@ public class HazusIML_FileGenerator {
 
   private double getIML(String filename , double rate){
     try{
-      FileReader fr = new FileReader(Hazus+filename);
+      FileReader fr = new FileReader(filename);
       BufferedReader br = new BufferedReader(fr);
       String prevLine = br.readLine();
       String currLine= br.readLine();

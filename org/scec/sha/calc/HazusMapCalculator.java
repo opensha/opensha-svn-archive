@@ -206,7 +206,10 @@ public class HazusMapCalculator {
       try{
          FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
           for(int i=0;i<numPoints;++i){
-            double rate = -1*(Math.log(1-hazFunction.getY(i))/hazusTimePeriod);
+            double temp = 1-hazFunction.getY(i);
+            if(temp == 0.0)
+              temp =Double.MIN_VALUE;
+            double rate = -1*(Math.log(temp)/hazusTimePeriod);
             fr.write(hazFunction.getX(i)+" "+decimalFormat.format(rate)+"\n");
           }
           fr.close();
