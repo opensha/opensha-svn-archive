@@ -74,7 +74,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
 
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(gridBagLayout1);
-    setButton.setText("Set Params From CVM");
+    setButton.setText("Set Site Params from Web Services");
     setButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         setButton_actionPerformed(e);

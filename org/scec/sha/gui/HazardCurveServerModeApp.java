@@ -109,7 +109,7 @@ public class HazardCurveServerModeApp extends JApplet
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
   private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
-  private final static String CVM_CONTROL = "Set Site Params from CVM";
+  private final static String CVM_CONTROL = "Set Site Params from Web Services";
 
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
