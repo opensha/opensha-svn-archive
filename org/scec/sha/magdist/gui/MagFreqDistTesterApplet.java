@@ -343,11 +343,13 @@ public class MagFreqDistTesterApplet extends JApplet
     mainSplitPane.setDividerSize(5);
     mainSplitPane.setOneTouchExpandable(false);
 
+    dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     dataScrollPane.setBorder(BorderFactory.createEtchedBorder());
     legendScrollPane.setBorder(BorderFactory.createEtchedBorder());
     legendPane.setBorder(BorderFactory.createEtchedBorder());
     pointsTextArea.setBorder(BorderFactory.createEtchedBorder());
     pointsTextArea.setText(NO_PLOT_MSG);
+    pointsTextArea.setLineWrap(true);
     titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
     titleLabel.setFont(new java.awt.Font( "Dialog", 1, 16 ));
     plotPanel.setLayout(GBL);
