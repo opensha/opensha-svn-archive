@@ -185,7 +185,7 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
   public ParameterList getAdjustableParameterList() {
     // TODO Auto-generated method stub
     try {
-      this.adjustableParams = erfServer.getAdjustableParameterList();
+      adjustableParams = erfServer.getAdjustableParameterList();
       return adjustableParams;
     }
     catch (Exception e) {

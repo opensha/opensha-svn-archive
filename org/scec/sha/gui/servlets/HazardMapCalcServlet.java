@@ -108,6 +108,7 @@ public class HazardMapCalcServlet extends HttpServlet {
       fw.write("cp  "+eqkRupForecastLocation+" "+newDir+this.ERF_FILE_NAME+"\n");
       fw.close();
       org.scec.util.RunScript.runScript(new String[]{"sh", "-c", "sh "+newDir+getERF_FileName});
+      org.scec.util.RunScript.runScript(new String[]{"sh", "-c", "rm "+newDir+getERF_FileName});
       if(D) System.out.println("after wget");
 
       // now run the calculation on grid

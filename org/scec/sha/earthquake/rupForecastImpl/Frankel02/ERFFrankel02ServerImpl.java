@@ -32,7 +32,7 @@ public class ERFFrankel02ServerImpl
 	implements ERFFrankel02Server {
 
    Frankel02_AdjustableEqkRupForecast forecast = null;
-
+   private static final boolean D = true;
    public ERFFrankel02ServerImpl() throws IOException {
      forecast = new Frankel02_AdjustableEqkRupForecast();
      System.out.println("On ERFServer: " + forecast.getTimeSpan());
@@ -47,6 +47,7 @@ public class ERFFrankel02ServerImpl
      while (it.hasNext()) {
        ParameterAPI param = (ParameterAPI) it.next();
        forecast.getParameter(param.getName()).setValue(param.getValue());
+       if(D) System.out.println("Param Name:"+param.getName()+",value="+param.getValue());
      }
      forecast.setTimeSpan(timeSpan);
      forecast.updateForecast();
