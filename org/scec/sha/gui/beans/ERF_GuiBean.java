@@ -135,9 +135,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
 
      this.parameterList = new ParameterList();
 
-     System.out.println("Inside the initialization of the Param List");
-
-
      if(D)  System.out.println("Iterator Class:"+eqkRupForecast.getName());
 
      //gets the iterator for the class names of all the ERF's
