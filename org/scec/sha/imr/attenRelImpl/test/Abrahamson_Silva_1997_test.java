@@ -69,7 +69,7 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
   public static void main (String[] args)
   {
     if(args.length !=0)
-      tolerence=(new Double(args[0])).doubleValue();
+      tolerence=(new Double(args[0].trim())).doubleValue();
     junit.swingui.TestRunner.run(Abrahamson_Silva_1997_test.class);
   }
 

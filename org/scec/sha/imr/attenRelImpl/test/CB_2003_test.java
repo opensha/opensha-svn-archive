@@ -68,7 +68,7 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
   public static void main (String[] args)
   {
     if(args.length !=0)
-      tolerence=(new Double(args[0])).doubleValue();
+      tolerence=(new Double(args[0].trim())).doubleValue();
     junit.swingui.TestRunner.run(CB_2003_test.class);
   }
 

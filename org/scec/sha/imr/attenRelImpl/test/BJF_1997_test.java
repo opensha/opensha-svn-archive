@@ -75,9 +75,9 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
 
   public static void main (String[] args)
   {
-    /*if(args.length !=0)
-      tolerence=(new Double(args[0])).doubleValue();*/
-    junit.swingui.TestRunner.run(BJF_1997_test.class);
+   if(args.length !=0)
+      tolerence=(new Double(args[0].trim())).doubleValue();
+   junit.swingui.TestRunner.run(BJF_1997_test.class);
   }
 
 }

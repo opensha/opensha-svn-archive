@@ -69,7 +69,7 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
   public static void main (String[] args)
   {
     if(args.length !=0)
-      tolerence=(new Double(args[0])).doubleValue();
+      tolerence=(new Double(args[0].trim())).doubleValue();
     junit.swingui.TestRunner.run(Abrahamson_2000_test.class);
   }
 
