@@ -155,7 +155,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
   /**
    * StringParameter for the Fault type
    */
-  StringParameterEditor faultTypeEditor;
+  ConstrainedStringParameterEditor faultTypeEditor;
 
   public EvenlyGriddedSurfaceParameterEditor() {
     button.addActionListener(this);
@@ -178,8 +178,6 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     //by default the showFaultName is false so the fault name parameter is not visible
     if(!showFaultName)
       this.editor.getParameterEditor(this.FAULT_NAME).setVisible(false);
-
-
 
     button.setForeground(new Color(80,80,133));
     button.setBackground(new Color(200,200,230));
@@ -205,8 +203,10 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
 
     add(this.editorForDepths,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.faultTypeEditor,new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-    add(button,  new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
+    add(button,  new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
 
@@ -277,7 +277,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     StringParameter faultTypeParam = new StringParameter(this.FAULT_TYPE_TITLE,fltType,(String)fltType.get(0));
     faultTypeParam.addParameterChangeListener(this);
     try{
-    faultTypeEditor = new StringParameterEditor(faultTypeParam);
+    faultTypeEditor = new ConstrainedStringParameterEditor(faultTypeParam);
     }catch(Exception ee){
       ee.printStackTrace();
     }
@@ -483,12 +483,15 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
       add(this.editorForDepths,new GridBagConstraints( 0, 4, 1, 1, 1.0, 0.0
           , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-      if(((Integer)numDipsEditor.getParameter().getValue()).intValue() !=1)
+      if(((Integer)numDipsEditor.getParameter().getValue()).intValue() !=1){
+        this.remove(button);
         this.faultTypeEditor.setVisible(false);
+        add(button,  new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+      }
       this.validate();
       this.repaint();
     }
-
     evenlyGriddedParamChange = true;
   }
 
