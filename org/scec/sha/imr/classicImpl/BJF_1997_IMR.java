@@ -261,6 +261,7 @@ public class BJF_1997_IMR
 
         initMeanIndependentParamsList(); // These last two must be called
         initStdDevIndependentParamsList();  // after the above four
+        initExceedProbIndependentParamsList();
     }
 
 
@@ -313,8 +314,9 @@ public class BJF_1997_IMR
             coeff.b5 * ( Math.log( Math.pow( ( distanceJB * distanceJB  + coeff.h * coeff.h  ), 0.5 ) ) ) +
             coeff.bv * ( Math.log( vs30 / coeff.va ) );
 
+        // No longer part of out framework. Always deal with log space
         // Convert back to normal value
-        mean = Math.pow(Math.E, mean);
+        // mean = Math.pow(Math.E, mean);
 
         /* convert to PSV for comparison with their figures (only for tests!):
         if ( coeff.period != 0.0 )
@@ -390,6 +392,12 @@ public class BJF_1997_IMR
         componentParam.setValue( COMPONENT_DEFAULT );
         stdDevTypeParam.setValue( STD_DEV_TYPE_DEFAULT );
 
+    }
+
+
+    protected void initExceedProbIndependentParamsList(){
+        exceedProbIndependentParams.clear();
+        exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
     }
 
     /**

@@ -219,12 +219,13 @@ public abstract class ClassicIMR
     protected  WarningDoubleParameter pgaParam = null;
     protected final static String PGA_NAME = "PGA";
     protected final static String PGA_UNITS = "g";
-    protected final static Double PGA_DEFAULT = new Double( 0.1 );
+    protected final static Double PGA_DEFAULT = new Double( Math.log( 0.1 ) );
     protected final static String PGA_INFO = "Peak Ground Acceleration";
-    protected final static Double PGA_MIN = new Double(0);
-    protected final static Double PGA_MAX = new Double(2);
-    protected final static Double PGA_WARN_MIN = new Double(0);
-    protected final static Double PGA_WARN_MAX = new Double(2);
+
+    protected final static Double PGA_MIN = new Double( -200 ); //new Double(0);
+    protected final static Double PGA_MAX = new Double( Math.log(2) );
+    protected final static Double PGA_WARN_MIN = new Double( -200 ); //new Double(0);
+    protected final static Double PGA_WARN_MAX = new Double( Math.log( 2 ) );
 
 
 
@@ -239,12 +240,13 @@ public abstract class ClassicIMR
     protected  WarningDoubleParameter pgvParam = null;
     protected final static String PGV_NAME = "PGV";
     protected final static String PGV_UNITS = "cm/sec";
-    protected final static Double PGV_DEFAULT = new Double( 0.1 );
+    protected final static Double PGV_DEFAULT = new Double( Math.log( 0.1 ) );
     protected final static String PGV_INFO = "Peak Ground Velocity";
-    protected final static Double PGV_MIN = new Double(0);
-    protected final static Double PGV_MAX = new Double(100);
-    protected final static Double PGV_WARN_MIN = new Double(0);
-    protected final static Double PGV_WARN_MAX = new Double(100);
+
+    protected final static Double PGV_MIN = new Double( -200 ); // new Double(0);
+    protected final static Double PGV_MAX = new Double( Math.log(100) );
+    protected final static Double PGV_WARN_MIN = new Double( -200 ); //new Double(0);
+    protected final static Double PGV_WARN_MAX = new Double( Math.log(100) );
 
 
     /**
@@ -269,12 +271,14 @@ public abstract class ClassicIMR
     //protected final static Double SA_MIN = new Double(0);
     protected final static Double SA_MIN = new Double( -200 );
 
-    protected final static Double SA_MAX = new Double( Math.log( 4 ) );
+    // Math.log(4)
+    protected final static Double SA_MAX = new Double( 1.3862943611198907 );
 
     //protected final static Double SA_WARN_MIN = new Double(0);
     protected final static Double SA_WARN_MIN = new Double( -200 );
 
-    protected final static Double SA_WARN_MAX = new Double( Math.log( 2 ));
+    // log( 2 )
+    protected final static Double SA_WARN_MAX = new Double( .6931471805599454 );
 
     /**
      * Period parameter, reserved for the oscillator period that Spectral
@@ -430,6 +434,14 @@ public abstract class ClassicIMR
      */
     protected ParameterList stdDevIndependentParams = new ParameterList();
 
+    /**
+     *  List of all Parameters that the exceedProb depends upon seperate from
+     *  mean and stdDeve parameters. Note that exceedProb uses the mean and
+     *  stdDev so alltheir parameters in stdDevIndependentParams and
+     *  meanIndependentParams are required as well.
+     */
+    protected ParameterList exceedProbIndependentParams = new ParameterList();
+
 
     /**
      *  Constructor for the ClassicIMR object - subclasses should execute the
@@ -540,7 +552,7 @@ public abstract class ClassicIMR
                      );
 
         // Calculate the NormalDistribution
-        double mean = Math.log( getMean());
+        double mean = getMean();
         double stdDev = getStdDev();
         NormalDistribution gauss = new NormalDistribution( mean, stdDev );
 
@@ -639,6 +651,16 @@ public abstract class ClassicIMR
      */
     public ListIterator getMeanIndependentParamsIterator() {
         return meanIndependentParams.getParametersIterator();
+    }
+
+    /**
+     *  Returns an iterator over all the Parameters that the exceedProb
+     *  depends upon in addition to mean and stdDev params.
+     *
+     * @return    The Mean Independent Params Iterator
+     */
+    public ListIterator getExceedProbIndependentParamsIterator() {
+        return exceedProbIndependentParams.getParametersIterator();
     }
 
 
@@ -779,6 +801,12 @@ public abstract class ClassicIMR
      * This must be executed after the parameters have been created.
      */
     protected abstract void initMeanIndependentParamsList();
+
+
+    /**
+     */
+    protected abstract void initExceedProbIndependentParamsList();
+
 
 
 }

@@ -129,7 +129,7 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
             DiscretizedFuncAPI f = functions.get( series );
             num = f.getNum();
 
-            if( this.xLog && ((Boolean)xLogs.get(series)).booleanValue() ) num -= 1;
+            if( DiscretizedFunctionXYDataSet.isAdjustedIndexIfZeros( f, xLog, yLog) ) num -= 1;
 
         }
         return num;
@@ -198,10 +198,17 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         // only check first point
         if( index > 0 ) return index;
 
+        if( isAdjustedIndexIfZeros(func, xLog, yLog) ) return ++index;
+        else return index;
+
+    }
+
+    protected final static boolean isAdjustedIndexIfZeros(DiscretizedFuncAPI func, boolean xLog, boolean yLog){
+
         // if xlog and first x value = 0 increment index, even if y first value not zero,
         // and vice versa fro yLog. This call used by both getXValue and getYValue
-        if( ( xLog && func.getX(index) == 0 ) || ( yLog && func.getY(index) == 0 ) ) return ++index;
-        else return index;
+        if( ( xLog && func.getX(0) == 0 ) || ( yLog && func.getY(0) == 0 ) ) return true;
+        else return false;
     }
 
 

@@ -36,6 +36,12 @@ public class WarningDoubleParameter
      * Only created if needed, else kept null.
      */
     protected Vector warningListeners = null;
+
+
+    /**
+     * Set to true to turn off warnings, will automatically set the value, unless
+     * exceeds Absolute contrsints.
+     */
     private boolean ignoreWarning;
 
 
@@ -578,12 +584,22 @@ public class WarningDoubleParameter
         if(D) System.out.println(S + "Ending");
         return param;
     }
-    public void setIgnoreWarning(boolean ignoreWarning) {
-        this.ignoreWarning = ignoreWarning;
-    }
-    public boolean isIgnoreWarning() {
-        return ignoreWarning;
-    }
+
+
+    /**
+     * Set to true to turn off warnings, will automatically set the value, unless
+     * exceeds Absolute contrsints. Set to false so that warning constraints are
+     * enabled, i.e. throw a WarningConstraintException if exceed recommened warnings.
+     */
+    public void setIgnoreWarning(boolean ignoreWarning) { this.ignoreWarning = ignoreWarning; }
+
+    /**
+     * Returns warning constraint enabled/disabled. If true warnings are turned off ,
+     * will automatically set the value, unless exceeds Absolute contrsints.
+     * If set to false warning constraints are enabled, i.e. throw a
+     * WarningConstraintException if exceed recommened warnings.
+     */
+    public boolean isIgnoreWarning() { return ignoreWarning; }
 
 
 }

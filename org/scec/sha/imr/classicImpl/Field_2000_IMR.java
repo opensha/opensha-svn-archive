@@ -268,6 +268,7 @@ public class Field_2000_IMR
 
         initMeanIndependentParamsList(); // These last two must be called
         initStdDevIndependentParamsList();  // after the above four
+        initExceedProbIndependentParamsList();
     }
 
 
@@ -321,8 +322,10 @@ public class Field_2000_IMR
         }
 
 
+        // No longer part of out framework. Always deal with log space
         // Convert back to normal value
-        mean = Math.pow(Math.E, mean);
+        // mean = Math.pow(Math.E, mean);
+
 
         // return the result
         return (mean);
@@ -381,6 +384,11 @@ public class Field_2000_IMR
         stdDevTypeParam.setValue( STD_DEV_TYPE_DEFAULT );
         basinDepthParam.setValue( BASIN_DEPTH_DEFAULT );
 
+    }
+
+    protected void initExceedProbIndependentParamsList(){
+        exceedProbIndependentParams.clear();
+        exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
     }
 
     /**

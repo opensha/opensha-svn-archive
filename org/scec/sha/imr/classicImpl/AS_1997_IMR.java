@@ -147,6 +147,7 @@ public class AS_1997_IMR
 
         initMeanIndependentParamsList(); // These last two must be called
         initStdDevIndependentParamsList();  // after the above four
+        initExceedProbIndependentParamsList();
     }
 
 
@@ -378,8 +379,10 @@ public class AS_1997_IMR
         }
         else mean = rockMean;            // Norm's S=0
 
+
+        // No longer part of out framework. Always deal with log space
         // Convert back to normal value
-        mean = Math.pow(Math.E, mean);
+        // mean = Math.pow(Math.E, mean);
 
         // return the result
         return mean;
@@ -482,6 +485,11 @@ System.out.println( a13 );
         stdDevTypeParam.setValue( STD_DEV_TYPE_DEFAULT );
         isOnHangingWallParam.setValue( IS_ON_HANGING_WALL_DEFAULT );
 
+    }
+
+    protected void initExceedProbIndependentParamsList(){
+        exceedProbIndependentParams.clear();
+        exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
     }
 
     /**

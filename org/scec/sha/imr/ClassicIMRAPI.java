@@ -104,6 +104,15 @@ public interface ClassicIMRAPI
 
     public ListIterator getStdDevIndependentParamsIterator();
 
+     /**
+     *  Returns an iterator over all the additional Parameters that the
+     *  exceedence probability depends upon.
+     *
+     * @return    The exceeProb Independent Params Iterator
+     */
+
+    public ListIterator getExceedProbIndependentParamsIterator();
+
     /**
      *
      *

@@ -309,6 +309,7 @@ public class Campbell_1997_IMR
 
         initMeanIndependentParamsList(); // These last two must be called
         initStdDevIndependentParamsList();  // after the above four
+        initExceedProbIndependentParamsList();
     }
 
 
@@ -409,8 +410,10 @@ public class Campbell_1997_IMR
             }
         }
 
+        // No longer part of out framework. Always deal with log space
         // Convert back to normal value
-        mean = Math.pow(Math.E, mean);
+        // mean = Math.pow(Math.E, mean);
+
 
         // return the result
         return(mean);
@@ -540,6 +543,10 @@ public class Campbell_1997_IMR
         stdDevTypeParam.setValue( STD_DEV_TYPE_DEFAULT );
    }
 
+   protected void initExceedProbIndependentParamsList(){
+        exceedProbIndependentParams.clear();
+        exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
+    }
 
     /**
      * This creates the list of paramters that the Mean depends upon <br>

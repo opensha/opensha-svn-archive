@@ -355,6 +355,7 @@ public class Abrahamson_2000_IMR
 
         initMeanIndependentParamsList(); // These last two must be called
         initStdDevIndependentParamsList();  // after the above four
+        initExceedProbIndependentParamsList();
     }
 
 
@@ -433,8 +434,9 @@ public class Abrahamson_2000_IMR
 
         mean += yDir*td*tm;
 
+        // No longer part of out framework. Always deal with log space
         // Convert back to normal value
-        mean = Math.pow(Math.E, mean);
+        // mean = Math.pow(Math.E, mean);
 
         // return the result
         return (mean);
@@ -570,6 +572,11 @@ public class Abrahamson_2000_IMR
         stdDevIndependentParams.addParameter( componentParam );
     }
 
+
+    protected void initExceedProbIndependentParamsList(){
+        exceedProbIndependentParams.clear();
+        exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
+    }
 
     /**
      *  Creates the Site-Type parameter and adds it to the siteParams list.

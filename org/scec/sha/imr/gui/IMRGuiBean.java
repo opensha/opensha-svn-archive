@@ -50,7 +50,7 @@ public class IMRGuiBean
     public final static String IM_V2 = "SA";
     public final static String X_AXIS_NAME = "X-Axis";
     public final static String Y_AXIS_NAME = "Y-Axis";
-    public final static String Y_AXIS_V1 = "Mean";
+    public final static String Y_AXIS_V1 = "Median";
     public final static String Y_AXIS_V2 = "Std. Dev.";
     public final static String Y_AXIS_V3 = "Exceed Prob.";
 
@@ -602,7 +602,7 @@ public class IMRGuiBean
         double result =  0.0;
         switch ( type ) {
             case MEAN:
-                result = imr.getMean();
+                result = Math.pow(Math.E, imr.getMean());
                 break;
             case EXCEED_PROB:
                 result = imr.getExceedProbability();
@@ -802,6 +802,15 @@ public class IMRGuiBean
 
         }
 
+        // Add additional exceedence probability parameters
+        it = imr.getExceedProbIndependentParamsIterator();
+        while ( it.hasNext() ) {
+            ParameterAPI param = ( DependentParameterAPI ) it.next();
+            if ( !( independentParams.containsParameter( param.getName() ) ) )
+                independentParams.addParameter( param );
+
+        }
+
         // Add im parameters and their independent parameters
         it = imr.getSupportedIntensityMeasuresIterator();
         while ( it.hasNext() ) {
@@ -906,6 +915,8 @@ public class IMRGuiBean
         else if ( yAxisName.equals( Y_AXIS_V3 ) ) {
             setParamsInIteratorVisible( imr.getMeanIndependentParamsIterator() );
             setParamsInIteratorVisible( imr.getStdDevIndependentParamsIterator() );
+            setParamsInIteratorVisible( imr.getExceedProbIndependentParamsIterator() );
+
             // to enable the log log plotting option; calling the function IMRTesterApplet class
              applet.loglogEnable();
         }
