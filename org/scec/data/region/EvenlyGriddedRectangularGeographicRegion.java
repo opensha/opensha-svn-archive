@@ -30,8 +30,9 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @param maxLon
    */
   public EvenlyGriddedRectangularGeographicRegion(double minLat,double maxLat,
-      double minLon,double maxLon) {
+      double minLon,double maxLon, double gridSpacing) {
     super(minLat,maxLat,minLon,maxLon);
+    this.gridSpacing=gridSpacing;
   }
 
   /**
@@ -70,9 +71,9 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @returns the Grid Locations Iterator.
    */
   public ListIterator getGridLocationsIterator(){
-    //gets the instance of the locationList
-    LocationList locList=getGridLocationsList();
 
+    //creating the instance of the locationList
+    LocationList locList=createGriddedLocationList();
     //return the ListIterator for the locationList
     return locList.listIterator();
   }
@@ -82,11 +83,55 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @returns the GridLocations List
    */
   public LocationList getGridLocationsList(){
+    //creating the instance of the locationList
+    LocationList locList=createGriddedLocationList();
+    return locList;
+  }
 
+  /**
+   *
+   * @param index: it starts from zero
+   * @returns the Grid Location at that index.
+   */
+  public Location getGridLocation(int index){
+
+    //getting the lat and lon grid points
+    //number of grid points on each Lat
+    int latGridPoints= (int)Math.ceil((getMaxLat()-getMinLat())/gridSpacing)+1;
+    //number of gridPoints on each Lon
+    int lonGridPoints= (int)Math.ceil((getMaxLon()-getMinLon())/gridSpacing)+1;
+
+    //as the we are adding the Lons for each lat. so in a grid ew can assume the
+    //scenario as the Lats being at the rows and the Lons being at the column.
+    //so we are scanning each lat row to get the desired grid location.
+
+    //gets the row for the latitude in which that index of grid exists
+    int latGridLoc=index/latGridPoints;
+    //gets the column in the row (longitude point) where that index exists
+    int lonGridLoc=index%latGridPoints;
+
+    //lat and lon for that indexed point
+    double newLat=getMinLat()+latGridLoc*gridSpacing;
+    double newLon=getMinLon()+lonGridLoc*gridSpacing;
+
+    //new location at which that lat and lon exists
+    Location location= new Location(newLat,newLon);
+
+    //returns  the location at the specified index in the location list
+    return location;
+  }
+
+
+  /**
+   * Private method to create the Location List for the gridded Rectangular Geog. Region
+   * @returns the LocationList
+   */
+  private LocationList createGriddedLocationList(){
     double minLat=getMinLat();
     double maxLat=getMaxLat();
-    double minLon=getMinLon();
+    double minLon= getMinLon();
     double maxLon=getMaxLon();
+
     //creates a instance of new locationList
     LocationList locList=new LocationList();
     while(minLat <= maxLat){
@@ -98,20 +143,6 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
       minLat+=gridSpacing;
     }
     return locList;
-  }
-
-  /**
-   *
-   * @param index
-   * @returns the Grid Location at that index.
-   */
-  public Location getGridLocation(int index){
-
-    //gets the instance of the griddedlocationList
-    LocationList locList=getGridLocationsList();
-
-    //returns  the location at the specified index in the location list
-    return locList.getLocationAt(index);
   }
 
 

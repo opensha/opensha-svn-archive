@@ -22,10 +22,17 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
    */
   private double gridSpacing;
 
+  private LocationList locList;
+
   /**
    * default class constructor
    */
-  public EvenlyGriddedGeographicRegion() {
+  public EvenlyGriddedGeographicRegion(LocationList locList,double gridSpacing) {
+    super(locList);
+    this.gridSpacing=gridSpacing;
+
+    //create the LocationList
+    this.createGriddedLocationList();
   }
 
   /**
@@ -64,8 +71,6 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
    * @returns the Grid Locations Iterator.
    */
   public ListIterator getGridLocationsIterator(){
-    //gets the instance of the locationList
-    LocationList locList=getGridLocationsList();
 
     //return the ListIterator for the locationList
     return locList.listIterator();
@@ -76,7 +81,21 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
    * @returns the GridLocations List
    */
   public LocationList getGridLocationsList(){
+    return locList;
+  }
 
+  /**
+   *
+   * @param index
+   * @returns the Grid Location at that index.
+   */
+  public Location getGridLocation(int index){
+
+    //returns  the location at the specified index in the location list
+    return locList.getLocationAt(index);
+  }
+
+  public LocationList createGriddedLocationList(){
     double minLat=getMinLat();
     double maxLat=getMaxLat();
     double minLon=getMinLon();
@@ -92,19 +111,5 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
       minLat+=gridSpacing;
     }
     return locList;
-  }
-
-  /**
-   *
-   * @param index
-   * @returns the Grid Location at that index.
-   */
-  public Location getGridLocation(int index){
-
-    //gets the instance of the griddedlocationList
-    LocationList locList=getGridLocationsList();
-
-    //returns  the location at the specified index in the location list
-    return locList.getLocationAt(index);
   }
 }
