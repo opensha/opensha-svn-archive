@@ -120,15 +120,15 @@ public class ScenarioShakeMapAttenRelApp extends JApplet implements ParameterCha
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
-  /*private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
-  private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";*/
+  //private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
+  private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
   private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
   //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
   //private PuenteHillsScenarioTestControlPanel puenteHillsTestControl;
-  //private PuenteHillsScenarioControlPanel puenteHillsControl;
+  private PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
   private GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
 
   // instances of the GUI Beans which will be shown in this applet
@@ -680,8 +680,8 @@ public class ScenarioShakeMapAttenRelApp extends JApplet implements ParameterCha
     this.controlComboBox.addItem(CONTROL_PANELS);
     this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(HAZUS_CONTROL);
-    /*this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
-    this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);*/
+    //this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
+    this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
 
     //this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);
   }
@@ -697,11 +697,11 @@ public class ScenarioShakeMapAttenRelApp extends JApplet implements ParameterCha
       initRegionsOfInterestControl();
     else if(selectedControl.equalsIgnoreCase(this.HAZUS_CONTROL))
       initHazusScenarioControl();
-    /*else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_TEST_CONTROL))
-      initPuenteHillTestScenarioControl();
-    else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_CONTROL))
+    //else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_TEST_CONTROL))
+      //initPuenteHillTestScenarioControl();
+    else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL))
       initPuenteHillScenarioControl();
-    */
+
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -734,6 +734,7 @@ public class ScenarioShakeMapAttenRelApp extends JApplet implements ParameterCha
     }
   }*/
 
+
   /**
    *Initialise the Control panel to generate the shapefiles for hazus input.
    */
@@ -751,16 +752,16 @@ public class ScenarioShakeMapAttenRelApp extends JApplet implements ParameterCha
    * Initialize the Interesting regions control panel
    * It will provide a pick list of interesting regions
    */
-  /*private void initPuenteHillScenarioControl() {
+  private void initPuenteHillScenarioControl() {
     int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to Puente Hills Scenario?",
                                     "Puente Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
-      if(this.puenteHillsTestControl==null)
-        puenteHillsControl = new PuenteHillsScenarioControlPanel(this.erfGuiBean,(IMR_GuiBeanAPI)imrGuiBean,
-                                                                this.sitesGuiBean,this.mapGuiBean,(IMT_GuiBeanAPI)imtGuiBean);
+      if(puenteHillsControl==null)
+        puenteHillsControl = new PuenteHillsScenarioControlPanelForSingleMultipleAttenRel(erfGuiBean,imrGuiBean,
+                                                                sitesGuiBean,mapGuiBean);
       puenteHillsControl.setParamsForPuenteHillsScenario();
     }
-  }*/
+  }
 
   /**
    *

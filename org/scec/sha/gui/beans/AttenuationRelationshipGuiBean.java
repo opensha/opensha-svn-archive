@@ -10,6 +10,7 @@ import org.scec.param.*;
 import org.scec.param.event.*;
 import org.scec.param.editor.*;
 import org.scec.sha.imr.*;
+import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.scec.sha.gui.infoTools.AttenuationRelationshipsInstance;
 
 /**
@@ -917,13 +918,21 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
     * It makes only one AttenRel selected at a time
     */
    public void setIMR_Selected(String attenRelName){
-     for(int i=0;i < numSupportedAttenRels;++i){
-       if(attenRelCheckBox[i].getText().equals(attenRelName)){
-         if(attenRelCheckBox[i].isEnabled() && !attenRelCheckBox[i].isSelected()){
-           attenRelCheckBox[i].setSelected(true);
+     if(!singleAttenRelSelected){ //if multiple attenRel is selected
+       for(int i=0;i < numSupportedAttenRels;++i){
+         if(attenRelCheckBox[i].getText().equals(attenRelName)){
+           if(attenRelCheckBox[i].isEnabled())
+             attenRelCheckBox[i].setSelected(true);
+           else if(attenRelCheckBox[i].isEnabled() && attenRelCheckBox[i].isSelected())
+             attenRelCheckBox[i].setSelected(false);
          }
        }
      }
+     //if the single attenRel is selected
+     else if(singleAttenRelParamList.getParameter(this.IMR_PARAM_NAME).isAllowed(attenRelName))
+       singleAttenRelParamList.getParameter(this.IMR_PARAM_NAME).setValue(attenRelName);
+     else
+       throw new RuntimeException(attenRelName+" not supported for the choosen IMT");
    }
 
    /**
@@ -949,7 +958,6 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
          }
        }
      }
-
      return selectedIMRs;
    }
 
@@ -1047,8 +1055,21 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
  }
 
 
-
-
+ /**
+  * this function will set the parameters in this gui bean for the Puente Hills
+  */
+ public void setIMRParametersForPuenteHills(){
+   if(!singleAttenRelSelected){
+     singleAttenRelSelected = !singleAttenRelSelected;
+     toggleBetweenSingleAndMultipleAttenRel();
+   }
+   // Set the imt as PGA
+   imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+   imtEditorParamListEditor.refreshParamEditor();
+   setIMR_Selected(ShakeMap_2003_AttenRel.NAME);
+   getSelectedIMR_Instance().getParameter(ShakeMap_2003_AttenRel.COMPONENT_NAME).setValue(ShakeMap_2003_AttenRel.COMPONENT_GREATER_OF_TWO_HORZ);
+   singleAttenRelParamListEditor.refreshParamEditor();
+ }
 
 
 

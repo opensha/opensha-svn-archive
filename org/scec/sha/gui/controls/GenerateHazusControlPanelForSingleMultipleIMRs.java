@@ -185,7 +185,6 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
       //if XYZ dataset not supporting PGV is null
       else if(xyzDataSet ==null)
         pgv_xyzdata = xyzDataSet_PGV;
-
     }
 
     //Doing for PGA
