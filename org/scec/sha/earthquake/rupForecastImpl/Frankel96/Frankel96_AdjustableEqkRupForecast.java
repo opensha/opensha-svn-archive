@@ -7,7 +7,6 @@ import java.util.StringTokenizer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
-import java.net.*;
 
 import org.scec.param.*;
 import org.scec.calc.MomentMagCalc;
@@ -70,8 +69,8 @@ public class Frankel96_AdjustableEqkRupForecast extends EqkRupForecast
   /**
    * Static variable for input file names
    */
-  private final static String INPUT_FAULT_FILE_NAME = "http://epicenter.usc.edu/cmedb/Frankel96_CAL_all.txt";
-  private final static String INPUT_BACK_SEIS_FILE_NAME = "http://epicenter.usc.edu/cmedb/CAagrid.asc";
+  private final static String INPUT_FAULT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/Frankel96/Frankel96_CAL_all.txt";
+  private final static String INPUT_BACK_SEIS_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/Frankel96/CAagrid.asc";
 
   /**
    * Vectors for holding the various sources, separated by type
@@ -146,11 +145,11 @@ public class Frankel96_AdjustableEqkRupForecast extends EqkRupForecast
     backSeisParam.addParameterChangeListener(this);
 
     // read the lines of the input files into a list
-    try{ inputFaultFileLines = FileUtils.loadFile(new URL( INPUT_FAULT_FILE_NAME) ); }
+    try{ inputFaultFileLines = FileUtils.loadFile( INPUT_FAULT_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
-    try{ inputBackSeisFileLines = FileUtils.loadFile(new URL(INPUT_BACK_SEIS_FILE_NAME)); }
+    try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
