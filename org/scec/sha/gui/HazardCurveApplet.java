@@ -147,8 +147,22 @@ public class HazardCurveApplet extends JApplet
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
   // make a array for saving the X values
-  private  double [] xValues = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-                               .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
+  private  double [] xValuesSA = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
+    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
+
+  // make a array for saving the X values
+  private  double [] xValuesPGA = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
+    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
+
+  // make a array for saving the X values
+  private  double [] xValuesPGV = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
+    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
+
+  // make a array for saving the X values
+  private  double [] xValuesFaultDispl = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
+    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7,
+    1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8,
+    2.9, 3.0}  ;
 
   // Create the x-axis and y-axis - either normal or log
   private org.jfree.chart.axis.NumberAxis xAxis = null;
@@ -1402,9 +1416,24 @@ public class HazardCurveApplet extends JApplet
    */
   private void initX_Values(DiscretizedFuncAPI arb){
     // take log only if it is PGA, PGV or SA
-    if (isIMTLogEnabled()) {
-      for(int i=0; i<this.xValues.length; ++i)
-        arb.set(Math.log(xValues[i]),1 );
+    String selectedIMT = isIMTLogEnabled();
+    if (selectedIMT!=null) {
+      // if PGA is chosen
+      if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME))
+        for(int i=0; i<this.xValuesPGA.length; ++i)
+          arb.set(Math.log(xValuesPGA[i]),1 );
+      // if PGV is chosen
+     else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME))
+       for(int i=0; i<this.xValuesPGV.length; ++i)
+          arb.set(Math.log(xValuesPGV[i]),1 );
+     // if SA is chosen
+     else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
+       for(int i=0; i<this.xValuesSA.length; ++i)
+          arb.set(Math.log(xValuesSA[i]),1 );
+     // if Fault Displacement is chosen
+     else if(selectedIMT.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
+       for(int i=0; i<this.xValuesFaultDispl.length; ++i)
+          arb.set(Math.log(xValuesFaultDispl[i]),1 );
     } else
       throw new RuntimeException("Unsupported IMT");
   }
@@ -1422,9 +1451,24 @@ public class HazardCurveApplet extends JApplet
     DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
     hazFunc = new ArbitrarilyDiscretizedFunc();
     // take log only if it is PGA, PGV or SA
-    if (isIMTLogEnabled()) {
-      for(int i=0; i<numPoints; ++i)
-        hazFunc.set(xValues[i], tempFunc.getY(i));
+    String selectedIMT = isIMTLogEnabled();
+    if (selectedIMT!=null) {
+      // if PGA is chosen
+      if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME))
+        for(int i=0; i<numPoints; ++i)
+          hazFunc.set(xValuesPGA[i], tempFunc.getY(i));
+      // if PGV  is chosen
+      else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME))
+        for(int i=0; i<numPoints; ++i)
+          hazFunc.set(xValuesPGV[i], tempFunc.getY(i));
+      // if SA is chosen
+      else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
+        for(int i=0; i<numPoints; ++i)
+          hazFunc.set(xValuesSA[i], tempFunc.getY(i));
+      // if Fault displacement is chosen
+      else if(selectedIMT.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
+        for(int i=0; i<numPoints; ++i)
+          hazFunc.set(xValuesFaultDispl[i], tempFunc.getY(i));
     return hazFunc;
     } else
       throw new RuntimeException("Unsupported IMT");
@@ -1466,14 +1510,14 @@ public class HazardCurveApplet extends JApplet
    * @return true if the selected IMT is PGA, PGV or SA
    * else returns false
    */
-  private boolean isIMTLogEnabled(){
+  private String isIMTLogEnabled(){
    String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
     if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
        selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
        selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME)  ||
        selectedIMT.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
-     return true;
-    return false;
+     return selectedIMT;
+    return null;
   }
   void imgLabel_mousePressed(MouseEvent e) {
 
