@@ -549,7 +549,7 @@ public class HazardCurveApplet extends JApplet
       com.jrefinery.chart.renderer.LogXYItemRenderer renderer
           = new com.jrefinery.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
-      // draw all plots in black for Eqk List
+      // draw all plots in black color for Eqk List
       if(this.isEqkList) {
         int num = totalProbFuncs.size();
         int numFractiles;
@@ -560,9 +560,9 @@ public class HazardCurveApplet extends JApplet
         else numFractiles = 0;
         int diff = num - numFractiles;
         for(int i=0; i<diff; ++i) // set black color for curves
-          renderer.setSeriesOutlinePaint(i,Color.black);
+          renderer.setSeriesPaint(i,Color.black);
         for(int i=diff;i<num;++i) // set red color for fractiles
-          renderer.setSeriesOutlinePaint(i,Color.red);
+          renderer.setSeriesPaint(i,Color.red);
 
       }
 
