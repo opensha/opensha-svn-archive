@@ -476,6 +476,10 @@ public class HazardMapViewerApp extends JApplet {
        //sending the IML or Prob Selected value
        toServlet.writeObject(new Double(imlProbGuiBean.getIML_Prob()));
 
+       String metadata = dataSetText.getText()+"\n"+mapGuiBean.getVisibleParameters().getParameterListMetadataString();
+       metadata = metadata + this.imlProbGuiBean.getVisibleParameters().getParameterListMetadataString();
+       toServlet.writeObject(metadata);
+
        toServlet.flush();
        toServlet.close();
 
@@ -485,7 +489,9 @@ public class HazardMapViewerApp extends JApplet {
        String imgName=fromServlet.readObject().toString();
        fromServlet.close();
        // show the map in  a new window
-       String metadata = dataSetText.getText().replaceAll("\n","<br>");
+       metadata = metadata.replaceAll("\n","<br>");
+       String link = imgName.substring(0, imgName.lastIndexOf('/'));
+       metadata +="<br><p>Click:  "+"<a href=\""+link+"\">"+link+"</a>"+"  to download files.</p>";
        ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadata, true);
 
      }catch (Exception e) {

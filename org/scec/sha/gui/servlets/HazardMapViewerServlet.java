@@ -59,19 +59,25 @@ public class HazardMapViewerServlet  extends HttpServlet {
         String selectedSet = (String)inputFromApplet.readObject();
         // map generator object
         GMT_MapGenerator map = (GMT_MapGenerator)inputFromApplet.readObject();
-        // whether IML@prob is selected ot Prob@IML
+        // whether IML@prob is selected or Prob@IML
         String optionSelected = (String)inputFromApplet.readObject();
         // get the value
         double val = ((Double)inputFromApplet.readObject()).doubleValue();
+        // get the metadata
+        String metadata = (String)inputFromApplet.readObject();
 
         boolean isProbAt_IML = true;
         if(optionSelected.equalsIgnoreCase(IMLorProbSelectorGuiBean.IML_AT_PROB))
           isProbAt_IML = false;
         // create the XYZ data set
         XYZ_DataSetAPI xyzData = getXYZ_DataSet(selectedSet, isProbAt_IML, val, map);
+        String metadataFileName = HazardMapCalcServlet.PARENT_DIR+
+               selectedSet+"/"+"map_info.txt";
+        FileWriter fw = new FileWriter(metadataFileName);
+        fw.write(metadata);
+        fw.close();
         // jpg file name
-        map.setMetatdataFileName(HazardMapCalcServlet.PARENT_DIR+
-               optionSelected+"/"+HazardMapCalcServlet.METADATA_FILE_NAME);
+        map.setMetatdataFileName(metadataFileName);
         String jpgFileName  = map.makeMapUsingServlet(xyzData,"IML");
         ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
         outputToApplet.writeObject(jpgFileName);
@@ -197,7 +203,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
     for(double lat = minLat; lat<=maxLat; lat=Double.parseDouble(d.format(lat+gridSpacing))){
       for(double lon = minLon; lon<=maxLon; lon=Double.parseDouble(d.format(lon+gridSpacing))) {
         try {
-          fileLines = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+lat+"_"+ lon+".txt");
+          fileLines = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+d.format(lat)+"_"+ d.format(lon)+".txt");
           String dataLine;
           StringTokenizer st;
           ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
