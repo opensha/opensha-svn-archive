@@ -30,16 +30,18 @@ public class GMT_MapGenerator implements Serializable{
   protected final static boolean D = true;
 
   // name of the file which contains all the GMT commands that we want to run on server
-  private String GMT_SCRIPT_NAME = "gmtScript.txt";
-  private String DEFAULT_XYZ_FILE_NAME = "xyz_data.txt";
+  protected String DEFAULT_GMT_SCRIPT_NAME = "map_GMT_Script.txt";
+  protected String GMT_SCRIPT_NAME = DEFAULT_GMT_SCRIPT_NAME;
+  protected String DEFAULT_XYZ_FILE_NAME = "map_data.txt";
   protected String XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
-  private String METADATA_FILE_NAME = "map_info.txt";
-  protected String PS_FILE_NAME = "map.ps";
-  private String DEFAULT_PS_FILE_NAME = PS_FILE_NAME;
-  protected String JPG_FILE_NAME = "map.jpg";
-  private String DEFAULT_JPG_FILE_NAME = JPG_FILE_NAME;
-  private String SCALE_LABEL; // what's used to label the color scale
-  private int DPI = 70;
+  protected String DEFAULT_METADATA_FILE_NAME = "map_info.txt";
+  protected String METADATA_FILE_NAME = DEFAULT_METADATA_FILE_NAME;
+  protected String DEFAULT_PS_FILE_NAME = "map.ps";
+  protected String PS_FILE_NAME = DEFAULT_PS_FILE_NAME;
+  protected String DEFAULT_JPG_FILE_NAME = "map.jpg";
+  protected String JPG_FILE_NAME = DEFAULT_JPG_FILE_NAME;
+  protected String SCALE_LABEL; // what's used to label the color scale
+  protected int DPI = 70;
 
   // paths to needed code
   protected String GMT_PATH;
@@ -50,15 +52,13 @@ public class GMT_MapGenerator implements Serializable{
   // this is the path where general data (e.g., topography) are found:
   private static String SCEC_GMT_DATA_PATH = "/usr/scec/data/gmt/";
 
-  XYZ_DataSetAPI xyzDataSet;
+  protected XYZ_DataSetAPI xyzDataSet;
 
   // common GMT command-line strings
   protected String xOff;
   protected String yOff;
   protected String region;
   protected String projWdth;
-
-  int counter=0;
 
   // for map boundary parameters
   public final static String MIN_LAT_PARAM_NAME = "Min Latitude";
@@ -156,12 +156,10 @@ public class GMT_MapGenerator implements Serializable{
   private final static String LOG_PLOT_INFO = "Plot Log or Linear Map";
   protected BooleanParameter logPlotParam;
 
-  protected String gmtFileName;
-
   protected ParameterList adjustableParams;
 
   //GMT files web address(if the person is using the gmt webService)
-  String imgWebAddr=null;
+  protected String imgWebAddr=null;
 
 
 
@@ -258,7 +256,9 @@ public class GMT_MapGenerator implements Serializable{
    * this function generates a GMT map from an XYZ data set using the current
    * parameter settings, and using the version of GMT on the local computer.
    *
-   * This returns the name of the jpg file
+   * @param xyzDataSet
+   * @param scaleLabel - a string for the label (with no spaces!)
+   * @return - the name of the jpg file
    */
   public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, String scaleLabel){
 
@@ -268,12 +268,8 @@ public class GMT_MapGenerator implements Serializable{
     GS_PATH="/sw/bin/gs";
     CONVERT_PATH="/sw/bin/convert";
 
-    // The color scale label (will be an input param eventually)
+    // The color scale label
     SCALE_LABEL = scaleLabel;
-
-    counter += 1;
-
-    JPG_FILE_NAME = "map"+counter+".jpg";
 
     this.xyzDataSet = xyzDataSet;
 
@@ -283,17 +279,14 @@ public class GMT_MapGenerator implements Serializable{
     // make the local XYZ data file
     makeXYZ_File(XYZ_FILE_NAME);
 
-    // Add time stamp to script name
-    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
-
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
 
     // make the script
-    makeFileFromLines(gmtLines,gmtFileName);
+    makeFileFromLines(gmtLines,GMT_SCRIPT_NAME);
 
     // now run the GMT script file
-    String[] command ={"sh","-c","sh "+gmtFileName};
+    String[] command ={"sh","-c","sh "+GMT_SCRIPT_NAME};
     RunScript.runScript(command);
 
     return JPG_FILE_NAME;
@@ -305,7 +298,9 @@ public class GMT_MapGenerator implements Serializable{
    * This generates GMT map for the given XYZ dataset and for the current parameter setting,
    * using the GMT Servlet on the SCEC server (the map is made on the SCEC server).
    *
-   * This returns the full web address to the resulting jpg file.
+   * @param xyzDataSet
+   * @param scaleLabel - a string for the label (with no spaces!)
+   * @return - the name of the jpg file
    */
   public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
                                     String scaleLabel) throws RuntimeException{
@@ -315,7 +310,7 @@ public class GMT_MapGenerator implements Serializable{
     GS_PATH="/usr/bin/gs";
     CONVERT_PATH="/usr/X11R6/bin/convert";
 
-    // The color scale label (will be an input param eventually)
+    // The color scale label
     SCALE_LABEL = scaleLabel;
 
     this.xyzDataSet = xyzDataSet;
@@ -346,7 +341,9 @@ public class GMT_MapGenerator implements Serializable{
    * This generates GMT map for the given XYZ dataset and for the current parameter setting,
    * using the GMT Web Service on the SCEC server (the map is made on the SCEC server).
    *
-   * This returns the full web address to the resulting jpg file.
+   * @param xyzDataSet
+   * @param scaleLabel - a string for the label (with no spaces!)
+   * @return - the name of the jpg file
    */
   public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, String scaleLabel){
 
@@ -355,7 +352,7 @@ public class GMT_MapGenerator implements Serializable{
     GS_PATH="/usr/bin/gs";
     CONVERT_PATH="/usr/X11R6/bin/convert";
 
-    // The color scale label (will be an input param eventually)
+    // The color scale label
     SCALE_LABEL = scaleLabel;
 
     this.xyzDataSet = xyzDataSet;
@@ -366,19 +363,16 @@ public class GMT_MapGenerator implements Serializable{
     // make the local XYZ data file
     makeXYZ_File(XYZ_FILE_NAME);
 
-    // Add time stamp to script name
-    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
-
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
 
     // make the script
-    makeFileFromLines(gmtLines,gmtFileName);
+    makeFileFromLines(gmtLines,GMT_SCRIPT_NAME);
 
     //put files in String array which are to be sent to the server as the attachment
     String[] fileNames = new String[3];
     //getting the GMT script file name
-    fileNames[0] = gmtFileName;
+    fileNames[0] = GMT_SCRIPT_NAME;
     //getting the XYZ file Name
     fileNames[1] = XYZ_FILE_NAME;
 
@@ -418,7 +412,7 @@ public class GMT_MapGenerator implements Serializable{
    *
    * @returns the Vector containing the Metadata Info
    */
-  private Vector getMapInfoLines(){
+  protected Vector getMapInfoLines(){
     Vector metadataFilesLines = new Vector();
     try{
       FileReader  fr = new FileReader(METADATA_FILE_NAME);
@@ -437,7 +431,7 @@ public class GMT_MapGenerator implements Serializable{
 
 
   // make the local XYZ file
-  private void makeXYZ_File(String fileName) {
+  protected void makeXYZ_File(String fileName) {
     Vector lines = new Vector();
     Vector xVals = xyzDataSet.getX_DataSet();
     Vector yVals = xyzDataSet.getY_DataSet();
@@ -456,7 +450,7 @@ public class GMT_MapGenerator implements Serializable{
 
 
   // make the xyzDataSet from a local file
-  private void make_xyzDataSet(String fileName) {
+  protected void make_xyzDataSet(String fileName) {
 
     Vector xVals = new Vector();
     Vector yVals =  new Vector();
@@ -527,7 +521,7 @@ public class GMT_MapGenerator implements Serializable{
   /**
    * sets up the connection with the servlet on the server (gravity.usc.edu)
    */
-  private String openServletConnection(XYZ_DataSetAPI xyzDataVals,
+  protected String openServletConnection(XYZ_DataSetAPI xyzDataVals,
                                        Vector gmtFileLines,
                                        Vector metadataLines) throws RuntimeException{
 
@@ -598,8 +592,9 @@ public class GMT_MapGenerator implements Serializable{
    * in CME, there is need that we should be able to specify the name of ps file name
    * and jpeg filename.
    *
-   * @param xyzFileName name of the xyz file for which map will be generated
-   * @return
+   * @param xyzDataSet
+   * @param scaleLabel - a string for the label (with no spaces!)
+   * @return - the name of the jpg file
    */
   public void makeMapForCME(String xyzFileName, String psFileName, String jpgFileName, String scaleLabel) {
 
@@ -614,7 +609,7 @@ public class GMT_MapGenerator implements Serializable{
     GS_PATH="/usr/bin/gs";
     CONVERT_PATH="/usr/X11R6/bin/convert";
 
-    // The color scale label (will be an input param eventually)
+    // The color scale label
     SCALE_LABEL = scaleLabel;
 
     make_xyzDataSet(XYZ_FILE_NAME);
@@ -625,21 +620,18 @@ public class GMT_MapGenerator implements Serializable{
     // save file locally if log-plot is desired
     boolean logPlotCheck = ((Boolean)logPlotParam.getValue()).booleanValue();
     if(logPlotCheck){
-      makeXYZ_File(DEFAULT_XYZ_FILE_NAME);
-      XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
+      XYZ_FILE_NAME = "Log_"+XYZ_FILE_NAME;
+      makeXYZ_File(XYZ_FILE_NAME);
     }
-
-    // Add time stamp to script name
-    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
 
     // get the GMT script lines
     Vector gmtLines = getGMT_ScriptLines();
 
     // make the script
-    makeFileFromLines(gmtLines,gmtFileName);
+    makeFileFromLines(gmtLines,GMT_SCRIPT_NAME);
 
     // now run the GMT script file
-    String[] command ={"sh","-c","sh "+gmtFileName};
+    String[] command ={"sh","-c","sh "+GMT_SCRIPT_NAME};
     RunScript.runScript(command);
 
     // set XYZ filename back to the default
@@ -719,7 +711,7 @@ public class GMT_MapGenerator implements Serializable{
   /**
    * This method generates a list of strings needed for the GMT script
    */
-  private Vector getGMT_ScriptLines() {
+  protected Vector getGMT_ScriptLines() {
 
     String commandLine;
 

@@ -14,6 +14,7 @@ import org.scec.sha.earthquake.EqkRupture;
 import org.scec.sha.surface.*;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.sha.imr.AttenuationRelationship;
+import org.scec.util.RunScript;
 
 /**
  * <p>Title: GMT_MapGeneratorForShakeMaps</p>
@@ -36,7 +37,11 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
   private String EQK_RUP_XYZ_FILE_NAME = "eqkRup_data.txt";
   XYZ_DataSetAPI eqkRup_xyzDataSet;
 
+  private String HAZUS_FILE_PREFIX = "map_hazus";
+
   private EqkRupture eqkRup;
+
+  int counter=0;
 
   //IMT selected
   private String imt;
@@ -74,21 +79,183 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
   }
 
+  private void setFileNames(String prefix) {
+    if(prefix != null) {
+      GMT_SCRIPT_NAME = prefix+"_"+DEFAULT_GMT_SCRIPT_NAME;
+      XYZ_FILE_NAME = prefix+"_"+DEFAULT_XYZ_FILE_NAME;
+      METADATA_FILE_NAME = prefix+"_"+DEFAULT_METADATA_FILE_NAME;
+      PS_FILE_NAME = prefix+"_"+DEFAULT_PS_FILE_NAME;
+      JPG_FILE_NAME = prefix+"_"+DEFAULT_JPG_FILE_NAME;
+    }
+    else {
+      GMT_SCRIPT_NAME = DEFAULT_GMT_SCRIPT_NAME;
+      XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
+      METADATA_FILE_NAME = DEFAULT_METADATA_FILE_NAME;
+      PS_FILE_NAME = DEFAULT_PS_FILE_NAME;
+      JPG_FILE_NAME = DEFAULT_JPG_FILE_NAME;
+    }
+  }
 
 
+  /**
+   *
+   * @param sa03DataSet
+   * @param sa10DataSet
+   * @param pgaDataSet
+   * @param pgvDataSet
+   * @param eqkRupture
+   */
+  public void makeHazusFileSetLocally(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
+                                       XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
+                                       EqkRupture eqkRupture) {
+    eqkRup = eqkRupture;
 
+    GMT_PATH="/sw/bin/";
+    GS_PATH="/sw/bin/gs";
+    CONVERT_PATH="/sw/bin/convert";
+
+    Vector gmtLines = new Vector();
+
+    // Do 0.3-sec SA first
+    imt="SA";
+    SCALE_LABEL = "sa03";
+    setFileNames(SCALE_LABEL);
+    this.xyzDataSet = sa03DataSet;
+    makeXYZ_File(XYZ_FILE_NAME);
+    gmtLines.addAll(getGMT_ScriptLines());
+
+    // Do 1.0-sec SA
+    imt="SA";
+    SCALE_LABEL = "sa10";
+    setFileNames(SCALE_LABEL);
+    this.xyzDataSet = sa10DataSet;
+    makeXYZ_File(XYZ_FILE_NAME);
+    gmtLines.addAll(getGMT_ScriptLines());
+
+    // PGA
+    imt="PGA";
+    SCALE_LABEL = "pga";
+    setFileNames(SCALE_LABEL);
+    this.xyzDataSet = pgaDataSet;
+    makeXYZ_File(XYZ_FILE_NAME);
+    gmtLines.addAll(getGMT_ScriptLines());
+
+    // Do 0.3-sec SA first
+    imt="PGV";
+    SCALE_LABEL = "pgv";
+    setFileNames(SCALE_LABEL);
+    this.xyzDataSet = pgvDataSet;
+    makeXYZ_File(XYZ_FILE_NAME);
+    gmtLines.addAll(getGMT_ScriptLines());
+
+    // make the script
+    makeFileFromLines(gmtLines,GMT_SCRIPT_NAME);
+
+    // now run the GMT script file
+    String[] command ={"sh","-c","sh "+GMT_SCRIPT_NAME};
+    RunScript.runScript(command);
+
+    // set the filenames back to default
+    setFileNames(null);
+  }
+
+
+  /**
+   *
+   * @param sa03DataSet
+   * @param sa10DataSet
+   * @param pgaDataSet
+   * @param pgvDataSet
+   * @param eqkRupture
+   * @return - the web address where the files are located
+   */
+  public String makeHazusFileSetUsingServlet(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
+                                       XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
+                                       EqkRupture eqkRupture) {
+    eqkRup = eqkRupture;
+
+    GMT_PATH="/opt/install/gmt/bin/";
+    GS_PATH="/usr/bin/gs";
+    CONVERT_PATH="/usr/X11R6/bin/convert";
+
+    Vector gmtLines = new Vector();
+
+    // Do 0.3-sec SA first
+    imt="SA";
+    SCALE_LABEL = "sa03";
+    setFileNames(SCALE_LABEL);
+    gmtLines.addAll(getGMT_ScriptLines());
+
+    // Do 1.0-sec SA
+    imt="SA";
+    SCALE_LABEL = "sa10";
+    setFileNames(SCALE_LABEL);
+    gmtLines.addAll(getGMT_ScriptLines());
+
+    // PGA
+    imt="PGA";
+    SCALE_LABEL = "pga";
+    setFileNames(SCALE_LABEL);
+    gmtLines.addAll(getGMT_ScriptLines());
+
+    // Do 0.3-sec SA first
+    imt="PGV";
+    SCALE_LABEL = "pgv";
+    setFileNames(SCALE_LABEL);
+    gmtLines.addAll(getGMT_ScriptLines());
+
+    //get the metadata lines
+    Vector metaDataLines = getMapInfoLines();
+    try{
+      imgWebAddr = this.openServletConnection(sa03DataSet, sa10DataSet, pgaDataSet,
+                                              pgvDataSet, gmtLines, metaDataLines);
+    }catch(RuntimeException e){
+      throw new RuntimeException(e.getMessage());
+    }
+
+    // set the filenames back to default
+    setFileNames(null);
+
+    return imgWebAddr;
+  }
   /**
    * Makes scenarioshake maps locally using the GMT on the users own computer
    * @param xyzDataSet: XYZ Data
    * @param eqkRup : EarthRupture Object
    * @param hypLoc :Hypocenter Location
-   * @param scaleLabel
+   * @param imtString - the IMT string for labeling and filenames
    * @return
    */
-  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture, String imtSelected){
+  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture, String imtString){
     eqkRup = eqkRupture;
-    imt = imtSelected;
-    return super.makeMapLocally(xyzDataSet,imtSelected);
+    imt = imtString;
+
+    // make name change each time so viewing files doesn't get screwed up
+    //JPG_FILE_NAME = "map"+counter+".jpg";
+
+    // Add time stamp to script name (for when we want to save many scripts locally)
+//    GMT_SCRIPT_NAME=DEFAULT_GMT_SCRIPT_NAME.substring(0,DEFAULT_GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+
+    String jpgFileName = super.makeMapLocally(xyzDataSet,imtString);
+
+    // Make a directory and move all the files into it
+    String dirName = "UserShakeMaps_"+System.currentTimeMillis();
+    String tempScript = "temp"+System.currentTimeMillis();
+    Vector scriptLines = new Vector();
+    String commandLine = COMMAND_PATH+"mkdir "+dirName;
+    scriptLines.add(commandLine+"\n");
+    commandLine = COMMAND_PATH+"mv "+GMT_SCRIPT_NAME+" "+XYZ_FILE_NAME+" "+
+                  METADATA_FILE_NAME+" "+PS_FILE_NAME+" "+JPG_FILE_NAME+" "+
+                  HAZUS_FILE_PREFIX+".shp "+HAZUS_FILE_PREFIX+".shx "+
+                  HAZUS_FILE_PREFIX+".dbf "+ dirName;
+    scriptLines.add(commandLine+"\n");
+    commandLine = COMMAND_PATH+"rm "+tempScript;
+    scriptLines.add(commandLine+"\n");
+    makeFileFromLines(scriptLines,tempScript);
+    String[] command ={"sh","-c","sh "+tempScript};
+    RunScript.runScript(command);
+
+    return dirName + "/" + jpgFileName;
   }
 
   /**
@@ -97,15 +264,15 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param xyzDataSet: XYZ Data
    * @param eqkRup : EarthRupture Object
    * @param hypLoc : Hypocenter Location
-   * @param scaleLabel
+   * @param imtString - the IMT string for labeling and filenames
    * @return: URL to the image
    */
   public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
                                     EqkRupture eqkRupture,
-                                    String imtSelected) throws RuntimeException{
+                                    String imtString) throws RuntimeException{
     eqkRup = eqkRupture;
-    imt = imtSelected;
-    return super.makeMapUsingServlet(xyzDataSet, imtSelected);
+    imt = imtString;
+    return super.makeMapUsingServlet(xyzDataSet, imtString);
   }
 
   /**
@@ -114,13 +281,13 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param xyzDataSet: XYZ Data
    * @param eqkRup : EarthRupture Object
    * @param hypLoc :Hypocenter Location
-   * @param scaleLabel
+   * @param imtString - the IMT string for labeling and filenames
    * @return: URL to the image
    */
-  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,String imtSelected){
+  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,String imtString){
     eqkRup = eqkRupture;
-    imt = imtSelected;
-    return super.makeMapUsingWebServer(xyzDataSet, imtSelected);
+    imt = imtString;
+    return super.makeMapUsingWebServer(xyzDataSet, imtString);
   }
 
 
@@ -157,7 +324,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
         commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
                       "-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
         gmtCommandLines.add(commandLine+"\n");
-        commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+imt;
+        commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+HAZUS_FILE_PREFIX;
         gmtCommandLines.add(commandLine+"\n");
       }
       //if the selected IMT is PGA
@@ -165,7 +332,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
         commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
                       "-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
         gmtCommandLines.add(commandLine+"\n");
-        commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+imt;
+        commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 0.04 -f 0.02 -Z 1.0 -T4 -o "+HAZUS_FILE_PREFIX;
         gmtCommandLines.add(commandLine+"\n");
       }
       //if the selected IMT is PGV
@@ -173,7 +340,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
         commandLine = GMT_PATH +"xyz2grd "+XYZ_FILE_NAME+" -Gtemp.grd=1 "+
                       "-I"+gridSpacing+region+" -D/degree/degree/amp/=/=/= -: -H0 -V";
         gmtCommandLines.add(commandLine+"\n");
-        commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 4.0 -f 2.0 -Z 0.3937 -T4 -o "+imt;
+        commandLine = HAZUS_SHAPE_FILE_GENERATOR+" -g temp.grd -C 4.0 -f 2.0 -Z 0.3937 -T4 -o "+HAZUS_FILE_PREFIX;
         gmtCommandLines.add(commandLine+"\n");
       }
       else
