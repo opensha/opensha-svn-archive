@@ -217,8 +217,8 @@ public class Set1_Fault_Forecast extends EqkRupForecast
        if(D) System.out.println(S+"Rows in surface:"+surface.getNumRows());
 
        source = new  Set1_Fault_Source((IncrementalMagFreqDist)magDistParam.getValue(),((Double)rakeParam.getValue()).doubleValue() ,
-                                       ((Double)offsetParam.getValue()).doubleValue(),(EvenlyGriddedSurface)surface);
-       setTimeSpan(((Double)timeSpanParam.getValue()).doubleValue());
+                                       ((Double)offsetParam.getValue()).doubleValue(),(EvenlyGriddedSurface)surface,
+                                       ((Double)timeSpanParam.getValue()).doubleValue());
      }
      parameterChangeFlag = false;
    }

@@ -10,6 +10,7 @@ import org.scec.sha.calc.WC1994_MagLengthRelationship;
 import org.scec.data.*;
 import org.scec.calc.RelativeLocation;
 import org.scec.sha.earthquake.*;
+import org.scec.sha.surface.*;
 
 
 /**
@@ -36,44 +37,81 @@ public class Set1_Fault_Source extends ProbEqkSource {
   private EvenlyGriddedSurface surface;
   private IncrementalMagFreqDist magDist;
 
+  // list of ruptures
+  private Vector ruptureList;
+
   /**
    *
    * @param magDist= It the object of the selected MagDist class
    * @param rake
    * @param offsetSpacing
-   * @param rupSurface := Rupture Surface
+   * @param faultSurface := Fault Surface
    */
   public Set1_Fault_Source(IncrementalMagFreqDist magDist,double rake,
                            double offsetSpacing,
-                           EvenlyGriddedSurface rupSurface) {
+                           EvenlyGriddedSurface faultSurface, double timeSpan) {
 
     this.rake=rake;
-    this.surface=rupSurface;
+    this.surface=faultSurface;
     this.rupOffset=offsetSpacing;
     this.magDist = magDist;
-    probEqkRupture = new ProbEqkRupture();
-    probEqkRupture.setAveRake(rake);
+    this.timeSpan = timeSpan;
+
+    mkRuptureList();
+
+  }
+
+
+  /**
+   * This method makes the rupture list
+   */
+  private void mkRuptureList() {
+
+    ruptureList = new Vector();
 
     int numMags = magDist.getNum();  // Note that some of these may have zero rates!
-    totNumRups=0;
+
+    double rupLen;
+    double rupWidth;
+    double numRup;
+    double mag;
+    double rate;
+    double prob=Double.NaN;
 
     for(int i=0;i<numMags;++i){
+      // make sure it has a non-zero rate
       if(magDist.getY(i) > 0) {
-        double rupLen = Math.pow(10,magDist.getX(i)/2-1.85);
-        double rupWidth= rupLen/2;
-        if( D ) System.out.println("Set1_Fault_Source:Set1_Fault_Source:mag="+magDist.getX(i)+"; rupLen="+rupLen+"; rupWidth="+rupWidth);
-        totNumRups += getNumRuptures(rupLen,rupWidth);
+        mag = magDist.getX(i);
+        rupLen = Math.pow(10,mag/2-1.85);
+        rupWidth= rupLen/2;
+        numRup = surface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
+        rate = magDist.getY(mag);
+        // Create the ruptures and add to the list
+        for(int r=0; r < numRup; ++r) {
+            probEqkRupture = new ProbEqkRupture();
+            probEqkRupture.setAveRake(rake);
+            // set rupture surface
+            probEqkRupture.setRuptureSurface(surface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
+            probEqkRupture.setMag(mag);
+            prob = 1- Math.exp(-timeSpan*rate/numRup);
+            probEqkRupture.setProbability(prob);
+            ruptureList.add(probEqkRupture);
+
+            GriddedSurfaceAPI temp = probEqkRupture.getRuptureSurface();
+            Location tempLoc = temp.getLocation(0,0);
+            if( D ) System.out.println("Location(0,0): rup: "+r+"  "+tempLoc.getLatitude()+"  "+tempLoc.getLongitude()+"  "+tempLoc.getDepth());
+        }
+        if( D ) System.out.println("Set1_Fault_Source: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+"; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
       }
     }
-    if( D ) System.out.println("Set1_Fault_Source:Set1_Fault_Source:totNumRups::"+totNumRups);
-
+    if( D ) System.out.println("Set1_Fault_Source:totNumRups:"+ruptureList.size());
   }
 
   /**
    * this functions sums up all the ruptures for all magnitudes
    * @return the total num of rutures for all magnitudes
    */
-  public int getNumRuptures() { return totNumRups; }
+  public int getNumRuptures() { return ruptureList.size(); }
 
 
   /**
@@ -81,42 +119,7 @@ public class Set1_Fault_Source extends ProbEqkSource {
    * @param nthRupture : it is to find the mag and rate to which that rupture number correspond
    * @return the object of the ProbEqkRupture class after setting the probability
    */
-  public ProbEqkRupture getRupture(int nthRupture){
-    int numMags = magDist.getNum();  // some of these may have zero rates
-    double mag=0, rupLen=0,rupWidth=0;
-    int numRups=0, tempNumRups=0;
-
-    if(nthRupture < 0 || nthRupture>=getNumRuptures())
-       throw new RuntimeException(C+":getRupture():: Invalid rupture index. This index does not exist");
-
-    // this finds the magnitude:
-    for(int i=0;i<numMags;++i){
-      if(magDist.getY(i) > 0) {
-        mag=magDist.getX(i);
-        rupLen = Math.pow(10,mag/2-1.85);
-        rupWidth = rupLen/2;
-        numRups = getNumRuptures(rupLen,rupWidth);
-        tempNumRups += numRups;
-        if(nthRupture < tempNumRups)
-          break;
-      }
-    }
-
-    probEqkRupture.setMag(mag);
-
-    // set probability
-    double rate = magDist.getY(mag);
-    double prob = 1- Math.exp(-timeSpan*rate/numRups);
-    probEqkRupture.setProbability(prob);
-
-    // set rupture surface
-    probEqkRupture.setRuptureSurface( surface.getNthSubsetSurface(rupLen,
-                                      rupWidth,rupOffset,
-                                      nthRupture+numRups-tempNumRups));
-
-    return probEqkRupture;
-  }
-
+  public ProbEqkRupture getRupture(int nthRupture){ return (ProbEqkRupture) ruptureList.get(nthRupture); }
 
   /** Set the time span in years
    *
@@ -155,14 +158,6 @@ public class Set1_Fault_Source extends ProbEqkSource {
     return v;
   }
 
-
-  /**
-   * @param mag
-   * @return the total number of ruptures associated with the given mag
-   */
-  private int getNumRuptures(double rupLen,double rupWidth){
-    return surface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
- }
 
 
    /**
