@@ -13,7 +13,10 @@ Nitin has to add the some more functionality to the Remote_ERFClients ( some fun
 
 Prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.
 
-Work on the data file provided by NGA to get the Observed EqkRuptures from them and create the HazardCurve for these ruptures.   
+Work on the data file provided by NGA to get the Observed EqkRuptures from them and create the HazardCurve for these ruptures.
+
+Create a CVS setup document that anyone can download from our website. It should also includes the libraries
+that the person needs to include and classes that needs to be compiled as RMI.
 
 HazardCurveApps:
 
@@ -27,7 +30,7 @@ Implement point source correction option in PropagationEffect.
 GMT_MapGenerator:
 
 	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service (Nitin)
-	
+
 The Log Plot tester App does not work for the Linear Scale.
 
 Make email lists for the following (with on-line archives):
@@ -90,16 +93,16 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 
 	Check for these in the setName() methods?
 
-	Can we avoid such special character issues using XML representation (for the case where 
+	Can we avoid such special character issues using XML representation (for the case where
 	we read values back in to redo a calculation)?
 
-	With respect to GuiBeans we have discussed two approaches.  Let's take the ERF_GuiBean as 
-	an example.  One mode (mentioned above) is to read back in the parameter settings (from XML), 
-	set the parameter values accordingly, and then recreate the ERF.  If the ERF is very time 
-	consuming to create, then the second mode would be to read back in the serialized version 
-	of the object, and since all the parameter are already set, the GuiBean would not have to 
-	do anything.  Note that all non primitive parameter types (e.g., MagFreqDistParam and 
-	SimpleFaultParam) must contain all info needed by their respective editor to recreate the 
+	With respect to GuiBeans we have discussed two approaches.  Let's take the ERF_GuiBean as
+	an example.  One mode (mentioned above) is to read back in the parameter settings (from XML),
+	set the parameter values accordingly, and then recreate the ERF.  If the ERF is very time
+	consuming to create, then the second mode would be to read back in the serialized version
+	of the object, and since all the parameter are already set, the GuiBean would not have to
+	do anything.  Note that all non primitive parameter types (e.g., MagFreqDistParam and
+	SimpleFaultParam) must contain all info needed by their respective editor to recreate the
 	object; this info is stored in their dependent parameter list.
 
 
@@ -118,11 +121,11 @@ Should we create an AjustableParametersAPI for all objects that have a list of a
 
 Implement NGA relationships when ready.
 
-ProbEqkSource	Define field to declare what type of source it is 
-		(e.g., subduction zone vs normal vs reverse ...) and add to API. 
+ProbEqkSource	Define field to declare what type of source it is
+		(e.g., subduction zone vs normal vs reverse ...) and add to API.
 		Ned will work on what the various options should be.
 
-ERF		-extend API to include getting max and min magnitude, and the various types of 
+ERF		-extend API to include getting max and min magnitude, and the various types of
 		sources generated (to check for compatibility with each chosen IMR)
 
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
@@ -151,7 +154,7 @@ Pathway 1.5?
 
 AttenRelApp:
 
-	Problem:  if you violate a parameter constraint when hitting the add trace button 
+	Problem:  if you violate a parameter constraint when hitting the add trace button
 	(rather than hitting return in the parameter editor) you need to hit add trace again
 	if you accept the value.  Nitin and Vipin say this is a problem with Java (focus at
 	time of exception throwing is lost).
