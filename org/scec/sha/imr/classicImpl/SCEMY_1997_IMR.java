@@ -59,7 +59,7 @@ public class SCEMY_1997_IMR
      * Site Type Parameter ("Rock/Shallow-Soil" versus "Deep-Soil")
      */
      private StringParameter siteTypeParam = null;
-     private final static String SITE_TYPE_NAME = "SCEMY Site Type";
+     private final static String SITE_TYPE_NAME = "Sadigh Site Type";
      // no units
      private final static String SITE_TYPE_INFO = "Geological conditions as the site";
      private final static String SITE_TYPE_ROCK =  "Rock";
@@ -430,6 +430,7 @@ public class SCEMY_1997_IMR
         stdDevIndependentParams.clear();
         stdDevIndependentParams.addParameter(stdDevTypeParam);
         stdDevIndependentParams.addParameter( siteTypeParam );
+        stdDevIndependentParams.addParameter( magParam );
 
         // params that the exceed. prob. depends upon
         exceedProbIndependentParams.clear();
