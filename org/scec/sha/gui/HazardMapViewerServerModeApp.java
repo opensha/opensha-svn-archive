@@ -6,7 +6,7 @@ import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.Hashtable;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.io.File;
 import java.io.FileReader;
@@ -27,9 +27,7 @@ import org.scec.param.StringParameter;
 import org.scec.param.DoubleParameter;
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.sha.gui.beans.IMLorProbSelectorGuiBean;
-import org.scec.sha.gui.beans.HazardMapGuiBean;
-import org.scec.sha.gui.infoTools.ImageViewerWindow;
-import ch.randelshofer.quaqua.QuaquaManager;
+import org.scec.sha.gui.beans.MapGuiBean;
 
 /**
  * <p>Title: HazardMapViewerServerModeApp </p>
@@ -41,8 +39,7 @@ import ch.randelshofer.quaqua.QuaquaManager;
  * @version 1.0
  */
 
-public class HazardMapViewerApp extends JApplet {
-  public static String SERVLET_URL  = "http://gravity.usc.edu/OpenSHA/servlet/HazardMapViewerServlet";
+public class HazardMapViewerServerModeApp extends JApplet {
   private boolean isStandalone = false;
   JSplitPane mainSplitPane = new JSplitPane();
   JSplitPane gmtSplitPane = new JSplitPane();
@@ -92,12 +89,15 @@ public class HazardMapViewerApp extends JApplet {
 
   // gui beans used here
   private IMLorProbSelectorGuiBean imlProbGuiBean;
-  private HazardMapGuiBean mapGuiBean;
+  private MapGuiBean mapGuiBean;
 
   //formatting of the text double Decimal numbers for 2 places of decimal.
   DecimalFormat d= new DecimalFormat("0.00##");
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
+  JLabel jLabel4 = new JLabel();
+  JTextField fileNameTextField = new JTextField();
+  JLabel jLabel3 = new JLabel();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   GridBagLayout gridBagLayout5 = new GridBagLayout();
 
@@ -108,7 +108,7 @@ public class HazardMapViewerApp extends JApplet {
   }
 
   //Construct the applet
-  public HazardMapViewerApp() {
+  public HazardMapViewerServerModeApp() {
   }
 
   //Initialize the applet
@@ -134,8 +134,8 @@ public class HazardMapViewerApp extends JApplet {
     mainSplitPane.setLeftComponent(null);
     sitePanel.setLayout(gridBagLayout3);
     imlProbPanel.setLayout(gridBagLayout4);
-   jLabel1.setForeground(new Color(80, 80, 133));
-   jLabel1.setText("Choose Data Set:");
+    jLabel1.setForeground(new Color(80, 80, 133));
+    jLabel1.setText("Choose Data Set:");
     dataSetCombo.setBackground(new Color(200, 200, 230));
     dataSetCombo.setForeground(new Color(80, 80, 133));
     dataSetCombo.addActionListener(new java.awt.event.ActionListener() {
@@ -145,8 +145,8 @@ public class HazardMapViewerApp extends JApplet {
     });
     dataSetText.setBorder(border1);
     dataSetText.setLineWrap(true);
-   jLabel2.setForeground(new Color(80, 80, 133));
-   jLabel2.setText("Data Set Info:");
+    jLabel2.setForeground(new Color(80, 80, 133));
+    jLabel2.setText("Data Set Info:");
     mapButton.setBackground(new Color(200, 200, 230));
     mapButton.setForeground(new Color(80, 80, 133));
     mapButton.setText("Show Map");
@@ -155,6 +155,13 @@ public class HazardMapViewerApp extends JApplet {
         mapButton_actionPerformed(e);
       }
     });
+    jLabel4.setForeground(new Color(80, 80, 133));
+    jLabel4.setText("(This is filename used for generating xyz, ps and jpg file)");
+    fileNameTextField.setBackground(new Color(200, 200, 230));
+    fileNameTextField.setForeground(new Color(80, 80, 133));
+    fileNameTextField.setText("test");
+    jLabel3.setForeground(new Color(80, 80, 133));
+    jLabel3.setText("Choose File Name:");
     mainSplitPane.add(gmtSplitPane, JSplitPane.BOTTOM);
     mainSplitPane.setRightComponent(gmtSplitPane);
     gmtSplitPane.setLeftComponent(siteSplitPane);
@@ -171,14 +178,20 @@ public class HazardMapViewerApp extends JApplet {
     siteSplitPane.add(imlProbPanel, JSplitPane.RIGHT);
     dataSetPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(24, 10, 0, 0), 22, 4));
-    dataSetPanel.add(dataSetCombo,   new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+    dataSetPanel.add(dataSetCombo,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(24, 7, 0, 66), 12, 1));
-    dataSetPanel.add(dataSetText,   new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
+    dataSetPanel.add(dataSetText,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 0, 11), 0, 365));
     dataSetPanel.add(jLabel2,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 16, 0, 170), 82, 1));
-    dataSetPanel.add(mapButton,   new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
+    dataSetPanel.add(mapButton,  new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 98, 10, 116), 50, 11));
+    dataSetPanel.add(jLabel3,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(13, 10, 0, 0), 11, 9));
+    dataSetPanel.add(fileNameTextField,  new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(13, 0, 0, 37), 150, 4));
+    dataSetPanel.add(jLabel4,  new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 10, 0, 1), 17, 5));
     mainSplitPane.setDividerLocation(350);
     gmtSplitPane.setDividerLocation(150);
     siteSplitPane.setDividerLocation(300);
@@ -202,7 +215,7 @@ public class HazardMapViewerApp extends JApplet {
   }
   //Main method
   public static void main(String[] args) {
-    HazardMapViewerApp applet = new HazardMapViewerApp();
+    HazardMapViewerServerModeApp applet = new HazardMapViewerServerModeApp();
     applet.isStandalone = true;
     Frame frame;
     frame = new Frame() {
@@ -228,28 +241,14 @@ public class HazardMapViewerApp extends JApplet {
   }
 
 
-  //static initializer for setting look & feel
-  static {
-    String osName = System.getProperty("os.name");
-    try {
-      if(osName.startsWith("Mac OS"))
-        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-      else
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
-    catch(Exception e) {
-    }
-  }
-
-
-
   /**
    * Load all the available data sets by checking the data sets directory
    */
   private void loadDataSets() {
     try{
 
-      URL hazardMapViewerServlet = new URL(this.SERVLET_URL);
+      URL hazardMapViewerServlet = new
+                                   URL("http://scec.usc.edu:9999/examples/servlet/HazardMapViewerServlet");
 
       URLConnection servletConnection = hazardMapViewerServlet.openConnection();
 
@@ -266,8 +265,9 @@ public class HazardMapViewerApp extends JApplet {
       ObjectOutputStream outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
 
-      // send the flag to servlet indicating to load the names of available datatsets
-      outputToServlet.writeObject(org.scec.sha.gui.servlets.HazardMapViewerServlet.GET_DATA);
+
+      //sending the X values vector in the condProbVector to the servlet
+      outputToServlet.writeObject("Get Data");
 
       outputToServlet.flush();
       outputToServlet.close();
@@ -345,7 +345,7 @@ public class HazardMapViewerApp extends JApplet {
    ArrayList minLonVector = new ArrayList();
    ArrayList maxLonVector = new ArrayList();
    double lon = minLon;
-   // fill the minlon Vector
+   // fill the minlon ArrayList
    while(lon<maxLon) {
     minLonVector.add(""+d.format(lon)); // fill the min Lat combobox
     lon = lon+intervalLon;
@@ -369,7 +369,7 @@ public class HazardMapViewerApp extends JApplet {
        maxLonVector, (String)maxLonVector.get(0));
    // make the gridspacing param
    DoubleParameter gridSpacingParam = new DoubleParameter(GRIDSPACING_PARAM_NAME,
-                                                   new Double(intervalLat));
+                                                    new Double(intervalLat));
 
    // add the params to the list
    this.sitesParamList = new ParameterList();
@@ -378,6 +378,8 @@ public class HazardMapViewerApp extends JApplet {
    sitesParamList.addParameter(minLonParam);
    sitesParamList.addParameter(maxLonParam);
    sitesParamList.addParameter(gridSpacingParam);
+
+
    this.sitesEditor = new ParameterListEditor(sitesParamList);
    sitesEditor.setTitle(SITES_TITLE);
 
@@ -385,6 +387,7 @@ public class HazardMapViewerApp extends JApplet {
    sitePanel.removeAll();
    this.sitePanel.add(sitesEditor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
    // also set it in map gui bean
    this.mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon, intervalLat);
 
@@ -416,7 +419,7 @@ public class HazardMapViewerApp extends JApplet {
    * initialize the map gui bean
    */
   private void initMapGuiBean() {
-    mapGuiBean = new HazardMapGuiBean();
+    mapGuiBean = new MapGuiBean();
     // show this gui bean the JPanel
     this.gmtPanel.add(this.mapGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -446,9 +449,11 @@ public class HazardMapViewerApp extends JApplet {
     * sets up the connection with the servlet on the server (scec.usc.edu)
     */
    void openConnection() {
+
      try{
 
-       URL hazardMapViewerServlet = new URL(SERVLET_URL);
+       URL hazardMapViewerServlet = new
+                             URL("http://scec.usc.edu:9999/examples/servlet/HazardMapViewerServlet");
        URLConnection servletConnection = hazardMapViewerServlet.openConnection();
 
        // inform the connection that we will send output and accept input
@@ -461,31 +466,38 @@ public class HazardMapViewerApp extends JApplet {
        // Specify the content type that we will send binary data
        servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
 
-       ObjectOutputStream toServlet = new
+       ObjectOutputStream outputToServlet = new
            ObjectOutputStream(servletConnection.getOutputStream());
-       toServlet.writeObject(org.scec.sha.gui.servlets.HazardMapViewerServlet.MAKE_MAP);
+       outputToServlet.writeObject("Make Map");
        //sending the user which dataSet is selected
-       toServlet.writeObject((String)this.dataSetCombo.getSelectedItem());
+       outputToServlet.writeObject((String)this.dataSetCombo.getSelectedItem());
 
        //sending the GMT params object to the servlet
-       toServlet.writeObject(mapGuiBean.getGMTObject());
+       //outputToServlet.writeObject(mapGuiBean.getGMTObject());
 
        //sending the IML or Prob Selection to the servlet
-       toServlet.writeObject(imlProbGuiBean.getSelectedOption());
+       outputToServlet.writeObject(imlProbGuiBean.getSelectedOption());
 
        //sending the IML or Prob Selected value
-       toServlet.writeObject(new Double(imlProbGuiBean.getIML_Prob()));
+       outputToServlet.writeObject(new Double(imlProbGuiBean.getIML_Prob()));
 
-       toServlet.flush();
-       toServlet.close();
+       // check thatuser has entered a valid filename
+       if(fileNameTextField.getText().trim().equalsIgnoreCase("")) {
+         JOptionPane.showMessageDialog(this, "Please enter the file name");
+         return;
+       }
+       //sending the output file prefix
+       outputToServlet.writeObject(fileNameTextField.getText().trim());
 
-       // Receive the URL of the jpeg file from the servlet after it has received all the data
-       ObjectInputStream fromServlet = new ObjectInputStream(servletConnection.getInputStream());
+       outputToServlet.flush();
+       outputToServlet.close();
 
-       String imgName=fromServlet.readObject().toString();
-       fromServlet.close();
-       // show the map in  a new window
-       ImageViewerWindow imgView = new ImageViewerWindow(imgName, this.dataSetText.getText(), true);
+       // Receive the "destroy" from the servlet after it has received all the data
+       ObjectInputStream inputToServlet = new ObjectInputStream(servletConnection.getInputStream());
+
+      String connectionCloseString=inputToServlet.readObject().toString();
+      inputToServlet.close();
+      this.getAppletContext().showDocument(new URL(connectionCloseString),"_blank");
 
      }catch (Exception e) {
        System.out.println("Exception in connection with servlet:" +e);
@@ -494,4 +506,3 @@ public class HazardMapViewerApp extends JApplet {
    }
 
 }
-

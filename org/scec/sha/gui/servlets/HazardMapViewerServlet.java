@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Hashtable;
-import java.util.Vector;
 import java.util.ArrayList;
 import java.io.*;
 import javax.servlet.ServletException;
@@ -181,9 +180,9 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
     //adding the xyz data set to the object of XYZ_DataSetAPI
     XYZ_DataSetAPI xyzData;
-    Vector xVals= new Vector();
-    Vector yVals= new Vector();
-    Vector zVals= new Vector();
+    ArrayList xVals= new ArrayList();
+    ArrayList yVals= new ArrayList();
+    ArrayList zVals= new ArrayList();
 
     //searching the directory for the list of the files.
     File dir = new File(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/");

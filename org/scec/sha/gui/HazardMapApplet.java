@@ -304,7 +304,7 @@ public class HazardMapApplet extends JApplet
   private void initIMRGuiBean() {
     // create the IMR Gui Bean object
      // It accepts the vector of IMR class names
-     Vector imrClasses = new Vector();
+     ArrayList imrClasses = new ArrayList();
 //     imrClasses.add(this.SM_CLASS_NAME);
      imrClasses.add(this.AS_CLASS_NAME);
      imrClasses.add(this.BJF_CLASS_NAME);
@@ -328,7 +328,7 @@ public class HazardMapApplet extends JApplet
    */
   private void initERFSelector_GuiBean() {
      // create the ERF Gui Bean object
-   Vector erf_Classes = new Vector();
+   ArrayList erf_Classes = new ArrayList();
 
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
