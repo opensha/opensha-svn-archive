@@ -217,8 +217,10 @@ public class ShakeMap_2004_AttenRel
     *  passed in.  Warning constrains are ingored.
     *
     * @param  probEqkRupture  The new probEqkRupture value
+    * @throws ParameterException Thrown if the Site object doesn't contain a
+    * Wills site parameter
     */
-   public void setPropagationEffect(PropagationEffect propEffect) {
+   public void setPropagationEffect(PropagationEffect propEffect) throws ParameterException{
 
      this.site = propEffect.getSite();
      this.probEqkRupture = propEffect.getProbEqkRupture();
@@ -243,7 +245,7 @@ public class ShakeMap_2004_AttenRel
     *
     * @param  probEqkRupture
     */
-   public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
+   public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) {
 
        // Set the probEqkRupture
        this.probEqkRupture = probEqkRupture;
@@ -277,7 +279,7 @@ public class ShakeMap_2004_AttenRel
     * @throws ParameterException Thrown if the Site object doesn't contain a
     * Wills site parameter
     */
-   public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
+   public void setSite( Site site ) throws ParameterException{
 
 
        vs30Param.setValueIgnoreWarning( site.getParameter( this.VS30_NAME ).getValue() );

@@ -144,7 +144,7 @@ public class CB_2003_AttenRel
      * @param dip                       ave. dip (degrees)
      * @throws InvalidRangeException    If not valid rake angle
      */
-    protected void setFaultType( double rake, double dip )
+    protected void setFaultTypeFromRake( double rake, double dip )
         throws InvalidRangeException
     {
 
@@ -166,11 +166,12 @@ public class CB_2003_AttenRel
      *  passed in.  Warning constrains are ingored.
      *
      * @param  probEqkRupture  The new probEqkRupture value
+     * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
+    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
 
       magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
-      setFaultType( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
+      setFaultTypeFromRake( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
       this.probEqkRupture = probEqkRupture;
       setPropagationEffectParams();
 
@@ -186,7 +187,7 @@ public class CB_2003_AttenRel
      * @throws ParameterException Thrown if the Site object doesn't contain
      * either of these parameters.
      */
-    public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
+    public void setSite( Site site ) throws ParameterException {
 
         siteTypeParam.setValue( site.getParameter( SITE_TYPE_NAME ).getValue() );
         this.site = site;
@@ -198,8 +199,12 @@ public class CB_2003_AttenRel
      * This sets the site and probEqkRupture, and the related parameters,
      *  from the propEffect object passed in. Warning constrains are ingored.
      * @param propEffect
+     * @throws ParameterException Thrown if the Site object doesn't contains
+     * the site-related parameters.
+     * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setPropagationEffect(PropagationEffect propEffect) {
+    public void setPropagationEffect(PropagationEffect propEffect) throws
+                                    ParameterException,InvalidRangeException{
 
       this.site = propEffect.getSite();
       this.probEqkRupture = propEffect.getProbEqkRupture();
@@ -207,7 +212,7 @@ public class CB_2003_AttenRel
       this.siteTypeParam.setValue(site.getParameter( SITE_TYPE_NAME ).getValue());
 
       magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
-      setFaultType( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
+      setFaultTypeFromRake( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
 
       propEffect.setParamValue(distanceSeisParam);
 

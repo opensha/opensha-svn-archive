@@ -110,7 +110,7 @@ public class HazardCurveCalculator {
     initDiscretizeValues(hazFunction, 1.0);
 
     // set the Site in IMR
-      imr.setSite(site);
+    imr.setSite(site);
 
     // this boolean will tell us whether a source was actually used
     // (e.g., all could be outside MAX_DISTANCE)
@@ -128,12 +128,12 @@ public class HazardCurveCalculator {
       distance = source.getMinDistance(site);
       if(distance > MAX_DISTANCE) {
         //update progress bar for skipped ruptures
-/*
-if(source.getRupture(0).getRuptureSurface().getNumCols() != 1) throw new RuntimeException("prob");
-System.out.println("rejected "+
-(float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLongitude()+"  "+
-(float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLatitude());
-*/
+        /*
+        if(source.getRupture(0).getRuptureSurface().getNumCols() != 1) throw new RuntimeException("prob");
+        System.out.println("rejected "+
+        (float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLongitude()+"  "+
+        (float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLatitude());
+        */
         currRuptures += source.getNumRuptures();
         continue;
       }
@@ -158,7 +158,7 @@ System.out.println("rejected "+
         qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
 
         // set the PQkRup in the IMR
-          imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
+        imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
 
         // get the conditional probability of exceedance from the IMR
         condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);

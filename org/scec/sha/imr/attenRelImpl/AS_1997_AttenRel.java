@@ -182,8 +182,9 @@ public class AS_1997_AttenRel
      *  passed in.  Warning constrains are ingored.
      *
      * @param  probEqkRupture  The new probEqkRupture value
+     * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
+    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
 
       magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
       setFaultTypeFromRake( probEqkRupture.getAveRake() );
@@ -203,7 +204,7 @@ public class AS_1997_AttenRel
      * @throws ParameterException Thrown if the Site object doesn't contain a
      * Vs30 parameter
      */
-    public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
+    public void setSite( Site site ) throws ParameterException{
 
       siteTypeParam.setValue( site.getParameter( SITE_TYPE_NAME ).getValue() );
       this.site = site;
@@ -216,8 +217,12 @@ public class AS_1997_AttenRel
      * This sets the site and probEqkRupture, and the related parameters,
      *  from the propEffect object passed in. Warning constrains are ingored.
      * @param propEffect
+     * @throws ParameterException Thrown if the Site object doesn't contain a
+     * Vs30 parameter
+     * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setPropagationEffect(PropagationEffect propEffect) {
+    public void setPropagationEffect(PropagationEffect propEffect) throws
+                                ParameterException,InvalidRangeException{
 
       this.site = propEffect.getSite();
       this.probEqkRupture = propEffect.getProbEqkRupture();
@@ -250,7 +255,7 @@ public class AS_1997_AttenRel
      * regardless of the dip.  These specifications were determined from a series of
      * discussions between Ned Field, Norm Abrahamson, and Ken Campbell.
      */
-    protected void setPropagationEffectParams(){
+    protected void setPropagationEffectParams() {
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 

@@ -106,8 +106,9 @@ public class DahleEtAl_1995_AttenRel
      *  passed in.  Warning constrains are ingored.
      *
      * @param  probEqkRupture  The new probEqkRupture value
+     * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
+    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
 
       magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
       this.probEqkRupture = probEqkRupture;
@@ -125,7 +126,7 @@ public class DahleEtAl_1995_AttenRel
      * @throws ParameterException Thrown if the Site object doesn't contain a
      * Vs30 parameter
      */
-    public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
+    public void setSite( Site site ) throws ParameterException{
 
 
         siteTypeParam.setValue( site.getParameter( SITE_TYPE_NAME ).getValue() );

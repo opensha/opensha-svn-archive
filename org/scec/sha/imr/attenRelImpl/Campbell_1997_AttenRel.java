@@ -152,8 +152,9 @@ public class Campbell_1997_AttenRel
      *  passed in.  Warning constrains are ingored.
      *
      * @param  probEqkRupture  The new probEqkRupture value
+     * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
+    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
 
       magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
       setFaultTypeFromRake( probEqkRupture.getAveRake() );
@@ -174,7 +175,7 @@ public class Campbell_1997_AttenRel
      * @throws ParameterException Thrown if the Site object doesn't contain
      * either of these parameters.
      */
-    public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
+    public void setSite( Site site ) throws ParameterException {
 
       siteTypeParam.setValue( site.getParameter( SITE_TYPE_NAME ).getValue() );
       basinDepthParam.setValueIgnoreWarning( site.getParameter( BASIN_DEPTH_NAME ).getValue() );
@@ -186,10 +187,14 @@ public class Campbell_1997_AttenRel
 
     /**
      * This sets the site and probEqkRupture, and the related parameters,
-     *  from the propEffect object passed in. Warning constrains are ingored.
+     * from the propEffect object passed in. Warning constrains are ingored.
      * @param propEffect
+     * @throws ParameterException : Thrown if the Site object doesn't contain
+     * "Campbell Site Type" and "Campbell Basin Depth" Parameters
+     * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setPropagationEffect(PropagationEffect propEffect) {
+    public void setPropagationEffect(PropagationEffect propEffect) throws
+                                    ParameterException,InvalidRangeException{
 
       this.site = propEffect.getSite();
       this.probEqkRupture = propEffect.getProbEqkRupture();

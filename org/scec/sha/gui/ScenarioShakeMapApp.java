@@ -716,7 +716,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the Parameters to Puente Hills Scenario?",
                                     "Puente Hills Control",JOptionPane.YES_NO_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
-      if(this.puenteHillsTestControl==null)
+      if(this.puenteHillsControl==null)
         puenteHillsControl = new PuenteHillsScenarioControlPanel(this.erfGuiBean, this.imrGuiBean,
                                                                 this.sitesGuiBean,this.mapGuiBean,this.imtGuiBean);
       puenteHillsControl.setParamsForPuenteHillsScenario();

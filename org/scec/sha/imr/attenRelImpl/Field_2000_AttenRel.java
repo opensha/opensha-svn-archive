@@ -124,8 +124,9 @@ public class Field_2000_AttenRel
      *  passed in.  Warning constrains are ingored.
      *
      * @param  probEqkRupture  The new probEqkRupture value
+     * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
+    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
 
 
       magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
@@ -145,7 +146,7 @@ public class Field_2000_AttenRel
      * @throws ParameterException Thrown if the Site object doesn't contain a
      * Vs30 parameter
      */
-    public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
+    public void setSite( Site site ) throws ParameterException{
 
       vs30Param.setValueIgnoreWarning( site.getParameter( VS30_NAME ).getValue() );
       basinDepthParam.setValueIgnoreWarning( site.getParameter(BASIN_DEPTH_NAME).getValue() );
@@ -159,8 +160,12 @@ public class Field_2000_AttenRel
      * This sets the site and probEqkRupture, and the related parameters,
      *  from the propEffect object passed in. Warning constrains are ingored.
      * @param propEffect
+     * @throws ParameterException Thrown if the Site object doesn't contain
+     * Vs30 parameter.
+     * @throws InvalidRangeException thrown if rake is out of bounds
      */
-    public void setPropagationEffect(PropagationEffect propEffect) {
+    public void setPropagationEffect(PropagationEffect propEffect) throws
+                                    ParameterException,InvalidRangeException{
 
       this.site = propEffect.getSite();
       this.probEqkRupture = propEffect.getProbEqkRupture();

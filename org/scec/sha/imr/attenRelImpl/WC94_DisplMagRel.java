@@ -124,8 +124,9 @@ public class WC94_DisplMagRel
      *  passed in.  Warning constrains are ingored.
      *
      * @param  probEqkRupture  The new probEqkRupture value
+     * @throws InvalidRangeException    If not valid rake angle
      */
-    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
+    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws InvalidRangeException{
 
 
       magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
@@ -141,7 +142,7 @@ public class WC94_DisplMagRel
      *
      * @param  site
      */
-    public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
+    public void setSite( Site site ) {
 
          this.site = site;
          setPropagationEffectParams();
