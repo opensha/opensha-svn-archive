@@ -41,7 +41,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   hazard analysis for that site; this default value is to allow all PEER test
   cases to pass through
   */
-  public final static double MAX_DISTANCE_DEFAULT = 1e6;
+  public final static double MAX_DISTANCE_DEFAULT = 200;
   protected double MAX_DISTANCE = MAX_DISTANCE_DEFAULT;
 
   private int currRuptures = -1;
