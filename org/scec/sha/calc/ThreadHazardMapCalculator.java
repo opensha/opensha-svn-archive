@@ -6,7 +6,7 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 
 
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.calc.HazardCurveCalculator;
@@ -75,7 +75,7 @@ public class ThreadHazardMapCalculator {
   public void getHazardMapCurves(String[] args) {
     try{
 
-      SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
+      SitesInGriddedRectangularRegion griddedSites = (SitesInGriddedRectangularRegion)FileUtils.loadObject(args[1]);
       int numOfProcs = Integer.parseInt(args[5]);
       int numSites = griddedSites.getNumGridLocs();
       //dividing the number of sites on each processor based on the number of processor
@@ -140,14 +140,14 @@ public class ThreadHazardMapCalculator {
 
    private EqkRupForecast erfObj;
    /*private AttenuationRelationshipAPI imrObj;
-   private SitesInGriddedRegion regionObj;*/
+   private SitesInGriddedRectangularRegion regionObj;*/
    private Site site;
    private int startIndex;
    private int endIndex;
    private String[] args;
    HazardCurvesGenerator(String[] args,int startIndex, int endIndex){
      // load the objects from the file
-     /*regionObj = (SitesInGriddedRegion)FileUtils.loadObject(args[1]);
+     /*regionObj = (SitesInGriddedRectangularRegion)FileUtils.loadObject(args[1]);
      erfObj = (EqkRupForecast)FileUtils.loadObject(args[2]);
      imrObj = (AttenuationRelationshipAPI)FileUtils.loadObject(args[0]);*/
      this.args = args;

@@ -40,6 +40,17 @@ public final class BasinDepthClass {
   }
 
 
+  /**
+   *
+   * @param locList
+   * @param fileName
+   */
+  public BasinDepthClass(LocationList locList,String fileName){
+    int numLocations = locList.size();
+
+    for(int i=0;i<numLocations;++i)
+      locations.add(locList.getLocationAt(i));
+  }
 
   /**
    * Prepare the input of the all the location in the gridded region and provide that input

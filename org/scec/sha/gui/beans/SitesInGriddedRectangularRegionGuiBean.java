@@ -22,7 +22,7 @@ import org.scec.sha.util.SiteTranslator;
 import org.scec.exceptions.ParameterException;
 
 /**
- * <p>Title:SitesInGriddedRegionGuiBean </p>
+ * <p>Title:SitesInGriddedRectangularRegionGuiBean </p>
  * <p>Description: This creates the Gridded Region parameter Editor with Site Params
  * for the selected Attenuation Relationship in the Application.
  * </p>
@@ -33,7 +33,7 @@ import org.scec.exceptions.ParameterException;
 
 
 
-public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
+public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor implements
      ParameterChangeFailListener, ParameterChangeListener, Serializable {
 
   // for debug purposes
@@ -92,12 +92,12 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   SiteTranslator siteTrans = new SiteTranslator();
 
   //instance of class EvenlyGriddedRectangularGeographicRegion
-  private SitesInGriddedRegion gridRectRegion;
+  private SitesInGriddedRectangularRegion gridRectRegion;
 
   /**
    * constuctor which builds up mapping between IMRs and their related sites
    */
-  public SitesInGriddedRegionGuiBean() throws ParameterException{
+  public SitesInGriddedRectangularRegionGuiBean() throws ParameterException{
 
 
     //defaultVs30.setInfo(this.VS30_DEFAULT_INFO);
@@ -326,7 +326,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
      double minLongitude=((Double)minLon.getValue()).doubleValue();
      double maxLongitude=((Double)maxLon.getValue()).doubleValue();
      checkLatLonParamValues();
-     gridRectRegion= new SitesInGriddedRegion(minLatitude,
+     gridRectRegion= new SitesInGriddedRectangularRegion(minLatitude,
                                       maxLatitude,minLongitude,maxLongitude,
                                       ((Double)gridSpacing.getValue()).doubleValue());
   }
@@ -334,9 +334,9 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
 
   /**
    *
-   * @return the object for the SitesInGriddedRegion class
+   * @return the object for the SitesInGriddedRectangularRegion class
    */
-  public SitesInGriddedRegion getGriddedRegionSite() throws ParameterException,RuntimeException{
+  public SitesInGriddedRectangularRegion getGriddedRegionSite() throws ParameterException,RuntimeException{
 
     updateGriddedSiteParams();
     if(((String)siteParam.getValue()).equals(SET_ALL_SITES))
@@ -520,7 +520,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
           ObjectOutputStream(servletConnection.getOutputStream());
 
 
-      //sends the parameterList in the SitesInGriddedRegionGuiBean to the server
+      //sends the parameterList in the SitesInGriddedRectangularRegionGuiBean to the server
       outputToServlet.writeObject(parameterList);
       //sends the arraylist of site Param List to the server
       outputToServlet.writeObject(siteParams);

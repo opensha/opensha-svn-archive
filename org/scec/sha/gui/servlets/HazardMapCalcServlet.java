@@ -48,7 +48,7 @@ public class HazardMapCalcServlet extends HttpServlet {
           getInputStream());
 
       //get the sites for which this needs to be calculated
-      SitesInGriddedRegion sites = (SitesInGriddedRegion) inputFromApplet.
+      SitesInGriddedRectangularRegion sites = (SitesInGriddedRectangularRegion) inputFromApplet.
                                    readObject();
       //get the selected IMR
       AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)

@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.io.*;
 
 import org.scec.sha.gui.servlets.siteEffect.*;
+import org.scec.data.LocationList;
 
 /**
  * <p>Title: ConnectToCVM</p>
@@ -61,11 +62,6 @@ public final class ConnectToCVM {
   }
 
 
-
-
-
-
-
   /**
    * Gets the Wills et al. Site Type (2000) Map Web Service from the CVM servlet
    */
@@ -113,6 +109,47 @@ public final class ConnectToCVM {
 
 
   /**
+   * Gets the Wills et al. Site Type (2000) Map Web Service from the CVM servlet
+   */
+  public static ArrayList getWillsSiteTypeFromCVM (LocationList locList) throws Exception{
+    ArrayList willsSiteClass = null;
+
+    // make connection with servlet
+    URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/WillsSiteClassForGriddedRegionServlet");
+    URLConnection servletConnection = cvmServlet.openConnection();
+
+    servletConnection.setDoOutput(true);
+
+    // Don't use a cached version of URL connection.
+    servletConnection.setUseCaches (false);
+    servletConnection.setDefaultUseCaches (false);
+
+    // Specify the content type that we will send binary data
+    servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
+
+    // send the student object to the servlet using serialization
+    ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
+
+
+    outputToServlet.writeObject(locList);
+
+    outputToServlet.flush();
+    outputToServlet.close();
+
+    // now read the connection again to get the vs30 as sent by the servlet
+    ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
+    //ArrayList of Wills Site Class Values translated from the Vs30 Values.
+    willsSiteClass=(ArrayList)ois.readObject();
+    ois.close();
+
+    return willsSiteClass;
+  }
+
+
+
+
+
+  /**
    * Gets the Basin Depth from the CVM servlet
    */
   public static ArrayList getBasinDepthFromCVM(double lonMin,double lonMax,double latMin,double latMax,
@@ -155,5 +192,44 @@ public final class ConnectToCVM {
 
     return basinDepth;
  }
+
+
+ /**
+  * Gets the Basin Depth from the CVM servlet
+  */
+ public static ArrayList getBasinDepthFromCVM(LocationList locList)
+     throws Exception{
+   ArrayList basinDepth = null;
+   // if we want to the paramter from the servlet
+
+   // make connection with servlet
+   URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/SCEC_BasinDepthForGriddedRegionServlet");
+   URLConnection servletConnection = cvmServlet.openConnection();
+
+   servletConnection.setDoOutput(true);
+   // Don't use a cached version of URL connection.
+   servletConnection.setUseCaches (false);
+   servletConnection.setDefaultUseCaches (false);
+
+   // Specify the content type that we will send binary data
+   servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
+
+   // send the student object to the servlet using serialization
+   ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
+
+   outputToServlet.writeObject(locList);
+
+   outputToServlet.flush();
+   outputToServlet.close();
+
+   // now read the connection again to get the vs30 as sent by the servlet
+   ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
+
+   //vectors of Basin Depth for each gridded site
+   basinDepth=(ArrayList)ois.readObject();
+   ois.close();
+   return basinDepth;
+ }
+
 
 }

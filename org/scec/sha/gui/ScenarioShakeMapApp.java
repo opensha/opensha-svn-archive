@@ -18,7 +18,7 @@ import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.param.event.*;
 import org.scec.param.*;
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.data.Site;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.gui.controls.*;
@@ -86,7 +86,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
 
   //store the site values for each site in the griddded region
-  private SitesInGriddedRegion griddedRegionSites;
+  private SitesInGriddedRectangularRegion griddedRegionSites;
 
   //stores the IML or Prob selection and their value for which we want to compute the
   //scenario shake map. Value we get from the respective guibeans.
@@ -152,7 +152,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   // instances of the GUI Beans which will be shown in this applet
   private EqkRupSelectorGuiBean erfGuiBean;
   private AttenuationRelationshipGuiBean imrGuiBean;
-  private SitesInGriddedRegionGuiBean sitesGuiBean;
+  private SitesInGriddedRectangularRegionGuiBean sitesGuiBean;
   private IMLorProbSelectorGuiBean imlProbGuiBean;
   private MapGuiBean mapGuiBean;
   private TimeSpanGuiBean timeSpanGuiBean;
@@ -323,7 +323,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private void initGriddedRegionGuiBean(){
 
     // create the Site Gui Bean object
-    sitesGuiBean = new SitesInGriddedRegionGuiBean();
+    sitesGuiBean = new SitesInGriddedRectangularRegionGuiBean();
 
     //sets the site parameters in the gridded region gui bean.
     setGriddedRegionSiteParams();

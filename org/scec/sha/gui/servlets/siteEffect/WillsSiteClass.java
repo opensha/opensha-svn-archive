@@ -39,6 +39,20 @@ public final class WillsSiteClass {
     willsSiteClassFile = fileName;
   }
 
+
+  /**
+   *
+   * @param locList : List of Locations
+   * @param fileName : Name of the Wills Site Class file
+   */
+  public WillsSiteClass(LocationList locList,String fileName){
+    int numLocations = locList.size();
+
+    for(int i=0;i<numLocations;++i)
+      locations.add(locList.getLocationAt(i));
+  }
+
+
   /**
    * Prepare the input of the all the location in the gridded region and provide that input
    * to compute the Wills Site Class values for each region.

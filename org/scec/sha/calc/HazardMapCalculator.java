@@ -77,7 +77,7 @@ public class HazardMapCalculator {
      * @return
    */
   public void getHazardMapCurves(boolean imtLogFlag, double [] xValues,
-                                 SitesInGriddedRegion griddedSites,
+                                 SitesInGriddedRectangularRegion griddedSites,
                                  AttenuationRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
@@ -117,7 +117,7 @@ public class HazardMapCalculator {
    * @return
    */
   public void getHazardMapCurves(String dirName, boolean imtLogFlag, double [] xValues,
-                                 SitesInGriddedRegion griddedSites,
+                                 SitesInGriddedRectangularRegion griddedSites,
                                  AttenuationRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo, String email) {
@@ -144,7 +144,7 @@ public class HazardMapCalculator {
    * @param mapParametersInfo
    */
   private void calculate( boolean imtLogFlag, double [] xValues,
-                                  SitesInGriddedRegion griddedSites,
+                                  SitesInGriddedRectangularRegion griddedSites,
                                   AttenuationRelationshipAPI imr,
                                   EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo, String email) {

@@ -11,7 +11,7 @@ import org.scec.sha.gui.infoTools.ConnectToCVM;
 
 
 /**
- * <p>Title: SitesInGriddedRegion</p>
+ * <p>Title: SitesInGriddedRectangularRegion</p>
  * <p>Description: This Class adds and replace the site params to each site for a gridded
  * region. This class fills in the site params for each site in the rectangular gridded
  * region. Right now all the sites have same site-type params, but later each site
@@ -24,11 +24,12 @@ import org.scec.sha.gui.infoTools.ConnectToCVM;
  * @version 1.0
  */
 
-public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
+public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeographicRegion
                                           implements SitesInGriddedRegionAPI,Serializable{
 
   //Debug parameter
   public static final boolean D= false;
+
 
   //definition for the Siet Object
   Site site = new Site();
@@ -52,6 +53,8 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
   //Instance of the site TransLator class
   SiteTranslator siteTranslator = new SiteTranslator();
 
+
+
   /**
    *class constructor
    * @param minLat
@@ -60,9 +63,9 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
    * @param maxLon
    * @param gridSpacing
    */
-  public SitesInGriddedRegion(LocationList locList,
+  public SitesInGriddedRectangularRegion(double minLat,double maxLat,double minLon,double maxLon,
                               double gridSpacing) {
-   super(locList,gridSpacing);
+    super(minLat,maxLat,minLon,maxLon,gridSpacing);
   }
 
 
@@ -165,7 +168,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
    setSiteParamsUsingVs30AndBasinDepth = false;
    setSameSiteParams = false;
    try{
-     vs30 = ConnectToCVM.getWillsSiteTypeFromCVM(getGridLocationsList());
+     vs30 = ConnectToCVM.getWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
    }catch(Exception e){
      /*vs30 = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
          getGridSpacing(),WILLS_SITE_CLASS_FILE);*/
@@ -188,9 +191,8 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
    setSiteParamsUsingVs30AndBasinDepth = true;
    setSameSiteParams = false;
    try{
-     LocationList locList = getGridLocationsList();
-     vs30 = ConnectToCVM.getWillsSiteTypeFromCVM(locList);
-     basinDepth = ConnectToCVM.getBasinDepthFromCVM(locList);
+     vs30 = ConnectToCVM.getWillsSiteTypeFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
+     basinDepth = ConnectToCVM.getBasinDepthFromCVM(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),getGridSpacing());
    }catch(Exception e){
      /*vs30 = ConnectToCVM.getWillsSiteType(getMinLon(),getMaxLon(),getMinLat(),getMaxLat(),
          getGridSpacing(),WILLS_SITE_CLASS_FILE);

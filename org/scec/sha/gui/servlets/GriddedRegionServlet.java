@@ -8,8 +8,8 @@ import java.util.*;
 
 import org.scec.param.ParameterList;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
-import org.scec.sha.gui.beans.SitesInGriddedRegionGuiBean;
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.param.ParameterAPI;
 import org.scec.util.FileUtils;
 
@@ -55,7 +55,7 @@ public class GriddedRegionServlet extends HttpServlet {
       ArrayList siteParams = (ArrayList)inputFromApplet.readObject();
 
       //creates a gridded Region Object
-      SitesInGriddedRegion griddedRegion = setRegionFromParamList(paramList,siteParams);
+      SitesInGriddedRectangularRegion griddedRegion = setRegionFromParamList(paramList,siteParams);
 
       String regionFileWithAbsolutePath = FILE_PATH+REGION_DATA_DIR+regionFileName;
 
@@ -80,31 +80,31 @@ public class GriddedRegionServlet extends HttpServlet {
    * @param griddedRegion
    * @param regionFileWithAbsolutePath
    */
-  private void createGriddedRegionFile(SitesInGriddedRegion griddedRegion,String regionFileWithAbsolutePath){
+  private void createGriddedRegionFile(SitesInGriddedRectangularRegion griddedRegion,String regionFileWithAbsolutePath){
     FileUtils.saveObjectInFile(regionFileWithAbsolutePath,griddedRegion);
   }
 
 
   /**
-   * This function creates SitesInGriddedRegionObject and writes that object
+   * This function creates SitesInGriddedRectangularRegionObject and writes that object
    * to the file.
    * @param paramList
    * @param siteParams : Site related parameters
    * return the GriddedRegion Object.
    */
-  private SitesInGriddedRegion setRegionFromParamList(ParameterList paramList,ArrayList siteParams){
-    double minLat = ((Double)paramList.getParameter(SitesInGriddedRegionGuiBean.MIN_LATITUDE).getValue()).doubleValue();
-    double maxLat = ((Double)paramList.getParameter(SitesInGriddedRegionGuiBean.MAX_LATITUDE).getValue()).doubleValue();
-    double minLon = ((Double)paramList.getParameter(SitesInGriddedRegionGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
-    double maxLon = ((Double)paramList.getParameter(SitesInGriddedRegionGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
-    double gridSpacing = ((Double)paramList.getParameter(SitesInGriddedRegionGuiBean.GRID_SPACING).getValue()).doubleValue();
-    SitesInGriddedRegion gridRectRegion  = new SitesInGriddedRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
-    String regionSitesParamVal = (String)paramList.getParameter(SitesInGriddedRegionGuiBean.SITE_PARAM_NAME).getValue();
+  private SitesInGriddedRectangularRegion setRegionFromParamList(ParameterList paramList,ArrayList siteParams){
+    double minLat = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LATITUDE).getValue()).doubleValue();
+    double maxLat = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LATITUDE).getValue()).doubleValue();
+    double minLon = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
+    double maxLon = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
+    double gridSpacing = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.GRID_SPACING).getValue()).doubleValue();
+    SitesInGriddedRectangularRegion gridRectRegion  = new SitesInGriddedRectangularRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+    String regionSitesParamVal = (String)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.SITE_PARAM_NAME).getValue();
 
     //adding the site params to the gridded region object
     gridRectRegion.addSiteParams(siteParams.iterator());
 
-    if(regionSitesParamVal.equals(SitesInGriddedRegionGuiBean.SET_ALL_SITES))
+    if(regionSitesParamVal.equals(SitesInGriddedRectangularRegionGuiBean.SET_ALL_SITES))
       //if the site params does not need to be set from the CVM
       gridRectRegion.setSameSiteParams();
 
@@ -117,7 +117,7 @@ public class GriddedRegionServlet extends HttpServlet {
       ArrayList defaultSiteParams = new ArrayList();
       for(int i=0;i<siteParams.size();++i){
         ParameterAPI tempParam = (ParameterAPI)((ParameterAPI)siteParams.get(i)).clone();
-        tempParam.setValue(paramList.getParameter(SitesInGriddedRegionGuiBean.DEFAULT+tempParam.getName()).getValue());
+        tempParam.setValue(paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.DEFAULT+tempParam.getName()).getValue());
         defaultSiteParams.add(tempParam);
       }
       gridRectRegion.setDefaultSiteParams(defaultSiteParams);
@@ -129,12 +129,12 @@ public class GriddedRegionServlet extends HttpServlet {
   /**
    * set the Site Params from the CVM
    */
-  private void setSiteParamsFromCVM(SitesInGriddedRegion gridRectRegion,String siteParamVal){
+  private void setSiteParamsFromCVM(SitesInGriddedRectangularRegion gridRectRegion,String siteParamVal){
 
-    if(siteParamVal.equals(SitesInGriddedRegionGuiBean.SET_SITES_USING_SCEC_CVM))
+    if(siteParamVal.equals(SitesInGriddedRectangularRegionGuiBean.SET_SITES_USING_SCEC_CVM))
       //if we are setting the each site type using Wills site type and SCEC basin depth
       gridRectRegion.setSiteParamsUsing_WILLS_VS30_AndBasinDepth();
-    else if(siteParamVal.equals(SitesInGriddedRegionGuiBean.SET_SITE_USING_WILLS_SITE_TYPE))
+    else if(siteParamVal.equals(SitesInGriddedRectangularRegionGuiBean.SET_SITE_USING_WILLS_SITE_TYPE))
       //if we are setting each site using the Wills site type. basin depth is taken as default.
       gridRectRegion.setSiteParamsUsing_WILLS_VS30();
   }

@@ -82,7 +82,7 @@ public class HazusMapCalculator {
      * @return
    */
   public void getHazardMapCurves(boolean imtLogFlag, double [] xValues,
-                                 SitesInGriddedRegion griddedSites,
+                                 SitesInGriddedRectangularRegion griddedSites,
                                  AttenuationRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
@@ -135,7 +135,7 @@ public class HazusMapCalculator {
    * @return
    */
   public void getHazardMapCurves(String dirName, boolean imtLogFlag, double [] xValues,
-                                 SitesInGriddedRegion griddedSites,
+                                 SitesInGriddedRectangularRegion griddedSites,
                                  AttenuationRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
                                  String mapParametersInfo) {
@@ -175,7 +175,7 @@ public class HazusMapCalculator {
    * @param mapParametersInfo
    */
   private void calculate( boolean imtLogFlag, double [] xValues,
-                                  SitesInGriddedRegion griddedSites,
+                                  SitesInGriddedRectangularRegion griddedSites,
                                   AttenuationRelationshipAPI imr,
                                   EqkRupForecast eqkRupForecast) {
     Site site;

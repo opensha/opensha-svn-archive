@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import java.io.*;
 import java.util.LinkedList;
 import java.util.Iterator;
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.util.RunScript;
 import org.scec.cme.SRBDrop.SRBDrop;
 import org.scec.sha.gui.servlets.HazardMapCalcServlet;
@@ -73,7 +73,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
     if (!outputDir.endsWith("/"))
       outputDir = outputDir + "/";
 
-    SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(outputDir+regionFileName);
+    SitesInGriddedRectangularRegion griddedSites = (SitesInGriddedRectangularRegion)FileUtils.loadObject(outputDir+regionFileName);
 
     //creating the directory for arranging the hazard map data files in a
     //organized manner.

@@ -4,7 +4,7 @@ import org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel;
 import org.scec.param.event.*;
 import org.scec.param.*;
 import org.scec.sha.earthquake.rupForecastImpl.Frankel96.*;
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.sha.calc.HazusMapCalculator;
 import org.scec.sha.earthquake.*;
 import org.scec.util.*;
@@ -41,7 +41,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     attenRel.setIntensityMeasure(attenRel.PGA_NAME);
     //((DoubleDiscreteParameter)attenRel.getParameter(attenRel.PERIOD_NAME)).setValue(new Double(0.3));
     //make the Gridded Region object
-    SitesInGriddedRegion region = new SitesInGriddedRegion(MIN_LAT, MAX_LAT, MIN_LON,
+    SitesInGriddedRectangularRegion region = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,
         MAX_LON, GRID_SPACING);
     attenRel.getParameter(attenRel.SITE_TYPE_NAME).setValue(attenRel.SITE_TYPE_GEN_ROCK);
     region.addSiteParams(attenRel.getSiteParamsIterator());

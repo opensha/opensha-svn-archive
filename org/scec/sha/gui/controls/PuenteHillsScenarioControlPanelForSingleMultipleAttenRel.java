@@ -37,7 +37,7 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
 
   private EqkRupSelectorGuiBean erfGuiBean;
   private AttenuationRelationshipGuiBean imrGuiBean;
-  private SitesInGriddedRegionGuiBean regionGuiBean;
+  private SitesInGriddedRectangularRegionGuiBean regionGuiBean;
   private MapGuiBean mapGuiBean;
 
   private FaultTrace faultTrace;
@@ -47,7 +47,7 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
   private double magnitude = 7.1;
 
   /**
-   * Accepts 3 params for the EqkRupSelectorGuiBean, AttenuationRelationshipGuiBean, SitesInGriddedRegionGuiBean
+   * Accepts 3 params for the EqkRupSelectorGuiBean, AttenuationRelationshipGuiBean, SitesInGriddedRectangularRegionGuiBean
    * from the applet.
    * @param erfGuiBean
    * @param imrGuiBean
@@ -55,7 +55,7 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
    * @param MapGuiBean
    */
   public PuenteHillsScenarioControlPanelForSingleMultipleAttenRel(EqkRupSelectorGuiBean erfGuiBean,
-      AttenuationRelationshipGuiBean imrGuiBean, SitesInGriddedRegionGuiBean regionGuiBean,
+      AttenuationRelationshipGuiBean imrGuiBean, SitesInGriddedRectangularRegionGuiBean regionGuiBean,
       MapGuiBean mapGuiBean) {
     //getting the instance for variuos GuiBeans from the applet required to set the
     //default values for the Params for the Puente Hills Scenario.
@@ -358,7 +358,7 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     imrGuiBean.getSelectedIMR_Instance().getParameter(ShakeMap_2003_AttenRel.COMPONENT_NAME).setValue(ShakeMap_2003_AttenRel.COMPONENT_AVE_HORZ);
     imrGuiBean.getSingleAttenRelParamListEditor().refreshParamEditor();
 
-    //Updating the SitesInGriddedRegionGuiBean with the Puente Hills resion setting
+    //Updating the SitesInGriddedRectangularRegionGuiBean with the Puente Hills resion setting
     regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LATITUDE).setValue(new Double(33.2));
     regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LATITUDE).setValue(new Double(35.0));
     regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LONGITUDE).setValue(new Double(-119.5));

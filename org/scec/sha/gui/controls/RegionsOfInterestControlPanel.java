@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.util.ArrayList;
 
-import org.scec.sha.gui.beans.SitesInGriddedRegionGuiBean;
+import org.scec.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
 import java.awt.event.*;
 /**
  * <p>Title: SitesOfInterest </p>
@@ -23,7 +23,7 @@ public class RegionsOfInterestControlPanel extends JFrame {
   private ArrayList maxLatVector = new ArrayList();
   private ArrayList minLonVector = new ArrayList();
   private ArrayList maxLonVector = new ArrayList();
-  private SitesInGriddedRegionGuiBean regionGuiBean;
+  private SitesInGriddedRectangularRegionGuiBean regionGuiBean;
 
   /**
    * Constructor
@@ -32,7 +32,7 @@ public class RegionsOfInterestControlPanel extends JFrame {
    * @param siteGuiBean : site gui bean to set the lat and lon
    */
   public RegionsOfInterestControlPanel(Component parent,
-                                       SitesInGriddedRegionGuiBean regionGuiBean) {
+                                       SitesInGriddedRectangularRegionGuiBean regionGuiBean) {
     try {
       this.regionGuiBean = regionGuiBean;
 
@@ -104,10 +104,10 @@ public class RegionsOfInterestControlPanel extends JFrame {
   private void setLatAndLon() {
     int index = this.regionsComboBox.getSelectedIndex();
     // set the lat and lon in the editor
-    regionGuiBean.getParameterList().getParameter(SitesInGriddedRegionGuiBean.MIN_LATITUDE).setValue(minLatVector.get(index));
-    regionGuiBean.getParameterList().getParameter(SitesInGriddedRegionGuiBean.MAX_LATITUDE).setValue(maxLatVector.get(index));
-    regionGuiBean.getParameterList().getParameter(SitesInGriddedRegionGuiBean.MIN_LONGITUDE).setValue(minLonVector.get(index));
-    regionGuiBean.getParameterList().getParameter(SitesInGriddedRegionGuiBean.MAX_LONGITUDE).setValue(maxLonVector.get(index));
+    regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LATITUDE).setValue(minLatVector.get(index));
+    regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LATITUDE).setValue(maxLatVector.get(index));
+    regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LONGITUDE).setValue(minLonVector.get(index));
+    regionGuiBean.getParameterList().getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LONGITUDE).setValue(maxLonVector.get(index));
     regionGuiBean.refreshParamEditor();
   }
 

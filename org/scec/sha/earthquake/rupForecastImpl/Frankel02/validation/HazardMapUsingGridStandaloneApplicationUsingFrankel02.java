@@ -10,7 +10,7 @@ import org.scec.sha.imr.*;
 import org.scec.sha.imr.attenRelImpl.BJF_1997_AttenRel;
 import org.scec.param.*;
 import org.scec.param.event.*;
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.data.Site;
 import org.scec.exceptions.ParameterException;
 import org.scec.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
@@ -43,7 +43,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
 
 
   //store the site values for each site in the griddded region
-  private SitesInGriddedRegion griddedRegionSites;
+  private SitesInGriddedRectangularRegion griddedRegionSites;
 
   //gets the instance of the selected AttenuationRelationship
   private AttenuationRelationship attenRel;
@@ -108,7 +108,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
   private void initGriddedRegionGuiBean(){
 
     //make the Gridded Region object
-    griddedRegionSites = new SitesInGriddedRegion(MIN_LAT, MAX_LAT, MIN_LON,
+    griddedRegionSites = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,
         MAX_LON, GRID_SPACING);
 
     griddedRegionSites.addSiteParams(attenRel.getSiteParamsIterator());
@@ -283,7 +283,7 @@ public class HazardMapUsingGridStandaloneApplicationUsingFrankel02
  /**
   * sets up the connection with the servlet on the server (gravity.usc.edu)
   */
- private void sendParametersToServlet(SitesInGriddedRegion regionSites,
+ private void sendParametersToServlet(SitesInGriddedRectangularRegion regionSites,
                                        AttenuationRelationshipAPI imr,
                                        String eqkRupForecastLocation) {
 

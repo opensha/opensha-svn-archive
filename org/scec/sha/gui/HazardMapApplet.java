@@ -18,7 +18,7 @@ import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.param.event.*;
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.data.Site;
 import org.scec.sha.gui.controls.*;
 import org.scec.sha.gui.infoTools.*;
@@ -61,7 +61,7 @@ public class HazardMapApplet extends JApplet
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
   //store the site values for each site in the griddded region
-  private SitesInGriddedRegion griddedRegionSites;
+  private SitesInGriddedRectangularRegion griddedRegionSites;
 
   //gets the instance of the selected AttenuationRelationship
   private AttenuationRelationship attenRel;
@@ -96,7 +96,7 @@ public class HazardMapApplet extends JApplet
   private ERF_GuiBean erfGuiBean;
   private IMR_GuiBean imrGuiBean;
   private IMT_GuiBean imtGuiBean;
-  private SitesInGriddedRegionGuiBean sitesGuiBean;
+  private SitesInGriddedRectangularRegionGuiBean sitesGuiBean;
   private TimeSpanGuiBean timeSpanGuiBean;
 
   private boolean isStandalone = false;
@@ -313,7 +313,7 @@ public class HazardMapApplet extends JApplet
     // get the selected IMR
      attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
      // create the Site Gui Bean object
-     sitesGuiBean = new SitesInGriddedRegionGuiBean();
+     sitesGuiBean = new SitesInGriddedRectangularRegionGuiBean();
      sitesGuiBean.addSiteParams(attenRel.getSiteParamsIterator());
      // show the sitebean in JPanel
      gridRegionSitePanel.add(this.sitesGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
@@ -637,7 +637,7 @@ public class HazardMapApplet extends JApplet
        String eqkRupForecastLocation =  erfGuiBean.saveSelectedERF();
        // this function will get the selected IMT parameter and set it in IMT
        imtGuiBean.setIMT();
-       SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+       SitesInGriddedRectangularRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
        step =3;
        sendParametersToServlet(griddedRegionSites, imr, eqkRupForecastLocation);
        step =0;
@@ -712,7 +712,7 @@ public class HazardMapApplet extends JApplet
  /**
   * sets up the connection with the servlet on the server (gravity.usc.edu)
   */
- private void sendParametersToServlet(SitesInGriddedRegion regionSites,
+ private void sendParametersToServlet(SitesInGriddedRectangularRegion regionSites,
                                        AttenuationRelationshipAPI imr,
                                        String eqkRupForecastLocation) {
 

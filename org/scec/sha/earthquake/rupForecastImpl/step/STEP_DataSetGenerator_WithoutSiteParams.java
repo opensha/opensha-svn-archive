@@ -12,7 +12,7 @@ import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.scec.param.event.ParameterChangeWarningListener;
 import org.scec.param.event.ParameterChangeWarningEvent;
 import org.scec.param.WarningParameterAPI;
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.sha.earthquake.*;
 import org.scec.util.*;
@@ -67,7 +67,7 @@ public class STEP_DataSetGenerator_WithoutSiteParams implements ParameterChangeW
     // set the vs30
     imr.getParameter(imr.VS30_NAME).setValue(VS_30);
     //make the Gridded Region object
-    SitesInGriddedRegion region = new SitesInGriddedRegion(MIN_LAT, MAX_LAT, MIN_LON,
+    SitesInGriddedRectangularRegion region = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,
         MAX_LON, GRID_SPACING);
     region.addSiteParams(imr.getSiteParamsIterator());
 
@@ -217,7 +217,7 @@ public class STEP_DataSetGenerator_WithoutSiteParams implements ParameterChangeW
    * @param eqkRupForecast : STEP Forecast
    * @returns the ArrayList of Probability values for the given region
    */
-  private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
+  private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRectangularRegion region,
                                      EqkRupForecast eqkRupForecast){
 
     ArrayList probVals = new ArrayList();

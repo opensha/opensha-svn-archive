@@ -109,8 +109,8 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 
     // now loop over all grid points inside the max/min lat/lon and keep only those inside
     minLat = niceMinLat;
+    minLon = niceMinLon;
     while(minLat <= maxLat){
-      minLon = niceMinLon;
       while(minLon <= maxLon){
         tempLoc = new Location(minLat,minLon);
         if (this.isLocationInside(tempLoc)) gridLocsList.addLocation(tempLoc);

@@ -4,7 +4,7 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.data.Location;
 import org.scec.data.Site;
 import org.scec.sha.imr.*;
@@ -76,7 +76,7 @@ public class ScenarioShakeMapCalculator {
    * @returns the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
    */
   public XYZ_DataSetAPI getScenarioShakeMapData(ArrayList selectedAttenRels, ArrayList attenRelWts,
-      SitesInGriddedRegion griddedRegionSites,EqkRupture rupture,
+      SitesInGriddedRectangularRegion griddedRegionSites,EqkRupture rupture,
       boolean isProbAtIML,double value) throws ParameterException {
 
     numSites = griddedRegionSites.getNumGridLocs();
@@ -276,7 +276,7 @@ public class ScenarioShakeMapCalculator {
    * @param griddedRegionSites
    * @return
    */
-  private ArrayList getSitesLat(SitesInGriddedRegion griddedRegionSites){
+  private ArrayList getSitesLat(SitesInGriddedRectangularRegion griddedRegionSites){
     //getting the gridded Locations list iterator
     ListIterator it= griddedRegionSites.getGridLocationsIterator();
 
@@ -292,7 +292,7 @@ public class ScenarioShakeMapCalculator {
    * @param griddedRegionSites
    * @return
    */
-  private ArrayList getSitesLon(SitesInGriddedRegion griddedRegionSites){
+  private ArrayList getSitesLon(SitesInGriddedRectangularRegion griddedRegionSites){
     //getting the gridded Locations list iterator
      //iterating over the locations iterator in the reverse order to get the Longitudes.
     ListIterator it= griddedRegionSites.getGridLocationsIterator();

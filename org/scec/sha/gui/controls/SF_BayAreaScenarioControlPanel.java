@@ -29,7 +29,7 @@ public class SF_BayAreaScenarioControlPanel {
 
   private EqkRupSelectorGuiBean erfGuiBean;
   private AttenuationRelationshipGuiBean imrGuiBean;
-  private SitesInGriddedRegionGuiBean regionGuiBean;
+  private SitesInGriddedRectangularRegionGuiBean regionGuiBean;
   private MapGuiBean mapGuiBean;
   private GenerateHazusControlPanelForSingleMultipleIMRs hazusControlPanel;
 
@@ -39,14 +39,14 @@ public class SF_BayAreaScenarioControlPanel {
 
   //class default constructor
   /**
-   * Accepts 3 params for the EqkRupSelectorGuiBean, IMR_GuiBean, SitesInGriddedRegionGuiBean
+   * Accepts 3 params for the EqkRupSelectorGuiBean, IMR_GuiBean, SitesInGriddedRectangularRegionGuiBean
    * from the applet.
    * @param erfGuiBean
    * @param imrGuiBean
    * @param regionGuiBean
    */
   public SF_BayAreaScenarioControlPanel(EqkRupSelectorGuiBean erfGuiBean, AttenuationRelationshipGuiBean imrGuiBean,
-      SitesInGriddedRegionGuiBean regionGuiBean,MapGuiBean mapGuiBean,
+      SitesInGriddedRectangularRegionGuiBean regionGuiBean,MapGuiBean mapGuiBean,
       GenerateHazusControlPanelForSingleMultipleIMRs hazusControl) {
     //getting the instance for variuos GuiBeans from the applet required to set the
     //default values for the Params for the SF Bay Area Scenarios.
@@ -77,7 +77,7 @@ public class SF_BayAreaScenarioControlPanel {
       imrGuiBean.getSingleAttenRelParamListEditor().refreshParamEditor();
 
 
-      //Updating the SitesInGriddedRegionGuiBean with the Puente Hills resion setting
+      //Updating the SitesInGriddedRectangularRegionGuiBean with the Puente Hills resion setting
       regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LATITUDE).setValue(new Double(36.5500));
       regionGuiBean.getParameterList().getParameter(regionGuiBean.MAX_LATITUDE).setValue(new Double(39.6167));
       regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LONGITUDE).setValue(new Double(-124.7333));

@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import java.io.*;
 import java.util.LinkedList;
 import java.util.Iterator;
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.util.RunScript;
 import org.scec.cme.SRBDrop.SRBDrop;
 import org.scec.sha.gui.servlets.HazardMapCalcServlet;
@@ -110,7 +110,7 @@ public class SubmitJobForGridComputation {
                                      double maxDistance,
                                      String outputDir,
                                      String remoteMachineSubdirName,
-                                     SitesInGriddedRegion griddedSites,
+                                     SitesInGriddedRectangularRegion griddedSites,
                                      String emailAddr) {
     if (!outputDir.endsWith("/"))
       outputDir = outputDir + "/";
@@ -304,7 +304,7 @@ public class SubmitJobForGridComputation {
                                      String xValuesFileName,
                                      double maxDistance,
                                      String outputDir, String remoteDir,
-                                     SitesInGriddedRegion griddedSites) {
+                                     SitesInGriddedRectangularRegion griddedSites) {
 
     int numSites = griddedSites.getNumGridLocs(); // num grid locs
     int endSite = 0;

@@ -6,7 +6,7 @@ import java.lang.reflect.*;
 import java.util.ListIterator;
 
 import java.io.*;
-import org.scec.data.region.SitesInGriddedRegion;
+import org.scec.data.region.SitesInGriddedRectangularRegion;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.calc.HazardCurveCalculator;
@@ -89,7 +89,7 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
                                 int endSiteIndex) {
    try{
      // load the objects from the file
-     SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(args[2]);
+     SitesInGriddedRectangularRegion griddedSites = (SitesInGriddedRectangularRegion)FileUtils.loadObject(args[2]);
      EqkRupForecast eqkRupForecast = (EqkRupForecast)FileUtils.loadObject(args[3]);
      AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)FileUtils.loadObject(args[4]);
 

@@ -74,7 +74,7 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
 
       //gets the selected region object form the application
       String griddedRegionFile = (String)inputFromApplication.readObject();
-      SitesInGriddedRegion griddedRegion = (SitesInGriddedRegion)FileUtils.loadObject(griddedRegionFile);
+      SitesInGriddedRectangularRegion griddedRegion = (SitesInGriddedRectangularRegion)FileUtils.loadObject(griddedRegionFile);
 
       //gets the selected EqkRupture object form the application
       EqkRupture rupture = (EqkRupture)inputFromApplication.readObject();
@@ -163,7 +163,7 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
    * @return
    */
   private XYZ_DataSetAPI getXYZDataForPGV(ArrayList selectedIMRs,ArrayList selectedWts,
-      SitesInGriddedRegion region,EqkRupture rupture, boolean isProbAtIML, double value,
+      SitesInGriddedRectangularRegion region,EqkRupture rupture, boolean isProbAtIML, double value,
     ScenarioShakeMapCalculator calc){
 
     //ArrayList for the Attenuations supporting and not supporting PGV
