@@ -440,92 +440,94 @@ public class LogPlotTesterApp extends JApplet  {
   void addGraphPanel() {
 
     // Starting
-       String S = C + ": addGraphPanel(): ";
+    String S = C + ": addGraphPanel(): ";
 
 
-       if(!autoScale){
-         // get the min and max Y values
-         minYValue=Double.parseDouble(minYText.getText());
-         maxYValue=Double.parseDouble(maxYText.getText());
+    if(!autoScale){
+      // get the min and max Y values
+      minYValue=Double.parseDouble(minYText.getText());
+      maxYValue=Double.parseDouble(maxYText.getText());
 
-         //get the min and max Y values
-         minXValue=Double.parseDouble(minXText.getText());
-         maxXValue=Double.parseDouble(maxXText.getText());
-       }
+      //get the min and max Y values
+      minXValue=Double.parseDouble(minXText.getText());
+      maxXValue=Double.parseDouble(maxXText.getText());
+    }
 
-       //create the standard ticks so that smaller values too can plotted on the chart
-       //TickUnits units = MyTickUnits.createStandardTickUnits();
-       this.setAxis();
-       //xAxis = new org.jfree.chart.axis.LogarithmicAxis("X-Axis");
+    //create the standard ticks so that smaller values too can plotted on the chart
+    //TickUnits units = MyTickUnits.createStandardTickUnits();
+    this.setAxis();
+    //xAxis = new org.jfree.chart.axis.LogarithmicAxis("X-Axis");
 
-       xAxis.setAutoRangeIncludesZero( false );
-       //xAxis.setStandardTickUnits(units);
-       xAxis.setTickMarksVisible(false);
-
-
-       //yAxis = new org.jfree.chart.axis.LogarithmicAxis("Y-Axis");
-
-       yAxis.setAutoRangeIncludesZero( false );
-       //yAxis.setStandardTickUnits(units);
-       yAxis.setTickMarksVisible(false);
-       //yAxis.setS
+    xAxis.setAutoRangeIncludesZero( false );
+    //xAxis.setStandardTickUnits(units);
+    xAxis.setTickMarksVisible(false);
 
 
+    //yAxis = new org.jfree.chart.axis.LogarithmicAxis("Y-Axis");
 
-       int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
-
-
-       StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
-
-
-       //If the first test case is not chosen then plot the graph acording to the default x and y axis values
-       if(!autoScale){
-         xAxis.setRange(minXValue,maxXValue);
-         yAxis.setRange(minYValue,maxYValue);
-       }
-
-       if(this.axisCombo.getSelectedItem().equals(LOG)){
-         if(this.log10AsECheck.isSelected()) setLog10AsEFlag();
-         else if(this.log10CaretCheck.isSelected()) setLog10AsCaretFlag();
-         else if(this.log10PowerCheck.isSelected()) setLog10AsPowerFlag();
-         setMinorAxisFlag();
-       }
-
-       // build the plot
-       org.jfree.chart.plot.XYPlot plot =null;
-       try{
-         plot = new org.jfree.chart.plot.XYPlot(functions, xAxis, yAxis,renderer);
-       }catch(Exception e){
-         JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Log Plot",JOptionPane.OK_OPTION);
-         return;
-       }
-       plot.setBackgroundAlpha( .8f );
-       plot.setRenderer( renderer );
-       plot.setDomainCrosshairLockedOnData(false);
-       plot.setDomainCrosshairVisible(false);
-       plot.setRangeCrosshairLockedOnData(false);
-       plot.setRangeCrosshairVisible(false);
+    yAxis.setAutoRangeIncludesZero( false );
+    //yAxis.setStandardTickUnits(units);
+    yAxis.setTickMarksVisible(false);
+    //yAxis.setS
 
 
-       JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
-       chart.setBackgroundPaint( lightBlue );
 
-       panel = new ChartPanel(chart, true, true, true, true, false);
-       panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-       panel.setMouseZoomable(true);
-       panel.setDisplayToolTips(true);
-       panel.setHorizontalAxisTrace(false);
-       panel.setVerticalAxisTrace(false);
+    int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
-       innerPlotPanel.removeAll();
-       // panel added here
-       innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-           , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
-           );
 
-     innerPlotPanel.validate();
-     innerPlotPanel.repaint();
-     if ( D ) System.out.println( S + "Done" );
+    StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
+
+    if(this.axisCombo.getSelectedItem().equals(LOG)){
+      if(this.log10AsECheck.isSelected()) setLog10AsEFlag();
+      else if(this.log10CaretCheck.isSelected()) setLog10AsCaretFlag();
+      else if(this.log10PowerCheck.isSelected()) setLog10AsPowerFlag();
+      setMinorAxisFlag();
+    }
+
+    try{
+      //If the first test case is not chosen then plot the graph acording to the default x and y axis values
+      if(!autoScale){
+        xAxis.setRange(minXValue,maxXValue);
+        yAxis.setRange(minYValue,maxYValue);
+      }
+
+
+      // build the plot
+      org.jfree.chart.plot.XYPlot plot =null;
+
+      plot = new org.jfree.chart.plot.XYPlot(functions, xAxis, yAxis,renderer);
+      plot.setBackgroundAlpha( .8f );
+      plot.setRenderer( renderer );
+      plot.setDomainCrosshairLockedOnData(false);
+      plot.setDomainCrosshairVisible(false);
+      plot.setRangeCrosshairLockedOnData(false);
+      plot.setRangeCrosshairVisible(false);
+
+
+      JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
+      chart.setBackgroundPaint( lightBlue );
+
+      panel = new ChartPanel(chart, true, true, true, true, false);
+      panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+      panel.setMouseZoomable(true);
+      panel.setDisplayToolTips(true);
+      panel.setHorizontalAxisTrace(false);
+      panel.setVerticalAxisTrace(false);
+
+      innerPlotPanel.removeAll();
+      // panel added here
+      innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 )
+          );
+
+    }catch(RuntimeException e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Log Plot",JOptionPane.OK_OPTION);
+      return;
+    }
+
+    innerPlotPanel.validate();
+    innerPlotPanel.repaint();
+    if ( D ) System.out.println( S + "Done" );
   }
 
 

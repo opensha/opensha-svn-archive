@@ -185,8 +185,8 @@ public class LogarithmicAxis extends NumberAxis {
     expTickLabelsFlag = true;
     log10TickLabelsFlag = false;
     log10TickLabelsInPowerFlag = false;
-    setupNumberFmtObj();             //setup number formatter obj
     setupSmallLogFlag();
+    setupNumberFmtObj();             //setup number formatter obj
   }
 
   /**
@@ -273,6 +273,18 @@ public class LogarithmicAxis extends NumberAxis {
    */
   public void setRange(Range range) {
     super.setRange(range);      // call parent method
+
+    /**Currently  throwing exception only if the power of 10 are represented
+      *in superscript  form else not.
+      * */
+    if(log10TickLabelsInPowerFlag){
+      double lower = range.getLowerBound();    //get lower bound value
+      if (strictValuesFlag && !allowNegativesFlag && lower <= 0.0){
+        //strict flag set, allow-negatives not set and values <= 0
+        throw new RuntimeException("Values less than or equal to "
+                                   + "zero not allowed with logarithmic axis");
+      }
+    }
     setupSmallLogFlag();        // setup flag based on bounds values
   }
 
@@ -722,8 +734,8 @@ public class LogarithmicAxis extends NumberAxis {
           if (zeroTickFlag) {      //if did zero tick last iter then
             --j;
           }               //decrement to do 1.0 tick now
-          tickVal = (i >= 0) ? Math.pow(10, i) + (Math.pow(10, i) * j)
-                    : -(Math.pow(10, -i) - (Math.pow(10, -i - 1) * j));
+          tickVal = (i >= 0) ? Double.parseDouble("1e"+i) * (1 + j)
+                    : -Double.parseDouble("1e"+(-i)) - Double.parseDouble("1e"+(-i-1))*j;
           if (j == 0) {  //first tick of group
             if (!zeroTickFlag) {     //did not do zero tick last iteration
               if (i > iBegCount && i < iEndCount
@@ -927,8 +939,8 @@ public class LogarithmicAxis extends NumberAxis {
           if (zeroTickFlag) {      //if did zero tick last iter then
             --j;
           }               //decrement to do 1.0 tick now
-          tickVal = (i >= 0) ? Math.pow(10, i) + (Math.pow(10, i) * j)
-                    : -(Math.pow(10, -i) - (Math.pow(10, -i - 1) * j));
+          tickVal = (i >= 0) ? Double.parseDouble("1e"+i) * (1 + j)
+                    : -Double.parseDouble("1e"+(-i)) - Double.parseDouble("1e"+(-i-1))*j;
           if (j == 0) {  //first tick of group
             if (!zeroTickFlag) {     //did not do zero tick last iteration
               if (i > iBegCount && i < iEndCount
