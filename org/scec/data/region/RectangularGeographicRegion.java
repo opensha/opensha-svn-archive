@@ -59,25 +59,4 @@ public class RectangularGeographicRegion extends GeographicRegion {
     return false;
 
   }
-
-  public static void main(String[] args) {
-
-  RectangularGeographicRegion geoReg = new RectangularGeographicRegion(33,34,120,122);
-
-  System.out.println(C+": numLocations="+ geoReg.getNumLocations());
-
-  System.out.println(C+": getMinLat ="+ geoReg.getMinLat());
-  System.out.println(C+": getMaxLat ="+ geoReg.getMaxLat());
-  System.out.println(C+": getMinLon ="+ geoReg.getMinLon());
-  System.out.println(C+": getMaxLon ="+ geoReg.getMaxLon());
-
-  System.out.println(C+": isLocationInside (should be true)="+ geoReg.isLocationInside(new Location(33.5,121)));
-  System.out.println(C+": isLocationInside (should be true)="+ geoReg.isLocationInside(new Location(33.001,120.001)));
-  System.out.println(C+": isLocationInside (should be true)="+ geoReg.isLocationInside(new Location(33,120)));
-  System.out.println(C+": isLocationInside (should be false)="+ geoReg.isLocationInside(new Location(33,122)));
-  System.out.println(C+": isLocationInside (should be false)="+ geoReg.isLocationInside(new Location(34,122)));
-  System.out.println(C+": isLocationInside (should be false)="+ geoReg.isLocationInside(new Location(34,120)));
-  System.out.println(C+": isLocationInside (should be true)="+ geoReg.isLocationInside(new Location(33,121)));
-  System.out.println(C+": isLocationInside (should be true)="+ geoReg.isLocationInside(new Location(33.5,120)));
-    }
 }
