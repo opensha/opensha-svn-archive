@@ -27,7 +27,7 @@ public class FaultTraceListXYDataSet implements XYDataset, NamedObjectAPI {
     /**
      *  Internal list of 2D Functions - indexed by name
      */
-    protected FaultTraceList list = null;
+    protected SimpleFaultDataList list = null;
 
     /**
      *  list of listeners for data changes
@@ -51,7 +51,7 @@ public class FaultTraceListXYDataSet implements XYDataset, NamedObjectAPI {
     /**
      *  no arg constructor
      */
-    public FaultTraceListXYDataSet(FaultTraceList list) { this.list = list; }
+    public FaultTraceListXYDataSet(SimpleFaultDataList list) { this.list = list; }
 
 
     /**
@@ -89,7 +89,7 @@ public class FaultTraceListXYDataSet implements XYDataset, NamedObjectAPI {
 
         if ( !checkFaultTraces() )  return name + ' ' + series;
 
-        FaultTrace trace = list.getFaultTraceAt(0);
+        FaultTrace trace = list.getSimpleFaultDataAt(0).getFaultTrace();
         if( trace != null ) return "Trace = " + trace.getName();
 
         else return name + ' ' + series;
@@ -104,7 +104,7 @@ public class FaultTraceListXYDataSet implements XYDataset, NamedObjectAPI {
     public int getItemCount( int series ) {
         if ( !checkFaultTraces() ) return 0;
 
-        FaultTrace trace = list.getFaultTraceAt(series);
+        FaultTrace trace = list.getSimpleFaultDataAt(series).getFaultTrace();
         if( trace != null ) return trace.getNumLocations();
 
         else return 0;
@@ -126,7 +126,7 @@ public class FaultTraceListXYDataSet implements XYDataset, NamedObjectAPI {
 
         if ( checkFaultTraces() && series < getSeriesCount() ) {
 
-            FaultTrace trace = list.getFaultTraceAt(0);
+            FaultTrace trace = list.getSimpleFaultDataAt(0).getFaultTrace();
             if( trace != null ) {
                 Location loc = trace.getLocationAt(item);
                 Double lon = new Double( loc.getLongitude() );
@@ -150,7 +150,7 @@ public class FaultTraceListXYDataSet implements XYDataset, NamedObjectAPI {
 
         if ( checkFaultTraces() && series < getSeriesCount() ) {
 
-            FaultTrace trace = list.getFaultTraceAt(0);
+            FaultTrace trace = list.getSimpleFaultDataAt(0).getFaultTrace();
             if( trace != null ) {
                 Location loc = trace.getLocationAt(item);
                 Double lat = new Double( loc.getLatitude() );
