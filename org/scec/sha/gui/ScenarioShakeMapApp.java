@@ -320,8 +320,7 @@ public class ScenarioShakeMapApp extends JApplet implements
 
    eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-   erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getParameter().addParameterChangeListener(this);
-
+   erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);
   }
 
   /**
@@ -344,7 +343,7 @@ public class ScenarioShakeMapApp extends JApplet implements
     Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
     the forecast while erfGuiBean.getSelectedERF updates the forecast
     */
-    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
+    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getERF_GuiObject().getSelectedERF_Instance();
     // create the TimeSpan Gui Bean object
     timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
     // show the sitebean in JPanel
@@ -400,7 +399,7 @@ public class ScenarioShakeMapApp extends JApplet implements
        Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
        the forecast while erfGuiBean.getSelectedERF updates the
        */
-      this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
+      this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getERF_GuiObject().getSelectedERF_Instance().getTimeSpan());
 
    if(name1.equalsIgnoreCase(sitesGuiBean.MIN_LATITUDE)||
       name1.equalsIgnoreCase(sitesGuiBean.MAX_LATITUDE)||
@@ -438,7 +437,7 @@ public class ScenarioShakeMapApp extends JApplet implements
       probAtIML=true;
 
     // get the selected forecast model
-    EqkRupForecast eqkRupForecast = (EqkRupForecast)erfGuiBean.getSelectedERF();
+    EqkRupForecast eqkRupForecast = (EqkRupForecast)erfGuiBean.getERF_GuiObject().getSelectedERF();
 
     // get the selected IMR
     AttenuationRelationship imr = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
@@ -460,8 +459,8 @@ public class ScenarioShakeMapApp extends JApplet implements
       imr.setSite(site);
       // set the ProbEQkRup in the IMR
       try {
-        int source = Integer.parseInt((String)erfGuiBean.getParameterList().getParameter(erfGuiBean.SOURCE_PARAM_NAME).getValue());
-        int rupture = Integer.parseInt((String)erfGuiBean.getParameterList().getParameter(erfGuiBean.RUPTURE_PARAM_NAME).getValue());
+        int source = Integer.parseInt((String)erfGuiBean.getParameter(erfGuiBean.SOURCE_PARAM_NAME).getValue());
+        int rupture = Integer.parseInt((String)erfGuiBean.getParameter(erfGuiBean.RUPTURE_PARAM_NAME).getValue());
         imr.setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(source,rupture));
       } catch (Exception ex) {
         System.out.println("Parameter change warning caught");

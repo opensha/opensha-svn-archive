@@ -1,10 +1,12 @@
 package org.scec.sha.gui.beans;
 
+import java.util.ListIterator;
 import java.util.Vector;
 import java.util.Iterator;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
+
 
 import org.scec.param.ParameterAPI;
 import org.scec.param.StringParameter;
@@ -14,6 +16,10 @@ import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
+import org.scec.param.*;
+import org.scec.param.editor.*;
+import org.scec.param.event.*;
+import java.awt.event.*;
 
 
 /**
@@ -22,11 +28,24 @@ import org.scec.sha.gui.infoTools.CalcProgressBar;
  * also allow the user to select a particular rupture for scenario maps </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author : Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
-public class EqkRupSelectorGuiBean extends ERF_GuiBean  {
+public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeListener
+{
+
+
+  /**
+   * Name of the class
+   */
+  protected final static String C = "EqkRupSelectorGuiBean";
+  // for debug purpose
+  protected final static boolean D = false;
+
+
+  // ERF Editor stuff
+  public final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
 
   // Source Param Name
   public final static String SOURCE_PARAM_NAME = "Source Index";
@@ -36,16 +55,32 @@ public class EqkRupSelectorGuiBean extends ERF_GuiBean  {
   // boolean needed to handle to handle the first case whenever each ERF is selected
   private boolean first = true;
 
+  //ERFGuiBean Instance
+  ERF_GuiBean erfGuiBean;
+  private JButton erfAdjParamButton = new JButton();
+  private JScrollPane sourceRupInfoScroll = new JScrollPane();
+  private JTextPane sourceRupInfoText = new JTextPane();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+
+  //ListEditor
+  ParameterListEditor listEditor;
 
   /**
   * Constructor : It accepts the classNames of the ERFs to be shown in the editor
   * @param erfClassNames
   */
  public EqkRupSelectorGuiBean(Vector erfClassNames) {
+
+   try {
+      jbInit();
+    }
+    catch(Exception e) {
+      e.printStackTrace();
+    }
    // create the instance of ERFs
-   init_erf_IndParamListAndEditor(erfClassNames);
-   // forecast 1  is selected initially, also source index for first time is 0
-    setParamsInForecast((String)erfNamesVector.get(0), 0);
+   erfGuiBean= new ERF_GuiBean(erfClassNames);
+   setParamsInForecast(erfGuiBean.erfNamesVector.get(0).toString(),0);
+
  }
 
 
@@ -58,76 +93,61 @@ public class EqkRupSelectorGuiBean extends ERF_GuiBean  {
 
 
    // get the selected forecast
-   EqkRupForecast erf = (EqkRupForecast)this.getSelectedERF_Instance();
+   EqkRupForecast erf = (EqkRupForecast)erfGuiBean.getSelectedERF_Instance();
 
    // also show the progress bar while the forecast is being updated
    CalcProgressBar progress = new CalcProgressBar("Forecast","Updating Forecast");
    progress.displayProgressBar();
 
-   if(!first) {
-     // update the Forecast to get the sources and ruptures
-     this.updateMagDistParam();
-     erf.updateForecast();
-   }
+   // update the Forecast to get the sources and ruptures
+   erfGuiBean.updateMagDistParam();
+   erf.updateForecast();
+
 
    // add the select forecast parameter
-   ParameterAPI chooseERF_Param = parameterList.getParameter(this.ERF_PARAM_NAME);
-   parameterList = new ParameterList();
+   ParameterAPI chooseERF_Param = erfGuiBean.getParameterList().getParameter(erfGuiBean.ERF_PARAM_NAME);
+   ParameterList parameterList = new ParameterList();
    parameterList.addParameter(chooseERF_Param);
 
 
-   if(!first) {
-     // add another parameter for selecting the source
-     Vector sourceVector = new Vector();
-     int numSources = erf.getNumSources();
-     for(int i=0; i<numSources; ++i)
-       sourceVector.add(""+i);
-     StringParameter selectSource= new StringParameter(SOURCE_PARAM_NAME,
-         sourceVector, ""+sourceIndex);
-     selectSource.addParameterChangeListener(this);
-     parameterList.addParameter(selectSource);
+   int numSources = erf.getNumSources();
+   IntegerParameter sourceParam = new IntegerParameter(SOURCE_PARAM_NAME,
+       0,numSources-1,new Integer(0));
 
-     //add parameter for selecting the rupture for selected source index
-     Vector ruptureVector = new Vector();
-     int numRuptures = erf.getNumRuptures(sourceIndex);
-     for(int i=0; i<numRuptures; ++i)
-       ruptureVector.add(""+i);
-     StringParameter selectRupture= new StringParameter(RUPTURE_PARAM_NAME,
-         sourceVector, ""+sourceIndex);
-     parameterList.addParameter(selectRupture);
-   }
+
+   sourceParam.addParameterChangeListener(this);
+   parameterList.addParameter(sourceParam);
+
+   //add parameter for selecting the rupture for selected source index
+   int numRuptures = erf.getNumRuptures(((Integer)sourceParam.getValue()).intValue());
+   IntegerParameter ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,
+       0,numRuptures-1,new Integer(0));
+   parameterList.addParameter(ruptureParam);
 
 
    Iterator it = erf.getAdjustableParamsIterator();
    // make the parameters visible based on selected forecast
-   while(it.hasNext()) parameterList.addParameter((ParameterAPI)it.next());
+   //   while(it.hasNext()) parameterList.addParameter((ParameterAPI)it.next());
 
-   this.editorPanel.removeAll();
-   this.addParameters();
+   listEditor= new ParameterListEditor(parameterList);
+  // this.addParameters();
    // now make the editor based on the parameter list
-   setTitle( this.ERF_EDITOR_TITLE );
+   listEditor.setTitle( erfGuiBean.ERF_EDITOR_TITLE );
 
    // get the panel for increasing the font and border
    // this is hard coding for increasing the IMR font
    // the colors used here are from ParameterEditor
-   JPanel panel = this.getParameterEditor(this.ERF_PARAM_NAME).getOuterPanel();
+   JPanel panel = listEditor.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getOuterPanel();
    TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
    titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
    Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
    titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
-   titledBorder1.setTitle(ERF_PARAM_NAME);
+   titledBorder1.setTitle(erfGuiBean.ERF_PARAM_NAME);
    Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
    panel.setBorder(border1);
 
-   //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
-   //calls the method to make the update MagDist button invisible
-   MagFreqDistParameterEditor magDistEditor=getMagDistEditor();
-   if(magDistEditor !=null)  magDistEditor.setUpdateButtonVisible(false);
-
-   if(first) {
-     first = false;
-     setParamsInForecast(selectedForecast,sourceIndex);
-   }
+   this.add(listEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
    progress.dispose();
  }
 
@@ -150,7 +170,7 @@ public class EqkRupSelectorGuiBean extends ERF_GuiBean  {
    String name1 = event.getParameterName();
 
    // if ERF selected by the user  changes
-   if( name1.equals(this.ERF_PARAM_NAME) ){
+   if( name1.equals(erfGuiBean.ERF_PARAM_NAME) ){
      String value = event.getNewValue().toString();
      // set the new forecast parameters.
      //Also selected source index is 0 for newly selected forecast
@@ -164,11 +184,113 @@ public class EqkRupSelectorGuiBean extends ERF_GuiBean  {
    if( name1.equals(this.SOURCE_PARAM_NAME) ){
      String value = event.getNewValue().toString();
      // set the new forecast parameters. Also change the number of ruptures in this source
-     setParamsInForecast(this.getSelectedERF_Name(),Integer.parseInt(value));
+     setParamsInForecast(erfGuiBean.getSelectedERF_Name(),Integer.parseInt(value));
      this.validate();
      this.repaint();
    }
  }
+
+   private void jbInit() throws Exception {
+    erfAdjParamButton.setText("Get All EqkRup Forecast Params");
+    erfAdjParamButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        erfAdjParamButton_actionPerformed(e);
+      }
+    });
+    erfAdjParamButton.setForeground(new Color(80,80,133));
+    erfAdjParamButton.setBackground(new Color(200,200,230));
+    this.setLayout(gridBagLayout1);
+    sourceRupInfoText.setEditable(false);
+    this.add(sourceRupInfoScroll,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+    this.add(erfAdjParamButton,  new GridBagConstraints(0, 2, 1, 1, 0, 0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+    sourceRupInfoScroll.getViewport().add(sourceRupInfoText, null);
+  }
+
+  void erfAdjParamButton_actionPerformed(ActionEvent e) {
+    getAllERFAdjustableParams();
+  }
+
+
+  /**
+   * This method gets the ERF adjustable Params for the selected ERF model
+   * and the user has pressed the button to see adjust all the adjustable params
+   */
+  private void getAllERFAdjustableParams(){
+
+    // search path needed for making editors
+     String[] searchPaths = new String[2];
+     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+     searchPaths[1] = "org.scec.sha.magdist.gui" ;
+
+    // get the selected forecast
+    EqkRupForecast erf = (EqkRupForecast)erfGuiBean.getSelectedERF_Instance();
+    ParameterList paramList = new ParameterList();
+    ListIterator it = erf.getAdjustableParamsIterator();
+    while(it.hasNext()){
+      paramList.addParameter((ParameterAPI)it.next());
+    }
+    ParameterListEditor editor= new ParameterListEditor(paramList,searchPaths);
+    editor.setTitle("Select ERF Param");
+    //checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+    //calls the method to make the update MagDist button invisible
+    MagFreqDistParameterEditor magDistEditor=erfGuiBean.getMagDistEditor();
+    if(magDistEditor !=null)  magDistEditor.setUpdateButtonVisible(false);
+    //Panel Parent
+    Container parent = this;
+    /*This loops over all the parent of this class until the parent is Frame(applet)
+    this is required for the passing in the JDialog to keep the focus on the adjustable params
+    frame*/
+    while(!(parent instanceof JFrame) && parent != null)
+      parent = parent.getParent();
+    JDialog frame = new JDialog((JFrame)parent);
+    frame.setModal(true);
+    frame.setSize(300,600);
+    frame.setTitle("ERF Adjustable Params");
+    frame.getContentPane().setLayout(new GridBagLayout());
+    frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+
+    //Adding Button to update the forecast
+    JButton button = new JButton();
+    button.setText("Update Forecast");
+    button.setForeground(new Color(80,80,133));
+    button.setBackground(new Color(200,200,230));
+    button.addActionListener(new java.awt.event.ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+       button_actionPerformed(e);
+     }
+    });
+    frame.getContentPane().add(button,new GridBagConstraints(0, 2, 1, 1, 0.0,0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+    frame.show();
+    frame.pack();
+  }
+
+  void button_actionPerformed(ActionEvent e) {
+    // get the selected forecast
+   EqkRupForecast erf = (EqkRupForecast)erfGuiBean.getSelectedERF_Instance();
+   erf.updateForecast();
+  }
+
+
+  /**
+   *
+   * @param : Name of the Parameter
+   * @returns the parameter with the name param
+   */
+  public ParameterAPI getParameter(String param){
+    return listEditor.getParameterList().getParameter(param);
+  }
+
+  /**
+   *
+   * @returns the ERF_GuiBean Object
+   */
+  public ERF_GuiBean getERF_GuiObject(){
+    return erfGuiBean;
+  }
 
 
 
