@@ -15,9 +15,8 @@ import java.lang.RuntimeException;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
-import org.scec.gui.plot.LogPlotAPI;
 import org.scec.gui.plot.*;
-import com.borland.jbcl.layout.*;
+
 
 
 /**
@@ -50,26 +49,40 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
    Vector testFiles= new Vector();
 
   private boolean isStandalone = false;
-  private JPanel dataPanel = new JPanel();
-  private JComboBox testComboBox = new JComboBox();
   private Border border1;
   private Border border2;
-  private JLabel xLabel = new JLabel();
-  private JLabel jLabel1 = new JLabel();
-  private JLabel jLabel2 = new JLabel();
-  private JButton submitButton = new JButton();
-  private JLabel appletLabel = new JLabel();
-  private JTextArea messageTextArea = new JTextArea();
-  private JLabel jLabel3 = new JLabel();
-  private JTextField fileNameText = new JTextField();
-  private JLabel jLabel4 = new JLabel();
-  private JScrollPane jScrollPane1 = new JScrollPane();
-  private JTextArea xTextArea = new JTextArea();
-  private JScrollPane jScrollPane2 = new JScrollPane();
-  private JTextArea yTextArea = new JTextArea();
   private BorderLayout borderLayout1 = new BorderLayout();
-  JButton deleteFileButton = new JButton();
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private JSplitPane mainSplitPane = new JSplitPane();
+  private JTextArea yTextArea = new JTextArea();
+  private JPanel dataPanel = new JPanel();
+  private JButton submitButton = new JButton();
+  private JScrollPane jScrollPane2 = new JScrollPane();
+  private JLabel xLabel = new JLabel();
+  private JScrollPane jScrollPane1 = new JScrollPane();
+  private JTextField fileNameText = new JTextField();
+  private JComboBox testComboBox = new JComboBox();
+  private JLabel appletLabel = new JLabel();
+  private JButton deleteFileButton = new JButton();
+  private JLabel jLabel4 = new JLabel();
+  private JTextArea xTextArea = new JTextArea();
+  private JLabel jLabel3 = new JLabel();
+  private JTextArea messageTextArea = new JTextArea();
+  private JLabel jLabel2 = new JLabel();
+  private JLabel jLabel1 = new JLabel();
+  private JPanel deletePanel = new JPanel();
+  private JLabel jLabel5 = new JLabel();
+  private JTextArea deletionMessageText = new JTextArea();
+  private Border border3;
+  private Border border4;
+  private Border border5;
+  private Border border6;
+  private JLabel jLabel6 = new JLabel();
+  private JPasswordField filePassword = new JPasswordField();
+  private JComboBox fileComboBox = new JComboBox();
+  private JLabel jLabel7 = new JLabel();
+  private JLabel jLabel8 = new JLabel();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -90,22 +103,31 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
    searchTestFiles();
    createFunction();
    setXValues();
+
+   int size = testFiles.size();
+   for(int i=0;i<size;++i)
+     fileComboBox.addItem(testFiles.get(i));
   }
+
+
   //Component initialization
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     border2 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
-    this.setSize(new Dimension(402, 606));
+    border3 = BorderFactory.createLineBorder(Color.white,2);
+    border4 = BorderFactory.createLineBorder(Color.white,2);
+    border5 = BorderFactory.createLineBorder(Color.black,2);
+    border6 = BorderFactory.createLineBorder(SystemColor.controlText,1);
+    this.setSize(new Dimension(765, 624));
     this.getContentPane().setLayout(borderLayout1);
+
+    String messageText ="Text Goes Here ...................";
+    yTextArea.setBackground(new Color(200, 200, 230));
+    yTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
+    yTextArea.setForeground(new Color(80, 80, 133));
     dataPanel.setBackground(Color.white);
     dataPanel.setBorder(BorderFactory.createEtchedBorder());
     dataPanel.setLayout(gridBagLayout1);
-    xLabel.setForeground(new Color(80, 80, 133));
-    xLabel.setText("X:");
-    jLabel1.setForeground(new Color(80, 80, 133));
-    jLabel1.setText("Select Test Case:");
-    jLabel2.setForeground(new Color(80, 80, 133));
-    jLabel2.setText("Y:");
     submitButton.setBackground(new Color(200, 200, 230));
     submitButton.setFont(new java.awt.Font("Dialog", 1, 12));
     submitButton.setForeground(new Color(80, 80, 133));
@@ -115,80 +137,135 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
         submitButton_actionPerformed(e);
       }
     });
+    xLabel.setFont(new java.awt.Font("Dialog", 1, 12));
+    xLabel.setForeground(new Color(80, 80, 133));
+    xLabel.setText("X:");
+    fileNameText.setBackground(new Color(200, 200, 230));
+    fileNameText.setFont(new java.awt.Font("Dialog", 1, 11));
+    fileNameText.setForeground(new Color(80, 80, 133));
+    testComboBox.setBackground(new Color(200, 200, 230));
+    testComboBox.setFont(new java.awt.Font("Dialog", 1, 12));
+    testComboBox.setForeground(new Color(80, 80, 133));
     appletLabel.setFont(new java.awt.Font("Dialog", 1, 16));
     appletLabel.setForeground(new Color(80, 80, 133));
     appletLabel.setToolTipText("");
     appletLabel.setHorizontalAlignment(SwingConstants.CENTER);
     appletLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-    appletLabel.setText("PEER Test Data ");
-    messageTextArea.setBackground(new Color(200, 200, 230));
-    messageTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
-    messageTextArea.setForeground(new Color(80, 80, 133));
-    messageTextArea.setBorder(BorderFactory.createLineBorder(Color.black));
-    messageTextArea.setEditable(false);
-    messageTextArea.setLineWrap(true);
-    jLabel3.setForeground(new Color(80, 80, 133));
-    jLabel3.setText("Enter File Identifier:");
-    fileNameText.setBackground(new Color(200, 200, 230));
-    fileNameText.setFont(new java.awt.Font("Dialog", 1, 11));
-    fileNameText.setForeground(new Color(80, 80, 133));
-    jLabel4.setForeground(new Color(80, 80, 133));
-    jLabel4.setText("Information Box:");
-    jLabel4.setVerticalAlignment(SwingConstants.TOP);
-    testComboBox.setBackground(new Color(200, 200, 230));
-    testComboBox.setFont(new java.awt.Font("Dialog", 1, 12));
-    testComboBox.setForeground(new Color(80, 80, 133));
-    yTextArea.setBackground(new Color(200, 200, 230));
-    yTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
-    yTextArea.setForeground(new Color(80, 80, 133));
-    xTextArea.setBackground(new Color(200, 200, 230));
-    xTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
-    xTextArea.setForeground(new Color(80, 80, 133));
+    appletLabel.setText("PEER Test Data Submission");
     deleteFileButton.setBackground(new Color(200, 200, 230));
     deleteFileButton.setFont(new java.awt.Font("Dialog", 1, 12));
     deleteFileButton.setForeground(new Color(80, 80, 133));
-    deleteFileButton.setMaximumSize(new Dimension(71, 37));
-    deleteFileButton.setMinimumSize(new Dimension(71, 37));
-    deleteFileButton.setPreferredSize(new Dimension(71, 37));
+    deleteFileButton.setMaximumSize(new Dimension(71, 45));
+    deleteFileButton.setMinimumSize(new Dimension(71, 45));
+    deleteFileButton.setPreferredSize(new Dimension(71, 45));
     deleteFileButton.setText("Delete ");
     deleteFileButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         deleteFileButton_actionPerformed(e);
       }
     });
-    this.getContentPane().add(dataPanel, BorderLayout.CENTER);
-    dataPanel.add(jLabel1,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 10, 0, 0), 10, 14));
-    dataPanel.add(jLabel3,  new GridBagConstraints(0, 2, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(18, 10, 0, 19), 13, 12));
-    dataPanel.add(xLabel,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(16, 22, 0, 27), 11, 3));
-    dataPanel.add(jScrollPane1,  new GridBagConstraints(0, 4, 1, 2, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 18, 0), 61, 397));
-    dataPanel.add(appletLabel,  new GridBagConstraints(2, 0, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 0, 0, 101), 34, 16));
-    jScrollPane1.getViewport().add(xTextArea, null);
-    dataPanel.add(jScrollPane2,  new GridBagConstraints(1, 4, 2, 2, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 17, 18, 0), 64, 397));
-    dataPanel.add(jLabel2,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(13, 29, 0, 0), 8, 7));
-    dataPanel.add(jLabel4,  new GridBagConstraints(3, 3, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 34, 0, 112), 2, 5));
-    dataPanel.add(messageTextArea,  new GridBagConstraints(3, 4, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 32, 0, 29), 0, 266));
-    dataPanel.add(testComboBox,  new GridBagConstraints(3, 1, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 34, 0, 29), 49, 7));
-    dataPanel.add(fileNameText,  new GridBagConstraints(3, 2, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(18, 33, 0, 29), 176, 8));
-    dataPanel.add(submitButton,  new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(78, 29, 30, 0), 17, 4));
-    dataPanel.add(deleteFileButton,    new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(78, 6, 30, 29), 17, 4));
-    jScrollPane2.getViewport().add(yTextArea, null);
-
-    String messageText ="Text Goes Here ...................";
+    jLabel4.setFont(new java.awt.Font("Dialog", 1, 12));
+    jLabel4.setForeground(new Color(80, 80, 133));
+    jLabel4.setText("Instructions:");
+    jLabel4.setVerticalAlignment(SwingConstants.TOP);
+    xTextArea.setBackground(new Color(200, 200, 230));
+    xTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
+    xTextArea.setForeground(new Color(80, 80, 133));
+    jLabel3.setFont(new java.awt.Font("Dialog", 1, 12));
+    jLabel3.setForeground(new Color(80, 80, 133));
+    jLabel3.setText("Enter Your Identifier:");
+    messageTextArea.setBackground(new Color(200, 200, 230));
+    messageTextArea.setFont(new java.awt.Font("Dialog", 1, 11));
+    messageTextArea.setForeground(new Color(80, 80, 133));
+    messageTextArea.setBorder(BorderFactory.createLineBorder(Color.black));
+    messageTextArea.setMinimumSize(new Dimension(359, 120));
+    messageTextArea.setPreferredSize(new Dimension(361, 120));
+    messageTextArea.setEditable(false);
+    messageTextArea.setLineWrap(true);
     messageTextArea.setText(messageText);
     messageTextArea.setEditable(false);
+    jLabel2.setFont(new java.awt.Font("Dialog", 1, 12));
+    jLabel2.setForeground(new Color(80, 80, 133));
+    jLabel2.setText("Y:");
+    jLabel1.setFont(new java.awt.Font("Dialog", 1, 12));
+    jLabel1.setForeground(new Color(80, 80, 133));
+    jLabel1.setText("Select Test Case:");
+    deletePanel.setLayout(gridBagLayout2);
+    deletePanel.setBackground(Color.white);
+    jLabel5.setFont(new java.awt.Font("Dialog", 1, 16));
+    jLabel5.setForeground(new Color(80, 80, 133));
+    jLabel5.setHorizontalAlignment(SwingConstants.CENTER);
+    jLabel5.setHorizontalTextPosition(SwingConstants.CENTER);
+    jLabel5.setText("PEER Test Data Deletion");
+    deletionMessageText.setBackground(new Color(200, 200, 230));
+    deletionMessageText.setFont(new java.awt.Font("Dialog", 1, 11));
+    deletionMessageText.setForeground(new Color(80, 80, 133));
+    deletionMessageText.setBorder(border6);
+    deletionMessageText.setMinimumSize(new Dimension(142, 50));
+    deletionMessageText.setPreferredSize(new Dimension(349, 100));
+    deletionMessageText.setEditable(false);
+    deletionMessageText.setText("Deletion Text goes here.....");
+    jLabel6.setFont(new java.awt.Font("Dialog", 1, 12));
+    jLabel6.setForeground(new Color(80, 80, 133));
+    jLabel6.setText("Instructions:");
+    filePassword.setForeground(new Color(80, 80, 133));
+    filePassword.setFont(new java.awt.Font("Dialog", 1, 12));
+    filePassword.setBackground(new Color(200, 200, 230));
+    fileComboBox.setForeground(new Color(80, 80, 133));
+    fileComboBox.setBackground(new Color(200, 200, 230));
+    jLabel7.setText("Enter Password:");
+    jLabel7.setForeground(new Color(80, 80, 133));
+    jLabel7.setFont(new java.awt.Font("Dialog", 1, 12));
+    jLabel8.setText("Select File to Delete:");
+    jLabel8.setForeground(new Color(80, 80, 133));
+    jLabel8.setFont(new java.awt.Font("Dialog", 1, 12));
+    mainSplitPane.setDividerSize(5);
+    this.getContentPane().add(mainSplitPane, BorderLayout.CENTER);
+    mainSplitPane.setDividerLocation(370);
+    dataPanel.add(appletLabel,   new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 38, 0, 18), 64, 16));
+    mainSplitPane.add(deletePanel, JSplitPane.RIGHT);
+    deletePanel.add(jLabel5,       new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 28, 0, 79), 64, 16));
+    mainSplitPane.add(dataPanel, JSplitPane.LEFT);
+    dataPanel.add(jLabel4,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 24, 0, 67), 55, 3));
+    dataPanel.add(messageTextArea,  new GridBagConstraints(0, 2, 3, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 24, 0, 18), 0, 0));
+    dataPanel.add(jScrollPane2,  new GridBagConstraints(1, 6, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 19, 8, 0), 92, 312));
+    dataPanel.add(jScrollPane1,  new GridBagConstraints(0, 6, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 24, 8, 0), 92, 312));
+    dataPanel.add(jLabel3,  new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(9, 24, 0, 42), 25, 12));
+    dataPanel.add(xLabel,  new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 24, 0, 49), 31, 3));
+    dataPanel.add(jLabel2,  new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 20, 0, 56), 23, 7));
+    dataPanel.add(jLabel1,  new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 24, 0, 35), 54, 14));
+    dataPanel.add(testComboBox,  new GridBagConstraints(2, 3, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(11, 0, 6, 18), -20, -1));
+    dataPanel.add(fileNameText,  new GridBagConstraints(2, 4, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(12, 0, 0, 18), 105, 4));
+    dataPanel.add(submitButton,        new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(279, 26, 22, 18), 19, 41));
+    jScrollPane1.getViewport().add(xTextArea, null);
+    jScrollPane2.getViewport().add(yTextArea, null);
+    deletePanel.add(deleteFileButton,          new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 103, 309, 15), 24, 0));
+    deletePanel.add(jLabel6,    new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 14, 0, 18), 49, 4));
+    deletePanel.add(jLabel8,    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 14, 0, 0), 16, 11));
+    deletePanel.add(jLabel7,    new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(16, 14, 0, 45), 0, 10));
+    deletePanel.add(fileComboBox,    new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 17, 0, 25), 39, -1));
+    deletePanel.add(filePassword,    new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(19, 16, 0, 25), 166, 2));
+    deletePanel.add(deletionMessageText,         new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
+            ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(-1, 15, 1, 24), 0, 40));
   }
   //Start the applet
   public void start() {
@@ -279,6 +356,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
        st.append(it.next().toString());
        st.append('\n');
     }
+    System.out.println("X Values  are:"+st.toString());
     xTextArea.setText(st.toString());
     xTextArea.setEditable(false);
   }
@@ -392,32 +470,33 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     //checks if user has entered the filename
     boolean flag = true;
 
-    if(fileNameText.getText().trim().equals(""))
-      JOptionPane.showMessageDialog(this,new String("Must enter Identifier name"),"Input Error",
-                                    JOptionPane.ERROR_MESSAGE);
-    else{
-      int index = fileNameText.getText().indexOf(" ");
-      if(index !=-1){
-        fileNameText.setText("");
-        throw new RuntimeException("Indentifier name cannot have spaces");
+    try{
+      if(fileNameText.getText().trim().equals("")){
+        flag = false;
+        JOptionPane.showMessageDialog(this,new String("Must enter Identifier name"),"Input Error",
+                                      JOptionPane.ERROR_MESSAGE);
       }
-
-      try{
-      flag = submitButton();
-      }catch(RuntimeException ee){
-        flag=false;
-        JOptionPane.showMessageDialog(this,new String(ee.getMessage()),
-                                      "Input Error",JOptionPane.ERROR_MESSAGE);
+      else{
+        int index = fileNameText.getText().indexOf(" ");
+        if(index !=-1){
+          fileNameText.setText("");
+          throw new RuntimeException("Indentifier name cannot have spaces");
+        }
+        flag = submitButton();
       }
+    }catch(RuntimeException ee){
+      flag=false;
+      JOptionPane.showMessageDialog(this,new String(ee.getMessage()),
+                                    "Input Error",JOptionPane.ERROR_MESSAGE);
+    }
 
-      if(flag){
-        int confirm=JOptionPane.showConfirmDialog(this,new String("Want to continue with the file Submission"),
-                    "Confirmation",JOptionPane.OK_CANCEL_OPTION,JOptionPane.INFORMATION_MESSAGE);
+    if(flag){
+      int confirm=JOptionPane.showConfirmDialog(this,new String("Want to continue with the file Submission??"),
+          "Confirmation",JOptionPane.OK_CANCEL_OPTION,JOptionPane.INFORMATION_MESSAGE);
 
       //makes the connection to the servlet if the user has selected the OK option in the DialogBox.
       if(confirm == JOptionPane.OK_OPTION)
         openConnection();
-      }
     }
   }
 
@@ -426,6 +505,15 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
    */
   void openConnection() {
 
+
+    JFrame frame = new JFrame();
+    frame.setTitle("Addition Operation Performed");
+    frame.setBounds(this.getAppletXAxisCenterCoor()-60,
+                    this.getAppletYAxisCenterCoor()-50,
+                    180,150);
+    frame.getContentPane().add(new Label("Adding new file, Please be patient......" ));
+    frame.pack();
+    frame.show();
 
     Vector vt =new Vector();
     String fileName = function.getName();
@@ -484,8 +572,15 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
      if(D)
        System.out.println("Receiving the Input from the Servlet:"+temp);
      inputToServlet.close();
+     //displaying the user the addition  has ended
      JOptionPane.showMessageDialog(this,new String("File Added Successfully....."),
                                    "Add Confirmation",JOptionPane.OK_OPTION);
+
+     //adding the file to the vector as well as the combo box that
+     //displays the files that can be deleted
+     fileComboBox.addItem(new String(fileName));
+     testFiles.add(new String(fileName));
+     frame.dispose();
     }catch (Exception e) {
       System.out.println("Exception in connection with servlet:" +e);
       e.printStackTrace();
@@ -499,6 +594,14 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   void openDeleteConnection(String fileName) {
 
 
+    JFrame frame = new JFrame();
+    frame.setTitle("Delete Operation Performed");
+    frame.setBounds(this.getAppletXAxisCenterCoor()-60,
+                    this.getAppletYAxisCenterCoor()-50,
+                    180,150);
+    frame.getContentPane().add(new Label("Deletion being performed, Please be patient......" ));
+    frame.pack();
+    frame.show();
 
     try{
       if(D)
@@ -542,14 +645,22 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
       if(D)
         System.out.println("Receiving the Input from the Servlet:"+temp);
       inputToServlet.close();
+      //displaying the user the deletion  has ended
       JOptionPane.showMessageDialog(this,new String("File Deleted Successfully....."),
                                    "Delete Confirmation",JOptionPane.OK_OPTION);
+
+
+      //removing the deleted file from the vector as well as the combo box that
+      //displays the files that can be deleted
       int size=testFiles.size();
-      for(int i=0;i<size;++i){
+      for(int i=0;i<size;++i)
         if(testFiles.get(i).toString().equals(fileName))
           testFiles.remove(i);
-      }
-
+      fileComboBox.removeAllItems();
+      size=testFiles.size();
+      for(int i=0;i<size;++i)
+          fileComboBox.addItem(testFiles.get(i));
+      frame.dispose();
     }catch (Exception e) {
       System.out.println("Exception in connection with servlet:" +e);
       e.printStackTrace();
@@ -562,12 +673,20 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
    * @param e
    */
   void deleteFileButton_actionPerformed(ActionEvent e) {
-    int xCenter=getAppletXAxisCenterCoor();
-    int yCenter=getAppletYAxisCenterCoor();
-    PEER_FileDeleteWindow p= new PEER_FileDeleteWindow(this, testFiles);
-    p.setLocation(xCenter-60,yCenter-50);
-    p.pack();
-    p.show();
+    if(!new String(filePassword.getPassword()).equals(new String("PEER"))){
+      filePassword.setText("");
+      JOptionPane.showMessageDialog(this,new String("Incorrect Password"),"Check Password",
+                                    JOptionPane.OK_OPTION);
+    }
+    else {
+      //delete the file selected.
+      int flag=JOptionPane.showConfirmDialog(this,new String("Are you sure you want to delete the file??"),
+          "Confirmation Message",JOptionPane.OK_CANCEL_OPTION);
+
+      if(flag == JOptionPane.OK_OPTION)
+        openDeleteConnection(fileComboBox.getSelectedItem().toString());
+    }
+
   }
 
   /**
@@ -585,4 +704,6 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   private int getAppletYAxisCenterCoor() {
     return (this.getY() + this.getHeight())/2;
   }
+
+
 }
