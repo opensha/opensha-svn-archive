@@ -3,7 +3,8 @@ import org.scec.data.function.EvenlyDiscretizedFunc;
 /**
  *
  * <p>Title: IncrementalMagFreqDistAPI</p>
- * <p>Description:  thjis Class gives the rate of EarthQuakes(number per year)in  succession</p>
+ * <p>Description:  this Interface gives the rate of EarthQuakes(number per year)in  succession. This class
+ * has been made as a generalised API for others to implement depending on their functionality</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed
@@ -13,29 +14,111 @@ import org.scec.data.function.EvenlyDiscretizedFunc;
 public interface IncrementalMagFreqDistAPI {
 
 
-      public double getIncrRate(double mag) ;
+  /**
+   * This function finds IncrRate for the given magnitude
+   * @param mag
+   * @return
+   */
+  public double getIncrRate(double mag) ;
 
-      public double getIncrRate(int index) ;
+    /**
+     * This function finds the IncrRate at the given index
+     * @param index
+     * @return
+     */
+  public double getIncrRate(int index) ;
 
-      public double getCumRate(double mag) ;
+     /**
+      * This function find the cumulative Rate till a specified magnitude
+      * @param mag
+      * @return
+      */
+  public double getCumRate(double mag) ;
 
-      public double getCumRate(int index) ;
+    /**
+     * This function find the cumulative Rate till a specified magnitude
+     * @param mag
+     * @return
+     */
+  public double getCumRate(int index) ;
 
-      public double getTotalMomentRate();
+   /**
+    * This function return the sum of all the moment rates as a double variable
+    * @return
+    */
+  public double getTotalMomentRate();
 
-      public double getTotalIncrRate();
+  /**
+   * This function returns the sum of all the incremental rate as the double varibale
+   * @return
+   */
+  public double getTotalIncrRate();
 
-      public void normalizeByTotalRate();
+  /**
+   * This function normalises the values of all the Incremental rate at each point, by dividing each one
+   * by the totalIncrRate, so that after normalization the sum addition of all incremental rate at each point
+   * comes to be 1.
+   */
 
-      public EvenlyDiscretizedFunc getCumRateDist() ;
-      public EvenlyDiscretizedFunc getMomentRateDist() ;
+  public void normalizeByTotalRate();
 
-      public void scaleToCumRate(double mag,double rate);
 
-      public void scaleToCumRate(int index,double rate);
+  /**
+   * This returns the object of the class EvenlyDiscretizedFunc which contains all the points
+   * with Incr Rate Distribution
+   * @return
+   */
+  public EvenlyDiscretizedFunc getCumRateDist() ;
 
-      public void scaleToIncrRate(double mag, double newRate) ;
+  /**
+   * This returns the object of the class EvenlyDiscretizedFunc which contains all the points
+   * with Moment Rate Distribution
+   * @return
+   */
+  public EvenlyDiscretizedFunc getMomentRateDist() ;
 
-      public void scaleToIncrRate(int index, double newRate);
+  /**
+   * Using this function each data point is scaled to ratio of specified newTotalMomentRate
+   * and oldTotalMomentRate.
+   * @param newTotMoRate
+   */
+
+  public void scaleToTotalMomentRate(double newTotMoRate);
+
+
+  /**
+   * Using this function each data point is scaled to the ratio of the CumRate at a given
+   * magnitude and the specified rate.
+   * @param mag
+   * @param rate
+   */
+
+  public void scaleToCumRate(double mag,double rate);
+
+  /**
+   * Using this function each data point is scaled to the ratio of the CumRate at a given
+   * index and the specified rate
+   * @param index
+   * @param rate
+   */
+
+  public void scaleToCumRate(int index,double rate);
+
+   /**
+    * Using this function each data point is scaled to the ratio of the IncrRate at a given
+    * magnitude and the specified newRate
+    * @param mag
+    * @param newRate
+    */
+  public void scaleToIncrRate(double mag, double newRate) ;
+
+   /**
+    * Using this function each data point is scaled to the ratio of the IncrRate at a given
+    * index and the specified newRate
+    * @param index
+    * @param newRate
+    */
+
+  public void scaleToIncrRate(int index, double newRate);
 
 }
