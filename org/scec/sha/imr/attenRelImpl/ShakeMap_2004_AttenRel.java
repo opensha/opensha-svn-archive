@@ -23,9 +23,7 @@ import org.scec.util.*;
  * 3-4 previously published relationships (the ones used for California in the 2002
  * National Seismic Hazard Maps; these are listed below).  For each relationship,
  * the predicted rock-site mean is multiplied by Borcherdt's nonlinear amplification
- * factor (1994, Earthquake Spectra, Vol. 10, No. 4, 617-653) as given in equation
- * 7a or 7b of the appendix with a reference velocity of 760 m/sec (and with the
- * mv and ma coefficients linearly interpolated at intermediate input ground motions).
+ * factor (1994, Earthquake Spectra, Vol. 10, No. 4, 617-653) as described below.
  * That is, the original site effect model of each relationship is not used.  The
  * averaging is performed after the site-depenent value for each relationship is
  * computed.  The exceedance probabilities are log-averaged, whereas the other two
@@ -57,6 +55,10 @@ import org.scec.util.*;
  * </UL><p>
  * Important Notes:
  * <UL>
+ * The Borcherdt (1994) nonlinear amplification factors are applied as given in appendix-equations
+ * 7a or 7b (for periods ² 0.5 and  > 0.5 seconds, respectively) using a reference velocity of 760 m/sec
+ * (and with the mv and ma coefficients linearly interpolated at intermediate input ground motions).
+ * Applying the mid-period amplification factors above 2.0 seconds for SA may not be legitimate. <p>
  * For the one relationship that has a site-type dependent standard deviation
  * (Sadigh et al., 1997) only the rock-site value is used (the difference is minor). <p>
  * The Boore, Joyner & Fumal (1997) relationship is not included in the average for SA periods
