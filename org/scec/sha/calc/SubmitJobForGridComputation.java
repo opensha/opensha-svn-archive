@@ -85,7 +85,8 @@ public class SubmitJobForGridComputation {
   public SubmitJobForGridComputation(String imrFileName, String erfFileName,
                                      String regionFileName, String outputDir,
                                      long remoteMachineSubdirName,
-                                     SitesInGriddedRegion griddedSites) {
+                                     SitesInGriddedRegion griddedSites,
+                                     String emailAddr) {
     if (!outputDir.endsWith("/"))
       outputDir = outputDir + "/";
 
@@ -141,7 +142,9 @@ public class SubmitJobForGridComputation {
 
       //create shell script to ftp hazard curve tar file from remote machine
       // to local machine and then untar them on the local machine
-      ftpCurvesFromRemoteMachine(outputDir, remoteDir);
+      ftpCurvesFromRemoteMachine(outputDir, remoteDir,
+                                 griddedSites.getNumGridLocs(), emailAddr);
+
       frmap.write("Script POST " + FINISH_JOB_NAME + " " +
                   GET_CURVES_FROM_REMOTE_MACHINE + "\n");
 
@@ -292,7 +295,9 @@ public class SubmitJobForGridComputation {
   }
 
   //create shell script to ftp hazard curve tar file from remote machine
-  private void ftpCurvesFromRemoteMachine(String outputDir, String remoteDir) {
+  private void ftpCurvesFromRemoteMachine(String outputDir, String remoteDir,
+                                          int expectedNumOfFiles,
+                                          String emailAddr) {
     try {
       // write the post script.
       //When all jobs are finished, grid ftp files from almaak to gravity
@@ -303,8 +308,11 @@ public class SubmitJobForGridComputation {
       frFTP.write("globus-url-copy gsiftp://almaak.usc.edu" + remoteDir +
                   OUTPUT_TAR_FILE_NAME +
                   " file:" + outputDir + OUTPUT_TAR_FILE_NAME + "\n");
-
       frFTP.write("tar xf " + OUTPUT_TAR_FILE_NAME + "\n");
+      String fileName = outputDir + "ActualFilesLog.log";
+      frFTP.write("ls -l *_*.txt | wc- l > " + fileName + "\n");
+      frFTP.write("java -classpath /opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/ERF.jar:$CLASSPATH org.scec.sha.gui.infoTools.HazardMapCalcPostProcessing " +
+                  fileName + " " + expectedNumOfFiles + " " + emailAddr + "\n");
       frFTP.close();
     }
     catch (Exception e) {

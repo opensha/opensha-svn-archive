@@ -23,7 +23,7 @@ import org.scec.sha.calc.SubmitJobForGridComputation;
  */
 
 public class HazardMapCalcServlet extends HttpServlet {
-  public final static boolean D =true;
+  public final static boolean D =false;
   // parent directory where each new calculation will have its own subdirectory
   public static final String PARENT_DIR = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/HazardMapDatasets/";
   // filenames for IMR, ERF, Region, metadata
@@ -52,7 +52,8 @@ public class HazardMapCalcServlet extends HttpServlet {
       //get the selected EqkRupForecast
       String  eqkRupForecastLocation =
           (String) inputFromApplet.readObject();
-
+      //get the email address from the applet
+      String emailAddr = (String) inputFromApplet.readObject();
       //get the parameter values in String form needed to reproduce this
       String mapParametersInfo = (String) inputFromApplet.readObject();
 
@@ -102,7 +103,8 @@ public class HazardMapCalcServlet extends HttpServlet {
       // now run the calculation on grid
       SubmitJobForGridComputation computation =
           new SubmitJobForGridComputation(IMR_FILE_NAME, ERF_FILE_NAME,
-                                     REGION_FILE_NAME, newDir, newDirId, sites);
+                                     REGION_FILE_NAME, newDir, newDirId, sites,
+                                     emailAddr);
     }
     catch (Exception e) {
       // report to the user whether the operation was successful or not

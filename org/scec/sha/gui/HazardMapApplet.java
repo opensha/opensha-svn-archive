@@ -132,9 +132,11 @@ public class HazardMapApplet extends JApplet
   GridBagLayout gridBagLayout6 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
   private int step;
+  JLabel emailLabel = new JLabel();
+  JTextField emailText = new JTextField();
+  GridBagLayout gridBagLayout4 = new GridBagLayout();
 
 
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -200,18 +202,24 @@ public class HazardMapApplet extends JApplet
         controlComboBox_actionPerformed(e);
       }
     });
+    emailLabel.setText("Email:");
+    emailText.setText("");
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 431));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(controlComboBox,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(48, 41, 47, 0), 5, 2));
-    buttonPanel.add(addButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(48, 88, 39, 139), 26, 9));
+    buttonPanel.add(addButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(28, 115, 24, 109), 26, 9));
+    buttonPanel.add(controlComboBox,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(19, 0, 0, 0), 153, 2));
+    buttonPanel.add(emailLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(26, 5, 33, 0), 11, 12));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
     imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
     imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
+    buttonPanel.add(emailText,  new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(25, 0, 36, 0), 176, 4));
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab( "Earthquake Rupture Forecast", eqkRupPanel );
@@ -488,7 +496,11 @@ public class HazardMapApplet extends JApplet
   * @param e
   */
  void addButton_actionPerformed(ActionEvent e) {
-
+   // check that user has entered a valid email address
+   if(this.emailText.getText().trim().equalsIgnoreCase("")) {
+     JOptionPane.showMessageDialog(this, "Please Enter email Address");
+     return;
+   }
    // get the selected forecast model
    EqkRupForecast eqkRupForecast = null;
    // get the selected IMR
@@ -543,7 +555,8 @@ public class HazardMapApplet extends JApplet
      toServlet.writeObject(imr);
      //sending the EQK forecast object to the servlet
      toServlet.writeObject(eqkRupForecastLocation);
-
+     //sending email address to the servlet
+     toServlet.writeObject(emailText.getText());
      //sending the parameters info. to the servlet
      toServlet.writeObject(getParametersInfo());
      toServlet.flush();
