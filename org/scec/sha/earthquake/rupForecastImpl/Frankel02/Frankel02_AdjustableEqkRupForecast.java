@@ -287,7 +287,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
     mkFileListVectors();
     for(int i=0;i<faultFiles.size();i++) {
-      this.makeFaultSources((String)faultFiles.get(i));
+      makeFaultSources((String)faultFiles.get(i));
     }
 
     for(int i=0;i<allSourceNames.size();i++)
@@ -554,9 +554,13 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
           bVal=Double.parseDouble(st.nextToken());
           magLower=Double.parseDouble(st.nextToken());
           mag=Double.parseDouble(st.nextToken());
-          deltaMag=mag=Double.parseDouble(st.nextToken());
-          sourceName += " GR";
-
+          deltaMag=Double.parseDouble(st.nextToken());
+          // Set name according to the number of mags
+          if( mag == magLower )
+            sourceName += " fl-Char";
+          else
+            sourceName += " GR";
+//System.out.println(sourceName+"  aVal="+aVal+"  bVal="+bVal+"  magLower="+magLower+"  mag="+mag+"  deltaMag="+deltaMag);
           //calculate moment rate & itest here
       }
 
