@@ -74,6 +74,14 @@ IMR_GuiBean 	-extend to allow multiple IMRs to be selected, with relative weight
 		-Create capability to associate IMRs to specific source types in the calculations
 		(this will take some thought).
 
+		- For IMR_API, create a getOtherParameters() method and use this
+		 here rather then getting the stdDevType, TruncType, ... by hand
+		(this will make if more flexibly with new IMRs that don't have
+		those parameters).  This will require implementing that method
+		in the existing attenuation relationships (will require a little
+		work since the otherParamsList contains one param that won't
+		be needed).
+
 ProbEqkSource	Define field to declare what type of source it is 
 		(e.g., subduction zone vs normal vs reverse ...) and add to API. 
 		Ned will work on what the various options should be.
