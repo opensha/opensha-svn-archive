@@ -609,7 +609,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 	int count = this.calculateVisibleTickCount();
 
 	double y0=plotArea.getMaxY();
-        float sum=0.0f;
+        double sum=0.0;
 
         /*if(counter==2)
            getTickUnit().formatter.setMaximumFractionDigits(3);*/
@@ -631,8 +631,8 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
         if(lower==0.0 || upper==0.0)
                throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for Y-Log Plot");
         for(int i=lowest;;++i) {
-          float val1=(float)Math.pow(10,i);
-          float val2=(float)Math.pow(10,i+1);
+          double val1=Double.parseDouble("1e"+i);
+          double val2=Double.parseDouble("1e"+(i+1));
           if(lower==val1 || upper==val1)
             break;
           if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
@@ -649,7 +649,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
          */
         for (int i=lowest; ; i++){
 	    for(int j=0;j<10;++j) {
-              sum =j*(float)StrictMath.pow(10,i);
+              sum =Double.parseDouble(j+"e"+i);
               if(sum<getRange().getLowerBound())
                 continue;
               if(sum>getRange().getUpperBound())
@@ -659,17 +659,14 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
               double logval;
               double yy;
 
-              if(sum==getRange().getLowerBound())
-               yy=plotArea.getMaxY();
-              else {
-               logval=Math.log(val)/LOG10_VALUE;
-                yy = this.myTranslateValueToJava2D(logval, plotArea);
-              }
+
+              logval=Math.log(val)/LOG10_VALUE;
+              yy = this.myTranslateValueToJava2D(logval, plotArea);
 
               if(sum<=0.0)
                 throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for Y-Log Plot");
 
-              String tickLabel = getTickUnit().valueToString(currentTickValue);
+              String tickLabel = new String(""+currentTickValue);
 
               if(j!=1) // for minor axis, just display 2 to 9
                  tickLabel= ""+j;
@@ -705,6 +702,9 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
                               -tickLabelBounds.getWidth()
                               -tickLabelInsets.left-tickLabelInsets.right);
               float y = (float)(yy+(tickLabelBounds.getHeight()/2));
+
+              if(sum==getRange().getLowerBound())
+               y=(float)plotArea.getMaxY();
 
 
             /**

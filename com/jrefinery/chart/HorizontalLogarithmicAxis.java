@@ -488,15 +488,15 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         double size = this.getTickUnit().getSize();
 	int count = this.calculateVisibleTickCount();
 	double x0=0.0;
-        float sum=0.0f;
+        double sum=0.0f;
         int i=lowest;
 
         /**
          * removed temporarily
          */
-       /* if(counter==2)
-          this.getTickUnit().sformatter.setMaximumFractionDigits(3);*/
-
+        /*if(counter==2)
+          this.getTickUnit().getformatter.setMaximumFractionDigits(3);
+*/
 
         int upperBound =powerOf10(getRange().getUpperBound());
         int lowerBound=powerOf10(getRange().getLowerBound());
@@ -505,6 +505,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         // whether you want to show in superscript form or not
         if((upperBound-lowerBound) >= 4)
            superscript=true;
+
         if(getRange().getLowerBound()<0.001 || getRange().getUpperBound()>1000.0)
           superscript=true;
 
@@ -514,11 +515,12 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         if(lower==0.0 || upper==0.0)
                throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
         for( i=lowest;;++i) {
-          float val1=(float)Math.pow(10,i);
-          float val2=(float)Math.pow(10,i+1);
+          double val1=Double.parseDouble("1e"+i);
+          double val2=Double.parseDouble("1e"+(i+1));
 
           if(lower==val1 || upper==(val1))
             break;
+
           if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
             // no major axis exixts in dat so you have to add the major axis
             this.setRange(val1,val2);
@@ -536,7 +538,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
         for (i=lowest;;i++) {
           for(int j=0;j<10;++j){
-              sum =j*(float)StrictMath.pow(10,i);
+              sum =Double.parseDouble(j+"e"+i);
               if(sum<getRange().getLowerBound())
                  continue;
               if(sum>getRange().getUpperBound())
@@ -549,20 +551,20 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
                if(sum==getRange().getLowerBound())
                  xx = plotArea.getMinX();
-
-               if(sum==getRange().getUpperBound())
+               else if(sum==getRange().getUpperBound())
                  xx=plotArea.getMaxX();
-
                else {
                 logval=Math.log(val)/LOG10_VALUE;
 	        xx = this.myTranslateValueToJava2D(logval, plotArea);
                 }
+
+
                 if(sum<=0.0)
                    throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
 
 
 
-	        String tickLabel = getTickUnit().valueToString(currentTickValue);
+	        String tickLabel = new String(""+currentTickValue);
                 if(j!=1) // for minor axis, just display 2 to 9
                   tickLabel=""+j;
                 else if(superscript) // whether you want to show in superscript format
@@ -597,8 +599,9 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 		y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getWidth());
 	    }
 	    else {
-		x = (float)(xx-tickLabelBounds.getWidth()/2);
-		y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getHeight());
+              if(!superscript) x = (float)(xx-tickLabelBounds.getWidth()/2);
+              else x = (float)(xx-tickLabelBounds.getWidth()/2 - 2);
+              y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getHeight());
 	    }
 
             /**
