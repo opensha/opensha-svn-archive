@@ -38,21 +38,16 @@ public class ScenarioShakeMapCalculator {
   /**
    * This function computes a Scenario ShakeMap Data for the given Region, IMR, and ERF.
    * The computed  data in the form of X, Y and Z is place XYZ_DataSetAPI object.
-   * @param xyzData : In this Object we store the vector for x, y and z values to
-   * generate the shakeMap.
-   * @param sourceIndex : Selected Source Number of the selected ERF
-   * @param ruptureIndex : Selected Rupture Number for the selected source
    * @param griddedRegionSites : Gridded Region Object
    * @param imr : selected IMR object
-   * @param eqkRupForecast :selected Earthquake rup forecast
+   * @param rupture : selected EarthquakeRupture Object.
    * @param isProbAtIML : if true the prob at the specified IML value (next param) will
    * be computed; if false the IML at the specified Prob value (next param) will be computed.
    * @param value : the IML or Prob to compute the map for.
+   * @returns the Vector  of doubles with the probablity value for each site.
    */
-  public void getScenarioShakeMapData(XYZ_DataSetAPI xyzData,
-                                      int sourceIndex, int ruptureIndex,
-                                      SitesInGriddedRegion griddedRegionSites,
-                                      AttenuationRelationship imr, ERF_API eqkRupForecast,
+  public Vector getScenarioShakeMapData(SitesInGriddedRegion griddedRegionSites,
+                                      AttenuationRelationship imr, EqkRupture rupture,
                                       boolean isProbAtIML,double value) {
 
     Site site;
@@ -68,22 +63,26 @@ public class ScenarioShakeMapCalculator {
       imr.setSite(site);
       // set the ProbEQkRup in the IMR
       try {
-        imr.setProbEqkRupture(eqkRupForecast.getRupture(sourceIndex,ruptureIndex));
+        imr.setProbEqkRupture((ProbEqkRupture)rupture);
       } catch (Exception ex) {
         throw new RuntimeException("Rupture not allowed for the chosen IMR: "+ex.getMessage());
       }
       if(isProbAtIML)
         siteValue.add( new Double(imr.getExceedProbability(Math.log(value))));
       else{
-        imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(value));
         try{
+          //if IML@Prob then Prob value should be between 0 and 1.
+          if(value<0 || value >1)
+            throw new RuntimeException("Probability can only between 0 and 1");
+          imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(value));
+
           siteValue.add(new Double(StrictMath.exp(imr.getIML_AtExceedProb())));
         }catch(RuntimeException e){
           throw new RuntimeException(e.getMessage());
         }
       }
     }
-    xyzData.setXYZ_DataSet(siteLat,siteLon,siteValue);
+    return siteValue;
   }
 
 

@@ -454,8 +454,16 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     double imlProbValue=imlProbGuiBean.getIML_Prob();
     Site site;
     SitesInGriddedRegion griddedRegionSites;
+    Vector lonVector = new Vector();
+    Vector latVector = new Vector();
     try {
       griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+      int numSites = griddedRegionSites.getNumGridLocs();
+      for(int i=0;i<numSites;++i) {
+        site = griddedRegionSites.getSite(i);
+        latVector.add(new Double(site.getLocation().getLatitude()));
+        lonVector.add(new Double(site.getLocation().getLongitude()));
+      }
     }catch(Exception e) {
       calcProgress.showProgress(false);
       JOptionPane.showMessageDialog(this,e.getMessage());
@@ -481,13 +489,11 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
 
     //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
     ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
-    int sourceVal = erfGuiBean.getSourceIndex();
-    int ruptureVal = erfGuiBean.getRuptureIndex();
-    xyzDataSet = new ArbDiscretizedXYZ_DataSet();
+
     try{
-    shakeMapCalc.getScenarioShakeMapData(xyzDataSet,sourceVal,ruptureVal,griddedRegionSites,imr,
-                                        (ERF_API)erfGuiBean.getSelectedERF_Instance(),
+    Vector probVector =shakeMapCalc.getScenarioShakeMapData(griddedRegionSites,imr,erfGuiBean.getRupture(),
                                         probAtIML,imlProbValue);
+    xyzDataSet = new ArbDiscretizedXYZ_DataSet(latVector,lonVector,probVector);
     }catch(RuntimeException e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
       timer.stop();
