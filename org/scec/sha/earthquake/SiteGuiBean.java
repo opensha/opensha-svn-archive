@@ -31,8 +31,8 @@ public class SiteGuiBean {
   /**
    * Latitude and longitude are added to the site parameters
    */
-  protected final static String LONGITUDE = "Longitude";
-  protected final static String LATITUDE = "Latitude";
+  public final static String LONGITUDE = "Longitude";
+  public final static String LATITUDE = "Latitude";
 
   // title for site paramter panel
   protected final static String SITE_PARAMS = "Site Params";
