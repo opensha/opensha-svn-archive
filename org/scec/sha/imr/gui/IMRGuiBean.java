@@ -800,7 +800,7 @@ public class IMRGuiBean
         yaxisConstraint.addString( Y_AXIS_V3 );
         yaxisConstraint.addString( Y_AXIS_V4 );
         StringParameter yaxis = new StringParameter( Y_AXIS_NAME, yaxisConstraint, Y_AXIS_V1 );
-
+        yaxis.addParameterChangeListener(this);
         // IM Choices picklist Parameter - Note these choices are now all DoubleParameters
         // Selected is first returned from ListIterator
         boolean first = true;
@@ -817,7 +817,7 @@ public class IMRGuiBean
             imConstraint.addString( name );
         }
         StringParameter im = new StringParameter( IM_NAME, imConstraint, "", imParam.getName() );
-
+        im.addParameterChangeListener(this);
 
         // X-axis choices - picks only double and discrete doubles as possible values
         // Selected is first returned from ListIterator
@@ -853,7 +853,7 @@ public class IMRGuiBean
             }
         }
         xaxis = new StringParameter( X_AXIS_NAME, xAxisConstraint, val );
-
+        xaxis.addParameterChangeListener(this);
         // Now make the parameters list
         // At this point all values have been set for the IM type, xaxis, and the yaxis
         controlsParamList = new ParameterList();
@@ -863,7 +863,7 @@ public class IMRGuiBean
 
 
         // Now make the Editor for the list
-        controlsEditor = new ParameterListEditor( controlsParamList, this, applet );
+        controlsEditor = new ParameterListEditor( controlsParamList);
         controlsEditor.setTitle( "Graph Controls" );
 
         // update the im choice in the imr
@@ -902,6 +902,8 @@ public class IMRGuiBean
         ListIterator it = imr.getMeanIndependentParamsIterator();
         while ( it.hasNext() ) {
             ParameterAPI param = ( ParameterAPI ) it.next();
+            param.addParameterChangeListener(this);
+            param.addParameterChangeFailListener(applet);
             if ( !( independentParams.containsParameter( param.getName() ) ) )
                 independentParams.addParameter( param );
 
@@ -911,6 +913,8 @@ public class IMRGuiBean
         it = imr.getStdDevIndependentParamsIterator();
         while ( it.hasNext() ) {
             ParameterAPI param = ( DependentParameterAPI ) it.next();
+            param.addParameterChangeListener(this);
+            param.addParameterChangeFailListener(applet);
             if ( !( independentParams.containsParameter( param.getName() ) ) )
                 independentParams.addParameter( param );
 
@@ -920,6 +924,8 @@ public class IMRGuiBean
         it = imr.getExceedProbIndependentParamsIterator();
         while ( it.hasNext() ) {
             ParameterAPI param = ( DependentParameterAPI ) it.next();
+            param.addParameterChangeListener(this);
+            param.addParameterChangeFailListener(applet);
             if ( !( independentParams.containsParameter( param.getName() ) ) )
                 independentParams.addParameter( param );
 
@@ -929,6 +935,8 @@ public class IMRGuiBean
         it = imr.getIML_AtExceedProbIndependentParamsIterator();
         while ( it.hasNext() ) {
             ParameterAPI param = ( DependentParameterAPI ) it.next();
+            param.addParameterChangeListener(this);
+            param.addParameterChangeFailListener(applet);
             if ( !( independentParams.containsParameter( param.getName() ) ) )
                 independentParams.addParameter( param );
 
@@ -938,6 +946,8 @@ public class IMRGuiBean
         it = imr.getSupportedIntensityMeasuresIterator();
         while ( it.hasNext() ) {
             DependentParameterAPI param = ( DependentParameterAPI ) it.next();
+            param.addParameterChangeListener(this);
+            param.addParameterChangeFailListener(applet);
            // System.out.println(param.getName());
             if ( !( independentParams.containsParameter( param.getName() ) ) ){
 
@@ -974,7 +984,7 @@ public class IMRGuiBean
         searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
 
         // Build editor list
-        independentsEditor = new ParameterListEditor( independentParams, this, applet, searchPaths );
+        independentsEditor = new ParameterListEditor( independentParams, searchPaths );
         independentsEditor.setTitle( "Independent Variables" );
 
         // All done
@@ -1168,30 +1178,16 @@ public class IMRGuiBean
         return xAxisConstraint;
 
     }
+
     public void setTranslateIMR(boolean translateIMR) {
         this.translateIMR = translateIMR;
     }
+
     public boolean isTranslateIMR() {
         return translateIMR;
     }
 
 
-    /* *
-     *  Function that must be implemented by all Listeners for
-     *  ParameterChangeWarnEvents.
-     *
-     * @param  event  The Event which triggered this function call
-     * /
-    public void parameterChangeWarning( ParameterChangeWarningEvent event ){
-
-       int result = javax.swing.JOptionPane.showConfirmDialog(applet,
-            "You have exceeded the recommended limits, are you shure you wish to set this value?",
-            "Exceeded Recommended Limits",
-            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-        System.out.println("You choose: " + result);
-    }
-    */
 
     /**
      *  <p>

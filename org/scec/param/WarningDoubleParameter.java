@@ -6,6 +6,8 @@ import org.scec.exceptions.*;
 
 /**
  * <b>Title:</b> WarningDoubleParameter<p>
+/** @merge workspace: Changes in the Workspace */
+/** @merge repository: Changes from the Repository
  *
  * <b>Description:</b> Concrete implementation of the
  * WarningParameterAPI interface that stores a Double
@@ -33,7 +35,12 @@ import org.scec.exceptions.*;
  * This means that this parameter component is not tied to
  * any specific class of editors, a guiding principle in
  * object-oriented programming. <p>
+*/
  *
+/** @merge workspace: Changes in the Workspace */
+ * <b>Description:</b> <p>
+ *
+/** @merge repository: Changes from the Repository
  * Note: All listeners must implement the ParameterChangeFailListener
  * interface. <p>
  *
@@ -45,6 +52,7 @@ import org.scec.exceptions.*;
  *
  * @see ParameterChangeWarningListener
  * @see ParameterChangeWarningEvent
+*/
  * @author Steven W. Rock
  * @version 1.0
  */
@@ -433,6 +441,12 @@ public class WarningDoubleParameter
         else {
             if(D) System.out.println(S + "Setting allowed and recommended value: ");
             this.value = value;
+            org.scec.param.event.ParameterChangeEvent event = new org.scec.param.event.ParameterChangeEvent(
+                       this, getName(),
+                       getValue(), value
+                   );
+
+            firePropertyChange( event );
         }
         if(D) System.out.println(S + "Ending: ");
     }

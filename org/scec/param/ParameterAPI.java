@@ -6,6 +6,7 @@ import org.scec.exceptions.ParameterException;
 import org.scec.sha.fault.*;
 import org.scec.util.*;
 import org.scec.data.*;
+import org.scec.param.event.*;
 
 /**
  *  <b>Title:</b> ParameterAPI Interface<p>
@@ -98,8 +99,64 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable {
      */
     public void setValue( Object value ) throws ConstraintException, ParameterException;
 
+    /**
+     *  Needs to be called by subclasses when field change fails
+     *  due to constraint problems
+     *
+     * @param  value                    Description of the Parameter
+     * @exception  ConstraintException  Description of the Exception
+     */
+     public void unableToSetValue( Object value ) throws ConstraintException;
+
+
 
     /**
+     *  Adds a feature to the ParameterChangeFailListener attribute
+     *
+     * @param  listener  The feature to be added to the
+     *      ParameterChangeFailListener attribute
+     */
+    public void addParameterChangeFailListener( org.scec.param.event.ParameterChangeFailListener listener );
+
+
+    /**
+     *  Description of the Method
+     *
+     * @param  listener  Description of the Parameter
+     */
+    public void removeParameterChangeFailListener( org.scec.param.event.ParameterChangeFailListener listener );
+
+    /**
+     *  Description of the Method
+     *
+     * @param  event  Description of the Parameter
+     */
+    public void firePropertyChangeFailed( org.scec.param.event.ParameterChangeFailEvent event ) ;
+
+
+    /**
+     *  Adds a feature to the ParameterChangeListener attribute
+     *
+     * @param  listener  The feature to be added to the ParameterChangeListener
+     *      attribute
+     */
+    public void addParameterChangeListener( org.scec.param.event.ParameterChangeListener listener );
+    /**
+     *  Description of the Method
+     *
+     * @param  listener  Description of the Parameter
+     */
+    public void removeParameterChangeListener( org.scec.param.event.ParameterChangeListener listener );
+
+    /**
+     *  Description of the Method
+     *
+     * @param  event  Description of the Parameter
+     */
+    public void firePropertyChange( ParameterChangeEvent event ) ;
+
+
+     /**
      *  Returns the data type of the value object. Used to determine which type
      *  of Editor to use in a GUI.
      *

@@ -83,9 +83,6 @@ public class ParameterEditor
 
     protected ParameterAPI model;
 
-    protected Vector changeListeners = new Vector();
-    protected Vector failListeners = new Vector();
-
     protected JPanel outerPanel = new JPanel();
     protected JPanel labelPanel = new JPanel();
     protected JPanel widgetPanel = new JPanel();
@@ -158,17 +155,9 @@ public class ParameterEditor
                 try{
                     model.setValue( value );
 
-                    org.scec.param.event.ParameterChangeEvent event = new org.scec.param.event.ParameterChangeEvent(
-                        model, model.getName(),
-                        model.getValue(), value
-                    );
-
-                    firePropertyChange( event );
                 }
                 catch(ParameterException ee){
-
                     System.out.println(S + ee.toString());
-
                 }
             }
             else return;
@@ -185,13 +174,6 @@ public class ParameterEditor
 
                 try{
                     model.setValue( value );
-
-                    org.scec.param.event.ParameterChangeEvent event = new org.scec.param.event.ParameterChangeEvent(
-                        model, model.getName(),
-                        model.getValue(), value
-                    );
-
-                    firePropertyChange( event );
                 }
                 catch(ParameterException ee){
 
@@ -347,65 +329,11 @@ public class ParameterEditor
             if ( D ) System.out.println( S + "Old Value = " + obj.toString() );
 
             if ( !obj.toString().equals( value.toString() ) ) {
-                org.scec.param.event.ParameterChangeFailEvent event = new org.scec.param.event.ParameterChangeFailEvent(
-                        model,
-                        model.getName(),
-                        model.getValue(),
-                        value
-                         );
-
-                firePropertyChangeFailed( event );
+                model.unableToSetValue(value);
             }
         }
     }
 
-    /**
-     *  Adds a feature to the ParameterChangeFailListener attribute of the
-     *  ParameterEditor object
-     *
-     * @param  listener  The feature to be added to the
-     *      ParameterChangeFailListener attribute
-     */
-    public synchronized void addParameterChangeFailListener( org.scec.param.event.ParameterChangeFailListener listener ) {
-        if ( failListeners == null ) failListeners = new Vector();
-        if ( !failListeners.contains( listener ) ) failListeners.addElement( listener );
-    }
-
-    /**
-     *  Description of the Method
-     *
-     * @param  listener  Description of the Parameter
-     */
-    public synchronized void removeParameterChangeFailListener( org.scec.param.event.ParameterChangeFailListener listener ) {
-        if ( failListeners != null && failListeners.contains( listener ) )
-            failListeners.removeElement( listener );
-    }
-
-    /**
-     *  Description of the Method
-     *
-     * @param  event  Description of the Parameter
-     */
-    public void firePropertyChangeFailed( org.scec.param.event.ParameterChangeFailEvent event ) {
-
-        String S = C + ": firePropertyChange(): ";
-        if ( D ) System.out.println( S + "Firing failed change event for parameter = " + event.getParameterName() );
-        if ( D ) System.out.println( S + "Old Value = " + event.getOldValue() );
-        if ( D ) System.out.println( S + "Bad Value = " + event.getBadValue() );
-        if ( D ) System.out.println( S + "Model Value = " + event.getSource().toString() );
-
-        Vector vector;
-        synchronized ( this ) {
-            if ( failListeners == null ) return;
-            vector = ( Vector ) failListeners.clone();
-        }
-
-        for ( int i = 0; i < vector.size(); i++ ) {
-            org.scec.param.event.ParameterChangeFailListener listener = ( org.scec.param.event.ParameterChangeFailListener ) vector.elementAt( i );
-            listener.parameterChangeFailed( event );
-        }
-
-    }
 
     /**
      *  Description of the Method
@@ -425,53 +353,6 @@ public class ParameterEditor
         return l;
     }
 
-    /**
-     *  Adds a feature to the ParameterChangeListener attribute of the
-     *  ParameterEditor object
-     *
-     * @param  listener  The feature to be added to the ParameterChangeListener
-     *      attribute
-     */
-    public synchronized void addParameterChangeListener( org.scec.param.event.ParameterChangeListener listener ) {
-        if ( changeListeners == null ) changeListeners = new Vector();
-        if ( !changeListeners.contains( listener ) ) changeListeners.addElement( listener );
-    }
-
-    /**
-     *  Description of the Method
-     *
-     * @param  listener  Description of the Parameter
-     */
-    public synchronized void removeParameterChangeListener( org.scec.param.event.ParameterChangeListener listener ) {
-        if ( changeListeners != null && changeListeners.contains( listener ) )
-            changeListeners.removeElement( listener );
-    }
-
-    /**
-     *  Description of the Method
-     *
-     * @param  event  Description of the Parameter
-     */
-    public void firePropertyChange( ParameterChangeEvent event ) {
-
-        String S = C + ": firePropertyChange(): ";
-        if ( D ) System.out.println( S + "Firing change event for parameter = " + event.getParameterName() );
-        if ( D ) System.out.println( S + "Old Value = " + event.getOldValue() );
-        if ( D ) System.out.println( S + "New Value = " + event.getNewValue() );
-        if ( D ) System.out.println( S + "Model Value = " + event.getSource().toString() );
-
-        Vector vector;
-        synchronized ( this ) {
-            if ( changeListeners == null ) return;
-            vector = ( Vector ) changeListeners.clone();
-        }
-
-        for ( int i = 0; i < vector.size(); i++ ) {
-            org.scec.param.event.ParameterChangeListener listener = ( org.scec.param.event.ParameterChangeListener ) vector.elementAt( i );
-            listener.parameterChange( event );
-        }
-
-    }
 
     /**
      *  Description of the Method
@@ -485,14 +366,13 @@ public class ParameterEditor
         titledBorder1.setTitleColor(FORE_COLOR);
         titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
         titledBorder1.setTitle("Parameter Name");
-        //titledBorder1.setTitleFont(DEFAULT_FONT);
         border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
 
 
         this.setBorder( BORDER );
         this.setBackground( BACK_COLOR );
         this.setLayout( GBL );
-        // this.setMaximumSize(new Dimension(2147483647, 51));
+
 
         // Outermost panel
         outerPanel.setLayout( GBL );
@@ -505,17 +385,6 @@ public class ParameterEditor
         widgetPanel.setMinimumSize( WIGET_PANEL_DIM );
         widgetPanel.setPreferredSize( WIGET_PANEL_DIM );
 
-        // lable panel init
-        // labelPanel.setBackground( BACK_COLOR );
-        // labelPanel.setLayout( GBL );
-
-
-        // labelPanel.setPreferredSize( WIGET_PANEL_DIM );
-        // labelPanel.setMinimumSize( WIGET_PANEL_DIM );
-
-        //labelPanel.setPreferredSize( LABEL_PANEL_DIM );
-        //labelPanel.setMinimumSize( LABEL_PANEL_DIM );
-        //labelPanel.setMaximumSize(new Dimension(12320981, 16));
 
         // nameLabel panel init
         nameLabel.setBackground( BACK_COLOR );

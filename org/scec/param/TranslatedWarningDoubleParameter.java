@@ -229,9 +229,27 @@ public class TranslatedWarningDoubleParameter
             else {
                 if(D) System.out.println(S + "Setting allowed and recommended value: ");
                 param.setValue( dTranslated );
+                org.scec.param.event.ParameterChangeEvent event = new org.scec.param.event.ParameterChangeEvent(
+                       this, getName(),
+                       getValue(), value
+                   );
+
+                firePropertyChange( event );
             }
         }
     }
+
+
+    /**
+      *  Needs to be called by subclasses when field change fails
+      *  due to constraint problems
+      *
+      * @param  value                    Description of the Parameter
+      * @exception  ConstraintException  Description of the Exception
+      */
+     public void unableToSetValue( Object value ) throws ConstraintException {
+       param.unableToSetValue(value);
+     }
 
 
 
@@ -365,11 +383,84 @@ public class TranslatedWarningDoubleParameter
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void removeParameterChangeWarningListener( ParameterChangeWarningListener listener ){
-        param.removeParameterChangeWarningListener( listener ) ;}
+        param.removeParameterChangeWarningListener( listener ) ;
+    }
 
 
 
+    /**
+     *  Adds a feature to the ParameterChangeFailListener attribute of the
+     *  ParameterEditor object
+     *
+     * @param  listener  The feature to be added to the
+     *      ParameterChangeFailListener attribute
+     */
+    public synchronized void addParameterChangeFailListener( org.scec.param.event.ParameterChangeFailListener listener ) {
+      param.addParameterChangeFailListener(listener);
+    }
+
+    /**
+     *  Description of the Method
+     *
+     * @param  listener  Description of the Parameter
+     */
+    public synchronized void removeParameterChangeFailListener( org.scec.param.event.ParameterChangeFailListener listener ) {
+        param.removeParameterChangeFailListener(listener);
+    }
+
+
+    /**
+     *  Adds a feature to the ParameterChangeListener attribute of the
+     *  ParameterEditor object
+     *
+     * @param  listener  The feature to be added to the ParameterChangeListener
+     *      attribute
+     */
+    public synchronized void addParameterChangeListener( org.scec.param.event.ParameterChangeListener listener ) {
+      param.addParameterChangeListener(listener);
+    }
+
+
+
+  /**
+    *  Description of the Method
+    *
+    * @param  listener  Description of the Parameter
+    */
+   public synchronized void removeParameterChangeListener( org.scec.param.event.ParameterChangeListener listener ) {
+     param.removeParameterChangeListener(listener);
+   }
+
+
+/** @merge workspace: Changes in the Workspace */
+    /**
+     *  Description of the Method
+     *
+     * @param  event  Description of the Parameter
+     */
+    public void firePropertyChange( ParameterChangeEvent event ) {
+        param.firePropertyChange(event);
+    }
+
+    /**
+    *  Description of the Method
+    *
+    * @param  event  Description of the Parameter
+    */
+   public void firePropertyChangeFailed( org.scec.param.event.ParameterChangeFailEvent event ) {
+     param.firePropertyChangeFailed(event);
+   }
+
+
+
+    /**
+     *  Description of the Method
+     *
+     * @param  event  Description of the Parameter
+     */
+/** @merge repository: Changes from the Repository
     /** Direct proxy to wrapped parameter. See that class for documentation. */
+*/
     public void fireParameterChangeWarning( ParameterChangeWarningEvent event ){
         param.fireParameterChangeWarning( event ) ;}
 
@@ -485,12 +576,42 @@ public class TranslatedWarningDoubleParameter
     public String getType(){ return "TranslatedWarningDoubleParameter";}
 
 
+    /**
+     *  Compares the values to see if they are the same. Returns -1 if obj is
+     *  less than this object, 0 if they are equal in value, or +1 if the object
+     *  is greater than this.
+     *
+     * @param  parameter            the parameter to compare this object to.
+     * @return                      -1 if this value < obj value, 0 if equal, +1
+     *      if this value > obj value
+     * @throws  ClassCastException  Thrown if the object type of the parameter
+     *      argument are not the same.
+     */
+    public int compareTo( Object parameter ) throws ClassCastException{ return param.compareTo( parameter );}
+
+
+    /**
+     *  Compares value to see if equal.
+     *
+     * @param  parameter            the parameter to compare this object to.
+     * @return                      True if the values are identical
+     * @throws  ClassCastException  Thrown if the object type of the parameter
+     *      argument are not the same.
+     */
+    //public boolean equals( Object parameter ) throws ClassCastException{ return param.equals( parameter );}
+
+/** @merge workspace: Changes in the Workspace */
+/** @merge repository: Changes from the Repository
     /** Direct proxy to wrapped parameter. See that class for documentation. */
      public int compareTo( Object parameter ) throws ClassCastException{ return param.compareTo( parameter );}
+*/
 
 
+/** @merge workspace: Changes in the Workspace */
+/** @merge repository: Changes from the Repository
     /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void setInfo( String info ){ param.setInfo( info );}
+*/
 
 
     /**
@@ -499,10 +620,30 @@ public class TranslatedWarningDoubleParameter
      *
      * @return    The type value - i.e. the class name.
      */
+/** @merge workspace: Changes in the Workspace */
+    public void setNonEditable(){ param.setNonEditable();}
+
+/** @merge repository: Changes from the Repository
     public String getType(){ return "TranslatedWarningDoubleParameter";}
+*/
 
+    /**
+     *  Returns a copy so you can't edit or damage the origial.
+     *
+     * @return    Description of the Return Value
+     * /
+    public Object clone(){
+        return param.clone();}
+    */
 
+/** @merge workspace: Changes in the Workspace */
+    public boolean isNullAllowed(){ return param.isNullAllowed();}
+    public TranslatorAPI getTrans() {
+        return trans;
+    }
+/** @merge repository: Changes from the Repository
     /** Direct proxy to wrapped parameter. See that class for documentation. */
      public int compareTo( Object parameter ) throws ClassCastException{ return param.compareTo( parameter );}
+*/
 
 }

@@ -141,7 +141,7 @@ public class TranslatedWarningDoubleParameterEditor extends ConstrainedDoublePar
                             dUntranslated
                         );
 
-                        firePropertyChangeFailed( event );
+                        param.firePropertyChangeFailed( event );
                     }
                 }
             }

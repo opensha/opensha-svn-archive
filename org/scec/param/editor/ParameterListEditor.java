@@ -36,8 +36,6 @@ public class ParameterListEditor extends LabeledBoxPanel {
     private ParameterList parameterList;
 
     private HashMap parameterEditors = new HashMap();
-    ParameterChangeListener changeListener;
-    ParameterChangeFailListener failListener;
 
     String[] searchPaths;
 
@@ -54,17 +52,11 @@ public class ParameterListEditor extends LabeledBoxPanel {
      * @param  changeListener  Description of the Parameter
      * @param  failListener    Description of the Parameter
      */
-    public ParameterListEditor(
-            ParameterList paramList,
-            ParameterChangeListener changeListener,
-            ParameterChangeFailListener failListener
-             ) {
+    public ParameterListEditor(ParameterList paramList) {
 
         super();
         parameterList = paramList;
 
-        this.changeListener = changeListener;
-        this.failListener = failListener;
 
 
         // Build package names search path
@@ -85,18 +77,11 @@ public class ParameterListEditor extends LabeledBoxPanel {
      * @param  failListener    Description of the Parameter
      * @param  searchPaths     Description of the Parameter
      */
-    public ParameterListEditor(
-            ParameterList paramList,
-            ParameterChangeListener changeListener,
-            ParameterChangeFailListener failListener,
-            String[] searchPaths
-             ) {
+    public ParameterListEditor(ParameterList paramList, String[] searchPaths) {
 
         super();
 
         parameterList = paramList;
-        this.changeListener = changeListener;
-        this.failListener = failListener;
         this.searchPaths = searchPaths;
 
         this.setLayout( new GridBagLayout());
@@ -222,8 +207,6 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
             ParameterEditor editor = ( ParameterEditor ) parameterEditors.get( parameterName );
             editor.setParameter( param );
-            editor.addParameterChangeListener( changeListener );
-            editor.addParameterChangeFailListener( failListener );
 
             parameterList.removeParameter( parameterName );
             parameterList.addParameter( param );
@@ -261,16 +244,9 @@ public class ParameterListEditor extends LabeledBoxPanel {
             // if(obj instanceof ParameterAPI){
             //ParameterAPI param = (ParameterAPI)obj;
             ParameterEditor panel = ParameterEditorFactory.getEditor( param );
-            panel.addParameterChangeListener( changeListener );
-            panel.addParameterChangeFailListener( failListener );
 
             parameterEditors.put( param.getName(), panel );
 
-            // if ( first ) {
-                // first = false;
-                // SidesBorder border = new SidesBorder( Color.white, Color.white, Color.white, Color.white );
-                // panel.setBorder( border );
-            // }
             editorPanel.add( panel, new GridBagConstraints( 0, counter, 1, 1, 1.0, 0.0
                     , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
             counter++;
