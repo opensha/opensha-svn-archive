@@ -1,6 +1,8 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+ReDo PEER set2, case5 (including fractiles) and update the Excel spreadsheet.
+
 Put calTopoInten03.grd on usc.gravity.edu (Ned has this on his computer)
 
 1) Test the wills-class and basin-depth servlets, and the siteTranlator, by putting the following on a line of an ascii file for each site in the LA region (discretized at 0.05 degrees):
@@ -31,21 +33,13 @@ Access site-type servlets from the SitesInGriddedRegion rather than the GuiBean 
 
 ScenarioShakeMapApp
 
-	Remove the "We have obtained the site parameters from the CVM" message, 
-	but keep the "Getting site parameters ..."
-
 	change set sites from CVM list options:
 
 		"Apply same ..."
 		"Use the Wills et al. (2000) Map Web Service"
 		"Use both Wills Map and SCEC Basin Depth Web Service"
 
-	make checkbox options in MapGuiBean boolean parameters and put them in the GMT_MapGenerator 
-	(which means take the log values in the latter as well).  Also move everything out of the MapGuiBean
-	so the latter is simply a wrapper around the GMT_MapGenerator (make the map and show the map and
-	metadata from the main app).
-
-	move "set site params" JCombo in  Region&SiteGuiBean to a StringParameter and add it to the list.
+		TEST THIS
 
 	after all the above are done, subclass the GMT_MapGenerator as GMT_MapGeneratorForShakeMaps 
 	in the sha package, and change the makeMap* methods in this sublcalss like the follow:
