@@ -1136,7 +1136,7 @@ public class GriddedFaultApplet3D
 
 
 
-        GriddedFaultApplet applet = new GriddedFaultApplet();
+        GriddedFaultApplet3D applet = new GriddedFaultApplet3D();
         applet.isStandalone = true;
         JFrame frame = new JFrame();
         //EXIT_ON_CLOSE == 3

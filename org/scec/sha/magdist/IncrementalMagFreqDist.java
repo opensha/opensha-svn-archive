@@ -38,8 +38,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      super(min,num,delta);
      momentRateDist=new EvenlyDiscretizedFunc(min,num,delta);
      cumRateDist =new EvenlyDiscretizedFunc(min,num,delta);
-     setMomentRateDist();
-     setCumRateDist();
+
     }
 
     /**
@@ -54,8 +53,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
       double delta= (max-min)/num;
       momentRateDist=new EvenlyDiscretizedFunc(min,num,delta);
       cumRateDist =new EvenlyDiscretizedFunc(min,num,delta);
-      setMomentRateDist();
-      setCumRateDist();
+
    }
 
    /**
@@ -163,9 +161,8 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
       for(int i=0;i<num;++i) {
           double y = getIncrRate(i);
           double yy= y/totalIncrRate;
-          points.set(i,new Double(yy));
+          set(i,yy);
       }
-      return;
     }
 
     /**
@@ -174,6 +171,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * @return
      */
     public EvenlyDiscretizedFunc getCumRateDist() {
+      setCumRateDist();
       return cumRateDist;
     }
 
@@ -183,6 +181,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
      * @return
      */
     public EvenlyDiscretizedFunc getMomentRateDist() {
+      setMomentRateDist();
       return momentRateDist;
     }
 
@@ -197,7 +196,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
         for(int i=0;i<num;++i) {
             double y=getIncrRate(i);
             y*=scaleRate;
-            points.set(i,new Double(y));
+            set(i,y);
         }
 
     }
@@ -214,7 +213,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
         for(int i=0;i<num;++i) {
             double y=getCumRate(i);
             y*=scaleCumRate;
-            points.set(i,new Double(y));
+            set(i,y);
         }
     }
 
@@ -230,7 +229,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
         for(int i=0;i<num;++i) {
             double y=getCumRate(i);
             y*=scaleCumRate;
-            points.set(i,new Double(y));
+            set(i,y);
         }
    }
 
@@ -247,7 +246,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
         for(int i=0;i<num;++i) {
             double y=getIncrRate(i);
             y*=scaleIncrRate;
-            points.set(i,new Double(y));
+            set(i,y);
         }
     }
 
@@ -264,7 +263,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
         for(int i=0;i<num;++i) {
             double y=getIncrRate(i);
             y*=scaleIncrRate;
-            points.set(i,new Double(y));
+            set(i,y);
         }
     }
 }

@@ -263,7 +263,7 @@ public class GriddedFaultApplet
      *  Initialize the applet
      */
     public void init() {
-
+        threeDRadioButton.setVisible(false);
         ArrayList files = new ArrayList();
         files.add("CALA.char");
         files.add("CALB.char");
