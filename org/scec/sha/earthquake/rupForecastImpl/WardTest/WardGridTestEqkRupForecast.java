@@ -63,6 +63,9 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
    */
   private Vector wardGR_EqkSources = new Vector();
 
+  // GutenbergRichterMagFreqDist distribution
+  GutenbergRichterMagFreqDist gR;
+
 
 
   /**
@@ -121,19 +124,25 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
           }
 
           if(cumRate >= Double.MIN_VALUE) {
-              PointGR_EqkSource pointGR_EqkSource = new PointGR_EqkSource(lat, lon,
-                                                  depth, rake, 90, cumRate, bValue,
-                                                  magLower, magUpper, delta);
+            // see here that we have rounded num to nearest integer value
+            int num = (int)Math.rint((magUpper - magLower)/delta + 1);
 
-              this.wardGR_EqkSources.add(pointGR_EqkSource);
+            //Setting the GutenbergDistribution
+            gR = new GutenbergRichterMagFreqDist(magLower,magUpper,num);
+            gR.setAllButTotMoRate(magLower,magUpper,cumRate,bValue );
+            PointPoissonEqkSource pointPoissonEqkSource =
+                new PointPoissonEqkSource(new Location(lat, lon, depth),gR,
+                timeSpan.getDuration(), rake, 90);
 
-              if (D) System.out.println("NonZeroData: "+lat+"  "+lon+"  "+cumRate+"  "+bValue+"  "+magLower+"  "+magUpper);
+            this.wardGR_EqkSources.add(pointPoissonEqkSource);
+
+            if (D) System.out.println("NonZeroData: "+lat+"  "+lon+"  "+cumRate+"  "+bValue+"  "+magLower+"  "+magUpper);
           }
 
         }
 
-    // Done
-    if( D ) System.out.println(S + "Ending");
+        // Done
+        if( D ) System.out.println(S + "Ending");
 
   }
 
