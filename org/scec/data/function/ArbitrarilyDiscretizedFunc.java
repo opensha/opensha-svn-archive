@@ -589,6 +589,30 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
       }
     }
 
+
+    /**
+     * This function creates a new ArbitrarilyDiscretizedFunc whose X values are the
+     * Y values of the calling function and Y values are the Y values of the function
+     * passed as argument.
+     * @param function DiscretizedFuncAPI function whose Y values will the Y values
+     * of the new ArbitrarilyDiscretizedFunc.
+     * @return ArbitrarilyDiscretizedFunc new ArbitrarilyDiscretizedFunc
+     */
+    public ArbitrarilyDiscretizedFunc getYY_Function(DiscretizedFuncAPI function){
+
+      if(getNum() !=function.getNum())
+        throw new InvalidRangeException("This operation cannot be performed on functions "+
+      "with different size");
+
+      ArbitrarilyDiscretizedFunc newFunction = new ArbitrarilyDiscretizedFunc();
+      int numPoints = function.getNum();
+      for(int j=0;j<numPoints;++j)
+        newFunction.set(getY(j),function.getY(j));
+
+      return newFunction;
+    }
+
+
 /*  temp main method to investige numerical precision issues
 public static void main( String[] args ) {
 

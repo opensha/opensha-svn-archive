@@ -145,7 +145,18 @@ public final class GlobalConstants {
 
 
 
-    //Some constant declaration for map making
+    //Some constant declaration for data plotting and Metadata
+    public final static String SA = "Sa (g)";
+    public final static String SD = "Sd (in)";
+    public final static String PERIOD_NAME = "T (sec)";
+    public final static String MCE_SPECTRUM = "MCE Spectrum";
+    public final static String SD_SPECTRUM = "Design Spectrum";
+    public final static String SM_SPECTRUM = "Site Modified Spectrum";
+    public final static String PERIOD_UNITS = "Sec";
+    public final static String SA_UNITS = "g";
+    public final static String SD_UNITS = "inches";
+    public final static String SA_Vs_SD_GRAPH_NAME = "Sa Vs Sd";
+    public final static String SA_Vs_T_GRAPH_NAME = "Sa Vs T";
     public final static String MCE_SPECTRUM_SA_Vs_T_GRAPH = "MCE Spectrum Sa Vs T";
     public final static String MCE_SPECTRUM_SA_Vs_SD_GRAPH = "MCE Spectrum Sa Vs Sd";
     public final static String MCE_SPECTRUM_SD_Vs_T_GRAPH = "MCE Spectrum Sd Vs T";
@@ -155,12 +166,13 @@ public final class GlobalConstants {
     public final static String DESIGN_SPECTRUM_SA_Vs_T_GRAPH = "Design Spectrum Sa Vs T";
     public final static String DESIGN_SPECTRUM_SA_Vs_SD_GRAPH = "Design Spectrum Sa Vs Sd";
     public final static String DESIGN_SPECTRUM_SD_Vs_T_GRAPH = "Design Spectrum Sd Vs T";
-    public final static String SA_Vs_SD_GRAPH_NAME = "Sa Vs Sd";
-    public final static String SD_Vs_T_GRAPH_NAME = "Sd Vs T";
 
 
 
 
+
+    //some SA constants
+    public final static String SA_DAMPING = "5% Damping";
 
     /**
      * Returns the supported Site Classes

@@ -5,13 +5,16 @@ import java.awt.event.*;
 import javax.swing.*;
 import org.scec.util.ImageUtils;
 import java.util.ArrayList;
+import java.util.TreeMap;
 import org.jfree.data.Range;
 import org.scec.sha.gui.infoTools.ButtonControlPanel;
 import org.scec.sha.gui.infoTools.GraphPanel;
 import org.scec.sha.gui.infoTools.GraphPanelAPI;
 import org.scec.sha.gui.infoTools.ButtonControlPanelAPI;
-import org.scec.data.function.DiscretizedFuncList;
+import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import java.io.IOException;
+import java.util.Set;
+import java.util.Iterator;
 
 /**
  * <p>Title: GraphWindow</p>
@@ -52,34 +55,32 @@ public class GraphWindow
   private JPanel buttonPanel = new JPanel();
   private FlowLayout flowLayout1 = new FlowLayout();
 
-//boolean parameters for the Axis to check for log
+  //boolean parameters for the Axis to check for log
   private boolean xLog = false;
   private boolean yLog = false;
 
-//boolean parameter to check for range of the axis
+  //boolean parameter to check for range of the axis
   private boolean customAxis = false;
-
 
   private String plotTitle = "Hazard Curves";
 
   private double minXValue, maxXValue, minYValue, maxYValue;
 
-//instance for the ButtonControlPanel
+  //instance for the ButtonControlPanel
   private ButtonControlPanel buttonControlPanel;
 
-
-//instance of the GraphPanel class
+  //instance of the GraphPanel class
   private GraphPanel graphPanel;
 
-
-//X and Y Axis  when plotting tha Curves Name
-  private String xAxisName;
-  private String yAxisName;
-
+  private String xAxisName,yAxisName;
 
   private JComboBox graphListCombo = new JComboBox();
 
-  private ArrayList functionList;
+
+  /**
+   * Creating this Map to keep track of the selected item to plot
+   */
+  private TreeMap map = new TreeMap();
 
   /**
    * Class constructor that shows the list of graphs that user can plot.
@@ -87,11 +88,52 @@ public class GraphWindow
    */
   public GraphWindow(ArrayList dataList) {
 
-    functionList = dataList;
+
     //adding list of graphs to the shown to the user.
     int size = dataList.size();
-    for(int i=0;i<size;++i)
-      graphListCombo.addItem(((DiscretizedFuncList)dataList.get(i)).getName());
+
+    //creating the ArrayList for the plots
+    for(int i=0;i<size;++i){
+      //getting the functions to plot and creating individual ArrayList for those
+      //adding these individual arraylist to the hashmap.
+      ArbitrarilyDiscretizedFunc function = (ArbitrarilyDiscretizedFunc)dataList.get(i);
+      ArrayList plottingFunction = new ArrayList();
+      plottingFunction.add(function);
+      map.put(function.getName(),plottingFunction);
+    }
+
+    //adding the functions having same X and Y axis name to HashMap
+    for(int i=0;i<size;++i){
+      ArbitrarilyDiscretizedFunc function = (ArbitrarilyDiscretizedFunc)dataList.get(i);
+      ArrayList plottingFunctions = new ArrayList();
+      String functionXName = function.getXAxisName();
+      String functionYName = function.getYAxisName();
+      boolean containsSameName = false;
+      String name = null;
+      for(int j=i+1;j<size;++j){
+        ArbitrarilyDiscretizedFunc function1 = (ArbitrarilyDiscretizedFunc)dataList.get(j);
+        String function1XName = function1.getXAxisName();
+        String function1YName = function1.getYAxisName();
+        if(functionXName.equals(function1XName) && functionYName.equals(function1YName)){
+          name = functionXName +" Vs "+functionYName;
+          if(!map.containsKey(name)){
+            plottingFunctions.add(function1);
+            containsSameName = true;
+          }
+        }
+      }
+      if(containsSameName){
+        plottingFunctions.add(function);
+        map.put(name,plottingFunctions);
+        containsSameName = false;
+      }
+    }
+
+    //Adding the names of the plot to the Combo selection
+    Set plotNames = map.keySet();
+    Iterator it  = plotNames.iterator();
+    while(it.hasNext())
+      graphListCombo.addItem(it.next());
 
     graphListCombo.setSelectedIndex(0);
 
@@ -114,10 +156,9 @@ public class GraphWindow
    * @throws java.lang.Exception
    */
   private void jbInit() throws Exception {
-
+    getContentPane().setLayout(borderLayout1);
     setSize(new Dimension(W, H));
     setTitle("Data Plot Window");
-    this.getContentPane().setLayout(null);
     fileMenu.setText("File");
     fileExitMenu.setText("Exit");
     fileSaveMenu.setText("Save");
@@ -178,7 +219,6 @@ public class GraphWindow
     jToolBar.add(saveButton);
     this.getContentPane().add(jToolBar, BorderLayout.NORTH);
     this.setSize(W,H);
-    this.getContentPane().setLayout(borderLayout1);
     chartSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     chartPane.setLayout(gridBagLayout1);
 
@@ -292,25 +332,23 @@ public class GraphWindow
    * to draw the graph
    */
   private void drawGraph() {
-    ArrayList listOfFunctionsToPlot = new ArrayList();
-    int totFunctions = functionList.size();
+
 
     //getting the list of the curves that we need to plot
     String selectedDataToPlot = (String)graphListCombo.getSelectedItem();
-    for(int i=0;i<totFunctions;++i){
-      DiscretizedFuncList funcList = (DiscretizedFuncList)functionList.get(i);
-      if(selectedDataToPlot.equals(funcList.getName())){
-        int numFunc = funcList.size();
-        for(int j=0;j<numFunc;++j)
-          listOfFunctionsToPlot.add(funcList.get(j));
-        break;
-      }
-    }
+
+    ArrayList functionsToPlot = (ArrayList)map.get(selectedDataToPlot);
+    ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)functionsToPlot.get(0);
+    xAxisName = func.getXAxisName();
+    yAxisName = func.getYAxisName();
 
     //sending the list of curves to be plotted
-    graphPanel.drawGraphPanel(xAxisName, yAxisName, listOfFunctionsToPlot, xLog, yLog,
+    //graphPanel.getCurvePlottingCharacterstic().clear();
+    graphPanel.removeChartAndMetadata();
+    graphPanel.drawGraphPanel(xAxisName, yAxisName, functionsToPlot, xLog, yLog,
                               customAxis, plotTitle, buttonControlPanel);
     togglePlot();
+    graphPanel.updateUI();
   }
 
   /**
@@ -324,8 +362,8 @@ public class GraphWindow
   //checks if the user has plot the data window or plot window
   public void togglePlot() {
 
-    if(graphPanel !=null)
-      chartPane.remove(graphPanel);
+    //if(graphPanel !=null)
+    //  chartPane.remove(graphPanel);
     graphPanel.togglePlot(buttonControlPanel);
     chartPane.add(graphPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -443,8 +481,6 @@ public class GraphWindow
   }
 
   public void graphListCombo_itemStateChanged(ItemEvent itemEvent) {
-    //creating the new instance of the plot
-    graphPanel = new GraphPanel(this);
     drawGraph();
   }
 

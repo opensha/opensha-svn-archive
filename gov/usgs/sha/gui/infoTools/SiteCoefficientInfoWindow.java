@@ -117,6 +117,7 @@ public class SiteCoefficientInfoWindow
     setSS_S1(ss, s1);
     this.siteClass = siteClass;
     siteClassParam.setValue(siteClass);
+    siteClassEditor.refreshParamEditor();
   }
 
   private void setSS_S1(double ss, double s1) {

@@ -77,7 +77,7 @@ public final class DataDisplayFormatter {
                                                  functionList,String siteClass) {
     String dataInfo = "";
     dataInfo += "\nPeriod\t" + "Sa\t"+"Sd"+ "\n";
-    dataInfo += "(sec)\t (g)\t (g)\n";
+    dataInfo += "(sec)\t (g)\t (inches)\n";
 
 
 

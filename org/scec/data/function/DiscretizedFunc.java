@@ -60,6 +60,8 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
      */
     protected String name = "";
 
+    //X and Y Axis name
+    private String xAxisName,yAxisName;
 
     /** Returns the name of this function. */
      public String getName(){ return name; }
@@ -84,6 +86,41 @@ public abstract class DiscretizedFunc implements DiscretizedFuncAPI,
             throw new InvalidRangeException("Tolerance must be larger or equal to 0");
         tolerance = newTolerance;
     }
+
+
+    /**
+     * Sets the name of the X Axis
+     * @param xName String
+     */
+    public void setXAxisName(String xName){
+      xAxisName = xName;
+    }
+
+    /**
+     * Gets the name of the X Axis
+     * @return String
+     */
+    public String getXAxisName(){
+      return xAxisName;
+    }
+
+    /**
+     * Sets the name of the Y Axis
+     * @param yName String
+     */
+    public void setYAxisName(String yName){
+      yAxisName = yName;
+    }
+
+    /**
+     * Gets the name of the Y Axis
+     * @return String
+     */
+    public String getYAxisName(){
+      return yAxisName;
+    }
+
+
 
     /**
      * Default equals for all Discretized Functions. Determines if two functions

@@ -11,7 +11,7 @@ import org.scec.data.region.RectangularGeographicRegion;
 import org.scec.param.StringParameter;
 import org.scec.param.editor.ConstrainedStringParameterEditor;
 import org.scec.data.Location;
-import org.scec.data.function.DiscretizedFuncList;
+import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -84,6 +84,8 @@ public class NEHRP_GuiBean
 
   //instance of the application using this GUI bean
   private ProbabilisticHazardApplicationAPI application;
+
+  private boolean mapSpectrumCalculated,smSpectrumCalculated,sdSpectrumCalculated ;
 
   public NEHRP_GuiBean(ProbabilisticHazardApplicationAPI api) {
     application = api;
@@ -455,23 +457,22 @@ public class NEHRP_GuiBean
     getDataForSA_Period();
     application.setDataInWindow(dataGenerator.getDataInfo());
     siteCoeffButton.setEnabled(true);
+    mapSpecButton.setEnabled(true);
   }
+
 
 
 
   private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
     if(siteCoefficientWindow == null)
-      siteCoefficientWindow = new SiteCoefficientInfoWindow();
+      siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.getSs(),
+          dataGenerator.getSa(),dataGenerator.getSelectedSiteClass());
     siteCoefficientWindow.pack();
     siteCoefficientWindow.show();
 
     dataGenerator.setFa(siteCoefficientWindow.getFa());
     dataGenerator.setFv(siteCoefficientWindow.getFv());
     dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
-
-    //dataGenerator.setFa(1);
-    //dataGenerator.setFv(1);
-    //dataGenerator.setSiteClass(GlobalConstants.SITE_CLASS_B);
 
     setButtonsEnabled(true);
   }
@@ -485,27 +486,32 @@ public class NEHRP_GuiBean
   private void mapSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateMapSpectrum();
     application.setDataInWindow(dataGenerator.getDataInfo());
-    viewButton.setEnabled(true);
+    if(!viewButton.isEnabled())
+      viewButton.setEnabled(true);
+    mapSpectrumCalculated = true;
   }
 
   private void smSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSMSpectrum();
     application.setDataInWindow(dataGenerator.getDataInfo());
-    viewButton.setEnabled(true);
+    if(!viewButton.isEnabled())
+      viewButton.setEnabled(true);
+    smSpectrumCalculated = true;
   }
 
   private void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSDSpectrum();
     application.setDataInWindow(dataGenerator.getDataInfo());
-    viewButton.setEnabled(true);
+    if(!viewButton.isEnabled())
+      viewButton.setEnabled(true);
+   sdSpectrumCalculated = true;
   }
 
   private void viewButton_actionPerformed(ActionEvent actionEvent) {
-    if(mapSpecButton.isEnabled()){
-      ArrayList functions = dataGenerator.getFunctionsForMapSpectrum();
-      GraphWindow window = new GraphWindow(functions);
-      window.show();
-    }
+   ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
+        mapSpectrumCalculated, sdSpectrumCalculated,smSpectrumCalculated);
+    GraphWindow window = new GraphWindow(functions);
+    window.show();
   }
 
 }

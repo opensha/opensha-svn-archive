@@ -111,8 +111,8 @@ public class SpectrumCalculator {
     saTfunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.SITE_MODIFIED_SD_Vs_T_GRAPH);
 
-    String title = "MCE Response Spectra for Site Class B";
-    String subTitle = "Ss and S1 = Mapped Spectral Acceleration Values";
+    String title = "Site Modified Response Spectra for Site Class "+siteClass;
+    String subTitle = "SMs = FaSs and SM1 = FvS1";
 
     String info="";
     info +=title+"\n";
@@ -145,8 +145,8 @@ public class SpectrumCalculator {
     saTfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SD_Vs_T_GRAPH);
 
-    String title = "MCE Response Spectra for Site Class B";
-    String subTitle = "Ss and S1 = Mapped Spectral Acceleration Values";
+    String title = "Design Response Spectra for Site Class "+siteClass;
+    String subTitle = "SDs = 2/3 x SMs and SD1 = 2/3 x SM1";
 
     String info = "";
     info += title+"\n";
