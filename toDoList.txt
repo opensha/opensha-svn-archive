@@ -1,6 +1,15 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+For site-type translation problem with Field_2000 basin depth do the following:
+
+	change parameter name to "Field-Basin-Depth"
+
+	Revert translation back to making this null if no value available
+	(this means that user-defined defaults are always ignored in ShakeMap App)
+
+	Tell ned to check Puente Hills calcs against the pub (PGA Field_2000)
+
 Create LocationParameter:
 
 	where we get/set a Loction object
@@ -42,6 +51,9 @@ Change app names as follows (on our web site):
 	
 Set up registration for HazMapDataGenerator - Phil has good ideas about this.
 	
+
+
+
 Ned needs to document WG02_EqkRupForecast (Java docs).
 
 Implement color schemes at (including option for the visually impaired):
