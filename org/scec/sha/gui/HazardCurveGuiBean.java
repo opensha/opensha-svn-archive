@@ -736,9 +736,12 @@ public class HazardCurveGuiBean implements
     //calls the method to update the magDistParams.
     MagFreqDistParameterEditor magEditor=getMagDistEditor();
 
-    if(magEditor!=null)
-      magEditor.setMagDistFromParams();
-
+    try {
+        if(magEditor!=null)  magEditor.setMagDistFromParams();
+      }catch(Exception e) {
+        JOptionPane.showMessageDialog(applet,e.getMessage());
+        return;
+    }
 
     // check which forecast has been selected by the user
     int size = this.erfNamesVector.size();
