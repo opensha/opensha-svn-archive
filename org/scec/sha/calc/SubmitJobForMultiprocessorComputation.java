@@ -24,9 +24,8 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
 
   private final static boolean D = false;
 
-
   //number of processors requested to run this job
-  public final static int NUM_OF_PROCESSORS_AVAILABLE =8;
+  public final static int NUM_OF_PROCESSORS_AVAILABLE = 8;
 
   //maximum wall time that we are requesting the processors for (in minutes)
   public final static double MAX_WALL_TIME =180;
@@ -117,6 +116,15 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
                                         remoteDir, UNTAR_OBJECT_EXECUTABLE);
       frmap.write("Job " + UNTAR_OBJECT_JOB_NAME + " " + condorSubmit + "\n");
       frmap.write("PARENT "+PRE_PROCESSOR_JOB_NAME+" CHILD "+UNTAR_OBJECT_JOB_NAME+"\n");
+
+      // make the submit files to submit the jobs
+      condorSubmit = getSubmitFileName(imrFileName, erfFileName,
+                                       regionFileName, xValuesFileName,
+                                       maxDistance,outputDir+SUBMIT_FILES_DIR,
+                                       remoteDir, outputDir);
+
+      frmap.write("Job " + HAZARD_MAP_JOB_NAME + " " + condorSubmit + "\n");
+
       frmap.write("PARENT "+UNTAR_OBJECT_JOB_NAME+" CHILD "+HAZARD_MAP_JOB_NAME+"\n");
 
 
@@ -127,7 +135,8 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
                                         outputDir,outputDir+SUBMIT_FILES_DIR, POST_PROCESSOR_CONDOR_SUBMIT,
                                         remoteDir, POST_PROCESSOR_EXECUTABLE);
       frmap.write("Job " + this.FINISH_JOB_NAME + " " + condorSubmit + "\n");
-
+      frmap.write("PARENT " + HAZARD_MAP_JOB_NAME + " CHILD " + this.FINISH_JOB_NAME +
+                  "\n");
 
       //create shell script to ftp hazard curve tar file from remote machine
       // to local machine and then untar them on the local machine
@@ -139,16 +148,6 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
       frmap.write("Script POST " + FINISH_JOB_NAME + " " +
                   outputDir+SCRIPT_FILES_DIR+GET_CURVES_FROM_REMOTE_MACHINE + "\n");
 
-
-      // make the submit files to submit the jobs
-      condorSubmit = getSubmitFileName(imrFileName, erfFileName,
-                                               regionFileName, xValuesFileName,
-                                               maxDistance,outputDir+SUBMIT_FILES_DIR,
-                                               remoteDir, outputDir);
-
-      frmap.write("Job " + HAZARD_MAP_JOB_NAME + " " + condorSubmit + "\n");
-      frmap.write("PARENT " + HAZARD_MAP_JOB_NAME + " CHILD " + this.FINISH_JOB_NAME +
-                  "\n");
 
       // close the DAG files
       frmap.close();
