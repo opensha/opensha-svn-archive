@@ -373,7 +373,7 @@ public class PuenteHillsScenarioControlPanel {
     imtGuiBean.refreshParamEditor();
 
     // Set some of the mapping params:
-    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.GMT_WEBSERVICE_NAME).setValue(new Boolean(false));
+    mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).setValue(new Boolean(false));
     mapGuiBean.refreshParamEditor();
   }

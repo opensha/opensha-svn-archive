@@ -115,7 +115,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
   private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
   private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
-  private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
+  //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
@@ -384,7 +384,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    try{
      erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
    }catch(InvocationTargetException e){
-     throw new RuntimeException("Connection to ERF servlets failed");
+     throw new RuntimeException("Problem creating ERF");
    }
    eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -618,7 +618,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
     this.controlComboBox.addItem(HAZUS_CONTROL);
-    this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);
+    //this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);
   }
 
   /**
@@ -636,8 +636,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       initPuenteHillScenarioControl();
     else if(selectedControl.equalsIgnoreCase(this.HAZUS_CONTROL))
       initHazusScenarioControl();
-    else if(selectedControl.equalsIgnoreCase(this.RUN_ALL_CASES_FOR_PUENTE_HILLS))
-      initRunAllPuenteHillsScenariosControl();
+    /*else if(selectedControl.equalsIgnoreCase(this.RUN_ALL_CASES_FOR_PUENTE_HILLS))
+      initRunAllPuenteHillsScenariosControl();*/
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
