@@ -67,6 +67,9 @@ public class IMRAxisScale extends JFrame {
     });
     this.getContentPane().setLayout(gridBagLayout2);
     panel1.setBackground(new Color(200, 200, 230));
+    panel1.setMaximumSize(new Dimension(348, 143));
+    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    this.setResizable(false);
     getContentPane().add(panel1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), -11, -2));
     panel1.add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0

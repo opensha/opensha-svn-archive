@@ -58,6 +58,7 @@ import com.jrefinery.chart.event.AxisChangeEvent;
 import com.jrefinery.data.Range;
 import com.jrefinery.ui.RefineryUtilities;
 
+
 /**
  * A logartihmic value axis, for values displayed vertically.
  */
@@ -668,8 +669,8 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             }
 
             if(sum<=0.0)
-               throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist");
-//             currentTickValue=this.tickUnit.getSize()/15;
+               throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for Y-Log Plot");
+
             String tickLabel = this.tickUnit.valueToString(currentTickValue);
 
             /**

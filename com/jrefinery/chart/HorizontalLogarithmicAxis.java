@@ -575,7 +575,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 	         xx = this.myTranslateValueToJava2D(logval, plotArea);
                 }
                 if(sum<=0.0)
-                   throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist");
+                   throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
 
 
 

@@ -340,7 +340,8 @@ public class PSHALogXYPlot
         super.render(g2, dataArea, info, crosshairInfo);
 
      }catch(java.lang.ArithmeticException ae){
-       imrTesterApplet.invalidLogPlot();
+       String message=new String(ae.getMessage());
+       imrTesterApplet.invalidLogPlot(message);
     }
 
     }

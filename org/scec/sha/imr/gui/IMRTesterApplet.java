@@ -1519,13 +1519,21 @@ public class IMRTesterApplet
    * This function handles the Zero values in the X and Y data set when exception is thrown,
    * it reverts back to the linear scale displaying a message box to the user.
    */
- public void invalidLogPlot() {
-     if(this.xLog)
+ public void invalidLogPlot(String message) {
+     if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
        this.jCheckxlog.setSelected(false);
-     if(this.yLog)
+       ShowMessage showMessage=new ShowMessage(this,"      X-Log Plot Error as it contains Zero Values");
+       showMessage.pack();
+       showMessage.show();
+     }
+     if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
        this.jCheckylog.setSelected(false);
-     JOptionPane.showMessageDialog(this,new String("Cannot display the Log Plot for this data set as they contain zero values"),new String("Check Axis Range"),JOptionPane.INFORMATION_MESSAGE);
-     addGraphPanel();
+       ShowMessage showMessage=new ShowMessage(this,"      Y-Log Plot Error as it contains Zero Values");
+       showMessage.pack();
+       showMessage.show();
+     }
+
+
  }
 
 

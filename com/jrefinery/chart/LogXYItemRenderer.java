@@ -153,11 +153,11 @@ public class LogXYItemRenderer extends StandardXYItemRenderer{
                         double transX0=0.0,transY0=0.0;
                         boolean foundX0=true,foundY0=true;
                         if(valueX0<=0.0 && xlog) {
-                           throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist");
+                           throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
 
                         }
                         if(valueY0<=0.0 && ylog) {
-                           throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist");
+                           throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for Y-Log Plot");
 
                         }
                         if (xlog && valueX0!=0.0) valueX0=Math.log(valueX0)/Math.log(10);
