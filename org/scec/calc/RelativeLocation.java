@@ -471,6 +471,15 @@ public final class RelativeLocation {
 
     public static void main( String argv[] ) {
 
+      System.out.println("Los Angeles Sement Length: = "+
+                         (float)RelativeLocation.getHorzDistance( 34.019965922, 118.308353340, 33.971013662, 118.122170045 ));
+      System.out.println("Santa Fe Springs Sement Length: = "+
+                         (float)RelativeLocation.getHorzDistance( 33.905266010, 118.144918182, 33.929699246, 118.014078570 ));
+      System.out.println("Coyote Hills Sement Length: = "+
+                         (float)RelativeLocation.getHorzDistance( 33.894579252, 118.044407949, 33.899509717, 117.868192971 ));
+
+
+/*
       System.out.println("Accurate HorzDist="+RelativeLocation.getHorzDistance( 33, -118, 35, -117.5 ));
       System.out.println("Approx HorzDist="+RelativeLocation.getApproxHorzDistance( 33, -118, 35, -117.5 ));
 
@@ -482,7 +491,7 @@ public final class RelativeLocation {
       for(int i=0; i<10000000; i++)
         RelativeLocation.getApproxHorzDistance( 33, -118, 35, -117.5 );
         System.out.println("Done with approx horz dist calcs");
-
+*/
 
         /*String S = C + ": main(): ";
 
