@@ -582,13 +582,9 @@ public class HazardMapApplet extends JApplet implements
     Iterator it = sitesGuiBean.getSites();
      // calculate the hazard curve for each site
      //creating the directory that stores all the HazardCurves for that region
-     boolean success= (new File("tempdata").mkdir());
-     while(it.hasNext()) {
-       Site site = (Site)it.next();
-       System.out.println(site.toString());
-       calc.getHazardCurve(hazFunction, site, imr, eqkRupForecast);
+
+       calc.getHazardMapCurves(hazFunction, it, imr, eqkRupForecast);
        //hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
-     }
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);

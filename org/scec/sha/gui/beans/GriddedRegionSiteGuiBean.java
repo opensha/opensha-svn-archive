@@ -245,10 +245,12 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
   public void parameterChange(ParameterChangeEvent e) {
 
     //creates  a temp Vector with the updated locations
+    System.out.println("site vector:"+siteVector.size());
     Vector temp=createAndUpdateSites();
     //adding the siteParams to the temp Vector
       //getting the site params for the first element of the siteVector
      //becuase all the sites will be having the same site Parameter
+    System.out.println("site vector:"+siteVector.size());
       ListIterator it1=((Site)siteVector.get(0)).getParametersIterator();
       while(it1.hasNext()){
         Parameter tempParam=(Parameter)it1.next();
@@ -311,10 +313,29 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
     * @return
     */
    private Vector createAndUpdateSites(){
-     gridRectRegion= new EvenlyGriddedRectangularGeographicRegion(((Double)minLat.getValue()).doubleValue(),
-                                      ((Double)maxLat.getValue()).doubleValue(),
-                                      ((Double)minLon.getValue()).doubleValue(),
-                                      ((Double)maxLon.getValue()).doubleValue(),
+
+     double minLatitude= ((Double)minLat.getValue()).doubleValue();
+     double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
+     double minLongitude=((Double)minLon.getValue()).doubleValue();
+     double maxLongitude=((Double)gridSpacing.getValue()).doubleValue();
+
+     boolean flag=true;
+
+     if(maxLatitude <= minLatitude){
+       flag=false;
+       JOptionPane.showMessageDialog(this,new String("Max Lat. must be greater than Min Lat"),"Input Error",
+                                    JOptionPane.OK_OPTION);
+     }
+
+     if(maxLongitude <= minLongitude){
+       flag=false;
+      JOptionPane.showMessageDialog(this,new String("Max Lon. must be greater than Min Lon"),"Input Error",
+                                      JOptionPane.OK_OPTION);
+     }
+
+     if(flag)
+     gridRectRegion= new EvenlyGriddedRectangularGeographicRegion(minLatitude,
+                                      maxLatitude,minLongitude,maxLongitude,
                                       ((Double)gridSpacing.getValue()).doubleValue());
 
     //GridLocations Iterator
@@ -322,7 +343,7 @@ public class GriddedRegionSiteGuiBean extends ParameterListEditor implements
     Vector newSiteVector = new Vector();
     while(gridLocIt.hasNext())
       newSiteVector.add(new Site((Location)gridLocIt.next()));
-
+    System.out.println("NewSiteVector Size:"+newSiteVector.size());
     return newSiteVector;
   }
 
