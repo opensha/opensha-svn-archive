@@ -147,6 +147,7 @@ import org.scec.param.event.ParameterChangeEvent;
 
       for(int i=0;i<NUM_MAG;i++) {
         double rate = Double.parseDouble(st.nextToken());
+        if (D) System.out.println("rate(mag="+magFreqDist.getX(i)+")="+rate);
         if(i <20)
           magFreqDist.set(i,0.0);
         else {
@@ -283,12 +284,14 @@ import org.scec.param.event.ParameterChangeEvent;
      qkSrc = (PointPoissonEqkSource) forecast.getSource(index);
      System.out.println("getNumRuptures(): "+qkSrc.getNumRuptures());
      duration = qkSrc.getDuration();
-     for(int i=0;i<qkSrc.getNumRuptures();i++) {
+     double cumRate=0;
+     for(int i=qkSrc.getNumRuptures()-1;i>=0;i--) {
        rup = qkSrc.getRupture(i);
        Location loc = (Location) rup.getRuptureSurface().get(0,0);
        if(i==0) System.out.println("Last Source:\n" + loc.getLongitude()+"  "+loc.getLatitude());
-       rate = -Math.log(1-rup.getProbability())/duration;
-       System.out.println((float)rup.getMag()+"  "+rate);
+       rate = -Math.log(1-rup.getProbability());
+       cumRate += rate;
+       System.out.println((float)rup.getMag()+"  "+rate+"  "+cumRate);
      }
 
    }

@@ -55,6 +55,10 @@ public class SitesOfInterestControlPanel extends JFrame {
       latVector.add(new Double(34.225));
       lonVector.add(new Double(-117.835));
 
+      // Alaskan Pipeline
+      this.sitesComboBox.addItem("Alaskan Pipeline");
+      latVector.add(new Double(63.375));
+      lonVector.add(new Double(-145.825));
 
       jbInit();
       // show the window at center of the parent component
