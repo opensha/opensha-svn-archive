@@ -28,7 +28,6 @@ import org.scec.sha.gui.infoTools.ConnectToCVM;
 public class SetSiteParamsFromCVMControlPanel extends JFrame {
   JComboBox imrComboBox = new JComboBox();
   JButton setButton = new JButton();
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   // options to be displayed in the combo box
   public static String SET_ALL_IMRS = "Set Site Params for all IMRs";
@@ -46,6 +45,8 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
   // save the imr gui bean  and  site gui bean
   private IMR_GuiBean imrGuiBean;
   private Site_GuiBean siteGuiBean;
+  private JLabel jLabel1 = new JLabel();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
    * This will set the site params from the CVM
@@ -80,10 +81,14 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
         setButton_actionPerformed(e);
       }
     });
-    this.getContentPane().add(imrComboBox,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(9, 5, 0, 6), 87, 4));
-    this.getContentPane().add(setButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 23, 8, 23), 33, 5));
+    jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
+    jLabel1.setText("Use both CGS Map and SCEC Basin Depth (web services): ");
+    this.getContentPane().add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(3, 2, 0, 0), 4, 4));
+    this.getContentPane().add(imrComboBox,   new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 16, 0, 98), 4, 4));
+    this.getContentPane().add(setButton,   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(9, 20, 12, 95), 4, 4));
   }
 
 
