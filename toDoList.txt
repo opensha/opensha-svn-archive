@@ -57,14 +57,36 @@ wg99/02 Fortran code:
 
 	Debug on all platforms using the test input files sent by Mike.
 
+	Add the following adjustable parameters:
+
+		(Mike's order of priority)
+		Start time, Time interval
+		M threshold (for probability outputs)
+		Probability model weights
+		COV values and weights
+		M-logA model weights
+		Treatment of R (slip rate vs area scaling)
+		Magnitude pdf (sigma value)
+		Segmentation model weights
+		Background a and b values
+
 	Have WG02 group make the following changes to code(?):
 
-		Have it read one standard input file that contains the input-file
-		name as well as flags for what output files to generate.
+   		the ability to choose which of the output files to actually write.
 
-		Add intermediate segment lats and lons
+   		 for our output file to use the same naming convention as the others 
+    		(presently difficult because our file is written in the main part of 
+    		the code where we don't have access to the output-file prefix)
 
-		Add name of rupture scenario to our output file
+    		addition of intermediate segment lats and lons
+
+    		to add to our output file the name of each rupture (e.g., "SAP+SAN+SAO")
+
+   		 the remove of all runtime prompts (presently the user is only 
+    		prompted for the input filename, which apparently we can handle
+    		even if we're running from the command line).
+
+
 
 
 Develop HazardSpectrumApplet for Caltrans.
