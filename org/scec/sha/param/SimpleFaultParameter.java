@@ -74,7 +74,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
   /**
    * Paramter List for holding all parameters
    */
-  private ParameterList parameterList = new ParameterList();
+  private ParameterList parameterList ;
 
   /**
    * List to store the Lats
@@ -105,7 +105,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
   private static final String DIP_DIRECTION_PARAM_UNITS = "degrees";
   private static final String DIP_DIRECTION_INFO = "Leave Blank to make this perpendicular to Fault-Strike";
   private DoubleParameter dipDirectionParam = new DoubleParameter(DIP_DIRECTION_PARAM_NAME,
-      new Double(0),new Double(360),DIP_DIRECTION_PARAM_UNITS,DEFAULT_DIP_DIRECTION,DIP_DIRECTION_INFO);
+      new Double(0),new Double(360),DIP_DIRECTION_PARAM_UNITS,DEFAULT_DIP_DIRECTION);
 
   //creating the Double parameter for the Dips
   private IntegerParameter numDipParam = new IntegerParameter(NUM_DIPS,new Integer(this.DEFAULT_DIPS));
@@ -133,7 +133,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
    * @param  name  Name of the parameter
    */
   public SimpleFaultParameter(String name) {
-    super(name,null,null,null,null);
+    super(name,null,null,null);
   }
 
   /**
@@ -143,17 +143,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
    * @param  surface  EvenlyGriddedSurface  object
    */
   public SimpleFaultParameter(String name, EvenlyGriddedSurface surface){
-    super(name,null,null,surface,null);
-  }
-
-  /**
-   * No constraints specified, all values allowed. Sets the name and value.
-   * @param name Name of the parameter
-   * @param surface EvenlyGriddedSurface  object
-   * @param info Info about the parameter
-   */
-  public SimpleFaultParameter(String name, EvenlyGriddedSurface surface, String info){
-     super(name,null,null,surface,info);
+    super(name,null,null,surface);
   }
 
 
@@ -233,9 +223,11 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
    */
   public void initParamList(){
 
+    parameterList = new ParameterList();
     parameterList.addParameter(faultName);
     parameterList.addParameter(gridSpacing);
     parameterList.addParameter(numFltTrace);
+    dipDirectionParam.setInfo(DIP_DIRECTION_INFO);
     //create the String parameter if the dip is one
     Vector fltType = new Vector();
     fltType.add(this.FRANKEL);
