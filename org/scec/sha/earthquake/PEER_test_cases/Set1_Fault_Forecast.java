@@ -408,14 +408,11 @@ public class Set1_Fault_Forecast extends EqkRupForecast
    public void setForecastParams(String faultType, String testCaseVal){
 
      // add sigma for maglength(0-1)
-      lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
-                          SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
+     adjustableParams.getParameter(SIGMA_PARAM_NAME).setValue(DEFAULT_SIGMA_VAL);
 
      // magLengthSigma parameter is changed if the test case chosen is 3
      if(testCaseVal.equalsIgnoreCase(TEST_CASE_THREE))
-         lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
-                          SIGMA_PARAM_MIN, SIGMA_PARAM_MAX,new Double(0.2));
-
+         adjustableParams.getParameter(this.SIGMA_PARAM_NAME).setValue(new Double(0.2));
      // set the parameters for fault1
      if(faultType.equals(this.FAULT1_NAME)) {
        this.adjustableParams.getParameter(this.DIP_PARAM_NAME).setValue(new Double(90.0));
