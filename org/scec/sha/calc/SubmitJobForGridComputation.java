@@ -154,7 +154,7 @@ public class SubmitJobForGridComputation {
       int i=0;
       while(it.hasNext()) {
         condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
-                                          "" + (String) it.next(),
+                                          (String) it.next(),
                                           outputDir,
                                           PERL_CONDOR_SUBMIT + "_" + i,
                                           remoteDir, PERL_EXECUTABLE);
@@ -164,6 +164,7 @@ public class SubmitJobForGridComputation {
                     "\n");
         frmap.write("PARENT " + UNTAR_CONDOR_SUBMIT_JOB_NAME + " CHILD " +
                     jobName + "\n");
+        ++i;
       }
 
       // close the DAG files
