@@ -360,6 +360,8 @@ public abstract class Parameter
     public void setConstraint(ParameterConstraintAPI constraint) throws EditableException{
         checkEditable(C + ": setConstraint(): ");
         this.constraint = constraint;
+        constraint.setNullAllowed(true);
+        this.setValue(null);
     }
 
     /** Returns a description of this Parameter, typically used for tooltips. */

@@ -163,7 +163,6 @@ public class StringParameter
             );
         }
         else super.setConstraint( constraint );
-
     }
 
     /**

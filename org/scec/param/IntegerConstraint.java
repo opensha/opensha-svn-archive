@@ -176,7 +176,7 @@ public class IntegerConstraint extends ParameterConstraint  {
         IntegerConstraint c1 = new IntegerConstraint( min, max );
         c1.setName( name );
         c1.setNullAllowed( nullAllowed );
-        if( !editable ) c1.setNonEditable();
+        c1.editable = true;
         return c1;
     }
 

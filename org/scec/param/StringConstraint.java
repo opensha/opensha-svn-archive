@@ -164,7 +164,7 @@ public class StringConstraint
         }
 
         c1.setNullAllowed( nullAllowed );
-        if( !editable ) c1.setNonEditable();
+        c1.editable = true;
         return c1;
     }
 }

@@ -174,7 +174,7 @@ public class DoubleConstraint extends ParameterConstraint{
         DoubleConstraint c1 = new DoubleConstraint( min, max );
         c1.setName( name );
         c1.setNullAllowed( nullAllowed );
-        if( !this.editable ) c1.setNonEditable();
+        c1.editable = true;
         return c1;
     }
 
