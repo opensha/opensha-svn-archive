@@ -36,7 +36,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
   /**
    * todo constructors
    * All the constructors call the function computeRates which sets up the rate
-   * to set the Y-axis values based on the X-axis values provided in the form of min,num,delta.
+   * as Y-axis values based on the X-axis values provided in the form of min,num,delta of mag.
    */
 
   /**
@@ -192,9 +192,8 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
 
 
   /**
-   * All the set functions below call the computeRate() method to calulate the Y-axis
-   * values based X-axis data provided by the user.
-   *
+   * All the set functions below call the computeRate() method to calulates the rates and set them
+   * as the Y-axis values based X-axis data provided by the user in form of mag.
    */
 
   /**
@@ -282,10 +281,13 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
     computeRates();
   }
 
+
   /**
    * This functions call the method set(int,double) in the EvenlyDiscretized class
-   * to set the y-axis values based on the x-axis data provided by the user.
-   * Based on the truncType the methods sets the Y-axis(rate)
+   * to set the y-axis values based on the x-axis data provided by the user,in form
+   * of the mag,mean stdDev. it then sets up the rate as the Y-axis values.
+   * Based on the truncType it sets the rate to be zero after setting the
+   * truncLevel(which specifies the # of stdDev from mean where dist. cut to zero
    */
   private void computeRates() {
     for(int i=0;i<num;++i) {
