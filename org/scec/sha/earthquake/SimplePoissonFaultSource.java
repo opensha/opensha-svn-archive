@@ -3,7 +3,7 @@ package org.scec.sha.earthquake;
 import java.util.Vector;
 import java.util.Iterator;
 
-import org.scec.calc.magScalingRelations.MagAreaRelationship;
+import org.scec.calc.magScalingRelations.*;
 import org.scec.sha.surface.EvenlyGriddedSurface;
 import org.scec.sha.magdist.*;
 import org.scec.sha.magdist.SingleMagFreqDist;
@@ -39,7 +39,8 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
   private double timeSpan;
 
   /**
-   *
+   * This creates a Simple Poisson Fault Source using a minMag of 5.0 (magnitudes
+   * lower than this are ignored in building the ruptures).
    * @param magDist - any incremental mag. freq. dist. object
    * @param rake - average rake of the fault
    * @param offsetSpacing - amount of offset for floating ruptures
@@ -49,40 +50,72 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
    */
   public SimplePoissonFaultSource(IncrementalMagFreqDist magDist,
                                   EvenlyGriddedSurface faultSurface,
-                                  MagAreaRelationship magAreaRel,
-                                  double magLenSigma,
+                                  MagScalingRelationship magScalingRel,
+                                  double magScalingSigma,
+                                  double rupAspectRatio,
                                   double rupOffset,
                                   double rake,
                                   double timeSpan) {
 
       this.timeSpan = timeSpan;
+      makeFaultCornerLocs(faultSurface);
 
-      // get the fault corner locations (for the getMinDistance(site) method)
-      int nRows = faultSurface.getNumRows();
-      int nCols = faultSurface.getNumCols();
-      faultCornerLocations.add(faultSurface.get(0,0));
-      faultCornerLocations.add(faultSurface.get(0,(int)(nCols/2)));
-      faultCornerLocations.add(faultSurface.get(0,nCols));
-      faultCornerLocations.add(faultSurface.get(nRows,0));
-      faultCornerLocations.add(faultSurface.get(nRows,(int)(nCols/2)));
-      faultCornerLocations.add(faultSurface.get(nRows,nCols));
+      // make the rupture list
+      ruptureList = new Vector();
 
-      // make the list of ruptures
-      mkRuptureList(magDist, faultSurface, magAreaRel, magLenSigma, rupOffset, rake);
+      if(magScalingSigma == 0.0)
+        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, 0.0, 1.0);
+      else {
+//        The branch-tip weights (0.6, 0.2, and 0.2) for the mean, -1.64sigma, and +1.64sigma
+//       (respectively) are from WG99's Table 1.1
+        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, 0.0, 0.6);
+        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, 1.64, 0.2);
+        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, -1.64, 0.2);
+      }
   }
 
 
   /**
-   * This method makes the list of rupture for this souce
+   * This computes the rupture length from the information supplied
+   * @param magScalingRel - a MagLengthRelationship or a MagAreaRelationship
+   * @param magScalingSigma - the standard deviation of the Mag or Length estimate
+   * @param numSigma - the number of sigmas from the mean for which the estimate is for
+   * @param rupAspectRatio
+   * @param mag
+   * @return
    */
-  private void mkRuptureList(IncrementalMagFreqDist magDist,
-                             EvenlyGriddedSurface faultSurface,
-                             MagAreaRelationship magAreaRel,
-                             double magLenSigma,
-                             double rupOffset,
-                             double rake) {
+  private double getRupLength(MagScalingRelationship magScalingRel,
+                              double magScalingSigma,
+                              double numSigma,
+                              double rupAspectRatio,
+                              double mag) throws RuntimeException {
 
-    ruptureList = new Vector();
+    // if it's a mag-area relationship
+    if(magScalingRel instanceof MagAreaRelationship) {
+      double area = magScalingRel.getMedianScale(mag) * Math.pow(10,numSigma*magScalingSigma);
+      return Math.sqrt(area*rupAspectRatio);
+    }
+    else if (magScalingRel instanceof MagLengthRelationship) {
+      return magScalingRel.getMedianScale(mag) * Math.pow(10,numSigma*magScalingSigma);
+    }
+    else throw new RuntimeException("bad type of MagScalingRelationship");
+  }
+
+
+
+  /**
+   * This method makes the list of rupture for this source
+   */
+  private void addRupturesToList(IncrementalMagFreqDist magDist,
+                             EvenlyGriddedSurface faultSurface,
+                             MagScalingRelationship magScalingRel,
+                             double magScalingSigma,
+                             double rupAspectRatio,
+                             double rupOffset,
+                             double rake,
+                             double minMag,
+                             double numSigma,
+                             double weight) {
 
     int numMags = magDist.getNum();  // Note that some of these may have zero rates!
 
@@ -93,122 +126,33 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
     double rate;
     double prob=Double.NaN;
 
-    if( D ) System.out.println(C+": magLenSigma="+magLenSigma);
+    if( D ) System.out.println(C+": magLenSigma="+magScalingSigma);
 
-    // The magLenSigma=0 case:
-    if(magLenSigma == 0.0) {
-        for(int i=0;i<numMags;++i){
-            // get the magnitude
-            mag = magDist.getX(i);
-
-            // make sure it has a non-zero rate & the mag is >= 5.0
-            if(magDist.getY(i) > 0 && mag >= 5.0) {
-              rupLen = Math.pow(10,mag/2-1.85);
-              rupWidth= rupLen/2;
-              numRup = faultSurface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
-              rate = magDist.getY(mag);
-              // Create the ruptures and add to the list
-              for(int r=0; r < numRup; ++r) {
-                probEqkRupture = new ProbEqkRupture();
-                probEqkRupture.setAveRake(rake);
-                // set rupture surface
-                probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
-                probEqkRupture.setMag(mag);
-                prob = 1- Math.exp(-timeSpan*rate/numRup);
-                probEqkRupture.setProbability(prob);
-                ruptureList.add(probEqkRupture);
-              }
-              if( D ) System.out.println("PEER_FaultSource: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
-                                          "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
-            }
+    for(int i=0;i<numMags;++i){
+      mag = magDist.getX(i);
+      // make sure it has a non-zero rate & the mag is >= minMag
+      if(magDist.getY(i) > 0 && mag >= minMag) {
+        rupLen = getRupLength(magScalingRel,magScalingSigma,numSigma,rupAspectRatio,mag);
+        rupWidth= rupLen/rupAspectRatio;
+        numRup = faultSurface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
+        rate = magDist.getY(mag);
+        // Create the ruptures and add to the list
+        for(int r=0; r < numRup; ++r) {
+          probEqkRupture = new ProbEqkRupture();
+          probEqkRupture.setAveRake(rake);
+          // set rupture surface
+          probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
+          probEqkRupture.setMag(mag);
+          prob = weight*(1.0 - Math.exp(-timeSpan*rate/numRup));
+          probEqkRupture.setProbability(prob);
+          ruptureList.add(probEqkRupture);
         }
+          if( D ) System.out.println(C+": mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
+                                      "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
+      }
     }
-
-
-    /* if magLenSigma > 0 case:
-
-       The branch-tip weights (0.6, 0.2, and 0.2) for the mean, -1.64sigma, and +1.64sigma
-       (respectively) are from WG99's Table 1.1
-    */
-    else {
-        // the mean case
-        for(int i=0;i<numMags;++i){
-            mag = magDist.getX(i);
-            // make sure it has a non-zero rate & the mag is >= 5.0
-            if(magDist.getY(i) > 0 && mag >= 5.0) {
-              rupLen = Math.pow(10,mag/2-1.85);
-              rupWidth= rupLen/2;
-              numRup = faultSurface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
-              rate = magDist.getY(mag);
-              // Create the ruptures and add to the list
-              for(int r=0; r < numRup; ++r) {
-                    probEqkRupture = new ProbEqkRupture();
-                    probEqkRupture.setAveRake(rake);
-                    // set rupture surface
-                    probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
-                    probEqkRupture.setMag(mag);
-                    prob = 0.6* (1- Math.exp(-timeSpan*rate/numRup));
-                    probEqkRupture.setProbability(prob);
-                    ruptureList.add(probEqkRupture);
-              }
-              if( D ) System.out.println("PEER_FaultSource: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
-                                          "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
-            }
-        }
-        // the mean-1.64sigma case
-        for(int i=0;i<numMags;++i){
-            mag = magDist.getX(i);
-            // make sure it has a non-zero rate & the mag is >= 5.0
-            if(magDist.getY(i) > 0 && mag >= 5.0) {
-              rupLen = Math.pow(10,mag/2-1.85-1.64*magLenSigma);
-              rupWidth= rupLen/2;
-              numRup = faultSurface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
-              rate = magDist.getY(mag);
-              // Create the ruptures and add to the list
-              for(int r=0; r < numRup; ++r) {
-                    probEqkRupture = new ProbEqkRupture();
-                    probEqkRupture.setAveRake(rake);
-                    // set rupture surface
-                    probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
-                    probEqkRupture.setMag(mag);
-                    prob = 0.2* (1- Math.exp(-timeSpan*rate/numRup));
-                    probEqkRupture.setProbability(prob);
-                    ruptureList.add(probEqkRupture);
-              }
-              if( D ) System.out.println("PEER_FaultSource: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
-                                          "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
-            }
-        }
-        // the mean+1.64sigma case
-        for(int i=0;i<numMags;++i){
-            mag = magDist.getX(i);
-            // make sure it has a non-zero rate & the mag is >= 5.0
-            if(magDist.getY(i) > 0 && mag >= 5.0) {
-              rupLen = Math.pow(10,mag/2-1.85+1.64*magLenSigma);
-              rupWidth= rupLen/2;
-              numRup = faultSurface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
-              rate = magDist.getY(mag);
-              // Create the ruptures and add to the list
-              for(int r=0; r < numRup; ++r) {
-                    probEqkRupture = new ProbEqkRupture();
-                    probEqkRupture.setAveRake(rake);
-                    // set rupture surface
-                    probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
-                    probEqkRupture.setMag(mag);
-                    prob = 0.2* (1- Math.exp(-timeSpan*rate/numRup));
-                    probEqkRupture.setProbability(prob);
-                    ruptureList.add(probEqkRupture);
-              }
-              if( D ) System.out.println("PEER_FaultSource: mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
-                                          "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
-            }
-        }
-    }
-
-
-
-    if( D ) System.out.println("PEER_FaultSource:totNumRups:"+ruptureList.size());
   }
+
 
   /**
    * @return the total num of rutures for all magnitudes
@@ -243,6 +187,26 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
 
       return min;
     }
+
+
+    /**
+     * This makes the vector of fault corner location used by the getMinDistance(site)
+     * method.
+     * @param faultSurface
+     */
+    private void makeFaultCornerLocs(EvenlyGriddedSurface faultSurface) {
+
+      int nRows = faultSurface.getNumRows();
+      int nCols = faultSurface.getNumCols();
+      faultCornerLocations.add(faultSurface.get(0,0));
+      faultCornerLocations.add(faultSurface.get(0,(int)(nCols/2)));
+      faultCornerLocations.add(faultSurface.get(0,nCols));
+      faultCornerLocations.add(faultSurface.get(nRows,0));
+      faultCornerLocations.add(faultSurface.get(nRows,(int)(nCols/2)));
+      faultCornerLocations.add(faultSurface.get(nRows,nCols));
+
+    }
+
 
  /**
   * get the name of this class
