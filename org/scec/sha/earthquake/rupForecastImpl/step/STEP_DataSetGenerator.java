@@ -70,27 +70,46 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       boolean success = (new File(STEP_DIR)).mkdir();
     }
     File backFile = new File(STEP_DIR+BACKGROUND_STEP_DIR);
+    String metadata = "IMR Info: \n"+
+                      "\t"+"Name: "+imr.getName()+"\n"+
+                      "\t"+"Intensity Measure Type: "+ imr.getIntensityMeasure().getName()+"\n"+
+                      "\n\n"+
+                      "Region Info: \n"+
+                      "\t"+"MinLat: "+region.getMinLat()+"\n"+
+                      "\t"+"MaxLat: "+region.getMaxLat()+"\n"+
+                      "\t"+"MinLon: "+region.getMinLon()+"\n"+
+                      "\t"+"MaxLon: "+region.getMaxLon()+"\n"+
+                      "\t"+"GridSpacing: "+region.getGridSpacing()+"\n"+
+                      "\t"+"Site Params: "+imr.getParameter(imr.VS30_NAME).getName()+ " = "+imr.getParameter(imr.VS30_NAME).getValue().toString()+"\n"+
+                      "\n\n"+
+                      "Forecast Info: \n"+
+                      "\t"+"Name: "+forecast.getName()+"\n";
     if(!backFile.isDirectory()){
+      String dataInfo = "Step Back Ground DataSet\n\n"+metadata;
       forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_BACKGROUND);
       forecast.updateForecast();
       calc.getHazardMapCurves(STEP_DIR+BACKGROUND_STEP_DIR,
-                              true, xValues, region, imr, forecast, BACKGROUND_STEP_DIR +
-                              forecast.toString() + imr.toString());
+                              true, xValues, region, imr, forecast, dataInfo);
     }
+
+    String dataInfo = "Step Addon Data Set for :\n"+
+               "\t"+this.getSTEP_DateTimeInfo()+"\n\n"+
+               metadata;
     forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_ADD_ON);
     forecast.updateForecast();
     String stepAddonDirName = STEP_DIR+this.getStepDirName()+"_Addon";
     calc.getHazardMapCurves(stepAddonDirName,
-                            true, xValues, region, imr, forecast, stepAddonDirName +
-                            forecast.toString() + imr.toString() );
+                            true, xValues, region, imr, forecast, dataInfo );
 
     STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
     String stepBothDirName = STEP_DIR+this.getStepDirName()+"_Both";
     addStepData.addDataSet(STEP_DIR+this.BACKGROUND_STEP_DIR,stepAddonDirName,stepBothDirName);
     try{
       FileWriter fr = new FileWriter(stepBothDirName+"/metadata.dat");
-      String metaData = " Added Data Set";
-      fr.write(metaData);
+      dataInfo = "Step Combined(Added) Data Set for :\n"+
+               "\t"+this.getSTEP_DateTimeInfo()+"\n\n"+
+               metadata;
+      fr.write(dataInfo);
       fr.close();
       fr=new FileWriter(stepBothDirName+"/sites.dat");
       fr.write(region.getMinLat()+" "+region.getMaxLat()+" "+
@@ -103,24 +122,36 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
   }
 
-
+  /**
+   * generates the output directories for the step with timestamp labelling.
+   * @return
+   */
   private String getStepDirName(){
-    try{
-    URL url = new URL(this.DELTA_RATES_FILE_NAME);
-    URLConnection uc = url.openConnection();
-    BufferedReader tis =
-        new BufferedReader(new InputStreamReader((InputStream) uc.getContent()));
-    String str = tis.readLine();
-    str =str.replace(' ','_');
+    String str =getSTEP_DateTimeInfo().replace(' ','_');
     return str;
-    }catch(Exception e){
-      System.out.println("No Internet Connection");
-    }
-   return null;
   }
 
   public static void main(String[] args) {
     STEP_DataSetGenerator stepDataGenerator = new STEP_DataSetGenerator();
+  }
+
+  /**
+   * reads the first line from the STEP Delta rates file on thw website to get its
+   * data and time info
+   * @return
+   */
+  private String getSTEP_DateTimeInfo(){
+    try{
+      URL url = new URL(this.DELTA_RATES_FILE_NAME);
+      URLConnection uc = url.openConnection();
+      BufferedReader tis =
+          new BufferedReader(new InputStreamReader((InputStream) uc.getContent()));
+      String str = tis.readLine();
+      return str;
+    }catch(Exception e){
+      System.out.println("No Internet Connection");
+    }
+    return null;
   }
 
   /**

@@ -156,8 +156,8 @@ public class STEP_MapViewerApp extends JApplet {
     dataSetPanel.setLayout(gridBagLayout1);
     gmtPanel.setLayout(gridBagLayout2);
     siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    this.getContentPane().add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -5, 22, 4), 274, -2));
+    this.getContentPane().add(mainSplitPane,   new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 4), 274, -2));
     mainSplitPane.add(dataSetPanel, JSplitPane.TOP);
     gmtSplitPane.add(gmtPanel, JSplitPane.RIGHT);
     gmtSplitPane.add(siteSplitPane, JSplitPane.LEFT);
@@ -165,8 +165,8 @@ public class STEP_MapViewerApp extends JApplet {
     siteSplitPane.add(imlProbPanel, JSplitPane.RIGHT);
     dataSetPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(24, 8, 0, 0), 22, 4));
-    dataSetPanel.add(dataSetCombo,   new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(24, 7, 0, 66), 12, 1));
+    dataSetPanel.add(dataSetCombo,            new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 7, 0, 0), 65, 0));
     dataSetPanel.add(dataSetText,   new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 8, 0, 11), 0, 369));
     dataSetPanel.add(jLabel2,   new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
@@ -174,8 +174,8 @@ public class STEP_MapViewerApp extends JApplet {
     dataSetPanel.add(mapButton,   new GridBagConstraints(0, 4, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 95, 10, 119), 50, 11));
     mainSplitPane.setDividerLocation(350);
-    gmtSplitPane.setDividerLocation(150);
-    siteSplitPane.setDividerLocation(300);
+    gmtSplitPane.setDividerLocation(190);
+    siteSplitPane.setDividerLocation(340);
   }
   //Start the applet
   public void start() {
