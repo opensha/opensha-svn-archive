@@ -24,7 +24,7 @@ import org.scec.gui.*;
 import org.scec.gui.plot.LogPlotAPI;
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.gui.plot.*;
-import org.scec.util.FileUtils;
+import org.scec.util.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;

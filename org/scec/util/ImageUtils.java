@@ -1,4 +1,4 @@
-package org.scec.gui;
+package org.scec.util;
 
 import java.awt.Image;
 import java.io.InputStream;
