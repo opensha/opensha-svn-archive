@@ -19,7 +19,6 @@ import org.scec.sha.magdist.*;
 import org.scec.param.event.*;
 import org.scec.data.*;
 import org.scec.data.region.*;
-import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultSource;
 import org.scec.util.FileUtils;
 import org.scec.exceptions.FaultException;
 import org.scec.sha.gui.servlets.erf.*;
