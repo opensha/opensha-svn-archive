@@ -118,94 +118,46 @@ public class Field_2000_AttenRel
     }
 
     /**
-     *  This sets the potential-earthquake related parameters (magParam
+     *  This sets the probEqkRupture related parameters (magParam
      *  and fltTypeParam) based on the probEqkRupture passed in.
      *  The internally held probEqkRupture object is also set as that
-     *  passed in. Since this object updates more than one parameter, an
-     *  attempt is made to rollback to the original parameter values in case
-     *  there are any errors thrown in the process.
+     *  passed in.  Warning constrains are ingored.
      *
-     * @param  pe  The new probEqkRupture value
+     * @param  probEqkRupture  The new probEqkRupture value
      */
     public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
 
-        Double magOld = (Double)magParam.getValue( );
-
-        try {
-          // constraints get checked
-          magParam.setValue( probEqkRupture.getMag() );
-        } catch (WarningException e){
-          if(D) System.out.println(C+"Warning Exception:"+e);
-        }
-
-        // If fail, rollback to all old values
-        try{
-            setFaultTypeFromRake( probEqkRupture.getAveRake() );
-        }
-        catch( ConstraintException e ){
-            magParam.setValue( magOld );
-            throw e;
-        }
-
-        // Set the PE
-        this.probEqkRupture = probEqkRupture;
-
-       /* Calculate the PropagationEffectParameters; this is
-        * not efficient if both the site and probEqkRupture
-        * are set before getting the mean, stdDev, or ExceedProbability
-        */
-        setPropagationEffectParams();
+      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
+      setFaultTypeFromRake( probEqkRupture.getAveRake() );
+      this.probEqkRupture = probEqkRupture;
+      setPropagationEffectParams();
 
     }
 
 
     /**
-     *  This sets the site-related parameter (vs30Param) based on what is in
-     *  the Site object passed in (the Site object must have a parameter with
-     *  the same name as that in vs30Param).  This also sets the internally held
-     *  Site object as that passed in.
+     *  This sets the site-related parameters (vs30Param and basinDepthParam) based on what is in
+     *  the Site object passed in.  This also sets the internally held
+     *  Site object as that passed in.   Warning constrains are ingored.
      *
-     * @param  site             The new site value which contains a Vs30 Parameter
+     * @param  site             The new site
      * @throws ParameterException Thrown if the Site object doesn't contain a
      * Vs30 parameter
      */
     public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
 
-
-        // This will throw a parameter exception if the Vs30Param doesn't exist
-        // in the Site object
-        ParameterAPI vs30 = site.getParameter( VS30_NAME );
-
-         ParameterAPI basinDepth = site.getParameter(BASIN_DEPTH_NAME);
-
-        // This may throw a constraint exception
-         try{
-           this.vs30Param.setValue( vs30.getValue() );
-         } catch (WarningException e){
-           if(D) System.out.println(C+"Warning Exception:"+e);
-         }
-
-         try{
-           this.basinDepthParam.setValue( basinDepth.getValue() );
-         } catch (WarningException e){
-           if(D) System.out.println(C+"Warning Exception:"+e);
-         }
-
-
-         // Now pass function up to super to set the site
-         super.setSite( site );
-
-         // Calculate the PropagationEffectParameters; this is
-         // not efficient if both the site and probEqkRupture
-         // are set before getting the mean, stdDev, or ExceedProbability
-         setPropagationEffectParams();
+      vs30Param.setValueIgnoreWarning( site.getParameter( VS30_NAME ).getValue() );
+      basinDepthParam.setValueIgnoreWarning( site.getParameter(BASIN_DEPTH_NAME).getValue() );
+      this.site = site;
+      setPropagationEffectParams();
 
     }
 
 
     /**
-     * This sets the site and probEqkRupture from the propEffect object passed in
+     * This sets the site and probEqkRupture, and the related parameters,
+     *  from the propEffect object passed in. Warning constrains are ingored.
      * @param propEffect
      */
     public void setPropagationEffect(PropagationEffect propEffect) {
@@ -213,30 +165,12 @@ public class Field_2000_AttenRel
       this.site = propEffect.getSite();
       this.probEqkRupture = propEffect.getProbEqkRupture();
 
-      if( site == null || probEqkRupture == null)
-        throw new RuntimeException ("Site or ProbEqkRupture is null");
-
-
       // set the locat site-type param
-      this.vs30Param.setValue(site.getParameter( VS30_NAME ).getValue());
+      vs30Param.setValueIgnoreWarning(site.getParameter( VS30_NAME ).getValue());
       basinDepthParam.setValueIgnoreWarning( site.getParameter( BASIN_DEPTH_NAME ).getValue() );
 
-      Double magOld = (Double)magParam.getValue( );
-      try {
-        // constraints get checked
-        magParam.setValue( probEqkRupture.getMag() );
-      } catch (WarningException e){
-        if(D) System.out.println(C+"Warning Exception:"+e);
-      }
-
-      // If fail, rollback to all old values
-      try{
-          setFaultTypeFromRake( probEqkRupture.getAveRake() );
-      }
-      catch( ConstraintException e ){
-          magParam.setValue( magOld );
-          throw e;
-      }
+      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
+      setFaultTypeFromRake( probEqkRupture.getAveRake() );
 
       // set the distance param
       propEffect.setParamValue(distanceJBParam);
@@ -250,13 +184,8 @@ public class Field_2000_AttenRel
      */
     protected void setPropagationEffectParams(){
 
-        if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
-          try{
-            distanceJBParam.setValue( probEqkRupture, site );
-          }catch (WarningException e){
-            if(D) System.out.println(C+"Warning Exception:"+e);
-          }
-        }
+        if( ( this.site != null ) && ( this.probEqkRupture != null ) )
+          distanceJBParam.setValue( probEqkRupture, site );
     }
 
     /**

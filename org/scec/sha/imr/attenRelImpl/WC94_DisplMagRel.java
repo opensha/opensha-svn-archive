@@ -118,72 +118,44 @@ public class WC94_DisplMagRel
 
 
     /**
-     *  This sets the probEqkRupture & the related parameters (magParam
-     *  and fltTypeParam).
+     *  This sets the probEqkRupture related parameters (magParam
+     *  and fltTypeParam) based on the probEqkRupture passed in.
+     *  The internally held probEqkRupture object is also set as that
+     *  passed in.  Warning constrains are ingored.
      *
-     * @param  pe  The new probEqkRupture value
+     * @param  probEqkRupture  The new probEqkRupture value
      */
     public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
 
-        Double magOld = (Double)magParam.getValue( );
-
-        try {
-          // constraints get checked
-          magParam.setValue( probEqkRupture.getMag() );
-        } catch (WarningException e){
-          if(D) System.out.println(C+"Warning Exception:"+e);
-        }
-
-        // If fail, rollback to all old values
-        try{
-            setFaultTypeFromRake( probEqkRupture.getAveRake() );
-        }
-        catch( ConstraintException e ){
-            magParam.setValue( magOld );
-            throw e;
-        }
-
-        // Set the probEqkRupture
-        this.probEqkRupture = probEqkRupture;
-
-       /* Calculate the PropagationEffectParameters; this is
-        * not efficient if both the site and probEqkRupture
-        * are set before getting the mean, stdDev, or ExceedProbability
-        */
-        setPropagationEffectParams();
+      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
+      setFaultTypeFromRake( probEqkRupture.getAveRake() );
+      this.probEqkRupture = probEqkRupture;
+      setPropagationEffectParams();
 
     }
 
 
     /**
+     * This sets the site object.
      *
      * @param  site
      */
     public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
 
-         // Now pass function up to super to set the site
-         super.setSite( site );
-
-         // Calculate the PropagationEffectParameters; this is
-         // not efficient if both the site and probEqkRupture
-         // are set before getting the mean, stdDev, or ExceedProbability
+         this.site = site;
          setPropagationEffectParams();
 
     }
 
     /**
-     *  <P>
+     * This calculates the DistanceRup propagation effect parameter based
+     * on the current site and probEqkRupture. <P>
      */
     protected void setPropagationEffectParams(){
 
-      if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
-          try{
-            distanceRupParam.setValue( probEqkRupture, site );
-          }catch (WarningException e){
-            if(D) System.out.println(C+"Warning Exception:"+e);
-          }
-      }
+      if( ( this.site != null ) && ( this.probEqkRupture != null ) )
+        distanceRupParam.setValue( probEqkRupture, site );
 
     }
 

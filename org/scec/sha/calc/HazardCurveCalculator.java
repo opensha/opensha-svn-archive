@@ -110,12 +110,7 @@ public class HazardCurveCalculator {
     initDiscretizeValues(hazFunction, 1.0);
 
     // set the Site in IMR
-    try {
       imr.setSite(site);
-    }catch (Exception ex) {
-      if(D) System.out.println(C + ":Param warning caught"+ex);
-      ex.printStackTrace();
-    }
 
     // this boolean will tell us whether a source was actually used
     // (e.g., all could be outside MAX_DISTANCE)
@@ -163,11 +158,7 @@ System.out.println("rejected "+
         qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
 
         // set the PQkRup in the IMR
-        try {
           imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
-        } catch (Exception ex) {
-          System.out.println("Parameter change warning caught for IMR: "+ imr.getName());
-        }
 
         // get the conditional probability of exceedance from the IMR
         condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);

@@ -211,8 +211,12 @@ public class ShakeMap_2004_AttenRel
    }
 
    /**
-    * This sets the site and probEqkRupture from the propEffect object passed in
-    * @param propEffect
+    *  This sets the probEqkRupture related parameters (magParam
+    *  and fltTypeParam) based on the probEqkRupture passed in.
+    *  The internally held probEqkRupture object is also set as that
+    *  passed in.  Warning constrains are ingored.
+    *
+    * @param  probEqkRupture  The new probEqkRupture value
     */
    public void setPropagationEffect(PropagationEffect propEffect) {
 
@@ -237,7 +241,7 @@ public class ShakeMap_2004_AttenRel
    /**
     *  This sets the probEqkRupture.
     *
-    * @param  pe  The new probEqkRupture value
+    * @param  probEqkRupture
     */
    public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
@@ -267,7 +271,7 @@ public class ShakeMap_2004_AttenRel
     *  This sets the site-related parameter (vs30Param) based on what is in
     *  the Site object passed in (the Site object must have a parameter with
     *  the same name as that in willsSiteParam).  This also sets the internally held
-    *  Site object as that passed in.
+    *  Site object as that passed in.  Warning constrains are ingored.
     *
     * @param  site             The new site value which contains a Wills site Param.
     * @throws ParameterException Thrown if the Site object doesn't contain a
@@ -276,21 +280,12 @@ public class ShakeMap_2004_AttenRel
    public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
 
 
-       // This will throw a parameter exception if the Param doesn't exist
-       // in the Site object
-
-       ParameterAPI vs30 = site.getParameter( this.VS30_NAME );
-      // This may throw a constraint exception
-       try{
-         this.vs30Param.setValue( vs30.getValue() );
-       } catch (WarningException e){
-         if(D) System.out.println(C+"Warning Exception:"+e);
-       }
-
+       vs30Param.setValueIgnoreWarning( site.getParameter( this.VS30_NAME ).getValue() );
        this.site = site;
 
        // set the location of the BC bounday site object
        site_BC.setLocation(site.getLocation());
+
 /*
        // set the  BC Site in the attenuation relations
        as_1997_attenRel.setSite(site_BC);

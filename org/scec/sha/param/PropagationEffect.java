@@ -101,7 +101,8 @@ public class PropagationEffect {
 
 
     /**
-     * This sets the value of the passed in parameter with that computed internally
+     * This sets the value of the passed in parameter with that computed internally.
+     * This ignores warnings exceptions.
      */
     public void setParamValue( ParameterAPI param ) {
 

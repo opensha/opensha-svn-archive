@@ -160,43 +160,20 @@ public class CB_2003_AttenRel
 
 
     /**
-     *  This sets the potential-earthquake related parameters (magParam
+     *  This sets the probEqkRupture related parameters (magParam
      *  and fltTypeParam) based on the probEqkRupture passed in.
      *  The internally held probEqkRupture object is also set as that
-     *  passed in. Since this object updates more than one parameter, an
-     *  attempt is made to rollback to the original parameter values in case
-     *  there are any errors thrown in the process.
+     *  passed in.  Warning constrains are ingored.
      *
-     * @param  pe  The new probEqkRupture value
+     * @param  probEqkRupture  The new probEqkRupture value
      */
     public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
-        Double magOld = (Double)magParam.getValue( );
+      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
+      setFaultType( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
+      this.probEqkRupture = probEqkRupture;
+      setPropagationEffectParams();
 
-        try {
-          // constraints get checked
-          magParam.setValue( probEqkRupture.getMag() );
-        } catch (WarningException e){
-          if(D) System.out.println(C+"Warning Exception:"+e);
-        }
-
-        // If fail, rollback to all old values
-        try{
-            setFaultType( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
-        }
-        catch( ConstraintException e ){
-            magParam.setValue( magOld );
-            throw e;
-        }
-
-        // Set the PE
-        this.probEqkRupture = probEqkRupture;
-
-       /* Calculate the PropagationEffectParameters; this is
-        * not efficient if both the site and probEqkRupture
-        * are set before getting the mean, stdDev, or ExceedProbability
-        */
-        setPropagationEffectParams();
     }
 
 
@@ -205,36 +182,21 @@ public class CB_2003_AttenRel
      *  the Site object passed in (the Site object must have these parameters in it).
      *  This also sets the internally held Site object as that passed in.
      *
-     * @param  site             The new site object which contains the
-     * "Campbell Site Type" and "Campbell Basin Depth" Parameters
+     * @param  site             The new site object which contains the site-related parameters.
      * @throws ParameterException Thrown if the Site object doesn't contain
      * either of these parameters.
      */
     public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
 
-
-        // This will throw a parameter exception if the Parameter doesn't exist
-        // in the Site object
-        ParameterAPI siteType = site.getParameter( SITE_TYPE_NAME );
-
-        // This may throw a constraint exception
-
-        this.siteTypeParam.setValue( siteType.getValue() );
-
-        // Now pass function up to super to set the site
-        // Why not just say "this.Site = site" ?? (Ned)
-
-        super.setSite( site );
-
-        // Calculate the PropagationEffectParameters; this is
-        // not efficient if both the site and probEqkRupture
-        // are set before getting the mean, stdDev, or ExceedProbability
+        siteTypeParam.setValue( site.getParameter( SITE_TYPE_NAME ).getValue() );
+        this.site = site;
         setPropagationEffectParams();
 
     }
 
     /**
-     * This sets the site and probEqkRupture from the propEffect object passed in
+     * This sets the site and probEqkRupture, and the related parameters,
+     *  from the propEffect object passed in. Warning constrains are ingored.
      * @param propEffect
      */
     public void setPropagationEffect(PropagationEffect propEffect) {
@@ -242,28 +204,13 @@ public class CB_2003_AttenRel
       this.site = propEffect.getSite();
       this.probEqkRupture = propEffect.getProbEqkRupture();
 
-      if( site == null || probEqkRupture == null)
-        throw new RuntimeException ("Site or ProbEqkRupture is null");
-
-      // set the site-type param
       this.siteTypeParam.setValue(site.getParameter( SITE_TYPE_NAME ).getValue());
-      Double magOld = (Double)magParam.getValue( );
-      try {
-          // constraints get checked
-          magParam.setValue( probEqkRupture.getMag() );
-      } catch (WarningException e){
-          if(D) System.out.println(C+"Warning Exception:"+e);
-      }
-      // If fail, rollback to all old values
-      try{
-          setFaultType( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
-      }
-      catch( ConstraintException e ){
-          magParam.setValue( (Double)magOld );
-          throw e;
-      }
-      // set the distance param
+
+      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
+      setFaultType( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
+
       propEffect.setParamValue(distanceSeisParam);
+
       // set the hanging-wall parameter
       int numPts = probEqkRupture.getRuptureSurface().getNumCols();
       double dip = probEqkRupture.getRuptureSurface().getAveDip();
@@ -304,12 +251,10 @@ public class CB_2003_AttenRel
     protected void setPropagationEffectParams(){
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
-          try {
-            distanceSeisParam.setValue( probEqkRupture, site );
-          }catch (WarningException e){
-            if(D) System.out.println(C+"Warning Exception:"+e);
-          }
 
+          distanceSeisParam.setValue( probEqkRupture, site );
+
+          // hanging wall effect
           int numPts = probEqkRupture.getRuptureSurface().getNumCols();
           double dip = probEqkRupture.getRuptureSurface().getAveDip();
           String fltType = (String) fltTypeParam.getValue();

@@ -176,45 +176,20 @@ public class AS_1997_AttenRel
 
 
     /**
-     *  This sets the potential-earthquake related parameters (magParam
+     *  This sets the probEqkRupture related parameters (magParam
      *  and fltTypeParam) based on the probEqkRupture passed in.
      *  The internally held probEqkRupture object is also set as that
-     *  passed in. Since this object updates more than one parameter, an
-     *  attempt is made to rollback to the original parameter values in case
-     *  there are any errors thrown in the process.
+     *  passed in.  Warning constrains are ingored.
      *
-     * @param  pe  The new probEqkRupture value
+     * @param  probEqkRupture  The new probEqkRupture value
      */
     public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
-        Double magOld = (Double)magParam.getValue( );
+      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
+      setFaultTypeFromRake( probEqkRupture.getAveRake() );
+      this.probEqkRupture = probEqkRupture;
+      setPropagationEffectParams();
 
-        try {
-          // constraints get checked
-          magParam.setValue( probEqkRupture.getMag() );
-        } catch (WarningException e){
-          if(D) System.out.println(C+"Warning Exception:"+e);
-        }
-        // If fail, rollback to all old values
-        try{
-            setFaultTypeFromRake( probEqkRupture.getAveRake() );
-        }
-        catch( ConstraintException e ){
-            magParam.setValue( (Double)magOld );
-            throw e;
-        }
-
-        // Set the PE
-        this.probEqkRupture = probEqkRupture;
-
-       /* Calculate the PropagationEffectParameters; this is
-        * not efficient if both the site and probEqkRupture
-        * are set before getting the mean, stdDev, or ExceedProbability
-        */
-
-        if (D) System.out.println("just set pQkRup, now setting PropEffectParams ...");
-
-        setPropagationEffectParams();
     }
 
 
@@ -230,32 +205,16 @@ public class AS_1997_AttenRel
      */
     public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
 
-
-        // This will throw a parameter exception if the parameter doesn't exist
-        // in the Site object
-
-        ParameterAPI siteType = site.getParameter( SITE_TYPE_NAME );
-
-        // This may throw a constraint exception
-         this.siteTypeParam.setValue( siteType.getValue() );
-
-        // Now pass function up to super to set the site
-        // Why not just say "this.Site = site" ?? (Ned)
-
-        super.setSite( site );
-
-        if (D) System.out.println("just set Site, now setting PropEffectParams ...");
-
-        // Calculate the PropagationEffectParameters; this is
-        // not efficient if both the site and probEqkRupture
-        // are set before getting the mean, stdDev, or ExceedProbability
-        setPropagationEffectParams();
+      siteTypeParam.setValue( site.getParameter( SITE_TYPE_NAME ).getValue() );
+      this.site = site;
+      setPropagationEffectParams();
 
     }
 
 
     /**
-     * This sets the site and probEqkRupture from the propEffect object passed in
+     * This sets the site and probEqkRupture, and the related parameters,
+     *  from the propEffect object passed in. Warning constrains are ingored.
      * @param propEffect
      */
     public void setPropagationEffect(PropagationEffect propEffect) {
@@ -263,30 +222,16 @@ public class AS_1997_AttenRel
       this.site = propEffect.getSite();
       this.probEqkRupture = propEffect.getProbEqkRupture();
 
-      if( site == null || probEqkRupture == null)
-        throw new RuntimeException ("Site or ProbEqkRupture is null");
-
       // set the locat site-type param
-      this.siteTypeParam.setValue(site.getParameter( SITE_TYPE_NAME ).getValue());
+      siteTypeParam.setValue(site.getParameter( SITE_TYPE_NAME ).getValue());
 
-      Double magOld = (Double)magParam.getValue( );
-      try {
-          // constraints get checked
-          magParam.setValue( probEqkRupture.getMag() );
-      } catch (WarningException e){
-          if(D) System.out.println(C+"Warning Exception:"+e);
-      }
-        // If fail, rollback to all old values
-      try{
-          setFaultTypeFromRake( probEqkRupture.getAveRake() );
-      }
-      catch( ConstraintException e ){
-          magParam.setValue( (Double)magOld );
-        throw e;
-      }
+      // set the probEqkRupture params
+      magParam.setValueIgnoreWarning( new Double(probEqkRupture.getMag()) );
+      setFaultTypeFromRake( probEqkRupture.getAveRake() );
 
       // set the distance param
       propEffect.setParamValue(distanceRupParam);
+
       // now the hanging wall param
       int numPts = probEqkRupture.getRuptureSurface().getNumCols();
       if(probEqkRupture.getRuptureSurface().getAveDip() <= 70 && isOnHangingWall() && numPts > 1)
@@ -308,14 +253,11 @@ public class AS_1997_AttenRel
     protected void setPropagationEffectParams(){
 
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
-            try{
-              distanceRupParam.setValue( probEqkRupture, site );
-            }catch (WarningException e){
-              if(D) System.out.println(C+"Warning Exception:"+e);
-            }
 
-        // here is the hanging wall term.  This should really be implemented as a
-        // formal propagation-effect parameter.
+            distanceRupParam.setValue( probEqkRupture, site );
+
+            // here is the hanging wall term.  This should really be implemented as a
+            // formal propagation-effect parameter.
             int numPts = probEqkRupture.getRuptureSurface().getNumCols();
 
             if(probEqkRupture.getRuptureSurface().getAveDip() <= 70 && isOnHangingWall() && numPts > 1)
@@ -328,35 +270,6 @@ public class AS_1997_AttenRel
                                       probEqkRupture.getRuptureSurface().getAveDip());
 */
             if (D) System.out.println("AS_1997 hanging wall value: " + isOnHangingWallParam.getValue().toString());
-
-/* OLD IMPLEMENTATION:
-
-            /* The following is a bit of a hack. It assumes the fault grid spacing
-               is less than 1 km, and that points off the bottem end of the fault
-               don't have significant hanging-wall effects;p Norm said the latter
-               is probably close enough (it's also what Frankel's code does).
-
-               There is a problem that this term will apply to vertical strike-slip faults
-               when on the fault trace.  The 70-degree dip threshold was the solution
-               recommended to Ned Field by Ken Cambell and Norm Abrahamson (see email
-               to Ned on 9-26-02).
-
-
-            if(probEqkRupture.getRuptureSurface().getAveDip() < 70) {
-                distanceJBParam.setValue( probEqkRupture, site );
-                if (D) System.out.println("DistJB = " + distanceJBParam.getValue());
-                if ( ( (Double)distanceJBParam.getValue() ).doubleValue() <= 1.0 )
-                    isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
-                else
-                    isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
-            }
-            else // turn it off for vertically dipping faults
-                isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
-
-            if (D) System.out.println("Old HW result: " + isOnHangingWallParam.getValue());
-
-            if (D) System.out.println("New HW result: " + isOnHangingWall());
-*/
         }
     }
 
