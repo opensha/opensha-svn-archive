@@ -70,7 +70,9 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   private JTextPane sourceRupInfoText = new JTextPane();
 
   //ListEditor
-  ParameterListEditor listEditor;
+  private ParameterListEditor listEditor;
+
+  private String [] searchPaths;
 
 
   //Instance of the JDialog to show all the adjuatble params for the forecast model
@@ -92,8 +94,11 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     catch(Exception e) {
       e.printStackTrace();
     }
+    // Build package names search path
+    searchPaths = new String[1];
+    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
 
-   setParamsInForecast(0,0);
+    setParamsInForecast(0,0);
 
  }
 
@@ -152,16 +157,16 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
        constraints,v.get(0).toString());
    parameterList.addParameter(hypoCenterLocationParam);
 
-   if(listEditor!=null)
-     this.remove(listEditor);
-   listEditor= new ParameterListEditor(parameterList);
-  // this.addParameters();
+   if(listEditor!=null) this.remove(listEditor);
+   listEditor= new ParameterListEditor(parameterList, searchPaths);
+
    // now make the editor based on the parameter list
    listEditor.setTitle( erfGuiBean.ERF_EDITOR_TITLE );
 
    if(!this.hypoCenterCheck.isSelected())
      listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(false);
    else{
+     listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(true);
      //getting the HypoCenterLocation Object and setting the Rupture HypocenterLocation
      StringTokenizer token = new StringTokenizer(hypoCenterLocationParam.getValue().toString());
      double lat= Double.parseDouble(token.nextElement().toString().trim());
@@ -184,6 +189,8 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    panel.setBorder(border1);
    this.add(listEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
+   this.validate();
+   this.repaint();
  }
 
  /**
@@ -209,8 +216,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      // set the new forecast parameters.
      //Also selected source index is 0 for newly selected forecast
      setParamsInForecast(0,0);
-     this.validate();
-     this.repaint();
    }
 
    // if source selected by the user  changes
@@ -218,8 +223,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      String value = event.getNewValue().toString();
      // set the new forecast parameters. Also change the number of ruptures in this source
      setParamsInForecast(Integer.parseInt(value),0);
-     this.validate();
-     this.repaint();
    }
 
    // if source selected by the user  changes
@@ -227,8 +230,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      String value = event.getNewValue().toString();
      // set the new forecast parameters. Also change the number of ruptures in this source
      setParamsInForecast(((Integer)listEditor.getParameterList().getParameter(SOURCE_PARAM_NAME).getValue()).intValue(),Integer.parseInt(value));
-     this.validate();
-     this.repaint();
    }
  }
 
@@ -350,8 +351,5 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     int ruptureIndex = ((Integer)listEditor.getParameterList().getParameter(this.RUPTURE_PARAM_NAME).getValue()).intValue();
     setParamsInForecast(sourceIndex,ruptureIndex);
   }
-
-
-
 
 }
