@@ -16,7 +16,7 @@ import org.scec.util.*;
 
 
 /**
- * <p>Title: </p>
+ * <p>Title: STEP_DataSetGenerator</p>
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -36,7 +36,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private final double MAX_LAT= 36.60;
   private final double MIN_LON = -121.45 ;
   private final double MAX_LON= -114.50;
-  private final double GRID_SPACING= .5;
+  private final double GRID_SPACING= .1;
   private static final String STEP_DIR = "step/";
   private static final String STEP_BACKGROUND_FILE = "backGround.txt";
   private static final String STEP_ADDON_FILE_SUFFIX = "_addon.txt";
@@ -136,12 +136,16 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     forecast.updateForecast();
     //creating the dataFile for the STEP Addon Probabilities
     Vector stepAddonProbVals = getBackSeisProbVals(imr,region,(EqkRupForecast)forecast);
-    createFile(backSiesProbVals,this.STEP_DIR+this.getStepDirName()+this.STEP_ADDON_FILE_SUFFIX);
+    File addonFile = new File(this.STEP_DIR+this.getStepDirName()+this.STEP_ADDON_FILE_SUFFIX);
+    if(!addonFile.exists())
+      createFile(backSiesProbVals,this.STEP_DIR+this.getStepDirName()+this.STEP_ADDON_FILE_SUFFIX);
 
     //combining the backgound and Addon dataSet and wrinting the result to the file
     STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
     Vector stepBothProbVals = addStepData.addDataSet(backSiesProbVals,stepAddonProbVals);
-    createFile(backSiesProbVals,this.STEP_DIR+this.getStepDirName()+this.STEP_COMBINED_FILE_SUFFIX);
+    File bothFile = new File(this.STEP_DIR+this.getStepDirName()+this.STEP_COMBINED_FILE_SUFFIX);
+    if(!bothFile.exists())
+      createFile(backSiesProbVals,this.STEP_DIR+this.getStepDirName()+this.STEP_COMBINED_FILE_SUFFIX);
 
     dataInfo = "Step Combined(Added) Data Set for :\n"+
                "\t"+this.getSTEP_DateTimeInfo()+"\n\n"+
@@ -162,10 +166,12 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    */
   private void createFile(Vector probVals, String fileName){
     int size = probVals.size();
+    System.out.println("Size of the Prob Vector is:"+size);
     try{
       FileWriter fr = new FileWriter(fileName);
       for(int i=0;i<size;++i)
         fr.write(latVals.get(i)+"  "+lonVals.get(i)+"  "+probVals.get(i)+"\n");
+      fr.close();
     }catch(IOException ee){
       ee.printStackTrace();
     }
@@ -201,18 +207,12 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
 
-    // compute the total number of ruptures for updating the progress bar
-    int totRuptures = 0;
-    for(i=0;i<numSources;++i)
-      totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
-
-
 
     // this boolean will tell us whether a source was actually used
     // (e.g., all could be outside MAX_DISTANCE)
     boolean sourceUsed = false;
     double sourceHazVal =0;
-    double hazVal =0;
+    double hazVal =1;
     double condProb =0;
     int numSites = region.getNumGridLocs();
     for(int j=0;j<numSites;++j){
@@ -256,8 +256,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
           }
 
           // get the conditional probability of exceedance from the IMR
-          condProb = 0.4343*Math.log(imr.getExceedProbability(Math.log(this.IML_VALUE)));
-
+          condProb = imr.getExceedProbability(this.IML_VALUE);
 
           // For poisson source
           if(poissonSource)
@@ -268,7 +267,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
         }
         // for non-poisson source:
         if(!poissonSource)
-            hazVal = hazVal*(1-condProb);
+            hazVal = hazVal*(1-sourceHazVal);
       }
 
       // finalize the hazard function
@@ -277,7 +276,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       else
         hazVal = 0.0;
 
-      probVals.add(new Double(hazVal));
+      probVals.add(new Double(Math.log(hazVal)));
     }
 
     return probVals;
