@@ -176,10 +176,8 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(gridBagLayout1);
-    jLabel2.setForeground(new Color(80, 80, 133));
+    jLabel2.setForeground(Color.black);
     jLabel2.setText("Select Test and Site:");
-    testCaseComboBox.setBackground(new Color(200, 200, 230));
-    testCaseComboBox.setForeground(new Color(80, 80, 133));
     testCaseComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         testCaseComboBox_actionPerformed(e);

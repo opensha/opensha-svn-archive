@@ -90,11 +90,11 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     });
 
     //jPanel1.setPreferredSize(new Dimension(300, 500));
-    minLabel.setForeground(new Color(80, 80, 133));
+    minLabel.setForeground(Color.black);
     minLabel.setText("Min :");
-    maxLabel.setForeground(new Color(80, 80, 133));
+    maxLabel.setForeground(Color.black);
     maxLabel.setText("Max :");
-    numLabel.setForeground(new Color(80, 80, 133));
+    numLabel.setForeground(Color.black);
     numLabel.setText("Num :");
     setButton.setText("Set Values");
     setButton.addActionListener(new java.awt.event.ActionListener() {
@@ -139,13 +139,12 @@ public class X_ValuesInCurveControlPanel extends JFrame {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(56, 35, 0, 0), 13, 9));
 
     this.setTitle("X Values Control Panel");
-    xValuesText.setBackground(new Color(200, 200, 230));
-    xValuesText.setForeground(new Color(80, 80, 133));
+    xValuesText.setBackground(Color.white);
+    xValuesText.setForeground(Color.black);
     xValuesText.setLineWrap(false);
     xValuesLabel.setBackground(new Color(200, 200, 230));
-    xValuesLabel.setForeground(new Color(80, 80, 133));
+    xValuesLabel.setForeground(Color.black);
     xValuesLabel.setText("X-axis (IML) Values for Hazard Curves");
-    doneButton.setForeground(new Color(80, 80, 133));
     doneButton.setText("Done");
     this.setSize(new Dimension(400, 400));
     //adding the variuos choices to the Combo Selection for the X Values

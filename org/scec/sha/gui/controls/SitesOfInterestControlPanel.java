@@ -73,12 +73,10 @@ public class SitesOfInterestControlPanel extends JFrame {
   }
   private void jbInit() throws Exception {
     jLabel1.setFont(new java.awt.Font("Dialog", 1, 12));
-    jLabel1.setForeground(new Color(80, 80, 133));
+    jLabel1.setForeground(Color.black);
     jLabel1.setText("Choose Site:");
     this.getContentPane().setLayout(gridBagLayout1);
     this.setTitle("Sites Of Interest");
-    sitesComboBox.setBackground(new Color(200, 200, 230));
-    sitesComboBox.setForeground(new Color(80, 80, 133));
     sitesComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         sitesComboBox_actionPerformed(e);

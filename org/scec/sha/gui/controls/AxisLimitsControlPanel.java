@@ -135,24 +135,20 @@ public class AxisLimitsControlPanel extends JDialog {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 11, 0, 0), 14, 0));
     panel1.add(jLabel1,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 11, 0, 0), 26, 3));
-    jLabel1.setForeground(new Color(80, 80, 133));
+    jLabel1.setForeground(Color.black);
     jLabel1.setText("Min X:");
-    jLabel2.setForeground(new Color(80, 80, 133));
+    jLabel2.setForeground(Color.black);
     jLabel2.setText("Max X:");
-    jLabel3.setForeground(new Color(80, 80, 133));
+    jLabel3.setForeground(Color.black);
     jLabel3.setText("Min Y:");
-    jLabel4.setForeground(new Color(80, 80, 133));
+    jLabel4.setForeground(Color.black);
     jLabel4.setText("Max Y:");
-    ok.setBackground(new Color(200, 200, 230));
-    ok.setForeground(new Color(80, 80, 133));
     ok.setText("OK");
     ok.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         ok_actionPerformed(e);
       }
     });
-    cancel.setBackground(new Color(200, 200, 230));
-    cancel.setForeground(new Color(80, 80, 133));
     cancel.setText("Cancel");
     cancel.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -160,7 +156,6 @@ public class AxisLimitsControlPanel extends JDialog {
       }
     });
     this.getContentPane().setLayout(gridBagLayout2);
-    panel1.setBackground(new Color(200, 200, 230));
     panel1.setMaximumSize(new Dimension(348, 143));
     this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     this.setResizable(false);
@@ -170,8 +165,7 @@ public class AxisLimitsControlPanel extends JDialog {
     this.jTextMaxY.setText(""+this.maxY);
 
     rangeComboBox.setFont(new java.awt.Font("Dialog", 1, 12));
-    rangeComboBox.setForeground(new Color(80, 80, 133));
-    jLabel5.setForeground(new Color(80, 80, 133));
+    jLabel5.setForeground(Color.black);
     jLabel5.setText("Axis Scale:");
     this.getContentPane().add(panel1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 6, 6), -49, 5));

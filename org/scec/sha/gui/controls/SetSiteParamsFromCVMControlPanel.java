@@ -74,10 +74,6 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
 
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(gridBagLayout1);
-    imrComboBox.setBackground(new Color(200, 200, 230));
-    imrComboBox.setForeground(new Color(80, 80, 133));
-    setButton.setBackground(new Color(200, 200, 230));
-    setButton.setForeground(new Color(80, 80, 133));
     setButton.setText("Set Params From CVM");
     setButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {

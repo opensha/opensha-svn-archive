@@ -55,7 +55,6 @@ public class DisaggregationControlPanel extends JFrame
 
   // initialize the gui components
   private void jbInit() throws Exception {
-    diaggregateCheckBox.setForeground(new Color(80, 80, 133));
     diaggregateCheckBox.setText("Disaggregrate");
     diaggregateCheckBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {

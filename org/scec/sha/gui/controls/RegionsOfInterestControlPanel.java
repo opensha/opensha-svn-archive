@@ -70,12 +70,10 @@ public class RegionsOfInterestControlPanel extends JFrame {
   }
   private void jbInit() throws Exception {
     jLabel1.setFont(new java.awt.Font("Dialog", 1, 12));
-    jLabel1.setForeground(new Color(80, 80, 133));
+    jLabel1.setForeground(Color.black);
     jLabel1.setText("Choose Region:");
     this.getContentPane().setLayout(gridBagLayout1);
     this.setTitle("Regions Of Interest");
-    regionsComboBox.setBackground(new Color(200, 200, 230));
-    regionsComboBox.setForeground(new Color(80, 80, 133));
     regionsComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         regionsComboBox_actionPerformed(e);

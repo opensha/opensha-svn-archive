@@ -65,7 +65,6 @@ public class ERF_EpistemicListControlPanel extends JFrame
     }
   }
   private void jbInit() throws Exception {
-    allCurvesCheckBox.setForeground(new Color(80, 80, 133));
     allCurvesCheckBox.setActionCommand("Plot all curves in one color");
     allCurvesCheckBox.setSelected(true);
     allCurvesCheckBox.setText("Plot all curves (in one color)");
@@ -76,7 +75,6 @@ public class ERF_EpistemicListControlPanel extends JFrame
     });
     this.setTitle("Epistemic List Control");
     this.getContentPane().setLayout(gridBagLayout1);
-    percentileComboBox.setBackground(new Color(200, 200, 230));
     percentileComboBox.setForeground(Color.red);
     percentileComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {

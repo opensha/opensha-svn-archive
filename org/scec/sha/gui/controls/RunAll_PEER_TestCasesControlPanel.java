@@ -31,8 +31,6 @@ public class RunAll_PEER_TestCasesControlPanel extends JFrame {
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);
-    runPEERcheck.setBackground(new Color(200, 200, 230));
-    runPEERcheck.setForeground(new Color(80, 80, 133));
     runPEERcheck.setText("Click  to run PEER Test Cases");
     this.setTitle("Run All PEER Test Cases Control Panel");
     jPanel1.setPreferredSize(new Dimension(350,70));
