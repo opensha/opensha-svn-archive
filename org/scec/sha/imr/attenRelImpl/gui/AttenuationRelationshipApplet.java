@@ -18,7 +18,6 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
-import org.scec.gui.plot.LogPlotAPI;
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
@@ -48,7 +47,7 @@ import org.scec.sha.gui.controls.*;
 public class AttenuationRelationshipApplet extends JApplet
     implements ParameterChangeFailListener,
         ParameterChangeWarningListener,
-        ItemListener, LogPlotAPI, AxisLimitsControlPanelAPI {
+        ItemListener, AxisLimitsControlPanelAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
     private final static String version = "0.5.10";
@@ -857,6 +856,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
         //create the standard ticks so that smaller values too can plotted on the chart
         TickUnits units = MyTickUnits.createStandardTickUnits();
+        try{
 
         if (xLog) xAxis = new org.jfree.chart.axis.LogarithmicAxis( xAxisLabel );
         else xAxis = new NumberAxis( xAxisLabel );
@@ -921,9 +921,9 @@ public class AttenuationRelationshipApplet extends JApplet
             StyleConstants.setFontSize(setLegend,12);
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
-         }
-       } catch (BadLocationException e) {
-                return;
+          }
+        } catch (BadLocationException e) {
+          return;
         }
 
         // Put into a panel
@@ -933,7 +933,10 @@ public class AttenuationRelationshipApplet extends JApplet
         panel.setDisplayToolTips(true);
         panel.setHorizontalAxisTrace(false);
         panel.setVerticalAxisTrace(false);
-
+        }catch(Exception e){
+          JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+          return;
+        }
 
         if ( D ) System.out.println( S + "Toggling plot on" );
         graphOn = false;
@@ -1594,29 +1597,6 @@ public class AttenuationRelationshipApplet extends JApplet
    this.customAxis=false;
    addGraphPanel();
  }
-
-  /**
-   * This function handles the Zero values in the X and Y data set when exception is thrown,
-   * it reverts back to the linear scale displaying a message box to the user.
-   */
-  public void invalidLogPlot(String message) {
-
-     if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
-       this.jCheckxlog.setSelected(false);
-       this.data.setXLog(false);
-       ShowMessage showMessage=new ShowMessage(this, "      X-Log Plot Error as it contains Zero Values");
-       showMessage.pack();
-       showMessage.show();
-     }
-     if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
-       this.jCheckylog.setSelected(false);
-       this.data.setYLog(false);
-       ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
-       showMessage.pack();
-       showMessage.show();
-     }
-     this.addGraphPanel();
-  }
 
 
 

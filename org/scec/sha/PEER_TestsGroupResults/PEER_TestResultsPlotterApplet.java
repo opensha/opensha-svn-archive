@@ -25,7 +25,7 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
-import org.scec.gui.plot.LogPlotAPI;
+
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.gui.plot.*;
 import org.scec.util.*;
@@ -51,7 +51,6 @@ import com.borland.jbcl.layout.*;
 
 public class PEER_TestResultsPlotterApplet extends JApplet implements
                                           NamedObjectAPI,
-                                          LogPlotAPI,
                                           AxisLimitsControlPanelAPI,
                                           ActionListener {
   private boolean isStandalone = false;
@@ -609,6 +608,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
       else xAxis = new NumberAxis( xAxisLabel );
 
+      try{
       xAxis.setAutoRangeIncludesZero( false );
       xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
@@ -665,6 +665,10 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       chartPanel.setDisplayToolTips(true);
       chartPanel.setHorizontalAxisTrace(false);
       chartPanel.setVerticalAxisTrace(false);
+      }catch(Exception e){
+        JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+        return;
+      }
       graphOn = false;
       togglePlot();
    }
@@ -903,25 +907,6 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     addGraphPanel();
   }
 
-
-  /**
-   * This function handles the Zero values in the X and Y data set when exception is thrown,
-   * it reverts back to the linear scale displaying a message box to the user.
-   */
-  public void invalidLogPlot(String message) {
-     if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
-       this.xLogCheckBox.setSelected(false);
-       ShowMessage showMessage=new ShowMessage(this,"      X-Log Plot Error as it contains Zero Values");
-       showMessage.pack();
-       showMessage.show();
-     }
-     if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
-       this.yLogCheckBox.setSelected(false);
-       ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
-       showMessage.pack();
-       showMessage.show();
-     }
-  }
 
 
    /**

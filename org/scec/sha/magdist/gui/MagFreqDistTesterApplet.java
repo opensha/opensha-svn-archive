@@ -16,7 +16,7 @@ import org.jfree.data.*;
 import org.jfree.chart.labels.*;
 
 import org.scec.gui.*;
-import org.scec.gui.plot.LogPlotAPI;
+
 import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 
 import org.scec.param.*;
@@ -40,8 +40,7 @@ import org.scec.sha.param.editor.*;
  */
 
 public class MagFreqDistTesterApplet extends JApplet
-            implements ItemListener,
-                      LogPlotAPI {
+            implements ItemListener {
 
 
   protected final static String C = "MagFreqDistTesterApplet";
@@ -846,165 +845,168 @@ public class MagFreqDistTesterApplet extends JApplet
           moYAxis = new NumberAxis(moYAxisLabel);
        }
 
-       // set properties for mag vs incremental rate Y- axis
-        incrYAxis.setAutoRangeIncludesZero( true );
-        incrYAxis.setStandardTickUnits(units);
-        incrYAxis.setAutoRangeIncludesZero(false);
-        incrYAxis.setAutoRangeStickyZero(true);
-        incrYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
-        incrYAxis.setTickMarksVisible(false);
+       try{
+         // set properties for mag vs incremental rate Y- axis
+         incrYAxis.setAutoRangeIncludesZero( true );
+         incrYAxis.setStandardTickUnits(units);
+         incrYAxis.setAutoRangeIncludesZero(false);
+         incrYAxis.setAutoRangeStickyZero(true);
+         incrYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
+         incrYAxis.setTickMarksVisible(false);
 
 
-        // set properties for mag vs incremental rate Y- axis
-        cumYAxis.setAutoRangeIncludesZero( true );
-        cumYAxis.setStandardTickUnits(units);
-        cumYAxis.setAutoRangeIncludesZero(false);
-        cumYAxis.setAutoRangeStickyZero(true);
-        cumYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
-        cumYAxis.setTickMarksVisible(false);
+         // set properties for mag vs incremental rate Y- axis
+         cumYAxis.setAutoRangeIncludesZero( true );
+         cumYAxis.setStandardTickUnits(units);
+         cumYAxis.setAutoRangeIncludesZero(false);
+         cumYAxis.setAutoRangeStickyZero(true);
+         cumYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
+         cumYAxis.setTickMarksVisible(false);
 
-        // set properties for mag vs incremental rate Y- axis
-        moYAxis.setAutoRangeIncludesZero( true );
-        moYAxis.setStandardTickUnits(units);
-        moYAxis.setAutoRangeIncludesZero(false);
-        moYAxis.setAutoRangeStickyZero(true);
-        moYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
-        moYAxis.setTickMarksVisible(false);
+         // set properties for mag vs incremental rate Y- axis
+         moYAxis.setAutoRangeIncludesZero( true );
+         moYAxis.setStandardTickUnits(units);
+         moYAxis.setAutoRangeIncludesZero(false);
+         moYAxis.setAutoRangeStickyZero(true);
+         moYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
+         moYAxis.setTickMarksVisible(false);
 
 
-        int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
+         int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
-        org.jfree.chart.renderer.StandardXYItemRenderer renderer =
-            new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
+         org.jfree.chart.renderer.StandardXYItemRenderer renderer =
+             new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
-        if(this.incrCustomAxis) {
-          incrXAxis.setRange(this.xIncrMin,this.xIncrMax);
-          incrYAxis.setRange(this.yIncrMin,this.yIncrMax);
-        }
-        if(this.cumCustomAxis) {
-          cumXAxis.setRange(this.xCumMin,this.xCumMax);
-          cumYAxis.setRange(this.yCumMin,this.yCumMax);
-        }
-        if(this.moCustomAxis) {
-          moXAxis.setRange(this.xMoMin,this.xMoMax);
-          moYAxis.setRange(this.yMoMin,this.yMoMax);
-        }
-
-
-        // build the plot
-        org.jfree.chart.plot.XYPlot incrPlot = new org.jfree.chart.plot.XYPlot(incrData, incrXAxis, incrYAxis, renderer);
-        org.jfree.chart.plot.XYPlot cumPlot = new org.jfree.chart.plot.XYPlot(toCumData, cumXAxis, cumYAxis, renderer);
-        org.jfree.chart.plot.XYPlot moPlot = new org.jfree.chart.plot.XYPlot(toMoData, moXAxis, moYAxis, renderer);
-
-
-        incrPlot.setBackgroundAlpha( .8f );
-        incrPlot.setDomainCrosshairLockedOnData(false);
-        incrPlot.setDomainCrosshairVisible(false);
-        incrPlot.setRangeCrosshairLockedOnData(false);
-        incrPlot.setRangeCrosshairVisible(false);
-
-        cumPlot.setBackgroundAlpha( .8f );
-        cumPlot.setDomainCrosshairLockedOnData(false);
-        cumPlot.setDomainCrosshairVisible(false);
-        cumPlot.setRangeCrosshairLockedOnData(false);
-        cumPlot.setRangeCrosshairVisible(false);
-
-        moPlot.setBackgroundAlpha( .8f );
-        moPlot.setDomainCrosshairLockedOnData(false);
-        moPlot.setDomainCrosshairVisible(false);
-        moPlot.setRangeCrosshairLockedOnData(false);
-        moPlot.setRangeCrosshairVisible(false);
-
-        int numSeries = legendPaint.length;
-        for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
-        if( isWhite ) {
-          incrPlot.setBackgroundPaint( Color.white );
-          cumPlot.setBackgroundPaint( Color.white );
-          moPlot.setBackgroundPaint( Color.white );
-          legendPane.setBackground(Color.white);
-        }
-        else {
-          incrPlot.setBackgroundPaint( Color.black );
-          cumPlot.setBackgroundPaint( Color.black );
-          moPlot.setBackgroundPaint( Color.black );
-          legendPane.setBackground(Color.black);
-        }
-
-
-        incrPlot.setRenderer( renderer );
-        cumPlot.setRenderer( renderer );
-        moPlot.setRenderer( renderer );
-
-
-        JFreeChart incrChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, incrPlot,false);
-        JFreeChart cumChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, cumPlot,false );
-        JFreeChart moChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, moPlot,false );
-
-
-        // Graphics
-        incrChart.setBackgroundPaint( lightBlue );
-        cumChart.setBackgroundPaint( lightBlue );
-        moChart.setBackgroundPaint( lightBlue );
-
-
-
-        // Put into a panel
-        incrPanel = new ChartPanel(incrChart, true, true, true, true, false);
-        cumPanel = new ChartPanel(cumChart, true, true, true, true, false);
-        moPanel = new ChartPanel(moChart, true, true, true, true, false);
-
-
-
-        legendPane.removeAll();
-        legendPane.setEditable(false);
-        setLegend =new SimpleAttributeSet();
-        setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
-                               Boolean.TRUE);
-        int numOfColors = incrPlot.getSeriesCount();
-        Document doc = legendPane.getStyledDocument();
-        try {
-
-          doc.remove(0,doc.getLength());
-          for(int i=0,j=0;i<numOfColors;++i,++j){
-             if(j==legendColor.length)
-              j=0;
-            legend = new String(i+1+") "+this.incrFunctions.get(i).getName()+": "+this.incrFunctions.get(i).getInfo()+"\n\n");
-            setLegend =new SimpleAttributeSet();
-            StyleConstants.setFontSize(setLegend,12);
-            StyleConstants.setForeground(setLegend,legendColor[j]);
-
-              doc.insertString(doc.getLength(),legend,setLegend);
+         if(this.incrCustomAxis) {
+           incrXAxis.setRange(this.xIncrMin,this.xIncrMax);
+           incrYAxis.setRange(this.yIncrMin,this.yIncrMax);
          }
-       } catch (BadLocationException e) {
-                return;
-        }
+         if(this.cumCustomAxis) {
+           cumXAxis.setRange(this.xCumMin,this.xCumMax);
+           cumYAxis.setRange(this.yCumMin,this.yCumMax);
+         }
+         if(this.moCustomAxis) {
+           moXAxis.setRange(this.xMoMin,this.xMoMax);
+           moYAxis.setRange(this.yMoMin,this.yMoMax);
+         }
+
+
+         // build the plot
+         org.jfree.chart.plot.XYPlot incrPlot = new org.jfree.chart.plot.XYPlot(incrData, incrXAxis, incrYAxis, renderer);
+         org.jfree.chart.plot.XYPlot cumPlot = new org.jfree.chart.plot.XYPlot(toCumData, cumXAxis, cumYAxis, renderer);
+         org.jfree.chart.plot.XYPlot moPlot = new org.jfree.chart.plot.XYPlot(toMoData, moXAxis, moYAxis, renderer);
+
+
+         incrPlot.setBackgroundAlpha( .8f );
+         incrPlot.setDomainCrosshairLockedOnData(false);
+         incrPlot.setDomainCrosshairVisible(false);
+         incrPlot.setRangeCrosshairLockedOnData(false);
+         incrPlot.setRangeCrosshairVisible(false);
+
+         cumPlot.setBackgroundAlpha( .8f );
+         cumPlot.setDomainCrosshairLockedOnData(false);
+         cumPlot.setDomainCrosshairVisible(false);
+         cumPlot.setRangeCrosshairLockedOnData(false);
+         cumPlot.setRangeCrosshairVisible(false);
+
+         moPlot.setBackgroundAlpha( .8f );
+         moPlot.setDomainCrosshairLockedOnData(false);
+         moPlot.setDomainCrosshairVisible(false);
+         moPlot.setRangeCrosshairLockedOnData(false);
+         moPlot.setRangeCrosshairVisible(false);
+
+         int numSeries = legendPaint.length;
+         for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
+         if( isWhite ) {
+           incrPlot.setBackgroundPaint( Color.white );
+           cumPlot.setBackgroundPaint( Color.white );
+           moPlot.setBackgroundPaint( Color.white );
+           legendPane.setBackground(Color.white);
+         }
+         else {
+           incrPlot.setBackgroundPaint( Color.black );
+           cumPlot.setBackgroundPaint( Color.black );
+           moPlot.setBackgroundPaint( Color.black );
+           legendPane.setBackground(Color.black);
+         }
+
+
+         incrPlot.setRenderer( renderer );
+         cumPlot.setRenderer( renderer );
+         moPlot.setRenderer( renderer );
+
+
+         JFreeChart incrChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, incrPlot,false);
+         JFreeChart cumChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, cumPlot,false );
+         JFreeChart moChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, moPlot,false );
+
+
+         // Graphics
+         incrChart.setBackgroundPaint( lightBlue );
+         cumChart.setBackgroundPaint( lightBlue );
+         moChart.setBackgroundPaint( lightBlue );
+
+
+
+         // Put into a panel
+         incrPanel = new ChartPanel(incrChart, true, true, true, true, false);
+         cumPanel = new ChartPanel(cumChart, true, true, true, true, false);
+         moPanel = new ChartPanel(moChart, true, true, true, true, false);
+
+
+
+         legendPane.removeAll();
+         legendPane.setEditable(false);
+         setLegend =new SimpleAttributeSet();
+         setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
+                                Boolean.TRUE);
+         int numOfColors = incrPlot.getSeriesCount();
+         Document doc = legendPane.getStyledDocument();
+         try {
+
+           doc.remove(0,doc.getLength());
+           for(int i=0,j=0;i<numOfColors;++i,++j){
+             if(j==legendColor.length)
+               j=0;
+             legend = new String(i+1+") "+this.incrFunctions.get(i).getName()+": "+this.incrFunctions.get(i).getInfo()+"\n\n");
+             setLegend =new SimpleAttributeSet();
+             StyleConstants.setFontSize(setLegend,12);
+             StyleConstants.setForeground(setLegend,legendColor[j]);
+
+             doc.insertString(doc.getLength(),legend,setLegend);
+           }
+         } catch (BadLocationException e) {
+           return;
+         }
          //panel.setMouseZoomable(true);
 
 
-        // set panel properties for mag vs incremental rate chart
-        incrPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-        incrPanel.setMouseZoomable(true);
-        incrPanel.setDisplayToolTips(true);
-        incrPanel.setHorizontalAxisTrace(false);
-        incrPanel.setVerticalAxisTrace(false);
+         // set panel properties for mag vs incremental rate chart
+         incrPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+         incrPanel.setMouseZoomable(true);
+         incrPanel.setDisplayToolTips(true);
+         incrPanel.setHorizontalAxisTrace(false);
+         incrPanel.setVerticalAxisTrace(false);
 
-        // set panel properties for mag vs cumulative rate chart
-        cumPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-        cumPanel.setMouseZoomable(true);
-        cumPanel.setDisplayToolTips(true);
-        cumPanel.setHorizontalAxisTrace(false);
-        cumPanel.setVerticalAxisTrace(false);
+         // set panel properties for mag vs cumulative rate chart
+         cumPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+         cumPanel.setMouseZoomable(true);
+         cumPanel.setDisplayToolTips(true);
+         cumPanel.setHorizontalAxisTrace(false);
+         cumPanel.setVerticalAxisTrace(false);
 
-       // set panel properties for mag vs moment rate chart
-        moPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-        moPanel.setMouseZoomable(true);
-        moPanel.setDisplayToolTips(true);
-        moPanel.setHorizontalAxisTrace(false);
-        moPanel.setVerticalAxisTrace(false);
+         // set panel properties for mag vs moment rate chart
+         moPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+         moPanel.setMouseZoomable(true);
+         moPanel.setDisplayToolTips(true);
+         moPanel.setHorizontalAxisTrace(false);
+         moPanel.setVerticalAxisTrace(false);
 
-
-
+       }catch(Exception e){
+         JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+         return;
+       }
 
         if ( D ) System.out.println( S + "Toggling plot on" );
         graphOn = false;
@@ -1012,22 +1014,6 @@ public class MagFreqDistTesterApplet extends JApplet
         if ( D ) System.out.println( S + "Done" );
      }
 
-    /**
-     * This function handles the Zero values in the X and Y data set when exception is thrown,
-     * it reverts back to the linear scale displaying a message box to the user.
-     */
-  public void invalidLogPlot(String message) {
-     if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
-       this.jCheckylog.setSelected(false);
-       ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
-       showMessage.pack();
-       showMessage.show();
-       incrData.setYLog(false);
-       toCumData.setYLog(false);
-       toMoData.setYLog(false);
-     }
-     this.addGraphPanel();
-  }
 
 
 

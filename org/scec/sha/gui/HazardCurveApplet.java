@@ -22,7 +22,6 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
-import org.scec.gui.plot.LogPlotAPI;
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
@@ -51,7 +50,7 @@ import org.scec.data.Site;
  */
 
 public class HazardCurveApplet extends JApplet
-    implements Runnable, LogPlotAPI, ParameterChangeListener, AxisLimitsControlPanelAPI,
+    implements Runnable,  ParameterChangeListener, AxisLimitsControlPanelAPI,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI {
 
   /**
@@ -552,6 +551,8 @@ public class HazardCurveApplet extends JApplet
       String yAxisLabel = totalProbFuncs.getYAxisName();
 
 
+      try{
+
       //create the standard ticks so that smaller values too can plotted on the chart
       TickUnits units = MyTickUnits.createStandardTickUnits();
 
@@ -639,7 +640,10 @@ public class HazardCurveApplet extends JApplet
       chartPanel.setDisplayToolTips(true);
       chartPanel.setHorizontalAxisTrace(false);
       chartPanel.setVerticalAxisTrace(false);
-
+      }catch(Exception e){
+        JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+        return;
+      }
 
       if(D) System.out.println(this.totalProbFuncs.toString());
       if(D) System.out.println(S + "data:" + data);
@@ -842,35 +846,6 @@ public class HazardCurveApplet extends JApplet
       addGraphPanel();
   }
 
-  /**
-   * This function handles the Zero values in the X and Y data set when exception is thrown,
-   * it reverts back to the linear scale displaying a message box to the user.
-   */
-  public void invalidLogPlot(String message) {
-
-
-     if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
-       ShowMessage showMessage=new ShowMessage(this, "      X-Log Plot Error as it contains Zero Values");
-       showMessage.pack();
-       showMessage.show();
-       panel.removeAll();
-       this.jCheckxlog.setSelected(false);
-       xLog  = false;
-       data.setXLog(xLog);
-     }
-
-     if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
-       ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
-       showMessage.pack();
-       showMessage.show();
-       panel.removeAll();
-       this.jCheckylog.setSelected(false);
-       yLog  = false;
-       data.setYLog(yLog);
-     }
-     this.isIndividualCurves = true;
-     this.addGraphPanel();
-  }
 
 
   /**

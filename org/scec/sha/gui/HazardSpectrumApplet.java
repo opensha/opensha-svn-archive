@@ -22,7 +22,6 @@ import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
-import org.scec.gui.plot.LogPlotAPI;
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
@@ -51,7 +50,7 @@ import org.scec.data.Site;
  */
 
 public class HazardSpectrumApplet extends JApplet
-    implements Runnable, LogPlotAPI, ParameterChangeListener, AxisLimitsControlPanelAPI,
+    implements Runnable, ParameterChangeListener, AxisLimitsControlPanelAPI,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI {
 
   /**
@@ -583,86 +582,90 @@ public class HazardSpectrumApplet extends JApplet
       if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
       else xAxis = new NumberAxis( xAxisLabel );
 
-      xAxis.setAutoRangeIncludesZero( false );
-      xAxis.setStandardTickUnits(units);
-      xAxis.setTickMarksVisible(false);
+      try{
+        xAxis.setAutoRangeIncludesZero( false );
+        xAxis.setStandardTickUnits(units);
+        xAxis.setTickMarksVisible(false);
 
-      /// check if y log is selected or not
-      if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
-      else yAxis = new NumberAxis( yAxisLabel );
+        /// check if y log is selected or not
+        if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
+        else yAxis = new NumberAxis( yAxisLabel );
 
-      yAxis.setAutoRangeIncludesZero( false );
-      yAxis.setStandardTickUnits(units);
-      yAxis.setTickMarksVisible(false);
+        yAxis.setAutoRangeIncludesZero( false );
+        yAxis.setStandardTickUnits(units);
+        yAxis.setTickMarksVisible(false);
 
-      int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
+        int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
 
-      org.jfree.chart.renderer.StandardXYItemRenderer renderer
-          = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
+        org.jfree.chart.renderer.StandardXYItemRenderer renderer
+            = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
-      // draw all plots in black color for Eqk List
-      if(this.isEqkList) {
-        int num = totalProbFuncs.size();
-        int numFractiles;
-        if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE) && !isIndividualCurves )
-          numFractiles = 1;
-        else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE) && !isIndividualCurves)
-          numFractiles = 3;
-        else numFractiles = 0;
-        int diff ;
-        if(this.avgSelected && !isIndividualCurves) num= num - 1;
-        diff = num - numFractiles ;
-        int i;
-        for(i=0; i<diff; ++i) // set black color for curves
-          renderer.setSeriesPaint(i,Color.black);
-        //checks if the individual curves for each erf in the list are being drawn, if so then don't
-        //try to draw the average and fractiles curves
-        if(!isIndividualCurves){
-          for(i=diff;i<num;++i) // set red color for fractiles
-            renderer.setSeriesPaint(i,Color.red);
-          // draw average in green color
-          if(this.avgSelected) renderer.setSeriesPaint(i,Color.green);
+        // draw all plots in black color for Eqk List
+        if(this.isEqkList) {
+          int num = totalProbFuncs.size();
+          int numFractiles;
+          if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE) && !isIndividualCurves )
+            numFractiles = 1;
+          else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE) && !isIndividualCurves)
+            numFractiles = 3;
+          else numFractiles = 0;
+          int diff ;
+          if(this.avgSelected && !isIndividualCurves) num= num - 1;
+          diff = num - numFractiles ;
+          int i;
+          for(i=0; i<diff; ++i) // set black color for curves
+            renderer.setSeriesPaint(i,Color.black);
+          //checks if the individual curves for each erf in the list are being drawn, if so then don't
+          //try to draw the average and fractiles curves
+          if(!isIndividualCurves){
+            for(i=diff;i<num;++i) // set red color for fractiles
+              renderer.setSeriesPaint(i,Color.red);
+            // draw average in green color
+            if(this.avgSelected) renderer.setSeriesPaint(i,Color.green);
+          }
+
         }
 
-      }
-
       /* to set the range of the axis on the input from the user if the range combo box is selected*/
-      if(this.customAxis) {
-        xAxis.setRange(this.minXValue,this.maxXValue);
-        yAxis.setRange(this.minYValue,this.maxYValue);
+        if(this.customAxis) {
+          xAxis.setRange(this.minXValue,this.maxXValue);
+          yAxis.setRange(this.minYValue,this.maxYValue);
+        }
+
+        // build the plot
+        org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data,
+            xAxis, yAxis, renderer);
+
+        plot.setDomainCrosshairLockedOnData(false);
+        plot.setDomainCrosshairVisible(false);
+        plot.setRangeCrosshairLockedOnData(false);
+        plot.setRangeCrosshairVisible(false);
+        plot.setBackgroundAlpha( .8f );
+        plot.setRenderer( renderer );
+
+
+
+        JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
+
+        chart.setBackgroundPaint( lightBlue );
+
+        // chart.setBackgroundImage(image);
+        // chart.setBackgroundImageAlpha(.3f);
+
+        // Put into a panel
+        chartPanel = new ChartPanel(chart, true, true, true, true, false);
+        //panel.setMouseZoomable(true);
+
+        chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+        chartPanel.setMouseZoomable(true);
+        chartPanel.setDisplayToolTips(true);
+        chartPanel.setHorizontalAxisTrace(false);
+        chartPanel.setVerticalAxisTrace(false);
+      }catch(Exception e){
+        JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+        return;
       }
-
-      // build the plot
-      org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data,
-          xAxis, yAxis, renderer);
-
-      plot.setDomainCrosshairLockedOnData(false);
-      plot.setDomainCrosshairVisible(false);
-      plot.setRangeCrosshairLockedOnData(false);
-      plot.setRangeCrosshairVisible(false);
-      plot.setBackgroundAlpha( .8f );
-      plot.setRenderer( renderer );
-
-
-
-      JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
-
-      chart.setBackgroundPaint( lightBlue );
-
-      // chart.setBackgroundImage(image);
-      // chart.setBackgroundImageAlpha(.3f);
-
-      // Put into a panel
-      chartPanel = new ChartPanel(chart, true, true, true, true, false);
-      //panel.setMouseZoomable(true);
-
-      chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-      chartPanel.setMouseZoomable(true);
-      chartPanel.setDisplayToolTips(true);
-      chartPanel.setHorizontalAxisTrace(false);
-      chartPanel.setVerticalAxisTrace(false);
-
 
       if(D) System.out.println(this.totalProbFuncs.toString());
       if(D) System.out.println(S + "data:" + data);
@@ -819,35 +822,6 @@ public class HazardSpectrumApplet extends JApplet
       addGraphPanel();
   }
 
-  /**
-   * This function handles the Zero values in the X and Y data set when exception is thrown,
-   * it reverts back to the linear scale displaying a message box to the user.
-   */
-  public void invalidLogPlot(String message) {
-
-
-     if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
-       ShowMessage showMessage=new ShowMessage(this, "      X-Log Plot Error as it contains Zero Values");
-       showMessage.pack();
-       showMessage.show();
-       panel.removeAll();
-       this.jCheckxlog.setSelected(false);
-       xLog  = false;
-       data.setXLog(xLog);
-     }
-
-     if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
-       ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
-       showMessage.pack();
-       showMessage.show();
-       panel.removeAll();
-       this.jCheckylog.setSelected(false);
-       yLog  = false;
-       data.setYLog(yLog);
-     }
-     this.isIndividualCurves = true;
-     this.addGraphPanel();
-  }
 
 
   /**

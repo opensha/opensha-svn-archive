@@ -75,6 +75,78 @@ public final class DefaultHazardCurveForIMTs {
     return null;
   }
 
+  /**
+   *
+   * @returns the minimum X Value for SA
+   */
+  public static double getSA_Min(){
+    return MIN_SA_PGA;
+  }
+
+  /**
+   *
+   * @returns the maximum X Value for SA
+   */
+  public static double getSA_Max(){
+    return MAX_SA_PGA;
+  }
+
+  /**
+   *
+   * @returns the total number of default X Values for SA
+   */
+  public static double getSA_NUM(){
+    return NUM_SA_PGA;
+  }
+
+  /**
+   *
+   * @returns the minimum X Value for PGA
+   */
+  public static double getPGA_Min(){
+    return MIN_SA_PGA;
+  }
+
+  /**
+   *
+   * @returns the maximum X Value for PGA
+   */
+  public static double getPGA_Max(){
+    return MAX_SA_PGA;
+  }
+
+  /**
+   *
+   * @returns the total number of default X Values for PGA
+   */
+  public static double getPGA_NUM(){
+    return NUM_SA_PGA;
+  }
+
+  /**
+   *
+   * @returns the minimum X Value for PGV
+   */
+  public static double getPGV_Min(){
+    return MIN_PGV;
+  }
+
+  /**
+   *
+   * @returns the maximum X Value for PGV
+   */
+  public static double getPGV_Max(){
+    return MAX_PGV;
+  }
+
+  /**
+   *
+   * @returns the total number of default X Values for PGV
+   */
+  public static double getPGV_Num(){
+    return NUM_PGV;
+  }
+
   //added for debugging purposes
   public static void main(String args[]){
     DefaultHazardCurveForIMTs hazardCurve = new DefaultHazardCurveForIMTs();
