@@ -66,8 +66,9 @@ public class HazardCurveApplet extends JApplet
   public final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
   public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
   public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
- // public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
+  public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
+  public final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
 
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
@@ -1145,6 +1146,8 @@ public class HazardCurveApplet extends JApplet
      imrClasses.add(this.SCEMY_CLASS_NAME);
      imrClasses.add(this.CB_CLASS_NAME);
      imrClasses.add(this.F_CLASS_NAME);
+     imrClasses.add(this.A_CLASS_NAME);
+     imrClasses.add(this.SM_CLASS_NAME);
      imrGuiBean = new IMR_GuiBean(imrClasses);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
      // show this gui bean the JPanel
@@ -1198,7 +1201,7 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-  // erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erfGuiBean = new ERF_GuiBean(erf_Classes);
    erfPanel.setLayout(gridBagLayout5);
