@@ -14,6 +14,7 @@ import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.sha.gui.infoTools.ImageViewerWindow;
 import org.scec.util.FileUtils;
+import java.awt.event.*;
 
 
 /**
@@ -43,6 +44,9 @@ public class MapGuiBean extends JPanel implements
 
   //instance of the GMT Control Panel to get the GMT parameters value.
   private GMT_MapGenerator gmtMap= new GMT_MapGenerator();
+
+  //flag to see if one wants to run the GMT from the server
+  private boolean gmtFromServer = false;
 
   private ParameterListEditor editor;
   //Label to show the imageFile
@@ -139,15 +143,10 @@ public class MapGuiBean extends JPanel implements
    */
   public void makeMap(String fileName,String paramsInfo){
     String imgName;
-    boolean gmtFromServer = false;
-    if(this.gmtServerCheck.isSelected()){
+    if(this.gmtServerCheck.isSelected())
       imgName = openConnection(fileName);
-      gmtFromServer = true;
-    }
-    else{
+    else
       imgName = gmtMap.makeMap(fileName);
-      gmtFromServer = false;
-    }
     //adding the image to the Panel and returning that to the applet
     ImageViewerWindow imgView = new ImageViewerWindow(imgName,paramsInfo,gmtFromServer);
   }
@@ -166,6 +165,11 @@ public class MapGuiBean extends JPanel implements
    */
   private void jbInit() throws Exception {
     gmtServerCheck.setText("Set GMT from Server");
+    gmtServerCheck.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        gmtServerCheck_actionPerformed(e);
+      }
+    });
     this.setLayout(gridBagLayout1);
     this.add(editor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
@@ -234,5 +238,22 @@ public class MapGuiBean extends JPanel implements
       e.printStackTrace();
     }
     return imgURL;
+  }
+
+
+  /**
+   *
+   * @returns whether the user wants the GMT from server or from his own machine
+   */
+  public boolean isGMT_FromServer(){
+    return this.gmtFromServer;
+  }
+
+  void gmtServerCheck_actionPerformed(ActionEvent e) {
+
+    if(this.gmtServerCheck.isSelected())
+      this.gmtFromServer=true;
+    else
+      gmtFromServer=false;
   }
 }

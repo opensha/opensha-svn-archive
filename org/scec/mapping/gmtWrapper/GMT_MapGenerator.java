@@ -260,7 +260,7 @@ public class GMT_MapGenerator implements Serializable{
 //     xyz2grd LatLonAmpData.txt -GtestData.grd -I0.05 -R-121/-115/32.5/35.5 -D/degree/degree/amp/=/=/= -V -:
 
       //command to be executed during the runtime.
-      String[] command ={"sh","-c",GMT_PATH+"xyz2grd "+ xyzFileName+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -:"};
+      String[] command ={"sh","-c",GMT_PATH+"xyz2grd "+ xyzFileName+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0"};
       RunScript.runScript(command);
 
        command[2] = GMT_PATH + "grdcut " + grdFileName +" -Gtemp"+grdFileName +" " + region;

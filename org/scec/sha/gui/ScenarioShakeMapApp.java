@@ -525,14 +525,23 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    */
   private void makeFile(Vector lat,Vector lon,Vector siteValue){
     try{
-         int size=lat.size();
-         FileWriter fr = new FileWriter(this.fileNameTextField.getText().trim()+".txt");
-         for(int i=0;i<size;++i)
-           fr.write(lat.get(i)+" "+lon.get(i)+" "+siteValue.get(i)+"\n");
-         fr.close();
-     }catch(IOException e){
-       e.printStackTrace();
+
+      FileWriter fr = new FileWriter(this.fileNameTextField.getText().trim()+".txt");
+      int size=0;
+      if(this.mapGuiBean.isGMT_FromServer()){
+        size=lon.size();
+        for(int i=0;i<size;++i)
+          fr.write(lon.get(i)+" "+lat.get(i)+" "+siteValue.get(i)+"\n");
       }
+      else{
+        size=lat.size();
+        for(int i=0;i<size;++i)
+          fr.write(lat.get(i)+" "+lon.get(i)+" "+siteValue.get(i)+"\n");
+      }
+      fr.close();
+    }catch(IOException e){
+      e.printStackTrace();
+    }
   }
 
   void addButton_actionPerformed(ActionEvent e) {
