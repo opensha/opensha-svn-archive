@@ -146,6 +146,7 @@ public class SubmitJobForGridComputation {
       fw.write("cd "+outputDir+"\n");
       fw.write("mv  "+"*.obj "+" "+objectFiles+"\n");
       fw.write("cp "+"sites.txt "+dataFiles+"\n");
+      fw.write("cp "+HazardMapCalcServlet.METADATA_FILE_NAME+" "+dataFiles+"\n");
       fw.close();
       RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+moveObjFilesScriptName});
       RunScript.runScript(new String[]{"sh", "-c", "rm "+outputDir+moveObjFilesScriptName});
