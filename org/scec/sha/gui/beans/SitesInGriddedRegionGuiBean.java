@@ -484,7 +484,11 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
       return ;
     }
     getVS30FromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
+    this.repaint();
+    this.validate();
     getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
+    this.repaint();
+    this.validate();
   }
 
 

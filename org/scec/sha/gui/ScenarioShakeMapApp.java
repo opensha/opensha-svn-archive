@@ -436,6 +436,8 @@ public class ScenarioShakeMapApp extends JApplet implements
     SitesInGriddedRegion griddedRegionSites;
     try {
       griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+      this.repaint();
+      this.validate();
     }catch(Exception e) {
       JOptionPane.showMessageDialog(this,e.getMessage());
       return;
@@ -471,6 +473,8 @@ public class ScenarioShakeMapApp extends JApplet implements
         imr.setProbEqkRupture(erfGuiBean.getRupture());
       } catch (Exception ex) {
         JOptionPane.showMessageDialog(this, "Rupture not allowed for this IMR");
+        this.repaint();
+        this.validate();
         return;
       }
       if(probAtIML)
