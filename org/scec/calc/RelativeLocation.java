@@ -98,6 +98,21 @@ public final class RelativeLocation {
         return dir;
     }
 
+    /**
+     * This computes the total distance in km.
+     * @param loc1
+     * @param loc2
+     * @return
+     */
+    public static double getTotalDistance(Location loc1, Location loc2) {
+
+      double hDist = getHorzDistance(loc1, loc2);
+      double vDist = getVertDistance(loc1, loc2);
+
+      return  Math.sqrt(hDist*hDist+vDist*vDist);
+    }
+
+
 
     public static double getVertDistance(Location loc1, Location loc2) {
 
@@ -253,7 +268,7 @@ public final class RelativeLocation {
 
     /**
      * This computes the approximate horizontal distance (in km) using the standard cartesian
-     * coordinate transformation.
+     * coordinate transformation.  Not implemented correctly is lons straddle 360 or 0 degrees!
     */
     public static double getApproxHorzDistance( double lat1, double lon1, double lat2, double lon2 ){
       double d1 = (lat1-lat2)*111.111;

@@ -15,7 +15,20 @@ import org.scec.sha.surface.*;
 
 /**
  * <p>Title: SimplePoissonFaultSource </p>
- * <p>Description: This implements a basic fault source for arbitrary inputs.  </p>
+ * <p>Description: This implements a basic Poisson fault source for arbitrary: magDist,
+ * faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset,
+ * rake, and timeSpan (see description of each of these in the constructor).
+ * One can also specify the minMag (magnitudes below this in the mag-freq dist
+ * (magDist) are ignored in making the ruptures; the default is 5.0).
+ * Note that magScalingSigma can be either a MagAreaRelationship of a
+ * MagLengthRelationship.  If a MagAreaRelationship is being used, and the rupture
+ * width implied for a given mangitude exceeds the down-dip width of the faultSurface,
+ * then the rupture length is increased accordingly and the rupture width is set as
+ * the down-dip width.  If a MagLengthRelationship is being used, and the rupture
+ * width impled by the rupAspectRatio exceeds the down-dip width, everything below
+ * the bottom edge of the fault is simply cut off (ignored).  Thus, with a
+ * MagLengthRelationship you can force rupture of the entire down-dip width by giving
+ * rupAspecRatio a very small value.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field
@@ -69,19 +82,21 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
       // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
       makeFaultCornerLocs(faultSurface);
 
+      double minMag = 5.0;
+
       // make the rupture list
       ruptureList = new Vector();
       if(magScalingSigma == 0.0)
-        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, 0.0, 1.0);
+        addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma, rupAspectRatio, rupOffset, rake, minMag, 0.0, 1.0);
       else {
 //        The branch-tip weights (0.6, 0.2, and 0.2) for the mean, -1.64sigma, and +1.64sigma,
 //       respectively, are from WG99's Table 1.1
         addRupturesToList(magDist, faultSurface, magScalingRel, magScalingSigma,
-                          rupAspectRatio, rupOffset, rake, 5.0, 0.0, 0.6);
+                          rupAspectRatio, rupOffset, rake, minMag, 0.0, 0.6);
         addRupturesToList(magDist, faultSurface, magScalingRel,
-                          magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, 1.64, 0.2);
+                          magScalingSigma, rupAspectRatio, rupOffset, rake, minMag, 1.64, 0.2);
         addRupturesToList(magDist, faultSurface, magScalingRel,
-                          magScalingSigma, rupAspectRatio, rupOffset, rake, 5.0, -1.64, 0.2);
+                          magScalingSigma, rupAspectRatio, rupOffset, rake, minMag, -1.64, 0.2);
       }
   }
 
@@ -137,21 +152,36 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
     double rate;
     double prob=Double.NaN;
 
+    // get down-dip width of fault (from first column)
+    Location loc1 = (Location) faultSurface.get(0,0);
+    Location loc2 = (Location) faultSurface.get(faultSurface.getNumRows()-1,0);
+    double ddw = RelativeLocation.getTotalDistance(loc1,loc2);
+
+    if( D ) System.out.println(C+": ddw="+ddw);
+
     if( D ) System.out.println(C+": magScalingSigma="+magScalingSigma);
 
     for(int i=0;i<numMags;++i){
       mag = magDist.getX(i);
       // make sure it has a non-zero rate & the mag is >= minMag
       if(magDist.getY(i) > 0 && mag >= minMag) {
+
         rupLen = getRupLength(magScalingRel,magScalingSigma,numSigma,rupAspectRatio,mag);
         rupWidth= rupLen/rupAspectRatio;
+
+        // if magScalingRel is a MagAreaRelationship, then rescale rupLen if rupWidth
+        // exceeds the down-dip width (don't do anything for MagLengthRelationship)
+        if(magScalingRel instanceof MagAreaRelationship  && rupWidth > ddw) {
+          rupLen *= rupWidth/ddw;
+          rupWidth = ddw;
+        }
+
         numRup = faultSurface.getNumSubsetSurfaces(rupLen,rupWidth,rupOffset);
         rate = magDist.getY(mag);
         // Create the ruptures and add to the list
         for(int r=0; r < numRup; ++r) {
           probEqkRupture = new ProbEqkRupture();
           probEqkRupture.setAveRake(rake);
-          // set rupture surface
           probEqkRupture.setRuptureSurface(faultSurface.getNthSubsetSurface(rupLen,rupWidth,rupOffset,r));
           probEqkRupture.setMag(mag);
           prob = weight*(1.0 - Math.exp(-timeSpan*rate/numRup));
@@ -159,7 +189,8 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
           ruptureList.add(probEqkRupture);
         }
           if( D ) System.out.println(C+": mag="+mag+"; rupLen="+rupLen+"; rupWidth="+rupWidth+
-                                      "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+"; prob="+prob);
+                                      "; rate="+rate+"; timeSpan="+timeSpan+"; numRup="+numRup+
+                                      "; weight="+weight+"; prob="+prob);
       }
     }
   }
