@@ -51,7 +51,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
 
 
   //Reference to the EvenlyGriddedSurface Param
-  private SimpleFaultParameterCalculator surfaceParam;
+  private SimpleFaultParameter surfaceParam;
 
 
   /**
@@ -114,18 +114,18 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     // remove the previous editor
     super.setParameter(param);
     removeAll();
-    surfaceParam = (SimpleFaultParameterCalculator) param;
+    surfaceParam = (SimpleFaultParameter) param;
 
     // make the params editor
     initParamListAndEditor();
 
     //by default the showFaultName is false so the fault name parameter is not visible
     if(!showFaultName)
-      this.editor.getParameterEditor(SimpleFaultParameterCalculator.FAULT_NAME).setVisible(false);
+      this.editor.getParameterEditor(SimpleFaultParameter.FAULT_NAME).setVisible(false);
 
     //Make the Dip Direction parameter visible only if Fault type selected is Stirling
     if(faultTypeEditor.isVisible()){
-      if(((String)faultTypeEditor.getParameter().getValue()).equals(SimpleFaultParameterCalculator.STIRLING))
+      if(((String)faultTypeEditor.getParameter().getValue()).equals(SimpleFaultParameter.STIRLING))
         dipDirectionParamEditor.setVisible(true);
       else
         dipDirectionParamEditor.setVisible(false);
@@ -350,7 +350,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    */
   public void setFaultNameVisible(boolean flag){
     showFaultName = flag;
-    this.editor.getParameterEditor(SimpleFaultParameterCalculator.FAULT_NAME).setVisible(flag);
+    this.editor.getParameterEditor(SimpleFaultParameter.FAULT_NAME).setVisible(flag);
   }
 
   /**
@@ -377,7 +377,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     /**
      * If the changed parameter is the number of the fault trace param
      */
-    if(name1.equalsIgnoreCase(SimpleFaultParameterCalculator.NUMBER_OF_FAULT_TRACE)){
+    if(name1.equalsIgnoreCase(SimpleFaultParameter.NUMBER_OF_FAULT_TRACE)){
       surfaceParam.getLatParamVals().removeAllElements();
       surfaceParam.getLonParamVals().removeAllElements();
       //System.out.println("Inside the Fault Trace param change");
@@ -417,7 +417,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     /**
      * If the changed parameter is the number of the Dips
      */
-    if(name1.equalsIgnoreCase(SimpleFaultParameterCalculator.NUM_DIPS)) {
+    if(name1.equalsIgnoreCase(SimpleFaultParameter.NUM_DIPS)) {
       //System.out.println("Inside the Num dips param change");
       surfaceParam.getDipParamVals().removeAllElements();
       surfaceParam.getDepthParamVals().removeAllElements();
@@ -459,9 +459,9 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
         this.faultTypeEditor.setVisible(true);
     }
     //if the Fault type Parameter is changed
-    if(name1.equalsIgnoreCase(SimpleFaultParameterCalculator.FAULT_TYPE_TITLE)){
+    if(name1.equalsIgnoreCase(SimpleFaultParameter.FAULT_TYPE_TITLE)){
       //if the fault type parameter selected value is STIRLING then show the dip direction parameter.
-      if(((String)faultTypeEditor.getParameter().getValue()).equals(SimpleFaultParameterCalculator.STIRLING)){
+      if(((String)faultTypeEditor.getParameter().getValue()).equals(SimpleFaultParameter.STIRLING)){
         dipDirectionParamEditor.setVisible(true);
         add(dipDirectionParamEditor,new GridBagConstraints( 0, 6, 0, 1, 1.0, 0.0
           , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );

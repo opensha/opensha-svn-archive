@@ -101,7 +101,7 @@ public class SimpleFaultParameterGUI extends JDialog{
    * @return
    */
   public FaultTrace getFaultTrace(){
-   return ((SimpleFaultParameterCalculator)faultEditorPanel.getParameter()).getFaultTrace();
+   return ((SimpleFaultParameter)faultEditorPanel.getParameter()).getFaultTrace();
   }
 
   /**
@@ -109,7 +109,7 @@ public class SimpleFaultParameterGUI extends JDialog{
    * @return
    */
   public double getUpperSies(){
-    return ((SimpleFaultParameterCalculator)faultEditorPanel.getParameter()).getUpperSiesmogenicDepth();
+    return ((SimpleFaultParameter)faultEditorPanel.getParameter()).getUpperSiesmogenicDepth();
   }
 
   /**
@@ -117,7 +117,7 @@ public class SimpleFaultParameterGUI extends JDialog{
    * @return
    */
   public double getLowerSies(){
-    return ((SimpleFaultParameterCalculator)faultEditorPanel.getParameter()).getLowerSiesmogenicDepth();
+    return ((SimpleFaultParameter)faultEditorPanel.getParameter()).getLowerSiesmogenicDepth();
   }
 
   /**
@@ -125,7 +125,7 @@ public class SimpleFaultParameterGUI extends JDialog{
    * @return
    */
   public String getFaultName(){
-    return ((SimpleFaultParameterCalculator)faultEditorPanel.getParameter()).getFaultName();
+    return ((SimpleFaultParameter)faultEditorPanel.getParameter()).getFaultName();
   }
 
   /**
