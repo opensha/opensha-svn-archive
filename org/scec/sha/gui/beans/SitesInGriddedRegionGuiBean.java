@@ -443,7 +443,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
            !tempParam.getName().equalsIgnoreCase(this.MIN_LATITUDE) &&
            !tempParam.getName().equalsIgnoreCase(this.MAX_LONGITUDE) &&
            !tempParam.getName().equalsIgnoreCase(this.MIN_LONGITUDE) &&
-           !tempParam.getName().equalsIgnoreCase(this.MAX_LATITUDE))
+           !tempParam.getName().equalsIgnoreCase(this.GRID_SPACING))
           editorPanel.getParameterEditor(tempParam.getName()).setVisible(false);
       }
     }
