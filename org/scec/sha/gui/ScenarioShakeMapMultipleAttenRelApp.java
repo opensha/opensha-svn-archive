@@ -104,10 +104,10 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
-  private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
+  /*private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
   private final static String PUENTE_HILLS_CONTROL = "Set Params for Puente Hills Scenario";
   private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
-  private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
+  private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";*/
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
@@ -576,8 +576,8 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   void addButton_actionPerformed(ActionEvent e) {
    //sets the Gridded region Sites and the type of plot user wants to see
    //IML@Prob or Prob@IML and it value.
-    /*if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())
-      getGriddedSitesAndMapType();*/
+    /*if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())*/
+    getGriddedSitesAndMapType();
     addButton();
     //hazusControl = null;
   }
@@ -590,11 +590,13 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     try{
       if(step ==1)
         calcProgress = new CalcProgressBar("ShakeMapApp","  Calculating ShakeMap Data ...");
-      /*if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())
-        generateShakeMap();*/
+      /*if(hazusControl == null || !hazusControl.isHazusShapeFilesButtonPressed())*/
+        generateShakeMap();
       //sets the region coordinates for the GMT using the MapGuiBean
       setRegionForGMT();
+      System.out.println("Step: "+step);
       ++step;
+      System.out.println("After adding Step: "+step);
     }catch(ParameterException e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
       calcProgress.showProgress(false);
@@ -610,7 +612,6 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
     }
     if(step==2) {
       calcProgress.setProgressMessage("  Generating the Map ...");
-
       String label;
       String imlOrProb=imlProbGuiBean.getSelectedOption();
       if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
@@ -623,8 +624,11 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
                 hazusControl.getXYZ_DataForPGA(),hazusControl.getXYZ_DataForPGV(),
                 erfGuiBean.getRupture(),label,getMapParametersInfo());
           else*/
-            mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
+
+        mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
+
       }catch(RuntimeException e){
+        e.printStackTrace();
         calcProgress.showProgress(false);
         calcProgress.dispose();
         return;
@@ -641,10 +645,10 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
   private void initControlList() {
     this.controlComboBox.addItem(CONTROL_PANELS);
     this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
-    this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
+    /*this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
     this.controlComboBox.addItem(HAZUS_CONTROL);
-    this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);
+    this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);*/
   }
 
   /**
@@ -747,7 +751,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
         //this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
         "<br><br>Region Param List: <br>\n"+
         "----------------<br>\n"+
-        sitesGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        //sitesGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
         "<br><br>IMT Param List: <br>\n"+
         "---------------<br>\n"+
         imtMetadata+"\n"+

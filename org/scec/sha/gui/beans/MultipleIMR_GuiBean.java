@@ -23,7 +23,7 @@ import org.scec.sha.gui.infoTools.AttenuationRelationshipsInstance;
  * @version 1.0
  */
 
-public class MultipleIMR_GuiBean extends JPanel  implements IMR_GuiBeanAPI,
+public class MultipleIMR_GuiBean extends JPanel  implements
     ActionListener,ItemListener,ParameterChangeListener,
     ParameterChangeWarningListener, ParameterChangeFailListener{
 
@@ -253,7 +253,6 @@ public class MultipleIMR_GuiBean extends JPanel  implements IMR_GuiBeanAPI,
     //if the source of event is CheckBox then perform the action accordingly
     if(e.getSource() instanceof JCheckBox){
       Object attenRelCheck = e.getSource();
-      System.out.println("Inside the AttenRel checkBox action performed");
       for(int i=0;i<numSupportedAttenRels;++i){
         if(attenRelCheck.equals(attenRelCheckBox[i])){
           if(attenRelCheckBox[i].isSelected()){

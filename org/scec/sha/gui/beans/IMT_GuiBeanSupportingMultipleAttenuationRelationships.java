@@ -18,8 +18,7 @@ import java.util.*;
  */
 
 public class IMT_GuiBeanSupportingMultipleAttenuationRelationships
-    extends ParameterListEditor implements  IMT_GuiBeanAPI,
-    ParameterChangeListener{
+    extends ParameterListEditor implements  ParameterChangeListener{
 
   // IMT GUI Editor & Parameter names
   public final static String IMT_PARAM_NAME =  "IMT";
