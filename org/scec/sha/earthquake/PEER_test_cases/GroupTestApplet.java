@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake.rupForecastImpl.groupTest;
+package org.scec.sha.earthquake.PEER_test_cases;
 
 import java.awt.*;
 import java.awt.event.*;

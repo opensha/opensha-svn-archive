@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake.rupForecastImpl.groupTest;
+package org.scec.sha.earthquake.PEER_test_cases;
 
 /**
  * <p>Title: </p>
