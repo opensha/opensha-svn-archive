@@ -919,14 +919,14 @@ public class HazardCurveGuiBean implements
     String badValueStr = e.getBadValue().toString();
     String name = param.getName();
 
-    try{
+   /* try{
       // only show messages for site parameters
       if(this.imrParamList.getParameter(name)==null)
         return;
     } catch(ParameterException paramException) {
       // we do not need to do anything in case this paramter is not in site paramters list
       return;
-    }
+    }*/
 
     b.append( "The value ");
     b.append( badValueStr );
