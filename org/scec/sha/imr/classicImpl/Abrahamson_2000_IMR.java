@@ -509,25 +509,30 @@ public class Abrahamson_2000_IMR
      */
     public double getStdDev() throws IMRException {
 
-        // this is inefficient if the im has not been changed in any way
-        updateCoefficients();
+        if ( stdDevTypeParam.getValue().equals( STD_DEV_TYPE_NONE ) )
+            return 0;
+        else {
 
-        double sigma;
+            // this is inefficient if the im has not been changed in any way
+            updateCoefficients();
 
-        // only horz case
-        double mag = ((Double)magParam.getValue()).doubleValue();
-        if(mag <= 5.0)
-            sigma = coeff.b5;
-        else if (mag > 5.0 && mag < 7.0)
-            sigma = coeff.b5 - coeff.b6*(mag-5.0);
-        else
-            sigma = coeff.b5-2*coeff.b6;
+            double sigma;
 
-        // Now make directivity correction
+            // only horz case
+            double mag = ((Double)magParam.getValue()).doubleValue();
+            if(mag <= 5.0)
+                sigma = coeff.b5;
+            else if (mag > 5.0 && mag < 7.0)
+                sigma = coeff.b5 - coeff.b6*(mag-5.0);
+            else
+                sigma = coeff.b5-2*coeff.b6;
 
-        sigma -= 0.05*coeff.c2/1.333;
+            // Now make directivity correction
 
-        return ( sigma );
+            sigma -= 0.05*coeff.c2/1.333;
+
+            return ( sigma );
+        }
     }
 
 
@@ -760,6 +765,7 @@ public class Abrahamson_2000_IMR
         // the stdDevType Parameter
         StringConstraint stdDevTypeConstraint = new StringConstraint();
         stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_NONE );
         stdDevTypeConstraint.setNonEditable();
         stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_DEFAULT );
         stdDevTypeParam.setInfo( STD_DEV_TYPE_INFO );

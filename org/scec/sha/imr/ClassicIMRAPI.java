@@ -49,6 +49,17 @@ public interface ClassicIMRAPI
     public void setIntensityMeasureLevel( Double iml ) throws ParameterException;
 
 
+   /**
+     *  This calculates the intensity-measure level associated with probability
+     *  held by the exceedProbParam given the mean and standard deviation.  Note
+     *  that this does not store the answer in the value of the internally held
+     *  intensity-measure parameter.
+     *
+     * @return                         The intensity-measure level
+     */
+    public double getIML_AtExceedProb();
+
+
     /**
      *  This returns the mean intensity-measure level for the current
      *  set of parameters.

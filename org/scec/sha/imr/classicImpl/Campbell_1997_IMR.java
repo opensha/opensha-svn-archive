@@ -55,7 +55,7 @@ public class Campbell_1997_IMR
 
     private final static String C = "Campbell_1997_IMR";
     private final static boolean D = false;
-    private final static String NAME = "Cambell (1997) w/ erratum (2000) changes";
+    private final static String NAME = "Campbell (1997) w/ erratum (2000) changes";
 
     // style of faulting options
     private final static String FLT_TYPE_REVERSE = "Reverse";
@@ -436,97 +436,103 @@ public class Campbell_1997_IMR
      */
     public double getStdDev() throws IMRException {
 
-        String fltType, siteType, component, im_name, stdevType;
-        double mag, dist, sigma, pga, depth, F;
 
-        double S_hr = 0;
-        double S_sr = 0;
-
-        try{
-            mag = ((Double)magParam.getValue()).doubleValue();
-            component = componentParam.getValue().toString();
-            im_name = im.getName();
-            stdevType = stdDevTypeParam.getValue().toString();
-        }
-        catch(NullPointerException e){
-            throw new IMRException(C + ": getMean(): " + ERR);
-        }
-
-        // First find Horz PGA sigma:
-
-        // mag dependent case:
-        if ( stdevType.equals( STD_DEV_TYPE_MAG_DEP ) )
-        {
-            if(mag < 7.4)     sigma = 0.889 - 0.0691*mag;
-            else              sigma = 0.38;
-        }
-
-        // PGA dependent case:
+        if ( stdDevTypeParam.getValue().equals( STD_DEV_TYPE_NONE ) )
+            return 0;
         else {
-            try {
-            dist = ((Double)distanceSeisParam.getValue()).doubleValue();
-            depth = ((Double)basinDepthParam.getValue()).doubleValue();
-            fltType = fltTypeParam.getValue().toString();
-            siteType = siteTypeParam.getValue().toString();
+
+            String fltType, siteType, component, im_name, stdevType;
+            double mag, dist, sigma, pga, depth, F;
+
+           double S_hr = 0;
+            double S_sr = 0;
+
+            try{
+                mag = ((Double)magParam.getValue()).doubleValue();
+                component = componentParam.getValue().toString();
+                im_name = im.getName();
+                stdevType = stdDevTypeParam.getValue().toString();
             }
             catch(NullPointerException e){
-                throw new IMRException(C + ": getMean(): " + ERR);
-            }
+               throw new IMRException(C + ": getMean(): " + ERR);
+           }
 
-            if ( fltType.equals( FLT_TYPE_REVERSE ) )      F = 1.0;
-            else if ( fltType.equals( FLT_TYPE_OTHER ) )   F = 0.0;
-            else                                           F = 0.0;  // if "Unknown"
+            // First find Horz PGA sigma:
 
-            if ( siteType.equals( SITE_TYPE_SOFT_ROCK ) )         S_sr = 1.0;
-            else if ( siteType.equals( SITE_TYPE_HARD_ROCK ) )    S_hr = 1.0;
+           // mag dependent case:
+           if ( stdevType.equals( STD_DEV_TYPE_MAG_DEP ) )
+           {
+               if(mag < 7.4)     sigma = 0.889 - 0.0691*mag;
+               else              sigma = 0.38;
+           }
 
-            // Get horz PGA (which all depend on):
-            pga = -3.512 + 0.904*mag -
+           // PGA dependent case:
+            else {
+                try {
+                dist = ((Double)distanceSeisParam.getValue()).doubleValue();
+                depth = ((Double)basinDepthParam.getValue()).doubleValue();
+                fltType = fltTypeParam.getValue().toString();
+                siteType = siteTypeParam.getValue().toString();
+                }
+                catch(NullPointerException e){
+                    throw new IMRException(C + ": getMean(): " + ERR);
+                }
+
+                if ( fltType.equals( FLT_TYPE_REVERSE ) )      F = 1.0;
+                else if ( fltType.equals( FLT_TYPE_OTHER ) )   F = 0.0;
+                else                                           F = 0.0;  // if "Unknown"
+
+                if ( siteType.equals( SITE_TYPE_SOFT_ROCK ) )         S_sr = 1.0;
+               else if ( siteType.equals( SITE_TYPE_HARD_ROCK ) )    S_hr = 1.0;
+
+               // Get horz PGA (which all depend on):
+               pga = -3.512 + 0.904*mag -
                   1.328 * 0.5 * Math.log(dist*dist + 0.0222*Math.exp(1.294*mag)) +
                   (1.125 - 0.112*Math.log(dist) - 0.0957*mag)*F +
                   (0.44 - 0.171*Math.log(dist))*S_sr +
                   (0.405 - 0.222*Math.log(dist))*S_hr;
-            if (  depth <= 1.0 ) {
-                pga +=    ( 0.405 - 0.222*Math.log(dist) -
-                          (0.44 - 0.171*Math.log(dist) )*S_sr )*(1.0-depth)*(1.0-S_hr);
+               if (  depth <= 1.0 ) {
+                   pga +=    ( 0.405 - 0.222*Math.log(dist) -
+                             (0.44 - 0.171*Math.log(dist) )*S_sr )*(1.0-depth)*(1.0-S_hr);
+               }
+
+               pga = Math.exp(pga);
+
+               // now set sigma
+               if (pga <  0.068)                     sigma = 0.55;
+               else if (pga >= 0.068 && pga < 0.21)  sigma = 0.173 - 0.140*Math.log(pga);
+               else                                  sigma = 0.39;
+           }
+
+           // now return value depending on component and im_name
+
+            // Do PGA first:
+            if (im_name.equals ( PGA_NAME ) ) {
+                if ( component.equals( COMPONENT_AVE_HORZ ) )
+                    return (sigma);
+                else // vertical component
+                    return (Math.pow(sigma*sigma + 0.1296, 0.5));
             }
 
-            pga = Math.exp(pga);
+           // Now do SA:
+           else if (im_name.equals( SA_NAME)) {
+               // compute horz comp SA sigma:
+               sigma = Math.pow(sigma*sigma + 0.0729, 0.5);
+               if ( component.equals( COMPONENT_AVE_HORZ ) )
+                   return (sigma);
+                else // vertical component
+                    return (Math.pow(sigma*sigma + 0.152, 0.5));
+           }
 
-            // now set sigma
-            if (pga <  0.068)                     sigma = 0.55;
-            else if (pga >= 0.068 && pga < 0.21)  sigma = 0.173 - 0.140*Math.log(pga);
-            else                                  sigma = 0.39;
-        }
-
-        // now return value depending on component and im_name
-
-        // Do PGA first:
-        if (im_name.equals ( PGA_NAME ) ) {
-            if ( component.equals( COMPONENT_AVE_HORZ ) )
-                return (sigma);
-            else // vertical component
-                return (Math.pow(sigma*sigma + 0.1296, 0.5));
-        }
-
-        // Now do SA:
-        else if (im_name.equals( SA_NAME)) {
-            // compute horz comp SA sigma:
-            sigma = Math.pow(sigma*sigma + 0.0729, 0.5);
-            if ( component.equals( COMPONENT_AVE_HORZ ) )
-                return (sigma);
-            else // vertical component
-                return (Math.pow(sigma*sigma + 0.152, 0.5));
-        }
-
-        // Now do PGV:
-        else {
-            // compute horz comp PGV sigma:
-            sigma = Math.pow(sigma*sigma + 0.0036, 0.5);
-            if ( component.equals( COMPONENT_AVE_HORZ ) )
-                return (sigma);
-            else // vertical component
-                return (Math.pow(sigma*sigma + 0.09, 0.5));
+           // Now do PGV:
+           else {
+               // compute horz comp PGV sigma:
+               sigma = Math.pow(sigma*sigma + 0.0036, 0.5);
+               if ( component.equals( COMPONENT_AVE_HORZ ) )
+                   return (sigma);
+               else // vertical component
+                    return (Math.pow(sigma*sigma + 0.09, 0.5));
+           }
         }
     }
 
@@ -743,6 +749,7 @@ public class Campbell_1997_IMR
         StringConstraint stdDevTypeConstraint = new StringConstraint();
         stdDevTypeConstraint.addString( STD_DEV_TYPE_MAG_DEP );
         stdDevTypeConstraint.addString( STD_DEV_TYPE_PGA_DEP );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_NONE );
         stdDevTypeConstraint.setNonEditable();
         stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_DEFAULT );
         stdDevTypeParam.setInfo( STD_DEV_TYPE_INFO );

@@ -356,34 +356,37 @@ public class SCEMY_1997_IMR
      */
     public double getStdDev() throws IMRException {
 
-        String siteType;
-        double mag;
-
-        try{
-            siteType = siteTypeParam.getValue().toString();
-            mag = ((Double)magParam.getValue()).doubleValue();
-        }
-        catch(NullPointerException e){
-            throw new IMRException(C + ": getMean(): " + ERR);
-        }
-
-        // this is inefficient if the im has not been changed in any way
-        updateCoefficients();
-
-        if ( siteType.equals( SITE_TYPE_ROCK ) ) {
-            if ( mag <= 7.21 )
-                return  ( coeff.sigma_ri - mag * 0.14 );
-            else
-                return ( coeff.sigma_ri - 1.01 ); // 1.01=7.21*0.14
-        }
+        if ( stdDevTypeParam.getValue().equals( STD_DEV_TYPE_NONE ) )
+            return 0;
         else {
-            if ( mag <= 7.0 )
-                return ( coeff.sigma_si - mag * 0.16 );
-            else
-                return ( coeff.sigma_si - 1.12 ); // 1.12=7.0*0.16
-        }
 
-//        return  new Double( coeff.sigmaLnY );
+            String siteType;
+            double mag;
+
+            try{
+                siteType = siteTypeParam.getValue().toString();
+                mag = ((Double)magParam.getValue()).doubleValue();
+           }
+           catch(NullPointerException e){
+               throw new IMRException(C + ": getMean(): " + ERR);
+           }
+
+           // this is inefficient if the im has not been changed in any way
+           updateCoefficients();
+
+           if ( siteType.equals( SITE_TYPE_ROCK ) ) {
+               if ( mag <= 7.21 )
+                   return  ( coeff.sigma_ri - mag * 0.14 );
+                else
+                    return ( coeff.sigma_ri - 1.01 ); // 1.01=7.21*0.14
+            }
+            else {
+               if ( mag <= 7.0 )
+                   return ( coeff.sigma_si - mag * 0.16 );
+                else
+                    return ( coeff.sigma_si - 1.12 ); // 1.12=7.0*0.16
+            }
+        }
     }
 
 
@@ -572,6 +575,7 @@ public class SCEMY_1997_IMR
         // the stdDevType Parameter
         StringConstraint stdDevTypeConstraint = new StringConstraint();
         stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_NONE );
         stdDevTypeConstraint.setNonEditable();
         stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_DEFAULT );
         stdDevTypeParam.setInfo( STD_DEV_TYPE_INFO );

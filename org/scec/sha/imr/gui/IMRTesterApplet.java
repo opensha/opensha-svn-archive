@@ -160,7 +160,7 @@ public class IMRTesterApplet extends JApplet
      */
     protected final static String BJF_NAME = "Boore, Joyner, & Fumal (1997)";
     protected final static String AS_NAME = "Abrahamson & Silva (1997)";
-    protected final static String C_NAME = "Cambell (1997) w/ erratum (2000) changes";
+    protected final static String C_NAME = "Campbell (1997) w/ erratum (2000) changes";
     protected final static String SCEMY_NAME = "Sadigh et al. (1997)";
     protected final static String F_NAME = "Field (2000)";
     protected final static String A_NAME = "Abrahamson (2000)";

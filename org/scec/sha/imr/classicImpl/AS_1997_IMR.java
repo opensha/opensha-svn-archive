@@ -460,17 +460,23 @@ System.out.println( a13 );
      */
     public double getStdDev() throws IMRException {
 
-        // this is inefficient if the im has not been changed in any way
-        updateCoefficients();
 
-        // only horz case implemented
-        double mag = ((Double)magParam.getValue()).doubleValue();
-        if(mag <= 5.0)
-            return  coeff.b5 ;
-        else if (mag > 5.0 && mag < 7.0)
-            return (coeff.b5 - coeff.b6*(mag-5.0));
-        else
-            return (coeff.b5-2*coeff.b6);
+        if ( stdDevTypeParam.getValue().equals( STD_DEV_TYPE_NONE ) )
+            return 0;
+        else {
+
+            // this is inefficient if the im has not been changed in any way
+            updateCoefficients();
+
+            // only horz case implemented
+            double mag = ((Double)magParam.getValue()).doubleValue();
+            if(mag <= 5.0)
+                return  coeff.b5 ;
+            else if (mag > 5.0 && mag < 7.0)
+                return (coeff.b5 - coeff.b6*(mag-5.0));
+            else
+                return (coeff.b5-2*coeff.b6);
+        }
     }
 
 
@@ -674,6 +680,7 @@ System.out.println( a13 );
         // the stdDevType Parameter
         StringConstraint stdDevTypeConstraint = new StringConstraint();
         stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_NONE );
         stdDevTypeConstraint.setNonEditable();
         stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_DEFAULT );
         stdDevTypeParam.setInfo( STD_DEV_TYPE_INFO );

@@ -126,6 +126,7 @@ import org.scec.util.*;
  * STD_DEV_TYPE_DEFAULT = "Total"<br>
  * STD_DEV_TYPE_TOTAL = "Total"<br>
  * STD_DEV_TYPE_INTER = "Inter-Event"<br>
+ * STD_DEV_TYPE_NONE = "None (zero)"<br>
  * STD_DEV_TYPE_INTRA = "Intra-Event"<p>
  *
  * <b>fltTypeParam</b> - A StringParameter representing <b>different styles of faulting</b>;
@@ -220,9 +221,9 @@ public abstract class ClassicIMR
     protected final static String PGA_UNITS = "g";
     protected final static Double PGA_DEFAULT = new Double( Math.log( 0.1 ) );
     protected final static String PGA_INFO = "Peak Ground Acceleration";
-    protected final static Double PGA_MIN = new Double( -Double.MAX_VALUE );
-    protected final static Double PGA_MAX = new Double( Math.log(2.0) );
-    protected final static Double PGA_WARN_MIN = new Double( -Double.MAX_VALUE );
+    protected final static Double PGA_MIN = new Double( Math.log(Double.MIN_VALUE) );
+    protected final static Double PGA_MAX = new Double( Double.MAX_VALUE );
+    protected final static Double PGA_WARN_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double PGA_WARN_MAX = new Double( Math.log( 2.0 ) );
 
 
@@ -240,9 +241,9 @@ public abstract class ClassicIMR
     protected final static String PGV_UNITS = "cm/sec";
     protected final static Double PGV_DEFAULT = new Double( Math.log( 0.1 ) );
     protected final static String PGV_INFO = "Peak Ground Velocity";
-    protected final static Double PGV_MIN = new Double( -Double.MAX_VALUE );
+    protected final static Double PGV_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double PGV_MAX = new Double( Math.log(500) );
-    protected final static Double PGV_WARN_MIN = new Double( -Double.MAX_VALUE );
+    protected final static Double PGV_WARN_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double PGV_WARN_MAX = new Double( Math.log(500) );
 
 
@@ -260,9 +261,9 @@ public abstract class ClassicIMR
     protected final static String SA_UNITS = "g";
     protected final static Double SA_DEFAULT = new Double( Math.log(0.5) );
     protected final static String SA_INFO = "Response Spectral Acceleration";
-    protected final static Double SA_MIN = new Double( -Double.MAX_VALUE );
+    protected final static Double SA_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double SA_MAX = new Double( Math.log(4) );
-    protected final static Double SA_WARN_MIN = new Double( -Double.MAX_VALUE );
+    protected final static Double SA_WARN_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double SA_WARN_MAX = new Double( Math.log(2) );
 
     /**
@@ -361,6 +362,7 @@ public abstract class ClassicIMR
     protected final static String STD_DEV_TYPE_TOTAL = "Total";
     protected final static String STD_DEV_TYPE_INTER = "Inter-Event";
     protected final static String STD_DEV_TYPE_INTRA = "Intra-Event";
+    protected final static String STD_DEV_TYPE_NONE = "None (zero)";
 
 
     /**
@@ -398,8 +400,17 @@ public abstract class ClassicIMR
     protected final static Double SIGMA_TRUNC_LEVEL_MAX = new Double(Double.MAX_VALUE);
 
 
-    // defined to prevent taking the log of zero when calculating exceed Prob
-    // protected final double IML_MIN = Double.MIN_VALUE;
+    /**
+     * Exceed Prob parameter, used only to store the exceedance probability to be
+     * used by the getIML_AtExceedProb() method.  Note that calling the
+     * getExceedProbability() DOES NOT store the value in this parameter.
+     */
+    protected  DoubleParameter exceedProbParam = null;
+    protected final static String EXCEED_PROB_NAME = "Exceed. Prob.";
+    protected final static Double EXCEED_PROB_DEFAULT = new Double( 0.5 );
+    protected final static String EXCEED_PROB_INFO = "Exceedance Probability";
+    protected final static Double EXCEED_PROB_MIN = new Double( 0 );
+    protected final static Double EXCEED_PROB_MAX = new Double( 1 );
 
 
 
@@ -523,7 +534,9 @@ public abstract class ClassicIMR
      *  This calculates the probability that the intensity-measure level
      *  (the value in the Intensity-Measure Parameter) will be exceeded
      *  given the mean and stdDev computed from current independent parameter
-     *  values.
+     *  values.  Note that the answer is not stored in the internally held
+     *  exceedProbParam (this latter param is used only for the
+     *  getIML_AtExceedProb() method).
      *
      * @return                         The exceedProbability value
      * @exception  ParameterException  Description of the Exception
@@ -539,17 +552,25 @@ public abstract class ClassicIMR
 
         // Calculate the standardized random variable
         double iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
-        double stRndVar = (iml-getMean())/getStdDev();
+        double stdDev = getStdDev();
+        double mean = getMean();
 
-        // compute exceedance probability based on truncation type
-        if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_NONE ) )
-            return GaussianDistCalc.getExceedProb(stRndVar);
+        if( stdDev != 0) {
+           double stRndVar = (iml-mean)/stdDev;
+            // compute exceedance probability based on truncation type
+            if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_NONE ) )
+                return GaussianDistCalc.getExceedProb(stRndVar);
+            else {
+                double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
+                if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) )
+                    return GaussianDistCalc.getExceedProb(stRndVar, 1, numSig);
+                else
+                   return GaussianDistCalc.getExceedProb(stRndVar, 2, numSig);
+           }
+        }
         else {
-            double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
-            if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) )
-                return GaussianDistCalc.getExceedProb(stRndVar, 1, numSig);
-            else
-                return GaussianDistCalc.getExceedProb(stRndVar, 2, numSig);
+            if( iml > mean )  return 0;
+            else              return 1;
         }
     }
 
@@ -589,6 +610,39 @@ public abstract class ClassicIMR
         return intensityMeasureLevels;
     }
 
+
+
+    /**
+     *  This calculates the intensity-measure level associated with probability
+     *  held by the exceedProbParam given the mean and standard deviation.  Note
+     *  that this does not store the answer in the value of the internally held
+     *  intensity-measure parameter.
+     *
+     * @return                         The intensity-measure level
+     * @exception  ParameterException  Description of the Exception
+     */
+    public double getIML_AtExceedProb() throws ParameterException {
+
+        if ( ( exceedProbParam == null ) || ( exceedProbParam.getValue() == null ) )
+            throw new ParameterException( C +
+                    ": getExceedProbability(): " + "exceedProbParam or its value is null, unable to run this calculation."
+                     );
+
+        double exceedProb = ( ( Double ) ( ( ParameterAPI ) exceedProbParam ).getValue() ).doubleValue();
+        double stRndVar;
+
+        // compute the iml from exceed probability based on truncation type
+        if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_NONE ) )
+            stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 0, 0, 1e-5);
+        else {
+            double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
+            if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) )
+                stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 1, numSig, 1e-5);
+            else
+                stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 2, numSig, 1e-5);
+        }
+        return getMean() + stRndVar*getStdDev();
+    }
 
 
     /**
@@ -738,6 +792,14 @@ public abstract class ClassicIMR
         sigmaTruncLevelParam = new DoubleParameter( SIGMA_TRUNC_LEVEL_NAME, sigmaTruncLevelConstraint, SIGMA_TRUNC_LEVEL_UNITS, SIGMA_TRUNC_LEVEL_DEFAULT);
         sigmaTruncLevelParam.setInfo( SIGMA_TRUNC_LEVEL_INFO );
         sigmaTruncLevelParam.setNonEditable();
+
+        /* Exceed Propability Parameter used only by the getIML_AtExceedProb() method.
+           The attributes are hard-coded here because they won't change and do not
+           generally need to be known by others.
+        */
+        exceedProbParam = new DoubleParameter( EXCEED_PROB_NAME, EXCEED_PROB_MIN, EXCEED_PROB_MAX, EXCEED_PROB_DEFAULT);
+        exceedProbParam.setInfo( EXCEED_PROB_INFO );
+        exceedProbParam.setNonEditable();
 
     }
 

@@ -378,6 +378,9 @@ public class Field_2000_IMR
         else if ( stdDevType.equals( STD_DEV_TYPE_INTRA ) ) {    // "Intra-Event"
             return Math.pow(coeff.intra_slope*mag + coeff.intra_intercept , 0.5 ) ;
         }
+        else if ( stdDevType.equals( STD_DEV_TYPE_NONE) ) {    // "None (zero)"
+            return 0 ;
+        }
             else {
               throw new ParameterException( C + ": getStdDev(): Invalid StdDevType" );
         }
@@ -580,6 +583,7 @@ public class Field_2000_IMR
         stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL );
         stdDevTypeConstraint.addString( STD_DEV_TYPE_INTER );
         stdDevTypeConstraint.addString( STD_DEV_TYPE_INTRA );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_NONE );
         stdDevTypeConstraint.setNonEditable();
         stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_DEFAULT );
         stdDevTypeParam.setInfo( STD_DEV_TYPE_INFO );
