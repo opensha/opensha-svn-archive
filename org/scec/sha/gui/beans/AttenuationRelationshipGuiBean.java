@@ -10,7 +10,6 @@ import org.scec.param.*;
 import org.scec.param.event.*;
 import org.scec.param.editor.*;
 import org.scec.sha.imr.*;
-import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.scec.sha.gui.infoTools.AttenuationRelationshipsInstance;
 
 /**
@@ -669,17 +668,20 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
    }
 
    /**
-    * This method will return the instance of selected IMR
+    * This method will return the instance of selected IMR only if the single
+    * AttenuationRelationship is selected else returns null.
     * @return : Selected IMR instance
     */
-   private AttenuationRelationshipAPI getSelectedIMR_Instance() {
+   public AttenuationRelationshipAPI getSelectedIMR_Instance() {
      AttenuationRelationshipAPI imr = null;
-     String selectedIMR = getSelectedIMR_Name();
-     int size = attenRelsSupportedForIM.size();
-     for(int i=0; i<size ; ++i) {
-       imr = (AttenuationRelationshipAPI)attenRelsSupportedForIM.get(i);
-       if(imr.getName().equalsIgnoreCase(selectedIMR))
-         break;
+     if(singleAttenRelSelected){
+       String selectedIMR = getSelectedIMR_Name();
+       int size = attenRelsSupportedForIM.size();
+       for(int i=0; i<size ; ++i) {
+         imr = (AttenuationRelationshipAPI)attenRelsSupportedForIM.get(i);
+         if(imr.getName().equalsIgnoreCase(selectedIMR))
+           break;
+       }
      }
      return imr;
    }
@@ -997,7 +999,6 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
 
 
 
-
  /**
   * gets the selected Intensity Measure Parameter and its dependent Parameter
   * for given IMT name
@@ -1056,20 +1057,31 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
 
 
  /**
-  * this function will set the parameters in this gui bean for the Puente Hills
+  * this function toggle between the single and multiple Attenuation selection panel
+  * If Single AttenuationRelation panel is selected then it will toggle to the
+  * Multiple AttenuationRelation panel and visa-a-versa.
   */
- public void setIMRParametersForPuenteHills(){
-   if(!singleAttenRelSelected){
-     singleAttenRelSelected = !singleAttenRelSelected;
-     toggleBetweenSingleAndMultipleAttenRel();
-   }
-   // Set the imt as PGA
-   imtParamList.getParameter(IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-   imtEditorParamListEditor.refreshParamEditor();
-   setIMR_Selected(ShakeMap_2003_AttenRel.NAME);
-   getSelectedIMR_Instance().getParameter(ShakeMap_2003_AttenRel.COMPONENT_NAME).setValue(ShakeMap_2003_AttenRel.COMPONENT_GREATER_OF_TWO_HORZ);
-   singleAttenRelParamListEditor.refreshParamEditor();
+ public void toggleBetweenSingleAndMultipleAttenRelGuiSelection(){
+
+   singleAttenRelSelected = !singleAttenRelSelected;
+   toggleBetweenSingleAndMultipleAttenRel();
  }
+
+ /**
+  *
+  * @returns the ParameterList editor of the Single AttenuationRelationship
+  * if multiple attenuationrelationship panel is selected then it return null.
+  * so in order for the person to actally get the handle to the single AttenRel
+  * paramlist editor, we have to first select the Single AttenRel Gui Panel and
+  * then get handle to the editor.
+  */
+ public ParameterListEditor getSingleAttenRelParamListEditor(){
+   if(singleAttenRelParamList != null)
+     return singleAttenRelParamListEditor;
+   else
+     return null;
+ }
+
 
 
 
@@ -1308,9 +1320,8 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
   * @param e
   */
   void toggleButton_actionPerformed(ActionEvent e) {
-    singleAttenRelSelected = !singleAttenRelSelected;
-    toggleBetweenSingleAndMultipleAttenRel();
-    //application.setGriddedRegionSiteParams();
+    //toggle between the single and multiple AttenRel Selection.
+    toggleBetweenSingleAndMultipleAttenRelGuiSelection();
     validate();
     repaint();
   }

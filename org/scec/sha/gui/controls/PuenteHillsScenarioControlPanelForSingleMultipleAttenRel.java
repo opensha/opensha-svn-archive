@@ -9,11 +9,13 @@ import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureERF;
 import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.param.*;
+import org.scec.param.editor.*;
 import org.scec.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.scec.sha.param.editor.MagFreqDistParameterEditor;
 import org.scec.sha.param.*;
 import org.scec.sha.magdist.SingleMagFreqDist;
-
+import org.scec.sha.imr.AttenuationRelationship;
+import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 import org.scec.data.Location;
 import org.scec.data.Direction;
 import org.scec.calc.RelativeLocation;
@@ -342,8 +344,19 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
     erfGuiBean.setParamsInForecast(0,0);
 
-    //Updating the IMR Gui Bean with the ShakeMap attenuation relationship and Set the imt as PGA
-    imrGuiBean.setIMRParametersForPuenteHills();
+    //checking if the single AttenRel is selected
+    boolean isSingleAttenRelSelected =imrGuiBean.isSingleAttenRelTypeSelected();
+    //if single attenRel gui is not selected then toggle to the single attenRel gui Panel
+    if(!isSingleAttenRelSelected)
+      imrGuiBean.toggleBetweenSingleAndMultipleAttenRelGuiSelection();
+    // Set the imt as PGA
+    ParameterListEditor editor = imrGuiBean.getIntensityMeasureParamEditor();
+    editor.getParameterList().getParameter(imrGuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
+    editor.refreshParamEditor();
+    //Updating the IMR Gui Bean with the ShakeMap attenuation relationship
+    imrGuiBean.setIMR_Selected(ShakeMap_2003_AttenRel.NAME);
+    imrGuiBean.getSelectedIMR_Instance().getParameter(ShakeMap_2003_AttenRel.COMPONENT_NAME).setValue(ShakeMap_2003_AttenRel.COMPONENT_GREATER_OF_TWO_HORZ);
+    imrGuiBean.getSingleAttenRelParamListEditor().refreshParamEditor();
 
     //Updating the SitesInGriddedRegionGuiBean with the Puente Hills resion setting
     regionGuiBean.getParameterList().getParameter(regionGuiBean.MIN_LATITUDE).setValue(new Double(33.2));
