@@ -189,11 +189,11 @@ public class ScenarioShakeMapApp extends JApplet implements
     imr_IMTSplit.add(imrSelectionPanel, JSplitPane.TOP);
     parameterTabbedPanel.add(imrPanel, "IMR Model");
     imrPanel.add(imr_IMTSplit, BorderLayout.CENTER);
-    parameterTabbedPanel.add(gridRegionSitePanel,  "Grid Region Site");
-    parameterTabbedPanel.add(eqkRupPanel, "Forecast Model");
+    parameterTabbedPanel.add(gridRegionSitePanel,   "Gridded Region / Site Params");
+    parameterTabbedPanel.add(eqkRupPanel,  "EqkRupForecast Model");
     parameterTabbedPanel.add(timespanPanel, "Time Span");
-    parameterTabbedPanel.add(prob_IMLPanel, "MapType");
-    parameterTabbedPanel.add(gmtPanel, "GMT Parameters");
+    parameterTabbedPanel.add(prob_IMLPanel,  "IML / Prob");
+    parameterTabbedPanel.add(gmtPanel,  "Map Attributes");
 
     mainSplitPane.setDividerLocation(580);
     imr_IMTSplit.setDividerLocation(300);
