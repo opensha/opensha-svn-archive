@@ -35,6 +35,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
 
   //static line types that allows user to select in combobox.
   public final static String LINE = "Line";
+  public final static String DISCONTINUOUS_LINES = "Discontinuous line";
   public final static String FILLED_CIRCLES = "Circles";
   public final static String FILLED_DOWN_TRIANGLE = "Filled Down Triangle";
   public final static String FILLED_UP_TRIANGLE = "Filled Up Triangle";
@@ -159,6 +160,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       lineTypeSelector[i].addItem(FILLED_DIAMOND);
       lineTypeSelector[i].addItem(DIAGONAL_CROSS);
       lineTypeSelector[i].addItem(REGULAR_CROSS);
+      lineTypeSelector[i].addItem(DISCONTINUOUS_LINES);
       //setting the selected plot type to be one currently selected.
       lineTypeSelector[i].setSelectedItem(plottingFeatures[i].getCurveType());
       lineTypeSelector[i].addActionListener(this);

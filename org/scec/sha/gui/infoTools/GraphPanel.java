@@ -291,6 +291,19 @@ public class GraphPanel extends JPanel {
         LINE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
         LINE_RENDERER.setPaint(color);
       }
+      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DISCONTINUOUS_LINES)){
+        StandardXYItemRenderer DISCONTINUOUS_LINE_RENDERER = new StandardXYItemRenderer(
+            org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
+            new StandardXYToolTipGenerator()
+            );
+        if(j==0)
+          plot.setRenderer(DISCONTINUOUS_LINE_RENDERER);
+        else
+          plot.setSecondaryRenderer(j-1,DISCONTINUOUS_LINE_RENDERER);
+        DISCONTINUOUS_LINE_RENDERER.setStroke(new BasicStroke((float)lineWidth,BasicStroke.CAP_BUTT
+            ,BasicStroke.JOIN_BEVEL,0,new float[] {9},0));
+        DISCONTINUOUS_LINE_RENDERER.setPaint(color);
+      }
       else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES)){
        StandardXYItemRenderer CIRCLE_SHAPE_RENDERER = new StandardXYItemRenderer(
             org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
@@ -374,7 +387,6 @@ public class GraphPanel extends JPanel {
         DIAGONAL_CROSS_SHAPE_RENDERER.setPaint(color);
       }
     }
-    System.out.println("Num Secondary dataset:" +plot.getSecondaryDatasetCount());
     //plot.setRenderer( LINE_RENDERER );
     plot.setBackgroundAlpha( .8f );
 
