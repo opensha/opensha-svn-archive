@@ -535,7 +535,7 @@ public class HazardCurveApplet extends JApplet
       String S = C + ": addGraphPanel(): ";
 
       // draw all plots in black color for Eqk List
-      if(this.isEqkList) {
+      if(isEqkList) {
         int num = totalProbFuncs.size();
         int numFractiles;
         if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE) && !isIndividualCurves )
@@ -690,6 +690,13 @@ public class HazardCurveApplet extends JApplet
         Thread t = new Thread(this);
         t.start();
       }
+      //if it is ERF List but no progress bar is selected,
+      //so we want to show curve as they are being drawn on the chart.
+      else if(isEqkList && !progressCheckBox.isSelected()){
+        Thread t = new Thread(this);
+        t.start();
+        drawGraph();
+      }
       else {
         this.computeHazardCurve();
         this.drawGraph();
@@ -751,6 +758,7 @@ public class HazardCurveApplet extends JApplet
 
     panel.removeAll();
 
+    graphPanel.removeChartAndMetadata();
 
     if( clearFunctions) {
       this.totalProbFuncs.clear();
@@ -1017,6 +1025,8 @@ public class HazardCurveApplet extends JApplet
      this.isIndividualCurves = true;
     if(!this.progressCheckBox.isSelected()) {
       addGraphPanel();
+      //panel that shows the plot curves and metadata
+      panel.paintImmediately(panel.getBounds());
     }
    }
 

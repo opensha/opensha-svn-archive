@@ -238,7 +238,8 @@ public class GraphPanel extends JPanel {
       return;
     }
     graphOn=false;
-    //chartPanel.paintImmediately(chartPanel.getBounds());
+
+    pointsTextArea.setText(totalProbFuncs.toString());
     return ;
   }
 
@@ -273,8 +274,11 @@ public class GraphPanel extends JPanel {
 
       buttonControlPanel.getToggleButton().setText( "Show Data" );
       // panel added here
-      if(chartPanel !=null) chartPane.add(chartPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+      if(chartPanel !=null) {
+        chartPane.add(chartPanel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
           , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+
+      }
       else chartPane.add(dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
           , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
 
