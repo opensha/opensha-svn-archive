@@ -430,17 +430,6 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
     return metadata;
   }
 
-  /**
-   * Sets the instance of ERF_GuiBean from the application
-   * @param erfGuiBean
-   */
-  public void setERF_ParamEditor(ERF_GuiBean erfGuiBean){
-    this.erfGuiBean = erfGuiBean;
-    setSelectedERF();
-    setSourceFromSelectedERF(0);
-    setRuptureForSelectedSource(0);
-    getHypocenterLocationsForSelectedRupture();
-  }
 
   /**
    * Adds the ERF's to the existing ERF List in the gui bean to be displayed in the gui.
