@@ -193,7 +193,7 @@ public class MultipleIMR_GuiBean extends JPanel  implements
       editor[i] = new ParameterListEditor(paramList[i]);
       editor[i].setTitle(attenRelNonIdenticalParams);
       imrParamsFrame[i] = new JDialog((JFrame)parent,((AttenuationRelationshipAPI)attenRelsSupported.get(i)).getName()+" Params");
-      imrParamsFrame[i].setSize(300,400);
+      imrParamsFrame[i].setSize(300,200);
       imrParamsFrame[i].getContentPane().setLayout(new GridBagLayout());
       imrParamsFrame[i].getContentPane().add(editor[i],new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
           ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
@@ -204,7 +204,7 @@ public class MultipleIMR_GuiBean extends JPanel  implements
     otherParamsEditor = new ParameterListEditor(otherParams);
     otherParamsEditor.setTitle(attenRelIdenticalParams);
     otherIMR_paramsFrame = new JDialog((JFrame)parent,attenRelIdenticalParamsFrameTitle);
-    otherIMR_paramsFrame.setSize(300,400);
+    otherIMR_paramsFrame.setSize(300,200);
     otherIMR_paramsFrame.getContentPane().setLayout(new GridBagLayout());
     otherIMR_paramsFrame.getContentPane().add(otherParamsEditor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
@@ -223,7 +223,7 @@ public class MultipleIMR_GuiBean extends JPanel  implements
    */
   public void setAllParamButtons_actionPerformed(ActionEvent e){
     indexOfAttenRel = 0;
-    otherIMR_paramsFrame.pack();
+    //otherIMR_paramsFrame.pack();
     otherIMR_paramsFrame.show();
   }
 
@@ -244,7 +244,7 @@ public class MultipleIMR_GuiBean extends JPanel  implements
         if(button.equals(paramButtons[i])){
           indexOfAttenRel = i;
           //getting the AttenRel params from the AttenRel whose button was pressed
-          imrParamsFrame[i].pack();
+          //imrParamsFrame[i].pack();
           imrParamsFrame[i].show();
         }
       }
