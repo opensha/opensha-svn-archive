@@ -51,12 +51,14 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
     imlProbVector.add(IML_AT_PROB);
     imlProbVector.add(PROB_AT_IML);
     imlProb = new StringParameter(MAP_TYPE,imlProbVector,imlProbVector.get(0).toString());
+    imlProb.addParameterChangeListener(this);
     parameterList= new ParameterList();
     parameterList.addParameter(imlProb);
     parameterList.addParameter(prob);
     parameterList.addParameter(iml);
     addParameters();
     this.setTitle(MAP_INFO);
+    setParams(imlProb.getValue().toString());
   }
 
   /**
@@ -66,10 +68,26 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
    * @param e
    */
   public void parameterChange(ParameterChangeEvent e) {
-    if(parameterList.getParameter(MAP_TYPE).getValue().toString().equalsIgnoreCase(IML_AT_PROB))
+    String name = e.getParameterName();
+    // if user changes the map type desired
+    if(name.equalsIgnoreCase(this.MAP_TYPE)) {
+      // make the IML@Prob visible or Prob@IML as visible
+      setParams(parameterList.getParameter(MAP_TYPE).getValue().toString());
+    }
+  }
+
+  /**
+   * Make the IML@Prob or Prob@IML as visible, invisible based on map type selected
+   * @param mapType
+   */
+  private void setParams(String mapType) {
+    if(mapType.equalsIgnoreCase(IML_AT_PROB)) { // if IML@prob is selected
       this.setParameterVisible(IML,false);
-    else if(parameterList.getParameter(MAP_TYPE).getValue().toString().equalsIgnoreCase(PROB_AT_IML))
-       this.setParameterVisible(PROBABILITY,false);
+      this.setParameterVisible(PROBABILITY, true);
+    } else { // if Prob@IML is selected
+      this.setParameterVisible(PROBABILITY,false);
+      this.setParameterVisible(IML, true);
+    }
   }
 
   /**
@@ -77,10 +95,9 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
    * @return the double value for the iml or prob, depending on the MapType
    * selected by the user.
    */
- public double getIMLProb(){
+ public double getIML_Prob(){
    if(parameterList.getParameter(MAP_TYPE).getValue().toString().equalsIgnoreCase(IML_AT_PROB))
      return ((Double)iml.getValue()).doubleValue();
-   else
-     return ((Double)prob.getValue()).doubleValue();
+   else return ((Double)prob.getValue()).doubleValue();
  }
 }
