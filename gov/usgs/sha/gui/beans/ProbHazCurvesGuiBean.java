@@ -28,6 +28,8 @@ import gov.usgs.sha.data.DataGenerator_HazardCurves;
 import gov.usgs.sha.gui.infoTools.GraphWindow;
 import java.awt.event.*;
 import gov.usgs.exceptions.LocationErrorException;
+import java.util.ListIterator;
+import org.scec.param.ParameterAPI;
 
 /**
  * <p>Title:NEHRP_GuiBean</p>
@@ -300,6 +302,7 @@ public class ProbHazCurvesGuiBean
     locationSplitPane.setDividerLocation(155);
     buttonsSplitPane.setDividerLocation(150);
     singleHazardCurveValButton.setEnabled(false);
+    viewCurveButton.setEnabled(false);
   }
 
 
@@ -354,7 +357,13 @@ public class ProbHazCurvesGuiBean
           PROB_EXCEED_PARAM_NAME).getValue();
     else if (paramName.equals(EXP_TIME_PARAM_NAME))
       expTimeVal = (String) singleHazardValListEditor.getParameterEditor(
-          EXP_TIME_PARAM_NAME).getValue();
+        EXP_TIME_PARAM_NAME).getValue();
+    else if(paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
+            paramName.equals(locGuiBean.LON_PARAM_NAME) ||
+            paramName.equals(locGuiBean.ZIP_CODE_PARAM_NAME)){
+      viewCurveButton.setEnabled(false);
+      singleHazardCurveValButton.setEnabled(false);
+    }
 
       this.updateUI();
   }
@@ -383,6 +392,13 @@ public class ProbHazCurvesGuiBean
       locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
                                    region.getMinLon(), region.getMaxLon(),
                                    zipCodeSupported);
+      ParameterList paramList = locGuiBean.getLocationParameters();
+      ListIterator it = paramList.getParametersIterator();
+      while(it.hasNext()){
+        ParameterAPI param = (ParameterAPI)it.next();
+        param.addParameterChangeListener(this);
+      }
+
       locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
       locationSplitPane.setDividerLocation(170);
     }
@@ -495,6 +511,7 @@ public class ProbHazCurvesGuiBean
   void hazCurveCalcButton_actionPerformed(ActionEvent e) {
     getDataForSA_Period();
     application.setDataInWindow(getData());
+    viewCurveButton.setEnabled(true);
     singleHazardCurveValButton.setEnabled(true);
   }
 

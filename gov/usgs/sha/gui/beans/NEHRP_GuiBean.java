@@ -11,11 +11,13 @@ import org.scec.data.region.RectangularGeographicRegion;
 import org.scec.param.StringParameter;
 import org.scec.param.editor.ConstrainedStringParameterEditor;
 import org.scec.data.Location;
-
+import org.scec.param.ParameterList;
+import org.scec.param.ParameterAPI;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
+import java.util.ListIterator;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -306,6 +308,10 @@ public class NEHRP_GuiBean
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       setButtonsEnabled(false);
     }
+    else if(paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
+            paramName.equals(locGuiBean.LON_PARAM_NAME) ||
+            paramName.equals(locGuiBean.ZIP_CODE_PARAM_NAME))
+      setButtonsEnabled(false);
 
   }
 
@@ -333,6 +339,12 @@ public class NEHRP_GuiBean
       locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
                                    region.getMinLon(), region.getMaxLon(),
                                    zipCodeSupported);
+      ParameterList paramList = locGuiBean.getLocationParameters();
+      ListIterator it = paramList.getParametersIterator();
+      while(it.hasNext()){
+        ParameterAPI param = (ParameterAPI)it.next();
+        param.addParameterChangeListener(this);
+      }
       locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
       locationSplitPane.setDividerLocation(170);
     }

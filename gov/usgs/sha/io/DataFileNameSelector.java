@@ -93,7 +93,8 @@ public class DataFileNameSelector {
 
   private String getFileNameForPRVI(String selectedEdition){
     if (selectedEdition.equals(GlobalConstants.NEHRP_2003) ||
-        selectedEdition.equals(GlobalConstants.ASCE_2005)) {
+        selectedEdition.equals(GlobalConstants.ASCE_2005) ||
+        selectedEdition.equals(GlobalConstants.IBC_2004)) {
       String fileName = "2003-PVRI-MCE-R1a.rnd";
       return filePath + fileName;
     }

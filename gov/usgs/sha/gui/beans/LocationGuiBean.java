@@ -81,6 +81,17 @@ public class LocationGuiBean
   }
 
 
+
+  /**
+   * Returns the parameters constituting the location gui bean.
+   * @return ParameterList
+   */
+  public ParameterList getLocationParameters(){
+    return parameterList;
+  }
+
+
+
   /**
    * Returns what how user has chosen to set the location
    * @return String
