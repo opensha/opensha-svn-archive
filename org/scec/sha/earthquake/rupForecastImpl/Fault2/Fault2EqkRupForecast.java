@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake.rupForecastImpl.Fault1;
+package org.scec.sha.earthquake.rupForecastImpl.Fault2;
 
 
 import java.util.Vector;
@@ -15,21 +15,21 @@ import org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_CharEqkSource
 
 /**
  * <p>Title: Fault1EqkRupForecast</p>
- * <p>Description: Fault 1 Equake rupture forecast. The Peer Group Test cases </p>
+ * <p>Description: Fault 2 Equake rupture forecast. The Peer Group Test cases </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta & Vipin Gupta
  * @version 1.0
  */
 
-public class Fault1EqkRupForecast {
+public class Fault2EqkRupForecast {
 
   /**
    * @todo variables
    */
 
   //for Debug purposes
-  private static String  C = new String("Fault1EqkRupForecast");
+  private static String  C = new String("Fault2EqkRupForecast");
   private boolean D = false;
 
   /**
@@ -42,16 +42,24 @@ public class Fault1EqkRupForecast {
   private Frankel96_CharEqkSource source;
 
   // fault name
-  private String FAULT_NAME = new String("Fault 1");
-  private Location LOCATION1 = new Location(38.22480, -122, 0);
-  private Location LOCATION2 = new Location(38.0, -122, 0);
-  private double UPPER_SEISMO_DEPTH = 0.0;
-  private double LOWER_SEISMO_DEPTH = 25.0;
+  private String FAULT_NAME = new String("Fault 2");
+
+  // all the locations of FAULT 2
+  private Location LOCATION1 = new Location(38.225, -122, 1);
+  private Location LOCATION2 = new Location(38.113, -122, 0);
+  private Location LOCATION3 = new Location(38.113, -122.114, 0);
+  private Location LOCATION4 = new Location(38.113, -122.886, 0);
+  private Location LOCATION5 = new Location(38.111, -122.570, 0);
+  private Location LOCATION6 = new Location(38.0, -122, 0);
+  private Location LOCATION7 = new Location(37.910, -122, 0);
+
+  private double UPPER_SEISMO_DEPTH = 1.0;
+  private double LOWER_SEISMO_DEPTH = 12.0;
   private double GRID_SPACING = 1.0;
-  private double RAKE = 0;
+  private double RAKE = 90;
   private double MAG =5.0;
   private double RATE = 0.0395;
-  private double DIP = 90; // dip in degrees
+  private double DIP = 60; // dip in degrees
 
 
 
@@ -60,7 +68,7 @@ public class Fault1EqkRupForecast {
    *
    * No argument constructor
    */
-  public Fault1EqkRupForecast() {
+  public Fault2EqkRupForecast() {
 
     /* Now make the source in Fault 1 */
 
