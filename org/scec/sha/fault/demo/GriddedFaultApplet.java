@@ -79,7 +79,8 @@ public class GriddedFaultApplet
 
     protected final static String FRANKEL = "Frankel";
     protected final static String STIRLING = "Stirling";
-    protected final static String CUSTOM_FAULT = "Custom Fault";
+    protected final static String CUSTOM_SIMPLE_FAULT = "Custom Simple";
+    protected final static String CUSTOM_LISTRIC_FAULT = "Custom Listric";
     protected final static String FRANKEL_1996 = "Frankel 1996";
 
     protected final static int SUB_SURFACE_PLOT_TYPE = 4;
@@ -313,7 +314,8 @@ public class GriddedFaultApplet
         frankel_StirlingComboBox.addItem(STIRLING);
 
         customFrankelComboBox.addItem(FRANKEL_1996);
-        customFrankelComboBox.addItem(CUSTOM_FAULT);
+        customFrankelComboBox.addItem(CUSTOM_SIMPLE_FAULT);
+        customFrankelComboBox.addItem(CUSTOM_LISTRIC_FAULT);
         // initialize the current fault
         initFaults();
         initRupturePanel();
@@ -474,8 +476,15 @@ public class GriddedFaultApplet
             String selected = (String)customFrankelComboBox.getSelectedItem();
 
             // if custom fault is selected
-            if(selected.equalsIgnoreCase(CUSTOM_FAULT)) {
-              CustomFault custom = new CustomFault(this);
+            if(selected.equalsIgnoreCase(CUSTOM_SIMPLE_FAULT)) {
+              // custom simple fault
+              CustomSimpleFault custom = new CustomSimpleFault(this);
+              custom.pack();
+              custom.show();
+            } else if(selected.equalsIgnoreCase(CUSTOM_LISTRIC_FAULT)) {
+              //custom listric fault
+              CustomListricFault custom = new CustomListricFault(this);
+              custom.pack();
               custom.show();
             } else {
               // put the Frankel 1996 Faults
