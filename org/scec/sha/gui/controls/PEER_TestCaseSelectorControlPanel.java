@@ -88,7 +88,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
   // some of the universal parameter settings
   private double GRID_SPACING = 1.0;
-  private String FAULT_TYPE = SimpleFaultParameterCalculator.STIRLING;
+  private String FAULT_TYPE = SimpleFaultParameter.STIRLING;
 
   // various gui beans
   private IMT_GuiBean imtGuiBean;

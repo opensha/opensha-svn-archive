@@ -3,7 +3,7 @@ import java.awt.*;
 
 import java.util.*;
 import javax.swing.*;
-import com.borland.jbcl.layout.VerticalFlowLayout;
+//import com.borland.jbcl.layout.VerticalFlowLayout;
 import org.scec.gui.*;
 import org.scec.param.ParameterAPI;
 import org.scec.param.DependentParameter;

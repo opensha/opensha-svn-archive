@@ -18,7 +18,8 @@ import java.util.*;
  */
 
 public class IMT_GuiBeanSupportingMultipleAttenuationRelationships
-    extends ParameterListEditor implements ParameterChangeListener{
+    extends ParameterListEditor implements  IMT_GuiBeanAPI,
+    ParameterChangeListener{
 
   // IMT GUI Editor & Parameter names
   public final static String IMT_PARAM_NAME =  "IMT";
@@ -74,11 +75,11 @@ public class IMT_GuiBeanSupportingMultipleAttenuationRelationships
         //check to see if the IMT param already exists in the vector list,
         //if so the get that parameter, else create new instance of the imt
         //parameter.
-        StringParameter param1;
+        WarningDoubleParameter param1;
         if(imt.contains(param.getName()))
-          param1 = (StringParameter)imtParam.get(imtParam.indexOf(param));
+          param1 = (WarningDoubleParameter)imtParam.get(imtParam.indexOf(param));
         else{
-          param1=new StringParameter(param.getName());
+          param1=new WarningDoubleParameter(param.getName());
           //add the dependent parameter only if it has not ben added before
           imtParam.add(param1);
           imt.add(param.getName());
@@ -114,7 +115,7 @@ public class IMT_GuiBeanSupportingMultipleAttenuationRelationships
            * new constraint for the independent parameter.
            */
           if(param1.containsIndependentParameter(independentParam.getName())){
-            Vector paramVals = ((StringConstraint)param1.getIndependentParameter(independentParam.getName()).getConstraint()).getAllowedStrings();
+            Vector paramVals = ((StringConstraint)param1.getIndependentParameter(independentParam.getName()).getConstraint()).getAllowedValues();
             for(int j=0;j<indParamOptions.size();++j)
               if(!paramVals.contains(indParamOptions.get(j)))
                 paramVals.add(indParamOptions.get(j));
@@ -155,72 +156,92 @@ public class IMT_GuiBeanSupportingMultipleAttenuationRelationships
 
   /**
    * This function updates the IMTeditor with the independent parameters for the selected
-    * IMT, by making only those visible to the user.
-    * @param imtName : It is the name of the selected IMT, based on which we make
-    * its independentParameters visible.
-    */
+   * IMT, by making only those visible to the user.
+   * @param imtName : It is the name of the selected IMT, based on which we make
+   * its independentParameters visible.
+   */
 
-   private void updateIMT(String imtName) {
-     Iterator it= parameterList.getParametersIterator();
+  private void updateIMT(String imtName) {
+    Iterator it= parameterList.getParametersIterator();
 
-     //making all the IMT parameters invisible
-     while(it.hasNext())
-       setParameterVisible(((ParameterAPI)it.next()).getName(),false);
+    //making all the IMT parameters invisible
+    while(it.hasNext())
+      setParameterVisible(((ParameterAPI)it.next()).getName(),false);
 
-     //making the choose IMT parameter visible
-     setParameterVisible(IMT_PARAM_NAME,true);
+    //making the choose IMT parameter visible
+    setParameterVisible(IMT_PARAM_NAME,true);
 
-     it=imtParam.iterator();
-     //for the selected IMT making its independent parameters visible
-     while(it.hasNext()){
-       DependentParameterAPI param=(DependentParameterAPI)it.next();
-       if(param.getName().equalsIgnoreCase(imtName)){
-         Iterator it1=param.getIndependentParametersIterator();
-         while(it1.hasNext())
-           setParameterVisible(((ParameterAPI)it1.next()).getName(),true);
-       }
-     }
-   }
+    it=imtParam.iterator();
+    //for the selected IMT making its independent parameters visible
+    while(it.hasNext()){
+      DependentParameterAPI param=(DependentParameterAPI)it.next();
+      if(param.getName().equalsIgnoreCase(imtName)){
+        Iterator it1=param.getIndependentParametersIterator();
+        while(it1.hasNext())
+          setParameterVisible(((ParameterAPI)it1.next()).getName(),true);
+      }
+    }
+  }
 
-   /**
-  *  This is the main function of this interface. Any time a control
-  *  paramater or independent paramater is changed by the user in a GUI this
-  *  function is called, and a paramater change event is passed in. This
-  *  function then determines what to do with the information ie. show some
-  *  paramaters, set some as invisible, basically control the paramater
-  *  lists.
-  *
-  * @param  event
-  */
- public void parameterChange( ParameterChangeEvent event ) {
+  /**
+   *  This is the main function of this interface. Any time a control
+   *  paramater or independent paramater is changed by the user in a GUI this
+   *  function is called, and a paramater change event is passed in. This
+   *  function then determines what to do with the information ie. show some
+   *  paramaters, set some as invisible, basically control the paramater
+   *  lists.
+   *
+   * @param  event
+   */
+  public void parameterChange( ParameterChangeEvent event ) {
 
-     String S = C + ": parameterChange(): ";
-     if ( D )
-         System.out.println( "\n" + S + "starting: " );
+    String S = C + ": parameterChange(): ";
+    if ( D )
+      System.out.println( "\n" + S + "starting: " );
 
-     String name1 = event.getParameterName();
+    String name1 = event.getParameterName();
 
-     // if IMT selection then update
-     if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
-       updateIMT((String)event.getNewValue());
-     }
+    // if IMT selection then update
+    if (name1.equalsIgnoreCase(this.IMT_PARAM_NAME)) {
+      updateIMT((String)event.getNewValue());
+    }
 
- }
+  }
+
+  /**
+   * It will return the IMT selected by the user
+   * @return : IMT selected by the user
+   */
+  public String getSelectedIMT() {
+    return (String)getSelectedIMTparam().getValue();
+  }
+
+  /**
+   *
+   * @returns the Selected IMT Parameter
+   */
+  public ParameterAPI getSelectedIMTparam(){
+    return parameterList.getParameter(IMT_PARAM_NAME);
+  }
+
+  /**
+   *
+   * @param paramName
+   * @returns the parameter with the paramName from the IMT parameter list
+   */
+  public ParameterAPI getParameter(String paramName){
+    return parameterList.getParameter(paramName);
+  }
+
 
  /**
-  * It will retunr the IMT selected by the user
-  * @return : IMT selected by the user
+  * set the IMT parameter in selected IMR's
   */
- public String getSelectedIMT() {
-   return this.parameterList.getValue(this.IMT_PARAM_NAME).toString();
- }
-
- /**
-  * set the IMT parameter in IMR
-  */
- public void setIMT() {
+ public void setIMT(ArrayList selectedIMRs) {
    ParameterAPI param = getIntensityMeasure();
-   //imr.setIntensityMeasure(param);
+   int size = selectedIMRs.size();
+   for(int i=0;i<size;++i)
+     ((AttenuationRelationshipAPI)selectedIMRs.get(i)).setIntensityMeasure(param);
  }
 
 

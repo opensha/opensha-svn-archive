@@ -12,7 +12,7 @@ import java.lang.reflect.*;
  * @version 1.0
  */
 
-public class AtteuationRelationshipsInstance {
+public class AttenuationRelationshipsInstance {
 
 
   private static final String C= "AtteuationRelationshipsInstance";
@@ -36,7 +36,7 @@ public class AtteuationRelationshipsInstance {
   /**
    * class default constructor
    */
-  public AtteuationRelationshipsInstance(){
+  public AttenuationRelationshipsInstance(){
 
     //adds all the AttenRel classes to the ArrayList
     supportedAttenRelClasses.add(BJF_CLASS_NAME);
