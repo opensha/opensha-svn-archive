@@ -996,19 +996,5 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
         listener.parameterChange( event );
       }
     }
-
-
-
-    // this is temporary for testing purposes
-    public static void main(String[] args) {
-      TimeSpan tSpan = new TimeSpan(YEARS,YEARS);
-      tSpan.setStartTime(1964);
-      System.out.println("getStartYear(): "+tSpan.getStartTimeYear());
-      tSpan.setStartTimeConstraint("Start Year", 1980,2003);
-      tSpan.setStartTime(1984);
-      System.out.println("getStartYear(): "+tSpan.getStartTimeYear());
-      tSpan.setStartTimeConstraint("Start Year", -10,2003);
-
-    }
 }
 
