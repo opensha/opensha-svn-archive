@@ -80,7 +80,7 @@ public class CalcProgressBar extends JProgressBar {
    * @param val : Value of progress bar
    * @param str  : string to be displayed in progress bar
    */
-  public void updateProgressBar(int val, String str) {
+  private  void updateProgressBar(int val, String str) {
     this.setString(str);
     this.setValue(val);
     Rectangle rect = this.getBounds();

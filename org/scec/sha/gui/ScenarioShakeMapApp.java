@@ -471,7 +471,6 @@ public class ScenarioShakeMapApp extends JApplet implements
         imr.setProbEqkRupture(erfGuiBean.getRupture());
       } catch (Exception ex) {
         JOptionPane.showMessageDialog(this, "Rupture not allowed for this IMR");
-        System.out.println("Parameter change warning caught");
         return;
       }
       if(probAtIML)

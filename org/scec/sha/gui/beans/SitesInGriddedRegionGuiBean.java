@@ -73,15 +73,15 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
    * Longitude and Latitude paramerts to be added to the site params list
    */
   private DoubleParameter minLon = new DoubleParameter(MIN_LONGITUDE,
-      new Double(-360), new Double(360),new Double(-123));
+      new Double(-360), new Double(360),new Double(-119));
   private DoubleParameter maxLon = new DoubleParameter(MAX_LONGITUDE,
-      new Double(-360), new Double(360),new Double(-121));
+      new Double(-360), new Double(360),new Double(-117));
   private DoubleParameter minLat = new DoubleParameter(MIN_LATITUDE,
-      new Double(-90), new Double(90), new Double(37.0));
+      new Double(-90), new Double(90), new Double(34.0));
   private DoubleParameter maxLat = new DoubleParameter(MAX_LATITUDE,
-      new Double(-90), new Double(90), new Double(39.0));
+      new Double(-90), new Double(90), new Double(35.0));
   private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,
-      new Double(.01),new Double(100.0),new String("Degrees"),new Double(.1));
+      new Double(.01),new Double(100.0),new String("Degrees"),new Double(.2));
 
 
   //instance of class EvenlyGriddedRectangularGeographicRegion
@@ -577,8 +577,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
       ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
 
       //vectors of lat and lon for the Basin Depth
-      Vector bdlatVector=(Vector)ois.readObject();
-      Vector bdlonVector=(Vector)ois.readObject();
       basinDepthVector=(Vector)ois.readObject();
       ois.close();
       JOptionPane.showMessageDialog(this,"We have got the BasinDepth from SCEC CVM");
