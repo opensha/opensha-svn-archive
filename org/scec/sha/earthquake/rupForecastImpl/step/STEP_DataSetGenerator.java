@@ -19,8 +19,8 @@ import org.scec.sha.calc.HazardMapCalculator;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.gui.infoTools.ConnectToCVM;
 import org.scec.util.*;
-
-
+import org.scec.data.*;
+import org.scec.data.region.*;
 /**
  * <p>Title: STEP_DataSetGenerator</p>
  * <p>Description: This class generates the Dataset for the STEP Map which includes the
@@ -79,7 +79,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     // set the vs30
     attenRel.getParameter(attenRel.WILLS_SITE_NAME).setValue(attenRel.WILLS_SITE_D);
     //make the Gridded Region object
-    SitesInGriddedRegion region = new SitesInGriddedRegion(MIN_LAT, MAX_LAT, MIN_LON,
+    SitesInGriddedRectangularRegion region = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,
         MAX_LON, GRID_SPACING);
     region.addSiteParams(attenRel.getSiteParamsIterator());
 
@@ -193,6 +193,11 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
  }
 
 
+ private LocationList createCaliforniaPolygonBoundaryLocationList(){
+return null;
+ }
+
+
   /**
    * craetes the output xyz files
    * @param probVals : Probablity values ArrayList for each Lat and Lon
@@ -285,7 +290,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    * @param eqkRupForecast : STEP Forecast
    * @returns the ArrayList of Probability values for the given region
    */
-  private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
+  private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRectangularRegion region,
                                      EqkRupForecast eqkRupForecast){
 
     ArrayList probVals = new ArrayList();
