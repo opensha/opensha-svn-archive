@@ -95,10 +95,10 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   private JButton deleteFileButton = new JButton();
   private JLabel jLabel7 = new JLabel();
   private JLabel jLabel8 = new JLabel();
-  private JLabel imgLabel = new JLabel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private JLabel imgLabel = new JLabel();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
   //Get a parameter value
@@ -246,31 +246,31 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     imgLabel.setText("");
     imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     dataPanel.add(dataSubmLabel,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 32, 0, 23), 134, 16));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 32, 0, 23), 120, 16));
     dataPanel.add(messageTextArea,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 17, 0, 0), -44, 107));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 17, 0, 0), -58, 106));
     dataPanel.add(jLabel4,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 17, 0, 28), 55, 3));
     dataPanel.add(testComboBox,  new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(29, 11, 0, 0), 8, -1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(29, 11, 0, 0), -6, -1));
     dataPanel.add(submitButton,  new GridBagConstraints(4, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(22, 7, 10, 60), 12, 8));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 7, 10, 60), 12, 8));
     dataPanel.add(jLabel8,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 17, 0, 0), 50, 13));
     dataPanel.add(jLabel3,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(17, 17, 31, 0), 25, 12));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(18, 17, 31, 0), 25, 12));
     dataPanel.add(fileNameText,  new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(21, 12, 31, 0), 133, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(22, 12, 31, 0), 119, 4));
     dataPanel.add(jScrollPane2,  new GridBagConstraints(3, 2, 1, 3, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 38, 20, 0), 70, 316));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 38, 20, 0), 77, 316));
     dataPanel.add(jLabel2,  new GridBagConstraints(3, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(36, 39, 0, 34), 23, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(37, 39, 0, 41), 23, 7));
     dataPanel.add(xLabel,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 32, 0, 29), 31, 3));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 32, 0, 36), 31, 3));
     dataPanel.add(jScrollPane1,  new GridBagConstraints(2, 2, 1, 3, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 32, 20, 0), 72, 316));
-    dataPanel.add(imgLabel,   new GridBagConstraints(4, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(155, 8, 28, 10), 1, 1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 32, 20, 0), 79, 316));
+    dataPanel.add(imgLabel,   new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(6, 8, 0, 7), 0, 0));
     mainPanel.add(deletePanel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 1, 0), 0, 0));
     jScrollPane1.getViewport().add(xTextArea, null);
