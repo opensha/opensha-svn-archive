@@ -438,10 +438,17 @@ public class EqkForecastApplet extends JApplet
 
      // save the Sit Types supported by this IMR in a list
      Parameter tempParam;
-     while(listIt.hasNext()) {
+     while(listIt.hasNext()){
        tempParam = (Parameter)listIt.next();
        siteMap[numOfIMT].add(tempParam.clone());
+       if(tempParam instanceof StringParameter) {
+         StringParameter strConstraint = (StringParameter)tempParam;
+         tempParam.setValue(strConstraint.getAllowedStrings().get(0));
+         siteMap[numOfIMT].add(tempParam);
+       }
      }
+
+
 
      // get the supported IMTs for this IMR
      Iterator it1 = imr.getSupportedIntensityMeasuresIterator();
@@ -491,17 +498,15 @@ public class EqkForecastApplet extends JApplet
      // add it to the combo box as well
      this.jIMTComboBox.addItem(it.next());
    }
-
    /**
     * add the supported forecast types to the combo box
     */
     jEqkForeType.addItem(FRANKEL_1996_FORECAST);
     jEqkForeType.addItem(WARD_GRID_TEST);
-
 }
 
 
- /**
+   /**
      * Creates a class instance from a string of the full class name including packages.
      * This is how you dynamically make objects at runtime if you don't know which\
      * class beforehand. For example, if you wanted to create a BJF_1997_IMR you can do
@@ -598,7 +603,7 @@ public class EqkForecastApplet extends JApplet
             return;
           } catch(ParameterException paramException) {
           // we do not need to do anything in case this paramter is not in site paramters list
-          return;
+            return;
          }
 
          b.append( "The value ");
@@ -801,7 +806,10 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
           int numSites = siteMap[i].size();
           for(int j=0; j < numSites; ++j) {
             paramTemp = (Parameter)siteMap[i].get(j);
-
+            if(paramTemp instanceof StringParameter) {
+              StringParameter strConstraint = (StringParameter)paramTemp;
+              paramTemp.setValue(strConstraint.getAllowedStrings().get(0));
+            }
             //if this paramter has not been added till now
             if(!siteParamList.containsParameter(paramTemp.getName())) {
                siteParamList.addParameter(paramTemp);
@@ -933,7 +941,8 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
        // set the time span for the forecats model
       eqkRupForecast.setTimeSpan(Double.parseDouble(jTimeField.getText()));
-       // clear the function list
+
+      // clear the function list
       this.totalProbFuncs.clear();
 
       // get the longitude and latitude values
@@ -952,9 +961,18 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
           imt = new String(SA);
        }
 
-       // make a site object to pass to each IMr
+       // make a site object to pass to each IMR
       Site site = new Site(new Location(latVal,longVal));
       site.addParameterList(this.siteParamList);
+
+      Iterator it = siteParamList.getParametersIterator();
+
+      int count=0;
+      while(it.hasNext()){
+        ++count;
+        if(D)System.out.println("Site Params::::"+count +":::"+((ParameterAPI)it.next()).getName());
+      }
+
 
       // do for each IMR
       for(int i=0;i<imrSize;++i) {
@@ -977,7 +995,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
           else{
               //if it is SA, set SA and period as well
               ((ClassicIMRAPI)imrObject.get(i)).setIntensityMeasure(SA);
-              ParameterAPI periodParam = ((ClassicIMRAPI)imrObject.get(i)).getParameter("Period");
+              ParameterAPI periodParam = ((ClassicIMRAPI)imrObject.get(i)).getParameter("SA Period");
               periodParam.setValue(new Double(period));
            }
           // pass the site object to each IMR
@@ -985,6 +1003,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
              ((ClassicIMRAPI)imrObject.get(i)).setSite(site);
           } catch (Exception ex) {
                  if(D) System.out.println(C + ":Param warning caught");
+
           }
          }
        }
@@ -1017,7 +1036,6 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
                     hazFunction[imr].set(k,hazFunction[imr].getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
                     if (D) System.out.println("k="+k+",hazfunction[k] for imr="+hazFunction[imr].getY(k));
                     if (D) System.out.println("qkProb="+qkProb+",condProbFunc(k)="+condProbFunc.getY(k));
-
                 }
               }
            }
