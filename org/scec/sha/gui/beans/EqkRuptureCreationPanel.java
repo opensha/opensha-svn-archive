@@ -171,6 +171,7 @@ public class EqkRuptureCreationPanel extends  JPanel
     parameterList.addParameter(srcLatParam);
     parameterList.addParameter(srcLonParam);
     parameterList.addParameter(srcDepthParam);
+    parameterList.addParameter(hypocenterParam);
 
     sourceTypeParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
@@ -179,7 +180,7 @@ public class EqkRuptureCreationPanel extends  JPanel
     srcLonParam.addParameterChangeListener(this);
     dipParam.addParameterChangeListener(this);
     faultParam.addParameterChangeListener(this);
-
+    hypocenterParam.addParameterChangeListener(this);
     try {
       jbInit();
     }
@@ -244,22 +245,18 @@ public class EqkRuptureCreationPanel extends  JPanel
         hypocenterList.add(lat+" "+lon+" "+depth);
       }
 
-      if(hypocenterLocationParam == null){ //create the HypocenterLocation parameter if it is null
-        //else we just need to change the constraint of the hypocenter location.
+       //create the HypocenterLocation parameter with new constraints based on the created eqk rupture
         hypocenterLocationParam = new StringParameter(this.HYPOCENTER_LOCATION_PARAM_NAME,hypocenterList,
             (String)hypocenterList.get(0));
         hypocenterLocationParam.setInfo(this.HYPOCENTER_LOCATION_PARAM_INFO);
-        parameterList.addParameter(hypocenterParam);
-        parameterList.addParameter(hypocenterLocationParam);
         hypocenterLocationParam.addParameterChangeListener(this);
-        hypocenterParam.addParameterChangeListener(this);
-      }
-      else{
-        StringConstraint hypoCenterLocations= new StringConstraint(hypocenterList);
-        hypocenterLocationParam.setConstraint(hypoCenterLocations);
-        hypocenterLocationParam.setValue((String)hypocenterList.get(0));
-        listEditor.refreshParamEditor();
-      }
+
+        if(parameterList.containsParameter(hypocenterLocationParam)) // replace the parameter in the Editor
+          //if it already exists else add to the list of parameters.
+          listEditor.replaceParameterForEditor(HYPOCENTER_LOCATION_PARAM_NAME,hypocenterLocationParam);
+        else
+          parameterList.addParameter(hypocenterLocationParam);
+
       parameterChangeFlag = false;
     }
   }

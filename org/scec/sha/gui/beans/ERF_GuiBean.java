@@ -336,7 +336,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      getSelectedERF_Instance();
      if(this.showProgressBar) {
        // also show the progress bar while the forecast is being updated
-       progress = new CalcProgressBar("Forecast","Updating Forecast");
+       progress = new CalcProgressBar("Forecast","Updating Forecast ...");
        //progress.displayProgressBar();
      }
      // update the forecast

@@ -97,7 +97,9 @@ public class IntegerParameterEditor extends ParameterEditor
         valueEditor.addKeyListener( this );
 
         widgetPanel.add(valueEditor, ParameterEditor.WIDGET_GBC);
-
+        widgetPanel.setBackground(null);
+        widgetPanel.validate();
+        widgetPanel.repaint();
         if(D) System.out.println(S + "Ending");
     }
 

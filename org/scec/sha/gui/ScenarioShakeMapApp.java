@@ -274,7 +274,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
-    parameterTabbedPanel.addTab("Earthquake Rupture from Forecast", eqkRupPanel );
+    parameterTabbedPanel.addTab("Earthquake Rupture", eqkRupPanel );
     parameterTabbedPanel.addTab( "Exceedance Level/Probability", prob_IMLPanel);
     parameterTabbedPanel.addTab("Map Attributes", gmtPanel);
     mainSplitPane.setDividerLocation(630);

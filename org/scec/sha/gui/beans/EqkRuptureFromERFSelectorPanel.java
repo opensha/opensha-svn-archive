@@ -1,5 +1,6 @@
 package org.scec.sha.gui.beans;
 
+import java.awt.event.ItemEvent;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
@@ -128,6 +129,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
 
    // create the instance of ERFs
    erfGuiBean= new ERF_GuiBean(erfClassNames);
+   erfGuiBean.showProgressBar(false);
    parameterList = new ParameterList();
    setSelectedERF();
    setSourceFromSelectedERF(0);
@@ -149,6 +151,13 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   * creates the selected ERF based on the selected ERF Name
   */
  public void setSelectedERF(){
+
+
+   if(progress == null)
+     progress = new CalcProgressBar("Updating ERF","Please wait while ERF being updated ...");
+   else
+     progress.setProgressMessage("Please wait while ERF being updated ...");
+
    if(erf == null){
      // add the select forecast parameter
      ParameterAPI chooseERF_Param = erfGuiBean.getERFParameterList().getParameter(erfGuiBean.ERF_PARAM_NAME);
@@ -161,6 +170,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    }catch(Exception e){
      e.printStackTrace();
    }
+   progress.showProgress(false);
  }
 
  /**
@@ -171,24 +181,21 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    int numSources = erf.getNumSources();
    ArrayList sourcesVector = new ArrayList();
 
-   if(progress == null)
-     progress = new CalcProgressBar("Updating Ruptures","Please wait while sources are being updated");
-   else
-     progress.setProgressMessage("Please wait while sources are being updated");
+   progress.setProgressMessage("Please wait while sources are being updated");
 
 
    for(int i=0;i<numSources;++i)
      sourcesVector.add(i+" ( "+erf.getSource(i).getName()+" )");
 
-   if(sourceParam == null){
-     sourceParam = new StringParameter(SOURCE_PARAM_NAME,sourcesVector,(String)sourcesVector.get(sourceIndex));
-     sourceParam.addParameterChangeListener(this);
+   //creating the source parameter
+    sourceParam = new StringParameter(SOURCE_PARAM_NAME,sourcesVector,(String)sourcesVector.get(sourceIndex));
+    sourceParam.addParameterChangeListener(this);
+
+   if(parameterList.containsParameter(sourceParam))
+     //replace the source parameter with new parameter with new String constraints
+     listEditor.replaceParameterForEditor(SOURCE_PARAM_NAME,sourceParam);
+   else //if we are creating the source parameter for the first time.
      parameterList.addParameter(sourceParam);
-   }
-   else{
-     sourceParam.setConstraint(new StringConstraint(sourcesVector));
-     sourceParam.setValue((String)sourcesVector.get(sourceIndex));
-   }
 
    //add parameter for selecting the rupture for selected source index
    sourceValue = Integer.parseInt((((String)sourceParam.getValue()).substring(0,((String)sourceParam.getValue()).indexOf("("))).trim());
@@ -211,27 +218,24 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
  public void setRuptureForSelectedSource(int ruptureIndex){
    int numRuptures = erf.getNumRuptures(sourceValue);
 
-   if(progress == null)
-     progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures are being updated");
-   else
-     progress.setProgressMessage("Please wait while ruptures are being updated");
 
+   progress.setProgressMessage("Please wait while ruptures are being updated");
+   //creating the rupture parameter
+   ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,0,numRuptures-1,new Integer(ruptureIndex));
+   ruptureParam.addParameterChangeListener(this);
 
-   if(ruptureParam == null){
-     ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,
-         0,numRuptures-1,new Integer(ruptureIndex));
-     ruptureParam.addParameterChangeListener(this);
+   if(parameterList.containsParameter(ruptureParam))
+     //replace the rupture parameter with new parameter with new  constraints
+     listEditor.replaceParameterForEditor(RUPTURE_PARAM_NAME,ruptureParam);
+   else //if we are creating the rupture parameter for the first time.
      parameterList.addParameter(ruptureParam);
-   }
-   else{
-     ruptureParam.setConstraint(new IntegerConstraint(0,numRuptures-1));
-     ruptureParam.setValue(new Integer(ruptureIndex));
-   }
+
+   //getting the selected rupture index
    ruptureValue = ((Integer)ruptureParam.getValue()).intValue();
 
    //getting the selected rupture for the source
    probEqkRupture = erf.getRupture(sourceValue,ruptureValue);
-   progress.dispose();
+   progress.showProgress(false);
  }
 
  /**
@@ -239,11 +243,6 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   * hypocenter location parameter.
   */
  public void getHypocenterLocationsForSelectedRupture(){
-
-   if(progress == null)
-     progress = new CalcProgressBar("Updating Ruptures","Please wait while hypocenter locations are being updated");
-   else
-     progress.setProgressMessage("Please wait while hypocenter locations are being updated");
 
 
    //getting the surface of the rupture
@@ -261,17 +260,17 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    }
    StringConstraint constraints= new StringConstraint(v);
 
-   if(hypoCenterLocationParam == null){
+
      hypoCenterLocationParam = new StringParameter(RUPTURE_HYPOLOCATIONS_PARAM_NAME,
          constraints,v.get(0).toString());
-     parameterList.addParameter(hypoCenterLocationParam);
      hypoCenterLocationParam.addParameterChangeListener(this);
-   }
-   else{
-    hypoCenterLocationParam.setConstraint(constraints);
-    hypoCenterLocationParam.setValue(v.get(0));
-   }
-   progress.dispose();
+
+     //Hypocenter location parameter
+     if(parameterList.containsParameter(hypoCenterLocationParam))
+       listEditor.replaceParameterForEditor(RUPTURE_HYPOLOCATIONS_PARAM_NAME,hypoCenterLocationParam);
+     else
+       parameterList.addParameter(hypoCenterLocationParam);
+
  }
 
  /**
@@ -303,6 +302,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   */
  public void parameterChange( ParameterChangeEvent event ) {
 
+   progress.showProgress(true);
    String S = C + ": parameterChange(): ";
    if ( D )
      System.out.println( "\n" + S + "starting: " );
@@ -327,6 +327,8 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
 
    // if source selected by the user  changes
    else if( name1.equals(this.SOURCE_PARAM_NAME) ){
+     //getting the selected Source Value
+     sourceValue = Integer.parseInt((((String)sourceParam.getValue()).substring(0,((String)sourceParam.getValue()).indexOf("("))).trim());
      // set the new forecast parameters. Also change the number of ruptures in this source
      hypoCentreCheck.setSelected(false);
      setRuptureForSelectedSource(0);
@@ -336,7 +338,8 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
 
    // if source selected by the user  changes
    else if( name1.equals(this.RUPTURE_PARAM_NAME) ){
-
+     //getting the selected rupture index
+     ruptureValue = ((Integer)ruptureParam.getValue()).intValue();
      // set the new forecast parameters. Also change the number of ruptures in this source
      hypoCentreCheck.setSelected(false);
      getHypocenterLocationsForSelectedRupture();
@@ -366,9 +369,9 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
     sourceRupInfoText.setSelectionColor(Color.blue);
     sourceRupInfoText.setEditable(false);
     hypoCentreCheck.setText("Set Hypocenter Location");
-    hypoCentreCheck.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        hypoCentreCheck_actionPerformed(e);
+    hypoCentreCheck.addItemListener(new java.awt.event.ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        hypoCentreCheck_itemStateChanged(e);
       }
     });
     this.add(sourceRupInfoText,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
@@ -564,7 +567,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    * If hypocenter Location checkBox action is performed on it
    * @param e
    */
-  void hypoCentreCheck_actionPerformed(ActionEvent e) {
+  void hypoCentreCheck_itemStateChanged(ItemEvent e) {
     if(hypoCentreCheck.isSelected())
       setHypocenterLocationInRupture(true);
     else

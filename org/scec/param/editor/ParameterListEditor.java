@@ -232,6 +232,8 @@ public class ParameterListEditor extends LabeledBoxPanel {
     /**
      * Searches for the named parameter editor, then replaces the parameter
      * it is currently editing.
+     * @param parameterName : Name of the parameter that is being removed
+     * @param param : New parameter that is replacing the old parameter
      */
     public void replaceParameterForEditor( String parameterName, ParameterAPI param ) {
 
