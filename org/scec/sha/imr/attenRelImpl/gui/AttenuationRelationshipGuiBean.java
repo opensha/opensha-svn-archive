@@ -78,7 +78,7 @@ public class AttenuationRelationshipGuiBean
     final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
     /**
-     *  The AttenuationRelationship is the IMR that will perform the exceedence probability
+     *  The AttenuationRelationship is what will perform the exceedence probability
      *  calculations as needed by the Gui.
      */
     protected AttenuationRelationshipAPI attenRel = null;
@@ -104,7 +104,7 @@ public class AttenuationRelationshipGuiBean
 
     /**
      *  Parameters that control the graphing gui, specifically the IM Types
-     *  picklist, the Y-Values picklist, and the X-Values picklist. Some of
+     *  picklist, the Y-axis options picklist, and the X-axis options picklist. Some of
      *  these are dynamically generated from particular independent parameters.
      */
     protected ParameterList controlsParamList = null;
@@ -351,11 +351,6 @@ public class AttenuationRelationshipGuiBean
         ParameterAPI imParam = this.attenRel.getParameter( imName );
         String imUnits = imParam.getUnits();
 
-        // Determine whether to add log to lable - and add IM type choosen
-        // if ( !yAxisName.equals( Y_AXIS_V3 ) ) label = yAxisName + " ln-" + imName;
-        // else label = yAxisName + ' ' + imName;
-
-        // SWR - Changed mean so that it returns the real mean, used to be the log of the mean
         // if IML at exceed Prob. is chosen, then only show IM
         if(!yAxisName.equals( Y_AXIS_V4 )) label = yAxisName + ' ' + imName;
         else  label = imName;
@@ -433,10 +428,6 @@ public class AttenuationRelationshipGuiBean
         if ( D )
             System.out.println( S + "Starting" );
 
-        // Determines from the IM Picklist in the GUI which IM parameter
-        // to set as current IM in the AttenRel. This allows the AttenRel to be able
-        // to calculate which coefficients to use to calculate the functions
-
 
        // Get choosen graph controls values
         String yAxisName = getGraphControlsParamValue( Y_AXIS );
@@ -511,10 +502,6 @@ public class AttenuationRelationshipGuiBean
       if ( D )
         System.out.println( S + "Starting" );
 
-      // Determines from the IM Picklist in the GUI which IM parameter
-      // to set as current IM in the AttenRel. This allows the AttenRel to be able
-      // to calculate which coefficients to use to calculate the functions
-
 
       // Get choosen graph controls values
       String yAxisName = getGraphControlsParamValue( Y_AXIS );
@@ -582,29 +569,25 @@ public class AttenuationRelationshipGuiBean
         ArbDiscrFuncWithParams function = new ArbDiscrFuncWithParams();
         String s = "";
 
-        // constraint contains the only possible values, iterate over possible values to calc the mean
+        // if X-axis choice is a DoubleDiscreteParam, iterate over the associated constraint
         if ( ParamUtils.isDoubleDiscreteConstraint( xAxisParam ) ) {
 
-            // Get the period constraints to iterate over
+            // get the double discrete param and constraint
             String paramName = xAxisParam.getName();
-            DoubleDiscreteParameter period = ( DoubleDiscreteParameter ) attenRel.getParameter( paramName );
-            DoubleDiscreteConstraint constraint = ( DoubleDiscreteConstraint ) period.getConstraint();
+            DoubleDiscreteParameter ddParam = ( DoubleDiscreteParameter ) attenRel.getParameter( paramName );
+            DoubleDiscreteConstraint constraint = ( DoubleDiscreteConstraint ) ddParam.getConstraint();
 
-            Object oldVal = period.getValue();
+            Object oldVal = ddParam.getValue();
 
-            // Loop over all periods calculating the mean
+            // Loop over all discrete values & calculate the mean
             ListIterator it = constraint.listIterator();
             while ( it.hasNext() ) {
 
                 // Set the parameter with the next constraint value in the list
                 Double val = ( Double ) it.next();
-                period.setValue( val );
+                ddParam.setValue( val );
 
-                // This determines which are the current coefficients to use, i.e. if this
-                // x-axis choosen is Period, this function call will update the SA with this
-                // new period constraint value (SA and Period have same constraints. Then the SA
-                // will be passed into the AttenRel which will set the new coefficients because the SA period
-                // has been changed. Recall the coefficients are stored in a hash table "IM Name/Period" as the key
+                // set the IM in the attenuation relationship
                 attenRel.setIntensityMeasure( getGraphControlsParamValue( IM ) );
 
                 DataPoint2D point = new DataPoint2D( val.doubleValue(), getCalculation( type ));
@@ -613,7 +596,7 @@ public class AttenuationRelationshipGuiBean
             }
 
             // return to original state
-            period.setValue( oldVal );
+            ddParam.setValue( oldVal );
             attenRel.setIntensityMeasure( getGraphControlsParamValue( IM ) );
 
         }
@@ -913,7 +896,7 @@ public class AttenuationRelationshipGuiBean
         if ( D ) System.out.println( S + "Starting:" );
 
         if ( attenRel == null )
-            throw new ParameterException( S + "Imr is null, unable to continue." );
+            throw new ParameterException( S + "AttenRel is null, unable to continue." );
         if ( applet == null )
             throw new ParameterException( S + "Applet is null, unable to continue." );
 
@@ -1027,7 +1010,7 @@ public class AttenuationRelationshipGuiBean
         // Starting
         String S = C + ": initIndependentParamEditor(): ";
         if ( D ) System.out.println( S + "Starting:" );
-        if ( attenRel == null ) throw new ParameterException( S + "Imr is null, unable to init independent parameters." );
+        if ( attenRel == null ) throw new ParameterException( S + "AttenRel is null, unable to init independent parameters." );
 
         // Initialize the parameter list
         independentParams = new ParameterList();
@@ -1152,7 +1135,7 @@ public class AttenuationRelationshipGuiBean
 
         // Can't do anything if we don't have an im relationship
         if ( attenRel == null )
-            throw new ParameterException( S + "Imr is null, unable to continue." );
+            throw new ParameterException( S + "AttenRel is null, unable to continue." );
 
         // Turn off all parameters - start fresh, then make visible as required below
         // SWR - Looks like a bug here in setParameterVisible() - don't want to fix right now, the boolean
