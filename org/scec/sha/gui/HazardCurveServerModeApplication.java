@@ -1845,9 +1845,15 @@ public class HazardCurveServerModeApplication extends JApplet
   /**
    * This function stops the hazard curve calculation if started, so that user does not
    * have to wait for the calculation to finish.
+   * Note: This function has one advantage , it starts over the calculation again, but
+   * if user has not changed any other parameter for the forecast, that won't
+   * be updated, so saves time and memory for not updating the forecast everytime,
+   * cancel is pressed.
    * @param e
    */
   void cancelCalcButton_actionPerformed(ActionEvent e) {
+    //close the progress bar for the ERF GuiBean that displays "Updating Forecast".
+    erfGuiBean.closeProgressBar();
     //stopping the Hazard Curve calculation thread
     calcThread.stop();
     calcThread = null;

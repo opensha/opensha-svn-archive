@@ -53,6 +53,8 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
 
   //instance of the selected ERF
   ERF_API eqkRupForecast = null;
+  //instance of progress bar to show the progress of updation of forecast
+  CalcProgressBar progress= null;
 
   /**
    * default constructor
@@ -294,7 +296,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     */
    public ERF_API getSelectedERF() throws InvocationTargetException{
      getSelectedERF_Instance();
-     CalcProgressBar progress= null;
      if(this.showProgressBar) {
        // also show the progress bar while the forecast is being updated
        progress = new CalcProgressBar("Forecast","Updating Forecast");
@@ -302,7 +303,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      }
      // update the forecast
      eqkRupForecast.updateForecast();
-     if (this.showProgressBar) {
+     if (showProgressBar) {
        progress.dispose();
        progress = null;
      }
@@ -318,12 +319,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     */
    public String saveSelectedERF() throws InvocationTargetException {
      getSelectedERF_Instance();
-     CalcProgressBar progress= null;
-     //if(this.showProgressBar) {
-       // also show the progress bar while the forecast is being updated
-       //progress = new CalcProgressBar("Forecast","Updating Forecast");
-       //progress.displayProgressBar();
-     //}
 
      //save the updated forecast in the file as the binary object.
      String location = eqkRupForecast.updateAndSaveForecast();
@@ -470,6 +465,17 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      erfNamesVector.clear();
      init_erf_IndParamListAndEditor();
      setParamsInForecast(getSelectedERF_Name());
+   }
+
+   /**
+    * This function closes the progress bar window which shows forcast updation,
+    * if user has choosen to see the progress of updation, in the first place.
+    */
+   public void closeProgressBar(){
+     if(showProgressBar && progress!=null){
+       progress.dispose();
+       progress = null;
+     }
    }
 
    /**
