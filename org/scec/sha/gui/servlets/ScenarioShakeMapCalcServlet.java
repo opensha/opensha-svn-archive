@@ -1,22 +1,21 @@
 package org.scec.sha.gui.servlets;
 
+import java.io.*;
+import java.lang.reflect.*;
+import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
-import java.io.*;
-import java.util.*;
-import java.lang.reflect.Constructor;
 
+import org.scec.data.*;
 import org.scec.data.region.*;
 import org.scec.param.*;
 import org.scec.param.event.*;
-import org.scec.sha.imr.*;
-import org.scec.sha.calc.ScenarioShakeMapCalculator;
+import org.scec.sha.calc.*;
 import org.scec.sha.earthquake.*;
-import org.scec.data.XYZ_DataSetAPI;
-import org.scec.data.ArbDiscretizedXYZ_DataSet;
-import org.scec.sha.gui.infoTools.IMT_Info;
-import org.scec.util.FileUtils;
-import org.scec.sha.param.PropagationEffect;
+import org.scec.sha.gui.infoTools.*;
+import org.scec.sha.imr.*;
+import org.scec.sha.param.*;
+import org.scec.util.*;
 
 /**
  * <p>Title: ScenarioShakeMapCalcServlet  </p>
@@ -26,13 +25,13 @@ import org.scec.sha.param.PropagationEffect;
  * @version 1.0
  */
 
-public class ScenarioShakeMapCalcServlet  extends HttpServlet implements ParameterChangeWarningListener{
-
+public class ScenarioShakeMapCalcServlet
+    extends HttpServlet implements ParameterChangeWarningListener {
 
   //path on the server where all the object will be stored
-  private final static String FILE_PATH= "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/MapCalculationSavedObjects/";
-  private final static String XYZ_DATA_DIR = "xyzDataObject/" ;
-
+  private final static String FILE_PATH =
+      "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/MapCalculationSavedObjects/";
+  private final static String XYZ_DATA_DIR = "xyzDataObject/";
 
   /**
    * method to get the XYZ data for the scenarioshakemap after doing the calculation.
@@ -43,11 +42,12 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
    * @throws ServletException
    * @return the XYZ data representing the either the IML values or prob for the selected region.
    */
-  public void doGet(HttpServletRequest request,  HttpServletResponse response)
-                                  throws IOException, ServletException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws
+      IOException, ServletException {
 
     // get all the input stream from the applet
-    ObjectInputStream inputFromApplication = new ObjectInputStream(request.getInputStream());
+    ObjectInputStream inputFromApplication = new ObjectInputStream(request.
+        getInputStream());
 
     //sending the output in the form of the arrayList back to the calling application.
     ObjectOutputStream output = new ObjectOutputStream(response.getOutputStream());
@@ -55,43 +55,48 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
     try {
 
       //gets the current time in milliseconds to be the new file for the xyz data object file
-      String xyzDataFileName ="";
-      xyzDataFileName += System.currentTimeMillis()+".obj";
+      String xyzDataFileName = "";
+      xyzDataFileName += System.currentTimeMillis() + ".obj";
       //all the user gmt stuff will be stored in this directory
-      File mainDir = new File(FILE_PATH+XYZ_DATA_DIR);
+      File mainDir = new File(FILE_PATH + XYZ_DATA_DIR);
       //create the main directory if it does not exist already
-      if(!mainDir.isDirectory()){
-        boolean success = (new File(FILE_PATH+XYZ_DATA_DIR)).mkdir();
+      if (!mainDir.isDirectory()) {
+        boolean success = (new File(FILE_PATH + XYZ_DATA_DIR)).mkdir();
       }
 
       //gets the inputs from the Application.
 
       //gets the selected AttenuationRelationships
-      ArrayList selectedAttenRels = (ArrayList)inputFromApplication.readObject();
+      ArrayList selectedAttenRels = (ArrayList) inputFromApplication.readObject();
 
       //gets the selected AttenRel Absolute Wts
-      ArrayList selectedAttenRelWts = (ArrayList)inputFromApplication.readObject();
+      ArrayList selectedAttenRelWts = (ArrayList) inputFromApplication.
+          readObject();
 
       //gets the selected region object form the application
-      String griddedRegionFile = (String)inputFromApplication.readObject();
-      SitesInGriddedRectangularRegion griddedRegion = (SitesInGriddedRectangularRegion)FileUtils.loadObject(griddedRegionFile);
+      String griddedRegionFile = (String) inputFromApplication.readObject();
+      SitesInGriddedRectangularRegion griddedRegion = (
+          SitesInGriddedRectangularRegion) FileUtils.loadObject(
+          griddedRegionFile);
 
       //gets the selected EqkRupture object form the application
-      EqkRupture rupture = (EqkRupture)inputFromApplication.readObject();
+      EqkRupture rupture = (EqkRupture) inputFromApplication.readObject();
 
       //gets the boolean to if IML@Prob or Prob@IML
-      boolean isProbAtIML = ((Boolean)inputFromApplication.readObject()).booleanValue();
+      boolean isProbAtIML = ( (Boolean) inputFromApplication.readObject()).
+          booleanValue();
 
       //the IML or Prob value to compute the map for
-      double value = ((Double)inputFromApplication.readObject()).doubleValue();
+      double value = ( (Double) inputFromApplication.readObject()).doubleValue();
 
       //gets the selected IMT
-      String selectedIMT = (String)inputFromApplication.readObject();
+      String selectedIMT = (String) inputFromApplication.readObject();
 
       //getting the propagationEffect from the application. This would set the propagation Effect
       //in the ScenarioshakeMap Calc so as to serialize the propagation from the application on to
       //the server.
-      PropagationEffect propEffect = (PropagationEffect)inputFromApplication.readObject();
+      PropagationEffect propEffect = (PropagationEffect) inputFromApplication.
+          readObject();
 
       //close of the input from the application
       inputFromApplication.close();
@@ -100,33 +105,40 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
       getIMR_ParametersAndAddListeners(selectedAttenRels);
 
       //creating the object for the ScenarioShakeMapCalculator to compute the XYZ data for the selected region
-      ScenarioShakeMapCalculator calc = new ScenarioShakeMapCalculator(propEffect);
+      ScenarioShakeMapCalculator calc = new ScenarioShakeMapCalculator(
+          propEffect);
 
       ArbDiscretizedXYZ_DataSet xyzData = null;
-      if(!selectedIMT.equals(AttenuationRelationship.PGV_NAME)){
-      //XYZ data for the scenarioshake as computed
-        xyzData = (ArbDiscretizedXYZ_DataSet)calc.getScenarioShakeMapData(selectedAttenRels,selectedAttenRelWts,
-        griddedRegion,rupture,isProbAtIML,value);
-        convertIML_ValuesToExpo(xyzData,selectedIMT,isProbAtIML);
+      if (!selectedIMT.equals(AttenuationRelationship.PGV_NAME)) {
+        //XYZ data for the scenarioshake as computed
+        xyzData = (ArbDiscretizedXYZ_DataSet) calc.getScenarioShakeMapData(
+            selectedAttenRels, selectedAttenRelWts,
+            griddedRegion, rupture, isProbAtIML, value);
+        convertIML_ValuesToExpo(xyzData, selectedIMT, isProbAtIML);
       }
-      else
-        xyzData = (ArbDiscretizedXYZ_DataSet)getXYZDataForPGV(selectedAttenRels,selectedAttenRelWts,griddedRegion,rupture,
-                                   isProbAtIML,value,calc);
+      else {
+        xyzData = (ArbDiscretizedXYZ_DataSet) getXYZDataForPGV(
+            selectedAttenRels, selectedAttenRelWts, griddedRegion, rupture,
+            isProbAtIML, value, calc);
+      }
 
       //absolute path to the xyz data object file
-      String xyzDataFileWithAbsolutePath = FILE_PATH+XYZ_DATA_DIR+xyzDataFileName;
+      String xyzDataFileWithAbsolutePath = FILE_PATH + XYZ_DATA_DIR +
+          xyzDataFileName;
 
       //writes the XYZ data object to the file
-      createXYZDataObjectFile(xyzData,xyzDataFileWithAbsolutePath);
+      createXYZDataObjectFile(xyzData, xyzDataFileWithAbsolutePath);
 
       //calculates the XYZ data for the ScenarioShakeMap and returns back
-     //the path to the XYZ data object file, to the application.
+      //the path to the XYZ data object file, to the application.
       output.writeObject(xyzDataFileWithAbsolutePath);
 
       output.close();
-    }catch(RuntimeException e){
-      output.writeObject("Error "+e.getMessage());
-    }catch(Exception e) {
+    }
+    catch (RuntimeException e) {
+      output.writeObject("Error " + e.getMessage());
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
   }
@@ -139,18 +151,17 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
    * @param isProbAtIML : if prob@IML is selected
    */
   private void convertIML_ValuesToExpo(ArbDiscretizedXYZ_DataSet xyzData,
-                                       String selectedIMT,boolean isProbAtIML){
+                                       String selectedIMT, boolean isProbAtIML) {
     //if the IMT is log supported then take the exponential of the Value if IML @ Prob
-    if(IMT_Info.isIMT_LogNormalDist(selectedIMT) && !isProbAtIML){
+    if (IMT_Info.isIMT_LogNormalDist(selectedIMT) && !isProbAtIML) {
       ArrayList zVals = xyzData.getZ_DataSet();
       int size = zVals.size();
-      for(int i=0;i<size;++i){
-        double tempVal = Math.exp(((Double)(zVals.get(i))).doubleValue());
-        zVals.set(i,new Double(tempVal));
+      for (int i = 0; i < size; ++i) {
+        double tempVal = Math.exp( ( (Double) (zVals.get(i))).doubleValue());
+        zVals.set(i, new Double(tempVal));
       }
     }
   }
-
 
   /**
    *
@@ -162,9 +173,12 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
    * @param value
    * @return
    */
-  private XYZ_DataSetAPI getXYZDataForPGV(ArrayList selectedIMRs,ArrayList selectedWts,
-      SitesInGriddedRectangularRegion region,EqkRupture rupture, boolean isProbAtIML, double value,
-    ScenarioShakeMapCalculator calc){
+  private XYZ_DataSetAPI getXYZDataForPGV(ArrayList selectedIMRs,
+                                          ArrayList selectedWts,
+                                          SitesInGriddedRectangularRegion
+                                          region, EqkRupture rupture,
+                                          boolean isProbAtIML, double value,
+                                          ScenarioShakeMapCalculator calc) {
 
     //ArrayList for the Attenuations supporting and not supporting PGV
     ArrayList attenRelsSupportingPGV = new ArrayList();
@@ -174,55 +188,58 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
     ArrayList attenRelsWtsSupportingPGV = new ArrayList();
     ArrayList attenRelsWtsNotSupportingPGV = new ArrayList();
 
-
     //gets the final PGV values after summing up the attenRels not supporting PGV
-   // and one's supporting PGV.
+    // and one's supporting PGV.
     XYZ_DataSetAPI pgvDataSet = null;
 
     int size = selectedIMRs.size();
-    for(int i=0;i<size;++i){
-      AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)selectedIMRs.get(i);
+    for (int i = 0; i < size; ++i) {
+      AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)
+          selectedIMRs.get(i);
       String imt = attenRel.getIntensityMeasure().getName();
-      if(imt.equals(AttenuationRelationship.SA_NAME)){
+      if (imt.equals(AttenuationRelationship.SA_NAME)) {
         attenRelsNotSupportingPGV.add(attenRel);
         attenRelsWtsNotSupportingPGV.add(selectedWts.get(i));
       }
-      else{
+      else {
         attenRelsSupportingPGV.add(attenRel);
         attenRelsWtsSupportingPGV.add(selectedWts.get(i));
       }
     }
 
-    int attenRelsNotSupportingPGV_size =  attenRelsNotSupportingPGV.size();
+    int attenRelsNotSupportingPGV_size = attenRelsNotSupportingPGV.size();
     int attenRelsSupportingPGV_size = attenRelsSupportingPGV.size();
-
 
     //XYZ data for the data set supporting the PGV
     XYZ_DataSetAPI xyzDataSetForPGV = null;
     //XYZ data for the data set not supporting PGV
     XYZ_DataSetAPI xyzDataSetForNotPGV = null;
 
-    if(attenRelsNotSupportingPGV_size >0){ //if Attenuation Relations do not support the PGV
-      xyzDataSetForNotPGV=calc.getScenarioShakeMapData(attenRelsNotSupportingPGV,attenRelsWtsNotSupportingPGV,
-                                   region,rupture,isProbAtIML,value);
-      convertIML_ValuesToExpo((ArbDiscretizedXYZ_DataSet)xyzDataSetForNotPGV,AttenuationRelationship.SA_NAME,isProbAtIML);
+    if (attenRelsNotSupportingPGV_size > 0) { //if Attenuation Relations do not support the PGV
+      xyzDataSetForNotPGV = calc.getScenarioShakeMapData(
+          attenRelsNotSupportingPGV, attenRelsWtsNotSupportingPGV,
+          region, rupture, isProbAtIML, value);
+      convertIML_ValuesToExpo( (ArbDiscretizedXYZ_DataSet) xyzDataSetForNotPGV,
+                              AttenuationRelationship.SA_NAME, isProbAtIML);
       //if PGV is not supported by the attenuation then use the SA-1sec pd
       //and multiply the value by scaler 37.24*2.54
       ArrayList zVals = xyzDataSetForNotPGV.getZ_DataSet();
       size = zVals.size();
-      for(int i=0;i<size;++i){
-        double val = ((Double)zVals.get(i)).doubleValue()*37.24*2.54;
-        zVals.set(i,new Double(val));
+      for (int i = 0; i < size; ++i) {
+        double val = ( (Double) zVals.get(i)).doubleValue() * 37.24 * 2.54;
+        zVals.set(i, new Double(val));
       }
     }
-   if(attenRelsSupportingPGV_size>0){ //if Attenuations support PGV
-      xyzDataSetForPGV=calc.getScenarioShakeMapData(attenRelsSupportingPGV,attenRelsWtsSupportingPGV,
-                                   region,rupture,isProbAtIML,value);
-      convertIML_ValuesToExpo((ArbDiscretizedXYZ_DataSet)xyzDataSetForPGV,AttenuationRelationship.PGV_NAME,isProbAtIML);
+    if (attenRelsSupportingPGV_size > 0) { //if Attenuations support PGV
+      xyzDataSetForPGV = calc.getScenarioShakeMapData(attenRelsSupportingPGV,
+          attenRelsWtsSupportingPGV,
+          region, rupture, isProbAtIML, value);
+      convertIML_ValuesToExpo( (ArbDiscretizedXYZ_DataSet) xyzDataSetForPGV,
+                              AttenuationRelationship.PGV_NAME, isProbAtIML);
     }
 
     //if there are both AttenRels selected those that support PGV and those that don't.
-    if(attenRelsNotSupportingPGV_size >0 && attenRelsSupportingPGV_size >0){
+    if (attenRelsNotSupportingPGV_size > 0 && attenRelsSupportingPGV_size > 0) {
       //arrayList declaration for the Atten Rel not supporting PGV
       ArrayList list = null;
       //arrayList declaration for the Atten Rel supporting PGV
@@ -235,19 +252,24 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
       ArrayList finalPGV_Vals = new ArrayList();
       //adding the values from both the above list for PGV( one calculated using PGV
       //and other calculated using the SA at 1sec and mutipling by the scalar 37.24*2.54).
-      for(int i=0;i<size;++i)
-        finalPGV_Vals.add(new Double(((Double)pgvList.get(i)).doubleValue()+((Double)list.get(i)).doubleValue()));
+      for (int i = 0; i < size; ++i) {
+        finalPGV_Vals.add(new Double( ( (Double) pgvList.get(i)).doubleValue() +
+                                     ( (Double) list.get(i)).doubleValue()));
+      }
       //creating the final dataste for the PGV dataset.
       pgvDataSet = new ArbDiscretizedXYZ_DataSet(xyzDataSetForPGV.getX_DataSet(),
-          xyzDataSetForPGV.getY_DataSet(),finalPGV_Vals);
+                                                 xyzDataSetForPGV.getY_DataSet(),
+                                                 finalPGV_Vals);
     }
-    else{ //if only one kind of AttenRels are selected those that support PGV or those that don't.
+    else { //if only one kind of AttenRels are selected those that support PGV or those that don't.
       //if XYZ dataset supporting PGV is null
-      if(attenRelsSupportingPGV_size ==0)
+      if (attenRelsSupportingPGV_size == 0) {
         pgvDataSet = xyzDataSetForNotPGV;
+      }
       //if XYZ dataset not supporting PGV is null
-      else if(attenRelsNotSupportingPGV_size ==0)
+      else if (attenRelsNotSupportingPGV_size == 0) {
         pgvDataSet = xyzDataSetForPGV;
+      }
     }
 
     return pgvDataSet;
@@ -258,10 +280,10 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
    * @param griddedRegion
    * @param xyzDataFileWithAbsolutePath
    */
-  private void createXYZDataObjectFile(ArbDiscretizedXYZ_DataSet xyzData,String xyzDataFileWithAbsolutePath){
-    FileUtils.saveObjectInFile(xyzDataFileWithAbsolutePath,xyzData);
+  private void createXYZDataObjectFile(ArbDiscretizedXYZ_DataSet xyzData,
+                                       String xyzDataFileWithAbsolutePath) {
+    FileUtils.saveObjectInFile(xyzDataFileWithAbsolutePath, xyzData);
   }
-
 
   /**
    * This class replicates the selected AttenuationRelationships( and their parameter values)
@@ -269,29 +291,30 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
    * any parameter change waring event occurs it will happen at this class.
    * @param selectedAttenRels
    */
-  private void getIMR_ParametersAndAddListeners(ArrayList selectedAttenRels){
+  private void getIMR_ParametersAndAddListeners(ArrayList selectedAttenRels) {
 
     /**
      * Iterating over all the selected AttenRels
      */
     ListIterator it = selectedAttenRels.listIterator();
-    while(it.hasNext()){
-      AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)it.next();
+    while (it.hasNext()) {
+      AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI) it.next();
 
       AttenuationRelationshipAPI imr_temp =
-          (AttenuationRelationshipAPI)createIMRClassInstance(imr.getClass().getName(), this);
+          (AttenuationRelationshipAPI) createIMRClassInstance(imr.getClass().
+          getName(), this);
 
       // set other params
       ListIterator lt = imr.getOtherParamsIterator();
-      while(lt.hasNext()){
-        ParameterAPI tempParam=(ParameterAPI)lt.next();
+      while (lt.hasNext()) {
+        ParameterAPI tempParam = (ParameterAPI) lt.next();
         imr_temp.getParameter(tempParam.getName()).setValue(tempParam.getValue());
       }
       // set IM
       //imr_temp.setIntensityMeasure(imr.getIntensityMeasure().getName());
       //imr_temp.setIntensityMeasureLevel(imr.getIntensityMeasureLevel());
       imr_temp.setIntensityMeasure(imr.getIntensityMeasure());
-      imr  = imr_temp;
+      imr = imr_temp;
     }
   }
 
@@ -311,23 +334,27 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
    * </code><p>
    *
    */
-  private Object createIMRClassInstance( String className, org.scec.param.event.ParameterChangeWarningListener listener){
+  private Object createIMRClassInstance(String className,
+                                        org.scec.param.event.ParameterChangeWarningListener
+                                        listener) {
     try {
 
-      Class listenerClass = Class.forName( "org.scec.param.event.ParameterChangeWarningListener" );
-      Object[] paramObjects = new Object[]{ listener };
-      Class[] params = new Class[]{ listenerClass };
-      Class imrClass = Class.forName( className );
-      Constructor con = imrClass.getConstructor( params );
-      Object obj = con.newInstance( paramObjects );
+      Class listenerClass = Class.forName(
+          "org.scec.param.event.ParameterChangeWarningListener");
+      Object[] paramObjects = new Object[] {
+          listener};
+      Class[] params = new Class[] {
+          listenerClass};
+      Class imrClass = Class.forName(className);
+      Constructor con = imrClass.getConstructor(params);
+      Object obj = con.newInstance(paramObjects);
       return obj;
-    } catch ( Exception e ) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
     }
     return null;
   }
-
-
 
   /**
    * If any parameter change warning occurs to the IMR parameters then this class will
@@ -347,8 +374,8 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
    * @throws IOException : Throws IOException during read-write from connection stream
    * @throws ServletException
    */
-  public void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
-    doGet(request,response);
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws
+      IOException, ServletException {
+    doGet(request, response);
   }
 }

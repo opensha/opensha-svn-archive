@@ -326,11 +326,10 @@ public class GMT_MapGenerator implements Serializable{
     if(!xyzDataSet.checkXYZ_NumVals())
       throw new RuntimeException("X, Y and Z dataset does not have equal size");
 
+    try{
     // get the GMT script lines
     ArrayList gmtLines = getGMT_ScriptLines();
-
-    try{
-      imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metadata, dirName);
+    imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metadata, dirName);
     }catch(RuntimeException e){
       e.printStackTrace();
       throw new RuntimeException(e.getMessage());
@@ -587,10 +586,17 @@ public class GMT_MapGenerator implements Serializable{
       ObjectInputStream inputToServlet = new
           ObjectInputStream(servletConnection.getInputStream());
 
-      webaddr=inputToServlet.readObject().toString();
-      if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
+      Object messageFromServlet = inputToServlet.readObject();
       inputToServlet.close();
-
+      if(messageFromServlet instanceof String){
+        webaddr = (String) messageFromServlet;
+        if (D) System.out.println("Receiving the Input from the Servlet:" +
+                                  webaddr);
+      }
+      else
+        throw (RuntimeException)messageFromServlet;
+    }catch(RuntimeException e){
+     throw new RuntimeException(e.getMessage());
     }catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");

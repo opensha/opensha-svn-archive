@@ -622,6 +622,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
       setHypocenterLocationInRupture(true);
     else
       setHypocenterLocationInRupture(false);
+    this.updateUI();
   }
 
   //returns the parameterListEditor

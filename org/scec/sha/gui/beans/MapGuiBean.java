@@ -326,11 +326,20 @@ public class MapGuiBean extends GMT_MapGuiBean {
       ObjectInputStream inputToServlet = new
           ObjectInputStream(servletConnection.getInputStream());
 
-      webaddr=(String)inputToServlet.readObject();
-      if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
-      inputToServlet.close();
 
-    }catch (Exception e) {
+      Object messageFromServlet = inputToServlet.readObject();
+      inputToServlet.close();
+      if(messageFromServlet instanceof String){
+        webaddr = (String) messageFromServlet;
+        if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
+      }
+      else if(messageFromServlet instanceof RuntimeException)
+        throw (RuntimeException)messageFromServlet;
+
+    }catch (RuntimeException e){
+      throw new RuntimeException(e.getMessage());
+    }
+    catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
     }
