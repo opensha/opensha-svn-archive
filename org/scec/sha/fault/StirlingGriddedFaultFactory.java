@@ -29,7 +29,7 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
     protected final static String C = "StirlingGriddedFaultFactory";
     protected final static boolean D = false;
 
-    protected double aveDipDir;
+    protected double aveDipDir = Double.NaN;
 
     protected final static double PI_RADIANS = Math.PI / 180;
     protected final static String ERR = " is null, unable to process.";
@@ -75,13 +75,21 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
         double cumDistance = 0;
         int i = 0;
 
-       // Find ave dip direction (defined by end locations):
-        Location firstLoc = faultTrace.getLocationAt(0);
-        Location lastLoc = faultTrace.getLocationAt(faultTrace.getNumLocations() - 1);;
-        Direction aveDir = RelativeLocation.getDirection(firstLoc, lastLoc);
-        if(D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
-        double aveDipDirection = ( aveDir.getAzimuth() + 90 );
+        Location firstLoc;
+        Location lastLoc;
+        double aveDipDirection;
 
+       // Find ave dip direction (defined by end locations):
+        if(aveDipDir == Double.NaN) {
+          firstLoc = faultTrace.getLocationAt(0);
+          lastLoc = faultTrace.getLocationAt(faultTrace.getNumLocations() - 1);;
+          Direction aveDir = RelativeLocation.getDirection(firstLoc, lastLoc);
+          if(D) System.out.println("aveDir.getAzimuth(): = " + aveDir.getAzimuth());
+          aveDipDirection = ( aveDir.getAzimuth() + 90 );
+        }
+        else {
+          aveDipDirection = aveDipDir;
+        }
 
 
 
@@ -210,8 +218,8 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
 
     /**
      * This method allows one to set the averate dip direction (points going down dip will
-     * be parallel to this direction).  Set this as null to compute this direction as perpendicular
-     * to the end points of the fault (null is the default setting).
+     * be parallel to this direction).  Set this as Double.NaN to compute this direction as perpendicular
+     * to the end points of the fault (Double.NaN is the default setting).
      * @param aveDipDir
      */
     public void setAveDipDir(double aveDipDir) {

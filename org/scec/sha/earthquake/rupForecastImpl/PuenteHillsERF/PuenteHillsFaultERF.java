@@ -31,7 +31,7 @@ public class PuenteHillsFaultERF extends EqkRupForecast
     implements ParameterChangeListener {
 
   //for Debug purposes
-  private static String  C = new String("Char Poisson Fault ERF");
+  private static String  C = new String("Puente Hills Fault ERF");
   private boolean D = false;
 
   //name for this classs
@@ -94,12 +94,12 @@ public class PuenteHillsFaultERF extends EqkRupForecast
        // this is to move the lats north to where depth is 5 km (assumes all orig depths are 3 km)
        double latIncr= (5.0-3.0)/(Math.tan(27*Math.PI/180)*111.0);
        if(D) System.out.println("latIncr = "+latIncr);
-       faultTrace.addLocation(new Location(33.899509717+latIncr,117.868192971,5.0));
-       faultTrace.addLocation(new Location(33.894579252+latIncr,118.044407949,5.0));
-       faultTrace.addLocation(new Location(33.929699246+latIncr,118.014078570,5.0));
-       faultTrace.addLocation(new Location(33.905266010+latIncr,118.144918182,5.0));
-       faultTrace.addLocation(new Location(33.971013662+latIncr,118.122170045,5.0));
-       faultTrace.addLocation(new Location(34.019965922+latIncr,118.308353340,5.0));
+       faultTrace.addLocation(new Location(33.899509717+latIncr,-117.868192971,5.0));
+       faultTrace.addLocation(new Location(33.894579252+latIncr,-118.044407949,5.0));
+       faultTrace.addLocation(new Location(33.929699246+latIncr,-118.014078570,5.0));
+       faultTrace.addLocation(new Location(33.905266010+latIncr,-118.144918182,5.0));
+       faultTrace.addLocation(new Location(33.971013662+latIncr,-118.122170045,5.0));
+       faultTrace.addLocation(new Location(34.019965922+latIncr,-118.308353340,5.0));
 
        StirlingGriddedFaultFactory faultFactory = new StirlingGriddedFaultFactory(faultTrace,27.0,5.0,17.0,1.0);
        // make it dip exactly north

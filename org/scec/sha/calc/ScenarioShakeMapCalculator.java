@@ -57,18 +57,18 @@ public class ScenarioShakeMapCalculator {
     Vector siteValue = new Vector();
     int numSites = griddedRegionSites.getNumGridLocs();
 
+    // set the ProbEQkRup in the IMR
+    try {
+      imr.setProbEqkRupture((ProbEqkRupture)rupture);
+    } catch (Exception ex) {
+      throw new RuntimeException("Rupture not allowed for the chosen IMR: "+ex.getMessage());
+    }
+
     for(int i=0;i<numSites;++i) {
       site = griddedRegionSites.getSite(i);
-
       siteLat.add(new Double(site.getLocation().getLatitude()));
       siteLon.add(new Double(site.getLocation().getLongitude()));
       imr.setSite(site);
-      // set the ProbEQkRup in the IMR
-      try {
-        imr.setProbEqkRupture((ProbEqkRupture)rupture);
-      } catch (Exception ex) {
-        throw new RuntimeException("Rupture not allowed for the chosen IMR: "+ex.getMessage());
-      }
       if(isProbAtIML)
         siteValue.add( new Double(imr.getExceedProbability(Math.log(value))));
       else{

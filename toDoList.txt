@@ -1,6 +1,17 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Change the faultParameterEditor as follows:
+
+	If StirlingGriddedFaultFactory model is chosen, add another adjustable parameter to the list:
+
+		DoubleParameter(name="Ave. Dip Direction", units="degrees", min=0, max=360 default=Math.NaN)
+
+
+	then set this value using the setAveDipDir(method) of the StirlingGriddedFaultFactory 
+	after setting everything else but before getting the surface.
+
+
 Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
 
 AttenuationRelationshipApp

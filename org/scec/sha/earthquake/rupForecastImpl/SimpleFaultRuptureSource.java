@@ -31,7 +31,7 @@ import org.scec.sha.surface.*;
 public class SimpleFaultRuptureSource extends ProbEqkSource {
 
   //for Debug purposes
-  private static String  C = new String("SimplePoissonFaultSource");
+  private static String  C = new String("SimpleFaultRuptureSource");
   private boolean D = false;
 
 

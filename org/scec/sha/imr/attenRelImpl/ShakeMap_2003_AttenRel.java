@@ -230,6 +230,12 @@ public class ShakeMap_2003_AttenRel
 
         // Set the probEqkRupture
         this.probEqkRupture = probEqkRupture;
+/*
+Iterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
+while(it.hasNext()) {
+  System.out.println((Location) it.next());
+}
+*/
 
        /* Calculate the PropagationEffectParameters; this is
         * not efficient if both the site and probEqkRupture
