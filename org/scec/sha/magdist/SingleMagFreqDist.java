@@ -54,7 +54,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   public SingleMagFreqDist(double min,int num,double delta, double mag,double moRate) {
     super(min,num,delta);
     this.mag=mag;
-    this.rate=moRate;
+    this.rate=moRate/MomentMagCalc.getMoment(mag);
   }
 
   /**
