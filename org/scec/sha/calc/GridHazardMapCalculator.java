@@ -34,8 +34,9 @@ public class GridHazardMapCalculator
 {
   private static boolean D = false;
   // make a array for saving the X values
-  private  double [] xValues = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-                             .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5 };
+  private double[] xValues = {
+      .005, .007, .0098, .0137, .0192, .0269, .0376, .0527, .0738,
+      .103, .145, .203, .284, .397, .556, .778, 1.09, 1.52, 2.13};
   private static int MAX_DISTANCE = 200;
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   private boolean xLogFlag = true;
