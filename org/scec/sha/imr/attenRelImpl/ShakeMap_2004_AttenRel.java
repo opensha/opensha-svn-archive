@@ -36,6 +36,7 @@ import org.scec.util.*;
  * <LI>Peak Ground Acceleration (PGA)
  * <LI>Spectral Acceleration (SA) at the following periods (seconds): 0.0, 0.1, 0.2 0.3, 0.4, 0.5, 0.75 1.0, 1.5, 2.0, 3.0, and 4.0
  * <LI>Peak Ground Velocity (PGV) - computed from 1-sec SA using the Newmark-Hall (1982) scalar
+ * (applied after the amplification)
  * <LI>Modified Mercalli Intensity (MMI) computed from PGA and PGV as in Wald et al. (1999, Earthquake Spectra)
  * </UL><p>
  *
@@ -60,7 +61,7 @@ import org.scec.util.*;
  * above 2.0 seconds. <p>
  * For Boore, Joyner & Fumal (1997) the component is set as "Random Horizontal"
  * (rather than "Average Horizontal") to be consistent with how this was set in the
- * 2002 National Seismic Hazard Maps.  All others were set as "Average Horizontal". <p>
+ * 2002 National Seismic Hazard Maps.  All others are set as "Average Horizontal". <p>
  * For Campbell and Bozorgnia (2003) the magnitude dependent standard deviation is used. <p>
  * This class supports a "Greater of Two Horz." component by multiplying the average horizontal
  * component  median by a factor of 1.15.  This value was taken directly from the official ShakeMap
