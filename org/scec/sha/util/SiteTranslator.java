@@ -17,7 +17,9 @@ import org.scec.sha.imr.AttenuationRelationship;
  * The conversions from the Wills Site Types (E, DE, D, CD, C, BC, B) and basin-depth
  * are given below (NA means nothing is set).  All of these translations were authorized
  * by the attenuation-rlationship authors (except for Sadigh, who used a dataset similar
- * to Abrahamson & Silve (1997) so that translation is applied)<p>
+ * to Abrahamson & Silve (1997) so that translation is applied).  The main method tests
+ * the translations of all currently implemented attenuation-relationship site-related
+ * parameters.<p>
  *
  *
  * AS_1997_AttenRel.SITE_TYPE_NAME (Abrahamson & Silva (1997) & Abrahamson (2000))<p>
@@ -56,7 +58,7 @@ import org.scec.sha.imr.AttenuationRelationship;
  * Campbell_1997_AttenRel.BASIN_DEPTH_NAME (Campbell (1997))<p>
  * <UL>
  * <LI> Campbell-Basin-Depth = NaN      if E
- * <LI> Campbell-Basin-Depth = 0.0      if B ot BC
+ * <LI> Campbell-Basin-Depth = 0.0      if B or BC
  * <LI> Campbell-Basin-Depth = 1.0      if C
  * <LI> Campbell-Basin-Depth = 5.0      if CD, D, or DE
  * </UL>
@@ -283,4 +285,117 @@ public class SiteTranslator implements java.io.Serializable{
         throw new RuntimeException(C+" does not support the site type: "+param.getName());
       }
   }
+
+
+  /**
+   * This will test the translation from all wills categories for the parameter given
+   * @param param
+   */
+  public void test(ParameterAPI param) {
+    System.out.println(param.getName() + "  Parameter (basin depth = NaN):");
+    if(setParameterValue(param, WILLS_B, Double.NaN))
+      System.out.println("\t" + WILLS_B +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_B +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_BC, Double.NaN))
+       System.out.println("\t" + WILLS_BC +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_BC +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_C, Double.NaN))
+       System.out.println("\t" + WILLS_C +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_C +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_CD, Double.NaN))
+       System.out.println("\t" + WILLS_CD +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_CD +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_D, Double.NaN))
+       System.out.println("\t" + WILLS_D +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_D +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_DE, Double.NaN))
+       System.out.println("\t" + WILLS_DE +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_DE +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_E, Double.NaN))
+       System.out.println("\t" + WILLS_E +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_E +" --> "+ "*** can't set ***");
+
+
+    System.out.println(param.getName() + "  Parameter (basin depth = 1.0):");
+    if(setParameterValue(param, WILLS_B, 1.0))
+      System.out.println("\t" + WILLS_B +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_B +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_BC, 1.0))
+       System.out.println("\t" + WILLS_BC +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_BC +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_C, 1.0))
+       System.out.println("\t" + WILLS_C +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_C +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_CD, 1.0))
+       System.out.println("\t" + WILLS_CD +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_CD +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_D, 1.0))
+       System.out.println("\t" + WILLS_D +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_D +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_DE, 1.0))
+       System.out.println("\t" + WILLS_DE +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_DE +" --> "+ "*** can't set ***");
+    if(setParameterValue(param, WILLS_E, 1.0))
+       System.out.println("\t" + WILLS_E +" --> "+param.getValue());
+    else
+      System.out.println("\t" + WILLS_E +" --> "+ "*** can't set ***");
+  }
+
+  /**
+   * This main method tests the translation of all currently implemented attenuation
+   * relationship site-dependent parameters.
+   * @param args
+   */
+  public static void main(String args[]){
+    SiteTranslator siteTrans = new SiteTranslator();
+
+    AttenuationRelationship ar;
+    ar = new AS_1997_AttenRel(null);
+    siteTrans.test(ar.getParameter(AS_1997_AttenRel.SITE_TYPE_NAME));
+
+    ar = new SCEMY_1997_AttenRel(null);
+    siteTrans.test(ar.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME));
+
+    ar = new BJF_1997_AttenRel(null);
+    siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));
+
+    ar = new Campbell_1997_AttenRel(null);
+    siteTrans.test(ar.getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME));
+    siteTrans.test(ar.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME));
+
+    ar = new Field_2000_AttenRel(null);
+    siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));
+    siteTrans.test(ar.getParameter(Field_2000_AttenRel.BASIN_DEPTH_NAME));
+
+    ar = new Abrahamson_2000_AttenRel(null);
+    siteTrans.test(ar.getParameter(Abrahamson_2000_AttenRel.SITE_TYPE_NAME));
+
+    ar = new CB_2003_AttenRel(null);
+    siteTrans.test(ar.getParameter(CB_2003_AttenRel.SITE_TYPE_NAME));
+
+    ar = new ShakeMap_2003_AttenRel(null);
+    siteTrans.test(ar.getParameter(ShakeMap_2003_AttenRel.WILLS_SITE_NAME));
+
+    ar = new ShakeMap_2004_AttenRel(null);
+    siteTrans.test(ar.getParameter(AttenuationRelationship.VS30_NAME));
+
+//  ar = new SEA_1999_AttenRel(null);
+//  siteTrans.test(ar.getParameter(SEA_1999_AttenRel.SITE_TYPE_NAME));
+
+
+  }
+
 }

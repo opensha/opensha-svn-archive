@@ -62,7 +62,7 @@ class SiteTranslatorTests implements ParameterChangeWarningListener{
     String siteInfo = null;
     LocationList list= griddedRegion.getGridLocationsList();
     try{
-      fw = new FileWriter("region_info.txt");
+      fw = new FileWriter("siteTranslationTestResults.txt");
       fw.write("Lat\t\tLon\t\tWillsClass\t\tBasinDepth\t\tSiteTranslatorFlag\t\tSiteTypeName\t\tSiteTypeValue\n");
       fw.write("---\t\t---\t\t----------\t\t----------\t\t------------------\t\t------------\t\t-------------\n\n");
       //Iterating over all the site one at a time

@@ -492,8 +492,6 @@ public abstract class AttenuationRelationship
      *  values.  Note that the answer is not stored in the internally held
      *  exceedProbParam (this latter param is used only for the
      *  getIML_AtExceedProb() method).
-     *  This function does not return the value set inside the exceedance
-     *  prob. param, rather return a computed probabilty value at choosen IML.
      *
      * @return                         The exceedProbability value
      * @exception  ParameterException  Description of the Exception
@@ -716,18 +714,13 @@ public abstract class AttenuationRelationship
     public String getAllParamMetadata() {
       String metadata = imlAtExceedProbIndependentParams.getParameterListMetadataString();
       metadata += "; " + im.getMetadataString() +" [ ";
-      boolean hasIndependentParams = false;
       Iterator it = ((DependentParameter) im).getIndependentParametersIterator();
-      while(it.hasNext()){
-        hasIndependentParams = true;
+      while(it.hasNext())
         metadata += ((ParameterAPI)it.next()).getMetadataString() + "; ";
-      }
-      //does the modification to the application if it has the independent Params
-      if(hasIndependentParams){
-        metadata = metadata.substring(0,metadata.length()-2);
-        metadata += " ]";
-      }
+      metadata = metadata.substring(0,metadata.length()-2);
+      metadata += " ]";
       return metadata;
+
     }
 
 

@@ -181,7 +181,7 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
     if(D) {
       System.out.println("Selected Site : " +imr.getSite().getLocation().toString());
       System.out.println("--------------");
-      System.out.println(imr.getName()+" Params: "+imr.getAllParamMetadata());
+      System.out.println(imr.getName()+" Params:\n"+imr.getAllParamMetadata().replaceAll(";","\n"));
       System.out.println("--------------\n");
     }
     if(isProbAtIML)

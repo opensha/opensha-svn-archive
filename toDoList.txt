@@ -3,6 +3,10 @@
 
 Fix progress bars in ScenarioShakeMapApps
 
+Add site translation for SEA_1999_AttenRel
+
+Ned added a main method to test the SiteTranslator which is more efficient than the SiteTranslatorTest object.  Do we need the latter any longer?
+
 Create the Puente Hill Scenario control in the ScenarioShakeMapApp that supports both the single and multiple AttenuatinRelationship selection.
 
 Change HazardCurveServerModeApp to do the calculations on the server.
