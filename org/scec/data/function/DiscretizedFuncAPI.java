@@ -67,7 +67,7 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /* ***************************/
 
     public int getXIndex(double x);
-    public int getYIndex(double y);
+    //public int getYIndex(double y);
     public int getIndex(DataPoint2D point);
 
 

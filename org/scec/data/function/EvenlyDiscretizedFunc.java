@@ -155,14 +155,7 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
         return -1;
     }
 
-    /** FIX *** returns the Y value given an x value - within tolerance */
-    public int getYIndex(double y){
-        throw new UnsupportedOperationException(C + ": Not implemented yet.");
-    }
-
-
-
-    /**
+   /**
      * this function will throw an exception if the given x-value is not
      * within tolerance of one of the x-values in the function
      */
