@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-package org.scec.sha.earthquake.rupForecastImpl.Frankel02;
+package org.scec.sha.earthquake.rupForecastImpl.remote;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -20,6 +20,8 @@ import org.scec.param.ParameterAPI;
 import org.scec.param.ParameterList;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.earthquake.ProbEqkSource;
+import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_API;
+import org.scec.sha.earthquake.rupForecastImpl.Frankel02.*;
 
 /**
  * @author cmeutils
@@ -29,11 +31,11 @@ import org.scec.sha.earthquake.ProbEqkSource;
  */
 public class ERFFrankel02ServerImpl
 	extends UnicastRemoteObject
-	implements ERFFrankel02Server {
+	implements RemoteERF_API {
 
-   Frankel02_AdjustableEqkRupForecast forecast = null;
+   private Frankel02_AdjustableEqkRupForecast forecast = null;
    private static final boolean D = true;
-   public ERFFrankel02ServerImpl() throws IOException {
+   public ERFFrankel02ServerImpl() throws java.rmi.RemoteException, IOException {
      forecast = new Frankel02_AdjustableEqkRupForecast();
      System.out.println("On ERFServer: " + forecast.getTimeSpan());
    }

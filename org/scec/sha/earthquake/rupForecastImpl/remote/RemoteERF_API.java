@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-package org.scec.sha.earthquake.rupForecastImpl.Frankel02;
+package org.scec.sha.earthquake.rupForecastImpl.remote;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -24,7 +24,7 @@ import org.scec.sha.earthquake.ProbEqkSource;
  * To change the template for this generated type comment go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-public interface ERFFrankel02Server extends Remote {
+public interface RemoteERF_API extends Remote {
 
 	/**
 	 * This method updates the forecast according to the currently specified

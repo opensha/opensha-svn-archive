@@ -19,6 +19,7 @@ import org.scec.param.event.ParameterChangeEvent;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.ProbEqkSource;
+import org.scec.sha.earthquake.rupForecastImpl.remote.*;
 
 /**
  * @author cmeutils
@@ -28,15 +29,15 @@ import org.scec.sha.earthquake.ProbEqkSource;
  */
 public class ERFFrankel02Client extends EqkRupForecast implements ParameterChangeListener {
 
-  private ERFFrankel02Server erfServer = null;
+  private RemoteERF_API erfServer = null;
 
   String remoteName = "ERFFrankel02Server";
   public ERFFrankel02Client() throws Exception {
-    String dnsString = "rmi://gravity.usc.edu:1099/" + remoteName;
     System.out.println("Constructor of ERFClient");
     try {
-      //System.setSecurityManager(new java.rmi.RMISecurityManager());
-      erfServer = (ERFFrankel02Server) Naming.lookup(dnsString);
+      RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(RegisterRemoteERF_Factory.registrationName);
+      //erfServer = (RemoteERF_API) Naming.lookup(remoteERF_Factory.getRemoteERF());
+      erfServer = remoteERF_Factory.getRemoteERF();
       System.out.println("erfserver:"+erfServer);
       System.out.println("ERFSErver lookup successful");
     }
@@ -53,6 +54,7 @@ public class ERFFrankel02Client extends EqkRupForecast implements ParameterChang
       throw new Exception(u.getMessage());
     }
     catch (RemoteException r) {
+      r.printStackTrace();
       System.out.println("Constructor of ERFClient remoteExeption");
       throw new Exception(r.getMessage());
     }
