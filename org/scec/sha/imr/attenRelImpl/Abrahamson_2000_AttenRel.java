@@ -76,7 +76,7 @@ public class Abrahamson_2000_AttenRel
      public final static String SITE_TYPE_INFO = "Geological conditions at the site";
      public final static String SITE_TYPE_ROCK =  "Rock/Shallow-Soil";
      public final static String SITE_TYPE_SOIL =  "Deep-Soil";
-     public final static String SITE_TYPE_DEFAULT =  "Deep-Soil";
+     public final static String SITE_TYPE_DEFAULT =  SITE_TYPE_ROCK;
 
     /*
     This is not needed here because only strike-slip events are supported

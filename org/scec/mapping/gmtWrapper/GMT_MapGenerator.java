@@ -97,10 +97,10 @@ public class GMT_MapGenerator implements Serializable{
 
   // for color scale limits
   public final static String COLOR_SCALE_MIN_PARAM_NAME = "Color-Scale Min";
-  private final static Double COLOR_SCALE_MIN_PARAM_DEFAULT = new Double(-1.7);
+  private final static Double COLOR_SCALE_MIN_PARAM_DEFAULT = new Double(-2.2);
   private final static String COLOR_SCALE_MIN_PARAM_INFO = "Lower limit on color scale (values below are the same color)";
   public final static String COLOR_SCALE_MAX_PARAM_NAME = "Color-Scale Max";
-  private final static Double COLOR_SCALE_MAX_PARAM_DEFAULT = new Double(-0.1);
+  private final static Double COLOR_SCALE_MAX_PARAM_DEFAULT = new Double(-1);
   private final static String COLOR_SCALE_MAX_PARAM_INFO = "Upper limit on color scale (values above are the same color)";
   DoubleParameter colorScaleMaxParam;
   DoubleParameter colorScaleMinParam;

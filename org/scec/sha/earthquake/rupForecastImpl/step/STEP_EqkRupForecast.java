@@ -148,7 +148,7 @@ import org.scec.param.event.ParameterChangeEvent;
     seisOptionsStrings.add(SEIS_TYPE_BACKGROUND);
     seisOptionsStrings.add(SEIS_TYPE_BOTH);
     StringConstraint constraint = new StringConstraint(seisOptionsStrings);
-    seisTypeParam = new StringParameter(SEIS_TYPE_NAME,constraint,SEIS_TYPE_ADD_ON);
+    seisTypeParam = new StringParameter(SEIS_TYPE_NAME,constraint,SEIS_TYPE_BOTH);
     seisTypeParam.setInfo(SEIS_TYPE_INFO);
 
 

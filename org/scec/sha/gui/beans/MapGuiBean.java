@@ -219,6 +219,7 @@ public class MapGuiBean extends JPanel implements
       }
     });
     this.setLayout(gridBagLayout1);
+    logPlotCheck.setSelected(true);
     logPlotCheck.setText("Log Plot");
     this.add(editor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 0, 13), 361, 226));

@@ -71,7 +71,7 @@ public class AS_1997_AttenRel
      public final static String SITE_TYPE_INFO = "Geological conditions at the site";
      public final static String SITE_TYPE_ROCK =  "Rock/Shallow-Soil";
      public final static String SITE_TYPE_SOIL =  "Deep-Soil";
-     public final static String SITE_TYPE_DEFAULT =  "Deep-Soil";
+     public final static String SITE_TYPE_DEFAULT =  SITE_TYPE_ROCK;
 
     /**
      * Specifies whether the site is directly over the rupture surface.

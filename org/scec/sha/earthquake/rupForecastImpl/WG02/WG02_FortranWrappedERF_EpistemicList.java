@@ -122,11 +122,11 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
 
   //static Param Names
-  private final static String POISSON ="poisson";
+  private final static String POISSON ="Poisson";
   private final static String BPT = "BPT";
   private final static String BPT_STEP = "BPT w/ STEP";
-  private final static String EMPIRICAL = "empirical interaction";
-  private final static String TIME_PRED = "time pred";
+  private final static String EMPIRICAL = "Empirical";
+  private final static String TIME_PRED = "Time Pred.";
   private final static String PROB_MODEL_WTS = " Prob. Model Wts";
 
   /**
