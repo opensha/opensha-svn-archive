@@ -10,7 +10,7 @@ import org.scec.sha.surface.*;
 import org.scec.sha.param.*;
 import org.scec.sha.magdist.*;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
+import org.scec.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 
 
 /**
@@ -40,7 +40,7 @@ public class PointSourceERF extends EqkRupForecast{
   public final static String  NAME = C;
 
   // this is the source (only 1 for this ERF)
-  private PointPoissonEqkSource source;
+  private PointEqkSource source;
 
   // mag parameter stuff
   public final static String MAG_PARAM_NAME = "Magnitude Probability";
@@ -177,7 +177,7 @@ public class PointSourceERF extends EqkRupForecast{
        Location loc = new Location( ((Double)srcLatParam.getValue()).doubleValue(),
                                     ((Double)srcLonParam.getValue()).doubleValue(),
                                     ((Double)srcDepthParam.getValue()).doubleValue());
-       source = new PointPoissonEqkSource(loc,
+       source = new PointEqkSource(loc,null,
                                           ((Double) magParam.getValue()).doubleValue(),
                                           ((Double) probParam.getValue()).doubleValue(),
                                           ((Double)rakeParam.getValue()).doubleValue(),

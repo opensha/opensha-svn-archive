@@ -10,7 +10,7 @@ import org.scec.sha.param.*;
 import org.scec.sha.magdist.*;
 import org.scec.sha.param.SimpleFaultParameter;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.rupForecastImpl.SimpleFaultRuptureSource;
+import org.scec.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 
 
 /**
@@ -39,7 +39,7 @@ public class SingleFaultRuptureERF extends EqkRupForecast{
   public final static String  NAME = C;
 
   // this is the source (only 1 for this ERF)
-  private SimpleFaultRuptureSource source;
+  private FaultRuptureSource source;
 
   // mag parameter stuff
   public final static String MAG_PARAM_NAME = "Magnitude Probability";
@@ -126,7 +126,7 @@ public class SingleFaultRuptureERF extends EqkRupForecast{
      String S = C + "updateForecast::";
 
      if(parameterChangeFlag) {
-       source = new SimpleFaultRuptureSource(((Double) magParam.getValue()).doubleValue(),
+       source = new FaultRuptureSource(((Double) magParam.getValue()).doubleValue(),
                                              (EvenlyGriddedSurface) faultParam.getValue(),
                                              ((Double) rakeParam.getValue()).doubleValue(),
                                              ((Double) probParam.getValue()).doubleValue());
