@@ -337,6 +337,7 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     //updaing the faultParameter to update the faultSurface
     faultPanel.setEvenlyGriddedSurfaceFromParams();
 
+
     //updating the magEditor with the values for the Puente Hills Scenario
     MagFreqDistParameterEditor magEditor = erfParamGuiBean.getMagDistEditor();
     magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
@@ -345,6 +346,9 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     erfParamGuiBean.getERFParameterListEditor().refreshParamEditor();
     // now have the editor create the magFreqDist
     magEditor.setMagDistFromParams();
+    //updating the selected ERF
+    erfPanel.setSelectedERF();
+
 
     //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
     erfPanel.setSourceFromSelectedERF(0);
