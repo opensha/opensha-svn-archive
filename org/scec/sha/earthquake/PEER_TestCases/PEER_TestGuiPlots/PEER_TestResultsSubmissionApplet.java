@@ -544,6 +544,12 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
       inputToServlet.close();
       JOptionPane.showMessageDialog(this,new String("File Deleted Successfully....."),
                                    "Delete Confirmation",JOptionPane.OK_OPTION);
+      int size=testFiles.size();
+      for(int i=0;i<size;++i){
+        if(testFiles.get(i).toString().equals(fileName))
+          testFiles.remove(i);
+      }
+
     }catch (Exception e) {
       System.out.println("Exception in connection with servlet:" +e);
       e.printStackTrace();
