@@ -784,8 +784,12 @@ public class GMT_MapGenerator implements Serializable{
       gmtCommandLines.add(commandLine+"\n");
     }
     else {
-      // redefine the region so that (maxLat-minLat)/topoDelta = int
+      // redefine the region so that maxLat, minLat, and delta fall exactly on the topoIntenFile
       gridSpacing = (new Integer(resolution)).doubleValue()/(3600.0);
+      double tempNum = Math.ceil((minLat-32.0)/gridSpacing);
+      minLat = tempNum*gridSpacing+32.0;
+      tempNum = Math.ceil((minLon-(-126))/gridSpacing);
+      minLon = tempNum*gridSpacing+(-126);
       maxLat = Math.floor(((maxLat-minLat)/gridSpacing))*gridSpacing +minLat;
       maxLon = Math.floor(((maxLon-minLon)/gridSpacing))*gridSpacing +minLon;
       region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
