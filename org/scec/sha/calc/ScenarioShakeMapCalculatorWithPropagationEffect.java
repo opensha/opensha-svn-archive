@@ -18,19 +18,6 @@ import org.scec.sha.param.PropagationEffect;
  * <p>Title: ScenarioShakeMapCalculatorWithPropagationEffect</p>
  * <p>Description: This class calculates the Scenario Shake Map Data using the
  * based on the PropagationEffectParam input parameters imr, site and eqkRupforecast</p>
- * TESTS PERFORMED:<p>
- * 1) the Wills site-class servlet and site-type translator were checked independently.<p>
- * 2) All attenuation-relationship parameter settings were checked using the debugging
- * option in the ScenarioShakeMapCalculator (e.g., three different events with different
- * focal mechanisms checked - src #s 136, 232, and 61 in the USGS/CGS_2002 ERF). Thus, the
- * values should be correct as long as the attenuation-relationships are working properly,
- * which has been checked independently using the AttenuationRelationshipApplet.<p>
- * 3) Various IML@prob or prob@iml with various truncations were chacked against calculations
- * with the AttenuationRelationshipApplet. <p>
- * 4) ShakeMaps computed here were compared with those at the offical USGS archive (more details later). <p>
- * 5) The wted-averages in multi-attenuation-relationship mode were checked, as well as the fact that
- * log-averages are taken over probabilities and IMLs where appropriate. <p>
- * 6) That the HAZUS files are generated correctly was checked.
  * @author : Nitin Gupta
  * @created May 19,2004
  * @version 1.0
