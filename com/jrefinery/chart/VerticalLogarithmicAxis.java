@@ -609,7 +609,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 	int count = this.calculateVisibleTickCount();
 
 	double y0=plotArea.getMaxY();
-        float sum=0.0f;
+        double sum=0.0f;
 
         /*if(counter==2)
            getTickUnit().formatter.setMaximumFractionDigits(3);*/
@@ -649,7 +649,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
          */
         for (int i=lowest; ; i++){
 	    for(int j=0;j<10;++j) {
-              sum =j*(float)Math.pow(10,i);
+              sum =j*StrictMath.pow(10,i);
               if(sum<getRange().getLowerBound())
                 continue;
               if(sum>getRange().getUpperBound())

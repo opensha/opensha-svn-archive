@@ -488,7 +488,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         double size = this.getTickUnit().getSize();
 	int count = this.calculateVisibleTickCount();
 	double x0=0.0;
-        float sum=0.1f;
+        double sum=0.1;
         int i=lowest;
 
         /**
@@ -534,8 +534,8 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
           */
 
         for (i=lowest;;i++) {
-           for(int j=0;j<10;++j){
-              sum =j*(float)Math.pow(10,i);
+          for(int j=0;j<10;++j){
+              sum =j*StrictMath.pow(10,i);
               if(sum<getRange().getLowerBound())
                  continue;
               if(sum>getRange().getUpperBound())
@@ -549,9 +549,12 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
                if(sum==getRange().getLowerBound())
                  xx = plotArea.getMinX();
 
+               if(sum==getRange().getUpperBound())
+                 xx=plotArea.getMaxX();
+
                else {
                 logval=Math.log(val)/LOG10_VALUE;
-	         xx = this.myTranslateValueToJava2D(logval, plotArea);
+	        xx = this.myTranslateValueToJava2D(logval, plotArea);
                 }
                 if(sum<=0.0)
                    throw new java.lang.ArithmeticException("Log Value of the negative values and 0 does not exist for X-Log Plot");
@@ -597,9 +600,9 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 		y = (float)(plotArea.getMaxY()+tickLabelInsets.top+tickLabelBounds.getHeight());
 	    }
 
-            //if(sum==getRange().getLowerBound()) {
-            //  x=(float)xx;
-            //}
+            if(sum==getRange().getLowerBound()) {
+              x=(float)xx;
+            }
 
             if(xx<plotArea.getMinX())
               continue;
