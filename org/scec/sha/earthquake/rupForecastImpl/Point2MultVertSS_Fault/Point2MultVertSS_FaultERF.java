@@ -98,7 +98,7 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
   private Double RUP_OFFSET_PARAM_DEFAULT = new Double(2.0);
 
   // deltaStrike parameter stuff
-  public final static String DELTA_STRIKE_PARAM_NAME = "Delta Stike";
+  public final static String DELTA_STRIKE_PARAM_NAME = "Delta Strike";
   private final static String DELTA_STRIKE_PARAM_INFO = "Discretization of strike for spinning fault";
   private final static String DELTA_STRIKE_PARAM_UNITS = "degrees";
   private Double DELTA_STRIKE_PARAM_MIN = new Double(1e-2);
