@@ -25,14 +25,19 @@ public class XYDataWindow extends JFrame {
   private JButton doneButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
+  private Component component;
 
-  public XYDataWindow() {
+  public XYDataWindow(Component parent,XYSeriesCollection functions) {
+
+    component = parent;
     try {
       jbInit();
     }
     catch(Exception e) {
       e.printStackTrace();
     }
+    dataset = functions;
+    setXYDefaultValues();
   }
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
@@ -67,6 +72,25 @@ public class XYDataWindow extends JFrame {
     setTitle("XY Data Entry Window");
     this.validate();
     this.repaint();
+    this.setLocation((int)component.getX()+component.getWidth()/2,(int)component.getY()/2);
+  }
+
+
+  /**
+   * initialise the dataSet values with the default X & Y values in the textArea
+   */
+  private void setXYDefaultValues(){
+    int numSeries= dataset.getSeriesCount();
+    String text ="";
+    for(int i=0;i<numSeries;++i){
+      XYSeries function = dataset.getSeries(i);
+      ListIterator it =function.getItems().listIterator();
+      while(it.hasNext()){
+        XYDataItem  xyData = (XYDataItem)it.next();
+        text += xyData.getX().doubleValue()+"  "+xyData.getY().doubleValue() +"\n";
+      }
+    }
+    xyText.setText(text);
   }
 
 
@@ -83,8 +107,8 @@ public class XYDataWindow extends JFrame {
       while(st.hasMoreTokens()){
         StringTokenizer st1 = new StringTokenizer(st.nextToken());
         series.add(new Double(st1.nextToken()).doubleValue(),new Double(st1.nextToken()).doubleValue());
-        dataset.addSeries(series);
       }
+      dataset.addSeries(series);
     }catch(NumberFormatException e){
       throw new RuntimeException("Must enter valid number");
     }catch(NullPointerException ee){

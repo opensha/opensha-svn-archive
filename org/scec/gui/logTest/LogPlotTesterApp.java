@@ -395,7 +395,6 @@ public class LogPlotTesterApp extends JApplet  {
     if(((String)dataSetCombo.getSelectedItem()).equals(this.NEW_DATASET)){
       clearPlot();
       functions = (XYSeriesCollection)dataWindow.getXYDataSet();
-      System.out.println("Number of Series: "+ functions.getSeriesCount());
       autoScale = true;
     }
     else
