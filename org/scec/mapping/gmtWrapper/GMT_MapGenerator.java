@@ -888,7 +888,7 @@ public class GMT_MapGenerator implements Serializable{
       }
       //setting the values in the XYZ Dataset.
       xyzDataSet.setXYZ_DataSet(xyzDataSet.getX_DataSet(),xyzDataSet.getY_DataSet(),zLogVals);
-      SCALE_LABEL = "log "+SCALE_LABEL;
+      SCALE_LABEL = "\"log@-10@-\050"+SCALE_LABEL+"\051\"";
     }
   }
 
