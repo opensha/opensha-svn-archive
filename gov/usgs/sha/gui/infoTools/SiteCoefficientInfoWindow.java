@@ -7,6 +7,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import gov.usgs.sha.data.calc.FaFvCalc;
+
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
@@ -312,14 +314,11 @@ public class SiteCoefficientInfoWindow
    if(name1.equalsIgnoreCase(SiteClassParamName))  {
      String value = (String)siteClassParam.getValue();
      //System.out.println("value="+value);
+     FaFvCalc calc = new FaFvCalc();
      try {
-       String faString = "" +
-           getFaFv(value, GlobalConstants.faData,
-                   GlobalConstants.faColumnNames,ss);
+       String faString = "" +calc.getFa(value,ss);
        this.faText.setText(faString);
-       String fvString = "" +
-           getFaFv(value, GlobalConstants.fvData,
-                   GlobalConstants.fvColumnNames,s1);
+       String fvString = "" +calc.getFv(value,s1);
        this.fvText.setText(fvString);
        fa  = Float.parseFloat(faText.getText());
        fv  = Float.parseFloat(fvText.getText());
@@ -333,64 +332,7 @@ public class SiteCoefficientInfoWindow
  }
 
 
- private double getFaFv(String siteClassVal, Object[][]data, String[] columnNames, double sValue) {
-   char siteClass = siteClassVal.charAt(siteClassVal.length()-1);
-   int rowNumber;
-
-   // get the row number
-   rowNumber = -1;
-   for(int i=0; i <data.length; ++i) {
-     char val = ( (String) data[i][0]).charAt(0);
-     if (val == siteClass) {
-       rowNumber = i;
-       break;
-     }
-   }
-
-   //get the column number
-   int columnNumber = -1;
-   for(int j=0; j<columnNames.length; ++j) {
-     String columnName = columnNames[j];
-     double colVal = getValueFromString(columnName);
-     if(Double.isNaN(colVal)) continue;
-     // found the columnNumber
-     if(sValue<=colVal) {
-       columnNumber = j;
-       break;
-     }
-   }
-   if(columnNumber==-1)
-     return Double.parseDouble((String)data[rowNumber][columnNames.length-1]);
-   else if(columnNumber==1) return Double.parseDouble((String)data[rowNumber][columnNumber]);
-   else {
-     String y2String = (String)data[rowNumber][columnNumber];
-     String y1String = (String)data[rowNumber][columnNumber-1];
-     double y2 = Double.parseDouble(y2String);
-
-     double x2  = getValueFromString(columnNames[columnNumber]);
-     double y1 = Double.parseDouble(y1String);
-     double x1  = getValueFromString(columnNames[columnNumber-1]);
-     return Interpolation.getInterpolatedY(x1,x2,y1,y2, sValue);
-   }
- }
-
-
- private double getValueFromString(String columnName) {
-    int index=-1;
-    for(int k=0;k<columnName.length();++k)
-      if((columnName.charAt(k)>='0' && columnName.charAt(k)<='9') ||
-         columnName.charAt(k)=='.') {
-        index = k;
-        break;
-      }
-    if(index>=columnName.length() || index<0) return Double.NaN;
-    else return Double.parseDouble(columnName.substring(index));
-
- }
-
-
-
-  public float getFa() {
+ public float getFa() {
     return fa;
   }
 

@@ -28,27 +28,28 @@ import java.text.DecimalFormat;
  */
 public class SsS1Calculator {
 
-  private float gridSpacing;
+  //grid spacing in file
+  protected float gridSpacing;
 
 
   /**
    * Some static String for the data printing
    */
-  private static final String SsS1_TITLE =
+  protected static final String SsS1_TITLE =
       "Spectral Response Accelerations Ss and S1\n\n";
-  private static final String SsS1_SubTitle =
+  protected static final String SsS1_SubTitle =
       "Ss and S1 = Mapped Spectral Acceleration Values";
 
-  private static final String Ss_Text = "Ss";
-  private static final String S1_Text = "S1";
-  private static final String SA = "Sa";
-  private static final String CENTROID_SA = "Centroid Sa";
-  private static final String MINIMUM_SA = "Minimum Sa";
-  private static final String MAXIMUM_SA = "Maximum Sa";
-  private static final float Fa = 1;
-  private static final float Fv = 1;
+  protected static final String Ss_Text = "Ss";
+  protected static final String S1_Text = "S1";
+  protected static final String SA = "Sa";
+  protected static final String CENTROID_SA = "Centroid Sa";
+  protected static final String MINIMUM_SA = "Minimum Sa";
+  protected static final String MAXIMUM_SA = "Maximum Sa";
+  protected static final float Fa = 1;
+  protected static final float Fv = 1;
 
-  private DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
+  protected DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
 
 
   /**
@@ -130,10 +131,6 @@ public class SsS1Calculator {
     function.setInfo(info);
     return function;
   }
-
-
-
-
 
 
 

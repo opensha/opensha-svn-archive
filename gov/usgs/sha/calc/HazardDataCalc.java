@@ -160,6 +160,7 @@ public class HazardDataCalc {
   }
 
 
+
   /**
    *
    * @param function ArbitrarilyDiscretizedFunc

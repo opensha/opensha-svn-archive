@@ -57,12 +57,16 @@ public class DataFileNameSelector {
         selectedEdition.equals(GlobalConstants.ASCE_1998) ||
         selectedEdition.equals(GlobalConstants.ASCE_2002) ||
         selectedEdition.equals(GlobalConstants.IBC_2000) ||
-        selectedEdition.equals(GlobalConstants.IBC_2003)) {
+        selectedEdition.equals(GlobalConstants.IBC_2003) ||
+        selectedEdition.equals(GlobalConstants.IRC_2000) ||
+        selectedEdition.equals(GlobalConstants.IRC_2003) ||
+        selectedEdition.equals(GlobalConstants.IRC_2004)) {
         String fileName = "1997-ZipCode-MCEdata-SsS1.txt";
         return filePath + fileName;
     }
     else if (selectedEdition.equals(GlobalConstants.NEHRP_2003) ||
-        selectedEdition.equals(GlobalConstants.ASCE_2005)) {
+        selectedEdition.equals(GlobalConstants.ASCE_2005) ||
+        selectedEdition.equals(GlobalConstants.IRC_2006)) {
         String fileName = "2003-ZipCode-MCEdata-SsS1.txt";
         return filePath + fileName;
     }
@@ -84,7 +88,10 @@ public class DataFileNameSelector {
         selectedEdition.equals(GlobalConstants.ASCE_2002) ||
         selectedEdition.equals(GlobalConstants.ASCE_2005) ||
         selectedEdition.equals(GlobalConstants.IBC_2000) ||
-        selectedEdition.equals(GlobalConstants.IBC_2003)) {
+        selectedEdition.equals(GlobalConstants.IBC_2003) ||
+        selectedEdition.equals(GlobalConstants.IRC_2000) ||
+        selectedEdition.equals(GlobalConstants.IRC_2003) ||
+        selectedEdition.equals(GlobalConstants.IRC_2004)) {
       String fileName = "1997-AK-MCE-R1a.rnd";
       return filePath + fileName;
     }
@@ -108,7 +115,10 @@ public class DataFileNameSelector {
         selectedEdition.equals(GlobalConstants.ASCE_2002) ||
         selectedEdition.equals(GlobalConstants.ASCE_2005) ||
         selectedEdition.equals(GlobalConstants.IBC_2000) ||
-        selectedEdition.equals(GlobalConstants.IBC_2003)) {
+        selectedEdition.equals(GlobalConstants.IBC_2003) ||
+        selectedEdition.equals(GlobalConstants.IRC_2000) ||
+        selectedEdition.equals(GlobalConstants.IRC_2003) ||
+        selectedEdition.equals(GlobalConstants.IRC_2004)) {
       String fileName = "1997-HI-MCE-R1a.rnd";
       return filePath + fileName;
     }
@@ -123,7 +133,10 @@ public class DataFileNameSelector {
         selectedEdition.equals(GlobalConstants.ASCE_1998) ||
         selectedEdition.equals(GlobalConstants.ASCE_2002) ||
         selectedEdition.equals(GlobalConstants.IBC_2000) ||
-        selectedEdition.equals(GlobalConstants.IBC_2003)) {
+        selectedEdition.equals(GlobalConstants.IBC_2003) ||
+        selectedEdition.equals(GlobalConstants.IRC_2000) ||
+        selectedEdition.equals(GlobalConstants.IRC_2003) ||
+        selectedEdition.equals(GlobalConstants.IRC_2004)) {
       if (lon >= -125 && lon <= -111 && lat >= 32 && lat <= 43) {
         String fileName = "1997-CANV-MCE-R2.rnd";
         return filePath + fileName;
@@ -134,7 +147,8 @@ public class DataFileNameSelector {
       }
     }
     else if (selectedEdition.equals(GlobalConstants.NEHRP_2003) ||
-        selectedEdition.equals(GlobalConstants.ASCE_2005)) {
+        selectedEdition.equals(GlobalConstants.ASCE_2005) ||
+        selectedEdition.equals(GlobalConstants.IRC_2006)) {
       if (lon >= -125 && lon <= -115 && lat <= 42 && lat >= 32) {
         String fileName = "2003-CANV-MCE-r1a.rnd";
         return filePath + fileName;

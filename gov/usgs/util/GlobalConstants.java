@@ -142,8 +142,8 @@ public final class GlobalConstants {
 
   // Fv table data for site coefficient window
   public final static String[] fvColumnNames = {
-      "Site Class", "Ss<=0.10", "Ss=0.20",
-      "Ss=0.30", "Ss=0.40", "Ss=0.50"};
+      "Site Class", "S1<=0.10", "S1=0.20",
+      "S1=0.30", "S1=0.40", "S1=0.50"};
   public final static Object[][] fvData = {
       {
       "A", "0.8", "0.8", "0.8", "0.8", "0.8"}, {

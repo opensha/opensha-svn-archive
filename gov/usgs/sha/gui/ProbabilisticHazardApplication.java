@@ -326,6 +326,7 @@ public class ProbabilisticHazardApplication
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.
                                            INTL_RESIDENTIAL_CODE)) {
+      guiBeanAPI = new IRC_GuiBean(this);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_NFPA)) {
       guiBeanAPI = new ASCE7_NFPA_GuiBean(this);
