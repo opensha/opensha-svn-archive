@@ -492,6 +492,13 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
         add(button,  new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
       }
+
+      if(((Integer)numDipsEditor.getParameter().getValue()).intValue() ==1){
+        this.remove(button);
+        this.faultTypeEditor.setVisible(true);
+        add(button,  new GridBagConstraints( 0, 6, 1, 1, 1.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+      }
     }
     this.validate();
     this.revalidate();
@@ -583,13 +590,13 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
 
       //adding the longitudes to the Vector
       for(int i=0;i<fltTracePoints;++i){
-        Double lonLocation =(Double)this.editorForLats.getParameterList().getParameter(this.LON_PARAM_NAME+(i+1)).getValue();
+        Double lonLocation =(Double)this.editorForLons.getParameterList().getParameter(this.LON_PARAM_NAME+(i+1)).getValue();
         lons.add(lonLocation);
       }
 
       //adding the depths(equal to numDips +1) to the Vector
       for(int i=0;i<=numDips;++i){
-        Double depthLocation = (Double)this.editorForLats.getParameterList().getParameter(this.DEPTH_PARAM_NAME+(i+1)).getValue();
+        Double depthLocation = (Double)this.editorForDepths.getParameterList().getParameter(this.DEPTH_PARAM_NAME+(i+1)).getValue();
         depths.add(depthLocation);
       }
       //adding the dips to the vector

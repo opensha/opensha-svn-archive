@@ -53,6 +53,7 @@ public class EvenlyGriddedSurfaceParameterGUI extends JFrame{
     this.getContentPane().setLayout(borderLayout1);
     evenlyGriddedSurfacePanel.setLayout(gridBagLayout1);
     parameterPanel.setLayout(gridBagLayout2);
+    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     this.getContentPane().add(evenlyGriddedSurfacePanel, BorderLayout.CENTER);
     evenlyGriddedSurfacePanel.add(evenlyGriddedParamsScroll,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 200, 10));

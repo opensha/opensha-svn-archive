@@ -325,7 +325,7 @@ public class AttenuationRelationshipApplet extends JApplet
      * @return    The appletInfo value
      */
     public String getAppletInfo() {
-        return "Attenuation Relationship Tester Applet";
+        return "Attenuation Relationship Applet";
     }
 
     /**

@@ -51,7 +51,7 @@ public class AttenuationRelationshipGuiList {
      *      create the IMRGuiBean.
      * @return          Description of the Return Value
      */
-    public AttenuationRelationshipGuiBean setImr( String imrName, AttenuationRelationshipTesterApp applet ) {
+    public AttenuationRelationshipGuiBean setImr( String imrName, AttenuationRelationshipApplet applet ) {
 
         if ( ( currentGui != null )  && ( currentGui.getName().equals( imrName ) ) )  return currentGui;
         else if ( imrGuis.containsKey( imrName ) ) {
@@ -60,7 +60,7 @@ public class AttenuationRelationshipGuiList {
         }
         else {
 
-            String className = AttenuationRelationshipTesterApp.imrNames.get( imrName ).toString();
+            String className = AttenuationRelationshipApplet.imrNames.get( imrName ).toString();
             AttenuationRelationshipGuiBean bean = new AttenuationRelationshipGuiBean( className, imrName, applet );
             imrGuis.put( imrName, bean );
             currentGui = bean;
