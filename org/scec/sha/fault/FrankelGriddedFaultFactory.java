@@ -148,6 +148,7 @@ public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
             while( sementCumLenth[ segmentNumber - 1] < distanceAlong ){
                 segmentNumber++;
             }
+
             if( D ) System.out.println(S + "segmentNumber " + segmentNumber );
 
             // Calculate the distance from the last segment point

@@ -1342,7 +1342,7 @@ public class GroupTestGuiBean implements
 
        // now make the editor based on the paramter list
        testCasesEditor = new ParameterListEditor( testCasesParamList, searchPaths);
-       testCasesEditor.setTitle( "Test Cases" );
+       testCasesEditor.setTitle( "Select Test" );
        availableSites.setValue(siteNumber.get(0));
      }
 
