@@ -215,7 +215,7 @@ public class SubmitJobForGridComputation {
 
     // snd start index and end index to each computer
     String arg1 = REMOTE_EXECUTABLE_NAME.substring(0,REMOTE_EXECUTABLE_NAME.indexOf('.'));
-    String arg2 = regionFileName+ " " + erfFileName + " " + imrFileName+" -Xmx150M";
+    String arg2 = regionFileName+ " " + erfFileName + " " + imrFileName+" -Xmx400M";
     for (int site = 0; site < numSites; site += this.SUGGESTED_NUM_SITES_IN_WORK_UNIT) {
       startSite = site;
       endSite = site + SUGGESTED_NUM_SITES_IN_WORK_UNIT;
