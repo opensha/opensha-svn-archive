@@ -413,6 +413,46 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    public void showProgressBar(boolean show) {
      this.showProgressBar=show;
    }
+
+   /**
+    * Adds the ERF's to the existing ERF List in the gui bean to be displayed in the gui.
+    * This function allows user to add the more ERF's names to the existing list from the application.
+    * This function allows user with the flexibility that he does not always have to specify the erfNames
+    * at time of instantiating this ERF gui bean.
+    * @param erfList
+    * @throws InvocationTargetException
+    */
+   public void addERFs_ToList(Vector erfList) throws InvocationTargetException{
+
+     int size = erfList.size();
+     for(int i=0;i<size;++i)
+       if(!erfClasses.contains(erfList.get(i)))
+         erfClasses.add(erfList.get(i));
+     // create the instance of ERFs
+     erfNamesVector.removeAllElements();
+     init_erf_IndParamListAndEditor(erfClasses);
+     setParamsInForecast(getSelectedERF_Name());
+   }
+
+   /**
+    * Removes the ERF's from the existing ERF List in the gui bean to be displayed in the gui.
+    * This function allows user to remove ERF's names from the existing list from the application.
+    * This function allows user with the flexibility that he can always remove the erfNames
+    * later after instantiating this ERF gui bean.
+    * @param erfList
+    * @throws InvocationTargetException
+    */
+   public void removeERFs_FromList(Vector erfList) throws InvocationTargetException{
+
+    int size = erfList.size();
+    for(int i=0;i<size;++i)
+      if(erfClasses.contains(erfList.get(i)))
+        erfClasses.remove(erfList.get(i));
+    // create the instance of ERFs
+    erfNamesVector.removeAllElements();
+    init_erf_IndParamListAndEditor(erfClasses);
+    setParamsInForecast(getSelectedERF_Name());
+   }
 }
 
 

@@ -18,8 +18,13 @@ public class ArbDiscretizedXYZ_DataSet implements XYZ_DataSetAPI,java.io.Seriali
 
   Vector xValues, yValues, zValues;
 
+
   /**
-   * default class constructor
+   * Default class constructor
+   */
+  public ArbDiscretizedXYZ_DataSet(){};
+  /**
+   * constructor that takes the xVals,yVals and zVals as the argument
    * @param xVals = Vector containing the xValues
    * @param yVals = Vector containing the yValues
    * @param zVals = Vector containing the zValues

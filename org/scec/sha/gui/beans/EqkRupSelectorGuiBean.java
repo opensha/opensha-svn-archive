@@ -351,6 +351,40 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   }
 
   /**
+   * Sets the instance of ERF_GuiBean from the application
+   * @param erfGuiBean
+   */
+  public void setERF_ParamEditor(ERF_GuiBean erfGuiBean){
+    this.erfGuiBean = erfGuiBean;
+    setParamsInForecast(0,0);
+  }
+
+  /**
+   * Adds the ERF's to the existing ERF List in the gui bean to be displayed in the gui.
+   * This function allows user to add the more ERF's names to the existing list from the application.
+   * This function allows user with the flexibility that he does not always have to specify the erfNames
+   * at time of instantiating this ERF gui bean.
+   * @param erfList
+   * @throws InvocationTargetException
+   */
+  public void addERFs_ToList(Vector erfList) throws InvocationTargetException{
+    erfGuiBean.addERFs_ToList(erfList);
+  }
+
+  /**
+   * Removes the ERF's from the existing ERF List in the gui bean to be displayed in the gui.
+   * This function allows user to remove ERF's names from the existing list from the application.
+   * This function allows user with the flexibility that he can always remove the erfNames
+   * later after instantiating this ERF gui bean.
+   * @param erfList
+   * @throws InvocationTargetException
+   */
+  public void removeERFs_FromList(Vector erfList) throws InvocationTargetException{
+    erfGuiBean.removeERFs_FromList(erfList);
+  }
+
+
+  /**
    * This method gets the ERF adjustable Params for the selected ERF model
    * and the user has pressed the button to see adjust all the adjustable params
    */
@@ -450,4 +484,22 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     return listEditor;
   }
 
+  /**
+   *
+   * @returns the selected source number for the EarthquakeRuptureForecast
+   */
+  public int getSourceIndex(){
+    String sourceValue = (String)listEditor.getParameterList().getParameter(this.SOURCE_PARAM_NAME).getValue();
+    int sourceIndex = Integer.parseInt(sourceValue.substring(0,sourceValue.indexOf("(")).trim());
+    return sourceIndex;
+  }
+
+  /**
+   *
+   * @returns the selected rupture number for the selected source.
+   */
+  public int getRuptureIndex(){
+    int ruptureIndex = ((Integer)listEditor.getParameterList().getParameter(this.RUPTURE_PARAM_NAME).getValue()).intValue();
+    return ruptureIndex;
+  }
 }

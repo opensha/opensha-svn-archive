@@ -23,7 +23,8 @@ import org.scec.sha.gui.controls.PuenteHillsScenarioControlPanel;
 import org.scec.sha.gui.infoTools.*;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.data.XYZ_DataSetAPI;
-
+import org.scec.sha.calc.ScenarioShakeMapCalculator;
+import org.scec.sha.earthquake.ERF_API;
 /**
  * <p>Title: ScenarioShakeMapApp</p>
  * <p>Description: </p>
@@ -449,7 +450,6 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    */
   private void generateShakeMap(){
 
-    boolean imlAtProb=false;
     boolean probAtIML=false;
     double imlProbValue=imlProbGuiBean.getIML_Prob();
     Site site;
@@ -462,11 +462,10 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
        timer.stop();
       return;
     }
-    int numSites = griddedRegionSites.getNumGridLocs();
+
     String imlOrProb=imlProbGuiBean.getSelectedOption();
-    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
-      imlAtProb=true;
-    else probAtIML=true;
+    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
+      probAtIML=true;
 
     // get the selected IMR
     AttenuationRelationship imr = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
@@ -478,50 +477,24 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
      ex.printStackTrace();
     }
     ++step;
-    Vector siteLat= new Vector();
-    Vector siteLon= new Vector();
-    Vector siteValue = new Vector();
-    for(int i=0;i<numSites;++i) {
-      site = griddedRegionSites.getSite(i);
 
-      siteLat.add(new Double(site.getLocation().getLatitude()));
-      siteLon.add(new Double(site.getLocation().getLongitude()));
-      imr.setSite(site);
-      // set the ProbEQkRup in the IMR
-      try {
-        imr.setProbEqkRupture(erfGuiBean.getRupture());
-      } catch (Exception ex) {
-        calcProgress.showProgress(false);
-        timer.stop();
-        JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
-        return;
-      }
-      if(probAtIML)
-        siteValue.add( new Double(imr.getExceedProbability(Math.log(imlProbValue))));
-      else{
-        imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(imlProbValue));
-        try{
-          siteValue.add(new Double(StrictMath.exp(imr.getIML_AtExceedProb())));
-        }catch(RuntimeException e){
-          calcProgress.showProgress(false);
-          timer.stop();
-          JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid parameter value",JOptionPane.ERROR_MESSAGE);
-          return;
-        }
-      }
-    }
+    //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
+    ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
+    int sourceVal = erfGuiBean.getSourceIndex();
+    int ruptureVal = erfGuiBean.getRuptureIndex();
+    xyzDataSet = new ArbDiscretizedXYZ_DataSet();
+    shakeMapCalc.getScenarioShakeMapData(xyzDataSet,sourceVal,ruptureVal,griddedRegionSites,imr,
+                                        (ERF_API)erfGuiBean.getSelectedERF_Instance(),
+                                        probAtIML,imlProbValue);
 
-
-      xyzDataSet = new ArbDiscretizedXYZ_DataSet(siteLat,siteLon,siteValue);
-
-      ++step;
-      calcProgress.setProgressMessage("  Generating the Map ...");
-      double minLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
-      double maxLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
-      double minLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
-      double maxLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
-      double gridSpacing=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
-      mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
+    ++step;
+    calcProgress.setProgressMessage("  Generating the Map ...");
+    double minLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
+    double maxLat=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
+    double minLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
+    double maxLon=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.MAX_LONGITUDE).getValue()).doubleValue();
+    double gridSpacing=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
+    mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
   }
 
 
@@ -537,7 +510,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   private void addButton(){
     calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
     step = 0;
-    timer = new javax.swing.Timer(200, new ActionListener() {
+    timer = new javax.swing.Timer(100, new ActionListener() {
       public void actionPerformed(ActionEvent evt) {
         if(step==1)
           calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
