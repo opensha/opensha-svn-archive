@@ -22,6 +22,10 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
 
   public static String NAME = new String("Gutenberg Richter Dist"); // for showing messages
 
+  //for Debug purposes
+  private boolean D = false;
+
+
   private double magLower ; // lowest magnitude that has non zero rate
   private double magUpper ; // highest magnitude that has non zero rate
   private double bValue;    // the b value
@@ -147,42 +151,61 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     */
    public void setAllButMagUpper(double magLower, double totMoRate, double totCumRate,
                                  double bValue, boolean relaxCumRate) throws DiscretizedFuncException {
-     magUpper = maxX; // temporarily set the vale of magUpper
-     calculateRelativeRates();
-     scaleToCumRate(magLower,totCumRate);
-     double tempTotMoRate=0.0; // initialize this temporary moment rate
 
-     // now we need to calculate magUpper.
-     // for that we need to go upto index which is closest to totMoRate
+     if(D) System.out.println("magLower = " + magLower);
+     if(D) System.out.println("totMoRate = " + totMoRate);
+     if(D) System.out.println("totCumRate = " + totCumRate);
+     if(D) System.out.println("bValue = " + bValue);
+     if(D) System.out.println("relaxCumRate = " + relaxCumRate);
+
+     // create variables for analytical moment integration
+     double b = bValue;
+     double N = totCumRate;
+     double z = 1.5-b;
+     double X = N*b*Math.pow(10.0,9.05)/z;
+     double M1 = magLower;
+     double M2;
+     double tempTotMoRate=0.0, lastMoRate=0.0; // initialize this temporary moment rate
+
      int index;
 
-     for(index=0;tempTotMoRate<totMoRate;++index) {
-       if(index==num)
-         break;
-       tempTotMoRate+=getMomentRate(index);
+     // now we find magUpper by trying each mag as magUpper, computing the total
+     // moment rate analytically, and stopping when we get above the target moment
+     //rate.
+     for(index=getXIndex(M1)+1;tempTotMoRate<totMoRate && index < num;index++) {
+        lastMoRate = tempTotMoRate;
+        M2 = getX(index);
+        tempTotMoRate = X*(Math.pow(10,z*M2)-Math.pow(10,z*M1))/(Math.pow(10,-b*M1)-Math.pow(10,-b*M2));
      }
 
-     if(index==num) { // if we reached upperMag and tempTotMoRate > totMoRate
-       double diff1 = Math.abs(tempTotMoRate-totMoRate);
-       if(getMomentRate(index-1)/2 < diff1)
-          throw new DiscretizedFuncException("Invalid Total moment Rate");
-     }
-     else { // if tempTotMoRate < totMoRate
-       double diff1 = Math.abs(tempTotMoRate-totMoRate); // for next point
-       double diff2 = Math.abs(tempTotMoRate- getMomentRate(index)-totMoRate); // previous point
-       // check which point is nearer
-       if(diff1 < diff2) ++index;
+     index--;
 
-       // we have found magUpper upto this point
-       // set all rates after magUpper to be 0
-       for(int i=index;i<num;++i )
-          super.set(i,0.0);
-     }
+     if(D) System.out.println("just above target: index=" + index + "; mag=" + getX(index));
+     if(D) System.out.println("lastMoRate = " + lastMoRate);
+     if(D) System.out.println("tempTotMoRate = " + tempTotMoRate);
+     if(D) System.out.println("targetMoRate = " + totMoRate);
 
-    magUpper = getX(index-1);
-    if(relaxCumRate) // if we can relax total cum Rate, then match moment rate exactly
-       scaleToTotalMomentRate(totMoRate);
+     // find which mag point it's closer:
+     if(lastMoRate <= totMoRate && tempTotMoRate >= totMoRate) {
+        double diff1 = tempTotMoRate-totMoRate;
+        double diff2 = totMoRate-lastMoRate;
+
+        // if it's closer to previous point
+        if(diff2 < diff1)  index--;
+     }
+     else
+        throw new MagFreqDistException("Moment rate not attainable");
+
+     magUpper = getX(index);
+
+     if(D) System.out.println("chosen magUpper=" + magUpper);
+
+    if(relaxCumRate)
+       setAllButTotCumRate(magLower, magUpper, totMoRate, bValue);
+    else
+       setAllButTotMoRate(magLower, magUpper, totCumRate, bValue);
   }
+
 
   /**
    * Throws the exception if the set functions are called from outside the class

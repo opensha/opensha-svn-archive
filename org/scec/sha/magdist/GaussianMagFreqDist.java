@@ -12,11 +12,13 @@ import org.scec.exceptions.DataPoint2DException;
  *
  * <p>Description: This assumes a Gaussian distribution with a given mean and standard deviation, with
  * the option of being truncated at some number of standard deviations(one or two sided truncation).
- * The mean can be any value (it doesn not have to exactly equal one of the descrete x-axis values)
+ * The trucation levels are rounded to the nearest point, and these are given non-zero rates (zeros
+ * are above and below these points.  The mean can be any value (it doesn not have to exactly equal
+ * one of the descrete x-axis values).
  * Note: applying thge scaleTo*() or normalizeBy*() methods of the parent class will not result in
  * totMoRate being updated</p>
  *
- * @author : Nitin Gupta , Date: Aug,8,2002
+ * @author : Nitin Gupta (Aug,8,2002) & Ned Field (Nov, 21, 2002)
  * @version 1.0
  */
 
@@ -357,21 +359,23 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
   private void computeRates()throws DataPoint2DException {
     for(int i=0;i<num;++i) {
       double mag=getX(i);
-      double rate = Math.exp(-Math.pow((mag - this.mean),2)/(2*stdDev*stdDev));
+      double rate = Math.exp(-Math.pow((mag - mean),2)/(2*stdDev*stdDev));
       super.set(i,rate);
     }
 
     if(truncType !=0) {
-      double magUpper = this.mean + this.truncLevel*this.stdDev;
-      int index=(int)Math.ceil((magUpper -this.minX)/this.delta);
-      for(int i=index;i<this.num;i++)
+      double magUpper = mean + truncLevel*stdDev;
+      int index = Math.round((float)((magUpper - minX)/delta));
+      // Make this the last non-zero rate by adding one in the next loop
+      for(int i=index+1;i<num;i++)
         super.set(i,0);
     }
 
     if(truncType ==2) {
       double magLower = this.mean - this.truncLevel *this.stdDev;
-      int index=(int) Math.floor((magLower-this.minX)/this.delta);
-      for(int i=0;i<=index;i++)
+      int index = Math.round((float)((magLower-this.minX)/this.delta));
+      // Make this the first non-zero rate by the <index in the next loop
+      for(int i=0;i<index;i++)
         super.set(i,0);
     }
 

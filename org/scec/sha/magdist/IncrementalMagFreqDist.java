@@ -18,8 +18,7 @@ import org.scec.exceptions.DataPoint2DException;
 public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements IncrementalMagFreqDistAPI {
 
     //for Debug purposes
-    private static String  C = new String("IncrementalMagFreqDist");
-    private boolean D = true;
+    private boolean D = false;
 
 
 
@@ -75,8 +74,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
        * @return
        */
     public double getCumRate(double mag) {
-        int index=getXIndex(mag);
-        return getCumRate(index);
+        return getCumRate(getXIndex(mag));
     }
 
 
@@ -204,13 +202,13 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
 
     public void scaleToTotalMomentRate(double newTotMoRate) {
         double oldTotMoRate=getTotalMomentRate();
-        if(D) System.out.println(C + "old Mo. Rate = " + oldTotMoRate);
-        if(D) System.out.println(C + "target Mo. Rate = " + newTotMoRate);
+        if(D) System.out.println("old Mo. Rate = " + oldTotMoRate);
+        if(D) System.out.println("target Mo. Rate = " + newTotMoRate);
         double scaleRate=newTotMoRate/oldTotMoRate;
         for(int i=0;i<num;++i) {
             super.set(i,scaleRate*getIncrRate(i));
         }
-        if(D) System.out.println(C + "actual Mo. Rate = " + getTotalMomentRate());
+        if(D) System.out.println("actual Mo. Rate = " + getTotalMomentRate());
 
 
     }
