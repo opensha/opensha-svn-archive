@@ -93,6 +93,16 @@ public class AttenuationRelationshipApplet extends JApplet
     protected AttenuationRelationshipGuiList attenRels = new AttenuationRelationshipGuiList();
 
 
+    /**
+     * List of ArbitrarilyDiscretized functions and Weighted funstions
+     */
+    private ArrayList functionList = new ArrayList();
+
+    //X and Y Axis  when plotting tha Curves Name
+    private String xAxisName;
+    private String yAxisName;
+
+
     protected boolean inParameterChangeWarning = false;
 
     boolean isStandalone = false;
@@ -242,8 +252,6 @@ public class AttenuationRelationshipApplet extends JApplet
 
     boolean isWhite = true;
 
-    DiscretizedFuncList functions = new DiscretizedFuncList();
-    DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
     AxisLimitsControlPanel axisLimits;
 
     private ArrayList attenRelsSelected=new ArrayList();
@@ -261,10 +269,6 @@ public class AttenuationRelationshipApplet extends JApplet
      *  Construct the applet
      */
     public AttenuationRelationshipApplet() {
-      data.setFunctions(functions);
-
-      // for Y-log, convert 0 values in Y axis to this small value
-      data.setConvertZeroToMin(true,Y_MIN_VAL);
     }
 
 
@@ -713,7 +717,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
         if( isWhite ) graphPanel.setPlotBackgroundColor(Color.white );
         else graphPanel.setPlotBackgroundColor( Color.black );
-        graphPanel.drawGraphPanel(data,xLog,yLog,customAxis,null,buttonControlPanel);
+        graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,null,buttonControlPanel);
         togglePlot();
     }
 
@@ -737,9 +741,9 @@ public class AttenuationRelationshipApplet extends JApplet
        int newLoc = loc;
        graphPanel.removeChartAndMetadata();
        innerPlotPanel.removeAll();
-       if( clearFunctions) {
-         this.functions.clear();
-       }
+       if( clearFunctions)
+         functionList.clear();
+
        customAxis = false;
        mainSplitPane.setDividerLocation( newLoc );
   }
@@ -797,7 +801,6 @@ public class AttenuationRelationshipApplet extends JApplet
             );
         inParameterChangeWarning = false;
         if(D) System.out.println(S + "Ending");
-
     }
 
     /**
@@ -901,7 +904,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
         //if the user just wants to see the result for the single value.
         if(XLabel.equals(attenRel.X_AXIS_SINGLE_VAL)){
-          functions.clear();
+          functionList.clear();
           //making the GUI components disable if the user wants just one single value
           clearButton.setEnabled(false);
           buttonControlPanel.setEnabled(false);
@@ -926,8 +929,8 @@ public class AttenuationRelationshipApplet extends JApplet
           buttonControlPanel.setEnabled(true);
           plotColorCheckBox.setEnabled(true);
 
-          if( D && functions != null ){
-            ListIterator it = functions.listIterator();
+          if( D && functionList != null ){
+            ListIterator it = functionList.listIterator();
             while( it.hasNext() ){
 
               DiscretizedFuncAPI func = (DiscretizedFuncAPI)it.next();
@@ -954,24 +957,24 @@ public class AttenuationRelationshipApplet extends JApplet
 
           if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
 
-          if( D && functions != null ){
-            ListIterator it = functions.listIterator();
-            while( it.hasNext() ){
+          //if( D && functionList != null ){
+            //ListIterator it = functionList.listIterator();
+            //while( it.hasNext() ){
 
-              DiscretizedFuncAPI func = (DiscretizedFuncAPI)it.next();
-              if ( D ) System.out.println( S + "Func info = " + func.getInfo() );
+              //DiscretizedFuncAPI func = (DiscretizedFuncAPI)it.next();
+              //if ( D ) System.out.println( S + "Func info = " + func.getInfo() );
 
-            }
-          }
+           // }
+          //}
 
-          data.setXLog(xLog);
-          data.setYLog(yLog);
+          //data.setXLog(xLog);
+          //data.setYLog(yLog);
 
-          String xOld = functions.getXAxisName();
+          String xOld = xAxisName;
           String xUnitsOld="";
           if(xOld.indexOf('(')!=-1)
             xUnitsOld = xOld.substring(xOld.indexOf('(')+1, xOld.indexOf(')'));
-          String yOld = functions.getYAxisName();
+          String yOld = yAxisName;
 
           String xNew = attenRel.getGraphXAxisLabel();
           String xUnitsNew ="";
@@ -987,7 +990,7 @@ public class AttenuationRelationshipApplet extends JApplet
             if(xOld.indexOf(tempX)==-1) { // set the new X axis label
               xNew=xOld.substring(0, xOld.indexOf('('))+" "+xNew.substring(0, xNew.indexOf('('))+
                    " ("+ xUnitsNew+")";
-              functions.setXAxisName( xNew );
+              xAxisName = xNew ;
             }
           }
           //if the X-Axis units are null for both old and new
@@ -997,24 +1000,19 @@ public class AttenuationRelationshipApplet extends JApplet
           if( !yOld.equals(yNew) ) newGraph = true;
 
           if( newGraph ){
-            functions.clear();
+            functionList.clear();
             attenRelsSelected.clear();
-            functions.setYAxisName( attenRel.getGraphIMYAxisLabel() );
-            functions.setXAxisName( attenRel.getGraphXAxisLabel() );
+            xAxisName = attenRel.getGraphIMYAxisLabel();
+            yAxisName = attenRel.getGraphXAxisLabel();
           }
 
           newGraph = false;
 
 
-          /** @todo may have to be switched when different x/y axis choosen */
-          if ( !functions.isFuncAllowed( function ) ) {
-            functions.clear();
-            attenRelsSelected.clear();
-            //data.prepForXLog();
-          }
-          if( !functions.contains( function ) ){
+
+          if( !functionList.contains( function ) ){
             if ( D ) System.out.println( S + "AddjAttenuationRelationshipListing new function" );
-            functions.add(function);
+            functionList.add(function);
             attenRelsSelected.add(this.currentAttenuationRelationshipName);
             //data.prepForXLog();
           }
@@ -1103,7 +1101,6 @@ public class AttenuationRelationshipApplet extends JApplet
      */
     public void setX_Log(boolean xLog){
       this.xLog = xLog;
-      data.setXLog(xLog);
       addGraphPanel();
     }
 
@@ -1113,7 +1110,6 @@ public class AttenuationRelationshipApplet extends JApplet
      */
     public void setY_Log(boolean yLog){
       this.yLog = yLog;
-      data.setYLog(yLog);
       addGraphPanel();
     }
 

@@ -79,6 +79,11 @@ public class HazardDataSetPlotter extends JApplet
   //instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
   GraphWindow graphWindow;
 
+  /**
+   * List of ArbitrarilyDiscretized functions and Weighted funstions
+   */
+  private ArrayList functionList = new ArrayList();
+
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
   private boolean isStandalone = false;
@@ -95,16 +100,15 @@ public class HazardDataSetPlotter extends JApplet
   private final static int W = 1100;
   private final static int H = 750;
 
-  /**
-   * FunctionList declared
-   */
-  private DiscretizedFuncList functions = new DiscretizedFuncList();
-  private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
   //holds the ArbitrarilyDiscretizedFunc
   private ArbitrarilyDiscretizedFunc function;
 
   private HazardDataSiteSelectionGuiBean siteGuiBean;
+
+  //X and Y Axis  when plotting tha Curves Name
+  private String xAxisName = " ";
+  private String yAxisName = " ";
 
 
   /**
@@ -190,9 +194,7 @@ public class HazardDataSetPlotter extends JApplet
 
   //Construct the applet
   public HazardDataSetPlotter() {
-    data.setFunctions(functions);
-    // for Y-log, convert 0 values in Y axis to this small value
-    data.setConvertZeroToMin(true,Y_MIN_VAL);
+
   }
   //Initialize the applet
   public void init() {
@@ -381,7 +383,7 @@ public class HazardDataSetPlotter extends JApplet
 
       // Starting
       String S = C + ": addGraphPanel(): ";
-      graphPanel.drawGraphPanel(data,xLog,yLog,customAxis,null,buttonControlPanel);
+      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,null,buttonControlPanel);
       togglePlot();
    }
 
@@ -425,12 +427,11 @@ public class HazardDataSetPlotter extends JApplet
       }
 
       if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
-      data.setXLog(xLog);
-      data.setYLog(yLog);
+
       //functions.setYAxisName( attenRel.getGraphIMYAxisLabel() );
       //functions.setXAxisName( attenRel.getGraphXAxisLabel() );
       //if( !functions.contains( function ) )
-      functions.add(function);
+      functionList.add(function);
       addGraphPanel();
       if ( D ) System.out.println( S + "Ending" );
 
@@ -442,8 +443,6 @@ public class HazardDataSetPlotter extends JApplet
     private void drawGraph() {
       // you can show warning messages now
      // set the log values
-     data.setXLog(xLog);
-     data.setYLog(yLog);
 
      addGraphPanel();
     }
@@ -473,7 +472,7 @@ public class HazardDataSetPlotter extends JApplet
     graphPanel.removeChartAndMetadata();
     panel.removeAll();
     if( clearFunctions) {
-      functions.clear();
+      functionList.clear();
     }
     customAxis = false;
     chartSplit.setDividerLocation( newLoc );
@@ -542,7 +541,6 @@ public class HazardDataSetPlotter extends JApplet
    */
   public void setX_Log(boolean xLog){
     this.xLog = xLog;
-    data.setXLog(xLog);
     drawGraph();
   }
 
@@ -552,7 +550,6 @@ public class HazardDataSetPlotter extends JApplet
    */
   public void setY_Log(boolean yLog){
     this.yLog = yLog;
-    data.setYLog(yLog);
     drawGraph();
   }
 
@@ -572,6 +569,32 @@ public class HazardDataSetPlotter extends JApplet
   public boolean getYLog(){
     return yLog;
   }
+
+
+  /**
+    *
+    * @returns the color scheme for plots
+    */
+   public Color[] getSeriesColor(){
+     return graphPanel.getSeriesColor();
+   }
+
+   /**
+    *
+    * @returns X Axis Label
+    */
+   public String getXAxisName(){
+     return xAxisName;
+   }
+
+   /**
+    *
+    * @returns Y Axis Label
+    */
+   public String getYAxisName(){
+     return yAxisName;
+  }
+
 
   /**
    *
@@ -626,17 +649,8 @@ public class HazardDataSetPlotter extends JApplet
    *
    * @returns the DiscretizedFuncList for all the data curves
    */
-  public DiscretizedFuncList getCurveFunctionList(){
-    return functions;
-  }
-
-
-  /**
-   *
-   * @returns the DiscretizedFunctionXYDataSet to the data
-   */
-  public DiscretizedFunctionXYDataSet getXY_DataSet(){
-    return data;
+  public ArrayList getCurveFunctionList(){
+    return functionList;
   }
 
 

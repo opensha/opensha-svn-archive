@@ -1,5 +1,8 @@
 package org.scec.sha.gui.infoTools;
 
+import java.awt.Color;
+import java.util.ArrayList;
+
 import org.scec.data.function.DiscretizedFuncList;
 import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 
@@ -14,25 +17,13 @@ import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 
 public interface GraphWindowAPI {
 
-  /**
-   *
-   * @returns the instance to the JPanel showing the JFreechart adn metadata
-   */
-  public GraphPanel getGraphPanel();
 
 
   /**
    *
-   * @returns the DiscretizedFuncList for all the data curves
+   * @returns the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
    */
-  public DiscretizedFuncList getCurveFunctionList();
-
-
-  /**
-   *
-   * @returns the DiscretizedFunctionXYDataSet to the data
-   */
-  public DiscretizedFunctionXYDataSet getXY_DataSet();
+  public ArrayList getCurveFunctionList();
 
   /**
    *
@@ -45,6 +36,15 @@ public interface GraphWindowAPI {
    * @returns the boolean: Log for Y-Axis Selected
    */
   public boolean getYLog();
+
+  //get Y axis Label
+  public String getXAxisName();
+
+  //gets X Axis Label
+  public String getYAxisName();
+
+  //get the color scheme for the Plots
+  public Color[] getSeriesColor();
 
   /**
    *

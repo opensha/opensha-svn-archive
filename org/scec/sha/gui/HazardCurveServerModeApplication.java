@@ -164,6 +164,11 @@ public class HazardCurveServerModeApplication extends JApplet
   //instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
   GraphWindow graphWindow;
 
+  //X and Y Axis  when plotting tha Curves Name
+  private String xAxisName;
+  private String yAxisName;
+
+
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
@@ -210,10 +215,8 @@ public class HazardCurveServerModeApplication extends JApplet
   protected final static int H = 750;
 
   /**
-   * FunctionList declared
+   * List of ArbitrarilyDiscretized functions and Weighted funstions
    */
-  private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
-  private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
   private ArrayList functionList = new ArrayList();
 
   //holds the ArbitrarilyDiscretizedFunc
@@ -262,10 +265,7 @@ public class HazardCurveServerModeApplication extends JApplet
   // light blue color
   private Color lightBlue = new Color( 200, 200, 230 );
 
-  /**
-   * for Y-log, 0 values will be converted to this small value
-   */
-  private double Y_MIN_VAL = 1e-16;
+
 
   private boolean graphOn = false;
   private GridBagLayout gridBagLayout11 = new GridBagLayout();
@@ -355,9 +355,7 @@ public class HazardCurveServerModeApplication extends JApplet
 
   //Construct the applet
   public HazardCurveServerModeApplication() {
-    data.setFunctions(this.totalProbFuncs);
-    // for Y-log, convert 0 values in Y axis to this small value
-    data.setConvertZeroToMin(true,Y_MIN_VAL);
+
   }
   //Initialize the applet
   public void init() {
@@ -584,7 +582,7 @@ public class HazardCurveServerModeApplication extends JApplet
 
       // Starting
       String S = C + ": addGraphPanel(): ";
-      graphPanel.drawGraphPanel(functionList,data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
+      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE,buttonControlPanel);
       togglePlot();
       //this.isIndividualCurves = false;
    }
@@ -758,10 +756,6 @@ public class HazardCurveServerModeApplication extends JApplet
     private void drawGraph() {
       // you can show warning messages now
      imrGuiBean.showWarningMessages(true);
-     // set the log values
-     data.setXLog(xLog);
-     data.setYLog(yLog);
-
      addGraphPanel();
     }
 
@@ -789,10 +783,7 @@ public class HazardCurveServerModeApplication extends JApplet
     int newLoc = loc;
     graphPanel.removeChartAndMetadata();
     panel.removeAll();
-    if( clearFunctions) {
-      totalProbFuncs.clear();
-      functionList.clear();
-    }
+    if( clearFunctions)       functionList.clear();
     customAxis = false;
     chartSplit.setDividerLocation( newLoc );
   }
@@ -1006,8 +997,8 @@ public class HazardCurveServerModeApplication extends JApplet
       functionList.add(hazFunction);
    // set the X-axis label
    String imt = imtGuiBean.getSelectedIMT();
-   totalProbFuncs.setXAxisName(imt + " ("+imr.getParameter(imt).getUnits()+")");
-   totalProbFuncs.setYAxisName("Probability of Exceedance");
+   xAxisName = imt + " ("+imr.getParameter(imt).getUnits()+")";
+   yAxisName = "Probability of Exceedance";
 
    isHazardCalcDone = true;
    disaggregationString=null;
@@ -1142,9 +1133,9 @@ public class HazardCurveServerModeApplication extends JApplet
    //adding the data to the functionlist if adding on top
    if(addData)
      functionList.add(weightedFuncList);
-   // set the X-axis label
-   totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
-   totalProbFuncs.setYAxisName("Probability of Exceedance");
+   // set the X, Y axis label
+   xAxisName = imtGuiBean.getSelectedIMT();
+   yAxisName = "Probability of Exceedance";
   }
 
 
@@ -1546,7 +1537,6 @@ public class HazardCurveServerModeApplication extends JApplet
    */
   public void setX_Log(boolean xLog){
     this.xLog = xLog;
-    data.setXLog(xLog);
     drawGraph();
   }
 
@@ -1556,7 +1546,6 @@ public class HazardCurveServerModeApplication extends JApplet
    */
   public void setY_Log(boolean yLog){
     this.yLog = yLog;
-    data.setYLog(yLog);
     drawGraph();
   }
 
@@ -1619,10 +1608,26 @@ public class HazardCurveServerModeApplication extends JApplet
 
   /**
    *
-   * @returns the instance to the JPanel showing the JFreechart adn metadata
+   * @returns the color scheme for plots
    */
-  public GraphPanel getGraphPanel(){
-    return graphPanel;
+  public Color[] getSeriesColor(){
+    return graphPanel.getSeriesColor();
+  }
+
+  /**
+   *
+   * @returns X Axis Label
+   */
+  public String getXAxisName(){
+    return xAxisName;
+  }
+
+  /**
+   *
+   * @returns Y Axis Label
+   */
+  public String getYAxisName(){
+    return yAxisName;
   }
 
   /**
@@ -1716,22 +1721,15 @@ public class HazardCurveServerModeApplication extends JApplet
 
 
 
-  /**
-   *
-   * @returns the DiscretizedFuncList for all the data curves
-   */
-  public DiscretizedFuncList getCurveFunctionList(){
-    return totalProbFuncs;
+ /**
+  *
+  * @returns the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
+  */
+  public ArrayList getCurveFunctionList(){
+    return functionList;
   }
 
 
-  /**
-   *
-   * @returns the DiscretizedFunctionXYDataSet to the data
-   */
-  public DiscretizedFunctionXYDataSet getXY_DataSet(){
-    return data;
-  }
 
 
   /**

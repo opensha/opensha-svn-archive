@@ -35,6 +35,8 @@ public class GraphPanel extends JPanel {
   private final static String NO_PLOT_MSG = "No Plot Data Available";
 
 
+  Color[] defaultColor = {Color.red,Color.blue,Color.cyan,Color.darkGray,Color.magenta,
+    Color.gray,Color.green,Color.orange,Color.pink,Color.yellow};
 
   Color[] legendColor = null;
   Paint[] legendPaint = null;
@@ -47,6 +49,16 @@ public class GraphPanel extends JPanel {
   private JPanel chartPane = new JPanel();
 
   private Insets plotInsets = new Insets( 4, 4, 4, 4 );
+
+  //dataset to handover the data to JFreechart
+  private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
+  //functionList
+  private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
+
+  /**
+   * for Y-log, 0 values will be converted to this small value
+   */
+  private double Y_MIN_VAL = 1e-16;
 
   //graph chart panel
   private ChartPanel chartPanel;
@@ -87,6 +99,10 @@ public class GraphPanel extends JPanel {
    * @param api : Application instance
    */
   public GraphPanel(GraphPanelAPI api) {
+    data.setFunctions(this.totalProbFuncs);
+    // for Y-log, convert 0 values in Y axis to this small value, it just sets the minimum
+    //value
+    data.setConvertZeroToMin(true,Y_MIN_VAL);
     application = api;
     try {
       jbInit();
@@ -120,47 +136,26 @@ public class GraphPanel extends JPanel {
   /**
    * Draws the graph panel
    */
-  public void drawGraphPanel(DiscretizedFunctionXYDataSet  data,
-                             boolean xLog,boolean yLog,boolean customAxis, String title,
-                             ButtonControlPanel buttonControlPanel ) {
 
-    // Starting
-    String S = "drawGraphPanel(): ";
-    DiscretizedFuncList totalProbFuncs = data.getFunctions();
-
-    /**
-     * adding the functions to the array list
-     */
-    int listSize = totalProbFuncs.size();
-    ArrayList functionList = new ArrayList();
-    for(int i=0 ; i<listSize ; ++i){
-      functionList.add(totalProbFuncs.get(i));
-    }
-
-    drawGraphPanel(functionList,data,xLog,yLog,customAxis,title,buttonControlPanel);
-    return ;
-  }
-
-
-  public void drawGraphPanel(ArrayList funcList,DiscretizedFunctionXYDataSet  data,
+  public void drawGraphPanel(String xAxisName, String yAxisName,ArrayList funcList,
                              boolean xLog,boolean yLog,boolean customAxis, String title,
                              ButtonControlPanel buttonControlPanel ) {
 
     // Starting
     String S = "drawGraphPanel(): ";
 
-    //getting the functionlist
-    DiscretizedFuncList totalProbFuncs= data.getFunctions();
     //if(legendColor == null)
-    createColorSchemeAndFunctionList(funcList,totalProbFuncs);
+    createColorSchemeAndFunctionList(funcList);
 
-    String newXYAxisName = totalProbFuncs.getXYAxesName();
-
+    totalProbFuncs.setXAxisName(xAxisName);
+    totalProbFuncs.setYAxisName(yAxisName);
     // create a default chart based on some sample data...
 
-    // Determine which IM to add to the axis labeling
-    String xAxisLabel = totalProbFuncs.getXAxisName();
-    String yAxisLabel = totalProbFuncs.getYAxisName();
+
+    // set the log flag in the XY dataset
+    data.setXLog(xLog);
+    data.setYLog(yLog);
+
 
     //flags to check if the exception was thrown on selection of the x-log or y-log.
     boolean logErrorFlag = false;
@@ -172,8 +167,8 @@ public class GraphPanel extends JPanel {
     try{
 
       /// check if x log is selected or not
-      if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
-      else xAxis = new NumberAxis( xAxisLabel );
+      if(xLog) xAxis = new LogarithmicAxis(xAxisName);
+      else xAxis = new NumberAxis( xAxisName );
 
       if (!xLog)
         xAxis.setAutoRangeIncludesZero(true);
@@ -199,8 +194,8 @@ public class GraphPanel extends JPanel {
 
     try{
       /// check if y log is selected or not
-      if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
-      else yAxis = new NumberAxis( yAxisLabel );
+      if(yLog) yAxis = new LogarithmicAxis(yAxisName);
+      else yAxis = new NumberAxis( yAxisName );
 
       if (!yLog)
         yAxis.setAutoRangeIncludesZero(true);
@@ -414,15 +409,27 @@ public class GraphPanel extends JPanel {
     return legendColor;
   }
 
+
+
+  /**
+   * Sets the default color scheme for the cureves drawn
+   */
+  public void setDefaultSeriesColor(){
+    legendPaint = defaultColor;
+    legendColor = defaultColor;
+  }
+
+
+
   /**
    * This method extracts all the functions from the ArrayList and add that
    * to the DiscretizedFunction List. This method also creates the color scheme
    * depending on the different types of DiscretizedFunc added to the list.
    * @param functionList
    */
-  private DiscretizedFuncList createColorSchemeAndFunctionList(ArrayList functionList,DiscretizedFuncList funcList){
+  private void createColorSchemeAndFunctionList(ArrayList functionList){
 
-    funcList.clear();
+    totalProbFuncs.clear();
     int numCurves  = functionList.size();
     ArrayList numColorArray = new ArrayList();
 
@@ -434,42 +441,46 @@ public class GraphPanel extends JPanel {
          DiscretizedFuncList list= weightedList.getWeightedFunctionList();
          list.get(0).setInfo(weightedList.getInfo()+"\n"+"\t"+list.getInfo());
          numColorArray.add(new Integer(list.size()));
-         funcList.addAll(list);
+         totalProbFuncs.addAll(list);
         }
         if(weightedList.areFractilesToPlot()){
           DiscretizedFuncList list= weightedList.getFractileList();
           list.get(0).setInfo(list.getInfo());
-          funcList.addAll(list);
+          totalProbFuncs.addAll(list);
           numColorArray.add(new Integer(list.size()));
         }
         if(weightedList.isMeanToPlot()){
           DiscretizedFuncAPI meanFunc = weightedList.getMean();
-          funcList.add(meanFunc);
+          totalProbFuncs.add(meanFunc);
           numColorArray.add(new Integer(1));
         }
       }
       else{
-        funcList.add((DiscretizedFuncAPI)obj);
+        totalProbFuncs.add((DiscretizedFuncAPI)obj);
         numColorArray.add(new Integer(1));
       }
     }
 
-    int size = funcList.size();
+    int size = totalProbFuncs.size();
     Color[] color = new Color[size];
 
 
     int numDiffColors = numColorArray.size();
-    int colorChoice = (int)255/numDiffColors;
+
+    //int colorChoice = (int)255/numDiffColors;
     //creating the color array
     int index=0;
-    for(int i=0;i<numDiffColors;++i){
+    //looping over all the default colors to add those to the color array
+    for(int i=0,defaultColorIndex =0;i<numDiffColors;++i,++defaultColorIndex){
+      //if the number of curves to be drawn are more in number then default colors then start from first again
+      if(defaultColorIndex == defaultColor.length)
+        defaultColorIndex = 0;
       int val = ((Integer)numColorArray.get(i)).intValue();
       for(int j=0;j<val;++j)
-        color[index++] = new Color(255-i*colorChoice,i*colorChoice,i*colorChoice);
+        color[index++] = defaultColor[defaultColorIndex];
       }
       //setting the color scheme
       setSeriesColor(color);
-      return funcList;
   }
 
 

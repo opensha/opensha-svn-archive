@@ -2,6 +2,7 @@ package org.scec.sha.gui.infoTools;
 
 import java.awt.*;
 import javax.swing.*;
+import java.util.ArrayList;
 
 import org.jfree.data.Range;
 import org.scec.sha.gui.infoTools.*;
@@ -38,11 +39,6 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   private static int windowNumber =0;
 
   private static final String TITLE = "Curves Window";
-  /**
-   * FunctionList declared
-   */
-  private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
-  private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
   private double minXValue, maxXValue, minYValue,maxYValue;
 
@@ -56,6 +52,17 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   GraphPanel graphPanel;
 
   /**
+   * List of ArbitrarilyDiscretized functions and Weighted funstions
+   */
+  private ArrayList functionList = new ArrayList();
+
+
+  //X and Y Axis  when plotting tha Curves Name
+  private String xAxisName;
+  private String yAxisName;
+
+
+  /**
    * for Y-log, 0 values will be converted to this small value
    */
   private double Y_MIN_VAL = 1e-16;
@@ -67,12 +74,9 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   public GraphWindow(GraphWindowAPI api) {
     application = api;
     graphPanel = new GraphPanel(this);
-    graphPanel.setSeriesColor(api.getGraphPanel().getSeriesColor());
-    data = api.getXY_DataSet().deepClone();
-    totalProbFuncs = api.getCurveFunctionList().deepClone();
-    data.setFunctions(totalProbFuncs);
-    // for Y-log, convert 0 values in Y axis to this small value
-    data.setConvertZeroToMin(true,Y_MIN_VAL);
+    graphPanel.setSeriesColor(api.getSeriesColor());
+    xAxisName = api.getXAxisName();
+    yAxisName  = api.getYAxisName();
     try {
       jbInit();
     }
@@ -138,7 +142,6 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
    */
   public void setX_Log(boolean xLog){
     this.xLog = xLog;
-    data.setXLog(xLog);
     drawGraph();
   }
 
@@ -148,7 +151,6 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
    */
   public void setY_Log(boolean yLog){
     this.yLog = yLog;
-    data.setYLog(yLog);
     drawGraph();
   }
   /**
@@ -181,9 +183,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     * to draw the graph
     */
    private void drawGraph() {
-     data.setXLog(xLog);
-     data.setYLog(yLog);
-     graphPanel.drawGraphPanel(data,xLog,yLog,customAxis,TITLE+"-"+windowNumber,buttonControlPanel);
+     graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE+"-"+windowNumber,buttonControlPanel);
      togglePlot();
    }
 
