@@ -21,7 +21,7 @@ import org.scec.data.Location;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
-
+import org.scec.sha.gui.infoTools.CalcProgressBar;
 
 
 /**
@@ -89,6 +89,8 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   // which this forecast  has already been selected it will not pop up adjustable params window
   private Vector  alreadySeenERFs = new Vector();
 
+  //progressBar class to be shown when ruptures are being updated
+  CalcProgressBar progress;
 
   /**
   * Constructor : It accepts the classNames of the ERFs to be shown in the editor
@@ -200,6 +202,10 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      probEqkRupture.setHypocenterLocation(loc);
    }
 
+   if(progress ==null)
+     progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures are being updated");
+   else
+     progress.showProgress(true);
    //writing the ruptures info. for each selected source in the text Area below the rupture
    String rupturesInfo = "Rupture info for \"";
    rupturesInfo += ((String)sourceParam.getValue()).substring(((String)sourceParam.getValue()).indexOf("(")+1,((String)sourceParam.getValue()).indexOf(")")).trim();
@@ -207,7 +213,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    for(int i=0;i< numRuptures;++i)
      rupturesInfo += "\n  rupture #"+i+": \n\n"+erf.getSource(sourceValue).getRupture(i).getInfo();
    sourceRupInfoText.setText(rupturesInfo);
-
+   progress.showProgress(false);
 
    // get the panel for increasing the font and border
    // this is hard coding for increasing the IMR font

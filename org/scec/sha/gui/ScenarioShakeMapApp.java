@@ -154,7 +154,12 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     catch(Exception e) {
       e.printStackTrace();
     }
-    this.initIMRGuiBean();
+    try{
+      initIMRGuiBean();
+    }catch(RuntimeException e){
+      JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
+      return;
+    }
     this.initGriddedRegionGuiBean();
     this.initIMTGuiBean();
     try{
