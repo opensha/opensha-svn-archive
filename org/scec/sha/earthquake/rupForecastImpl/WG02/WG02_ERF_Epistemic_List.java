@@ -223,8 +223,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
    * @return : return the name for this class
    */
    public String getName(){
-     ERF_NAME = NAME;
-     return ERF_NAME;
+     return NAME;
    }
 
 
