@@ -69,57 +69,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
 
   private final static String IN_FILE_PATH = "org/scec/sha/earthquake/rupForecastImpl/Frankel02/InputFiles/";
 
-// The input files for hazFXv3 and hazFXv3a (and wts):
-
-  // Input files for hazgridXca (gridded seismicity)
-  private final static String AREA_GRID_FILE_1 = "CAmapC.inv3";
-  private final static double AREA_GRID_FILE_WT_1 = 0.667;
-  private final static String AREA_GRID_FILE_2 = "CAmapG.inv3";
-  private final static double AREA_GRID_FILE_WT_2 = 0.333;
-  private final static String AREA_GRID_FILE_3 = "EXTmapC.inv3";
-  private final static double AREA_GRID_FILE_WT_3 = 0.5;
-  private final static String AREA_GRID_FILE_4 = "EXTmapGW.inv3";
-  private final static double AREA_GRID_FILE_WT_4 = 0.5;
-  private final static String AREA_GRID_FILE_5 = "WUSmapC.inv3";
-  private final static double AREA_GRID_FILE_WT_5 = 0.5;
-  private final static String AREA_GRID_FILE_6 = "WUSmapG.inv3";
-  private final static double AREA_GRID_FILE_WT_6 = 0.5;
-  private final static String AREA_GRID_FILE_7 = "brawmap.inv3";
-  private final static double AREA_GRID_FILE_WT_7 = 1.0;
-  private final static String AREA_GRID_FILE_8 = "cadeepAB.inv3";
-  private final static double AREA_GRID_FILE_WT_8 = 0.5;
-  private final static String AREA_GRID_FILE_9 = "cadeepY.inv3";
-  private final static double AREA_GRID_FILE_WT_9 = 0.5;
-  private final static String AREA_GRID_FILE_10 = "creepmap.inv3";
-  private final static double AREA_GRID_FILE_WT_10 = 1.0;
-  private final static String AREA_GRID_FILE_11 = "shear1.inv1";
-  private final static double AREA_GRID_FILE_WT_11 = 1.0;
-  private final static String AREA_GRID_FILE_12 = "shear2.inv1";
-  private final static double AREA_GRID_FILE_WT_12 = 1.0;
-  private final static String AREA_GRID_FILE_13 = "shear3.inv1";
-  private final static double AREA_GRID_FILE_WT_13 = 1.0;
-  private final static String AREA_GRID_FILE_14 = "shear4.inv1";
-  private final static double AREA_GRID_FILE_WT_14 = 1.0;
-
-  // input files for hazSUBXv3 (subduction-zone events)
-  private final static String SUBD_ZONE_FILE_1 = "cascadia.bot.83.in";
-  private final static double SUBD_ZONE_FILE_WT_1 = 0.1;
-  private final static String SUBD_ZONE_FILE_2 = "cascadia.bot.9N.in";
-  private final static double SUBD_ZONE_FILE_WT_2 = 0.1;
-  private final static String SUBD_ZONE_FILE_3 = "cascadia.mid.83.in";
-  private final static double SUBD_ZONE_FILE_WT_3 = 0.1;
-  private final static String SUBD_ZONE_FILE_4 = "cascadia.mid.9N.in";
-  private final static double SUBD_ZONE_FILE_WT_4 = 0.1;
-  private final static String SUBD_ZONE_FILE_5 = "cascadia.old.83.in";
-  private final static double SUBD_ZONE_FILE_WT_5 = 0.25;
-  private final static String SUBD_ZONE_FILE_6 = "cascadia.old.9N.in";
-  private final static double SUBD_ZONE_FILE_WT_6 = 0.25;
-  private final static String SUBD_ZONE_FILE_7 = "cascadia.top.83.in";
-  private final static double SUBD_ZONE_FILE_WT_7 = 0.05;
-  private final static String SUBD_ZONE_FILE_8 = "cascadia.top.9N.in";
-  private final static double SUBD_ZONE_FILE_WT_8 = 0.05;
-
-
   ArrayList faultFiles, faultFileWts, areaGridFiles, areaGridFileWts;
 
   /**
@@ -149,6 +98,14 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   ArrayList backSeisOptionsStrings = new ArrayList();
   StringParameter backSeisParam;
 
+  // fault-model parameter stuff
+  public final static String BACK_SEIS_RUP_NAME = new String ("Treat Background Seismicity As:");
+  public final static String BACK_SEIS_RUP_POINT = new String ("Point Sources");
+  public final static String BACK_SEIS_RUP_FINITE = new String ("Finite Sources");
+  // make the fault-model parameter
+  ArrayList backSeisRupStrings = new ArrayList();
+  StringParameter backSeisRupParam;
+
   // For rupture offset lenth along fault parameter
   public final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
   private Double DEFAULT_RUP_OFFSET_VAL= new Double(10);
@@ -158,13 +115,13 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   private final static double RUP_OFFSET_PARAM_MAX = 100;
   DoubleParameter rupOffset_Param;
 
-/*
+/**/
   // fault file parameter for testing
   public final static String FAULT_FILE_NAME = new String ("Fault File");
   // make the fault-model parameter
   ArrayList faultFileNamesStrings = new ArrayList();
   StringParameter faultFileParam;
-*/
+
 
   /**
    *
@@ -186,13 +143,13 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     faultModelParam.addParameterChangeListener(this);
     rupOffset_Param.addParameterChangeListener(this);
     backSeisParam.addParameterChangeListener(this);
+    backSeisRupParam.addParameterChangeListener(this);
+    faultFileParam.addParameterChangeListener(this);
 
   }
 
 // make the adjustable parameters & the list
   private void initAdjParams() {
-
-
 
     faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
     faultModelNamesStrings.add(FAULT_MODEL_STIRLING);
@@ -208,14 +165,42 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
         RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
     rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
 
+    backSeisRupStrings.add(BACK_SEIS_RUP_POINT);
+    backSeisRupStrings.add(BACK_SEIS_RUP_FINITE);
+    backSeisRupParam = new StringParameter(BACK_SEIS_RUP_NAME, backSeisRupStrings,BACK_SEIS_RUP_POINT);
+
+    rupOffset_Param = new DoubleParameter(RUP_OFFSET_PARAM_NAME,RUP_OFFSET_PARAM_MIN,
+        RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
+    rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
+
 
 // add adjustable parameters to the list
     adjustableParams.addParameter(faultModelParam);
     adjustableParams.addParameter(rupOffset_Param);
     adjustableParams.addParameter(backSeisParam);
+    adjustableParams.addParameter(backSeisRupParam);
 
-/* this was for testing:
-        faultFileNamesStrings.add("ca-a-other-fixed-char");
+// this was for testing:
+        faultFileNamesStrings.add("CAmapC_OpenSHA");
+        faultFileNamesStrings.add("CAmapG_OpenSHA");
+        faultFileNamesStrings.add("EXTmapC_OpenSHA");
+        faultFileNamesStrings.add("EXTmapGW_OpenSHA");
+        faultFileNamesStrings.add("WUSmapC_OpenSHA");
+        faultFileNamesStrings.add("WUSmapG_OpenSHA");
+        faultFileNamesStrings.add("brawmap_OpenSHA");
+        faultFileNamesStrings.add("cadeepAB_OpenSHA");
+        faultFileNamesStrings.add("cadeepY_OpenSHA");
+        faultFileNamesStrings.add("creepmap_OpenSHA");
+        faultFileNamesStrings.add("shear1_OpenSHA");
+        faultFileNamesStrings.add("shear2_OpenSHA");
+        faultFileNamesStrings.add("shear3_OpenSHA");
+        faultFileNamesStrings.add("shear4_OpenSHA");
+        faultFileParam = new StringParameter(FAULT_FILE_NAME, faultFileNamesStrings,
+        (String)faultFileNamesStrings.get(0));
+        adjustableParams.addParameter(faultFileParam);
+
+/*
+    faultFileNamesStrings.add("ca-a-other-fixed-char");
     faultFileNamesStrings.add("ca-a-other-norm-char");
     faultFileNamesStrings.add("ca-amod1-char");
     faultFileNamesStrings.add("ca-amod2-char");
@@ -267,7 +252,27 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   private void makeAllGridSources() {
 
     frankelBackgrSeisSources = new ArrayList();
-    makeGridSources("shear1_OpenSHA",1.0,null,0.0);
+
+    String tempName = (String)faultFileParam.getValue();
+    makeGridSources(tempName,1.0,null,0.0);
+
+/*
+    makeGridSources("CAmapC_OpenSHA", 0.667, null, 0.0);
+    makeGridSources("CAmapG_OpenSHA", 0.333, null, 0.0);
+    makeGridSources("EXTmapC_OpenSHA", 0.5, null, 0.0);
+    makeGridSources("EXTmapGW_OpenSHA", 0.5, null, 0.0);
+    makeGridSources("WUSmapC_OpenSHA", 0.5, null, 0.0);
+    makeGridSources("WUSmapG_OpenSHA", 0.5, null, 0.0);
+    makeGridSources("brawmap_OpenSHA", 1.0, null, 1.0);
+    makeGridSources("cadeepAB_OpenSHA", 0.5, null, 1.0);
+    makeGridSources("cadeepY_OpenSHA", 0.5, null, 1.0);
+    makeGridSources("creepmap_OpenSHA", 1.0, null, 1.0);
+    makeGridSources("shear1_OpenSHA", 1.0, null, 1.0);
+    makeGridSources("shear2_OpenSHA", 1.0, null, 1.0);
+    makeGridSources("shear3_OpenSHA", 1.0, null, 1.0);
+    makeGridSources("shear4_OpenSHA", 1.0, null, 1.0);
+*/
+
   }
 
 
@@ -829,7 +834,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     // Debuggin stuff
     String S = C + ": makeGridSources(): ";
 
-    double bVal, magMin, magMax, deltaMag, magRef, strike, siteMagMax;
+    double bVal, magMin, magMax, deltaMag, magRef, siteMagMax;
+    double strike = Double.NaN;
     int iflt, maxmat;
 
     // read the lines of the 1st input file into a list
@@ -862,6 +868,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     deltaMag = Double.parseDouble(st.nextToken());
     magRef = Double.parseDouble(st.nextToken());  // this is ignored in Frankel's code
 
+System.out.println(fileName1);
+
     // get the 2nd line
     st = new StringTokenizer(it.next().toString());
     iflt = Integer.parseInt(st.nextToken());    // source type:
@@ -881,10 +889,10 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
       strike = Double.parseDouble(st.nextToken());
     }
 
-//    if(D) {
+    if(D) {
     System.out.println("bVal="+bVal+"  magMin="+magMin+"  magMax="+ magMax+"  deltaMag"+deltaMag+
                          "  iflt="+iflt+"  maxmat="+maxmat);
-//    }
+    }
 
     // make magMin bin centered
     if(magMin != magMax) magMin += deltaMag/2.0;
@@ -904,7 +912,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
       lat =  Double.parseDouble(st.nextToken());
       rateAtZeroMag = Double.parseDouble(st.nextToken());
       aVal = 0.434294*Math.log(rateAtZeroMag);
-System.out.print("lat="+lat+"  lon="+lon+"  rateAtZeroMag="+ rateAtZeroMag+"  aVal="+aVal);
+//System.out.print("lat="+lat+"  lon="+lon+"  rateAtZeroMag="+ rateAtZeroMag+"  aVal="+aVal);
       loc = new Location(lat,lon);
       if(maxmat == 1)
         siteMagMax = Double.parseDouble(st.nextToken());
@@ -917,27 +925,39 @@ System.out.print("lat="+lat+"  lon="+lon+"  rateAtZeroMag="+ rateAtZeroMag+"  aV
       // move the max mag down to be bin centered
       siteMagMax -= deltaMag/2.0;
 
-      int numMag = Math.round((float) ((siteMagMax-magMin)/deltaMag));
+      int numMag = Math.round((float) ((siteMagMax-magMin)/deltaMag))+1;
 
       moRate = getMomentRate(magMin, numMag, deltaMag, aVal, bVal);
 
-System.out.print("  magMin="+magMin+"  numMag="+numMag+"  deltaMag="+ deltaMag+"  bVal="+bVal+"\n");
+//System.out.print("  magMin="+magMin+"  numMag="+numMag+"  deltaMag="+ deltaMag+"  bVal="+bVal+"\n");
 
-      grDist1 = new GutenbergRichterMagFreqDist(magMin,numMag,deltaMag,moRate,bVal);
+      grDist1 = new GutenbergRichterMagFreqDist(magMin,numMag,deltaMag,moRate*wt1,bVal);
 //      double temp = Math.pow(10,aVal-bVal*magMin);
 //      grDist1.scaleToIncrRate(magMin,temp);
+//for(int n=0;n<grDist1.getNum();n++)
+//  System.out.println("\t"+grDist1.getX(n)+"\t"+grDist1.getY(n));
 
-tempRate += grDist1.getTotCumRate();
+//tempRate += grDist1.getTotCumRate();
+
+      String backSeisRup = (String) backSeisRupParam.getValue();
+      double magCutOff;
+      if (backSeisRup.equals(this.BACK_SEIS_RUP_FINITE))
+        magCutOff = 6.0;
+      else
+        magCutOff = 10.0;
 
       // now make the source
-      src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,duration,6.0,0);
+      if(iflt == 2)
+        src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,strike,duration,magCutOff,0.0);
+      else
+        src = new Point2Vert_SS_FaultPoisSource(loc,grDist1,magLenRel,duration,magCutOff,0.0);
 
       // add the source
       frankelBackgrSeisSources.add(src);
 
     }
 
-System.out.println("tot rate = "+tempRate);
+//System.out.println("tot rate = "+tempRate);
   }
 
 

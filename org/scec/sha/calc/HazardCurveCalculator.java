@@ -133,6 +133,12 @@ public class HazardCurveCalculator {
       distance = source.getMinDistance(site);
       if(distance > MAX_DISTANCE) {
         //update progress bar for skipped ruptures
+/*
+if(source.getRupture(0).getRuptureSurface().getNumCols() != 1) throw new RuntimeException("prob");
+System.out.println("rejected "+
+(float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLongitude()+"  "+
+(float)source.getRupture(0).getRuptureSurface().getLocation(0,0).getLatitude());
+*/
         currRuptures += source.getNumRuptures();
         continue;
       }
