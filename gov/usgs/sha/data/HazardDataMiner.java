@@ -106,6 +106,15 @@ public class HazardDataMiner {
 
 
 
+  /**
+   *
+   * @param geographicRegion String
+   * @param dataEdition String
+   * @param lat double
+   * @param lon double
+   * @param selectedSpectraType String
+   * @return ArbitrarilyDiscretizedFunc
+   */
   public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
                                             String dataEdition, double lat,
                                             double lon,String selectedSpectraType) {
@@ -114,6 +123,38 @@ public class HazardDataMiner {
     return calc.computeSsS1(geographicRegion, dataEdition, lat, lon,selectedSpectraType);
   }
 
+  /**
+   *
+   * @param geographicRegion String
+   * @param dataEdition String
+   * @param lat double
+   * @param lon double
+   * @param selectedSpectraType String
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  public ArbitrarilyDiscretizedFunc getSA(String geographicRegion,
+                                            String dataEdition, double lat,
+                                            double lon,String selectedSpectraType) {
+
+    HazardDataCalc calc = new HazardDataCalc();
+    return calc.computeSA(geographicRegion, dataEdition, lat, lon,selectedSpectraType);
+  }
+
+  /**
+   * Gets the Ss and S1 when location is provided using the zipCode
+   * @param geographicRegion String
+   * @param dataEdition String
+   * @param zipCode String
+   * @return DiscretizedFuncList
+   * @throws ZipCodeErrorException
+   */
+  public ArbitrarilyDiscretizedFunc getSA(String geographicRegion,
+                                     String dataEdition, String zipCode,String spectraType) throws
+      ZipCodeErrorException {
+
+    HazardDataCalc calc = new HazardDataCalc();
+    return calc.computeSA(geographicRegion, dataEdition, zipCode,spectraType);
+  }
 
 
   /**

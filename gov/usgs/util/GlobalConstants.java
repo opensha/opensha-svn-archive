@@ -72,8 +72,8 @@ public final class GlobalConstants {
   public static final String INTL_BUILDING_CODE = "International Building Code";
   public static final String INTL_RESIDENTIAL_CODE =
       "International Residential Code";
-  public static final String INTL_EXIST_CODE =
-      "International Existing Building Code";
+  //public static final String INTL_EXIST_CODE =
+    //  "International Existing Building Code";
   //public static final String NFPA_5000 =
     //  "NFPA 5000 Building construction and safety code";
   //public static final String ASCE_7 =
@@ -254,23 +254,6 @@ public final class GlobalConstants {
 
 
 
-  public static ArrayList getSupportedSpectraTypes(String selectedAnalysisType) throws
-      AnalysisOptionNotSupportedException {
-    ArrayList supportedSpectraTypes = new ArrayList();
-    if (selectedAnalysisType.equals(NEHRP))
-      supportedSpectraTypes.add(MCE_GROUND_MOTION);
-    else if (selectedAnalysisType.equals(FEMA_IEBC_2003)) {
-      supportedSpectraTypes.add(MCE_GROUND_MOTION);
-      supportedSpectraTypes.add(PE_10);
-    }
-    else {
-      throw new AnalysisOptionNotSupportedException("Either " +
-          selectedAnalysisType +
-          " analysis type not supported or does not have any spectra type");
-    }
-    return supportedSpectraTypes;
-  }
-
 
   /**
    * Supported Return Periods.
@@ -358,7 +341,7 @@ public final class GlobalConstants {
     supportedAnalysisOption.add(FEMA_IEBC_2003);
     supportedAnalysisOption.add(INTL_BUILDING_CODE);
     supportedAnalysisOption.add(INTL_RESIDENTIAL_CODE);
-    supportedAnalysisOption.add(INTL_EXIST_CODE);
+    //supportedAnalysisOption.add(INTL_EXIST_CODE);
     supportedAnalysisOption.add(ASCE_NFPA);
     return supportedAnalysisOption;
   }

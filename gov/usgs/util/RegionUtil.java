@@ -38,7 +38,8 @@ public final class RegionUtil {
         supportedRegionList.add(GlobalConstants.TUTUILA);
         supportedRegionList.add(GlobalConstants.GUAM);
       }
-      else if (selectedAnalysisOption.equals(GlobalConstants.PROB_HAZ_CURVES)) {
+      else if (selectedAnalysisOption.equals(GlobalConstants.PROB_HAZ_CURVES) ||
+               selectedAnalysisOption.equals(GlobalConstants.PROB_UNIFORM_HAZ_RES)) {
         supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
         supportedRegionList.add(GlobalConstants.ALASKA);
         supportedRegionList.add(GlobalConstants.HAWAII);

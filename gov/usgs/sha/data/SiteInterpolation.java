@@ -5,6 +5,7 @@ import gov.usgs.sha.io.DataFileNameSelector;
 import gov.usgs.util.GlobalConstants;
 import gov.usgs.sha.data.region.RegionBounds;
 import gov.usgs.sha.io.DataRecord;
+import gov.usgs.sha.io.NEHRP_Record;
 import java.text.DecimalFormat;
 
 /**
@@ -108,6 +109,14 @@ public class SiteInterpolation {
     gridSpacing = regionBounds.getGridSpacing();
     gridPointsPerLatitude = regionBounds.getNumPointsPerLatitude();
     saPeriods = regionBounds.getSA_Periods();
+    //as we are dividing the Periods vals by the dividing factor in case of NEHRP
+    // we are multiplying it back by the dividing factor because it is the actuaa
+    //SA Periods that we have to get the values for.
+    if(record instanceof NEHRP_Record){
+      int size = saPeriods.length;
+      for(int i=0;i<size;++i)
+        saPeriods[i] *= GlobalConstants.DIVIDING_FACTOR_HUNDRED;
+    }
     numPeriods = regionBounds.getNumPeriods();
   }
 

@@ -1,9 +1,7 @@
 package gov.usgs.sha.calc;
 
-import gov.usgs.exceptions.ZipCodeErrorException;
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import org.scec.data.function.DiscretizedFuncList;
-
+import org.scec.data.function.*;
+import gov.usgs.exceptions.*;
 
 /**
  * <p>Title: HazardDataCalc</p>
@@ -15,22 +13,20 @@ import org.scec.data.function.DiscretizedFuncList;
  */
 public class HazardDataCalc {
 
-
-
-
-    /**
-     *
-     * @param hazardCurveFunction ArbitrarilyDiscretizedFunc
-     * @param fex double Frequency of exceedance = 1/ReturnPd
-     * @param expTime double
-     * @return double
-     */
-    public double computeExceedProb(
+  /**
+   *
+   * @param hazardCurveFunction ArbitrarilyDiscretizedFunc
+   * @param fex double Frequency of exceedance = 1/ReturnPd
+   * @param expTime double
+   * @return double
+   */
+  public double computeExceedProb(
       double fex, double expTime) {
-      SingleValueHazardCurveCalculator calc = new SingleValueHazardCurveCalculator();
-      return calc.calculateProbExceed(fex,expTime);
+    SingleValueHazardCurveCalculator calc = new
+        SingleValueHazardCurveCalculator();
+    return calc.calculateProbExceed(fex, expTime);
 
-    }
+  }
 
   /**
    *
@@ -39,11 +35,10 @@ public class HazardDataCalc {
    * @return double
    */
   public double computeReturnPeriod(double exceedProb, double expTime) {
-      SingleValueHazardCurveCalculator calc = new SingleValueHazardCurveCalculator();
-      return calc.calculateReturnPeriod(exceedProb,expTime);
+    SingleValueHazardCurveCalculator calc = new
+        SingleValueHazardCurveCalculator();
+    return calc.calculateReturnPeriod(exceedProb, expTime);
   }
-
-
 
   /**
    *
@@ -56,12 +51,11 @@ public class HazardDataCalc {
   public ArbitrarilyDiscretizedFunc computeHazardCurve(String selectedRegion,
       String selectedEdition,
       double latitude,
-      double longitude,String hazCurveType) {
+      double longitude, String hazCurveType) {
 
     HazardCurveCalculator calc = new HazardCurveCalculator();
     return calc.getBasicHazardCurve(selectedRegion, selectedEdition, latitude,
-                                    longitude,hazCurveType);
-
+                                    longitude, hazCurveType);
   }
 
   /**
@@ -74,11 +68,11 @@ public class HazardDataCalc {
    */
   public ArbitrarilyDiscretizedFunc computeHazardCurve(String selectedRegion,
       String selectedEdition,
-      String zipCode,String hazCurveType) throws ZipCodeErrorException {
+      String zipCode, String hazCurveType) throws ZipCodeErrorException {
     HazardCurveCalculator calc = new HazardCurveCalculator();
-    return calc.getBasicHazardCurve(selectedRegion, selectedEdition, zipCode,hazCurveType);
+    return calc.getBasicHazardCurve(selectedRegion, selectedEdition, zipCode,
+                                    hazCurveType);
   }
-
 
   /**
    *
@@ -112,9 +106,46 @@ public class HazardDataCalc {
                                                 String spectraType) {
     SsS1Calculator ssS1Calc = new SsS1Calculator();
     return ssS1Calc.getSsS1(selectedRegion, selectedEdition, latitude,
-                            longitude,spectraType);
+                            longitude, spectraType);
   }
 
+
+  /**
+   * Used for getting the SA values for the UHS
+   * @param selectedRegion String
+   * @param selectedEdition String
+   * @param latitude double
+   * @param longitude double
+   * @param spectraType String
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  public ArbitrarilyDiscretizedFunc computeSA(String selectedRegion,
+                                              String selectedEdition,
+                                              double latitude,
+                                              double longitude,
+                                              String spectraType) {
+    UHS_SACalculator saCalc = new UHS_SACalculator();
+    return saCalc.getSA(selectedRegion, selectedEdition, latitude,
+                        longitude, spectraType);
+  }
+
+  /**
+   * Used for getting the SA values for the UHS
+   * @param selectedRegion String
+   * @param selectedEdition String
+   * @param latitude double
+   * @param longitude double
+   * @param spectraType String
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  public ArbitrarilyDiscretizedFunc computeSA(String selectedRegion,
+                                              String selectedEdition,
+                                              String zipCode,
+                                              String spectraType)throws
+      ZipCodeErrorException  {
+    UHS_SACalculator saCalc = new UHS_SACalculator();
+    return saCalc.getSA(selectedRegion, selectedEdition, zipCode, spectraType);
+  }
 
   /**
    *
@@ -125,14 +156,13 @@ public class HazardDataCalc {
    * @throws ZipCodeErrorException
    */
   public ArbitrarilyDiscretizedFunc computeSsS1(String selectedRegion,
-                                         String selectedEdition,
-                                         String zipCode) throws
+                                                String selectedEdition,
+                                                String zipCode) throws
       ZipCodeErrorException {
     SsS1Calculator ssS1Calc = new SsS1Calculator();
     return ssS1Calc.getSsS1(selectedRegion, selectedEdition, zipCode);
   }
 
-
   /**
    *
    * @param selectedRegion String
@@ -142,11 +172,13 @@ public class HazardDataCalc {
    * @throws ZipCodeErrorException
    */
   public ArbitrarilyDiscretizedFunc computeSsS1(String selectedRegion,
-                                         String selectedEdition,
-                                         String zipCode,String spectraType) throws
+                                                String selectedEdition,
+                                                String zipCode,
+                                                String spectraType) throws
       ZipCodeErrorException {
     SsS1Calculator ssS1Calc = new SsS1Calculator();
-    return ssS1Calc.getSsS1(selectedRegion, selectedEdition, zipCode,spectraType);
+    return ssS1Calc.getSsS1(selectedRegion, selectedEdition, zipCode,
+                            spectraType);
   }
 
   /**
@@ -158,8 +190,6 @@ public class HazardDataCalc {
     SsS1Calculator ssS1Calc = new SsS1Calculator();
     return ssS1Calc.getSsS1ForTerritory(selectedRegion);
   }
-
-
 
   /**
    *
@@ -174,9 +204,8 @@ public class HazardDataCalc {
                                                   String siteClass) {
 
     SMSsS1Calculator calc = new SMSsS1Calculator();
-    return calc.calculateSMSsS1(function,fa,fv,siteClass);
+    return calc.calculateSMSsS1(function, fa, fv, siteClass);
   }
-
 
   /**
    *
@@ -190,9 +219,8 @@ public class HazardDataCalc {
                                                   float fa, float fv,
                                                   String siteClass) {
     SDSsS1Calculator calc = new SDSsS1Calculator();
-    return calc.calculateSDSsS1(function,fa,fv,siteClass);
+    return calc.calculateSDSsS1(function, fa, fv, siteClass);
   }
-
 
   /**
    *
@@ -201,10 +229,11 @@ public class HazardDataCalc {
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList computeMapSpectrum(ArbitrarilyDiscretizedFunc function) {
+  public DiscretizedFuncList computeMapSpectrum(ArbitrarilyDiscretizedFunc
+                                                function) {
 
-      SpectrumCalculator calc = new SpectrumCalculator();
-      return calc.calculateMapSpectrum(function);
+    SpectrumCalculator calc = new SpectrumCalculator();
+    return calc.calculateMapSpectrum(function);
   }
 
   /**
@@ -216,12 +245,11 @@ public class HazardDataCalc {
    */
   public DiscretizedFuncList computeSMSpectrum(ArbitrarilyDiscretizedFunc
                                                function, float fa, float fv,
-                                                  String siteClass) {
+                                               String siteClass) {
 
     SpectrumCalculator calc = new SpectrumCalculator();
-    return calc.calculateSMSpectrum(function,fa,fv,siteClass);
+    return calc.calculateSMSpectrum(function, fa, fv, siteClass);
   }
-
 
   /**
    *
@@ -232,11 +260,10 @@ public class HazardDataCalc {
    */
   public DiscretizedFuncList computeSDSpectrum(ArbitrarilyDiscretizedFunc
                                                function, float fa, float fv,
-                                                  String siteClass) {
+                                               String siteClass) {
 
     SpectrumCalculator calc = new SpectrumCalculator();
-    return calc.calculateSDSpectrum(function,fa,fv,siteClass);
+    return calc.calculateSDSpectrum(function, fa, fv, siteClass);
   }
-
 
 }

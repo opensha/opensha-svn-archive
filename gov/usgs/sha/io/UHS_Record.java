@@ -30,6 +30,7 @@ public class UHS_Record
       recordNumber = ByteSwapUtil.swap(fin.readInt());
       latitude = ByteSwapUtil.swap(fin.readFloat());
       longitude = ByteSwapUtil.swap(fin.readFloat());
+      uhsFex = ByteSwapUtil.swap(fin.readFloat());
       numValues = ByteSwapUtil.swap(fin.readShort());
       for (int i = 0; i < numValues; ++i)
         values[i] = ByteSwapUtil.swap(fin.readFloat());

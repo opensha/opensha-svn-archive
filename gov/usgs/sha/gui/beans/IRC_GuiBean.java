@@ -89,30 +89,30 @@ public class IRC_GuiBean
     application = api;
     try {
 
-      jbInit();
-      createGroundMotionParameter();
       datasetGui = new DataSetSelectionGuiBean();
       locGuiBean = new LocationGuiBean();
-    }
-    catch(AnalysisOptionNotSupportedException e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
-      return;
+      try {
+        createGeographicRegionSelectionParameter();
+      }
+      catch (AnalysisOptionNotSupportedException ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage(),
+                                      "Analysis Option selection error",
+                                      JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+      createEditionSelectionParameter();
+      //creating the datasetEditor to show the geographic region and edition dataset.
+      datasetGui.createDataSetEditor();
+      createLocation();
+
+      createGroundMotionParameter();
+      jbInit();
     }
     catch (Exception exception) {
       exception.printStackTrace();
     }
 
-    try {
-      createGeographicRegionSelectionParameter();
-    }
-    catch (AnalysisOptionNotSupportedException ex) {
-      JOptionPane.showMessageDialog(this,ex.getMessage(),"Analysis Option selection error",JOptionPane.ERROR_MESSAGE);
-      return;
-    }
-    createEditionSelectionParameter();
-    //creating the datasetEditor to show the geographic region and edition dataset.
-    datasetGui.createDataSetEditor();
-    createLocation();
+
     basicParamsPanel.add(groundMotionParamEditor,
                          new GridBagConstraints(0, 0, 3, 1, 1.0, 1.2
                                                 , GridBagConstraints.CENTER,
@@ -131,10 +131,10 @@ public class IRC_GuiBean
 
 
 
-  protected void createGroundMotionParameter() throws AnalysisOptionNotSupportedException{
+  protected void createGroundMotionParameter() {
 
 
-    ArrayList supportedGroundMotion = GlobalConstants.getSupportedSpectraTypes(GlobalConstants.NEHRP);
+    ArrayList supportedGroundMotion = getSupportedSpectraTypes();
     groundMotionParam = new StringParameter(GROUND_MOTION_PARAM_NAME,
                                             supportedGroundMotion,
                                             (String) supportedGroundMotion.get(0));
@@ -142,7 +142,11 @@ public class IRC_GuiBean
     spectraType = (String)groundMotionParam.getValue();
   }
 
-
+  protected ArrayList getSupportedSpectraTypes() {
+    ArrayList supportedSpectraTypes = new ArrayList();
+    supportedSpectraTypes.add(GlobalConstants.MCE_GROUND_MOTION);
+    return supportedSpectraTypes;
+  }
 
 
   protected void jbInit() throws Exception {

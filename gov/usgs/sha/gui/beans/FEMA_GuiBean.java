@@ -29,11 +29,9 @@ public class FEMA_GuiBean
     dataGenerator = new DataGenerator_FEMA();
   }
 
-  protected void createGroundMotionParameter() throws
-      AnalysisOptionNotSupportedException {
+  protected void createGroundMotionParameter(){
 
-    ArrayList supportedGroundMotion = GlobalConstants.getSupportedSpectraTypes(
-        GlobalConstants.FEMA_IEBC_2003);
+    ArrayList supportedGroundMotion = getSupportedSpectraTypes();
     groundMotionParam = new StringParameter(GROUND_MOTION_PARAM_NAME,
                                             supportedGroundMotion,
                                             (String) supportedGroundMotion.get(
@@ -43,6 +41,16 @@ public class FEMA_GuiBean
 
     groundMotionParam.addParameterChangeListener(this);
     spectraType = (String) groundMotionParam.getValue();
+  }
+
+
+  protected ArrayList getSupportedSpectraTypes() {
+    ArrayList supportedSpectraTypes = new ArrayList();
+
+    supportedSpectraTypes.add(GlobalConstants.MCE_GROUND_MOTION);
+    supportedSpectraTypes.add(GlobalConstants.PE_10);
+
+    return supportedSpectraTypes;
   }
 
   /**

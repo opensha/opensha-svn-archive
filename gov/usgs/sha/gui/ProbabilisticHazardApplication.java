@@ -314,6 +314,7 @@ public class ProbabilisticHazardApplication
       guiBeanAPI = new ProbHazCurvesGuiBean(this);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.PROB_UNIFORM_HAZ_RES)) {
+      guiBeanAPI = new UHS_GuiBean(this);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.NEHRP)) {
       guiBeanAPI = new NEHRP_GuiBean(this);
