@@ -3,6 +3,7 @@ package org.scec.sha.imr.attenRelImpl.test;
 
 import junit.framework.*;
 import java.util.*;
+import javax.swing.UIManager;
 
 import org.scec.param.*;
 import org.scec.param.event.*;
@@ -42,10 +43,14 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
   //Instance of the class that does the actual comparison for the AttenuationRelationship classes
   AttenRelResultsChecker attenRelChecker;
 
-
+  static{
+    try { UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName()); }
+    catch ( Exception e ) {}
+  }
 
   public SCEMY_1997_test(final String name) {
     super(name);
+
   }
 
   protected void setUp() {
