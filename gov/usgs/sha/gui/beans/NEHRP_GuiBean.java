@@ -55,9 +55,7 @@ public class NEHRP_GuiBean
   JButton mapSpecButton = new JButton();
   JButton smSpecButton = new JButton();
   JButton sdSpecButton = new JButton();
-  JButton viewMapSpectrumButton = new JButton();
-  JButton viewSMSpecButton = new JButton();
-  JButton viewSDSpecButton = new JButton();
+  JButton viewButton = new JButton();
 
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   GridBagLayout gridBagLayout2 = new GridBagLayout();
@@ -192,29 +190,15 @@ public class NEHRP_GuiBean
         sdSpecButton_actionPerformed(actionEvent);
       }
     });
-    viewMapSpectrumButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
-    viewMapSpectrumButton.setActionCommand("viewMapSpecButton");
-    viewMapSpectrumButton.setText("<html>View <br>Map Spectrum</br></html>");
-    viewMapSpectrumButton.addActionListener(new ActionListener() {
+    viewButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
+    viewButton.setActionCommand("viewMapSpecButton");
+    viewButton.setText("<html>View <br>Map Spectrum</br></html>");
+    viewButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
-        viewMapSpectrumButton_actionPerformed(actionEvent);
+        viewButton_actionPerformed(actionEvent);
       }
     });
-    viewSMSpecButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
-    viewSMSpecButton.setActionCommand("viewSMSpecButton");
-    viewSMSpecButton.setText("<html>View <br>SM Spectrum</br></html>");
-    viewSMSpecButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        viewSMSpecButton_actionPerformed(actionEvent);
-      }
-    });
-    viewSDSpecButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
-    viewSDSpecButton.setText("<html>View <br>SD Spectrum</br></html>");
-    viewSDSpecButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        viewSDSpecButton_actionPerformed(actionEvent);
-      }
-    });
+
     regionPanel.setBorder(regionBorder);
     regionBorder.setTitleColor(Color.RED);
     regionPanel.setLayout(gridBagLayout2);
@@ -226,11 +210,8 @@ public class NEHRP_GuiBean
 
     buttonsSplitPane.add(basicParamsPanel, JSplitPane.TOP);
     buttonsSplitPane.add(responseSpectraButtonPanel, JSplitPane.BOTTOM);
-    responseSpectraButtonPanel.add(viewSDSpecButton,
-                                   new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(0, 34, 0, 39), 15, 6));
-    responseSpectraButtonPanel.add(viewMapSpectrumButton,
+
+    responseSpectraButtonPanel.add(viewButton,
                                    new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(0, 42, 0, 0), 8, 6));
@@ -242,10 +223,7 @@ public class NEHRP_GuiBean
                                    new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( -1, 27, 0, 0), 13, 6));
-    responseSpectraButtonPanel.add(viewSMSpecButton,
-                                   new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(0, 27, 0, 0), 13, 6));
+
     responseSpectraButtonPanel.add(sdSpecButton,
                                    new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
@@ -267,6 +245,28 @@ public class NEHRP_GuiBean
     mainSplitPane.setDividerLocation(380);
     locationSplitPane.setDividerLocation(170);
     buttonsSplitPane.setDividerLocation(180);
+    setButtonsDisabled(false);
+  }
+
+
+  private void setButtonsDisabled(boolean disableButtons){
+    siteCoeffButton.setEnabled(disableButtons);
+    smSDButton.setEnabled(disableButtons);
+    mapSpecButton.setEnabled(disableButtons);
+    smSpecButton.setEnabled(disableButtons);
+    sdSpecButton.setEnabled(disableButtons);
+    viewButton.setEnabled(false);
+  }
+
+
+
+
+  /**
+   * Removes all the output from the window
+   */
+  public void clearData(){
+    dataGenerator.clearData();
+    setButtonsDisabled(false);
   }
 
   /**
@@ -449,54 +449,54 @@ public class NEHRP_GuiBean
     }
   }
 
-  /**
-   * Returns the list of Arbitrary Discretized functions.
-   * @return ArrayList
-   */
-  public ArrayList getComputedFunctions(){
-    return dataGenerator.getData();
-  }
-
 
   private void ssButton_actionPerformed(ActionEvent actionEvent) {
     getDataForSA_Period();
     application.setDataInWindow(dataGenerator.getDataInfo());
+    siteCoeffButton.setEnabled(true);
   }
 
 
 
   private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-
     if(siteCoefficientWindow == null)
       siteCoefficientWindow = new SiteCoefficientInfoWindow();
+
     siteCoefficientWindow.show();
+
+    //dataGenerator.setFa(siteCoefficientWindow.getFa());
+    //dataGenerator.setFv(siteCoefficientWindow.getFv());
+    //dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
+
+    dataGenerator.setFa(1);
+    dataGenerator.setFv(1);
+    dataGenerator.setSiteClass(GlobalConstants.SITE_CLASS_B);
+
+    setButtonsDisabled(true);
   }
 
   private void smSDButton_actionPerformed(ActionEvent actionEvent) {
-
+    dataGenerator.calculateSMSsS1();
+    dataGenerator.calculatedSDSsS1();
   }
 
   private void mapSpecButton_actionPerformed(ActionEvent actionEvent) {
-
+    dataGenerator.calculateMapSpectrum();
+    viewButton.setEnabled(true);
   }
 
   private void smSpecButton_actionPerformed(ActionEvent actionEvent) {
-
+    dataGenerator.calculateSMSpectrum();
+    viewButton.setEnabled(true);
   }
 
   private void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
+    dataGenerator.calculateSDSpectrum();
+    viewButton.setEnabled(true);
+  }
+
+  private void viewButton_actionPerformed(ActionEvent actionEvent) {
 
   }
 
-  private void viewMapSpectrumButton_actionPerformed(ActionEvent actionEvent) {
-
-  }
-
-  private void viewSMSpecButton_actionPerformed(ActionEvent actionEvent) {
-
-  }
-
-  private void viewSDSpecButton_actionPerformed(ActionEvent actionEvent) {
-
-  }
 }

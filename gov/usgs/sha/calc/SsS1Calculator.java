@@ -9,7 +9,7 @@ import gov.usgs.exceptions.ZipCodeErrorException;
 import org.scec.data.function.DiscretizedFuncList;
 import org.scec.data.Location;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-
+import gov.usgs.sha.data.DataDisplayFormatter;
 
 import java.util.StringTokenizer;
 import java.io.*;
@@ -50,12 +50,10 @@ public class SsS1Calculator {
   private static final String CENTROID_SA = "Centroid Sa";
   private static final String MINIMUM_SA = "Minimum Sa";
   private static final String MAXIMUM_SA = "Maximum Sa";
-  private static final double Fa = 1.0;
-  private static final double Fv = 1.0;
+  private static final float Fa = 1;
+  private static final float Fv = 1;
 
 
-  private DecimalFormat periodFormat = new DecimalFormat("0.0#");
-  private DecimalFormat saValFormat = new DecimalFormat("0.###");
   private DecimalFormat gridSpacingFormat = new DecimalFormat("0.0#");
   private DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
 
@@ -139,9 +137,14 @@ public class SsS1Calculator {
 
     info += "Latitude = " + latLonFormat.format(latitude) + "\n";
     info += "Longitude = " + latLonFormat.format(longitude) + "\n";
-    info += createSubTitleString();
+    info +=
+        DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
+                                                  GlobalConstants.SITE_CLASS_B,
+                                                  Fa, Fv);
     info += "Data are based on a " + gridSpacing + " deg grid spacing";
-    info += createFunctionInfoString(function, SA);
+    info +=
+        DataDisplayFormatter.createFunctionInfoString(function, SA, Ss_Text, S1_Text,
+        GlobalConstants.SITE_CLASS_B);
     function.setInfo(info);
     return function;
   }
@@ -223,20 +226,25 @@ public class SsS1Calculator {
      String info="";
      info += SsS1_TITLE+"\n";
      info +="Spectral values are constant for the region\n";
-     info +=createSubTitleString()+"\n";
+     info +=
+        DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
+                                                  GlobalConstants.SITE_CLASS_B,
+                                                  Fa, Fv);
 
 
-      info +=createFunctionInfoString(function,SA)+"\n" ;
-     function.setInfo(info);
-     return function;
-   }
 
+    info +=
+        DataDisplayFormatter.createFunctionInfoString(function, SA, Ss_Text, S1_Text,
+        GlobalConstants.SITE_CLASS_B);
+    function.setInfo(info);
+    return function;
+  }
    /**
     *
     * @param zipCode
     * @return
     */
-   public DiscretizedFuncList getSsS1(String selectedRegion,
+   public ArbitrarilyDiscretizedFunc getSsS1(String selectedRegion,
                                       String selectedEdition, String zipCode) throws
        ZipCodeErrorException {
      Location loc = ZipCodeToLatLonConvertor.getLocationForZipCode(zipCode);
@@ -245,8 +253,6 @@ public class SsS1Calculator {
      double lon = loc.getLongitude();
      //getting the SA Period values for the lat lon for the selected Zip code.
      ArbitrarilyDiscretizedFunc function = getSsS1(selectedRegion,selectedEdition,lat, lon);
-     DiscretizedFuncList funcList = new DiscretizedFuncList();
-     funcList.add(function);
      try {
        DataFileNameSelector dataFileSelector = new DataFileNameSelector();
        //getting the fileName to be read for the selected location
@@ -300,33 +306,31 @@ public class SsS1Calculator {
            func3.set(saPeriods[1],
                      Double.parseDouble(tokenizer.nextToken()) /
                      GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+
            //adding the info for each function
-
-
-           funcList.add(func1);
-           funcList.add(func2);
-           funcList.add(func3);
-
            String info = "";
            info += SsS1_TITLE + "\n";
            info += "Zip Code - " + zipCode + "\n";
            info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
            info += "Zip Code Longitude = " + latLonFormat.format(lon) + "\n";
-           info += createSubTitleString() + "\n";
+           info +=
+               DataDisplayFormatter.createSubTitleString(SsS1_SubTitle,
+                                                  GlobalConstants.SITE_CLASS_B,
+                                                  Fa, Fv);
            info += "Data are based on a " + gridSpacing + " deg grid spacing";
            info +=
-               createFunctionInfoString( (ArbitrarilyDiscretizedFunc) funcList.
-                                        get(0), this.CENTROID_SA);
+               DataDisplayFormatter.createFunctionInfoString(function,CENTROID_SA,
+               Ss_Text,S1_Text,GlobalConstants.SITE_CLASS_B);
            info +=
-               createFunctionInfoString( (ArbitrarilyDiscretizedFunc) funcList.
-                                        get(1), this.MINIMUM_SA);
+               DataDisplayFormatter.createFunctionInfoString(func1,MINIMUM_SA,
+               Ss_Text,S1_Text,GlobalConstants.SITE_CLASS_B);
            info +=
-               createFunctionInfoString( (ArbitrarilyDiscretizedFunc) funcList.
-                                        get(2), this.MAXIMUM_SA);
+               DataDisplayFormatter.createFunctionInfoString(func2,MAXIMUM_SA,
+               Ss_Text,S1_Text,GlobalConstants.SITE_CLASS_B);
            info +=
-               createFunctionInfoString( (ArbitrarilyDiscretizedFunc) funcList.
-                                        get(3), this.SA);
-           funcList.setInfo(info);
+               DataDisplayFormatter.createFunctionInfoString(func3,SA,
+               Ss_Text,S1_Text,GlobalConstants.SITE_CLASS_B);
+           function.setInfo(info);
            break;
          }
          str = bin.readLine();
@@ -337,28 +341,11 @@ public class SsS1Calculator {
      catch (IOException e) {
        e.printStackTrace();
      }
-     return funcList;
+     return function;
    }
 
-   private String createSubTitleString() {
-     String dataInfo = "";
-     dataInfo += SsS1_SubTitle + "\n";
-     dataInfo += GlobalConstants.SITE_CLASS_B + " - " + " Fa = " + Fa + " ,Fv = " + Fv + "\n";
-     return dataInfo;
-   }
 
-   private String createFunctionInfoString(ArbitrarilyDiscretizedFunc function,String saString){
-     String dataInfo="";
-     dataInfo += "\nPeriod\t"+saString+"\n";
-     dataInfo += "(sec)\t (g)\n";
 
-     dataInfo +=periodFormat.format(function.getX(0))+"\t"+
-         saValFormat.format(function.getY(0))+"  "+Ss_Text+","+GlobalConstants.SITE_CLASS_B+"\n";
-     dataInfo +=periodFormat.format(function.getX(1))+"\t"+
-         saValFormat.format(function.getY(1))+"  "+S1_Text+","+GlobalConstants.SITE_CLASS_B+"\n";
-
-     return dataInfo;
-    }
 
    private ArbitrarilyDiscretizedFunc createFunction(float[] saVals){
      ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();

@@ -15,12 +15,6 @@ import org.scec.data.function.ArbitrarilyDiscretizedFunc;
  */
 public interface DataGeneratorAPI_NEHRP {
 
-  /**
-   * Returns the calculated data as individual Arbitrary Discretized function
-   * in a ArrayList.
-   * @return ArrayList
-   */
-  public ArrayList getData();
 
   /**
    * Removes all the calculated data.
@@ -54,6 +48,13 @@ public interface DataGeneratorAPI_NEHRP {
 
 
   /**
+   * Sets the selected site class
+   * @param siteClass String
+   */
+  public void setSiteClass(String siteClass);
+
+
+  /**
    *
    */
   public void calculateSMSsS1();
@@ -66,8 +67,17 @@ public interface DataGeneratorAPI_NEHRP {
   /**
    *
    */
-  public void approxSaSd() ;
+  public void calculateMapSpectrum();
 
+  /**
+   *
+   */
+  public void calculateSMSpectrum();
+
+  /**
+   *
+   */
+  public void calculateSDSpectrum();
 
   /**
    * Sets the selected geographic region.
@@ -85,12 +95,12 @@ public interface DataGeneratorAPI_NEHRP {
    * Sets the Fa value.
    * @param fa double
    */
-  public void setFa(double fa);
+  public void setFa(float fa);
 
   /**
    * Sets the Fv value.
    * @param fv double
    */
-  public void setFv(double fv);
+  public void setFv(float fv);
 
 }

@@ -1,8 +1,6 @@
 package gov.usgs.sha.calc;
 
 import gov.usgs.exceptions.ZipCodeErrorException;
-import gov.usgs.sha.io.DataFileNameSelector;
-
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.data.function.DiscretizedFuncList;
 
@@ -42,7 +40,7 @@ public class HazardDataCalc {
    * @return DiscretizedFuncList
    * @throws ZipCodeErrorException
    */
-  public DiscretizedFuncList computeSsS1(String selectedRegion,
+  public ArbitrarilyDiscretizedFunc computeSsS1(String selectedRegion,
                                          String selectedEdition,
                                          String zipCode) throws
       ZipCodeErrorException {
@@ -61,6 +59,82 @@ public class HazardDataCalc {
   }
 
 
+  /**
+   *
+   * @param function ArbitrarilyDiscretizedFunc
+   * @param fa float
+   * @param fv float
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  public ArbitrarilyDiscretizedFunc computeSMSsS1(ArbitrarilyDiscretizedFunc
+                                                  function,
+                                                  float fa, float fv,
+                                                  String siteClass) {
+
+    SMSsS1Calculator calc = new SMSsS1Calculator();
+    return calc.calculateSMSsS1(function,fa,fv,siteClass);
+  }
+
+
+  /**
+   *
+   * @param function ArbitrarilyDiscretizedFunc
+   * @param fa float
+   * @param fv float
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  public ArbitrarilyDiscretizedFunc computeSDSsS1(ArbitrarilyDiscretizedFunc
+                                                  function,
+                                                  float fa, float fv,
+                                                  String siteClass) {
+    SDSsS1Calculator calc = new SDSsS1Calculator();
+    return calc.calculateSDSsS1(function,fa,fv,siteClass);
+  }
+
+
+  /**
+   *
+   * @param function ArbitrarilyDiscretizedFunc
+   * @param fa float
+   * @param fv float
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList computeMapSpectrum(ArbitrarilyDiscretizedFunc function) {
+
+      SpectrumCalculator calc = new SpectrumCalculator();
+      return calc.calculateMapSpectrum(function);
+  }
+
+  /**
+   *
+   * @param function ArbitrarilyDiscretizedFunc
+   * @param fa float
+   * @param fv float
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList computeSMSpectrum(ArbitrarilyDiscretizedFunc
+                                               function, float fa, float fv,
+                                                  String siteClass) {
+
+    SpectrumCalculator calc = new SpectrumCalculator();
+    return calc.calculateSMSpectrum(function,fa,fv,siteClass);
+  }
+
+
+  /**
+   *
+   * @param function ArbitrarilyDiscretizedFunc
+   * @param fa float
+   * @param fv float
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList computeSDSpectrum(ArbitrarilyDiscretizedFunc
+                                               function, float fa, float fv,
+                                                  String siteClass) {
+
+    SpectrumCalculator calc = new SpectrumCalculator();
+    return calc.calculateSDSpectrum(function,fa,fv,siteClass);
+  }
 
 
 }

@@ -1,6 +1,8 @@
 package gov.usgs.sha.calc;
 
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import gov.usgs.util.GlobalConstants;
+import gov.usgs.sha.data.DataDisplayFormatter;
 
 /**
  * <p>Title: SMSsS1Calculator</p>
@@ -13,8 +15,17 @@ import org.scec.data.function.ArbitrarilyDiscretizedFunc;
  */
 public class SMSsS1Calculator {
 
-  private ArbitrarilyDiscretizedFunc calculateSMSsS1(ArbitrarilyDiscretizedFunc
-      saVals, float fa, float fv) {
+
+    /**
+     *
+     * @param saVals ArbitrarilyDiscretizedFunc
+     * @param fa float
+     * @param fv float
+     * @param siteClass String
+     * @return ArbitrarilyDiscretizedFunc
+     */
+    public ArbitrarilyDiscretizedFunc calculateSMSsS1(ArbitrarilyDiscretizedFunc
+      saVals, float fa, float fv,String siteClass) {
     ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
     function.set(saVals.getX(0), fa * saVals.getY(0));
     function.set(saVals.getX(1), fv * saVals.getY(1));
@@ -22,7 +33,15 @@ public class SMSsS1Calculator {
     String subTitle = "SMs = FaSs and SM1 = FvS1";
     String text1 = "SMs";
     String text2 = "SM1";
+    String info ="";
+    info +=title;
+    info +=DataDisplayFormatter.createSubTitleString(subTitle,siteClass,fa,fv);
+    info +=DataDisplayFormatter.createFunctionInfoString(function,"",text1,text2,siteClass);
+    function.setInfo(info);
     return function;
   }
+
+
+
 
 }

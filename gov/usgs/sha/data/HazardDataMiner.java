@@ -47,7 +47,7 @@ public class HazardDataMiner {
    * @return DiscretizedFuncList
    * @throws ZipCodeErrorException
    */
-  public DiscretizedFuncList getSsS1(String geographicRegion,
+  public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
                                      String dataEdition, String zipCode) throws
       ZipCodeErrorException {
 
@@ -65,4 +65,74 @@ public class HazardDataMiner {
     HazardDataCalc calc = new HazardDataCalc();
     return calc.computeSsS1(geographicRegion);
   }
+
+
+
+  /**
+   *
+   * @param func ArbitrarilyDiscretizedFunc
+   * @param fa double
+   * @param fv double
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  public ArbitrarilyDiscretizedFunc getSDSsS1(ArbitrarilyDiscretizedFunc func,
+                                              float fa,float fv,String siteClass){
+     HazardDataCalc calc = new HazardDataCalc();
+     return calc.computeSDSsS1(func,fa,fv,siteClass);
+  }
+
+
+  /**
+   *
+   * @param func ArbitrarilyDiscretizedFunc
+   * @param fa double
+   * @param fv double
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  public ArbitrarilyDiscretizedFunc getSMSsS1(ArbitrarilyDiscretizedFunc func,
+                                             float fa,float fv,String siteClass){
+    HazardDataCalc calc = new HazardDataCalc();
+    return calc.computeSMSsS1(func,fa,fv,siteClass);
+ }
+
+
+ /**
+  *
+  * @param func ArbitrarilyDiscretizedFunc
+  * @param fa double
+  * @param fv double
+  * @return DiscretizedFuncList
+  */
+ public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
+                                                 float fa, float fv,String siteClass) {
+   HazardDataCalc calc = new HazardDataCalc();
+   return calc.computeSMSpectrum(func, fa, fv,siteClass);
+ }
+
+
+ /**
+  *
+  * @param func ArbitrarilyDiscretizedFunc
+  * @param fa double
+  * @param fv double
+  * @return DiscretizedFuncList
+  */
+ public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
+                                                 float fa, float fv,String siteClass) {
+   HazardDataCalc calc = new HazardDataCalc();
+   return calc.computeSDSpectrum(func, fa, fv,siteClass);
+ }
+
+
+ /**
+  *
+  * @param func ArbitrarilyDiscretizedFunc
+  * @return DiscretizedFuncList
+  */
+ public DiscretizedFuncList getMapSpectrum(ArbitrarilyDiscretizedFunc func) {
+   HazardDataCalc calc = new HazardDataCalc();
+   return calc.computeMapSpectrum(func);
+ }
+
+
 }

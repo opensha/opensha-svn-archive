@@ -21,11 +21,16 @@ public class DataGenerator_NEHRP
   private String geographicRegion;
   //gets the selected edition
   private String dataEdition;
-  //hold the Arbitrary Discritized function list
-  private ArrayList functionsList = new ArrayList();
 
-  private double faVal;
-  private double fvVal;
+  private ArbitrarilyDiscretizedFunc saFunction;
+  private ArbitrarilyDiscretizedFunc smFunction;
+  private ArbitrarilyDiscretizedFunc sdFunction;
+  private DiscretizedFuncList mapSpectrumFunctions;
+  private DiscretizedFuncList smSpectrumFunctions;
+  private DiscretizedFuncList sdSpectrumFunctions;
+  private float faVal;
+  private float fvVal;
+  private String siteClass;
 
   //holds all the data and its info in a String format.
   private String dataInfo = "";
@@ -35,21 +40,12 @@ public class DataGenerator_NEHRP
    */
   public DataGenerator_NEHRP() {}
 
-  /**
-   * Returns the calculated data as individual Arbitrary Discretized function
-   * in a ArrayList.
-   * @return ArrayList
-   */
 
-  public ArrayList getData() {
-    return functionsList;
-  }
 
   /**
    * Removes all the calculated data.
    */
   public void clearData() {
-    functionsList.clear();
     dataInfo = "";
   }
 
@@ -74,11 +70,11 @@ public class DataGenerator_NEHRP
    * for the location or if it is GAUM and TAUTILLA.
    */
   public void calculateSsS1() {
-    //creates the instance of the Ss and S1
+
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion);
     addDataInfo(function.getInfo());
-    functionsList.add(function);
+    saFunction =function;
 
   }
 
@@ -87,12 +83,12 @@ public class DataGenerator_NEHRP
    * specifies Lat-Lon for the location.
    */
   public void calculateSsS1(double lat, double lon) {
-    //creates the instance of the Ss and S1
+
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion, dataEdition,
                                                  lat, lon);
     addDataInfo(function.getInfo());
-    functionsList.add(function);
+    saFunction = function;
 
   }
 
@@ -101,42 +97,72 @@ public class DataGenerator_NEHRP
    * specifies zip code for the location.
    */
   public void calculateSsS1(String zipCode) throws ZipCodeErrorException {
-    //creates the instance of the Ss and S1
+
     HazardDataMiner miner = new HazardDataMiner();
-    DiscretizedFuncList functions = miner.getSsS1(geographicRegion, dataEdition,
+    ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion, dataEdition,
                                                  zipCode);
+    addDataInfo(function.getInfo());
+    saFunction = function;
+  }
+
+
+  /**
+   *
+   */
+  public void calculateSMSsS1() {
+
+    HazardDataMiner miner = new HazardDataMiner();
+    ArbitrarilyDiscretizedFunc function = miner.getSMSsS1(saFunction,faVal,fvVal,siteClass);
+    addDataInfo(function.getInfo());
+    smFunction = function;
+  }
+
+
+  /**
+   *
+   *
+   */
+  public void calculatedSDSsS1() {
+
+    HazardDataMiner miner = new HazardDataMiner();
+    ArbitrarilyDiscretizedFunc function = miner.getSDSsS1(saFunction, faVal,
+        fvVal,siteClass);
+    addDataInfo(function.getInfo());
+    sdFunction = function;
+  }
+
+
+  /**
+   *
+   */
+  public void calculateMapSpectrum(){
+    HazardDataMiner miner = new HazardDataMiner();
+    DiscretizedFuncList functions = miner.getMapSpectrum(saFunction);
     addDataInfo(functions.getInfo());
-    int numFunctions = functions.size();
-    for (int i = 0; i < numFunctions; ++i)
-      functionsList.add(functions.get(i));
-
+    mapSpectrumFunctions= functions;
   }
-
 
   /**
    *
    */
-  public void calculateSMSsS1(){
-    ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
-
+  public void calculateSMSpectrum(){
+    HazardDataMiner miner = new HazardDataMiner();
+    DiscretizedFuncList functions = miner.getSMSpectrum(saFunction, faVal,
+        fvVal,siteClass);
+    addDataInfo(functions.getInfo());
+    smSpectrumFunctions = functions;
   }
-
 
   /**
    *
    */
-  public void calculatedSDSsS1(){
-    ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
+  public void calculateSDSpectrum(){
+    HazardDataMiner miner = new HazardDataMiner();
+    DiscretizedFuncList functions = miner.getSDSpectrum(saFunction, faVal,
+        fvVal,siteClass);
+    addDataInfo(functions.getInfo());
+    sdSpectrumFunctions = functions;
   }
-
-
-  /**
-   *
-   */
-  public void approxSaSd(){
-    ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
-  }
-
 
   /**
    * Sets the selected geographic region.
@@ -158,7 +184,7 @@ public class DataGenerator_NEHRP
    * Sets the Fa value.
    * @param fa double
    */
-  public void setFa(double fa) {
+  public void setFa(float fa) {
     faVal = fa;
   }
 
@@ -166,7 +192,16 @@ public class DataGenerator_NEHRP
    * Sets the Fv value.
    * @param fv double
    */
-  public void setFv(double fv) {
+  public void setFv(float fv) {
     fvVal = fv;
+  }
+
+
+  /**
+   * Sets the selected site class
+   * @param siteClass String
+   */
+  public void setSiteClass(String siteClass){
+    this.siteClass = siteClass;
   }
 }
