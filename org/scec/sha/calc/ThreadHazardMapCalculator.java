@@ -145,7 +145,7 @@ public void getHazardMapCurves(String[] args) {
      this.endIndex = endIndex;
    }
 
-   synchronized public void run(){
+   public void run(){
      Site site = null;
      for(int j=startIndex;j<endIndex;++j){
        try{
