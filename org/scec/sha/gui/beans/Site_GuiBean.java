@@ -47,15 +47,13 @@ public class Site_GuiBean extends JPanel implements
   protected final static String VS30_STRING = "Vs30";
   protected final static String BASIN_DEPTH_STRING = "Basin Depth (Phase III)";
 
-  //VS30 and Basin Depth values that we obtained from the CVM servlet
-  //stores the lat and lon values for Vs30
-  Vector vslatVector,vslonVector;
   //stores the Vs30 from CVM
-  Vector vs30Vector ;
-  //stores the lat and lon values for Basin Depth
-  Vector bdlatVector,bdlonVector;
+  double vs30 ;
   //stores the basin depth from CVM
-  Vector basinDepthVector ;
+  double basinDepth ;
+
+  // site translator
+  SiteTranslator siteTranslator = new SiteTranslator();
 
   /**
    * Site object
@@ -66,7 +64,7 @@ public class Site_GuiBean extends JPanel implements
   protected final static String SITE_PARAMS = "Set Site Params";
 
   private ParameterList parameterList = new ParameterList();
-  private ParameterListEditor editorPanel;
+  private ParameterListEditor parameterEditor;
 
   /**
    * Longitude and Latitude paramerts to be added to the site params list
@@ -97,15 +95,15 @@ public class Site_GuiBean extends JPanel implements
     // maake the new site object
     site= new Site(new Location(((Double)latitude.getValue()).doubleValue(),
                                 ((Double)longitude.getValue()).doubleValue()));
-    editorPanel = new ParameterListEditor(parameterList,searchPaths);
-    editorPanel.setTitle(SITE_PARAMS);
+    parameterEditor = new ParameterListEditor(parameterList,searchPaths);
+    parameterEditor.setTitle(SITE_PARAMS);
     try {
       jbInit();
     }
     catch(Exception e) {
       e.printStackTrace();
     }
-    this.add(editorPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    this.add(parameterEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
   }
 
@@ -132,11 +130,12 @@ public class Site_GuiBean extends JPanel implements
        site.addParameter(tempParam);
    }
 
-  this.remove(editorPanel);
-  editorPanel= new ParameterListEditor(parameterList);
-  editorPanel.setTitle(SITE_PARAMS);
-  this.add(editorPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+  this.remove(parameterEditor);
+  parameterEditor= new ParameterListEditor(parameterList);
+  parameterEditor.setTitle(SITE_PARAMS);
+  this.add(parameterEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
+  if(this.cvmCheckBox.isSelected())   setSiteParamsFromCVM();
  }
 
  /**
@@ -160,11 +159,12 @@ public class Site_GuiBean extends JPanel implements
        site.addParameter(cloneParam);
      }
    }
-   this.remove(editorPanel);
-   editorPanel= new ParameterListEditor(parameterList);
-   editorPanel.setTitle(SITE_PARAMS);
-   this.add(editorPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+   this.remove(parameterEditor);
+   parameterEditor= new ParameterListEditor(parameterList);
+   parameterEditor.setTitle(SITE_PARAMS);
+   this.add(parameterEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
+   if(this.cvmCheckBox.isSelected())   setSiteParamsFromCVM();
 
  }
 
@@ -237,6 +237,8 @@ public class Site_GuiBean extends JPanel implements
   public void parameterChange(ParameterChangeEvent e) {
     site.setLocation(new Location(((Double)latitude.getValue()).doubleValue(),
                                   ((Double)longitude.getValue()).doubleValue()));
+    if(this.cvmCheckBox.isSelected())   setSiteParamsFromCVM();
+
   }
 
   /**
@@ -275,13 +277,17 @@ public class Site_GuiBean extends JPanel implements
         );
    }
   private void jbInit() throws Exception {
-    cvmCheckBox.setText("Set Parameters from CVM");
+    cvmCheckBox.setBackground(Color.white);
+    cvmCheckBox.setFont(new java.awt.Font("Dialog", 1, 10));
+    cvmCheckBox.setForeground(new Color(80, 80, 133));
+    cvmCheckBox.setText("Set Site from CVM");
     cvmCheckBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         cvmCheckBox_actionPerformed(e);
       }
     });
     this.setLayout(gridBagLayout1);
+    this.setBackground(Color.white);
     this.add(cvmCheckBox,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
   }
@@ -291,11 +297,7 @@ public class Site_GuiBean extends JPanel implements
    * @param e
    */
   void cvmCheckBox_actionPerformed(ActionEvent e) {
-    if(this.cvmCheckBox.isSelected())
-      setSiteParamsFromCVM();
-    SiteTranslator siteTranslator = new SiteTranslator();
-    siteTranslator.setSiteParams(this.getSite(),((Double)vs30Vector.get(0)).doubleValue(),
-                                 ((Double)basinDepthVector.get(0)).doubleValue());
+    if(this.cvmCheckBox.isSelected())   setSiteParamsFromCVM();
   }
 
   /**
@@ -309,7 +311,7 @@ public class Site_GuiBean extends JPanel implements
       Double latMin = (Double)parameterList.getParameter(LATITUDE).getValue();
 
       Double latMax = new Double(latMin.doubleValue());
-      Double gridSpacing = new Double(0);
+      Double gridSpacing = new Double(0.05);
 
       // if values in longitude and latitude are invalid
       if(lonMin == null || latMin == null) {
@@ -319,6 +321,9 @@ public class Site_GuiBean extends JPanel implements
       }
       getVS30FromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
       getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
+      siteTranslator.setSiteParams(this.getSite(),vs30, basinDepth);
+      this.parameterEditor.synchToModel();
+
   }
 
 
@@ -360,12 +365,13 @@ public class Site_GuiBean extends JPanel implements
       // now read the connection again to get the vs30 as sent by the servlet
       ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
       //vectors of lat and lon for the Vs30
-      vslatVector=(Vector)ois.readObject();
-      vslonVector=(Vector)ois.readObject();
-      vs30Vector=(Vector)ois.readObject();
+      Vector vslatVector=(Vector)ois.readObject();
+      Vector vslonVector=(Vector)ois.readObject();
+      Vector vs30Vector=(Vector)ois.readObject();
+      vs30 = ((Double)vs30Vector.get(0)).doubleValue();
       ois.close();
 
-      //System.out.println("Vs30 is:"+vs30);
+      System.out.println("Vs30 is:"+vs30);
       JOptionPane.showMessageDialog(this,"We have got the Basin Depth from SCEC CVM");
 
     }catch (NumberFormatException ex) {
@@ -401,7 +407,7 @@ public class Site_GuiBean extends JPanel implements
       // send the student object to the servlet using serialization
       ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
 
-      outputToServlet.writeObject("Basin Depth");
+      outputToServlet.writeObject("BasinDepth");
       outputToServlet.writeObject(lonMin);
       outputToServlet.writeObject(lonMax);
       outputToServlet.writeObject(latMin);
@@ -415,12 +421,13 @@ public class Site_GuiBean extends JPanel implements
       ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
 
       //vectors of lat and lon for the Basin Depth
-      bdlatVector=(Vector)ois.readObject();
-      bdlonVector=(Vector)ois.readObject();
-      basinDepthVector=(Vector)ois.readObject();
+      Vector bdlatVector=(Vector)ois.readObject();
+      Vector bdlonVector=(Vector)ois.readObject();
+      Vector basinDepthVector=(Vector)ois.readObject();
+      this.basinDepth = ((Double)basinDepthVector.get(0)).doubleValue();
       ois.close();
 
-      //System.out.println("Vs30 is:"+vs30);
+      System.out.println("basindepth is:"+ this.basinDepth );
       JOptionPane.showMessageDialog(this,"We have got the Vs30 from SCEC CVM");
 
     }catch (NumberFormatException ex) {
@@ -436,6 +443,6 @@ public class Site_GuiBean extends JPanel implements
    * @returns the site ParamListEditor
    */
   public ParameterListEditor getParameterListEditor(){
-    return editorPanel;
+    return parameterEditor;
   }
 }
