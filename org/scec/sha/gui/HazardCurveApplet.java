@@ -1531,8 +1531,12 @@ public class HazardCurveApplet extends JApplet
     if(this.xValuesPanel !=null){
       //gets the X values from the X_ValueControlPanel
       ArbitrarilyDiscretizedFunc func= xValuesPanel.getX_ValuesFunctions();
+      System.out.println("Number :"+func.getNum());
       //after getting the X values we are storing the values in the double array for
       //PGA,PGV and SA
+      xValuesPGA = new double[func.getNum()];
+      xValuesPGV = new double[func.getNum()];
+      xValuesSA = new double[func.getNum()];
       for(int i=0;i<func.getNum();++i){
         xValuesPGA[i] = func.getX(i);
         xValuesPGV[i] = func.getX(i);

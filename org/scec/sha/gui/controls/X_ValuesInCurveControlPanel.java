@@ -21,12 +21,13 @@ public class X_ValuesInCurveControlPanel extends JFrame {
   private JScrollPane xValuesScrollPane = new JScrollPane();
   private JTextArea xValuesText = new JTextArea();
   private JButton xValuesButton = new JButton();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private BorderLayout borderLayout1 = new BorderLayout();
 
 
   //function containing x,y values
   ArbitrarilyDiscretizedFunc function;
+  private JButton doneButton = new JButton();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
 
   public X_ValuesInCurveControlPanel(Component parent) {
     try {
@@ -42,6 +43,24 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     this.setX_Values();
   }
   private void jbInit() throws Exception {
+    xValuesLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    xValuesLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+    doneButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        doneButton_actionPerformed(e);
+      }
+    });
+    jPanel1.setLayout(gridBagLayout1);
+    //jPanel1.setPreferredSize(new Dimension(300, 500));
+    jPanel1.add(doneButton,   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 30, 11, 0), 24, 0));
+    jPanel1.add(xValuesLabel,   new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(4, 4, 0, 12), 0, 0));
+    jPanel1.add(xValuesScrollPane,     new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 45, 0, 79), 20, 60));
+    jPanel1.add(xValuesButton,   new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 0, 11, 27), 0, 0));
+    xValuesScrollPane.getViewport().add(xValuesText, null);
     xValuesButton.setBackground(new Color(200, 200, 230));
     xValuesButton.setForeground(new Color(80, 80, 133));
     xValuesButton.setText("Set Default");
@@ -61,18 +80,13 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     xValuesText.setForeground(new Color(80, 80, 133));
     xValuesText.setLineWrap(false);
     this.getContentPane().setLayout(borderLayout1);
-    jPanel1.setLayout(gridBagLayout1);
     xValuesLabel.setBackground(new Color(200, 200, 230));
     xValuesLabel.setForeground(new Color(80, 80, 133));
     xValuesLabel.setText("Enter X-Values for Hazard Curve");
-    jPanel1.add(xValuesLabel,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 53, 0, 14), 32, 12));
-    jPanel1.add(xValuesScrollPane,   new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(12, 87, 12, 0), 0, 0));
-    jPanel1.add(xValuesButton,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(303, 15, 19, 21), 3, 14));
-    xValuesScrollPane.getViewport().add(xValuesText, null);
+    doneButton.setForeground(new Color(80, 80, 133));
+    doneButton.setText("Done");
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
+    this.setSize(150,200);
   }
 
   /**
@@ -153,7 +167,11 @@ public class X_ValuesInCurveControlPanel extends JFrame {
    * @param e
    */
   void  this_windowClosing(WindowEvent e) {
-    System.out.println("Inside the window closing");
+    closeWindow();
+  }
+
+  private void closeWindow(){
+
     int flag=0;
     try{
       //sets the X values in the ArbitrarilyDiscretizedFunc
@@ -179,9 +197,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     //if there is no exception occured and user properly entered the X values
     if(flag==0)
       this.dispose();
-
   }
-
 
   /**
    *
@@ -191,5 +207,12 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     return this.function;
   }
 
+  /**
+   * Closes the window when the user is done with entering the x values.
+   * @param e
+   */
+  void doneButton_actionPerformed(ActionEvent e) {
+    closeWindow();
+  }
 
 }
