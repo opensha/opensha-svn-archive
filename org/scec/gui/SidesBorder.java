@@ -4,8 +4,6 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-// FIX - Needs more comments
-
 /**
  *  <b>Title:</b> SidesBorder<p>
  *

@@ -20,6 +20,6 @@ public class MagFreqDistException extends RuntimeException {
     /** No-arg constructor */
     public MagFreqDistException()  { super(); }
     /** Constructor that specifies an error message */
-    public MagFreqDistException(String string ) {{ super( string ); }
+    public MagFreqDistException(String string ) { super( string ); }
 }
 
