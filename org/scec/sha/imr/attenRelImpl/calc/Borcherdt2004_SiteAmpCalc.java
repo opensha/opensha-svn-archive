@@ -14,7 +14,7 @@
  * @version 1.0
  */
 
-public class Borcherdt2004_SiteAmpCalc {
+public class Borcherdt2004_SiteAmpCalc implements java.io.Serializable{
 
   private EvenlyDiscretizedFunc ma_func, mv_func;
 

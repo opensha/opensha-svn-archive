@@ -19,7 +19,7 @@ import org.scec.sha.param.WarningDoublePropagationEffectParameter;
  * @author Ned Field
  * @version 1.0
  */
-public class PropagationEffect {
+public class PropagationEffect implements java.io.Serializable{
 
     private final static String C = "PropagationEffect";
     private final static boolean D = false;
