@@ -44,7 +44,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
   protected final static String C = "MagFreqDistTesterApplet";
-  private final static String version = "0.0.1";
+  private final static String version = "0.0.2";
   protected final static boolean D = false;
 
 
@@ -798,10 +798,8 @@ public class MagFreqDistTesterApplet extends JApplet
 
         // Starting
         String S = C + ": addGraphPanel(): ";
-        if(this.jCheckylog.isSelected())
-          yLog=true;
-        else
-          yLog=false;
+        if(this.jCheckylog.isSelected()) yLog=true;
+        else yLog=false;
 
 
         // create a default chart based on some sample data...
@@ -822,17 +820,19 @@ public class MagFreqDistTesterApplet extends JApplet
         incrXAxis = new HorizontalNumberAxis( incrXAxisLabel );
         incrXAxis.setAutoRangeIncludesZero( false );
         incrXAxis.setStandardTickUnits(units);
-
+        incrXAxis.setTickMarksVisible(false);
 
         // create X- axis for mag vs cum rate
         cumXAxis = new HorizontalNumberAxis( cumXAxisLabel );
         cumXAxis.setAutoRangeIncludesZero( false );
         cumXAxis.setStandardTickUnits(units);
+        cumXAxis.setTickMarksVisible(false);
 
         // create x- axis for mag vs moment rate
         moXAxis = new HorizontalNumberAxis( moXAxisLabel );
         moXAxis.setAutoRangeIncludesZero( false );
         moXAxis.setStandardTickUnits(units);
+        moXAxis.setTickMarksVisible(false);
 
         if (yLog)  {
           incrYAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis(incrYAxisLabel);
@@ -851,6 +851,7 @@ public class MagFreqDistTesterApplet extends JApplet
         incrYAxis.setAutoRangeIncludesZero(false);
         incrYAxis.setAutoRangeStickyZero(true);
         incrYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
+        incrYAxis.setTickMarksVisible(false);
 
 
         // set properties for mag vs incremental rate Y- axis
@@ -859,6 +860,7 @@ public class MagFreqDistTesterApplet extends JApplet
         cumYAxis.setAutoRangeIncludesZero(false);
         cumYAxis.setAutoRangeStickyZero(true);
         cumYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
+        cumYAxis.setTickMarksVisible(false);
 
         // set properties for mag vs incremental rate Y- axis
         moYAxis.setAutoRangeIncludesZero( true );
@@ -866,6 +868,7 @@ public class MagFreqDistTesterApplet extends JApplet
         moYAxis.setAutoRangeIncludesZero(false);
         moYAxis.setAutoRangeStickyZero(true);
         moYAxis.setAutoRangeMinimumSize(AUTO_RANGE_MINIMUM_SIZE);
+        moYAxis.setTickMarksVisible(false);
 
 
         int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;

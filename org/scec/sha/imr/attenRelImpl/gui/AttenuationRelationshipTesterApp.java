@@ -51,7 +51,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 {
 
     protected final static String C = "AttenuationRelationshipTesterApp";
-    private final static String version = "0.0.1";
+    private final static String version = "0.0.2";
     protected final static boolean D = false;
 
     protected static int counter = 0;
@@ -944,6 +944,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         xAxis.setAutoRangeIncludesZero( false );
         xAxis.setStandardTickUnits(units);
+        xAxis.setTickMarksVisible(false);
 
 
 
@@ -953,6 +954,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         yAxis.setAutoRangeIncludesZero( false );
         yAxis.setStandardTickUnits(units);
+        yAxis.setTickMarksVisible(false);
 
         int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
 

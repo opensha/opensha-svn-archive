@@ -19,6 +19,14 @@ public class PEER_FileOverwriteWindow extends JFrame {
   JButton continueButton = new JButton();
   JButton cancelButton = new JButton();
 
+  // messages shown to the user
+  private static String MSG_INCORRECT_PASSWORD = "Incorrect Password";
+  private static String TITLE_INCORRECT_PASSWORD  = "Check Password";
+  private static String TITLE_CONFIRMATION = "Confirmation Message";
+  private static String MSG_ADD = "Are you sure you want to add ";
+  private static String MSG_OVERWRITE = "Are you sure you want to overwrite ";
+
+
   //Instance of the PEER_TestResultsSubmissionApplet
   PEER_TestResultsSubmissionApplet peer=null;
 
@@ -109,21 +117,24 @@ public class PEER_FileOverwriteWindow extends JFrame {
     String password = new String(filePassword.getPassword());
 
     if(!peer.checkPassword(password))
-      JOptionPane.showMessageDialog(this,new String("Incorrect Password"),"Check Password",
+      JOptionPane.showMessageDialog(this,
+                                    this.MSG_INCORRECT_PASSWORD,
+                                    this.TITLE_INCORRECT_PASSWORD,
                                     JOptionPane.OK_OPTION);
 
     else {
-      //delete the file selected.
-      int flag=JOptionPane.showConfirmDialog(this,new String("Are you sure you want to add/overwrite"+
-               "the file??"),"Confirmation Message",JOptionPane.OK_CANCEL_OPTION);
-
+      //add or overwrite the file selected.
+      int flag;
+      if(overWriteFile) // for overwriting, show overwrite message
+        flag=JOptionPane.showConfirmDialog(this,this.MSG_OVERWRITE+fileName+"?",
+               this.TITLE_CONFIRMATION,JOptionPane.OK_CANCEL_OPTION);
+      else
+        flag=JOptionPane.showConfirmDialog(this,this.MSG_ADD+fileName+"?",
+               this.TITLE_CONFIRMATION,JOptionPane.OK_CANCEL_OPTION);
       int found=0;
-      if(flag == JOptionPane.OK_OPTION)
-         found=1;
-      if(found==1 && overWriteFile)
-        peer.openOverwriteConnection(fileName);
-      else if(found==1 && !overWriteFile)
-        peer.openConnection();
+      if(flag == JOptionPane.OK_OPTION)  found=1;
+      if(found==1 && overWriteFile) peer.openOverwriteConnection(fileName);
+      else if(found==1 && !overWriteFile)  peer.openConnection();
       this.dispose();
     }
     filePassword.setText("");

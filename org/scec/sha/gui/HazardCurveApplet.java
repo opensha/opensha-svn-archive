@@ -587,6 +587,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
 
       xAxis.setAutoRangeIncludesZero( false );
       xAxis.setStandardTickUnits(units);
+      xAxis.setTickMarksVisible(false);
 
       /// check if y log is selected or not
       if(yLog) yAxis = new VerticalLogarithmicAxis(yAxisLabel);
@@ -594,6 +595,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
 
       yAxis.setAutoRangeIncludesZero( false );
       yAxis.setStandardTickUnits(units);
+      yAxis.setTickMarksVisible(false);
 
       int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
 

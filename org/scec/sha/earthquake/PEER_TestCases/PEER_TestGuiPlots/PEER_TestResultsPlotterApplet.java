@@ -608,6 +608,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
       xAxis.setAutoRangeIncludesZero( false );
       xAxis.setStandardTickUnits(units);
+      xAxis.setTickMarksVisible(false);
 
       /// check if y log is selected or not
       if(yLog) yAxis = new VerticalLogarithmicAxis(yAxisLabel);
@@ -615,6 +616,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
       yAxis.setAutoRangeIncludesZero( false );
       yAxis.setStandardTickUnits(units);
+      yAxis.setTickMarksVisible(false);
 
       int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
 

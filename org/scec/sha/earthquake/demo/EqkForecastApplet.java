@@ -1214,15 +1214,13 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
 
       HorizontalNumberAxis xAxis = new HorizontalNumberAxis( xAxisLabel );
-
       xAxis.setAutoRangeIncludesZero( false );
-
-
+      xAxis.setTickMarksVisible(false);
 
 
       VerticalNumberAxis yAxis = new VerticalNumberAxis( yAxisLabel );
-
       yAxis.setAutoRangeIncludesZero( false );
+      yAxis.setTickMarksVisible(false);
 
 
 
