@@ -82,6 +82,11 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   public static final String GR_MAG_UPPER_INFO=new String("Max mag of the GR distribution (must be an increment of 0.05)");
   public final static Double GR_MAG_UPPER_DEFAULT = new Double(7.15);
 
+  // dip direction parameter stuff
+  public final static String DIP_DIRECTION_NAME = new String ("Dip Direction");
+  public final static String DIP_DIRECTION_EAST = new String ("East");
+  public final static String DIP_DIRECTION_WEST = new String ("West");
+
   // segmentation parameter stuff
   public final static String SEGMENTATION_NAME = new String ("Segmentation Model");
   public final static String SEGMENTATION_NONE = new String ("Unsegmented");
@@ -115,6 +120,10 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
   // make the magUpper parameter
   private DoubleParameter magUpperParam = new DoubleParameter(GR_MAG_UPPER,GR_MAG_UPPER_DEFAULT);
+
+  // make the segmetation model parameter
+  private Vector dipDirectionStrings=new Vector();
+  private StringParameter dipDirectionParam;
 
   // make the segmetation model parameter
   private Vector segModelNamesStrings=new Vector();
@@ -158,6 +167,11 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
+    // make the dipDirectionParam
+    dipDirectionStrings.add(DIP_DIRECTION_EAST);
+    dipDirectionStrings.add(DIP_DIRECTION_WEST);
+    dipDirectionParam = new StringParameter(DIP_DIRECTION_NAME,dipDirectionStrings,DIP_DIRECTION_EAST);
+
     // make the segModelParam
     segModelNamesStrings.add(SEGMENTATION_NONE);
     segModelNamesStrings.add(SEGMENTATION_A);
@@ -181,6 +195,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     adjustableParams.addParameter(magUpperParam);
     adjustableParams.addParameter(segModelParam);
     adjustableParams.addParameter(faultModelParam);
+    adjustableParams.addParameter(dipDirectionParam);
 
     // listen for change in the parameters
     gridParam.addParameterChangeListener(this);
@@ -190,6 +205,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     magUpperParam.addParameterChangeListener(this);
     segModelParam.addParameterChangeListener(this);
     faultModelParam.addParameterChangeListener(this);
+    dipDirectionParam.addParameterChangeListener(this);
 
     grMagFreqDist = new GutenbergRichterMagFreqDist(GR_MIN, GR_MAX, GR_NUM);
 
@@ -253,6 +269,12 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
          faultTrace.addLocation(traceLoc6);
        }
 
+       // reverse the order of the points if it's dipping west
+       String dipDir = (String) dipDirectionParam.getValue();
+       if(dipDir.equals(DIP_DIRECTION_WEST))
+          faultTrace.reverse();
+
+       if(D)  System.out.println(S+" - done with fault trace");
 
        // Now make the gridded surface
        double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
@@ -271,6 +293,8 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
        GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
+       if(D)  System.out.println(S+" - done with gridded surface");
+
        // Now make the mag freq dist
        double magUpper = ((Double) magUpperParam.getValue()).doubleValue();
        double slipRate = ((Double) slipRateParam.getValue()).doubleValue() / 1000.0;  // last is to convert to meters/yr
@@ -278,6 +302,8 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
        double faultArea = faultTrace.getTraceLength() * ddw * 1e6;  // the last is to convert to meters
        double totMoRate = 3e10*faultArea*slipRate;
        grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
+
+       if(D)  System.out.println(S+" - done with mag freq dist");
 
        double offset = ((Double)offsetParam.getValue()).doubleValue();
        double lengthSigma = ((Double)lengthSigmaParam.getValue()).doubleValue();
@@ -298,6 +324,8 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
        source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                              magScalingRel,lengthSigma,rupAspectRatio,offset,
                                              RAKE,timeSpan.getDuration(),minMag);
+
+       if(D)  System.out.println(S+" - done making the source");
      }
      parameterChangeFlag = false;
    }

@@ -198,7 +198,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     ParameterList siteParams = siteGuiBean.getParameterListEditor().getParameterList();
 
     // set the distance in control panel
-    this.distanceControlPanel.setDistance(this.MAX_DISTANCE);
+    distanceControlPanel.setDistance(MAX_DISTANCE);
 
     //if set-1 PEER test case is selected
     if(selectedSet.equalsIgnoreCase(PEER_TESTS_SET_ONE))
@@ -452,8 +452,21 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
 
    // ********* set the site latitude and longitude ************
-
-   if(selectedTest.equalsIgnoreCase(TEST_CASE_TWO)){
+   if(selectedTest.equals(TEST_CASE_ONE) || selectedTest.equals(TEST_CASE_FIVE)){
+     if(selectedSite.equals(SITE_ONE) || selectedSite.equals(SITE_FOUR)){
+       siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.1126));
+       siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-121.8860));
+     }
+     else if(selectedSite.equalsIgnoreCase(SITE_TWO) || selectedSite.equals(SITE_FIVE)){
+       siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.1800));
+       siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-121.8860));
+     }
+     else if(selectedSite.equalsIgnoreCase(SITE_THREE) || selectedSite.equals(SITE_SIX)){
+       siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.2696));
+       siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.1140));
+     }
+   }
+   else if(selectedTest.equalsIgnoreCase(TEST_CASE_TWO)){
      siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122));
      if(selectedSite.equalsIgnoreCase(SITE_ONE)){
        siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(37.5495));
@@ -465,7 +478,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
        siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(36.8737));
      }
    }
-   else {
+   else { // all others have the same set of sites
      if(selectedSite.equalsIgnoreCase(SITE_ONE)){
        siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-121.886));
        siteParams.getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.1126));
@@ -490,10 +503,15 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.GR_MAG_UPPER).setValue(new Double(7.15));
+     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.GR_MAG_UPPER).setValue(new Double(6.95));
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SLIP_RATE_NAME).setValue(new Double(2.0));
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SEGMENTATION_NAME).setValue(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE);
-
+     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.FAULT_MODEL_NAME).setValue(PEER_NonPlanarFaultForecast.FAULT_MODEL_STIRLING);
+     // set the dip direction depending on the chosen
+     if(selectedSite.equals(SITE_ONE) || selectedSite.equals(SITE_TWO) || selectedSite.equals(SITE_THREE))
+       erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_EAST);
+     else
+       erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_WEST);
    }
 
    //if test case -2
@@ -531,6 +549,10 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    //if test case 5
    if(selectedTest.equalsIgnoreCase(TEST_CASE_FIVE) ) {
        erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_LogicTreeERF_List.NAME);
+       erfGuiBean.getParameterList().getParameter(PEER_LogicTreeERF_List.FAULT_MODEL_NAME).setValue(PEER_LogicTreeERF_List.FAULT_MODEL_STIRLING);
+       erfGuiBean.getParameterList().getParameter(PEER_LogicTreeERF_List.OFFSET_PARAM_NAME).setValue(new Double(1));
+       erfGuiBean.getParameterList().getParameter(PEER_LogicTreeERF_List.GRID_PARAM_NAME).setValue(new Double(1));
+       erfGuiBean.getParameterList().getParameter(PEER_LogicTreeERF_List.SIGMA_PARAM_NAME).setValue(new Double(0.0));
        timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
    }
 
@@ -572,13 +594,13 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
       // mag dist parameters for test case 3
      if(selectedTest.equalsIgnoreCase(TEST_CASE_THREE)){
        magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
-       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.05));
-       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(9.95));
-       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(100));
+       magEditor.getParameter(MagFreqDistParameter.MIN).setValue(new Double(0.0));
+       magEditor.getParameter(MagFreqDistParameter.MAX).setValue(new Double(10));
+       magEditor.getParameter(MagFreqDistParameter.NUM).setValue(new Integer(1001));
        magEditor.getParameter(MagFreqDistParameter.GR_BVALUE).setValue(new Double(0.9));
        magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_CHAR).setValue(new Double(.5));
        magEditor.getParameter(MagFreqDistParameter.YC_DELTA_MAG_PRIME).setValue(new Double(1.0));
-       magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.05));
+       magEditor.getParameter(MagFreqDistParameter.GR_MAG_LOWER).setValue(new Double(0.01));
        magEditor.getParameter(MagFreqDistParameter.YC_MAG_PRIME).setValue(new Double(5.95));
        magEditor.getParameter(MagFreqDistParameter.GR_MAG_UPPER).setValue(new Double(6.45));
        magEditor.getParameter(MagFreqDistParameter.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameter.TOT_MO_RATE);
@@ -1000,6 +1022,9 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_ONE+"-"+this.SITE_ONE));
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_ONE+"-"+this.SITE_TWO));
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_ONE+"-"+this.SITE_THREE));
+     v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_ONE+"-"+this.SITE_FOUR));
+     v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_ONE+"-"+this.SITE_FIVE));
+     v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_ONE+"-"+this.SITE_SIX));
 
      //test case-2 , Set-2
      v.add(new String(this.PEER_TESTS_SET_TWO +"-"+this.TEST_CASE_TWO+"-"+this.SITE_ONE));

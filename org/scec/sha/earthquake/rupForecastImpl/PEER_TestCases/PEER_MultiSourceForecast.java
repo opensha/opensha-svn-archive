@@ -164,22 +164,24 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
     dist_gr_A_orig.setAllButTotMoRate(5.05, 6.45,0.0395,bValue);
     // Fault B distribution
     double tempMoRate = FaultMomentCalc.getMoment(75.0e3*12.0e3, 2e-3);
-    double magLower = 0.05;
+    double minMag = 0.0;
+    double maxMag = 10.0;
+    int    numMag = 1001;
+    double magLower = 0.01;
     double magUpper = 7.25;
     double deltaMagChar = 0.5;
     double magPrime = 6.75;
     double deltaMagPrime = 1.0;
-    dist_yc_B = new YC_1985_CharMagFreqDist(magLower,magUpper, 73);
+    dist_yc_B = new YC_1985_CharMagFreqDist(minMag,maxMag, numMag);
     dist_yc_B.setAllButTotCharRate(magLower, magUpper,deltaMagChar,magPrime,deltaMagPrime,bValue,tempMoRate);
     // Fault C distribution
     tempMoRate = FaultMomentCalc.getMoment(25.0e3*12.0e3, 1e-3);
     magUpper = 6.75;
     magPrime = 6.25;
-    dist_yc_C = new YC_1985_CharMagFreqDist(magLower,magUpper, 68);
+    dist_yc_C = new YC_1985_CharMagFreqDist(minMag,maxMag, numMag);
     dist_yc_C.setAllButTotCharRate(magLower, magUpper,deltaMagChar,magPrime,deltaMagPrime,bValue,tempMoRate);
 
     // make the fault traces for the fault sources.
-
     faultTraceB = new FaultTrace("Fault B");
     faultTraceB.addLocation(faultB_loc1);
     faultTraceB.addLocation(faultB_loc2);

@@ -98,7 +98,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
       if (D) {
         System.out.println(magDist.getName());
         System.out.println("surface rows, cols: "+faultSurface.getNumCols()+", "+faultSurface.getNumRows());
-        System.out.println(magScalingRel.getName());
+        System.out.println("magScalingRelationship: "+magScalingRel.getName());
         System.out.println("magScalingSigma: "+magScalingSigma);
         System.out.println("rupAspectRatio: "+rupAspectRatio);
         System.out.println("rupOffset: "+rupOffset);

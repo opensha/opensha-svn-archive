@@ -114,44 +114,43 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
     lengthSigmaParam.addParameterChangeListener(this);
     faultModelParam.addParameterChangeListener(this);
 
-    // this constructor will create the instances of the non-planar with various parameters
-    // thes instances will be added to the the list
+    // create the ERFs for each branch
 
     // add Unsegmented
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE, SLIP_RATE_1, MAG_1), REL_WEIGHT_1);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE, SLIP_RATE_2, MAG_1), REL_WEIGHT_2);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE, SLIP_RATE_3, MAG_1), REL_WEIGHT_1);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE, SLIP_RATE_1, MAG_1), REL_WEIGHT_1);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE, SLIP_RATE_2, MAG_1), REL_WEIGHT_2);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE, SLIP_RATE_3, MAG_1), REL_WEIGHT_1);
 
     //add segment A
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_A, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_A, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_A, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_A, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_A, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_A, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
 
     // add segment B
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_B, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_B, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_B, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_B, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_B, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_B, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
 
     //add segment C
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_C, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_C, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_C, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_C, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_C, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_C, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
 
     //add segment D
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_D, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_D, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_D, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_D, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_D, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_D, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
 
     //add segment E
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
-    this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
 
   }
 
   /**
    * this method will create the instance of the non-planar fault based on the
-   * provided segmenattion, slip rate and mag upper
+   * provided segmentation, slip rate and mag upper
    * @param slipRate
    * @param maxMag
    * @return
@@ -162,6 +161,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
     forecast.getParameter(PEER_NonPlanarFaultForecast.SEGMENTATION_NAME).setValue(segmentation);
     forecast.getParameter(PEER_NonPlanarFaultForecast.SLIP_RATE_NAME).setValue(new Double(slipRate));
     forecast.getParameter(PEER_NonPlanarFaultForecast.GR_MAG_UPPER).setValue(new Double(magUpper));
+    forecast.getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_EAST);
     return forecast;
   }
 
@@ -191,7 +191,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
     // set the new values for the parameters in all the EqkRupForecasts in the list
     if(parameterChangeFlag) {
       // set this new value of param in all the EqkRupForecast in the list
-      int num = this.getNumERFs();
+      int num = getNumERFs();
       for(int i=0; i<num; ++i) {
         EqkRupForecast eqkRupForecast = (EqkRupForecast)this.getERF(i);
         // see the new parameter values in all the forecasts in the list

@@ -1,9 +1,12 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label).
+Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label). Hazard curve calculator seems to have this problem.
 
 Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done.
+
+EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient (don't create the entire vector or subset surfaces each time).  See if this speeds up the PEER Set2-Case1-a test.
+
 
 Update HavardCurveApp jar file at web site (the non-servlet mode one) - Ned added support for adjustable durations in the WG02 ERF.
 
@@ -13,22 +16,6 @@ Ned needs to think about the following:
 	Subduction IntraSlab
 	Shallow Crustal in Active Tectonic Regions
 	Shallow Crustal in Stable Tectonic Regions
-
-Make the object: 	DefaultHazardCurveForIMTs
-
-	methods:
-			ArbDiscrFunc getHazardCurve(IMT_NameString)
-			ArbDiscrFunc getHazardCurve(IMT_Param)
-
-	This will create a hazard curve with num discrete x-axis values between a min & max
-
-	These should be evenly discretized in log-space 
-	(although the x values will be in linear space).
-
-	min, max, and num values:
-
-		PGA & SA	min=0.0001 max=10 & num=51
-		PGV		min=0.01 max=1000 & num=51
 
 JFreeChart - 
 
@@ -160,6 +147,10 @@ SimpleGriddedFaultFactory
 	a new surface; it would be more efficient to use the set methods
 	before getting a new surface (use the setAll() method added by Ned).
 
+EvenlyGriddedSurface: have the getAveDip() method compute the dip explicitly (in case it's a subset of a listric fault)?
+
+
+
 (even lower priority below)
 
 Allow choosing of multiple ERFs (e.g., hand built ERF_EpistemicList)
@@ -169,8 +160,6 @@ Implement getApplicableRegion() and isLocWithinApplicableRegion() methods in imp
 DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
 
 HazardCurveApplet - In the IMT editor section the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
-
-EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient, and have the getAveDip() method compute the dip explicitly (in case it's a subset of a listric fault)?
 
 Decide how to handle rake=NaN in each IMR (can rake-NaN in an EarthquakeRupture object?).
 
