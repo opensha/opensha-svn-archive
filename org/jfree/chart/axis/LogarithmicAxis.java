@@ -537,7 +537,7 @@ public class LogarithmicAxis extends NumberAxis {
     int iEndCount = (int) StrictMath.ceil(switchedLog10(upperBoundVal));
 
     double tickVal;
-    String tickLabel;
+    String tickLabel="";
 
     //if both iBegCount and iEndCount are absolute power of 10 and are equal
     //reduce the lowerdBound to one major Axis below
@@ -564,7 +564,7 @@ public class LogarithmicAxis extends NumberAxis {
 
         //small log values in use
         tickVal = Double.parseDouble("1e"+i) * (1 + j);
-        //tickVal = Math.pow(10, i) + (Math.pow(10, i) * j);
+        //j=0 means that it is the major Axis with absolute power of 10.
         if (j == 0) {
           //checks to if tick Labels to be represented in the form of superscript of 10.
           if(log10TickLabelsInPowerFlag){
@@ -578,21 +578,9 @@ public class LogarithmicAxis extends NumberAxis {
               //if flag then
               tickLabel = "1e" + i;   //create "1e#"-type label
             }
-            else {    //not "1e#"-type label
-              if (i >= 0) {   //if positive exponent then make integer
-                tickLabel =  Long.toString((long) Math.rint(tickVal));
-              }
-              else {
-                //negative exponent; create fractional value
-                //set exact number of fractional digits to be shown:
-                numberFormatterObj.setMaximumFractionDigits(-i);
-                //create tick label:
-                tickLabel = numberFormatterObj.format(tickVal);
-              }
-            }
           }
         }
-        else {   //not first tick to be displayed
+        else {   //not first tick to be displayed and it is the minor Axis tick label processing
           if(log10TickLabelsInPowerFlag && minorAxisTickLabelFlag)
             tickLabel = ""+(j+1);     //no tick label
           else
@@ -707,7 +695,7 @@ public class LogarithmicAxis extends NumberAxis {
       setRange(Double.parseDouble("1e"+iBegCount),upperBoundVal);
 
     double tickVal;
-    String tickLabel;
+    String tickLabel="";
 
     for (int i = iBegCount; i <= iEndCount; i++) {
       //for each tick with a label to be displayed
@@ -718,11 +706,9 @@ public class LogarithmicAxis extends NumberAxis {
 
       for (int j = 0; j < jEndCount; j++) {
         //for each tick to be displayed
-        //small log values in use
         tickVal = Double.parseDouble("1e"+i) * (1 + j);
-        //tickVal = Math.pow(10, i) + (Math.pow(10, i) * j);
+        //j=0 means that it is the major Axis with absolute power of 10.
         if (j == 0) {
-
           //checks to if tick Labels to be represented in the form of superscript of 10.
           if(log10TickLabelsInPowerFlag){
             //if flag is true
@@ -734,21 +720,9 @@ public class LogarithmicAxis extends NumberAxis {
               //if flag then
               tickLabel = "1e" + i;   //create "1e#"-type label
             }
-            else {    //not "1e#"-type label
-              if (i >= 0) {   //if positive exponent then make integer
-                tickLabel =  Long.toString((long) Math.rint(tickVal));
-              }
-              else {
-                //negative exponent; create fractional value
-                //set exact number of fractional digits to be shown:
-                numberFormatterObj.setMaximumFractionDigits(-i);
-                //create tick label:
-                tickLabel = numberFormatterObj.format(tickVal);
-              }
-            }
           }
         }
-        else {   //not first tick to be displayed
+        else {   //not first tick to be displayed and it is the minor Axis tick label processing
           if(log10TickLabelsInPowerFlag && minorAxisTickLabelFlag)
             tickLabel = ""+(j+1);     //no tick label
           else
@@ -844,6 +818,7 @@ public class LogarithmicAxis extends NumberAxis {
       Rectangle2D plotArea,
       Rectangle2D dataArea, RectangleEdge edge) {
 
+    //calls the super class function if user wants to use the "1e#" style of labelling of ticks.
     if(!log10TickLabelsInPowerFlag)
       return super.drawTickMarksAndLabels(g2, cursor,plotArea, dataArea, edge);
 
@@ -862,16 +837,11 @@ public class LogarithmicAxis extends NumberAxis {
       Tick tick = (Tick) iterator.next();
       float xx = (float) translateValueToJava2D(tick.getNumericalValue(), dataArea, edge);
 
-      double val=1;
       int eIndex =-1;
       if(this.log10TickLabelsInPowerFlag)
         eIndex =tick.getText().indexOf("E");
-      // check whether this is minor axis. for minor axis we save,2-9 in label
 
-      if(!tick.getText().trim().equalsIgnoreCase("") && eIndex==-1)
-        val = Double.parseDouble(tick.getText());
-      //double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
-      //xx = (float)this.translateValueToJava2D(logval, plotArea);
+
       if(eIndex!=-1) // for major axis
         g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()+1));
       else  // show minor axis in smaller font
@@ -888,6 +858,7 @@ public class LogarithmicAxis extends NumberAxis {
             g2.drawString(tick.getText(), tick.getX(), tick.getY());
           else {
             g2.drawString("10", tick.getX()+6, tick.getY());
+            //setting the font propeeties to show the power of 10
             g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-2));
             g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+22,tick.getY()-4);
           }
