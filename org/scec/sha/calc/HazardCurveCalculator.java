@@ -25,7 +25,7 @@ import org.scec.sha.earthquake.*;
 public class HazardCurveCalculator {
 
   protected final static String C = "HazardCurveCalculator";
-  protected final static boolean D = false;
+  protected final static boolean D = true;
 
 
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
@@ -100,6 +100,9 @@ public class HazardCurveCalculator {
 
     updateProgress(currRuptures, totRuptures);
 
+    // this makes sure a source is actually used
+    boolean sourceUsed = false;
+
     for(int i=0;i < numSources ;i++) {
 
 
@@ -107,9 +110,13 @@ public class HazardCurveCalculator {
       ProbEqkSource source = eqkRupForecast.getSource(i);
       double distance = source.getMinDistance(site);
 
+      if (D) System.out.println("distance="+distance);
+
       // if source is greater than the MAX_DISTANCE, ignore the source
-      if(distance > MAX_DISTANCE)
-        continue;
+      if(distance > MAX_DISTANCE)  continue;
+
+      // asource has been used
+      sourceUsed = true;
 
       // for each source, get the number of ruptures
       int numRuptures = eqkRupForecast.getNumRuptures(i);
@@ -138,11 +145,15 @@ public class HazardCurveCalculator {
       }
     }
 
-    int  numPoints = condProbFunc.getNum();
+    int  numPoints = hazFunction.getNum();
 
     // finalize the hazard function
-    for(int i=0;i<numPoints;++i)
-      hazFunction.set(i,1-hazFunction.getY(i));
+    if(sourceUsed)
+      for(int i=0;i<numPoints;++i)
+        hazFunction.set(i,1-hazFunction.getY(i));
+    else
+      for(int i=0;i<numPoints;++i)
+        hazFunction.set(i,0.0);
 
     //remove the frame
     frame.dispose();

@@ -43,41 +43,78 @@ public class GroupTestGuiBean implements
   //innner class instance
   GroupTestDefaultParameterClass groupTestParameterClass =new GroupTestDefaultParameterClass(this);
 
-
-  //object for the fault
-  Set1_Fault_Forecast faultcase1=new Set1_Fault_Forecast();
-
-  //object for the Area;
-  Set1_Area_Forecast faultcase2_area=new Set1_Area_Forecast();
-
   /**
    *  Search path for finding editors in non-default packages.
    */
   final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
    /**
+    *  The object class names for all the supported attenuation ralations (IMRs)
     *  Temp until figure out way to dynamically load classes during runtime
     */
-   public  final static String BJF_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.BJF_1997_AttenRel";
+   public final static String BJF_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.BJF_1997_AttenRel";
    public final static String AS_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.AS_1997_AttenRel";
    public final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
    public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
    public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
    public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
 
+    // IMR GUI Editor & Parameter names
+    private final static String IMR_PARAM_NAME = "IMR";
+    private final static String IMR_EDITOR_TITLE =  "Select IMR";
+    private ParameterListEditor imrEditor = null;
+    private ParameterList imrParamList = new ParameterList();
+    //this vector saves the names of all the supported IMRs
+    private Vector imrNamesVector=new Vector();
+    //this vector holds the full class names of all the supported IMRs
+    private Vector imrClasses;
+    //saves the IMR objects, to the parameters related to an IMR.
+    private Vector imrObject = new Vector();
 
-   /**
-    * Param Names
-    */
-  private final static String TEST_PARAM_NAME = "Test Case";
-  private final static String SITE_NUMBER_PARAM = "Site Number";
-  private final static String IMR_PARAM_NAME = "IMR";
-  private final static String IMT_PARAM_NAME =  "IMT";
-  private final static String IMR_EDITOR_TITLE =  "Select IMR";
-  /**
-   * Test cases final static string
+    // IMT GUI Editor & Parameter names
+    private final static String IMT_PARAM_NAME =  "IMT";
+    private ParameterListEditor imtEditor = null;
+    private ParameterList imtParamList = new ParameterList();
+
+    // Site Gui Editor
+    private ParameterListEditor siteEditor = null;
+    private SiteGuiBean siteBean;
+
+    //supported forecast objects:  CHANGE TO BE HANDLED LIKE IMRs
+    Set1_Fault_Forecast set1_Fault_ERF=new Set1_Fault_Forecast();
+    Set1_Area_Forecast  set1_Area_ERF=new Set1_Area_Forecast();
+
+    //Source Fault Name  NOTE: THESE SHOULD BE READ FROM THE OBJECTS
+    private final static String SET1_FAULT_ERF_NAME = "Test Set1 Fault";
+    private final static String SET1_AREA_ERF_NAME = "Test Set1 Area";
+
+    // ERF Editor stuff
+    private final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
+    // these are to store the list of independ params for chosen ERF
+    private ParameterListEditor erf_Editor = null;
+    private ParameterList erf_IndParamList = new ParameterList();
+
+    // hash map to mantain mapping between IMT and all IMLs supported by it
+    private HashMap imt_IML_map = new HashMap();
+
+    // search path needed for making editors
+    private String[] searchPaths;
+
+    private GroupTestApplet applet= null;
+
+
+  /*
+   * ***********************************************
+   * Hard Coded stuff for PEER test cases below
    */
 
+
+  //  TestCases ParameterList & its editor
+  private ParameterList testCasesParamList = new ParameterList();
+  private ParameterListEditor testCasesEditor = null;
+
+  // The first parameter in the editor (for selecting case)
+  private final static String TEST_PARAM_NAME = "Test Case";
   private final static String TEST_CASE_ONE ="1";
   private final static String TEST_CASE_TWO ="2";
   private final static String TEST_CASE_THREE ="3";
@@ -94,12 +131,8 @@ public class GroupTestGuiBean implements
   private final static String TEST_CASE_TEN ="10";
   private final static String TEST_CASE_ELEVEN ="11";
 
-
-
-  /**
-   * static site strings
-   */
-
+  // The second parameter in the editor (for selecting site)
+  private final static String SITE_NUMBER_PARAM = "Site Number";
   private final static String SITE_ONE = "Site-1";
   private final static String SITE_TWO = "Site-2";
   private final static String SITE_THREE = "Site-3";
@@ -107,86 +140,7 @@ public class GroupTestGuiBean implements
   private final static String SITE_FIVE = "Site-5";
   private final static String SITE_SIX = "Site-6";
   private final static String SITE_SEVEN = "Site-7";
-  private final static String SITE_EIGHT = "Site-8";
 
-  //source Name
-  private final static String SOURCE_PARAM_NAME = "Eqk Rup Forecast";
-
-  //Source Fault Name
-  private final static String SOURCE_FAULT_ONE = "Test Set1 Fault";
-  private final static String SOURCE_FAULT_AREA = "Test Set1 Area";
-
-  // Fault 1 , Fault 2 and Area
-  private final static String FAULT_ONE = "Fault 1";
-  private final static String FAULT_TWO = "Fault 2";
-  private final static String FAULT_AREA = "Fault Area";
-
-  //this vector saves all the IMR classes name
-  private Vector imrNamesVector=new Vector();
-
-  //save all the IMR classes in the vector
-  private Vector imrClasses;
-
-  // hash map to mantain mapping between IMT and all IMLs supported by it
-  private HashMap imt_IML_map = new HashMap();
-
-  /**
-   *  Return Test Cases editor. It contains the list of test case
-   */
-  private ParameterListEditor testCasesEditor = null;
-
-  /**
-   * editor for imt parameters
-   */
-  private ParameterListEditor imtEditor = null;
-
-  /**
-   * editor for imr parameters. It contains a list of IMRs
-   */
-  private ParameterListEditor imrEditor = null;
-
-  /**
-   * editor for site parameters. It contains a list of sites for the IMr
-   */
-  private ParameterListEditor siteEditor = null;
-
-  /**
-   * site gui bean is needed for making the site editor
-   */
-  private SiteGuiBean siteBean;
-
-  /**
-   * editor for imr parameters. It contains a list of IMRs
-   */
-  private ParameterListEditor eqkSourceEditor = null;
-
-  /**
-   *  TestCases ParameterList. List of all the test cases.
-   */
-  private ParameterList testCasesParamList = new ParameterList();
-
-  /**
-   *  IMT ParameterList
-   */
-  private ParameterList imtParamList = new ParameterList();
-
-  /**
-   *  IMR ParameterList. List of all supported IMRs.
-   */
-  private ParameterList imrParamList = new ParameterList();
-
-  /**
-   *  Eqk source ParameterList. List of all supported sources.
-   */
-  private ParameterList eqkSourceParamList = new ParameterList();
-
-
-  // search path needed for making editors
-  private String[] searchPaths;
-
-  //saves the IMR objects, to the parameters related to an IMR.
-  private Vector imrObject = new Vector();
-  private GroupTestApplet applet= null;
 
 
   /**
@@ -196,31 +150,35 @@ public class GroupTestGuiBean implements
 
     this.applet = applet;
 
-    //create the instance of magdistbean
-    //this.magDistBean = new MagDistGuiBean(applet);
+
     // search path needed for making editors
     searchPaths = new String[3];
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
     searchPaths[2] = "org.scec.sha.magdist" ;
-    // make the site gui bean
-    siteBean = new SiteGuiBean(this, this, this);
 
-    //MAKE changes in this function for any change in test cases
-    initTestCasesParamListAndEditor();
 
     // Create all the available IMRs
     // to add more IMRs, change this function
-    initImrParamListAndEditor( );
+    init_imrParamListAndEditor( );
 
     //initialize the IMT and IMLs
-    initImtParamListAndEditor();
+    init_imtParamListAndEditor();
 
-    //init eqkSourceParamList. List of all available sources at this time
-    initEqkSourceParamListAndEditor();
+    //init erf_IndParamList. List of all available ERFs at this time
+    init_erf_IndParamListAndEditor();
+
+    // make the site gui bean
+    siteBean = new SiteGuiBean(this, this, this);
 
     // Create site parameters
     updateSiteParamListAndEditor( );
+
+    // Stuff hard coded for PEER test cases below
+    // ******************************************
+
+    //MAKE changes in this function for any change in test cases
+    initTestCasesParamListAndEditor();
 
     //set the site based on the selected test case
     groupTestParameterClass.setParams(testCasesParamList.getParameter(SITE_NUMBER_PARAM).getValue().toString());
@@ -344,7 +302,7 @@ public class GroupTestGuiBean implements
   /**
    *  Create a list of all the IMRs
    */
-  protected void initImrParamListAndEditor() {
+  protected void init_imrParamListAndEditor() {
 
 
     // if we are entering this function for the first time, then make imr objects
@@ -367,7 +325,7 @@ public class GroupTestGuiBean implements
         imrNamesVector.add(imr.getName());
       }
 
-      // add the select IMR
+      // make the IMR selection paramter
       StringParameter selectIMR = new StringParameter(IMR_PARAM_NAME,
                                imrNamesVector,(String)imrNamesVector.get(0));
       // listen to IMR paramter to change site params when it changes
@@ -375,7 +333,7 @@ public class GroupTestGuiBean implements
       imrParamList.addParameter(selectIMR);
     }
 
-    // remove all the parameters excpet the IMR parameter
+    // remove all the parameters except the IMR parameter
     ListIterator it = imrParamList.getParameterNamesIterator();
     while(it.hasNext()) {
       String paramName = (String)it.next();
@@ -386,9 +344,10 @@ public class GroupTestGuiBean implements
 
     // now find the selceted IMR and add the parameters related to it
 
-    // add the trunc type param
+    // initalize imr
     AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)imrObject.get(0);
-    // get the selectedIMR
+
+    // find & set the selectedIMR
     String selectedIMR = imrParamList.getValue(IMR_PARAM_NAME).toString();
     int size = imrObject.size();
     for(int i=0; i<size ; ++i) {
@@ -423,7 +382,7 @@ public class GroupTestGuiBean implements
   /**
    *  Create a list of all the IMTs
    */
-  protected void initImtParamListAndEditor() {
+  protected void init_imtParamListAndEditor() {
 
     imtParamList = new ParameterList();
 
@@ -493,37 +452,37 @@ public class GroupTestGuiBean implements
 
 
    /**
-    * init eqkSourceParamList. List of all available sources at this time
+    * init erf_IndParamList. List of all available sources at this time
     */
-    protected void initEqkSourceParamListAndEditor() {
+    protected void init_erf_IndParamListAndEditor() {
 
 
       //add the source Parameter
       Vector faultVector=new Vector();
-      faultVector.add(SOURCE_FAULT_ONE);
-      faultVector.add(SOURCE_FAULT_AREA);
-      StringParameter selectSource= new StringParameter(SOURCE_PARAM_NAME,
-                                  faultVector, SOURCE_FAULT_ONE);
+      faultVector.add(SET1_FAULT_ERF_NAME);
+      faultVector.add(SET1_AREA_ERF_NAME);
+      StringParameter selectSource= new StringParameter(ERF_PARAM_NAME,
+                                  faultVector, SET1_FAULT_ERF_NAME);
       selectSource.addParameterChangeListener(this);
-      eqkSourceParamList.addParameter(selectSource);
+      erf_IndParamList.addParameter(selectSource);
 
       //getting the value of the parameters for the fault
-      ListIterator it=faultcase1.getAdjustableParamsList();
+      ListIterator it=set1_Fault_ERF.getAdjustableParamsList();
       while(it.hasNext()){
-        eqkSourceParamList.addParameter((ParameterAPI)it.next());
+        erf_IndParamList.addParameter((ParameterAPI)it.next());
       }
 
       //getting the value of the parameters for the Area
-      it=faultcase2_area.getAdjustableParamsList();
+      it=set1_Area_ERF.getAdjustableParamsList();
       while(it.hasNext()){
-        eqkSourceParamList.addParameter((ParameterAPI)it.next());
+        erf_IndParamList.addParameter((ParameterAPI)it.next());
       }
 
       // now make the editor based on the paramter list
-      eqkSourceEditor = new ParameterListEditor( eqkSourceParamList, searchPaths);
-      eqkSourceEditor.setTitle( "Select Forecast" );
+      erf_Editor = new ParameterListEditor( erf_IndParamList, searchPaths);
+      erf_Editor.setTitle( "Select Forecast" );
       // fault 1 is selected initially
-      setParamsInSourceVisible(this.SOURCE_FAULT_ONE);
+      setParamsInSourceVisible(this.SET1_FAULT_ERF_NAME);
    }
 
 
@@ -602,8 +561,8 @@ public class GroupTestGuiBean implements
    *
    * @return    The source editor value
    */
-   public ParameterListEditor getEqkSourceEditor() {
-     return eqkSourceEditor;
+   public ParameterListEditor get_erf_Editor() {
+     return erf_Editor;
    }
 
 
@@ -647,7 +606,7 @@ public class GroupTestGuiBean implements
       }
 
       // if source selected by the user  changes
-      if( name1.equals(this.SOURCE_PARAM_NAME) ){
+      if( name1.equals(this.ERF_PARAM_NAME) ){
         String value = event.getNewValue().toString();
         setParamsInSourceVisible(value);
         applet.updateChoosenEqkSource();
@@ -676,24 +635,24 @@ public class GroupTestGuiBean implements
   private void setParamsInSourceVisible(String source) {
 
     // Turn off all parameters - start fresh, then make visible as required below
-    ListIterator it = this.eqkSourceParamList.getParametersIterator();
+    ListIterator it = this.erf_IndParamList.getParametersIterator();
 
     while ( it.hasNext() )
-      eqkSourceEditor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false );
+      erf_Editor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false );
     //make the source parameter visible
-    eqkSourceEditor.setParameterInvisible(this.SOURCE_PARAM_NAME,true);
+    erf_Editor.setParameterInvisible(this.ERF_PARAM_NAME,true);
 
     Vector supportedMagDists = new Vector();
     // if fault1 or fault2 is selected
-    if(source.equalsIgnoreCase(this.SOURCE_FAULT_ONE))
-      it = faultcase1.getAdjustableParamsList();
+    if(source.equalsIgnoreCase(this.SET1_FAULT_ERF_NAME))
+      it = set1_Fault_ERF.getAdjustableParamsList();
     else // if Area source is selected
-      it = faultcase2_area.getAdjustableParamsList();
+      it = set1_Area_ERF.getAdjustableParamsList();
 
    // make the parameters visible or invisible
     while(it.hasNext()) {
       String paramName=((ParameterAPI)it.next()).getName();
-      eqkSourceEditor.setParameterInvisible(paramName, true);
+      erf_Editor.setParameterInvisible(paramName, true);
     }
 
 
@@ -754,15 +713,15 @@ public class GroupTestGuiBean implements
     EqkRupForecast eqkRupForecast = null;
 
     // get the selected forecast model
-    String selectedForecast = (String)this.eqkSourceParamList.getValue(this.SOURCE_PARAM_NAME);
+    String selectedForecast = (String)this.erf_IndParamList.getValue(this.ERF_PARAM_NAME);
 
     // check which forecast has been selected by the user
-    if(selectedForecast.equalsIgnoreCase(this.SOURCE_FAULT_ONE)) {
+    if(selectedForecast.equalsIgnoreCase(this.SET1_FAULT_ERF_NAME)) {
       //if fault forecast is selected
-      eqkRupForecast = this.faultcase1;
-    } else if(selectedForecast.equalsIgnoreCase(this.SOURCE_FAULT_AREA)) {
+      eqkRupForecast = this.set1_Fault_ERF;
+    } else if(selectedForecast.equalsIgnoreCase(this.SET1_AREA_ERF_NAME)) {
       // if Area forecast is selected
-      eqkRupForecast = this.faultcase2_area;
+      eqkRupForecast = this.set1_Area_ERF;
     }
 
     // intialize the hazard function
@@ -783,6 +742,7 @@ public class GroupTestGuiBean implements
     AttenuationRelationshipAPI imr = null;
 
     // make a site object to pass to each IMR
+    //  ENCAPSULATE THE FOLLOWING IN; siteBean.getSite()
     ParameterList siteParams = siteBean.getSiteParamList();
     double longVal= siteBean.getLongitude();
     double latVal = siteBean.getLatitude();
@@ -797,13 +757,10 @@ public class GroupTestGuiBean implements
         initDiscretizeValues(hazFunction);
         hazFunction.setInfo(selectedIMR);
 
-
-
-        // pass the site object to each IMR
+        // set the IMT in the IMR
         try {
           if(D) System.out.println("siteString:::"+site.toString());
           imr = (AttenuationRelationshipAPI)imrObject.get(i);
-
 
           imr.setIntensityMeasure(imt);
 
@@ -1034,6 +991,12 @@ public class GroupTestGuiBean implements
     protected final static String C = "GroupTestDefaultParameterClass";
     protected final static boolean D = false;
 
+    // Fault 1 , Fault 2 and Area
+    private final static String FAULT_ONE = "Fault 1";
+    private final static String FAULT_TWO = "Fault 2";
+    private final static String FAULT_AREA = "Fault Area";
+
+
     protected GroupTestGuiBean groupTestGuiBean;
 
     public GroupTestDefaultParameterClass(GroupTestGuiBean groupTestGuiBean){
@@ -1205,8 +1168,8 @@ public class GroupTestGuiBean implements
          * on the selected test case 10
          */
 
-        eqkSourceParamList.getParameter(groupTestGuiBean.faultcase2_area.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
-        eqkSourceParamList.getParameter(groupTestGuiBean.faultcase2_area.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(groupTestGuiBean.set1_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(groupTestGuiBean.set1_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
         selectedFault = new String(FAULT_AREA);
       }
 
@@ -1223,8 +1186,8 @@ public class GroupTestGuiBean implements
          * on the selected test case 11
          */
 
-        eqkSourceParamList.getParameter(groupTestGuiBean.faultcase2_area.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
-        eqkSourceParamList.getParameter(groupTestGuiBean.faultcase2_area.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+        erf_IndParamList.getParameter(groupTestGuiBean.set1_Area_ERF.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
+        erf_IndParamList.getParameter(groupTestGuiBean.set1_Area_ERF.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
         selectedFault = new String(FAULT_AREA);
       }
 
@@ -1233,7 +1196,7 @@ public class GroupTestGuiBean implements
       if(!value.equalsIgnoreCase(TEST_CASE_TEN) && !value.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
 
         // it is fault test case
-        eqkSourceParamList.getParameter(SOURCE_PARAM_NAME).setValue(SOURCE_FAULT_ONE);
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(SET1_FAULT_ERF_NAME);
         setForecastParams(selectedFault,value);
 
         // for fault site 1
@@ -1279,7 +1242,7 @@ public class GroupTestGuiBean implements
       } else { // for area sites
 
         // it is area test case
-        eqkSourceParamList.getParameter(SOURCE_PARAM_NAME).setValue(SOURCE_FAULT_AREA);
+        erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(SET1_AREA_ERF_NAME);
 
         siteBean.getSiteParamList().getParameter(siteBean.LONGITUDE).setValue(new Double(-122.0));
         // for area site 1
@@ -1303,7 +1266,7 @@ public class GroupTestGuiBean implements
       imrEditor.synchToModel();
       imtEditor.synchToModel();
       siteEditor.synchToModel();
-      eqkSourceEditor.synchToModel();
+      erf_Editor.synchToModel();
     }
 
      /**
@@ -1359,9 +1322,9 @@ public class GroupTestGuiBean implements
 
        // get the paramter based on whether fault or area is selected as forecast
         if(!testCase.equalsIgnoreCase(TEST_CASE_TEN) && ! testCase.equalsIgnoreCase(TEST_CASE_ELEVEN))
-          magEditor= (MagFreqDistParameterEditor)eqkSourceEditor.getParameterEditor("Fault Mag Dist");
+          magEditor= (MagFreqDistParameterEditor)erf_Editor.getParameterEditor("Fault Mag Dist");
         else
-          magEditor= (MagFreqDistParameterEditor)eqkSourceEditor.getParameterEditor("Area Mag Dist");
+          magEditor= (MagFreqDistParameterEditor)erf_Editor.getParameterEditor("Area Mag Dist");
 
 
         magEditor.getParameter(MagFreqDistParameterEditor.MIN).setValue(new Double(0.0));
@@ -1523,20 +1486,20 @@ public class GroupTestGuiBean implements
       public void setForecastParams(String faultType, String testCaseVal){
 
         // add sigma for maglength(0-1)
-        eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.SIGMA_PARAM_NAME).setValue(faultcase1.DEFAULT_SIGMA_VAL);
+        erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.SIGMA_PARAM_NAME).setValue(set1_Fault_ERF.DEFAULT_SIGMA_VAL);
 
         // magLengthSigma parameter is changed if the test case chosen is 3
         if(testCaseVal.equalsIgnoreCase(TEST_CASE_THREE))
-          eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.SIGMA_PARAM_NAME).setValue(new Double(0.2));
+          erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
         // set the parameters for fault1
         if(faultType.equals(FAULT_ONE)) {
-          eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.DIP_PARAM_NAME).setValue(new Double(90.0));
-          eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.RAKE_PARAM_NAME).setValue(new Double(0.0));
+          erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(90.0));
+          erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
         }
         // set the parameters for fault 2
         if(faultType.equals(FAULT_TWO)) {
-          eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.DIP_PARAM_NAME).setValue(new Double(60.0));
-          eqkSourceParamList.getParameter(groupTestGuiBean.faultcase1.RAKE_PARAM_NAME).setValue(new Double(90.0));
+          erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.DIP_PARAM_NAME).setValue(new Double(60.0));
+          erf_IndParamList.getParameter(groupTestGuiBean.set1_Fault_ERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
         }
       }
   }

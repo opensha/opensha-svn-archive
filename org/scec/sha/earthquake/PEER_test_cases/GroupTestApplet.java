@@ -483,7 +483,7 @@ public class GroupTestApplet extends JApplet implements LogPlotAPI {
       return;
     this.sourcePanel.removeAll();
     sourcePanel.setLayout(gridBagLayout5);
-    sourcePanel.add(groupTestBean.getEqkSourceEditor(),
+    sourcePanel.add(groupTestBean.get_erf_Editor(),
                     new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                     GridBagConstraints.CENTER,
                     GridBagConstraints.BOTH, defaultInsets, 0, 0 ));

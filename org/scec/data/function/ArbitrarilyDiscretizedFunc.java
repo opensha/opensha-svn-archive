@@ -287,12 +287,11 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
        double y1=Double.NaN;
        double y2=Double.NaN;
        int i;
+
        //if passed parameter(y value) is not within range then throw exception
        if(y>getY(max-1) || y<getY(0))
           throw new InvalidRangeException("Y Value must be within the range: "+getY(0)+" and "+getY(max-1));
-      //if y value is equal to the maximum value of all given Y's then return the corresponding X value
-       if(y==getY(max-1))
-         return getX(max-1);
+
       //finds the Y values within which the the given y value lies
        for(i=0;i<max-1;++i) {
          y1=getY(i);
@@ -300,9 +299,11 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
         if(y>=y1 && y<=y2)
            break;
        }
+
        //finding the x values for the coressponding y values
        double x1=getX(i);
        double x2=getX(i+1);
+
        //using the linear interpolation equation finding the value of x for given y
        double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
        return x;
