@@ -554,8 +554,13 @@ for(int i=0;i<allSources.size();i++) {
      Frankel96_EqkRupForecast frankCast = new Frankel96_EqkRupForecast();
      frankCast.updateForecast();
      System.out.println("num sources="+frankCast.getNumSources());
-     for(int i=0; i<frankCast.getNumSources(); i++)
-       System.out.println(i+"th source: "+frankCast.getSource(i).getName());
+
+     System.out.println("\n"+frankCast.getSource(0).getName()+":\n");
+     for(int i=0; i<frankCast.getSource(0).getNumRuptures(); i++)
+       System.out.println("  rupture #"+i+": \n\n"+frankCast.getSource(0).getRupture(i).getInfo());
+
+//     for(int i=0; i<frankCast.getNumSources(); i++)
+//       System.out.println(i+"th source: "+frankCast.getSource(i).getName());
 /*
      double totRate=0, totProb=1, prob;
      int i,j, totRup;
