@@ -26,8 +26,6 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
   private final String VS_30_INPUT_FILENAME = "vs30class.xy";
   private final String BASIN_DEPTH_FILENAME = "fine_depth_25.xy";
 
-  //Vectors for computing the lat and lons for the given gridded region
-  Vector locationVector= new Vector();
 
   /**
    * method to get the basin depth/vs30  as desired by the user
@@ -39,6 +37,8 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
    */
   public void doGet(HttpServletRequest request,  HttpServletResponse response)
                                   throws IOException, ServletException {
+    //Vectors for computing the lat and lons for the given gridded region
+    Vector locationVector= new Vector();
     try {
       // get an input stream from the applet
       ObjectInputStream inputFromApplication = new ObjectInputStream(request.getInputStream());
@@ -52,15 +52,15 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
       double gridSpacing = ((Double)inputFromApplication.readObject()).doubleValue();
       inputFromApplication.close();
 
-       prepareSitesInput(minLon, maxLon, minLat, maxLat, gridSpacing);
+       prepareSitesInput(locationVector,minLon, maxLon, minLat, maxLat, gridSpacing);
       // make input and output file name based on IP address of user
       //String inputfilename=new String(request.getRemoteHost()+".in");
       //String outputfilename=new String(request.getRemoteHost()+".out");
       // check the funcion desired by the useer
       if(functionDesired.equalsIgnoreCase(VS_30))
-        getVs30(new ObjectOutputStream(response.getOutputStream()));
+        getVs30(locationVector,new ObjectOutputStream(response.getOutputStream()));
       else if(functionDesired.equalsIgnoreCase(this.BASIN_DEPTH))
-        getBasinDepth(new ObjectOutputStream(response.getOutputStream()));
+        getBasinDepth(locationVector,new ObjectOutputStream(response.getOutputStream()));
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -70,6 +70,7 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
   /**
    * Prepare the input of the all the location in the gridded region and provide that input
    * to compute the Vs30 ro BasinDepth
+   * @param locationVector : stores the locations
    * @param minLon
    * @param maxLon
    * @param minLat
@@ -77,28 +78,33 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
    * @param gridSpacing
    * @return
    */
-  private void prepareSitesInput(double minLon, double maxLon, double minLat,
+  private void prepareSitesInput(Vector locationVector,double minLon, double maxLon, double minLat,
                                       double maxLat, double gridSpacing) {
 
     EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(
                                                       minLat,maxLat,minLon,maxLon,gridSpacing);
+    System.out.println("Number of Grid Locations:"+region.getNumGridLocs());
     ListIterator it= region.getGridLocationsIterator();
     while(it.hasNext())
       locationVector.add(it.next());
+    for(int i=0;i<locationVector.size();++i)
+      System.out.println("Location:"+((Location)locationVector.get(i)).toString());
   }
 
 
 
   /**
    * calculate the Vs30
+   * @param locationVector: Stores all the gridded locations
    * @param minLon
    * @param maxLon
    * @param minLat
    * @param maxLat
    * @param gridSpacing
-   * @param output
-   */
-  private void getVs30( ObjectOutputStream output) {
+   * gets the Vs30
+   *
+   * */
+  private void getVs30(Vector locationVector,ObjectOutputStream output) {
     Vector vs30= new Vector();
     try {
       double currLon=0;
@@ -128,8 +134,12 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           if((lat>=valLat || lat<=valLatNext)&&(lon>=val || lon<=valNext)){
             double vs30_Curr =Double.parseDouble(st.nextToken());
             double vs30_Next = Double.parseDouble(stNext.nextToken());
+            System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
+            System.out.print(";lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
+            System.out.print(";vs30_Curr:"+vs30_Curr+";vs30_Next:"+vs30_Next);
             //returns the actual value for the vs30
             vs30.add(new Double(this.interpolateVs30OrBasinDepth(lon,val,valNext,vs30_Curr,vs30_Next)));
+            break;
           }
           // read next line
           str=strNext;
@@ -146,9 +156,16 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
   }
 
   /**
-   * calculate the BasinDepth
-   */
-   private void getBasinDepth(ObjectOutputStream output) {
+    * calculate the Vs30
+    * @param locationVector: Stores all the gridded locations
+    * @param minLon
+    * @param maxLon
+    * @param minLat
+    * @param maxLat
+    * @param gridSpacing
+    * calculate the BasinDepth
+    */
+   private void getBasinDepth(Vector locationVector,ObjectOutputStream output) {
      Vector basinDepth= new Vector();
     try {
       double currLon=0;
@@ -178,8 +195,12 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           if((lat>=valLat || lat<=valLatNext)&&(lon>=val || lon<=valNext)){
             double bd_Curr =Double.parseDouble(st.nextToken());
             double bd_Next = Double.parseDouble(stNext.nextToken());
+            System.out.println("Lat:"+lat+";valLat:"+valLat+";valLatNext:"+valLatNext);
+            System.out.print(";lon:"+lon+";valLon:"+val+";valLonNext:"+valNext);
+            System.out.print(";bd_Curr:"+bd_Curr+";bd_Next:"+bd_Next);
             //returns the actual value for the basinDepth
             basinDepth.add(new Double(this.interpolateVs30OrBasinDepth(lon,val,valNext,bd_Curr,bd_Next)));
+            break;
           }
           // read next line
           str=strNext;
