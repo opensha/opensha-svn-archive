@@ -73,38 +73,26 @@ public class HazardCurveCalculator {
     frame.validate();
     frame.repaint();
 
-    int num9 = (int) (numSources*0.9);
-    int num8 = (int) (numSources*0.8);
-    int num7 = (int) (numSources*0.7);
-    int num6 = (int) (numSources*0.6);
-    int num5 = (int) (numSources*0.5);
-    int num4 = (int) (numSources*0.4);
-    int num3 = (int) (numSources*0.3);
-    int num2 = (int) (numSources*0.2);
-    int num1 = (int) (numSources*0.1);
+    // totRuptures holds the total ruptures for all sources
+    int totRuptures = 0;
+    for(int i=0;i<numSources;++i)
+        totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
 
+    int num9 = (int) (totRuptures*0.9);
+    int num8 = (int) (totRuptures*0.8);
+    int num7 = (int) (totRuptures*0.7);
+    int num6 = (int) (totRuptures*0.6);
+    int num5 = (int) (totRuptures*0.5);
+    int num4 = (int) (totRuptures*0.4);
+    int num3 = (int) (totRuptures*0.3);
+    int num2 = (int) (totRuptures*0.2);
+    int num1 = (int) (totRuptures*0.1);
+
+    // rupture number presently being processed
+    int currRuptures = 0;
 
     for(int i=0;i < numSources ;i++) {
 
-      // update the progress bar
-        if(i == num9) // 90% complete
-              updateProgress(progress,90);
-        else if(i == num8) // 80% complete
-              updateProgress(progress,80);
-        else if(i == num7) // 70% complete
-              updateProgress(progress,70);
-        else if(i == num6) // 60% complete
-              updateProgress(progress,60);
-        else if(i == num5) // 50% complete
-              updateProgress(progress,50);
-        else if(i == num4) // 40% complete
-              updateProgress(progress,40);
-        else if(i == num3) // 30% complete
-              updateProgress(progress,30);
-        else if(i == num2) // 20% complete
-              updateProgress(progress,20);
-        else if(i == num1) // 10% complete
-              updateProgress(progress,10);
 
       // get source and get its distance from the site
       ProbEqkSource source = eqkRupForecast.getSource(i);
@@ -116,7 +104,32 @@ public class HazardCurveCalculator {
 
       // for each source, get the number of ruptures
       int numRuptures = eqkRupForecast.getNumRuptures(i);
-      for(int n=0; n < numRuptures ;n++) {
+      for(int n=0; n < numRuptures ; n++,++currRuptures) {
+
+
+        // update the progress bar
+        if(currRuptures == num9) // 90% complete
+              updateProgress(progress,90);
+        else if(currRuptures == num8) // 80% complete
+              updateProgress(progress,80);
+        else if(currRuptures == num7) // 70% complete
+              updateProgress(progress,70);
+        else if(currRuptures == num6) // 60% complete
+              updateProgress(progress,60);
+        else if(currRuptures == num5) // 50% complete
+              updateProgress(progress,50);
+        else if(currRuptures == num4) // 40% complete
+              updateProgress(progress,40);
+        else if(currRuptures == num3) // 30% complete
+              updateProgress(progress,30);
+        else if(currRuptures == num2) // 20% complete
+              updateProgress(progress,20);
+        else if(currRuptures == num1) // 10% complete
+              updateProgress(progress,10);
+
+
+
+
         // for each rupture, set in IMR and do computation
         double qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
 

@@ -27,7 +27,7 @@ public class Set1_Fault_Source extends ProbEqkSource {
 
   //for Debug purposes
   private static String  C = new String("Set1_Fault_Source");
-  private boolean D = true;
+  private boolean D = false;
 
   private double rake;
   private double timeSpan;
