@@ -182,6 +182,15 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         if ( D ) System.out.println( S + "Ending:" );
     }
 
+    /**
+     * whether you want the update button to be visible or not
+     *
+     * @param visible : If it it true, update button is visible else not visible
+     *   By default it is visible
+     */
+    public void setUpdateButtonVisible(boolean visible) {
+      button.setVisible(visible);
+    }
 
     /**
      * Main GUI Initialization point. This block of code is updated by JBuilder

@@ -397,7 +397,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
 
-// make  the mag dist parameter
+    // make  the mag dist parameter
     Vector distNames = new Vector();
     distNames.add(GaussianMagFreqDist.NAME);
     distNames.add(SingleMagFreqDist.NAME);
@@ -406,14 +406,13 @@ public class MagFreqDistTesterApplet extends JApplet
     magDist =  new MagFreqDistParameter(MAG_DIST_PARAM_NAME, distNames);
     magDistEditor = new MagFreqDistParameterEditor();
     magDistEditor.setParameter(magDist);
-    //inputPanel.add(magDistEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
-      //          , GridBagConstraints.NORTH, GridBagConstraints.BOTH, emptyInsets, 0, 0 ));
 
+    // make the update magdist button as invisible
+    magDistEditor.setUpdateButtonVisible(false);
+    parametersPanel.setBackground(Color.white);
     parametersPanel.add( magDistEditor , new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
              ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
- //   parametersPanel.add(parametersSplitPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-   //         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 
     dataScrollPane.getViewport().add(pointsTextArea, null);
     legendScrollPane.getViewport().add(this.legendPane,null);
@@ -788,6 +787,7 @@ public class MagFreqDistTesterApplet extends JApplet
         if ( D ) System.out.println( S + "Starting" );
 
         try{
+          this.magDistEditor.getChoosenFunction();
           IncrementalMagFreqDist function= (IncrementalMagFreqDist)this.magDist.getValue();
           if(D) System.out.println(S+" after getting mag dist from editor");
           EvenlyDiscretizedFunc cumRate;
