@@ -40,7 +40,7 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
      */
     public double getMedianMag(double length){
 
-      if (rake == Double.NaN)
+      if (Double.isNaN(rake))
         // apply the "All" case
         return  5.08 +1.16*Math.log(length)*lnToLog;
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
@@ -62,7 +62,7 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
      * @return standard deviation
      */
     public double getMagStdDev(){
-      if (rake == Double.NaN)
+      if (Double.isNaN(rake))
         // apply the "All" case
         return  0.28;
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
@@ -84,7 +84,7 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
      * @return median length in km
      */
     public double getMedianLength(double mag){
-      if  (rake == Double.NaN)
+      if  (Double.isNaN(rake))
           // their "All" case
           return Math.pow(10.0,-3.22+0.69*mag);
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
@@ -108,7 +108,7 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
      * @return standard deviation
      */
     public double getLengthStdDev() {
-      if (rake == Double.NaN)
+      if (Double.isNaN(rake))
         // apply the "All" case
         return  0.22;
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
@@ -129,10 +129,69 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
      * @param rake
      */
     public void setRake(double rake) {
-      if(rake != Double.NaN)
+      if(!Double.isNaN(rake))
         FaultUtils.assertValidRake(rake);
       this.rake = rake;
     }
 
+/*
+    // this was used as a quick test; everything looks good
+    public static void main(String args[]) {
+      WC1994_MagLengthRelationship magRel = new WC1994_MagLengthRelationship();
 
+      System.out.println("Length  SS_Mag  R_Mag  N_Mag  All_Mag");
+      System.out.print("1  ");
+      System.out.print(magRel.getMedianMag(1.0, 0.0)+"  ");
+      System.out.print(magRel.getMedianMag(1.0, 90.0)+"  ");
+      System.out.print(magRel.getMedianMag(1.0, -90.0)+"  ");
+      System.out.print(magRel.getMedianMag(1.0, Double.NaN)+"\n");
+
+      System.out.print("500  ");
+      System.out.print(magRel.getMedianMag(500, 0.0)+"  ");
+      System.out.print(magRel.getMedianMag(500, 90.0)+"  ");
+      System.out.print(magRel.getMedianMag(500, -90.0)+"  ");
+      System.out.print(magRel.getMedianMag(500, Double.NaN)+"\n");
+
+      System.out.print("10000  ");
+      System.out.print(magRel.getMedianMag(1e4, 0.0)+"  ");
+      System.out.print(magRel.getMedianMag(1e4, 90.0)+"  ");
+      System.out.print(magRel.getMedianMag(1e4, -90.0)+"  ");
+      System.out.print(magRel.getMedianMag(1e4, Double.NaN)+"\n");
+
+
+      System.out.println(" ");
+      System.out.println("Mag  SS_Length R_Length  N_Length  All_Length");
+      System.out.print("4 ");
+      System.out.print(magRel.getMedianLength(4, 0.0)+"  ");
+      System.out.print(magRel.getMedianLength(4, 90.0)+"  ");
+      System.out.print(magRel.getMedianLength(4, -90.0)+"  ");
+      System.out.print(magRel.getMedianLength(4, Double.NaN)+"\n");
+
+      System.out.print("6  ");
+      System.out.print(magRel.getMedianLength(6, 0.0)+"  ");
+      System.out.print(magRel.getMedianLength(6, 90.0)+"  ");
+      System.out.print(magRel.getMedianLength(6, -90.0)+"  ");
+      System.out.print(magRel.getMedianLength(6, Double.NaN)+"\n");
+
+      System.out.print("8  ");
+      System.out.print(magRel.getMedianLength(8, 0.0)+"  ");
+      System.out.print(magRel.getMedianLength(8, 90.0)+"  ");
+      System.out.print(magRel.getMedianLength(8, -90.0)+"  ");
+      System.out.print(magRel.getMedianLength(8, Double.NaN)+"\n");
+
+      System.out.println(" ");
+      System.out.println("Mag_stdDev for  SS_Mag  R_Mag  N_Mag and All_Mag:");
+      System.out.print(magRel.getMagStdDev(0.0)+"  ");
+      System.out.print(magRel.getMagStdDev(90.0)+"  ");
+      System.out.print(magRel.getMagStdDev(-90.0)+"  ");
+      System.out.print(magRel.getMagStdDev(Double.NaN)+"\n");
+
+      System.out.println(" ");
+      System.out.println("Length_stdDev for  SS_Mag  R_Mag  N_Mag and All_Mag:");
+      System.out.print(magRel.getLengthStdDev(0.0)+"  ");
+      System.out.print(magRel.getLengthStdDev(90.0)+"  ");
+      System.out.print(magRel.getLengthStdDev(-90.0)+"  ");
+      System.out.print(magRel.getLengthStdDev(Double.NaN)+"\n");
+    }
+*/
 }

@@ -17,7 +17,7 @@ import org.scec.data.*;
  * @version 1.0
  */
 
-public abstract class WC1994_MagAreaRelationship extends MagAreaRelationship {
+public class WC1994_MagAreaRelationship extends MagAreaRelationship {
 
     final static String C = "WC1994_MagAreaRelationship";
     final static String NAME = "W&C 1994 Mag-Area Rel.";
@@ -39,8 +39,7 @@ public abstract class WC1994_MagAreaRelationship extends MagAreaRelationship {
      * @return median magnitude
      */
     public double getMedianMag(double area){
-
-      if (rake == Double.NaN)
+     if (Double.isNaN(rake))
         // apply the "All" case
         return  4.07 + 0.98*Math.log(area)*lnToLog;
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
@@ -62,7 +61,7 @@ public abstract class WC1994_MagAreaRelationship extends MagAreaRelationship {
      * @return standard deviation
      */
     public double getMagStdDev(){
-      if (rake == Double.NaN)
+      if (Double.isNaN(rake))
         // apply the "All" case
         return  0.24;
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
@@ -73,7 +72,7 @@ public abstract class WC1994_MagAreaRelationship extends MagAreaRelationship {
         return  0.25;
       else
         // normal
-        return  0.35;
+        return  0.25;
 
     }
 
@@ -84,7 +83,7 @@ public abstract class WC1994_MagAreaRelationship extends MagAreaRelationship {
      * @return median area in km
      */
     public double getMedianArea(double mag){
-      if  (rake == Double.NaN)
+      if  (Double.isNaN(rake))
           // their "All" case
           return Math.pow(10.0,-3.49+0.91*mag);
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
@@ -108,7 +107,7 @@ public abstract class WC1994_MagAreaRelationship extends MagAreaRelationship {
      * @return standard deviation
      */
     public double getAreaStdDev() {
-      if (rake == Double.NaN)
+      if (Double.isNaN(rake))
         // apply the "All" case
         return  0.24;
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
@@ -129,10 +128,73 @@ public abstract class WC1994_MagAreaRelationship extends MagAreaRelationship {
      * @param rake
      */
     public void setRake(double rake) {
-      if(rake != Double.NaN)
+      if(!Double.isNaN(rake))
         FaultUtils.assertValidRake(rake);
       this.rake = rake;
     }
 
+
+/*
+    // this was used as a quick test; everything looks good
+    public static void main(String args[]) {
+      WC1994_MagAreaRelationship magRel = new WC1994_MagAreaRelationship();
+
+      System.out.println("Area  SS_Mag  R_Mag  N_Mag  All_Mag");
+      System.out.print("1  ");
+      System.out.print(magRel.getMedianMag(1.0, 0.0)+"  ");
+      System.out.print(magRel.getMedianMag(1.0, 90.0)+"  ");
+      System.out.print(magRel.getMedianMag(1.0, -90.0)+"  ");
+      System.out.print(magRel.getMedianMag(1.0, Double.NaN)+"\n");
+
+      System.out.print("500  ");
+      System.out.print(magRel.getMedianMag(500, 0.0)+"  ");
+      System.out.print(magRel.getMedianMag(500, 90.0)+"  ");
+      System.out.print(magRel.getMedianMag(500, -90.0)+"  ");
+      System.out.print(magRel.getMedianMag(500, Double.NaN)+"\n");
+
+      System.out.print("10000  ");
+      System.out.print(magRel.getMedianMag(1e4, 0.0)+"  ");
+      System.out.print(magRel.getMedianMag(1e4, 90.0)+"  ");
+      System.out.print(magRel.getMedianMag(1e4, -90.0)+"  ");
+      System.out.print(magRel.getMedianMag(1e4, Double.NaN)+"\n");
+
+
+      System.out.println(" ");
+      System.out.println("Mag  SS_Area R_Area  N_Area  All_Area");
+      System.out.print("4 ");
+      System.out.print(magRel.getMedianArea(4, 0.0)+"  ");
+      System.out.print(magRel.getMedianArea(4, 90.0)+"  ");
+      System.out.print(magRel.getMedianArea(4, -90.0)+"  ");
+      System.out.print(magRel.getMedianArea(4, Double.NaN)+"\n");
+
+      System.out.print("6  ");
+      System.out.print(magRel.getMedianArea(6, 0.0)+"  ");
+      System.out.print(magRel.getMedianArea(6, 90.0)+"  ");
+      System.out.print(magRel.getMedianArea(6, -90.0)+"  ");
+      System.out.print(magRel.getMedianArea(6, Double.NaN)+"\n");
+
+      System.out.print("8  ");
+      System.out.print(magRel.getMedianArea(8, 0.0)+"  ");
+      System.out.print(magRel.getMedianArea(8, 90.0)+"  ");
+      System.out.print(magRel.getMedianArea(8, -90.0)+"  ");
+      System.out.print(magRel.getMedianArea(8, Double.NaN)+"\n");
+
+      System.out.println(" ");
+      System.out.println("Mag_stdDev for  SS_Mag  R_Mag  N_Mag and All_Mag:");
+      System.out.print(magRel.getMagStdDev(0.0)+"  ");
+      System.out.print(magRel.getMagStdDev(90.0)+"  ");
+      System.out.print(magRel.getMagStdDev(-90.0)+"  ");
+      System.out.print(magRel.getMagStdDev(Double.NaN)+"\n");
+
+      System.out.println(" ");
+      System.out.println("Area_stdDev for  SS_Mag  R_Mag  N_Mag and All_Mag:");
+      System.out.print(magRel.getAreaStdDev(0.0)+"  ");
+      System.out.print(magRel.getAreaStdDev(90.0)+"  ");
+      System.out.print(magRel.getAreaStdDev(-90.0)+"  ");
+      System.out.print(magRel.getAreaStdDev(Double.NaN)+"\n");
+
+
+    }
+*/
 
 }
