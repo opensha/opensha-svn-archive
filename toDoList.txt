@@ -22,12 +22,6 @@ GMT_MapGenerator:
 
 	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service
 	
-	Figure out a way to get the following dynamically (can only do this on UNIX?):
-
-   		GMT_PATH
-    		GS_PATH
-    		CONVERT_PATH
-
 Look into how to save an application in its current state (and to an abitrary file name) so that a user can double click later to come back.
 
 Finish PEER results plotter & data submission tool (when they give us the final files).
@@ -37,7 +31,6 @@ Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(E
 Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
-
 
 Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the user what they are looking at in a plot (this is done); 2) save the state of a stand-alone app on the user's computer so they can relaunch later and begin where they left off; and 3) save enough information to the SRB (or equivalent) so we can tell at runtime whether a calculation has already been done, or so other's browsing the SRB will see what's available. This raises issues with respect to allowed characters in a parameter name.  Why don't we reserve the following special characters for writing the string-representation of metadata (meaning these can't be used in parameter names):
 
