@@ -81,8 +81,15 @@ public class GMT_SettingsControlPanel extends JFrame {
   private final static String TOPO_RESOLUTION_06 = "06";
   private final static String TOPO_RESOLUTION_18 = "18";
   private final static String TOPO_RESOLUTION_30 = "30";
-  private final static String TOPO_RESOLUTION_NONE = "No Topo";
+  public final static String TOPO_RESOLUTION_NONE = "No Topo";
   StringParameter topoResolutionParam;
+
+
+  //output file(image file) param
+  public final static String OUTPUT_FILE_PREFIX_PARAM_NAME = "Output file prefix";
+  private final static String OUTPUT_FILE_PREFIX_PARAM_DEFAULT = "test";
+  private final static String OUTPUT_FILE_PREFIX_PARAM_INFO = "Name of prefix for output files (.ps and .jpg will be added)";
+  private StringParameter outputFilePrefixParam;
 
   // highways to plot parameter
   public final static String SHOW_HIWYS_PARAM_NAME = "Highways in plot";
@@ -91,7 +98,7 @@ public class GMT_SettingsControlPanel extends JFrame {
   private final static String SHOW_HIWYS_ALL = "ca_hiwys.all.xy";
   private final static String SHOW_HIWYS_MAIN = "ca_hiwys.main.xy";
   private final static String SHOW_HIWYS_OTHER = "ca_hiwys.other.xy";
-  private final static String SHOW_HIWYS_NONE = "None";
+  public final static String SHOW_HIWYS_NONE = "None";
   StringParameter showHiwysParam;
 
 
@@ -239,7 +246,7 @@ public class GMT_SettingsControlPanel extends JFrame {
    * @return : list of all parameters in GMT control panel
    */
   public ParameterList getParameterList() {
-    return this.gmtParamList;
+    return gmtParamList;
   }
 
 }

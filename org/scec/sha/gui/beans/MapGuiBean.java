@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.scec.mapping.gmtWrapper.*;
+import org.scec.sha.gui.controls.GMT_SettingsControlPanel;
 import org.scec.param.*;
 
 /**
@@ -23,7 +24,7 @@ public class MapGuiBean extends JPanel {
 
 
   //instance of the GMT Control Panel to get the GMT parameters value.
-  private GMT_MapGenerator gmtMap;
+  private GMT_SettingsControlPanel gmtMap;
 
   // PATH where the gmt commands and some others exist.
   private static String GMT_PATH = "/sw/bin/";
@@ -50,7 +51,7 @@ public class MapGuiBean extends JPanel {
    * Clas constructor accepts the GMT parameters list
    * @param gmtMap
    */
-  public MapGuiBean(GMT_MapGenerator gmtMap) {
+  public MapGuiBean(GMT_SettingsControlPanel gmtMap) {
     this.gmtMap=gmtMap;
   }
 
@@ -197,9 +198,4 @@ public class MapGuiBean extends JPanel {
 
       return this;
   }
-
-
-
-
-
 }
