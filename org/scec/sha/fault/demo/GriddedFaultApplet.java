@@ -186,7 +186,7 @@ public class GriddedFaultApplet
     GriddedSurfaceAPI surface = null;
     double currentGridSpacing = -1;
 
-    VisadPlotter plotter3D = new VisadPlotter();
+   // VisadPlotter plotter3D = new VisadPlotter();
     Component comp3D = null;
     boolean threeD = false;
 
@@ -576,7 +576,7 @@ public class GriddedFaultApplet
 
                 pointsTextArea.setText( "Gridded Surface Data:\n" + currentGriddedSurfaceName + '\n' + surface.toString() );
                 //comp3D = plotter3D.getExamplePlot();
-                comp3D = plotter3D.getPlot(surface);
+                //comp3D = plotter3D.getPlot(surface);
                 graphOn = false;
                 togglePlot();
 
