@@ -3,31 +3,21 @@
 
 Add the  revised version of the test results for AttenuationRelationhships by Ken Campbell to the JUnit test.
 
-dd site translation for SEA_1999_AttenRel
+add site translation for SEA_1999_AttenRel
 
 Change HazardCurveServerModeApp to do the calculations on the server.
 
 After the above, deploy USGS/CGS 2002 ERF in Server-Mode Haz Curve App.
 
-Notes on HazardCurveApps:
+Make one HazardCurveApps where calcs can be local or on server and ERFs can be local and/or distributed as servlets.
 
-	1) calcs occur on user's computer
-	2) calcs occur on server
-
-	(ERFs can be both local or distributed in both)
-
-Implement point source correction option in PropagationEffect.  ************
+Implement point source correction option in PropagationEffect.
 
 GMT_MapGenerator:
 
 	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service (Nitin)
 	
-
-Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.  Ned did it; it's a huge savings (time for BJF97 w/ USGS/CGS2002 ERF was 20 to 10 seconds).  Before making a permanent change we now need to consider if using the approximation will ever be bad.
-
 The Log Plot tester App does not work for the Linear Scale.
-
-
 
 Make email lists for the following (with on-line archives):
 
@@ -45,8 +35,6 @@ Work on following papers:
 	Announce applications available?
 
 Figure out how to add the OpenSHA logo to shakeMaps.
-
-Get usable scenario ShakeMap app to Wald and Reasonberg.
 
 Go over exception throwing in entire package to make sure it looks appropriate.
 
