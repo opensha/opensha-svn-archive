@@ -7,9 +7,9 @@ import java.io.*;
 import org.scec.util.FileUtils;
 
 
-import org.scec.data.region.SitesInGriddedRegion;
-import org.scec.sha.imr.AttenuationRelationshipAPI;
-import org.scec.sha.earthquake.EqkRupForecast;
+import org.scec.data.region.*;
+import org.scec.sha.imr.*;
+import org.scec.sha.earthquake.*;
 import org.scec.sha.calc.SubmitJobForGridComputation;
 
 /**

@@ -213,13 +213,13 @@ public class SubmitJobForGridComputation {
     LinkedList list = new LinkedList();
 
     // snd start index and end index to each computer
+    String arg1 = REMOTE_EXECUTABLE_NAME.substring(0,REMOTE_EXECUTABLE_NAME.indexOf('.'));
+    String arg2 = regionFileName+ " " + erfFileName + " " + imrFileName+" -Xmx150M";
     for (int site = 0; site < numSites; site += this.SUGGESTED_NUM_SITES_IN_WORK_UNIT) {
       startSite = site;
       endSite = site + SUGGESTED_NUM_SITES_IN_WORK_UNIT;
 
-      String arguments = REMOTE_EXECUTABLE_NAME.substring(0,REMOTE_EXECUTABLE_NAME.indexOf('.')) +
-          " " + startSite+" "+endSite + " " + regionFileName
-          + " " + erfFileName + " " + imrFileName;
+      String arguments = arg1 + " " + startSite+" "+endSite + " " + arg2;
       String fileNamePrefix = HAZARD_CURVES_SUBMIT + site;
       String condorSubmitScript = createCondorScript(fileDataPrefix, fileDataSuffix, arguments,
                              outputDir, fileNamePrefix + "_" + startSite,
