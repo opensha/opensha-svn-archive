@@ -14,7 +14,7 @@
   <property name="Unit.Test.home" value="${jbuilder.home}/lib"/>
   <property name="Required.Libraries.home" value="lib"/>
   <property name="Tomcat.4.1.Servlet.home" value="${jbuilder.home}/thirdparty/jakarta-tomcat-4.1.30/common/lib"/>
-  <property name="src" value="../."/>
+  <property name="src" value="../"/>
   <property name="rmic" value="${jdk.home}/bin/rmic"/>
   <path id="project.class.path">
     <pathelement location="${dest}"/>
@@ -80,20 +80,60 @@
       destdir="${dest}"
       nowarn="false"
       source="1.4"
-      target="1.2"
+      target="1.4"
       failonerror="yes"
-      verbose="no">
+      verbose="no"
+      classpath="${dest}:${Required.Libraries.home}/SRBDrop.jar">
       <src path="${src}"/>
       <include name="org/scec/sha/imr/attenRelImpl/**"/>
-      <exclude name="org/scec/sha/imr/attenRelImpl/gui/**" />
+      <exclude name="org/scec/sha/imr/attenRelImpl/gui/**"/>
       <exclude name="org/scec/sha/imr/attenRelImpl/test/**"/>
+      <include name="org/scec/sha/gui/ScenarioShakeMapApp.java"/>
       <include name="org/scec/param/**"/>
+      <include name="org/scec/sha/earthquake/**"/>
+      <include name="org/scec/sha/calc/**"/>
     </javac>
   </target>
   <target name="rmi">
-    <exec dir="${src}" executable="${rmic}" failonerror="true">
+    <exec dir="${dest}" executable="${rmic}" failonerror="true">
       <arg value="-classpath"/>
-      <arg value="${dest}:${JUnit.home}/junit.jar:${Unit.Test.home}/unittest.jar:${Required.Libraries.home}/log4j-1.2.4.jar:${Required.Libraries.home}/commons-collections.jar:${Required.Libraries.home}/xml-apis.jar:${Required.Libraries.home}/xmlParserAPIs.jar:${Required.Libraries.home}/xsdlib.jar:${Required.Libraries.home}/jta-spec1_0_1.jar:${Required.Libraries.home}/jaxrpc-impl.jar:${Required.Libraries.home}/jaxrpc-api.jar:${Required.Libraries.home}/commons-beanutils.jar:${Required.Libraries.home}/jax-qname.jar:${Required.Libraries.home}/mail.jar:${Required.Libraries.home}/SRBDrop.jar:${Required.Libraries.home}/commons-logging.jar:${Required.Libraries.home}/jaas.jar:${Required.Libraries.home}/activation.jar:${Required.Libraries.home}/xercesSamples.jar:${Required.Libraries.home}/relaxngDatatype.jar:${Required.Libraries.home}/namespace.jar:${Required.Libraries.home}/xercesImpl.jar:${Required.Libraries.home}/saaj-impl.jar:${Required.Libraries.home}/saaj-api.jar:${Required.Libraries.home}/dom4j.jar:${Tomcat.4.1.Servlet.home}/servlet.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/charsets.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/classes.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/dt.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/jce.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/jsse.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/laf.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/sunrsasign.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/ui.jar:${jdk.home}/lib/dt.jar:${jdk.home}/lib/ext/apple_provider.jar:${jdk.home}/lib/ext/ldapsec.jar:${jdk.home}/lib/ext/localedata.jar:${jdk.home}/lib/ext/sunjce_provider.jar:${jdk.home}/lib/im/indicim.jar:${jdk.home}/lib/im/thaiim.jar:${jdk.home}/lib/jaws.jar:${jdk.home}/lib/jce.jar:${jdk.home}/lib/netscape.jar"/>
+      <arg value="${dest}:${JUnit.home}/junit.jar:${Unit.Test.home}/unittest.jar:
+        ${Required.Libraries.home}/log4j-1.2.4.jar:
+        ${Required.Libraries.home}/commons-collections.jar:
+        ${Required.Libraries.home}/xml-apis.jar:
+        ${Required.Libraries.home}/xmlParserAPIs.jar:
+        ${Required.Libraries.home}/xsdlib.jar:
+        ${Required.Libraries.home}/jta-spec1_0_1.jar:
+        ${Required.Libraries.home}/jaxrpc-impl.jar:
+        ${Required.Libraries.home}/jaxrpc-api.jar:
+        ${Required.Libraries.home}/commons-beanutils.jar:
+        ${Required.Libraries.home}/jax-qname.jar:
+        ${Required.Libraries.home}/mail.jar:
+        ${Required.Libraries.home}/SRBDrop.jar:
+        ${Required.Libraries.home}/commons-logging.jar:
+        ${Required.Libraries.home}/jaas.jar:
+        ${Required.Libraries.home}/activation.jar:
+        ${Required.Libraries.home}/xercesSamples.jar:
+        ${Required.Libraries.home}/relaxngDatatype.jar:
+        ${Required.Libraries.home}/namespace.jar:
+        ${Required.Libraries.home}/xercesImpl.jar:
+        ${Required.Libraries.home}/saaj-impl.jar:
+        ${Required.Libraries.home}/saaj-api.jar:
+        ${Required.Libraries.home}/dom4j.jar:
+        ${Tomcat.4.1.Servlet.home}/servlet.jar:
+        /System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/charsets.jar:
+        /System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/classes.jar:
+        /System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/dt.jar:
+        /System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/jce.jar:
+        /System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/jsse.jar:
+        /System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/laf.jar:
+        /System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/sunrsasign.jar:
+        /System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/ui.jar:
+        ${jdk.home}/lib/dt.jar:${jdk.home}/lib/ext/apple_provider.jar:
+        ${jdk.home}/lib/ext/ldapsec.jar:${jdk.home}/lib/ext/localedata.jar:
+        ${jdk.home}/lib/ext/sunjce_provider.jar:${jdk.home}/lib/im/indicim.jar:
+        ${jdk.home}/lib/im/thaiim.jar:${jdk.home}/lib/jaws.jar:${jdk.home}/lib/jce.jar:
+        ${jdk.home}/lib/netscape.jar"/>
       <arg value="-d"/>
       <arg value="${dest}"/>
       <arg line="-v1.2"/>
@@ -113,14 +153,14 @@
     </copy>
   </target>
   <target depends="javacompile" name="compile"/>
-  <target depends="compile,package" name="make" />
-  <target depends="resource" name="package" />
-  <target depends="jarfile,postcompilecleanup" name="postcompile" />
+  <target depends="compile,package" name="make"/>
+  <target depends="resource" name="package"/>
+  <target depends="jarfile,postcompilecleanup" name="postcompile"/>
   <target name="init">
     <mkdir dir="${dest}"/>
   </target>
-  <target name="jarfile" depends="precompilecleanup,init,make,package">
-    <jar destfile="scenarioshakemap_test.jar" basedir="${dest}" manifest="AttenRel_MANIFEST.MF">
+  <target name="jarfile" depends="precompilecleanup,init,make,rmi,package">
+    <jar destfile="scenarioshakemap_test.jar" basedir="${dest}" manifest="ScenarioShakeMap_MANIFEST.MF">
       <include name="org/**"/>
       <include name="img/**"/>
       <include name="ch/**"/>
