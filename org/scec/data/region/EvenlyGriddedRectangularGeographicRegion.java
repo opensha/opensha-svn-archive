@@ -22,6 +22,13 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    */
   private double gridSpacing;
 
+  private int numLatGridPoints;
+  private int numLonGridPoints;
+
+  private final static String C = "EvenlyGriddedRectangularGeographicRegion";
+  private final static boolean D = false;
+
+
   /**
    * class constructor
    * @param minLat
@@ -33,7 +40,15 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
       double minLon,double maxLon, double gridSpacing) {
     super(minLat,maxLat,minLon,maxLon);
     this.gridSpacing=gridSpacing;
+
+    //set the number of grid points for lat and lon
+    numLatGridPoints = (int) Math.ceil((getMaxLat()-getMinLat())/gridSpacing)+1;
+    numLonGridPoints = (int) Math.ceil((getMaxLon()-getMinLon())/gridSpacing)+1;
+
+    if (D) System.out.println("numLatGridPoints="+numLatGridPoints+"; numLonGridPoints="+numLonGridPoints);
+
   }
+
 
   /**
    * It samples out the grids location points based on the grid spacing(in degrees)
@@ -42,6 +57,10 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    */
   public void setGridSpacing(double degrees){
     gridSpacing = degrees;
+
+    //set the number of grid points for lat and lon
+    numLatGridPoints=(int)Math.ceil(getMaxLat()-getMinLat()/gridSpacing)+1;
+    numLonGridPoints=(int)Math.ceil(getMaxLon()-getMinLon()/gridSpacing)+1;
   }
 
   /**
@@ -57,13 +76,8 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @returns the number of GridLocation points
    */
   public int getNumGridLocs(){
-    //gets the grids points on the latitude based on the gridspacing
-    int latGridPoints=(int)Math.ceil(getMaxLat()-getMinLat()/getGridSpacing())+1;
-    //gets the grids points on the longitude based on the gridspacing
-    int lonGridPoints=(int)Math.ceil(getMaxLon()-getMinLon()/getGridSpacing())+1;
 
-    //total number of grid points locations
-    return latGridPoints*lonGridPoints;
+    return numLatGridPoints*numLonGridPoints;
   }
 
   /**
@@ -73,9 +87,9 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
   public ListIterator getGridLocationsIterator(){
 
     //creating the instance of the locationList
-    LocationList locList=createGriddedLocationList();
+    LocationList gridLocsList=createGriddedLocationList();
     //return the ListIterator for the locationList
-    return locList.listIterator();
+    return gridLocsList.listIterator();
   }
 
   /**
@@ -84,35 +98,26 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    */
   public LocationList getGridLocationsList(){
     //creating the instance of the locationList
-    LocationList locList=createGriddedLocationList();
-    return locList;
+    LocationList gridLocsList=createGriddedLocationList();
+    return gridLocsList;
   }
 
   /**
    *
-   * @param index: it starts from zero
+   * @param index (starts from zero)
    * @returns the Grid Location at that index.
    */
   public Location getGridLocation(int index){
 
-    //getting the lat and lon grid points
-    //number of grid points on each Lat
-    int latGridPoints= (int)Math.ceil((getMaxLat()-getMinLat())/gridSpacing)+1;
-    //number of gridPoints on each Lon
-    int lonGridPoints= (int)Math.ceil((getMaxLon()-getMinLon())/gridSpacing)+1;
-
-    //as the we are adding the Lons for each lat. so in a grid ew can assume the
-    //scenario as the Lats being at the rows and the Lons being at the column.
-    //so we are scanning each lat row to get the desired grid location.
-
     //gets the row for the latitude in which that index of grid exists
-    int latGridLoc=index/latGridPoints;
+    int row=index/numLonGridPoints;
+
     //gets the column in the row (longitude point) where that index exists
-    int lonGridLoc=index%latGridPoints;
+    int col=index%numLonGridPoints;
 
     //lat and lon for that indexed point
-    double newLat=getMinLat()+latGridLoc*gridSpacing;
-    double newLon=getMinLon()+lonGridLoc*gridSpacing;
+    double newLat=getMinLat()+row*gridSpacing;
+    double newLon=getMinLon()+col*gridSpacing;
 
     //new location at which that lat and lon exists
     Location location= new Location(newLat,newLon);
@@ -127,24 +132,44 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @returns the LocationList
    */
   private LocationList createGriddedLocationList(){
-    double minLat=getMinLat();
-    double maxLat=getMaxLat();
-    double minLon= getMinLon();
-    double maxLon=getMaxLon();
+    double lat,lon;
 
     //creates a instance of new locationList
-    LocationList locList=new LocationList();
-    while(minLat <= maxLat){
-      while(minLon <= maxLon){
-        //adding the longitude for each gridded latitude to the location list
-        locList.addLocation(new Location(minLat,minLon));
-        minLon+=gridSpacing;
+    LocationList gridLocsList=new LocationList();
+    for(int iLat=0;iLat < numLatGridPoints; iLat++){
+      lat = getMinLat() + gridSpacing*(double)iLat;
+      for(int iLon=0; iLon < this.numLonGridPoints; iLon++){
+        lon=getMinLon()+gridSpacing*(double)iLon;
+        gridLocsList.addLocation(new Location(lat,lon));
       }
-      minLat+=gridSpacing;
     }
-    return locList;
+    return gridLocsList;
   }
 
+
+  public static void main(String[] args) {
+
+    EvenlyGriddedRectangularGeographicRegion geoReg = new EvenlyGriddedRectangularGeographicRegion(33.,33.9,120.,121.9,1);
+
+    System.out.println(C+": numLocations="+ geoReg.getNumLocations());
+
+    System.out.println(C+": getMinLat ="+ geoReg.getMinLat());
+    System.out.println(C+": getMaxLat ="+ geoReg.getMaxLat());
+    System.out.println(C+": getMinLon ="+ geoReg.getMinLon());
+    System.out.println(C+": getMaxLon ="+ geoReg.getMaxLon());
+
+    System.out.println(C+": numGridLocs="+ geoReg.getNumGridLocs());
+
+    LocationList list = geoReg.getGridLocationsList();
+
+    System.out.print("numInList="+list.size()+"; getNumGridLocs="+geoReg.getNumGridLocs()+"\n");
+
+    Location tempLoc;
+    for(int i = 0; i < geoReg.getNumGridLocs(); i++) {
+      tempLoc = (Location) list.getLocationAt(i);
+      System.out.print("index="+i+"; Loc from list:  "+tempLoc.toString()+"; Loc from method:  "+ (geoReg.getGridLocation(i)).toString() +"\n" );
+    }
+  }
 
 
 }

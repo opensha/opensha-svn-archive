@@ -16,15 +16,14 @@ import org.scec.data.Location;
 interface EvenlyGriddedGeographicRegionAPI {
 
   /**
-   * It samples out the grids location points based on the grid spacing(in degrees)
-   * chosen.
-   * @param degrees: sets the grid spacing
+   * This method sets the grid spacing in degrees.
+   * @param degrees
    */
   public void setGridSpacing(double degrees);
 
   /**
    *
-   * @return  the grid spacing(in degrees)
+   * @return  the grid spacing (in degrees)
    */
   public double getGridSpacing();
 

@@ -7,7 +7,7 @@ import org.scec.data.Location;
 
 /**
  * <p>Title: EvenlyGriddedGeographicRegion</p>
- * <p>Description: </p>
+ * <p>Description:  THIS CLASS IS COMPLETELY IMPLEMENTED, BUT NOT YET TESTED </p>
  * @author : Nitin Gupta & Vipin Gupta
  * @created: March 5,2003
  * @version 1.0
@@ -22,7 +22,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
    */
   private double gridSpacing;
 
-  private LocationList locList;
+  private LocationList gridLocsList;
 
   /**
    * default class constructor
@@ -42,11 +42,12 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
    */
   public void setGridSpacing(double degrees){
     gridSpacing = degrees;
+    createGriddedLocationList();
   }
 
   /**
    *
-   * @return  the grid spacing(in degrees)
+   * @return  the grid spacing (in degrees)
    */
   public double getGridSpacing(){
     return gridSpacing;
@@ -57,13 +58,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
    * @returns the number of GridLocation points
    */
   public int getNumGridLocs(){
-    //gets the grids points on the latitude based on the gridspacing
-    int latGridPoints=(int)Math.ceil(getMaxLat()-getMinLat()/getGridSpacing())+1;
-    //gets the grids points on the longitude based on the gridspacing
-    int lonGridPoints=(int)Math.ceil(getMaxLon()-getMinLon()/getGridSpacing())+1;
-
-    //total number of grid points locations
-    return latGridPoints*lonGridPoints;
+    return gridLocsList.size();
   }
 
   /**
@@ -73,7 +68,7 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
   public ListIterator getGridLocationsIterator(){
 
     //return the ListIterator for the locationList
-    return locList.listIterator();
+    return gridLocsList.listIterator();
   }
 
   /**
@@ -81,8 +76,9 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
    * @returns the GridLocations List
    */
   public LocationList getGridLocationsList(){
-    return locList;
+    return gridLocsList;
   }
+
 
   /**
    *
@@ -92,24 +88,28 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
   public Location getGridLocation(int index){
 
     //returns  the location at the specified index in the location list
-    return locList.getLocationAt(index);
+    return gridLocsList.getLocationAt(index);
   }
 
-  public LocationList createGriddedLocationList(){
+
+  private void createGriddedLocationList(){
     double minLat=getMinLat();
     double maxLat=getMaxLat();
     double minLon=getMinLon();
     double maxLon=getMaxLon();
+    Location tempLoc;
+
     //creates a instance of new locationList
-    LocationList locList=new LocationList();
+    gridLocsList=new LocationList();
+
+    // now loop over all grid points inside the max/min lat/lon and keep only those inside
     while(minLat <= maxLat){
       while(minLon <= maxLon){
-        //adding the longitude for each gridded latitude to the location list
-        locList.addLocation(new Location(minLat,minLon));
+        tempLoc = new Location(minLat,minLon);
+        if (this.isLocationInside(tempLoc)) gridLocsList.addLocation(tempLoc);
         minLon+=gridSpacing;
       }
       minLat+=gridSpacing;
     }
-    return locList;
   }
 }
