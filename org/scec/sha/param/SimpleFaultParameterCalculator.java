@@ -103,6 +103,13 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
   //creating the Double parameter for the Dips
   private IntegerParameter numDipParam = new IntegerParameter(NUM_DIPS,new Integer(this.DEFAULT_DIPS));
 
+  //Fault Name param
+  StringParameter faultName= new StringParameter(this.FAULT_NAME);
+  //Grid Spacing Param
+  DoubleParameter gridSpacing = new DoubleParameter(this.GRID_SPACING,0.0,100,new Double(this.DEFAULT_GRID_SPACING));
+  //FaultTrace Param
+  IntegerParameter numFltTrace = new IntegerParameter(this.NUMBER_OF_FAULT_TRACE,1,100,new Integer(this.DEFAULT_NUM_FAULT_TRACE));
+
   //creating the StringParameter for the FaultType
   StringParameter faultTypeParam;
 
@@ -184,6 +191,19 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
 
 
   /**
+   * Adds the Independent Params to the selected Params
+   */
+  private void addDependenParamList(){
+    //faultType param is dependent on the numDip param
+    numDipParam.addIndependentParameter(faultTypeParam);
+    //dipdirection param is dependent on the numDipParam
+    numDipParam.addIndependentParameter(dipDirectionParam);
+
+    //dipDirection param is also dependent on the value of the faultTypeParam
+    faultTypeParam.addIndependentParameter(dipDirectionParam);
+  }
+
+  /**
    *
    * creating the parameters for the parameterList that includes:
    * 1)name of the fault
@@ -195,9 +215,6 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
    */
   public void initParamList(){
 
-    StringParameter faultName= new StringParameter(this.FAULT_NAME);
-    DoubleParameter gridSpacing = new DoubleParameter(this.GRID_SPACING,0.0,100,new Double(this.DEFAULT_GRID_SPACING));
-    IntegerParameter numFltTrace = new IntegerParameter(this.NUMBER_OF_FAULT_TRACE,1,100,new Integer(this.DEFAULT_NUM_FAULT_TRACE));
     parameterList.addParameter(faultName);
     parameterList.addParameter(gridSpacing);
     parameterList.addParameter(numFltTrace);
@@ -206,6 +223,8 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
     fltType.add(this.FRANKEL);
     fltType.add(this.STIRLING);
     faultTypeParam = new StringParameter(this.FAULT_TYPE_TITLE,fltType,(String)fltType.get(0));
+    //creates the dependent ParamList
+    addDependenParamList();
   }
 
 
@@ -317,6 +336,16 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
       parameterListForLons.addParameter(lon[i]);
     }
     parameterListParameterForLons = new ParameterListParameter(LON_TITLE,parameterListForLons);
+
+    //Lats and Lon params are dependent on the number of fault trace
+    //if they already exists in the dependentParam List remove the earlier one and add new
+    //Lat and Lon param.
+    if(numFltTrace.containsIndependentParameter(LAT_TITLE))
+      numFltTrace.removeIndependentParameter(LAT_TITLE);
+    if(numFltTrace.containsIndependentParameter(LON_TITLE))
+      numFltTrace.removeIndependentParameter(LON_TITLE);
+    numFltTrace.addIndependentParameter(parameterListParameterForLats);
+    numFltTrace.addIndependentParameter(parameterListParameterForLons);
   }
 
 
@@ -342,6 +371,13 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
       parameterListForDips.addParameter(dip[i]);
     }
     parameterListParameterForDips = new ParameterListParameter(DIP_TITLE,parameterListForDips);
+
+    //Dips are dependent on the number of dips
+    //if they already exists in the dependentParam List remove the earlier one and add new
+    //dip param.
+    if(numDipParam.containsIndependentParameter(DIP_TITLE))
+      numDipParam.removeIndependentParameter(DIP_TITLE);
+    numDipParam.addIndependentParameter(parameterListParameterForDips);
   }
 
 
@@ -368,6 +404,13 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
       parameterListForDepths.addParameter(depth[i]);
     }
     parameterListParameterForDepths = new ParameterListParameter(DEPTH_TITLE,parameterListForDepths);
+
+    //Depths are dependent on the number of dips
+    //if they already exists in the dependentParam List remove the earlier one and add new
+    //depth param.
+    if(numDipParam.containsIndependentParameter(DEPTH_TITLE))
+      numDipParam.removeIndependentParameter(DEPTH_TITLE);
+    numDipParam.addIndependentParameter(parameterListParameterForDepths);
   }
 
 
@@ -379,6 +422,7 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
    */
   public void setEvenlyGriddedSurfaceFromParams()throws RuntimeException{
 
+    ParameterList independentParamList  = new ParameterList();
     // EvenlyGriddedSurface
     GriddedFaultFactory fltFactory = null;
     //gets the faultName
@@ -386,15 +430,23 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
     //creates the fault trace data
     FaultTrace fltTrace = new FaultTrace(fltName);
 
+    //Adding the fault Name to the independent Param List
+    if(fltName !=null) //add only if the flt NAme is not equal to null
+      independentParamList.addParameter(parameterList.getParameter(this.FAULT_NAME));
+
     //initialising the vectors for the lats, lons, depths and dips
     Vector lats = new Vector();
     Vector lons = new Vector();
     Vector depths = new Vector();
     Vector dips = new Vector();
     //getting the number of  fault trace
-    int fltTracePoints = ((Integer)this.parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
+    int fltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
     //getting the number of dips
     int numDips = ((Integer)numDipParam.getValue()).intValue();
+
+    //adding the fault trace and num dip param to the independent param list
+    independentParamList.addParameter(parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE));
+    independentParamList.addParameter(numDipParam);
 
     //adding the latitudes to the Vector
     for(int i=0;i<fltTracePoints;++i){
@@ -427,6 +479,12 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
       dips.add(dipLocation);
     }
 
+    //adding the Lat,Lon,Depths and Dip param to the independent Param List
+    independentParamList.addParameter(parameterListParameterForLats);
+    independentParamList.addParameter(parameterListParameterForLons);
+    independentParamList.addParameter(parameterListParameterForDepths);
+    independentParamList.addParameter(parameterListParameterForDips);
+
     //adding the locations to the FaultTrace
     for(int i=0;i<fltTracePoints;++i){
       double lat = ((Double)lats.get(i)).doubleValue();
@@ -442,6 +500,9 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
 
     //getting the gridSpacing
     double gridSpacing = ((Double)this.parameterList.getParameter(this.GRID_SPACING).getValue()).doubleValue();
+
+    //adding the gridSpacing param to the indendent Param List
+    independentParamList.addParameter(parameterList.getParameter(this.GRID_SPACING));
 
     /**
      * Checking for the number of Dips.
@@ -477,6 +538,9 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
         else
           ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(aveDipDir.doubleValue());
       }
+
+      //adding the Fault type param to the independent param list
+      independentParamList.addParameter(faultTypeParam);
     }
     else{
       //make the object for the simple Listric fault
@@ -492,6 +556,9 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
         for(int k=0;k<surf.getNumRows();k++)
           System.out.println(surf.getLocation(k,i).toString());
     }
+
+    //saving the independent Param List inside SimpleFault parameter
+    setIndependentParameters(independentParamList);
   }
 
   /**
