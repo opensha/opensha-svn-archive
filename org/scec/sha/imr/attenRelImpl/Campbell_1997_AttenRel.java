@@ -543,7 +543,7 @@ public class Campbell_1997_AttenRel
                if ( component.equals( COMPONENT_AVE_HORZ ) )
                    return (sigma);
                 else // vertical component
-                    return (Math.pow(sigma*sigma + 0.152, 0.5));
+                    return (Math.pow(sigma*sigma + 0.1521, 0.5));
              }
            }
 

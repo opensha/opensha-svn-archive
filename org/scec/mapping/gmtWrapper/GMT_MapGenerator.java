@@ -252,9 +252,9 @@ public class GMT_MapGenerator implements Serializable{
       out_jpg = fileName+"-"+imageCounter+ ".jpg";
 
       this.runMapScript(GMT_PATH,br,xyzDataSet);
-      String gmtScript = GMT_PATH+"convert " + out_ps + " " + out_jpg;
+      String gmtCommandLine = GMT_PATH+"convert " + out_ps + " " + out_jpg;
       //RunScript.runScript(command);
-      br.write(gmtScript+"\n");
+      br.write(gmtCommandLine+"\n");
       br.close();
     }catch(RuntimeException ee){
       throw new RuntimeException(ee.getMessage());
@@ -323,9 +323,9 @@ public class GMT_MapGenerator implements Serializable{
       out_jpg = fileName+"-"+imageCounter+ ".jpg";
 
       runMapScript(GMT_PATH,br,xyzDataSet);
-      String gmtScript=COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
+      String gmtCommandLine=COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
       //RunScript.runScript(command);
-      br.write(gmtScript+"\n");
+      br.write(gmtCommandLine+"\n");
       br.close();
     } catch (Exception e) {
       // report to the user whether the operation was successful or not
@@ -392,9 +392,9 @@ public class GMT_MapGenerator implements Serializable{
       out_jpg = fileName + ".jpg";
 
       runMapScript(GMT_PATH,br,xyzDataSet);
-      String gmtScript=COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
+      String gmtCommandLine=COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
       //RunScript.runScript(command);
-      br.write(gmtScript+"\n");
+      br.write(gmtCommandLine+"\n");
       br.close();
     } catch (Exception e) {
       // report to the user whether the operation was successful or not
@@ -422,7 +422,7 @@ public class GMT_MapGenerator implements Serializable{
     this.gmtPath= GMT_PATH;
     String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
 
-    String gmtScript =null;
+    String gmtCommandLine =null;
     if(D) System.out.println(C+" region = "+region);
     //all the files of the GMT will be created by this fileName
     String fileName=xyzFileName.substring(0,xyzFileName.indexOf("."));
@@ -450,11 +450,11 @@ public class GMT_MapGenerator implements Serializable{
     String yOff = "-Y" + yOffset + "i";
 
     //command to be executed during the runtime.
-    gmtScript =GMT_PATH+"xyz2grd "+ xyzFileName+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
+    gmtCommandLine =GMT_PATH+"xyz2grd "+ xyzFileName+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
     //RunScript.runScript(command);
-    br.write(gmtScript+"\n");
+    br.write(gmtCommandLine+"\n");
 
-    //gmtScript = GMT_PATH + "grdcut " + grdFileName +" -Gtemp"+grdFileName +" " + region;
+    //gmtCommandLine = GMT_PATH + "grdcut " + grdFileName +" -Gtemp"+grdFileName +" " + region;
     //RunScript.runScript(command);
 
     double colorScaleMin, colorScaleMax;
@@ -472,55 +472,55 @@ public class GMT_MapGenerator implements Serializable{
     }
 
     float inc = (float) ((colorScaleMax-colorScaleMin)/20);
-    gmtScript=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
+    gmtCommandLine=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
     //RunScript.runScript(command);
-    br.write(gmtScript+"\n");
-    gmtScript = GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait";
+    br.write(gmtCommandLine+"\n");
+    gmtCommandLine = GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait";
     //RunScript.runScript(command);
-    br.write(gmtScript+"\n");
+    br.write(gmtCommandLine+"\n");
     if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-      gmtScript=GMT_PATH+"grdimage "+grdFileName+" -X0.75i " + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
+      gmtCommandLine=GMT_PATH+"grdimage "+grdFileName+" -X0.75i " + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
       //RunScript.runScript(command);
-      br.write(gmtScript+"\n");
+      br.write(gmtCommandLine+"\n");
     }
     else {
-      gmtScript=GMT_PATH+"grdsample "+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q";
+      gmtCommandLine=GMT_PATH+"grdsample "+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q";
       //RunScript.runScript(command);
-      br.write(gmtScript+"\n");
-      gmtScript=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
+      br.write(gmtCommandLine+"\n");
+      gmtCommandLine=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
       //RunScript.runScript(command);
-      br.write(gmtScript+"\n");
-      gmtScript=GMT_PATH+"grdimage "+fileName+"HiResData.grd -X0.75i " + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
+      br.write(gmtCommandLine+"\n");
+      gmtCommandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd -X0.75i " + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
       //RunScript.runScript(command);
-      br.write(gmtScript+"\n");
+      br.write(gmtCommandLine+"\n");
     }
 
     if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
-      gmtScript=GMT_PATH+"psxy  "+region+" " + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + out_ps;
+      gmtCommandLine=GMT_PATH+"psxy  "+region+" " + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + out_ps;
       //RunScript.runScript(command);
-      br.write(gmtScript+"\n");
+      br.write(gmtCommandLine+"\n");
     }
 
     if(coast.equals(COAST_FILL)) {
-      gmtScript=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + out_ps;
+      gmtCommandLine=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + out_ps;
       //RunScript.runScript(command);
-      br.write(gmtScript+"\n");
+      br.write(gmtCommandLine+"\n");
     }
     else if(coast.equals(COAST_DRAW)) {
-      gmtScript=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + out_ps;
+      gmtCommandLine=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + out_ps;
       //RunScript.runScript(command);
-      br.write(gmtScript+"\n");
+      br.write(gmtCommandLine+"\n");
     }
 
-    gmtScript=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+    gmtCommandLine=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
     //RunScript.runScript(command);
-    br.write(gmtScript+"\n");
-    gmtScript=GMT_PATH+"psscale -B1:LogIML: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
+    br.write(gmtCommandLine+"\n");
+    gmtCommandLine=GMT_PATH+"psscale -B1:LogIML: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
     //RunScript.runScript(command);
-    br.write(gmtScript+"\n");
-    gmtScript=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/50 -O >> " + out_ps;
+    br.write(gmtCommandLine+"\n");
+    gmtCommandLine=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/50 -O >> " + out_ps;
     //RunScript.runScript(command);
-    br.write(gmtScript+"\n");
+    br.write(gmtCommandLine+"\n");
   }
 
 

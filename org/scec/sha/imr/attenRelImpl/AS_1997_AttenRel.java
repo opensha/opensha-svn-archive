@@ -559,7 +559,7 @@ System.out.println( a13 );
             // this is inefficient if the im has not been changed in any way
             updateCoefficients();
 
-            // only horz case implemented
+
             double mag = ((Double)magParam.getValue()).doubleValue();
             if(mag <= 5.0)
                 return  coeff.b5 ;

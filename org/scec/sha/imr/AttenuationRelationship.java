@@ -609,13 +609,13 @@ public abstract class AttenuationRelationship
 
         // compute the iml from exceed probability based on truncation type
         if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_NONE ) )
-            stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 0, 0, 1e-5);
+            stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 0, 0, 1e-6);
         else {
             double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
             if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) )
-                stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 1, numSig, 1e-5);
+                stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 1, numSig, 1e-6);
             else
-                stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 2, numSig, 1e-5);
+                stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 2, numSig, 1e-6);
         }
         return getMean() + stRndVar*getStdDev();
     }
