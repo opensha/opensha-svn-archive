@@ -1,7 +1,7 @@
 package org.scec.sha.gui.infoTools;
 
 import java.io.*;
-import org.scec.cme.SRBDrop;
+import org.scec.cme.SRBDrop.SRBDrop;
 
 
 /**

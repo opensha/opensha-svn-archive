@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.Iterator;
 import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.util.RunScript;
-import org.scec.cme.SRBDrop;
+import org.scec.cme.SRBDrop.SRBDrop;
 import org.scec.sha.gui.servlets.HazardMapCalcServlet;
 
 /**
