@@ -36,7 +36,7 @@ import org.scec.data.TimeSpan;
  * @version 1.0
  */
 
-public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
+public class Frankel96_EqkRupForecast extends EqkRupForecast {
 
   /**
    * @todo variables

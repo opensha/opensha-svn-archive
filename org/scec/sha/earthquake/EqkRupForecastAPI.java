@@ -2,6 +2,7 @@ package org.scec.sha.earthquake;
 
 import org.scec.data.NamedObjectAPI;
 import org.scec.data.TimeSpan;
+import org.scec.param.ParameterList;
 
 import java.util.Iterator;
 import java.util.Vector;
@@ -123,5 +124,13 @@ public interface EqkRupForecastAPI extends NamedObjectAPI{
    * @param time
    */
    public void setTimeSpan(double yrs);
+
+
+   /**
+    * get the adjustable parameters for this forecast
+    *
+    * @return
+    */
+   public ParameterList getAdjustableParamsList();
 
 }

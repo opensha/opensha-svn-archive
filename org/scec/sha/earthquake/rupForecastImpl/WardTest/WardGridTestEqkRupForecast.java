@@ -34,7 +34,7 @@ import org.scec.sha.earthquake.*;
  * @version 1.0
  */
 
-public class WardGridTestEqkRupForecast implements EqkRupForecastAPI {
+public class WardGridTestEqkRupForecast extends EqkRupForecast {
 
   /**
    * @todo variables

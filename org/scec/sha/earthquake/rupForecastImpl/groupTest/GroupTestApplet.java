@@ -26,8 +26,8 @@ import org.scec.sha.magdist.gui.MagFreqDistTesterAPI;
 
 public class GroupTestApplet extends Applet
     implements  ParameterChangeWarningListener,
-                ParameterChangeFailListener,
-                MagFreqDistTesterAPI {
+    ParameterChangeFailListener,
+    MagFreqDistTesterAPI {
 
   /**
    * Name of the class
@@ -48,7 +48,7 @@ public class GroupTestApplet extends Applet
   // default insets
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
- // height and width of the applet
+  // height and width of the applet
   protected final static int W = 915;
   protected final static int H = 625;
 
@@ -88,7 +88,7 @@ public class GroupTestApplet extends Applet
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
-      (getParameter(key) != null ? getParameter(key) : def);
+        (getParameter(key) != null ? getParameter(key) : def);
   }
 
   //Construct the applet
@@ -135,16 +135,16 @@ public class GroupTestApplet extends Applet
     jCheckBox1.setText("X Log");
     jCheckBox2.setText("Y Log");
     buttonPanel.add(dataButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), -9, -2));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), -9, -2));
     buttonPanel.add(clearButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
     this.add(chartSplit, null);
     chartSplit.add(chartPanel, JSplitPane.TOP);
     chartSplit.add(controlsSplit, JSplitPane.BOTTOM);
     controlsSplit.add(imtSplitPane, JSplitPane.TOP);
     this.add(buttonPanel, null);
     buttonPanel.add(addButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 25, 10, 0), 3, -2));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 25, 10, 0), 3, -2));
     this.add(magDistSplit, null);
     magDistSplit.add(sourceSplitPane, JSplitPane.TOP);
     magDistSplit.add(timespanSplitPane, JSplitPane.BOTTOM);
@@ -158,9 +158,9 @@ public class GroupTestApplet extends Applet
     timespanSplitPane.add(magDistIndependentPanel, JSplitPane.TOP);
     timespanSplitPane.add(timespanPanel, JSplitPane.BOTTOM);
     buttonPanel.add(jCheckBox1,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
     buttonPanel.add(jCheckBox2,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 337), 22, 2));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 337), 22, 2));
     chartSplit.setDividerLocation(525);
     controlsSplit.setDividerLocation(240);
     magDistSplit.setDividerLocation(300);
@@ -176,7 +176,7 @@ public class GroupTestApplet extends Applet
     updateChoosenEqkSource();
     updateChoosenTimespan();
     updateChoosenMagDist();
-   }
+  }
   //Start the applet
   public void start() {
   }
@@ -222,222 +222,222 @@ public class GroupTestApplet extends Applet
   }
 
   /**
- *  This is the main function of this interface. Any time a control
- *  paramater or independent paramater is changed by the user in a GUI this
- *  function is called, and a paramater change event is passed in. This
- *  function then determines what to do with the information ie. show some
- *  paramaters, set some as invisible, basically control the paramater
- *  lists.
- *
- * @param  event
- */
- public void parameterChange( ParameterChangeEvent event ) {
+   *  This is the main function of this interface. Any time a control
+   *  paramater or independent paramater is changed by the user in a GUI this
+   *  function is called, and a paramater change event is passed in. This
+   *  function then determines what to do with the information ie. show some
+   *  paramaters, set some as invisible, basically control the paramater
+   *  lists.
+   *
+   * @param  event
+   */
+  public void parameterChange( ParameterChangeEvent event ) {
 
-   String S = C + ": parameterChange(): ";
-   if ( D )
+    String S = C + ": parameterChange(): ";
+    if ( D )
       System.out.println( "\n" + S + "starting: " );
-   String name1 = event.getParameterName();
- }
+    String name1 = event.getParameterName();
+  }
 
 
- /**
-     *  Shown when a Constraint error is thrown on a ParameterEditor
-     *
-     * @param  e  Description of the Parameter
-     */
-    public void parameterChangeFailed( ParameterChangeFailEvent e ) {
+  /**
+   *  Shown when a Constraint error is thrown on a ParameterEditor
+   *
+   * @param  e  Description of the Parameter
+   */
+  public void parameterChangeFailed( ParameterChangeFailEvent e ) {
 
-        String S = C + " : parameterChangeWarning(): ";
-        if(D) System.out.println(S + "Starting");
-
-
-
-        StringBuffer b = new StringBuffer();
-
-        ParameterAPI param = ( ParameterAPI ) e.getSource();
+    String S = C + " : parameterChangeWarning(): ";
+    if(D) System.out.println(S + "Starting");
 
 
-        ParameterConstraintAPI constraint = param.getConstraint();
-        String oldValueStr = e.getOldValue().toString();
-        String badValueStr = e.getBadValue().toString();
-        String name = param.getName();
+
+    StringBuffer b = new StringBuffer();
+
+    ParameterAPI param = ( ParameterAPI ) e.getSource();
 
 
-        b.append( "The value ");
-        b.append( badValueStr );
-        b.append( " is not permitted for '");
-        b.append( name );
-        b.append( "'.\n" );
-        b.append( "Resetting to ");
-        b.append( oldValueStr );
-        b.append( ". The constraints are: \n");
-        b.append( constraint.toString() );
+    ParameterConstraintAPI constraint = param.getConstraint();
+    String oldValueStr = e.getOldValue().toString();
+    String badValueStr = e.getBadValue().toString();
+    String name = param.getName();
 
-        JOptionPane.showMessageDialog(
-            this, b.toString(),
-            "Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
-            );
 
-        if(D) System.out.println(S + "Ending");
+    b.append( "The value ");
+    b.append( badValueStr );
+    b.append( " is not permitted for '");
+    b.append( name );
+    b.append( "'.\n" );
+    b.append( "Resetting to ");
+    b.append( oldValueStr );
+    b.append( ". The constraints are: \n");
+    b.append( constraint.toString() );
+
+    JOptionPane.showMessageDialog(
+        this, b.toString(),
+        "Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
+        );
+
+    if(D) System.out.println(S + "Ending");
+
+  }
+
+  /**
+   *  Function that must be implemented by all Listeners for
+   *  ParameterChangeWarnEvents.
+   *
+   * @param  event  The Event which triggered this function call
+   */
+  public void parameterChangeWarning( ParameterChangeWarningEvent e ){
+
+    String S = C + " : parameterChangeWarning(): ";
+    if(D) System.out.println(S + "Starting");
+
+
+
+    StringBuffer b = new StringBuffer();
+
+    WarningParameterAPI param = e.getWarningParameter();
+
+
+    try{
+      Double min = param.getWarningMin();
+      Double max = param.getWarningMax();
+
+      String name = param.getName();
+
+      b.append( "You have exceeded the recommended range\n");
+      b.append( name );
+      b.append( ": (" );
+      b.append( min.toString() );
+
+      b.append( " to " );
+      b.append( max.toString() );
+      b.append( ")\n" );
+      b.append( "Click Yes to accept the new value: " );
+      b.append( e.getNewValue().toString() );
+    }
+    catch( Exception ee){
+
+      String name = param.getName();
+
+      b.append( "You have exceeded the recommended range for: \n");
+      b.append( name + '\n' );
+      b.append( "Click Yes to accept the new value: " );
+      b.append( e.getNewValue().toString() );
+      b.append( name );
+
 
     }
+    if(D) System.out.println(S + b.toString());
 
-    /**
-     *  Function that must be implemented by all Listeners for
-     *  ParameterChangeWarnEvents.
-     *
-     * @param  event  The Event which triggered this function call
-     */
-    public void parameterChangeWarning( ParameterChangeWarningEvent e ){
+    int result = 0;
 
-        String S = C + " : parameterChangeWarning(): ";
-        if(D) System.out.println(S + "Starting");
+    if(D) System.out.println(S + "Showing Dialog");
 
+    result = JOptionPane.showConfirmDialog( this, b.toString(),
+        "Exceeded Recommended Values", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
+    if(D) System.out.println(S + "You choose " + result);
 
-        StringBuffer b = new StringBuffer();
-
-        WarningParameterAPI param = e.getWarningParameter();
-
-
-        try{
-            Double min = param.getWarningMin();
-            Double max = param.getWarningMax();
-
-            String name = param.getName();
-
-            b.append( "You have exceeded the recommended range\n");
-            b.append( name );
-            b.append( ": (" );
-            b.append( min.toString() );
-
-            b.append( " to " );
-            b.append( max.toString() );
-            b.append( ")\n" );
-            b.append( "Click Yes to accept the new value: " );
-            b.append( e.getNewValue().toString() );
-        }
-        catch( Exception ee){
-
-            String name = param.getName();
-
-            b.append( "You have exceeded the recommended range for: \n");
-            b.append( name + '\n' );
-            b.append( "Click Yes to accept the new value: " );
-            b.append( e.getNewValue().toString() );
-            b.append( name );
-
-
-        }
-        if(D) System.out.println(S + b.toString());
-
-        int result = 0;
-
-        if(D) System.out.println(S + "Showing Dialog");
-
-        result = JOptionPane.showConfirmDialog( this, b.toString(),
-            "Exceeded Recommended Values", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-        if(D) System.out.println(S + "You choose " + result);
-
-        switch (result) {
-            case JOptionPane.YES_OPTION:
-                if(D) System.out.println(S + "You choose yes, changing value to " + e.getNewValue().toString() );
-                param.setValueIgnoreWarning( e.getNewValue() );
-                break;
-            case JOptionPane.NO_OPTION:
-                if(D) System.out.println(S + "You choose no, keeping value = " + e.getOldValue().toString() );
-                param.setValueIgnoreWarning( e.getOldValue() );
-                break;
-            default:
-                param.setValueIgnoreWarning( e.getOldValue() );
-                if(D) System.out.println(S + "Not sure what you choose, not changing value.");
-                break;
-        }
-
-        if(D) System.out.println(S + "Ending");
-
+    switch (result) {
+      case JOptionPane.YES_OPTION:
+        if(D) System.out.println(S + "You choose yes, changing value to " + e.getNewValue().toString() );
+        param.setValueIgnoreWarning( e.getNewValue() );
+        break;
+      case JOptionPane.NO_OPTION:
+        if(D) System.out.println(S + "You choose no, keeping value = " + e.getOldValue().toString() );
+        param.setValueIgnoreWarning( e.getOldValue() );
+        break;
+      default:
+        param.setValueIgnoreWarning( e.getOldValue() );
+      if(D) System.out.println(S + "Not sure what you choose, not changing value.");
+      break;
     }
 
-    /**
-     *  update the GUI with the timespan
-     */
-    public void updateChoosenTimespan() {
-      timespanPanel.removeAll();
-      timespanPanel.add(groupTestBean.getTimespanEditor(),
+    if(D) System.out.println(S + "Ending");
+
+  }
+
+  /**
+   *  update the GUI with the timespan
+   */
+  public void updateChoosenTimespan() {
+    timespanPanel.removeAll();
+    timespanPanel.add(groupTestBean.getTimespanEditor(),
+                      new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                      GridBagConstraints.CENTER,
+                      GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+
+  }
+
+  /**
+   *  update the GUI with the test case choosen
+   */
+  public void updateChoosenTestCase() {
+    testCasesPanel.removeAll();
+    testCasesPanel.add(groupTestBean.getTestCasesEditor(),
                        new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                        GridBagConstraints.CENTER,
                        GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
 
-    }
+  }
 
-    /**
-     *  update the GUI with the test case choosen
-     */
-    public void updateChoosenTestCase() {
-      testCasesPanel.removeAll();
-      testCasesPanel.add(groupTestBean.getTestCasesEditor(),
-                       new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                       GridBagConstraints.CENTER,
-                       GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+  /**
+   *  update the GUI with the IMT choosen
+   */
+  public void updateChoosenIMT() {
+    imtPanel.removeAll();
+    imtPanel.add(groupTestBean.getIMTEditor(),
+                 new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                 GridBagConstraints.CENTER,
+                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    imtPanel.validate();
+    imtPanel.repaint();
+  }
 
-    }
+  /**
+   *  update the GUI with the IMR choosen
+   *  refresh the sites params as well
+   */
+  public void updateChoosenIMR() {
+    // update the IMR panel
+    imrPanel.removeAll();
+    imrPanel.add(groupTestBean.getImrEditor(),
+                 new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                 GridBagConstraints.CENTER,
+                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    // update the sites
+    sitePanel.removeAll();
+    sitePanel.add(groupTestBean.getSiteEditor(),
+                  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                  GridBagConstraints.CENTER,
+                  GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    imrPanel.validate();
+    imrPanel.repaint();
+    sitePanel.validate();
+    sitePanel.repaint();
+  }
 
-    /**
-     *  update the GUI with the IMT choosen
-     */
-    public void updateChoosenIMT() {
-      imtPanel.removeAll();
-      imtPanel.add(groupTestBean.getIMTEditor(),
-                       new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                       GridBagConstraints.CENTER,
-                       GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-      imtPanel.validate();
-      imtPanel.repaint();
-    }
-
-    /**
-     *  update the GUI with the IMR choosen
-     *  refresh the sites params as well
-     */
-    public void updateChoosenIMR() {
-      // update the IMR panel
-      imrPanel.removeAll();
-      imrPanel.add(groupTestBean.getImrEditor(),
-                   new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                   GridBagConstraints.CENTER,
-                   GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-      // update the sites
-      sitePanel.removeAll();
-      sitePanel.add(groupTestBean.getSiteEditor(),
-                   new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                   GridBagConstraints.CENTER,
-                   GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-      imrPanel.validate();
-      imrPanel.repaint();
-      sitePanel.validate();
-      sitePanel.repaint();
-    }
-
-    /**
-     *  update the GUI with the choosen Eqk source
-     */
-    public void updateChoosenEqkSource() {
-      // update the EqkSource panel
-      this.sourcePanel.removeAll();
-      sourcePanel.add(groupTestBean.getEqkSourceEditor(),
-                   new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                   GridBagConstraints.CENTER,
-                   GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-      sourcePanel.validate();
-      sourcePanel.repaint();
-    }
+  /**
+   *  update the GUI with the choosen Eqk source
+   */
+  public void updateChoosenEqkSource() {
+    // update the EqkSource panel
+    this.sourcePanel.removeAll();
+    sourcePanel.add(groupTestBean.getEqkSourceEditor(),
+                    new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                    GridBagConstraints.CENTER,
+                    GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    sourcePanel.validate();
+    sourcePanel.repaint();
+  }
 
 
-    /**
-     *  Used for synch applet with new Mag Dist choosen. Updates lables and
-     *  initializes the Mag Dist if needed.
-     */
+  /**
+   *  Used for synch applet with new Mag Dist choosen. Updates lables and
+   *  initializes the Mag Dist if needed.
+   */
   public void updateChoosenMagDist() {
 
     // Starting
@@ -468,6 +468,6 @@ public class GroupTestApplet extends Applet
     if ( D )
       System.out.println( S + "Ending" );
 
-    }
+  }
 
 }
