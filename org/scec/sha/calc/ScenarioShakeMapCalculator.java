@@ -48,6 +48,23 @@ public class ScenarioShakeMapCalculator {
                                       AttenuationRelationship imr, EqkRupture rupture,
                                       boolean isProbAtIML,double value) throws ParameterException {
 
+    //get the list of the Latitudes
+    ArrayList sitesLat = getSitesLat(griddedRegionSites);
+    //get the list of the Longitudes
+    ArrayList sitesLon = getSitesLon(griddedRegionSites);
+
+
+    return scenarioShakeMapDataCalc(griddedRegionSites,imr,rupture,isProbAtIML, value,
+                                    sitesLat,sitesLon);
+
+  }
+
+  /**
+   * Gives the ArrayList of Latitudes from the gridded region
+   * @param griddedRegionSites
+   * @return
+   */
+  private ArrayList getSitesLat(SitesInGriddedRegion griddedRegionSites){
     //getting the gridded Locations list iterator
     ListIterator it= griddedRegionSites.getGridLocationsIterator();
 
@@ -55,19 +72,24 @@ public class ScenarioShakeMapCalculator {
     ArrayList sitesLat = new ArrayList();
     while(it.hasNext())
       sitesLat.add(new Double(((Location)it.next()).getLatitude()));
+   return  sitesLat;
+  }
 
-    //iterating over the locations iterator in the reverse order to get the Longitudes.
-    it= griddedRegionSites.getGridLocationsIterator();
+  /**
+   * Gives the ArrayList of Longitudes from the gridded region
+   * @param griddedRegionSites
+   * @return
+   */
+  private ArrayList getSitesLon(SitesInGriddedRegion griddedRegionSites){
+    //getting the gridded Locations list iterator
+     //iterating over the locations iterator in the reverse order to get the Longitudes.
+    ListIterator it= griddedRegionSites.getGridLocationsIterator();
     //Adding the Longitudes to the ArrayLists for lons
     ArrayList sitesLon = new ArrayList();
     while(it.hasNext())
       sitesLon.add(new Double(((Location)it.next()).getLongitude()));
-
-    return scenarioShakeMapDataCalc(griddedRegionSites,imr,rupture,isProbAtIML, value,
-                                    sitesLat,sitesLon);
-
+    return sitesLon;
   }
-
 
 
   /**
@@ -87,21 +109,10 @@ public class ScenarioShakeMapCalculator {
       boolean isProbAtIML,double value) throws ParameterException {
 
 
-    //getting the gridded Locations list iterator
-    ListIterator it= griddedRegionSites.getGridLocationsIterator();
-
-    //Adding the Latitudes to the ArrayLists for lats
-    ArrayList sitesLat = new ArrayList();
-    while(it.hasNext())
-      sitesLat.add(new Double(((Location)it.next()).getLatitude()));
-
-    //iterating over the locations iterator in the reverse order to get the Longitudes.
-    it= griddedRegionSites.getGridLocationsIterator();
-    //Adding the Longitudes to the ArrayLists for lons
-    ArrayList sitesLon = new ArrayList();
-    while(it.hasNext())
-      sitesLon.add(new Double(((Location)it.next()).getLongitude()));
-
+    //get the list of the Latitudes
+    ArrayList sitesLat = getSitesLat(griddedRegionSites);
+    //get the list of the Longitudes
+    ArrayList sitesLon = getSitesLon(griddedRegionSites);
     //instance of the XYZ dataSet.
     XYZ_DataSetAPI xyzDataSet =null;
 
