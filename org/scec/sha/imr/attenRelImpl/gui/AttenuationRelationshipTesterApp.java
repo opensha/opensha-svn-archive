@@ -53,8 +53,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
     private final static String version = "0.0.3";
     protected final static boolean D = false;
 
-    protected static int counter = 0;
-
   /**
    * these four values save the custom axis scale specified by user
    */
@@ -99,10 +97,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
 
     protected boolean inParameterChangeWarning = false;
-    protected int addButtonCount = 0;
-    protected int clearButtonCount = 0;
-    protected int toggleButtonCount = 0;
-
 
     boolean isStandalone = false;
 
@@ -496,44 +490,21 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         clearButton.setText( "Clear Plot" );
 
-        clearButton.addFocusListener(
-            new java.awt.event.FocusListener() {
-                public void focusGained(FocusEvent e){
-                    clearButtonFocusGained();
+        clearButton.addActionListener(
+            new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e){
+                    clearButton_actionPerformed(e);
                 }
-                public void focusLost(FocusEvent e){ }
             }
         );
-
-        clearButton.addMouseListener(
-            new java.awt.event.MouseAdapter() {
-                public void mouseClicked( MouseEvent e ) {
-                    clearButton_mouseClicked( e );
-                }
-            } );
-
 
         addButton.setText( "Add Trace" );
 
-
-        addButton.addFocusListener(
-            new java.awt.event.FocusListener() {
-                public void focusGained(FocusEvent e){
-                    addButtonFocusGained();
-                }
-                public void focusLost(FocusEvent e){ }
-            }
-        );
-
-
-        addButton.addMouseListener(
-            new java.awt.event.MouseAdapter() {
-                public void mouseClicked( MouseEvent e ) {
-                   // System.out.println(C + ": addButton(): Mouse Clicked: ");
-                    addButton_mouseClicked( e );
-                }
-            } );
-
+        addButton.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            addButton_actionPerformed(e);
+          }
+        });
 
         axisScaleButton.setText( "Set Axis Scale" );
         axisScaleButton.addActionListener(new java.awt.event.ActionListener() {
@@ -544,21 +515,13 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         toggleButton.setText( "Show Data" );
 
-        toggleButton.addFocusListener(
-            new java.awt.event.FocusListener() {
-                public void focusGained(FocusEvent e){
-                    toggleButtonFocusGained();
+        toggleButton.addActionListener(
+            new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e){
+                    toggleButton_actionPerformed(e);
                 }
-                public void focusLost(FocusEvent e){ }
             }
         );
-
-        toggleButton.addMouseListener(
-            new java.awt.event.MouseAdapter() {
-                public void mouseClicked( MouseEvent e ) {
-                    toggleButton_mouseClicked( e );
-                }
-            } );
 
         //toggleButton.setVisible(false);
         buttonPanel.setBorder( topBorder );
@@ -866,18 +829,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
     }
 
 
-
-    /**
-     *  This causes the model data to be calculated and a plot trace added to
-     *  the current plot
-     *
-     * @param  e  The feature to be added to the Button_mouseClicked attribute
-     */
-    void addButton_mouseClicked( MouseEvent e ) {
-        addButton( );
-    }
-
-
     /**
      *  Adds a feature to the GraphPanel attribute of the AttenuationRelationshipTesterApplet object
      */
@@ -991,14 +942,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
      }
 
 
-    /**
-     *  Clears the plot screen of all traces, then sychs imr to model
-     *
-     * @param  e  Description of the Parameter
-     */
-    void clearButton_mouseClicked( MouseEvent e ) {
-        clearButton();
-    }
+
 
     void clearButton(){
         clearPlot( true );
@@ -1041,14 +985,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
     }
 
 
-    /**
-     *  Description of the Method
-     *
-     * @param  e  Description of the Parameter
-     */
-    protected void toggleButton_mouseClicked( MouseEvent e ) {
-        togglePlot();
-    }
 
     /**
      *  Description of the Method
@@ -1202,7 +1138,9 @@ public class AttenuationRelationshipTesterApp extends JApplet
         String S = C + " : parameterChangeWarning(): ";
         if(D) System.out.println(S + "Starting");
 
+        if(inParameterChangeWarning) return;
         inParameterChangeWarning = true;
+
 
         StringBuffer b = new StringBuffer();
 
@@ -1229,7 +1167,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
             this, b.toString(),
             "Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
             );
-
+        inParameterChangeWarning = false;
         if(D) System.out.println(S + "Ending");
 
     }
@@ -1307,28 +1245,15 @@ public class AttenuationRelationshipTesterApp extends JApplet
                 if(D) System.out.println(S + "Not sure what you choose, not changing value.");
                 break;
         }
-        inParameterChangeWarning = true;
+        inParameterChangeWarning = false;
         if(D) System.out.println(S + "Ending");
-
     }
 
-    protected void addButtonFocusGained(){
+    void addButton_actionPerformed(ActionEvent e){
 
-        String S = C + " : addButtonFocusGained(): ";
+        String S = C + " : addButton_actionPerformed";
         if(D) System.out.println(S + "Starting");
-
-        if( inParameterChangeWarning ){
-            if(D) System.out.println(S + "in ParameterChangeWarning");
-            addButtonCount++;
-            if( addButtonCount > 1){
-
-                addButtonCount = 0;
-                if(D) System.out.println(S + "calling add button");
-                addButton();
-                inParameterChangeWarning = false;
-
-            }
-        }
+        addButton();
         if(D) System.out.println(S + "Ending");
 
     }
@@ -1462,45 +1387,21 @@ public class AttenuationRelationshipTesterApp extends JApplet
     }
 
 
-    protected void clearButtonFocusGained(){
+    protected void clearButton_actionPerformed(ActionEvent e){
 
         String S = C + " : clearButtonFocusGained(): ";
         if(D) System.out.println(S + "Starting");
-
-        if( inParameterChangeWarning ){
-            if(D) System.out.println(S + "in ParameterChangeWarning");
-            clearButtonCount++;
-            if( clearButtonCount > 1){
-
-                clearButtonCount = 0;
-                if(D) System.out.println(S + "calling clear button");
-                clearButton();
-                inParameterChangeWarning = false;
-
-            }
-        }
+        clearButton();
         if(D) System.out.println(S + "Ending");
 
     }
 
 
-    protected void toggleButtonFocusGained(){
+    protected void toggleButton_actionPerformed(ActionEvent e){
 
         String S = C + " : toggleButtonFocusGained(): ";
         if(D) System.out.println(S + "Starting");
-
-        if( inParameterChangeWarning ){
-            if(D) System.out.println(S + "in ParameterChangeWarning");
-            toggleButtonCount++;
-            if( toggleButtonCount > 1){
-
-                toggleButtonCount = 0;
-                if(D) System.out.println(S + "calling toggle button");
-                togglePlot();
-                inParameterChangeWarning = false;
-
-            }
-        }
+        togglePlot();
         if(D) System.out.println(S + "Ending");
 
     }

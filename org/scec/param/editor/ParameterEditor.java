@@ -468,10 +468,12 @@ public class ParameterEditor
     }
 
     /** Called when this editor gains the GUI focus for keyboard and mouse events. */
-    public void focusGained( FocusEvent e ) { }
+    public void focusGained( FocusEvent e ) {
+    }
 
     /** Called when this editor looses the GUI focus for keyboard and mouse events. */
     public void focusLost( FocusEvent e ) {
+
     }
 
 

@@ -183,11 +183,6 @@ public class DoubleParameterEditor extends ParameterEditor
 
         String S = C + ": focusLost(): ";
         if(D) System.out.println(S + "Starting");
-
-
-        //if( true ) return;
-        super.focusLost(e);
-
         focusLostProcessing = false;
         if( keyTypeProcessing == true ) return;
         focusLostProcessing = true;
@@ -230,8 +225,6 @@ public class DoubleParameterEditor extends ParameterEditor
             valueEditor.validate();
             valueEditor.repaint();
         }
-
-
         focusLostProcessing = false;
         if(D) System.out.println(S + "Ending");
     }
