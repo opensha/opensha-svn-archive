@@ -1266,144 +1266,184 @@ public class AttenuationRelationshipTesterApp extends JApplet
         if ( D ) System.out.println( S + "Starting" );
         if ( D ) System.out.println( S + "Controls = " + this.imr.controlsEditor.getParameterList().toString() );
 
-        if( D && functions != null ){
-            ListIterator it = functions.listIterator();
-            while( it.hasNext() ){
+        int xAxis = imr.X_AXIS;
+        String XLabel = imr.getGraphControlsParamValue(xAxis);
 
-                DiscretizedFuncAPI func = (DiscretizedFuncAPI)it.next();
-                if ( D ) System.out.println( S + "Func info = " + func.getInfo() );
-
-            }
-        }
-        DiscretizedFuncAPI function =null;
-        try{
-
-          /**
-           * This block of the code has been put under the try and catch becuase
-           * if any of the Attenuation Relationships throws any Exception , it can be caought here
-           * and displayed back to the user. Currently it handles the CB-2003 excetion thrown
-           * if BC Boundry is selected for the Vertical component.
-           */
-          function = imr.getChoosenFunction();
-        }catch(RuntimeException e){
-          JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Parameter Input",JOptionPane.ERROR_MESSAGE);
+        //if the user just wants to see the result for the single value.
+        if(XLabel.equals(imr.X_AXIS_SINGLE_VAL)){
+          functions.clear();
+          pointsTextArea.setText(" ");
+          //making the GUI components disable if the user wants just one single value
+          this.clearButton.setEnabled(false);
+          this.toggleButton.setEnabled(false);
+          this.jCheckxlog.setEnabled(false);
+          this.jCheckylog.setEnabled(false);
+          this.plotColorCheckBox.setEnabled(false);
+          this.axisScaleButton.setEnabled(false);
+          double yVal = imr.getChosenValue();
+          String info = "";
+          info = "AttenuationRelationship Name: " + imr.getImr().getName()+"\n\n";
+          info += "Intensity Measure: "+imr.getSelectedIMParam().getName()+"\n";
+          info += "Y-Axis: "+ imr.getGraphIMYAxisLabel()+"\n";
+          info += "X-Axis: "+ XLabel+"\n";
+          info += "Info: "+imr.getIndependentsEditor().getParameterList().toString()+"\n\n";
+          info += "Individual Value : "+yVal;
+          pointsTextArea.setText(info);
+          //making the panel for the JFreechart null, so that it only shows the indivdual value
+          panel =null;
+          this.togglePlot();
           return;
         }
 
-
-
-        if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
-
-        if( D && functions != null ){
+        //if the user want to plot the curve
+        else{
+          //enabling all the GUI components if the user wants to see the plot
+          this.clearButton.setEnabled(true);
+          this.toggleButton.setEnabled(true);
+          this.jCheckxlog.setEnabled(true);
+          this.jCheckylog.setEnabled(true);
+          this.plotColorCheckBox.setEnabled(true);
+          this.axisScaleButton.setEnabled(true);
+          if( D && functions != null ){
             ListIterator it = functions.listIterator();
             while( it.hasNext() ){
 
-                DiscretizedFuncAPI func = (DiscretizedFuncAPI)it.next();
-                if ( D ) System.out.println( S + "Func info = " + func.getInfo() );
+              DiscretizedFuncAPI func = (DiscretizedFuncAPI)it.next();
+              if ( D ) System.out.println( S + "Func info = " + func.getInfo() );
 
             }
-        }
-
-        data.setXLog(xLog);
-        data.setYLog(yLog);
-
-        String xOld = functions.getXAxisName();
-        String xUnitsOld="";
-        if(xOld.indexOf('(')!=-1)
-          xUnitsOld = xOld.substring(xOld.indexOf('(')+1, xOld.indexOf(')'));
-        String yOld = functions.getYAxisName();
-
-        String xNew = imr.getGraphXAxisLabel();
-        String xUnitsNew ="";
-        if(xNew.indexOf('(')!=-1)
-          xUnitsNew = xNew.substring(xNew.indexOf('(')+1, xNew.indexOf(')'));
-        String yNew = imr.getGraphIMYAxisLabel();
-
-        newGraph = false;
-
-        // only clear graph if units differ on X axis
-        if( xUnitsNew.equals(xUnitsOld)  && !xUnitsNew.equals("") && !xUnitsOld.equals("")) {
-          String tempX = xNew.substring(0, xNew.indexOf('('));
-          if(xOld.indexOf(tempX)==-1) { // set the new X axis label
-            xNew=xOld.substring(0, xOld.indexOf('('))+" "+xNew.substring(0, xNew.indexOf('('))+
-                 " ("+ xUnitsNew+")";
-            functions.setXAxisName( xNew );
           }
-        }
-        //if the X-Axis units are null for both old and new
-        else if(xUnitsNew.equals(xUnitsOld))newGraph = false;
-        else newGraph = true;
+          DiscretizedFuncAPI function =null;
+          try{
 
-        if( !yOld.equals(yNew) ) newGraph = true;
+            /**
+             * This block of the code has been put under the try and catch becuase
+             * if any of the Attenuation Relationships throws any Exception , it can be caought here
+             * and displayed back to the user. Currently it handles the CB-2003 excetion thrown
+             * if BC Boundry is selected for the Vertical component.
+             */
+            function = imr.getChoosenFunction();
+          }catch(RuntimeException e){
+            JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Parameter Input",JOptionPane.ERROR_MESSAGE);
+            return;
+          }
 
-        if( newGraph ){
+
+
+          if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
+
+          if( D && functions != null ){
+            ListIterator it = functions.listIterator();
+            while( it.hasNext() ){
+
+              DiscretizedFuncAPI func = (DiscretizedFuncAPI)it.next();
+              if ( D ) System.out.println( S + "Func info = " + func.getInfo() );
+
+            }
+          }
+
+          data.setXLog(xLog);
+          data.setYLog(yLog);
+
+          String xOld = functions.getXAxisName();
+          String xUnitsOld="";
+          if(xOld.indexOf('(')!=-1)
+            xUnitsOld = xOld.substring(xOld.indexOf('(')+1, xOld.indexOf(')'));
+          String yOld = functions.getYAxisName();
+
+          String xNew = imr.getGraphXAxisLabel();
+          String xUnitsNew ="";
+          if(xNew.indexOf('(')!=-1)
+            xUnitsNew = xNew.substring(xNew.indexOf('(')+1, xNew.indexOf(')'));
+          String yNew = imr.getGraphIMYAxisLabel();
+
+          newGraph = false;
+
+          // only clear graph if units differ on X axis
+          if( xUnitsNew.equals(xUnitsOld)  && !xUnitsNew.equals("") && !xUnitsOld.equals("")) {
+            String tempX = xNew.substring(0, xNew.indexOf('('));
+            if(xOld.indexOf(tempX)==-1) { // set the new X axis label
+              xNew=xOld.substring(0, xOld.indexOf('('))+" "+xNew.substring(0, xNew.indexOf('('))+
+                   " ("+ xUnitsNew+")";
+              functions.setXAxisName( xNew );
+            }
+          }
+          //if the X-Axis units are null for both old and new
+          else if(xUnitsNew.equals(xUnitsOld))newGraph = false;
+          else newGraph = true;
+
+          if( !yOld.equals(yNew) ) newGraph = true;
+
+          if( newGraph ){
             functions.clear();
             imrsSelected.clear();
             functions.setYAxisName( imr.getGraphIMYAxisLabel() );
             functions.setXAxisName( imr.getGraphXAxisLabel() );
-        }
+          }
 
-        newGraph = false;
+          newGraph = false;
 
 
-        /** @todo may have to be switched when different x/y axis choosen */
-        if ( !functions.isFuncAllowed( function ) ) {
+          /** @todo may have to be switched when different x/y axis choosen */
+          if ( !functions.isFuncAllowed( function ) ) {
             functions.clear();
             imrsSelected.clear();
             //data.prepForXLog();
-        }
-        if( !functions.contains( function ) ){
+          }
+          if( !functions.contains( function ) ){
             if ( D ) System.out.println( S + "AddjIMRListing new function" );
             functions.add(function);
             imrsSelected.add(this.currentIMRName);
             //data.prepForXLog();
-        }
-        else {
+          }
+          else {
 
             if(D) System.out.println(S + "Showing Dialog");
             if( !this.inParameterChangeWarning ){
 
-                JOptionPane.showMessageDialog(
-                    null, "This graph already exists, will not add again.",
-                    "Cannot Add", JOptionPane.INFORMATION_MESSAGE
-                );
+              JOptionPane.showMessageDialog(
+                  null, "This graph already exists, will not add again.",
+                  "Cannot Add", JOptionPane.INFORMATION_MESSAGE
+                  );
             }
 
 
             if ( D ) System.out.println( S + "Function already exists in graph, not adding .." );
             return;
+          }
+
+          //if(D) System.out.println(S + "\n\nFunction = " + functions.toString() + "\n\n");
+
+          imr.synchToModel();
+
+          // Add points data to text area, people can see
+
+          // pointsTextArea.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
+          pointsTextArea.setText(imr.getGraphXYAxisTitle() + "\n" + functions.toString() );
+          //if ( D ) System.out.println( S + "Graphing function:" + function.toString() );
+
+          addGraphPanel();
+
+          /*  if ( titleLabel != null ) {
+          // titleLabel.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() );
+          titleLabel.setText( currentIMRName );
+          titleLabel.validate();
+          titleLabel.repaint();
+          }*/
+
+          if ( D ) System.out.println( S + "Ending" );
+
         }
-
-        //if(D) System.out.println(S + "\n\nFunction = " + functions.toString() + "\n\n");
-
-        imr.synchToModel();
-
-        // Add points data to text area, people can see
-
-       // pointsTextArea.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() + '\n' + functions.toString() );
-       pointsTextArea.setText(imr.getGraphXYAxisTitle() + "\n" + functions.toString() );
-        //if ( D ) System.out.println( S + "Graphing function:" + function.toString() );
-
-        addGraphPanel();
-
-      /*  if ( titleLabel != null ) {
-            // titleLabel.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() );
-            titleLabel.setText( currentIMRName );
-            titleLabel.validate();
-            titleLabel.repaint();
-        }*/
-
-        if ( D ) System.out.println( S + "Ending" );
 
     }
 
 
     private void clearButton_actionPerformed(ActionEvent e){
 
-        String S = C + " : clearButtonFocusGained(): ";
-        if(D) System.out.println(S + "Starting");
-        clearButton();
-        if(D) System.out.println(S + "Ending");
+      String S = C + " : clearButtonFocusGained(): ";
+      if(D) System.out.println(S + "Starting");
+      clearButton();
+      if(D) System.out.println(S + "Ending");
 
     }
 

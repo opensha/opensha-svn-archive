@@ -50,15 +50,16 @@ public class AttenuationRelationshipGuiBean
     public final static String Y_AXIS_V2 = "Std. Dev.";
     public final static String Y_AXIS_V3 = "Exceed Prob.";
     public final static String Y_AXIS_V4 = "IML at Exceed Prob.";
+    public final static String X_AXIS_SINGLE_VAL = "Individual Value";
 
     public final static int MEAN = 1;
     public final static int STD_DEV = 2;
     public final static int EXCEED_PROB = 3;
     public final static int IML_AT_EXCEED_PROB = 4;
 
-    private final static int IM = 10;
-    private final static int Y_AXIS = 11;
-    private final static int X_AXIS = 12;
+    public final static int IM = 10;
+    public final static int Y_AXIS = 11;
+    public final static int X_AXIS = 12;
 
     protected static HashMap yAxisMap = new HashMap();
 
@@ -256,7 +257,8 @@ public class AttenuationRelationshipGuiBean
      * @return    The selectedIMParameter value
      */
     public ParameterAPI getSelectedIMParam() {
-        return selectedIM;
+      selectedIM = this.controlsParamList.getParameter(IM_NAME);
+      return selectedIM;
     }
 
     /**
@@ -495,6 +497,67 @@ public class AttenuationRelationshipGuiBean
     }
 
 
+    /**
+     * This method is very similar to the getChoosenFunction(), but only varies in the
+     * fact that it return back single double value where as getChoosenfunction returns a
+     * function.
+     * @returns the single value if the user has selected the choice to "Individual Value"
+     * on the X-Axis. It then calls the corresponding Y-Axis selected method.
+     */
+    public double getChosenValue(){
+
+      // Starting
+      String S = C + ": getChoosenFunction():";
+      if ( D )
+        System.out.println( S + "Starting" );
+
+      // Determines from the IM Picklist in the GUI which IM parameter
+      // to set as current IM in the IMR. This allows the IMR to be able
+      // to calculate which coefficients to use to calculate the functions
+
+
+      // Get choosen graph controls values
+      String yAxisName = getGraphControlsParamValue( Y_AXIS );
+      String xAxisName = getGraphControlsParamValue( X_AXIS );
+
+      setIgnoreWarnings(true);
+      imr.setIntensityMeasure( getGraphControlsParamValue( IM ) );
+      setIgnoreWarnings(false);
+
+
+      // Determine which Y=Axis choice to process
+      if ( !yAxisMap.containsKey( yAxisName ) ) throw new ConstraintException( S + "Invalid choice choosen for y-axis." );
+      int type = ( ( Integer ) yAxisMap.get( yAxisName ) ).intValue();
+      if ( D ) System.out.println( S + "Type = " + type );
+
+      // Clone the parameter list used to calculate this Discretized Function
+        ParameterList clones = independentsEditor.getVisibleParametersCloned();
+
+        /**
+         * @todo FIX - Legend IMR translation done here.
+         * may be poor design, what if IMR types change to another type in future.
+         * Translated parameters should deal directly with ParameterAPI, not specific subclass
+         * types.
+         */
+        if( translateIMR){
+            ParameterAPI imrParam = (ParameterAPI)imr.getIntensityMeasure().clone();
+            if( imrParam instanceof WarningDoubleParameter){
+
+                WarningDoubleParameter warnParam = (WarningDoubleParameter)imrParam;
+                TranslatedWarningDoubleParameter transParam = new TranslatedWarningDoubleParameter(warnParam);
+                transParam.setTranslate(true);
+
+                if( clones.containsParameter(warnParam.getName()) ){
+                    clones.removeParameter( warnParam.getName() );
+                    clones.addParameter(transParam);
+                }
+
+            }
+        }
+
+        //returns the Y-Axis Value for the Selected X-Val
+        return getCalculation(type);;
+    }
 
     /**
      *  Function needs to be fixed because point may not go to the end, i.e. max
@@ -918,6 +981,11 @@ public class AttenuationRelationshipGuiBean
                     xAxisConstraint.addString( name );
             }
         }
+
+        //Adding the single value plot as the Choice to the X-Axis selection
+        if(!xAxisConstraint.containsString(X_AXIS_SINGLE_VAL))
+          xAxisConstraint.addString(X_AXIS_SINGLE_VAL);
+
         StringParameter xaxis = new StringParameter( X_AXIS_NAME, xAxisConstraint, val );
         xaxis.addParameterChangeListener(this);
         // Now make the parameters list
@@ -1163,6 +1231,10 @@ public class AttenuationRelationshipGuiBean
         if ( yAxisName.equals( Y_AXIS_V4 ) )
             xAxisConstraint.addString( "Exceed. Prob." );
 
+        //Adding the new Single Value Selection inside the X-Axis Selection
+        if(!(xAxisConstraint.containsString(X_AXIS_SINGLE_VAL)))
+          xAxisConstraint.addString(X_AXIS_SINGLE_VAL);
+
 
         // check that original x-axis choice is still viable
         if ( xAxisConstraint.isAllowed( xAxisName ) )
@@ -1192,6 +1264,21 @@ public class AttenuationRelationshipGuiBean
         // over intensity measure level
         if ( yAxisName.equals( Y_AXIS_V3 ) )
             independentsEditor.setParameterVisible( imName, true );
+
+        //Making all the X-Axis Parameters visible in the independent ParamaterList
+        //if the user has selected the choice to plot the single value
+        //adding all the X-Axis Paramaters inside the independent Param list
+        //if the user has chosen the the Individual Value on X-Axis.
+        if(xAxisName.equals(this.X_AXIS_SINGLE_VAL)){
+          String paramName = null;
+          Vector v = param2.getAllowedStrings();
+          int size =v.size();
+          for(int i=0;i<size;++i){
+            paramName = (String)v.get(i);
+            if(!paramName.equals(this.X_AXIS_SINGLE_VAL))
+              independentsEditor.setParameterVisible(paramName,true);
+          }
+        }
 
         // Make the choosen x-axis invisible in the independent parameter list
         independentsEditor.setParameterVisible( val, false );
@@ -1439,6 +1526,8 @@ public class AttenuationRelationshipGuiBean
         yAxisMap.put( Y_AXIS_V3, new Integer( EXCEED_PROB ) );
         yAxisMap.put( Y_AXIS_V4, new Integer( IML_AT_EXCEED_PROB) );
     }
+
+
 }
 
 
