@@ -69,7 +69,7 @@ public class HazardMapApplet extends JApplet
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
-  public final static String RMI_SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.SimplePoissonFaultERFClient";
+  public final static String RMI_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client";
   public final static String RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient";
   public final static String RMI_STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient";
   public final static String RMI_STEP_ALASKAN_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
@@ -324,7 +324,7 @@ public class HazardMapApplet extends JApplet
    ArrayList erf_Classes = new ArrayList();
 
    erf_Classes.add(this.RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(this.RMI_SIMPLE_POISSON_FAULT_FORECAST_CLASS_NAME);
+   erf_Classes.add(this.RMI_POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(this.RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(this.RMI_STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(this.RMI_STEP_ALASKAN_FORECAST_CLASS_NAME);
