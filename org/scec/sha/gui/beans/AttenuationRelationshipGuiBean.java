@@ -508,6 +508,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
      // if IMR parameter changes, then get the Gaussian truncation, etc from this selected IMR
      if(name1.equalsIgnoreCase(this.IMR_PARAM_NAME)) {
        initSingleAttenRelParamListAndEditor();
+       //sets the Site params based on the selected AttenRel model
        application.setGriddedRegionSiteParams();
      }
      this.validate();
@@ -1161,7 +1162,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
      toggleButton.setText(MULTIPLE_ATTEN_REL);
      initSingleAttenRelParamListAndEditor();
    }
-
+   application.setGriddedRegionSiteParams();
  }
 
  /**
