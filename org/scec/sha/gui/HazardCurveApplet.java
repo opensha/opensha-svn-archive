@@ -1222,7 +1222,7 @@ public class HazardCurveApplet extends JApplet
       initSitesOfInterestControl();
 
 
-   controlComboBox.setSelectedItem(this.CONTROL_PANELS);
+    controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
   /**

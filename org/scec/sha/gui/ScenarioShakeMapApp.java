@@ -17,6 +17,7 @@ import org.scec.param.event.*;
 import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.data.Site;
 import org.scec.sha.earthquake.ProbEqkRupture;
+import org.scec.sha.gui.controls.RegionsOfInterestControlPanel;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -75,6 +76,13 @@ public class ScenarioShakeMapApp extends JApplet implements
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
 
+  // Strings for control pick list
+  private final static String CONTROL_PANELS = "Control Panels";
+  private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
+
+    // objects for control panels
+  private RegionsOfInterestControlPanel regionsOfInterest;
+
 
   // instances of the GUI Beans which will be shown in this applet
   private EqkRupSelectorGuiBean erfGuiBean;
@@ -112,6 +120,7 @@ public class ScenarioShakeMapApp extends JApplet implements
   JLabel jLabel4 = new JLabel();
   JTextField fileNameTextField = new JTextField();
   JLabel jLabel3 = new JLabel();
+  JComboBox controlComboBox = new JComboBox();
   GridBagLayout gridBagLayout4 = new GridBagLayout();
   GridBagLayout gridBagLayout6 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
@@ -127,6 +136,8 @@ public class ScenarioShakeMapApp extends JApplet implements
   //Initialize the applet
   public void init() {
     try {
+      // initialize the control pick list
+      initControlList();
       jbInit();
     }
     catch(Exception e) {
@@ -174,18 +185,27 @@ public class ScenarioShakeMapApp extends JApplet implements
     fileNameTextField.setText("test");
     jLabel3.setForeground(new Color(80, 80, 133));
     jLabel3.setText("Choose File Name:");
+    controlComboBox.setBackground(new Color(200, 200, 230));
+    controlComboBox.setForeground(new Color(80, 80, 133));
+    controlComboBox.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        controlComboBox_actionPerformed(e);
+      }
+    });
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 429));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 431));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     buttonPanel.add(jLabel4,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 23, 37, 0), 17, 5));
-    buttonPanel.add(fileNameTextField,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(24, 7, 0, 39), 150, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 41, 0), 38, 5));
+    buttonPanel.add(addButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 39, 7, 23), 69, 9));
     buttonPanel.add(jLabel3,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(24, 23, 0, 0), 11, 9));
-    buttonPanel.add(addButton,  new GridBagConstraints(2, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 13, 43, 24), 78, 9));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(21, 3, 0, 0), 11, 9));
+    buttonPanel.add(fileNameTextField,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(21, 10, 0, 30), 163, 4));
+    buttonPanel.add(controlComboBox,  new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(21, 17, 0, 23), 38, 2));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
 
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
@@ -495,5 +515,36 @@ public class ScenarioShakeMapApp extends JApplet implements
 
   void addButton_actionPerformed(ActionEvent e) {
     this.generateShakeMap();
+  }
+
+  /**
+   * Initialize the items to be added to the control list
+   */
+  private void initControlList() {
+    this.controlComboBox.addItem(CONTROL_PANELS);
+    this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
+  }
+
+  /**
+   * This function is called when controls pick list is chosen
+   * @param e
+   */
+  void controlComboBox_actionPerformed(ActionEvent e) {
+    if(controlComboBox.getItemCount()<=0) return;
+    String selectedControl = controlComboBox.getSelectedItem().toString();
+    if(selectedControl.equalsIgnoreCase(this.REGIONS_OF_INTEREST_CONTROL))
+      initRegionsOfInterestControl();
+    controlComboBox.setSelectedItem(this.CONTROL_PANELS);
+  }
+
+  /**
+   * Initialize the Interesting regions control panel
+   * It will provide a pick list of interesting regions
+   */
+  private void initRegionsOfInterestControl() {
+    if(this.regionsOfInterest==null)
+      regionsOfInterest = new RegionsOfInterestControlPanel(this, this.sitesGuiBean);
+    regionsOfInterest.pack();
+    regionsOfInterest.show();
   }
 }
