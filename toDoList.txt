@@ -7,16 +7,13 @@ For OpenSHA:
 ScenarioShakeMapApp
 
 	Have a window pop up if imr.setProbEqkRupture(*) fails
-	(as it will for Abrahamson_2000 if rake not equiv to strike slip)
+	(as it will for Abrahamson_2000 if rake not equiv to strike slip
+	or if the hypocenter has not been set)
+
+	Add plotting of rupture surface as a dot at each point on the gridded surface
 
 
 Implement WG99/02 ERF by reading the static file first (not adjustable parameters)
-
-Check FractileCurveCalculator.getMeanCurve() (seems to be wrong)
-
-ERF_EpistemicListControlPanel
-
-	Fix so that mean selector is more visible
 
 Applets 
 
@@ -37,42 +34,9 @@ HazardCurveApplet:
 
 Figure out default for min source-site (USGS value) and set this to 300 or greater for all PEER tests.
 
-
-EqkRupSelectorGuiBean
-
-		- add checkbox option for setting hypocenter (default is un-checked)
-
-		- if checked, put all locations of the rupture surface's zeroth row 
-		  into a pick list (lat, lon, & depth)
-
-		- when one is chosen, set the hypocenter using: 
-
-			ProbEqkRupture.setHypocenterLocation(loc)
-
-		(this will require that the applet gets the rupture from 
-		the GuiBean rather than from the forecast)
-
-ProgressBars - 
-
-	- put check-box option for this in HazardCurveApplet (others later).
-
 Submit our log-log implementation formally to JFreeChart.
 
 AttenRelApp - update web site apps - wait until Ned has added another IMR.
-
-HazardCurveApplet 
-
-	- add "Sites of Interest" control panel that will set the lat and lon 
-	  for some interesting locations
-
-		"Los Angeles"    -118.243     34.053
-		"San Francisco"    -122.68      37.75    
-
-SitesInGriddedRegionGuiBean
-
-	- add a pick list of "Predefined Regions"
-
-		"SF Bay Area" 37 to 39 and -123 to -121
 
 Fix GriddedFaultApplet - colors (red to blue) and horz/vert scaling.
 
