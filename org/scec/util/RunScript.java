@@ -23,23 +23,7 @@ public class RunScript {
       // wait for the shell script to end
       System.out.println("Command to execute: " +command[2]);
       Process p=Runtime.getRuntime().exec(command);
-      p.waitFor();
-      i=p.exitValue();
-
-      // check the process status after the process ends
-      if ( i == 0 ) {
-        // Display the normal o/p if script completed successfully.
-        System.out.println("script exited with i =" + i);
-        displayOutput(p.getInputStream());
-      }
-      else {
-        // Display the normal and error o/p if script failed.
-        System.out.println("script exited with i =" + i);
-        displayOutput(p.getErrorStream());
-        displayOutput(p.getInputStream());
-      }
-
-
+      i=displayProcessStatus(p);
     } catch(Exception e) {
       // if there is some other exception, print the detailed explanation
       System.out.println("Exception in Executing Shell Script:"+e);
@@ -63,5 +47,37 @@ public class RunScript {
       System.out.println("Exception in RunCoreCode:displayOutput:"+e);
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Display the process status while it is executing
+   *
+   * @param pr
+   * @return
+   */
+  public static int displayProcessStatus(Process pr) {
+    InputStream is = pr.getErrorStream();
+    InputStreamReader isr = new InputStreamReader(is);
+    BufferedReader br = new BufferedReader(isr);
+    InputStream es = pr.getInputStream();
+    InputStreamReader esr = new InputStreamReader(es);
+    BufferedReader ebr = new BufferedReader(esr);
+    String processStr=null, errStr=null;
+    try {
+      // get the error and process output strings
+      while ( ( (errStr = ebr.readLine()) != null) ||
+             ( (processStr = br.readLine()) != null)) {
+        if (processStr != null)
+          System.out.println(processStr);
+        if (errStr != null)
+          System.out.println(errStr);
+        if ( (processStr == null) && (errStr == null)) {
+          break;
+        }
+      }
+      int exit = pr.waitFor();
+      return exit;
+    }catch(Exception e) { e.printStackTrace(); }
+    return -1;
   }
 }
