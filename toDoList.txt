@@ -11,12 +11,6 @@ ProbEqkRupture - does this need a TimeSpan field (some of our sources do not hav
 
 Ned - Check changes from PointGR_EqkSource to PointPoissonEqkSource (and remove the former?).
 
-Move PEER_TESTCases dir into the rupForecastImpl directory, and the directory PEER_TestGuiPlots to:
-
-	org/scec/sha/PEER_TestsGroupResults
-
-Remove WardTest
-
 Look over FractileCurveCalculator (Ned)
 
 Ned - Run a forecast with non-zero mags up to mag 10 to search for numerical breakdowns (e.g., Math.pow(-num, non-integer) ) or search for for Math.pow.
@@ -50,8 +44,6 @@ Add STEP ERF to hazardCurveApplet
 ProgressBars - 
 
 	-enable turning on and off in both HazardMapCalculator add  HazardCurveCalculator; 
-
-	-quantify the computation cost of using these (as well as if these are completely commented out).
 
 	- put toggle-switch option for this in all apps.
 
