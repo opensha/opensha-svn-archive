@@ -38,6 +38,9 @@ public class CalcProgressBar extends JProgressBar {
     frameMessage=frameMsg;
     this.labelMsg=labelMsg;
      // initiliaze the progress bar frame in which to show progress bar
+    frame = new JFrame(frameMessage);
+    frame.setLocation(this.FRAME_STARTX, this.FRAME_STARTY);
+    frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
     initProgressFrame();
   }
 
@@ -45,11 +48,8 @@ public class CalcProgressBar extends JProgressBar {
    * initialize the progress bar
    * Display "Updating forecast" initially
    */
-  public void initProgressFrame() {
+  private void initProgressFrame() {
     // make the progress bar
-    frame = new JFrame(frameMessage);
-    frame.setLocation(this.FRAME_STARTX, this.FRAME_STARTY);
-    frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
     this.setStringPainted(true); // display the percentage completed also
     this.setSize(FRAME_WIDTH-10, FRAME_HEIGHT-10);
     label = new JLabel(labelMsg);
