@@ -1357,7 +1357,7 @@ public class GriddedFaultApplet
         clearButton.setBackground( lightBlue );
         clearButton.setForeground( darkBlue );
         clearButton.setFont( BUTTON_FONT );
-        clearButton.setBorder( BorderFactory.createRaisedBevelBorder() );
+        //clearButton.setBorder( BorderFactory.createRaisedBevelBorder() );
         clearButton.setFocusPainted( false );
         clearButton.setText( "Clear Plot" );
 
@@ -1375,7 +1375,7 @@ public class GriddedFaultApplet
         addButton.setBackground( lightBlue );
         addButton.setForeground( darkBlue );
         addButton.setFont( BUTTON_FONT );
-        addButton.setBorder( BorderFactory.createRaisedBevelBorder() );
+        //addButton.setBorder( BorderFactory.createRaisedBevelBorder() );
         addButton.setFocusPainted( false );
         addButton.setText( "Add Trace" );
 
@@ -1395,7 +1395,7 @@ public class GriddedFaultApplet
         toggleButton.setBackground( lightBlue );
         toggleButton.setForeground( darkBlue );
         toggleButton.setFont( BUTTON_FONT );
-        toggleButton.setBorder( BorderFactory.createRaisedBevelBorder() );
+        //toggleButton.setBorder( BorderFactory.createRaisedBevelBorder() );
         toggleButton.setFocusPainted( false );
         toggleButton.setText( "Show Data" );
 
