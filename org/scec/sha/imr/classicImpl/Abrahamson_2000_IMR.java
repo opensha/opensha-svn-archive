@@ -2,6 +2,7 @@ package org.scec.sha.imr.classicImpl;
 
 import java.util.*;
 
+import org.scec.calc.*;
 import org.scec.data.*;
 import org.scec.exceptions.*;
 import org.scec.param.*;
@@ -356,6 +357,7 @@ public class Abrahamson_2000_IMR
         initMeanIndependentParamsList(); // These last two must be called
         initStdDevIndependentParamsList();  // after the above four
         initExceedProbIndependentParamsList();
+
     }
 
 

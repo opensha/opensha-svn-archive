@@ -2,7 +2,6 @@ package org.scec.sha.imr;
 
 import java.util.*;
 
-import edu.uah.math.psol.distributions.*;
 import org.scec.calc.GaussianDistCalc;
 import org.scec.data.*;
 import org.scec.data.function.*;
