@@ -27,7 +27,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
 
 
 /**
- * <p>Title: Frankel96_EqkRupForecast</p>
+ * <p>Title: Frankel96_AdjustableEqkRupForecast</p>
  * <p>Description:Frankel 1996 Earthquake Rupture Forecast. This class
  * reads a single file for the fault sources, and another file for the
  * background seismicity, and then creates the USGS/CGS 1996 California ERF.

@@ -27,7 +27,7 @@ import org.scec.sha.earthquake.rupForecastImpl.*;
 
 
 /**
- * <p>Title: Frankel02_EqkRupForecast</p>
+ * <p>Title: Frankel02_AdjustableEqkRupForecast</p>
  * <p>Description:Frankel 2002 Earthquake Rupture Forecast. This class
  * creates the USGS/CGS 2002 California ERF.
  * This does not yet include any C zones.
