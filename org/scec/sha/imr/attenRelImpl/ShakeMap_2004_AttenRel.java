@@ -233,10 +233,10 @@ public class ShakeMap_2004_AttenRel
      site_BC.setLocation(site.getLocation());
      this.propEffect.setSite(site_BC);
 
-     as_1997_attenRel.setPropagationEffect(propEffect);
-     bjf_1997_attenRel.setPropagationEffect(propEffect);
-     scemy_1997_attenRel.setPropagationEffect(propEffect);
-     cb_2003_attenRel.setPropagationEffect(propEffect);
+     as_1997_attenRel.setPropagationEffect(this.propEffect);
+     bjf_1997_attenRel.setPropagationEffect(this.propEffect);
+     scemy_1997_attenRel.setPropagationEffect(this.propEffect);
+     cb_2003_attenRel.setPropagationEffect(this.propEffect);
    }
 
 
