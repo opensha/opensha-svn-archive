@@ -29,6 +29,9 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
 
   AS_1997_AttenRel as_1997 = null;
 
+  //Tolerence to check if the results fall within the range.
+  private static double tolerence = .0001; //default value for the tolerence
+
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
   private static final String ABRAHAMSON_1997_RESULTS = RESULT_SET_PATH +"Abrahamson_Silva1997TestData.txt";
 
@@ -47,7 +50,8 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
   public void testAbrahamson2000_Creation() {
     // create the instance of the AS_1997
     as_1997 = new AS_1997_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(as_1997,ABRAHAMSON_1997_RESULTS);
+    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(as_1997,
+                                                 ABRAHAMSON_1997_RESULTS, tolerence);
     attenRelChecker.readResultFile();
   }
 
@@ -64,6 +68,8 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
 
   public static void main (String[] args)
   {
+    if(args.length !=0)
+      tolerence=(new Double(args[0])).doubleValue();
     junit.swingui.TestRunner.run(Abrahamson_Silva_1997_test.class);
   }
 

@@ -28,6 +28,9 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
 
 
   CB_2003_AttenRel cb_2003 = null;
+  //Tolerence to check if the results fall within the range.
+  private static double tolerence = .0001; //default value for the tolerence
+
 
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
   private static final String CB_2003_RESULTS = RESULT_SET_PATH +"Cambell_Bozorgnia2003TestData.txt";
@@ -47,7 +50,7 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
   public void testAbrahamson2000_Creation() {
     // create the instance of the AS_1997
     cb_2003 = new CB_2003_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(cb_2003,CB_2003_RESULTS);
+    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(cb_2003,CB_2003_RESULTS, tolerence);
     attenRelChecker.readResultFile();
   }
 
@@ -64,6 +67,8 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
 
   public static void main (String[] args)
   {
+    if(args.length !=0)
+      tolerence=(new Double(args[0])).doubleValue();
     junit.swingui.TestRunner.run(CB_2003_test.class);
   }
 

@@ -28,6 +28,9 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
 
 
   Abrahamson_2000_AttenRel abrahamson_2000 = null;
+  //Tolerence to check if the results fall within the range.
+  private static double tolerence = .0001; //default value for the tolerence
+
 
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
   private static final String ABRAHAMSON_2000_RESULTS = RESULT_SET_PATH +"Abrahamson2000TestData.txt";
@@ -47,7 +50,8 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
   public void testAbrahamson2000_Creation() {
     // create the instance of the Abrahamson_2000
     abrahamson_2000 = new Abrahamson_2000_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(abrahamson_2000,ABRAHAMSON_2000_RESULTS);
+    AttenRelResultsChecker attenRelChecker = new
+        AttenRelResultsChecker(abrahamson_2000,ABRAHAMSON_2000_RESULTS, tolerence);
     attenRelChecker.readResultFile();
   }
 
@@ -64,6 +68,8 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
 
   public static void main (String[] args)
   {
+    if(args.length !=0)
+      tolerence=(new Double(args[0])).doubleValue();
     junit.swingui.TestRunner.run(Abrahamson_2000_test.class);
   }
 

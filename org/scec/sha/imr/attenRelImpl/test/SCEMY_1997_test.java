@@ -28,6 +28,8 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
 
 
   SCEMY_1997_AttenRel scemy_1997 = null;
+  //Tolerence to check if the results fall within the range.
+  private static double tolerence = .0001; //default value for the tolerence
 
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
   private static final String SADIGH_1997_RESULTS = RESULT_SET_PATH +"Sadigh1997TestData.txt";
@@ -47,8 +49,9 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
   public void testAbrahamson2000_Creation() {
     // create the instance of the AS_1997
     scemy_1997 = new SCEMY_1997_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(scemy_1997,SADIGH_1997_RESULTS);
-    attenRelChecker.readResultFile();
+    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(scemy_1997,SADIGH_1997_RESULTS,tolerence);
+    boolean result =attenRelChecker.readResultFile();
+    this.assertTrue("SCEMY Test Passed",result);
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){
@@ -64,6 +67,8 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
 
   public static void main (String[] args)
   {
+    /*if(args.length !=3)
+      tolerence=(new Double(args[0])).doubleValue();*/
     junit.swingui.TestRunner.run(SCEMY_1997_test.class);
   }
 

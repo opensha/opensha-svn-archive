@@ -30,7 +30,6 @@ public class AttenRelTestsSuite extends TestCase {
     return suite;
   }
 
-
   public static void main(String args[])
   {
     junit.swingui.TestRunner.run(AttenRelTestsSuite.class);

@@ -32,6 +32,9 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
   private static final String BOORE_1997_RESULTS = RESULT_SET_PATH +"Boore1997TestData.txt";
 
+  //Tolerence to check if the results fall within the range.
+  private static double tolerence = .0001; //default value for the tolerence
+
 
   public BJF_1997_test(final String name) {
     super(name);
@@ -47,8 +50,10 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
   public void testAbrahamson2000_Creation() {
     // create the instance of the AS_1997
     bjf_1997 = new BJF_1997_AttenRel(this);
-    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(bjf_1997,this.BOORE_1997_RESULTS);
-    attenRelChecker.readResultFile();
+    AttenRelResultsChecker attenRelChecker = new AttenRelResultsChecker(bjf_1997,
+                                                this.BOORE_1997_RESULTS,this.tolerence);
+    boolean result =attenRelChecker.readResultFile();
+    this.assertTrue("BJF Test Passed",result);
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){
@@ -64,6 +69,8 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
 
   public static void main (String[] args)
   {
+    /*if(args.length !=0)
+      tolerence=(new Double(args[0])).doubleValue();*/
     junit.swingui.TestRunner.run(BJF_1997_test.class);
   }
 

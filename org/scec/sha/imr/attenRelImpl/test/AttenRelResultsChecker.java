@@ -2,6 +2,7 @@ package org.scec.sha.imr.attenRelImpl.test;
 
 import java.io.*;
 import java.util.*;
+import java.text.DecimalFormat;
 
 import org.scec.sha.imr.*;
 import org.scec.param.*;
@@ -9,6 +10,7 @@ import org.scec.data.function.*;
 import org.scec.exceptions.*;
 import org.scec.util.*;
 import org.scec.data.*;
+import org.scec.sha.propagation.*;
 
 /**
  * <p>Title: AttenRelResultsChecker</p>
@@ -40,6 +42,8 @@ public class AttenRelResultsChecker {
   public final static int EXCEED_PROB = 3;
   public final static int IML_AT_EXCEED_PROB = 4;
 
+  //Deciaml format to restrict the result to 6 places of decimal for the IMR computed values
+  private DecimalFormat decimalFormat=new DecimalFormat("0.000000##");
 
   //this needs to read from the file for the different Intensity Measures,
   //but cuurently we only check for "SA"
@@ -48,11 +52,14 @@ public class AttenRelResultsChecker {
   //checks to see if we need Log for IMT
   private boolean translateIMR = true;
 
+  //checks if the resulted values lies within the this tolerence range
+  private double tolerence = .0001; //default value for the tolerence
+
   //these are the comments in the file where the data results for the test result in that IMR starts and ends
   public static final String START_RESULT_VALUES = "#start of result values for this test set";
   public static final String END_RESULT_VALUES = "#end of result values for this test set";
 
-  public AttenRelResultsChecker(AttenuationRelationshipAPI imr, String file) {
+  public AttenRelResultsChecker(AttenuationRelationshipAPI imr, String file, double tolerence) {
     this.imr = imr;
     this.resultFile = file;
     //initially the parameterList is empty but when te constructr is called
@@ -97,6 +104,9 @@ public class AttenRelResultsChecker {
     //set the intensity measure for the AttenuationRelationship
     imr.setIntensityMeasure(this.SA_NAME);
 
+    //set the tolernce value for that IMR
+    this.tolerence = tolerence;
+
   }
 
   /**
@@ -108,7 +118,7 @@ public class AttenRelResultsChecker {
    * That result set is like a benchMark for us to compare the SHA outputs for those parameters
    * settings with the result in the file.
    */
-  public void readResultFile(){
+  public boolean readResultFile(){
     try{
       //which file to read for the AttenREl testcase
       FileReader fr = new FileReader(resultFile);
@@ -116,20 +126,21 @@ public class AttenRelResultsChecker {
       //read the first line in the file which is the name of the AttenuationRelationship and discard it
       //becuase we do nothing with it currently
       br.readLine();
-      //Arbitrary function to store the target IMR values for that test result set
-      ArbitrarilyDiscretizedFunc targetFunction = null;
+      //arrayList to store the target IMR values for that test result set
+      ArrayList targetFunction = null;
       //contains the value for the X-Axis
       ParameterAPI xAxisParam =null;
       //stores the test number which we testing from the file
       int testNumber=0;
       // reads the first line in the file
       String str = (br.readLine()).trim();
+      //stores the int value for the selected Y-axis param
+      int yAxisValue =0;
       //keep reading the file until file pointer reaches the end of file.
       while(str !=null){
         str= str.trim();
         System.out.println("For("+testNumber+")"+str);
-        //stores the int value for the selected Y-axis param
-        int yAxisValue =0;
+
         //if the line contains nothing, just skip that line and read next
         if(str.equalsIgnoreCase(""))
           str = br.readLine();
@@ -162,28 +173,32 @@ public class AttenRelResultsChecker {
           /*
           reading the target result for the AttenuationRelationship with the
           given parameter setting and storing the actual result(benchmark) in the
-          ArbitrarilyDiscretizedFunc , so that we can compare this target result
+          ArrayList , so that we can compare this target result
           with the result we will obtain with those parameter settings for that IMR.
           */
           else if(str.equalsIgnoreCase(this.START_RESULT_VALUES)){
             /*if(testNumber == 19)
               System.out.println("Hello");*/
-            targetFunction =new ArbitrarilyDiscretizedFunc();
+            targetFunction =new ArrayList();
             str = (br.readLine()).trim();
-            System.out.println("For("+testNumber+"):"+str);
+            //System.out.println("For("+testNumber+"):"+str);
             int i=0;
             //if we have started reading the target result keep reading it
             //until we have reached the ending comments
             while(!str.equalsIgnoreCase(this.END_RESULT_VALUES)){
-              targetFunction.set(i,(new Double(str)).doubleValue());
-              ++i;
+              System.out.println("For("+testNumber+"):"+(new Double(str.trim())).doubleValue());
+              targetFunction.add((new Double(str.trim())));
+              //System.out.println(i+":  "+targetFunction.getY(i));
               str = (br.readLine()).trim();
               if(str.equalsIgnoreCase(""))
                 str = (br.readLine()).trim();
             }
             // Get the Discretized Function - calculation done here
             DiscretizedFuncAPI function = getFunctionForXAxis( xAxisParam,yAxisValue  );
-            //str = (br.readLine()).trim();
+            //compare the computed result using SHA with the target result for the defined set of parameters
+            boolean result =compareResults(function, targetFunction);
+            if(result == false)
+              return result;
           }
           //reading the parameter names and their value from the file
           else{
@@ -195,12 +210,16 @@ public class AttenRelResultsChecker {
             //file, result of the params will be set with the default values
             ParameterAPI tempParam = list.getParameter(st);
             st = str.substring(str.indexOf("=")+1).trim();
+            //setting the value of the param based on which type it is: StringParameter,
+            //DoubleParameter,IntegerParameter or WarningDoublePropagationEffectParameter(special parameter for propagation)
             if(tempParam instanceof StringParameter)
               tempParam.setValue(st);
             if(tempParam instanceof DoubleParameter)
               tempParam.setValue(new Double(st));
             if(tempParam instanceof IntegerParameter)
               tempParam.setValue(new Integer(st));
+            if(tempParam instanceof WarningDoublePropagationEffectParameter)
+              tempParam.setValue(new Double(st));
           }
           //reads the next line in the file
           str = br.readLine();
@@ -209,6 +228,37 @@ public class AttenRelResultsChecker {
     }catch(Exception e){
       e.printStackTrace();
     }
+    return true;
+  }
+
+  /**
+   * This function compares the values we obtained after running the values for
+   * the IMR and the target Values( our benchmark)
+   * @param function = values we got after running the OpenSHA code for the IMR
+   * @param targetFunction = values we are comparing with to see if OpenSHA does correct calculation
+   * @return
+   */
+  private boolean compareResults(DiscretizedFuncAPI function,
+                                 ArrayList targetFunction){
+    int num = function.getNum();
+    boolean flag = false;
+    if(num != targetFunction.size())
+      return false;
+    else{
+      for(int i=0;i<num;++i){
+        double val =(new Double(decimalFormat.format(function.getY(i)))).doubleValue();
+        //comparing each value we obtained after doing the IMR calc with the target result
+        //and making sure that values lies with the .1% range of the target values.
+        double targetValue = ((Double)(targetFunction.get(i))).doubleValue();
+        double targetTolerence = targetValue*this.tolerence;
+        if((val <= (targetValue+targetTolerence)) && (val >= (targetValue-targetTolerence))){
+          flag=true;
+        }
+        else
+          return false;
+      }
+    }
+    return flag;
   }
 
   /**
