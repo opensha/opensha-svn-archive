@@ -106,6 +106,3 @@ Create an archived email list or discussion board for OpenSHA.
 Add 3D visualization to GriddedFaultApplet (need Java3D on Mac OS first)?
 
 Go over exception throwing in entire package to make sure it looks appropriate.
-
-We need to create an object that can write our discretized data to a GMT grd file, which we can then make a map from using our GMT_MapGenerator.  See http://gmt.soest.hawaii.edu/gmt/doc/html/GMT_Docs/node113.html for grd-format info.  GMT uses netCDF routines to read and write these files, so NetCDF for Java (http://www.unidata.ucar.edu/packages/netcdf-java/) will presumably be helpful?
-
