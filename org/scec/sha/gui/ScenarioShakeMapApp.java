@@ -493,10 +493,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
       } catch (Exception ex) {
         calcProgress.showProgress(false);
         timer.stop();
-        //JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
-        ex.printStackTrace();
-        /*this.repaint();
-        this.validate();*/
+        JOptionPane.showMessageDialog(this, "Rupture not allowed for the chosen IMR: "+ex.getMessage());
         return;
       }
       if(probAtIML)
@@ -509,8 +506,6 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
           calcProgress.showProgress(false);
           timer.stop();
           JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid parameter value",JOptionPane.ERROR_MESSAGE);
-          this.repaint();
-          this.validate();
           return;
         }
       }
