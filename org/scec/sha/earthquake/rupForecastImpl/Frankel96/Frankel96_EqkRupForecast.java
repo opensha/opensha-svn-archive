@@ -165,7 +165,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
   }
 
 // make the adjustable parameters & the list
-private void intiAdjParams() {
+  private void intiAdjParams() {
 
   faultModelNamesStrings.add(FAULT_MODEL_FRANKEL);
   faultModelNamesStrings.add(FAULT_MODEL_STIRLING);

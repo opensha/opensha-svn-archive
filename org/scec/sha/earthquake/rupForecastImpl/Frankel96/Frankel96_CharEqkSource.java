@@ -52,7 +52,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
       probEqkRupture.setAveRake(rake);
       probEqkRupture.setMag(mag);
       probEqkRupture.setRuptureSurface(surface);
-      this.name = "Frankel96_CharEqkSource for "+faultName+" (charMag="+mag+"; charRate="+rate+")";
+      this.name = faultName+" Char";
   }
 
 

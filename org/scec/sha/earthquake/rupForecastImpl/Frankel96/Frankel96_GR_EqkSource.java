@@ -26,7 +26,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
 
 
   //for Debug purposes
-  private static String  C = new String("Frankel96_GR_EqkSource");
+  private static String  C = "Frankel96_GR_EqkSource";
   private boolean D = false;
 
   private GutenbergRichterMagFreqDist gR;
@@ -60,7 +60,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
                                 EvenlyGriddedSurface surface,
                                 String faultName) {
 
-    this.name = "Frankel96_GR_EqkSource for "+faultName+" (magUpper="+magUpper+"; moRate="+moRate+")";
+    this.name = faultName+" GR";
     this.rake=rake;
     this.surface=surface;
     this.rupOffset = rupOffset;

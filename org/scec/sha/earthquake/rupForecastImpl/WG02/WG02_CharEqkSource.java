@@ -33,7 +33,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
   private String name = "WG02 Char Eqk Source";
 
   boolean D = false;
-  private String C = name;
+  private String C = "WG02 Char Eqk Source";
 
 
   /**
@@ -47,7 +47,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
    * @param rupSurface: The rupture surface
    * @param rupArea: The rupture area (may be smaller than surface due to aseismic slip)
    * @param rupOffset: The offset length for sub-ruptures ("floating" ruptures)
-   * @param rupName: The name to use for the rupture
+   * @param rupName: The name to assign for this rupture
    * @param rake: The rake for the event
    */
   public WG02_CharEqkSource(double prob, double meanMag, double magSigma,
@@ -63,6 +63,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
       this.rupOffset = rupOffset;
       probEqkRupture = new ProbEqkRupture();
       probEqkRupture.setAveRake(rake);
+      this.name = sourceName;
 
       if(D) System.out.println("prob="+prob+"; meanMag="+meanMag+"; =magSigma"+magSigma+
                                "; nSigmaTrunc="+nSigmaTrunc+"; rupArea="+rupArea+
