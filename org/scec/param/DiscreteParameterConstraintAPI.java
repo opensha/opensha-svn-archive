@@ -2,12 +2,15 @@ package org.scec.param;
 import java.util.ListIterator;
 
 import java.util.Vector;
+
+// Fix - Needs more comments
+
 /**
- *  Title: Description: Copyright: Copyright (c) 2001 Company:
+ * <b>Title:</b> DiscreteParameterConstraintAPI<p>
+ * <b>Description:</b> <p>
  *
- * @author
- * @created    February 20, 2002
- * @version    1.0
+ * @author Steven W. Rock
+ * @version 1.0
  */
 
 public interface DiscreteParameterConstraintAPI extends ParameterConstraintAPI {

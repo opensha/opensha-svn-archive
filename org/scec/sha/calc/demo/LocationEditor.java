@@ -8,12 +8,15 @@ import javax.swing.*;
 import org.scec.data.*;
 import org.scec.param.editor.*;
 
+// Fix - Needs more comments
+
 /**
- *  Title: Description: Copyright: Copyright (c) 2001 Company:
+ * <b>Title:</b> LocationEditor <p>
+ * <b>Description:</b>
+ * <p>
  *
- * @author
- * @created    March 1, 2002
- * @version    1.0
+ * @author  Steven W. Rock
+ * @version 1.0
  */
 
 public class LocationEditor

@@ -5,13 +5,12 @@ import java.util.Vector;
 import org.scec.exceptions.ConstraintException;
 import org.scec.exceptions.EditableException;
 
+// Fix - Needs more comments
+
 /**
- *  <b>Title:</b> DoubleDiscreteConstraint<br>
+ *  <b>Title:</b> DoubleDiscreteConstraint<p>
  *  <b>Description:</b> Identical to the StringConstraint in that a list of
- *  Doubles are stored in a Vector that are the possible values to choose from
- *  <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  Doubles are stored in a Vector that are the possible values to choose from<p>
  *
  *
  * @author     Steven W. Rock

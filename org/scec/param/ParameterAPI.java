@@ -8,23 +8,27 @@ import org.scec.util.*;
 import org.scec.data.*;
 
 /**
- *  <b>Title:</b> ParameterAPI Interface<br>
+ *  <b>Title:</b> ParameterAPI Interface<p>
+ *
  *  <b>Description:</b> The parameter value can be any type of object. One
  *  reason for having this class is to enable new types of attributes to be
  *  defined and added to a Site, ProbEqkRupture, or PropagationEffect
- *  object without having to rewrite the Java code. <br>
+ *  object without having to rewrite the Java code. <p>
+ *
  *  By defining the parameter “value” here as a generic object, one is not
  *  restricted to adding scalar quantities. For example, one could create a
  *  subclass of parameter where the value is a moment tensor (which could then
  *  be added to a ProbEqkRupture object). As another example, one could
  *  define a subclass of parameter where the value is a shear-wave velocity
- *  profile (which could be added to a Site object). <br>
+ *  profile (which could be added to a Site object). <p>
+ *
  *  Representing such non-scalar quantities as “Parameters” might seem confusing
  *  semantically (e.g., perhaps “Attribute” would be better). However, the term
  *  “Parameter” is consistent with the notion that an
  *  IntensityMeasureRealtionship will used this information as an independent
- *  variable when computing earthquake motion. <br>
- *  Revision History <br>
+ *  variable when computing earthquake motion. <p>
+ *
+ *  <b>Revision History</b> <br>
  *  1/1/2002 SWR
  *  <ul>
  *    <LI> Removed setName(), setUnits(), setConstraints. These can only be set
@@ -35,10 +39,7 @@ import org.scec.data.*;
  *    become useful for sorting a list of parameters.
  *    <LI>
  *  </ul>
- *  <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  <p>
  *
  * @author     Steven W. Rock
  * @created    February 21, 2002

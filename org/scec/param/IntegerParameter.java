@@ -3,15 +3,12 @@ package org.scec.param;
 import org.scec.exceptions.*;
 
 /**
- *  <b>Title:</b> IntegerParameter<br>
+ *  <b>Title:</b> IntegerParameter<p>
  *  <b>Description:</b> Generic Data Object that contains an Integer and
  *  optionally a min and max allowed values stored in a constraint object. If no
- *  constraint object is present then all values should be permitted. <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  constraint object is present then all values should be permitted. <p>
  *
- *
- * @author     Sid Hellman
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  */

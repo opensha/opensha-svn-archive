@@ -46,13 +46,15 @@ import javax.swing.plaf.*;
 
 import javax.accessibility.*;
 
+// Fix - Needs more comments
+
 /**
- * <b>Title:</b> NumericTextField<br>
+ * <b>Title:</b> NumericTextField<p>
+ *
  * <b>Description:</b> Special JTextField that only allows numbers to be typed in. This
  * text field allows for normal number synatx, such as a negative sign, period for decimal point,
- * and commas for deliminating thousands, millions, etc.<br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * and commas for deliminating thousands, millions, etc.<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

@@ -3,10 +3,11 @@ package org.scec.param.translate;
 import org.scec.exceptions.TranslateException;
 
 /**
- * <p>Title: TranslatorAPI</p>
- * <p>Description: Interface framework API for translators. These
+ * <b>Title:</b> TranslatorAPI<p>
+ *
+ * <b>Description:</b> Interface framework API for translators. These
  * translators translate values from normal space to the translated
- * space using translate(). Reverse translates back to normal space. </p>
+ * space using translate(). Reverse translates back to normal space. <p>
  *
  * Since the translate() is typically a mathmatical function such as log()
  * or sin(), there are many mathmatical errors that can occur. The Math
@@ -15,7 +16,7 @@ import org.scec.exceptions.TranslateException;
  *
  * Note that for reverse to work properly it must be a one-to-one mapping.
  * However there are no constraints programmed into this assumption. It
- * is up to the developer to program reverse any way they desire.
+ * is up to the developer to program reverse any way they desire.<p>
  *
  * @author Steven W. Rock
  * @version 1.0

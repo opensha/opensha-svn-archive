@@ -4,12 +4,13 @@ import java.util.*;
 import org.scec.param.event.*;
 import org.scec.exceptions.*;
 
+// Fix - Needs more comments
+
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <b>Title:</b> WarningDoubleParameter<p>
+ * <b>Description:</b> <p>
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
 

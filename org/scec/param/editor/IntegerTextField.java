@@ -9,12 +9,14 @@ import javax.swing.text.Document;
 
 import org.scec.param.editor.document.IntegerPlainDocument;
 
+// Fix - Needs more comments
+
 /**
- * <b>Title:</b> IntegerTextField<br>
+ * <b>Title:</b> IntegerTextField<p>
+ *
  * <b>Description:</b> Special JTextField that only allows integers to be typed in. This
- * text field allows for a negative sign as the first character, only numbers thereafter<br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * text field allows for a negative sign as the first character, only numbers thereafter<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

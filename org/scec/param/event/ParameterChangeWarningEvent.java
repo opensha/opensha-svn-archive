@@ -4,17 +4,11 @@ import java.util.EventObject;
 import org.scec.param.WarningParameterAPI;
 
 /**
- *  <p>
- *
- *  Title: </p> <p>
+ *  <b>Title:</b> ParameterChangeWarningEvent<p>
  *
  *  Description: </p> This event is thrown when you try to modify a parameter's value
  *  beyond it's recommended value. This event gives the calling class the ability
  *  to either head the warnings or ignore it and update the parameter anyways. <p>
- *
- *  Copyright: Copyright (c) 2002</p> <p>
- *
- *  Company: </p>
  *
  * @author     Stevenh W. Rock
  * @created    April 17, 2002

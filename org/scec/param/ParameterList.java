@@ -30,8 +30,6 @@ import org.scec.exceptions.ParameterException;
  * but didn't fully implement updating and removing parameters with differing constraint names,
  * only implemented addParameter fully. <p>
  *
- * <b>Copyright:</b> Copyright (c) 2001<p>
- * <b>Company:</b> <p>
  * @author Steven W. Rock
  * @version 1.0
  */

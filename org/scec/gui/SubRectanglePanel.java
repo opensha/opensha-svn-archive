@@ -14,6 +14,8 @@ import org.scec.param.event.*;
 
 import org.scec.param.editor.*;
 
+// FIX - Needs more comments
+
 /**
  * <p>Title: SubRectanglePanel</p>
  * <p>Description: GUI Widget that allows you to specify a window

@@ -3,14 +3,12 @@ package org.scec.param.event;
 import java.util.EventListener;
 
 /**
- *  <b>Title:</b> ParameterChangeFailListener<br>
+ *  <b>Title:</b> ParameterChangeFailListener<p>
+ *
  *  <b>Description:</b> The change listener receives change events whenever an
  *  attempt was made to change a parameter and failed. The listener is typically
  *  the Main Application that wants to do something with the failure, such as
- *  put up a dialog box.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  put up a dialog box.<p>
  *
  * @author     Steven W. Rock
  * @created    February 21, 2002

@@ -3,12 +3,11 @@ package org.scec.param.event;
 import java.util.EventObject;
 
 /**
- *  <b>Title:</b> ParameterChangeFailEvent<br>
- *  <b>Description:</b> Any time a Parameter value thows a ConstraintException,
- *  this event is triggered and recieved by all listeners<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  <b>Title:</b> ParameterChangeFailEvent<p>
  *
+ *  <b>Description:</b> Any time a Parameter value thows a ConstraintException,
+ *  this event is triggered and recieved by all listeners<p>
+
  *
  * @author     Steven W. Rock
  * @created    February 21, 2002

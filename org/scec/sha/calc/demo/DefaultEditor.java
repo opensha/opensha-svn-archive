@@ -5,12 +5,14 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+// Fix - Needs more comments
+
 /**
- * Title:
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author
+ * <b>Title:</b> DefaultEditor <p>
+ * <b>Description:</b>
+ * <p>
+ *
+ * @author  Steven W. Rock
  * @version 1.0
  */
 

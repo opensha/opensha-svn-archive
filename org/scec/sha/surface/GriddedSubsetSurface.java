@@ -7,16 +7,14 @@ import org.scec.data.Location;
 import org.scec.data.*;
 
 /**
- *  <b>Title:</b> GriddedSubsetSurface<br>
+ *  <b>Title:</b> GriddedSubsetSurface<p>
+ *
  *  <b>Description:</b> Implements the same functionality as a GriddedSurface,
  *  but only maintains a small read only window view into a GriddedSurface. The
- *  Gridded Surface actually stores the data points.<br>
- *  <br>
- *  <b>Note:</b> SetLocation, setAveStrike, setAveDip have been disabled, this
- *  class is read-only into the dataset. <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  Gridded Surface actually stores the data points.<p>
  *
+ *  <b>Note:</b> SetLocation, setAveStrike, setAveDip have been disabled, this
+ *  class is read-only into the dataset. <p>
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002

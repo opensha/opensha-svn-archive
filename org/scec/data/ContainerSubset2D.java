@@ -6,6 +6,7 @@ import java.util.*;
 
 /**
  *  <b>Title:</b> ContainerSubset2D<p>
+ *
  *  <b>Description:</b> Small read only window into larger
  *  Container2d. This class takes a Container2D as a variable,
  *  then becomes a "window" into the larger grid. Since this
@@ -29,11 +30,11 @@ import java.util.*;
  * data. Because there is more than one step involved, and any one step
  * can potentially fail, I needed to provide a rollback mechanism to the
  * last know good state. This is the purpose of the oldWindow variable
- * and the commit and rollback functions. These will be explained below.
+ * and the commit and rollback functions. These will be explained below.<p>
  *
  * This class was designed with the purpose of examining rupture locals
  * in a fault gridded surface, but has been generalized to work with
- * any Container2DAPI.
+ * any Container2DAPI.<p>
  *
  * @author     Steven W. Rock
  * @created    February 25, 2002
@@ -587,21 +588,20 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  <b>Title:</b> Container2DListIterator<br>
+     *  <b>Title:</b> Container2DListIterator<p>
+     *
      *  <b>Description:</b> Base abstract class for all iterators. Stores the
      *  indexes, etc, and implements nextIndex() and hasNext(). All unsupported
-     *  methods throws Exceptions. <br>
+     *  methods throws Exceptions. <p>
+     *
      *  This is how iterators should be handled, i.e. the class should be an
-     *  inner class so that the outside world only ever sees a ListIterator.
-     *  <br>
+     *  inner class so that the outside world only ever sees a ListIterator.<p>
+     *
      *  The iterator shouldn't be in a seperate class file because it needs
      *  intimate knowledge to the data structure (in this case a java array)
      *  which is usually hidden to the outside world. By making it an inner
      *  class, the iterator has full access to the private variables of the data
-     *  class.<br>
-     *  <b>Copyright:</b> Copyright (c) 2001<br>
-     *  <b>Company:</b> <br>
-     *
+     *  class.<p>
      *
      * @author     Steven W. Rock
      * @created    February 25, 2002
@@ -738,11 +738,8 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  <b>Title:</b> ColumnIterator<br>
-     *  <b>Description:</b> Returns all column points for one row<br>
-     *  <b>Copyright:</b> Copyright (c) 2001<br>
-     *  <b>Company:</b> <br>
-     *
+     *  <b>Title:</b> ColumnIterator<p>
+     *  <b>Description:</b> Returns all column points for one row<p>
      *
      * @author     Steven W. Rock
      * @created    February 25, 2002
@@ -799,12 +796,9 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  <b>Title:</b> RowIterator<br>
-     *  <b>Description:</b> Returns all column points for one row<br>
-     *  <b>Copyright:</b> Copyright (c) 2001<br>
-     *  <b>Company:</b> <br>
-     *
-     *
+     *  <b>Title:</b> RowIterator<p>
+     *  <b>Description:</b> Returns all column points for one row<p>
+
      * @author     Steven W. Rock
      * @created    February 25, 2002
      * @version    1.0
@@ -860,12 +854,9 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  <b>Title:</b> AllByColumnsIterator<br>
+     *  <b>Title:</b> AllByColumnsIterator<p>
      *  <b>Description:</b> Returns all rows for a column, then moves to the
-     *  next column<br>
-     *  <b>Copyright:</b> Copyright (c) 2001<br>
-     *  <b>Company:</b> <br>
-     *
+     *  next column<p>
      *
      * @author     Steven W. Rock
      * @created    February 25, 2002
@@ -930,12 +921,9 @@ public class ContainerSubset2D implements Container2DAPI, Serializable {
 
 
     /**
-     *  <b>Title:</b> AllByRowsIterator<br>
+     *  <b>Title:</b> AllByRowsIterator<p>
      *  <b>Description:</b> Returns all columns for a row, then moves to the
-     *  next row<br>
-     *  <b>Copyright:</b> Copyright (c) 2001<br>
-     *  <b>Company:</b> <br>
-     *
+     *  next row<p>
      *
      * @author     Steven W. Rock
      * @created    February 25, 2002

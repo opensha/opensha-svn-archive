@@ -4,11 +4,11 @@ import org.scec.exceptions.InvalidRangeException;
 
 
 /**
- *  <b>Title:</b> DataPoint2DComparatorAPI<br>
+ *  <b>Title:</b> DataPoint2DComparatorAPI<p>
+ *
  *  <b>Description:</b> Implementing comparator of DataPoint2d. The comparator
  *  uses a tolerance to specify that when two values are within tolerance of
- *  each other, they are equal<br>
- *
+ *  each other, they are equal<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

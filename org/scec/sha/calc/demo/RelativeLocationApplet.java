@@ -11,12 +11,17 @@ import org.scec.gui.*;
 import org.scec.sha.calc.*;
 import org.scec.calc.RelativeLocation;
 
+// Fix - Needs more comments
+
 /**
- * Title:
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author
+ * <b>Title:</b> RelativeLocationApplet <p>
+ * <b>Description:</b> Tester Applet that contains 2 directions and 1 relative location, all are editable.
+ * When you click on calculate the tester applet takes two of the values to calculate the third, depending on
+ * which button you click on. For example you can calculate the Direction from two location objects, or calculate
+ * the second location from a location and diection. This is a visual verification of the RelativeLocation calculator.
+ * <p>
+ *
+ * @author  Steven W. Rock
  * @version 1.0
  */
 

@@ -1,10 +1,12 @@
 package org.scec.sha.surface;
 
+// Fix - Needs more comments
+
 /**
- * <b>Title:</b> GriddedSurfaceFactoryAPI<br>
- * <b>Description:</b> All creators of GriddedSurfaces must implement this<br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * <b>Title:</b> GriddedSurfaceFactoryAPI<p>
+ *
+ * <b>Description:</b> All creators of GriddedSurfaces must implement this<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

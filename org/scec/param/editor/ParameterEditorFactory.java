@@ -7,21 +7,20 @@ import org.scec.param.ParameterAPI;
 import org.scec.exceptions.ParameterException;
 import org.scec.param.ParameterConstraintAPI;
 
-//TranslatedConstrainedDoubleParameterEditor
+// Fix - Needs more comments
 
 /**
- * <b>Title:</b> ParameterEditorFactory<br>
+ * <b>Title:</b> ParameterEditorFactory<p>
+ *
  * <b>Description:</b> This factory is used to create the appropiate Editor for a Parameter based on the
  * String type. This class uses a few rules to generate the complete package and class name of the
  * editor. This class is used by the ParameterListEditor and makes it so you can create new Parameter
- * classes without having to recompile the ParameterListEditor or this Foactory class.<br>
- * <br>
+ * classes without having to recompile the ParameterListEditor or this Foactory class.<p>
+ *
  * <b>Note:</b> This class is currently uses only static functions and variables. We may need to change this
  * in the future if many clients try to set the searchPaths. No synchronization has been built in yet. Susceptable
- * to multiple threads changing the searchPaths.
- * <br><br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * to multiple threads changing the searchPaths.<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

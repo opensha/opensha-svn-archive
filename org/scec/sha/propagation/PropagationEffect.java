@@ -5,27 +5,31 @@ import org.scec.exceptions.*;
 import org.scec.param.*;
 import org.scec.sha.earthquake.*;
 
+// Fix - Needs more comments
+
 /**
- * <b>Title:</b> PropagationEffect<br>
+ * <b>Title:</b> PropagationEffect<p>
+ *
  * <b>Description:</b> The parameter options are held internally as a ParamterList
  * of PropagationEffectCalculator objects, which extend Paramter. When passed a
- * paramName String, the code will return:
- * <br><br>
- * <code>PropagationEffectCalculator.getParamterName() == paramName</code>
- * <br><br>
+ * paramName String, the code will return: <p>
+ *
+ * <code>PropagationEffectCalculator.getParamterName() == paramName</code> <p>
+ *
  * and will then return the value given by the getParameterValue() method for that
  * PropagationEffectCalculator.  One can create and add a new, arbitrary
- * PropagationEffectCalculator() to the vector of options
- * <br><br>
+ * PropagationEffectCalculator() to the vector of options.<p>
+ *
  * However, this class recognizes (and checks for first) the following
  * common propagation-effect parameter names (used in existing
  * IntensityMeasureRelationships) and performs some of the calculations
  * simultaneously to increase efficiency (e.g., it's faster to compute
  * Rrup, Rjb,and Rseis simultaneously, for the same Site and
- * ProbEqkRupture, rather than in series):
- * <br><br>
+ * ProbEqkRupture, rather than in series):<p>
+ *
  * This can be accomplished by spawning new threads to return the desired
- * requested result first. These threads should be set at low priority.
+ * requested result first. These threads should be set at low priority.<p>
+ *
  * <br><br>
  * <br>     Rrup	\
  * <br>     Rjb	 > (km; these are three common distance
@@ -36,9 +40,8 @@ import org.scec.sha.earthquake.*;
  * <br>                          the site; a directivity parameter)
  * <br>     Abrahamson_2000_Theta 	(angle between strike and
  * <br>                               epicentral azimuth; a directivity parameter)
- * <br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * <p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

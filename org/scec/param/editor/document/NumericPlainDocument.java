@@ -4,12 +4,12 @@ import java.text.*;
 import javax.swing.text.*;
 
 /**
- * <b>Title:</b> NumericPlainDocument<br>
+ * <b>Title:</b> NumericPlainDocument<p>
+ *
  * <b>Description:</b> Model ( or data) associated with an Numeric Text Field. The insertString() function
  * is called whenever data is being entered into the text field. This is where the text field is checked
- * to make sure only numeric valid charachters are being added.<br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * to make sure only numeric valid charachters are being added.<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

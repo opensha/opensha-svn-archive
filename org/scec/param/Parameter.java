@@ -5,18 +5,16 @@ import org.scec.exceptions.ParameterException;
 import org.scec.exceptions.EditableException;
 
 /**
- *  <b>Title: </b> Parameter<br>
+ *  <b>Title: </b> Parameter<p>
+ *
  *  <b>Description: </b> Base implementation for ParameterAPI of common
  *  functionality accross all parameter subclasses. The common fields with get
  *  and setters are here, as well as a default constructor that sets all these
  *  fields, and the setValue field that always checks if the value is allowed
- *  before setting.<br>
- *  <b>Copyright: </b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *  <br>
- *  <b>Change History:</b> 11/29/2001 - SWR - Added String units field with get
- *  and set methods<br>
+ *  before setting.<p>
  *
+ *  <b>Change History:</b> 11/29/2001 - SWR - Added String units field with get
+ *  and set methods<p>
  *
  * @author     Steve W. Rock
  * @created    February 21, 2002

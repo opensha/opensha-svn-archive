@@ -13,12 +13,13 @@ import org.scec.util.ParamUtils;
 import org.scec.exceptions.*;
 import org.scec.param.translate.*;
 
+// Fix - Needs more comments
+
 /**
- * <p>Title: TranslatedConstrainedDoubleParameterEditor</p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <b>Title:</b> TranslatedConstrainedDoubleParameterEditor<p>
+ * <b>Description:</b> <p>
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
 

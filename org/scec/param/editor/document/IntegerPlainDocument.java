@@ -7,13 +7,15 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+// Fix - Needs more comments
+
 /**
- * <b>Title:</b> IntegerPlainDocument<br>
+ * <b>Title:</b> IntegerPlainDocument<p>
+ *
  * <b>Description:</b> Model ( or data) associated with an Integer Text Field. The insertString() function
  * is called whenever data is being entered into the text field. This is where the text field is checked
- * to make sure only integer valid charachters are being added.<br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * to make sure only integer valid charachters are being added.<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

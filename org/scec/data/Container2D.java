@@ -475,7 +475,7 @@ public class Container2D implements Container2DAPI, Serializable {
      *
      * This implementation allows read only access to the collection as iterating
      * over it, in other words, several write functions are not implemented ere,
-     * just throws UnsupportedException.
+     * just throws UnsupportedException.<p>
      *
      * @author     Steven W. Rock
      * @created    February 25, 2002

@@ -10,16 +10,15 @@ import org.scec.param.ParameterList;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
 
+// Fix - Needs more comments
+
 /**
- *  <b>Title:</b> ParameterListEditor<br>
+ *  <b>Title:</b> ParameterListEditor<p>
  *  <b>Description:</b> The main Parameter Editor Panel that takes in a
  *  ParameterList, and using the ParameterEditorFactory to build all individual
  *  Parameter Editors for each editor in the Parameter List. The list is
  *  presented in a Scroll Pane so all parameters are accessable, no matter the
- *  size of the containing application<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  size of the containing application<p>
  *
  * @author     Steven W. Rock
  * @created    April 17, 2002

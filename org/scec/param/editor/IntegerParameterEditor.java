@@ -5,12 +5,14 @@ import javax.swing.border.*;
 import org.scec.exceptions.*;
 import org.scec.param.*;
 
+// Fix - Needs more comments
+
 /**
- * <b>Title:</b> IntegerParameterEditor<br>
+ * <b>Title:</b> IntegerParameterEditor<p>
+ *
  * <b>Description:</b> Special ParameterEditor for editing IntegetParameters. The widget
- * is an IntegerTextField so that only integers can be typed in. <br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * is an IntegerTextField so that only integers can be typed in. <p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

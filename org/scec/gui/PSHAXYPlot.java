@@ -12,10 +12,13 @@ import java.util.*;
 import java.math.BigDecimal;
 import javax.swing.*;
 
+// FIX - Needs more comments
+
 /**
- *  Title: Description: Copyright: Copyright (c) 2001 Company:
+ *  <b>Title:</b> <p>
+ *  <b>Description:</b>  <p>
  *
- * @author
+ * @author  Steven W. Rock
  * @created    February 22, 2002
  * @version    1.0
  */

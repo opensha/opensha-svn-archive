@@ -3,10 +3,11 @@ package org.scec.param.translate;
 import org.scec.exceptions.TranslateException;
 
 /**
- * <p>Title: LogTranslator</p>
- * <p>Description: Translates values into the log space and back.
+ * <b>Title:</b> LogTranslator<p>
+ *
+ * <b>Description:</b> Translates values into the log space and back.
  * Throws translate errors when trying to take the log of negative
- * or zero values. </p>
+ * or zero values. <p>
  *
  * @author Steven W. Rock
  * @version 1.0

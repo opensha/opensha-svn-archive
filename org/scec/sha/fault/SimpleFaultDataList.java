@@ -3,11 +3,12 @@ package org.scec.sha.fault;
 import java.util.*;
 import org.scec.exceptions.*;
 
+// Fix - Needs more comments
+
 /**
- * <p>Title: SimpleFaultDataList</p>
- * <p>Description: List container for a collection of SimpleFaultData objects </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ * <b>Title:</b> SimpleFaultDataList<p>
+ * <b>Description:</b> List container for a collection of SimpleFaultData objects <p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

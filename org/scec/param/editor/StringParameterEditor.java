@@ -9,13 +9,14 @@ import javax.swing.border.*;
 import org.scec.exceptions.*;
 import org.scec.param.*;
 
+// Fix - Needs more comments
 
 /**
- * <b>Title:</b> StringParameterEditor<br>
+ * <b>Title:</b> StringParameterEditor<p>
+ *
  * <b>Description:</b> Simplist Editor in that the widget is a JTExtField with no
- * Constraints on it.<br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * Constraints on it.<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

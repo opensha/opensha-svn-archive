@@ -8,14 +8,18 @@ import javax.swing.*;
 import org.scec.data.*;
 import org.scec.param.editor.*;
 
+// Fix - Needs more comments
+
+
 /**
- * Title:
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author
+ * <b>Title:</b> DirectionEditor <p>
+ * <b>Description:</b>
+ * <p>
+ *
+ * @author  Steven W. Rock
  * @version 1.0
  */
+
 
 public class DirectionEditor extends DefaultEditor {
 

@@ -8,12 +8,13 @@ import org.scec.data.*;
 import org.scec.sha.fault.*;
 import org.scec.util.*;
 
+// Fix - Needs more comments
+
 /**
- * <p>Title: FaultTraceXYDataSet</p>
- * <p>Description: Proxy for the FaultTrace to conform to the JFreeChart API
- * for XYDataSet, we can now pass a FaultTrace wrapped in this class into a plot</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ * <b>Title:</b> FaultTraceXYDataSet<p>
+ * <b>Description:</b> Proxy for the FaultTrace to conform to the JFreeChart API
+ * for XYDataSet, we can now pass a FaultTrace wrapped in this class into a plot<p>
+ *
  * @author Steven W. ROck
  * @version 1.0
  */

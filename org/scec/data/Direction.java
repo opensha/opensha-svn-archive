@@ -9,12 +9,18 @@ import org.scec.param.*;
  *  <b>Description:</b> Basic container class that represents a distance vector
  *  between two Location objects<p>
  *
- * This class contains the fields vertical distance, horizontal distance,
- * azimuth and back azimuth. Thses fields describe any point on or under the
- * surface of the earth with respect to another point. <p>
+ * This class contains the fields:
+ * <ul>
+ * <li>vertical distance
+ * <li>horizontal distance
+ * <li>azimuth
+ * <li>back azimuth
+ * </ul>
  *
+ * Thses fields uniquely describe the vector between any two points on or within
+ * the surface of the earth.
  *
- * @author     Sid Hellman
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 26, 2002
  * @version    1.0
  */
@@ -22,31 +28,34 @@ import org.scec.param.*;
 public class Direction {
 
     /** Class name used for debbuging */
-    protected final static String C = "Location";
+    protected final static String C = "Direction";
+
     /** if true print out debugging statements */
     protected final static boolean D = false;
 
 
-    /**
-     *  Description of the Field
-     */
+    /** Depth distance between two locations */
     protected double vertDistance;
-    /**
-     *  Description of the Field
-     */
+
+    /** Mao view distance between two geographical locations on the Earth */
     protected double horzDistance;
-    /**
-     *  Description of the Field
-     */
+
+    /** Direct angle between two locations measured with respect to (Ned, help me out here )*/
     protected DoubleParameter azimuth = new DoubleParameter("azimuth");
-    /**
-     *  Description of the Field
-     */
+
+    /** SWR: Not clear */
     protected DoubleParameter backAzimuth = new DoubleParameter("backAzimuth");
 
 
     /**
-     *  Constructor for the Direction object
+     *  No-Arg Constructor for the Direction object sets default values:
+     *
+     * <ul><li>azimuth.setValue( new Double(180) );
+     * <li>backAzimuth.setValue( new Double(0) );
+     * <li>horzDistance = 0;
+     * <li>vertDistance = 0;
+     * </ul>
+
      */
     public Direction() {
 
@@ -59,12 +68,12 @@ public class Direction {
 
 
     /**
-     *  Constructor for the Direction object
+     *  Constructor that allows setting all the fields of this Direction object
      *
-     * @param  vDist   Description of the Parameter
-     * @param  hDist   Description of the Parameter
-     * @param  az      Description of the Parameter
-     * @param  backAz  Description of the Parameter
+     * @param  vDist   vertical distance
+     * @param  hDist   horizontal distance
+     * @param  az      azimuth
+     * @param  backAz  back azimuth
      */
     public Direction( double vDist, double hDist, double az, double backAz ) {
 
@@ -158,6 +167,7 @@ public class Direction {
 
 
 
+    /** Debug printout of all the field values */
     public String toString(){
 
         StringBuffer b = new StringBuffer();
@@ -191,6 +201,12 @@ public class Direction {
 
     }
 
+    /**
+     * Checks to see if another Direction object has the same field values.
+     * If it does, they are considered equal.
+     * @param dir
+     * @return
+     */
     public boolean equalsDirection(Direction dir){
 
         if(this.horzDistance != dir.horzDistance ) return false;
@@ -201,6 +217,13 @@ public class Direction {
         return true;
     }
 
+    /**
+     * Calls equalsDirection(Direction dir) if passed in object is a Direction,
+     * else returns false. A different class could never be considered equals, like
+     * comparing apples to oranges.
+     * @param obj
+     * @return
+     */
     public boolean equals(Object obj){
         if(obj instanceof Direction) return equalsDirection( (Direction)obj );
         else return false;

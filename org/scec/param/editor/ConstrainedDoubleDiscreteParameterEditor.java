@@ -18,11 +18,11 @@ import org.scec.param.ParameterConstraintAPI;
 import org.scec.exceptions.ConstraintException;
 
 /**
- * <b>Title:</b> ConstrainedDoubleDiscreteParameterEditor<br>
+ * <b>Title:</b> ConstrainedDoubleDiscreteParameterEditor<p>
+ *
  * <b>Description:</b> This editor is for editing DoubleDiscreteParameter. The widget is
- * simply a picklist of all possible constrained values you can choose from.<br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * simply a picklist of all possible constrained values you can choose from.<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

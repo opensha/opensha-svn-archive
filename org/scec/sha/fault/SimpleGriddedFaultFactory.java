@@ -6,12 +6,12 @@ import org.scec.sha.fault.FaultTrace;
 import java.io.*;
 import org.scec.exceptions.*;
 
+// Fix - Needs more comments
 
 /**
- * <b>Title:</b> SimpleGriddedFaultFactory<br>
- * <b>Description:</b> <br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * <b>Title:</b> SimpleGriddedFaultFactory<p>
+ * <b>Description:</b> <p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

@@ -7,6 +7,8 @@ import org.scec.util.FaultUtils;
 import org.scec.data.Location;
 import org.scec.exceptions.InvalidRangeException;
 
+// Fix - Needs more comments
+
 /**
  *  <b>Title:</b> PointSurface<p>
  *
@@ -14,10 +16,6 @@ import org.scec.exceptions.InvalidRangeException;
  *  i.e. the simplist model, with no rupture surface. However all the methods
  *  of a GriddedSurface are implemented so it looks like a surface instead of
  *  a point source<p>
- *
- *  <b>Copyright:</b> Copyright (c) 2001<p>
- *  <b>Company:</b> <p>
- *
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002

@@ -8,14 +8,14 @@ import org.scec.data.*;
 import org.scec.sha.surface.*;
 import org.scec.util.*;
 
+// Fix - Needs more comments
 
 /**
- * <p>Title: GeoLocations2DList</p>
- * <p>Description: Proxy class for GriddedSurfaceAPI to map to the
+ * <b>Title:</b> GriddedSurfaceXYDataSet<p>
+ * <b>Description:</b> Proxy class for GriddedSurfaceAPI to map to the
  * JFreeChart XYDataSet API so a GriddedSurface can be passed into a chart
- * for plotting</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ * for plotting<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

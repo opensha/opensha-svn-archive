@@ -4,21 +4,21 @@ import java.util.*;
 import org.scec.exceptions.EditableException;
 
 /**
- *  <b>Title:</b> IntegerConstraint<br>
+ *  <b>Title:</b> IntegerConstraint<p>
+ *
  *  <b>Description:</b> Constraint Object containing a min and max integer value
  *  allowed. Need a check that min is less that max. If min == max that means
- *  only one discrete value is allowed <br>
+ *  only one discrete value is allowed <p>
+ *
  *  When is min verified to be less than max? When set each value individually,
  *  or after both values are set and call a verify() function that the class
  *  instance is in the correct state. Should throw an exception if not in the
- *  proper state <br>
+ *  proper state <p>
+ *
  *  When do you set the constarints? In the constructor or after the object is
- *  made? <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  made? <p>
  *
- *
- * @author     Sid Hellman
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  */

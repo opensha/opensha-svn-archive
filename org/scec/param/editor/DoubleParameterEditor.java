@@ -5,12 +5,13 @@ import org.scec.exceptions.*;
 import org.scec.param.*;
 import javax.swing.border.*;
 
+// Fix - Needs more comments
+
 /**
- * <b>Title:</b> DoubleParameterEditor<br>
+ * <b>Title:</b> DoubleParameterEditor<p>
+ *
  * <b>Description:</b> Special ParameterEditor for editing DoubleParameters. The widget
- * is a NumericTextField so that only numbers can be typed in.<br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * is a NumericTextField so that only numbers can be typed in.<p>
  * @author Steven W. Rock
  * @version 1.0
  */

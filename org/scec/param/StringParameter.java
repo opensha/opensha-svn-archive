@@ -5,11 +5,14 @@ import java.util.*;
 import org.scec.exceptions.*;
 
 /**
- *  <b>Title:</b> StringParameter<br>
+ *  <b>Title:</b> StringParameter<p>
+ *
  *  <b>Description:</b> Generic Data Object that contains a String and
  *  optionally a vector of allowed values stored in a constraint object. If no
- *  constraint object is present then all values are permitted.<br>
+ *  constraint object is present then all values are permitted.<p>
+ *
  *  <b>Note:</b> We are unable to have a constructor with signature:
+ *
  *  <ul>
  *    <li> <code>public StringParameter(String name, String units)</code>
  *  </ul>
@@ -18,11 +21,8 @@ import org.scec.exceptions.*;
  *    <li> <code>public StringParameter(String name, String value)</code><br>
  *
  *  </ul>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
  *
- *
- * @author     Sid Hellman
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  */

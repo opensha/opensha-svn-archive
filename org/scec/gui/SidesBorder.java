@@ -4,6 +4,8 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+// FIX - Needs more comments
+
 /**
  *  <b>Title: </b> SidesBorder<p>
  *  Description: This class implements a Border where you can set any side color

@@ -8,13 +8,14 @@ import org.scec.param.*;
 import org.scec.sha.calc.*;
 import org.scec.calc.RelativeLocation;
 
+// Fix - Needs more comments
+
 /**
- * Title:
- * Description:  This finds the shortest distance to the surface projection of the
- * fault.
- * Copyright:    Copyright (c) 2001
- * Company:
- * @author
+ * <b>Title:</b> DistanceJBParameter<p>
+ * <b>Description:</b> This finds the shortest distance to the surface projection of the
+ * fault.<p>
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
 

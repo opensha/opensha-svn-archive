@@ -6,14 +6,11 @@ import org.scec.exceptions.ConstraintException;
 import org.scec.exceptions.EditableException;
 
 /**
- *  <b>Title:</b> StringConstraint<br>
+ *  <b>Title:</b> StringConstraint<p>
  *  <b>Description:</b> Constraint Object containing a vector of allowed string
- *  values<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  values<p>
  *
- *
- * @author     Sid Hellman
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  */

@@ -11,15 +11,14 @@ import org.scec.exceptions.LocationException;
 import org.scec.data.*;
 
 
+// Fix - Needs more comments
 
 /**
- *  <b>Title:</b> GriddedSurface<br>
+ *  <b>Title:</b> GriddedSurface<p>
+ *
  *  <b>Description:</b> Implements a GriddedSurfaceAPI and Container2DAPI. The
  *  main difference is that this class only accepts Location Objects in it's
- *  grid<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  grid<p>
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002

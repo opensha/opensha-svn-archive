@@ -5,15 +5,13 @@ import org.scec.exceptions.EditableException;
 import org.scec.data.*;
 
 /**
- *  <b>Title:</b> ParameterConstraintAPI<br>
+ *  <b>Title:</b> ParameterConstraintAPI<p>
+ *
  *  <b>Description:</b> This is an Interface that holds a constraint, and
  *  provides a method that checks if an argument passed is within the
- *  constraint. <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  constraint. <p>
  *
- *
- * @author     Sid Hellman
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  */

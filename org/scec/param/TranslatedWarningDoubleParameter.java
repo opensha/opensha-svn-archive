@@ -6,12 +6,13 @@ import org.scec.param.event.*;
 import org.scec.exceptions.*;
 
 /**
- * <p>Title: TranslatedWarningDoubleParameter</p>
- * <p>Description: Will translate the values when setting and getting,
+ * <b>Title:</b> TranslatedWarningDoubleParameter<p>
+ *
+ * <b>Description:</b> Will translate the values when setting and getting,
  * unless the translation is disabled. It that case it will act just like a
  * normal WarningDoubleParameter. The translator can be any function command
  * that you pass in. Default is LogTranslator(). Initially set translate to
- * true. </p>
+ * true. <p>
  *
  * This class allows a user to input normal values that get translated internally.
  * Then these values can be inputted to a process that needs the translated values.

@@ -1,18 +1,17 @@
 package org.scec.calc;
-import java.util.*;
-
-import org.scec.sha.fault.*;
 import org.scec.data.*;
-//import com.egbs.utilities.DateUtils;
-
 
 /**
  *  <b>Title:</b> RelativeLocation<p>
  *
- *  <b>Description:</b> This class takes two Location objects & returns a
- *  Direction object, or takes a Location and Direction object and returns a
- *  Location object. The functions are static therefore this class is never
+ *  <b>Description:</b>
+ *  This class is a distance calculator that deals with Location objects and
+ *  a Direction object. From either two you can calculate the third. If you
+ *  pass in 2 Location objects this class with return the Direction between
+ *  the two. If you pass in a Location and a Direction it can calculate the
+ *  second Location object. The functions are static therefore this class is never
  *  instantiated<p>
+ *
  *  These calculations are an adoption from Frankel's FORTRAN code. Perhaps
  *  a better code base that is more accurate is the geod.exe program from the
  *  USGS. This code incorporates the idea of ellipsiod models into the program.
@@ -35,34 +34,47 @@ import org.scec.data.*;
 
 public final class RelativeLocation {
 
-    /**
-     *  Description of the Field
-     */
+
+
+    /** Class name used for debbuging */
     public final static String C = "RelativeLocation";
-    /**
-     *  Description of the Field
-     */
+    /** if true print out debugging statements */
+    protected final static boolean D = false;
+
+
+    /** Earth radius constant */
     public final static int R = 6367;
 
+    /** Radians to degrees conversion constant */
     public final static double RADIANS_CONVERSION = Math.PI / 180;
 
+    /** Degree to Km conversion at equator */
     public final static double D_COEFF = 111.11;
 
 
+    /** Used for performance testing between two conversion models */
     final static boolean SPEED_TEST = false;
-    /**
-     *  private constructor guarentees it can never be instantiated
-     */
+
+    /** private constructor guarentees it can never be instantiated */
     private RelativeLocation() { }
 
 
     /**
-     *  Gets the direction attribute of the RelativeLocation class
+     *  By passing in two Locations this calculator will determine the
+     *  Distance object between them. The four fields calculated are:
      *
-     * @param  location1                          Description of the Parameter
-     * @param  location2                          Description of the Parameter
-     * @return                                    The direction value
-     * @exception  UnsupportedOperationException  Description of the Exception
+     * <uL>
+     * <li>horzDistance
+     * <li>azimuth
+     * <li>backAzimuth
+     * <li>vertDistance
+     * </ul>
+     *
+     * @param  location1                            First geographic location
+     * @param  location2                            Second geographic location
+     * @return                                      The direction, decomposition of the vector between two locations
+     * @exception  UnsupportedOperationException    Thrown if the Locations contain bad data such as invalid latitudes
+     * @see     Distance                            to see the field definitions
      */
     public static Direction getDirection( Location location1, Location location2 ) throws UnsupportedOperationException {
 
@@ -88,12 +100,21 @@ public final class RelativeLocation {
 
 
     /**
-     *  Gets the location attribute of the RelativeLocation class
+     *  Given a Location and a Distance object, this function calculates the
+     *  second Location the Direction points to. The fields calculated for the
+     *  second Location are:
      *
-     * @param  location                           Description of the Parameter
-     * @param  direction                          Description of the Parameter
-     * @return                                    The location value
-     * @exception  UnsupportedOperationException  Description of the Exception
+     * <uL>
+     * <li>Lat
+     * <li>Lon
+     * <li>Depth
+     * </ul>
+     *
+     * @param  location1                             First geographic location
+     * @param  direction                            Direction object pointing to second Location
+     * @return location2                            The second location
+     * @exception  UnsupportedOperationException    Thrown if the Location or Direction contain bad data such as invalid latitudes
+     * @see     Location                            to see the field definitions
      */
     public static Location getLocation( Location location, Direction direction ) throws UnsupportedOperationException {
 
@@ -116,6 +137,16 @@ public final class RelativeLocation {
 
     }
 
+    /**
+     * Internal helper method that calculates the latitude of a second location
+     * given the input location and direction components
+     *
+     * @param delta             Horizontal distance
+     * @param azimuth           angle towards new point
+     * @param lat               latitude of original point
+     * @param lon               longitude of original point
+     * @return                  latitude of new point
+     */
     private static double getLatitude( double delta, double azimuth, double lat, double lon){
 
         delta = ( delta / D_COEFF ) * RADIANS_CONVERSION;
@@ -154,6 +185,16 @@ public final class RelativeLocation {
     }
 
 
+    /**
+     * Internal helper method that calculates the longitude of a second location
+     * given the input location and direction components
+     *
+     * @param delta             Horizontal distance
+     * @param azimuth           angle towards new point
+     * @param lat               latitude of original point
+     * @param lon               longitude of original point
+     * @return                  longitude of new point
+     */
     private static double getLongitude( double delta, double azimuth, double lat, double lon){
 
         delta = ( delta / D_COEFF ) * RADIANS_CONVERSION;
@@ -192,11 +233,11 @@ public final class RelativeLocation {
 
 
     /**
-     *  Gets the min attribute of the RelativeLocation class
+     *  Helper method that returns the minimum of the two passed in values.
      *
-     * @param  a  Description of the Parameter
-     * @param  b  Description of the Parameter
-     * @return    The min value
+     * @param  a  first value to compare
+     * @param  b  second  value to compare
+     * @return    a or b, whichever is smaller
      */
     private static double getMin( double a, double b ) {
         if ( a <= b ) return a;
@@ -233,6 +274,14 @@ public final class RelativeLocation {
 
 
 
+    /**
+     * Second way to calculate the distance between two points. Obtained off the internet,
+     * but forgot where now. When used in comparision with the latLonDistance function you
+     * see they give practically the same values at the equator, and only start to diverge near the
+     * poles, but still reasonable close to each other. Good for point of comparision.<p>
+     *
+     * Note: This function is currently not used, only for testing<p>
+     */
     public static double getLatLonDistance( double lat1, double lon1, double lat2, double lon2 ){
 
         //
@@ -273,6 +322,19 @@ public final class RelativeLocation {
     }
 
 
+    /**
+     * Helper method that calculates the angle between two locations
+     * on the earth.<p>
+     *
+     * Note: SWR: I'm not quite sure of the difference between azimuth and
+     * back azimuth. Ned, you will have to fill in the details.
+     *
+     * @param lat1               latitude of first point
+     * @param lon1               longitude of first point
+     * @param lat2               latitude of second point
+     * @param lon2               longitude of second point
+     * @return                  angle between the two lat/lon locations
+     */
     public static double getAzimuth( double lat1, double lon1, double lat2, double lon2 ){
 
 
@@ -309,7 +371,19 @@ public final class RelativeLocation {
 
 
 
-
+    /**
+     * Helper method that calculates the angle between two locations
+     * on the earth.<p>
+     *
+     * Note: SWR: I'm not quite sure of the difference between azimuth and
+     * back azimuth. Ned, you will have to fill in the details.
+     *
+     * @param lat1               latitude of first point
+     * @param lon1               longitude of first point
+     * @param lat2               latitude of second point
+     * @param lon2               longitude of second point
+     * @return                  angle between the two lat/lon locations
+     */
     public static double getBackAzimuth( double lat1, double lon1, double lat2, double lon2 ){
 
 
@@ -345,9 +419,15 @@ public final class RelativeLocation {
 
 
     /**
-     *  Description of the Method
+     *  Purely a tester function. I like to put main() functions for unit testing
+     *  java files. This is a convinient and quick test of the class, and shows
+     *  exact examples on how to use this class.
      *
-     * @param  argv  Description of the Parameter
+     *  Tests various examples of Locations and Directions to calculate the
+     *  RelativeLocation and direction between points. This is mainly a test
+     *  function
+     *
+     * @param  argv  Passed in command line arguments
      */
     public static void main( String argv[] ) {
 

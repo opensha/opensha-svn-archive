@@ -8,19 +8,22 @@ import org.scec.param.*;
 import org.scec.sha.calc.*;
 import org.scec.calc.RelativeLocation;
 
+// Fix - Needs more comments
+
 /**
- * <p>Title: DistanceSeisParameter</p>
- * <p>Description: This computes the closest distance to the seimogenic part of the fault;
+ * <b>Title:</b> DistanceSeisParameter<p>
+ *
+ * <b>Description:</b> This computes the closest distance to the seimogenic part of the fault;
  * that is, the closest distance to the part of the fault that is below the seimogenic
  * thickness (seisDepth); this depth is currently hardwired at 3 km, but we can add
  * setSeisDepth() and getSeisDepth() methods if desired (the setter will have to create
  * a new constraint with seisDepth as the lower bound, which can be done even if the
- * parameter has been set as non editable). </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * parameter has been set as non editable). <p>
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
+
 public class DistanceSeisParameter
      extends WarningDoublePropagationEffectParameter
      implements WarningParameterAPI

@@ -3,12 +3,10 @@ package org.scec.param.event;
 import java.util.EventObject;
 
 /**
- *  <b>Title:</b> ParameterChangeEvent<br>
- *  <b>Description:</b> Any time a Parameter value is changed via the GUI editor
- *  JPanel, this event is triggered and recieved by all listeners<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  <b>Title:</b> ParameterChangeEvent<p>
  *
+ *  <b>Description:</b> Any time a Parameter value is changed via the GUI editor
+ *  JPanel, this event is triggered and recieved by all listeners<p>
  *
  * @author     Steven W. Rock
  * @created    February 21, 2002

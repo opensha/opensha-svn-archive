@@ -3,14 +3,12 @@ package org.scec.param.event;
 import java.util.EventListener;
 
 /**
- *  <b>Title:</b> ParameterChangeListener<br>
+ *  <b>Title:</b> ParameterChangeListener<p>
+ *
  *  <b>Description:</b> The change listener receives change events whenever one
  *  of the Parameters have been edited in the ParameterEditor. The listener is
  *  typically the Main Application that wants to do something with the changed
- *  data, such as generate a new plot.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  data, such as generate a new plot.<p>
  *
  * @author     Steven W. Rock
  * @created    February 21, 2002

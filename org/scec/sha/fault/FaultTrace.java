@@ -4,17 +4,17 @@ import java.util.*;
 import org.scec.util.*;
 import org.scec.data.*;
 
+// Fix - Needs more comments
+
 
 /**
- *  <b>Title:</b> FaultTrace<br>
+ *  <b>Title:</b> FaultTrace<p>
+ *
  *  <b>Description:</b> This simply contains a vector (or array) of Location
  *  objects representing the top trace of a fault (with non-zero depth if it
- *  buried). <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  buried). <p>
  *
- *
- * @author     Sid Hellman
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 26, 2002
  * @version    1.0
  */

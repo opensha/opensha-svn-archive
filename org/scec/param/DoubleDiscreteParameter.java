@@ -4,15 +4,13 @@ import java.util.Vector;
 import org.scec.exceptions.*;
 
 /**
- *  <b>Title:</b> DoubleDiscreteParameter<br>
+ *  <b>Title:</b> DoubleDiscreteParameter<p>
  *  <b>Description:</b> Same as a DoubleParameter except the Constraints are a
  *  list of valid Double choices instead of a Min/Max DoubleConstraint with all
- *  possible values allowed in between.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  possible values allowed in between.<p>
  *
  *
- * @author
+ * @author     Steven W. Rock
  * @created    February 20, 2002
  * @version    1.0
  */

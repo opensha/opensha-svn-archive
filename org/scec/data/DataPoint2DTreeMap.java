@@ -6,7 +6,8 @@ import org.scec.exceptions.InvalidRangeException;
 import org.scec.util.*;
 
 /**
- *  <b>Title:</b> DataPoint2DTreeMap <br>
+ *  <b>Title:</b> DataPoint2DTreeMap <p>
+ *
  *  <b>Description:</b> Special Tree map that holds DataPoint2D as the key, so
  *  they are automatically sorted on the X-Coordinate. The reason for this
  *  subclass is to handle tolerances in the x-value when calling put(), get(),

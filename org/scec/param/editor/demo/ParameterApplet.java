@@ -27,14 +27,12 @@ import org.scec.param.event.ParameterChangeFailEvent;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
 
+// Fix - Needs more comments
 
 /**
- *  <b>Title:</b> ParameterApplet<br>
+ *  <b>Title:</b> ParameterApplet<p>
  *  <b>Description:</b> Test applet to demonstrate the ParameterListEditor in
- *  action.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  action.<p>
  *
  * @author     Steven W. Rock
  * @created    April 17, 2002

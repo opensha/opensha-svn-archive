@@ -9,12 +9,13 @@ import org.scec.sha.calc.*;
 import org.scec.calc.RelativeLocation;
 
 
+// Fix - Needs more comments
+
 /**
- * <p>Title: </p>
- * <p>Description: This finds the shortest distance to the fault surface.</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <b>Title:</b> DistanceRupParameter<p>
+ * <b>Description:</b> This finds the shortest distance to the fault surface.<p>
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
 public class DistanceRupParameter

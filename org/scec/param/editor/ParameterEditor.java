@@ -12,9 +12,11 @@ import org.scec.gui.*;
 import org.scec.param.*;
 import org.scec.param.event.*;
 
+// Fix - Needs more comments
 
 /**
- *  <b>Title:</b> ParameterEditor<br>
+ *  <b>Title:</b> ParameterEditor<p>
+ *
  *  <b>Description:</b> This is the base Editor class that all Editors extend
  *  from This sets up a JPanel to have a Label on the left, cooresponding to the
  *  name of the Parameter, and a widget on the right. What the widget is depends
@@ -22,10 +24,7 @@ import org.scec.param.event.*;
  *  selectable values cooresponding to the Parameter Constraints. All common
  *  functionality of the Editors are in this class. The only thing that
  *  subclasses have to deal with is setting the specific widget for the
- *  subclass, and how to handle key and focus events on this widget.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  subclass, and how to handle key and focus events on this widget.<p>
  *
  * @author     Steven W. Rock
  * @created    April 17, 2002

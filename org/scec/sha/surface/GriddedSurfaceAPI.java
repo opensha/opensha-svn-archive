@@ -6,12 +6,10 @@ import org.scec.data.Location;
 import org.scec.exceptions.InvalidRangeException;
 import org.scec.data.*;
 
+// Fix - Needs more comments
 /**
- *  <b>Title:</b> GriddedSurfaceAPI<br>
- *  <b>Description:</b> All gridded surfaces must implement these functions<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  <b>Title:</b> GriddedSurfaceAPI<p>
+ *  <b>Description:</b> All gridded surfaces must implement these functions<p> *
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002

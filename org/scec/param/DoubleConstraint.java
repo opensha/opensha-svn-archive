@@ -2,21 +2,21 @@ package org.scec.param;
 
 import java.util.*;
 import org.scec.exceptions.EditableException;
+
 /**
- *  <b>Title:</b> DoubleConstraint<br>
+ *  <b>Title:</b> DoubleConstraint<p>
  *  <b>Description:</b> Constraint Object containing a min and max double value
- *  allowed. Needs check that min is less that max. <br>
+ *  allowed. Needs check that min is less that max. <p>
+ *
  *  When is min verified to be less than max? When set each value individually,
  *  or after both values are set and call a verify() function that the class
  *  instance is in the correct state. Should throw an exception if not in the
- *  proper state <br>
+ *  proper state <p>
+ *
  *  When do you set the constarints? In the constructor or after the object is
- *  made? <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  made? <p>
  *
- *
- * @author     Sid Hellman
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 20, 2002
  * @version    1.0
  */

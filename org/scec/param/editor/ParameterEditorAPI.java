@@ -7,14 +7,14 @@ import org.scec.param.event.ParameterChangeFailEvent;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
 
+// Fix - Needs more comments
+
 /**
- *  <b>Title:</b> ParameterEditorAPI<br>
+ *  <b>Title:</b> ParameterEditorAPI<p>
+ *
  *  <b>Description:</b> All Parameter Editors must implement these functions so
  *  that the Parameter Editor knows how to handle them without knowing the exact
- *  Editor class it is dealing with.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  Editor class it is dealing with.<p>
  *
  * @author     Steven W. Rock
  * @created    April 17, 2002

@@ -8,12 +8,13 @@ import org.scec.param.event.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.earthquake.*;
 
+// Fix - Needs more comments
+
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <b>Title:</b> WarningDoublePropagationEffectParameter<p>
+ * <b>Description:</b><p>
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
 

@@ -4,13 +4,11 @@ import java.util.EventListener;
 
 /**
  *  <b>Title:</b> ParameterChangeWarnListener<p>
+ *
  *  <b>Description:</b> The change listener receives change events whenever an
  *  attempt was made to change a parameter and a warning was issued. The listener is typically
  *  the Main Application that wants to do something with the warning, such as
  *  put up a dialog box to accemtt or cancel.<p>
- *  <b>Copyright:</b> Copyright (c) 2001<p>
- *  <b>Company:</b> <p>
- *
  *
  * @author     Steven W. Rock
  * @created    February 21, 2002
