@@ -455,7 +455,9 @@ public class ParameterEditor
 
         String units = model.getUnits();
 
-        if ( ( units != null ) && !( units.equals( "" ) ) ){
+        if(label == null)
+          titledBorder1.setTitle("");
+        else if ( ( units != null ) && !( units.equals( "" ) ) ){
             label += " (" + units + "):";
             titledBorder1.setTitle(label);
             //nameLabel.setText( label );
@@ -494,7 +496,7 @@ public class ParameterEditor
      * @return
      */
     public JPanel getOuterPanel() {
-      return this.outerPanel;
+      return outerPanel;
     }
 
 }

@@ -59,7 +59,7 @@ ActionListener{
       if(D) System.out.println(S + "Starting");
 
 
-      super.setWidgetObject(name, obj);
+      super.setWidgetObject(null, obj);
 
       if ( ( obj != null ) &&  ( valueEditor != null ) )
         ((JCheckBox) valueEditor).setSelected(((Boolean)obj).booleanValue());
