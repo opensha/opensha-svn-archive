@@ -121,7 +121,7 @@ public class Abrahamson_2000_AttenRel
     protected  DoubleParameter thetaDirParam = null;
     public final static String THETA_NAME = "theta";
     public final static String THETA_UNITS = "degrees";
-    protected final static Double THETA_MIN = new Double(0);
+    protected final static Double THETA_MIN = new Double(-90);
     protected final static Double THETA_MAX = new Double(90);
     protected final static Double THETA_DEFAULT = new Double( 0 );
     public final static String THETA_INFO = "Angle Between Fault & Ray Path Directivity Parameter";
@@ -270,19 +270,60 @@ public class Abrahamson_2000_AttenRel
           }
 
           // now set the directivity parameters
+          GriddedSurfaceAPI surface = probEqkRupture.getRuptureSurface();
+          Location siteLoc = site.getLocation();
+          Location hypLoc = probEqkRupture.getHypocenterLocation();
+          int numTrPts = surface.getNumCols();
 
           // find the closest point on rupture trace
-          GriddedSurfaceAPI surface = probEqkRupture.getRuptureSurface();
-          int numTrPts = surface.getNumCols();
           double dist, closestDist = Double.MAX_VALUE;
-          Location closestLoc;
+          Location closestLoc=null;
           for(int c=0; c<numTrPts;c++) {
-            dist = RelativeLocation.getHorzDistance(site.getLocation(),surface.getLocation(0,c));
-            if(dist < closestDist)
+            dist = RelativeLocation.getHorzDistance(siteLoc,surface.getLocation(0,c));
+            if(dist < closestDist) {
               closestDist = dist;
               closestLoc = surface.getLocation(0,c);
+            }
           }
           // compute the distance between the closest point on the trace and the hypocenter
+          // hard code a location until we have setting it another way implemented
+          hypLoc = surface.getLocation(0,0);
+          double s = RelativeLocation.getHorzDistance(closestLoc,hypLoc);
+          // get total length of rupture
+          double L = RelativeLocation.getHorzDistance(surface.getLocation(0,0),surface.getLocation(0,numTrPts-1));
+          double x = s/L;
+          // make sure that x isn't slightly larger (due to numerical impecision)
+          if( x > 1.0 & x < 1.000001) x = 1.0;
+          // now set the x parameter
+          xDirParam.setValue(x);
+
+          // get the angle diff (theta) if s is greater than ~zero
+          // (this avoids the undefined angle problem when hypLoc=closestLoc)
+          double angleDiff;
+          if( s > 0.01) {
+            Direction dir;
+            dir = RelativeLocation.getDirection(hypLoc,siteLoc);
+            double angle1 = dir.getAzimuth();
+            if(angle1 < 0) angle1 += 360;  // make it positive to avoid confusion
+            dir = RelativeLocation.getDirection(hypLoc,closestLoc);
+            double angle2 = dir.getAzimuth();
+            if(angle2 < 0) angle2 += 360;  // make it positive to avoid confusion
+            angleDiff = angle2-angle1;
+            // fix if 0 or 360 is in between the two directions
+            if(angleDiff < -90) angleDiff += 360;
+            else if(angleDiff > 90) angleDiff -= 360;
+            if (D) System.out.println("hyp="+(float)hypLoc.getLatitude()+", "+(float)hypLoc.getLongitude()+
+                               "; clLoc="+(float)closestLoc.getLatitude()+", "+(float)closestLoc.getLongitude()+
+                               "; siteLoc="+(float)siteLoc.getLatitude()+", "+(float)siteLoc.getLongitude()+
+                               "; angle1 = "+(float)angle1+"; angle2 = "+(float)angle2+"; theta = "+(float)angleDiff+
+                               "; s = "+s);
+          }
+          else angleDiff = 90;  // set as anything since s = 0
+
+//          if(angleDiff >90 || angleDiff <90) angleDiff=90;
+          // now set the theta parameter
+          thetaDirParam.setValue(angleDiff);
+
 
         }
     }
@@ -415,7 +456,6 @@ public class Abrahamson_2000_AttenRel
 
         if(xCosTheta<=0.4)		yDir = coeff.c1 + 1.88*coeff.c2*xCosTheta;
         else                            yDir = coeff.c1 + 0.75*coeff.c2;
-        // TYPO IN PAPER? THESE AREN'T EQUAL AT xCosTheta=0.4
 
         mean += yDir*td*tm;
 

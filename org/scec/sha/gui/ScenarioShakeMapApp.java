@@ -57,7 +57,7 @@ public class ScenarioShakeMapApp extends JApplet implements
   public final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
   public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
   public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
-  // public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
+  public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
 
   /**
@@ -287,7 +287,7 @@ public class ScenarioShakeMapApp extends JApplet implements
     // create the IMR Gui Bean object
      // It accepts the vector of IMR class names
      Vector imrClasses = new Vector();
-     //imrClasses.add(this.A_CLASS_NAME);
+     imrClasses.add(this.A_CLASS_NAME);
      imrClasses.add(this.AS_CLASS_NAME);
      imrClasses.add(this.BJF_CLASS_NAME);
      imrClasses.add(this.C_CLASS_NAME);
@@ -449,6 +449,15 @@ public class ScenarioShakeMapApp extends JApplet implements
      ex.printStackTrace();
     }
 
+    // set the ProbEQkRup in the IMR
+    try {
+      int source = ((Integer)erfGuiBean.getParameter(erfGuiBean.SOURCE_PARAM_NAME).getValue()).intValue();
+      int rupture = ((Integer)erfGuiBean.getParameter(erfGuiBean.RUPTURE_PARAM_NAME).getValue()).intValue();
+      imr.setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(source,rupture));
+    } catch (Exception ex) {
+      System.out.println("Parameter change warning caught:");
+    }
+
     Vector siteLat= new Vector();
     Vector siteLon= new Vector();
     Vector siteValue = new Vector();
@@ -457,14 +466,6 @@ public class ScenarioShakeMapApp extends JApplet implements
       siteLat.add(new Double(site.getLocation().getLatitude()));
       siteLon.add(new Double(site.getLocation().getLongitude()));
       imr.setSite(site);
-      // set the ProbEQkRup in the IMR
-      try {
-        int source = ((Integer)erfGuiBean.getParameter(erfGuiBean.SOURCE_PARAM_NAME).getValue()).intValue();
-        int rupture = ((Integer)erfGuiBean.getParameter(erfGuiBean.RUPTURE_PARAM_NAME).getValue()).intValue();
-        imr.setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(source,rupture));
-      } catch (Exception ex) {
-        System.out.println("Parameter change warning caught");
-      }
       if(probAtIML)
         siteValue.add(new Double(imr.getExceedProbability(imlProbValue)));
       else{
@@ -472,7 +473,7 @@ public class ScenarioShakeMapApp extends JApplet implements
         siteValue.add(new Double(imr.getIML_AtExceedProb()));
       }
     }
-    // check thatuser has entered a valid filename
+    // check that user has entered a valid filename
     if(fileNameTextField.getText().trim().equalsIgnoreCase("")) {
       JOptionPane.showMessageDialog(this, "Please enter the file name");
       return;

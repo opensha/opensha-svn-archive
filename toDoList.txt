@@ -4,6 +4,12 @@
 For OpenSHA:
 ------------
 
+ScenarioShakeMapApp
+
+	Have a window pop up if imr.setProbEqkRupture(*) fails
+	(as it will for Abrahamson_2000 if rake not equiv to strike slip)
+
+
 Implement WG99/02 ERF by reading the static file first (not adjustable parameters)
 
 Check FractileCurveCalculator.getMeanCurve() (seems to be wrong)
