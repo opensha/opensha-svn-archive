@@ -32,6 +32,9 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   //definition for the Siet Object
   Site site = new Site();
 
+  /**
+   * Files get the site information from.
+   */
   private static final String WILLS_SITE_CLASS_FILE = "cvmfiles/usgs_cgs_geology_60s_mod.txt";
   private static final String BASIN_DEPTH_FILE = "cvmfiles/basindepth_OpenSHA.txt";
 
