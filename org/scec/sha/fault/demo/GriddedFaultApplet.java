@@ -607,8 +607,9 @@ public class GriddedFaultApplet
         if ( frame != null )
             frame.setTitle( this.getAppletInfo() + ": " + currentGriddedSurfaceName );
 
-
+        // whether frankel or stirling is selected
         String selectedFaultType = (String)frankel_StirlingComboBox.getSelectedItem();
+
         switch (faultTracePlot) {
 
             case THREE_D_PLOT_TYPE:
@@ -671,25 +672,12 @@ public class GriddedFaultApplet
                 break;
 
             case FAULT_PLOT_TYPE:
-
-                SimpleFaultData  simpleFaultData;
-                if(!isCustomFault) simpleFaultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
-                else simpleFaultData = this.customSimpleFaultData;
-                comp3D = null;
-                threeD = false;
-                clearInfo();
-                rect.disable();
-
-                dipLabel.setValue( "" + simpleFaultData.getAveDip() );
-                upperSeismoLabel.setValue( "" + simpleFaultData.getUpperSeismogenicDepth() );
-                lowerSeismoLabel.setValue( "" + simpleFaultData.getLowerSeismogenicDepth() );
-                faultNameLabel.setValue( simpleFaultData.getFaultTrace().getName() );
-
-                plotter.clear();
-                plotter.setPlotType( GriddedFaultPlotter.SHAPES_AND_LINES);
-                plotter.add( new FaultTraceXYDataSet(simpleFaultData.getFaultTrace()) );
-                addGraphPanel();
-                break;
+              plotter.clear();
+              plotter.setPlotType( GriddedFaultPlotter.SHAPES_AND_LINES);
+              // set  the plotter and label values
+              setLabelValuesAndPlotter(true);
+              addGraphPanel();
+              break;
 
 
             case SURFACE_PLOT_TYPE:
@@ -761,20 +749,7 @@ public class GriddedFaultApplet
                   currentGridSpacing = newGridSpacing;
 
                 }
-                else{
-
-                  SimpleFaultData  faultData;
-                  if(!isCustomFault) faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
-                  else faultData = this.customSimpleFaultData;
-
-                  gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km" );
-                  rowsLabel.setValue("" + surface.getNumRows() );
-                  colsLabel.setValue("" + surface.getNumCols() );
-                  dipLabel.setValue( "" + faultData.getAveDip() );
-                  upperSeismoLabel.setValue( "" + faultData.getUpperSeismogenicDepth() );
-                  lowerSeismoLabel.setValue( "" + faultData.getLowerSeismogenicDepth() );
-                  faultNameLabel.setValue( faultData.getFaultTrace().getName() );
-                }
+                else setLabelValuesAndPlotter(false); // set  the labels but not plotter
 
                 rect.enable();
                 plotter.clear();
@@ -859,20 +834,7 @@ public class GriddedFaultApplet
                     currentGridSpacing = newGridSpacing;
 
                 }
-                else{
-
-                  SimpleFaultData  faultData;
-                  if(!isCustomFault) faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
-                  else faultData = this.customSimpleFaultData;
-
-                   gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km" );
-                   rowsLabel.setValue("" + surface.getNumRows() );
-                   colsLabel.setValue("" + surface.getNumCols() );
-                   dipLabel.setValue( "" + faultData.getAveDip() );
-                   upperSeismoLabel.setValue( "" + faultData.getUpperSeismogenicDepth() );
-                   lowerSeismoLabel.setValue( "" + faultData.getLowerSeismogenicDepth() );
-                   faultNameLabel.setValue( faultData.getFaultTrace().getName() );
-                }
+                else setLabelValuesAndPlotter(false); // set the label values but not plotter
 
                 plotter.add(new GriddedSurfaceXYDataSet(surface));
 
@@ -940,25 +902,9 @@ public class GriddedFaultApplet
                 pointsTextArea.setText( currentGriddedSurfaceName + '\n' + surface.toString() );
                 //plotter.add(functions3);
 
-
-                SimpleFaultData  faultData1;
-                if(!isCustomFault) faultData1 = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
-                else faultData1 = this.customSimpleFaultData;
-
-
-                gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km");
-                rowsLabel.setValue("" + surface.getNumRows() );
-                colsLabel.setValue("" + surface.getNumCols() );
-
-                dipLabel.setValue( "" + faultData1.getAveDip() );
-                upperSeismoLabel.setValue( "" + faultData1.getUpperSeismogenicDepth() );
-                lowerSeismoLabel.setValue( "" + faultData1.getLowerSeismogenicDepth() );
-                faultNameLabel.setValue( faultData1.getFaultTrace().getName() );
-
-
                 plotter.clear();
                 plotter.setPlotType( GriddedFaultPlotter.SHAPES_LINES_AND_SHAPES);
-                plotter.add( new FaultTraceXYDataSet(faultData1.getFaultTrace()) );
+                setLabelValuesAndPlotter(true); // set the label values and plotter
                 plotter.add(functions3);
                 addGraphPanel();
                 break;
@@ -976,6 +922,7 @@ public class GriddedFaultApplet
                 comp3D = null;
                 threeD = false;
                 SimpleFaultData  faultData;
+
                 if(!isCustomFault) faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
                 else faultData = this.customSimpleFaultData;
 
@@ -1016,6 +963,46 @@ public class GriddedFaultApplet
         if ( D ) System.out.println( S + "Ending" );
 
     }
+
+
+    /**
+     * set the label values in the panel according to selected fault
+     *
+     * If toSetPlotteris true, then plotter is alsso set . else noy
+     */
+    public void setLabelValuesAndPlotter(boolean toSetPlotter) {
+
+      //whether it is listric or not
+       boolean listric = false;
+       if(((String)customFrankelComboBox.getSelectedItem()).equalsIgnoreCase(CUSTOM_LISTRIC_FAULT))
+          listric = true;
+
+      if(!listric) { // if it is not listric fault
+        SimpleFaultData  simpleFaultData;
+        if(!isCustomFault) simpleFaultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+        else simpleFaultData = this.customSimpleFaultData;
+        comp3D = null;
+        threeD = false;
+        clearInfo();
+        rect.disable();
+
+        dipLabel.setValue( "" + simpleFaultData.getAveDip() );
+        upperSeismoLabel.setValue( "" + simpleFaultData.getUpperSeismogenicDepth() );
+        lowerSeismoLabel.setValue( "" + simpleFaultData.getLowerSeismogenicDepth() );
+        faultNameLabel.setValue( simpleFaultData.getFaultTrace().getName() );
+        if(toSetPlotter)  plotter.add( new FaultTraceXYDataSet(simpleFaultData.getFaultTrace()) );
+      }
+      else // for listric fault
+
+        dipLabel.setValue("N/A");
+        upperSeismoLabel.setValue( "N/A");
+        lowerSeismoLabel.setValue( "N/A" );
+        faultNameLabel.setValue( this.customFaultTrace.getName() );
+
+        if(toSetPlotter) plotter.add( new FaultTraceXYDataSet(this.customFaultTrace));
+    }
+
+
 
     /**
      *  Clears the plot screen of all traces, then sychs imr to model
@@ -1529,32 +1516,32 @@ public class GriddedFaultApplet
 
         dataScrollPane.getViewport().add( pointsTextArea, null );
 
-        buttonPanel.add( addButton, new GridBagConstraints( 6, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( addButton, new GridBagConstraints( 4, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
-        buttonPanel.add( clearButton, new GridBagConstraints( 7, 0, 1, 1, 0.0, 0.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
-
-        buttonPanel.add( toggleButton, new GridBagConstraints( 8, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( clearButton, new GridBagConstraints( 5, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
 
-        buttonPanel.add( plotColorCheckBox, new GridBagConstraints( 9, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( toggleButton, new GridBagConstraints( 6, 0, 1, 1, 0.0, 0.0
+                        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
+
+        buttonPanel.add( plotColorCheckBox, new GridBagConstraints( 7, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 1 ), 0, 0 ) );
 
-        buttonPanel.add( faultComboBox, new GridBagConstraints( 3, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( faultComboBox, new GridBagConstraints( 1, 0, 1, 1, 0.0, 0.0
                       , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
-        buttonPanel.add( faultLabel, new GridBagConstraints( 2, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( faultLabel, new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
         // add the combobox for selecting the Frankel / Custom Fault
-        buttonPanel.add (customFrankelComboBox, new GridBagConstraints( 1, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add (customFrankelComboBox, new GridBagConstraints( 1, 1, 1, 1, 0.0, 0.0
                       , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
-        buttonPanel.add( customFrankelLabel, new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( customFrankelLabel, new GridBagConstraints( 0, 1, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
 
-        buttonPanel.add( frankel_StirlingLabel, new GridBagConstraints( 4, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( frankel_StirlingLabel, new GridBagConstraints( 2, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
-        buttonPanel.add( frankel_StirlingComboBox, new GridBagConstraints( 5, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( frankel_StirlingComboBox, new GridBagConstraints( 3, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
 
 
@@ -1770,11 +1757,10 @@ public class GriddedFaultApplet
     this.customDips = dips;
     this.customDepths = depths;
     this.customFaultTrace = faultTrace;
-
-    this.isCustomFault = true;
     // draw the custom fault
     this.addPlot();
   }
+
 
   /**
    * This function is called from CustomSimpleFault
@@ -1801,10 +1787,10 @@ public class GriddedFaultApplet
     String selected = (String)customFrankelComboBox.getSelectedItem();
     // if custom fault is selected
     if(selected.equalsIgnoreCase(CUSTOM_SIMPLE_FAULT)) {
-
       // custom simple fault
       this.faultComboBox.setVisible(false);
       this.faultLabel.setVisible(false);
+      allFaultsRadioButton.setVisible(false);
       CustomSimpleFault custom = new CustomSimpleFault(this);
       custom.pack();
       custom.show();
@@ -1812,6 +1798,7 @@ public class GriddedFaultApplet
       //custom listric fault
       this.faultComboBox.setVisible(false);
       this.faultLabel.setVisible(false);
+      allFaultsRadioButton.setVisible(false);
       CustomListricFault custom = new CustomListricFault(this);
       custom.pack();
       custom.show();
@@ -1819,6 +1806,7 @@ public class GriddedFaultApplet
       // put the Frankel 1996 Faults
       this.faultComboBox.setVisible(true);
       this.faultLabel.setVisible(true);
+      allFaultsRadioButton.setVisible(true);
       isCustomFault = false;
     }
 }
