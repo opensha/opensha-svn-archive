@@ -43,6 +43,8 @@ SHA ProjectTestSuite : 24 Tests
 For OpenSHA:
 ------------
 
+Make apps that use internet connection graceful if it's not available.
+
 
 AttenRelApp:
 
