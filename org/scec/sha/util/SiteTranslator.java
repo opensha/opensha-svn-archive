@@ -224,7 +224,11 @@ public class SiteTranslator implements java.io.Serializable{
           param.setValue(CB_2003_AttenRel.SITE_TYPE_SOFT_ROCK);
           return true;
         }
-        else if(wc.equals(WILLS_BC) || wc.equals(WILLS_B)) {
+        else if(wc.equals(WILLS_BC)) {
+          param.setValue(CB_2003_AttenRel.SITE_TYPE_NEHRP_BC);
+          return true;
+        }
+        else if (wc.equals(WILLS_B)) {
           param.setValue(CB_2003_AttenRel.SITE_TYPE_FIRM_ROCK);
          return true;
         }
