@@ -52,7 +52,15 @@ public class X_ValuesInCurveControlPanel extends JFrame {
   //Stores the imt selected by the user
   private String imt;
 
-  public X_ValuesInCurveControlPanel(Component parent) {
+  /**
+   * Class constructor
+   * @param parent : Takes the Application instance to get its dimensions
+   * @param api : Takes the instance of the application implementing the
+   * X_ValuesInCurveControlPanelAPI to get the IMT value from the application, to
+   * show the the default X values based on IMT selected in the application.
+   */
+  public X_ValuesInCurveControlPanel(Component parent, X_ValuesInCurveControlPanelAPI api) {
+    imt  = api.getSelectedIMT();
     try {
       jbInit();
       // show the window at center of the parent component
@@ -137,18 +145,11 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     doneButton.setText("Done");
     this.setSize(new Dimension(400, 400));
     //adding the variuos choices to the Combo Selection for the X Values
-    xValuesSelectionCombo.addItem(PEER_X_VALUES);
-    xValuesSelectionCombo.addItem(CUSTOM_VALUES);
     xValuesSelectionCombo.addItem(DEFAULT);
+    xValuesSelectionCombo.addItem(CUSTOM_VALUES);
     xValuesSelectionCombo.addItem(MIN_MAX_NUM);
-    xValuesSelectionCombo.setSelectedItem(PEER_X_VALUES);
-    maxLabel.setVisible(false);
-    minLabel.setVisible(false);
-    numLabel.setVisible(false);
-    maxText.setVisible(false);
-    minText.setVisible(false);
-    numText.setVisible(false);
-    setButton.setVisible(false);
+    xValuesSelectionCombo.addItem(PEER_X_VALUES);
+    xValuesSelectionCombo.setSelectedItem(DEFAULT);
   }
 
   /**
@@ -216,6 +217,22 @@ public class X_ValuesInCurveControlPanel extends JFrame {
 
   }
 
+  public void setX_Values(String imt){
+    this.imt = imt;
+    xValuesSelectionCombo.setSelectedItem(DEFAULT);
+    repaint();
+    validate();
+  }
+
+  public void setX_Values(ArbitrarilyDiscretizedFunc func){
+    ListIterator lt=func.getXValuesIterator();
+    String st =new String("");
+    while(lt.hasNext())
+      st += lt.next().toString().trim()+"\n";
+    xValuesText.setText(st);
+    repaint();
+    validate();
+  }
 
   /**
    * initialise the X values with the default X values in the textArea
@@ -287,7 +304,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
    *
    * @returns the ArbitrarilyDiscretizedFunction containing the X values that user entered
    */
-  public ArbitrarilyDiscretizedFunc getX_ValuesFunctions(){
+  public ArbitrarilyDiscretizedFunc getX_ValuesFunction(){
     return this.function;
   }
 
@@ -299,13 +316,6 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     closeWindow();
   }
 
-  //sets the imt selected by the user in the application
-  public  void setIMT(String imt){
-    this.imt = imt;
-    generateXValues();
-    repaint();
-    validate();
-  }
 
   //making the GUI visible or invisible based on the selection of "Type of X-Values"
   void xValuesSelectionCombo_actionPerformed(ActionEvent e) {
@@ -365,13 +375,13 @@ public class X_ValuesInCurveControlPanel extends JFrame {
       setX_Values();
     }
     else if(selectedItem.equals(this.MIN_MAX_NUM)){
-      minText.setText("");
+      /*minText.setText("");
       maxText.setText("");
       numText.setText("");
-      xValuesText.setText("");
+      xValuesText.setText("");*/
     }
     else if(selectedItem.equals(this.CUSTOM_VALUES)){
-      xValuesText.setText("");
+      //xValuesText.setText("");
     }
   }
 

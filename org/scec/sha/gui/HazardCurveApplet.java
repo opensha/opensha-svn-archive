@@ -40,6 +40,7 @@ import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.sha.calc.FractileCurveCalculator;
 import org.scec.data.Site;
+import org.scec.sha.gui.infoTools.DefaultHazardCurveForIMTs;
 
 /**
  * <p>Title: HazardCurveApplet</p>
@@ -51,7 +52,8 @@ import org.scec.data.Site;
 
 public class HazardCurveApplet extends JApplet
     implements Runnable,  ParameterChangeListener, AxisLimitsControlPanelAPI,
-    DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI {
+    DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
+    X_ValuesInCurveControlPanelAPI{
 
   /**
    * Name of the class
@@ -118,6 +120,7 @@ public class HazardCurveApplet extends JApplet
   private X_ValuesInCurveControlPanel xValuesPanel;
   private RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
 
+
   // message string to be dispalayed if user chooses Axis Scale
    // without first clicking on "Add Graph"
   private final static String AXIS_RANGE_NOT_ALLOWED =
@@ -151,16 +154,14 @@ public class HazardCurveApplet extends JApplet
   private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
-  // make a array for saving the X values
-  private  double [] xValuesSA = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
+  //holds the ArbitrarilyDiscretizedFunc
+  private ArbitrarilyDiscretizedFunc function;
+
+  //instance to get the default IMT X values for the hazard Curve
+  private DefaultHazardCurveForIMTs defaultX_Values = new DefaultHazardCurveForIMTs();
 
   // make a array for saving the X values
-  private  double [] xValuesPGA = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
-    .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
-
-  // make a array for saving the X values
-  private  double [] xValuesPGV = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
+  private  double [] xValuesPEER = { .001, .01, .05, .1, .15, .2, .25, .3, .4, .5,
     .6, .7, .8, .9, 1, 1.1, 1.2, 1.3, 1.4, 1.5}  ;
 
   // make a array for saving the X values
@@ -206,6 +207,11 @@ public class HazardCurveApplet extends JApplet
 
   // text area to show the data values
   private JTextArea pointsTextArea = new JTextArea();
+
+
+  //flags to check which X Values the user wants to work with: default or custom
+  boolean useDefaultX_Values = true;
+  boolean useCustomX_Values = false;
 
   /**
    * chart panel
@@ -1422,6 +1428,13 @@ public class HazardCurveApplet extends JApplet
   }
 
   /**
+   *
+   * @returns the selected IMT
+   */
+  public String getSelectedIMT(){
+    return imtGuiBean.getSelectedIMT();
+  }
+  /**
    * Initialize the Interesting sites control panel
    * It will provide a pick list of interesting sites
    */
@@ -1449,8 +1462,11 @@ public class HazardCurveApplet extends JApplet
    */
   private void initX_ValuesControl(){
     if(xValuesPanel == null)
-      xValuesPanel = new X_ValuesInCurveControlPanel(this);
-    xValuesPanel.setIMT(imtGuiBean.getSelectedIMT());
+      xValuesPanel = new X_ValuesInCurveControlPanel(this,this);
+    if(useDefaultX_Values)
+      xValuesPanel.setX_Values(imtGuiBean.getSelectedIMT());
+    else
+      xValuesPanel.setX_Values(function);
     xValuesPanel.pack();
     xValuesPanel.show();
   }
@@ -1490,7 +1506,24 @@ public class HazardCurveApplet extends JApplet
     axisControlPanel.show();
   }
 
+  /**
+   *
+   */
+  public void setX_ValuesForHazardCurve(){
+    useDefaultX_Values = true;
+    useCustomX_Values = false;
+    function = defaultX_Values.getHazardCurve(imtGuiBean.getSelectedIMT());
+  }
 
+  /**
+   *
+   * @param func
+   */
+  public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func){
+    useDefaultX_Values = true;
+    useCustomX_Values = false;
+    function =func;
+  }
 
   /**
    * set x values in log space for Hazard Function to be passed to IMR
@@ -1504,39 +1537,16 @@ public class HazardCurveApplet extends JApplet
     String selectedIMT = isIMTLogEnabled();
 
     //if the person has selected the control panel for setting the X values for he Hazard curve computation
-    if(this.xValuesPanel !=null){
+    if(this.xValuesPanel !=null)
       //gets the X values from the X_ValueControlPanel
-      ArbitrarilyDiscretizedFunc func= xValuesPanel.getX_ValuesFunctions();
-      System.out.println("Number :"+func.getNum());
-      //after getting the X values we are storing the values in the double array for
-      //PGA,PGV and SA
-      xValuesPGA = new double[func.getNum()];
-      xValuesPGV = new double[func.getNum()];
-      xValuesSA = new double[func.getNum()];
-      for(int i=0;i<func.getNum();++i){
-        xValuesPGA[i] = func.getX(i);
-        xValuesPGV[i] = func.getX(i);
-        xValuesSA[i] = func.getX(i);
-      }
-    }
+      function= xValuesPanel.getX_ValuesFunction();
+    else
+      setX_ValuesForHazardCurve();
     if (selectedIMT!=null) {
-      // if PGA is chosen
-      if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME))
-        for(int i=0; i<this.xValuesPGA.length; ++i)
-          arb.set(Math.log(xValuesPGA[i]),1 );
-      // if PGV is chosen
-     else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME))
-       for(int i=0; i<this.xValuesPGV.length; ++i)
-          arb.set(Math.log(xValuesPGV[i]),1 );
-     // if SA is chosen
-     else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
-       for(int i=0; i<this.xValuesSA.length; ++i)
-          arb.set(Math.log(xValuesSA[i]),1 );
-     // if Fault Displacement is chosen
-     else if(selectedIMT.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
-       for(int i=0; i<this.xValuesFaultDispl.length; ++i)
-          arb.set(Math.log(xValuesFaultDispl[i]),1 );
-    } else
+      for(int i=0;i<function.getNum();++i)
+        arb.set(Math.log(function.getX(i)),1);
+    }
+    else
       throw new RuntimeException("Unsupported IMT");
   }
 
@@ -1555,24 +1565,11 @@ public class HazardCurveApplet extends JApplet
     // take log only if it is PGA, PGV or SA
     String selectedIMT = isIMTLogEnabled();
     if (selectedIMT!=null) {
-      // if PGA is chosen
-      if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME))
-        for(int i=0; i<numPoints; ++i)
-          hazFunc.set(xValuesPGA[i], tempFunc.getY(i));
-      // if PGV  is chosen
-      else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME))
-        for(int i=0; i<numPoints; ++i)
-          hazFunc.set(xValuesPGV[i], tempFunc.getY(i));
-      // if SA is chosen
-      else if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
-        for(int i=0; i<numPoints; ++i)
-          hazFunc.set(xValuesSA[i], tempFunc.getY(i));
-      // if Fault displacement is chosen
-      else if(selectedIMT.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
-        for(int i=0; i<numPoints; ++i)
-          hazFunc.set(xValuesFaultDispl[i], tempFunc.getY(i));
-    return hazFunc;
-    } else
+      for(int i=0; i<numPoints; ++i)
+        hazFunc.set(function.getX(i), tempFunc.getY(i));
+      return hazFunc;
+    }
+    else
       throw new RuntimeException("Unsupported IMT");
   }
 
