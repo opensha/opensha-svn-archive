@@ -996,6 +996,37 @@ public class GraphPanel extends JPanel {
     }
   }
 
+  /**
+   *
+   * @returns the XAxis Label if not null
+   * else return null
+   */
+  public String getXAxisLabel(){
+    if(xAxis !=null)
+      return xAxis.getLabel();
+    return null;
+  }
 
+  /**
+   *
+   * @returns the YAxis Label if not null
+   * else return null
+   */
+  public String getYAxisLabel(){
+    if(yAxis !=null)
+      return yAxis.getLabel();
+    return null;
+  }
+
+  /**
+   *
+   * @returns the chart Title if not null
+   * else return null
+   */
+  public String getPlotLabel(){
+    if(chartPanel !=null)
+      return chartPanel.getChart().getTitle().getText();
+    return null;
+  }
 
 }

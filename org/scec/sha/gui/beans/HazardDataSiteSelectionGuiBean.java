@@ -36,6 +36,10 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
   private DoubleParameter lonParam;
   public String LON_PARAM_NAME = "Longitude";
 
+  //Lat and Lon Param values
+  private double latParamVal;
+  private double lonParamVal;
+
   //HashTables for storing the metadata for each dataset
   Hashtable metaDataHash = new Hashtable();
   //Hashtable for storing the lons from each dataSet
@@ -119,6 +123,15 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
        selectedDataSet = (String)dataSetParam.getValue();
        fillLatLon();
      }
+     else if(name.equalsIgnoreCase(LAT_PARAM_NAME)){
+       if((Double)latParam.getValue() !=null)
+         latParamVal = ((Double)latParam.getValue()).doubleValue();
+     }
+     else if(name.equalsIgnoreCase(LON_PARAM_NAME)){
+       if((Double)lonParam.getValue() !=null)
+         lonParamVal = ((Double)lonParam.getValue()).doubleValue();
+     }
+
    }
 
    /**
@@ -172,6 +185,13 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
      Collections.sort(keys);
      dataSetParam = new StringParameter(DATA_SET_PARAM_NAME,keys,(String)keys.get(0));
      dataSetParam.addParameterChangeListener(this);
+     // make the min and max lat param
+     //creating the Hazard Map dataset, Lat , Lon params
+     latParam = new DoubleParameter(LAT_PARAM_NAME);
+     lonParam = new DoubleParameter(LON_PARAM_NAME);
+
+     latParam.addParameterChangeListener(this);
+     lonParam.addParameterChangeListener(this);
    }
 
    /**
@@ -193,9 +213,17 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
      double intervalLon = Double.parseDouble(tokenizer.nextToken());
 
 
-     // make the min and max lat param
-     latParam = new DoubleParameter(LAT_PARAM_NAME,minLat,maxLat,new Double(minLat));
-     lonParam = new DoubleParameter(LON_PARAM_NAME,minLon,maxLon,new Double(minLon));
+     // sets the constraint for the Lat and Lon param based on the dataset choosen
+     latParam.setConstraint(new DoubleConstraint(minLat,maxLat));
+     lonParam.setConstraint(new DoubleConstraint(minLon,maxLon));
+
+     //checking if Lat and Lon parameter value lies within the constraint of new constraint of new selected dataset
+     if(!latParam.getConstraint().isAllowed(new Double(latParamVal)))
+       latParam.setValue(minLat);
+     if(!lonParam.getConstraint().isAllowed(new Double(lonParamVal)))
+       lonParam.setValue(minLon);
+
+
      if(parameterList !=null){
        parameterList = new ParameterList();
        parameterList.addParameter(dataSetParam);
