@@ -41,7 +41,7 @@ import org.scec.calc.*;
  * @version 1.0
  */
 
-public class PEER_Test_GuiPlotter extends Applet implements
+public class PEER_TestGuiPlotter extends JApplet implements
                                           NamedObjectAPI,
                                           ParameterChangeListener,LogPlotAPI,
                                           ActionListener{
@@ -176,9 +176,12 @@ public class PEER_Test_GuiPlotter extends Applet implements
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private JCheckBox averageCheck = new JCheckBox();
+  private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private BorderLayout borderLayout2 = new BorderLayout();
 
   //Construct the applet
-  public PEER_Test_GuiPlotter() {
+  public PEER_TestGuiPlotter() {
     searchPaths = new String[3];
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     // for Y-log, convert 0 values in Y axis to this small value
@@ -203,16 +206,15 @@ public class PEER_Test_GuiPlotter extends Applet implements
     border3 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
     border4 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
     border5 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
-    this.setSize(new Dimension(751, 612));
-    this.setLayout(null);
+    this.setSize(new Dimension(749, 614));
+    this.getContentPane().setLayout(borderLayout2);
     mainPanel.setBorder(BorderFactory.createEtchedBorder());
-    mainPanel.setBounds(new Rectangle(3, 7, 742, 599));
-    mainPanel.setLayout(null);
+    mainPanel.setLayout(borderLayout1);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    mainSplitPane.setBounds(new Rectangle(2, 3, 732, 573));
-    buttonPanel.setLayout(null);
+    mainSplitPane.setDividerSize(5);
+    buttonPanel.setLayout(gridBagLayout3);
     plotPanel.setLayout(gridBagLayout2);
-    plotSplitPane.setDividerSize(1);
+    plotSplitPane.setDividerSize(5);
     plotSplitPane.setLastDividerLocation(500);
     buttonPanel.setBorder(border1);
     plotPanel.setBorder(border3);
@@ -237,40 +239,41 @@ public class PEER_Test_GuiPlotter extends Applet implements
       }
     });
     averageCheck.setText("Average");
-    averageCheck.setBounds(new Rectangle(25, 17, 122, 25));
+    averageCheck.setBounds(new Rectangle(9, 8, 90, 25));
     dataScrollPane.getViewport().add( pointsTextArea, null );
-    toggleButton.setBounds(new Rectangle(202, 16, 101, 29));
     toggleButton.setText("Show Data");
     xLogCheckBox.setText("XLog");
-    xLogCheckBox.setBounds(new Rectangle(310, 20, 59, 21));
     yLogCheckBox.setText("YLog");
-    yLogCheckBox.setBounds(new Rectangle(369, 20, 57, 21));
     BGColorCheckBox.setText("BlackBG");
-    BGColorCheckBox.setBounds(new Rectangle(425, 20, 80, 21));
     rangeLabel.setText("SetAxisRange:");
-    rangeLabel.setBounds(new Rectangle(507, 20, 91, 23));
-    rangeComboBox.setBounds(new Rectangle(599, 19, 114, 24));
     rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         rangeComboBox_actionPerformed(e);
       }
     });
-    this.add(mainPanel, null);
-    mainPanel.add(mainSplitPane, null);
+    this.getContentPane().add(mainPanel, BorderLayout.CENTER);
+    mainPanel.add(mainSplitPane, BorderLayout.CENTER);
     plotSplitPane.add(plotPanel, JSplitPane.LEFT);
     plotSplitPane.add(jScrollPane1, JSplitPane.RIGHT);
     jScrollPane1.getViewport().add(testCasesPanel, null);
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    buttonPanel.add(BGColorCheckBox, null);
-    buttonPanel.add(xLogCheckBox, null);
-    buttonPanel.add(yLogCheckBox, null);
-    buttonPanel.add(rangeLabel, null);
-    buttonPanel.add(rangeComboBox, null);
-    buttonPanel.add(toggleButton, null);
-    buttonPanel.add(averageCheck, null);
+    buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 7, 10, 0), 14, -4));
+    buttonPanel.add(xLogCheckBox,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 7, 10, 0), 0, -8));
+    buttonPanel.add(yLogCheckBox,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 0, 10, 0), -2, -8));
+    buttonPanel.add(BGColorCheckBox,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 0, 10, 0), 1, -8));
+    buttonPanel.add(rangeLabel,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(4, 14, 10, 0), 22, 6));
+    buttonPanel.add(rangeComboBox,  new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(4, 0, 10, 61), -16, 1));
+    buttonPanel.add(toggleButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 9, 10, 0), 34, -8));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    mainSplitPane.setDividerLocation(510);
-    plotSplitPane.setDividerLocation(500);
+    mainSplitPane.setDividerLocation(540);
+    plotSplitPane.setDividerLocation(575);
     //shows the selection for the different Test Cases files
     initTestParamList();
     rangeComboBox.addItem(new String(AUTO_SCALE));
@@ -323,7 +326,7 @@ public class PEER_Test_GuiPlotter extends Applet implements
 
   //Main method
   public static void main(String[] args) {
-    PEER_Test_GuiPlotter applet = new PEER_Test_GuiPlotter();
+    PEER_TestGuiPlotter applet = new PEER_TestGuiPlotter();
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
