@@ -142,7 +142,7 @@ public class GroupTestGuiBean implements
   protected final static String STD_DEV_TYPE_INTER = "Inter-Event";
   protected final static String STD_DEV_TYPE_INTRA = "Intra-Event";
   protected final static String STD_DEV_TYPE_NONE = "None (zero)";
-
+  protected final static String CAMPBELL_DEV_TYPE_TOTAL = "Total (Mag Dependent)";
 
   /**
    * Test cases final static string
@@ -416,33 +416,58 @@ public class GroupTestGuiBean implements
    */
   protected void initImrParamListAndEditor() {
 
-    imrParamList = new ParameterList();
 
-    //add the available IMRs
-    imrClasses = new Vector();
-    imrClasses.add( BJF_CLASS_NAME );
-    imrClasses.add( AS_CLASS_NAME );
-    imrClasses.add( C_CLASS_NAME );
-    imrClasses.add( SCEMY_CLASS_NAME );
-    imrClasses.add( F_CLASS_NAME );
-    imrClasses.add( A_CLASS_NAME );
-    Iterator it= imrClasses.iterator();
-    while(it.hasNext()){
-       // make the IMR objects as needed to get the site params later
+    // if we are entering this function for the first time, then make imr objects
+    if(!imrParamList.containsParameter(IMR_PARAM_NAME)) {
+      imrParamList = new ParameterList();
+
+      //add the available IMRs
+      imrClasses = new Vector();
+      imrClasses.add( BJF_CLASS_NAME );
+      imrClasses.add( AS_CLASS_NAME );
+      imrClasses.add( C_CLASS_NAME );
+      imrClasses.add( SCEMY_CLASS_NAME );
+      imrClasses.add( F_CLASS_NAME );
+      imrClasses.add( A_CLASS_NAME );
+      Iterator it= imrClasses.iterator();
+      while(it.hasNext()){
+        // make the IMR objects as needed to get the site params later
         ClassicIMRAPI imr = (ClassicIMRAPI ) createIMRClassInstance((String)it.next(),this);
         imrObject.add(imr);
         imrNamesVector.add(imr.getName());
+      }
+
+      // add the select IMR
+      StringParameter selectIMR = new StringParameter(IMR_PARAM_NAME,
+                               imrNamesVector,(String)imrNamesVector.get(0));
+      // listen to IMR paramter to change site params when it changes
+      selectIMR.addParameterChangeListener(this);
+      imrParamList.addParameter(selectIMR);
     }
 
-    // add the select IMR
-    StringParameter selectIMR = new StringParameter(IMR_PARAM_NAME,
-                               imrNamesVector,(String)imrNamesVector.get(0));
-    // listen to IMR paramter to change site params when it changes
-    selectIMR.addParameterChangeListener(this);
-    imrParamList.addParameter(selectIMR);
+    // remove all the parameters excpet the IMR parameter
+    ListIterator it = imrParamList.getParameterNamesIterator();
+    while(it.hasNext()) {
+      String paramName = (String)it.next();
+      if(!paramName.equalsIgnoreCase(IMR_PARAM_NAME))
+        imrParamList.removeParameter(paramName);
+    }
+
+
+    // now find the selceted IMR and add the parameters related to it
 
     // add the trunc type param
     ClassicIMRAPI imr = (ClassicIMRAPI)imrObject.get(0);
+    // get the selectedIMR
+    String selectedIMR = imrParamList.getValue(IMR_PARAM_NAME).toString();
+    int size = imrObject.size();
+    for(int i=0; i<size ; ++i) {
+      imr = (ClassicIMRAPI)imrObject.get(i);
+      if(imr.getName().equalsIgnoreCase(selectedIMR))
+        break;
+    }
+
+
     ParameterAPI typeParam = imr.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
     imrParamList.addParameter(typeParam);
     typeParam.addParameterChangeListener(this);
@@ -541,6 +566,7 @@ public class GroupTestGuiBean implements
     * init eqkSourceParamList. List of all available sources at this time
     */
     protected void initEqkSourceParamListAndEditor() {
+
 
       //add the source Parameter
       Vector faultVector=new Vector();
@@ -677,6 +703,7 @@ public class GroupTestGuiBean implements
 
       // if IMR selection changed, update the site parameter list
       if ( name1.equalsIgnoreCase(this.IMR_PARAM_NAME)) {
+          initImrParamListAndEditor();
           updateSiteParamListAndEditor();
           initImtParamListAndEditor();
           applet.updateChoosenIMR();
@@ -1022,7 +1049,7 @@ public class GroupTestGuiBean implements
       imrParamList.getParameter(IMR_PARAM_NAME).setValue(C_NAME);
       imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(SIGMA_TRUNC_TYPE_1SIDED);
       imrParamList.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
-      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(STD_DEV_TYPE_TOTAL);
+      imrParamList.getParameter(STD_DEV_TYPE_NAME).setValue(CAMPBELL_DEV_TYPE_TOTAL);
       imtParamList.getParameter(IMT_PARAM_NAME).setValue(PGA_NAME);
       siteBean.getSiteParamList().getParameter(this.C_SITE_TYPE_NAME).setValue(C_SITE_TYPE_SOFT_ROCK);
       siteBean.getSiteParamList().getParameter(this.BASIN_DEPTH_NAME).setValue(new Double(2.0));
@@ -1318,21 +1345,9 @@ public class GroupTestGuiBean implements
           if(D) System.out.println("siteString:::"+site.toString());
           imr = (ClassicIMRAPI)imrObject.get(i);
 
-          // set the std dev
-          String stdDev = (String)imrParamList.getValue(this.STD_DEV_TYPE_NAME);
-          imr.getParameter(this.STD_DEV_TYPE_NAME).setValue(stdDev);
+
           imr.setIntensityMeasure(imt);
 
-          // set the Gaussian truncation type and level
-          String truncType = (String)imrParamList.getValue(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
-          imr.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(truncType);
-
-          // if trunc type is not none, set the level
-          if(!truncType.equalsIgnoreCase(SIGMA_TRUNC_TYPE_NONE)) {
-            // set the trunc level
-            Double truncLevel = (Double)imrParamList.getValue(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME);
-            imr.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(truncLevel);
-          }
           //set all the independent parameters related to this IMT
           ListIterator it = this.imtParamList.getParameterNamesIterator();
           while(it.hasNext()) {
