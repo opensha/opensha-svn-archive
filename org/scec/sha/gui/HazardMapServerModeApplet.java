@@ -66,7 +66,7 @@ public class HazardMapServerModeApplet extends JApplet implements
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_ListricFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_MultiSourceForecast";
-  public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
+  //public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -125,6 +125,7 @@ public class HazardMapServerModeApplet extends JApplet implements
   private GridBagLayout gridBagLayout12 = new GridBagLayout();
   private GridBagLayout gridBagLayout13 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -220,6 +221,7 @@ public class HazardMapServerModeApplet extends JApplet implements
     sitePanel.setBackground(Color.white);
     imrPanel.setLayout(gridBagLayout5);
     imrPanel.setBackground(Color.white);
+    timeSpanPanel.setLayout(gridBagLayout4);
     this.getContentPane().add(jPanel1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -533,7 +535,7 @@ public class HazardMapServerModeApplet extends JApplet implements
   erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
   erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-  erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
+  //erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
   erfGuiBean = new ERF_GuiBean(erf_Classes);
   erfPanel.setLayout(gridBagLayout5);
   erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,

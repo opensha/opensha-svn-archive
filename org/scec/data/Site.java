@@ -1,6 +1,7 @@
 package org.scec.data;
 
 import java.util.*;
+import java.io.Serializable;
 import org.scec.param.*;
 import org.scec.util.*;
 
@@ -33,7 +34,7 @@ import org.scec.util.*;
  * @version    1.0
  */
 
-public class Site extends ParameterList implements NamedObjectAPI {
+public class Site extends ParameterList implements NamedObjectAPI,Serializable {
 
     /** Class name - used for debugging */
     protected final static String C = "Site";

@@ -1,5 +1,7 @@
 package org.scec.data;
 
+import java.io.Serializable;
+
 /**
  *  <b>Title:</b> NamedObjectAPI<p>
  *
@@ -12,7 +14,7 @@ package org.scec.data;
  * @version    1.0
  */
 
-public interface NamedObjectAPI {
+public interface NamedObjectAPI extends Serializable {
     /** Returns the name of this object */
     public String getName();
 }
