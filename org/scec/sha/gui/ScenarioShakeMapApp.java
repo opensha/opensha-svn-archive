@@ -505,7 +505,7 @@ public class ScenarioShakeMapApp extends JApplet implements
     double gridSpacing=((Double)sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().getParameter(sitesGuiBean.GRID_SPACING).getValue()).doubleValue();
     mapGuiBean.setGMTRegionParams(minLat,maxLat,minLon,maxLon,gridSpacing);
     calcProgress.setProgressMessage("Running the GMT script to draw the Map");
-    mapGuiBean.makeMap(this.fileNameTextField.getText().trim()+".txt");
+    mapGuiBean.makeMap(this.fileNameTextField.getText().trim()+".txt",this.getMapParametersInfo());
     calcProgress.dispose();
   }
 
@@ -562,5 +562,20 @@ public class ScenarioShakeMapApp extends JApplet implements
       regionsOfInterest = new RegionsOfInterestControlPanel(this, this.sitesGuiBean);
     regionsOfInterest.pack();
     regionsOfInterest.show();
+  }
+
+  /**
+   *
+   * @returns the String containing the values selected for different parameters
+   */
+  public String getMapParametersInfo(){
+    return "IMR Param List: \n" +
+        "\t\t"+this.imrGuiBean.getParameterList().toString()+"\n"+
+        "Site Param List: \n"+
+        "\t\t"+sitesGuiBean.getGriddedRegionParameterListEditor().getParameterList().toString()+"\n"+
+        "IMT Param List: \n"+
+        "\t\t"+imtGuiBean.getParameterList().toString()+"\n"+
+        "Forecast Param List: \n"+
+        "\t\t"+erfGuiBean.getParameterListEditor().getParameterList().toString();
   }
 }

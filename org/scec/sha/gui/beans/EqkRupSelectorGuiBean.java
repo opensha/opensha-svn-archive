@@ -375,4 +375,9 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     setParamsInForecast(sourceIndex,ruptureIndex);
   }
 
+  //returns the parameterListEditor
+  public ParameterListEditor getParameterListEditor(){
+    return listEditor;
+  }
+
 }

@@ -123,12 +123,12 @@ public class MapGuiBean extends ParameterListEditor implements
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeMap(String fileName){
+  public void makeMap(String fileName,String paramsInfo){
 
     String imgName = gmtMap.makeMap(fileName);
     //adding the image to the Panel and returning that to the applet
 
-    ImageViewerWindow imgView = new ImageViewerWindow(imgName);
+    ImageViewerWindow imgView = new ImageViewerWindow(imgName,paramsInfo);
   }
 
   /**
