@@ -40,6 +40,12 @@ public class SimpleFaultParameterEditor extends ParameterEditor
   private JButton button ;
   public SimpleFaultParameterEditor() {}
 
+  //constructor taking the Parameter as the input argument
+  public SimpleFaultParameterEditor(ParameterAPI model){
+  super(model);
+  this.setParameter(model);
+  }
+
   /**
    * Set the values in the Parameters for the EvenlyGridded Surface
    */

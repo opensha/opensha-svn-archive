@@ -163,6 +163,10 @@ public class MagFreqDistParameterEditor extends ParameterEditor
       button.addActionListener(this);
     }
 
+    public MagFreqDistParameterEditor(ParameterAPI model){
+      super(model);
+      this.setParameter(model);
+  }
 
     /**
      *

@@ -33,8 +33,9 @@ import org.scec.param.event.ParameterChangeEvent;
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author : Edward Field
- * @Date : April, 2003
+ * @author : Edward Field, Nitin Gupta & Vipin Gupta
+ * @Date : October 6, 2003
+ * @Modified: October 16,2003 : Added The new parameters
  * @version 1.0
  */
 
@@ -110,6 +111,23 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
   private final static String NUM_REALIZATIONS_PARAM_INFO = "Number of Monte Carlo ERF realizations";
   IntegerParameter numRealizationsParam;
 
+
+  //Static String Declaration
+  private final static String NUMBER_OF_ITERATIONS = "number of Monte Carlo realizations";
+  private final static String NUM_FAULTS = "*** Fault Inputs";
+  private final static String FAULT_READ ="*** Fault ";
+  private final static String PROB_NUM_STRING ="*** Probability Model";
+  private final static String PROB_WTS_STRING ="            weights for probability models";
+
+
+  //static Param Names
+  private final static String POISSON ="poisson";
+  private final static String BPT = "BPT";
+  private final static String BPT_STEP = "BPT w/ STEP";
+  private final static String EMPIRICAL = "empirical interaction";
+  private final static String TIME_PRED = "time pred";
+  private final static String PROB_MODEL_WTS = " Prob. Model Wts";
+
   /**
    *
    * No argument constructor
@@ -136,14 +154,6 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
   private void runFortranCode(){
     //runs the fortran code
      this.initWG02_Code();
-     // add the change listener to parameters so that forecast can be updated
-     // whenever any paramater changes
-     rupOffset_Param.addParameterChangeListener(this);
-     deltaMag_Param.addParameterChangeListener(this);
-     gridSpacing_Param.addParameterChangeListener(this);
-     backSeisParam.addParameterChangeListener(this);
-     grTailParam.addParameterChangeListener(this);
-     numRealizationsParam.addParameterChangeListener(this);
 
      // read the lines of the input files into a list
      try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
@@ -195,10 +205,8 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
   //runs the Fortran code for the WG-02 and generates the Output file that is read by OpenSHA
    private void initWG02_Code(){
 
-     String realizationString ="number of Monte Carlo realizations";
+     String realizationString = NUMBER_OF_ITERATIONS;
 
-     //flag to check if we have to run the WG-02 fortran code
-     boolean runWG02_Code = true;
      int numRealization = ((Integer)adjustableParams.getParameter(NUM_REALIZATIONS_PARAM_NAME).getValue()).intValue();
 
      try {
@@ -206,6 +214,10 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
        BufferedReader  br = new BufferedReader(fr);
        String lineFromInputFile = br.readLine();
        ArrayList fileLines = new ArrayList();
+
+       //number of Faults
+       int numFaults=0;
+       int faultsRead = 0;
        //reading each line of file until the end of file
        while(lineFromInputFile != null){
          //System.out.println("Inside the while loop");
@@ -221,47 +233,79 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
            //setting the numRealization value to what is given in the input file
            adjustableParams.getParameter(NUM_REALIZATIONS_PARAM_NAME).setValue(new Integer(realizationValue));
            System.out.println("RealizationValue: "+realizationValue+";;numRealization: "+numRealization);
-           if(numRealization == realizationValue){
-             runWG02_Code = false;
-             fileLines= null;
-             break;
+           lineFromInputFile = (numRealization+1) +"  "+realizationString;
+         }
+         if(lineFromInputFile.startsWith(this.NUM_FAULTS)){
+           fileLines.add(lineFromInputFile);
+           String NumOfFaults = br.readLine();
+           StringTokenizer st= new StringTokenizer(NumOfFaults);
+           numFaults = Integer.parseInt(st.nextToken());
+         }
+         if(lineFromInputFile.startsWith(this.FAULT_READ+(faultsRead+1))){
+           fileLines.add(lineFromInputFile);
+           ++faultsRead;
+           //reading the fault Name
+           String faultName =br.readLine();
+           fileLines.add(faultName);
+           //reading the file further below till num of prob models for that fault
+           lineFromInputFile =br.readLine();
+           while(!lineFromInputFile.startsWith(this.PROB_NUM_STRING))
+             fileLines.add(lineFromInputFile);
+
+           lineFromInputFile =br.readLine();
+           fileLines.add(lineFromInputFile);
+           StringTokenizer st = new StringTokenizer(lineFromInputFile);
+           //extracting the number fo prob model for that fault from the file
+           int numberOfProbModels =Integer.parseInt(st.nextToken());
+           fileLines.add(br.readLine());
+
+           //reading the line from the file that tells wts for different prob. model foo that fault
+           String probModels = br.readLine();
+           ParameterList paramList =(ParameterList)this.adjustableParams.getParameter(faultName+this.PROB_MODEL_WTS).getValue();
+           double pois = ((Double)paramList.getParameter(this.POISSON).getValue()).doubleValue();
+           double bpt = ((Double)paramList.getParameter(this.BPT).getValue()).doubleValue();
+           double bpt_step = ((Double)paramList.getParameter(this.BPT_STEP).getValue()).doubleValue();
+           double empirical = ((Double)paramList.getParameter(this.EMPIRICAL).getValue()).doubleValue();
+           String probModelWts = pois+" "+bpt+" "+bpt_step+" "+empirical;
+           if(numberOfProbModels ==5){
+             double time_pred = ((Double)paramList.getParameter(this.TIME_PRED).getValue()).doubleValue();
+             probModelWts += " "+time_pred;
            }
-           else
-             lineFromInputFile = (numRealization+1) +"  "+realizationString;
+           probModelWts +=this.PROB_WTS_STRING;
+           fileLines.add(probModelWts);
+           lineFromInputFile =br.readLine();
          }
          fileLines.add(lineFromInputFile);
          lineFromInputFile = br.readLine();
        }
        br.close();
-       System.out.println("Flag: "+runWG02_Code);
+
        //generates the new input file and run the WG-02 fortran code only if
        //number of realizations have changed.
-       if(runWG02_Code){
-         System.out.println("Creating the input files");
-         //overwriting the WG-02 input file with the changes in the file
-         FileWriter fw = new FileWriter(WG02_CODE_PATH+WG02_INPUT_FILE);
-         BufferedWriter bw = new BufferedWriter(fw);
-         ListIterator it= fileLines.listIterator();
-         while(it.hasNext())
-           bw.write((String)it.next()+"\n");
-         bw.close();
+       System.out.println("Creating the input files");
+       //overwriting the WG-02 input file with the changes in the file
+       FileWriter fw = new FileWriter(WG02_CODE_PATH+WG02_INPUT_FILE);
+       BufferedWriter bw = new BufferedWriter(fw);
+       ListIterator it= fileLines.listIterator();
+       while(it.hasNext())
+         bw.write((String)it.next()+"\n");
+       bw.close();
 
-         //Command to be executed for the WG-02
-         String wg02_Command="wg99_main "+WG02_INPUT_FILE;
-         //creating the shell script  file to run the WG-02 code
-         fw= new FileWriter(WG02_CODE_PATH+"wg02.sh");
-         bw=new BufferedWriter(fw);
-         bw.write("cd "+WG02_CODE_PATH+"\n");
-         bw.write(wg02_Command+"\n");
-         bw.close();
-         //command to be executed during the runtime.
-         String[] command ={"sh","-c","sh "+ WG02_CODE_PATH+"wg02.sh"};
-         RunScript.runScript(command);
-         //command[2]="rm "+WG02_CODE_PATH+"*.out*";
-         //RunScript.runScript(command);
-         command[2]="rm "+WG02_CODE_PATH+"wg02.sh";
-         RunScript.runScript(command);
-       }
+       //Command to be executed for the WG-02
+       String wg02_Command="wg99_main "+WG02_INPUT_FILE;
+       //creating the shell script  file to run the WG-02 code
+       fw= new FileWriter(WG02_CODE_PATH+"wg02.sh");
+       bw=new BufferedWriter(fw);
+       bw.write("cd "+WG02_CODE_PATH+"\n");
+       bw.write(wg02_Command+"\n");
+       bw.close();
+       //command to be executed during the runtime.
+       String[] command ={"sh","-c","sh "+ WG02_CODE_PATH+"wg02.sh"};
+       RunScript.runScript(command);
+       //command[2]="rm "+WG02_CODE_PATH+"*.out*";
+       //RunScript.runScript(command);
+       command[2]="rm "+WG02_CODE_PATH+"wg02.sh";
+       RunScript.runScript(command);
      }catch(Exception e){
        e.printStackTrace();
      }
@@ -295,6 +339,15 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
     numRealizationsParam = new IntegerParameter(NUM_REALIZATIONS_PARAM_NAME,DEFAULT_NUM_REALIZATIONS_VAL);
     numRealizationsParam.setInfo(NUM_REALIZATIONS_PARAM_INFO);
 
+    // add the change listener to parameters so that forecast can be updated
+    // whenever any paramater changes
+    rupOffset_Param.addParameterChangeListener(this);
+    deltaMag_Param.addParameterChangeListener(this);
+    gridSpacing_Param.addParameterChangeListener(this);
+    backSeisParam.addParameterChangeListener(this);
+    grTailParam.addParameterChangeListener(this);
+    numRealizationsParam.addParameterChangeListener(this);
+
     // add adjustable parameters to the list
     adjustableParams.addParameter(rupOffset_Param);
     adjustableParams.addParameter(gridSpacing_Param);
@@ -302,7 +355,84 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
     adjustableParams.addParameter(backSeisParam);
     adjustableParams.addParameter(grTailParam);
     adjustableParams.addParameter(numRealizationsParam);
+    createParamsFromFortranCode();
+  }
 
+  /**
+   * This function creates the parameter for the Prob. Model given in the
+   * input file for the fortran.
+   *
+   */
+  private void createParamsFromFortranCode(){
+    System.out.print("Inside the create fiunction to get the params for the fortran code");
+    try{
+      FileReader fr = new FileReader(WG02_CODE_PATH+WG02_INPUT_FILE);
+      BufferedReader  br = new BufferedReader(fr);
+      String lineFromInputFile = br.readLine();
+
+      //number of Faults
+      int numFaults=0;
+      int faultsRead = 0;
+      //reading each line of file until the end of file
+      while(lineFromInputFile != null){
+
+        //reading the String from the file that tells number of faults info.
+        if(lineFromInputFile.startsWith(this.NUM_FAULTS)){
+
+          String NumOfFaults = br.readLine();
+          StringTokenizer st= new StringTokenizer(NumOfFaults);
+          numFaults = Integer.parseInt(st.nextToken());
+        }
+        //reading the probablity model wts for each faults
+        if(lineFromInputFile.startsWith(this.FAULT_READ+(faultsRead+1))){
+          ++faultsRead;
+          //reading the fault Name
+          String faultName =br.readLine();
+          System.out.println("Fault Name:"+faultName);
+          //reading the file further below till num of prob models for that fault
+          while(!br.readLine().startsWith(this.PROB_NUM_STRING));
+          StringTokenizer st = new StringTokenizer(br.readLine());
+          //extracting the number fo prob model for that fault from the file
+          int numberOfProbModels =Integer.parseInt(st.nextToken());
+          br.readLine();
+
+          //reading the line from the file that tells wts for different prob. model foo that fault
+          String probModels = br.readLine();
+          st = new StringTokenizer(probModels);
+          //creating the double parameters for the prob. models based on what we info is given in the file
+          DoubleParameter poisParam = new DoubleParameter(this.POISSON,0,1,
+              new Double(Double.parseDouble(st.nextToken())));
+          DoubleParameter bptParam = new DoubleParameter(this.BPT,0,1,
+              new Double(Double.parseDouble(st.nextToken())));
+          DoubleParameter bptStepParam = new DoubleParameter(this.BPT_STEP,0,1,
+              new Double(Double.parseDouble(st.nextToken())));
+          DoubleParameter empiricalParam = new DoubleParameter(this.EMPIRICAL,0,1,
+              new Double(Double.parseDouble(st.nextToken())));
+          ParameterList paramList = new ParameterList();
+          //adding the parameters to the parameterList
+          paramList.addParameter(poisParam);
+          paramList.addParameter(bptParam);
+          paramList.addParameter(bptStepParam);
+          paramList.addParameter(empiricalParam);
+          //checking if there are 4 or 5 prob. models
+          if(numberOfProbModels ==5){
+            DoubleParameter timeParam = new DoubleParameter(this.TIME_PRED,0,1,
+                new Double(Double.parseDouble(st.nextToken())));
+            paramList.addParameter(timeParam);
+          }
+          //creating the instance of the parameterListParameter with name being the name of the fault
+          //and adding the parameterList to it.
+          ParameterListParameter param =
+              new ParameterListParameter(faultName+this.PROB_MODEL_WTS,paramList);
+          //adding the parameter to the adjustable parameterList
+          this.adjustableParams.addParameter(param);
+        }
+        lineFromInputFile = br.readLine();
+      }
+      br.close();
+    }catch(Exception e){
+      e.printStackTrace();
+    }
   }
 
 

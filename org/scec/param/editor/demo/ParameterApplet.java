@@ -32,6 +32,8 @@ import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeWarningListener;
 import org.scec.sha.param.SimpleFaultParameter;
 import org.scec.sha.param.editor.SimpleFaultParameterEditor;
+import org.scec.param.ParameterListParameter;
+import org.scec.param.editor.ParameterListParameterEditor;
 
 
 
@@ -191,7 +193,18 @@ public class ParameterApplet
         list.addParameter(this.makeEvenlyGriddedsurfaceParameter());
         for ( int i = 3; i < number; i++ )
             list.addParameter( makeStringParameter() );
+        list.addParameter(makeParameterListParameter());
         return list;
+    }
+
+    private ParameterAPI makeParameterListParameter(){
+      DoubleParameter param1 = new DoubleParameter("param1",new Double(.01));
+      DoubleParameter param2 = new DoubleParameter("param2",new Double(.02));
+      ParameterList paramList = new ParameterList();
+      paramList.addParameter(param1);
+      paramList.addParameter(param2);
+      ParameterListParameter param = new ParameterListParameter("New Param",paramList);
+      return param;
     }
 
     /** Makes a parameter example of this type */
