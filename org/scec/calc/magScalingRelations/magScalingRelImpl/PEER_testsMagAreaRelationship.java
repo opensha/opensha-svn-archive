@@ -1,8 +1,7 @@
-package org.scec.calc.magScalingRelations;
+package org.scec.calc.magScalingRelations.magScalingRelImpl;
 
 //double check what's needed
-import org.scec.util.FaultUtils;
-import org.scec.data.*;
+import org.scec.calc.magScalingRelations.*;
 
 /**
  * <b>Title:</b>PEER_testsMagAreaRelationship<br>
@@ -19,7 +18,7 @@ public class PEER_testsMagAreaRelationship extends MagAreaRelationship {
 
     final static String C = "PEER_testsMagAreaRelationship";
 
-    final static String NAME = "PEER Tests Mag-Area Rel.";
+    public final static String NAME = "PEER Tests Mag-Area Rel.";
 
     /**
      * Computes the median magnitude from rupture area

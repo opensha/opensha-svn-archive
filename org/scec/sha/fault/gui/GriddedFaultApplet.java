@@ -1852,8 +1852,9 @@ public class GriddedFaultApplet
         customFaultEditor.setLongitudes(lons);
         customFaultEditor.setDepths(depths);
         customFaultEditor.setDips(dips);
-*/
         customFaultEditor.synchToModel();
+*/
+
         createSimpleFault = false;
       }
       customFault.show();

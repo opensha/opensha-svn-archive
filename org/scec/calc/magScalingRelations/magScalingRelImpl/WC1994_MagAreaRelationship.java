@@ -1,125 +1,125 @@
-package org.scec.calc.magScalingRelations;
+package org.scec.calc.magScalingRelations.magScalingRelImpl;
 
+import org.scec.calc.magScalingRelations.*;
 import org.scec.util.FaultUtils;
 import org.scec.data.*;
 
 /**
- * <b>Title:</b>WC1994_MagLengthRelationship<br>
+ * <b>Title:</b>WC1994_MagAreaRelationship<br>
  *
  * <b>Description:</b>  This implements the Wells and Coppersmith (1994, Bull.
- * Seism. Soc. Am., pages 974-2002) magnitude versus surface-rupture length relationships.  The
+ * Seism. Soc. Am., pages 974-2002) magnitude versus rupture area relationships.  The
  * values are a function of rake.  Setting the rake to Double.NaN causes their "All"
  * rupture-types to be applied (and this is the default value for rake).  Note that the
- * standard deviation for length as a function of mag is given for log(area) (base-10)
- * not length.  <p>
+ * standard deviation for area as a function of mag is given for log(area) (base-10)
+ * not area.  <p>
  *
  * @author Edward H. Field
  * @version 1.0
  */
 
-public class WC1994_MagLengthRelationship extends MagLengthRelationship {
+public class WC1994_MagAreaRelationship extends MagAreaRelationship {
 
-    final static String C = "WC1994_MagLengthRelationship";
-    final static String NAME = "W&C 1994 Mag-Length Rel.";
+    final static String C = "WC1994_MagAreaRelationship";
+    public final static String NAME = "W&C 1994 Mag-Area Rel.";
 
 
     /**
      * no-argument constructor.  All this does is set the rake to Double.NaN
      * (as the default)
      */
-    public WC1994_MagLengthRelationship() {
+    public WC1994_MagAreaRelationship() {
       this.rake = Double.NaN;
     }
 
 
     /**
-     * Computes the median magnitude from rupture length (for the previously set or default rake).
-     * Note that thier "All" case is applied if rake=Double.NaN
-     * @param length in km
+     * Computes the median magnitude from rupture area (for the previously set or default rake).
+     * Note that thier "All" case is applied if rake=Double.NaN.
+     * @param area in km
      * @return median magnitude
      */
-    public double getMedianMag(double length){
-
-      if (Double.isNaN(rake))
+    public double getMedianMag(double area){
+     if (Double.isNaN(rake))
         // apply the "All" case
-        return  5.08 +1.16*Math.log(length)*lnToLog;
+        return  4.07 + 0.98*Math.log(area)*lnToLog;
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
         // strike slip
-        return  5.16 + 1.12*Math.log(length)*lnToLog;
+        return  3.98 + 1.02*Math.log(area)*lnToLog;
       else if (rake > 0)
         // thrust/reverse
-        return  5.0 + 1.22 * Math.log(length)*lnToLog;
+        return  4.33 + 0.90 * Math.log(area)*lnToLog;
       else
         // normal
-        return  4.86 + 1.32*Math.log(length)*lnToLog;
+        return  3.93 + 1.02*Math.log(area)*lnToLog;
     }
 
     /**
-     * Gives the standard deviation for the magnitude as a function of length
+     * Gives the standard deviation for the magnitude as a function of area
      *  (for the previously set or default rake). Note that thier "All" case is applied
      * if rake=Double.NaN
-     * @param length in km
+     * @param area in km
      * @return standard deviation
      */
     public double getMagStdDev(){
       if (Double.isNaN(rake))
         // apply the "All" case
-        return  0.28;
-      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
-        // strike slip
-        return  0.28;
-      else if (rake > 0)
-        // thrust/reverse
-        return  0.28;
-      else
-        // normal
-        return  0.34;
-
-    }
-
-    /**
-     * Computes the median rupture length from magnitude (for the previously set
-     * or default rake). Note that thier "All" case is applied if rake=Double.NaN
-     * @param mag - moment magnitude
-     * @return median length in km
-     */
-    public double getMedianLength(double mag){
-      if  (Double.isNaN(rake))
-          // their "All" case
-          return Math.pow(10.0,-3.22+0.69*mag);
-      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
-          // strike slip
-          return  Math.pow(10.0, -3.55 + 0.74*mag);
-      else if (rake > 0)
-          // thrust/reverse
-          return  Math.pow(10.0, -2.86 + 0.63*mag);
-      else
-          // normal
-          return  Math.pow(10.0, -2.01 + 0.50*mag);
-
-    }
-
-
-    /**
-     * Computes the standard deviation of log(length) (base-10) from magnitude
-     *  (for the previously set or default rake)
-     * @param mag - moment magnitude
-     * @param rake in degrees
-     * @return standard deviation
-     */
-    public double getLengthStdDev() {
-      if (Double.isNaN(rake))
-        // apply the "All" case
-        return  0.22;
+        return  0.24;
       else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
         // strike slip
         return  0.23;
       else if (rake > 0)
         // thrust/reverse
-        return  0.20;
+        return  0.25;
       else
         // normal
-        return  0.21;
+        return  0.25;
+
+    }
+
+    /**
+     * Computes the median rupture area from magnitude (for the previously set
+     * or default rake). Note that thier "All" case is applied if rake=Double.NaN
+     * @param mag - moment magnitude
+     * @return median area in km
+     */
+    public double getMedianArea(double mag){
+      if  (Double.isNaN(rake))
+          // their "All" case
+          return Math.pow(10.0,-3.49+0.91*mag);
+      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+          // strike slip
+          return  Math.pow(10.0, -3.42 + 0.90*mag);
+      else if (rake > 0)
+          // thrust/reverse
+          return  Math.pow(10.0, -3.99 + 0.98*mag);
+      else
+          // normal
+          return  Math.pow(10.0, -2.87 + 0.82*mag);
+
+    }
+
+
+    /**
+     * Computes the standard deviation of log(area) (base-10) from magnitude
+     *  (for the previously set or default rake)
+     * @param mag - moment magnitude
+     * @param rake in degrees
+     * @return standard deviation
+     */
+    public double getAreaStdDev() {
+      if (Double.isNaN(rake))
+        // apply the "All" case
+        return  0.24;
+      else if (( rake <= 45 && rake >= -45 ) || (rake >= 135 && rake <= -135))
+        // strike slip
+        return  0.22;
+      else if (rake > 0)
+        // thrust/reverse
+        return  0.26;
+      else
+        // normal
+        return  0.22;
 
     }
 
@@ -134,12 +134,13 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
       this.rake = rake;
     }
 
+
 /*
     // this was used as a quick test; everything looks good
     public static void main(String args[]) {
-      WC1994_MagLengthRelationship magRel = new WC1994_MagLengthRelationship();
+      WC1994_MagAreaRelationship magRel = new WC1994_MagAreaRelationship();
 
-      System.out.println("Length  SS_Mag  R_Mag  N_Mag  All_Mag");
+      System.out.println("Area  SS_Mag  R_Mag  N_Mag  All_Mag");
       System.out.print("1  ");
       System.out.print(magRel.getMedianMag(1.0, 0.0)+"  ");
       System.out.print(magRel.getMedianMag(1.0, 90.0)+"  ");
@@ -160,24 +161,24 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
 
 
       System.out.println(" ");
-      System.out.println("Mag  SS_Length R_Length  N_Length  All_Length");
+      System.out.println("Mag  SS_Area R_Area  N_Area  All_Area");
       System.out.print("4 ");
-      System.out.print(magRel.getMedianLength(4, 0.0)+"  ");
-      System.out.print(magRel.getMedianLength(4, 90.0)+"  ");
-      System.out.print(magRel.getMedianLength(4, -90.0)+"  ");
-      System.out.print(magRel.getMedianLength(4, Double.NaN)+"\n");
+      System.out.print(magRel.getMedianArea(4, 0.0)+"  ");
+      System.out.print(magRel.getMedianArea(4, 90.0)+"  ");
+      System.out.print(magRel.getMedianArea(4, -90.0)+"  ");
+      System.out.print(magRel.getMedianArea(4, Double.NaN)+"\n");
 
       System.out.print("6  ");
-      System.out.print(magRel.getMedianLength(6, 0.0)+"  ");
-      System.out.print(magRel.getMedianLength(6, 90.0)+"  ");
-      System.out.print(magRel.getMedianLength(6, -90.0)+"  ");
-      System.out.print(magRel.getMedianLength(6, Double.NaN)+"\n");
+      System.out.print(magRel.getMedianArea(6, 0.0)+"  ");
+      System.out.print(magRel.getMedianArea(6, 90.0)+"  ");
+      System.out.print(magRel.getMedianArea(6, -90.0)+"  ");
+      System.out.print(magRel.getMedianArea(6, Double.NaN)+"\n");
 
       System.out.print("8  ");
-      System.out.print(magRel.getMedianLength(8, 0.0)+"  ");
-      System.out.print(magRel.getMedianLength(8, 90.0)+"  ");
-      System.out.print(magRel.getMedianLength(8, -90.0)+"  ");
-      System.out.print(magRel.getMedianLength(8, Double.NaN)+"\n");
+      System.out.print(magRel.getMedianArea(8, 0.0)+"  ");
+      System.out.print(magRel.getMedianArea(8, 90.0)+"  ");
+      System.out.print(magRel.getMedianArea(8, -90.0)+"  ");
+      System.out.print(magRel.getMedianArea(8, Double.NaN)+"\n");
 
       System.out.println(" ");
       System.out.println("Mag_stdDev for  SS_Mag  R_Mag  N_Mag and All_Mag:");
@@ -187,11 +188,14 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
       System.out.print(magRel.getMagStdDev(Double.NaN)+"\n");
 
       System.out.println(" ");
-      System.out.println("Length_stdDev for  SS_Mag  R_Mag  N_Mag and All_Mag:");
-      System.out.print(magRel.getLengthStdDev(0.0)+"  ");
-      System.out.print(magRel.getLengthStdDev(90.0)+"  ");
-      System.out.print(magRel.getLengthStdDev(-90.0)+"  ");
-      System.out.print(magRel.getLengthStdDev(Double.NaN)+"\n");
+      System.out.println("Area_stdDev for  SS_Mag  R_Mag  N_Mag and All_Mag:");
+      System.out.print(magRel.getAreaStdDev(0.0)+"  ");
+      System.out.print(magRel.getAreaStdDev(90.0)+"  ");
+      System.out.print(magRel.getAreaStdDev(-90.0)+"  ");
+      System.out.print(magRel.getAreaStdDev(Double.NaN)+"\n");
+
+
     }
 */
+
 }

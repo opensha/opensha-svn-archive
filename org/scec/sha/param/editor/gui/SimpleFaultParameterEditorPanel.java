@@ -53,7 +53,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   public static final int DEFAULT_NUM_FAULT_TRACE =3;
   public static final int DEFAULT_DIPS =1;
   public static final int latlonCols = 2;
-  public static final double DEFAULT_GRID_SPACING = 2.0;
+  public static final double DEFAULT_GRID_SPACING = 1.0;
 
   // title of Parameter List Editor
   public static final String SIMPLE_FAULT_EDITOR_TITLE = new String("Simple Fault Editor");
@@ -377,6 +377,8 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
       parameterListForDepths.getParameter(DEPTH_PARAM_NAME+(i+1)).setValue(depths.get(i));
 
     faultTypeEditor.getParameter().setValue(faultType);
+
+    synchToModel();
   }
 
 

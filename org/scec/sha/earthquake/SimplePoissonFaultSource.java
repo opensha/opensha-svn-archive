@@ -55,7 +55,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
 
   //for Debug purposes
   private static String  C = new String("SimplePoissonFaultSource");
-  private boolean D = false;
+  private boolean D = true;
 
   //name for this classs
   protected String  NAME = C;
@@ -95,6 +95,18 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
 
       this.timeSpan = timeSpan;
 
+      if (D) {
+        System.out.println(magDist.getName());
+        System.out.println("surface rows, cols: "+faultSurface.getNumCols()+", "+faultSurface.getNumRows());
+        System.out.println(magScalingRel.getName());
+        System.out.println("magScalingSigma: "+magScalingSigma);
+        System.out.println("rupAspectRatio: "+rupAspectRatio);
+        System.out.println("rupOffset: "+rupOffset);
+        System.out.println("rake: "+rake);
+        System.out.println("timeSpan: "+timeSpan);
+        System.out.println("minMag: "+minMag);
+
+      }
       // make a list of a subset of locations on the fault for use in the getMinDistance(site) method
       makeFaultCornerLocs(faultSurface);
 
