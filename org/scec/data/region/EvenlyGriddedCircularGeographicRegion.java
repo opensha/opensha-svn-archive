@@ -6,16 +6,18 @@ import org.scec.data.LocationList;
 import org.scec.data.Location;
 
 /**
- * <p>Title: EvenlyGriddedGeographicRegion</p>
- * <p>Description:   </p>
- * @author : Nitin Gupta & Vipin Gupta
+ * <p>Title: EvenlyGriddedCircularGeographicRegion</p>
+ * <p>Description: </p>
+ * @author : Edward Field
  * @created: March 5,2003
  * @version 1.0
  */
 
-public class EvenlyGriddedGeographicRegion extends GeographicRegion
+public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicRegion
                         implements EvenlyGriddedGeographicRegionAPI {
 
+  private final static String C = "EvenlyGriddedCircularGeographicRegion";
+  private final static boolean D = true;
 
   /**
    * class variables
@@ -25,11 +27,16 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
   private LocationList gridLocsList;
 
   /**
-   * default class constructor
+   * default constructor
+   *
+   * @param centerLoc - the location of the circle center
+   * @param radius - radius of the region (km)
+   * @param gridSpacing - grid spacing (km)
    */
-  public EvenlyGriddedGeographicRegion(LocationList locList,double gridSpacing) {
-    super(locList);
+  public EvenlyGriddedCircularGeographicRegion(Location centerLoc, double radius, double gridSpacing) {
+    super(centerLoc, radius);
     this.gridSpacing=gridSpacing;
+    System.out.println("gridSpacing="+gridSpacing);
 
     //create the LocationList
     this.createGriddedLocationList();
@@ -103,6 +110,9 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
     double niceMinLat = (Math.floor(minLat - Math.floor(minLat))/gridSpacing)*gridSpacing + Math.floor(minLat);
     double niceMinLon  = (Math.floor(minLon - Math.floor(minLon))/gridSpacing)*gridSpacing + Math.floor(minLon);
 
+    if(D) {
+      System.out.println("niceMinLat="+niceMinLat+";  niceMinLon="+niceMinLon);
+    }
     Location tempLoc;
 
     //creates a instance of new locationList
@@ -119,5 +129,16 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
       }
       minLat+=gridSpacing;
     }
+
+    int i;
+    if(D)
+      for(i = 0; i < gridLocsList.size(); i++)
+         System.out.println((float)gridLocsList.getLocationAt(i).getLatitude()+"  "+(float)gridLocsList.getLocationAt(i).getLongitude());
+
   }
+
+  public static void main(String[] args) {
+    EvenlyGriddedCircularGeographicRegion gridReg = new EvenlyGriddedCircularGeographicRegion(new Location(34,-122,0),111,0.02);
+  }
+
 }
