@@ -476,8 +476,17 @@ public class HazardMapViewerApp extends JApplet {
        //sending the IML or Prob Selected value
        toServlet.writeObject(new Double(imlProbGuiBean.getIML_Prob()));
 
-       String metadata = dataSetText.getText()+"\n"+mapGuiBean.getVisibleParameters().getParameterListMetadataString();
-       metadata = metadata + this.imlProbGuiBean.getVisibleParameters().getParameterListMetadataString();
+       // metadata for this map
+       String metadata = dataSetText.getText()+"\nGMT Param List: \n"+
+           "--------------------\n"+
+           mapGuiBean.getVisibleParameters().getParameterListMetadataString();
+       metadata = metadata +"\nMap Type Param List: \n"+
+           "--------------------\n"+
+           this.imlProbGuiBean.getVisibleParameters().getParameterListMetadataString();
+       metadata = metadata +"\nMap Region Param List: \n"+
+           "--------------------\n"+
+           this.sitesEditor.getVisibleParameters().getParameterListMetadataString();
+
        toServlet.writeObject(metadata);
 
        toServlet.flush();
