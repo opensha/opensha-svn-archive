@@ -16,7 +16,7 @@ For OpenSHA:
 
 (ONLY THE FIRST FOUR NEED TO BE DONE BY END OF MAY, UNLESS THE CME GOALS DEPENDENT)
 
-Go through existing apps and polish as necessary.
+Go through existing apps and list issues we'd like to improve.
 
 Get wg99/02 Fortran code compiling on our computers.
 
