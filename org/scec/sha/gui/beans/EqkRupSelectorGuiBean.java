@@ -77,7 +77,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
   //Instance of the JDialog to show all the adjuatble params for the forecast model
   JDialog frame;
-  private JCheckBox hypoCenterCheck = new JCheckBox();
+  private JCheckBox hypoCentreCheck = new JCheckBox();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
@@ -156,6 +156,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    StringParameter hypoCenterLocationParam = new StringParameter(RUPTURE_HYPOLOCATIONS_PARAM_NAME,
        constraints,v.get(0).toString());
    parameterList.addParameter(hypoCenterLocationParam);
+   hypoCenterLocationParam.addParameterChangeListener(this);
 
    if(listEditor!=null) this.remove(listEditor);
    listEditor= new ParameterListEditor(parameterList, searchPaths);
@@ -163,8 +164,10 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    // now make the editor based on the parameter list
    listEditor.setTitle( erfGuiBean.ERF_EDITOR_TITLE );
 
-   if(!this.hypoCenterCheck.isSelected())
+   if(!this.hypoCentreCheck.isSelected()){
+     probEqkRupture.setHypocenterLocation(null);
      listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(false);
+   }
    else{
      listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(true);
      //getting the HypoCenterLocation Object and setting the Rupture HypocenterLocation
@@ -173,6 +176,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      double lon= Double.parseDouble(token.nextElement().toString().trim());
      double depth= Double.parseDouble(token.nextElement().toString().trim());
      loc= new Location(lat,lon,depth);
+     System.out.println("Hypo Center Location:"+ loc.toString());
      probEqkRupture.setHypocenterLocation(loc);
    }
 
@@ -231,6 +235,18 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      // set the new forecast parameters. Also change the number of ruptures in this source
      setParamsInForecast(((Integer)listEditor.getParameterList().getParameter(SOURCE_PARAM_NAME).getValue()).intValue(),Integer.parseInt(value));
    }
+
+
+    //if the Hypo Center location has been set
+   if(name1.equals(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME)){
+     StringTokenizer token = new StringTokenizer(listEditor.getParameterList().getParameter(RUPTURE_HYPOLOCATIONS_PARAM_NAME).getValue().toString());
+     double lat= Double.parseDouble(token.nextElement().toString().trim());
+     double lon= Double.parseDouble(token.nextElement().toString().trim());
+     double depth= Double.parseDouble(token.nextElement().toString().trim());
+     Location loc= new Location(lat,lon,depth);
+     System.out.println("Hypo Center Location:"+ loc.toString());
+     probEqkRupture.setHypocenterLocation(loc);
+   }
  }
 
    private void jbInit() throws Exception {
@@ -244,10 +260,10 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     erfAdjParamButton.setBackground(new Color(200,200,230));
     this.setLayout(gridBagLayout1);
     sourceRupInfoText.setEditable(false);
-    hypoCenterCheck.setText("Set HypocenterLocation");
-    hypoCenterCheck.addActionListener(new java.awt.event.ActionListener() {
+    hypoCentreCheck.setText("Set Hypocentre Location");
+    hypoCentreCheck.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        hypoCenterCheck_actionPerformed(e);
+        hypoCentreCheck_actionPerformed(e);
       }
     });
     this.add(sourceRupInfoScroll,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
@@ -255,7 +271,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     sourceRupInfoScroll.getViewport().add(sourceRupInfoText, null);
     this.add(erfAdjParamButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
-    this.add(hypoCenterCheck,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+    this.add(hypoCentreCheck,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
   }
 
@@ -346,7 +362,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    * If hypocenter Location checkBox action is performed on it
    * @param e
    */
-  void hypoCenterCheck_actionPerformed(ActionEvent e) {
+  void hypoCentreCheck_actionPerformed(ActionEvent e) {
     int sourceIndex = ((Integer)listEditor.getParameterList().getParameter(this.SOURCE_PARAM_NAME).getValue()).intValue();
     int ruptureIndex = ((Integer)listEditor.getParameterList().getParameter(this.RUPTURE_PARAM_NAME).getValue()).intValue();
     setParamsInForecast(sourceIndex,ruptureIndex);
