@@ -20,6 +20,7 @@ public class PEER_testsMagAreaRelationship extends MagAreaRelationship {
 
     public final static String NAME = "PEER Tests Mag-Area Rel.";
 
+
     /**
      * Computes the median magnitude from rupture area
      * @param area in km-squared
@@ -57,6 +58,13 @@ public class PEER_testsMagAreaRelationship extends MagAreaRelationship {
       return 0.25;
     }
 
+    /**
+     * Returns the name of the object
+     *
+     */
+    public String getName() {
+      return NAME;
+    }
 /*
     public static void main(String args[]) {
       PEER_testsMagAreaRelationship magRel = new PEER_testsMagAreaRelationship();

@@ -32,6 +32,13 @@ public class WC1994_MagLengthRelationship extends MagLengthRelationship {
       this.rake = Double.NaN;
     }
 
+    /**
+     * Returns the name of the object
+     *
+     */
+    public String getName() {
+      return NAME;
+    }
 
     /**
      * Computes the median magnitude from rupture length (for the previously set or default rake).

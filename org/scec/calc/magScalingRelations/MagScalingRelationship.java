@@ -19,8 +19,6 @@ public abstract class MagScalingRelationship implements NamedObjectAPI  {
 
     final static String C = "MagScalingRelationship";
 
-    protected String NAME;
-
     protected final static double lnToLog = 0.434294;
 
 
@@ -97,7 +95,6 @@ public abstract class MagScalingRelationship implements NamedObjectAPI  {
      * Returns the name of the object
      *
      */
-    public String getName() {
-      return NAME;
-    }
+    public abstract String getName() ;
+
 }

@@ -135,6 +135,14 @@ public class WC1994_MagAreaRelationship extends MagAreaRelationship {
     }
 
 
+    /**
+     * Returns the name of the object
+     *
+     */
+    public String getName() {
+      return NAME;
+    }
+
 /*
     // this was used as a quick test; everything looks good
     public static void main(String args[]) {

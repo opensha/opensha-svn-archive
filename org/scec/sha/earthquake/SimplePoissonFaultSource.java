@@ -63,7 +63,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
   // private fields
   private int totNumRups;
   private Vector ruptureList;
-  private Vector faultCornerLocations;   // used for the getMinDistance(Site) method
+  private Vector faultCornerLocations = new Vector();   // used for the getMinDistance(Site) method
   private double timeSpan;
 
   /* Note that none of the input objects are saved after the ruptureList is created
