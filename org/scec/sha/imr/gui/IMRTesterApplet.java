@@ -228,7 +228,7 @@ public class IMRTesterApplet extends JApplet
     JPanel titlePanel = new JPanel();
     JPanel plotPanel = new JPanel();
     JPanel innerPlotPanel = new JPanel();
-    JLabel titleLabel = new JLabel();
+    //JLabel titleLabel = new JLabel();
     JPanel controlPanel = new JPanel();
     JButton clearButton = new JButton();
     JButton addButton = new JButton();
@@ -249,8 +249,8 @@ public class IMRTesterApplet extends JApplet
     //variables for the legend Panel, for our customise legend
     private JTextPane legendPane= new JTextPane();
     private JScrollPane legendScrollPane=new JScrollPane();
-    private JPanel legendPanel =new JPanel();
     private SimpleAttributeSet setLegend;
+
 
     /*setting the colors for the different plots so that legends
      *can be shown with the same color
@@ -282,6 +282,7 @@ public class IMRTesterApplet extends JApplet
     DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
     private JLabel jAxisScale = new JLabel();
 
+    private Vector imrsSelected=new Vector();
     /**
      * for Y-log, 0 values will be converted to this small value
      */
@@ -470,9 +471,9 @@ public class IMRTesterApplet extends JApplet
         titlePanel.setBorder( bottomBorder );
         titlePanel.setLayout( GBL );
 
-        titleLabel.setHorizontalAlignment( SwingConstants.CENTER );
+        //titleLabel.setHorizontalAlignment( SwingConstants.CENTER );
         //titleLabel.setText(this.getAppletInfo());
-        titleLabel.setFont( new java.awt.Font( "Dialog", 1, 16 ) );
+        //titleLabel.setFont( new java.awt.Font( "Dialog", 1, 16 ) );
 
         plotPanel.setBackground( background );
         // plotPanel.setBorder(oval);
@@ -604,7 +605,7 @@ public class IMRTesterApplet extends JApplet
 
         dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
 
-        titleLabel.setForeground( darkBlue );
+        //titleLabel.setForeground( darkBlue );
 
         imrLabel.setForeground( darkBlue );
         imrLabel.setText( "Choose IMR: " );
@@ -658,8 +659,8 @@ public class IMRTesterApplet extends JApplet
         outerPanel.add( mainPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
 
-        titlePanel.add( titleLabel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
+        /* titlePanel.add( imrComboBox, new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );*/
 
         mainPanel.add( mainSplitPane, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 2, 4, 4, 4 ), 0, 0 ) );
@@ -677,8 +678,12 @@ public class IMRTesterApplet extends JApplet
         parametersPanel.add( parametersSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
-        plotPanel.add( titlePanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 2, 4 ), 0, 0 ) );
+        /*plotPanel.add( titlePanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
+                ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 2, 4 ), 0, 0 ) );*/
+
+        //panel for the legend
+        innerPlotPanel.add(titlePanel, new GridBagConstraints( 0,0, 1, 1, 1.0, 1.0
+                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
         plotPanel.add( innerPlotPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ) );
@@ -717,7 +722,7 @@ public class IMRTesterApplet extends JApplet
         parametersSplitPane.setOneTouchExpandable( false );
 
         mainSplitPane.setBottomComponent( outerControlPanel );
-        mainSplitPane.setTopComponent( plotPanel );
+        mainSplitPane.setTopComponent(plotPanel );
 
         //mainSplitPane.setDividerLocation( 430 );
         mainSplitPane.setDividerLocation(580 );
@@ -800,7 +805,7 @@ public class IMRTesterApplet extends JApplet
         applet.start();
         applet.setFrame( frame );
 
-        frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentIMRName() + ']' );
+       // frame.setTitle( applet.getAppletInfo() + ":  [" + applet.getCurrentIMRName() + ']' );
 
         frame.setSize( W, H );
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -832,14 +837,14 @@ public class IMRTesterApplet extends JApplet
         // Clear the current traces
         clearPlot( true );
 
-        if ( titleLabel != null ) {
+        /*if ( titleLabel != null ) {
             titleLabel.setText( currentIMRName );
             titleLabel.validate();
             titleLabel.repaint();
-        }
+        }*/
 
-        if ( frame != null )
-            frame.setTitle( this.getAppletInfo() + ": " + currentIMRName );
+       /* if ( frame != null )
+            frame.setTitle( this.getAppletInfo() + ": " + currentIMRName );*/
 
         imr = imrs.setImr( currentIMRName, this );
 
@@ -908,25 +913,26 @@ public class IMRTesterApplet extends JApplet
         String yAxisLabel = imr.getGraphIMYAxisLabel();
         String title = this.getCurrentIMRName();
 
-
+        //create the standard ticks so that smaller values too can plotted on the chart
+        TickUnits units = MyTickUnits.createStandardTickUnits();
 
         if (xLog) xAxis = new com.jrefinery.chart.HorizontalLogarithmicAxis( xAxisLabel );
-        else xAxis = new SHAHorizontalNumberAxis( xAxisLabel );
+        else xAxis = new HorizontalNumberAxis( xAxisLabel );
 
         xAxis.setAutoRangeIncludesZero( false );
         xAxis.setCrosshairLockedOnData( false );
         xAxis.setCrosshairVisible(false);
-
+        xAxis.setStandardTickUnits(units);
 
 
         if (yLog) yAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(yAxisLabel);
-        else yAxis = new SHAVerticalNumberAxis( yAxisLabel );
+        else yAxis = new VerticalNumberAxis( yAxisLabel );
 
-        yAxis.setAutoRangeMinimumSize(new Integer(0));
+
         yAxis.setAutoRangeIncludesZero( false );
         yAxis.setCrosshairLockedOnData( false );
         yAxis.setCrosshairVisible( false);
-
+        yAxis.setStandardTickUnits(units);
 
         int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
 
@@ -945,7 +951,7 @@ public class IMRTesterApplet extends JApplet
         org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this,data, xAxis, yAxis, xLog, yLog);
 
 
-
+        plot.setSeriesPaint(legendPaint);
         plot.setBackgroundAlpha( .8f );
         if( isWhite ) plot.setBackgroundPaint( Color.white );
         else plot.setBackgroundPaint( Color.black );
@@ -954,7 +960,7 @@ public class IMRTesterApplet extends JApplet
         plot.setXYItemRenderer( renderer );
 
 
-        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
+        JFreeChart chart = new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
         chart.setBackgroundPaint( lightBlue );
 
         // set the font of legend
@@ -971,7 +977,8 @@ public class IMRTesterApplet extends JApplet
           for(int i=0,j=0;i<numOfColors;++i,++j){
             if(j==legendColor.length)
               j=0;
-            legend = new String(i+1+"."+this.functions.get(i).getName()+"::"+this.functions.get(i).getInfo()+"\n\n");
+
+            legend = new String(i+1+"::"+imrsSelected.get(i)+";"+this.functions.get(i).getInfo()+"\n");
             setLegend =new SimpleAttributeSet();
             StyleConstants.setFontSize(setLegend,12);
             StyleConstants.setForeground(setLegend,legendColor[j]);
@@ -1031,19 +1038,22 @@ public class IMRTesterApplet extends JApplet
         panel = null;
 
         pointsTextArea.setText( NO_PLOT_MSG );
-        if( clearFunctions) functions.clear();
-
+        if( clearFunctions)
+          {
+          functions.clear();
+          imrsSelected.clear();
+          }
 
         if ( !titlePanel.isVisible() ) {
             titlePanel.setVisible( true );
             //newLoc = loc - titleSize;
         }
 
-        if ( titleLabel != null ) {
+       /* if ( titleLabel != null ) {
             titleLabel.setText( currentIMRName );
             titleLabel.validate();
             titleLabel.repaint();
-        }
+        }*/
 
 
         validate();
@@ -1110,15 +1120,12 @@ public class IMRTesterApplet extends JApplet
                 }
 
                 // panel added here
-                innerPlotPanel.add( panel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                innerPlotPanel.add( panel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
                 //panel for the legend
-                  innerPlotPanel.add(legendScrollPane, new GridBagConstraints( 0,1, 1, 1, 1.0, 1.0
+                  innerPlotPanel.add(legendScrollPane, new GridBagConstraints( 1,0, 1, 1, 1.0, 1.0
                         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-
-
-
             }
             else {
                 if ( D )
@@ -1353,6 +1360,9 @@ public class IMRTesterApplet extends JApplet
         }
 
         DiscretizedFuncAPI function = imr.getChoosenFunction();
+        function.setInfo(currentIMRName+" "+function.getInfo());
+
+
         if ( D ) System.out.println( S + "New Function info = " + function.getInfo() );
 
         if( D && functions != null ){
@@ -1380,6 +1390,7 @@ public class IMRTesterApplet extends JApplet
 
         if( newGraph ){
             functions.clear();
+            imrsSelected.clear();
             functions.setYAxisName( imr.getGraphIMYAxisLabel() );
             functions.setXAxisName( imr.getGraphXAxisLabel() );
         }
@@ -1388,11 +1399,13 @@ public class IMRTesterApplet extends JApplet
         /** @todo may have to be switched when different x/y axis choosen */
         if ( !functions.isFuncAllowed( function ) ) {
             functions.clear();
+            imrsSelected.clear();
             //data.prepForXLog();
         }
         if( !functions.contains( function ) ){
             if ( D ) System.out.println( S + "AddjIMRListing new function" );
             functions.add(function);
+            imrsSelected.add(this.currentIMRName);
             //data.prepForXLog();
         }
         else {
@@ -1422,12 +1435,12 @@ public class IMRTesterApplet extends JApplet
 
         addGraphPanel();
 
-        if ( titleLabel != null ) {
+      /*  if ( titleLabel != null ) {
             // titleLabel.setText( currentIMRName + ": " + imr.getGraphXYAxisTitle() );
             titleLabel.setText( currentIMRName );
             titleLabel.validate();
             titleLabel.repaint();
-        }
+        }*/
 
         if ( D ) System.out.println( S + "Ending" );
 

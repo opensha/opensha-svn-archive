@@ -468,7 +468,6 @@ public class IMRGuiBean
         // Clone the parameter list used to calculate this Discretized Function
         ParameterList clones = independentsEditor.getVisibleParametersCloned();
 
-
         /**
          * @todo FIX - Legend IMR translation done here.
          * may be poor design, what if IMR types change to another type in future.
