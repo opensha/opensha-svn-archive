@@ -20,7 +20,7 @@ HazardCurveApplet:
 	"Set X values for Hazard Curve Calc." control panel doesn't seem to work
 	(and lacks "Done" button)
 
-	"Set Site Params from CVM" control panel doesn't work for bay area.
+	"Set Site Params from CVM" control panel doesn't work for old SF lat and lon.
 
 Deploy SimplePoissonFaultERF in servlet mode and remove the servlet mode PEER_FaultForecast (update the ERF servlet-mode GUIbean accordingly).
 
@@ -47,38 +47,13 @@ JFreeChart:  add method to allow our style of log-plot labeling (remove booleans
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out.
 
-Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.
+Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.  ned should look at.
 
 Generalize ERF servlets so that one object can be used for any arbitrary ERF (or ERF epistemic list).  Ned will check this out.
 
 Finish STEP map making capability according to feedback from Matt and Lucy (and solve the Vs30 on water issue).
 
 SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
-
-Develop HazardSpectrumApplet for Caltrans.  This is like the hazard curve calculator except:
-
-	X axis will be SA period.  We won't need the X_ValuesInCurveControlPanel here because 
-	the X-axis values will be exactly whatever the chosen IMR supports.
-
-	Remove the IMT_GuiBean because only SA will be supported 
-	(one can plot a spectrum only for SA).
-
-	add the IMLorProbSelectorGuiBean (so the user can specify the Y-axis).  If the
-	user has chosen "prob@IML", the hazard curve will only need one X-axis value
-	(the chosen IML).  If the user has chosen IML@prob, then we will need to interpolate
-	a full hazard curve to find the IML (we'll need a wide-enough range of x-axis IMLs
-	to find the one for the chosen IML; this might be tricky)
-
-	at the bottom of the app, make a two-item pick list where the user can 
-	choose "Probabilistic" or "Deterministic".  When "Probabilistic" is chosen,
-	show the ERF_GuiBean, and do the full hazard calculation 
-	(using the HazardCurveCalculator) for each SA-period on the X axis. 
-	If "Deterministic" is chosen, show the EqkRupSelectorGuiBean and only do the
-	hazard calculation for the single rupture (using the IMR directly, which 
-	basically assumes the rupture has occurred (prob=1), which is the definition
-	of "Deterministic" hazard).  
-
-	Remove the "Dissagregation" control panel (this will need special treatment here).
 
 Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.
 
@@ -126,12 +101,6 @@ ProbEqkSource	Define field to declare what type of source it is
 
 ERF		-extend API to include getting max and min magnitude, and the various types of 
 		sources generated (to check for compatibility with each chosen IMR)
-
-Think about optimizing calculations in terms of not redoing anything that doesn't 
-need to be redone (e.g., don't recompute ERF-list hazard curves if user only wants
-to plot a different fractile).  This should be resolved with consideration to the
-full range of user experiences.
-
 
 ScenarioShakeMapApp
 
