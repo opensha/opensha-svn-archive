@@ -37,7 +37,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
   private String EQK_RUP_XYZ_FILE_NAME = "eqkRup_data.txt";
   XYZ_DataSetAPI eqkRup_xyzDataSet;
 
-  private String HAZUS_FILE_PREFIX = "map_hazus";
+  private String DEFAULT_HAZUS_FILE_PREFIX = "map_hazus";
+  private String HAZUS_FILE_PREFIX = DEFAULT_HAZUS_FILE_PREFIX;
 
   private EqkRupture eqkRup;
 
@@ -86,6 +87,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       METADATA_FILE_NAME = prefix+"_"+DEFAULT_METADATA_FILE_NAME;
       PS_FILE_NAME = prefix+"_"+DEFAULT_PS_FILE_NAME;
       JPG_FILE_NAME = prefix+"_"+DEFAULT_JPG_FILE_NAME;
+      HAZUS_FILE_PREFIX = prefix+"_"+DEFAULT_HAZUS_FILE_PREFIX;
     }
     else {
       GMT_SCRIPT_NAME = DEFAULT_GMT_SCRIPT_NAME;
@@ -93,6 +95,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       METADATA_FILE_NAME = DEFAULT_METADATA_FILE_NAME;
       PS_FILE_NAME = DEFAULT_PS_FILE_NAME;
       JPG_FILE_NAME = DEFAULT_JPG_FILE_NAME;
+      HAZUS_FILE_PREFIX = DEFAULT_HAZUS_FILE_PREFIX;
     }
   }
 
