@@ -31,16 +31,17 @@ public class GMT_MapGenerator implements Serializable{
   protected final static boolean D = true;
 
   // name of the file which contains all the GMT commands that we want to run on server
-  private String GMT_FILE_NAME = "gmtScript.txt";
+  private String GMT_SCRIPT_NAME = "gmtScript.txt";
+  private String DEFAULT_XYZ_FILE_NAME = "xyz_data.txt";
+  private String XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
+  private String PS_FILE_NAME = "map.ps";
+  private String JPG_FILE_NAME = "map.jpg";
+  private String GMT_PATH;
 
-  private String XYZ_FILE_NAME ="map.txt";
-
-  // PATH where the gmt commands and some others exist.
-  public static String gmtPath = null;
+  XYZ_DataSetAPI xyzDataSet;
 
   // this is the path where general data (e.g., topography) are found:
   private static String SCEC_GMT_DATA_PATH = "/usr/scec/data/gmt/";
-
 
   // this is the path to find the "cat" command
   private static String COMMAND_PATH = "/bin/";
@@ -64,11 +65,6 @@ public class GMT_MapGenerator implements Serializable{
   DoubleParameter minLonParam;
   DoubleParameter maxLonParam;
   DoubleParameter gridSpacingParam;
-
-  //output Image file Name
-  private String out_jpg= new String();
-  private String out_ps;
-
 
   public final static String CPT_FILE_PARAM_NAME = "Color Scheme";
   private final static String CPT_FILE_PARAM_DEFAULT = "MaxSpectrum.cpt";
@@ -127,15 +123,16 @@ public class GMT_MapGenerator implements Serializable{
   public final static String SHOW_HIWYS_NONE = "None";
   StringParameter showHiwysParam;
 
-  //image counter
-  private static int imageCounter=0;
-
   private String gmtFileName;
 
   protected ParameterList adjustableParams;
 
   //GMT files web address(if the person is using the gmt webService)
   String imgWebAddr=null;
+
+  FileWriter fw =null;
+  BufferedWriter br=null;
+
 
 
   public GMT_MapGenerator() {
@@ -222,291 +219,108 @@ public class GMT_MapGenerator implements Serializable{
 
 
   /**
-   * this function generates GMT map
-   * It is a wrapper function around GMT tool
-   * It acccepts the xyz dataset
+   * this function generates a GMT map from an XYZ data set using the current
+   * parameter settings, and using the version of GMT on the local computer.
+   *
+   * This returns the name of the jpg file
    */
-  public String makeMap(XYZ_DataSetAPI xyzDataSet){
-    String GMT_PATH="/sw/bin/";
-    Vector xVals = xyzDataSet.getX_DataSet();
-    Vector yVals = xyzDataSet.getY_DataSet();
-    Vector zVals = xyzDataSet.getZ_DataSet();
+  public String makeMapLocally(XYZ_DataSetAPI xyzDataSet){
 
-    FileWriter fw =null;
-    BufferedWriter br=null;
+    // where to find GMT on the local computer
+    // THIS SHOULD BE DETERMINED DYNAMICALLY (e.g., w/ "which psxy" command?)
+    GMT_PATH="/sw/bin/";
 
-    //creating the XYZ file from the XYZ dataSet
-    try{
-      //file follows the convention lat, lon and Z value
-      if(xyzDataSet.checkXYZ_NumVals()){
-        int size = xVals.size();
-        fw = new FileWriter(this.XYZ_FILE_NAME);
-        br = new BufferedWriter(fw);
-        for(int i=0;i<size;++i)
-          br.write(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
-        br.close();
-      }
-      else
-        throw new RuntimeException("X, Y and Z dataset does not have equal size");
-    }catch(Exception e){
-      e.printStackTrace();
-    }
+    this.xyzDataSet = xyzDataSet;
 
-    //writing the GMT script into the GMT Script file
-    try {
-      gmtFileName=GMT_FILE_NAME.substring(0,GMT_FILE_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
-      fw = new FileWriter(gmtFileName);
-      br = new BufferedWriter(fw);
-      String fileName=this.XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
-      out_ps = fileName + ".ps";
-      out_jpg = fileName+"-"+imageCounter+ ".jpg";
+    // make the local XYZ data file
+    makeXYZ_File();
 
-      this.makeMapScript(GMT_PATH,br,xyzDataSet);
-      String gmtCommandLine = GMT_PATH+"convert " + out_ps + " " + out_jpg;
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-      br.close();
-    }catch(RuntimeException ee){
-      throw new RuntimeException(ee.getMessage());
-    }catch (Exception e) {
-      // report to the user whether the operation was successful or not
-      e.printStackTrace();
-    }
+    // get the GMT script lines
+    Vector gmtLines = getGMT_ScriptLines();
 
-    //running the GMT script from the file
+    // add a command line to convert the ps file to a jpg file
+    gmtLines.add(GMT_PATH+"convert " + PS_FILE_NAME + " " + JPG_FILE_NAME+"\n");
+
+    // Add time stamp to script name and make the script
+    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+    makeFileFromLines(gmtLines,gmtFileName);
+
+    // now run the GMT script file
     String[] command ={"sh","-c","sh "+gmtFileName};
     RunScript.runScript(command);
-    ++imageCounter;
-    return out_jpg;
+
+    return JPG_FILE_NAME;
   }
 
 
 
   /**
-   * this function generates GMT map using the GMT from the SCEC server
-   * It is a wrapper function around GMT tool
-   * It acccepts the xyz dataset
+   * This generates GMT map for the given XYZ dataset and for the current parameter setting,
+   * using the GMT Servlet on the SCEC server (the map is made on the SCEC server).
+   *
+   * This returns the full web address to the resulting jpg file.
    */
   public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet){
 
-    String GMT_PATH="/opt/install/gmt/bin/";
-    FileWriter fw = null;
-    BufferedWriter br =null;
-    Vector xVals = xyzDataSet.getX_DataSet();
-    Vector yVals = xyzDataSet.getY_DataSet();
-    Vector zVals = xyzDataSet.getZ_DataSet();
+    // Where to find the GMT code on the SCEC server
+    // THIS SHOULD BE SET DYNAMICALLY
+    GMT_PATH="/opt/install/gmt/bin/";
 
+    this.xyzDataSet = xyzDataSet;
+
+    // check the xyz data set
     if(!xyzDataSet.checkXYZ_NumVals())
       throw new RuntimeException("X, Y and Z dataset does not have equal size");
 
-    //writing the GMT commands to the file
-    try{
-      gmtFileName = GMT_FILE_NAME.substring(0,GMT_FILE_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
-      fw = new FileWriter(gmtFileName);
-      br = new BufferedWriter(fw);
-      String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
-      out_ps = fileName + ".ps";
-      out_jpg = fileName+ ".jpg";
+    // get the GMT script lines
+    Vector gmtLines = getGMT_ScriptLines();
 
-      makeMapScript(GMT_PATH,br,xyzDataSet);
-      String gmtCommandLine=COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-      br.close();
-    } catch (Exception e) {
-      // report to the user whether the operation was successful or not
-      e.printStackTrace();
-    }
+    // add a command line to convert the ps file to a jpg file
+    gmtLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | gs -sDEVICE=jpeg -sOutputFile=" + JPG_FILE_NAME + " -"+"\n");
 
-    imgWebAddr = this.openServletConnection(xyzDataSet,gmtFileName);
+    imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines);
 
-    return imgWebAddr+out_jpg;
+    return imgWebAddr+JPG_FILE_NAME;
   }
 
 
   /**
-   * this function generates GMT map using the GMT from the gravity server
-   * It is a wrapper function around GMT tool
-   * It acccepts the xyz dataset
+   * This generates GMT map for the given XYZ dataset and for the current parameter setting,
+   * using the GMT Web Service on the SCEC server (the map is made on the SCEC server).
+   *
+   * This returns the full web address to the resulting jpg file.
    */
   public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet){
 
-    String GMT_PATH="/opt/install/gmt/bin/";
-    FileWriter fw = null;
-    BufferedWriter br =null;
-    Vector xVals = xyzDataSet.getX_DataSet();
-    Vector yVals = xyzDataSet.getY_DataSet();
-    Vector zVals = xyzDataSet.getZ_DataSet();
+    // where to find GMT on the SCEC server
+    // THIS SHOULD BE SET DYNAMICALLY
+    GMT_PATH="/opt/install/gmt/bin/";
 
-    //creating the XYZ file from the XYZ dataSet
-    try{
-      //file follows the convention lat, lon and Z value
-      if(xyzDataSet.checkXYZ_NumVals()){
-        int size = xVals.size();
-        fw = new FileWriter(XYZ_FILE_NAME);
-        br = new BufferedWriter(fw);
-        for(int i=0;i<size;++i)
-          br.write(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
-        br.close();
-      }
-      else
-        throw new RuntimeException("X, Y and Z dataset does not have equal size");
-    }catch(Exception e){
-      e.printStackTrace();
-    }
+    this.xyzDataSet = xyzDataSet;
 
-    //writing the GMT commands to the file
-    try{
-      gmtFileName = GMT_FILE_NAME.substring(0,GMT_FILE_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
-      fw = new FileWriter(gmtFileName);
-      br = new BufferedWriter(fw);
-      String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
-      out_ps = fileName + ".ps";
-      out_jpg = fileName + ".jpg";
+    // make the local XYZ data file
+    makeXYZ_File();
 
-      makeMapScript(GMT_PATH,br,xyzDataSet);
-      String gmtCommandLine=COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-      br.close();
-    } catch (Exception e) {
-      // report to the user whether the operation was successful or not
-      e.printStackTrace();
-    }
-    //putting files in String array which are to be sent to the server as the attachment
+    // get the GMT script lines
+    Vector gmtLines = getGMT_ScriptLines();
+
+    // add a command line to convert the ps file to a jpg file
+    gmtLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | gs -sDEVICE=jpeg -sOutputFile=" + JPG_FILE_NAME + " -"+"\n");
+
+    // Add time stamp to script name and make the script
+    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+    makeFileFromLines(gmtLines,gmtFileName);
+
+    //put files in String array which are to be sent to the server as the attachment
     String[] fileNames = new String[2];
     //getting the GMT script file name
     fileNames[0] = gmtFileName;
     //getting the XYZ file Name
     fileNames[1] = XYZ_FILE_NAME;
-    this.openWebServiceConnection(fileNames);
-    return this.imgWebAddr+out_jpg;
+    openWebServiceConnection(fileNames);
+    return imgWebAddr+JPG_FILE_NAME;
   }
 
-  /**
-   * This function serves as a common interface for the running GMT on standalone or
-   * on the SCEC server.
-   * @param GMT_PATH
-   * @param xyzFileName
-   * @param command= command to run on the command-prompt
-   */
-  private void makeMapScript(String GMT_PATH,BufferedWriter br,
-                            XYZ_DataSetAPI xyzData) throws Exception{
-
-    double minLat = ((Double) minLatParam.getValue()).doubleValue();
-    double maxTempLat = ((Double) maxLatParam.getValue()).doubleValue();
-    double minLon = ((Double) minLonParam.getValue()).doubleValue();
-    double maxTempLon = ((Double) maxLonParam.getValue()).doubleValue();
-    double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
-
-    // adjust the max lat and lon to be an exact increment (needed for xyz2grd)
-
-    double maxLat = Math.rint(((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
-    double maxLon = Math.rint(((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
-
-    this.gmtPath= GMT_PATH;
-    String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
-
-    String gmtCommandLine =null;
-    if(D) System.out.println(C+" region = "+region);
-    //all the files of the GMT will be created by this fileName
-    String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.lastIndexOf("."));
-    String grdFileName  = fileName+".grd";
-    String cptFile = SCEC_GMT_DATA_PATH + (String) cptFileParam.getValue();
-
-    String colorScaleMode = (String) colorScaleModeParam.getValue();
-    String coast = (String) coastParam.getValue();
-
-    // Set resolution according to the topoInten file chosen (options are 3, 6, 18, or 30):
-    String resolution = (String) topoResolutionParam.getValue();
-    String topoIntenFile = SCEC_GMT_DATA_PATH + "calTopoInten" + resolution+".grd";
-
-    // Set highways String
-    String showHiwys = (String) showHiwysParam.getValue();
-
-    // plot size parameter
-    double plotWdth = 6.5;
-    String projWdth = "-JM"+plotWdth+"i";
-    double plotHght = ((maxLat-minLat)/(maxLon-minLon))*plotWdth/Math.cos(Math.PI*(maxLat+minLat)/(2*180));
-
-    double yOffset = 11 - plotHght - 0.5;
-    String yOff = "-Y" + yOffset + "i";
-
-    //command to be executed during the runtime.
-    gmtCommandLine =GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
-    //RunScript.runScript(command);
-    br.write(gmtCommandLine+"\n");
-
-    //gmtCommandLine = GMT_PATH + "grdcut " + grdFileName +" -Gtemp"+grdFileName +" " + region;
-    //RunScript.runScript(command);
-
-    double colorScaleMin, colorScaleMax;
-    if( colorScaleMode.equals(COLOR_SCALE_MODE_MANUALLY) ) {
-      colorScaleMin = ((Double) this.colorScaleMinParam.getValue()).doubleValue();
-      colorScaleMax = ((Double) this.colorScaleMaxParam.getValue()).doubleValue();
-    }
-    else {
-      colorScaleMin = xyzData.getMinZ();
-      colorScaleMax = xyzData.getMaxZ();
-    }
-
-    float inc = (float) ((colorScaleMax-colorScaleMin)/20);
-    gmtCommandLine=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
-    //RunScript.runScript(command);
-    br.write(gmtCommandLine+"\n");
-    gmtCommandLine = GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait";
-    //RunScript.runScript(command);
-    br.write(gmtCommandLine+"\n");
-    if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-      gmtCommandLine=GMT_PATH+"grdimage "+grdFileName+" -X0.75i " + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-    }
-    else {
-      gmtCommandLine=GMT_PATH+"grdsample "+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q";
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-      gmtCommandLine=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-      gmtCommandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd -X0.75i " + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + out_ps;
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-    }
-
-    if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
-      gmtCommandLine=GMT_PATH+"psxy  "+region+" " + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + out_ps;
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-    }
-
-    if(coast.equals(COAST_FILL)) {
-      gmtCommandLine=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + out_ps;
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-    }
-    else if(coast.equals(COAST_DRAW)) {
-      gmtCommandLine=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + out_ps;
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-    }
-
-    gmtCommandLine=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 5 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
-    //RunScript.runScript(command);
-    br.write(gmtCommandLine+"\n");
-
-    DecimalFormat df2 = new DecimalFormat("0.E0");
-    Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
-    inc = tickInc.floatValue();
-    String tempLabel = "IML";
-    gmtCommandLine=GMT_PATH+"psscale -Ba"+inc+":"+tempLabel+": -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
-    //RunScript.runScript(command);
-    br.write(gmtCommandLine+"\n");
-
-    gmtCommandLine=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/50 -O >> " + out_ps;
-    //RunScript.runScript(command);
-    br.write(gmtCommandLine+"\n");
-  }
 
 
   /**
@@ -530,8 +344,40 @@ public class GMT_MapGenerator implements Serializable{
    * @returns the image file name
    */
   public String getImageFileName(){
-    return this.out_jpg;
+    return this.JPG_FILE_NAME;
   }
+
+  // make the local XYZ file
+  private void makeXYZ_File() {
+    Vector lines = new Vector();
+    Vector xVals = xyzDataSet.getX_DataSet();
+    Vector yVals = xyzDataSet.getY_DataSet();
+    Vector zVals = xyzDataSet.getZ_DataSet();
+
+    if(xyzDataSet.checkXYZ_NumVals()){
+      int size = xVals.size();
+      for(int i=0;i<size;++i)
+        lines.add(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
+    }
+    else
+      throw new RuntimeException("X, Y and Z dataset does not have equal size");
+
+    makeFileFromLines(lines, XYZ_FILE_NAME);
+  }
+
+  // make a local file from a vector of strings
+  private void makeFileFromLines(Vector lines, String fileName) {
+    try{
+        fw = new FileWriter(fileName);
+        br = new BufferedWriter(fw);
+        for(int i=0;i<lines.size();++i)
+          br.write((String) lines.get(i));
+        br.close();
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+  }
+
 
   //For the webservices Implementation
   private void openWebServiceConnection(String[] fileName){
@@ -558,24 +404,14 @@ public class GMT_MapGenerator implements Serializable{
   }
 
 
+
   /**
    * sets up the connection with the servlet on the server (gravity.usc.edu)
    */
-  private String openServletConnection(XYZ_DataSetAPI xyzDataVals, String gmtFile) {
+  private String openServletConnection(XYZ_DataSetAPI xyzDataVals, Vector gmtFileLines) {
 
     String webaddr=null;
     try{
-
-      //reading the GMT Script file line by line and adding the script to the Vector
-      FileReader fr = new FileReader(gmtFile);
-      BufferedReader br = new BufferedReader(fr);
-      Vector gmtFileLines = new Vector();
-      String gmtLine = br.readLine();
-      while(gmtLine!=null){
-        gmtFileLines.add(gmtLine);
-        gmtLine= br.readLine();
-      }
-
 
       if(D) System.out.println("starting to make connection with servlet");
       URL gmtMapServlet = new
@@ -638,15 +474,17 @@ public class GMT_MapGenerator implements Serializable{
    * and jpeg filename.
    *
    * @param xyzFileName name of the xyz file for which map will be generated
-   * @param psFileName  ps file name
-   * @param jpgFileName jpeg file name
    * @return
    */
-  public void makeMapForCME(String xyzFileName, String psFileName, String jpgFileName) {
-    String GMT_PATH="/opt/install/gmt/bin/";
-    this.XYZ_FILE_NAME = xyzFileName;
+  public void makeMapLocally(String xyzFileName) {
 
-    // contruct the xyz datatset using the xyzfilename
+    // where to find GMT on SCEC server
+    // THIS SHOULD BE SET DYNAMICALLY
+    GMT_PATH="/opt/install/gmt/bin/";
+
+    XYZ_FILE_NAME = xyzFileName;
+
+    // contstruct the xyz datatset using the xyz file
     Vector xVals = new Vector();
     Vector yVals =  new Vector();
     Vector zVals =  new Vector();
@@ -664,43 +502,32 @@ public class GMT_MapGenerator implements Serializable{
       }
       bf.close();
     }catch(Exception e) { e.printStackTrace(); }
+    this.xyzDataSet = new org.scec.data.ArbDiscretizedXYZ_DataSet(xVals, yVals, zVals) ;
 
-    org.scec.data.ArbDiscretizedXYZ_DataSet xyzDataSet =
-        new org.scec.data.ArbDiscretizedXYZ_DataSet(xVals, yVals, zVals) ;
+    // get the GMT script lines
+    Vector gmtLines = getGMT_ScriptLines();
 
-    FileWriter fw =null;
-    BufferedWriter br=null;
+    // add a command line to convert the ps file to a jpg file
+    gmtLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | gs -sDEVICE=jpeg -sOutputFile=" + JPG_FILE_NAME + " -"+"\n");
 
-    //writing the GMT script into the GMT Script file
-    try {
-      gmtFileName=xyzFileName.substring(0,xyzFileName.lastIndexOf("."))+System.currentTimeMillis()+".txt";
-      fw = new FileWriter(gmtFileName);
-      br = new BufferedWriter(fw);
-      out_ps = psFileName;
-      out_jpg = jpgFileName;
-      makeMapScript(GMT_PATH,br,xyzDataSet);
-      String gmtCommandLine = COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
-      //RunScript.runScript(command);
-      br.write(gmtCommandLine+"\n");
-      br.close();
-    }catch(RuntimeException ee){
-      throw new RuntimeException(ee.getMessage());
-    }catch (Exception e) {
-      // report to the user whether the operation was successful or not
-      e.printStackTrace();
-    }
-    //running the GMT script from the file
+    // Add time stamp to script name and make the script
+    gmtFileName=GMT_SCRIPT_NAME.substring(0,GMT_SCRIPT_NAME.indexOf("."))+System.currentTimeMillis()+".txt";
+    makeFileFromLines(gmtLines,gmtFileName);
+
+    // now run the GMT script file
     String[] command ={"sh","-c","sh "+gmtFileName};
     RunScript.runScript(command);
+
+    // set XYZ filename back to the default
+    XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
   }
 
 
   /**
-   * Set the parameter values. This function is needed if someone is
-   * not using MapGuiBean but wants to generate maps using GMT_MapGenerator
+   * This method allows one to set an adjustable parameter.
    *
-   * @param paramName Parameter name whose value needs to be set
-   * @param value Value to be assigned to that parameter
+   * @param paramName - the name of the Parameter to be set
+   * @param value - the desired parameter value
    */
   public void setParameter(String paramName, Object value) {
     this.adjustableParams.getParameter(paramName).setValue(value);
@@ -715,5 +542,129 @@ public class GMT_MapGenerator implements Serializable{
   public String getGMTFilesWebAddress(){
     return this.imgWebAddr;
   }
+
+
+  /**
+   * This method generates a list of strings needed for the GMT script
+   */
+  private Vector getGMT_ScriptLines() {
+
+    String commandLine;
+
+    Vector gmtCommandLines = new Vector();
+
+    // Get the limits and discretization of the map
+    double minLat = ((Double) minLatParam.getValue()).doubleValue();
+    double maxTempLat = ((Double) maxLatParam.getValue()).doubleValue();
+    double minLon = ((Double) minLonParam.getValue()).doubleValue();
+    double maxTempLon = ((Double) maxLonParam.getValue()).doubleValue();
+    double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
+
+    // adjust the max lat and lon to be an exact increment (needed for xyz2grd)
+
+    double maxLat = Math.rint(((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
+    double maxLon = Math.rint(((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
+
+    String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
+    if(D) System.out.println(C+" region = "+region);
+
+    // this is the prefixed used for temporary files
+    String fileName = "xyz_data";
+
+    String grdFileName  = fileName+".grd";
+
+    String cptFile = SCEC_GMT_DATA_PATH + (String) cptFileParam.getValue();
+
+    String colorScaleMode = (String) colorScaleModeParam.getValue();
+
+    String coast = (String) coastParam.getValue();
+
+    // Set resolution according to the topoInten file chosen (options are 3, 6, 18, or 30):
+    String resolution = (String) topoResolutionParam.getValue();
+    String topoIntenFile = SCEC_GMT_DATA_PATH + "calTopoInten" + resolution+".grd";
+
+    // Set highways String
+    String showHiwys = (String) showHiwysParam.getValue();
+
+    // plot size parameter
+    double plotWdth = 6.5;
+    String projWdth = "-JM"+plotWdth+"i";
+    double plotHght = ((maxLat-minLat)/(maxLon-minLon))*plotWdth/Math.cos(Math.PI*(maxLat+minLat)/(2*180));
+
+    double yOffset = 11 - plotHght - 0.5;
+    String yOff = "-Y" + yOffset + "i";
+
+    // command line to convert xyz file to grd file
+    commandLine =GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+" "+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
+    gmtCommandLines.add(commandLine+"\n");
+
+    // get color scale limits
+    double colorScaleMin, colorScaleMax;
+    if( colorScaleMode.equals(COLOR_SCALE_MODE_MANUALLY) ) {
+      colorScaleMin = ((Double) this.colorScaleMinParam.getValue()).doubleValue();
+      colorScaleMax = ((Double) this.colorScaleMaxParam.getValue()).doubleValue();
+    }
+    else {
+      colorScaleMin = xyzDataSet.getMinZ();
+      colorScaleMax = xyzDataSet.getMaxZ();
+    }
+
+    // make the cpt file
+    float inc = (float) ((colorScaleMax-colorScaleMin)/20);
+    commandLine=GMT_PATH+"makecpt -C" + cptFile + " -T" + colorScaleMin +"/"+ colorScaleMax +"/" + inc + " -Z > "+fileName+".cpt";
+    gmtCommandLines.add(commandLine+"\n");
+
+    // set some defaults
+    commandLine = GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait";
+    gmtCommandLines.add(commandLine+"\n");
+
+    // generate the image depending on whether topo relief is desired
+    if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
+      commandLine=GMT_PATH+"grdimage "+grdFileName+" -X0.75i " + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + PS_FILE_NAME;
+      gmtCommandLines.add(commandLine+"\n");
+    }
+    else {
+      commandLine=GMT_PATH+"grdsample "+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q";
+      gmtCommandLines.add(commandLine+"\n");
+      commandLine=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
+      gmtCommandLines.add(commandLine+"\n");
+      commandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd -X0.75i " + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + PS_FILE_NAME;
+      gmtCommandLines.add(commandLine+"\n");
+    }
+
+    // add highways if desired
+    if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
+      commandLine=GMT_PATH+"psxy  "+region+" " + projWdth + " -K -O -W5/125/125/125 -: -Ms " + SCEC_GMT_DATA_PATH + showHiwys + " >> " + PS_FILE_NAME;
+      gmtCommandLines.add(commandLine+"\n");
+    }
+
+    // add coast and fill if desired
+    if(coast.equals(COAST_FILL)) {
+      commandLine=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> " + PS_FILE_NAME;
+      gmtCommandLines.add(commandLine+"\n");
+    }
+    else if(coast.equals(COAST_DRAW)) {
+      commandLine=GMT_PATH+"pscoast  "+region+" " + projWdth + " -K -O -W4/0/0/0 -P -Dh >> " + PS_FILE_NAME;
+      gmtCommandLines.add(commandLine+"\n");
+    }
+
+    // set some defaults
+    commandLine=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 5 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+    gmtCommandLines.add(commandLine+"\n");
+
+    // add the color scale
+    DecimalFormat df2 = new DecimalFormat("0.E0");
+    Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
+    inc = tickInc.floatValue();
+    String tempLabel = "IML";
+    commandLine=GMT_PATH+"psscale -Ba"+inc+":"+tempLabel+": -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + PS_FILE_NAME;
+
+    // add the basemap
+    commandLine=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/50 -O >> " + PS_FILE_NAME;
+    gmtCommandLines.add(commandLine+"\n");
+
+    return gmtCommandLines;
+  }
+
 }
 
