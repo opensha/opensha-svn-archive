@@ -184,9 +184,10 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
         this.initERFSelector_GuiBean();
         initTimeSpanGuiBean();
       }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,"Could not create ERF Object","Error occur in ERF",
-                                    JOptionPane.OK_OPTION);
-      return;
+        //e.printStackTrace();
+        JOptionPane.showMessageDialog(this,"Could not create ERF Object","Error occur in ERF",
+                                      JOptionPane.OK_OPTION);
+        return;
       }
 
     this.initImlProb_GuiBean();

@@ -385,20 +385,17 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
          while ( it2.hasNext() ) {
            ParameterAPI param2 = (ParameterAPI ) it2.next();
            DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
-           ListIterator it3 = values.listIterator();
-           //ArrayList to store the independent params values option.
-           ArrayList indParamOptions = new ArrayList();
-           while(it3.hasNext())   // add all the periods relating to the SA
-             indParamOptions.add(it3.next().toString());
+           // add all the periods relating to the SA
+           ArrayList allowedValues = values.getAllowedValues();
 
            //create the string parameter for the independent parameter with its
            //constarint being the indParamOptions.
-           StringParameter independentParam = new StringParameter(param2.getName(),
-               indParamOptions, (String)indParamOptions.get(0));
+           DoubleDiscreteParameter independentParam = new DoubleDiscreteParameter(param2.getName(),
+               values, (Double)allowedValues.get(0));
 
            // added by Ned so the default period is 1.0 sec (this is a hack).
            if( ((String) independentParam.getName()).equals(AttenuationRelationship.PERIOD_NAME) )
-             independentParam.setValue(new String("1.0"));
+             independentParam.setValue(new Double(1.0));
 
            /**
             * Checks to see if the independent parameter by this name already
@@ -407,11 +404,11 @@ public class MultipleAttenuationRelationsGuiBean extends JPanel  implements
             * new constraint for the independent parameter.
             */
            if(param1.containsIndependentParameter(independentParam.getName())){
-             ArrayList paramVals = ((StringConstraint)param1.getIndependentParameter(independentParam.getName()).getConstraint()).getAllowedValues();
-             for(int j=0;j<indParamOptions.size();++j)
-               if(!paramVals.contains(indParamOptions.get(j)))
-                 paramVals.add(indParamOptions.get(j));
-             StringConstraint constraint = new StringConstraint(paramVals);
+             ArrayList paramVals = ((DoubleDiscreteConstraint)param1.getIndependentParameter(independentParam.getName()).getConstraint()).getAllowedValues();
+             for(int j=0;j<allowedValues.size();++j)
+               if(!paramVals.contains(allowedValues.get(j)))
+                 paramVals.add(allowedValues.get(j));
+             DoubleDiscreteConstraint constraint = new DoubleDiscreteConstraint(paramVals);
              independentParam.setConstraint(constraint);
            }
            else //add the independent parameter to the dependent param list

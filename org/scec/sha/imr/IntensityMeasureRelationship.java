@@ -210,7 +210,7 @@ public abstract class IntensityMeasureRelationship
             ListIterator it=((DependentParameterAPI)intensityMeasure).getIndependentParametersIterator();
             while(it.hasNext()){
               ParameterAPI param = (ParameterAPI)it.next();
-              getParameter(param.getName()).setValue(new Double((String)param.getValue()));
+              getParameter(param.getName()).setValue(param.getValue());
             }
         }
         else throw new ParameterException("This im is not supported, name = " + intensityMeasure.getName() );
@@ -251,7 +251,7 @@ public abstract class IntensityMeasureRelationship
             ListIterator it=((DependentParameterAPI)intensityMeasure).getIndependentParametersIterator();
             while(it.hasNext()){
               ParameterAPI param = (ParameterAPI)it.next();
-              if(getParameter(param.getName()).isAllowed(new Double((String)param.getValue())))
+              if(getParameter(param.getName()).isAllowed(param.getValue()))
                  continue;
                else
                  return false;

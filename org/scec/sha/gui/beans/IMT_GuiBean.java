@@ -64,7 +64,7 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
     //loop over each IMT and get their independent parameters
     while ( it.hasNext() ) {
       DependentParameterAPI param = ( DependentParameterAPI ) it.next();
-      StringParameter param1=new StringParameter(param.getName());
+      DoubleDiscreteParameter param1=new DoubleDiscreteParameter(param.getName());
 
       // add all the independent parameters related to this IMT
       // NOTE: this will only work for DoubleDiscrete independent parameters; it's not general!
@@ -72,18 +72,17 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
       ListIterator it2 = param.getIndependentParametersIterator();
       if(D) System.out.println("IMT is:"+param.getName());
       while ( it2.hasNext() ) {
-        ArrayList indParamOptions = new ArrayList();
+
         ParameterAPI param2 = (ParameterAPI ) it2.next();
         DoubleDiscreteConstraint values = ( DoubleDiscreteConstraint )param2.getConstraint();
         ListIterator it3 = values.listIterator();
-        while(it3.hasNext())   // add all the periods relating to the SA
-          indParamOptions.add(it3.next().toString());
-        StringParameter independentParam = new StringParameter(param2.getName(),
-            indParamOptions, (String)indParamOptions.get(0));
+         // add all the periods relating to the SA
+        DoubleDiscreteParameter independentParam = new DoubleDiscreteParameter(param2.getName(),
+            values, (Double)values.getAllowedValues().get(0));
 
         // added by Ned so the default period is 1.0 sec (this is a hack).
         if( ((String) independentParam.getName()).equals("SA Period") ) {
-          independentParam.setValue(new String("1.0"));
+          independentParam.setValue(new Double(1.0));
         }
 
         param1.addIndependentParameter(independentParam);
@@ -103,20 +102,17 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
     **/
 
     it=imtParam.iterator();
-
     while(it.hasNext()){
       Iterator it1=((DependentParameterAPI)it.next()).getIndependentParametersIterator();
       while(it1.hasNext())
         parameterList.addParameter((ParameterAPI)it1.next());
     }
-
     this.editorPanel.removeAll();
     // now make the editor based on the paramter list
     addParameters();
     setTitle( this.IMT_EDITOR_TITLE );
     // update the current IMT
     updateIMT((String)imt.get(0));
-
   }
 
   /**
