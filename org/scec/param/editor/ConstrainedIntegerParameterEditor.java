@@ -20,8 +20,11 @@ import org.scec.param.ParameterAPI;
 
 public class ConstrainedIntegerParameterEditor extends IntegerParameterEditor
 {
-    protected static final String C = "ConstrainedIntegerParameterEditor";
-    protected static final boolean D = false;
+
+    /** Class name for debugging. */
+    protected final static String C = "ConstrainedIntegerParameterEditor";
+    /** If true print out debug statements. */
+    protected final static boolean D = false;
 
     public ConstrainedIntegerParameterEditor() { super(); }
 

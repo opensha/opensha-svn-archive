@@ -9,9 +9,9 @@ import org.scec.exceptions.ParameterException;
  * <b>Title:</b> ParameterList<p>
  *
  * <b>Description:</b> List container for parameters. Specialized version of Hashtable.
- * The keys of the hashtable are the names of the parameters.
- * Can add specialized iterators so that it returns only specific types of paramters,
- * i.e. return all DoubleParameters<p>
+ * The keys of the hashtable are the names of the parameters. Can add specialized
+ * iterators so that it returns only specific types of paramters, i.e. return
+ * all DoubleParameters<p>
  *
  * This class assumes that two parameters are equal if they have the same name.
  * This implies that parameters have unique names. This must be the case for
@@ -24,6 +24,10 @@ import org.scec.exceptions.ParameterException;
  * in the occasional case when the constraint name differs. In most cases the parameter name and
  * constraint name will be identical. Due to uniqueness of parameter names this implies that all
  * constraint names must be unique also, when differing from the constraint name.<P>
+ *
+ * Note: Many of these functions are duplicated, where one form taks a Parameter as input,
+ * and the second takes the Parameter name as a String as input. THe first case can extract
+ * the parameter name, and proxy the method call to the String name form.<p>
  *
  * 4/3/2002 SWR<BR>
  * WARNING - This class needs a little more work and a JUnit test case. I added constraint names
@@ -41,15 +45,17 @@ public class ParameterList {
     /** @todo  Variables */
     /* *******************/
 
-    /* Debbuging variables */
+    /** Class name for debugging. */
     protected final static String C = "ParameterList";
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    /** Internal list of parameters - indexed by name */
+    /** Internal vector list of parameters */
     protected Vector params = new Vector();
 
     /** Internal list of constraint name mapped to parameter name */
     protected Hashtable constraintNameMap = new Hashtable();
+
 
     /* **********************/
     /** @todo  Constructors */
@@ -66,7 +72,8 @@ public class ParameterList {
 
     /**
      * Adds all parameters of the parameterlist to this one, if the
-     * named parameter is not already in the list
+     * named parameter is not already in the list. If a named parameter
+     * exists already a Parameter Exception is thrown.
      */
     public void addParameterList(ParameterList list2) throws ParameterException{
 
@@ -77,7 +84,12 @@ public class ParameterList {
 
     }
 
-    /** adds the parameter if it doesn't exist, else throws exception */
+    /**
+     * Adds the parameter to the internal sotrage of parameters if it
+     * doesn't exist, else throws exception. If the constraint has a different
+     * name from the parameter, the constraint name is mapped to the parameter
+     * name
+     */
     public void addParameter(ParameterAPI param) throws ParameterException{
 
         String S = C + ": addParameter(): ";
@@ -114,7 +126,7 @@ public class ParameterList {
         return name;
     }
 
-    /** returns parameter if exist else throws exception */
+    /** Returns parameter if exist else throws exception */
     public ParameterAPI getParameter(String name) throws ParameterException {
 
         name = getParameterName( name );
@@ -131,7 +143,7 @@ public class ParameterList {
     }
 
 
-    /** returns parameter contained value object, if exist else throws exception */
+    /** Returns parameter contained value object if the parameter exist, else throws exception */
     public Object getValue(String name) throws ParameterException{
 
         name = getParameterName( name );
@@ -147,7 +159,7 @@ public class ParameterList {
         }
     }
 
-    /** set's a new value to a Parameter in the list, if it exists, else throws exception */
+    /** Set's a new value to a Parameter in the list if it exists, else throws exception */
     public void setValue(String name, Object value) throws ParameterException, ConstraintException {
 
         String S = C + ": setValue(): ";
@@ -168,7 +180,7 @@ public class ParameterList {
 
     }
 
-    /** returns parameter type of named parameter in list, if not exist throws exception */
+    /** Returns parameter type of named parameter in list, if not exist throws exception */
     public String getType(String name) throws ParameterException {
         name = getParameterName( name );
         int index = getIndexOf(name);
@@ -184,7 +196,7 @@ public class ParameterList {
     }
 
 
-    /** checks if the parameter exists in the list */
+    /** Checks if the parameter exists in the list. Returns true if it does, else returns false */
     public boolean containsParameter(ParameterAPI param){
 
         String name = param.getName();
@@ -194,7 +206,7 @@ public class ParameterList {
 
     }
 
-    /** checks if the parameter exists in the list */
+    /** Checks if the parameter exists in the list. Returns true if it does, else returns false */
     public boolean containsParameter(String paramName){
         int index = getIndexOf(paramName);
         if( index!=-1 ) { return true; }
@@ -203,9 +215,7 @@ public class ParameterList {
     }
 
 
-    /** removes parameter if it exists, else
-     *  throws exception
-     */
+    /** Removes parameter if it exists, else throws exception */
     public void removeParameter(ParameterAPI param) throws ParameterException {
         String name = param.getName();
         int index = getIndexOf(name);
@@ -223,9 +233,7 @@ public class ParameterList {
         }
     }
 
-    /** removes parameter if it exists, else
-     *  throws exception
-     */
+    /** Removes parameter if it exists, else throws exception */
     public void removeParameter(String name) throws ParameterException {
         int index = getIndexOf(name);
         if( index!=-1 ) { params.remove(index); }
@@ -237,8 +245,8 @@ public class ParameterList {
 
 
     /**
-     * updates an existing parameter with the new value,
-     * throws exception if parameter doesn't exist
+     * Updates an existing parameter with the new value.
+     * Throws parameter exception if parameter doesn't exist.
      */
     public void updateParameter(ParameterAPI param) throws ParameterException {
         String name = param.getName();
@@ -246,7 +254,10 @@ public class ParameterList {
         addParameter(param);
     }
 
-    /** returns an iterator of all parameters in the list */
+    /**
+     * Returns an iterator of all parameters in the list. Returns the list in
+     * the order the elements were added.
+     */
     public ListIterator getParametersIterator(){
 
         Vector v = new Vector();
@@ -259,7 +270,10 @@ public class ParameterList {
         return v.listIterator();
     }
 
-    /** returns an iterator of all parameters in the list */
+    /**
+     * Returns an iterator of all parameter names of the paramters in the list.
+     * Returns the list in the order the elements were added.
+     */
     public ListIterator getParameterNamesIterator(){
         Vector v = new Vector();
         int size = this.params.size();
@@ -270,18 +284,16 @@ public class ParameterList {
         return v.listIterator();
     }
 
-    /** removes all parameters from the list, making it empty, ready for
-     *  new parameters
-     */
+    /** Removes all parameters from the list, making it empty, ready for new parameters.  */
     public void clear(){ params.clear(); }
 
-    /** returns number of parameters in the list */
+    /** Returns the number of parameters in the list */
     public int size(){ return params.size(); }
 
     /**
      * Returns true if all the parameters have the same names and values.
      * One use will be to determine if two DisctetizedFunctions
-     * are the same, i.e. set up with the same independent parameters
+     * are the same, i.e. set up with the same independent parameters.
      */
     public boolean equals(ParameterList list){
 
@@ -318,7 +330,8 @@ public class ParameterList {
     /**
      * Returns true if all the parameters have the same names.
      * One use will be to determine if two DisctetizedFunctions
-     * are the same, i.e. set up with the same independent parameters
+     * can be plotted on the same axis, i.e. set up with the
+     * same independent parameters.
      */
     public boolean equalNames(ParameterList list){
 
@@ -360,46 +373,46 @@ public class ParameterList {
      return list;
    }
 
+   /** Prints out all parameters in this list. For debugging purposes */
+   public String toString(){
 
-    public String toString(){
+       String S = C + ": toString():";
 
-        String S = C + ": toString():";
+       StringBuffer b = new StringBuffer();
+       boolean first = true;
 
-        StringBuffer b = new StringBuffer();
-        boolean first = true;
-
-        TreeMap map = new TreeMap();
-        int vectorSize = params.size();
-        for(int i = 0; i<vectorSize;++i) {
-            ParameterAPI param = (ParameterAPI)params.get(i);
-            map.put(param.getName(), param);
-        }
-
-
-        Iterator it = map.keySet().iterator();
-        int counter = 0;
-        while(it.hasNext()){
+       TreeMap map = new TreeMap();
+       int vectorSize = params.size();
+       for(int i = 0; i<vectorSize;++i) {
+           ParameterAPI param = (ParameterAPI)params.get(i);
+           map.put(param.getName(), param);
+       }
 
 
-            String key = (String)it.next();
-            if(D) System.out.println(S + "Next Parameter Key = " + key);
-            counter++;
+       Iterator it = map.keySet().iterator();
+       int counter = 0;
+       while(it.hasNext()){
 
-            int index = getIndexOf(key);
-            ParameterAPI param = (ParameterAPI)params.get(index);
-            ParameterConstraintAPI constraint = param.getConstraint();
 
-            boolean ok = true;
-            if(constraint instanceof DiscreteParameterConstraintAPI){
+           String key = (String)it.next();
+           if(D) System.out.println(S + "Next Parameter Key = " + key);
+           counter++;
 
-                int size = ((DiscreteParameterConstraintAPI)constraint).size();
-                if( size < 2) ok = false;
+           int index = getIndexOf(key);
+           ParameterAPI param = (ParameterAPI)params.get(index);
+           ParameterConstraintAPI constraint = param.getConstraint();
 
-            }
+           boolean ok = true;
+           if(constraint instanceof DiscreteParameterConstraintAPI){
 
-            if( ok ){
+               int size = ((DiscreteParameterConstraintAPI)constraint).size();
+               if( size < 2) ok = false;
 
-                String val = "N/A";
+           }
+
+           if( ok ){
+
+               String val = "N/A";
                 Object obj = param.getValue();
                 if( obj != null) val = obj.toString();
 
@@ -415,20 +428,14 @@ public class ParameterList {
                         counter = 0;
                     }
                 }
-            }
-        }
+           }
+       }
 
-        return b.toString();
+       return b.toString();
 
     }
 
-    /**
-     * this function finds the paramter in the vector on basis of paramter name
-     *
-     * @param key paramter name
-     *
-     * @return index at which this paramter exists
-     */
+    /** Returns the index of the named Parameter in this list. Returns -1 if not found. */
     private int getIndexOf(String key) {
       int size = params.size();
       for(int i=0;i<size;++i) {

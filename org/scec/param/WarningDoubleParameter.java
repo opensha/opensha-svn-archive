@@ -9,8 +9,35 @@ import org.scec.exceptions.*;
 /**
  * <b>Title:</b> WarningDoubleParameter<p>
  *
- * <b>Description:</b> <p>
+ * <b>Description:</b> Concrete implementation of the
+ * WarningParameterAPI interface. Maintains a list
+ * of listeners and passes them WarningEvents when
+ * the value is attemted to be set beyong the warning
+ * constraints. Typical use case is that there
+ * is one listener, ( such as the GUI component
+ * attempting to update the value ). This listener attempts
+ * to change the value outside the warning range. The
+ * listener is notified of the attemp, i.e. "warned".
+ * This listener then notifies the user via a DialogBox.
+ * The user is then given the option to cancle or
+ * ignore warning. The listener will then set the value
+ * ignoring the warning. <p>
  *
+ * The whole reason for using a listener is that any
+ * type of situation can be handled. This class doesn't
+ * need to know anything about the listener other than it
+ * adheres to the ParameterChangeWarningListener interface.
+ * The listener can be any class, and can be updated to
+ * any new class in the future. This class never has to be changed. <p>
+ *
+ * Note: Since this class extends from DoubleParameter it also
+ * has a second absolute DoubleConstraint that can never be exceeded.
+ * It's important that the implementing programmer realizes this and
+ * ensures the warning constraints are smaller than the absolute constraints.
+ * <p>
+ *
+ * @see ParameterChangeWarningListener
+ * @see ParameterChangeWarningEvent
  * @author Steven W. Rock
  * @version 1.0
  */
@@ -20,38 +47,34 @@ public class WarningDoubleParameter
     implements WarningParameterAPI
 {
 
-    /**
-     *  Class name for debugging.
-     */
+    /** Class name for debugging. */
     protected final static String C = "WarningDoubleParameter";
-    /**
-     *  If true print out debug statements.
-     */
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    /**
-     *  THe constraint for this Parameter.
-     */
+
+    /** The constraint for this Parameter. */
     protected DoubleConstraint warningConstraint = null;
 
     /**
-     * Only created if needed, else kept null.
+     * A list of listeners to receive warning events.
+     * Only created if needed, else kept null. This is
+     * known as "lazy instantiation".
      */
     protected Vector warningListeners = null;
 
 
     /**
-     * Set to true to turn off warnings, will automatically set the value, unless
-     * exceeds Absolute contrsints.
+     * Set to true to turn off warnings, i.e. bypass the warning
+     * constraint. Recall the absolute constraints are still active
+     * and may still block the value update.
      */
     private boolean ignoreWarning;
 
 
     /**
-     *  No constraints specified, all values allowed. Sets the name of this
-     *  parameter.
-     *
-     * @param  name  Name of the parameter
+     *  No warning constraints or absolute constraints specified.
+     *  All values allowed. Also sets the name of this parameter.
      */
     public WarningDoubleParameter( String name ) {
         super(name);
@@ -59,11 +82,8 @@ public class WarningDoubleParameter
 
 
     /**
-     *  No constraints specified, all values allowed. Sets the name and untis of
-     *  this parameter.
-     *
-     * @param  name   Name of the parameter
-     * @param  units  Units of this parameter
+     *  No warning constraints or absolute constraints specified.
+     *  All values allowed. Also sets the name and units of this parameter.
      */
     public WarningDoubleParameter( String name, String units ) {
         super( name, units );

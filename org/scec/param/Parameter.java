@@ -7,11 +7,21 @@ import org.scec.exceptions.EditableException;
 /**
  *  <b>Title: </b> Parameter<p>
  *
- *  <b>Description: </b> Base implementation for ParameterAPI of common
+ *  <b>Description: </b> Partial (abstract)  base implementation for ParameterAPI of common
  *  functionality accross all parameter subclasses. The common fields with get
  *  and setters are here, as well as a default constructor that sets all these
  *  fields, and the setValue field that always checks if the value is allowed
- *  before setting.<p>
+ *  before setting. The fields with gettesr and setters are:
+ *
+ * <ul>
+ * <li>name
+ * <li>units
+ * <li>constraint
+ * <li>editable
+ * <li>value
+ * </ul>
+ *
+ * These fields are common to all parameters. <p>
  *
  *  <b>Change History:</b> 11/29/2001 - SWR - Added String units field with get
  *  and set methods<p>
@@ -30,19 +40,13 @@ public abstract class Parameter
         ParameterAPI
 {
 
-
-    /**
-     *  Class name for debugging.
-     */
+    /** Class name for debugging. */
     protected final static String C = "Parameter";
-    /**
-     *  If true print out debug statements.
-     */
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    /**
-     *  Name of the parameter.
-     */
+
+    /** Name of the parameter. */
     protected String name = "";
 
     /**
@@ -74,9 +78,7 @@ public abstract class Parameter
 
 
 
-    /**
-     *  Empty no-arg constructor.
-     */
+    /** Empty no-arg constructor. Does nothing but initialize object.  */
     public Parameter() { }
 
     /**
@@ -94,6 +96,7 @@ public abstract class Parameter
         return "";
     }
 
+    /** Proxy function call to the constraint to see if null values are permitted */
     public boolean isNullAllowed(){
         if( constraint != null ) {
             return constraint.isNullAllowed();
@@ -101,6 +104,10 @@ public abstract class Parameter
         else return true;
     }
 
+    /**
+     * If the editable boolean is set to true, the parameter value can
+     * be edited, else an EditableException is thrown.
+     */
     protected void checkEditable(String S) throws EditableException{
         if( !this.editable ) throw new EditableException( S +
             "This parameter is currently not editable"

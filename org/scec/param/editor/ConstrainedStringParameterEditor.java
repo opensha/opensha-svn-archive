@@ -27,8 +27,12 @@ public class ConstrainedStringParameterEditor
     extends ParameterEditor
     implements ItemListener
 {
-    protected static final String C = "ConstrainedStringParameterEditor";
-    protected static final boolean D = false;
+
+    /** Class name for debugging. */
+    protected final static String C = "ConstrainedStringParameterEditor";
+    /** If true print out debug statements. */
+    protected final static boolean D = false;
+
 
     /**
      * No-Arg constructor calls super();

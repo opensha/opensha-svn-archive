@@ -9,106 +9,108 @@ import org.scec.data.function.DiscretizedFuncList;
 
 
 /**
- *  <b>Title:</b> DiscretizedFunctionXYDataSet<p>
+ * <b>Title:</b> DiscretizedFunctionXYDataSet<p>
  *
- *  <b>Description:</b> Wrapper for a DiscretizedFuncList. Implements
- *  XYDataSet so that it can be passed into the JRefinery Graphing Package <p>
+ * <b>Description:</b> Wrapper for a DiscretizedFuncList. Implements
+ * XYDataSet so that it can be passed into the JRefinery Graphing Package <p>
  *
- *  Modified 7/21/2002 SWR: I  mede this list more generic to handle any type
- *  of DiscretizedFunc that implements DiscretizedFuncAPI. Previously it only
- *  handled ArbDiscrFunctWithParams.<p>
+ * This class contains a pointer to a DiscretizedFuncList. It also implements
+ * an XYDataset which is JFreChart's interface that all datasets must implement
+ * so they can be passed to the graphing routines. This class transforms the
+ * DiscretizedFuncList data into the format as required by this interface.<p>
  *
- *  Modified 7/21/2002 SWR: (Still need to do) Made this list handle log-log
- *  plots by hiding zero values in x and y axis when choosen. If not
- *  JFreeeChart will throw an arithmatic exception.<p>
+ * Please consult the JFreeChart documentation for further information
+ * on XYDataSets. <p>
  *
- * @author     Steven W. Rock
- * @created    February 26, 2002
- * @see        XYDataSet
+ * Note: The FaultTraceXYDataSet and GriddedSurfaceXYDataSet are
+ * handled in exactly the same manner as for DiscretizedFunction.<p>
+ *
+ * Modified 7/21/2002 SWR: I  mede this list more generic to handle any type
+ * of DiscretizedFunc that implements DiscretizedFuncAPI. Previously it only
+ * handled ArbDiscrFunctWithParams.<p>
+ *
+ * Modified 7/21/2002 SWR: (Still need to do) Made this list handle log-log
+ * plots by hiding zero values in x and y axis when choosen. If not
+ * JFreeeChart will throw an arithmatic exception.<p>
+ *
+ * Modified Gupta Brothers: Expanded the log-log capabilities. <p>
+ *
+ * @see FaultTraceXYDataSet
+ * @see DiscretizedFunctionXYDataSet
  * @see        DiscretizedFuncList
+ * @author     Steven W. Rock, Gupta Brothers
+ * @created    February 26, 2002
  * @version    1.2
  */
 
 public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
 
-
+    /** Class name used for debug statements */
     protected final static String C = "DiscretizedFunctionXYDataSet";
+    /** If true prints out debug statements */
     protected final static boolean D = false;
 
     protected boolean yLog = false;
     protected boolean xLog = false;
 
     public boolean isYLog() { return yLog; }
-
-    public void setYLog(boolean yLog) {
-
-      this.yLog = yLog;
-
-    }
+    public void setYLog(boolean yLog) { this.yLog = yLog; }
 
     public boolean isXLog() { return xLog; }
-
     public void setXLog(boolean xLog) { this.xLog = xLog; }
 
 
     /**
-     *  Internal list of 2D Functions - indexed by name
+     * Internal list of 2D Functions - indexed by name. This
+     * is the real data that is "wrapped" by this class.
      */
     protected DiscretizedFuncList functions = null;
 
-    /**
-     *  list of listeners for data changes
-     */
+    /** list of listeners for data changes */
     protected Vector listeners = new Vector();
 
+    /** SWR: Not sure what this is used for - Gupta code */
     protected LinkedList xLogs = new LinkedList();
 
+    /** closet possible value to zero */
     private double minVal = Double.MIN_VALUE;
+
+    /**
+     * Flag to indicate how to handle zeros, if true if a
+     * y-value is zero, will be converted to the minVal.
+     */
     private boolean convertZeroToMin = false;
 
 
-    /**
-     *  no arg constructor
-     */
+    /** no arg constructor - does nothing */
     public DiscretizedFunctionXYDataSet() { }
 
 
-    /**
-     *  Sets the name attribute of the Function2DList object
-     *
-     * @param  newName  The new name value
-     */
+    /** Sets the name of the functions list */
     public void setName( String name ) { functions.setName( name ); }
-
-    /**
-     *  Gets the name attribute of the Function2DList object
-     *
-     * @return    The name value
-     */
+    /** Gets the name of the functions list */
     public String getName() { return functions.getName(); }
 
 
-    /**
-     *  returns an iterator of all DiscretizedFunction2Ds in the list
-     *
-     * @return    The lsitIterator value
-     */
+    /** Returns an iterator of all DiscretizedFunction2Ds in the list */
     public ListIterator listIterator() { return functions.listIterator(); }
 
 
 
     /**
-     *  Returns the number of series in the dataset.
-     *
-     * @return    The number of series in the dataset.
+     *  XYDataSetAPI - Returns the number of series in the dataset.
+     *  For a DiscretizedFuncList returns the number of functions
+     * in the list.
      */
     public int getSeriesCount() { return functions.size(); }
 
 
 
     /**
-     * Returns the name of a series.
-     * @param series The series (zero-based index).
+     *  XYDataSetAPI - Returns the name of a series. To make this
+     * name unique, info string of the particulare discretized
+     * function is returned at the name of that series. Typically
+     * the info string represents the key-value input paramters.
      */
     public String getSeriesName(int series)
     {
@@ -119,32 +121,31 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         else return "";
     }
 
-
-
     /**
-     *  Returns the number of items in a series.
-     *
-     * @param  series  The series (zero-based index).
-     * @return         The number of items within a series.
+     * XYDataSetAPI - Returns the number of items in a series.
+     * The particular DiscretizedFuncAPI at the specified index ( series ),
+     * is obtained, then getNum() is called on that function. This
+     * number is reduced by one if the first x point is zero and xLog is choosen.<p>
      */
-    public int getItemCount( int series ) {
+     public int getItemCount( int series ) {
         int num = -1;
         if ( series < functions.size() ) {
             DiscretizedFuncAPI f = functions.get( series );
             num = f.getNum();
-
             if( DiscretizedFunctionXYDataSet.isAdjustedIndexIfFirstXZero( f, xLog, yLog) ) num -= 1;
-
         }
         return num;
     }
 
 
     /**
-     *  Returns the x-value for an item within a series. <P>
+     * XYDatasetAPI - Returns the x-value for an item within a series. <P>
      *
-     *  The implementation is responsible for ensuring that the x-values are
-     *  presented in ascending order.
+     * The implementation is responsible for ensuring that the x-values are
+     * presented in ascending order.
+     *
+     * Note: If xlog is choosen, and first x point is zero the index is incresed
+     * to return the second point.
      *
      * @param  series  The series (zero-based index).
      * @param  item    The item (zero-based index).
@@ -171,7 +172,10 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
     }
 
     /**
-     *  Returns the y-value for an item within a series.
+     * XYDatasetAPI - Returns the y-value for an item within a series. <P>
+     *
+     * Note: If xlog is choosen, and first x point is zero the index is incresed
+     * to return the second point.
      *
      * @param  series  The series (zero-based index).
      * @param  item    The item (zero-based index).
@@ -200,7 +204,16 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         return null;
     }
 
-
+    /**
+     * Very important function to handle log plotting. That is why this
+     * function is made final, so subclasses can't overide this functionality.
+     * This is an internal helper function used when getX() or getY()m numberPoints(),
+     * etc. are called.<p>
+     *
+     * This returns truw if the first point should be skipped. The criteria is based
+     * on if xLog and yLog are true, and the first point x or y values are zero.
+     * If these conditions are met, true is returned, false otherwise.
+     */
     protected final static boolean isAdjustedIndexIfFirstXZero(DiscretizedFuncAPI func, boolean xLog, boolean yLog){
 
         // if xlog and first x value = 0 increment index, even if y first value not zero,
@@ -209,50 +222,30 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
         else return false;
     }
 
-
-
-    /*
-     *  {
-     *  if( series < functions.size() ){
-     *  return ((DiscretizedFunction2D)this.functions.get(series)).getParametersString();
-     *  }
-     *  else return "";
-     *  }
-     */
-    /**
-     *  removes all DiscretizedFunction2Ds from the list, making it empty, ready
-     *  for new DiscretizedFunction2Ds
-     */
+    /** Removes all DiscretizedFunction2Ds from the list, making it an empty list. */
     public void clear() { functions.clear(); }
 
 
-    /**
-     *  returns number of DiscretizedFunction2Ds in the list
-     *
-     * @return    Description of the Return Value
-     */
+    /** Returns number of DiscretizedFunction2Ds in the list. */
     public int size() { return functions.size(); }
 
 
     /**
-     *  Returns true if all the Functions in this list are equal.
-     *
-     * @param  list  Description of the Parameter
-     * @return       Description of the Return Value
+     *  Returns true if all the Functions in this list are equal. See
+     * DiscretizedFunctList.equals() for further details.
      */
     public boolean equals( DiscretizedFunctionXYDataSet list ){
-
         if( list.getFunctions().equals( this.functions ) ) return true;
         else return false;
-
     }
 
 
     /**
-     *  Returns a copy of this list, therefore any changes to the copy cannot
-     *  affect this original list.
-     *
-     * @return    Description of the Return Value
+     * Returns a copy of this list, therefore any changes to the copy cannot
+     * affect this original list. A deep clone() indicates that all the
+     * list fields are cloned, as well as all the fucntions in the list, and
+     * each point in each function. This is a very expensive operations
+     * if there are a large numbe of functions and/or points.
      */
     public DiscretizedFunctionXYDataSet deepClone(){
 
@@ -263,49 +256,33 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
 
     }
 
-
-    /**
-     *  Registers an object for notification of changes to the dataset.
-     *
-     * @param  listener  The object to register.
-     */
+    /** XYDatasetAPI- Registers an object for notification of changes to the dataset. */
     public void addChangeListener( DatasetChangeListener listener ) {
         if ( !listeners.contains( listener ) ) {
             listeners.add( listener );
         }
     }
 
-
-    /**
-     *  Deregisters an object for notification of changes to the dataset.
-     *
-     * @param  listener  The object to deregister.
-     */
+    /** XYDatasetAPI- Deregisters an object for notification of changes to the dataset. */
     public void removeChangeListener( DatasetChangeListener listener ) {
         if ( listeners.contains( listener ) ) {
             listeners.remove( listener );
         }
     }
 
-
-
+    /** Returns the "wrapped" dataset, i.e. the DiscretizedFunctionList */
     public DiscretizedFuncList getFunctions() { return functions; }
+    /** Sets the "wrapped" dataset, i.e. the DiscretizedFunctionList */
     public void setFunctions(DiscretizedFuncList functions) {
         this.functions = functions;
     }
 
-    /**
-     * In case of Y-log, whther ypou want to convert 0 value to min value
-     *
-     * @param zeroToMin  true if you want to convert 0 values in Y-log to very small value
-     */
-    public void setConvertZeroToMin(boolean zeroToMin) {
-       convertZeroToMin = zeroToMin;
-    }
+    /** In case of Y-log, set' swhether you want to convert 0 value to minValue. */
+    public void setConvertZeroToMin(boolean zeroToMin) { convertZeroToMin = zeroToMin; }
 
     /**
      * In case of Y-log, you can specify the minValue so that 0 values on y - axis
-     * will be converted to this value
+     * will be converted to this value.
      *
      * @param zeroMin true if you want to convert 0 values in Y-log to small value
      * @param minVal  value which will be returned if we have 0 on Y-axis in case of log

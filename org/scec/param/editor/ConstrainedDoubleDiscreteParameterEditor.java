@@ -32,9 +32,11 @@ public class ConstrainedDoubleDiscreteParameterEditor
     implements ItemListener
 {
 
-
-    protected static final String C = "ConstrainedDoubleDiscreteParameterEditor";
+    /** Class name for debugging. */
+    protected final static String C = "ConstrainedDoubleDiscreteParameterEditor";
+    /** If true print out debug statements. */
     protected static final boolean D = false;
+
 
 
     /**

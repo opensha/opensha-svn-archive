@@ -23,14 +23,11 @@ import org.scec.exceptions.EditableException;
 
 public class DoubleConstraint extends ParameterConstraint{
 
-    /**
-     *  Class name - used for debugging
-     */
+    /** Class name for debugging. */
     protected final static String C = "DoubleConstraint";
-    /**
-     *  If true, debugging statements printed
-     */
+    /** If true print out debug statements. */
     protected final static boolean D = false;
+
 
     /**
      *  The minimum value allowed in this constraint

@@ -1,9 +1,15 @@
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> ConstraintException<p>
- *  <b>Description:</b> Exception thrown when constraints reject setting a
- *  Parameter value<p>
+ * <b>Title:</b> ConstraintException<p>
+ * <b>Description:</b> Exception thrown when constraints reject setting a
+ * Parameter value<p>
+ *
+ * Note: These exception subclasses add no new functionality. It's really
+ * the class name that is the important information. The name indicates what
+ * type of error it is and helps to pinpoint where the error could have occured
+ * in the code. It it much easier to see different exception types than have one
+ * catchall RuntimeException type.<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002
@@ -12,21 +18,9 @@ package org.scec.exceptions;
 
 public final class ConstraintException extends RuntimeException {
 
-    /**
-     *  No-arg constructor
-     */
-    public ConstraintException() {
-        super();
-    }
-
-
-    /**
-     *  Constructor that specifies an error message
-     *
-     * @param  string  Describes the error
-     */
-    public ConstraintException( String string ) {
-        super( string );
-    }
+    /** No-arg constructor */
+    public ConstraintException() { super(); }
+    /** Constructor that specifies an error message */
+    public ConstraintException( String string ) { super( string ); }
 }
 

@@ -19,8 +19,11 @@ import org.scec.param.*;
 
 public class IntegerParameterEditor extends ParameterEditor
 {
-    protected static final String C = "IntegerParameterEditor";
-    protected static final boolean D = false;
+
+    /** Class name for debugging. */
+    protected final static String C = "IntegerParameterEditor";
+    /** If true print out debug statements. */
+    protected final static boolean D = false;
 
     public IntegerParameterEditor() { super(); }
 

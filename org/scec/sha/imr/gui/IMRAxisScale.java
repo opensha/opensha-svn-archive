@@ -6,10 +6,10 @@ import java.awt.event.*;
 
 /**
  * <p>Title: IMRAxisScale</p>
+ *
  * <p>Description: This Class pop up window when custom scale is selecetd for the combo box that enables the
  * user to customise the X and Y Axis scale</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+
  * @author : Nitin Gupta and Vipin Gupta
  * @version 1.0
  */

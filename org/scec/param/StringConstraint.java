@@ -6,39 +6,32 @@ import org.scec.exceptions.ConstraintException;
 import org.scec.exceptions.EditableException;
 
 /**
- *  <b>Title:</b> StringConstraint<p>
+ * <b>Title:</b> StringConstraint<p>
  *
- *  <b>Description:</b> Constraint Object containing a vector of allowed string
- *  values<p>
+ * <b>Description:</b> This constraint contains a list of possible allowed
+ * string values. These can tipically be presented in a GUI picklist. This is
+ * the same fucntionality for all DiscreteParameterConstraints.
  *
  * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  */
 
-public class StringConstraint extends ParameterConstraint implements DiscreteParameterConstraintAPI {
+public class StringConstraint
+        extends ParameterConstraint
+        implements DiscreteParameterConstraintAPI
+{
 
-    /**
-     *  Class name for debugging.
-     */
+    /** Class name for debugging. */
     protected final static String C = "StringConstraint";
-    /**
-     *  If true print out debug statements.
-     */
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
-
-    /**
-     *  Vector list of possible string values, i.e. allowed values.
-     */
+    /** Vector list of possible string values, i.e. allowed values. */
     private Vector strings = new Vector();
 
 
-
-
-    /**
-     *  No-Arg constructor for the StringConstraint object.
-     */
+    /** No-Arg constructor for the StringConstraint object. Calls the super() constructor. */
     public StringConstraint() { super(); }
 
 
@@ -75,26 +68,19 @@ public class StringConstraint extends ParameterConstraint implements DiscretePar
 
     }
 
-
-
-    /**
-     *  Returns a cloned Vector of the allowed Strings.
-     *
-     * @return    The vector clone of allowed values
-     */
+    /** Returns a cloned Vector of the allowed Strings. */
     public Vector getAllowedStrings() { return ( Vector ) strings.clone(); }
 
-
-    /**
-     *  Returns a cloned Vector of the allowed Strings.
-     *
-     * @return    The vector clone of allowed values
-     */
+    /** Returns a cloned Vector of the allowed Strings. */
     public Vector getAllowedValues() { return getAllowedStrings(); }
 
 
     /**
-     *  Determine if the new value being set is allowed.
+     *  Determine if the new value being set is allowed. First checks
+     * if null and if nulls are allowed. Then verifies the Object is
+     * a String. Finally the code verifies that the String is
+     * in the allowed strings vector. If any of these checks fails, false
+     * is returned.
      *
      * @param  obj  Object to check if allowed String
      * @return      True if the value is allowed
@@ -107,48 +93,25 @@ public class StringConstraint extends ParameterConstraint implements DiscretePar
         else return true;
     }
 
-
-    /**
-     *  Returns Iterator over allowed values.
-     *
-     * @return    The list iterator over allowed values list
-     */
+    /** Returns an Iterator over allowed values.*/
     public ListIterator listIterator() { return strings.listIterator(); }
 
-
-    /**
-     *  Adds a String to the list of allowed values.
-     *
-     * @param  str  The new allowed value
-     */
+    /** Adds a String to the list of allowed values, if this constraint is editable. */
     public void addString( String str ) throws EditableException {
-
-        String S = C + ": addString(): ";
-        checkEditable(S);
+        checkEditable(C + ": addString(): ");
         if ( !containsString( str ) ) strings.add( str );
     }
 
 
-    /**
-     *  Removes a String from the list of allowed values.
-     *
-     * @param  str  The allowed value to remove
-     */
-    public void removeString( String str ) throws EditableException {
-
-        String S = C + ": removeString(): ";
-        checkEditable(S);
+    /** Removes a String to the list of allowed values, if this constraint is editable. */
+     public void removeString( String str ) throws EditableException {
+        checkEditable(C + ": removeString(): ");
         if ( containsString( str ) ) strings.remove( str );
 
     }
 
 
-    /**
-     *  Checks that a String is in the list of allowed values.
-     *
-     * @param  str  The string to check if it is an allowed value
-     * @return      True if the string is in the allowed list, false otherwise
-     */
+    /** Returns true if the string is in the allowed list, false otherwise*/
     public boolean containsString( String str ) {
         if ( strings.contains( str ) ) return true;
         else return false;
@@ -156,19 +119,13 @@ public class StringConstraint extends ParameterConstraint implements DiscretePar
 
 
 
-    /**
-     *  Returns number of allowed values.
-     *
-     * @return    int size of the allowed values list
-     */
+    /** Returns number of allowed values. */
     public int size() { return strings.size(); }
 
 
     /**
      *  Prints out the current state of this parameter, i.e. classname and
      *  allowed values. Useful for debugging.
-     *
-     * @return    Formatted String of object's current state.
      */
     public String toString() {
         String TAB = "    ";
@@ -195,11 +152,7 @@ public class StringConstraint extends ParameterConstraint implements DiscretePar
     }
 
 
-    /**
-     *  Returns a copy so you can't edit or damage the origial.
-     *
-     * @return    Exact copy of this object's state
-     */
+    /** Returns a copy so you can't edit or damage the origial. */
     public Object clone() {
 
         StringConstraint c1 = new StringConstraint();

@@ -21,8 +21,10 @@ import javax.swing.border.*;
 
 public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
 
-    protected static final String C = "ConstrainedDoubleParameterEditor";
-    protected static final boolean D = false;
+    /** Class name for debugging. */
+    protected final static String C = "ConstrainedDoubleParameterEditor";
+    /** If true print out debug statements. */
+    protected final static boolean D = false;
 
     public ConstrainedDoubleParameterEditor() { super(); }
 

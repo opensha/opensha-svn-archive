@@ -21,8 +21,8 @@ import com.jrefinery.chart.tooltips.XYToolTipGenerator;
 import com.jrefinery.chart.tooltips.StandardXYToolTipGenerator;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Title: GriddedSubsetXYItemRenderer</p>
+ * <p>Description: JFreeChart subclass - used in FaultDemo Applet.</p>
  *
  * @author unascribed
  * @version 1.0

@@ -8,33 +8,54 @@ import org.scec.data.*;
 import org.scec.sha.surface.*;
 import org.scec.util.*;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> GriddedSurfaceXYDataSet<p>
  *
  * <b>Description:</b> Proxy class for GriddedSurfaceAPI to map to the
  * JFreeChart XYDataSet API so a GriddedSurface can be passed into a chart
- * for plotting<p>
+ * for plotting.<p>
  *
+ * This class contains a pointer to a GriddedSurfaceAPI. It also implements
+ * an XYDataset which is JFreChart's interface that all datasets must implement
+ * so they can be passed to the graphing routines. This class transforms the
+ * GriddedSurfaceAPI data into the format as required by this interface.<p>
+ *
+ * Please consult the JFreeChart documentation for further information
+ * on XYDataSets. <p>
+ *
+ * Note: The FaultTraceXYDataSet and DiscretizedFunctionXYDatasets are
+ * handled in exactly the same manner as for GriddedSurfaceAPI.<p>
+ *
+ * @see FaultTraceXYDataSet
+ * @see DiscretizedFunctionXYDataSet
  * @author Steven W. Rock
  * @version 1.0
  */
 
 public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
 
-
+    /** Class name used for debug statements */
     protected final static String C = "GriddedSurfaceXYDataSet";
+    /** If true prints out debug statements */
     protected final static boolean D = false;
 
     /**
-     *  Internal list of 2D Functions - indexed by name
+     * Used to format the depth of a location to human readable form .
+     * This format is used in getSeriesName(). The depth becomes part
+     * of each row in the griddedsurface, i.e. each series name.
+     */
+    DecimalFormat format = new DecimalFormat("#,###.##");
+
+
+    /**
+     *   GriddedSurfaceAPI pointer. This is the real data for this
+     *   class. Recall a gridded surface is a matrix of Location points.
+     *   As far as XYDataset is concerned the data is a collection of
+     *   data series, one series maps to one row in the GriddedSurfaceAPI.
      */
     protected GriddedSurfaceAPI surface = null;
 
-    /**
-     *  list of listeners for data changes
-     */
+    /** XYDatasetAPI - list of listeners for data changes */
     protected Vector listeners = new Vector();
 
     /**
@@ -43,49 +64,37 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
      */
     protected String name;
 
+    /** Returns true is the GriddedSurfaceAPI reference is not null. */
     public boolean checkSurface(){
         if( surface != null ) return true;
         else return false;
     }
 
-    /**
-     *  no arg constructor
-     */
+    /** Constructor that sets the GriddedSurfaceAPI dataset. */
     public GriddedSurfaceXYDataSet(GriddedSurfaceAPI surface) { this.surface = surface; }
 
 
-    /**
-     *  Sets the name attribute of the Function2DList object
-     * @param  newName  The new name value
-     */
+    /** Sets the name of this XYDataset. */
     public void setName( String newName ) { name = newName; }
-
-    /**
-     *  Gets the name attribute of the Function2DList object
-     * @param  newName  The new name value
-     */
+    /** Sets the name of this XYDataset. */
     public String getName(  ) { return name; }
 
 
-
-
     /**
-     *  Returns the number of series in the dataset.
-     *
-     * @return    The number of series in the dataset.
+     * XYDatasetAPI -  Returns the number of series in the dataset.
+     * For a griddedsurface this simply returns the number of rows.
      */
     public int getSeriesCount() {
-
         if ( checkSurface() ) return surface.getNumRows();
         else return 0;
     }
 
-    DecimalFormat format = new DecimalFormat("#,###.##");
     /**
-     *  Returns the name of a series.
-     *
-     * @param  series  The series (zero-based index).
-     * @return         The seriesName value
+     * XYDatasetAPI -  Returns the name of a series.
+     * For a Gridded Surface each row represents another
+     * series, so the depth of that row is used as part of the
+     * series name. Uses DecimalFormat to translate the depth
+     * into human readable form.
      */
     public String getSeriesName( int series ){
 
@@ -101,7 +110,9 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
     }
 
     /**
-     *  Returns the number of items in a series.
+     * XYDatasetAPI -  Returns the number of items in a series.
+     * For a GriddedSurface, this simply returns the number
+     * of columns for this surface, a constant per row.
      *
      * @param  series  The series (zero-based index).
      * @return         The number of items within a series.
@@ -113,7 +124,7 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
 
 
     /**
-     *  Returns the x-value for an item within a series. <P>
+     * XYDatasetAPI -  Returns the x-value for an item within a series. <P>
      *
      *  The implementation is responsible for ensuring that the x-values are
      *  presented in ascending order.
@@ -137,7 +148,7 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
 
 
     /**
-     *  Returns the y-value for an item within a series.
+     * XYDatasetAPI -  Returns the y-value for an item within a series.
      *
      * @param  series  The series (zero-based index).
      * @param  item    The item (zero-based index).
@@ -156,40 +167,21 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
     }
 
 
-    /**
-     *  removes all DiscretizedFunction2Ds from the list, making it empty, ready
-     *  for new DiscretizedFunction2Ds
-     */
+    /** XYDatasetAPI -  Set's the GriddedSurfaceAPI reference to null. */
     public void clear() { surface = null; }
 
-
-
-
-    /**
-     *  Registers an object for notification of changes to the dataset.
-     *
-     * @param  listener  The object to register.
-     */
+    /** XYDatasetAPI -  Registers an object for notification of changes to the dataset. */
     public void addChangeListener( DatasetChangeListener listener ) {
         if ( !listeners.contains( listener ) ) {
             listeners.add( listener );
         }
     }
 
-
-    /**
-     *  Deregisters an object for notification of changes to the dataset.
-     *
-     * @param  listener  The object to deregister.
-     */
+    /** XYDatasetAPI -  Deregisters an object for notification of changes to the dataset. */
     public void removeChangeListener( DatasetChangeListener listener ) {
         if ( listeners.contains( listener ) ) {
             listeners.remove( listener );
         }
     }
-
-
-
-
 
 }

@@ -7,7 +7,19 @@ import org.scec.exceptions.*;
 
 /**
  * <b>Title:</b> DependentParameter<p>
- * <b>Description:</b> Implementation of the DependentParameterAPI.<p>
+ *
+ * <b>Description:</b> Partial implementation of the
+ * DependentParameterAPI. Provides all the basic functionality
+ * of adding, checking and removing independent parameters from
+ * the internal storage structure. Internally the parameter list
+ * is store in a TreeMap so the parameters are automatically
+ * sorted alphabetically. <p>
+ *
+ * It is only specified as abstract so that it can never be instantiated
+ * by itself, only in a subclass. Actually all the DependentParameterAPI
+ * functions are implemented. Subclasses only need to extend this class
+ * to be fully operational as a dependent parameter. No other code changes
+ * are required. This makes the changes transparent to subclasses. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
@@ -17,12 +29,16 @@ public abstract class DependentParameter extends Parameter implements
     DependentParameterAPI
 {
 
-    /** Internal list of parameters - indexed by name */
+
+    /**
+     * Internal TreeMap list of parameters - indexed by name .
+     * A treemap ensures the elements are automatically sorted alphabetically.
+     */
     protected TreeMap independentParameters = new TreeMap();
 
 
     /**
-     *  Empty no-arg constructor.
+     *  Empty no-arg constructor. Only calls super constructor.
      */
     public DependentParameter() { super(); }
 
@@ -61,6 +77,9 @@ public abstract class DependentParameter extends Parameter implements
       * Note: SWR - I choose to implement the iterator an easy way
       * but not the best way. I create a vector, add all parameters from
       * the Hashtable. Quick and dirty. May want to improve in the future.
+      * The treemap provides no easy access to an iterator. Since in our
+      * case the list will always be small this is not a performance hit.
+      *
       */
     public ListIterator getIndependentParametersIterator(){
 
@@ -98,7 +117,9 @@ public abstract class DependentParameter extends Parameter implements
      * Since the storage of the independent parameters are a TreeMap, the parameters are
      * sorted by their names. This guarentees that this function always returns the
      * same value if more than one independent parameter. A normal iterator doesn't guarentee
-     * order of returned elements in a Hashtable or HashMap
+     * order of returned elements in a Hashtable or HashMap. This key can be used to
+     * quickly compare two DependentParameters to see if they depend on the same
+     * independent parameters.
      * @return
      */
     public String getIndependentParametersKey(){
@@ -125,10 +146,11 @@ public abstract class DependentParameter extends Parameter implements
 
     }
 
-    /** Checks if the parameter exists in the list, returns
-     *  true only if it finds a name match. No other comparision is done.
-     *  We may want to increase the comparision in the future, i.e. returns
-     *  true if has same independent parameters, etc.
+    /**
+     * Checks if the parameter exists in the list, returns
+     * true only if it finds a name match. No other comparision is done.
+     * We may want to increase the comparision in the future, i.e. returns
+     * true if has same independent parameters, etc.
      */
     public boolean containsIndependentParameter(String paramName){
         if( independentParameters.containsKey(paramName) ) { return true; }
@@ -137,7 +159,7 @@ public abstract class DependentParameter extends Parameter implements
     }
 
     /**
-     * Clears out any exising parameters, then adds all parameters of the
+     * Clears out any existing parameters, then adds all parameters of the
      * input parameterlist to this object
      */
     public void setIndependentParameters(ParameterList list)throws ParameterException, EditableException{
@@ -168,9 +190,7 @@ public abstract class DependentParameter extends Parameter implements
     }
 
 
-    /** removes parameter if it exists, else
-     *  throws exception
-     */
+    /** removes parameter if it exists, else throws exception */
     public void removeIndependentParameter(String name) throws ParameterException, EditableException {
 
         String S = C + ": removeIndependentParameter(): ";

@@ -38,10 +38,10 @@ public class ParameterEditor
         FocusListener,
         KeyListener {
 
-
+    /** Class name for debugging. */
     protected final static String C = "ParameterEditor";
+    /** If true print out debug statements. */
     protected final static boolean D = false;
-
 
 
     protected final static String DATA_TEXT = "Enter data here";

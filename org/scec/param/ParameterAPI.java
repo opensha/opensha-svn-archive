@@ -15,16 +15,16 @@ import org.scec.data.*;
  *  defined and added to a Site, ProbEqkRupture, or PropagationEffect
  *  object without having to rewrite the Java code. <p>
  *
- *  By defining the parameter “value” here as a generic object, one is not
+ *  By defining the parameter value here as a generic object, one is not
  *  restricted to adding scalar quantities. For example, one could create a
  *  subclass of parameter where the value is a moment tensor (which could then
  *  be added to a ProbEqkRupture object). As another example, one could
  *  define a subclass of parameter where the value is a shear-wave velocity
  *  profile (which could be added to a Site object). <p>
  *
- *  Representing such non-scalar quantities as “Parameters” might seem confusing
- *  semantically (e.g., perhaps “Attribute” would be better). However, the term
- *  “Parameter” is consistent with the notion that an
+ *  Representing such non-scalar quantities as Parameters might seem confusing
+ *  semantically (e.g., perhaps Attribute would be better). However, the term
+ *  Parameter is consistent with the notion that an
  *  IntensityMeasureRealtionship will used this information as an independent
  *  variable when computing earthquake motion. <p>
  *
@@ -160,7 +160,7 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable {
 
 
     /**
-     *  Compares value to see if equal.
+     *  Compares passed in parameter value to this one to see if equal.
      *
      * @param  parameter            the parameter to compare this object to.
      * @return                      True if the values are identical

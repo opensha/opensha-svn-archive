@@ -15,13 +15,9 @@ import org.scec.exceptions.EditableException;
 
 public abstract class ParameterConstraint implements ParameterConstraintAPI {
 
-    /**
-     *  Class name for debugging.
-     */
+    /** Class name for debugging. */
     protected final static String C = "ParameterConstraint";
-    /**
-     *  If true print out debug statements.
-     */
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
     /** No arg constructor does nothing */

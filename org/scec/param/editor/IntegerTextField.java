@@ -24,6 +24,13 @@ import org.scec.param.editor.document.IntegerPlainDocument;
 public class IntegerTextField extends JTextField
     implements IntegerPlainDocument.InsertErrorListener
 {
+
+    /** Class name for debugging. */
+    protected final static String C = "IntegerTextField";
+    /** If true print out debug statements. */
+    protected final static boolean D = false;
+
+
     public IntegerTextField() { this(null, 0); }
 
     public IntegerTextField(String text) { this(text, 0); }

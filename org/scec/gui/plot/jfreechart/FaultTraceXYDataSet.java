@@ -8,32 +8,41 @@ import org.scec.data.*;
 import org.scec.sha.fault.*;
 import org.scec.util.*;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> FaultTraceXYDataSet<p>
  *
  * <b>Description:</b> Proxy for the FaultTrace to conform to the JFreeChart API
  * for XYDataSet, we can now pass a FaultTrace wrapped in this class into a plot<p>
  *
+ * This class contains a pointer to a FaultTrace. It also implements
+ * an XYDataset which is JFreChart's interface that all datasets must implement
+ * so they can be passed to the graphing routines. This class transforms the
+ * FaultTrace data into the format as required by this interface.<p>
+ *
+ * Please consult the JFreeChart documentation for further information
+ * on XYDataSets. <p>
+ *
+ * Note: The GriddedSurfaceXYDataSet and DiscretizedFunctionXYDatasets are
+ * handled in exactly the same manner as for FaultTraces.<p>
+ *
+ * @see GriddedSurfaceXYDataSet
+ * @see DiscretizedFunctionXYDataSet
  * @author Steven W. ROck
  * @version 1.0
  */
 
 public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
 
-
+    /** Class name used for debug statements */
     protected final static String C = "FaultTraceXYDataSet";
+    /** If true prints out debug statements */
     protected final static boolean D = false;
 
-    /**
-     *  Internal trace of Locations
-     */
+
+    /** The real data of this class - Internal trace of Locations */
     protected FaultTrace trace = null;
 
-    /**
-     *  list of listeners for data changes
-     */
+    /** list of listeners for data changes */
     protected Vector listeners = new Vector();
 
     /**
@@ -44,48 +53,37 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
 
     DecimalFormat format = new DecimalFormat("#,###.##");
 
-
+    /** Returns true if FaultTrace pointer is not null, false otherwise. */
     public boolean checkFaultTrace(){
         if( trace != null ) return true;
         else return false;
     }
 
-    /**
-     *  no arg constructor
-     */
+    /** Constructor that set's the FaultTrace.  */
     public FaultTraceXYDataSet(FaultTrace trace) { this.trace = trace; }
 
 
-    /**
-     *  Sets the name attribute of the Function2DList object
-     * @param  newName  The new name value
-     */
+    /** Sets the name of this FaultTraceXYDataset. */
     public void setName( String newName ) { name = newName; }
 
-    /**
-     *  Gets the name attribute of the Function2DList object
-     * @param  newName  The new name value
-     */
+    /** Gets the name of this FaultTraceXYDataset. */
     public String getName(  ) { return name; }
 
 
     /**
-     *  Returns the number of series in the dataset.
-     *
-     * @return    The number of series in the dataset.
+     *  XYDataSetAPI - Returns the number of series in the dataset.
+     *  For a fault trace the answer is always 1, unless the
+     *  fault trace is null. It that case 0 is returned.
      */
     public int getSeriesCount() {
-
         if ( checkFaultTrace() )  return 1;
         else return 0;
     }
 
 
     /**
-     *  Returns the name of a series.
-     *
-     * @param  series  The series (zero-based index).
-     * @return         The seriesName value
+     *  XYDataSetAPI - Returns the name of a series. FaultTraces
+     *  always only have one series. Useful for displays.
      */
     public String getSeriesName( int series ){
         if ( !checkFaultTrace() )  return name + ' ' + series;
@@ -93,10 +91,9 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
     }
 
     /**
-     *  Returns the number of items in a series.
-     *
-     * @param  series  The series (zero-based index).
-     * @return         The number of items within a series.
+     *  XYDataSetAPI - Returns the number of items in a series.
+     *  FaultTraces only have one series so this returns the
+     *  number of Locations in a FaultTrace.
      */
     public int getItemCount( int series ) {
         if ( !checkFaultTrace() ) return 0;
@@ -107,7 +104,7 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
 
 
     /**
-     *  Returns the x-value for an item within a series. <P>
+     *  XYDataSetAPI - Returns the x-value for an item within a series. <P>
      *
      *  The implementation is responsible for ensuring that the x-values are
      *  presented in ascending order.
@@ -129,7 +126,7 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
 
 
     /**
-     *  Returns the y-value for an item within a series.
+     * XYDataSetAPI -  Returns the y-value for an item within a series.
      *
      * @param  series  The series (zero-based index).
      * @param  item    The item (zero-based index).
@@ -146,41 +143,22 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
 
     }
 
-
-    /**
-     *  removes all DiscretizedFunction2Ds from the trace, making it empty, ready
-     *  for new DiscretizedFunction2Ds
-     */
+    /** XYDataSetAPI - sets the FaultTrace reference to null */
     public void clear() { trace = null; }
 
-
-
-
-    /**
-     *  Registers an object for notification of changes to the dataset.
-     *
-     * @param  listener  The object to register.
-     */
+    /** XYDataSetAPI - Registers an object for notification of changes to the dataset. */
     public void addChangeListener( DatasetChangeListener listener ) {
         if ( !listeners.contains( listener ) ) {
             listeners.add( listener );
         }
     }
 
-
-    /**
-     *  Deregisters an object for notification of changes to the dataset.
-     *
-     * @param  listener  The object to deregister.
-     */
+    /** XYDataSetAPI - Deregisters an object for notification of changes to the dataset. */
     public void removeChangeListener( DatasetChangeListener listener ) {
         if ( listeners.contains( listener ) ) {
             listeners.remove( listener );
         }
     }
-
-
-
 
 
 }

@@ -28,9 +28,9 @@ import org.scec.param.event.ParameterChangeListener;
 
 public class ParameterListEditor extends LabeledBoxPanel {
 
-
-
+    /** Class name for debugging. */
     protected final static String C = "ParameterListEditor";
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
     private ParameterList parameterList;

@@ -25,9 +25,10 @@ public class StringParameterEditor
     extends ParameterEditor
 {
 
-    protected static final String C = "StringParameterEditor";
-    protected static final boolean D = false;
-
+    /** Class name for debugging. */
+    protected final static String C = "StringParameterEditor";
+    /** If true print out debug statements. */
+    protected final static boolean D = false;
 
     public StringParameterEditor() { super(); }
 

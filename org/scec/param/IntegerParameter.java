@@ -5,9 +5,14 @@ import org.scec.exceptions.*;
 /**
  *  <b>Title:</b> IntegerParameter<p>
  *
- *  <b>Description:</b> Generic Data Object that contains an Integer and
- *  optionally a min and max allowed values stored in a constraint object. If no
- *  constraint object is present then all values should be permitted. <p>
+ *  <b>Description:</b> Integer Parameter that accepts Integers as it's values.
+ * If constraints are present, setting the vlaue must pass the constraint
+ * check. Since the parameter class in an ancestor, all the parameter's fields are
+ * inherited. <p>
+ *
+ * The constraints are IntegerConstraint which means a min and max values are
+ * stored in the constraint that setting the parameter's value cannnt exceed.
+ * If no constraint object is present then all values are permitted. <p>
  *
  * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
@@ -19,15 +24,10 @@ public class IntegerParameter
     implements DependentParameterAPI, ParameterAPI
 {
 
-    /**
-     *  Class name for debugging.
-     */
+    /** Class name for debugging. */
     protected final static String C = "IntegerParameter";
-    /**
-     *  If true print out debug statements.
-     */
+    /** If true print out debug statements. */
     protected final static boolean D = false;
-
 
 
     /**

@@ -62,8 +62,9 @@ import javax.accessibility.*;
 public class NumericTextField extends JTextField
     implements NumericPlainDocument.InsertErrorListener {
 
-
+    /** Class name for debugging. */
     protected final static String C = "NumericTextField";
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
     public NumericTextField() { this(null, 0, null); }

@@ -19,8 +19,11 @@ import javax.swing.border.*;
 
 public class DoubleParameterEditor extends ParameterEditor
 {
-    protected static final String C = "DoubleParameterEditor";
-    protected static final boolean D = false;
+
+    /** Class name for debugging. */
+    protected final static String C = "DoubleParameterEditor";
+    /** If true print out debug statements. */
+    protected final static boolean D = false;
 
     /**
      * No-Arg constructor calls super();

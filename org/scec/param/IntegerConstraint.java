@@ -25,13 +25,9 @@ import org.scec.exceptions.EditableException;
 
 public class IntegerConstraint extends ParameterConstraint  {
 
-    /**
-     *  Class name for debugging
-     */
+    /** Class name for debugging. */
     protected final static String C = "IntegerConstraint";
-    /**
-     *  If true debug statements printed
-     */
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
     /**

@@ -4,8 +4,6 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.scec.data.*;
 
-// FIX - Needs more comments
-
 /**
  *  <b>Title:</b> DataPoint2DTestCase<p>
  *

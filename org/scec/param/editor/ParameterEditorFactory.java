@@ -31,9 +31,12 @@ public class ParameterEditorFactory {
     /** @todo  Variables */
     /* *******************/
 
-    /* Debbuging variables */
+
+    /** Class name for debugging. */
     protected final static String C = "ParameterEditorFactory";
+    /** If true print out debug statements. */
     protected final static boolean D = false;
+
 
     protected final static String DEFAULT_PATH = "org.scec.param.editor";
     protected static String[] searchPaths;

@@ -7,20 +7,19 @@ import org.scec.exceptions.*;
 /**
  *  <b>Title:</b> StringParameter<p>
  *
- *  <b>Description:</b> Generic Data Object that contains a String and
- *  optionally a vector of allowed values stored in a constraint object. If no
- *  constraint object is present then all values are permitted.<p>
+ *  <b>Description:</b> String Parameter that accepts strings as it's values.
+ * If constraints are present, setting the vlaue must pass the constraint
+ * check. Since the parameter class in an ancestor, all parameter's fields are
+ * inherited. <p>
  *
- *  <b>Note:</b> We are unable to have a constructor with signature:
+ * The constraints are StringConstraint which implies a StringParameter
+ * can only be choosen from a list of files.
  *
- *  <ul>
- *    <li> <code>public StringParameter(String name, String units)</code>
- *  </ul>
- *  because we already have a constructor with the identical signature
- *  <ul>
- *    <li> <code>public StringParameter(String name, String value)</code><br>
- *
- *  </ul>
+ * Note: SWR: The constraint object could be "supercharged" by using Regular
+ * Expressions introduced in java 1.4. Then we wouldn't need a list
+ * of allowed values but rather a matcher pattern. For example "[A-Za-z]*"
+ * would allow all values that start with a lowercase or upper case
+ * alphabet letter.<p>
  *
  * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
@@ -32,29 +31,22 @@ public class StringParameter
     implements DependentParameterAPI, ParameterAPI
 {
 
-    /**
-     *  Class name for debugging.
-     */
+    /** Class name for debugging. */
     protected final static String C = "StringParameter";
-    /**
-     *  If true print out debug statements.
-     */
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
-
     /**
-     *  No constraints specified, all values allowed.
-     *
-     * @param  name  The name of this parameter
+     * Constructor doesn't specify a constraint, all values allowed. This
+     * constructor sets the name of this parameter.
      */
-    public StringParameter( String name ) {
-        this.name = name;
-    }
+    public StringParameter( String name ) { this.name = name; }
 
 
     /**
-     *  Input vector is turned into StringConstraints object. If vector contains
-     *  no elements an exception is thrown.
+     * Input vector is turned into StringConstraints object. If vector
+     * contains no elements an exception is thrown. This constructor
+     * also sets the name of this parameter.
      *
      * @param  name                     Name of the parametet
      * @param  strings                  Converted to the Constraint object
@@ -69,7 +61,7 @@ public class StringParameter
 
 
     /**
-     *  Sets the name and Constraint.
+     * Constructor that sets the name and Constraint during initialization.
      *
      * @param  name                     Name of the parametet
      * @param  constraint               Constraint object
@@ -82,7 +74,8 @@ public class StringParameter
 
 
     /**
-     *  No constraints specified, all values allowed
+     *  No constraints specified, all values allowed. This constructor
+     * set's the name of this parameter as well as the value.
      *
      * @param  name   Name of the parametet
      * @param  value  value of this parameter
@@ -94,8 +87,8 @@ public class StringParameter
 
 
     /**
-     *  No constraints specified, all values allowed. Sets the name, units and
-     *  value.
+     * No constraints specified, all values allowed.
+     * Sets the name, units and value.
      *
      * @param  name                     Name of the parameter
      * @param  units                    Units of the parameter
@@ -156,8 +149,8 @@ public class StringParameter
     }
 
     /**
-     *  Sets the constraint if it is a StringConstraint and the parameter
-     *  is currently editable.
+     * Sets the constraint reference if it is a StringConstraint
+     * and the parameter is currently editable, else throws an exception.
      */
     public void setConstraint(ParameterConstraintAPI constraint) throws ParameterException, EditableException{
 
@@ -174,9 +167,12 @@ public class StringParameter
     }
 
     /**
-     *  Gets the type attribute of the StringParameter object
+     *  Gets the type attribute of the StringParameter object. Returns
+     * the class name if unconstrained, else "Constrained" + classname.
+     * This is used to determine which type of GUI editor applies to this
+     * parameter.
      *
-     * @return    The type value
+     * @return    The GUI editor type
      */
     public String getType() {
         String type = C;
@@ -188,10 +184,9 @@ public class StringParameter
 
 
     /**
-     *  Returns a clone of the allowed strings of the constraint. Useful for
-     *  presenting in a picklist
-     *
-     * @return    The allowedStrings value
+     * Returns a clone of the allowed strings of the constraint.
+     * Useful for presenting in a picklist
+     * @return    The allowedStrings vector
      */
     public Vector getAllowedStrings() {
         return ( ( StringConstraint ) this.constraint ).getAllowedStrings();
@@ -199,8 +194,9 @@ public class StringParameter
 
 
     /**
-     *  Compares the values to if this is less than, equal to, or greater than
-     *  the comparing objects. Implementation of comparable interface.
+     * Compares the values to if this is less than, equal to, or greater than
+     * the comparing objects. Implementation of comparable interface. Helps
+     * with sorting a list of parameters.
      *
      * @param  obj                     The object to compare this to
      * @return                         -1 if this value < obj value, 0 if equal,
@@ -230,7 +226,10 @@ public class StringParameter
 
 
     /**
-     *  Compares value to see if equal.
+     *  Compares the passed in String parameter to see if it has
+     * the same name and value. If the object is not a String parameter
+     * an exception is thrown. If the values and names are equal true
+     * is returned, otherwise false is returned.
      *
      * @param  obj                     The object to compare this to
      * @return                         True if the values are identical
@@ -247,15 +246,15 @@ public class StringParameter
         String otherName = ( ( StringParameter ) obj ).getName();
         if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
             return true;
-        } else {
-            return false;
         }
+        else { return false; }
     }
 
 
     /**
-     *  Returns a copy so you can't edit or damage the origial. Clones this
-     *  objects values, and the constraint.
+     *  Returns a copy so you can't edit or damage the origial.
+     * Clones this object's value and all fields. The constraints
+     * are also cloned.
      *
      * @return    Description of the Return Value
      */

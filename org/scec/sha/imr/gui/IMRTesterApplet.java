@@ -31,9 +31,6 @@ import org.scec.param.event.*;
  *  require a Site nor a Potential Earthquake, which are normaly necessary to
  *  calculate all the independent parameters. The purpose of the Applet is to
  *  test implemented IMRs at it's simplest level.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Steven W. Rock
  * @created    April 17, 2002

@@ -20,13 +20,10 @@ public class DoubleDiscreteParameter
     extends DependentParameter
     implements DependentParameterAPI, ParameterAPI
 {
-    /**
-     *  Class name - used for debugging
-     */
+
+    /** Class name for debugging. */
     protected final static String C = "DoubleDiscreteParameter";
-    /**
-     *  If true, debugging statements printed
-     */
+    /** If true print out debug statements. */
     protected final static boolean D = false;
 
 

@@ -20,15 +20,10 @@ public class DoubleParameter
     implements DependentParameterAPI, ParameterAPI
 {
 
-    /**
-     *  Class name for debugging.
-     */
+    /** Class name for debugging. */
     protected final static String C = "DoubleParameter";
-    /**
-     *  If true print out debug statements.
-     */
+    /** If true print out debug statements. */
     protected final static boolean D = false;
-
 
 
     /**

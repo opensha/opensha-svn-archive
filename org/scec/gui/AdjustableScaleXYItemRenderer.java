@@ -4,8 +4,8 @@ import com.jrefinery.chart.*;
 import com.jrefinery.chart.tooltips.*;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Title: AdjustableScaleXYItemRenderer</p>
+ * <p>Description: JFreeChart subclass. Used by FaultDemo Applet. </p>
  *
  * @author unascribed
  * @version 1.0

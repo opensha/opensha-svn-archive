@@ -24,10 +24,6 @@ import org.scec.data.*;
  *  to be easily swapped in and out when you are examining different IMR's in
  *  the main tester applet application.<p>
  *
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
- *
  * @author     Steven W. Rock
  * @created    February 28, 2002
  * @see        BJF_1997_IMR

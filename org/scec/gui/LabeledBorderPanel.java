@@ -5,8 +5,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-// FIX - Needs more comments
-
 /**
  * <b>Title:</b> LabeledBorderPanel<p>
  *

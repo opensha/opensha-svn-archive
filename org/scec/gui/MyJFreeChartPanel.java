@@ -23,7 +23,7 @@ import com.jrefinery.chart.ui.*;
  * This class also handles mouse zooming. <p>
  *
  * This is not a primary class of the SCEC framework so a full description
- * will not be provided here. More more information please consult the
+ * will not be provided here. For more information please consult the
  * JFreeChart framework. Only experienced programmers would need to modify
  * this class. <p>
  *
