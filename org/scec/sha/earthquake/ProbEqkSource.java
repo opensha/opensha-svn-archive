@@ -10,7 +10,7 @@ import org.scec.data.NamedObjectAPI;
  * <p>Title: ProbEqkSource</p>
  * <p>Description: Class for Probabilistic earthquake source</p>
  *
- * @author Nitin Gupta and Vipin Gupta
+ * @author Ned Field, Nitin Gupta, Vipin Gupta
  * @date Aug 27, 2002
  * @version 1.0
  */
@@ -35,6 +35,11 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * is true, so non-Poissonian sources will need to overide this value.
    */
   protected boolean isPoissonian = true;
+
+  /**
+   * string to save the information about this source
+   */
+  private String info;
 
 
   /**
@@ -118,5 +123,23 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   * Set the info for this Prob Eqk source
+   * @param infoString : Info
+   * @return
+   */
+  public void setInfo(String infoString) {
+    this.info = new String(infoString);
+  }
+
+  /**
+   * Get the info for this source
+   *
+   * @return
+   */
+  public String getInfo() {
+    return new String(this.info);
   }
 }
