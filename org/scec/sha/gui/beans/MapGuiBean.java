@@ -139,12 +139,17 @@ public class MapGuiBean extends JPanel implements
    */
   public void makeMap(String fileName,String paramsInfo){
     String imgName;
-    if(this.gmtServerCheck.isSelected())
+    boolean gmtFromServer = false;
+    if(this.gmtServerCheck.isSelected()){
       imgName = openConnection(fileName);
-    else
+      gmtFromServer = true;
+    }
+    else{
       imgName = gmtMap.makeMap(fileName);
+      gmtFromServer = false;
+    }
     //adding the image to the Panel and returning that to the applet
-    ImageViewerWindow imgView = new ImageViewerWindow(imgName,paramsInfo);
+    ImageViewerWindow imgView = new ImageViewerWindow(imgName,paramsInfo,gmtFromServer);
   }
 
   /**

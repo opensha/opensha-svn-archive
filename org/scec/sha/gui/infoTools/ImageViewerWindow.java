@@ -2,6 +2,7 @@ package org.scec.sha.gui.infoTools;
 
 import java.awt.*;
 import javax.swing.*;
+import java.net.*;
 
 /**
  * <p>Title: ImageViewerWindow</p>
@@ -21,12 +22,14 @@ public class ImageViewerWindow extends JFrame {
   private JLabel mapLabel = new JLabel();
 
   private String imageFile = new String();
+  private boolean gmtFromServer = false;
 
   private String mapInfo= new String();
   private BorderLayout borderLayout1 = new BorderLayout();
-  public ImageViewerWindow(String imageFileName,String mapInfo) {
+  public ImageViewerWindow(String imageFileName,String mapInfo,boolean gmtFromServer) {
     imageFile = imageFileName;
     this.mapInfo = mapInfo;
+    this.gmtFromServer = gmtFromServer;
     try {
       jbInit();
     }
@@ -51,7 +54,11 @@ public class ImageViewerWindow extends JFrame {
     mapText.setSelectionColor(Color.blue);
 
     //adding the image to the label
-    mapLabel.setIcon(new ImageIcon(imageFile));
+    if(!this.gmtFromServer)
+      mapLabel.setIcon(new ImageIcon(imageFile));
+    else
+      mapLabel.setIcon(new ImageIcon(new URL(imageFile)));
+
     this.getContentPane().add(mapSplitPane, BorderLayout.CENTER);
     mapSplitPane.add(mapScrollPane, JSplitPane.TOP);
     mapSplitPane.add(mapText, JSplitPane.BOTTOM);
