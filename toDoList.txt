@@ -1,6 +1,10 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Put calTopoInten03.grd on vravity
+
+Add convert -filter -resize option in GMT_MapGenerator
+
 See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
 
 1) Change Vs30 servlet to return "A", "B", "BC", ... rather than the numberical value.  So, in the data file that we read change each of the numerical values as follows (actually make a new file):
