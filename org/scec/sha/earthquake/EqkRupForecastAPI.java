@@ -1,6 +1,7 @@
 package org.scec.sha.earthquake;
 
 import org.scec.data.NamedObjectAPI;
+import org.scec.data.TimeSpan;
 
 import java.util.Iterator;
 import java.util.Vector;
@@ -14,21 +15,9 @@ import java.util.Vector;
  * @version 1.0
  */
 
-public abstract class EqkRupForecast implements NamedObjectAPI{
-
-    /* *******************/
-    /** @todo  Variables */
-    /* *******************/
-
-    /* Debbuging variables */
-    protected final static String name = "EqkRupForecast";
+public interface EqkRupForecastAPI extends NamedObjectAPI{
 
 
-    /* **********************/
-    /** @todo  Constructors */
-    /* **********************/
-
-    public EqkRupForecast() { }
 
 
     /**
@@ -36,9 +25,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      *
      * @return Iterator over all earhtquake sources
      */
-    public Iterator getSourcesIterator() {
-      return null;
-    }
+    public Iterator getSourcesIterator() ;
 
 
     /**
@@ -46,9 +33,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      *
      * @return integer value spcifying the number of earthquake sources
      */
-    public int getNumSources() {
-      return 0;
-    }
+    public int getNumSources();
 
 
     /**
@@ -62,9 +47,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      * @return Returns the ProbEqkSource at index i
      *
      */
-    public ProbEqkSource getSource(int iSource) {
-      return null;
-    }
+    public ProbEqkSource getSource(int iSource) ;
 
 
 
@@ -79,9 +62,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      * @return Returns the ProbEqkSource at index i
      *
      */
-    public ProbEqkSource getSourceClone(int iSource) {
-      return null;
-    }
+    public ProbEqkSource getSourceClone(int iSource) ;
 
 
     /**
@@ -90,9 +71,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      *
      * @return Vector of Prob Earthquake sources
      */
-    public Vector  getSourceList() {
-      return null;
-    }
+    public Vector  getSourceList();
 
 
     /**
@@ -105,9 +84,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      * @param i
      * @return
      */
-    public EqkRupture getRupture(int iSource, int nRupture) {
-      return null;
-    }
+    public EqkRupture getRupture(int iSource, int nRupture);
 
     /**
      * Get the ith rupture of the source. this method DOES NOT return reference
@@ -119,9 +96,7 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      * @param i
      * @return
      */
-    public EqkRupture getRuptureClone(int iSource, int nRupture) {
-      return null;
-    }
+    public EqkRupture getRuptureClone(int iSource, int nRupture) ;
 
 
     /**
@@ -129,17 +104,27 @@ public abstract class EqkRupForecast implements NamedObjectAPI{
      *
      * @param iSource index of source whose ruptures need to be found
      */
-    public int getNumRuptures(int iSource) {
-      return 0;
-    }
+    public int getNumRuptures(int iSource);
 
     /**
      * Return the name for this class
      *
      * @return : return the name for this class
      */
-   public String getName() {
-     return this.name;
-   }
+   public String getName();
+
+   /**
+    * This method sets the time-span field
+    * @param time
+    */
+   public void setTimeSpan(TimeSpan time);
+
+   /**
+    * this method is being used temporarily for setting the timespan in yrs
+    * after taking the input from the user from the EqkForecast Applet
+    * @param yrs
+    */
+
+   public void setTimeSpan(int yrs);
 
 }

@@ -49,14 +49,26 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
 
     this.rake=rake;
     // see here that we have rounded num to nearest integer value
-    int num = (int)Math.rint((magUpper - magLower)/delta + 1);
 
+    int num = (int)Math.rint((magUpper - magLower)/delta + 1);
+    System.out.println("Frankel96_GR_EqkSource:magUpper::"+magUpper);
+    System.out.println("Frankel96_GR_EqkSource:magLower::"+magLower);
+    System.out.println("Frankel96_GR_EqkSource:delta::"+delta);
+    System.out.println("Frankel96_GR_EqkSource:num::"+num);
     probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setAveRake(rake);
     probEqkRupture.setRuptureSurface(surface);
 
+    /*
+    This statement checks for the num to be 1, if it is then we make the num to be 2,
+    otherwise EvenlyDiscretizedFunc will be throwing an exception for division by zero in the constructor
+    */
+    if(num==1)
+      gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,2);
+    else
+      gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,num);
+
     //Setting the GuttenbergDistribution
-    gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,num);
     gR.setAllButTotMoRate(magLower,magUpper,1,bValue );
     double rate = Math.pow(10,aValue - bValue*magLower);
     gR.scaleToIncrRate(magLower,rate);

@@ -274,10 +274,6 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
            minX, num, delta
        );
 
-       f.info = info;
-       f.minX = minX;
-       f.maxX = maxX;
-       f.name = name;
        f.tolerance = tolerance;
        f.setInfo(this.getInfo());
        f.setName(this.getName());
