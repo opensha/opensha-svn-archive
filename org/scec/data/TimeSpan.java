@@ -912,7 +912,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
     }
 
     /**
-     * This returns a ParameterList (e.g., to put in a GUI so users can set values).
+     * This returns a ParameterList Iterator(e.g., to put in a GUI so users can set values).
      * This only includes start-time parameters that are within the chosen precision.
      * @return
      */
@@ -938,6 +938,35 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
         list.addParameter(startMillisecondParam);
 
       return list.getParametersIterator();
+    }
+
+    /**
+     * This returns a ParameterList (e.g., to put in a GUI so users can set values).
+     * This only includes start-time parameters that are within the chosen precision.
+     * @return
+     */
+    public ParameterList getAdjustableParams() {
+      ParameterList list = new ParameterList();
+
+      // always add duration
+      list.addParameter(durationParam);
+
+      if(getStartTimePrecInt() > 0)
+        list.addParameter(startYearParam);
+      if(getStartTimePrecInt() > 1)
+        list.addParameter(startMonthParam);
+      if(getStartTimePrecInt() > 2)
+        list.addParameter(startDayParam);
+      if(getStartTimePrecInt() > 3)
+        list.addParameter(startHourParam);
+      if(getStartTimePrecInt() > 4)
+        list.addParameter(startMinuteParam);
+      if(getStartTimePrecInt() > 5)
+        list.addParameter(startSecondParam);
+      if(getStartTimePrecInt() > 6)
+        list.addParameter(startMillisecondParam);
+
+      return list;
     }
 
 
