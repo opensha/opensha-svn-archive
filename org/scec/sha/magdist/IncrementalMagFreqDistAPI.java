@@ -1,5 +1,5 @@
 package org.scec.sha.magdist;
-
+import org.scec.data.function.EvenlyDiscretizedFunc;
 /**
  *
  * <p>Title: IncrementalMagFreqDistAPI</p>
@@ -27,8 +27,8 @@ public interface IncrementalMagFreqDistAPI {
 
       public void normalizeByTotalRate();
 
-      public double CumulativeDist() ;
-      public double getMomentRateDist() ;
+      public EvenlyDiscretizedFunc getCumRateDist() ;
+      public EvenlyDiscretizedFunc getMomentRateDist() ;
 
       public void scaleToCumRate(double mag,double rate);
 

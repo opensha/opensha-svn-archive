@@ -11,7 +11,7 @@ import org.scec.data.function.EvenlyDiscretizedFunc;
  * @version 1.0
  */
 
-public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc {
+public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements IncrementalMagFreqDistAPI {
 
     EvenlyDiscretizedFunc  cumRateDist;
     EvenlyDiscretizedFunc momentRateDist;
