@@ -876,7 +876,6 @@ public class AttenuationRelationshipApplet extends JApplet
 
         if (!yLog)
           yAxis.setAutoRangeIncludesZero(true);
-
         else
           yAxis.setAutoRangeIncludesZero( false );
 

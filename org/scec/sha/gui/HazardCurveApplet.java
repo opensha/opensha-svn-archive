@@ -326,6 +326,46 @@ public class HazardCurveApplet extends JApplet
     catch(Exception e) {
       e.printStackTrace();
     }
+
+
+    /*// write the object
+    try {
+      FileInputStream in = new FileInputStream("OpenSHA_Object.file");
+      ObjectInputStream s1 = new ObjectInputStream(in);
+      ParameterList imrParamList =(ParameterList) s1.readObject();
+      imrGuiBean.setParameterList(imrParamList);
+      imrGuiBean.refreshParamEditor();
+      imrGuiBean.validate();
+      imrGuiBean.repaint();
+      ParameterList imtParamList =(ParameterList) s1.readObject();
+      imtGuiBean.setParameterList(imrParamList);
+      imtGuiBean.refreshParamEditor();
+      imtGuiBean.validate();
+      imtGuiBean.repaint();
+      ParameterList siteParamList =(ParameterList) s1.readObject();
+      siteGuiBean.getParameterListEditor().setParameterList(siteParamList);
+      siteGuiBean.getParameterListEditor().refreshParamEditor();
+      siteGuiBean.getParameterListEditor().validate();
+      siteGuiBean.getParameterListEditor().repaint();
+      ParameterList erfParamList =(ParameterList) s1.readObject();
+      erfGuiBean.setParameterList(erfParamList);
+      erfGuiBean.refreshParamEditor();
+      erfGuiBean.validate();
+      erfGuiBean.repaint();
+      ParameterList timeParamList =(ParameterList) s1.readObject();
+      timeSpanGuiBean.setParameterList(timeParamList);
+      timeSpanGuiBean.refreshParamEditor();
+      timeSpanGuiBean.validate();
+      timeSpanGuiBean.repaint();
+      totalProbFuncs = (DiscretizedFuncList)s1.readObject();
+      this.validate();
+      this.repaint();
+      this.addButton();
+    }catch(Exception e){
+      e.printStackTrace();
+    }*/
+
+
   }
 
   //Component initialization
@@ -558,7 +598,10 @@ public class HazardCurveApplet extends JApplet
       if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
       else xAxis = new NumberAxis( xAxisLabel );
 
-      xAxis.setAutoRangeIncludesZero( false );
+      if (!xLog)
+        xAxis.setAutoRangeIncludesZero(true);
+      else
+        xAxis.setAutoRangeIncludesZero( false );
       xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
 
@@ -566,7 +609,11 @@ public class HazardCurveApplet extends JApplet
       if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
       else yAxis = new NumberAxis( yAxisLabel );
 
-      yAxis.setAutoRangeIncludesZero( false );
+      if (!yLog)
+        yAxis.setAutoRangeIncludesZero(true);
+      else
+        yAxis.setAutoRangeIncludesZero( false );
+
       yAxis.setStandardTickUnits(units);
       yAxis.setTickMarksVisible(false);
 
@@ -807,6 +854,24 @@ public class HazardCurveApplet extends JApplet
         this.computeHazardCurve();
         this.drawGraph();
       }
+
+      /*// write the object
+      try {
+        FileOutputStream out = new FileOutputStream("OpenSHA_Object.file");
+        ObjectOutputStream s = new ObjectOutputStream(out);
+        s.writeObject(imrGuiBean.getParameterList());
+        s.writeObject(imtGuiBean.getParameterList());
+        s.writeObject(siteGuiBean.getParameterListEditor().getParameterList());
+        s.writeObject(erfGuiBean.getParameterList());
+        s.writeObject(timeSpanGuiBean.getParameterList());
+        s.writeObject(totalProbFuncs);
+        s.close();
+        out.close();
+      }catch(Exception e) {
+        e.printStackTrace();
+      }*/
+
+
     }
 
     /**

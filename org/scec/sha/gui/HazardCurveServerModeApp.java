@@ -541,7 +541,11 @@ public class HazardCurveServerModeApp extends JApplet
       else xAxis = new NumberAxis( xAxisLabel );
 
       try{
+        if (!xLog)
+         xAxis.setAutoRangeIncludesZero(true);
+       else
         xAxis.setAutoRangeIncludesZero( false );
+
         xAxis.setStandardTickUnits(units);
         xAxis.setTickMarksVisible(false);
 
@@ -549,7 +553,11 @@ public class HazardCurveServerModeApp extends JApplet
         if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
         else yAxis = new NumberAxis( yAxisLabel );
 
-        yAxis.setAutoRangeIncludesZero( false );
+        if (!yLog)
+          yAxis.setAutoRangeIncludesZero(true);
+        else
+          yAxis.setAutoRangeIncludesZero( false );
+
         yAxis.setStandardTickUnits(units);
         yAxis.setTickMarksVisible(false);
 
