@@ -253,7 +253,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
                                      EqkRupForecast eqkRupForecast){
 
     ArrayList probVals = new ArrayList();
-    double MAX_DISTANCE = 1000;
+    double MAX_DISTANCE = 200;
 
     // declare some varibles used in the calculation
     double qkProb, distance;
@@ -277,7 +277,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       if(!(Double.isNaN(vs30)))
         ((WarningDoubleParameter)imr.getSite().getParameter(imr.VS30_NAME)).setValueIgnoreWarning(vs30Vals.get(j));
       //if Vs30 is in water then it's value is zero, so we take a small value for it as 301.00
-      if(vs30 == 0)
+      if(vs30 == 0) //make default D for Wills class for ShakeMap AttenRel.
         ((WarningDoubleParameter)imr.getSite().getParameter(imr.VS30_NAME)).setValueIgnoreWarning(new Double(301.00));
       //System.out.println("Vs30 Value:"+((Double)imr.getParameter(imr.VS30_NAME).getValue()).doubleValue());
       // loop over sources
