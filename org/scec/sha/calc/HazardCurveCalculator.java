@@ -29,9 +29,13 @@ public class HazardCurveCalculator {
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
   protected final double MAX_DISTANCE = 200;
 
+  // frame height and width
+  private int FRAME_WIDTH = 250;
+  private int FRAME_HEIGHT = 50;
 
-  private int FRAME_WIDTH = 200;
-  private int FRAME_HEIGHT = 100;
+  // start x and y for frame
+  private int FRAME_STARTX = 400;
+  private int FRAME_STARTY = 200;
 
   /**
    * this function determines the hazard curve based on the parameters
@@ -59,9 +63,11 @@ public class HazardCurveCalculator {
 
     // make the progress bar
     JFrame frame = new JFrame("Calculation Status");
+    frame.setLocation(this.FRAME_STARTX, this.FRAME_STARTY);
     frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
+
     JProgressBar progress = new JProgressBar(0,100);
-    //progress.setStringPainted(true); // display the percentage completed also
+    progress.setStringPainted(true); // display the percentage completed also
     frame.getContentPane().add(progress);
     frame.show();
     frame.validate();
