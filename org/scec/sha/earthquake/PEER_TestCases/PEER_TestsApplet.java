@@ -6,6 +6,7 @@ import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.Vector;
+import java.net.*;
 
 
 
@@ -207,6 +208,10 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   //images for the OpenSHA
   private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
   private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
+
+  //static string for the OPENSHA website
+  private final static String OPENSHA_WEBSITE="www.OpenSHA.org";
+
   private JLabel imgLabel = new JLabel();
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
 
@@ -261,6 +266,11 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     this.getContentPane().setBackground(Color.white);
     this.setSize(new Dimension(973, 742));
+    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        imgLabel_mouseClicked(e);
+      }
+    });
     this.getContentPane().setLayout(borderLayout1);
 
 
@@ -400,7 +410,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
       }
     });
     //loading the OpenSHA Logo
-    imgLabel.setText("");
+    imgLabel.setText("ddddddhjmmjhmjjmjm");
     imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
@@ -436,8 +446,8 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(27, 2, 43, 0), 16, 0));
     buttonPanel.add(jCustomAxisLabel,       new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 0, 6, 0), 1, 7));
-    buttonPanel.add(imgLabel,   new GridBagConstraints(2, 1, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(44, 68, 12, 21), 0, 26));
+    buttonPanel.add(imgLabel,      new GridBagConstraints(2, 1, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(44, 68, 12, 21), 30, 26));
     topSplitPane.setDividerLocation(575);
     chartSplit.setDividerLocation(575);
     rangeComboBox.addItem(new String(AUTO_SCALE));
@@ -1101,5 +1111,14 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
  double getDisaggregationProbablity(){
    return ((Double)(disaggregationParam.getValue())).doubleValue();
  }
+
+ void imgLabel_mouseClicked(MouseEvent e) {
+     try{
+     this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE));
+     }catch(java.net.MalformedURLException ee){
+       JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
+                                     "Error Connecting to Internet",JOptionPane.OK_OPTION);
+     }
+  }
 
 }

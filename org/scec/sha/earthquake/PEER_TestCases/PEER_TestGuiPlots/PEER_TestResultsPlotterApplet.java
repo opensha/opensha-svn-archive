@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.awt.event.*;
 import java.applet.*;
+import java.net.*;
 import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -138,9 +139,13 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       "Downloading the latest version of this jar file  will get you"+
      " the latest results.";
   private final static String GUI_TITLE = "PEER PSHA-Test Results Plotter";
+
+  //images for the OpenSHA
   private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
   private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
 
+  //static string for the OPENSHA website
+  private final static String OPENSHA_WEBSITE="www.OpenSHA.org";
 
 
   private JPanel buttonPanel = new JPanel();
@@ -235,6 +240,11 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     border4 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
     border5 = new EtchedBorder(EtchedBorder.RAISED,Color.white,new Color(178, 178, 178));
     this.setSize(new Dimension(749, 622));
+    powerLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        powerLabel_mouseClicked(e);
+      }
+    });
     this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(BorderFactory.createEtchedBorder());
     mainPanel.setLayout(gridBagLayout3);
@@ -912,6 +922,15 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
    */
   void toggleButton_actionPerformed(ActionEvent e) {
     togglePlot();
+  }
+
+  void powerLabel_mouseClicked(MouseEvent e) {
+   try{
+   this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE));
+   }catch(java.net.MalformedURLException ee){
+     JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
+                                   "Error Connecting to Internet",JOptionPane.OK_OPTION);
+   }
   }
 
 }

@@ -62,6 +62,9 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
   private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
 
+  //static string for the OPENSHA website
+  private final static String OPENSHA_WEBSITE="www.OpenSHA.org";
+
   private boolean isStandalone = false;
   private Border border1;
   private Border border2;
@@ -138,6 +141,11 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     border8 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     border9 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     this.setSize(new Dimension(704, 550));
+    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        imgLabel_mouseClicked(e);
+      }
+    });
     this.getContentPane().setLayout(borderLayout1);
 
     String messageText ="1) Select the test case you would like to submit data for.\n\n"+
@@ -908,6 +916,15 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
    */
   private int getAppletYAxisCenterCoor() {
     return (this.getY() + this.getHeight())/2;
+  }
+
+  void imgLabel_mouseClicked(MouseEvent e) {
+    try{
+    this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE));
+    }catch(java.net.MalformedURLException ee){
+      JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
+                                    "Error Connecting to Internet",JOptionPane.OK_OPTION);
+    }
   }
 
 }
