@@ -45,22 +45,19 @@ public class AttenRelResultsChecker {
   //Deciaml format to restrict the result to 6 places of decimal for the IMR computed values
   private DecimalFormat decimalFormat=new DecimalFormat("0.000000##");
 
-  //this needs to read from the file for the different Intensity Measures,
-  //but cuurently we only check for "SA"
-  private final static String SA_NAME="SA";
-
+  //stores the parameters settings for the
+  private String failedParamsSetting =null;
   //checks to see if we need Log for IMT
-  private boolean translateIMR = true;
+  private boolean translateAttenRel = true;
 
   //checks if the resulted values lies within the this tolerence range
   private double tolerence = .0001; //default value for the tolerence
 
-  //these are the comments in the file where the data results for the test result in that IMR starts and ends
-  public static final String START_RESULT_VALUES = "#start of result values for this test set";
-  public static final String END_RESULT_VALUES = "#end of result values for this test set";
+  private final static String parameterSetString = "SetParameter";
+  private final static String getParamValString = "GetValue";
+  private final static String intensitySetString = "SetIntensityMeasure";
 
-  //stores the test number which we testing from the AttenRel metadata file
-  int testNumber=0;
+
 
   //Vector to store the failed testCases
   private Vector testCaseNumberVector = new Vector();
@@ -71,11 +68,12 @@ public class AttenRelResultsChecker {
   //Vector to store the IndependentParams name and Value
   private Vector independentParamVector = new Vector();
 
-
+  //keeps the counts of the test cases in the file
+  int testCaseNumber =0;
   //String to Stores the controls param with their values
-  private String xControlName;
+  //private String xControlName;
   private String yControlName;
-  private String intensityMeasureName;
+  private String intensityMeasureName=null;
 
 
   public AttenRelResultsChecker(AttenuationRelationshipAPI imr, String file, double tolerence) {
@@ -115,17 +113,6 @@ public class AttenRelResultsChecker {
         list.addParameter( param );
     }
 
-    //set the defaults values for that AttenuationRelationship
-    imr.setParamDefaults();
-
-    //**** This temporary as we are getting the result for the SA Period , later
-    //we will read the value from the file ****/
-    //set the intensity measure for the AttenuationRelationship
-    imr.setIntensityMeasure(this.SA_NAME);
-
-    //It is temporary as right now we set the intensity measure to be only "SA"
-    this.intensityMeasureName = this.SA_NAME;
-
     //set the tolernce value for that IMR
     this.tolerence = tolerence;
 
@@ -148,42 +135,100 @@ public class AttenRelResultsChecker {
       //read the first line in the file which is the name of the AttenuationRelationship and discard it
       //becuase we do nothing with it currently
       br.readLine();
-      //arrayList to store the target IMR values for that test result set
-      ArrayList targetFunction = null;
-      //contains the value for the X-Axis
-      ParameterAPI xAxisParam =null;
+
       // reads the first line in the file
       String str = (br.readLine()).trim();
-      //stores the int value for the selected Y-axis param
-      int yAxisValue =0;
+
       //keep reading the file until file pointer reaches the end of file.
       while(str !=null){
         str= str.trim();
-        System.out.println("For("+testNumber+")"+str);
-
+ //       System.out.println("Line Read: "+str);
         //if the line contains nothing, just skip that line and read next
         if(str.equalsIgnoreCase(""))
           str = br.readLine();
         //if the line contains some data
         else{
+         // System.out.println("Line Read: "+str);
+          //if the String read is the Intensity Measure value in the file
+          if(str.trim().startsWith(this.intensitySetString)){
+            //setting the imr parameters default value with the start of new test case
+            //set the defaults values for that AttenuationRelationship
+            imr.setParamDefaults();
+            String st = str.substring(str.indexOf("(")+1,str.indexOf(")")).trim();
+            imr.setIntensityMeasure(st);
+            intensityMeasureName = st;
 
-          //if the String read is the X-Axis Param value in the file
-          if(str.startsWith(this.X_AXIS_NAME)){
-            String st = str.substring(str.indexOf("=")+1).trim();
-            xAxisParam = imr.getParameter(st);
-
-            //name and value for the X-Control Parameter
-            xControlName = str;
+            ListIterator supportedIntensityMeasureIterator =imr.getSupportedIntensityMeasuresIterator();
+            //Adding the independent Parameters to the param List
+            while ( supportedIntensityMeasureIterator.hasNext() ) {
+              DependentParameterAPI param = ( DependentParameterAPI ) supportedIntensityMeasureIterator.next();
+              //removing the intensity measure that are not required for the test case
+              if(list.containsParameter(param)){
+                list.removeParameter(param.getName());
+                Iterator it=param.getIndependentParametersIterator();
+                while(it.hasNext()){
+                  ParameterAPI  tempParam =(ParameterAPI)it.next();
+                  if(list.containsParameter(tempParam))
+                    this.list.removeParameter(tempParam.getName());
+                }
+              }
+              //System.out.println("Intensity Measure Param Name:"+param.getName());
+              if(param.getName().equalsIgnoreCase(intensityMeasureName)){
+                //adding the intensity measure parameter
+                list.addParameter(param);
+                Iterator it=param.getIndependentParametersIterator();
+                while(it.hasNext()){
+                  ParameterAPI  tempParam =(ParameterAPI)it.next();
+                  if(!list.containsParameter(tempParam))
+                    this.list.addParameter(tempParam);
+                }
+              }
+            }
+            //System.out.println("Intensity Measure Name: "+st);
+             ++this.testCaseNumber;
+             failedParamsSetting = "\n\nTest Case Number: "+ testCaseNumber+"\n";
+             failedParamsSetting += "Intensity Measure Type: "+intensityMeasureName+"\n";
           }
-          //if the string read is the new set of the test case
-          else if(str.startsWith("Set")){
-            String st = str.substring(str.indexOf("-")+1).trim();
-            testNumber = Integer.parseInt(st);
-          }
 
-          //if the String read is the Y-Axis Param value in the file
-          else if(str.startsWith(this.Y_AXIS_NAME)){
-            String st = str.substring(str.indexOf("=")+1).trim();
+          //if the String read is the Param name and its value from the file
+          else if(str.startsWith(this.parameterSetString)){
+            //getting the parameterName
+            String paramName = str.substring(str.indexOf("\"")+1,str.indexOf("\")")).trim();
+
+            //getting teh parameter Value
+            String paramVal = str.substring(str.indexOf("=")+1).trim();
+            if(paramVal.startsWith("\""))
+              paramVal = paramVal.substring(paramVal.indexOf("\"")+1,paramVal.lastIndexOf("\"")).trim();
+
+            failedParamsSetting += "\t"+"\""+paramName+"\""+" = "+ paramVal+"\n";
+
+            //System.out.println("ParameterName: "+paramName);
+            //System.out.println("ParameterVal: "+paramVal);
+            //we only need to get the parameters whose names have been given in the
+            //file, result of the params will be set with the default values
+            ParameterAPI tempParam = list.getParameter(paramName);
+
+            //setting the value of the param based on which type it is: StringParameter,
+            //DoubleParameter,IntegerParameter or WarningDoublePropagationEffectParameter(special parameter for propagation)
+            if(tempParam instanceof StringParameter)
+              tempParam.setValue(paramVal);
+            if(tempParam instanceof DoubleParameter)
+              tempParam.setValue(new Double(paramVal));
+            if(tempParam instanceof IntegerParameter)
+              tempParam.setValue(new Integer(paramVal));
+            if(tempParam instanceof DoubleDiscreteParameter)
+              tempParam.setValue(new Double(paramVal));
+            if(tempParam instanceof WarningDoublePropagationEffectParameter) {
+              ((WarningDoublePropagationEffectParameter)tempParam).setIgnoreWarning(true);
+              tempParam.setValue(new Double(paramVal));
+            }
+
+
+          }
+          else if(str.startsWith(this.getParamValString)){
+            //stores the int value for the selected Y-axis param
+            int yAxisValue =0;
+            String st = str.substring(str.indexOf("\"")+1,str.lastIndexOf("\"")).trim();
             if(st.equalsIgnoreCase(this.Y_AXIS_MEDIAN))
               yAxisValue = this.MEAN;
             else if(st.equalsIgnoreCase(this.Y_AXIS_STD_DEV))
@@ -192,289 +237,70 @@ public class AttenRelResultsChecker {
               yAxisValue = this.EXCEED_PROB;
             else if(st.equalsIgnoreCase(this.Y_AXIS_IML_AT_PROB))
               yAxisValue = this.IML_AT_EXCEED_PROB;
-
             //name and value for the Y-Control Parameter
-            this.yControlName = str;
-          }
-          /*
-          reading the target result for the AttenuationRelationship with the
-          given parameter setting and storing the actual result(benchmark) in the
-          ArrayList , so that we can compare this target result
-          with the result we will obtain with those parameter settings for that IMR.
-          */
-          else if(str.equalsIgnoreCase(this.START_RESULT_VALUES)){
-            /*if(testNumber == 19)
-              System.out.println("Hello");*/
-            targetFunction =new ArrayList();
-            str = (br.readLine()).trim();
-            //System.out.println("For("+testNumber+"):"+str);
-            int i=0;
-            //if we have started reading the target result keep reading it
-            //until we have reached the ending comments
-            while(!str.equalsIgnoreCase(this.END_RESULT_VALUES)){
-              System.out.println("For("+testNumber+"):"+(new Double(str.trim())).doubleValue());
-              targetFunction.add((new Double(str.trim())));
-              //System.out.println(i+":  "+targetFunction.getY(i));
-              str = (br.readLine()).trim();
-              if(str.equalsIgnoreCase(""))
-                str = (br.readLine()).trim();
-            }
-            // Get the Discretized Function - calculation done here
-            DiscretizedFuncAPI function = getFunctionForXAxis( xAxisParam,yAxisValue  );
-            for(int j=0;j<function.getNum();++j)
-              System.out.println("OpenSHA value for the test:"+testNumber+"; is:"+function.getY(j));
+            this.yControlName = st;
+
+            //getting the value of the Y_Axis Param as specified in the file from the test cases
+            //which will be compared to the SHA value for the Y_Axis Param
+            double yAxisParamVal =new Double(str.substring(str.indexOf("=")+1).trim()).doubleValue();
+
+            failedParamsSetting += "GetValue For Param: "+"\""+yControlName+"\": "+"\n";
+            double yAxisParamValFromSHA =this.getCalculation(yAxisValue);
+            failedParamsSetting += "\tOpenSHA value for: "+"\""+yControlName+"\" = "+yAxisParamValFromSHA;
+            failedParamsSetting += ",\tbut it should be : "+ yAxisParamVal+"\n";
+
+
             //compare the computed result using SHA with the target result for the defined set of parameters
-            boolean result =compareResults(function, targetFunction);
-            //if the test was failure the add it to trhe test cases Vecotr that stores the values for  that failed
+            boolean result =compareResults(yAxisParamValFromSHA, yAxisParamVal);
+            //if the test was failure the add it to the test cases Vecotr that stores the values for  that failed
             if(result == false)
-              this.testCaseNumberVector.add(new Integer(this.getTestNumber()));
+              return result;
+            //  this.testCaseNumberVector.add(new Integer(this.testCaseNumber));*/
 
             //adding the Control Param names and Value to Vector for all the test cases
             this.controlParamVector.add(this.getControlParametersValueForTest());
             //adding the Independent Param names and Value to Vector for all the test cases
             this.independentParamVector.add(this.getIndependentParametersValueForTest());
           }
-          //reading the parameter names and their value from the file
-          else{
-            //when we get parameter , check to see which parameter it is actually
-            //becuase its value will have to be set accordingly
-            String st = str.substring(0,str.indexOf("=")).trim();
-
-            //we only need to get the parameters whose names have been given in the
-            //file, result of the params will be set with the default values
-            ParameterAPI tempParam = list.getParameter(st);
-            st = str.substring(str.indexOf("=")+1).trim();
-            //setting the value of the param based on which type it is: StringParameter,
-            //DoubleParameter,IntegerParameter or WarningDoublePropagationEffectParameter(special parameter for propagation)
-            if(tempParam instanceof StringParameter)
-              tempParam.setValue(st);
-            if(tempParam instanceof DoubleParameter)
-              tempParam.setValue(new Double(st));
-            if(tempParam instanceof IntegerParameter)
-              tempParam.setValue(new Integer(st));
-            if(tempParam instanceof WarningDoublePropagationEffectParameter) {
-              ((WarningDoublePropagationEffectParameter)tempParam).setIgnoreWarning(true);
-              tempParam.setValue(new Double(st));
-            }
-          }
           //reads the next line in the file
           str = br.readLine();
         }
       }
-    }catch(Exception e){
+      }catch(Exception e){
       e.printStackTrace();
     }
     // test cases vector that contains the failed test number
     //if the size of this vector is not zero then return false(to make sure that some test did failed)
-    if(this.testCaseNumberVector.size() >0)
-      return false;
+    /*if(this.testCaseNumberVector.size() >0)
+      return false;*/
     return true;
   }
 
   /**
    * This function compares the values we obtained after running the values for
    * the IMR and the target Values( our benchmark)
-   * @param function = values we got after running the OpenSHA code for the IMR
-   * @param targetFunction = values we are comparing with to see if OpenSHA does correct calculation
+   * @param valFromSHA = values we got after running the OpenSHA code for the IMR
+   * @param targetVal = values we are comparing with to see if OpenSHA does correct calculation
    * @return
    */
-  private boolean compareResults(DiscretizedFuncAPI function,
-                                 ArrayList targetFunction){
-    int num = function.getNum();
-    if(num != targetFunction.size())
+  private boolean compareResults(double valFromSHA,
+                                 double targetVal){
+    //comparing each value we obtained after doing the IMR calc with the target result
+    //and making sure that values lies with the .1% range of the target values.
+    //comparing if the values lies within the actual tolerence range of the target result
+    if(Math.abs(valFromSHA-targetVal)<= this.tolerence)
+      return true;
+    else
       return false;
-    else{
-      for(int i=0;i<num;++i){
-        //value of the function that we obtained from the SHA code
-        double val =(new Double(decimalFormat.format(function.getY(i)))).doubleValue();
-        //comparing each value we obtained after doing the IMR calc with the target result
-        //and making sure that values lies with the .1% range of the target values.
-        double targetValue = ((Double)(targetFunction.get(i))).doubleValue();
-
-        //comparing if the values lies within the actual tolerence range of the target result
-        if(Math.abs(val-targetValue)<= this.tolerence)
-          continue;
-        else
-          return false;
-      }
-    }
-    return true;
   }
+
 
   /**
-   *  Function needs to be fixed because point may not go to the end, i.e. max
-   *  because of math errors with delta = (max - min)/num. <p>
    *
-   *  SWR - A way to increase performace may be to create a cache of Doubles,
-   *  with the vaules set. If the value 20.1 occurs many times, use the same
-   *  pointer in the DiscretizedFunction2DAPI
-   *
-   * @param  xAxisParam               Description of the Parameter
-   * @param  type                     Description of the Parameter
-   * @return                          The meansForXAxis value
-   * @exception  ConstraintException  Description of the Exception
+   * @returns the formatted String for the Failed test result
    */
-  private DiscretizedFuncAPI getFunctionForXAxis( ParameterAPI xAxisParam, int type)
-      throws ConstraintException {
-
-
-    ArbDiscrFuncWithParams function = new ArbDiscrFuncWithParams();
-    String s = "";
-
-    // constraint contains the only possible values, iterate over possible values to calc the mean
-    if ( ParamUtils.isDoubleDiscreteConstraint( xAxisParam ) ) {
-
-      // Get the period constraints to iterate over
-      String paramName = xAxisParam.getName();
-      DoubleDiscreteParameter period = ( DoubleDiscreteParameter ) imr.getParameter( paramName );
-      DoubleDiscreteConstraint constraint = ( DoubleDiscreteConstraint ) period.getConstraint();
-
-      Object oldVal = period.getValue();
-
-      // Loop over all periods calculating the mean
-      ListIterator it = constraint.listIterator();
-      while ( it.hasNext() ) {
-
-        // Set the parameter with the next constraint value in the list
-        Double val = ( Double ) it.next();
-        period.setValue( val );
-
-        // This determines which are the current coefficients to use, i.e. if this
-        // x-axis choosen is Period, this function call will update the SA with this
-        // new period constraint value (SA and Period have same constraints. Then the SA
-        // will be passed into the IMR which will set the new coefficients because the SA period
-        // has been changed. Recall the coefficients are stored in a hash table "IM Name/Period" as the key
-        imr.setIntensityMeasure( SA_NAME );
-
-        DataPoint2D point = new DataPoint2D( val.doubleValue(), getCalculation( type ));
-        function.set( point );
-
-      }
-
-      // return to original state
-      period.setValue( oldVal );
-      imr.setIntensityMeasure(SA_NAME);
-
-    }
-    // Constraint contains a min and a max
-    else if( ParamUtils.isWarningParameterAPI( xAxisParam ) ){
-
-      /**
-       * @todo FIX - Axis IMR translation done here.
-       * may be poor design, what if IMR types change to another type in future.
-       * Translated parameters should deal directly with ParameterAPI, not specific subclass
-       * types. Something for phase II.
-       */
-      if( translateIMR){
-
-
-        ParameterAPI imrParam = (ParameterAPI)imr.getIntensityMeasure().clone();
-
-        String xAxisName = xAxisParam.getName();
-        String imrName = imrParam.getName();
-
-
-        if(  xAxisName.equalsIgnoreCase(imrName) && xAxisParam instanceof WarningDoubleParameter){
-
-          WarningDoubleParameter warnParam = (WarningDoubleParameter)xAxisParam;
-          TranslatedWarningDoubleParameter transParam = new TranslatedWarningDoubleParameter(warnParam);
-          transParam.setTranslate(true);
-
-
-          // Calculate min and max values from constraint
-          TestMinMaxDeltaForAttenRel minmaxdelta =
-              new TestMinMaxDeltaForAttenRel( (WarningParameterAPI)transParam );
-          function = buildFunction( transParam, type, function, minmaxdelta );
-
-        }
-        else{
-          // Calculate min and max values from constraint
-          TestMinMaxDeltaForAttenRel minmaxdelta = new TestMinMaxDeltaForAttenRel( (WarningParameterAPI)xAxisParam );
-          function = buildFunction( xAxisParam, type, function, minmaxdelta );
-        }
-      }
-      else{
-        // Calculate min and max values from constraint
-        TestMinMaxDeltaForAttenRel minmaxdelta = new TestMinMaxDeltaForAttenRel( (WarningParameterAPI)xAxisParam );
-        function = buildFunction( xAxisParam, type, function, minmaxdelta );
-      }
-
-    }
-
-    // Constraint contains a min and a max
-    else if ( ParamUtils.isDoubleConstraint( xAxisParam ) ) {
-
-      // Calculate min and max values from constraint
-      TestMinMaxDeltaForAttenRel minmaxdelta = new TestMinMaxDeltaForAttenRel( xAxisParam );
-      function = buildFunction( xAxisParam, type, function, minmaxdelta );
-    }
-
-    else
-      throw new ConstraintException( "Not supported as an independent parameter: " );
-
-    return function;
-  }
-
-
-
-  private ArbDiscrFuncWithParams buildFunction(
-      ParameterAPI xAxisParam,
-      int type,
-      ArbDiscrFuncWithParams function,
-      TestMinMaxDeltaForAttenRel minmaxdelta ){
-
-    // Fetch the independent variable selected in the x-axis choice
-    ParameterAPI independentParam = imr.getParameter( xAxisParam.getName() );
-    Object oldVal = independentParam.getValue();
-
-    double val = minmaxdelta.getMin();
-    int index=0;
-
-    if( independentParam instanceof WarningDoubleParameter &&
-        xAxisParam instanceof TranslatedWarningDoubleParameter){
-
-      ((TranslatedWarningDoubleParameter)xAxisParam).setParameter(
-          (WarningDoubleParameter)independentParam
-          );
-
-
-      while ( index < TestMinMaxDeltaForAttenRel.NUM ) {
-
-        // if it's just beyond the max (due to numerical imprececion) make it the max
-        if(val > minmaxdelta.getMax()) val = minmaxdelta.getMax();
-        xAxisParam.setValue( new Double( val ) );
-        DataPoint2D point = new DataPoint2D( val , getCalculation( type ) );
-        function.set( point );
-        val += minmaxdelta.getDelta();
-        index++;
-      }
-
-    }
-    else{
-
-      while ( index < TestMinMaxDeltaForAttenRel.NUM ) {
-
-        // if it's just beyond the max (due to numerical imprececion) make it the max
-        if(val > minmaxdelta.getMax()) val = minmaxdelta.getMax();
-        independentParam.setValue( new Double( val ) );
-        DataPoint2D point = new DataPoint2D( val , getCalculation( type ) );
-        function.set( point );
-        val += minmaxdelta.getDelta();
-        index++;
-      }
-
-
-    }
-
-
-
-    if( ParamUtils.isWarningParameterAPI( independentParam ) ){
-      ( (WarningParameterAPI) independentParam ).setValueIgnoreWarning(oldVal);
-    }
-    else independentParam.setValue( oldVal );
-
-
-    return function;
+  public String getFailedTestParamsSettings(){
+    return this.failedParamsSetting;
   }
 
   /**
@@ -492,6 +318,11 @@ public class AttenRelResultsChecker {
               result = Math.exp( imr.getMean() );
               break;
           case EXCEED_PROB:
+            ListIterator it  = list.getParametersIterator();
+            while(it.hasNext()){
+              ParameterAPI tempParam = (ParameterAPI)it.next();
+              System.out.println(tempParam.getName()+": "+tempParam.getValue());
+            }
               result = imr.getExceedProbability();
               break;
           case STD_DEV:
@@ -505,15 +336,7 @@ public class AttenRelResultsChecker {
   }
 
 
-  /**
-   * This function returns the testNumber in the metadata file of the AttenuationRelationship
-   * for which the test failed so that it specifies to the user which test occured in the
-   * failure.
-   * @returns the test number from the metadata for which test failed.
-   */
-  public int getTestNumber(){
-    return this.testNumber;
-  }
+
 
   /**
    *
@@ -535,7 +358,7 @@ public class AttenRelResultsChecker {
    * @returns the name and Value for the control params setting of the test cases IMR
    */
   private String getControlParametersValueForTest(){
-    return this.intensityMeasureName+";"+this.xControlName+";"+this.yControlName+"\n\t";
+    return this.intensityMeasureName+";"+this.yControlName+"\n\t";
   }
 
   /**

@@ -37,7 +37,7 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
   private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
-  private static final String ABRAHAMSON_2000_RESULTS = RESULT_SET_PATH +"Abrahamson2000TestData.txt";
+  private static final String ABRAHAMSON_2000_RESULTS = RESULT_SET_PATH +"AS2000.txt";
 
 
   //Instance of the class that does the actual comparison for the AttenuationRelationship classes
@@ -60,10 +60,7 @@ public class Abrahamson_2000_test extends TestCase implements ParameterChangeWar
   public void testAbrahamson2000_Creation() {
 
     boolean result =attenRelChecker.readResultFile();
-    int testNumber;
-    testNumber = attenRelChecker.getTestNumber();
-
-    /**
+     /**
      * If any test for the Abrahamson-2000 failed
      */
       if(this.showParamsForTests.equalsIgnoreCase("fail") && result == false){

@@ -64,6 +64,13 @@ public class GMT_MapGeneratorApplet extends Applet {
       (getParameter(key) != null ? getParameter(key) : def);
   }
 
+
+  static {
+
+    try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }
+    catch ( Exception e ) {}
+    }
+
   //Construct the applet
   public GMT_MapGeneratorApplet() {
   }

@@ -30,7 +30,7 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
   BJF_1997_AttenRel bjf_1997 = null;
 
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
-  private static final String BOORE_1997_RESULTS = RESULT_SET_PATH +"Boore1997TestData.txt";
+  private static final String BOORE_1997_RESULTS = RESULT_SET_PATH +"BOORE.txt";
 
   //Tolerence to check if the results fall within the range.
   private static double tolerence = .0001; //default value for the tolerence
@@ -61,24 +61,25 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
   public void testBJF1997_Creation() {
 
     boolean result =attenRelChecker.readResultFile();
-    int testNumber;
-    testNumber = attenRelChecker.getTestNumber();
+    //int testNumber;
+    //testNumber = attenRelChecker.getTestNumber();
 
     /**
      * If any test for the BJF failed
      */
       if(this.showParamsForTests.equalsIgnoreCase("fail") && result == false){
-        Vector failedTestsVector = attenRelChecker.getFailedTestResultNumberList();
+/*        Vector failedTestsVector = attenRelChecker.getFailedTestResultNumberList();
         int size = failedTestsVector.size();
         for(int i=0;i<size;++i){
           int failedTestNumber = ((Integer)failedTestsVector.get(i)).intValue();
           this.assertTrue("BJF-1997 Test Failed for test Set-"+failedTestNumber+
           " with following set of params :\n"+(String)attenRelChecker.getControlParamsValueForAllTests().get(failedTestNumber -1)+
           (String)attenRelChecker.getIndependentParamsValueForAllTests().get(failedTestNumber -1),result);
-        }
+        }*/
+        this.assertNull(attenRelChecker.getFailedTestParamsSettings(),attenRelChecker.getFailedTestParamsSettings());
       }
       //if the user wants to see all the tests param values
-      else if( this.showParamsForTests.equalsIgnoreCase("both")){
+ /*     else if( this.showParamsForTests.equalsIgnoreCase("both")){
         Vector controlParams = attenRelChecker.getControlParamsValueForAllTests();
         Vector independentParams = attenRelChecker.getIndependentParamsValueForAllTests();
         int size = controlParams.size();
@@ -87,7 +88,7 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
           " with following set of params :\n"+(String)controlParams.get(i)+
           (String)independentParams.get(i),new Boolean(result));
         }
-      }
+      }*/
       //if the all the succeeds and their is no fail for any test
       else {
         this.assertTrue("BJF-1997 Test succeeded for all the test cases",result);

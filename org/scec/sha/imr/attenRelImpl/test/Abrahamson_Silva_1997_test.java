@@ -38,7 +38,7 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
   private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
-  private static final String ABRAHAMSON_1997_RESULTS = RESULT_SET_PATH +"Abrahamson_Silva1997TestData.txt";
+  private static final String ABRAHAMSON_1997_RESULTS = RESULT_SET_PATH +"AS1997.txt";
 
   //Instance of the class that does the actual comparison for the AttenuationRelationship classes
   AttenRelResultsChecker attenRelChecker;
@@ -60,8 +60,6 @@ public class Abrahamson_Silva_1997_test extends TestCase implements ParameterCha
   public void testAS1997_Creation() {
 
     boolean result =attenRelChecker.readResultFile();
-    int testNumber;
-    testNumber = attenRelChecker.getTestNumber();
 
     /**
      * If any test for the BJF failed

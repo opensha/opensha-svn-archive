@@ -38,7 +38,7 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
   private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
-  private static final String CB_2003_RESULTS = RESULT_SET_PATH +"Cambell_Bozorgnia2003TestData.txt";
+  private static final String CB_2003_RESULTS = RESULT_SET_PATH +"CB2003.txt";
 
   //Instance of the class that does the actual comparison for the AttenuationRelationship classes
   AttenRelResultsChecker attenRelChecker;
@@ -60,8 +60,6 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
   public void testCB2003_Creation() {
 
     boolean result =attenRelChecker.readResultFile();
-    int testNumber;
-    testNumber = attenRelChecker.getTestNumber();
 
     /**
      * If any test for the CB-2003 failed

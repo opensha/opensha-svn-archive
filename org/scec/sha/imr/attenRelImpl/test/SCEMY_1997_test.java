@@ -37,7 +37,7 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
   private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
-  private static final String SADIGH_1997_RESULTS = RESULT_SET_PATH +"Sadigh1997TestData.txt";
+  private static final String SADIGH_1997_RESULTS = RESULT_SET_PATH +"SADIGH.txt";
 
   //Instance of the class that does the actual comparison for the AttenuationRelationship classes
   AttenRelResultsChecker attenRelChecker;
@@ -61,8 +61,6 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
   public void testSCEMY1997Creation() {
 
     boolean result =attenRelChecker.readResultFile();
-    int testNumber;
-    testNumber = attenRelChecker.getTestNumber();
 
     /**
      * If any test for the CB-2003 failed
@@ -72,7 +70,7 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
       int size = failedTestsVector.size();
       for(int i=0;i<size;++i){
         int failedTestNumber = ((Integer)failedTestsVector.get(i)).intValue();
-        this.assertTrue("CB-2003 Test Failed for test Set-"+failedTestNumber+
+        this.assertTrue("SCEMY-1997 Test Failed for test Set-"+failedTestNumber+
                         " with following set of params :\n"+(String)attenRelChecker.getControlParamsValueForAllTests().get(failedTestNumber -1)+
                         (String)attenRelChecker.getIndependentParamsValueForAllTests().get(failedTestNumber -1),result);
       }
@@ -83,14 +81,14 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
       Vector independentParams = attenRelChecker.getIndependentParamsValueForAllTests();
       int size = controlParams.size();
       for(int i=0;i<size;++i){
-        this.assertNotNull("CB-2003 test Set-"+(i+1)+
+        this.assertNotNull("SCEMY-1997 test Set-"+(i+1)+
         " with following set of params :\n"+(String)controlParams.get(i)+
         (String)independentParams.get(i),new Boolean(result));
       }
     }
     //if the all the succeeds and their is no fail for any test
     else {
-      this.assertTrue("CB-2003 Test succeeded for all the test cases",result);
+      this.assertTrue("SCEMY-1997 Test succeeded for all the test cases",result);
     }
   }
 
