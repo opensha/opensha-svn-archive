@@ -896,7 +896,7 @@ public class AttenuationRelationshipApplet extends JApplet
         else plot.setBackgroundPaint( Color.black );
 
         plot.setRenderer( renderer );
-
+        plot.setInsets(new Insets(0, 0, 0, 20));
         JFreeChart chart = new JFreeChart(" ",new Font("Arial",Font.PLAIN,7),plot,false);
         chart.setBackgroundPaint( lightBlue );
 

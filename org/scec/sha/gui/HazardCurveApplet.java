@@ -618,7 +618,7 @@ public class HazardCurveApplet extends JApplet
       plot.setRangeCrosshairVisible(false);
       plot.setBackgroundAlpha( .8f );
       plot.setRenderer( renderer );
-
+      plot.setInsets(new Insets(0, 0, 0, 20));
 
 
       JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
