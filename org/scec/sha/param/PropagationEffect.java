@@ -35,7 +35,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
     // Point source correction Parameter
     public final static String POINT_SRC_CORR_PARAM_NAME = "Point-Source Correction";
-    private final static String POINT_SRC_CORR_PARAM_INFO = "Use distance correction for point sources";
+    private final static String POINT_SRC_CORR_PARAM_INFO = "Use median distance correction for point sources";
     BooleanParameter pointSrcCorrParam;
 
     protected ParameterList adjustableParams;
