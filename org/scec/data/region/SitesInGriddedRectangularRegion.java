@@ -100,6 +100,12 @@ public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeo
          for(int i=0;i<size;++i)
            basinDepth.add(new Double(bd[i]));
        }
+       else{ //if basin depth is null then fill the array with double NaN vals.
+         int size = vs30.size();
+         basinDepth = new ArrayList();
+         for(int i=0;i<size;++i)
+           basinDepth.add(new Double(Double.NaN));
+       }
     }
   }
 
