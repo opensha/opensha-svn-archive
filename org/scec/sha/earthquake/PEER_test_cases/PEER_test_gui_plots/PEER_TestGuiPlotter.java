@@ -221,12 +221,15 @@ public class PEER_TestGuiPlotter extends JApplet implements
     mainPanel.setBorder(BorderFactory.createEtchedBorder());
     mainPanel.setLayout(gridBagLayout7);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    mainSplitPane.setDividerSize(5);
+    mainSplitPane.setDividerSize(1);
     buttonPanel.setLayout(gridBagLayout3);
     topPlotPanel.setLayout(gridBagLayout6);
+    plotSplitPane.setMinimumSize(new Dimension(545, 0));
     plotSplitPane.setDividerSize(5);
     plotSplitPane.setLastDividerLocation(500);
     buttonPanel.setBorder(border1);
+    buttonPanel.setMinimumSize(new Dimension(739, 0));
+    buttonPanel.setPreferredSize(new Dimension(743, 75));
     topPlotPanel.setBorder(border3);
     // for showing the data on click of "show data" button
     pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
