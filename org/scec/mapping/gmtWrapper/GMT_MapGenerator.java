@@ -411,8 +411,8 @@ public class GMT_MapGenerator implements Serializable{
 
     // adjust the max lat and lon to be an exact increment (needed for xyz2grd)
 
-    double maxLat = ((int) ((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
-    double maxLon = ((int) ((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
+    double maxLat = Math.rint(((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
+    double maxLon = Math.rint(((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
 
     this.gmtPath= GMT_PATH;
     String region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
