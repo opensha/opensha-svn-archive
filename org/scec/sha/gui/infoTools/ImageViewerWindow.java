@@ -32,19 +32,29 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
   private JTextPane mapText = new JTextPane();
   private final static String HTML_START = "<html><body>";
   private final static String HTML_END = "</body></html>";
-  public ImageViewerWindow(String imageFileName,String mapInfo,boolean gmtFromServer) {
+
+  /**
+   * Class constructor
+   * @param imageFileName : Name of the image file to be shown
+   * @param mapInfo : Metadata about the Map
+   * @param gmtFromServer : boolean to check if map to be generated using the Server GMT
+   * @throws RuntimeException
+   */
+  public ImageViewerWindow(String imageFileName,String mapInfo,boolean gmtFromServer)
+      throws RuntimeException{
     imageFile = imageFileName;
     this.mapInfo = mapInfo;
     this.gmtFromServer = gmtFromServer;
     try {
       jbInit();
+    }catch(RuntimeException e) {
+      throw new RuntimeException(e.getMessage());
     }
-    catch(Exception e) {
-      e.printStackTrace();
-    }    this.show();
+    this.show();
 
   }
-  private void jbInit() throws Exception {
+
+  private void jbInit() throws RuntimeException {
     this.setSize(W,H);
     this.setTitle(imageFile);
     this.getContentPane().setLayout(borderLayout1);
@@ -55,7 +65,11 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
     if(!this.gmtFromServer)
       mapLabel.setIcon(new ImageIcon(imageFile));
     else
+      try{
       mapLabel.setIcon(new ImageIcon(new URL(imageFile)));
+      }catch(Exception e){
+        throw new RuntimeException("No Internet connection available");
+      }
 
     mapInfoScrollPane.getViewport().add(mapText, null);
 

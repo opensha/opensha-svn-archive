@@ -26,6 +26,10 @@ import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.sha.calc.ScenarioShakeMapCalculator;
 import org.scec.sha.earthquake.ERF_API;
+import org.scec.exceptions.ParameterException;
+
+
+
 /**
  * <p>Title: ScenarioShakeMapApp</p>
  * <p>Description: </p>
@@ -172,7 +176,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
         this.initERFSelector_GuiBean();
         initTimeSpanGuiBean();
       }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,"Connection to ERF's failed","Internet Connection Problem",
+      JOptionPane.showMessageDialog(this,"Could not create ERF Object","Error occur in ERF",
                                     JOptionPane.OK_OPTION);
       return;
       }
@@ -451,21 +455,19 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
    * and stores the value in each vectors(lat-Vector, Lon-Vector and IML or Prob Vector)
    * The IML or prob vector contains value based on what the user has selected in the Map type
    */
-  private void generateShakeMap(){
+  private void generateShakeMap() throws ParameterException,RuntimeException{
 
     boolean probAtIML=false;
     double imlProbValue=imlProbGuiBean.getIML_Prob();
     SitesInGriddedRegion griddedRegionSites;
     try {
       griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-    }catch(Exception e) {
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
-      calcProgress.showProgress(false);
-      calcProgress.dispose();
-      timer.stop();
-      return;
+    }catch(ParameterException e) {
+      throw  new ParameterException(e.getMessage());
     }
-
+    catch(Exception e){
+      throw new RuntimeException(e.getMessage());
+    }
     String imlOrProb=imlProbGuiBean.getSelectedOption();
     if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
       probAtIML=true;
@@ -488,12 +490,8 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     try{
       xyzDataSet =shakeMapCalc.getScenarioShakeMapData(griddedRegionSites,imr,erfGuiBean.getRupture(),
                                         probAtIML,imlProbValue);
-    }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
-      calcProgress.showProgress(false);
-      calcProgress.dispose();
-      timer.stop();
-      return;
+    }catch(ParameterException e){
+      throw new ParameterException(e.getMessage());
     }
 
     ++step;
@@ -544,12 +542,34 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     });
 
     timer.start();
-    Thread t = new Thread(this);
-    t.run();
+    try{
+      Thread t = new Thread(this);
+      t.run();
+    }catch(ParameterException e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
+      calcProgress.showProgress(false);
+      calcProgress.dispose();
+      timer.stop();
+      return;
+    }
+    catch(Exception ee){
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
+      calcProgress.showProgress(false);
+      calcProgress.dispose();
+      timer.stop();
+      return;
+    }
   }
 
-  public void run() {
-    this.generateShakeMap();
+  public void run(){
+    try{
+      this.generateShakeMap();
+    }catch(ParameterException e){
+      throw new ParameterException(e.getMessage());
+    }
+    catch(RuntimeException ee){
+      throw new RuntimeException(ee.getMessage());
+    }
   }
 
   /**

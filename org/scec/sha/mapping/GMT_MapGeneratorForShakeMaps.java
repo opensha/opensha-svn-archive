@@ -104,7 +104,9 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param scaleLabel
    * @return: URL to the image
    */
-  public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture, String imtSelected){
+  public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
+                                    EqkRupture eqkRupture,
+                                    String imtSelected) throws RuntimeException{
     eqkRup = eqkRupture;
     imt = imtSelected;
     createXYZdata(xyzDataSet);

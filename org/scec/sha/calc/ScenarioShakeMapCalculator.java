@@ -11,6 +11,9 @@ import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.imr.AttenuationRelationship;
+import org.scec.exceptions.ParameterException;
+
+
 /**
  * <p>Title: ScenarioShakeMapCalculator </p>
  * <p>Description: This class calculates the Scenario Shake Map Data based on the
@@ -48,7 +51,7 @@ public class ScenarioShakeMapCalculator {
    */
   public XYZ_DataSetAPI getScenarioShakeMapData(SitesInGriddedRegion griddedRegionSites,
                                       AttenuationRelationship imr, EqkRupture rupture,
-                                      boolean isProbAtIML,double value) {
+                                      boolean isProbAtIML,double value) throws ParameterException {
 
     XYZ_DataSetAPI xyzDataSet ;
     Site site;
@@ -60,8 +63,8 @@ public class ScenarioShakeMapCalculator {
     // set the ProbEQkRup in the IMR
     try {
       imr.setProbEqkRupture((ProbEqkRupture)rupture);
-    } catch (Exception ex) {
-      throw new RuntimeException("Rupture not allowed for the chosen IMR: "+ex.getMessage());
+    } catch (ParameterException ex) {
+      throw new ParameterException("Rupture not allowed for the chosen IMR: "+ex.getMessage());
     }
 
     for(int i=0;i<numSites;++i) {
@@ -75,12 +78,12 @@ public class ScenarioShakeMapCalculator {
         try{
           //if IML@Prob then Prob value should be between 0 and 1.
           if(value<0 || value >1)
-            throw new RuntimeException("Probability can only between 0 and 1");
+            throw new ParameterException("Probability can only between 0 and 1");
           imr.getParameter(imr.EXCEED_PROB_NAME).setValue(new Double(value));
 
           siteValue.add(new Double(StrictMath.exp(imr.getIML_AtExceedProb())));
-        }catch(RuntimeException e){
-          throw new RuntimeException(e.getMessage());
+        }catch(ParameterException e){
+          throw new ParameterException(e.getMessage());
         }
       }
     }

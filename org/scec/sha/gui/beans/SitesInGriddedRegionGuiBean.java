@@ -19,6 +19,7 @@ import org.scec.data.Location;
 import org.scec.data.region.*;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.sha.util.SiteTranslator;
+import org.scec.exceptions.ParameterException;
 
 /**
  * <p>Title:SitesInGriddedRegionGuiBean </p>
@@ -325,28 +326,21 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
     * Max Lat is Less than Min Lonb then it throws an exception.
     * @return
     */
-   private void createAndUpdateSites(){
+   private void createAndUpdateSites() throws ParameterException{
 
      double minLatitude= ((Double)minLat.getValue()).doubleValue();
      double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
      double minLongitude=((Double)minLon.getValue()).doubleValue();
      double maxLongitude=((Double)maxLon.getValue()).doubleValue();
 
-     boolean flag=true;
 
      if(maxLatitude <= minLatitude){
-       flag=false;
-       JOptionPane.showMessageDialog(this,new String("Max Lat. must be greater than Min Lat"),"Input Error",
-                                    JOptionPane.OK_OPTION);
+       throw new ParameterException("Max Lat. must be greater than Min Lat");
      }
 
      if(maxLongitude <= minLongitude){
-       flag=false;
-      JOptionPane.showMessageDialog(this,new String("Max Lon. must be greater than Min Lon"),"Input Error",
-                                      JOptionPane.OK_OPTION);
+       throw new ParameterException("Max Lon. must be greater than Min Lon");
      }
-
-     if(flag)
      gridRectRegion= new SitesInGriddedRegion(minLatitude,
                                       maxLatitude,minLongitude,maxLongitude,
                                       ((Double)gridSpacing.getValue()).doubleValue());

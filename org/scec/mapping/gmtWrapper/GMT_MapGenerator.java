@@ -305,7 +305,8 @@ public class GMT_MapGenerator implements Serializable{
    *
    * This returns the full web address to the resulting jpg file.
    */
-  public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet, String scaleLabel){
+  public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
+                                    String scaleLabel) throws RuntimeException{
 
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
@@ -331,8 +332,8 @@ public class GMT_MapGenerator implements Serializable{
     Vector metaDataLines = getMapInfoLines();
     try{
       imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metaDataLines);
-    }catch(Exception e){
-      throw new RuntimeException("Server is down for maintenance, please try again later");
+    }catch(RuntimeException e){
+      throw new RuntimeException(e.getMessage());
     }
 
     return imgWebAddr+JPG_FILE_NAME;
@@ -522,7 +523,9 @@ public class GMT_MapGenerator implements Serializable{
   /**
    * sets up the connection with the servlet on the server (gravity.usc.edu)
    */
-  private String openServletConnection(XYZ_DataSetAPI xyzDataVals, Vector gmtFileLines, Vector metadataLines) {
+  private String openServletConnection(XYZ_DataSetAPI xyzDataVals,
+                                       Vector gmtFileLines,
+                                       Vector metadataLines) throws RuntimeException{
 
     String webaddr=null;
     try{
@@ -577,10 +580,8 @@ public class GMT_MapGenerator implements Serializable{
       if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
       inputToServlet.close();
 
-    }
-    catch (Exception e) {
-      System.out.println("Exception in connection with servlet:" +e);
-      e.printStackTrace();
+    }catch (Exception e) {
+      throw new RuntimeException("Server is down , please try again later");
     }
     return webaddr;
   }

@@ -171,8 +171,8 @@ public class MapGuiBean extends ParameterListEditor implements
 
     //checks to see if the user wants to see the Map in a seperate window or not
     if(this.showMapInSeperateWindow){
-    //adding the image to the Panel and returning that to the applet
-    ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
+      //adding the image to the Panel and returning that to the applet
+      ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
     }
   }
 
