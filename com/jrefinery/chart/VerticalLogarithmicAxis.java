@@ -431,11 +431,10 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
             float yy=(float)tick.getY() ;
             double val=1;
             int eIndex =tick.getText().indexOf("E");
-            if(tick.getText().trim()!="" && eIndex==-1) {
-               System.out.println("VerticalLogarithmAxis::Draw::tick->"+tick.getText());
-               val = Double.parseDouble(tick.getText());
-            }
-            double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
+            //if(tick.getText()!="" && eIndex==-1) {
+               val = tick.getNumericalValue();
+            //}
+            double logval=Math.log(val)/LOG10_VALUE;
             yy = (float)this.myTranslateValueToJava2D(logval, plotArea);
 
             if(isPowerOfTen(val)) // for major axis
@@ -707,6 +706,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
                   removePreviousNine(i);
               y0=y-tickLabelBounds.getHeight()-0.25;
               }
+             // System.out.println("VerticalLogarithmicAxis:currenttickValue->"+currentTickValue+";TickLabel->"+tickLabel);
               Tick tick = new Tick(new Double(currentTickValue), tickLabel, x, y);
 	      ticks.add(tick);
 	}
