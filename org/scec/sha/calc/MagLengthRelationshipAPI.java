@@ -1,6 +1,6 @@
 package org.scec.sha.calc;
 
-//import org.scec.sha.fault.GaussianStatistics;
+import org.scec.data.NamedObjectAPI;
 
 /**
  * <b>Title:</b> MagLengthRelationshipAPI<br>
@@ -15,7 +15,7 @@ package org.scec.sha.calc;
  * @version 1.0
  */
 
-public interface MagLengthRelationshipAPI{
+public interface MagLengthRelationshipAPI extends NamedObjectAPI {
 
     public double getMeanLength(double mag);
     public double getLengthStdev();

@@ -22,6 +22,10 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   // We need rate to set the probability when we come to know about the timeSpan
   private double rate;
 
+  /**
+   * Name of this class
+   */
+  private String name = new String("Frankel96_CharEqkSource");
 
 
 
@@ -82,6 +86,9 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   * @return the object for the ProbEqkRupture
   */
   public ProbEqkRupture getRupture(int nRupture){
+    if(nRupture!=1)
+      throw new RuntimeException(name+":getRupture():: Char type faults have only"+
+                            "1 rupture nRupture should be equal to 1");
     return probEqkRupture;
   }
 
@@ -95,9 +102,17 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   */
   public Vector getRuptureList(){
     Vector v= new Vector();
-    v.add(getRuptureClone(0));
+    v.add(getRuptureClone(1));
     return v;
   }
 
+  /**
+    * get the name of this class
+    *
+    * @return
+    */
+   public String getName() {
+     return name;
+  }
 
 }

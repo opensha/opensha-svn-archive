@@ -14,6 +14,7 @@ import org.scec.sha.fault.*;
 public class WC1994_MagAreaRelationship implements MagAreaRelationshipAPI{
 
 
+   private String name = "WC1994_MagAreaRelationship";
     // ***********************
     /** @todo Iterator Class */
     // ***********************
@@ -37,5 +38,14 @@ public class WC1994_MagAreaRelationship implements MagAreaRelationshipAPI{
     }
     public double getAreaStdev()throws UnsupportedOperationException{
         throw new UnsupportedOperationException("hasPrevious() Not implemented.");
+    }
+
+    /**
+    * Returns the name of the class
+    *
+    * @return String specifying the class name
+    */
+   public String getName() {
+     return name;
     }
 }

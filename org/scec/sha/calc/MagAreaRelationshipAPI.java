@@ -1,6 +1,6 @@
 package org.scec.sha.calc;
 
-//import org.scec.sha.fault.GaussianStatistics;
+import org.scec.data.NamedObjectAPI;
 
 /**
  * <b>Title:</b> MagAreaRelationshipAPI<br>
@@ -16,12 +16,11 @@ package org.scec.sha.calc;
  * @version 1.0
  */
 
-public interface MagAreaRelationshipAPI{
+public interface MagAreaRelationshipAPI extends NamedObjectAPI{
 
     public double getMeanArea(double mag);
     public double getAreaStdev();
 
     public double getMeanMag(double area);
     public double getMagStdev();
-
 }

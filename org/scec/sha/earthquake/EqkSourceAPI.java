@@ -3,6 +3,8 @@ package org.scec.sha.earthquake;
 import java.util.Iterator;
 import java.util.Vector;
 
+import org.scec.data.NamedObjectAPI;
+
 /**
  * <p>Title: EqkSourceAPI</p>
  * <p>Description: THis interface is for getting rupture information about each earhquake source</p>
@@ -13,7 +15,7 @@ import java.util.Vector;
  * @version 1.0
  */
 
-public interface EqkSourceAPI {
+public interface EqkSourceAPI extends NamedObjectAPI{
 
 
   /**

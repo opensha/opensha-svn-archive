@@ -44,6 +44,7 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
   //for Debug purposes
   private static String  C = new String("Frankel96_EqkRupForecast");
   private boolean D =false;
+  private double GRID_SPACING = 1.0;
 
   /**
    * used for error checking
@@ -76,10 +77,15 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
   private double timeSpan;
   private TimeSpan time;
 
-
+  /**
+   * This constructor reads 3 files and saves the soures in the respective vectors of sources
+   *
+   * No argument constructor
+   */
   public Frankel96_EqkRupForecast() {
-
-
+    readFrankel96_Char(0);
+    readFrankel96_Char(1);
+    readFrankel96_Char(2);
   }
 
   /**
@@ -231,7 +237,7 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
                                                    dip,
                                                    upperSeismoDepth,
                                                    lowerSeismoDepth,
-                                                   1.0);
+                                                   GRID_SPACING);
 
           GriddedSurfaceAPI surface = factory.getGriddedSurface();
 
@@ -446,11 +452,4 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
      return "Frankel96_EqkRupForecast";
    }
 
-
-   public static  void main(String args[]){
-    Frankel96_EqkRupForecast f= new Frankel96_EqkRupForecast();
-    f.readFrankel96_Char(0);
-    f.readFrankel96_Char(1);
-    f.readFrankel96_Char(2);
-  }
 }

@@ -75,8 +75,9 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
     // Determine number of ruptures
     int numMags = gR.getNum();
     int totNumRups=0;
+    WC1994_MagLengthRelationship magLength = new WC1994_MagLengthRelationship();
     for(int i=0;i<num;++i){
-      double rupLen = WC1994_MagLengthRelationship.getMeanLength(gR.getX(i),rake);
+      double rupLen = magLength.getMeanLength(gR.getX(i),rake);
       totNumRups += getNumRuptures(rupLen);
     }
 
@@ -99,9 +100,14 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
     int numMags = gR.getNum();
     double mag=0, rupLen=0;
     int numRups=0, tempNumRups=0;
+
+    if(nthRupture < 1 || nthRupture>getNumRuptures())
+       throw new RuntimeException(C+":getRupture():: Invalid rupture index. This index does not exist");
+
+    WC1994_MagLengthRelationship magLength = new WC1994_MagLengthRelationship();
     for(int i=0;i<numMags;++i){
       mag=gR.getX(i);
-      rupLen = WC1994_MagLengthRelationship.getMeanLength(mag,rake);
+      rupLen = magLength.getMeanLength(gR.getX(i),rake);
       numRups = getNumRuptures(rupLen);
       tempNumRups += numRups;
       if(nthRupture <= tempNumRups)
@@ -141,7 +147,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
   public void setTimeSpan(TimeSpan timeSpan) {
 
      // set the probability according to the specifed timespan
-
+    throw new UnsupportedOperationException(C+"setTimeSpan(timeSpan) Not implemented.");
   }
 
 
@@ -166,4 +172,13 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
   private int getNumRuptures(double rupLen){
     return surface.getNumSubsetSurfaces(rupLen,RUPTURE_WIDTH,RUPTURE_OFFSET);
  }
+
+ /**
+  * get the name of this class
+  *
+  * @return
+  */
+ public String getName() {
+   return C;
+  }
 }
