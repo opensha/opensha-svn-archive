@@ -202,7 +202,12 @@ import java.io.IOException;
                 String osName = System.getProperty("os.name");
                 if (osName.startsWith("Mac OS")) {
                         String mrjVersion = System.getProperty("mrj.version");
-                        String majorMRJVersion = mrjVersion.substring(0, 3);
+                        int length = mrjVersion.length();
+                        String majorMRJVersion=null;
+                        if(length > 2)
+                          majorMRJVersion = mrjVersion.substring(0,3);
+                        else
+                          majorMRJVersion = mrjVersion.substring(0);
                         try {
                                 double version = Double.valueOf(majorMRJVersion).doubleValue();
                                 if (version == 2) {

@@ -30,7 +30,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
   protected final static String C = "GMT_MapGeneratorForShakeMaps";
 
   // for debug purpose
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
   private String EQK_RUP_XYZ_FILE_NAME = "eqkRup_data.txt";
   XYZ_DataSetAPI eqkRup_xyzDataSet;
