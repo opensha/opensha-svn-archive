@@ -34,6 +34,15 @@ public class MapGuiBean extends GMT_MapGuiBean {
   protected final static String C = "MapGuiBean";
 
 
+  //some parameter values for hazus, that needs to have specific value for Hazus files generation
+  //checking if hazus file generator param is selected, if not then make it selected and the deselect it again
+  private boolean hazusFileGeneratorCheck;
+  //checking if log map generator param is selected, if yes then make it unselected and the select it again
+  boolean generateMapInLogSpace;
+  //always making the map color scale from the data if the person has choosen the Hazus control panel
+  String mapColorScaleValue;
+
+
   /**
    * Class constructor accepts the GMT parameters list
    * @param gmtMap
@@ -106,20 +115,6 @@ public class MapGuiBean extends GMT_MapGuiBean {
                       EqkRupture eqkRupture,String imt,String metadata){
     String[] imgNames = null;
 
-    //checking if hazus file generator param is selected, if not then make it selected and the deselect it again
-    boolean hazusFileGeneratorCheck = ((Boolean)gmtMap.getAdjustableParamsList().
-                                       getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).getValue()).booleanValue();
-    if(!hazusFileGeneratorCheck)
-      gmtMap.getAdjustableParamsList().getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).setValue(new Boolean(true));
-
-
-    //checking if log map generator param is selected, if yes then make it unselected and the select it again
-    boolean generateMapInLogSpace = ((Boolean)gmtMap.getAdjustableParamsList().
-                                       getParameter(GMT_MapGeneratorForShakeMaps.LOG_PLOT_NAME).getValue()).booleanValue();
-    if(generateMapInLogSpace)
-      gmtMap.getAdjustableParamsList().getParameter(GMT_MapGeneratorForShakeMaps.LOG_PLOT_NAME).setValue(new Boolean(false));
-
-
     //boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
      // gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
     //creating the Metadata file in the GMT_MapGenerator
@@ -150,12 +145,67 @@ public class MapGuiBean extends GMT_MapGuiBean {
       //adding the image to the Panel and returning that to the applet
       ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,true);
     }
-    if(!hazusFileGeneratorCheck)
-      gmtMap.getAdjustableParamsList().getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).setValue(new Boolean(false));
-    if(generateMapInLogSpace)
-      gmtMap.getAdjustableParamsList().getParameter(GMT_MapGeneratorForShakeMaps.LOG_PLOT_NAME).setValue(new Boolean(true));
 
     //gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(gmtServerCheck));
   }
+
+
+  /**
+   * This Method changes the value of the following GMT parameters to specific for Hazus:
+   * Log Plot Param is selected to Linear plot
+   * Make Hazus File Param is set to true
+   * Map color scale param value is set always from data.
+   * The changes to the parameters on specific for the Hazus and needs to reverted
+   * back to the original values ,using the function setGMT_ParamsChangedForHazusToOriginalValue().
+   * after map has been generated.
+   */
+  public void setGMT_ParamsForHazus(){
+
+    //instance of the GMT parameter list
+    ParameterList paramList = gmtMap.getAdjustableParamsList();
+
+    //checking if hazus file generator param is selected, if not then make it selected and the deselect it again
+    hazusFileGeneratorCheck = ((Boolean)paramList.getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).getValue()).booleanValue();
+    if(!hazusFileGeneratorCheck)
+      paramList.getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).setValue(new Boolean(true));
+
+
+    //checking if log map generator param is selected, if yes then make it unselected and the select it again
+    generateMapInLogSpace = ((Boolean)paramList.getParameter(GMT_MapGeneratorForShakeMaps.LOG_PLOT_NAME).getValue()).booleanValue();
+    if(generateMapInLogSpace)
+      paramList.getParameter(GMT_MapGeneratorForShakeMaps.LOG_PLOT_NAME).setValue(new Boolean(false));
+
+    //always making the map color scale from the data if the person has choosen the Hazus control panel
+    mapColorScaleValue = (String)paramList.getParameter(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_NAME).getValue();
+    if(!mapColorScaleValue.equals(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_FROMDATA))
+      paramList.getParameter(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_NAME).setValue(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_FROMDATA);
+
+  }
+
+  /**
+   * This method reverts back the settings of the gmt parameters those were set specifically
+   * for the Hazus files generation. This has been added seperately so that metadata can
+   * show changed value of the parameters, so the user should be able to know the actual
+   * parameter setting using which map was computed.
+   */
+  public void setGMT_ParamsChangedForHazusToOriginalValue(){
+    //instance of the GMT parameter list
+    ParameterList paramList = gmtMap.getAdjustableParamsList();
+
+    //reverting the value for the Hazus file generation to the what was before the selection of the Hazus control panel.
+    if(!hazusFileGeneratorCheck)
+      paramList.getParameter(GMT_MapGeneratorForShakeMaps.HAZUS_SHAPE_PARAM_NAME).setValue(new Boolean(false));
+
+    //reverting the value for the Log file generation to the what was before the selection of the Hazus control panel.
+    if(generateMapInLogSpace)
+      paramList.getParameter(GMT_MapGeneratorForShakeMaps.LOG_PLOT_NAME).setValue(new Boolean(true));
+
+    //reverting the value for the map color generation to the what was before the selection of the Hazus control panel.
+    if(!mapColorScaleValue.equals(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_FROMDATA))
+      paramList.getParameter(GMT_MapGeneratorForShakeMaps.COLOR_SCALE_MODE_NAME).setValue(mapColorScaleValue);
+
+  }
+
+
 
 }

@@ -559,10 +559,15 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     setRegionForGMT();
 
     String label = getMapLabel();
-
+    //sets the some GMT param to specific value for computation for Hazus files.
+    mapGuiBean.setGMT_ParamsForHazus();
+    //gets the map parameters info.
+    String mapInfo = getMapParametersInfo();
     //creates the maps and information that goes into the Hazus.
     mapGuiBean.makeHazusShapeFilesAndMap(datasetForSA_03,datasetForSA_1,
-        datasetForPGA,datasetForPGV,erfGuiBean.getRupture(),label,getMapParametersInfo());
+        datasetForPGA,datasetForPGV,erfGuiBean.getRupture(),label,mapInfo);
+    //sets the GMT parameters changed for Hazus files generation to their original value.
+    mapGuiBean.setGMT_ParamsChangedForHazusToOriginalValue();
     //make sures that next time user wants to generate the shapefiles for hazus
     //he would have to pull up the control panel again and punch the button.
     hazusControl.setGenerateShapeFilesForHazus(false);
