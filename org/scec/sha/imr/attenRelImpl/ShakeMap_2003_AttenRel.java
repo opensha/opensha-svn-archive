@@ -15,7 +15,7 @@ import org.scec.util.*;
  * <b>Title:</b> ShakeMap_2003_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
- * developed by the ShakeMap group (2003).  There is no written documentation
+ * developed by the ShakeMap group (2003).  There is very little written documentation
  * of this relationship <p>
  *
  * Supported Intensity-Measure Parameters:<p>
@@ -26,7 +26,7 @@ import org.scec.util.*;
  * <UL>
  * <LI>magParam - moment Magnitude
  * <LI>distanceJBParam - closest distance to surface projection of fault
- * <LI>vs30Param - Average 30-meter shear-wave velocity at the site
+ * <LI>willsSiteParam - The site classes used in the Wills et al. (2000) map
  * <LI>fltTypeParam - Style of faulting
  * <LI>componentParam - Component of shaking (only one)
  * <LI>stdDevTypeParam - The type of standard deviation
@@ -46,8 +46,13 @@ public class ShakeMap_2003_AttenRel
 
     // debugging stuff:
     private final static String C = "ShakeMap_2003_AttenRel";
-    private final static boolean D = false;
+    private final static boolean D = true;
     public final static String NAME = "ShakeMap (2003)";
+
+    // PGA thresholds for computing amp factors (convert from gals to g)
+    private final static double pga_low  = -1.87692; // Math.log(150/980);
+    private final static double pga_mid  = -1.36609; // Math.log(250/980);
+    private final static double pga_high = -1.02962; // Math.log(350/980);
 
     // style of faulting options
     public final static String FLT_TYPE_UNKNOWN = "Unknown";
@@ -56,8 +61,6 @@ public class ShakeMap_2003_AttenRel
     public final static String FLT_TYPE_DEFAULT = "Unknown";
 
     // warning constraint fields:
-    protected final static Double VS30_WARN_MIN = new Double(180.0);
-    protected final static Double VS30_WARN_MAX = new Double(3500.0);
     protected final static Double MAG_WARN_MIN = new Double(3.3);
     protected final static Double MAG_WARN_MAX = new Double(7.5);
 
@@ -68,6 +71,30 @@ public class ShakeMap_2003_AttenRel
     private final static Double DISTANCE_JB_DEFAULT = new Double( 0 );
     protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
     protected final static Double DISTANCE_JB_WARN_MAX = new Double(80.0);
+
+    private StringParameter willsSiteParam = null;
+    public final static String WILLS_SITE_NAME = "Wills Site Class";
+    public final static String WILLS_SITE_INFO = "Site classification defined by Wills et al. (2000, BSSA)";
+    public final static String WILLS_SITE_B = "B";
+    public final static String WILLS_SITE_BC = "BC";
+    public final static String WILLS_SITE_C = "C";
+    public final static String WILLS_SITE_CD = "CD";
+    public final static String WILLS_SITE_D = "D";
+    public final static String WILLS_SITE_DE = "DE";
+    public final static String WILLS_SITE_E = "E";
+    public final static String WILLS_SITE_DEFAULT = WILLS_SITE_BC;
+
+
+    /**
+     * MMI parameter, the natural log of the "Modified Mercalli Intensity" IMT.
+     */
+    protected  DoubleParameter mmiParam = null;
+    public final static String MMI_NAME = "MMI";
+    protected final static Double MMI_DEFAULT = new Double( Math.log( 5.0 ) );
+    public final static String MMI_INFO = "Modified Mercalli Intensity";
+    protected final static Double MMI_MIN = new Double( Math.log(1.0) );
+    protected final static Double MMI_MAX = new Double( Math.log(10.0) );
+
 
     /**
      * The current set of coefficients based on the selected intensityMeasure
@@ -103,6 +130,27 @@ public class ShakeMap_2003_AttenRel
         if( Math.abs( Math.sin( rake*Math.PI/180 ) ) <= 0.5 ) fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);  // 0.5 = sin(30)
         else if ( rake >= 30 && rake <= 150 )                 fltTypeParam.setValue(FLT_TYPE_REVERSE);
         else                                                  fltTypeParam.setValue(FLT_TYPE_UNKNOWN);
+    }
+
+
+    /**
+     *  No-Arg constructor. This initializes several ParameterList objects.
+     */
+    public ShakeMap_2003_AttenRel( ParameterChangeWarningListener warningListener ) {
+
+        super();
+
+        this.warningListener = warningListener;
+
+        initCoefficients( );  // This must be called before the next one
+        initSupportedIntensityMeasureParams( );
+
+        initProbEqkRuptureParams(  );
+        initPropagationEffectParams( );
+        initSiteParams();
+        initOtherParams( );
+
+        initIndependentParamLists(); // Do this after the above
     }
 
 
@@ -150,9 +198,9 @@ public class ShakeMap_2003_AttenRel
 
 
     /**
-     *  This sets the site-related parameter (vs30Param) based on what is in
+     *  This sets the site-related parameter (willsSiteParam) based on what is in
      *  the Site object passed in (the Site object must have a parameter with
-     *  the same name as that in vs30Param).  This also sets the internally held
+     *  the same name as that in willsSiteParam).  This also sets the internally held
      *  Site object as that passed in.
      *
      * @param  site             The new site value which contains a Vs30 Parameter
@@ -165,10 +213,10 @@ public class ShakeMap_2003_AttenRel
         // This will throw a parameter exception if the Vs30Param doesn't exist
         // in the Site object
 
-        ParameterAPI vs30 = site.getParameter( VS30_NAME );
+        ParameterAPI willsClass = site.getParameter( this.WILLS_SITE_NAME );
        // This may throw a constraint exception
         try{
-          this.vs30Param.setValue( vs30.getValue() );
+          this.willsSiteParam.setValue( willsClass.getValue() );
         } catch (WarningException e){
           if(D) System.out.println(C+"Warning Exception:"+e);
         }
@@ -219,13 +267,6 @@ public class ShakeMap_2003_AttenRel
             "The Intensity Measusre Parameter has not been set yet, unable to process."
         );
 
-//      Ned replaced the following with what's below (so the dampingParam value is not part of the key)
-/*
-        String key = ((DependentParameterAPI)im).getIndependentParametersKey();
-        if( coefficients.containsKey( key ) ) coeff = ( BJF_1997_AttenRelCoefficients )coefficients.get( key );
-
-        else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );
-*/
         StringBuffer key = new StringBuffer( im.getName() );
         if( im.getName().equalsIgnoreCase(SA_NAME) ) key.append( "/" + periodParam.getValue() );
         if( coefficientsBJF.containsKey( key.toString() ) ) {
@@ -235,47 +276,292 @@ public class ShakeMap_2003_AttenRel
     }
 
 
+    public double getMean() throws IMRException{
+
+      String imt = im.getName();
+      if(!imt.equals(MMI_NAME)) {
+        updateCoefficients();
+        double b_mean = get_B_Mean();
+        return b_mean + Math.log(getAmpFactor(im.getName()));
+      }
+      else
+        return Math.log(getMMI());  // return the log for now (until I figure a better way)
+
+    }
+
     /**
-     *  No-Arg constructor. This initializes several ParameterList objects.
+     * This computes the nonlinear amplification factor according to the Wills site class,
+     * IMT, and BC_PGA
+     * @return
      */
-    public ShakeMap_2003_AttenRel( ParameterChangeWarningListener warningListener ) {
+    private double getAmpFactor(String imt) {
 
-        super();
+      // get the PGA for B category
+      coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGA_NAME );
+      coeffSM  = ( BJF_1997_AttenRelCoefficients )coefficientsSM.get( PGA_NAME );
+      double b_pga = get_B_Mean();
 
-        this.warningListener = warningListener;
+      if(D) {
+        System.out.println(C+"b_pag (gals) = "+Math.exp(b_pga)*980.0);
+//        System.out.println(C+"pga_low = "+pga_low);
+//        System.out.println(C+"pga_mid = "+pga_mid);
+//        System.out.println(C+"pga_high = "+pga_high);
+      }
 
-        initCoefficients( );  // This must be called before the next one
-        initSupportedIntensityMeasureParams( );
+      // figure out whether we need short-period or mid-period amps
+      boolean shortPeriod;
+      if(imt.equals(PGA_NAME))
+         shortPeriod = true;
+      else if(imt.equals(PGV_NAME))
+         shortPeriod = false;
+      else if(imt.equals(SA_NAME)) {
+        double per = ((Double)periodParam.getValue()).doubleValue();
+        if(per <= 0.45)
+          shortPeriod = true;
+        else
+          shortPeriod = false;
+      }
+      else
+        throw new RuntimeException(C+"IMT not supported");
 
-        initProbEqkRuptureParams(  );
-        initPropagationEffectParams( );
-        initSiteParams();
-        initOtherParams( );
+      if(D) {
+        System.out.println(C+"shortPeriod = "+shortPeriod);
+      }
 
-        initIndependentParamLists(); // Do this after the above
+
+      //now get the amp factor
+      // These are from an email from Bruce Worden on 12/04/03
+      // (also sent by Vince in an email earlier)
+      String sType = (String) willsSiteParam.getValue();
+      double amp=0;
+      if(shortPeriod) {
+        if(b_pga <= pga_low) {
+          if     (sType.equals(WILLS_SITE_E))
+             amp = 1.65;
+          else if(sType.equals(WILLS_SITE_DE))
+             amp = 1.34;
+          else if(sType.equals(WILLS_SITE_D))
+             amp = 1.33;
+          else if(sType.equals(WILLS_SITE_CD))
+             amp = 1.24;
+          else if(sType.equals(WILLS_SITE_C))
+             amp = 1.15;
+          else if(sType.equals(WILLS_SITE_BC))
+             amp = 0.98;
+          else if(sType.equals(WILLS_SITE_B))
+             amp = 1.00;
+        }
+        else if(b_pga <= pga_mid) {
+          if     (sType.equals(WILLS_SITE_E))
+             amp = 1.43;
+          else if(sType.equals(WILLS_SITE_DE))
+             amp = 1.23;
+          else if(sType.equals(WILLS_SITE_D))
+             amp = 1.23;
+          else if(sType.equals(WILLS_SITE_CD))
+             amp = 1.17;
+          else if(sType.equals(WILLS_SITE_C))
+             amp = 1.10;
+          else if(sType.equals(WILLS_SITE_BC))
+             amp = 0.99;
+          else if(sType.equals(WILLS_SITE_B))
+             amp = 1.00;
+        }
+        else if(b_pga <= pga_high) {
+          if     (sType.equals(WILLS_SITE_E))
+             amp = 1.15;
+          else if(sType.equals(WILLS_SITE_DE))
+             amp = 1.09;
+          else if(sType.equals(WILLS_SITE_D))
+             amp = 1.09;
+          else if(sType.equals(WILLS_SITE_CD))
+             amp = 1.06;
+          else if(sType.equals(WILLS_SITE_C))
+             amp = 1.04;
+          else if(sType.equals(WILLS_SITE_BC))
+             amp = 0.99;
+          else if(sType.equals(WILLS_SITE_B))
+             amp = 1.00;
+        }
+        else {
+          if     (sType.equals(WILLS_SITE_E))
+             amp = 0.93;
+          else if(sType.equals(WILLS_SITE_DE))
+             amp = 0.96;
+          else if(sType.equals(WILLS_SITE_D))
+             amp = 0.96;
+          else if(sType.equals(WILLS_SITE_CD))
+             amp = 0.97;
+          else if(sType.equals(WILLS_SITE_C))
+             amp = 0.98;
+          else if(sType.equals(WILLS_SITE_BC))
+             amp = 1.00;
+          else if(sType.equals(WILLS_SITE_B))
+             amp = 1.00;
+        }
+      }
+      else {
+        if(b_pga <= pga_low) {
+          if     (sType.equals(WILLS_SITE_E))
+             amp = 2.55;
+          else if(sType.equals(WILLS_SITE_DE))
+             amp = 1.72;
+          else if(sType.equals(WILLS_SITE_D))
+             amp = 1.71;
+          else if(sType.equals(WILLS_SITE_CD))
+             amp = 1.49;
+          else if(sType.equals(WILLS_SITE_C))
+             amp = 1.29;
+          else if(sType.equals(WILLS_SITE_BC))
+             amp = 0.97;
+          else if(sType.equals(WILLS_SITE_B))
+             amp = 1.00;
+        }
+        else if(b_pga <= pga_mid) {
+          if     (sType.equals(WILLS_SITE_E))
+             amp = 2.37;
+          else if(sType.equals(WILLS_SITE_DE))
+             amp = 1.65;
+          else if(sType.equals(WILLS_SITE_D))
+             amp = 1.64;
+          else if(sType.equals(WILLS_SITE_CD))
+             amp = 1.44;
+          else if(sType.equals(WILLS_SITE_C))
+             amp = 1.26;
+          else if(sType.equals(WILLS_SITE_BC))
+             amp = 0.97;
+          else if(sType.equals(WILLS_SITE_B))
+             amp = 1.00;
+        }
+        else if(b_pga <= pga_high) {
+          if     (sType.equals(WILLS_SITE_E))
+             amp = 2.14;
+          else if(sType.equals(WILLS_SITE_DE))
+             amp = 1.56;
+          else if(sType.equals(WILLS_SITE_D))
+             amp = 1.55;
+          else if(sType.equals(WILLS_SITE_CD))
+             amp = 1.38;
+          else if(sType.equals(WILLS_SITE_C))
+             amp = 1.23;
+          else if(sType.equals(WILLS_SITE_BC))
+             amp = 0.97;
+          else if(sType.equals(WILLS_SITE_B))
+             amp = 1.00;
+        }
+        else {
+          if     (sType.equals(WILLS_SITE_E))
+             amp = 1.91;
+          else if(sType.equals(WILLS_SITE_DE))
+             amp = 1.46;
+          else if(sType.equals(WILLS_SITE_D))
+             amp = 1.45;
+          else if(sType.equals(WILLS_SITE_CD))
+             amp = 1.32;
+          else if(sType.equals(WILLS_SITE_C))
+             amp = 1.19;
+          else if(sType.equals(WILLS_SITE_BC))
+             amp = 0.98;
+          else if(sType.equals(WILLS_SITE_B))
+             amp = 1.00;
+        }
+      }
+
+      if(D) {
+        System.out.println(C+"amp = "+amp);
+      }
+
+      // return the value
+      return amp;
+
+    }
+
+    /**
+     * This computes MMI (from PGA and PGV) using the relationship given by
+     * Wald et al. (1999, Earthquake Spectra).  The code is a modified version
+     * of what Bruce Worden sent me (Ned) on 12/04/03.  This could be a separate
+     * utility (that takes pgv and pga as arguments) since others might want to use it.
+     * @return
+     */
+    private double getMMI(){
+      double pgv, pga;
+
+      // get PGA
+      coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGA_NAME );
+      double b_pga = get_B_Mean();
+      pga = b_pga + Math.log(getAmpFactor(PGA_NAME));
+      // Convert to linear domain in gals (what's needed below)
+      pga = Math.exp(pga)*980.0;
+
+      // get PGV
+      coeffBJF = ( BJF_1997_AttenRelCoefficients )coefficientsBJF.get( PGV_NAME );
+      double b_pgv = get_B_Mean();
+      pgv = b_pgv + Math.log(getAmpFactor(PGV_NAME));
+      // Convert to linear domain (what's needed below)
+      pgv = Math.exp(pgv);
+
+      // now compute MMI
+      double a_scale, v_scale;
+      double sma     =  3.6598;
+      double ba      = -1.6582;
+      double sma_low =  2.1987;
+      double ba_low  =  1;
+
+      double smv     =  3.4709;
+      double bv      =  2.3478;
+      double smv_low =  2.0951;
+      double bv_low  =  3.3991;
+
+      double ammi; // Intensity from acceleration
+      double vmmi; // Intensity from velocity
+
+      ammi = (0.43429*Math.log(pga) * sma) + ba;
+      if (ammi <= 5.0);
+        ammi = (0.43429*Math.log(pga) * sma_low) + ba_low;
+
+      vmmi = (0.43429*Math.log(pgv) * smv) + bv;
+      if (vmmi <= 5.0)
+        vmmi = (0.43429*Math.log(pgv) * smv_low) + bv_low;
+
+      if (ammi < 1) ammi = 1;
+      if (vmmi < 1) vmmi = 1;
+
+      // use linear ramp between MMI 5 & 7 (ammi below and vmmi above, respectively)
+      a_scale = (ammi - 5) / 2; // ramp
+      if (a_scale > 1);
+        a_scale = 1;
+      if (a_scale < 0);
+        a_scale = 0;
+      a_scale = 1 - a_scale;
+
+      v_scale = 1 - a_scale;
+
+      double mmi = (a_scale * ammi) + (v_scale * vmmi);
+      if (mmi < 1) mmi = 1 ;
+      if (mmi > 10) mmi = 10;
+      return ((int) mmi * 100) / 100;
     }
 
 
-
     /**
-     * Calculates the mean of the exceedence probability distribution. The exact
+     * Calculates the mean for the BC category. The exact
      * formula is: <p>
      *
      * double mean = b1 + <br>
      * coeff.b2 * ( mag - 6 ) + <br>
      * coeff.b3 * ( Math.pow( ( mag - 6 ), 2 ) ) +  <br>
      * coeff.b5 * ( Math.log( Math.pow( ( distanceJB * distanceJB  + coeff.h * coeff.h  ), 0.5 ) ) ) + <br>
-     * coeff.bv * ( Math.log( vs30 / coeff.va ) ) <br>
+     * coeff.bv * ( Math.log( 740 / coeff.va ) ) <br>
      * @return    The mean value
      */
-    public double getMean() throws IMRException{
+    private double get_B_Mean(){
 
-        double mag, vs30, distanceJB;
-        String fltTypeValue;
+        double mag, distanceJB;
+        String fltTypeValue, willsSite;
+        double vs30 = 686;
 
         try{
             mag = ((Double)magParam.getValue()).doubleValue();
-            vs30 = ((Double)vs30Param.getValue()).doubleValue();
             distanceJB = ((Double)distanceJBParam.getValue()).doubleValue();
             fltTypeValue = fltTypeParam.getValue().toString();
         }
@@ -283,8 +569,6 @@ public class ShakeMap_2003_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
-        // the following is inefficient if the im Parameter has not been changed in any way
-        updateCoefficients();
 
         // Get b1 based on fault type
         double b1_BJF, b1_SM;
@@ -301,14 +585,14 @@ public class ShakeMap_2003_AttenRel
             throw new ParameterException( C + ": getMean(): Invalid ProbEqkRupture Parameter value for : FaultType" );
         }
 
-        // Calculate the log mean for BJF
+        // Calculate the log rock-site mean for BJF
         double meanBJF = b1_BJF +
             coeffBJF.b2 * ( mag - 6 ) +
             coeffBJF.b3 * ( Math.pow( ( mag - 6 ), 2 ) ) +
             coeffBJF.b5 * ( Math.log( Math.pow( ( distanceJB * distanceJB  + coeffBJF.h * coeffBJF.h  ), 0.5 ) ) ) +
             coeffBJF.bv * ( Math.log( vs30 / coeffBJF.va ) );
 
-        // Calculate the log mean for SM
+        // Calculate the log rock-site mean for SM
         double meanSM = b1_SM +
             coeffSM.b2 * ( mag - 6 ) +
             coeffSM.b3 * ( Math.pow( ( mag - 6 ), 2 ) ) +
@@ -329,6 +613,10 @@ public class ShakeMap_2003_AttenRel
      * @return    The stdDev value
      */
     public double getStdDev() throws IMRException {
+
+       // throw a runtime exception if they are trying for MMI
+       if(im.getName().equals(MMI_NAME))
+         throw new RuntimeException("Cannot comput the standard deviation for MMI");
 
         String stdDevType = stdDevTypeParam.getValue().toString();
         String component = componentParam.getValue().toString();
@@ -411,11 +699,16 @@ public class ShakeMap_2003_AttenRel
     public void setParamDefaults(){
 
         //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
-        vs30Param.setValue( VS30_DEFAULT );
+        willsSiteParam.setValue( WILLS_SITE_DEFAULT );
         magParam.setValue( MAG_DEFAULT );
         fltTypeParam.setValue( FLT_TYPE_DEFAULT );
         distanceJBParam.setValue( DISTANCE_JB_DEFAULT );
+        saParam.setValue( SA_DEFAULT );
+        periodParam.setValue( PERIOD_DEFAULT );
+        dampingParam.setValue(DAMPING_DEFAULT);
         pgaParam.setValue( PGA_DEFAULT );
+        pgvParam.setValue(PGV_DEFAULT);
+        mmiParam.setValue(MMI_DEFAULT);
         componentParam.setValue( COMPONENT_DEFAULT );
         stdDevTypeParam.setValue( STD_DEV_TYPE_DEFAULT );
 
@@ -434,7 +727,7 @@ public class ShakeMap_2003_AttenRel
         // params that the mean depends upon
         meanIndependentParams.clear();
         meanIndependentParams.addParameter( distanceJBParam );
-        meanIndependentParams.addParameter( vs30Param );
+        meanIndependentParams.addParameter( willsSiteParam );
         meanIndependentParams.addParameter( magParam );
         meanIndependentParams.addParameter( fltTypeParam );
         meanIndependentParams.addParameter( componentParam );
@@ -448,7 +741,7 @@ public class ShakeMap_2003_AttenRel
         // params that the exceed. prob. depends upon
         exceedProbIndependentParams.clear();
         exceedProbIndependentParams.addParameter( distanceJBParam );
-        exceedProbIndependentParams.addParameter( vs30Param );
+        exceedProbIndependentParams.addParameter( willsSiteParam );
         exceedProbIndependentParams.addParameter( magParam );
         exceedProbIndependentParams.addParameter( fltTypeParam );
         exceedProbIndependentParams.addParameter( componentParam );
@@ -469,19 +762,26 @@ public class ShakeMap_2003_AttenRel
      */
     protected void initSiteParams( ) {
 
-        // create vs30 Parameter:
+        // create willsSiteType Parameter:
         super.initSiteParams();
 
         // create and add the warning constraint:
-        DoubleConstraint warn = new DoubleConstraint(VS30_WARN_MIN, VS30_WARN_MAX);
-        warn.setNonEditable();
-        vs30Param.setWarningConstraint(warn);
-        vs30Param.addParameterChangeWarningListener( warningListener );
-        vs30Param.setNonEditable();
+        Vector willsSiteTypes = new Vector();
+        willsSiteTypes.add(WILLS_SITE_B);
+        willsSiteTypes.add(WILLS_SITE_BC);
+        willsSiteTypes.add(WILLS_SITE_C);
+        willsSiteTypes.add(WILLS_SITE_CD);
+        willsSiteTypes.add(WILLS_SITE_D);
+        willsSiteTypes.add(WILLS_SITE_DE);
+        willsSiteTypes.add(WILLS_SITE_E);
+
+        willsSiteParam = new StringParameter(WILLS_SITE_NAME,willsSiteTypes,WILLS_SITE_DEFAULT);
+        willsSiteParam.setInfo( WILLS_SITE_INFO );
+        willsSiteParam.setNonEditable();
 
         // add it to the siteParams list:
         siteParams.clear();
-        siteParams.addParameter( vs30Param );
+        siteParams.addParameter( willsSiteParam );
 
     }
 
@@ -545,13 +845,12 @@ public class ShakeMap_2003_AttenRel
 
         supportedIMParams.clear();
 
-/*  COMMENTED OUT BECAUSE SA IS NOT SUPPORTED
         // Create saParam's "Period" independent parameter:
         DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
         TreeSet set = new TreeSet();
-        Enumeration keys = coefficients.keys();
+        Enumeration keys = coefficientsBJF.keys();
         while ( keys.hasMoreElements() ) {
-            BJF_1997_AttenRelCoefficients coeff = ( BJF_1997_AttenRelCoefficients ) coefficients.get( keys.nextElement() );
+            BJF_1997_AttenRelCoefficients coeff = ( BJF_1997_AttenRelCoefficients ) coefficientsBJF.get( keys.nextElement() );
             if ( coeff.period >= 0 )  set.add( new Double( coeff.period ) );
         }
         Iterator it = set.iterator();
@@ -577,10 +876,29 @@ public class ShakeMap_2003_AttenRel
         // Put parameters in the supportedIMParams list:
         supportedIMParams.addParameter( saParam );
 
-*/
-
+        // now do the PGA param
         pgaParam.addParameterChangeWarningListener( warningListener );
+        pgaParam.setNonEditable();
         supportedIMParams.addParameter( pgaParam );
+
+        //Create PGV Parameter (pgvParam):
+        DoubleConstraint pgvConstraint = new DoubleConstraint(PGV_MIN, PGV_MAX);
+        pgvConstraint.setNonEditable();
+        pgvParam = new WarningDoubleParameter( PGV_NAME, pgvConstraint, PGV_UNITS);
+        pgvParam.setInfo( PGV_INFO );
+        DoubleConstraint warn = new DoubleConstraint(PGV_WARN_MIN, PGV_WARN_MAX);
+        warn.setNonEditable();
+        pgvParam.setWarningConstraint(warn);
+        pgvParam.addParameterChangeWarningListener( warningListener );
+        pgvParam.setNonEditable();
+        supportedIMParams.addParameter( pgvParam );
+
+        // The MMI parameter
+        mmiParam = new DoubleParameter(MMI_NAME,MMI_MIN,MMI_MAX);
+        mmiParam.setInfo( MMI_INFO );
+        mmiParam.setNonEditable();
+        supportedIMParams.addParameter( mmiParam );
+
 
     }
 
@@ -641,214 +959,78 @@ public class ShakeMap_2003_AttenRel
 
         // Make the ShakeMap coefficients
         coefficientsSM.clear();
+        // Note that the coefficients in "the APPENDIX" that David Wald sent to me (Ned) on 8/27/07
+        // assume that all logs in their equation are base-10 (in spite of their using "ln" for
+        // two of the terms).  Thus, thier B1, B2, and Sigma values need to be multiplied by 2.3025.
+        // Also, since thier units are gals their B1 needs to have ln(980) subtracted from it.
         // PGA
-        BJF_1997_AttenRelCoefficients coeffSM = new BJF_1997_AttenRelCoefficients(PGA_NAME,
-            0, 2.408, 2.408, 2.408, 1.3171, 0.000, -1.757, -0.473, 760, 6.0, 0.660,
-            0.328, 0.737, 0.3948, 0.8361 );
-        coefficientsSM.put( coeffSM.getName(), coeffSM );
+        BJF_1997_AttenRelCoefficients coeffSM0 = new BJF_1997_AttenRelCoefficients(PGA_NAME,
+            -1, 2.408, 2.408, 2.408, 1.3171, 0.000, -1.757, -0.473, 760, 6.0,
+            0.660, 0.328, 0.737, 0.3948, 0.8361 );
+        // SA/0.00
+        BJF_1997_AttenRelCoefficients coeffSM1 = new BJF_1997_AttenRelCoefficients( SA_NAME + '/' +( new Double( "0.00" ) ).doubleValue() ,
+            0.00, 2.408, 2.408, 2.408, 1.3171, 0.000, -1.757, -0.473, 760, 6.0,
+            0.660, 0.328, 0.737, 0.3948, 0.8361 );
+        // Note: no sigma values were available for those below (Vince needs to recompute them)
+        //       (those above came from Vince via personal communication)
+        //       therefore, I multiplied those above by ratio of the sigmas given in the table in
+        //       "the APPENDIX" David sent to me (Ned).  These are labeled as "Sigma" in their table
+        //       with no further explanation; using the ratios seems reasonable.
+        // SA/0.30
+        BJF_1997_AttenRelCoefficients coeffSM2 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.30" ) ).doubleValue() ,
+            0.30, 0.835318, 0.835318, 0.835318, 1.71773, 0.000, -1.827, -0.608, 760, 6.0,
+            1.00*0.660, 1.00*0.328, 1.00*0.737, 1.00*0.3948, 1.00*0.8361 );
+        // SA/1.00
+        BJF_1997_AttenRelCoefficients coeffSM3 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.00" ) ).doubleValue() ,
+            1.00, -1.82877, -1.82877, -1.82877, 2.20818, 0.000, -1.211, -0.974, 760, 6.0,
+            1.17*0.660, 1.17*0.328, 1.17*0.737, 1.17*0.3948, 1.17*0.8361 );
+        // SA/3.00 - actually these are BJF's 2-second values
+        BJF_1997_AttenRelCoefficients coeffSM4 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "3.00" ) ).doubleValue() ,
+            3.00, -4.63102, -4.63102, -4.63102, 2.09305, 0.000, -0.848, -0.890, 760, 6.0,
+            1.28*0.660, 1.28*0.328, 1.28*0.737, 1.28*0.3948, 1.28*0.8361 );
+        // PGV - They actually give PGV coeffs so no scaling of 1-sec SA is needed.
+        BJF_1997_AttenRelCoefficients coeffSM5 = new BJF_1997_AttenRelCoefficients( PGV_NAME,
+            -1, -1.76891, -1.76891, -1.76891, 1.70391, 0.000, -1.386, -0.668, 760, 6.0,
+            0.89*0.660, 0.89*0.328, 0.89*0.737, 0.89*0.3948, 0.89*0.8361 );
+
+        // add these to the list
+        coefficientsSM.put( coeffSM0.getName(), coeffSM0 );
+        coefficientsSM.put( coeffSM1.getName(), coeffSM1 );
+        coefficientsSM.put( coeffSM2.getName(), coeffSM2 );
+        coefficientsSM.put( coeffSM3.getName(), coeffSM3 );
+        coefficientsSM.put( coeffSM4.getName(), coeffSM4 );
+        coefficientsSM.put( coeffSM5.getName(), coeffSM5 );
 
         // Now make the original BJF 1997 coefficients
         coefficientsBJF.clear();
         // PGA
-        BJF_1997_AttenRelCoefficients coeff = new BJF_1997_AttenRelCoefficients(PGA_NAME,
-            0, -0.313, -0.117, -0.242, 0.527, 0.000, -0.778, -0.371, 1396, 5.57, 0.431, 0.226, 0.486, 0.184, 0.520 );
+        BJF_1997_AttenRelCoefficients coeff0 = new BJF_1997_AttenRelCoefficients(PGA_NAME,
+            -1, -0.313, -0.117, -0.242, 0.527, 0.000, -0.778, -0.371, 1396, 5.57, 0.431, 0.226, 0.486, 0.184, 0.520 );
         // SA/0.00
-        BJF_1997_AttenRelCoefficients coeff0 = new BJF_1997_AttenRelCoefficients( SA_NAME + '/' +( new Double( "0.00" ) ).doubleValue() ,
+        BJF_1997_AttenRelCoefficients coeff1 = new BJF_1997_AttenRelCoefficients( SA_NAME + '/' +( new Double( "0.00" ) ).doubleValue() ,
             0.00, -0.313, -0.117, -0.242, 0.527, 0, -0.778, -0.371, 1396, 5.57, 0.431, 0.226, 0.486, 0.184, 0.520 );
-        // SA/0.10
-        BJF_1997_AttenRelCoefficients coeff1 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.10" ) ).doubleValue() ,
-            0.10, 1.006, 1.087, 1.059, 0.753, -0.226, -0.934, -0.212, 1112, 6.27, 0.440, 0.189, 0.479, 0.000, 0.479 );
-        // SA/0.11
-        BJF_1997_AttenRelCoefficients coeff2 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.11" ) ).doubleValue() ,
-            0.11, 1.072, 1.164, 1.13, 0.732, -0.23, -0.937, -0.211, 1291, 6.65, 0.437, 0.200, 0.481, 0.000, 0.481 );
-        // SA/0.12
-        BJF_1997_AttenRelCoefficients coeff3 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.12" ) ).doubleValue() ,
-            0.12, 1.109, 1.215, 1.174, 0.721, -0.233, -0.939, -0.215, 1452, 6.91, 0.437, 0.210, 0.485, 0.000, 0.485 );
-        // SA/0.13
-        BJF_1997_AttenRelCoefficients coeff4 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.13" ) ).doubleValue() ,
-            0.13, 1.128, 1.246, 1.2, 0.711, -0.233, -0.939, -0.221, 1596, 7.08, 0.435, 0.216, 0.486, 0.000, 0.486 );
-        // SA/0.14
-        BJF_1997_AttenRelCoefficients coeff5 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.14" ) ).doubleValue() ,
-            0.14, 1.135, 1.261, 1.208, 0.707, -0.23, -0.938, -0.228, 1718, 7.18, 0.435, 0.223, 0.489, 0.000, 0.489 );
-        // SA/0.15
-        BJF_1997_AttenRelCoefficients coeff6 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.15" ) ).doubleValue() ,
-            0.15, 1.128, 1.264, 1.204, 0.702, -0.228, -0.937, -0.238, 1820, 7.23, 0.435, 0.230, 0.492, 0.000, 0.492 );
-        // SA/0.16
-        BJF_1997_AttenRelCoefficients coeff7 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.16" ) ).doubleValue() ,
-            0.16, 1.112, 1.257, 1.192, 0.702, -0.226, -0.935, -0.248, 1910, 7.24, 0.435, 0.235, 0.495, 0.000, 0.495 );
-        // SA/0.17
-        BJF_1997_AttenRelCoefficients coeff8 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.17" ) ).doubleValue() ,
-            0.17, 1.09, 1.242, 1.173, 0.702, -0.221, -0.933, -0.258, 1977, 7.21, 0.435, 0.293, 0.497, 0.000, 0.497 );
-        // SA/0.18
-        BJF_1997_AttenRelCoefficients coeff9 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.18" ) ).doubleValue() ,
-            0.18, 1.063, 1.222, 1.151, 0.705, -0.216, -0.93, -0.27, 2037, 7.16, 0.435, 0.244, 0.499, 0.002, 0.499 );
-        // SA/0.19
-        BJF_1997_AttenRelCoefficients coeff10 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.19" ) ).doubleValue() ,
-            0.19, 1.032, 1.198, 1.122, 0.709, -0.212, -0.927, -0.281, 2080, 7.1, 0.435, 0.294, 0.501, 0.005, 0.501 );
-        // SA/0.20
-        BJF_1997_AttenRelCoefficients coeff11 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.20" ) ).doubleValue() ,
-            0.20, 0.999, 1.17, 1.089, 0.711, -0.207, -0.924, -0.292, 2118, 7.02, 0.435, 0.251, 0.502, 0.009, 0.502 );
-        // SA/0.22
-        BJF_1997_AttenRelCoefficients coeff12 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.22" ) ).doubleValue() ,
-            0.22, 0.925, 1.104, 1.019, 0.721, -0.198, -0.918, -0.315, 2158, 6.83, 0.437, 0.285, 0.508, 0.016, 0.508 );
-        // SA/0.24
-        BJF_1997_AttenRelCoefficients coeff13 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.24" ) ).doubleValue() ,
-            0.24, 0.847, 1.033, 0.941, 0.732, -0.189, -0.912, -0.338, 2178, 6.62, 0.437, 0.262, 0.510, 0.025, 0.511 );
-        // SA/0.26
-        BJF_1997_AttenRelCoefficients coeff14 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.26" ) ).doubleValue() ,
-            0.26, 0.764, 0.958, 0.861, 0.744, -0.18, -0.906, -0.36, 2173, 6.39, 0.437, 0.267, 0.513, 0.032, 0.514 );
-        // SA/0.28
-        BJF_1997_AttenRelCoefficients coeff15 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.28" ) ).doubleValue() ,
-            0.28, 0.681, 0.881, 0.78, 0.758, -0.168, -0.899, -0.381, 2158, 6.17, 0.440, 0.272, 0.517, 0.039, 0.518 );
         // SA/0.30
-        BJF_1997_AttenRelCoefficients coeff16 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.30" ) ).doubleValue() ,
+        BJF_1997_AttenRelCoefficients coeff2 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.30" ) ).doubleValue() ,
             0.30, 0.598, 0.803, 0.7, 0.769, -0.161, -0.893, -0.401, 2133, 5.94, 0.440, 0.276, 0.519, 0.048, 0.522 );
-        // SA/0.32
-        BJF_1997_AttenRelCoefficients coeff17 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.32" ) ).doubleValue() ,
-            0.32, 0.518, 0.725, 0.619, 0.783, -0.152, -0.888, -0.42, 2104, 5.72, 0.442, 0.279, 0.523, 0.055, 0.525 );
-        // SA/0.34
-        BJF_1997_AttenRelCoefficients coeff18 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.34" ) ).doubleValue() ,
-            0.34, 0.439, 0.648, 0.54, 0.794, -0.143, -0.882, -0.438, 2070, 5.5, 0.444, 0.281, 0.526, 0.064, 0.530 );
-        // SA/0.36
-        BJF_1997_AttenRelCoefficients coeff19 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.36" ) ).doubleValue() ,
-            0.36, 0.361, 0.57, 0.462, 0.806, -0.136, -0.877, -0.456, 2032, 5.3, 0.444, 0.283, 0.527, 0.071, 0.532 );
-        // SA/0.38
-        BJF_1997_AttenRelCoefficients coeff20 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.38" ) ).doubleValue() ,
-            0.38, 0.286, 0.495, 0.385, 0.82, -0.127, -0.872, -0.472, 1995, 5.1, 0.447, 0.286, 0.530, 0.078, 0.536 );
-        // SA/0.40
-        BJF_1997_AttenRelCoefficients coeff21 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.40" ) ).doubleValue() ,
-            0.40, 0.212, 0.423, 0.311, 0.831, -0.12, -0.867, -0.487, 1954, 4.91, 0.447, 0.288, 0.531, 0.085, 0.538 );
-        // SA/0.42
-        BJF_1997_AttenRelCoefficients coeff22 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.42" ) ).doubleValue() ,
-            0.42, 0.14, 0.352, 0.239, 0.84, -0.113, -0.862, -0.502, 1919, 4.74, 0.449, 0.290, 0.535, 0.092, 0.542 );
-        // SA/0.44
-        BJF_1997_AttenRelCoefficients coeff23 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.44" ) ).doubleValue() ,
-            0.44, 0.073, 0.282, 0.169, 0.852, -0.108, -0.858, -0.516, 1884, 4.57, 0.449, 0.292, 0.536, 0.099, 0.545 );
-        // SA/0.46
-        BJF_1997_AttenRelCoefficients coeff24 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.46" ) ).doubleValue() ,
-            0.46, 0.005, 0.217, 0.102, 0.863, -0.101, -0.854, -0.529, 1849, 4.41, 0.451, 0.295, 0.539, 0.104, 0.549 );
-        // SA/0.48
-        BJF_1997_AttenRelCoefficients coeff25 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.48" ) ).doubleValue() ,
-            0.48, -0.058, 0.151, 0.036, 0.873, -0.097, -0.85, -0.541, 1816, 4.26, 0.451, 0.297, 0.540, 0.111, 0.551 );
-        // SA/0.50
-        BJF_1997_AttenRelCoefficients coeff26 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.50" ) ).doubleValue() ,
-            0.50, -0.122, 0.087, -0.025, 0.884, -0.09, -0.846, -0.553, 1782, 4.13, 0.454, 0.299, 0.543, 0.115, 0.556 );
-        // SA/0.55
-        BJF_1997_AttenRelCoefficients coeff27 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.55" ) ).doubleValue() ,
-            0.55, -0.268, -0.063, -0.176, 0.907, -0.078, -0.837, -0.579, 1710, 3.82, 0.456, 0.302, 0.547, 0.129, 0.562 );
-        // SA/0.60
-        BJF_1997_AttenRelCoefficients coeff28 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.60" ) ).doubleValue() ,
-            0.60, -0.401, -0.203, -0.314, 0.928, -0.069, -0.83, -0.602, 1644, 3.57, 0.458, 0.306, 0.551, 0.143, 0.569 );
-        // SA/0.65
-        BJF_1997_AttenRelCoefficients coeff29 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.65" ) ).doubleValue() ,
-            0.65, -0.523, -0.331, -0.44, 0.946, -0.06, -0.823, -0.622, 1592, 3.36, 0.461, 0.309, 0.554, 0.154, 0.575 );
-        // SA/0.70
-        BJF_1997_AttenRelCoefficients coeff30 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.70" ) ).doubleValue() ,
-            0.70, -0.634, -0.452, -0.555, 0.962, -0.053, -0.818, -0.639, 1545, 3.2, 0.463, 0.311, 0.558, 0.166, 0.582 );
-        // SA/0.75
-        BJF_1997_AttenRelCoefficients coeff31 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.75" ) ).doubleValue() ,
-            0.75, -0.737, -0.562, -0.661, 0.979, -0.046, -0.813, -0.653, 1507, 3.07, 0.465, 0.313, 0.561, 0.175, 0.587 );
-        // SA/0.80
-        BJF_1997_AttenRelCoefficients coeff32 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.80" ) ).doubleValue() ,
-            0.80, -0.829, -0.666, -0.76, 0.992, -0.041, -0.809, -0.666, 1476, 2.98, 0.467, 0.315, 0.564, 0.184, 0.593 );
-        // SA/0.85
-        BJF_1997_AttenRelCoefficients coeff33 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.85" ) ).doubleValue() ,
-            0.85, -0.915, -0.761, -0.851, 1.006, -0.037, -0.805, -0.676, 1452, 2.92, 0.467, 0.320, 0.567, 0.191, 0.598 );
-        // SA/0.90
-        BJF_1997_AttenRelCoefficients coeff34 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.90" ) ).doubleValue() ,
-            0.90, -0.993, -0.848, -0.933, 1.018, -0.035, -0.802, -0.685, 1432, 2.89, 0.470, 0.322, 0.570, 0.200, 0.604 );
-        // SA/0.95
-        BJF_1997_AttenRelCoefficients coeff35 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "0.95" ) ).doubleValue() ,
-            0.95, -1.066, -0.932, -1.01, 1.027, -0.032, -0.8, -0.692, 1416, 2.88, 0.472, 0.325, 0.573, 0.207, 0.609 );
         // SA/1.00
-        BJF_1997_AttenRelCoefficients coeff36 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.00" ) ).doubleValue() ,
+        BJF_1997_AttenRelCoefficients coeff3 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.00" ) ).doubleValue() ,
             1.00, -1.133, -1.009, -1.08, 1.036, -0.032, -0.798, -0.698, 1406, 2.9, 0.474, 0.325, 0.575, 0.214, 0.613 );
-        // SA/1.10
-        BJF_1997_AttenRelCoefficients coeff37 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.10" ) ).doubleValue() ,
-            1.10, -1.249, -1.145, -1.208, 1.052, -0.03, -0.795, -0.706, 1396, 2.99, 0.477, 0.329, 0.579, 0.226, 0.622 );
-        // SA/1.20
-        BJF_1997_AttenRelCoefficients coeff38 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.20" ) ).doubleValue() ,
-            1.20, -1.345, -1.265, -1.315, 1.064, -0.032, -0.794, -0.71, 1400, 3.14, 0.479, 0.334, 0.584, 0.235, 0.629 );
-        // SA/1.30
-        BJF_1997_AttenRelCoefficients coeff39 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.30" ) ).doubleValue() ,
-            1.30, -1.428, -1.37, -1.407, 1.073, -0.035, -0.793, -0.711, 1416, 3.36, 0.481, 0.338, 0.588, 0.244, 0.637 );
-        // SA/1.40
-        BJF_1997_AttenRelCoefficients coeff40 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.40" ) ).doubleValue() ,
-            1.40, -1.495, -1.46, -1.483, 1.08, -0.039, -0.794, -0.709, 1442, 3.62, 0.484, 0.341, 0.592, 0.251, 0.643 );
-        // SA/1.50
-        BJF_1997_AttenRelCoefficients coeff41 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.50" ) ).doubleValue() ,
-            1.50, -1.552, -1.538, -1.55, 1.085, -0.044, -0.796, -0.704, 1479, 3.92, 0.486, 0.345, 0.596, 0.256, 0.649 );
-        // SA/1.60
-        BJF_1997_AttenRelCoefficients coeff42 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.60" ) ).doubleValue() ,
-            1.60, -1.598, -1.608, -1.605, 1.087, -0.051, -0.798, -0.697, 1524, 4.26, 0.488, 0.348, 0.599, 0.262, 0.654 );
-        // SA/1.70
-        BJF_1997_AttenRelCoefficients coeff43 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.70" ) ).doubleValue() ,
-            1.70, -1.634, -1.668, -1.652, 1.089, -0.058, -0.801, -0.689, 1581, 4.62, 0.490, 0.352, 0.604, 0.267, 0.66 );
-        // SA/1.80
-        BJF_1997_AttenRelCoefficients coeff44 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.80" ) ).doubleValue() ,
-            1.80, -1.663, -1.718, -1.689, 1.087, -0.067, -0.804, -0.679, 1644, 5.01, 0.493, 0.355, 0.607, 0.269, 0.664 );
-        // SA/1.90
-        BJF_1997_AttenRelCoefficients coeff45 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "1.90" ) ).doubleValue() ,
-            1.90, -1.685, -1.763, -1.72, 1.087, -0.074, -0.808, -0.667, 1714, 5.42, 0.493, 0.359, 0.610, 0.274, 0.669 );
-        // SA/2.00
-        BJF_1997_AttenRelCoefficients coeff46 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "2.00" ) ).doubleValue() ,
-            2.00, -1.699, -1.801, -1.743, 1.085, -0.085, -0.812, -0.655, 1795, 5.85, 0.495, 0.362, 0.613, 0.276, 0.672 );
+        // SA/3.00 - actually these are BJF's 2-second values
+        BJF_1997_AttenRelCoefficients coeff4 = new BJF_1997_AttenRelCoefficients( "SA/" +( new Double( "3.00" ) ).doubleValue() ,
+            3.00, -1.699, -1.801, -1.743, 1.085, -0.085, -0.812, -0.655, 1795, 5.85, 0.495, 0.362, 0.613, 0.276, 0.672 );
+        // PGV - these are actually from 1-sec SA using the Newmark & Hall (1982) amp factor of 37.27*2.54 to change B1
+        // That is, add 4.55 to the B1 coeffs (4.55 = ln(37.27*2.54)
+        BJF_1997_AttenRelCoefficients coeff5 = new BJF_1997_AttenRelCoefficients( PGV_NAME,
+            -1, 3.217, 3.541, 3.470, 1.036, -0.032, -0.798, -0.698, 1406, 2.9, 0.474, 0.325, 0.575, 0.214, 0.613 );
 
-        coefficientsBJF.put( coeff.getName(), coeff );
-
-/* COMMENTED OUT BECAUSE SA NOT YET SUPPORTED
+        // add these to the list
         coefficientsBJF.put( coeff0.getName(), coeff0 );
         coefficientsBJF.put( coeff1.getName(), coeff1 );
         coefficientsBJF.put( coeff2.getName(), coeff2 );
         coefficientsBJF.put( coeff3.getName(), coeff3 );
         coefficientsBJF.put( coeff4.getName(), coeff4 );
         coefficientsBJF.put( coeff5.getName(), coeff5 );
-        coefficientsBJF.put( coeff6.getName(), coeff6 );
-        coefficientsBJF.put( coeff7.getName(), coeff7 );
-        coefficientsBJF.put( coeff8.getName(), coeff8 );
-        coefficientsBJF.put( coeff9.getName(), coeff9 );
 
-        coefficientsBJF.put( coeff10.getName(), coeff10 );
-        coefficientsBJF.put( coeff11.getName(), coeff11 );
-        coefficientsBJF.put( coeff12.getName(), coeff12 );
-        coefficientsBJF.put( coeff13.getName(), coeff13 );
-        coefficientsBJF.put( coeff14.getName(), coeff14 );
-        coefficientsBJF.put( coeff15.getName(), coeff15 );
-        coefficientsBJF.put( coeff16.getName(), coeff16 );
-        coefficientsBJF.put( coeff17.getName(), coeff17 );
-        coefficientsBJF.put( coeff18.getName(), coeff18 );
-        coefficientsBJF.put( coeff19.getName(), coeff19 );
-
-        coefficientsBJF.put( coeff20.getName(), coeff20 );
-        coefficientsBJF.put( coeff21.getName(), coeff21 );
-        coefficientsBJF.put( coeff22.getName(), coeff22 );
-        coefficientsBJF.put( coeff23.getName(), coeff23 );
-        coefficientsBJF.put( coeff24.getName(), coeff24 );
-        coefficientsBJF.put( coeff25.getName(), coeff25 );
-        coefficientsBJF.put( coeff26.getName(), coeff26 );
-        coefficientsBJF.put( coeff27.getName(), coeff27 );
-        coefficientsBJF.put( coeff28.getName(), coeff28 );
-        coefficientsBJF.put( coeff29.getName(), coeff29 );
-
-        coefficientsBJF.put( coeff30.getName(), coeff30 );
-        coefficientsBJF.put( coeff31.getName(), coeff31 );
-        coefficientsBJF.put( coeff32.getName(), coeff32 );
-        coefficientsBJF.put( coeff33.getName(), coeff33 );
-        coefficientsBJF.put( coeff34.getName(), coeff34 );
-        coefficientsBJF.put( coeff35.getName(), coeff35 );
-        coefficientsBJF.put( coeff36.getName(), coeff36 );
-        coefficientsBJF.put( coeff37.getName(), coeff37 );
-        coefficientsBJF.put( coeff38.getName(), coeff38 );
-        coefficientsBJF.put( coeff39.getName(), coeff39 );
-
-        coefficientsBJF.put( coeff40.getName(), coeff40 );
-        coefficientsBJF.put( coeff41.getName(), coeff41 );
-        coefficientsBJF.put( coeff42.getName(), coeff42 );
-        coefficientsBJF.put( coeff43.getName(), coeff43 );
-        coefficientsBJF.put( coeff44.getName(), coeff44 );
-        coefficientsBJF.put( coeff45.getName(), coeff45 );
-        coefficientsBJF.put( coeff46.getName(), coeff46 );
-*/
     }
 
 
@@ -947,6 +1129,12 @@ public class ShakeMap_2003_AttenRel
             return b.toString();
         }
     }
+
+    // this is temporary for testing purposes
+    public static void main(String[] args) {
+      ShakeMap_2003_AttenRel ar = new ShakeMap_2003_AttenRel(null);
+    }
+
 }
 
 

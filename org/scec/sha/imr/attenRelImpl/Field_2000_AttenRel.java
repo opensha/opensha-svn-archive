@@ -402,6 +402,7 @@ public class Field_2000_AttenRel
         periodParam.setValue( PERIOD_DEFAULT );
         dampingParam.setValue(DAMPING_DEFAULT);
         pgaParam.setValue( PGA_DEFAULT );
+        pgvParam.setValue(PGV_DEFAULT);
         componentParam.setValue( COMPONENT_DEFAULT );
         stdDevTypeParam.setValue( STD_DEV_TYPE_DEFAULT );
         basinDepthParam.setValue( BASIN_DEPTH_DEFAULT );
