@@ -415,10 +415,6 @@ public class Abrahamson_2000_AttenRel
 
         mean += yDir*td*tm;
 
-        // No longer part of out framework. Always deal with log space
-        // Convert back to normal value
-        // mean = Math.exp(mean);
-
         // return the result
         return (mean);
     }
