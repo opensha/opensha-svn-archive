@@ -589,6 +589,14 @@ public class BJF_1997_IMR
         stdDevTypeParam.setNonEditable();
     }
 
+       /**
+        * get the name of this IMR
+        *
+        * @returns the name of this IMR
+        */
+    public String getName() {
+       return NAME;
+    }
 
     /**
      *  This creates the hashtable of coefficients for the supported

@@ -914,6 +914,16 @@ public class Abrahamson_2000_IMR
 
 
     /**
+     * get the name of this IMR
+     *
+     * @returns the name of this IMR
+     */
+    public String getName() {
+      return NAME;
+    }
+
+
+    /**
      *  <b>Title:</b> Abrahamson_2000_IMRCoefficients<br>
      *  <b>Description:</b> This class encapsulates all the
      *  coefficients needed to calculate the Mean and StdDev for

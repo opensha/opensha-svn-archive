@@ -36,7 +36,8 @@ import org.scec.sha.magdist.*;
 public class MagFreqDistTesterApplet extends JApplet
             implements ItemListener,
                       ParameterChangeFailListener,
-                      ParameterChangeWarningListener {
+                      ParameterChangeWarningListener,
+                      MagFreqDistTesterAPI{
 
 
   protected final static String C = "MagFreqDistTesterApplet";
@@ -599,7 +600,7 @@ public class MagFreqDistTesterApplet extends JApplet
      *  Used for synch applet with new Mag Dist choosen. Updates lables and
      *  initializes the Mag Dist if needed.
      */
-    protected void updateChoosenMagDist() {
+    public void updateChoosenMagDist() {
 
         // Starting
         String S = C + ": updateChoosenMagDist(): ";

@@ -314,6 +314,15 @@ public class Campbell_1997_IMR
     }
 
 
+    /**
+     * get the name of this IMR
+     *
+     * @returns the name of this IMR
+     */
+    public String getName() {
+         return NAME;
+    }
+
 
     /**
      * Calculates the mean of the exceedence probability distribution. <p>

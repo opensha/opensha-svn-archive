@@ -263,7 +263,14 @@ public class SCEMY_1997_IMR
         initExceedProbIndependentParamsList();
     }
 
-
+    /**
+     * get the name of this IMR
+     *
+     * @returns the name of this IMR
+     */
+    public String getName() {
+         return NAME;
+    }
 
     /**
      * Calculates the mean of the exceedence probability distribution <p>

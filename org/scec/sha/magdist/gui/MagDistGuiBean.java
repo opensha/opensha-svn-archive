@@ -9,6 +9,7 @@ import java.util.ListIterator;
 import org.scec.exceptions.*;
 import org.scec.sha.magdist.*;
 import org.scec.param.*;
+import org.scec.param.event.*;
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeEvent;
@@ -56,7 +57,8 @@ public class MagDistGuiBean implements ParameterChangeListener {
      */
     final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
-    MagFreqDistTesterApplet applet = null;
+    MagFreqDistTesterAPI magFreqAPI ;
+    ParameterChangeFailListener listener;
 
     /**
      * Params string value
@@ -166,13 +168,13 @@ public class MagDistGuiBean implements ParameterChangeListener {
      * @param  applet     The main applet application that will use these beans
      *      to swap in and out different Mag Dist's.
      */
-    public MagDistGuiBean(MagFreqDistTesterApplet applet) {
+    public MagDistGuiBean(MagFreqDistTesterAPI applet) {
 
         // Starting
         String S = C + ": Constructor(): ";
         if ( D ) System.out.println( S + "Starting:" );
-        this.applet = applet;
-
+        this.magFreqAPI = (MagFreqDistTesterAPI)applet;
+        this.listener = (ParameterChangeFailListener) applet;
 
         initControlsParamListAndEditor( GAUSSIAN_NAME);
 
@@ -219,8 +221,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
         if ( magDistClassName == null || magDistClassName.trim().equalsIgnoreCase("") )
             throw new ParameterException( S + "Distribution is null, unable to continue." );
-        if ( applet == null )
-            throw new ParameterException( S + "Applet is null, unable to continue." );
+
 
         // make the min, delta and num Parameter
 
@@ -238,7 +239,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
          controlsParamList.addParameter( maxParamter );
 
         // Now make the Editor for the list
-        controlsEditor = new ParameterListEditor( controlsParamList, this, applet );
+        controlsEditor = new ParameterListEditor( controlsParamList, this, this.listener );
         controlsEditor.setTitle( "Graph Controls" );
 
         // All done
@@ -346,7 +347,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
         searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
 
          // Build editor list
-        independentsEditor = new ParameterListEditor( independentParams, this, applet, searchPaths );
+        independentsEditor = new ParameterListEditor( independentParams, this, listener, searchPaths );
         independentsEditor.setTitle( "Distribution Parameters" );
 
         // All done
@@ -531,7 +532,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
         if(D)
           System.out.println("Name1::"+name1);
         if(name1.equalsIgnoreCase(DISTRIBUTION_NAME)){
-         this.applet.updateChoosenMagDist();
+         this.magFreqAPI.updateChoosenMagDist();
         }
 
     }

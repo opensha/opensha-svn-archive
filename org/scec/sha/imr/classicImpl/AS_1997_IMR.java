@@ -840,7 +840,14 @@ System.out.println( a13 );
         horzCoeffs.put( coeff28.getName(), coeff28 );
     }
 
-
+    /**
+        * get the name of this IMR
+        *
+        * @returns the name of this IMR
+        */
+    public String getName() {
+         return NAME;
+    }
     /**
      *  <b>Title:</b> AS_1997_IMRCoefficients<br>
      *  <b>Description:</b> This class encapsulates all the
