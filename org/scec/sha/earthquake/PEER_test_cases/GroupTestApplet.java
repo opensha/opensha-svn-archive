@@ -48,12 +48,7 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
   private boolean isStandalone = false;
-  private JSplitPane chartSplit = new JSplitPane();
-  private JPanel panel = new JPanel();
-  private JPanel buttonPanel = new JPanel();
   private Border border1;
-  private JSplitPane controlsSplit = new JSplitPane();
-  private JSplitPane magDistSplit = new JSplitPane();
 
 
   //log flags declaration
@@ -65,7 +60,7 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
 
   // height and width of the applet
   protected final static int W = 915;
-  protected final static int H = 625;
+  protected final static int H = 825;
 
   /**
    * FunctionList declared
@@ -77,25 +72,10 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
 
   // make the GroupTestGUIBean instance
   GroupTestGuiBean groupTestBean;
-  private JSplitPane testSplitPane = new JSplitPane();
-  private JPanel testCasesPanel = new JPanel();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
-  JButton addButton = new JButton();
-  JButton clearButton = new JButton();
-  JButton toggleButton = new JButton();
-  JCheckBox jCheckxlog = new JCheckBox();
-  JCheckBox jCheckylog = new JCheckBox();
-  private GridBagLayout gridBagLayout12 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
-  private JPanel imrPanel = new JPanel();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private JPanel sourcePanel = new JPanel();
-  private JPanel magDistControlPanel = new JPanel();
-  private GridBagLayout gridBagLayout10 = new GridBagLayout();
-  private GridBagLayout gridBagLayout5 = new GridBagLayout();
 
   /**
    * adding scroll pane for showing data
@@ -122,12 +102,36 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
   private double Y_MIN_VAL = 1e-8;
 
   protected boolean graphOn = false;
-  private GridBagLayout gridBagLayout9 = new GridBagLayout();
-  private JSplitPane siteSplitPane = new JSplitPane();
-  private JPanel sitePanel = new JPanel();
-  private JPanel imtPanel = new JPanel();
-  private GridBagLayout gridBagLayout8 = new GridBagLayout();
   private GridBagLayout gridBagLayout11 = new GridBagLayout();
+  private JPanel jPanel1 = new JPanel();
+  private JSplitPane controlsSplit = new JSplitPane();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout12 = new GridBagLayout();
+  private JSplitPane siteSplitPane = new JSplitPane();
+  private JButton toggleButton = new JButton();
+  private JPanel sitePanel = new JPanel();
+  private JPanel testCasesPanel = new JPanel();
+  private JButton clearButton = new JButton();
+  private JPanel panel = new JPanel();
+  private JPanel buttonPanel = new JPanel();
+  private JSplitPane testSplitPane = new JSplitPane();
+  private JButton addButton = new JButton();
+  private JPanel imrPanel = new JPanel();
+  private JSplitPane chartSplit = new JSplitPane();
+  private JCheckBox jCheckxlog = new JCheckBox();
+  private JPanel imtPanel = new JPanel();
+  private GridBagLayout gridBagLayout9 = new GridBagLayout();
+  private JCheckBox jCheckylog = new JCheckBox();
+  private GridBagLayout gridBagLayout8 = new GridBagLayout();
+  private GridBagLayout gridBagLayout13 = new GridBagLayout();
+  private GridBagLayout gridBagLayout14 = new GridBagLayout();
+  private GridBagLayout gridBagLayout15 = new GridBagLayout();
+  private GridBagLayout gridBagLayout5 = new GridBagLayout();
+  private JPanel sourcePanel = new JPanel();
+  private Border border2;
+  private GridBagLayout gridBagLayout10 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
 
 
   //Get a parameter value
@@ -159,29 +163,18 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
   //Component initialization
   private void jbInit() throws Exception {
     border1 = BorderFactory.createLineBorder(SystemColor.controlText,1);
-    this.setSize(new Dimension(925, 590));
-    this.setLayout(null);
-    chartSplit.setBounds(new Rectangle(18, 9, 727, 514));
-    buttonPanel.setBorder(border1);
-    buttonPanel.setBounds(new Rectangle(19, 536, 882, 44));
-    buttonPanel.setLayout(gridBagLayout12);
+    border2 = BorderFactory.createLineBorder(SystemColor.controlText,1);
+    this.setSize(new Dimension(959, 558));
+    this.setLayout(borderLayout1);
+
+
+    // for showing the data on click of "show data" button
+    pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
+    pointsTextArea.setText( NO_PLOT_MSG );
+    dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
+    jPanel1.setLayout(gridBagLayout10);
     controlsSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    magDistSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    magDistSplit.setBounds(new Rectangle(753, 9, 167, 513));
-    testSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    testCasesPanel.setLayout(gridBagLayout1);
-    addButton.setText("Add Graph");
-    addButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        addButton_actionPerformed(e);
-      }
-    });
-    clearButton.setText("Clear Plot");
-    clearButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        clearButton_actionPerformed(e);
-      }
-    });
+    siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     toggleButton.setMaximumSize(new Dimension(83, 39));
     toggleButton.setToolTipText("");
     toggleButton.setText("Show Data");
@@ -190,67 +183,105 @@ public class GroupTestApplet extends Applet implements LogPlotAPI {
         toggleButton_actionPerformed(e);
       }
     });
+    clearButton.setText("Clear Plot");
+    clearButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        clearButton_actionPerformed(e);
+      }
+    });
+    panel.setLayout(gridBagLayout9);
+    buttonPanel.setBorder(border1);
+    buttonPanel.setLayout(gridBagLayout12);
+    testSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    addButton.setText("Add Graph");
+    addButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        addButton_actionPerformed(e);
+      }
+    });
     jCheckxlog.setText("X Log");
     jCheckxlog.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jCheckxlog_actionPerformed(e);
       }
     });
+    imtPanel.setLayout(gridBagLayout8);
     jCheckylog.setText("Y Log");
     jCheckylog.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         jCheckylog_actionPerformed(e);
       }
     });
-    imrPanel.setLayout(gridBagLayout2);
-    magDistControlPanel.setLayout(gridBagLayout10);
+    sitePanel.setLayout(gridBagLayout13);
+    testCasesPanel.setLayout(gridBagLayout14);
+    imrPanel.setLayout(gridBagLayout15);
     sourcePanel.setLayout(gridBagLayout5);
-    panel.setLayout(gridBagLayout9);
-    siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    sitePanel.setLayout(gridBagLayout8);
-    imtPanel.setLayout(gridBagLayout11);
-    buttonPanel.add(toggleButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), -9, -2));
-    buttonPanel.add(clearButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+    sourcePanel.setBorder(border2);
+    dataScrollPane.getViewport().add( pointsTextArea, null );
+    this.add(jPanel1, BorderLayout.CENTER);
+    buttonPanel.add(toggleButton,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 3), 2, -2));
+    buttonPanel.add(clearButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
-    this.add(chartSplit, null);
+    buttonPanel.add(addButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 25, 10, 0), 3, -2));
+    buttonPanel.add(jCheckxlog, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
+    buttonPanel.add(jCheckylog, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 337), 22, 2));
+    jPanel1.add(sourcePanel,  new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 0, 0, 14), 187, 469));
+    jPanel1.add(buttonPanel,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(8, 11, 17, 14), 89, -5));
+    jPanel1.add(chartSplit,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 11, 0, 0), 691, 399));
     chartSplit.add(panel, JSplitPane.TOP);
     chartSplit.add(controlsSplit, JSplitPane.BOTTOM);
-    controlsSplit.add(testSplitPane, JSplitPane.TOP);
-    this.add(buttonPanel, null);
-    buttonPanel.add(addButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 25, 10, 0), 3, -2));
     testSplitPane.add(testCasesPanel, JSplitPane.TOP);
     testSplitPane.add(imrPanel, JSplitPane.BOTTOM);
     controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
+    controlsSplit.add(testSplitPane, JSplitPane.TOP);
     siteSplitPane.add(sitePanel, JSplitPane.TOP);
     siteSplitPane.add(imtPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(jCheckxlog,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
-    buttonPanel.add(jCheckylog,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 337), 22, 2));
-    this.add(magDistSplit, null);
-    magDistSplit.add(sourcePanel, JSplitPane.TOP);
-    magDistSplit.add(magDistControlPanel, JSplitPane.BOTTOM);
-    chartSplit.setDividerLocation(525);
-    controlsSplit.setDividerLocation(235);
-    magDistSplit.setDividerLocation(500);
-
-    testSplitPane.setDividerLocation(90);
-
-    // for showing the data on click of "show data" button
-    pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
-    pointsTextArea.setText( NO_PLOT_MSG );
-    dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
-    dataScrollPane.getViewport().add( pointsTextArea, null );
 
 
     updateChoosenTestCase();
     updateChoosenIMT();
     updateChoosenIMR();
     updateChoosenEqkSource();
-
+    controlsSplit.setDividerLocation(235);
     siteSplitPane.setDividerLocation(125);
+    sitePanel.removeAll();
+    sitePanel.add(groupTestBean.getSiteEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                 GridBagConstraints.CENTER,
+                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    sitePanel.validate();
+    sitePanel.repaint();
+    testCasesPanel.removeAll();
+    testCasesPanel.add(groupTestBean.getTestCasesEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                       GridBagConstraints.CENTER,
+                       GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    testSplitPane.setDividerLocation(90);
+    imrPanel.removeAll();
+    imrPanel.add(groupTestBean.getImrEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                 GridBagConstraints.CENTER,
+                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    imrPanel.validate();
+    imrPanel.repaint();
+    chartSplit.setDividerLocation(500);
+    imtPanel.removeAll();
+    imtPanel.add(groupTestBean.getIMTEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                 GridBagConstraints.CENTER,
+                 GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    imtPanel.validate();
+    imtPanel.repaint();
+    sourcePanel.removeAll();
+    sourcePanel.add(groupTestBean.getEqkSourceEditor(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                    GridBagConstraints.CENTER,
+                    GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+    sourcePanel.validate();
+    sourcePanel.repaint();
+
 
 
   }
