@@ -15,7 +15,7 @@ import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.param.*;
 import org.scec.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.scec.sha.param.editor.MagFreqDistParameterEditor;
-import org.scec.sha.param.MagFreqDistParameter;
+import org.scec.sha.param.*;
 import org.scec.sha.magdist.SingleMagFreqDist;
 import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 
@@ -100,7 +100,7 @@ public class PuenteHillsScenarioControlPanel {
     depths.add(new Double(13));
 
     //setting the FaultParameterEditor with the default values for Puente Hills Scenario
-    faultPanel.setAll(faultPanel.getSimpleFaultParameter().DEFAULT_GRID_SPACING,lats,lons,dips,depths,faultPanel.getSimpleFaultParameter().FRANKEL);
+    faultPanel.setAll(((SimpleFaultParameterCalculator)faultPanel.getParameter()).DEFAULT_GRID_SPACING,lats,lons,dips,depths,((SimpleFaultParameterCalculator)faultPanel.getParameter()).FRANKEL);
     faultPanel.refreshParamEditor();
     //updaing the faultParameter to update the faultSurface
     faultPanel.setEvenlyGriddedSurfaceFromParams();

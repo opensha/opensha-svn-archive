@@ -97,10 +97,11 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   private ConstrainedDoubleParameterEditor dipDirectionParamEditor ;
 
 
+  public SimpleFaultParameterEditorPanel() {}
 
-
-  public SimpleFaultParameterEditorPanel() {
-
+  //constructor taking the Parameter as the input argument
+   public SimpleFaultParameterEditorPanel(ParameterAPI model){
+     super(model);
   }
 
   /**
@@ -111,6 +112,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     String S = C + ": Constructor(): ";
     if ( D ) System.out.println( S + "Starting:" );
     // remove the previous editor
+    super.setParameter(param);
     removeAll();
     surfaceParam = (SimpleFaultParameterCalculator) param;
 
@@ -124,9 +126,9 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     //Make the Dip Direction parameter visible only if Fault type selected is Stirling
     if(faultTypeEditor.isVisible()){
       if(((String)faultTypeEditor.getParameter().getValue()).equals(SimpleFaultParameterCalculator.STIRLING))
-        this.dipDirectionParamEditor.setVisible(true);
+        dipDirectionParamEditor.setVisible(true);
       else
-        this.dipDirectionParamEditor.setVisible(false);
+        dipDirectionParamEditor.setVisible(false);
     }
 
     //Border border = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
@@ -155,7 +157,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
         , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
     //add the dipDirectionParamter to the panel if it is visible
-    if(this.dipDirectionParamEditor.isVisible())
+    if(dipDirectionParamEditor.isVisible())
       add(this.dipDirectionParamEditor,new GridBagConstraints( 0, 6, 0, 1, 1.0, 0.0
           , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
@@ -328,8 +330,8 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    */
   public void setDipDirection(double value){
     if(faultTypeEditor.isVisible())
-      if(((String)faultTypeEditor.getParameter().getValue()).equals(SimpleFaultParameterCalculator.STIRLING))
-        this.dipDirectionParamEditor.getParameter().setValue(new Double(value));
+        surfaceParam.setDipDirection(value);
+    refreshParamEditor();
   }
 
   /**
@@ -337,7 +339,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    * when using it's GUI Editor.
    */
   protected void jbInit() throws Exception {
-
+    super.jbInit();
     // Main component
     this.setLayout( new GridBagLayout());
   }
@@ -448,8 +450,10 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
       add(this.editorForDepths,new GridBagConstraints( 0, 4, 0, 1, 1.0, 0.0
           , GridBagConstraints.NORTH, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-      if(((Integer)numDipsEditor.getParameter().getValue()).intValue() !=1)
-        this.faultTypeEditor.setVisible(false);
+      if(((Integer)numDipsEditor.getParameter().getValue()).intValue() !=1){
+        faultTypeEditor.setVisible(false);
+        dipDirectionParamEditor.setVisible(false);
+      }
 
       if(((Integer)numDipsEditor.getParameter().getValue()).intValue() ==1)
         this.faultTypeEditor.setVisible(true);
@@ -529,9 +533,6 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
       surfaceParam.setEvenlyGriddedSurfaceFromParams();
   }
 
-  public SimpleFaultParameterCalculator getSimpleFaultParameter(){
-    return surfaceParam;
-  }
 
   /**
    * This function is called when Update  Surface button is pressed

@@ -1841,7 +1841,7 @@ public class GriddedFaultApplet
         depths.add(new Double(10));
 
         customFaultEditor.setFaultNameVisible(true);
-        customFaultEditor.setAll("Fault-1",1.0,lats,lons,dips,depths,customFaultEditor.getSimpleFaultParameter().STIRLING);
+        customFaultEditor.setAll("Fault-1",1.0,lats,lons,dips,depths,((SimpleFaultParameterCalculator)customFaultEditor.getParameter()).STIRLING);
         createSimpleFault = false;
       }
       customFault.show();

@@ -41,7 +41,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
 
   //constructor taking the Parameter as the input argument
   public SimpleFaultParameterEditor(ParameterAPI model){
-  super(model);
+    super(model);
   }
 
   /**
@@ -79,7 +79,6 @@ public class SimpleFaultParameterEditor extends ParameterEditor
    * when using it's GUI Editor.
    */
   protected void jbInit() throws Exception {
-
     // Main component
     this.setLayout( new GridBagLayout());
   }

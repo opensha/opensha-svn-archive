@@ -160,7 +160,6 @@ public class ParameterEditor
 
         try { jbInit(); }
         catch ( Exception e ) { e.printStackTrace(); }
-
         setParameter( model );
 
     }

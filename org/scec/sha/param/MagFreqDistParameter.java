@@ -852,8 +852,6 @@ public class MagFreqDistParameter
           independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
               GR_MAG_UPPER));
           independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
-              GR_MAG_LOWER));
-          independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
               YC_DELTA_MAG_CHAR));
           independentParamList.addParameter(parameterList.getParameter(MagFreqDistParameter.
               YC_MAG_PRIME));

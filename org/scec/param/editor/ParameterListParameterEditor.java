@@ -164,5 +164,6 @@ ActionListener{
   void button_actionPerformed(ActionEvent e) {
     ParameterList paramList = editor.getParameterList();
     param.setValue(paramList);
+    frame.dispose();
   }
 }

@@ -465,6 +465,17 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
     return (String)parameterList.getParameter(this.FAULT_NAME).getValue();
   }
 
+  /**
+   * Sets the Average Dip Direction for the evenly discritized fault.
+   * By Default its value is NaN and its value can only be set if one has
+   * selected the Fault type to be Stirling
+   */
+  public void setDipDirection(double value){
+    if(((String)faultTypeParam.getValue()).equals(STIRLING))
+      dipDirectionParam.setValue(new Double(value));
+  }
+
+
 
   /**
    * This sets all the fault data needed to make a evenly discretized fault
