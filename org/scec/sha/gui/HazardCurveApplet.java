@@ -709,8 +709,11 @@ public class HazardCurveApplet extends JApplet
             Vector testCasesTwo = this.peerTestsControlPanel.getPEER_SetTwoTestCasesNames();
 
             int size = testCasesTwo.size();
-            for(int i=0 ;i < 6; ++i){
-              System.out.println("Working on # "+(i+1)+" of "+6);
+            if(epistemicControlPanel == null)
+              epistemicControlPanel = new ERF_EpistemicListControlPanel(this,this);
+
+            for(int i=15 ;i < 18; ++i){
+              System.out.println("Working on # "+(i+1)+" of "+size);
 
               // first do PGA
               peerTestsControlPanel.setTestCaseAndSite((String)testCasesTwo.get(i));
@@ -723,14 +726,14 @@ public class HazardCurveApplet extends JApplet
               this.clearPlot(true);
 
               // now do SA
-              imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.SA_NAME);
+              /*imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.SA_NAME);
               imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue("1.0");
               addButton();
               peerFile = new FileWriter(peerDirName+(String)testCasesTwo.get(i)+"-1secSA_OpenSHA.dat");
               for(int j=0; j<totalProbFuncs.get(0).getNum();++j)
                 peerFile.write(totalProbFuncs.get(0).get(j).getX()+" "+totalProbFuncs.get(0).get(j).getY()+"\n");
               peerFile.close();
-              this.clearPlot(true);
+              this.clearPlot(true);*/
 
             }
             System.exit(101);
