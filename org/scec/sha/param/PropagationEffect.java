@@ -28,8 +28,8 @@ public class PropagationEffect {
     /** The Site used for calculating the PropagationEffect parameter values. */
     protected Site site = null;
 
-    /** The ProbEqkRupture used for calculating the PropagationEffect parameter values.*/
-    protected ProbEqkRupture probEqkRupture = null;
+    /** The EqkRupture used for calculating the PropagationEffect parameter values.*/
+    protected EqkRupture eqkRupture = null;
 
     /** this distance measure for the DistanceRupParameter */
     protected double distanceRup;
@@ -40,23 +40,23 @@ public class PropagationEffect {
     /** this distance measure for the DistanceSeisParameter */
     protected double distanceSeis;
 
-    // this tells whether values are out of date w/ respect to current Site and ProbEqkRupture
+    // this tells whether values are out of date w/ respect to current Site and EqkRupture
     protected boolean STALE = true;
 
     /** No Argument consructor */
     public PropagationEffect() { }
 
-    /** Constructor that is give Site and ProbEqkRupture objects */
-    public PropagationEffect( Site site, ProbEqkRupture pe) {
+    /** Constructor that is give Site and EqkRupture objects */
+    public PropagationEffect( Site site, EqkRupture eqkRupture) {
       this.site = site;
-      this.probEqkRupture = probEqkRupture;
+      this.eqkRupture = eqkRupture;
     }
 
     /** Returns the Site object */
     public Site getSite() { return site; }
 
-    /** Returns the ProbEqkRupture object */
-    public ProbEqkRupture getProbEqkRupture() { return probEqkRupture; }
+    /** Returns the EqkRupture object */
+    public EqkRupture getEqkRupture() { return eqkRupture; }
 
     /** Sets the Site object */
     public void setSite(Site site) {
@@ -64,15 +64,15 @@ public class PropagationEffect {
         STALE = true;
     }
 
-    /** Sets the ProbEqkRupture object */
-    public void setProbEqkRupture(ProbEqkRupture probEqkRupture) {
-        this.probEqkRupture = probEqkRupture;
+    /** Sets the EqkRupture object */
+    public void setEqkRupture(EqkRupture eqkRupture) {
+        this.eqkRupture = eqkRupture;
         STALE = true;
     }
 
-    /** Sets both the ProbEqkRupture and Site object */
-    public void setAll(ProbEqkRupture probEqkRupture, Site site) {
-        this.probEqkRupture = probEqkRupture;
+    /** Sets both the EqkRupture and Site object */
+    public void setAll(EqkRupture eqkRupture, Site site) {
+        this.eqkRupture = eqkRupture;
         this.site = site;
         STALE = true;
     }
@@ -147,7 +147,7 @@ public class PropagationEffect {
      */
     private void computeParamValues() {
 
-      if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
+      if( ( this.site != null ) && ( this.eqkRupture != null ) ){
 
           Location loc1 = site.getLocation();
           distanceJB = Double.MAX_VALUE;
@@ -156,7 +156,7 @@ public class PropagationEffect {
 
           double horzDist, vertDist, rupDist, jbDist, seisDist;
 
-          ListIterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
+          ListIterator it = eqkRupture.getRuptureSurface().getLocationsIterator();
           while( it.hasNext() ){
 
             Location loc2 = (Location) it.next();
@@ -186,7 +186,7 @@ public class PropagationEffect {
           STALE = false;
       }
       else
-        throw new RuntimeException ("Site or ProbEqkRupture is null");
+        throw new RuntimeException ("Site or EqkRupture is null");
 
     }
 }
